@@ -116,17 +116,25 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
         end
         year ||= get_field_value('namePublishedInYear')
 
-        # TODO validate that rank is a real rank, otherwise Combination will crash on find_or_initialize_by
         rank = get_field_value('taxonRank')
+        rank_class = Ranks.lookup(nomenclature_code, rank)
+
         is_hybrid = metadata['is_hybrid'] # TODO: NO...
+
+        raise DarwinCore::InvalidData.new(
+          { "taxonRank": [rank.present? ? "Unrecognized taxon rank #{rank}" : 'Taxon rank is missing'] }
+        ) if rank_class.nil?
 
         if metadata['parent'].nil?
           if self.import_dataset.use_existing_hierarchy?
-            protonym_attributes = { name:, #
+            protonym_attributes = { name:,
                                     cached: get_field_value(:scientificName),
-                                    rank_class: Ranks.lookup(nomenclature_code, rank),
-                                    verbatim_author: author_name,
-                                    year_of_publication: year}
+                                    rank_class: 
+                                  }
+                                    
+            protonym_attributes[:verbatim_author] = author_name if author_name.present?
+            protonym_attributes[:year_of_publication] = year if year.present?
+
             potential_protonyms = TaxonName.where(protonym_attributes.merge({project:})) # merged project here so data is not leaked in error messages.
 
             if potential_protonyms.count == 1
@@ -145,7 +153,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             parent = project.root_taxon_name
           end
         else
-          parent = TaxonName.find(get_parent.metadata['imported_objects']['taxon_name']['id'])
+          parent = TaxonName.find_by(id: get_parent.metadata['imported_objects']['taxon_name']['id'])
         end
 
         if metadata['type'] == 'protonym'
