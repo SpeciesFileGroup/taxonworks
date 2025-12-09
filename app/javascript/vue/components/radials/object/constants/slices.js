@@ -1,3 +1,4 @@
+import { COLLECTION_OBJECT } from '@/constants'
 import dataAttributes from '../components/data_attribute/data_attribute_annotator.vue'
 import biologicalAssociations from '../components/biological_relationships/biological_relationships_annotator.vue'
 import assertedDistributions from '../components/asserted_distributions/asserted_distributions_annotator.vue'
@@ -11,6 +12,7 @@ import originRelationships from '../components/origin_relationship/main.vue'
 import depictions from '../components/depictions/Depictions.vue'
 import extracts from '../components/extract/Main.vue'
 import AnatomicalParts from '../components/origin_relationship/create/anatomical_parts/AnatomicalParts.vue'
+import ConvertFO from '../components/collection_objects/ConvertFO.vue'
 
 export const SLICE = {
   data_attributes: dataAttributes,
@@ -24,17 +26,23 @@ export const SLICE = {
   collecting_event: collectingEvent,
   origin_relationships: originRelationships,
   extracts,
-  depictions
+  depictions,
+  convert_to_field_occurrence: ConvertFO
+}
+
+export const SLICES_BY_OBJECT_TYPE = {
+  [COLLECTION_OBJECT]: ['convert_to_field_occurrence']
 }
 
 export const SLICES_WITH_CREATE = {
-  origin_relationships: { // Created components must emit 'originRelationshipCreated' with value an origin relationship
+  origin_relationships: {
+    // Created components must emit 'originRelationshipCreated' with value an origin relationship
     // The value of 'flip' is true if component should only be displayed when
     // flip is true, false if component should only be displayed when flip is
     // false, and null if component should be displayed in either case.
     AnatomicalPart: {
       component: AnatomicalParts,
-      flip: false,
+      flip: false
     }
   }
 }
