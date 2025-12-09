@@ -15,12 +15,12 @@
 
   <div class="flex-col middle text-center">
     <% if Settings.sandbox_mode? %>
-    <div class="info-item">      
+    <div>
       <div>
-        <%= sandbox_details_tag -%>
-        <br>
-        <%= sandbox_warning_tag -%>
-      </div> 
+        <span data-icon="warning"></span>
+        <span class="icon-right padding-remove-left" data-icon="warning"> SANDBOX - TEMPORARY</span>
+      </div>
+      <%= sandbox_warning_tag -%>   
     </div>
     <% end %>
   </div>
