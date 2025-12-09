@@ -1,2 +1,7 @@
-<h1>New project member</h1>
-<%= render 'many_form' %>
+<div id="project-members-new">
+  <div class="margin-large-bottom">
+    <h1>New project member</h1>
+    <div><%= @project_member.project.name %></div>
+  </div>
+  <%= render 'many_form' %>
+</div>

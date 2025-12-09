@@ -1,15 +1,24 @@
 <template>
-  <ModalNavigator
-    v-if="isModalVisible"
-    @close="() => (isModalVisible = false)"
-  />
+  <div class="dropdown-content-item">
+    <div
+      class="cursor-pointer"
+      @click="openModal"
+    >
+      Pinboard navigator
+    </div>
+
+    <ModalNavigator
+      v-if="isModalVisible"
+      @close="() => (isModalVisible = false)"
+    />
+  </div>
 </template>
 
 <script setup>
-import platformKey from '@/helpers/getPlatformKey.js'
-import { useHotkey } from '@/composables'
-import ModalNavigator from './ModalNavigator.vue'
 import { ref, onMounted } from 'vue'
+import { useHotkey } from '@/composables'
+import platformKey from '@/helpers/getPlatformKey.js'
+import ModalNavigator from './ModalNavigator.vue'
 
 defineOptions({
   name: 'PinboardNavigator'

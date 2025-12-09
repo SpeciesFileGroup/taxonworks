@@ -1,0 +1,32 @@
+.system-news-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 2rem;
+  font-size: 14px;
+  border-bottom: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.system-news-bar * {
+  display: inline-block;
+}
+
+.news-bar-warning {
+  background: var(--badge-red-bg);
+  color: var(--badge-red-color);
+}
+
+.news-bar-notice {
+  background: var(--badge-yellow-bg);
+  color: var(--badge-yellow-color);
+}
+
+.news-bar-info {
+  background: var(--news-blogpost-bg);
+  color: var(--news-blogpost-color);
+}
+
+.news-bar-close-button {
+  cursor: pointer;
+}

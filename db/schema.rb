@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_11_21_020216) do
+ActiveRecord::Schema[7.2].define(version: 2025_12_04_222441) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1477,6 +1477,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_11_21_020216) do
     t.integer "updated_by_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "is_public"
+    t.index ["is_public"], name: "index_news_on_is_public"
     t.index ["project_id"], name: "index_news_on_project_id"
   end
 

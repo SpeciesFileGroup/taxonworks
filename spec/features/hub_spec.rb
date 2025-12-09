@@ -15,10 +15,6 @@ describe 'Hub', type: :feature do
       visit hub_path
     }
 
-    it 'should have hub highlighting' do
-      expect(page).to have_css('.hub_link.on_hub')
-    end
-
     context 'when user is a worker in this project' do
       # specify 'only the worker tab is visible, and shown by default'
     end

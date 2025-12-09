@@ -16,6 +16,10 @@ module Workbench::LayoutHelper
     end 
   end
 
+  def current_environment
+    Rails.env
+  end
+
   def taxonworks_version_tag
     unless Settings.sandbox_mode?
       link_to("v#{TaxonWorks::VERSION}", "https://github.com/SpeciesFileGroup/taxonworks/releases/tag/v#{TaxonWorks::VERSION}", id: 'taxonworks_version')
@@ -24,7 +28,7 @@ module Workbench::LayoutHelper
 
   def sandbox_details_tag
     if Settings.sandbox_mode? 
-      content_tag(:span, class: 'subtle') do
+      content_tag(:span) do
         [ '<span data-icon="warning"></span> SANDBOX - TEMPORARY <span data-icon="warning"></span> build',
           (Settings.sandbox_short_commit_sha ?
            link_to(Settings.sandbox_short_commit_sha, 'https://github.com/SpeciesFileGroup/taxonworks/tree/' + Settings.sandbox_commit_sha, class: [:font_subtitle]) :
@@ -39,7 +43,7 @@ module Workbench::LayoutHelper
 
   def sandbox_warning_tag
     if Settings.sandbox_mode?
-      content_tag(:i, 'All data may be deleted at any time without warning', class: 'text-white-color')
+      content_tag(:i, 'All data may be deleted at any time without warning')
     end
   end
 
