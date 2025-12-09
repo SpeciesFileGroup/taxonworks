@@ -250,57 +250,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_04_222441) do
     t.index ["updated_by_id"], name: "index_biological_associations_graphs_on_updated_by_id"
   end
 
-  create_table "biological_associations_indices", force: :cascade do |t|
-    t.bigint "biological_association_id", null: false
-    t.bigint "biological_relationship_id", null: false
-    t.bigint "project_id", null: false
-    t.integer "created_by_id", null: false
-    t.integer "updated_by_id", null: false
-    t.integer "subject_id", null: false
-    t.string "subject_type", null: false
-    t.string "subject_uuid"
-    t.string "subject_label"
-    t.string "subject_order"
-    t.string "subject_family"
-    t.string "subject_genus"
-    t.string "subject_properties"
-    t.string "biological_relationship_uri"
-    t.string "relationship_name"
-    t.string "relationship_inverted_name"
-    t.integer "object_id", null: false
-    t.string "object_type", null: false
-    t.string "object_uuid"
-    t.string "object_label"
-    t.string "object_order"
-    t.string "object_family"
-    t.string "object_genus"
-    t.string "object_properties"
-    t.text "citations"
-    t.string "citation_year"
-    t.string "established_date"
-    t.text "remarks"
-    t.string "rebuild_set"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["biological_association_id"], name: "idx_on_biological_association_id_d644205200"
-    t.index ["biological_relationship_id"], name: "idx_on_biological_relationship_id_b8fb63acc3"
-    t.index ["biological_relationship_uri"], name: "idx_on_biological_relationship_uri_030af2b432"
-    t.index ["object_family"], name: "index_biological_associations_indices_on_object_family"
-    t.index ["object_genus"], name: "index_biological_associations_indices_on_object_genus"
-    t.index ["object_id", "object_type"], name: "idx_on_object_id_object_type_5901016659"
-    t.index ["object_order"], name: "index_biological_associations_indices_on_object_order"
-    t.index ["object_properties"], name: "index_biological_associations_indices_on_object_properties"
-    t.index ["project_id"], name: "index_biological_associations_indices_on_project_id"
-    t.index ["rebuild_set"], name: "index_biological_associations_indices_on_rebuild_set"
-    t.index ["relationship_inverted_name"], name: "idx_on_relationship_inverted_name_0bafca8774"
-    t.index ["relationship_name"], name: "index_biological_associations_indices_on_relationship_name"
-    t.index ["subject_family"], name: "index_biological_associations_indices_on_subject_family"
-    t.index ["subject_genus"], name: "index_biological_associations_indices_on_subject_genus"
-    t.index ["subject_id", "subject_type"], name: "idx_on_subject_id_subject_type_5bbb0e5da3"
-    t.index ["subject_order"], name: "index_biological_associations_indices_on_subject_order"
-    t.index ["subject_properties"], name: "index_biological_associations_indices_on_subject_properties"
-  end
-
   create_table "biological_relationship_types", id: :serial, force: :cascade do |t|
     t.string "type", null: false
     t.integer "biological_property_id", null: false
@@ -2437,7 +2386,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_04_222441) do
   add_foreign_key "attributions", "projects"
   add_foreign_key "attributions", "users", column: "created_by_id"
   add_foreign_key "attributions", "users", column: "updated_by_id"
-  add_foreign_key "biocuration_classifications", "controlled_vocabulary_terms", column: "biocuration_class_id", name: "biocuration_classifications_biocuration_class_id_fkey"
   add_foreign_key "biocuration_classifications", "projects", name: "biocuration_classifications_project_id_fkey"
   add_foreign_key "biocuration_classifications", "users", column: "created_by_id", name: "biocuration_classifications_created_by_id_fkey"
   add_foreign_key "biocuration_classifications", "users", column: "updated_by_id", name: "biocuration_classifications_updated_by_id_fkey"
@@ -2456,9 +2404,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_04_222441) do
   add_foreign_key "biological_associations_graphs", "projects", name: "biological_associations_graphs_project_id_fkey"
   add_foreign_key "biological_associations_graphs", "users", column: "created_by_id", name: "biological_associations_graphs_created_by_id_fkey"
   add_foreign_key "biological_associations_graphs", "users", column: "updated_by_id", name: "biological_associations_graphs_updated_by_id_fkey"
-  add_foreign_key "biological_associations_indices", "biological_associations"
-  add_foreign_key "biological_associations_indices", "biological_relationships"
-  add_foreign_key "biological_associations_indices", "projects"
   add_foreign_key "biological_relationship_types", "biological_relationships", name: "biological_relationship_types_biological_relationship_id_fkey"
   add_foreign_key "biological_relationship_types", "controlled_vocabulary_terms", column: "biological_property_id", name: "biological_relationship_types_biological_property_id_fkey"
   add_foreign_key "biological_relationship_types", "projects", name: "biological_relationship_types_project_id_fkey"
@@ -2616,6 +2561,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_04_222441) do
   add_foreign_key "loans", "users", column: "updated_by_id", name: "loans_updated_by_id_fkey"
   add_foreign_key "namespaces", "users", column: "created_by_id", name: "namespaces_created_by_id_fkey"
   add_foreign_key "namespaces", "users", column: "updated_by_id", name: "namespaces_updated_by_id_fkey"
+  add_foreign_key "news", "projects"
+  add_foreign_key "news", "users", column: "created_by_id"
+  add_foreign_key "news", "users", column: "updated_by_id"
   add_foreign_key "notes", "projects", name: "notes_project_id_fkey"
   add_foreign_key "notes", "users", column: "created_by_id", name: "notes_created_by_id_fkey"
   add_foreign_key "notes", "users", column: "updated_by_id", name: "notes_updated_by_id_fkey"
@@ -2671,7 +2619,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_04_222441) do
   add_foreign_key "otu_relationships", "users", column: "created_by_id"
   add_foreign_key "otu_relationships", "users", column: "updated_by_id"
   add_foreign_key "otus", "projects", name: "otus_project_id_fkey"
-  add_foreign_key "otus", "taxon_names", name: "otus_taxon_name_id_fkey"
   add_foreign_key "otus", "users", column: "created_by_id", name: "otus_created_by_id_fkey"
   add_foreign_key "otus", "users", column: "updated_by_id", name: "otus_updated_by_id_fkey"
   add_foreign_key "people", "users", column: "created_by_id", name: "people_created_by_id_fkey"
@@ -2750,7 +2697,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_04_222441) do
   add_foreign_key "tagged_section_keywords", "projects", name: "tagged_section_keywords_project_id_fkey"
   add_foreign_key "tagged_section_keywords", "users", column: "created_by_id", name: "tagged_section_keywords_created_by_id_fkey"
   add_foreign_key "tagged_section_keywords", "users", column: "updated_by_id", name: "tagged_section_keywords_updated_by_id_fkey"
-  add_foreign_key "tags", "controlled_vocabulary_terms", column: "keyword_id", name: "tags_keyword_id_fkey"
   add_foreign_key "tags", "projects", name: "tags_project_id_fkey"
   add_foreign_key "tags", "users", column: "created_by_id", name: "tags_created_by_id_fkey"
   add_foreign_key "tags", "users", column: "updated_by_id", name: "tags_updated_by_id_fkey"
@@ -2759,7 +2705,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_04_222441) do
   add_foreign_key "taxon_determinations", "users", column: "created_by_id", name: "taxon_determinations_created_by_id_fkey"
   add_foreign_key "taxon_determinations", "users", column: "updated_by_id", name: "taxon_determinations_updated_by_id_fkey"
   add_foreign_key "taxon_name_classifications", "projects", name: "taxon_name_classifications_project_id_fkey"
-  add_foreign_key "taxon_name_classifications", "taxon_names", name: "taxon_name_classifications_taxon_name_id_fkey"
   add_foreign_key "taxon_name_classifications", "users", column: "created_by_id", name: "taxon_name_classifications_created_by_id_fkey"
   add_foreign_key "taxon_name_classifications", "users", column: "updated_by_id", name: "taxon_name_classifications_updated_by_id_fkey"
   add_foreign_key "taxon_name_relationships", "projects", name: "taxon_name_relationships_project_id_fkey"

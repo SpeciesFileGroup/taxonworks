@@ -156,6 +156,7 @@ class CollectionObject < ApplicationRecord
   validate :check_that_either_total_or_ranged_lot_category_id_is_present
   validate :check_that_both_of_category_and_total_are_not_present
   validate :collecting_event_belongs_to_project
+  validate :total_positive_when_present
 
   soft_validate(
     :sv_missing_accession_fields,
@@ -775,6 +776,13 @@ class CollectionObject < ApplicationRecord
 
   def check_that_either_total_or_ranged_lot_category_id_is_present
     errors.add(:base, 'Either total or a ranged lot category must be provided') if ranged_lot_category_id.blank? && total.blank?
+  end
+
+  def total_positive_when_present
+    # Allow total: 0 when ranged_lot_category is set
+    return if ranged_lot_category_id.present? && total == 0
+
+    errors.add(:total, 'Must be positive.') if total.present? && total <= 0
   end
 
   def assign_type_if_total_or_ranged_lot_category_id_provided
