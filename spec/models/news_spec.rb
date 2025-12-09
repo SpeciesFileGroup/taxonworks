@@ -31,7 +31,7 @@ RSpec.describe News, type: :model do
         news.project_id = project.id
         news.type = 'News::Administration::Notice'
         expect(news.valid?).to be_falsey
-        expect(news.errors[:type]).to include("is not a project News type")
+        expect(news.errors[:type]).to include('is not a project News type')
       end
 
       specify 'allows Project type when project_id is present' do
@@ -216,7 +216,8 @@ RSpec.describe News, type: :model do
       end
 
       specify 'returns true when display_end is now' do
-        now = Time.current
+        now = Time.current.change(usec: 0)
+        
         news_item.display_start = nil
         news_item.display_end = now
         allow(Time).to receive(:current).and_return(now)
@@ -245,7 +246,8 @@ RSpec.describe News, type: :model do
       end
 
       specify 'returns true when current time equals display_end' do
-        now = Time.current
+        now = Time.current.change(usec: 0)
+        
         news_item.display_start = 1.day.ago
         news_item.display_end = now
         allow(Time).to receive(:current).and_return(now)
