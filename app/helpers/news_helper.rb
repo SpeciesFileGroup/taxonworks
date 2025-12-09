@@ -56,7 +56,11 @@ module NewsHelper
       type = klass_sym.to_s.camelize
       css_type = klass_sym.to_s.delete('_')
 
-      link_to("#{type} (#{count})", browse_news_task_path({ category: type, newspapper: 'project' }), class: "v-badge news-#{css_type}-color")
+      if (sessions_current_project_id == project.id)
+        link_to("#{type} (#{count})", browse_news_task_path({ category: type, newspapper: 'project' }), class: "v-badge news-#{css_type}-color")
+      else
+        content_tag(:span, "#{type} (#{count})", class: "v-badge news-#{css_type}-color")
+      end
     end.join.html_safe
   end
 
