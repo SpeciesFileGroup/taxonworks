@@ -75,12 +75,19 @@
         <strong>Complete download API link:</strong>
         <a
           :href="apiLinkUrl"
-          @click.prevent="openApiLink"
           target="_blank"
           class="margin-small-left"
+          @click.prevent="openApiLink"
         >
           {{ apiLinkUrl }}
         </a>
+
+        <ButtonClipboard
+          :text="apiLinkUrl"
+          title="Copy API link to clipboard"
+          class="margin-small-left"
+        />
+
         <p class="help-text margin-small-top">
           This link can be provided to GBIF or other services to automatically fetch your complete download.
         </p>
@@ -92,9 +99,9 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { Download } from '@/routes/endpoints'
-import { getCurrentProjectId } from '@/helpers/project.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import ButtonClipboard from '@/components/ui/Button/ButtonClipboard.vue'
 
 const props = defineProps({
   isPublic: {
@@ -111,7 +118,6 @@ const props = defineProps({
   }
 })
 
-const projectId = Number(getCurrentProjectId())
 const isLoading = ref(false)
 const completeDownload = ref(null)
 const pupalDownload = ref(null)
