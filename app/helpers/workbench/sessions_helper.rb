@@ -60,7 +60,7 @@ module Workbench::SessionsHelper
         format.json { render(json: {success: false}, status: :bad_request) && return } # was unauthorized
       end
     else
-      self.sessions_current_project_id = params[:project_id]
+      self.sessions_current_project_id = params[:project_id] if ProjectMember.exists?(project_id: params[:project_id], user_id: sessions_current_user_id)
     end
   end
 
