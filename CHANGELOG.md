@@ -7,7 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Changed
+
+- Autocomplete list wraps the text instead of applying ellipses by default.
 
 ## [0.56.0] - 2025-11-12
 
@@ -59,7 +61,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1308]: https://github.com/SpeciesFileGroup/taxonworks/issues/1308
 [#3814]: https://github.com/SpeciesFileGroup/taxonworks/issues/3814
-[#4096]: https://github.com/SpeciesFileGroup/taxonworks/issues/4096 
+[#4096]: https://github.com/SpeciesFileGroup/taxonworks/issues/4096
 [#4407]: https://github.com/SpeciesFileGroup/taxonworks/issues/4407
 [#4521]: https://github.com/SpeciesFileGroup/taxonworks/issues/4521
 [#4556]: https://github.com/SpeciesFileGroup/taxonworks/issues/4556
