@@ -5,10 +5,22 @@
       <li>
         <a :href="RouteNames.FilterNomenclature">Filter taxon name</a>
       </li>
+      <li>
+        <VBtn
+          color="primary"
+          circle
+          @click="reset"
+        >
+          <VIcon
+            name="reset"
+            x-small
+          />
+        </VBtn>
+      </li>
     </ul>
   </div>
   <div
-    class="horizontal-left-content gap-medium align-start"
+    class="horizontal-left-content gap-medium align-start position-relative"
     v-help="
       'You can drag and drop nodes between the two taxonomy trees to reorganize them. To select multiple nodes, hold the <b>Ctrl</b> key and click on each node you want to include.'
     "
@@ -71,17 +83,30 @@
         }
       "
     />
+    <UnifyWindow />
+    <VSpinner
+      v-if="isLoading"
+      full-screen
+    />
   </div>
 </template>
 
 <script setup>
-import { nextTick, onBeforeMount, useTemplateRef } from 'vue'
+import { nextTick, onBeforeMount, ref, useTemplateRef } from 'vue'
 import { useQueryParam } from '@/tasks/data_attributes/field_synchronize/composables'
 import { findNodeById } from './utils'
 import { RouteNames } from '@/routes/routes.js'
 import { vHelp } from '@/directives/help.js'
+import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam'
+import { TAXON_NAME } from '@/constants'
+import { URLParamsToJSON } from '@/helpers'
+import { TaxonName } from '@/routes/endpoints'
 import useStore from './store/store.js'
 import PanelTree from './components/Tree/PanelTree.vue'
+import UnifyWindow from './components/UnifyWindow.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 defineOptions({
   name: 'TaxonNameReclassifierApp'
@@ -92,6 +117,8 @@ const storeLeft = useStore('treeLeft')()
 const storeRight = useStore('treeRight')()
 const panelLeftRef = useTemplateRef('panelLeft')
 const panelRightRef = useTemplateRef('panelRight')
+const isLoading = ref(false)
+const ranksOrder = ref([])
 
 function isDescendant(node, targetNodeId) {
   if (!node.children || node.children.length === 0) return false
@@ -122,18 +149,24 @@ function handlePut(to, from, dragEl) {
     toTree !== fromTree &&
     toParentId !== fromParent &&
     dragId !== toParentId &&
+    draggedNode.rank !== targetNode.rank &&
+    !isHigherRank(draggedNode.rank, targetNode.rank) &&
     !isDescendant(draggedNode, targetNode.id)
   )
 }
 
 async function loadTree(parameters, { storeA, storeB }) {
   try {
+    isLoading.value = true
     const tree = await storeA.loadTree(parameters)
 
     if (!storeB.tree.length) {
       storeB.setTree(cloneTree(tree))
     }
-  } catch {}
+  } catch {
+  } finally {
+    isLoading.value = false
+  }
 }
 
 function scrollToNode(element) {
@@ -166,17 +199,65 @@ function cloneTree(tree) {
   return structuredClone(JSON.parse(JSON.stringify(tree)))
 }
 
+function reset() {
+  storeLeft.$reset()
+  storeRight.$reset()
+
+  loadFromParameters()
+}
+
+function loadFromParameters() {
+  const { taxon_name_id } = URLParamsToJSON(window.location.href)
+  try {
+    if (queryParam.value === QUERY_PARAM[TAXON_NAME]) {
+      loadTree(queryValue.value, { storeA: storeLeft, storeB: storeRight })
+    } else if (taxon_name_id) {
+      storeLeft.loadTree({ taxon_name_id })
+    } else {
+      loadTree(
+        { name: 'Root', name_exact: true },
+        { storeA: storeLeft, storeB: storeRight }
+      )
+    }
+  } catch {}
+}
+
+function isHigherRank(rankA, rankB) {
+  const indexA = ranksOrder.value.indexOf(rankA)
+  const indexB = ranksOrder.value.indexOf(rankB)
+
+  if (indexA === -1 || indexB === -1) return false
+
+  return indexA < indexB
+}
+
+function loadRanks() {
+  TaxonName.ranks()
+    .then(({ body }) => {
+      const ranks = Object.values(Object.values(body))
+        .map((group) => {
+          return Object.values(group)
+            .flat()
+            .map((rank) => rank.rank_class)
+        })
+        .flat()
+
+      ranksOrder.value = ranks
+    })
+    .catch(() => {
+      ranksOrder.value = []
+    })
+}
+
 onBeforeMount(async () => {
   TW.workbench.keyboard.createLegend(
     `Ctrl+Left click`,
     'Select multiple nodes',
     'Taxon name reclassifier'
   )
-  try {
-    if (queryParam.value === 'taxon_name_query') {
-      loadTree(queryValue.value, { storeA: storeLeft, storeB: storeRight })
-    }
-  } catch {}
+
+  loadRanks()
+  loadFromParameters()
 })
 </script>
 

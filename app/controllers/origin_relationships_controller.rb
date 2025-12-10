@@ -72,38 +72,16 @@ class OriginRelationshipsController < ApplicationController
   # DELETE /origin_relationships/1.json
   def destroy
     @origin_relationship.destroy
+
     respond_to do |format|
-      format.html { redirect_to origin_relationships_url, notice: 'Origin relationship was successfully destroyed.' }
-      format.json { head :no_content }
+      if @origin_relationship.destroyed?
+        format.html { redirect_to origin_relationships_url, notice: 'Origin relationship was successfully destroyed.' }
+        format.json { head :no_content }
+      else
+        format.html { destroy_redirect @origin_relationship, notice: 'Origin relationship was not destroyed, ' + @origin_relationship.errors.full_messages.join('; ') }
+        format.json { render json: @origin_relationship.errors, status: :unprocessable_entity }
+      end
     end
-  end
-
-  def search
-    if params[:id].blank?
-      redirect_to origin_relationships_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
-    else
-      redirect_to origin_relationship_path(params[:id])
-    end
-  end
-
-  # TODO: remove
-  def autocomplete
-    @origin_relationships = origin_relationship
-      .where(project_id: sessions_current_project_id)
-      .where('origin_relationship ILIKE ?', "#{params[:term]}%")
-
-    data = @origin_relationships.collect do |t|
-      {id: t.id,
-       label: t.origin_relationship,
-       gid:             t.to_global_id.to_s,
-       response_values: {
-         params[:method] => t.id
-       },
-       label_html: t.origin_relationship
-      }
-    end
-
-    render json: data
   end
 
   private

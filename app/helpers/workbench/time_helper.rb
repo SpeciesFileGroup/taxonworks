@@ -6,4 +6,8 @@ module Workbench::TimeHelper
   def object_time_since_update_tag(object)
     time_ago_in_words(object.updated_at)
   end
+
+  def format_date_ymd(date)
+    date.strftime('%Y-%m-%d')
+  end
 end

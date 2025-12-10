@@ -99,7 +99,7 @@ gem 'rails-jquery-autocomplete', '~> 1.0.3'
 
 gem 'turbolinks', '~> 5.2.0'
 gem 'jquery-turbolinks', '~> 2.1'
-gem 'shakapacker', '9.2.0'
+gem 'shakapacker', '9.4.0'
 
 # BibTeX handling
 gem 'csl', '~> 2.0'
@@ -139,6 +139,7 @@ gem 'biodiversity', '~> 6.0'
 gem 'ruby-units', '~> 4.1.0', require: 'ruby_units/namespaced'
 
 gem 'colrapi', '~>0.1.1'
+gem 'hookkaido', '0.1.0'
 
 # Nexus
 gem 'nexus_parser', '~> 1.2.2'

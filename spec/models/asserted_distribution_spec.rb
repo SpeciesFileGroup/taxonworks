@@ -67,9 +67,9 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
 
         specify 'there are types not accepted as object' do
           expect{
-            asserted_distribution.asserted_distribution_object =
-              CollectionObject.new
-          }.to raise_error(ActiveRecord::InverseOfAssociationNotFoundError)
+            FactoryBot.create(:valid_asserted_distribution,
+              asserted_distribution_object: FactoryBot.create(:valid_specimen))
+          }.to raise_error(ActiveRecord::RecordInvalid)
         end
 
         specify 'conveyance on otu is accepted as object' do
@@ -429,7 +429,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
       _ad1 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_shape: ga.parent, is_absent: true)
       ad2 = FactoryBot.build_stubbed(:valid_asserted_distribution, asserted_distribution_object: _ad1.asserted_distribution_object, asserted_distribution_shape: ga)
       ad2.soft_validate(only_methods: :sv_conflicting_geographic_area)
-      expect(ad2.soft_validations.messages_on(:geographic_area_id).count).to eq(1)
+      expect(ad2.soft_validations.messages_on(:asserted_distribution_shape_id).count).to eq(1)
     end
 
     specify 'is_absent - True' do
@@ -437,7 +437,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
       _ad1 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_shape: ga)
       ad2 = FactoryBot.build_stubbed(:valid_asserted_distribution, asserted_distribution_object: _ad1.asserted_distribution_object, asserted_distribution_shape: ga, is_absent: true)
       ad2.soft_validate(only_methods: [:sv_conflicting_geographic_area])
-      expect(ad2.soft_validations.messages_on(:geographic_area_id).count).to eq(1)
+      expect(ad2.soft_validations.messages_on(:asserted_distribution_shape_id).count).to eq(1)
     end
   end
 
@@ -614,6 +614,39 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
       expect(r.total_attempted).to eq(2)
       expect(r.updated.count).to eq(2)
       expect(r.not_updated.count).to eq(0)
+    end
+
+    specify 'can set no_dwc_occurrence: true on otu' do
+      ad = AssertedDistribution.create!(asserted_distribution_object: otu,
+        asserted_distribution_shape: geographic_area,
+        source:,
+        no_dwc_occurrence: true
+      )
+
+      expect(ad.no_dwc_occurrence).to be_truthy
+      expect(ad.dwc_occurrence).to be_falsey
+    end
+
+    specify 'default is no_dwc_occurrence: false on otu' do
+      ad = AssertedDistribution.create!(asserted_distribution_object: otu,
+        asserted_distribution_shape: geographic_area,
+        source:
+      )
+
+      expect(ad.no_dwc_occurrence).to be_falsey
+      expect(ad.dwc_occurrence).to be_truthy
+    end
+
+    specify 'no_dwc_occurrence is always true on non-otu' do
+      ba = FactoryBot.create(:valid_biological_association)
+      ad = AssertedDistribution.create!(asserted_distribution_object: ba,
+        asserted_distribution_shape: geographic_area,
+        source:,
+        no_dwc_occurrence: false
+      )
+
+      expect(ad.no_dwc_occurrence).to be_truthy
+      expect(ad.dwc_occurrence).to be_falsey
     end
   end
 

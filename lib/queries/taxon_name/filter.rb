@@ -16,6 +16,7 @@ module Queries
         :author,
         :author_exact,
         :authors,
+        :cached,
         :collecting_event_id,
         :collection_object_id,
         :combinations,
@@ -51,6 +52,7 @@ module Queries
         :year_end,
         :year_start,
 
+        cached: [],
         collection_object_id: [],
         collecting_event_id: [],
         combination_taxon_name_id: [],
@@ -120,6 +122,10 @@ module Queries
 
       # @return Boolean
       attr_accessor :name_exact
+
+      # @param cached [String, Array]
+      # @return [Array] of TaxonNames matching cached exactly
+      attr_accessor :cached
 
       # @param author [String]
       #   Use "&" for "and". Matches against cached_author_year. See also author_exact.
@@ -345,6 +351,7 @@ module Queries
         @author = params[:author]
         @author_exact = boolean_param(params, :author_exact)
         @authors = boolean_param(params, :authors)
+        @cached = params[:cached]
         @collecting_event_id = params[:collecting_event_id]
         @collection_object_id = params[:collection_object_id]
         @combination_taxon_name_id = params[:combination_taxon_name_id]
@@ -410,25 +417,16 @@ module Queries
         @year.to_s
       end
 
-      def name
-        [@name].flatten.compact
-      end
-
       def collection_object_id
         [@collection_object_id].flatten.compact
-      end
-
-      def year
-        return nil if @year.blank?
-        @year.to_s
       end
 
       def name
         [@name].flatten.compact
       end
 
-      def collection_object_id
-        [@collection_object_id].flatten.compact
+      def cached
+        [@cached].flatten.compact
       end
 
       def collecting_event_id
@@ -573,12 +571,6 @@ module Queries
       def otu_id_facet
         return nil if otu_id.empty?
         ::TaxonName.joins(:otus).where(otus: { id: otu_id })
-      end
-
-      def otus_facet
-        return nil if otus.nil?
-        subquery = ::Otu.where(::Otu.arel_table[:taxon_name_id].eq(::TaxonName.arel_table[:id])).arel.exists
-        ::TaxonName.where(otus ? subquery : subquery.not)
       end
 
       # This is not true! It includes records that are year only.
@@ -802,6 +794,11 @@ module Queries
         end
       end
 
+      def cached_facet
+        return nil if cached.empty?
+        table[:cached].in(cached)
+      end
+
       def parent_id_facet
         return nil if parent_id.empty?
         table[:parent_id].in(parent_id)
@@ -968,6 +965,7 @@ module Queries
         [
           nomenclature_date_facet,
           author_facet,
+          cached_facet,
           name_facet,
           parent_id_facet,
           rank_facet,

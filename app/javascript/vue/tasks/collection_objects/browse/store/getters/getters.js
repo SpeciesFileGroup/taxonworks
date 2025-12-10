@@ -1,3 +1,4 @@
+import getAnatomicalParts from './getAnatomicalParts'
 import getCollectingEvent from './getCollectingEvent'
 import getCollectionObject from './getCollectionObject'
 import getContainer from './getContainer'
@@ -18,6 +19,7 @@ import getRepository from './getRepository'
 import getCurrentRepository from './getCurrentRepository'
 
 const GetterNames = {
+  GetAnatomicalParts: 'getAnatomicalParts',
   GetCollectingEvent: 'getCollectingEvent',
   GetCollectionObject: 'getCollectionObject',
   GetContainer: 'getContainer',
@@ -39,6 +41,7 @@ const GetterNames = {
 }
 
 const GetterFunctions = {
+  [GetterNames.GetAnatomicalParts]: getAnatomicalParts,
   [GetterNames.GetCollectingEvent]: getCollectingEvent,
   [GetterNames.GetCollectionObject]: getCollectionObject,
   [GetterNames.GetContainer]: getContainer,

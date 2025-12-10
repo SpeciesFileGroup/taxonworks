@@ -462,6 +462,18 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
       expect(b.local_identifiers.first.identifier).to eq('2')
     end
 
+    specify 'increment raises on non-incrementable identifier' do
+      a = Identifier::Local::FieldNumber.create(
+        namespace: FactoryBot.create(:valid_namespace),
+        identifier_object: collecting_event,
+        identifier: 'asdf'
+      )
+
+      expect {
+        collecting_event.clone(incremented_identifier_id: a.id)
+      }.to raise_error(TaxonWorks::Error, /failed.*identifier/)
+    end
+
     specify 'does not infinite loop dwc indexing' do
       collecting_event.collectors << FactoryBot.create(:valid_person)
       collecting_event.update!(verbatim_label: 'Some text')

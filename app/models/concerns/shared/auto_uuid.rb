@@ -17,12 +17,16 @@ module Shared::AutoUuid
     def uuid_identifier
       @uuid_identifier ||= uuid_identifier_scope&.first
     end
+
+    def uuid_required
+      true
+    end
   end
 
   private
 
   def generate_uuid_if_required
-    create_object_uuid if !uuid_identifier
+    create_object_uuid if uuid_required && !uuid_identifier
   end
 
   def create_object_uuid

@@ -46,11 +46,11 @@ class AssertedDistribution < ApplicationRecord
 
   include Shared::Maps
   include Shared::QueryBatchUpdate
-  include Shared::PolymorphicAnnotator
-  polymorphic_annotates('asserted_distribution_shape')
-  polymorphic_annotates('asserted_distribution_object')
 
   originates_from 'Specimen', 'Lot', 'FieldOccurrence'
+
+  belongs_to :asserted_distribution_object, polymorphic: true
+  belongs_to :asserted_distribution_shape, polymorphic: true
 
   # @return [Hash]
   #   of known country/state/county values
@@ -69,9 +69,11 @@ class AssertedDistribution < ApplicationRecord
   before_validation :unify_is_absent
   before_save do
     # TODO: handle non-otu types.
-    self.no_dwc_occurrence = asserted_distribution_object_type != 'Otu'
+    self.no_dwc_occurrence = true if asserted_distribution_object_type != 'Otu'
   end
 
+  validates_presence_of :asserted_distribution_object
+  validates_presence_of :asserted_distribution_shape
   validate :records_include_citation
   validate :object_shape_absence_triple_is_unique
 
@@ -408,13 +410,13 @@ class AssertedDistribution < ApplicationRecord
         .without_is_absent
         .with_geographic_area_array(areas)
         .where(asserted_distribution_object:)
-      soft_validations.add(:geographic_area_id, "Taxon is reported as present in #{presence.first.asserted_distribution_shape.name}") unless presence.empty?
+      soft_validations.add(:asserted_distribution_shape_id, "Taxon is reported as present in #{presence.first.asserted_distribution_shape.name}") unless presence.empty?
     else
       presence = AssertedDistribution
         .with_is_absent
         .where(asserted_distribution_object:)
         .with_geographic_area_array(areas)
-      soft_validations.add(:geographic_area_id, "Taxon is reported as missing in #{presence.first.asserted_distribution_shape.name}") unless presence.empty?
+      soft_validations.add(:asserted_distribution_shape_id, "Taxon is reported as missing in #{presence.first.asserted_distribution_shape.name}") unless presence.empty?
     end
   end
 

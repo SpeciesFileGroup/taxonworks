@@ -44,7 +44,7 @@ class DwcOccurrencesController < ApplicationController
     end
 
     names = DwcOccurrence.select(target.to_sym)
-      .where(Arel.sql("\"dwc_occurrences\".\"#{target}\" ILIKE '%#{params[:term]}%'"))
+      .where("dwc_occurrences.#{target} ILIKE ?", "%#{ActiveRecord::Base.sanitize_sql_like(params[:term])}%")
       .order(target.to_sym)
       .distinct
       .limit(20)

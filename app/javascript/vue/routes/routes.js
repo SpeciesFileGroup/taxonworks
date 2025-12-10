@@ -1,4 +1,5 @@
 import {
+  ANATOMICAL_PART,
   ASSERTED_DISTRIBUTION,
   BIOLOGICAL_ASSOCIATION,
   COLLECTING_EVENT,
@@ -25,6 +26,7 @@ const RouteNames = {
   BrowseCollectionObject: '/tasks/collection_objects/browse',
   BrowseCollectingEvent: '/tasks/collecting_events/browse',
   BrowseFieldOccurrence: '/tasks/field_occurrences/browse',
+  BrowseNews: '/tasks/news/browse',
   BrowseNomenclature: '/tasks/nomenclature/browse',
   BrowseOtu: '/tasks/otus/browse',
   BrowseSound: '/tasks/sounds/browse',
@@ -33,6 +35,7 @@ const RouteNames = {
   DwcDashboard: '/tasks/dwc/dashboard',
   DwcImport: '/tasks/dwca_import/index',
   FieldSynchronize: '/tasks/data_attributes/field_synchronize',
+  FilterAnatomicalPart: '/tasks/anatomical_parts/filter',
   FilterAssertedDistribition: '/tasks/asserted_distributions/filter',
   FilterBiologicalAssociations: '/tasks/biological_associations/filter',
   FilterCollectingEvents: '/tasks/collecting_events/filter',
@@ -75,6 +78,7 @@ const RouteNames = {
   NewGazetteer: '/tasks/gazetteers/new_gazetteer',
   NewLead: '/tasks/leads/new_lead',
   NewNamespace: '/tasks/namespaces/new_namespace',
+  NewNews: '/tasks/news/new',
   NewObservationMatrix: '/tasks/observation_matrices/new_matrix',
   NewSource: '/tasks/sources/new_source',
   NewTaxonName: '/tasks/nomenclature/new_taxon_name',
@@ -94,6 +98,7 @@ const RouteNames = {
 }
 
 const FILTER_ROUTES = {
+  [ANATOMICAL_PART]: RouteNames.FilterAnatomicalPart,
   [ASSERTED_DISTRIBUTION]: RouteNames.FilterAssertedDistribition,
   [BIOLOGICAL_ASSOCIATION]: RouteNames.FilterBiologicalAssociations,
   [COLLECTING_EVENT]: RouteNames.FilterCollectingEvents,

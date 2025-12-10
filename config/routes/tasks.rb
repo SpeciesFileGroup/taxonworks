@@ -1,4 +1,33 @@
 scope :tasks do
+  scope :news do
+    scope :browse, controller: 'tasks/news/browse' do
+      get '/', action: :index, as: 'browse_news_task'
+    end
+
+    scope :new, controller: 'tasks/news/new' do
+      get '/', action: :index, as: 'new_news_task'
+    end
+  end
+  
+  scope :anatomical_parts do
+    scope :edit_anatomical_part, controller: 'tasks/anatomical_parts/edit_anatomical_part' do
+      get '/', action: :index, as: 'edit_anatomical_part_task'
+    end
+
+    scope :select_ontologies, controller: 'tasks/anatomical_parts/select_ontologies' do
+      get '/', action: :index, as: 'select_ontologies_task'
+      # See other routes in data.rb.
+    end
+
+    scope :anatomical_parts_graph, controller: 'tasks/anatomical_parts/anatomical_parts_graph' do
+      get '/', action: :index, as: 'anatomical_parts_graph_task'
+    end
+
+    scope :filter, controller: 'tasks/anatomical_parts/filter' do
+      get '/', action: :index, as: 'filter_anatomical_parts_task'
+    end
+  end
+
   scope :taxon_name_relationships do
     scope :filter, controller: 'tasks/taxon_name_relationships/filter' do
       get '/', action: :index, as: 'filter_taxon_name_relationships_task'

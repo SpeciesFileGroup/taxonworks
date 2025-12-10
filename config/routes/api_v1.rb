@@ -44,6 +44,9 @@ namespace :api, defaults: {format: :json} do
 
     # There should be no post or delete in this section
     defaults authenticate_user_or_project: true do
+      get '/news', to: '/news#api_index'
+      get '/news/:id', to: '/news#api_show'
+
       get '/downloads/dwc_archive_complete', to: '/downloads#api_dwc_archive_complete', as: :download_dwca_complete
       get '/downloads/:id', to: '/downloads#api_show', as: :download_show
       get '/downloads/:id/file', to: '/downloads#api_file', as: :download_file
@@ -118,6 +121,7 @@ namespace :api, defaults: {format: :json} do
       get '/biological_associations/:id/globi', to: '/biological_associations#api_globi'
       get '/biological_associations/extended', to: '/biological_associations#api_index_extended'
       get '/biological_associations/simple', to: '/biological_associations#api_index_simple'
+      get '/biological_associations/basic', to: '/biological_associations#api_index_basic'
       get '/biological_associations', to: '/biological_associations#api_index'
       get '/biological_associations/:id', to: '/biological_associations#api_show'
 

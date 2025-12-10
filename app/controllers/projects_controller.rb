@@ -150,6 +150,7 @@ class ProjectsController < ApplicationController
       :name,
       :set_new_api_access_token,
       :clear_api_access_token,
+      :data_curation_issue_tracker_url,
       Project.key_value_preferences,
       Project.array_preferences,
       Project.hash_preferences,

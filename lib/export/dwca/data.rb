@@ -122,13 +122,16 @@ module Export::Dwca
       return nil unless @biological_associations_extension.present?
 
       q = @biological_associations_extension[:collection_objects_query]
-      if q.kind_of?(String)
+      scope = if q.kind_of?(String)
         ::BiologicalAssociation.from('(' + q + ') as biological_associations')
       elsif q.kind_of?(ActiveRecord::Relation)
         q
       else
         raise ArgumentError, 'Biological associations scope is not an SQL string or ActiveRecord::Relation'
       end
+
+      scope.select('biological_associations.id')
+        .includes(:biological_association_index)
     end
 
     def media_extension
@@ -634,7 +637,14 @@ module Export::Dwca
       if no_records?
         content = "\n"
       else
-        content = Export::CSV::Dwc::Extension::BiologicalAssociations.csv(biological_associations_extension, biological_association_relations_to_core)
+        benchmark_result = Benchmark.measure do
+          content = Export::CSV::Dwc::Extension::BiologicalAssociations.csv(biological_associations_extension, biological_association_relations_to_core)
+        end
+
+        timestamp = Time.now.strftime('%Y%m%d_%H%M%S')
+        File.open("/tmp/dwc_resource_relationship_benchmark_#{timestamp}.txt", 'a') do |f|
+          f.puts "#{Time.now} - BiologicalAssociations CSV export: #{benchmark_result}"
+        end
       end
 
       @biological_associations_resource_relationship_tmp.write(content)

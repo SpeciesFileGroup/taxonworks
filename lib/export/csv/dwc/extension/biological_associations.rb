@@ -35,7 +35,6 @@ module Export::CSV::Dwc::Extension::BiologicalAssociations
         tbl << b.darwin_core_extension_row(inverted: false)
       end
       if biological_association_relations_to_core[:object].include?(b.id)
-        b.rotate = true
         tbl << b.darwin_core_extension_row(inverted: true)
       end
     end

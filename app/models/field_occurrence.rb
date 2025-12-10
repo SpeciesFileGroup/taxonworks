@@ -39,11 +39,12 @@ class FieldOccurrence < ApplicationRecord
   # At present must be before BiologicalExtensions
   include Shared::TaxonDeterminationRequired
   include Shared::BiologicalExtensions
+  include Shared::BiologicalAssociationIndexHooks
 
   include Shared::Taxonomy
   include FieldOccurrence::DwcExtensions
 
-  is_origin_for 'Specimen', 'Lot', 'Extract', 'AssertedDistribution', 'Sequence', 'Sound'
+  is_origin_for 'Specimen', 'Lot', 'Extract', 'AssertedDistribution', 'Sequence', 'Sound', 'AnatomicalPart'
   originates_from 'FieldOccurrence'
 
   GRAPH_ENTRY_POINTS = [:biological_associations, :taxon_determinations, :biocuration_classifications, :collecting_event, :origin_relationships]
@@ -72,6 +73,63 @@ class FieldOccurrence < ApplicationRecord
     true
   end
 
+  # @return [ActiveRecord::Relation]
+  #   BiologicalAssociationIndex records where this FieldOccurrence is subject or object
+  def biological_association_indices
+    BiologicalAssociationIndex.where('subject_id = ? AND subject_type = ?', id, self.class.base_class.name)
+      .or(BiologicalAssociationIndex.where('object_id = ? AND object_type = ?', id, self.class.base_class.name))
+  end
+
+  # Convert a CollectionObject into a FieldOccurrence
+  #
+  # @param collection_object_id [Integer] the ID of the CollectionObject to transmute
+  # @return [Integer, String] returns the new FieldOccurrence ID on success, or an error message on failure
+  def self.transmute_collection_object(collection_object_id)
+    co = CollectionObject.find_by(id: collection_object_id)
+
+    return 'Collection object not found' if co.nil?
+
+    return 'Collection object has loan items. Please remove or return loans before converting.' if co.loan_items.any?
+    return 'Collection object has a repository assignment. Please remove repository before converting.' if co.repository_id.present?
+    return 'Collection object has a current repository assignment. Please remove current repository before converting.' if co.current_repository_id.present?
+    return 'Collection object has a preparation type. Please remove preparation type before converting.' if co.preparation_type_id.present?
+    return 'Collection object has type materials. Please remove type materials before converting.' if co.type_materials.any?
+    return 'Collection object has sqed depictions. Please remove sqed depictions before converting.' if co.sqed_depictions.any?
+    return 'Collection object has extracts. Please remove extracts before converting.' if co.extracts.any?
+    return 'Collection object has sequences. Please remove sequences before converting.' if co.sequences.any?
+
+    fo = FieldOccurrence.new(
+      total: co.total || 0,  # DB requires NOT NULL, use 0 for ranged lots
+      collecting_event_id: co.collecting_event_id,
+      ranged_lot_category_id: co.ranged_lot_category_id,
+      project_id: co.project_id
+    )
+
+    begin
+      FieldOccurrence.transaction do
+        co.taxon_determinations.reload.each do |td|
+          fo.taxon_determinations << td
+        end
+        co.reload
+
+        fo.save!
+
+        # Move all shared associations (notes, tags, identifiers, etc.)
+        Utilities::Rails::Transmute.move_associations(co, fo)
+
+        co.reload.destroy!
+      end
+    rescue TaxonWorks::Error => e
+      return e.message
+    rescue ActiveRecord::RecordInvalid => e
+      return e.message
+    rescue ActiveRecord::RecordNotDestroyed => e
+      return co.errors.full_messages.join(', ')
+    end
+
+    fo.id
+  end
+
   private
 
   def total_zero_when_absent
@@ -79,10 +137,16 @@ class FieldOccurrence < ApplicationRecord
   end
 
   def total_positive_when_present
+    # Allow total: 0 when ranged_lot_category is set (required by NOT NULL constraint)
+    return if ranged_lot_category_id.present? && total == 0
+
     errors.add(:total, 'Must be positive when not absent.') if !is_absent && total.present? && total <= 0
   end
 
   def check_that_both_of_category_and_total_are_not_present
+    # Allow total: 0 when ranged_lot_category is set (required by NOT NULL constraint)
+    return if ranged_lot_category_id.present? && total == 0
+
     errors.add(:ranged_lot_category_id, 'Both ranged_lot_category and total can not be set') if ranged_lot_category_id.present? && total.present?
   end
 

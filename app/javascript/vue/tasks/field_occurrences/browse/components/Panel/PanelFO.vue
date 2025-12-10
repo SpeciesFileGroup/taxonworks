@@ -15,10 +15,12 @@
     </TableGrid>
     <PanelDeterminations />
     <PanelBiologicalAssociations />
+    <PanelAnatomicalParts />
   </TableGrid>
 </template>
 
 <script setup>
+import PanelAnatomicalParts from './PanelAnatomicalParts.vue'
 import PanelDeterminations from './PanelDeterminations.vue'
 import PanelBiocurations from './PanelBiocurations.vue'
 import PanelBiologicalAssociations from './PanelBiologicalAssociations.vue'

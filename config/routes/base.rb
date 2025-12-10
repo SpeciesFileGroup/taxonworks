@@ -42,6 +42,10 @@ scope :graph, controller: :graph do
   get ':global_id/object', action: :object, as: :object_graph, defaults: {format: :json}
 end
 
+namespace :news do
+  resources :administration, only: [:index, :show], defaults: {format: :json}
+end
+
 resources :projects do
   collection do
     get 'list'

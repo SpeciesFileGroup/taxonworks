@@ -56,7 +56,7 @@
         <p>
           <i
             >Biological relationships containing related
-            CollectionObjects/FieldOccurrences/OTUs
+            CollectionObjects/FieldOccurrences/OTUs/AnatomicalParts
           </i>
         </p>
         <VBtn
@@ -136,7 +136,7 @@ import {
   BiologicalAssociation,
   BiologicalAssociationsGraph
 } from '@/routes/endpoints'
-import { COLLECTION_OBJECT, FIELD_OCCURRENCE, OTU } from '@/constants/index.js'
+import { ANATOMICAL_PART, COLLECTION_OBJECT, FIELD_OCCURRENCE, OTU } from '@/constants/index.js'
 
 const props = defineProps({
   relations: {
@@ -169,6 +169,7 @@ function makeObjectIdPayload(relations) {
   const otuIds = []
   const coIds = []
   const foIds = []
+  const apIds = []
 
   relations.forEach(({ objectType, id }) => {
     switch (objectType) {
@@ -181,13 +182,17 @@ function makeObjectIdPayload(relations) {
       case FIELD_OCCURRENCE:
         foIds.push(id)
         break
+      case ANATOMICAL_PART:
+        apIds.push(id)
+        break
     }
   })
 
   return {
     otu_id: [...new Set(otuIds)],
     collection_object_id: [...new Set(coIds)],
-    field_occurrence_id: [...new Set(foIds)]
+    field_occurrence_id: [...new Set(foIds)],
+    anatomical_part_id: [...new Set(apIds)]
   }
 }
 

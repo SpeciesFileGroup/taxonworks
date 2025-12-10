@@ -24,6 +24,7 @@ import SoftValidations from '../components/map/SoftValidations.vue'
 import MapComponent from '../components/map/Map.vue'
 import PrintLabel from '../components/map/PrintLabel.vue'
 import Depictions from '../components/map/Depictions.vue'
+import FieldNotes from '../components/map/FieldNotes.vue'
 
 const ComponentVerbatim = {
   Label: 'Label',
@@ -56,7 +57,8 @@ const ComponentMap = {
   Map: 'Map',
   SoftValidations: 'SoftValidations',
   PrintLabel: 'PrintLabel',
-  Depictions: 'Depictions'
+  Depictions: 'Depictions',
+  FieldNotes: 'FieldNotes'
 }
 
 const VueComponents = {
@@ -85,7 +87,8 @@ const VueComponents = {
   [ComponentMap.PrintLabel]: PrintLabel,
   [ComponentMap.Map]: MapComponent,
   [ComponentMap.SoftValidations]: SoftValidations,
-  [ComponentMap.Depictions]: Depictions
+  [ComponentMap.Depictions]: Depictions,
+  [ComponentMap.FieldNotes]: FieldNotes
 }
 
 export { ComponentVerbatim, ComponentParse, ComponentMap, VueComponents }

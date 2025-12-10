@@ -15,6 +15,7 @@ import {
   nodeCollectionObjectStyle,
   nodeFieldOccurrenceStyle,
   nodeOtuStyle,
+  nodeAnatomicalPartStyle,
   unsavedNodeStyle
 } from '../constants/graphStyle.js'
 import {
@@ -30,7 +31,8 @@ import {
   COLLECTION_OBJECT,
   FIELD_OCCURRENCE,
   BIOLOGICAL_ASSOCIATION,
-  OTU
+  OTU,
+  ANATOMICAL_PART
 } from '@/constants/index.js'
 
 const EXTEND_GRAPH = [
@@ -61,7 +63,8 @@ function getNodeStyleByType(objectType) {
   const styles = {
     [COLLECTION_OBJECT]: nodeCollectionObjectStyle,
     [FIELD_OCCURRENCE]: nodeFieldOccurrenceStyle,
-    [OTU]: nodeOtuStyle
+    [OTU]: nodeOtuStyle,
+    [ANATOMICAL_PART]: nodeAnatomicalPartStyle
   }
 
   return styles[objectType]
