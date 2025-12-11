@@ -10,7 +10,6 @@ describe Catalog::Otu::InventoryEntry, group: :catalogs, type: :spinup do
   context 'with no associated data' do
     specify 'returns empty items' do
       entry = Catalog::Otu::InventoryEntry.new(otu)
-      entry.build
       expect(entry.items).to be_empty
     end
   end
@@ -20,7 +19,6 @@ describe Catalog::Otu::InventoryEntry, group: :catalogs, type: :spinup do
 
     specify 'includes citations from protonym' do
       entry = Catalog::Otu::InventoryEntry.new(otu)
-      entry.build
       expect(entry.items.map(&:object)).to include(species)
       expect(entry.items.map(&:citation)).to include(citation)
     end
@@ -32,7 +30,6 @@ describe Catalog::Otu::InventoryEntry, group: :catalogs, type: :spinup do
 
     specify 'includes citations from common_names' do
       entry = Catalog::Otu::InventoryEntry.new(otu)
-      entry.build
       expect(entry.items.map(&:object)).to include(common_name)
       expect(entry.items.map(&:citation)).to include(citation)
     end
@@ -49,7 +46,6 @@ describe Catalog::Otu::InventoryEntry, group: :catalogs, type: :spinup do
       asserted_distribution.save!
 
       entry = Catalog::Otu::InventoryEntry.new(otu)
-      entry.build
       expect(entry.items.map(&:object)).to include(asserted_distribution)
       expect(entry.items.map(&:citation)).to include(citation)
     end
@@ -67,7 +63,6 @@ describe Catalog::Otu::InventoryEntry, group: :catalogs, type: :spinup do
         citation = Citation.create!(citation_object: biological_association, source: source)
 
         entry = Catalog::Otu::InventoryEntry.new(otu)
-        entry.build
         expect(entry.items.map(&:object)).to include(biological_association)
         expect(entry.items.map(&:citation)).to include(citation)
       end
@@ -82,7 +77,6 @@ describe Catalog::Otu::InventoryEntry, group: :catalogs, type: :spinup do
 
       specify 'includes citations from images' do
         entry = Catalog::Otu::InventoryEntry.new(otu)
-        entry.build
         expect(entry.items.map(&:object)).to include(image)
         expect(entry.items.map(&:citation)).to include(citation)
       end
@@ -95,7 +89,6 @@ describe Catalog::Otu::InventoryEntry, group: :catalogs, type: :spinup do
 
       specify 'includes citations from collection_objects' do
         entry = Catalog::Otu::InventoryEntry.new(otu)
-        entry.build
         expect(entry.items.map(&:object)).to include(collection_object)
         expect(entry.items.map(&:citation)).to include(citation)
       end
@@ -112,7 +105,6 @@ describe Catalog::Otu::InventoryEntry, group: :catalogs, type: :spinup do
 
       specify 'includes citations from type_materials' do
         entry = Catalog::Otu::InventoryEntry.new(otu)
-        entry.build
         expect(entry.items.map(&:object)).to include(type_material)
         expect(entry.items.map(&:citation)).to include(citation)
       end
@@ -127,7 +119,6 @@ describe Catalog::Otu::InventoryEntry, group: :catalogs, type: :spinup do
       # Coordinate OTUs are OTUs with the same cached_valid_taxon_name_id
       # The original otu should be in its own coordinate set
       entry = Catalog::Otu::InventoryEntry.new(otu)
-      entry.build
       expect(entry.items.map(&:object)).to include(common_name)
       expect(entry.items.map(&:citation)).to include(citation)
       expect(entry.items.map(&:base_object)).to include(otu)
@@ -142,7 +133,6 @@ describe Catalog::Otu::InventoryEntry, group: :catalogs, type: :spinup do
 
     specify 'same citation+object combination appears only once' do
       entry = Catalog::Otu::InventoryEntry.new(otu)
-      entry.build
       items = entry.items
       citation1_items = items.select { |i| i.citation.id == citation1.id && i.object == common_name }
       expect(citation1_items.count).to eq(1)
@@ -150,7 +140,6 @@ describe Catalog::Otu::InventoryEntry, group: :catalogs, type: :spinup do
 
     specify 'different citations on same object both appear' do
       entry = Catalog::Otu::InventoryEntry.new(otu)
-      entry.build
       items = entry.items
       common_name_citations = items.select { |i| i.object == common_name }.map(&:citation)
       expect(common_name_citations).to include(citation1, citation2)
@@ -176,7 +165,6 @@ describe Catalog::Otu::InventoryEntry, group: :catalogs, type: :spinup do
       end
 
       entry = Catalog::Otu::InventoryEntry.new(otu)
-      entry.build
 
       # We expect bulk loading, not N+1 queries
       # With 10 common_names, if we had N+1 we'd see 10+ queries just for common names alone

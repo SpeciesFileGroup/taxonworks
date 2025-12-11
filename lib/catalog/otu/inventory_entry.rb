@@ -21,7 +21,8 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
     relation_names = ApplicationEnumeration.citable_relations(Otu).values.flatten(1)
 
     # Load all coordinate OTUs once and build a lookup hash
-    coordinate_otus = ::Otu.where(id: coordinate_otu_ids).index_by(&:id)
+    # Include taxon_name to avoid N+1 queries when rendering
+    coordinate_otus = ::Otu.where(id: coordinate_otu_ids).includes(:taxon_name).index_by(&:id)
 
     # Separate simple relations from through relations
     simple_relations = []
@@ -46,7 +47,7 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
         target_ids = coordinate_otus.values.map { |otu| otu.send(foreign_key) }.compact.uniq
         next if target_ids.empty?
 
-        associated_objects = reflection.klass.where(id: target_ids).includes(citations: :source).to_a
+        associated_objects = reflection.klass.where(id: target_ids).includes(citations: [:source, :citation_topics, :notes]).to_a
 
         # Build a map of which OTU references which target
         otu_to_target = coordinate_otus.transform_values { |otu| otu.send(foreign_key) }
@@ -79,7 +80,7 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
           query = query.where(reflection.type => 'Otu')
         end
 
-        associated_objects = query.includes(citations: :source).to_a
+        associated_objects = query.includes(citations: [:source, :citation_topics, :notes]).to_a
 
         associated_objects.each do |associated_object|
           base_otu_id = associated_object.send(foreign_key)
@@ -101,7 +102,7 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
     # Handle through relations using original approach with eager loading
     unless through_relations.empty?
       includes_hash = through_relations.each_with_object({}) do |rel, hash|
-        hash[rel] = { citations: :source }
+        hash[rel] = { citations: [:source, :citation_topics, :notes] }
       end
 
       coordinate_otus_with_includes = ::Otu.where(id: coordinate_otu_ids).includes(includes_hash).to_a
