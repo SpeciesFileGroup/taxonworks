@@ -92,10 +92,12 @@ module Export::Coldp::Files::Name
       .select('taxon_names.*, n.genus, n.subgenus, n.species, n.infraspecies, n.genus_gender')
   end
 
+  # TODO: Add Homonym support for out of scope names
+  #   Probably as a new method all together
   def self.invalid_core_names(otu)
     a = otu.taxon_name.self_and_descendants.unscope(:order).select(:id)
 
-
+    # TODO: the .where('((taxon_names.cached = taxon_names.cached_original_combination) OR (taxon_names.cached_original_combination IS NULL))') clause excludes names we need
     b = ::Protonym
       .with(valid_scope: a)
       .joins('JOIN valid_scope on valid_scope.id = taxon_names.cached_valid_taxon_name_id')
@@ -159,6 +161,8 @@ module Export::Coldp::Files::Name
         referenceID
         publishedInPage
         publishedInYear
+        gender
+        etymology
         code
         status
         link
@@ -173,10 +177,13 @@ module Export::Coldp::Files::Name
       add_combinations(otu, csv, project_members, reference_csv)
       add_historical_combinations(otu, csv, project_members, reference_csv)
       add_original_combinations(otu, csv, project_members, reference_csv)
+      add_invalid_original_combinations(otu, csv, project_members, reference_csv)
       add_invalid_family_and_higher_names(otu, csv, project_members, reference_csv)
       add_invalid_core_names(otu, csv, project_members, reference_csv)
       add_invalid_original_combinations(otu, csv, project_members, reference_csv)
     end
+
+    output[:csv]
   end
 
   # Higher names are:
@@ -188,7 +195,7 @@ module Export::Coldp::Files::Name
       .where(rank_class: HIGHER_RANK_NAMES, cached_is_valid: true)
       .unscope(:order)
       .eager_load(origin_citation: [:source]) # TODO, just source_id, and pages
-      .select(:id, :cached, :type, :cached_author_year, :cached_nomenclature_date, :rank_class, :updated_at, :updated_by_id)
+      .select(:id, :cached, :type, :cached_author_year, :cached_nomenclature_date, :rank_class, :etymology, :updated_at, :updated_by_id)
   end
 
   # Valid family names are:
@@ -198,7 +205,7 @@ module Export::Coldp::Files::Name
       .where(rank_class: FAMILY_RANK_NAMES, cached_is_valid: true)
       .unscope(:order)
       .eager_load(origin_citation: [:source]) # TODO, just source_id, and pages
-      .select(:id, :cached, :type, :cached_author_year, :cached_nomenclature_date, :rank_class, :updated_at, :updated_by_id)
+      .select(:id, :cached, :type, :cached_author_year, :cached_nomenclature_date, :rank_class, :etymology, :updated_at, :updated_by_id)
   end
 
   # Invalid family/higher names
@@ -210,7 +217,7 @@ module Export::Coldp::Files::Name
         cached_is_valid: false)
       .unscope(:order)
       .eager_load(origin_citation: [:source]) # TODO, just source_id, and pages
-      .select(:id, :name, :type, :cached_author_year, :cached_nomenclature_date, :rank_class, :cached_is_valid, :cached_valid_taxon_name_id, :updated_at, :updated_by_id) # cached has sic
+      .select(:id, :name, :type, :cached_author_year, :cached_nomenclature_date, :rank_class, :etymology, :cached_is_valid, :cached_valid_taxon_name_id, :updated_at, :updated_by_id) # cached has sic
   end
 
   # Valid original combinations are:
@@ -221,6 +228,10 @@ module Export::Coldp::Files::Name
   #
   # As a test these should parse correctly in the Biodiversity wrapper as of 4/8/2025.
   #
+  # TODO: Original combination of *invalid* names not working
+  #   * valid_....
+  #   * clone everything - invalid_original_combination_names
+  #   * Make very clean invalid original combination test with no geneder misalignment <-
   def self.original_combination_names(otu)
     a = core_names(otu)
 
@@ -229,6 +240,10 @@ module Export::Coldp::Files::Name
       .original_combinations_flattened.with(project_scope: a)
       .where('taxon_names.cached != taxon_names.cached_original_combination') # Only reified!!
       .joins('JOIN project_scope ps on ps.id = taxon_names.id')
+
+    # We are missing invalid_core_names where cached != cached_original_combiation ( ) - missgendered original species
+    # AND we are missing invalid_cores_original_combiantions
+    
   end
 
   # Invalid original combinations are:
@@ -326,6 +341,7 @@ module Export::Coldp::Files::Name
       # !! SO that we know these *must* be reified
       # !! We are reifieing *without* "[sic]" in the string
       id = ::Utilities::Nomenclature.reified_id(row['id'], scientific_name)
+      ::Export::Coldp.name_ids << id
 
       # By definition
       basionym_id = row['id']
@@ -344,6 +360,80 @@ module Export::Coldp::Files::Name
         row['source_id'],                                                   # referenceID
         row['pages'],                                                       # publishedInPage
         row['cached_nomenclature_date']&.year,                              # publishedInYear - OK
+        row['cached_gender'],                                               # gender
+        row['etymology'],                                                   # etymology
+        code_field(row['reference_rank_class']),                            # code
+        nil,                                                                # status https://api.checklistbank.org/vocab/nomStatus
+        nil,                                                                # link (probably TW public or API)
+        nil,                                                                # remarks (we have no way to capture this in TW)
+        Export::Coldp.modified(row[:updated_at]),                           # modified
+        Export::Coldp.modified_by(row[:updated_by_id], project_members)     # modifiedBy
+      ]
+
+      # !! We do not need to add a reference here because it is the same as the corresponding Protonym id
+    end
+  end
+
+  # Invalid original combinations are:
+  #   - species or genus group names
+  #   - original combinations of invalid names
+  #   - names where cached != original_combination, i.e. it needs re-ification
+  def self.invalid_original_combination_names(otu)
+    a_ids = invalid_core_names(otu).pluck(:id)
+
+    # TODO: I couldn't get original_combinations_flattened to work here--it returns 0 rows
+    b = Protonym
+      .original_combination_specified
+      .where('taxon_names.cached != taxon_names.cached_original_combination')
+      .where(id: a_ids)
+    b
+    
+  end
+
+  def self.add_invalid_original_combinations(otu, csv, project_members, reference_csv)
+    names = invalid_original_combination_names(otu)
+    names.length
+
+    names.find_each do |row|
+      # At this point all formatting (gender) is done
+      elements = Protonym.original_combination_full_name_hash_from_flat(row)
+
+      infraspecies, rank = Utilities::Nomenclature.infraspecies(elements)
+      rank = 'forma' if rank == 'form' # CoL preferred string
+
+      # Hmm- why needed?
+      rank = elements.keys.last if rank.nil? # Note that this depends on order of Hash creation
+
+      scientific_name = row['cached_misspelling'] ? ::Utilities::Nomenclature.unmisspell_name(row['cached_original_combination']) : row['cached_original_combination']
+
+      # TODO: resolve/verify needed
+      uninomial = scientific_name if rank == 'genus'
+
+      # !! Ideally we de-reify these names ina the query with (cached != cached_original_combination)
+      # !! SO that we know these *must* be reified
+      # !! We are reifieing *without* "[sic]" in the string
+      id = ::Utilities::Nomenclature.reified_id(row['id'], scientific_name)
+      ::Export::Coldp.name_ids << id
+
+      # By definition
+      basionym_id = row['id']
+
+      csv << [
+        id,                                                                 # ID
+        basionym_id,                                                        # basionymID
+        scientific_name,                                                    # scientificName
+        row['cached_author_year'].gsub(/[\(\)]/, ''),                       # authorship
+        rank,                                                               # rank
+        uninomial,                                                          # uninomial
+        elements['genus']&.last,                                            # genus
+        elements['subgenus']&.last,                                         # subgenus (no parens)
+        elements['species']&.last,                                          # species
+        infraspecies,                                                       # infraspecificEpithet
+        row['source_id'],                                                   # referenceID
+        row['pages'],                                                       # publishedInPage
+        row['cached_nomenclature_date']&.year,                              # publishedInYear - OK
+        row['cached_gender'],                                               # gender
+        row['etymology'],                                                   # etymology
         code_field(row['reference_rank_class']),                            # code
         nil,                                                                # status https://api.checklistbank.org/vocab/nomStatus
         nil,                                                                # link (probably TW public or API)
@@ -361,6 +451,7 @@ module Export::Coldp::Files::Name
     names.length
 
     names.find_each do |t|
+      ::Export::Coldp.name_ids << t.id
       origin_citation = t.origin_citation
       csv << [
         t.id,                                                               # ID
@@ -376,6 +467,8 @@ module Export::Coldp::Files::Name
         origin_citation&.source_id,                                         # publishedInID
         origin_citation&.pages,                                             # publishedInPage
         t.cached_nomenclature_date&.year,                                   # publishedInYear
+        nil,                                                                # gender
+        t.etymology,                                                        # etymology
         code_field(t.rank_class.name),                                      # code
         ::TaxonName::NOMEN_VALID[t.rank_class.name.to_sym],                 # nomStatus
         nil,                                                                # link (probably TW public or API)
@@ -395,6 +488,8 @@ module Export::Coldp::Files::Name
     names.length
     names.find_each do |t|
 
+      ::Export::Coldp.name_ids << t.id
+
       # TODO: isolate/refine
       origin_citation = t.origin_citation
 
@@ -412,6 +507,8 @@ module Export::Coldp::Files::Name
         origin_citation&.source_id,                                         # publishedInID
         origin_citation&.pages,                                             # publishedInPage
         t.cached_nomenclature_date&.year,                                   # publishedInYear
+        nil,                                                                # gender
+        t.etymology,                                                        # etymology
         code_field(t.rank_class.name),                                      # code
         ::TaxonName::NOMEN_VALID[t.rank_class.name.to_sym],                 # nomStatus
         nil,                                                                # link (probably TW public or API)
@@ -429,10 +526,11 @@ module Export::Coldp::Files::Name
   def self.combination_names(otu)
     a = otu.taxon_name.self_and_descendants.unscope(:order).select(:id)
 
-    b = Combination.
+    Combination.
       flattened.with(project_scope: a)
       .complete
       .joins('JOIN project_scope ps on ps.id = taxon_names.cached_valid_taxon_name_id') # Combinations that point to any of "a"
+      .select('taxon_names.*, taxon_names.cached_gender, taxon_names.etymology') # Explicitly select needed columns
   end
 
   # Historical combinations that may not have sources or complete relationship records,
@@ -462,6 +560,8 @@ module Export::Coldp::Files::Name
 
     names.each do |row| # row is a Hash, not a ActiveRecord object
 
+      ::Export::Coldp.name_ids << row['id']
+
       # At this point all formatting (gender) is done
       elements = Combination.full_name_hash_from_row(row)
 
@@ -471,8 +571,11 @@ module Export::Coldp::Files::Name
       rank = elements.keys.last if rank.nil?
 
       # In some cases where names are described originally with missmatched gender we can exclude dupes
-      # This exception needs to be in SQL to simply, a MAX/INDEX of possible ranks with values
-      if row[rank + "_cached"] == row['cached']
+      #
+      # This exception needs to be in SQL to simplify, a MAX/INDEX of possible ranks with values
+      #
+      # TODO: we are excluding too many combinations here (e.g., in Opiliones: Phalangium brevicorne)
+      if row[rank + '_cached'] == row['cached']
         ::Export::Coldp.skipped_combinations << row['id']
         next
       end
@@ -495,6 +598,8 @@ module Export::Coldp::Files::Name
         row['source_id'],                                                   # publishedInID
         row['pages'],                                                       # publishedInPage
         row['cached_nomenclature_date']&.year,                              # publishedInYear
+        row['cached_gender'],                                               # gender
+        row['etymology'],                                                   # etymology
         code_field(row['reference_rank_class']),                            # code
         nil,                                                                # nomStatus (nil for Combination)
         nil,                                                                # link (probably TW public or API)
@@ -573,6 +678,8 @@ module Export::Coldp::Files::Name
       else
         return t
       end
+    else
+      return t
     end
   end
 
@@ -581,6 +688,8 @@ module Export::Coldp::Files::Name
     names.length
 
     names.find_each do |t|
+
+      ::Export::Coldp.name_ids << t.id
 
       origin_citation = t.origin_citation
       basionym_id = t.id # by defintion
@@ -604,6 +713,8 @@ module Export::Coldp::Files::Name
         origin_citation&.source_id,                                         # publishedInID
         origin_citation&.pages,                                             # publishedInPage
         t.cached_nomenclature_date&.year,                                   # publishedInYear
+        t.cached_gender,                                                    # gender
+        t.etymology,                                                        # etymology
         code_field(t.rank_class.name),                                      # code
         ::TaxonName::NOMEN_VALID[t.rank_class.name.to_sym],                 # nomStatus # TODO: untested
         nil,                                                                # link (probably TW public or API)
@@ -621,10 +732,10 @@ module Export::Coldp::Files::Name
   def self.nomenclatural_status(taxon_name_id, classification_status = [], relationship_status = [])
     # Always prefer  a classification, regardless of age
     a = classification_status.bsearch{|i| i['taxon_name_id'] >= taxon_name_id}
-    return a['type'].safe_constantize::NOMEN_URI if !a.blank? && a['taxon_name_id'] == taxon_name_id # binary is first >=
+    return a['type'].safe_constantize::NOMEN_URI if a.present? && a['taxon_name_id'] == taxon_name_id # binary is first >=
     b = relationship_status.bsearch{|i| i['subject_taxon_name_id'] >= taxon_name_id}
     return nil if b.blank? || b['subject_taxon_name_id'] != taxon_name_id
-    return b['type'].safe_constantize::NOMEN_URI unless b.blank?
+    return b['type'].safe_constantize::NOMEN_URI if b.present?
     nil
   end
 
@@ -638,6 +749,7 @@ module Export::Coldp::Files::Name
     names.length # !! TODO: without this the result is truncated, why!?
 
     names.find_each do |t|
+      ::Export::Coldp.name_ids << t.id
       origin_citation = t.origin_citation
 
       nom_status = nomenclatural_status(t.id, classification_status, relationship_status)
@@ -656,6 +768,8 @@ module Export::Coldp::Files::Name
         origin_citation&.source_id,                                       # publishedInID
         origin_citation&.pages,                                           # publishedInPage
         t.cached_nomenclature_date&.year,                                 # publishedInYear
+        nil,                                                              # gender
+        t.etymology,                                                      # etymology
         code_field(t.rank_class.name),                                    # code
         nom_status,                                                       # nomStatus
         nil,                                                              # link (probably TW public or API)
@@ -671,12 +785,15 @@ module Export::Coldp::Files::Name
   def self.add_invalid_core_names(otu, csv, project_members, reference_csv)
     names = invalid_core_names(otu)
 
+
     classification_status = taxon_name_classification_status(names)
     relationship_status = taxon_name_relationship_status(names)
 
     names.length # !! TODO: without this the result is truncated, why!?
 
+
     names.find_each do |t|
+      ::Export::Coldp.name_ids << t.id
 
       origin_citation = t.origin_citation
 
@@ -700,6 +817,8 @@ module Export::Coldp::Files::Name
         origin_citation&.source_id,                                         # publishedInID
         origin_citation&.pages,                                             # publishedInPage
         t.cached_nomenclature_date&.year,                                   # publishedInYear
+        t.cached_gender,                                                    # gender
+        t.etymology,                                                        # etymology
         code_field(t.rank_class.name),                                      # code
         nom_status,                                                         # nomStatus
         nil,                                                                # link (probably TW public or API)

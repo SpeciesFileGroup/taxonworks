@@ -104,13 +104,14 @@ module Export::Coldp::Files::Taxon
   end
 
   def self.attributes(otus, target)
-    a = DataAttribute.with(otu_scope: otus)
+    target_string = target.to_s
+    DataAttribute.with(otu_scope: otus)
       .joins("JOIN otu_scope on data_attributes.attribute_subject_id = otu_scope.id AND data_attributes.attribute_subject_type = 'Otu'")
       .joins(:predicate)
-      .select("data_attributes.attribute_subject_id, STRING_AGG(data_attributes.value::text, ',') AS #{target}")
+      .select("data_attributes.attribute_subject_id AS id, STRING_AGG(data_attributes.value::text, ',') AS #{target_string}")
       .where(predicate: { uri: IRI_MAP[target] })
       .group('data_attributes.attribute_subject_id')
-      .map{|a| [a.id, a.send(target)]}.to_h
+      .map{|a| [a.id, a.send(target_string)]}.to_h
   end
 
   def self.generate(otu, otus, project_members, reference_csv = nil, prefer_unlabelled_otus = true)
@@ -178,17 +179,22 @@ module Export::Coldp::Files::Taxon
         next if observed_taxon_name_ids[o.taxon_name_id]
         observed_taxon_name_ids[o.taxon_name_id] = nil
 
+        ::Export::Coldp.taxon_ids << o.id
+
         # TODO: NOT SPECIFIED is left out no from Name, but not populating a tracking list
         #
         # If this is required add it to the `target` scope above
         # some names are skipped (e.g., if they have NOT SPECIFIED names)
+        
+        # if the scientificName starts with [ then it should be set to provisional
+        provisional = o.taxon_name.cached&.start_with?('[') || nil  
 
         csv << [
           o.id,                                                            # ID (Taxon)
           parent_id,                                                       # parentID (Taxon)
           o.taxon_name_id,                                                 # nameID (Name)
           attributes[:namePhrase][o.id],                                   # namePhrase
-          nil,                                                             # provisional provisional(o)
+          provisional,                                                     # provisional provisional(o)
           nil,                                                             # accordingToID according_to_id(o)
           nil,                                                             # scrutinizer scrutinizer(o)
           nil,                                                             # scrutinizerID scrutinizer_id(o)

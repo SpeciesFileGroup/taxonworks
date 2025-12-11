@@ -20,18 +20,29 @@ describe Export::Coldp, type: :model, group: :col do
     #     For combination
     #     For misspelled original protonym differening from current parent
     # Add original combination data
-    # 
+    #
     let!(:species) { FactoryBot.create(:iczn_species) }
+
+    let!(:misspelling) { Protonym.create!( name: species.name + 'zzz', rank_class: Ranks.lookup(:iczn, :species), parent: species.parent) }
+
+    let!(:other_genus) { Protonym.create!( name: 'Hus', rank_class: Ranks.lookup(:iczn, :genus), parent: find_or_create_root_taxon_name) }
+
     let(:otu) { Otu.create(taxon_name: species) }
     let(:specimen) { Specimen.create! }
     let!(:citation) { Citation.create!(citation_object: otu, source: FactoryBot.create(:valid_source_bibtex), is_original: true) }
     let!(:invalid_species) { Protonym.create(name: 'bus', rank_class: Ranks.lookup(:iczn, :species), parent: species.parent) }
-    let!(:synonym) { TaxonNameRelationship::Iczn::Invalidating.create!(subject_taxon_name: invalid_species, object_taxon_name: species) }    
+    let!(:synonym) { TaxonNameRelationship::Iczn::Invalidating.create!(subject_taxon_name: invalid_species, object_taxon_name: species) }
     let!(:common_name) { FactoryBot.create(:valid_common_name, otu: otu) }
     let!(:type_material) { FactoryBot.create(:valid_type_material, collection_object: specimen, protonym: species) }
     let!(:asserted_distribution) { FactoryBot.create(:valid_geographic_area_asserted_distribution, asserted_distribution_object: otu) }
-    let!(:homonym_species) { Protonym.create(name: 'hus', rank_class: Ranks.lookup(:iczn, :species), parent: species.root) }
+
+    let!(:homonym_species) { Protonym.create(name: 'hus', rank_class: Ranks.lookup(:iczn, :species), parent: other_genus) }
+
+    # TODO: this out of scope name needs to appear in NameRelations (maybe?)
     let!(:homonym) { TaxonNameRelationship::Iczn::Invalidating::Homonym.create!(subject_taxon_name: homonym_species, object_taxon_name: species )  }
+
+    let!(:misspelling_relationship) { TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create!(subject_taxon_name: misspelling, object_taxon_name: species )  }
+
     let!(:biological_association) { FactoryBot.create(:valid_biological_association, biological_association_subject: otu, biological_association_object: Otu.create!(name: 'ba'))  }
     let!(:otu_relationship) { FactoryBot.create(:valid_otu_relationship, subject_otu: otu, object_otu:  Otu.create!(name: 'or'))  }
 
