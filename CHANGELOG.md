@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - api/v1/dwc_occurrences/area_autocomplete when target=stateProvince
+- Magnify icon is missing from the autocomplete
 
 ### Changed
 
