@@ -18,7 +18,7 @@ describe Catalog::Otu::InventoryEntry, group: :catalogs, type: :spinup do
     let!(:citation) { Citation.create!(citation_object: species, source: source) }
 
     specify 'includes citations from protonym' do
-      entry = Catalog::Otu::InventoryEntry.new(otu)
+      entry = Catalog::Otu::InventoryEntry.new(otu, include_belongs_to: true)
       expect(entry.items.map(&:object)).to include(species)
       expect(entry.items.map(&:citation)).to include(citation)
     end
