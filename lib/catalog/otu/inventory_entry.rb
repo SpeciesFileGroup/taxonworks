@@ -20,6 +20,18 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
     coordinate_otu_ids = ::Otu.coordinate_otus(object.id).pluck(:id)
     relation_names = ApplicationEnumeration.citable_relations(Otu).values.flatten(1)
 
+    # Filter out STI subclass relations that are redundant with their parent class
+    # (e.g., protonym is a Protonym < TaxonName, so citations are stored as TaxonName)
+    relation_names = relation_names.reject do |relation_name|
+      reflection = Otu.reflect_on_association(relation_name)
+      # Check if this relation's class is a subclass of any other relation's class
+      relation_names.any? do |other_relation_name|
+        next if relation_name == other_relation_name
+        other_reflection = Otu.reflect_on_association(other_relation_name)
+        reflection.klass < other_reflection.klass
+      end
+    end
+
     # Load all coordinate OTUs once and build a lookup hash
     # Include taxon_name to avoid N+1 queries when rendering
     coordinate_otus = ::Otu.where(id: coordinate_otu_ids).includes(:taxon_name).index_by(&:id)
