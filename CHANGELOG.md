@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- subject/object type to indexed biological associations endpoint
+
 ### Fixed
 
 - api/v1/dwc_occurrences/area_autocomplete when target=stateProvince
