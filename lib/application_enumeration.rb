@@ -143,10 +143,12 @@ module ApplicationEnumeration
     types.each do |t|
       h[t] = klass.reflect_on_all_associations(t).filter_map do |r|
         if r.klass.ancestors.include?(Shared::Citations)
+          # TODO: add the info we need for each type to get back to a klass id
           if t == :has_many
-            r.plural_name.to_sym
+            #r.plural_name.to_sym
+            "#{t}: #{r.name.to_sym}"
           else
-            r.name.to_sym
+            "#{t}: #{r.name.to_sym}"
           end
         else
           nil
@@ -155,6 +157,83 @@ module ApplicationEnumeration
     end
 
     h
+  end
+
+  # @param klass [Class] the model class (e.g., Otu)
+  # @param relationship_type [Symbol] :all, :has_many, :has_one, or :belongs_to
+  # @return [Hash] metadata for building joins from citations back to the source class
+  #   Each entry contains:
+  #   - relation_name: the association name
+  #   - target_class: the class being cited
+  #   - join_type: :direct, :through, or :polymorphic
+  #   - join_details: hash with keys needed for building SQL joins
+  def self.citable_relations_metadata(klass, relationship_type = :all)
+    types = relationship_type == :all ?
+      [:has_many, :has_one, :belongs_to] : [relationship_type]
+
+    result = []
+
+    types.each do |macro|
+      klass.reflect_on_all_associations(macro).each do |reflection|
+        # Only include relations where the target class includes Shared::Citations
+        next unless reflection.klass.ancestors.include?(Shared::Citations)
+
+        metadata = {
+          relation_name: reflection.name,
+          macro: macro,
+          target_class: reflection.class_name
+        }
+
+        # Determine the join strategy
+        if reflection.through_reflection
+          # has_many :through relationship (e.g., images through depictions)
+          through = klass.reflect_on_association(reflection.through_reflection.name)
+          source = reflection.source_reflection
+
+          metadata[:join_type] = :through
+          metadata[:join_details] = {
+            through_class: reflection.through_reflection.class_name,
+            through_table: reflection.through_reflection.table_name,
+            source_relation: source.name,
+            # For the join from through table to source class
+            source_foreign_key: source.foreign_key,
+            source_foreign_type: source.polymorphic? ? source.foreign_type : nil,
+            # For the join from klass to through table
+            through_foreign_key: through.foreign_key,
+            through_foreign_type: through.type # Will be nil if not polymorphic
+          }
+        elsif reflection.options[:as]
+          # Polymorphic relationship (e.g., biological_associations as biological_association_subject)
+          metadata[:join_type] = :polymorphic
+          metadata[:join_details] = {
+            foreign_key: reflection.foreign_key,
+            foreign_type: reflection.type,
+            as: reflection.options[:as]
+          }
+        else
+          # Direct relationship
+          if macro == :belongs_to
+            # For belongs_to, the foreign key is in the source table (e.g., Otu.taxon_name_id)
+            # We need to join from target back to source
+            metadata[:join_type] = :belongs_to
+            metadata[:join_details] = {
+              foreign_key: reflection.foreign_key, # e.g., taxon_name_id
+              primary_key: reflection.association_primary_key # e.g., id
+            }
+          else
+            # For direct has_many, the foreign key is in the target table
+            metadata[:join_type] = :direct
+            metadata[:join_details] = {
+              foreign_key: reflection.foreign_key
+            }
+          end
+        end
+
+        result << metadata
+      end
+    end
+
+    result
   end
 
 
