@@ -38,7 +38,9 @@ module Export::Coldp::Files::Synonym
       add_invalid_family_and_higher_names(otu, otus, csv, project_members)
       add_invalid_core_names(otu, otus, csv, project_members)
       add_original_combinations(otu, otus, csv, project_members)
+      add_invalid_original_combinations(otu, otus, csv, project_members)
       add_combinations(otu, otus, csv, project_members)
+      add_historical_combinations(otu, otus, csv, project_members)
     end
   end
 
@@ -102,6 +104,31 @@ module Export::Coldp::Files::Synonym
     end
   end
 
+  # Add synonyms for historical combinations that weren't captured by combination_names (flattened)
+  def self.add_historical_combinations(otu, otus, csv, project_members)
+    names = ::Export::Coldp::Files::Name.historical_combination_names(otu)
+
+    names.find_each do |t|
+      # Skip Combinations that are identical to the current valid placement
+      # (same as old exporter's filter)
+      valid_name = TaxonName.find_by(id: t.cached_valid_taxon_name_id)
+      next if valid_name && t.cached == valid_name.cached
+
+      # Find the OTU for this combination's valid taxon
+      otu_record = Otu.find_by(taxon_name_id: t.cached_valid_taxon_name_id)
+
+      csv << [
+        otu_record&.id,                                            # taxonID attached to the current valid concept
+        t.id,                                                      # nameID
+        nil,                                                       # status  TODO: def status(taxon_name_id)
+        nil,                                                       # remarks
+        nil,                                                       # referenceID  Unclear what this means in TW
+        Export::Coldp.modified(t.updated_at),                      # modified
+        Export::Coldp.modified_by(t.updated_by_id, project_members) # modifiedBy
+      ]
+    end
+  end
+
   def self.add_invalid_family_and_higher_names(otu, otus, csv, project_members)
     names = ::Export::Coldp::Files::Name.invalid_family_and_higher_names(otu)
     names.length # TODO: needed?
@@ -157,6 +184,36 @@ module Export::Coldp::Files::Synonym
 
     y.find_each do |n|
       # By `original_combination_names(otu) these are all reified
+      reified_id = ::Utilities::Nomenclature.reified_id(n.id, n.cached_original_combination)
+
+      csv << [
+        n.otu_id,                                                  # taxonID attached to the current valid concept
+        reified_id,                                                # nameID
+        nil,                                                       # status  TODO: def status(taxon_name_id)
+        nil,                                                       # remarks
+        nil,                                                       # referenceID  Unclear what this means in TW
+        Export::Coldp.modified(n.updated_at),                      # modified
+        Export::Coldp.modified_by(n.updated_by_id, project_members) # modifiedBy
+      ]
+    end
+  end
+
+  # Add synonyms for invalid names with different original combinations (reified IDs)
+  def self.add_invalid_original_combinations(otu, otus, csv, project_members)
+    names = ::Export::Coldp::Files::Name.invalid_original_combination_names(otu)
+
+    x = Otu.with(name_scope: names)
+      .joins('JOIN name_scope on name_scope.cached_valid_taxon_name_id = otus.taxon_name_id')
+      .select(:id)
+
+    y = TaxonName.with(invalid_names: names)
+      .joins('JOIN invalid_names on invalid_names.cached_valid_taxon_name_id = taxon_names.id')
+      .joins('LEFT JOIN otus on otus.taxon_name_id = taxon_names.id')
+      .select('invalid_names.id, MAX(otus.id) AS otu_id, taxon_names.updated_at, taxon_names.updated_by_id, invalid_names.cached_original_combination')
+      .group('taxon_names.id, invalid_names.id, invalid_names.cached_original_combination')
+
+    y.find_each do |n|
+      # By `invalid_original_combination_names(otu) these are all reified
       reified_id = ::Utilities::Nomenclature.reified_id(n.id, n.cached_original_combination)
 
       csv << [

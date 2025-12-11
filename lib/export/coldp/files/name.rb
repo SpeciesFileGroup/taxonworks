@@ -171,9 +171,11 @@ module Export::Coldp::Files::Name
       add_valid_family_names(otu, csv, project_members, reference_csv)
       add_core_names(otu, csv, project_members, reference_csv)
       add_combinations(otu, csv, project_members, reference_csv)
+      add_historical_combinations(otu, csv, project_members, reference_csv)
       add_original_combinations(otu, csv, project_members, reference_csv)
       add_invalid_family_and_higher_names(otu, csv, project_members, reference_csv)
       add_invalid_core_names(otu, csv, project_members, reference_csv)
+      add_invalid_original_combinations(otu, csv, project_members, reference_csv)
     end
   end
 
@@ -227,6 +229,78 @@ module Export::Coldp::Files::Name
       .original_combinations_flattened.with(project_scope: a)
       .where('taxon_names.cached != taxon_names.cached_original_combination') # Only reified!!
       .joins('JOIN project_scope ps on ps.id = taxon_names.id')
+  end
+
+  # Invalid original combinations are:
+  #   - species or genus group names
+  #   - invalid names (not valid)
+  #   - names with original combinations set
+  #   - names where cached != original_combination, i.e. it needs re-ification
+  #
+  # These are the original combinations for invalid protonyms that need reified IDs
+  #
+  def self.invalid_original_combination_names(otu)
+    a = otu.taxon_name.self_and_descendants.unscope(:order).select(:id)
+
+    b = Protonym
+      .original_combination_specified
+      .original_combinations_flattened.with(valid_scope: a)
+      .where(cached_is_valid: false)
+      .where('taxon_names.cached != taxon_names.cached_original_combination') # Only reified!!
+      .joins('JOIN valid_scope on valid_scope.id = taxon_names.cached_valid_taxon_name_id')
+  end
+
+  def self.add_invalid_original_combinations(otu, csv, project_members, reference_csv)
+    names = invalid_original_combination_names(otu)
+    names.length
+
+    names.find_each do |row|
+      # At this point all formatting (gender) is done
+      elements = Protonym.original_combination_full_name_hash_from_flat(row)
+
+      infraspecies, rank = Utilities::Nomenclature.infraspecies(elements)
+      rank = 'forma' if rank == 'form' # CoL preferred string
+
+      # Hmm- why needed?
+      rank = elements.keys.last if rank.nil? # Note that this depends on order of Hash creation
+
+      scientific_name = row['cached_misspelling'] ? ::Utilities::Nomenclature.unmisspell_name(row['cached_original_combination']) : row['cached_original_combination']
+
+      # TODO: resolve/verify needed
+      uninomial = scientific_name if rank == 'genus'
+
+      # !! Ideally we de-reify these names in the query with (cached != cached_original_combination)
+      # !! SO that we know these *must* be reified
+      # !! We are reifying *without* "[sic]" in the string
+      id = ::Utilities::Nomenclature.reified_id(row['id'], scientific_name)
+
+      # By definition - for invalid names, the basionym points to itself (the reified original combination)
+      basionym_id = id
+
+      csv << [
+        id,                                                                 # ID
+        basionym_id,                                                        # basionymID
+        scientific_name,                                                    # scientificName
+        row['cached_author_year'].gsub(/[\(\)]/, ''),                       # authorship
+        rank,                                                               # rank
+        uninomial,                                                          # uninomial
+        elements['genus']&.last,                                            # genus
+        elements['subgenus']&.last,                                         # subgenus (no parens)
+        elements['species']&.last,                                          # species
+        infraspecies,                                                       # infraspecificEpithet
+        row['source_id'],                                                   # referenceID
+        row['pages'],                                                       # publishedInPage
+        row['cached_nomenclature_date']&.year,                              # publishedInYear - OK
+        code_field(row['reference_rank_class']),                            # code
+        nil,                                                                # status https://api.checklistbank.org/vocab/nomStatus
+        nil,                                                                # link (probably TW public or API)
+        nil,                                                                # remarks (we have no way to capture this in TW)
+        Export::Coldp.modified(row[:updated_at]),                           # modified
+        Export::Coldp.modified_by(row[:updated_by_id], project_members)     # modifiedBy
+      ]
+
+      # !! We do not need to add a reference here because it is the same as the corresponding Protonym id
+    end
   end
 
   def self.add_original_combinations(otu, csv, project_members, reference_csv)
@@ -361,6 +435,26 @@ module Export::Coldp::Files::Name
       .joins('JOIN project_scope ps on ps.id = taxon_names.cached_valid_taxon_name_id') # Combinations that point to any of "a"
   end
 
+  # Historical combinations that may not have sources or complete relationship records,
+  # OR were skipped by add_combinations due to gender matching.
+  # These are Combinations that point to valid names in the OTU scope but weren't
+  # actually written to CSV by add_combinations.
+  def self.historical_combination_names(otu)
+    a = otu.taxon_name.self_and_descendants.unscope(:order).select(:id)
+
+    # Exclude combinations that were actually exported (not skipped) by add_combinations
+    # skipped_combinations contains IDs that combination_names returned but add_combinations skipped
+    # We want to export those skipped ones here, so only exclude IDs that were NOT skipped
+    exported_ids = combination_names(otu).pluck(:id) - ::Export::Coldp.skipped_combinations
+
+    Combination
+      .complete
+      .with(project_scope: a)
+      .joins('JOIN project_scope ps on ps.id = taxon_names.cached_valid_taxon_name_id')
+      .where.not(id: exported_ids)
+      .eager_load(origin_citation: [:source])
+  end
+
   # TODO: we probably have an issue where self is not included as a relationship and we need to inject it into the data?
   def self.add_combinations(otu, csv, project_members, reference_csv)
     names = combination_names(otu)
@@ -416,6 +510,55 @@ module Export::Coldp::Files::Name
         .find_each do |s|
           Export::Coldp::Files::Reference.add_reference_rows([s].compact, reference_csv, project_members)
         end
+    end
+  end
+
+  # Export historical combinations that weren't captured by combination_names (flattened)
+  # These may lack source citations or complete combination_taxon_names relationships
+  def self.add_historical_combinations(otu, csv, project_members, reference_csv)
+    names = historical_combination_names(otu)
+
+    names.find_each do |t|
+      # Skip Combinations that are identical to the current valid placement
+      # (same as old exporter's filter)
+      valid_name = TaxonName.find_by(id: t.cached_valid_taxon_name_id)
+      next if valid_name && t.cached == valid_name.cached
+
+      origin_citation = t.origin_citation
+
+      # Use full_name_hash to get the epithets, similar to old exporter
+      elements = t.full_name_hash
+
+      # Determine rank from protonyms_by_rank
+      rank = t.protonyms_by_rank.keys.last&.to_s
+
+      scientific_name = ::Utilities::Nomenclature.unmisspell_name(t.cached)
+
+      uninomial = scientific_name if rank == 'genus'
+
+      csv << [
+        t.id,                                                               # ID
+        nil,                                                                # basionymID
+        scientific_name,                                                    # scientificName
+        t.cached_author_year,                                               # authorship
+        rank,                                                               # rank
+        uninomial,                                                          # uninomial
+        elements['genus']&.last,                                            # genus
+        elements['subgenus']&.last&.gsub(/[\)\(]/, ''),                     # subgenus (no parens)
+        elements['species']&.last,                                          # species
+        elements['subspecies']&.last,                                       # infraspecificEpithet
+        origin_citation&.source_id,                                         # publishedInID
+        origin_citation&.pages,                                             # publishedInPage
+        t.year_of_publication,                                              # publishedInYear
+        code_field(t.rank_class),                                           # code
+        nil,                                                                # nomStatus (nil for Combination)
+        nil,                                                                # link
+        nil,                                                                # remarks
+        Export::Coldp.modified(t.updated_at),                               # modified
+        Export::Coldp.modified_by(t.updated_by_id, project_members)         # modifiedBy
+      ]
+
+      Export::Coldp::Files::Reference.add_reference_rows([origin_citation&.source].compact, reference_csv, project_members) if reference_csv && origin_citation
     end
   end
 
