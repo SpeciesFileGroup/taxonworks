@@ -32,29 +32,30 @@ module Export::Coldp::Files::Synonym
   # @params otu [Otu]
   #   the top level OTU
   def self.generate(otu, otus, project_members, reference_csv = nil)
+    # Build OTU lookup hash once to avoid N+1 queries
+    # Maps taxon_name_id -> otu.id for all OTUs in scope
+    otu_lookup = otus.pluck(:taxon_name_id, :id).to_h
+
     ::CSV.generate(col_sep: "\t") do |csv|
       csv << %w{taxonID nameID status remarks referenceID modified modifiedBy}
 
-      add_invalid_family_and_higher_names(otu, otus, csv, project_members)
-      add_invalid_core_names(otu, otus, csv, project_members)
-      add_original_combinations(otu, otus, csv, project_members)
-      add_invalid_original_combinations(otu, otus, csv, project_members)
-      add_combinations(otu, otus, csv, project_members)
-      add_historical_combinations(otu, otus, csv, project_members)
+      add_invalid_family_and_higher_names(otu, csv, project_members, otu_lookup)
+      add_invalid_core_names(otu, csv, project_members, otu_lookup)
+      add_original_combinations(otu, csv, project_members, otu_lookup)
+      add_invalid_original_combinations(otu, csv, project_members, otu_lookup)
+      add_combinations(otu, csv, project_members, otu_lookup)
+      add_historical_combinations(otu, csv, project_members, otu_lookup)
     end
   end
 
-  def self.add_invalid_core_names(otu, otus, csv, project_members)
+  def self.add_invalid_core_names(otu, csv, project_members, otu_lookup)
     names = ::Export::Coldp::Files::Name.invalid_core_names(otu)
     names.length # !! Required - without this the result is truncated (see name.rb comment)
 
     # Iterate directly over names (like name.rb does) to avoid CTE truncation issues
     names.find_each do |t|
-      # Find the OTU for this name's valid taxon
-      otu_record = Otu.find_by(taxon_name_id: t.cached_valid_taxon_name_id)
-
       csv << [
-        otu_record&.id,                                             # taxonID attached to the current valid concept
+        otu_lookup[t.cached_valid_taxon_name_id],                   # taxonID attached to the current valid concept
         t.id,                                                       # nameID
         nil,                                                        # status  TODO: def status(taxon_name_id)
         nil,                                                        # remarks
@@ -65,7 +66,7 @@ module Export::Coldp::Files::Synonym
     end
   end
 
-  def self.add_combinations(otu, otus, csv, project_members)
+  def self.add_combinations(otu, csv, project_members, otu_lookup)
     names = ::Export::Coldp::Files::Name.combination_names(otu).unscope(:select).select('taxon_names.*')
     names.length # !! Required - without this the result is truncated (see name.rb comment)
 
@@ -73,11 +74,8 @@ module Export::Coldp::Files::Synonym
     names.find_each do |t|
       next if ::Export::Coldp.skipped_combinations.include?(t.id)
 
-      # Find the OTU for this combination's valid taxon
-      otu_record = Otu.find_by(taxon_name_id: t.cached_valid_taxon_name_id)
-
       csv << [
-        otu_record&.id,                                            # taxonID attached to the current valid concept
+        otu_lookup[t.cached_valid_taxon_name_id],                  # taxonID attached to the current valid concept
         t.id,                                                      # nameID
         nil,                                                       # status  TODO: def status(taxon_name_id)
         nil,                                                       # remarks
@@ -89,20 +87,19 @@ module Export::Coldp::Files::Synonym
   end
 
   # Add synonyms for historical combinations that weren't captured by combination_names (flattened)
-  def self.add_historical_combinations(otu, otus, csv, project_members)
+  def self.add_historical_combinations(otu, csv, project_members, otu_lookup)
     names = ::Export::Coldp::Files::Name.historical_combination_names(otu)
+
+    # Build a lookup for valid taxon names to check current placement
+    valid_name_lookup = TaxonName.where(id: otu_lookup.keys).pluck(:id, :cached).to_h
 
     names.find_each do |t|
       # Skip Combinations that are identical to the current valid placement
-      # (same as old exporter's filter)
-      valid_name = TaxonName.find_by(id: t.cached_valid_taxon_name_id)
-      next if valid_name && t.cached == valid_name.cached
-
-      # Find the OTU for this combination's valid taxon
-      otu_record = Otu.find_by(taxon_name_id: t.cached_valid_taxon_name_id)
+      valid_cached = valid_name_lookup[t.cached_valid_taxon_name_id]
+      next if valid_cached && t.cached == valid_cached
 
       csv << [
-        otu_record&.id,                                            # taxonID attached to the current valid concept
+        otu_lookup[t.cached_valid_taxon_name_id],                  # taxonID attached to the current valid concept
         t.id,                                                      # nameID
         nil,                                                       # status  TODO: def status(taxon_name_id)
         nil,                                                       # remarks
@@ -113,17 +110,14 @@ module Export::Coldp::Files::Synonym
     end
   end
 
-  def self.add_invalid_family_and_higher_names(otu, otus, csv, project_members)
+  def self.add_invalid_family_and_higher_names(otu, csv, project_members, otu_lookup)
     names = ::Export::Coldp::Files::Name.invalid_family_and_higher_names(otu)
     names.length # !! Required - without this the result is truncated (see name.rb comment)
 
     # Iterate directly over names to avoid CTE truncation issues
     names.find_each do |t|
-      # Find the OTU for this name's valid taxon
-      otu_record = Otu.find_by(taxon_name_id: t.cached_valid_taxon_name_id)
-
       csv << [
-        otu_record&.id,                                            # taxonID attached to the current valid concept
+        otu_lookup[t.cached_valid_taxon_name_id],                  # taxonID attached to the current valid concept
         t.id,                                                      # nameID
         nil,                                                       # status  TODO: def status(taxon_name_id)
         nil,                                                       # remarks
@@ -134,20 +128,17 @@ module Export::Coldp::Files::Synonym
     end
   end
 
-  def self.add_original_combinations(otu, otus, csv, project_members)
+  def self.add_original_combinations(otu, csv, project_members, otu_lookup)
     names = ::Export::Coldp::Files::Name.original_combination_names(otu)
     names.length # !! Required - without this the result is truncated (see name.rb comment)
 
     # Iterate directly over names to avoid CTE truncation issues
     names.find_each do |t|
-      # Find the OTU for this name's valid taxon
-      otu_record = Otu.find_by(taxon_name_id: t.cached_valid_taxon_name_id)
-
       # By `original_combination_names(otu) these are all reified
       reified_id = ::Utilities::Nomenclature.reified_id(t.id, t.cached_original_combination)
 
       csv << [
-        otu_record&.id,                                            # taxonID attached to the current valid concept
+        otu_lookup[t.cached_valid_taxon_name_id],                  # taxonID attached to the current valid concept
         reified_id,                                                # nameID
         nil,                                                       # status  TODO: def status(taxon_name_id)
         nil,                                                       # remarks
@@ -159,20 +150,17 @@ module Export::Coldp::Files::Synonym
   end
 
   # Add synonyms for invalid names with different original combinations (reified IDs)
-  def self.add_invalid_original_combinations(otu, otus, csv, project_members)
+  def self.add_invalid_original_combinations(otu, csv, project_members, otu_lookup)
     names = ::Export::Coldp::Files::Name.invalid_original_combination_names(otu)
     names.length # !! Required - without this the result is truncated (see name.rb comment)
 
     # Iterate directly over names to avoid CTE truncation issues
     names.find_each do |t|
-      # Find the OTU for this name's valid taxon
-      otu_record = Otu.find_by(taxon_name_id: t.cached_valid_taxon_name_id)
-
       # By `invalid_original_combination_names(otu) these are all reified
       reified_id = ::Utilities::Nomenclature.reified_id(t.id, t.cached_original_combination)
 
       csv << [
-        otu_record&.id,                                            # taxonID attached to the current valid concept
+        otu_lookup[t.cached_valid_taxon_name_id],                  # taxonID attached to the current valid concept
         reified_id,                                                # nameID
         nil,                                                       # status  TODO: def status(taxon_name_id)
         nil,                                                       # remarks
