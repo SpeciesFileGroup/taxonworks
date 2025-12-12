@@ -9,7 +9,10 @@
     @close="() => (currentNews = undefined)"
   />
   <template v-else>
-    <div class="newspapper-header">
+    <div
+      v-if="types"
+      class="newspapper-header"
+    >
       <VTabs
         class="capitalize"
         :tabs="newspapperTypes"
@@ -25,13 +28,15 @@
     <NewsContainer
       :news="news"
       :type="currentType"
+      :pagination="pagination"
+      @page="loadPage"
     />
   </template>
 </template>
 
 <script setup>
 import { ref, provide, onBeforeMount, watch } from 'vue'
-import { setParam, URLParamsToJSON, utcToLocal, formatDate } from '@/helpers'
+import { setParam, URLParamsToJSON, formatDate } from '@/helpers'
 import { RouteNames } from '@/routes/routes'
 import { News } from '@/routes/endpoints'
 import { usePopstateListener } from '@/composables'
@@ -40,20 +45,23 @@ import NewsCategories from './components/NewsCategories.vue'
 import NewsViewer from './components/Viewer/NewsViewer.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VTabs from './components/Tabs.vue'
+import { getPagination } from '@/helpers'
 
 defineOptions({
   name: 'BrowseNews'
 })
 
+const MAX_PER = 50
 const NEWSPAPPER_ADMINISTRATION = 'administration'
 
 const newspapperType = ref('')
 const newspapperTypes = ref([])
-const types = ref([])
+const types = ref()
 const currentType = ref('All')
 const news = ref([])
 const currentNews = ref()
 const isLoading = ref()
+const pagination = ref()
 
 provide('currentNew', currentNews)
 
@@ -101,6 +109,25 @@ function loadFromUrlParam() {
   }
 }
 
+function loadPage(page = 1) {
+  const request =
+    newspapperType.value === NEWSPAPPER_ADMINISTRATION
+      ? News.administration({ page, per: MAX_PER })
+      : News.where({ page, per: MAX_PER })
+
+  isLoading.value = true
+
+  request
+    .then((response) => {
+      news.value = response.body.map(makeNews)
+      pagination.value = getPagination(response)
+    })
+    .catch(() => {})
+    .finally(() => {
+      isLoading.value = false
+    })
+}
+
 onBeforeMount(loadFromUrlParam)
 usePopstateListener(loadFromUrlParam)
 
@@ -119,20 +146,8 @@ News.types()
   })
   .catch(() => {})
 
-watch(newspapperType, (newVal) => {
-  const request =
-    newVal === NEWSPAPPER_ADMINISTRATION ? News.administration() : News.all()
-
-  isLoading.value = true
-
-  request
-    .then(({ body }) => {
-      news.value = body.reverse().map(makeNews)
-    })
-    .catch(() => {})
-    .finally(() => {
-      isLoading.value = false
-    })
+watch(newspapperType, () => {
+  loadPage()
 })
 </script>
 

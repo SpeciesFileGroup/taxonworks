@@ -35,7 +35,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import { utcToLocal, formatDate, isCurrentUserAdministrator } from '@/helpers'
+import { isCurrentUserAdministrator } from '@/helpers'
 import newsColors from '../../constants/newsColors'
 import NewsViewerBack from './NewsViewerBack.vue'
 import VBadge from '@/components/ui/VBadge/VBadge.vue'
