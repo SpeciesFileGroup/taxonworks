@@ -73,59 +73,30 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
   def process_belongs_to_relations(belongs_to_relations, coordinate_otus)
     belongs_to_relations.each do |relation_name|
       reflection = Otu.reflect_on_association(relation_name)
-
-      # belongs_to: get the target objects referenced by coordinate OTUs
+      relation_klass = reflection.klass
       foreign_key = reflection.foreign_key
+
+      # Get target IDs that coordinate OTUs reference
       target_ids = coordinate_otus.values.map { |otu| otu.send(foreign_key) }.compact.uniq
       next if target_ids.empty?
-
-      associated_objects = reflection.klass.where(id: target_ids).includes(citations: [:source, :citation_topics, :notes]).to_a
 
       # Build a map of which OTU references which target
       otu_to_target = coordinate_otus.transform_values { |otu| otu.send(foreign_key) }
 
-      associated_objects.each do |associated_object|
+      # Query citations directly on the target objects
+      citations = Citation
+        .where(citation_object_type: relation_klass.name, citation_object_id: target_ids)
+        .includes(:source, :citation_topics, :notes, :citation_object)
+        .to_a
+
+      citations.each do |citation|
+        associated_object = citation.citation_object
+
         # Find which coordinate OTUs reference this object
         referencing_otu_ids = otu_to_target.select { |otu_id, target_id| target_id == associated_object.id }.keys
 
-        associated_object.citations.each do |citation|
-          referencing_otu_ids.each do |otu_id|
-            base_otu = coordinate_otus[otu_id]
-            @items << Catalog::Otu::InventoryEntryItem.new(
-              object: associated_object,
-              base_object: base_otu,
-              citation: citation,
-              nomenclature_date: citation.source&.cached_nomenclature_date,
-              current_target: entry_item_matches_target?(base_otu, object)
-            )
-          end
-        end
-      end
-    end
-  end
-
-  def process_has_many_relations(has_many_relations, coordinate_otus)
-    coordinate_otu_ids = coordinate_otus.keys
-
-    has_many_relations.each do |relation_name|
-      reflection = Otu.reflect_on_association(relation_name)
-
-      # has_many: get objects that reference coordinate OTUs
-      foreign_key = reflection.foreign_key
-      query = reflection.klass.where(foreign_key => coordinate_otu_ids)
-
-      # Handle polymorphic associations
-      if reflection.type
-        query = query.where(reflection.type => 'Otu')
-      end
-
-      associated_objects = query.includes(citations: [:source, :citation_topics, :notes]).to_a
-
-      associated_objects.each do |associated_object|
-        base_otu_id = associated_object.send(foreign_key)
-        base_otu = coordinate_otus[base_otu_id]
-
-        associated_object.citations.each do |citation|
+        referencing_otu_ids.each do |otu_id|
+          base_otu = coordinate_otus[otu_id]
           @items << Catalog::Otu::InventoryEntryItem.new(
             object: associated_object,
             base_object: base_otu,
@@ -138,11 +109,56 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
     end
   end
 
+  # !! Does not process :through relations.
+  def process_has_many_relations(has_many_relations, coordinate_otus)
+    coordinate_otu_ids = coordinate_otus.keys
+
+    has_many_relations.each do |relation_name|
+      reflection = Otu.reflect_on_association(relation_name)
+      relation_klass = reflection.klass
+      foreign_key = reflection.foreign_key
+
+      citation_query = Citation
+        .joins("INNER JOIN #{relation_klass.table_name} ON citations.citation_object_type = '#{relation_klass.name}' AND citations.citation_object_id = #{relation_klass.table_name}.id")
+        .where("#{relation_klass.table_name}.#{foreign_key}" => coordinate_otu_ids)
+
+      # Handle polymorphic associations (e.g., otu_id with otu_type = 'Otu')
+      if reflection.type
+        citation_query = citation_query.where("#{relation_klass.table_name}.#{reflection.type}" => 'Otu')
+      end
+
+      # Eager load citation associations and the cited object for views.
+      citations = citation_query
+        .includes(:source, :citation_topics, :notes, :citation_object)
+        .to_a
+
+      citations.each do |citation|
+        associated_object = citation.citation_object
+        base_otu_id = associated_object.send(foreign_key)
+        base_otu = coordinate_otus[base_otu_id]
+
+        @items << Catalog::Otu::InventoryEntryItem.new(
+          object: associated_object,
+          base_object: base_otu,
+          citation: citation,
+          nomenclature_date: citation.source&.cached_nomenclature_date,
+          current_target: entry_item_matches_target?(base_otu, object)
+        )
+      end
+    end
+  end
+
   def process_through_relations(through_relations, coordinate_otu_ids)
     return if through_relations.empty?
 
+    # Attempting to build custom joins for through relations a la
+    # #process_has_many_relations is complex due to:
+    # - STI tables (e.g., protonym → taxon_names table)
+    # - Polymorphic sources
+    # - Different join patterns for each through type
+    # So here we just let rails handle everything.
     includes_hash = through_relations.each_with_object({}) do |rel, hash|
-      hash[rel] = { citations: [:source, :citation_topics, :notes] }
+      hash[rel] = { citations: [:source, :citation_topics, :notes] } # for views
     end
 
     coordinate_otus_with_includes = ::Otu.where(id: coordinate_otu_ids).includes(includes_hash).to_a
@@ -168,7 +184,6 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
   end
 
   # @return [Boolean]
-  #   this is the MM result
   def entry_item_matches_target?(item_object, reference_object)
     item_object.taxon_name_id == reference_object.taxon_name_id
   end
