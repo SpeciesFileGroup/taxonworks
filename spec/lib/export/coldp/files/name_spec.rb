@@ -164,7 +164,7 @@ describe Export::Coldp::Files::Name, type: :model, group: :col do
     #   * Check the status of a couple more missing original names- are they all the originals?
 
     specify 'Original combinaton Cerastoma dentatum Koch, 1871 is present' do
-      names = Export::Coldp::Files::Name.original_combination_names(otu).map(&:cached)
+      names = Export::Coldp::Files::Name.invalid_original_combination_names(otu).map(&:cached_original_combination)
       expect(names).to include('Cerastoma dentatum')
     end
 
@@ -299,7 +299,7 @@ describe Export::Coldp::Files::Name, type: :model, group: :col do
     #   * Check the status of a couple more missing original names- are they all the originals?
 
     specify 'Original combination Cerastoma brevicornis Koch, 1839 is present' do
-      names = Export::Coldp::Files::Name.original_combination_names(otu).map(&:cached)
+      names = Export::Coldp::Files::Name.invalid_original_combination_names(otu).map(&:cached_original_combination)
       expect(names).to include('Cerastoma brevicornis')
     end
 
@@ -315,5 +315,96 @@ describe Export::Coldp::Files::Name, type: :model, group: :col do
 
     # TODO: Original combination is present
 
+  end
+
+  context '[sic] handling in original combinations' do
+    let(:root_taxon_name) { FactoryBot.create(:root_taxon_name) }
+
+    let!(:family) {
+      Protonym.create!(
+        rank_class: Ranks.lookup(:iczn, :family),
+        name: 'Goodidae',
+        parent: root_taxon_name
+      )
+    }
+
+    # Original genus with misspelling (will have [sic] in cached_original_combination)
+    let!(:original_genus_misspelled) {
+      Protonym.create!(
+        rank_class: Ranks.lookup(:iczn, :genus),
+        name: 'Ischiropsalis',
+        parent: family,
+        cached_misspelling: true
+      )
+    }
+
+    let!(:current_genus) {
+      Protonym.create!(
+        rank_class: Ranks.lookup(:iczn, :genus),
+        name: 'Ischyropsalis',
+        parent: family
+      )
+    }
+
+    let!(:tnr_genus_synonym) {
+      TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective.create!(
+        subject_taxon_name: original_genus_misspelled,
+        object_taxon_name: current_genus
+      )
+    }
+
+    let!(:species) {
+      Protonym.create!(
+        rank_class: Ranks.lookup(:iczn, :species),
+        name: 'dispar',
+        parent: current_genus,
+        verbatim_author: 'Simon',
+        year_of_publication: 1872
+      )
+    }
+
+    let!(:original_genus_relationship) {
+      TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(
+        object_taxon_name: species,
+        subject_taxon_name: original_genus_misspelled
+      )
+    }
+
+    let!(:original_species_relationship) {
+      TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(
+        object_taxon_name: species,
+        subject_taxon_name: species
+      )
+    }
+
+    let!(:otu) { Otu.create!(taxon_name: root_taxon_name) }
+
+    specify 'cached_original_combination contains [sic]' do
+      species.reload
+      expect(species.cached_original_combination).to include('[sic]')
+    end
+
+    specify 'reified_id uses cached_original_combination (with [sic]) for hash consistency' do
+      # The model's reified_id method uses cached_original_combination directly
+      expected_id = species.reified_id
+
+      # The export should produce the same ID
+      names = Export::Coldp::Files::Name.original_combination_names(otu)
+      row = names.find { |r| r['id'].to_i == species.id }
+
+      export_id = ::Utilities::Nomenclature.reified_id(row['id'], row['cached_original_combination'])
+
+      expect(export_id).to eq(expected_id)
+    end
+
+    specify 'scientificName in export does not contain [sic]' do
+      names = Export::Coldp::Files::Name.original_combination_names(otu)
+      row = names.find { |r| r['id'].to_i == species.id }
+
+      scientific_name = ::Utilities::Nomenclature.unmisspell_name(row['cached_original_combination'])
+
+      expect(scientific_name).not_to include('[sic]')
+      expect(scientific_name).to eq('Ischiropsalis dispar')
+    end
   end
 end
