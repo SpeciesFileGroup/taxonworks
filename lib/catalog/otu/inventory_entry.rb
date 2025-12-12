@@ -37,14 +37,15 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
       end
     end
 
-    # Load all coordinate OTUs once and build a lookup hash
-    # Include taxon_name with nested associations to avoid N+1 queries when rendering
+    # Load all coordinate OTUs once and build a lookup hash.
+    # Include taxon_name with nested associations to avoid N+1 queries when
+    # rendering.
     coordinate_otus = ::Otu.where(id: coordinate_otu_ids)
       .includes(taxon_name: [:taxon_name_classifications, :taxon_name_relationships])
       .index_by(&:id)
 
-    # Separate relations by type
     belongs_to_relations = []
+    has_one_relations = []
     has_many_relations = []
     through_relations = []
 
@@ -54,7 +55,9 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
         through_relations << relation_name
       elsif reflection.macro == :belongs_to
         belongs_to_relations << relation_name
-      else
+      elsif reflection.macro == :has_one
+        has_one_relations << relation_name
+      elsif reflection.macro == :has_many
         has_many_relations << relation_name
       end
     end
@@ -63,7 +66,8 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
       process_belongs_to_relations(belongs_to_relations, coordinate_otus)
     end
 
-    process_has_many_relations(has_many_relations, coordinate_otus)
+    # has_one and has_many use the same foreign key logic
+    process_has_many_relations(has_one_relations + has_many_relations, coordinate_otus)
 
     process_through_relations(through_relations, coordinate_otu_ids)
 
@@ -111,6 +115,7 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
     end
   end
 
+  # Processes has_one and has_many relations (both use foreign key logic).
   # !! Does not process :through relations.
   def process_has_many_relations(has_many_relations, coordinate_otus)
     coordinate_otu_ids = coordinate_otus.keys
