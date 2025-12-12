@@ -432,7 +432,10 @@ class Combination < TaxonName
 
   # TODO: consider an 'include_cached_misspelling' Boolean to extend result to include `cached_misspelling`
   # !! References name, not cached, so 'sic' is not possible
-  def self.flattened
+  #
+  # @param include_sourceless [Boolean] if true, uses LEFT JOIN on source to include
+  #   Combinations without origin_citation/source. Default false for backwards compatibility.
+  def self.flattened(include_sourceless: false)
     s = []
     abbreviation_cutoff = 'subspecies'
     abbreviate = false
@@ -462,9 +465,18 @@ class Combination < TaxonName
 
     sel = s.join(',')
 
-    Combination.joins(:combination_taxon_names, :source)
-      .select(sel)
-      .group('taxon_names.id, sources.id, citations.pages, citations.is_original')
+    if include_sourceless
+      # LEFT JOIN on source - includes Combinations without origin_citation
+      Combination.joins(:combination_taxon_names)
+        .left_joins(origin_citation: :source)
+        .select(sel)
+        .group('taxon_names.id, sources.id, citations.pages, citations.is_original')
+    else
+      # INNER JOIN on source - original behavior, excludes sourceless Combinations
+      Combination.joins(:combination_taxon_names, :source)
+        .select(sel)
+        .group('taxon_names.id, sources.id, citations.pages, citations.is_original')
+    end
   end
 
   # An experimental approach to return all required information to format the

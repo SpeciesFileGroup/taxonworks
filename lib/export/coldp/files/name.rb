@@ -185,7 +185,8 @@ module Export::Coldp::Files::Name
       add_valid_family_names(otu, csv, project_members, reference_csv)
       add_core_names(otu, csv, project_members, reference_csv)
       add_combinations(otu, csv, project_members, reference_csv)
-      add_historical_combinations(otu, csv, project_members, reference_csv)
+      # Note: historical_combinations is no longer needed - combination_names now uses
+      # flattened(include_sourceless: true) which includes sourceless Combinations
       add_original_combinations(otu, csv, project_members, reference_csv)
       add_invalid_original_combinations(otu, csv, project_members, reference_csv)
       add_invalid_family_and_higher_names(otu, csv, project_members, reference_csv)
@@ -458,11 +459,12 @@ module Export::Coldp::Files::Name
 
   # TODO: Complete combinations only
   # TODO: add .fully_specified ?
+  # Uses flattened(include_sourceless: true) to include Combinations without sources
   def self.combination_names(otu)
     a = otu.taxon_name.self_and_descendants.unscope(:order).select(:id)
 
     Combination.
-      flattened.with(project_scope: a)
+      flattened(include_sourceless: true).with(project_scope: a)
       .complete
       .joins('JOIN project_scope ps on ps.id = taxon_names.cached_valid_taxon_name_id') # Combinations that point to any of "a"
       .select('taxon_names.*, taxon_names.cached_gender, taxon_names.etymology') # Explicitly select needed columns
@@ -505,15 +507,11 @@ module Export::Coldp::Files::Name
 
       rank = elements.keys.last if rank.nil?
 
-      # In some cases where names are described originally with missmatched gender we can exclude dupes
-      #
-      # This exception needs to be in SQL to simplify, a MAX/INDEX of possible ranks with values
-      #
-      # TODO: we are excluding too many combinations here (e.g., in Opiliones: Phalangium brevicorne)
-      if row[rank + '_cached'] == row['cached']
-        ::Export::Coldp.skipped_combinations << row['id']
-        next
-      end
+      # NOTE: Previously skipped combinations where row[rank + '_cached'] == row['cached']
+      # This was intended to skip gender duplicates but was too aggressive,
+      # skipping legitimate historical combinations (see TODO comment above).
+      # The skip logic has been removed - all combinations from combination_names are now exported.
+      # Duplicate names may appear but they represent different historical usages with different sources.
 
       scientific_name = ::Utilities::Nomenclature.unmisspell_name(row['cached'])
 

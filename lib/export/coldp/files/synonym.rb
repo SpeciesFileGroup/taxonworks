@@ -44,7 +44,8 @@ module Export::Coldp::Files::Synonym
       add_original_combinations(otu, csv, project_members, otu_lookup)
       add_invalid_original_combinations(otu, csv, project_members, otu_lookup)
       add_combinations(otu, csv, project_members, otu_lookup)
-      add_historical_combinations(otu, csv, project_members, otu_lookup)
+      # Note: historical_combinations is no longer needed - combination_names now uses
+      # flattened(include_sourceless: true) which includes sourceless Combinations
     end
   end
 
