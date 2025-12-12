@@ -86,7 +86,7 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
       # Query citations directly on the target objects
       citations = Citation
         .where(citation_object_type: relation_klass.name, citation_object_id: target_ids)
-        .includes(:source, :citation_topics, :notes, :citation_object)
+        .includes(:source, :notes, :citation_object)
         .to_a
 
       citations.each do |citation|
@@ -129,7 +129,7 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
 
       # Eager load citation associations and the cited object for views.
       citations = citation_query
-        .includes(:source, :citation_topics, :notes, :citation_object)
+        .includes(:source, :notes, :citation_object)
         .to_a
 
       citations.each do |citation|
@@ -158,7 +158,7 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
     # - Different join patterns for each through type
     # So here we just let rails handle everything.
     includes_hash = through_relations.each_with_object({}) do |rel, hash|
-      hash[rel] = { citations: [:source, :citation_topics, :notes] } # for views
+      hash[rel] = { citations: [:source, :notes] } # for views
     end
 
     coordinate_otus_with_includes = ::Otu.where(id: coordinate_otu_ids).includes(includes_hash).to_a
