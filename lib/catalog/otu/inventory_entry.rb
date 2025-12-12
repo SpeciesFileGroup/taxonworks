@@ -2,11 +2,10 @@
 # data of that otu (images, asserted distributions, observations, etc.).
 class Catalog::Otu::InventoryEntry < ::Catalog::Entry
 
-  # @return [Boolean]
-  #   whether to include belongs_to associations (e.g., taxon_name, protonym)
-  #   Default false because taxon_name citations are handled separately by nomenclature catalog
   attr_accessor :include_belongs_to
 
+  # nomenclature catalog typically handles citations on taxon_name, so by
+  # default we don't process belongs_to relations on otu.
   def initialize(otu, include_belongs_to: false)
     @include_belongs_to = include_belongs_to
     super(otu)
@@ -27,7 +26,7 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
     relation_names = ApplicationEnumeration.citable_relations(Otu).values.flatten(1)
 
     # Filter out STI subclass relations that are redundant with their parent class
-    # (e.g., protonym is a Protonym < TaxonName, so citations are stored as TaxonName)
+    # (e.g., `protonyn` belongs_to duplicates `taxon_name` belongs_to)
     relation_names = relation_names.reject do |relation_name|
       reflection = Otu.reflect_on_association(relation_name)
       # Check if this relation's class is a subclass of any other relation's class
@@ -58,19 +57,14 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
       end
     end
 
-    # Process belongs_to associations only if requested
-    # (taxon_name citations are typically handled by nomenclature catalog)
     if include_belongs_to
       process_belongs_to_relations(belongs_to_relations, coordinate_otus)
     end
 
-    # Handle has_many relations with bulk queries
     process_has_many_relations(has_many_relations, coordinate_otus)
 
-    # Handle through relations using Rails eager loading
     process_through_relations(through_relations, coordinate_otu_ids)
 
-    # Remove duplicates - same citation on same object should only appear once
     @items.uniq! { |item| [item.citation.id, item.object.class.name, item.object.id] }
   end
 
