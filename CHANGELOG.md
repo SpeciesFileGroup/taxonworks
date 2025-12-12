@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.56.1] - 2025-12-12
+
 ### Added
 
 - subject/object type to indexed biological associations endpoint
@@ -24,7 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#4617]: https://github.com/SpeciesFileGroup/taxonworks/issues/4617
 
-## [0.56.0] - 2025-11-12
+## [0.56.0] - 2025-12-11
 
 ### Added
 
@@ -5907,7 +5911,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.56.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.56.1...development
+[0.56.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.56.0...v0.56.1
 [0.56.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.55.0...v0.56.0
 [0.55.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.3...v0.55.0
 [0.54.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.2...v0.54.3
