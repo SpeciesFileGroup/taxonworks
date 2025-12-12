@@ -38,8 +38,10 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
     end
 
     # Load all coordinate OTUs once and build a lookup hash
-    # Include taxon_name to avoid N+1 queries when rendering
-    coordinate_otus = ::Otu.where(id: coordinate_otu_ids).includes(:taxon_name).index_by(&:id)
+    # Include taxon_name with nested associations to avoid N+1 queries when rendering
+    coordinate_otus = ::Otu.where(id: coordinate_otu_ids)
+      .includes(taxon_name: [:taxon_name_classifications, :taxon_name_relationships])
+      .index_by(&:id)
 
     # Separate relations by type
     belongs_to_relations = []
@@ -128,9 +130,26 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
       end
 
       # Eager load citation associations and the cited object for views.
-      citations = citation_query
-        .includes(:source, :notes, :citation_object)
-        .to_a
+      # For BiologicalAssociations, preload subject/object and their taxon_names with nested associations
+      if relation_klass.name == 'BiologicalAssociation'
+        citations = citation_query
+          .includes(
+            :source,
+            :notes,
+            :topics,
+            {
+              citation_object: [
+                { biological_association_subject: { taxon_name: [:taxon_name_classifications, :taxon_name_relationships] } },
+                { biological_association_object: { taxon_name: [:taxon_name_classifications, :taxon_name_relationships] } }
+              ]
+            }
+          )
+          .to_a
+      else
+        citations = citation_query
+          .includes(:source, :notes, :topics, :citation_object)
+          .to_a
+      end
 
       citations.each do |citation|
         associated_object = citation.citation_object
