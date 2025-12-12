@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - subject/object type to indexed biological associations endpoint
+- Source autocomplete now matches on alternate author names [#4617]
 
 ### Fixed
 
@@ -20,6 +21,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 
 - Autocomplete list wraps the text instead of applying ellipses by default.
+
+[#4617]: https://github.com/SpeciesFileGroup/taxonworks/issues/4617
 
 ## [0.56.0] - 2025-11-12
 
