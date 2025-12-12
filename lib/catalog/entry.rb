@@ -207,11 +207,8 @@ class Catalog::Entry
 
   # @return [Array of Topics]
   def all_topics
-    t = []
-    sources.each do |s|
-      t.push topics_for_source(s)
-    end
-    t.flatten.uniq.compact.sort
+    # Optimized: collect topics directly from items instead of O(n²) iteration through sources
+    items.flat_map(&:topics).uniq.compact.sort
   end
 end
 
