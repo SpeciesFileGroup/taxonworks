@@ -23,9 +23,7 @@
       v-text="news.title"
     />
     <div>
-      <div class="news-meta">
-        {{ news.creator }} — {{ formatDate(utcToLocal(news.createdAt)) }}
-      </div>
+      <div class="news-meta">{{ news.creator }} — {{ news.createdAt }}</div>
     </div>
     <div v-html="news.body" />
     <NewsViewerBack

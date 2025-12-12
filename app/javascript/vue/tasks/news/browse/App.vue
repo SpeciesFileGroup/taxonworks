@@ -31,7 +31,7 @@
 
 <script setup>
 import { ref, provide, onBeforeMount, watch } from 'vue'
-import { setParam, URLParamsToJSON } from '@/helpers'
+import { setParam, URLParamsToJSON, utcToLocal, formatDate } from '@/helpers'
 import { RouteNames } from '@/routes/routes'
 import { News } from '@/routes/endpoints'
 import { usePopstateListener } from '@/composables'
@@ -73,7 +73,7 @@ function makeNews(data) {
     type: data.type.split('::')[2],
     title: data.title,
     creator: data.creator,
-    createdAt: data.created_at
+    createdAt: formatDate(new Date(data.created_at))
   }
 }
 
