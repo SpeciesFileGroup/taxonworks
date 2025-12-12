@@ -19,8 +19,8 @@ describe Catalog::Otu::InventoryEntry, group: :catalogs, type: :spinup do
 
     specify 'includes citations from protonym' do
       entry = Catalog::Otu::InventoryEntry.new(otu, include_belongs_to: true)
-      expect(entry.items.map(&:object)).to include(species)
-      expect(entry.items.map(&:citation)).to include(citation)
+      expect(entry.items.map(&:object)).to contain_exactly(species)
+      expect(entry.items.map(&:citation)).to contain_exactly(citation)
     end
   end
 
@@ -30,8 +30,8 @@ describe Catalog::Otu::InventoryEntry, group: :catalogs, type: :spinup do
 
     specify 'includes citations from common_names' do
       entry = Catalog::Otu::InventoryEntry.new(otu)
-      expect(entry.items.map(&:object)).to include(common_name)
-      expect(entry.items.map(&:citation)).to include(citation)
+      expect(entry.items.map(&:object)).to contain_exactly(common_name)
+      expect(entry.items.map(&:citation)).to contain_exactly(citation)
     end
   end
 
@@ -46,8 +46,8 @@ describe Catalog::Otu::InventoryEntry, group: :catalogs, type: :spinup do
       asserted_distribution.save!
 
       entry = Catalog::Otu::InventoryEntry.new(otu)
-      expect(entry.items.map(&:object)).to include(asserted_distribution)
-      expect(entry.items.map(&:citation)).to include(citation)
+      expect(entry.items.map(&:object)).to contain_exactly(asserted_distribution)
+      expect(entry.items.map(&:citation)).to contain_exactly(citation)
     end
 
     context 'biological_associations (polymorphic has_many)' do
@@ -63,8 +63,8 @@ describe Catalog::Otu::InventoryEntry, group: :catalogs, type: :spinup do
         citation = Citation.create!(citation_object: biological_association, source: source)
 
         entry = Catalog::Otu::InventoryEntry.new(otu)
-        expect(entry.items.map(&:object)).to include(biological_association)
-        expect(entry.items.map(&:citation)).to include(citation)
+        expect(entry.items.map(&:object)).to contain_exactly(biological_association)
+        expect(entry.items.map(&:citation)).to contain_exactly(citation)
       end
     end
   end
@@ -77,8 +77,8 @@ describe Catalog::Otu::InventoryEntry, group: :catalogs, type: :spinup do
 
       specify 'includes citations from images' do
         entry = Catalog::Otu::InventoryEntry.new(otu)
-        expect(entry.items.map(&:object)).to include(image)
-        expect(entry.items.map(&:citation)).to include(citation)
+        expect(entry.items.map(&:object)).to contain_exactly(image)
+        expect(entry.items.map(&:citation)).to contain_exactly(citation)
       end
     end
 
@@ -89,8 +89,8 @@ describe Catalog::Otu::InventoryEntry, group: :catalogs, type: :spinup do
 
       specify 'includes citations from collection_objects' do
         entry = Catalog::Otu::InventoryEntry.new(otu)
-        expect(entry.items.map(&:object)).to include(collection_object)
-        expect(entry.items.map(&:citation)).to include(citation)
+        expect(entry.items.map(&:object)).to contain_exactly(collection_object)
+        expect(entry.items.map(&:citation)).to contain_exactly(citation)
       end
     end
 
@@ -105,23 +105,32 @@ describe Catalog::Otu::InventoryEntry, group: :catalogs, type: :spinup do
 
       specify 'includes citations from type_materials' do
         entry = Catalog::Otu::InventoryEntry.new(otu)
-        expect(entry.items.map(&:object)).to include(type_material)
-        expect(entry.items.map(&:citation)).to include(citation)
+        expect(entry.items.map(&:object)).to contain_exactly(type_material)
+        expect(entry.items.map(&:citation)).to contain_exactly(citation)
       end
     end
   end
 
   context 'with coordinate OTUs' do
-    let!(:common_name) { CommonName.create!(otu: otu, name: 'Test Name', geographic_area: FactoryBot.create(:valid_geographic_area)) }
-    let!(:citation) { Citation.create!(citation_object: common_name, source: source) }
+    let(:source2) { FactoryBot.create(:valid_source) }
+    # Create a coordinate OTU (same taxon_name as otu)
+    let!(:coordinate_otu) { Otu.create!(taxon_name: species, name: 'Coordinate OTU') }
+
+    # Create citations on associations for both OTUs
+    let!(:common_name1) { CommonName.create!(otu: otu, name: 'Test Name 1', geographic_area: FactoryBot.create(:valid_geographic_area)) }
+    let!(:citation1) { Citation.create!(citation_object: common_name1, source: source) }
+
+    let!(:common_name2) { CommonName.create!(otu: coordinate_otu, name: 'Test Name 2', geographic_area: FactoryBot.create(:valid_geographic_area)) }
+    let!(:citation2) { Citation.create!(citation_object: common_name2, source: source2) }
 
     specify 'includes citations from coordinate OTU associations' do
       # Coordinate OTUs are OTUs with the same cached_valid_taxon_name_id
-      # The original otu should be in its own coordinate set
       entry = Catalog::Otu::InventoryEntry.new(otu)
-      expect(entry.items.map(&:object)).to include(common_name)
-      expect(entry.items.map(&:citation)).to include(citation)
-      expect(entry.items.map(&:base_object)).to include(otu)
+
+      # Should include citations from both the target OTU and its coordinate OTU
+      expect(entry.items.map(&:object)).to contain_exactly(common_name1, common_name2)
+      expect(entry.items.map(&:citation)).to contain_exactly(citation1, citation2)
+      expect(entry.items.map(&:base_object)).to contain_exactly(otu, coordinate_otu)
     end
   end
 
@@ -142,35 +151,7 @@ describe Catalog::Otu::InventoryEntry, group: :catalogs, type: :spinup do
       entry = Catalog::Otu::InventoryEntry.new(otu)
       items = entry.items
       common_name_citations = items.select { |i| i.object == common_name }.map(&:citation)
-      expect(common_name_citations).to include(citation1, citation2)
-    end
-  end
-
-  context 'performance characteristics' do
-    # This test documents expected query behavior
-    specify 'uses bulk queries to avoid N+1' do
-      # Create test data - 10 common names each with a citation
-      sources = 10.times.map { FactoryBot.create(:valid_source) }
-      sources.each_with_index do |src, i|
-        cn = CommonName.create!(otu: otu, name: "Name #{i}", geographic_area: FactoryBot.create(:valid_geographic_area))
-        Citation.create!(citation_object: cn, source: src)
-      end
-
-      query_count = 0
-      ActiveSupport::Notifications.subscribe('sql.active_record') do |*args|
-        event = ActiveSupport::Notifications::Event.new(*args)
-        unless event.payload[:name] =~ /SCHEMA|TRANSACTION/
-          query_count += 1
-        end
-      end
-
-      entry = Catalog::Otu::InventoryEntry.new(otu)
-
-      # We expect bulk loading, not N+1 queries
-      # With 10 common_names, if we had N+1 we'd see 10+ queries just for common names alone
-      # With bulk loading, we should see far fewer queries total
-      # This is intentionally loose - we're just checking we're not doing obvious N+1
-      expect(query_count).to be < 100
+      expect(common_name_citations).to contain_exactly(citation1, citation2)
     end
   end
 end

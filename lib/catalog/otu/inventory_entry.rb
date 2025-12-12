@@ -25,19 +25,8 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
     coordinate_otu_ids = ::Otu.coordinate_otus(object.id).pluck(:id)
     relation_names = ApplicationEnumeration.citable_relations(Otu).values.flatten(1)
 
-    # Filter out STI subclass relations that are redundant with their parent class
-    # (e.g., `protonyn` belongs_to duplicates `taxon_name` belongs_to)
-    relation_names = relation_names.reject do |relation_name|
-      reflection = Otu.reflect_on_association(relation_name)
-      # Check if this relation's class is a subclass of any other relation's class
-      relation_names.any? do |other_relation_name|
-        next if relation_name == other_relation_name
-        other_reflection = Otu.reflect_on_association(other_relation_name)
-        reflection.klass < other_reflection.klass
-      end
-    end
+    reflections = filter_sti_relations(relation_names)
 
-    # Load all coordinate OTUs once and build a lookup hash.
     # Include taxon_name with nested associations to avoid N+1 queries when
     # rendering.
     coordinate_otus = ::Otu.where(id: coordinate_otu_ids)
@@ -49,8 +38,7 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
     has_many_relations = []
     through_relations = []
 
-    relation_names.each do |relation_name|
-      reflection = Otu.reflect_on_association(relation_name)
+    reflections.each do |relation_name, reflection|
       if reflection.through_reflection
         through_relations << relation_name
       elsif reflection.macro == :belongs_to
@@ -66,8 +54,8 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
       process_belongs_to_relations(belongs_to_relations, coordinate_otus)
     end
 
-    # has_one and has_many use the same foreign key logic
-    process_has_many_relations(has_one_relations + has_many_relations, coordinate_otus)
+    # has_one and has_many use the same foreign key logic.
+    process_has_relations(has_one_relations + has_many_relations, coordinate_otus)
 
     process_through_relations(through_relations, coordinate_otu_ids)
 
@@ -82,11 +70,9 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
       relation_klass = reflection.klass
       foreign_key = reflection.foreign_key
 
-      # Get target IDs that coordinate OTUs reference
       target_ids = coordinate_otus.values.map { |otu| otu.send(foreign_key) }.compact.uniq
       next if target_ids.empty?
 
-      # Build a map of which OTU references which target
       otu_to_target = coordinate_otus.transform_values { |otu| otu.send(foreign_key) }
 
       # Query citations directly on the target objects
@@ -117,10 +103,10 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
 
   # Processes has_one and has_many relations (both use foreign key logic).
   # !! Does not process :through relations.
-  def process_has_many_relations(has_many_relations, coordinate_otus)
+  def process_has_relations(has_relations, coordinate_otus)
     coordinate_otu_ids = coordinate_otus.keys
 
-    has_many_relations.each do |relation_name|
+    has_relations.each do |relation_name|
       reflection = Otu.reflect_on_association(relation_name)
       relation_klass = reflection.klass
       foreign_key = reflection.foreign_key
@@ -134,27 +120,7 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
         citation_query = citation_query.where("#{relation_klass.table_name}.#{reflection.type}" => 'Otu')
       end
 
-      # Eager load citation associations and the cited object for views.
-      # For BiologicalAssociations, preload subject/object and their taxon_names with nested associations
-      if relation_klass.name == 'BiologicalAssociation'
-        citations = citation_query
-          .includes(
-            :source,
-            :notes,
-            :topics,
-            {
-              citation_object: [
-                { biological_association_subject: { taxon_name: [:taxon_name_classifications, :taxon_name_relationships] } },
-                { biological_association_object: { taxon_name: [:taxon_name_classifications, :taxon_name_relationships] } }
-              ]
-            }
-          )
-          .to_a
-      else
-        citations = citation_query
-          .includes(:source, :notes, :topics, :citation_object)
-          .to_a
-      end
+      citations = add_rendering_includes(citation_query, relation_klass).to_a
 
       citations.each do |citation|
         associated_object = citation.citation_object
@@ -176,7 +142,7 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
     return if through_relations.empty?
 
     # Attempting to build custom joins for through relations a la
-    # #process_has_many_relations is complex due to:
+    # #process_has_relations is complex due to:
     # - STI tables (e.g., protonym → taxon_names table)
     # - Polymorphic sources
     # - Different join patterns for each through type
@@ -185,9 +151,9 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
       hash[rel] = { citations: [:source, :notes, :topics] } # for views
     end
 
-    coordinate_otus_with_includes = ::Otu.where(id: coordinate_otu_ids).includes(includes_hash).to_a
+    coordinate_otus = ::Otu.where(id: coordinate_otu_ids).includes(includes_hash).to_a
 
-    coordinate_otus_with_includes.each do |otu|
+    coordinate_otus.each do |otu|
       through_relations.each do |relation_name|
         association = otu.send(relation_name)
         association = [association] if !association.is_a?(Enumerable)
@@ -205,6 +171,48 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
         end
       end
     end
+  end
+
+  # Filter out STI subclass relations that are redundant with their parent class
+  # (e.g., `protonym` belongs_to duplicates `taxon_name` belongs_to)
+  # @return [Hash] { relation_name => reflection }
+  def filter_sti_relations(relation_names)
+    reflections = relation_names.map { |name| [name, Otu.reflect_on_association(name)] }.to_h
+
+    filtered_names = relation_names.reject do |relation_name|
+      reflection = reflections[relation_name]
+      # Check if this relation's class is a subclass of any other relation's class
+      reflections.any? do |other_name, other_reflection|
+        next if relation_name == other_name
+        reflection.klass < other_reflection.klass
+      end
+    end
+
+    reflections.slice(*filtered_names)
+  end
+
+  # Eager load citation associations and the cited object for views. (We're
+  # unfortunately tied to views since catalog is essentially a rendering tool.)
+  def add_rendering_includes(citation_query, relation_klass)
+    if relation_klass.name == 'BiologicalAssociation'
+        citation_query = citation_query
+          .includes(
+            :source,
+            :notes,
+            :topics,
+            {
+              citation_object: [
+                { biological_association_subject: { taxon_name: [:taxon_name_classifications, :taxon_name_relationships] } },
+                { biological_association_object: { taxon_name: [:taxon_name_classifications, :taxon_name_relationships] } }
+              ]
+            }
+          )
+    else
+      citation_query = citation_query
+        .includes(:source, :notes, :topics, :citation_object)
+    end
+
+    citation_query
   end
 
   # @return [Boolean]
