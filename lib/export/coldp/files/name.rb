@@ -467,7 +467,14 @@ module Export::Coldp::Files::Name
       flattened(include_sourceless: true).with(project_scope: a)
       .complete
       .joins('JOIN project_scope ps on ps.id = taxon_names.cached_valid_taxon_name_id') # Combinations that point to any of "a"
-      .select('taxon_names.*, taxon_names.cached_gender, taxon_names.etymology') # Explicitly select needed columns
+      .select('taxon_names.*, taxon_names.cached_gender, taxon_names.etymology')
+  end
+
+  # Build a lookup hash mapping valid_taxon_name_id to its cached name
+  # Used to filter out inferred combinations (where combo.cached == valid.cached)
+  def self.valid_taxon_cached_lookup(otu)
+    a = otu.taxon_name.self_and_descendants.unscope(:order).select(:id, :cached)
+    a.index_by(&:id).transform_values(&:cached)
   end
 
   # Historical combinations that may not have sources or complete relationship records,
@@ -495,7 +502,19 @@ module Export::Coldp::Files::Name
     names = combination_names(otu)
     names.length
 
+    # Build lookup for valid taxon names to filter inferred combinations
+    valid_lookup = valid_taxon_cached_lookup(otu)
+
     names.each do |row| # row is a Hash, not a ActiveRecord object
+
+      # Skip combinations that represent the current valid placement (inferred combinations)
+      # These are combinations where cached == valid_taxon_cached, meaning the combination
+      # name is identical to the current valid name - they were never actually published
+      # as this combination, just inferred from synonymization
+      valid_cached = valid_lookup[row['cached_valid_taxon_name_id']]
+      if row['cached'] == valid_cached
+        next
+      end
 
       ::Export::Coldp.name_ids << row['id']
 
@@ -506,12 +525,6 @@ module Export::Coldp::Files::Name
       infraspecies, rank = Utilities::Nomenclature.infraspecies(elements)
 
       rank = elements.keys.last if rank.nil?
-
-      # NOTE: Previously skipped combinations where row[rank + '_cached'] == row['cached']
-      # This was intended to skip gender duplicates but was too aggressive,
-      # skipping legitimate historical combinations (see TODO comment above).
-      # The skip logic has been removed - all combinations from combination_names are now exported.
-      # Duplicate names may appear but they represent different historical usages with different sources.
 
       scientific_name = ::Utilities::Nomenclature.unmisspell_name(row['cached'])
 
