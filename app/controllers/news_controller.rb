@@ -22,7 +22,7 @@ class NewsController < ApplicationController
         @news = News::Project.where(project_id: sessions_current_project_id)
           .page(params[:page])
           .per(params[:per])
-          .order(:display_start, :created_at)
+          .order(created_at: :desc)
       }
     end
   end

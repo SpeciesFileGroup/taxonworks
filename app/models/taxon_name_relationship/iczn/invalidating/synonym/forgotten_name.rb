@@ -50,7 +50,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName < TaxonN
       d1 = s&.origin_citation&.source&.cached_nomenclature_date
       d2 = o&.origin_citation&.source&.cached_nomenclature_date
       soft_validations.add(:subject_taxon_name_id, "#{s.cached_html_name_and_author_year} as <i>nomen oblitum</i> was not described before 1900") if d1 && d1 > Date.parse('1900-01-01')
-      soft_validations.add(:object_taxon_name_id, "#{o.cached_html_name_and_author_year} as <i>nomen protectum</i> was not described before 1900") if d2 && d2 > Date.parse('1900-01-01')
+      #soft_validations.add(:object_taxon_name_id, "#{o.cached_html_name_and_author_year} as <i>nomen protectum</i> was not described before 1900") if d2 && d2 > Date.parse('1900-01-01')
     end
   end
 

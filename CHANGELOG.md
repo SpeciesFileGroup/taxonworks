@@ -9,7 +9,26 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 \-
 
-## [0.56.0] - 2025-11-12
+## [0.56.1] - 2025-12-12
+
+### Added
+
+- subject/object type to indexed biological associations endpoint
+- Source autocomplete now matches on alternate author names [#4617]
+
+### Fixed
+
+- Rendering error on NOMEN batch load
+- api/v1/dwc_occurrences/area_autocomplete when target=stateProvince
+- Magnify icon is missing from the autocomplete
+
+### Changed
+
+- Autocomplete list wraps the text instead of applying ellipses by default.
+
+[#4617]: https://github.com/SpeciesFileGroup/taxonworks/issues/4617
+
+## [0.56.0] - 2025-12-11
 
 ### Added
 
@@ -59,7 +78,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#1308]: https://github.com/SpeciesFileGroup/taxonworks/issues/1308
 [#3814]: https://github.com/SpeciesFileGroup/taxonworks/issues/3814
-[#4096]: https://github.com/SpeciesFileGroup/taxonworks/issues/4096 
+[#4096]: https://github.com/SpeciesFileGroup/taxonworks/issues/4096
 [#4407]: https://github.com/SpeciesFileGroup/taxonworks/issues/4407
 [#4521]: https://github.com/SpeciesFileGroup/taxonworks/issues/4521
 [#4556]: https://github.com/SpeciesFileGroup/taxonworks/issues/4556
@@ -5892,7 +5911,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.56.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.56.1...development
+[0.56.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.56.0...v0.56.1
 [0.56.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.55.0...v0.56.0
 [0.55.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.3...v0.55.0
 [0.54.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.2...v0.54.3
