@@ -177,7 +177,7 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
     # - Different join patterns for each through type
     # So here we just let rails handle everything.
     includes_hash = through_relations.each_with_object({}) do |rel, hash|
-      hash[rel] = { citations: [:source, :notes] } # for views
+      hash[rel] = { citations: [:source, :notes, :topics] } # for views
     end
 
     coordinate_otus_with_includes = ::Otu.where(id: coordinate_otu_ids).includes(includes_hash).to_a
