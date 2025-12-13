@@ -25,7 +25,7 @@ describe UsersController, type: :controller do
   # adjust the attributes here as well.
 
   let(:valid_attributes) { {name: 'uzer', password: '123aBc!!!', password_confirmation: '123aBc!!!', email: 'foo@example.com', created_by_id: 1, updated_by_id: 1} }
-  let(:invalid_attributes) {{ 'email' => 'invalid value' }  } 
+  let(:invalid_attributes) {{ 'email' => 'invalid value' }  }
 
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
@@ -33,9 +33,9 @@ describe UsersController, type: :controller do
   let(:valid_session) { {} }
 
   describe 'GET index' do
-    before { 
-      sign_in_administrator 
-    } 
+    before {
+      sign_in_administrator
+    }
 
     it 'assigns all users as @users' do
       user = User.create!(valid_attributes)
@@ -45,7 +45,7 @@ describe UsersController, type: :controller do
   end
 
   describe 'GET show' do
-    before { sign_in_administrator } 
+    before { sign_in_administrator }
     it 'assigns the requested user as @user' do
       user = User.create!(valid_attributes)
       get :show, params: {id: user.to_param}, session: valid_session
@@ -54,15 +54,42 @@ describe UsersController, type: :controller do
   end
 
   describe 'GET new' do
-    before { sign_in_administrator } 
-    it 'assigns a new user as @user' do
-      get :new, params: {}, session: valid_session
-      expect(assigns(:user)).to be_a_new(User)
+    context 'when signed in as administrator' do
+      before { sign_in_administrator }
+
+      it 'assigns a new user as @user' do
+        get :new, params: {}, session: valid_session
+        expect(assigns(:user)).to be_a_new(User)
+      end
+
+      it 'assigns all projects to available_projects' do
+        get :new, params: {}, session: valid_session
+
+        expect(assigns(:available_projects)).to match_array(Project.order(:name))
+      end
+    end
+
+    context 'when signed in as project administrator' do
+      before { sign_in_project_administrator }
+
+      it 'assigns only administered projects to available_projects' do
+        project = Project.find(1)
+        user = User.find(1)
+
+        # Create another project where user is NOT an admin
+        other_project = FactoryBot.create(:valid_project, by: user)
+        ProjectMember.create!(user: user, project: other_project, is_project_administrator: false, creator: user, updater: user)
+
+        get :new, params: {}, session: valid_session
+
+        expect(assigns(:available_projects)).to include(project)
+        expect(assigns(:available_projects)).not_to include(other_project)
+      end
     end
   end
 
   describe 'GET edit' do
-    before { sign_in_administrator } 
+    before { sign_in_administrator }
     it 'assigns the requested user as @user' do
       user = User.create! valid_attributes
       get :edit, params: {id: user.to_param}, session: valid_session
@@ -72,7 +99,7 @@ describe UsersController, type: :controller do
 
   describe 'POST create' do
     before { sign_in_project_administrator }
-     
+
     describe 'with valid params' do
       it 'creates a new User' do
         expect {
@@ -85,7 +112,7 @@ describe UsersController, type: :controller do
         expect(assigns(:user)).to be_a(User)
         expect(assigns(:user)).to be_persisted
       end
-      
+
       it 'flags the newly created user for password reset when created by a superuser' do
         post :create, params: {user: valid_attributes, project_id: 1}
         expect(User.find_by_email(valid_attributes[:email]).is_flagged_for_password_reset).to be_truthy
@@ -111,6 +138,84 @@ describe UsersController, type: :controller do
         expect(response).to render_template('new')
       end
     end
+
+    describe 'with project memberships' do
+      let!(:project) { FactoryBot.create(:valid_project) }
+
+      before do
+        # Make current user an admin of the project
+        user = User.find(Current.user_id)
+        ProjectMember.find_or_create_by!(user:, project: project, creator: user, updater: user).update!(is_project_administrator: true)
+      end
+
+      it 'creates user and adds to selected projects' do
+        expect {
+          post :create, params: {
+            user: valid_attributes.merge(project_ids: [project.id.to_s])
+          }, session: valid_session
+        }.to change(User, :count).by(1)
+         .and change(ProjectMember, :count).by(1)
+
+        new_user = User.find_by_email(valid_attributes[:email])
+        expect(new_user.projects).to include(project)
+      end
+
+      it 'does not add to projects when project_ids is empty' do
+        expect {
+          post :create, params: { user: valid_attributes }, session: valid_session
+        }.to change(User, :count).by(1)
+         .and change(ProjectMember, :count).by(0)
+
+        new_user = User.find_by_email(valid_attributes[:email])
+        expect(new_user.projects).to be_empty
+      end
+
+      it 'sets is_project_administrator when specified' do
+        post :create, params: {
+          user: valid_attributes.merge(
+            project_ids: [project.id.to_s],
+            project_admin_ids: [project.id.to_s]
+          )
+        }, session: valid_session
+
+        new_user = User.find_by_email(valid_attributes[:email])
+        pm = new_user.project_members.first
+
+        expect(pm.is_project_administrator).to be_truthy
+      end
+
+      it 'creates regular member when project_admin_ids does not include project' do
+        post :create, params: {
+          user: valid_attributes.merge(project_ids: [project.id.to_s])
+        }, session: valid_session
+
+        new_user = User.find_by_email(valid_attributes[:email])
+        pm = new_user.project_members.first
+
+        expect(pm.is_project_administrator).to be_falsey
+      end
+
+      it 'can add user to multiple projects with mixed admin rights' do
+        project2 = FactoryBot.create(:valid_project)
+        user = User.find(Current.user_id)
+        ProjectMember.find_or_create_by!(user: user, project: project2, creator: user, updater: user).update!(is_project_administrator: true)
+
+        expect {
+          post :create, params: {
+            user: valid_attributes.merge(
+              project_ids: [project.id.to_s, project2.id.to_s],
+              project_admin_ids: [project.id.to_s]  # Only admin of first project
+            )
+          }, session: valid_session
+        }.to change(ProjectMember, :count).by(2)
+
+        new_user = User.find_by_email(valid_attributes[:email])
+        expect(new_user.projects.count).to eq(2)
+        expect(new_user.administered_projects.count).to eq(1)
+        expect(new_user.administered_projects).to include(project)
+        expect(new_user.administered_projects).not_to include(project2)
+      end
+    end
   end
 
   describe 'PUT update' do
@@ -125,7 +230,7 @@ describe UsersController, type: :controller do
         user = User.create! valid_attributes
         put :update, params: {id: user.to_param, user: new_attributes}, session: valid_session
         user.reload
-        expect(user.email).to eq('fooa1@bar.com') 
+        expect(user.email).to eq('fooa1@bar.com')
       end
 
       it 'assigns the requested user as @user' do
@@ -157,7 +262,7 @@ describe UsersController, type: :controller do
   end
 
   describe 'DELETE destroy' do
-    before { sign_in_administrator } 
+    before { sign_in_administrator }
 
     it 'destroys the requested user' do
       user = User.create! valid_attributes
@@ -172,28 +277,28 @@ describe UsersController, type: :controller do
       expect(response).to redirect_to(root_path)
     end
   end
-  
+
   describe 'GET forgot_password' do
-    
+
     it 'renders password reset template' do
       get :forgot_password, params: {}, session: valid_session
       expect(response).to render_template(:forgot_password)
     end
-    
+
   end
-  
+
   describe 'POST send_password_reset' do
-    
+
     context 'when e-mail not provided' do
       let(:examples) {[{}, {email: nil}, {email: ''}, {email: ' '}]}
-      
+
       it 'redirects to forgot_password' do
         examples.each do |param|
           post :send_password_reset, params: param, session: valid_session
           expect(response).to redirect_to(:forgot_password)
         end
       end
-      
+
       it 'notifies no e-mail was provided in flash[:alert]' do
         examples.each do |param|
           post :send_password_reset, params: param, session: valid_session
@@ -202,14 +307,14 @@ describe UsersController, type: :controller do
       end
 
     end
-    
+
     context 'when e-mail does not exist' do
       before {post :send_password_reset, params: {email: 'non-existant@example.com'}, session: valid_session}
-      
+
       it 'redirects to forgot_password' do
         expect(response).to redirect_to(:forgot_password)
       end
-      
+
       it 'notifies the e-mail does not exist' do
         expect(flash[:alert]).to match(/^The supplied e-mail does not belong to a registered user/)
       end
@@ -217,20 +322,20 @@ describe UsersController, type: :controller do
 
     context 'when valid e-mail' do
       let(:user) { FactoryBot.create(:valid_user) }
-      
+
       describe 'response to browser' do
         before {post :send_password_reset, params: {email: user.email}, session: valid_session}
 
         it 'renders e-mail sent notification page' do
           expect(response).to render_template(:send_password_reset)
         end
-      
+
         it 'does not set flash[:notice]' do
           expect(flash[:notice]).to be_nil
         end
       end
-     
-      describe 'mailing' do 
+
+      describe 'mailing' do
         it 'sends an e-mail' do
           count = ActionMailer::Base.deliveries.count + 1
           post :send_password_reset, params: {email: user.email}, session: valid_session
@@ -259,7 +364,7 @@ describe UsersController, type: :controller do
     end
 
   end
-  
+
   describe 'GET password_reset' do
 
     context 'when invalid token' do
@@ -268,7 +373,7 @@ describe UsersController, type: :controller do
         expect(response).to render_template('users/invalid_token')
       end
     end
-    
+
     context 'when token expired' do
       let!(:token) do
         Current.user_id = 1
@@ -277,7 +382,7 @@ describe UsersController, type: :controller do
         user.save!
         token
       end
-      
+
       it 'renders invalid token template' do
         Timecop.travel(1.day.from_now) do
           get :password_reset, params: {token: token}
@@ -285,7 +390,7 @@ describe UsersController, type: :controller do
         end
       end
     end
-    
+
   end
 
 end

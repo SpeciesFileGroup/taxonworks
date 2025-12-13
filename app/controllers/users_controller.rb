@@ -15,6 +15,7 @@ class UsersController < ApplicationController
   # GET /signup
   def new
     @user = User.new
+    set_available_projects
   end
 
   # GET /users/:id
@@ -31,10 +32,31 @@ class UsersController < ApplicationController
     @user.is_flagged_for_password_reset = is_superuser?
 
     if @user.save
-      flash[:success] = "User #{@user.email} successfully created."
-      # TODO: Email the user their information.
-      redirect_to root_path
+      # Handle project memberships
+      project_member_errors = []
+      if params[:user][:project_ids].present?
+        params[:user][:project_ids].each do |project_id|
+          project_member = @user.project_members.create(
+            project_id:,
+            is_project_administrator: params[:user][:project_admin_ids]&.include?(project_id)
+          )
+          unless project_member.persisted?
+            project_name = Project.find_by(id: project_id)&.name || "Project #{project_id}"
+            project_member_errors << "#{project_name}: #{project_member.errors.full_messages.join(', ')}"
+          end
+        end
+      end
+
+      if project_member_errors.empty?
+        flash[:success] = "User #{@user.email} successfully created."
+        # TODO: Email the user their information.
+        redirect_to root_path
+      else
+        flash[:alert] = "User #{@user.email} created, but some project memberships failed: #{project_member_errors.join('; ')}"
+        redirect_to root_path
+      end
     else
+      set_available_projects
       render 'new'
     end
   end
@@ -167,6 +189,16 @@ class UsersController < ApplicationController
   end
 
   private
+
+  def set_available_projects
+    # Administrators can add users to ANY project
+    # Project administrators can only add users to projects they administer
+    @available_projects = if is_administrator?
+      Project.order(:name)
+    else
+      sessions_current_user&.administered_projects&.order(:name) || []
+    end
+  end
 
   def user_params
     # TODO: revisit authorization of specific field settings
