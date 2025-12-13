@@ -184,16 +184,6 @@ module Queries
       end
 
       # @return [ActiveRecord::Relation, nil]
-      def autocomplete_wildcard_author_exact_year
-        return nil if query_string.split(' ').count > 2
-        a = match_year_or_stated_year
-        d = match_wildcard_author
-        return nil if a.nil? || d.nil?
-        z = a.and(d)
-        base_query.where(z.to_sql)
-      end
-
-      # @return [ActiveRecord::Relation, nil]
       def autocomplete_exact_in_cached
         a = with_cached_like
         return nil if a.nil?
@@ -283,7 +273,6 @@ module Queries
           [ autocomplete_exact_author_year_alternate&.limit(20), true],
           [ autocomplete_start_author_year&.limit(20), true],
           [ autocomplete_start_author_year_alternate&.limit(20), true],
-          [ autocomplete_wildcard_author_exact_year&.limit(20), true],
           [ autocomplete_exact_author&.limit(20), true],
           [ autocomplete_exact_author_alternate&.limit(20), true],
           [ autocomplete_start_of_author&.limit(20), true],
