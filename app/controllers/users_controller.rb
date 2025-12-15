@@ -50,10 +50,14 @@ class UsersController < ApplicationController
       if project_member_errors.empty?
         flash[:success] = "User #{@user.email} successfully created."
         # TODO: Email the user their information.
-        redirect_to root_path
       else
         flash[:alert] = "User #{@user.email} created, but some project memberships failed: #{project_member_errors.join('; ')}"
-        redirect_to root_path
+      end
+
+      if is_administrator?
+        redirect_to user_path(@user)
+      else
+        redirect_back fallback_location: root_path
       end
     else
       set_available_projects
