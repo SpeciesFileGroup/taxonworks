@@ -2,6 +2,8 @@ module Queries
   module Source
     class Autocomplete < Query::Autocomplete
 
+      SOURCE_ROLE_TYPES = ['SourceAuthor', 'SourceEditor', 'SourceSource'].freeze
+
       # Either match against all Sources (default) or just those with ProjectSource
       # @return [Boolean]
       # @param limit_to_project [String] `true` or `false`
@@ -24,7 +26,7 @@ module Queries
       def autocomplete_exact_author_alternate
         ::Source
           .joins(roles: {person: :alternate_values})
-          .where(roles: {type: ['SourceAuthor', 'SourceEditor']})
+          .where(roles: {type: SOURCE_ROLE_TYPES})
           .where(alternate_values: {alternate_value_object_attribute: 'last_name'})
           .where(alternate_values: {value: query_string})
           .limit(20)
@@ -49,7 +51,7 @@ module Queries
       def autocomplete_start_of_author_alternate
         ::Source
           .joins(roles: {person: :alternate_values})
-          .where(roles: {type: ['SourceAuthor', 'SourceEditor']})
+          .where(roles: {type: SOURCE_ROLE_TYPES})
           .where(alternate_values: {alternate_value_object_attribute: 'last_name'})
           .where('alternate_values.value ILIKE ?', "#{query_string}%")
           .limit(20)
@@ -124,7 +126,7 @@ module Queries
 
         ::Source
           .joins(roles: {person: :alternate_values})
-          .where(roles: {type: ['SourceAuthor', 'SourceEditor']})
+          .where(roles: {type: SOURCE_ROLE_TYPES})
           .where(z.to_sql)
           .where(alternate_values: {alternate_value_object_attribute: 'last_name'})
           .where('alternate_values.value = ?', author)
@@ -150,7 +152,7 @@ module Queries
 
         ::Source
           .joins(roles: {person: :alternate_values})
-          .where(roles: {type: ['SourceAuthor', 'SourceEditor']})
+          .where(roles: {type: SOURCE_ROLE_TYPES})
           .where(d.to_sql)
           .where(alternate_values: {alternate_value_object_attribute: 'last_name'})
           .where('alternate_values.value = ?', author)
@@ -176,7 +178,7 @@ module Queries
 
         ::Source
           .joins(roles: {person: :alternate_values})
-          .where(roles: {type: ['SourceAuthor', 'SourceEditor']})
+          .where(roles: {type: SOURCE_ROLE_TYPES})
           .where(d.to_sql)
           .where(alternate_values: {alternate_value_object_attribute: 'last_name'})
           .where('alternate_values.value ILIKE ?', "#{author}%")

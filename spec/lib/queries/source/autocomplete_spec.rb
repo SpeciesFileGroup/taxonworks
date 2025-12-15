@@ -202,6 +202,14 @@ describe Queries::Source::Autocomplete, type: :model, group: [:sources] do
       expect(query.autocomplete_exact_author_alternate.map(&:id)).to contain_exactly(source_with_person.id, source2.id)
     end
 
+    specify '#autocomplete_exact_author_alternate includes person-source role' do
+      # !! Returns a role, not a source.
+      sourceSourceRole = FactoryBot.create(:valid_source_source, person: person_mueller)
+
+      query.terms = 'Mueller'
+      expect(query.autocomplete_exact_author_alternate.map(&:id)).to contain_exactly(source_with_person.id, sourceSourceRole.role_object.id)
+    end
+
     specify '#autocomplete_start_of_author_alternate' do
       query.terms = 'Mue'
       expect(query.autocomplete_start_of_author_alternate.map(&:id)).to contain_exactly(source_with_person.id)
