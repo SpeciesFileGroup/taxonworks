@@ -213,10 +213,11 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
           user_id: User.first.id
         }
 
-        CollectingEvent.batch_update(params).to_json
+        CollectingEvent.batch_update(params)
 
         expect(c1.reload.georeferences.count).to eq(1)
 
+        sleep 1.1 # batch_update job is delayed 1 sec
         Delayed::Worker.new.work_off
 
         expect(c1.reload.georeferences.count).to eq(3)
