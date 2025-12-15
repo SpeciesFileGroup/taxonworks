@@ -7,7 +7,6 @@ import { removeFromArray } from '@/helpers'
 import { RouteNames } from '@/routes/routes'
 import makeSource from '../const/source'
 import setParam from '@/helpers/setParam'
-import saveDocumentation from './actions/saveDocumentation'
 
 export const useSourceStore = defineStore('source', {
   state: () => ({
@@ -20,11 +19,9 @@ export const useSourceStore = defineStore('source', {
     cloneSource() {
       Source.clone(this.source.id, { extend: ['roles'] }).then(({ body }) => {
         this.documentation = []
-        this.source = makeSource(body)
-
+        this.setSource(body)
         this.loadSoftValidations(body.global_id)
 
-        setParam(RouteNames.NewSource, 'source_id', body.id)
         TW.workbench.alert.create('Source was successfully cloned.', 'notice')
       })
     },
@@ -104,6 +101,34 @@ export const useSourceStore = defineStore('source', {
       })
     },
 
+    setSource(source) {
+      this.source = makeSource(source)
+      setParam(RouteNames.NewSource, 'source_id', source.id)
+    },
+
+    async convertToBibtex() {
+      try {
+        const { body } = await Source.update(this.source.id, {
+          source: { convert_to_bibtex: true },
+          extend: ['roles']
+        })
+
+        if (body.type === SOURCE_BIBTEX) {
+          this.setSource(body)
+          this.loadSoftValidations(body.global_id)
+          TW.workbench.alert.create(
+            'Source was successfully converted.',
+            'notice'
+          )
+        } else {
+          TW.workbench.alert.create(
+            'Source needs to be converted manually',
+            'error'
+          )
+        }
+      } catch {}
+    },
+
     async save() {
       const settings = useSettingStore()
 
@@ -116,18 +141,13 @@ export const useSourceStore = defineStore('source', {
           ? await Source.update(this.source.id, payload)
           : await Source.create(payload)
 
-        setSource(body)
+        this.setSource(body)
         this.loadSoftValidations(body.global_id)
         smartSelectorRefresh()
         TW.workbench.alert.create('Source was successfully saved.', 'notice')
       } catch {
       } finally {
         settings.saving = false
-      }
-
-      const setSource = (source) => {
-        this.source = makeSource(source)
-        setParam(RouteNames.NewSource, 'source_id', source.id)
       }
     },
 
@@ -181,24 +201,22 @@ export const useSourceStore = defineStore('source', {
       }
     },
 
-    reset() {
+    reset(data = {}) {
       const settings = useSettingStore()
       const source = makeSource()
-      const locked = settings.lock
+      const locked = Object.entries(settings.lock)
 
-      Object.keys(locked).forEach((key) => {
-        source[key] = locked[key] ? this.source[key] : undefined
+      locked.forEach(([key, value]) => {
+        if (value) {
+          source[key] = this.source[key]
+        }
       })
 
-      if (!locked.type) {
-        source.type = SOURCE_BIBTEX
-      }
-
-      this.softValidation = undefined
-      this.source = source
+      this.setSource({ ...data })
       this.documentation = []
+      this.softValidation = undefined
 
-      history.pushState(null, null, `/tasks/sources/new_source`)
+      history.pushState(null, null, RouteNames.NewSource)
     }
   }
 })

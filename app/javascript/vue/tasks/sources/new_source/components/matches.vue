@@ -1,13 +1,13 @@
 <template>
   <div class="matches-panel">
     <spinner-component
-      v-if="searching"
+      v-if="isSearching"
       legend="Searching..."
     />
     <div class="panel padding-medium-left padding-medium-right">
-      <display-list
-        v-if="founded.length"
-        :list="founded"
+      <DisplayList
+        v-if="list.length"
+        :list="list"
         label="object_tag"
         :remove="false"
         :edit="true"
@@ -17,83 +17,66 @@
   </div>
 </template>
 
-<script>
-import { GetterNames } from '../store/getters/getters'
+<script setup>
+import { ref, watch } from 'vue'
 import { Source } from '@/routes/endpoints'
-import { ActionNames } from '../store/actions/actions'
+import { useSettingStore, useSourceStore } from '../store'
 import DisplayList from '@/components/displayList'
 import SpinnerComponent from '@/components/ui/VSpinner'
 
-export default {
-  components: {
-    DisplayList,
-    SpinnerComponent
-  },
+const store = useSourceStore()
+const settings = useSettingStore()
 
-  computed: {
-    source() {
-      return this.$store.getters[GetterNames.GetSource]
-    },
+const DELAY = 1000
+let timer
 
-    saving() {
-      return this.$store.getters[GetterNames.GetSettings].saving
-    }
-  },
+const list = ref([])
 
-  data() {
-    return {
-      founded: [],
-      oldVal: undefined,
-      delay: 1000,
-      timer: undefined,
-      searching: false
-    }
-  },
+const isSearching = ref(false)
 
-  watch: {
-    source: {
-      handler(newVal) {
-        if (!newVal.title) {
-          clearTimeout(this.timer)
-          this.searching = false
-          this.founded = []
-        } else if (newVal.title !== this.oldVal) {
-          this.searching = true
-          clearTimeout(this.timer)
-          this.timer = setTimeout(() => {
-            this.getRecent()
-          }, this.delay)
-        }
-        this.oldVal = newVal.title
-      },
-      deep: true,
-      immediate: true
-    },
-
-    saving(newVal) {
-      if (!newVal) {
-        this.getRecent()
-      }
-    }
-  },
-
-  methods: {
-    getRecent() {
-      this.searching = true
-      Source.where({ query_term: this.source.title, per: 5 })
-        .then(({ body }) => {
-          this.founded = this.source.id
-            ? body.filter((item) => item.id !== this.source.id)
-            : body
-        })
-        .finally(() => {
-          this.searching = false
-        })
-    },
-
-    loadSource(source) {
-      this.$store.dispatch(ActionNames.LoadSource, source.id)
+watch(
+  () => settings.saving,
+  (newVal) => {
+    if (!newVal) {
+      getRecent()
     }
   }
+)
+
+watch(
+  () => store.source.title,
+  (newVal) => {
+    clearTimeout(timer)
+
+    if (!newVal) {
+      isSearching.value = true
+
+      timer = setTimeout(() => {
+        getRecent()
+      }, DELAY)
+
+      return
+    }
+
+    isSearching.value = false
+    list.value = []
+  }
+)
+
+function getRecent() {
+  isSearching.value = true
+  Source.where({ query_term: store.source.title, per: 5 })
+    .then(({ body }) => {
+      list.value = store.source.id
+        ? body.filter((item) => item.id !== store.source.id)
+        : body
+    })
+    .finally(() => {
+      isSearching.value = false
+    })
+}
+
+function loadSource(source) {
+  store.loadSource(source.id)
 }
 </script>

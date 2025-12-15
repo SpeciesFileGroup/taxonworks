@@ -9,7 +9,7 @@
     </template>
     <template #body>
       <spinner-component
-        v-if="searching"
+        v-if="isSearching"
         :full-screen="true"
         legend="Searching..."
       />
@@ -46,7 +46,7 @@
         </li>
       </ul>
       <textarea
-        ref="textareaRef"
+        ref="textarea"
         class="full_width"
         v-model="citation"
         placeholder="DOI or citation to find..."
@@ -64,9 +64,9 @@
         </button>
         <button
           v-if="!found"
-          @click="setVerbatim"
-          class="button normal-input button-default"
           type="button"
+          class="button normal-input button-default"
+          @click="setVerbatim"
         >
           Set as verbatim
         </button>
@@ -75,83 +75,76 @@
   </modal-component>
 </template>
 
-<script>
+<script setup>
 import AjaxCall from '@/helpers/ajaxCall'
 import SpinnerComponent from '@/components/ui/VSpinner'
 import ModalComponent from '@/components/ui/Modal'
-import { MutationNames } from '../store/mutations/mutations'
+import { nextTick, ref, onMounted, useTemplateRef } from 'vue'
 import { Serial } from '@/routes/endpoints'
-import { ActionNames } from '../store/actions/actions'
+import { useSourceStore } from '../store'
+import { SOURCE_VERBATIM } from '@/constants'
 
-export default {
-  components: {
-    ModalComponent,
-    SpinnerComponent
-  },
+const emit = defineEmits(['close'])
 
-  emits: ['close'],
+const store = useSourceStore()
+const citation = ref('')
+const found = ref(true)
+const isSearching = ref(false)
 
-  data() {
-    return {
-      citation: '',
-      searching: false,
-      found: true
-    }
-  },
+const textareaRef = useTemplateRef('textarea')
 
-  mounted() {
-    this.$nextTick(() => {
-      this.$refs.textareaRef.focus()
-    })
-  },
+onMounted(() => {
+  nextTick(() => {
+    textareaRef.value.focus()
+  })
+})
 
-  methods: {
-    getSource() {
-      this.searching = true
-      this.$store.dispatch(ActionNames.ResetSource)
-      AjaxCall(
-        'get',
-        `/tasks/sources/new_source/crossref_preview.json?citation=${this.citation}`
-      )
-        .then((response) => {
-          if (response.body.title) {
-            this.$store.dispatch(ActionNames.ResetSource)
-            response.body.roles_attributes = []
-            this.$store.commit(MutationNames.SetSource, response.body)
+function getSource() {
+  isSearching.value = true
+  store.reset()
 
-            if (response.body.journal) {
-              Serial.where({ name: response.body.journal }).then((response) => {
-                if (response.body.length) {
-                  this.$store.commit(
-                    MutationNames.SetSerialId,
-                    response.body[0].id
-                  )
-                }
-              })
+  AjaxCall(
+    'get',
+    `/tasks/sources/new_source/crossref_preview.json?citation=${citation.value}`
+  )
+    .then(({ body }) => {
+      if (body.title) {
+        store.reset()
+
+        store.setSource(body)
+
+        if (body.journal) {
+          Serial.where({ name: body.journal }).then((response) => {
+            const [serial] = response.body
+
+            if (serial) {
+              store.source.serial_id = serial.id
+              store.source.isUnsaved = true
             }
-            this.$emit('close', true)
-            TW.workbench.alert.create('Found! (please check).', 'notice')
-          } else {
-            this.found = false
-            TW.workbench.alert.create(
-              'Nothing found, the Source already exists, or the result found could not be processed as BibTeX.',
-              'error'
-            )
-          }
-        })
-        .finally(() => {
-          this.searching = false
-        })
-    },
+          })
+        }
+        emit('close', true)
+        TW.workbench.alert.create('Found! (please check).', 'notice')
+      } else {
+        found.value = false
+        TW.workbench.alert.create(
+          'Nothing found, the Source already exists, or the result found could not be processed as BibTeX.',
+          'error'
+        )
+      }
+    })
+    .catch(() => {})
+    .finally(() => {
+      isSearching.value = false
+    })
+}
 
-    setVerbatim() {
-      this.$store.commit(MutationNames.SetSource, {
-        type: 'Source::Verbatim',
-        verbatim: this.citation
-      })
-      this.$emit('close', true)
-    }
-  }
+function setVerbatim() {
+  store.reset({
+    type: SOURCE_VERBATIM,
+    verbatim: citation.value
+  })
+  emit('close', true)
 }
 </script>
 

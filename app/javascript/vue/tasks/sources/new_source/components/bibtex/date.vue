@@ -57,9 +57,9 @@
       />
     </div>
 
-    <div class="w-min">
+    <div>
       <label
-        class="label-above"
+        class="d-block line-nowrap"
         v-help.section.BibTeX.yearStated
       >
         Stated year

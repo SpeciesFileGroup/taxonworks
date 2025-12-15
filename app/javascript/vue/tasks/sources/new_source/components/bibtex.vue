@@ -1,14 +1,14 @@
 <template>
-  <modal-component
-    @close="$emit('close', true)"
+  <VModal
     class="full_width"
+    @close="emit('close', true)"
   >
     <template #header>
       <h3>New source from BibTeX</h3>
     </template>
     <template #body>
-      <spinner-component
-        v-if="creating"
+      <VSpinner
+        v-if="isCreating"
         :full-screen="true"
         legend="Creating..."
       />
@@ -16,7 +16,7 @@
         Creates a single record. For multiple records use a Source batch loader.
       </p>
       <textarea
-        ref="textareaRef"
+        ref="textarea"
         class="full_width"
         v-model="bibtexInput"
         placeholder="@article{naumann1988ambositrinae,
@@ -38,27 +38,23 @@
         Create
       </VBtn>
     </template>
-  </modal-component>
+  </VModal>
 </template>
 
 <script setup>
-import SpinnerComponent from '@/components/ui/VSpinner'
-import ModalComponent from '@/components/ui/Modal'
-import newSource from '../const/source'
-import setParam from '@/helpers/setParam'
-import VBtn from '@/components/ui/VBtn/index.vue'
-import { MutationNames } from '../store/mutations/mutations'
-import { ActionNames } from '../store/actions/actions'
+import { ref, nextTick, onMounted, useTemplateRef } from 'vue'
+import { useSourceStore } from '../store'
 import { Source, Serial } from '@/routes/endpoints'
-import { ref, nextTick, onMounted } from 'vue'
-import { useStore } from 'vuex'
+import VSpinner from '@/components/ui/VSpinner'
+import VModal from '@/components/ui/Modal'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const emit = defineEmits(['close'])
 
+const store = useSourceStore()
 const bibtexInput = ref('')
-const creating = ref(false)
-const textareaRef = ref(null)
-const store = useStore()
+const isCreating = ref(false)
+const textareaRef = useTemplateRef('textarea')
 
 onMounted(() => {
   nextTick(() => {
@@ -67,32 +63,31 @@ onMounted(() => {
 })
 
 function createSource() {
-  creating.value = true
-  store.dispatch(ActionNames.ResetSource)
+  isCreating.value = true
+  store.reset()
   Source.create({ bibtex_input: bibtexInput.value })
-    .then((response) => {
+    .then(({ body }) => {
       bibtexInput.value = ''
-      store.dispatch(ActionNames.ResetSource)
-      emit('close', true)
-      store.commit(
-        MutationNames.SetSource,
-        Object.assign(newSource(), response.body)
-      )
+      store.reset()
+      store.setSource(body)
 
-      if (response.body.journal) {
-        Serial.where({ name: response.body.journal }).then(({ body }) => {
-          if (body.length) {
-            store.commit(MutationNames.SetSerialId, body[0].id)
+      if (body.journal) {
+        Serial.where({ name: body.journal }).then(({ body }) => {
+          const [serial] = body
+
+          if (serial) {
+            store.source.serial_id = serial.id
+            store.source.isUnsaved = true
           }
         })
       }
 
-      setParam('/tasks/sources/new_source', 'source_id', response.body.id)
+      emit('close', true)
       TW.workbench.alert.create('New source from BibTeX created.', 'notice')
     })
     .catch(() => {})
     .finally(() => {
-      creating.value = false
+      isCreating.value = false
     })
 }
 </script>

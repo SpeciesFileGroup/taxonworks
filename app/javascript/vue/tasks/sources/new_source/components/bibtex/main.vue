@@ -1,6 +1,6 @@
 <template>
-  <div class="horizontal-left-content align-start gap-small">
-    <draggable
+  <div class="vue-new-source-task-bibtex-container gap-small">
+    <VDraggable
       v-for="(column, key) in columns"
       :key="key"
       class="vue-new-source-task-bibtex full_width gap-medium"
@@ -17,7 +17,7 @@
           @on-modal="setDraggable"
         />
       </template>
-    </draggable>
+    </VDraggable>
   </div>
 </template>
 
@@ -25,7 +25,7 @@
 import { ref } from 'vue'
 import { useSettingStore, useSourceStore } from '../../store'
 import { useUserPreferences } from '@/composables'
-import Draggable from 'vuedraggable'
+import VDraggable from 'vuedraggable'
 import SourceType from '../sourceType'
 import BibtexType from './type'
 import BibtexTitle from './title'
@@ -147,6 +147,12 @@ function updatePreferences() {
 </script>
 
 <style lang="scss">
+.vue-new-source-task-bibtex-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1rem;
+}
+
 .vue-new-source-task-bibtex {
   display: flex;
   flex-direction: column;

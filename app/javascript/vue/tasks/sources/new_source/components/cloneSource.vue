@@ -2,7 +2,7 @@
   <button
     type="button"
     class="button normal-input button-submit button-size"
-    :disabled="!source.id"
+    :disabled="!store.source.id"
     @click="cloneSource"
   >
     Clone
@@ -11,15 +11,13 @@
 </template>
 
 <script setup>
-import { GetterNames } from '../store/getters/getters'
-import { ActionNames } from '../store/actions/actions'
-import { computed, ref } from 'vue'
-import { useStore } from 'vuex'
+import { ref } from 'vue'
+import { useSourceStore } from '../store'
 import { useHotkey } from '@/composables'
 import platformKey from '@/helpers/getPlatformKey'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 
-const store = useStore()
+const store = useSourceStore()
 
 const confirmationModalRef = ref(null)
 const shortcuts = ref([
@@ -33,8 +31,6 @@ const shortcuts = ref([
 
 useHotkey(shortcuts.value)
 
-const source = computed(() => store.getters[GetterNames.GetSource])
-
 async function cloneSource() {
   const ok = await confirmationModalRef.value.show({
     title: 'Clone source',
@@ -47,7 +43,7 @@ async function cloneSource() {
   })
 
   if (ok) {
-    store.dispatch(ActionNames.CloneSource)
+    store.cloneSource()
   }
 }
 </script>

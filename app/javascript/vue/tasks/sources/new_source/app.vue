@@ -13,10 +13,14 @@
           </label>
         </li>
         <li>
-          <a href="/tasks/sources/hub">Back to source hub</a>
+          <a :href="RouteNames.SourceHub">Back to source hub</a>
         </li>
-        <li><PanelSearch /></li>
-        <li><VRecent /></li>
+        <li>
+          <PanelSearch />
+        </li>
+        <li>
+          <VRecent />
+        </li>
       </ul>
     </div>
     <NavBar class="source-navbar">
@@ -58,7 +62,7 @@
           <button
             class="button normal-input button-submit button-size"
             type="button"
-            :disabled="isSaveDisabled"
+            :disabled="!isSaveAvailable"
             @click="saveSource"
           >
             Save
@@ -137,9 +141,10 @@
 
 <script setup>
 import { computed, ref, onMounted } from 'vue'
-import { ActionNames } from './store/actions/actions'
 import { SOURCE_BIBTEX, SOURCE_HUMAN, SOURCE_VERBATIM } from '@/constants'
 import { useSettingStore, useSourceStore } from './store'
+import { useHotkey } from '@/composables'
+import { RouteNames } from '@/routes/routes'
 
 import Verbatim from './components/verbatim/main'
 import Bibtex from './components/bibtex/main'
@@ -162,7 +167,6 @@ import PanelSearch from './components/PanelSearch.vue'
 import RightSection from './components/rightSection'
 import NavBar from '@/components/layout/NavBar'
 import platformKey from '@/helpers/getPlatformKey'
-import { useHotkey } from '@/composables'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 
 const componentSection = {
@@ -196,8 +200,14 @@ const shortcuts = ref([
 useHotkey(shortcuts.value)
 
 const isUnsaved = computed(() => store.source.isUnsaved)
-const isSaveDisabled = computed(
-  () => store.source.type === SOURCE_BIBTEX && !store.source.bibtex_type
+const isSaveAvailable = computed(
+  () =>
+    (store.source.type === SOURCE_VERBATIM && store.source.verbatim) ||
+    (store.source.type === SOURCE_HUMAN &&
+      store.source.roles_attributes.length) ||
+    (store.source.type === SOURCE_BIBTEX &&
+      store.source.bibtex_type &&
+      store.source.title)
 )
 
 const isCrossRefModalVisible = ref(false)
@@ -237,26 +247,28 @@ function reset() {
 }
 
 function saveSource() {
-  if (isSaveDisabled) return
+  if (!isSaveAvailable) return
   store.save()
-}
-
-function convert() {
-  store.dispatch(ActionNames.ConvertToBibtex)
 }
 
 function showBibTexForm() {
   if (isSafeToDiscardChanges()) {
-    store.dispatch(ActionNames.ResetSource)
+    store.reset()
     isBibtexModalVisible.value = true
   }
 }
 
 function showCrossRefForm() {
   if (isSafeToDiscardChanges()) {
-    store.dispatch(ActionNames.ResetSource)
+    store.reset()
     isCrossRefModalVisible.value = true
   }
+}
+
+async function convert() {
+  settings.isConverting = true
+  await store.convertToBibtex()
+  settings.isConverting = false
 }
 </script>
 

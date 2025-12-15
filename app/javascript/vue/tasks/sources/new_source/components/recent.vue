@@ -30,16 +30,15 @@
 </template>
 
 <script setup>
+import { ref, watch } from 'vue'
+import { Source } from '@/routes/endpoints'
+import { useSourceStore } from '../store'
 import TableList from '@/components/table_list'
 import VSpinner from '@/components/ui/VSpinner'
 import VModal from '@/components/ui/Modal'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import { ActionNames } from '../store/actions/actions'
-import { Source } from '@/routes/endpoints'
-import { ref, watch } from 'vue'
-import { useStore } from 'vuex'
 
-const store = useStore()
+const store = useSourceStore()
 const sources = ref([])
 const isSearching = ref(false)
 const isModalVisible = ref(false)
@@ -56,7 +55,7 @@ function getSources() {
 }
 
 function setSource(source) {
-  store.dispatch(ActionNames.LoadSource, source.id)
+  store.loadSource(source.id)
   isModalVisible.value = false
 }
 

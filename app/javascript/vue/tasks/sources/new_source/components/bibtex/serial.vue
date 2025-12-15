@@ -7,7 +7,7 @@
       >
         <legend>Serial</legend>
         <div class="horizontal-left-content align-start">
-          <smart-selector
+          <SmartSelector
             class="full_width"
             input-id="serials-autocomplete"
             model="serials"
@@ -16,10 +16,10 @@
             label="name"
             pin-section="Serials"
             pin-type="Serial"
-            :filter-ids="serialId ? [serialId] : []"
+            :filter-ids="selected ? [selected.id] : []"
             @selected="setSelected"
           />
-          <lock-component
+          <VLock
             class="margin-small-left"
             v-model="settings.lock.serial_id"
           />
@@ -34,16 +34,19 @@
           class="middle separate-top"
           v-if="selected"
         >
-          <div class="horizontal-left-content">
-            <span
-              class="separate-right"
-              v-html="selected.name"
-            />
-            <radial-object :global-id="selected.global_id" />
-            <span
-              class="button-circle btn-undo button-default separate-left"
+          <div class="horizontal-left-content gap-small">
+            <span v-html="selected.name" />
+            <RadialObject :global-id="selected.global_id" />
+            <VBtn
+              color="primary"
+              circle
               @click="unset"
-            />
+            >
+              <VIcon
+                small
+                name="undo"
+              />
+            </VBtn>
           </div>
         </div>
       </fieldset>
@@ -55,8 +58,9 @@
 import { ref, watch } from 'vue'
 import { useSettingStore } from '../../store'
 import { Serial } from '@/routes/endpoints'
-
-import LockComponent from '@/components/ui/VLock/index.vue'
+import VLock from '@/components/ui/VLock/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import SmartSelector from '@/components/ui/SmartSelector'
 import RadialObject from '@/components/radials/navigation/radial'
 
