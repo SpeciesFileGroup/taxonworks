@@ -717,6 +717,8 @@ class CollectingEvent < ApplicationRecord
   # @return [Scope]
   def nearest_by_levenshtein(compared_string = nil, column = 'verbatim_locality', limit = 10)
     return CollectingEvent.none if compared_string.nil?
+    column = column.to_s
+    raise ArgumentError, "Invalid column name: #{column}" unless CollectingEvent.column_names.include?(column)
     order_str = CollectingEvent.send(:sanitize_sql_for_conditions, ["levenshtein(collecting_events.#{column}, ?)", compared_string])
     CollectingEvent.where('id <> ?', id.to_s).
       order(Arel.sql(order_str)).
@@ -1038,7 +1040,10 @@ class CollectingEvent < ApplicationRecord
         end
 
         if incremented_identifier_id
-          add_incremented_identifier(to_object: a, incremented_identifier_id:)
+          if !add_incremented_identifier(to_object: a,
+                                         incremented_identifier_id:)
+            raise TaxonWorks::Error, 'Clone failed: Unable to increment identifier, maybe no part of it is numeric?'
+          end
         end
 
         if annotations.present? # TODO: boolean param this
@@ -1047,11 +1052,12 @@ class CollectingEvent < ApplicationRecord
 
         a.save! # TODO: confirm behaviour is OK in case of comprehensive.
 
-      rescue ActiveRecord::RecordInvalid
-        raise ActiveRecord::Rollback
+      rescue ActiveRecord::RecordInvalid => e
+        raise TaxonWorks::Error, "Clone failed: '#{e.message}'", cause: e
       end
-      a
-    end
+    end # end transaction
+
+    a
   end
 
   # @return [String, nil]

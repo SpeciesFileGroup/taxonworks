@@ -511,7 +511,8 @@ class OtusController < ApplicationController
 
   # TODO: Move to generic toolkit  in lib/queries
   def conditional_sort(name, array)
-    s = "CASE #{name} " + array.each_with_index.collect{|v,i|
+    safe_name = ApplicationRecord.sanitize_sql_for_order(name)
+    s = "CASE #{safe_name} " + array.each_with_index.collect{|v,i|
       ApplicationRecord.sanitize_sql_for_conditions(["WHEN ? THEN #{i}", v])}.join(' ')
     s << ' ELSE 999999 END'
     s

@@ -2,6 +2,15 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym < TaxonNameRelationship::
 
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000372'.freeze
 
+  # Override the base-class metadata for this SV
+  soft_validate(
+    :sv_not_specific_relationship,
+    set: :not_specific_relationship,
+    fix: :sv_fix_specify_synonymy_type,
+    name: 'Not specific relationship',
+    description: 'More specific relationship is preferred, for example "Subjective synonym" instead of "Synonym".'
+  )
+
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
         self.collect_to_s(TaxonNameRelationship::Icn::Unaccepting,
@@ -45,8 +54,12 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym < TaxonNameRelationship::
   end
 
   def sv_not_specific_relationship
-    soft_validations.add(:type, 'Please specify if this is a homotypic or heterotypic synonym',
-                         fix: :sv_fix_specify_synonymy_type, success_message: 'Synonym updated to being homotypic or heterotypic')
+    soft_validations.add(
+      :type,
+      'Please specify if this is a homotypic or heterotypic synonym',
+      success_message: 'Synonym updated to being homotypic or heterotypic',
+      failure_message: 'Failed to set homotypic or heterotypic'
+    )
   end
 
   def sv_fix_specify_synonymy_type
@@ -63,10 +76,8 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym < TaxonNameRelationship::
     if self.type_name != new_relationship_name
       self.type = new_relationship_name
       begin
-        TaxonNameRelationship.transaction do
-          self.save
-          return true
-        end
+        self.save
+        return true
       rescue
       end
     end

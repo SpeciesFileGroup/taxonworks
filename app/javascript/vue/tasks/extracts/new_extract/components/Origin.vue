@@ -91,13 +91,14 @@ import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
 import { CollectionObject, Extract, Otu } from '@/routes/endpoints'
-import { COLLECTION_OBJECT, EXTRACT, OTU } from '@/constants/index.js'
+import { ANATOMICAL_PART, COLLECTION_OBJECT, EXTRACT, OTU } from '@/constants/index.js'
 import { ref, computed, watch, onBeforeMount } from 'vue'
 import { useStore } from 'vuex'
 import { URLParamsToJSON } from '@/helpers'
 import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams.js'
 
 const smartTypes = {
+  [ANATOMICAL_PART]: 'anatomical_parts',
   [COLLECTION_OBJECT]: 'collection_objects',
   [EXTRACT]: 'extracts',
   [OTU]: 'otus'

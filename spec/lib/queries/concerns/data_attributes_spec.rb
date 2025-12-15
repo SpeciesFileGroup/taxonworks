@@ -58,12 +58,48 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
     expect(query.all).to contain_exactly(d.attribute_subject)
   end
 
+    specify '#data_attribute_exact_pair 2, multiple predicate values are ored' do
+    d = InternalAttribute.create!(predicate: p1, value: '212', attribute_subject: Specimen.create!)
+    e = InternalAttribute.create!(predicate: p1, value: '313', attribute_subject: Specimen.create!)
+    Specimen.create!
+
+    # Must use array form
+    query.data_attribute_exact_pair = ["#{p1.id}:212", "#{p1.id}:313"]
+
+    expect(query.all).to contain_exactly(d.attribute_subject, e.attribute_subject)
+  end
+
   specify '#data_attribute_wildcard_pair 1' do
     d = InternalAttribute.create!(predicate: p1, value: '212', attribute_subject: Specimen.create!)
     Specimen.create!
 
     query.data_attribute_wildcard_pair = {p1.id => '2'}
     expect(query.all).to contain_exactly(d.attribute_subject)
+  end
+
+  specify '#data_attribute_wildcard_pair 2, multiple predicate values are ored' do
+    d = InternalAttribute.create!(predicate: p1, value: '212', attribute_subject: Specimen.create!)
+    e = InternalAttribute.create!(predicate: p1, value: '313', attribute_subject: Specimen.create!)
+    Specimen.create!
+
+    # Must use array form
+    query.data_attribute_wildcard_pair = ["#{p1.id}:21", "#{p1.id}:31"]
+
+    expect(query.all).to contain_exactly(d.attribute_subject, e.attribute_subject)
+  end
+
+
+
+  specify '#data_attribute_wildcard_pair and #data_attribute_exact_pair are anded' do
+    d = InternalAttribute.create!(predicate: p1, value: '212', attribute_subject: Specimen.create!)
+    e = InternalAttribute.create!(predicate: p1, value: '313', attribute_subject: Specimen.create!)
+    Specimen.create!
+
+    # Must use array form
+    query.data_attribute_wildcard_pair = ["#{p1.id}:21", "#{p1.id}:31"]
+    query.data_attribute_exact_pair = {p1.id => '313' }
+
+    expect(query.all).to contain_exactly(e.attribute_subject)
   end
 
 end

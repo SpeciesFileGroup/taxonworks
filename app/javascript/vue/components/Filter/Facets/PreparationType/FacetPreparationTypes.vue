@@ -18,7 +18,7 @@
                 type="checkbox"
                 :value="type.id"
                 v-model="selectedTypes"
-                name="collection-object-type"
+                name="preparation_types"
               />
               {{ type.name }}
             </label>
