@@ -219,6 +219,8 @@ class UsersController < ApplicationController
   def set_user
     own_id = (params[:id].to_i == sessions_current_user_id)
 
+    # The RecordNotFound error raised in the nil case is tranformed into a
+    # 404 by the rescue_from handlers.
     @user = User.find((is_administrator? || own_id) ? params[:id] : nil)
     @recent_object = @user
   end
