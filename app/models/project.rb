@@ -34,6 +34,7 @@ class Project < ApplicationRecord
   # The intent is to use  `delete_all` for speed. This means
   # that callbacks are *not* fired (associated destroys).
   MANIFEST = %w{
+     News
      Observation
      CitationTopic
      Citation

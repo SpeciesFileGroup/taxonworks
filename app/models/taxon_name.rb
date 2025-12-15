@@ -333,7 +333,7 @@ class TaxonName < ApplicationRecord
 
   # Combinations are rankless, but we need this scope here for generic returns
   # In small batches ordering in memory is likely more efficient.
-  scope :order_by_rank, -> (code) {order(Arel.sql("position(taxon_names.rank_class in '#{code}')"))}
+  scope :order_by_rank, -> (code) { order(Arel.sql(sanitize_sql(['position(taxon_names.rank_class in ?)', code]))) }
 
   scope :with_same_cached_valid_id, -> { where(arel_table[:id].eq(arel_table[:cached_valid_taxon_name_id])) }
   scope :with_different_cached_valid_id, -> { where(arel_table[:id].not_eq(arel_table[:cached_valid_taxon_name_id])) } # This doesn't catch all invalid names.  Those with classifications only are missed !$#!@#

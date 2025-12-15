@@ -6,6 +6,8 @@ json.array! @biological_associations do |ba|
 
   # Subject data from index
   json.subject do
+    json.id index.subject_id
+    json.type index.subject_type
     json.order index.subject_order
     json.family index.subject_family
     json.genus index.subject_genus
@@ -18,11 +20,13 @@ json.array! @biological_associations do |ba|
 
   # Object data from index
   json.object do
-    json.properties index.object_properties
+    json.id index.object_id
+    json.type index.object_type
     json.order index.object_order
     json.family index.object_family
     json.genus index.object_genus
     json.label index.object_label
+    json.properties index.object_properties
   end
 
   # Citations from index

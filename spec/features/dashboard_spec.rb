@@ -29,11 +29,11 @@ describe 'Dashboard' do
     end
 
     it 'should show user' 's dashboard' do
-      expect(page).to have_selector('h1', text: "Dashboard for #{@user.name}")
-      expect(page).to have_selector('.panel .title', text: 'Projects')
+      expect(page).to have_selector('h3', text: "Dashboard for #{@user.name}")
+      expect(page).to have_selector('.panel-title', text: 'Projects')
 
       # it 'should have user-specific information in horizontal_navbar'
-      within(:css, '#session_nav ul.horizontal_navbar') {
+      within(:css, '#session_nav') {
         expect(page).to have_link('Account')
         expect(page).to have_link('Sign out')
         expect(page).to have_content("#{@user.name}")
@@ -61,7 +61,7 @@ describe 'Dashboard' do
       end
 
       it 'should have Edit account link' do
-        expect(page).to have_button('Edit')
+        expect(page).to have_link('Edit')
       end
     end
   end

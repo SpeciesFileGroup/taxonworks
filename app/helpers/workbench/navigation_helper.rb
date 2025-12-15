@@ -280,8 +280,8 @@ module Workbench::NavigationHelper
   def a_to_z_links(targets = [])
     letters = targets.empty? ? ('A'..'Z') : ('A'..'Z').to_a & targets
     content_tag(:div, class: 'navigation-bar-left', id: 'alphabet_nav') do
-      content_tag(:ul, class: 'left_justified_navbar context-menu') do
-        letters.collect{|l| content_tag(:li, link_to("#{l}", "\##{l}")) }.join.html_safe
+      content_tag(:ul, class: 'left_justified_navbar') do
+        letters.collect{|l| content_tag(:li, link_to("#{l}", "\##{l}"), data: { turbolinks: :false }) }.join.html_safe
       end
     end
   end
@@ -289,6 +289,26 @@ module Workbench::NavigationHelper
   def title_tag
     splash = request.path =~ /task/ ? request.path.demodulize.humanize : request.path.split('/')&.second&.humanize
     content_tag(:title, ['TaxonWorks', splash].compact.join(' - ') )
+  end
+
+
+  def header_path_tag
+    key = UserTasks::INDEXED_TASKS.keys.find do |k|
+      t = UserTasks::INDEXED_TASKS[k]
+      send(t.path) == request.path rescue false
+    end
+    task_name = UserTasks::INDEXED_TASKS[key]&.name
+    namespace      = controller.controller_path.split('/')&.first&.humanize
+    controller_label = controller.controller_name.humanize
+
+    label =
+      if namespace == controller_label
+        "/ #{namespace}"
+      else
+        "/ #{namespace} / #{task_name || controller_label}"
+      end
+
+    content_tag(:span, label)
   end
 
   def radial_navigation_tag(object, teleport = nil)

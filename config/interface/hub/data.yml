@@ -419,3 +419,6 @@ Annotations:
     status: :prototype
     related_models:
       - ControlledVocabularyTerm
+Communication:
+  News:
+    status: :prototype

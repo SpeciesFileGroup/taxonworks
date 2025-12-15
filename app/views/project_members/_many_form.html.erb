@@ -1,43 +1,110 @@
 <%= form_for(@project_member, url: create_many_project_members_path ) do |f| %>
   <%= render 'shared/errors', object: @project_member %>
 
-  <div class="actions">
-    <%= f.submit 'Create project member(s)' %>
-  </div>
+  <%= f.hidden_field :project_id -%>
 
-  <div class="field">
-    Project: <%= f.label :project_id, @project_member.project.name %><br>
-    <%= f.hidden_field :project_id -%>
-  </div>
+  <div class="profile-card">
+    <div class="profile-card-content flex-separate middle">
+      <div class="flex-row gap-medium">
+        <div class="stat-icon blue">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+        </div>
 
-  <div class="field">
-    <%= f.check_box :is_project_administrator %>  <%= f.label :is_project_administrator %> <span class="warning"> All selected members will be set as project administrators.</span>
-  </div>
-  
-  <h3> Users </h3>
-
-  <% if @target_letters.size > 5 -%>
-    <%= a_to_z_links(@target_letters) -%> 
-  <% end %>
-
-  <% @available_users.group_by{|u| u.name[0].upcase}.each do |group, users| %>
-    <h3><%= link_to(group, '#alphabet_nav', name: group) if @target_letters.size > 5  -%></h3>
-    <% users.in_groups_of(5, false).each do |g| -%>
-      <div style="float: left">
-        <% g.each do |user| -%>
-          <label>
-            <%= check_box_tag "project_member[user_ids][]", user.id %>
-            <%= user.name %> | <%= user.email.gsub(/...@.../, '*******') %>
-          </label><br>
-        <% end %>
-
+        <div>
+          <div class="profile-card-title">Project administrator</div>
+          <div> All selected members will be set as project administrators.</div>
+        </div>
       </div>
-    <% end %>
-    <br style="clear:both;" />
-  <% end %>
 
-  <br>
-  <div class="actions">
-    <%= f.submit 'Create project member(s)' %>
+      <div>
+        <label class="v-toggle-switch">
+          <%= f.check_box :is_project_administrator %>
+          <span>
+            <div class="switch-icon"></div>
+          </span>
+        </label>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="profile-card ">
+    <div class="profile-card-header card-header-members">
+      <div class="card-header-left">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="card-icon">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+          <circle cx="9" cy="7" r="4"></circle>
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+        </svg>
+        <h2 class="profile-card-title">Users</h2>
+      </div>
+      <div class="card-header-actions">
+        <input type="text" id="input-search" class="normal-input" autofocus="true" placeholder="Search a user...">
+        <%= link_to signup_path, class: 'button btn btn-primary' do -%>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <line x1="19" x2="19" y1="8" y2="14"></line>
+            <line x1="22" x2="16" y1="11" y2="11"></line>
+          </svg>
+          Create new user
+        <% end %>
+        <%= button_tag type: :submit, class: "btn button btn-create" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <line x1="19" x2="19" y1="8" y2="14"></line>
+            <line x1="22" x2="16" y1="11" y2="11"></line>
+          </svg>
+          Create project member(s)
+        <% end %>
+      </div>
+    </div>
+    <div>
+      <%= a_to_z_links(@target_letters) -%> 
+    </div>
+    <div class="members-list">
+      <table class="members-table">
+        <tbody>
+          <% sorted = @available_users.group_by { |u| u.name[0].upcase }.sort %>
+
+          <% sorted.each_with_index do |(group, users), index| %>
+            <tr id="<%= group -%>">
+              <th class="sticky-col w-2 letter-col sticky-col">
+                <div class="stat-icon blue font-bold">
+                  <%= group -%>
+                </div>
+              </th>
+              <th class="header w-2 sticky-col "></th>
+              <% if index == 0 %>
+                <th class="header sticky-col ">Name</th>
+                <th class="header sticky-col ">Time active</th>
+                <th class="header sticky-col ">Email</th>
+              <% else %>
+                <th class="spacer"></th>
+                <th class="spacer"></th>
+                <th class="spacer"></th>
+              <% end %>
+            </tr>
+
+            <% users.each do |user| %>
+              <tr>
+                <td class="th-center td-center">
+                  <%= check_box_tag "project_member[user_ids][]", user.id %>
+                </td>
+                <td><%= user_avatar(user, :small) %></td>
+                <td><%= user.name %></td>
+                <td><%= user_time_active(user) %></td>
+                <td><%= user.email.gsub(/...@.../, '*******') %></td>
+              </tr>
+            <% end %>
+
+          <% end %>
+        </tbody>
+      </table>
+    </div>
   </div>
 <% end %>

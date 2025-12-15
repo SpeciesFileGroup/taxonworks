@@ -49,10 +49,13 @@ headers to be used in the call. Using it will override the common headers
         <template v-if="json.length">
           <li
             v-for="(item, index) in limitList(json)"
-            class="vue-autocomplete-item"
-            :class="activeClass(index)"
             ref="items"
-            :title="escapeHtml(getNested(item, label))"
+            :class="[
+              'vue-autocomplete-item',
+              ellipsis && 'ellipsis',
+              activeClass(index)
+            ]"
+            :title="sanitizeHtml(getNested(item, label))"
             @mouseover="itemActive(index)"
             @click.prevent="itemClicked(index)"
           >
@@ -79,7 +82,7 @@ headers to be used in the call. Using it will override the common headers
 </template>
 
 <script>
-import { escapeHtml } from '@/helpers'
+import { sanitizeHtml } from '@/helpers'
 import AjaxCall from '@/helpers/ajaxCall'
 import AutocompleteSpinner from './Autocomplete/AutocompleteSpinner.vue'
 import Qs from 'qs'
@@ -197,6 +200,11 @@ export default {
     inputAttributes: {
       type: Object,
       default: () => ({})
+    },
+
+    ellipsis: {
+      type: Boolean,
+      default: false
     }
   },
 
@@ -258,7 +266,7 @@ export default {
   },
 
   methods: {
-    escapeHtml,
+    sanitizeHtml,
 
     downKey() {
       if (this.showList && this.current < this.json.length) {
@@ -556,20 +564,15 @@ export default {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   box-sizing: border-box;
   position: absolute;
-
   width: auto;
   min-width: 100%;
   max-width: calc(100vw - 32px);
   overflow-x: hidden;
-  white-space: nowrap;
 
   li {
     cursor: pointer;
     padding: calc(var(--standard-padding, 8px) * 0.5);
     border-top: 1px solid var(--border-color);
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
     padding: 6px 12px;
   }
 

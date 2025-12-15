@@ -386,6 +386,7 @@ resources :field_occurrences do
   collection do
     match :filter, to: 'field_occurrences#index', via: [:get, :post]
     get :select_options, defaults: {format: :json}
+    post :from_collection_object, defaults: {format: :json}
   end
 end
 
@@ -576,6 +577,12 @@ resources :namespaces do
   end
 
   concerns [:data_routes]
+end
+
+resources :news do
+  collection do
+    get :types
+  end
 end
 
 resources :notes, except: [:show] do

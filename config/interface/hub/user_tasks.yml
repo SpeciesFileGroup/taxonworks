@@ -1124,3 +1124,17 @@ taxon_name_reclassifier_task:
   categories:
   status: prototype
   description: 'Drag-drop to change the parents of TaxonNames.'
+new_news_task:
+  hub: true
+  name: 'New news'
+  related:
+  categories:
+  status: prototype
+  description: 'Create and edit blog posts, notices, etc.'
+browse_news_task:
+  hub: true
+  name: 'Browse News'
+  related:
+  categories:
+  status: prototype
+  description: "A Newspaper summarizing this project's current news."

@@ -77,5 +77,8 @@ const permitParams = {
 export const FieldOccurrence = {
   ...baseCRUD(controller, permitParams),
 
-  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params)
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
+
+  fromCollectionObject: (params) =>
+    AjaxCall('post', `/${controller}/from_collection_object`, params)
 }

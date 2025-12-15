@@ -1,0 +1,6 @@
+export const NEWS_ADMINISTRATION_BLOGPOST = 'News::Administration::BlogPost'
+export const NEWS_ADMINISTRATION_WARNING = 'News::Administration::Warning'
+export const NEWS_ADMINISTRATION_NOTICE = 'News::Administration::Notice'
+export const NEWS_PROJECT_BLOGPOST = 'News::Project::BlogPost'
+export const NEWS_PROJECT_INSTRUCTION = 'News::Project::Instruction'
+export const NEWS_PROJECT_NOTICE = 'News::Project::Notice'

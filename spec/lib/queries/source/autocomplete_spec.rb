@@ -161,4 +161,71 @@ describe Queries::Source::Autocomplete, type: :model, group: [:sources] do
     end
   end
 
+  context 'searching with alternate author values' do
+    let!(:source_mueller) {
+      FactoryBot.create(:valid_source_bibtex,
+        author: 'Müller',
+        year: 2000,
+        title: 'A study on German names'
+      )
+    }
+
+    let!(:alternate_mueller) {
+      AlternateValue::AlternateSpelling.create!(
+        value: 'Mueller',
+        alternate_value_object: source_mueller,
+        alternate_value_object_attribute: 'author'
+      )
+    }
+
+    specify '#autocomplete_exact_author_alternate' do
+      query.terms = 'Mueller'
+      expect(query.autocomplete_exact_author_alternate.map(&:id)).to contain_exactly(source_mueller.id)
+    end
+
+    specify '#autocomplete_start_of_author_alternate' do
+      query.terms = 'Mue'
+      expect(query.autocomplete_start_of_author_alternate.map(&:id)).to contain_exactly(source_mueller.id)
+    end
+
+    specify '#autocomplete_exact_author_year_alternate' do
+      query.terms = 'Mueller 2000'
+      expect(query.autocomplete_exact_author_year_alternate.map(&:id)).to contain_exactly(source_mueller.id)
+    end
+
+    specify '#autocomplete_start_author_year_alternate' do
+      query.terms = 'Mue 2000'
+      expect(query.autocomplete_start_author_year_alternate.map(&:id)).to contain_exactly(source_mueller.id)
+    end
+
+    describe '#autocomplete_exact_author_year_letter_alternate' do
+      let!(:source_with_suffix) {
+        FactoryBot.create(:valid_source_bibtex,
+          author: 'Müller',
+          year: 2000,
+          year_suffix: 'b',
+          title: 'Second study on German names'
+        )
+      }
+
+      let!(:alternate_with_suffix) {
+        AlternateValue::AlternateSpelling.create!(
+          value: 'Mueller',
+          alternate_value_object: source_with_suffix,
+          alternate_value_object_attribute: 'author'
+        )
+      }
+
+      specify 'finds source by alternate author, year and suffix' do
+        query.terms = 'Mueller 2000b'
+        expect(query.autocomplete_exact_author_year_letter_alternate.map(&:id)).to contain_exactly(source_with_suffix.id)
+      end
+    end
+
+    specify '#autocomplete returns sources with alternate author' do
+      query.terms = 'Mueller 2000'
+      expect(query.autocomplete.map(&:id)).to contain_exactly(source_mueller.id)
+    end
+  end
+
 end

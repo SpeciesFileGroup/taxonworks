@@ -7,8 +7,33 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.56.1] - 2025-12-12
+
 ### Added
 
+- subject/object type to indexed biological associations endpoint
+- Source autocomplete now matches on alternate author names [#4617]
+
+### Fixed
+
+- Rendering error on NOMEN batch load
+- api/v1/dwc_occurrences/area_autocomplete when target=stateProvince
+- Magnify icon is missing from the autocomplete
+
+### Changed
+
+- Autocomplete list wraps the text instead of applying ellipses by default.
+
+[#4617]: https://github.com/SpeciesFileGroup/taxonworks/issues/4617
+
+## [0.56.0] - 2025-12-11
+
+### Added
+
+- Anatomical part [#4407]
+- Project/Admin News (blog posts, notices, warnings, instructions) [#1308]
 - Collecting event form: Field notes
 - Taxon name reclassifier: Unify and refresh buttons [#4609]
 - Radial navigator: Taxon name reclassifier [#4609]
@@ -18,14 +43,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Support repeated attributes with different values (to be ORed) in Collecting Event filter's Collecting Event attribute facet [#4622]
 - Batch create Labels from Collecting Event filter [#3814]
 - New status/control area on Complete DwCA Settings page
-
-### Changed
-
-- Autocomplete list dynamically adjust to fit content on screen
-- New source: add BibTeX source to project automatically
-- Removed the Origin Relationship search boxes
-- Taxon name reclassifier: disable the drop zone when rank of dragged taxon is higher than the target.
-- CSD: Allow create duplicate RecordNumber identifiers [#4096]
+- Convert Collection Object to Field Occurrence [#4521]
+- Biological Associations index [#4613]
 
 ### Fixed
 
@@ -35,6 +54,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Exception on Filter Source with verbatim sources
 - Exception on empty searches
 - Exception in New Source when serial no longer exists
+- Exception in Batch Source import when import file is missing
 - Respect no_dwc_occurrence setting for AssertedDistribution creation
 - Don't display 'null' in Change Namespace dialog for mass Identifier annotator in Filter Collection Object/Filter Collecting Event [#4618]
 - 'Collection objects with determinations' appears twice in Collection summary task/Taxonomic scope [#4620]
@@ -46,13 +66,28 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Prioritize abbreviated genus and species name in TaxonName autocomplete
 - Make sure file is provided when doing bibtex batch loads
 
+### Changed
+
+- Autocomplete list dynamically adjust to fit content on screen
+- New source: add BibTeX source to project automatically
+- Removed the Origin Relationship search boxes
+- Taxon name reclassifier: disable the drop zone when rank of dragged taxon is higher than the target.
+- CSD: Allow create duplicate RecordNumber identifiers [#4096]
+- Updated Ruby gems
+- Updated NPM packages
+
+[#1308]: https://github.com/SpeciesFileGroup/taxonworks/issues/1308
 [#3814]: https://github.com/SpeciesFileGroup/taxonworks/issues/3814
+[#4096]: https://github.com/SpeciesFileGroup/taxonworks/issues/4096
+[#4407]: https://github.com/SpeciesFileGroup/taxonworks/issues/4407
+[#4521]: https://github.com/SpeciesFileGroup/taxonworks/issues/4521
 [#4556]: https://github.com/SpeciesFileGroup/taxonworks/issues/4556
 [#4609]: https://github.com/SpeciesFileGroup/taxonworks/issues/4609
+[#4613]: https://github.com/SpeciesFileGroup/taxonworks/issues/4613
 [#4618]: https://github.com/SpeciesFileGroup/taxonworks/issues/4618
+[#4619]: https://github.com/SpeciesFileGroup/taxonworks/issues/4619
 [#4620]: https://github.com/SpeciesFileGroup/taxonworks/issues/4620
 [#4622]: https://github.com/SpeciesFileGroup/taxonworks/issues/4622
-[#4096]: https://github.com/SpeciesFileGroup/taxonworks/issues/4096
 
 ## [0.55.0] - 2025-11-05
 
@@ -5876,7 +5911,9 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.55.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.56.1...development
+[0.56.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.56.0...v0.56.1
+[0.56.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.55.0...v0.56.0
 [0.55.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.3...v0.55.0
 [0.54.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.2...v0.54.3
 [0.54.2]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.1...v0.54.2
