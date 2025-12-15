@@ -7,7 +7,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Changed
+- Removed alternate values on Source author and editor (use Person alternate values instead)
+- Source autocomplete now matches on alternate values of authors as People [#4617]
+
+[#4617]: https://github.com/SpeciesFileGroup/taxonworks/issues/4617
 
 ## [0.56.1] - 2025-12-12
 
