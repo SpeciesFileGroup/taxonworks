@@ -7,7 +7,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+
+- Observation matrix dashboard: several filter options don't work [#4640]
+
+[#4640]: https://github.com/SpeciesFileGroup/taxonworks/issues/4640
 
 ## [0.56.1] - 2025-12-12
 
