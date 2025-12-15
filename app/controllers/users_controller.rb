@@ -33,13 +33,19 @@ class UsersController < ApplicationController
 
     if @user.save
       # Handle project memberships
+      allowed_projects = is_administrator? ?
+        Project.all.pluck(:id).map(&:to_s) :
+        sessions_current_user&.administered_projects&.pluck(:id)&.map(&:to_s) || []
       project_member_errors = []
       if params[:user][:project_ids].present?
         params[:user][:project_ids].each do |project_id|
+          next unless allowed_projects.include?(project_id)
+
           project_member = @user.project_members.create(
             project_id:,
             is_project_administrator: params[:user][:project_admin_ids]&.include?(project_id)
           )
+
           unless project_member.persisted?
             project_name = Project.find_by(id: project_id)&.name || "Project #{project_id}"
             project_member_errors << "#{project_name}: #{project_member.errors.full_messages.join(', ')}"

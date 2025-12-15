@@ -215,6 +215,45 @@ describe UsersController, type: :controller do
         expect(new_user.administered_projects).to include(project)
         expect(new_user.administered_projects).not_to include(project2)
       end
+
+      context 'project authorization' do
+        it 'only adds user to projects the current user can administer' do
+          unauthorized_project = FactoryBot.create(:valid_project)
+
+          expect {
+            post :create, params: {
+              user: valid_attributes.merge(
+                project_ids: [project.id.to_s, unauthorized_project.id.to_s]
+              )
+            }, session: valid_session
+          }.to change(ProjectMember, :count).by(1)  # Only the authorized project
+
+          new_user = User.find_by_email(valid_attributes[:email])
+          expect(new_user.projects).to include(project)
+          expect(new_user.projects).not_to include(unauthorized_project)
+        end
+      end
+    end
+
+    context 'as administrator' do
+      before { sign_in_administrator }
+
+      let!(:project) { FactoryBot.create(:valid_project) }
+
+      it 'can add user to any project' do
+        other_project = FactoryBot.create(:valid_project)
+
+        expect {
+          post :create, params: {
+            user: valid_attributes.merge(
+              project_ids: [project.id.to_s, other_project.id.to_s]
+            )
+          }, session: valid_session
+        }.to change(ProjectMember, :count).by(2)
+
+        new_user = User.find_by_email(valid_attributes[:email])
+        expect(new_user.projects).to include(project, other_project)
+      end
     end
   end
 
