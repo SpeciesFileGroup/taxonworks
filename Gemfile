@@ -6,7 +6,7 @@ ruby '>= 3.2', '< 3.5.0'
 
 
 gem 'rake', '~> 13.0'
-gem 'rails', '~> 8.0'
+gem 'rails', '~> 8.1'
 gem 'pg', '~> 1.1'
 gem 'activerecord-postgis-adapter', '~> 11.0'
 gem 'hiredis', '~> 0.6.1'
