@@ -23,29 +23,25 @@ module Shared::Api
   end
 
   def self.image_link(image, raise_on_no_token: true, token: nil)
-    s = host
-    return s if image.nil?
+    return host if image.nil?
 
     token ||= Project.find(image.project_id).api_access_token
     if token.nil? && raise_on_no_token
       raise TaxonWorks::Error, 'No project token available for image link!'
     end
-    long = "#{s}/api/v1/images/file/sha/#{ image.image_file_fingerprint }?project_token=#{token}"
 
-    shorten_url(long)
+    shorten_url(image_file_long_url(image.image_file_fingerprint, token))
   end
 
   def self.image_metadata_link(image, raise_on_no_token: true, token: nil)
-    s = host
-    return s if image.nil?
+    return host if image.nil?
 
     token ||= Project.find(image.project_id).api_access_token
     if token.nil? && raise_on_no_token
       raise TaxonWorks::Error, 'No project token available for image metadata link!'
     end
-    long = "#{s}/api/v1/images/#{ image.id }?project_token=#{token}"
 
-    shorten_url(long)
+    shorten_url(image_metadata_long_url(image.id, token))
   end
 
   def self.sound_link(sound)
@@ -80,5 +76,53 @@ module Shared::Api
     short_key = Shortener::ShortenedUrl.generate(long_url).unique_key
 
     "#{s}/s/#{short_key}"
+  end
+
+  # URL prefix for image file access (without fingerprint or token)
+  # @return [String] URL prefix
+  def self.image_file_url_prefix
+    "#{host}/api/v1/images/file/sha/"
+  end
+
+  # URL prefix for image metadata (without image_id or token)
+  # @return [String] URL prefix
+  def self.image_metadata_url_prefix
+    "#{host}/api/v1/images/"
+  end
+
+  # Build long URL for image file access without shortening
+  # @param fingerprint [String] image_file_fingerprint
+  # @param token [String] project API access token
+  # @return [String] full long URL
+  def self.image_file_long_url(fingerprint, token)
+    "#{image_file_url_prefix}#{fingerprint}?project_token=#{token}"
+  end
+
+  # Build long URL for image metadata without shortening
+  # @param image_id [Integer] image ID
+  # @param token [String] project API access token
+  # @return [String] full long URL
+  def self.image_metadata_long_url(image_id, token)
+    "#{image_metadata_url_prefix}#{image_id}?project_token=#{token}"
+  end
+
+  # Build short URL from unique key
+  # @param unique_key [String] shortened URL unique key
+  # @return [String] full short URL
+  def self.short_url_from_key(unique_key)
+    "#{host}/s/#{unique_key}"
+  end
+
+  # Bulk lookup existing shortened URLs
+  # Returns a hash mapping long URLs to their short keys
+  # @param long_urls [Array<String>] array of long URLs to lookup
+  # @return [Hash<String, String>] hash mapping long_url => unique_key
+  def self.bulk_lookup_shortened_urls(long_urls)
+    return {} if long_urls.empty?
+
+    ::Shortener::ShortenedUrl
+      .where(url: long_urls)
+      .pluck(:url, :unique_key)
+      .to_h
   end
 end

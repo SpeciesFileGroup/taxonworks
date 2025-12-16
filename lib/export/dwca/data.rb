@@ -1186,35 +1186,56 @@ module Export::Dwca
           INNER JOIN temp_media_image_ids tmp ON tmp.image_id = i.id
         SQL
       end
-      project_tokens = Project.where(id: all_project_ids.uniq).pluck(:id, :api_access_token).to_h
+      # Build long URLs in SQL and lookup existing shortened URLs in bulk
+      # This avoids calling the shortener gem for URLs that already exist (most cases on subsequent runs)
+      image_file_url_prefix = Shared::Api.image_file_url_prefix
+      image_metadata_url_prefix = Shared::Api.image_metadata_url_prefix
 
-      # Batch process image API link generation (chunking to avoid memory issues)
-      image_ids.each_slice(1000) do |batch_ids|
+      urls_with_shorts = conn.execute(<<-SQL).to_a
+        SELECT
+          i.id as image_id,
+          i.image_file_fingerprint,
+          p.api_access_token as token,
+          su_access.unique_key as access_short_key,
+          su_metadata.unique_key as metadata_short_key
+        FROM images i
+        INNER JOIN temp_media_image_ids tmp ON tmp.image_id = i.id
+        INNER JOIN projects p ON p.id = i.project_id
+        LEFT JOIN shortened_urls su_access ON su_access.url = '#{image_file_url_prefix}' || i.image_file_fingerprint || '?project_token=' || p.api_access_token
+        LEFT JOIN shortened_urls su_metadata ON su_metadata.url = '#{image_metadata_url_prefix}' || i.id || '?project_token=' || p.api_access_token
+        WHERE p.api_access_token IS NOT NULL
+      SQL
+
+      # Batch process URLs (chunking to avoid memory issues)
+      urls_with_shorts.each_slice(1000) do |batch|
         links_data = []
 
-        # Pluck only needed fields - avoids loading full AR objects (2-3x faster)
-        ::Image.where(id: batch_ids).pluck(:id, :project_id, :image_file_fingerprint).each do |img_id, project_id, fingerprint|
+        batch.each do |row|
           begin
-            token = project_tokens[project_id]
-            if token.nil?
-              Rails.logger.warn "dwca_export: skipping image #{img_id} - no project token"
-              next
+            image_id = row['image_id'].to_i
+            fingerprint = row['image_file_fingerprint']
+            token = row['token']
+
+            # Use existing shortened URL or create new one
+            access_uri = if row['access_short_key']
+              Shared::Api.short_url_from_key(row['access_short_key'])
+            else
+              Shared::Api.shorten_url(Shared::Api.image_file_long_url(fingerprint, token))
             end
 
-            # Create lightweight struct to pass to API methods
-            img = Struct.new(:id, :project_id, :image_file_fingerprint).new(img_id, project_id, fingerprint)
+            further_info_url = if row['metadata_short_key']
+              Shared::Api.short_url_from_key(row['metadata_short_key'])
+            else
+              Shared::Api.shorten_url(Shared::Api.image_metadata_long_url(image_id, token))
+            end
 
-            access_uri = Shared::Api.image_link(img, raise_on_no_token: true, token: token)
-            further_info_url = Shared::Api.image_metadata_link(img, raise_on_no_token: true, token: token)
-
-            # NOTE: Removed associated_specimen_reference - now computed in SQL per row
             links_data << {
-              image_id: img_id,
+              image_id: image_id,
               access_uri: access_uri,
               further_information_url: further_info_url
             }
-          rescue TaxonWorks::Error => e
-            Rails.logger.warn "dwca_export: skipping image #{img_id} - #{e.message}"
+          rescue => e
+            Rails.logger.warn "dwca_export: skipping image #{row['image_id']} - #{e.message}"
           end
         end
 
