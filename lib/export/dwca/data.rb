@@ -618,12 +618,12 @@ module Export::Dwca
     def collecting_event_predicate_names
       return {} if collecting_event_predicate_ids.empty?
 
-      q = "SELECT id, CONCAT('TW:DataAttribute:CollectingEvent:', name) AS predicate_name
+      q = "SELECT id, name
            FROM controlled_vocabulary_terms
            WHERE id IN (#{collecting_event_predicate_ids.join(',')})"
 
       ActiveRecord::Base.connection.execute(q).each_with_object({}) do |row, hash|
-        hash[row['id'].to_i] = row['predicate_name']
+        hash[row['id'].to_i] = "TW:DataAttribute:CollectingEvent:#{row['name']}"
       end
     end
 
