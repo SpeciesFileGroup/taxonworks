@@ -1186,8 +1186,9 @@ module Export::Dwca
           INNER JOIN temp_media_image_ids tmp ON tmp.image_id = i.id
         SQL
       end
-      # Build long URLs in SQL and lookup existing shortened URLs in bulk
-      # This avoids calling the shortener gem for URLs that already exist (most cases on subsequent runs)
+      # Build long URLs in SQL and lookup existing shortened URLs in bulk.
+      # This avoids calling the shortener gem for URLs that already exist (most
+      # cases on subsequent runs).
       image_file_url_prefix = Shared::Api.image_file_url_prefix
       image_metadata_url_prefix = Shared::Api.image_metadata_url_prefix
 

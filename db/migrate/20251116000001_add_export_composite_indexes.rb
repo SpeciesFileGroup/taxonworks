@@ -13,8 +13,10 @@ class AddExportCompositeIndexes < ActiveRecord::Migration[7.1]
               if_not_exists: true
 
     # Predicates: fast path for subject → attributes (used when staging/pivoting)
+    # ID-first ordering matches the pattern used for other polymorphic indexes (e.g., roles)
+    # and provides slightly more consistent performance characteristics.
     add_index :data_attributes,
-              [:attribute_subject_type, :attribute_subject_id, :type],
+              [:attribute_subject_id, :attribute_subject_type, :type],
               name: :index_data_attributes_on_subject_and_type,
               algorithm: :concurrently,
               if_not_exists: true
