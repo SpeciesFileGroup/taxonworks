@@ -1077,6 +1077,25 @@ monograph_facilitator_task:
   categories:
   status: prototype
   description: 'TODO: Task description'
+filter_anatomical_parts_task:
+  hub: true
+  name: 'Filter anatomical parts'
+  related:
+  categories:
+    - filters
+    - biology
+  status: prototype
+  description: 'Filter anatomical parts by many different facets, download or visualize results.'
+anatomical_parts_graph_task:
+  hub: true
+  name: 'New/graph anatomical part'
+  related:
+  categories:
+    - biology
+    - filters
+    - new
+  status: prototype
+  description: 'Display graphs of relations between anatomical parts; create and edit anatomical parts.'
 project_dwc_export_preferences_task:
   hub: false
   name: 'Project preferences for DwCA project downloads'
@@ -1084,6 +1103,20 @@ project_dwc_export_preferences_task:
   categories:
   status: prototype
   description: Set preferences for Darwin Core Archive complete project downloads
+select_ontologies_task:
+  hub: false
+  name: 'Select anatomical part ontologies'
+  related:
+  categories:
+  status: prototype
+  description: 'Select OSL ontologies that can be used to find term uris for anatomical parts'
+edit_anatomical_part_task:
+  hub: false
+  name: 'Edit anatomical part'
+  related:
+  categories:
+  status: prototype
+  description: 'Edit anatomical part'
 taxon_name_reclassifier_task:
   hub: true
   name: 'Taxon name reclassifier'
@@ -1091,3 +1124,17 @@ taxon_name_reclassifier_task:
   categories:
   status: prototype
   description: 'Drag-drop to change the parents of TaxonNames.'
+new_news_task:
+  hub: true
+  name: 'New news'
+  related:
+  categories:
+  status: prototype
+  description: 'Create and edit blog posts, notices, etc.'
+browse_news_task:
+  hub: true
+  name: 'Browse News'
+  related:
+  categories:
+  status: prototype
+  description: "A Newspaper summarizing this project's current news."

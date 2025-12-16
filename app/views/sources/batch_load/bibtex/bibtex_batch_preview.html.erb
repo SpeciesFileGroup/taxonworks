@@ -4,7 +4,7 @@
 
 <p> To complete this import, select the file again and click create:
   <%= form_tag create_bibtex_batch_load_sources_path, multipart: true do -%>
-    <%= file_field_tag :file -%>
+    <%= file_field_tag :file, required: true -%>
     <%= submit_tag 'Create' -%>
   <% end %>
 </p>
@@ -17,7 +17,7 @@ they will appear below the green line in <span style="color:brown">brown</span>.
 <ol>
   <% @sources.each_with_index do |s, i| %>
     <% if s.blank? %>
-      <%= tag.li(tag.span('Empty or errored entry', class: [:feedback, 'feedback-thin', 'feedback-warning'])) %>  
+      <%= tag.li(tag.span('Empty or errored entry', class: [:feedback, 'feedback-thin', 'feedback-warning'])) %>
     <% else %>
       <% if s.valid? %>
         <%= tag.li(s.cached_string('html').html_safe, class: 'green') -%>

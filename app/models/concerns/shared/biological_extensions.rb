@@ -32,11 +32,12 @@ module Shared::BiologicalExtensions
     accepts_nested_attributes_for :otus, allow_destroy: true, reject_if: :reject_otus
     accepts_nested_attributes_for :taxon_determinations, allow_destroy: true, reject_if: :reject_taxon_determinations
 
+    # DEPRECATED - TODO: replace with current_taxon_name and current_otu (below).
+    # Note that this should not be a has_one because order is over-ridden on .first
+    # and can be lost when merged into other queries.
     has_one :taxon_determination, -> { order(:position).limit(1) }, as: :taxon_determination_object, class_name: 'TaxonDetermination', inverse_of: :taxon_determination_object
     has_one :otu, through: :taxon_determination, inverse_of: :taxon_determinations
 
-    # Note that this should not be a has_one because order is over-ridden on .first
-    # and can be lost when merged into other queries.
     def current_taxon_determination
       taxon_determinations.eager_load(:notes, :determiners).order(:position).first
     end
@@ -91,6 +92,63 @@ module Shared::BiologicalExtensions
     a = attributed['taxon_name_id']
     b = attributed['name']
     a.blank? && b.blank?
+  end
+
+  # Propagate a change in the accepted OTU (top/position 1 TaxonDetermination)
+  # down to descendant AnatomicalParts.
+  def propagate_current_otu_change!(from_id:, to_id:)
+    return true if from_id == to_id # includes nil == nil
+    return true if !AnatomicalPart.valid_old_object_classes.include?(self.class.name)
+
+    anatomical_part_ids = descendant_anatomical_part_ids
+    return true if anatomical_part_ids.empty?
+
+    scope = AnatomicalPart
+      .where(project_id: project_id, id: anatomical_part_ids)
+      .where(cached_otu_id: from_id)
+
+    scope.update_all(cached_otu_id: to_id)
+    true
+  rescue => e
+    Rails.logger.warn("#{self.class}##{id} propagation failed: #{e.class}: #{e.message}")
+    false
+  end
+
+  private
+
+  # @return [Array<Integer>]
+  def descendant_anatomical_part_ids
+    project = project_id
+    seen_ids = Set.new
+    result = []
+    frontier = [id]
+    old_type = self.class.base_class.name
+
+    while frontier.any?
+      old_frontier = frontier
+      frontier = []
+      old_old_type = old_type
+      old_type = 'AnatomicalPart'
+
+      old_frontier.each do |old_id|
+        rels = OriginRelationship
+          .where(
+            project_id: project,
+            old_object_type: old_old_type,
+            old_object_id: old_id,
+            new_object_type: 'AnatomicalPart')
+          .pluck(:new_object_id)
+
+        rels.each do |anatomical_part_id|
+          next if seen_ids.include?(anatomical_part_id)
+          seen_ids << anatomical_part_id
+          result << anatomical_part_id
+          frontier << anatomical_part_id
+        end
+      end
+    end
+
+    result
   end
 
 end

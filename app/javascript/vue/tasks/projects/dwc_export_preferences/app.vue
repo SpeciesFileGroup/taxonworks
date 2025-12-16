@@ -10,274 +10,278 @@
     Darwin core export settings for project downloads
   </h1>
 
-  <div class="two-column">
-    <div class="flex-col">
-      <div class="panel padding-large margin-large-bottom padding-xsmall-top">
-        <h2>Public sharing</h2>
-        <div class="margin-medium-left">
-          <div>
-            <label data-help="Make this project's darwin core archive, determined by the settings on this page, PUBLICLY accessible from the 'Public download link' given on this page.">
-              <input
-                :disabled="isPublicIsDisabled"
-                type="checkbox"
-                v-model="isPublic"
-              />
-              Is Public
-            </label>
-          </div>
+  <div class="content-wrapper">
+    <Transition name="expand">
+      <CompleteDownloadControl
+        :is-public="lastSavedData.isPublic || false"
+        :project-token="projectToken || ''"
+        :max-age="maxAge || null"
+      />
+    </Transition>
 
-          <div
-            v-if="isPublicIsDisabledByNoToken"
-            class="feedback-warning padding-xsmall margin-medium-left is-public-disabled-warning"
-          >
-            A project token for this project must be set to make downloads public
-          </div>
-          <div
-            v-if="isPublicIsDisabledByStub"
-            class="feedback-warning padding-xsmall margin-medium-left is-public-disabled-warning"
-          >
-            Remove all EML 'STUB' text to enable save
-          </div>
-          <div
-            v-if="isPublicIsDisabledByNoDefaultUser"
-            class="feedback-warning padding-xsmall margin-medium-left is-public-disabled-warning"
-          >
-            A default create/save user for complete downloads must be set
-          </div>
+    <div class="two-column">
+      <div class="flex-col">
+        <div class="panel padding-large margin-large-bottom padding-xsmall-top">
+          <h2>Public sharing</h2>
+          <div class="margin-medium-left">
+            <div>
+              <label data-help="Make this project's darwin core archive, determined by the settings on this page, PUBLICLY accessible from the 'Public download link' given on this page.">
+                <input
+                  :disabled="isPublicIsDisabled"
+                  type="checkbox"
+                  v-model="isPublic"
+                />
+                Is Public
+              </label>
+            </div>
 
-          <VBtn
-            :disabled="isPublicIsDisabled"
-            @click="setIsPublic"
-            color="create"
-            class="margin-medium-top"
-          >
-            Save "Is Public"
-          </VBtn>
-
-          <div class="margin-large-top">
-            <a
-              :href="`/api/v1/downloads/dwc_archive_complete?project_token=${projectToken}`"
-              @click.prevent="openLink"
+            <div
+              v-if="isPublicIsDisabledByNoToken"
+              class="feedback-warning padding-xsmall margin-medium-left is-public-disabled-warning"
             >
-              Public download link
-            </a>
-          </div>
-        </div>
+              A project token for this project must be set to make downloads public
+            </div>
+            <div
+              v-if="isPublicIsDisabledByStub"
+              class="feedback-warning padding-xsmall margin-medium-left is-public-disabled-warning"
+            >
+              Remove all EML 'STUB' text to enable save
+            </div>
+            <div
+              v-if="isPublicIsDisabledByNoDefaultUser"
+              class="feedback-warning padding-xsmall margin-medium-left is-public-disabled-warning"
+            >
+              A default create/save user for complete downloads must be set
+            </div>
 
-        <h2 data-help="When GBIF, for example, requests that a download be created, we must have a TaxonWorks user listed as the creator of that download: this is that user.">
-          Default complete download creator
-        </h2>
-        <div class="margin-medium-left">
-          <div class="user-select">
-            <Autocomplete
-              url="/users/autocomplete"
-              label="label_html"
-              min="2"
-              placeholder="Select a user"
-              param="term"
-              clear-after
-              class="margin-large-bottom"
-              @getItem="(user) => (defaultUser = user)"
-            />
-
-            <span v-html="defaultUser?.label_html" />
             <VBtn
-              v-if="defaultUser"
-              class="margin-small-left"
-              circle
-              color="primary"
-              @click="() => (defaultUser = null)"
+              :disabled="isPublicIsDisabled"
+              @click="setIsPublic"
+              color="create"
+              class="margin-medium-top"
             >
-              <VIcon
-                name="undo"
-                small
-              />
+              Save "Is Public"
             </VBtn>
           </div>
 
-          <VBtn
-            :disabled="!defaultUser"
-            @click="setDefaultUser"
-            color="create"
-            class="margin-large-top"
-          >
-            Save default download creator
-          </VBtn>
-        </div>
-
-        <h2>Max Age</h2>
-        <div class="margin-medium-left">
-          <div>
-            <label>
-              <input
-                type="text"
-                v-model="maxAge"
-                class="text-number-input margin-xsmall-top"
-                data-help="If someone requests a complete download using the 'Public download link' on this page, and that download is older than Max Age, then the old download will be returned but a new one will be created to replace it. In other words Max Age determines when a download request triggers creation of a new complete download to replace the existing complete download. Max age is a decimal value."
+          <h2 data-help="When GBIF, for example, requests that a download be created, we must have a TaxonWorks user listed as the creator of that download: this is that user.">
+            Default complete download creator
+          </h2>
+          <div class="margin-medium-left">
+            <div class="user-select">
+              <Autocomplete
+                url="/users/autocomplete"
+                label="label_html"
+                min="2"
+                placeholder="Select a user"
+                param="term"
+                clear-after
+                class="margin-large-bottom"
+                @getItem="(user) => (defaultUser = user)"
               />
-              Maximum Age in days
-            </label>
+
+              <span v-html="defaultUser?.label_html" />
+              <VBtn
+                v-if="defaultUser"
+                class="margin-small-left"
+                circle
+                color="primary"
+                @click="() => (defaultUser = null)"
+              >
+                <VIcon
+                  name="undo"
+                  small
+                />
+              </VBtn>
+            </div>
+
+            <VBtn
+              :disabled="!defaultUser"
+              @click="setDefaultUser"
+              color="create"
+              class="margin-large-top"
+            >
+              Save default download creator
+            </VBtn>
           </div>
 
-          <VBtn
-            @click="setMaxAge"
-            color="create"
-            class="margin-medium-top"
-          >
-            Save Max Age
-          </VBtn>
-        </div>
-      </div>
-
-      <div class="panel padding-large margin-large-bottom padding-xsmall-top full_height">
-        <h2>Extensions</h2>
-        <div class="margin-medium-left">
-          <template
-            v-for="(v, k) in EXTENSIONS"
-            :key="k"
-          >
+          <h2>Download age after which an API call triggers creation of a new download</h2>
+          <div class="margin-medium-left">
             <div>
               <label>
                 <input
-                  type="checkbox"
-                  v-model="extensions"
-                  :value="k"
-                  name="extensions"
-                >
-                  {{ v }}
-                </input>
+                  type="text"
+                  v-model.number="maxAge"
+                  class="text-number-input margin-xsmall-top"
+                  data-help="If someone requests a complete download using the 'Public download link' on this page, and that download is older than Max Age, then the old download will be returned but a new one will be created to replace it. In other words Max Age determines when a download request triggers creation of a new complete download to replace the existing complete download. Max age is a decimal value."
+                />
+                Age in days
               </label>
             </div>
-          </template>
+            <div class="help-text margin-small-top">
+              Suggested: 6 days for GBIF usage (GBIF downloads once per week)
+            </div>
 
-          <VBtn
-            @click="setExtensions"
-            color="create"
-            class="margin-medium-top"
-          >
-            Save extensions
-          </VBtn>
+            <VBtn
+              @click="setMaxAge"
+              color="create"
+              class="margin-medium-top"
+            >
+              Save Max Age
+            </VBtn>
+          </div>
         </div>
 
-        <h2>Predicates</h2>
-        <div class="margin-medium-left">
-          <VBtn
-            @click="setPredicatesAndInternalValues"
-            color="create"
-            class="margin-large-bottom"
-          >
-            Save predicates
-          </VBtn>
+        <div class="panel padding-large margin-large-bottom padding-xsmall-top full_height">
+          <h2>Extensions</h2>
+          <div class="margin-medium-left">
+            <template
+              v-for="(v, k) in EXTENSIONS"
+              :key="k"
+            >
+              <div>
+                <label>
+                  <input
+                    type="checkbox"
+                    v-model="extensions"
+                    :value="k"
+                    name="extensions"
+                  >
+                    {{ v }}
+                  </input>
+                </label>
+              </div>
+            </template>
 
-          <PredicateFilter
-            v-model:collecting-event-predicate-id="predicateParams.collecting_event_predicate_id"
-            v-model:collection-object-predicate-id="predicateParams.collection_object_predicate_id"
-            v-model:taxonworks-extension-methods="selectedExtensionMethods.taxonworks_extension_methods"
-            class="predicate-filter"
-          />
+            <VBtn
+              @click="setExtensions"
+              color="create"
+              class="margin-medium-top"
+            >
+              Save extensions
+            </VBtn>
+          </div>
+
+          <h2>Predicates</h2>
+          <div class="margin-medium-left">
+            <VBtn
+              @click="setPredicatesAndInternalValues"
+              color="create"
+              class="margin-large-bottom"
+            >
+              Save predicates
+            </VBtn>
+
+            <PredicateFilter
+              v-model:collecting-event-predicate-id="predicateParams.collecting_event_predicate_id"
+              v-model:collection-object-predicate-id="predicateParams.collection_object_predicate_id"
+              v-model:taxonworks-extension-methods="selectedExtensionMethods.taxonworks_extension_methods"
+              class="predicate-filter"
+            />
+          </div>
         </div>
       </div>
-    </div>
 
 
-    <div class="panel padding-large margin-large-bottom padding-xsmall-top">
-      <h2>EML</h2>
-      <div class="margin-medium-left">
-        <EmlFileLoader
-          @eml-loaded="handleEmlLoaded"
-          class="margin-large-bottom"
-        />
-
-        <fieldset
-          v-if="datasetErrors?.length > 0"
-          class="padding-large-right"
-          style="max-width: 600px"
-        >
-          <legend class="feedback-danger">Errors in dataset xml</legend>
-          <ul
-            v-for="msg in datasetErrors"
-            :key="msg"
-          >
-            <li>{{ msg }}</li>
-          </ul>
-        </fieldset>
-
-        <div
-          v-else-if="datasetErrors?.length == 0"
-          class="feedback-success d-inline-block padding-xsmall"
-        >
-          Dataset xml is valid
-        </div>
-
-        <div>
-          <p>
-            Dataset ({{ autoFilledFields?.dataset?.join(', ')}} will be auto-set on DwCA
-            creation):
-          </p>
-
-          <template v-if="datasetHasStubText">
-            <div class="feedback-warning d-inline-block padding-xsmall">
-              Contains 'STUB' text
-            </div>
-            <br>
-          </template>
-
-          <XmlEditor
-            v-model="dataset"
-            :rows="44"
-            match-tags
+      <div class="panel padding-large margin-large-bottom padding-xsmall-top">
+        <h2>EML</h2>
+        <div class="margin-medium-left">
+          <EmlFileLoader
+            @eml-loaded="handleEmlLoaded"
+            class="margin-large-bottom"
           />
-        </div>
 
-        <br>
-
-        <template v-if="additionalMetadataErrors?.length > 0">
           <fieldset
+            v-if="datasetErrors?.length > 0"
             class="padding-large-right"
             style="max-width: 600px"
           >
-            <legend class="feedback-danger">Errors in additional metadata xml</legend>
+            <legend class="feedback-danger">Errors in dataset xml</legend>
             <ul
-              v-for="msg in additionalMetadataErrors"
+              v-for="msg in datasetErrors"
               :key="msg"
             >
               <li>{{ msg }}</li>
             </ul>
           </fieldset>
-        </template>
-        <template v-else-if="additionalMetadataErrors?.length == 0">
-          <div class="feedback-success d-inline-block padding-small">
-            Additional metadata xml is valid
+
+          <div
+            v-else-if="datasetErrors?.length == 0"
+            class="feedback-success d-inline-block padding-xsmall"
+          >
+            Dataset xml is valid
           </div>
-        </template>
 
-        <div>
-          <p>
-            Additional metadata ({{autoFilledFields?.additional_metadata?.join(', ') }}
-            will be auto-set on DwCA creation):
-          </p>
+          <div>
+            <p>
+              Dataset ({{ autoFilledFields?.dataset?.join(', ')}} will be auto-set on DwCA
+              creation):
+            </p>
 
-          <template v-if="additionalMetadataHasStubText">
-            <div class="feedback-warning d-inline-block padding-xsmall">
-              Contains 'STUB' text
+            <template v-if="datasetHasStubText">
+              <div class="feedback-warning d-inline-block padding-xsmall">
+                Contains 'STUB' text
+              </div>
+              <br>
+            </template>
+
+            <XmlEditor
+              v-model="dataset"
+              :rows="44"
+              match-tags
+            />
+          </div>
+
+          <br>
+
+          <template v-if="additionalMetadataErrors?.length > 0">
+            <fieldset
+              class="padding-large-right"
+              style="max-width: 600px"
+            >
+              <legend class="feedback-danger">Errors in additional metadata xml</legend>
+              <ul
+                v-for="msg in additionalMetadataErrors"
+                :key="msg"
+              >
+                <li>{{ msg }}</li>
+              </ul>
+            </fieldset>
+          </template>
+          <template v-else-if="additionalMetadataErrors?.length == 0">
+            <div class="feedback-success d-inline-block padding-small">
+              Additional metadata xml is valid
             </div>
-            <br>
           </template>
 
-          <XmlEditor
-            v-model="additionalMetadata"
-            :rows="13"
-            match-tags
-          />
-        </div>
+          <div>
+            <p>
+              Additional metadata ({{autoFilledFields?.additional_metadata?.join(', ') }}
+              will be auto-set on DwCA creation):
+            </p>
 
-        <VBtn
-          @click="validateAndSaveEML"
-          color="create"
-          class="margin-medium-top margin-xlarge-bottom"
-        >
-          Validate and save EML
-        </VBtn>
+            <template v-if="additionalMetadataHasStubText">
+              <div class="feedback-warning d-inline-block padding-xsmall">
+                Contains 'STUB' text
+              </div>
+              <br>
+            </template>
+
+            <XmlEditor
+              v-model="additionalMetadata"
+              :rows="13"
+              match-tags
+            />
+          </div>
+
+          <VBtn
+            @click="validateAndSaveEML"
+            color="create"
+            class="margin-medium-top margin-xlarge-bottom"
+          >
+            Validate and save EML
+          </VBtn>
+        </div>
       </div>
     </div>
   </div>
@@ -295,6 +299,7 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import EmlFileLoader from './components/EmlFileLoader.vue'
 import XmlEditor from './components/XmlEditor.vue'
+import CompleteDownloadControl from './components/CompleteDownloadControl.vue'
 
 const EXTENSIONS = {
   resource_relationships: 'Resource relationships (biological associations)',
@@ -390,6 +395,10 @@ function setLastSaved() {
 }
 
 function noUnsavedChanges() {
+  // Return true if data hasn't been loaded yet
+  if (!lastSavedData.value || !lastSavedData.value.predicateParams || !lastSavedData.value.selectedExtensionMethods) {
+    return true
+  }
   return lastSavedData.value.defaultUserId == defaultUser.value?.id &&
     emptyEqual(lastSavedData.value.maxAge, maxAge.value) &&
     emptyEqual(lastSavedData.value.isPublic, isPublic.value) &&
@@ -406,6 +415,7 @@ function emptyEqual(v1, v2) {
 }
 
 function arrayEqual(a1, a2) {
+  if (!a1 || !a2) return a1 === a2
   return a1.sort().join() == a2.sort().join()
 }
 
@@ -554,6 +564,10 @@ function handleEmlLoaded(emlData) {
   margin-right: 0.5em;
 }
 
+.content-wrapper {
+  display: inline-block;
+}
+
 .two-column {
   display: flex;
   gap: 3em;
@@ -561,5 +575,25 @@ function handleEmlLoaded(emlData) {
 
 .user-select {
   width: 400px;
+}
+
+.expand-enter-active,
+.expand-leave-active {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.expand-enter-from,
+.expand-leave-to {
+  opacity: 0;
+  max-height: 0;
+  margin-bottom: 0;
+}
+
+.expand-enter-to,
+.expand-leave-from {
+  opacity: 1;
+  max-height: 500px;
+  margin-bottom: 2em;
 }
 </style>

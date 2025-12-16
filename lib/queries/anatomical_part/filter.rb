@@ -1,0 +1,231 @@
+module Queries
+  module AnatomicalPart
+    class Filter < Query::Filter
+      include Queries::Concerns::Tags
+      include Queries::Concerns::Citations
+      include Queries::Concerns::PreparationTypes
+
+      PARAMS = [
+        :anatomical_part_id,
+        :is_material,
+        :name,
+        :name_exact,
+        :origin_object_type,
+        :otu_id,
+        :uri,
+        :uri_exact,
+        :uri_label,
+        :uri_label_exact,
+
+        anatomical_part_id: [],
+        origin_object_type: [],
+        otu_id: []
+      ].freeze
+
+      # @return [Array]
+      attr_accessor :anatomical_part_id
+
+      # @return [Boolean, nil]
+      attr_accessor :is_material
+
+      # @return String
+      attr_accessor :name
+
+      # @return [Boolean, nil]
+      attr_accessor :name_exact
+
+      # @return [Array]
+      attr_accessor :origin_object_type
+
+      # @return [Array]
+      # OTU id of the ancestor origin OTU or CO/FO taxon determination.
+      attr_accessor :otu_id
+
+      # @return String
+      attr_accessor :uri
+
+      # @return String
+      attr_accessor :uri_exact
+
+      # @return String
+      attr_accessor :uri_label
+
+      # @return String
+      attr_accessor :uri_label_exact
+
+      # @param params [Hash]
+      def initialize(query_params)
+        super
+
+        @anatomical_part_id = params[:anatomical_part_id]
+        @is_material = boolean_param(params, :is_material)
+        @name = params[:name]
+        @name_exact = boolean_param(params, :name_exact)
+        @origin_object_type = params[:origin_object_type]
+        @otu_id = params[:otu_id]
+        @uri = params[:uri]
+        @uri_exact = boolean_param(params, :uri_exact)
+        @uri_label = params[:uri_label]
+        @uri_label_exact = boolean_param(params, :uri_label_exact)
+
+        set_citations_params(params)
+        set_tags_params(params)
+        set_preparation_types_params(params)
+      end
+
+      def anatomical_part_id
+        [@anatomical_part_id].flatten.compact
+      end
+
+      def origin_object_type
+        [@origin_object_type].flatten.compact
+      end
+
+      def otu_id
+        [@otu_id].flatten.compact
+      end
+
+      def name_facet
+        return nil if name.blank?
+        if name_exact
+          table[:name].eq(name.strip)
+        else
+          table[:name].matches('%' + name.strip.gsub(/\s/, '%') + '%')
+        end
+      end
+
+      def uri_facet
+        return nil if uri.blank?
+
+        if uri_exact
+          table[:uri].eq(uri.strip)
+        else
+          table[:uri].matches('%' + uri.strip.gsub(/\s/, '%') + '%')
+        end
+      end
+
+      def uri_label_facet
+        return nil if uri_label.blank?
+
+        if uri_label_exact
+          table[:uri_label].eq(uri_label.strip)
+        else
+          table[:uri_label].matches('%' + uri_label.strip.gsub(/\s/, '%') + '%')
+        end
+      end
+
+      def is_material_facet
+        return nil if is_material.nil?
+
+        if is_material === false
+          table[:is_material].eq(is_material)
+        else
+          table[:is_material].eq(true).or(table[:is_material].eq(nil))
+        end
+      end
+
+      def origin_object_type_facet
+        return nil if origin_object_type.empty?
+
+        ::AnatomicalPart
+          .joins(:related_origin_relationships)
+          .where(related_origin_relationships: { old_object_type: origin_object_type })
+          .distinct # remove if model adds validations to make this unnecessary
+      end
+
+      def original_otu_id_facet
+        return nil if otu_id.empty?
+
+        table[:cached_otu_id].in(otu_id)
+      end
+
+      def collection_object_query_facet
+        return nil if collection_object_query.nil?
+
+        ::AnatomicalPart
+          .joins(:related_origin_relationships)
+          .where("origin_relationships.old_object_id IN (#{collection_object_query.all.select(:id).to_sql })")
+      end
+
+      def field_occurrence_query_facet
+        return nil if field_occurrence_query.nil?
+
+        ::AnatomicalPart
+          .joins(:related_origin_relationships)
+          .where("origin_relationships.old_object_id IN (#{collection_object_query.all.select(:id).to_sql })")
+      end
+
+      def otu_query_facet
+        return nil if otu_query.nil?
+
+        ::AnatomicalPart
+          .joins(:related_origin_relationships)
+          .where("origin_relationships.old_object_id IN (#{otu_query.all.select(:id).to_sql })")
+      end
+
+      def observation_query_facet
+        return nil if observation_query.nil?
+
+        ::AnatomicalPart
+          .joins(:related_origin_relationships)
+          .where("origin_relationships.old_object_id IN (#{observation_query.all.select(:id).to_sql })")
+      end
+
+      def extract_query_facet
+        return nil if extract_query.nil?
+
+        ::AnatomicalPart
+          .joins(:origin_relationships)
+          .where("origin_relationships.new_object_id IN (#{extract_query.all.select(:id).to_sql })")
+      end
+
+      def sound_query_facet
+        return nil if sound_query.nil?
+
+        ::AnatomicalPart
+          .joins(:origin_relationships)
+          .where("origin_relationships.new_object_id IN (#{sound_query.all.select(:id).to_sql })")
+      end
+
+      def biological_association_query_facet
+        return nil if biological_association_query.nil?
+
+        a = ::AnatomicalPart
+          .with(ba_query1: biological_association_query.all)
+          .joins("JOIN ba_query1 ON ba_query1.biological_association_subject_id = anatomical_parts.id AND ba_query1.biological_association_subject_type = 'AnatomicalPart'")
+
+        b = ::AnatomicalPart
+          .with(ba_query2: biological_association_query.all)
+          .joins("JOIN ba_query2 ON ba_query2.biological_association_object_id = anatomical_parts.id AND ba_query2.biological_association_object_type = 'AnatomicalPart'")
+
+        referenced_klass_union([a,b])
+      end
+
+
+      def and_clauses
+        [
+          is_material_facet,
+          name_facet,
+          uri_facet,
+          uri_label_facet,
+          original_otu_id_facet
+        ]
+      end
+
+      def merge_clauses
+        [
+          collection_object_query_facet,
+          extract_query_facet,
+          field_occurrence_query_facet,
+          otu_query_facet,
+          observation_query_facet,
+          sound_query_facet,
+          biological_association_query_facet,
+
+          origin_object_type_facet
+        ]
+      end
+
+    end
+  end
+end

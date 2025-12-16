@@ -141,5 +141,3 @@ module Hub::Data
   end
 
 end
-
-

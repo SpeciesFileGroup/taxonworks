@@ -32,6 +32,10 @@ module TaxonName::Hierarchy
     def taxon_name_ancestors_sql(taxon_name_scope: TaxonName.none, ranks: ['order', 'family', 'genus', 'species'])
       ranks = RANKS_BY_NAME.keys if ranks.blank?
 
+      # Validate all ranks are known
+      invalid_ranks = ranks.reject { |r| RANKS_BY_NAME.key?(r) }
+      raise ArgumentError, "Invalid rank names: #{invalid_ranks.join(', ')}" if invalid_ranks.any?
+
       target_ranks = []
 
       # Note that we need to single quote the first query in the crosstab,

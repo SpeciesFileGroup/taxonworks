@@ -73,10 +73,10 @@
         }
       }
       li:hover {
-        color: $body_background;
-        background-color: var(--bg-action);
+        color: var(--text-color);
+        background-color: var(--bg-hover);
         a {
-          color: $body_background;
+          color: var(--text-color);
         }
       }
       li:last-child {
@@ -98,7 +98,7 @@
   }
 
   .navigation-item:hover {
-    background-color: var(--bg-action);
+    background-color: var(--bg-hover);
     img {
       opacity: 1;
     }

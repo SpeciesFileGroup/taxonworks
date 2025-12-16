@@ -463,7 +463,7 @@ module Queries::Concerns::Identifiers
             # caseless
 
             # TODO: optimize, this was done hastily
-            o = "array_position(ARRAY[#{ids.collect{|i| "'#{i}'"}.join(',')}], LOWER(sid.cached)) s"
+            o = "array_position(ARRAY[#{ids.collect{|i| ApplicationRecord.connection.quote(i)}.join(',')}], LOWER(sid.cached)) s"
 
             i = ::Identifier
               .from('identifiers sid')
@@ -478,7 +478,7 @@ module Queries::Concerns::Identifiers
           else
 
             # TODO: optimize, this was done hastily
-            o = "array_position(ARRAY[#{ids.collect{|i| "'#{i}'"}.join(',')}], sid.cached) s"
+            o = "array_position(ARRAY[#{ids.collect{|i| ApplicationRecord.connection.quote(i)}.join(',')}], sid.cached) s"
 
             i = ::Identifier
               .from('identifiers sid')

@@ -1,0 +1,12 @@
+<% content_for :title, "Editing anatomical part" %>
+
+<h1>Editing anatomical part</h1>
+
+<%= render "form", anatomical_part: @anatomical_part %>
+
+<br>
+
+<div>
+  <%= link_to "Show this anatomical part", @anatomical_part %> |
+  <%= link_to "Back to anatomical parts", anatomical_parts_path %>
+</div>
