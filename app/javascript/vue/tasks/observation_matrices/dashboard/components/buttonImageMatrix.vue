@@ -27,7 +27,7 @@ function openImageMatrix() {
 
   if (url.length > MAX_URL_LENGTH) {
     LinkerStorage.saveParameters({
-      otu_id: ids
+      otu_filter: ids
     })
     window.open(RouteNames.ImageMatrix, '_blank')
   } else {
