@@ -10,6 +10,14 @@ module Export::Dwca
     'TW:RelatedResource': 'https://sfg.taxonworks.org/dwc/terms/resourceRelationship/relatedResource',
   }.freeze
 
+  CREATIVE_COMMONS_LICENSES_SQL_CASE = begin
+    case_logic = CREATIVE_COMMONS_LICENSES.map do |description, data|
+      d = ActiveRecord::Base.connection.quote(description)
+      l = ActiveRecord::Base.connection.quote(data['link'])
+      "WHEN #{d} THEN #{l}"
+    end.join("\n      ")
+  end.freeze
+
   # !!
   # !! This export does not support AssertedDistribution data at the moment.  While those data are indexed,
   # !! if they are in the `core_scope` they will almost certainly cause problems or be ignored.
@@ -904,13 +912,7 @@ module Export::Dwca
     def creative_commons_license_case_sql
       <<-SQL
         CASE attributions.license
-          WHEN 'CC0 1.0 Universal (CC0 1.0) Public Domain Dedication' THEN 'https://creativecommons.org/publicdomain/zero/1.0'
-          WHEN 'Attribution' THEN 'https://creativecommons.org/licenses/by/4.0'
-          WHEN 'Attribution-ShareAlike' THEN 'https://creativecommons.org/licenses/by-sa/4.0'
-          WHEN 'Attribution-NoDerivs' THEN 'https://creativecommons.org/licenses/by-nd/4.0'
-          WHEN 'Attribution-NonCommercial' THEN 'https://creativecommons.org/licenses/by-nc/4.0'
-          WHEN 'Attribution-NonCommercial-ShareAlike' THEN 'https://creativecommons.org/licenses/by-nc-sa/4.0'
-          WHEN 'Attribution-NonCommercial-NoDerivs' THEN 'https://creativecommons.org/licenses/by-nc-nd/4.0'
+          #{CREATIVE_COMMONS_LICENSES_SQL_CASE}
           ELSE NULL
         END
       SQL
