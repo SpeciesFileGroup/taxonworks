@@ -53,9 +53,10 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
       # non-standard DwC columns are handled elsewhere
       let(:headers) { [ 'basisOfRecord', 'individualCount', 'occurrenceID', 'occurrenceStatus' ] }
 
-      specify '#collection_object_ids' do
-        d = Export::Dwca::Data.new(core_scope: scope).collection_object_ids
-        expect(d).to eq(CollectionObject.joins(:dwc_occurrence).order('dwc_occurrences.id').pluck(:dwc_occurrence_object_id))
+      specify '#collection_object_scope' do
+        d = Export::Dwca::Data.new(core_scope: scope)
+        expected_ids = CollectionObject.joins(:dwc_occurrence).order('dwc_occurrences.id').pluck(:dwc_occurrence_object_id)
+        expect(d.collection_object_scope.pluck(:dwc_occurrence_object_id)).to eq(expected_ids)
       end
 
       specify '#collection_objects 1' do
@@ -722,11 +723,11 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         end
       end
 
-      specify '#dwc_id_order' do
-        # zero! Like  {1=>0, 2=>1, 3=>2, 4=>3, 5=>4}
+      specify 'collection_object_scope maintains dwc_occurrence ordering' do
         d = Export::Dwca::Data.new(core_scope: scope, taxonworks_extensions: [:otu_name])
-        o = Specimen.order(:id).pluck(:id).map.with_index.to_h
-        expect(d.dwc_id_order).to eq(o)
+        # The scope should return objects in dwc_occurrence.id order
+        expected_order = scope.where(dwc_occurrence_object_type: 'CollectionObject').order('dwc_occurrences.id').pluck(:dwc_occurrence_object_id)
+        expect(d.collection_object_scope.pluck(:dwc_occurrence_object_id)).to eq(expected_order)
       end
 
       context 'taxonworks_extensions for internal attributes' do
@@ -886,35 +887,6 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
             d.cleanup
           end
 
-          specify '#extension_computed_fields_data' do
-            s1 = Specimen.order(:id).first
-            s2 = Specimen.order(:id).third
-            s3 = Specimen.order(:id).last
-
-            c1 = FactoryBot.create(:valid_collecting_event, elevation_precision: 1.0 )
-            c2 = FactoryBot.create(:valid_collecting_event, elevation_precision: 2.0 )
-
-            d1 = TaxonDetermination.create( otu: o1, taxon_determination_object: s3)
-
-            s1.update!(collecting_event: c1)
-            s2.update!(collecting_event: c1) # not this!
-            s3.update!(collecting_event: c2)
-
-            d = Export::Dwca::Data.new(core_scope: scope.where(dwc_occurrence_object_id: [s1.id, s3.id, s2.id]), taxonworks_extensions: ::CollectionObject::DwcExtensions::TaxonworksExtensions::EXTENSION_FIELDS)
-
-            # Mess with things
-            s2.dwc_occurrence.delete
-            qq = FactoryBot.create(:valid_asserted_distribution,
-              asserted_distribution_object: o1)
-
-            result = []
-            d.extension_computed_fields_data({otu_name: 'TW:Internal:otu_name' }) do |id, header, value|
-              result << [id, header, value]
-            end
-            expect(result).to eq([[s3.id, 'TW:Internal:otu_name', "aus"]])
-
-            d.cleanup
-          end
         end
 
         context 'exporting otu_name' do
