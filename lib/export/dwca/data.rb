@@ -1038,9 +1038,17 @@ module Export::Dwca
 
     # @return [Hash] { image_ids: Array<Integer>, sound_ids: Array<Integer> }
     def collect_media_ids
+      image_ids = collect_media_image_ids
+      sound_ids = collect_media_sound_ids
+
+      Rails.logger.debug "dwca_export: found #{image_ids.count} images and #{sound_ids.count} sounds to export"
+
+      { image_ids: image_ids, sound_ids: sound_ids }
+    end
+
+    def collect_media_image_ids
       conn = ActiveRecord::Base.connection
       image_ids = []
-      sound_ids = []
 
       if @media_extension[:collection_objects]
         co_sql = @media_extension[:collection_objects]
@@ -1063,15 +1071,6 @@ module Export::Dwca
           INNER JOIN depictions ON depictions.depiction_object_id = obs.id
             AND depictions.depiction_object_type = 'Observation'
           INNER JOIN images ON images.id = depictions.image_id
-        SQL
-
-        # Get direct sounds (via conveyances)
-        sound_ids += conn.execute(<<-SQL).values.flatten
-          SELECT DISTINCT sounds.id
-          FROM (#{co_sql}) AS co
-          INNER JOIN conveyances ON conveyances.conveyance_object_id = co.id
-            AND conveyances.conveyance_object_type = 'CollectionObject'
-          INNER JOIN sounds ON sounds.id = conveyances.sound_id
         SQL
       end
 
@@ -1097,6 +1096,30 @@ module Export::Dwca
             AND depictions.depiction_object_type = 'Observation'
           INNER JOIN images ON images.id = depictions.image_id
         SQL
+      end
+
+      image_ids.uniq
+    end
+
+    def collect_media_sound_ids
+      conn = ActiveRecord::Base.connection
+      sound_ids = []
+
+      if @media_extension[:collection_objects]
+        co_sql = @media_extension[:collection_objects]
+
+        # Get direct sounds (via conveyances)
+        sound_ids += conn.execute(<<-SQL).values.flatten
+          SELECT DISTINCT sounds.id
+          FROM (#{co_sql}) AS co
+          INNER JOIN conveyances ON conveyances.conveyance_object_id = co.id
+            AND conveyances.conveyance_object_type = 'CollectionObject'
+          INNER JOIN sounds ON sounds.id = conveyances.sound_id
+        SQL
+      end
+
+      if @media_extension[:field_occurrences]
+        fo_sql = @media_extension[:field_occurrences]
 
         # Get direct sounds (via conveyances)
         sound_ids += conn.execute(<<-SQL).values.flatten
@@ -1108,12 +1131,7 @@ module Export::Dwca
         SQL
       end
 
-      image_ids.uniq!
-      sound_ids.uniq!
-
-      Rails.logger.debug "dwca_export: found #{image_ids.count} images and #{sound_ids.count} sounds to export"
-
-      { image_ids: image_ids, sound_ids: sound_ids }
+      sound_ids.uniq
     end
 
     # Create temporary tables with pre-computed API links for images and sounds
