@@ -716,7 +716,7 @@ scope :tasks do
     end
 
     scope :image_matrix, controller: 'tasks/observation_matrices/image_matrix' do
-      get ':observation_matrix_id/key', action: :key, defaults: {format: :json}
+      match ':observation_matrix_id/key', action: :key, defaults: {format: :json}, via: [:get, :post]
       get '/', action: :index, as: 'image_matrix_task'
     end
   end

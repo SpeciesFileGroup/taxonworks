@@ -8,24 +8,30 @@
   </button>
 </template>
 
-<script>
+<script setup>
 import { RouteNames } from '@/routes/routes'
+import { LinkerStorage } from '@/shared/Filter/utils'
 
-export default {
-  props: {
-    otuIds: {
-      type: Array,
-      default: () => []
-    }
-  },
+const MAX_URL_LENGTH = 2000
 
-  methods: {
-    openImageMatrix() {
-      window.open(
-        `${RouteNames.ImageMatrix}?otu_filter=${this.otuIds.join('|')}`,
-        '_blank'
-      )
-    }
+const props = defineProps({
+  otuIds: {
+    type: Array,
+    default: () => []
+  }
+})
+
+function openImageMatrix() {
+  const ids = props.otuIds.join('|')
+  const url = `${RouteNames.ImageMatrix}?otu_filter=${ids}`
+
+  if (url.length > MAX_URL_LENGTH) {
+    LinkerStorage.saveParameters({
+      otu_id: ids
+    })
+    window.open(RouteNames.ImageMatrix, '_blank')
+  } else {
+    window.open(url, '_blank')
   }
 }
 </script>
