@@ -1140,13 +1140,21 @@ module Export::Dwca
     # @param image_ids [Array<Integer>]
     # @param sound_ids [Array<Integer>]
     def create_media_api_link_tables(image_ids, sound_ids)
-      conn = ActiveRecord::Base.connection
+      create_image_api_links_table(image_ids)
+      create_sound_api_links_table(sound_ids)
+    end
 
-      Rails.logger.debug 'dwca_export: creating temp tables for API links'
+    def create_image_api_links_table(image_ids)
+      return if image_ids.empty?
+
+      # Create temp table with image IDs to avoid massive IN clauses (128k+ IDs).
+      # This temp table will be reused for multiple queries.
+      Rails.logger.debug 'dwca_export: creating temp tables for API image links'
+
+      conn = ActiveRecord::Base.connection
 
       # Drop if exists from previous run
       conn.execute("DROP TABLE IF EXISTS temp_media_image_links")
-      conn.execute("DROP TABLE IF EXISTS temp_media_sound_links")
 
       # Create temp table for image links
       # NOTE: removed associated_specimen_reference - now computed in SQL
@@ -1158,45 +1166,18 @@ module Export::Dwca
         )
       SQL
 
-      # Create temp table for sound links
-      # NOTE: removed associated_specimen_reference - now computed in SQL
-      conn.execute(<<-SQL)
-        CREATE TEMP TABLE temp_media_sound_links (
-          sound_id integer PRIMARY KEY,
-          access_uri text,
-          further_information_url text
-        )
-      SQL
+      conn.execute("DROP TABLE IF EXISTS temp_media_image_ids")
+      conn.execute("CREATE TEMP TABLE temp_media_image_ids (image_id integer PRIMARY KEY)")
 
-      # Create temp tables with image/sound IDs to avoid massive IN clauses (128k+ IDs)
-      # These temp tables will be reused for multiple queries
-      Rails.logger.debug 'dwca_export: creating temp tables for media IDs'
-
-      if image_ids.any?
-        conn.execute("DROP TABLE IF EXISTS temp_media_image_ids")
-        conn.execute("CREATE TEMP TABLE temp_media_image_ids (image_id integer PRIMARY KEY)")
-
-        # Insert IDs in batches to avoid huge INSERT statement
-        image_ids.each_slice(1000) do |batch|
-          values = batch.map { |id| "(#{id})" }.join(',')
-          conn.execute("INSERT INTO temp_media_image_ids VALUES #{values}")
-        end
-      end
-
-      if sound_ids.any?
-        conn.execute("DROP TABLE IF EXISTS temp_media_sound_ids")
-        conn.execute("CREATE TEMP TABLE temp_media_sound_ids (sound_id integer PRIMARY KEY)")
-
-        # Insert IDs in batches
-        sound_ids.each_slice(1000) do |batch|
-          values = batch.map { |id| "(#{id})" }.join(',')
-          conn.execute("INSERT INTO temp_media_sound_ids VALUES #{values}")
-        end
+      # Insert IDs in batches to avoid huge INSERT statement
+      image_ids.each_slice(1000) do |batch|
+        values = batch.map { |id| "(#{id})" }.join(',')
+        conn.execute("INSERT INTO temp_media_image_ids VALUES #{values}")
       end
 
       # Pre-cache project tokens to avoid repeated queries (2-3x speedup)
       # Use temp tables instead of huge IN clauses
-      Rails.logger.debug 'dwca_export: caching project tokens'
+      Rails.logger.debug 'dwca_export: caching image project tokens'
       all_project_ids = []
       if image_ids.any?
         all_project_ids += conn.execute(<<-SQL).values.flatten
@@ -1205,20 +1186,7 @@ module Export::Dwca
           INNER JOIN temp_media_image_ids tmp ON tmp.image_id = i.id
         SQL
       end
-      if sound_ids.any?
-        all_project_ids += conn.execute(<<-SQL).values.flatten
-          SELECT DISTINCT s.project_id
-          FROM sounds s
-          INNER JOIN temp_media_sound_ids tmp ON tmp.sound_id = s.id
-        SQL
-      end
       project_tokens = Project.where(id: all_project_ids.uniq).pluck(:id, :api_access_token).to_h
-
-      # NOTE: Removed image_to_co hash - associatedSpecimenReference now computed in SQL
-      # This avoids the bug where images with multiple depictions would only get one reference
-
-      # NOTE: Removed sound_to_co hash - associatedSpecimenReference now computed in SQL
-      # This avoids the bug where sounds with multiple conveyances would only get one reference
 
       # Batch process image API link generation (chunking to avoid memory issues)
       image_ids.each_slice(1000) do |batch_ids|
@@ -1260,12 +1228,56 @@ module Export::Dwca
         end
       end
 
+      Rails.logger.debug 'dwca_export: temp table created with API image links'
+    end
+
+    def create_sound_api_links_table(sound_ids)
+      return if sound_ids.empty?
+
+      # Create temp table with sound IDs to avoid massive IN clauses.
+      # This temp table will be reused for multiple queries.
+      Rails.logger.debug 'dwca_export: creating temp table for API sound IDs'
+
+      conn = ActiveRecord::Base.connection
+
+      # Drop if exists from previous run
+      conn.execute("DROP TABLE IF EXISTS temp_media_sound_links")
+
+      # Create temp table for sound links
+      conn.execute(<<-SQL)
+        CREATE TEMP TABLE temp_media_sound_links (
+          sound_id integer PRIMARY KEY,
+          access_uri text,
+          further_information_url text
+        )
+      SQL
+
+      conn.execute("DROP TABLE IF EXISTS temp_media_sound_ids")
+      conn.execute("CREATE TEMP TABLE temp_media_sound_ids (sound_id integer PRIMARY KEY)")
+
+      # Insert IDs in batches
+      sound_ids.each_slice(1000) do |batch|
+        values = batch.map { |id| "(#{id})" }.join(',')
+        conn.execute("INSERT INTO temp_media_sound_ids VALUES #{values}")
+      end
+
+      # Pre-cache project tokens to avoid repeated queries (2-3x speedup)
+      # Use temp tables instead of huge IN clauses
+      all_project_ids = []
+      if sound_ids.any?
+        all_project_ids += conn.execute(<<-SQL).values.flatten
+          SELECT DISTINCT s.project_id
+          FROM sounds s
+          INNER JOIN temp_media_sound_ids tmp ON tmp.sound_id = s.id
+        SQL
+      end
+      project_tokens = Project.where(id: all_project_ids.uniq).pluck(:id, :api_access_token).to_h
+
       # Batch process sound API link generation
       sound_ids.each_slice(1000) do |batch_ids|
         links_data = []
 
         # NOTE: Must load full AR objects because sound_link needs sound_file attachment
-        # Eager load to avoid N+1 queries
         ::Sound.where(id: batch_ids).includes(:sound_file_attachment).each do |snd|
           begin
             token = project_tokens[snd.project_id]
@@ -1277,7 +1289,6 @@ module Export::Dwca
             access_uri = Shared::Api.sound_link(snd)
             further_info_url = Shared::Api.sound_metadata_link(snd, raise_on_no_token: true, token: token)
 
-            # NOTE: Removed associated_specimen_reference - now computed in SQL per row
             links_data << {
               sound_id: snd.id,
               access_uri: access_uri,
@@ -1298,7 +1309,7 @@ module Export::Dwca
         end
       end
 
-      Rails.logger.debug 'dwca_export: temp tables created with API links'
+      Rails.logger.debug 'dwca_export: temp table created with API sound links'
     end
 
     # Exports image media records to the output file using PostgreSQL COPY TO
