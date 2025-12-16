@@ -388,8 +388,9 @@ module Export::Dwca
 
       used_extensions = methods.values + ce_fields.values + co_fields.values + dwco_fields.values
 
-      if used_extensions.empty?
+      if used_extensions.empty? || collection_object_ids.empty?
         @taxonworks_extension_data = Tempfile.new('tw_extension_data.tsv')
+        Rails.logger.debug 'dwca_export: taxonworks_extension_data prepared' + used_extensions.empty? ? ' (no extensions)' : ' (no collection objects)'
         return @taxonworks_extension_data
       end
 
@@ -413,19 +414,8 @@ module Export::Dwca
       csv << used_extensions
 
       # Process in consistent core order, batched to limit memory usage
-      ids = collection_object_ids
-
-      # Nothing to do if there are no CO ids (edge case where core has only non-CO rows)
-      if ids.empty?
-        csv.flush
-        @taxonworks_extension_data.flush
-        @taxonworks_extension_data.rewind
-        Rails.logger.debug 'dwca_export: taxonworks_extension_data prepared (no CO ids)'
-        return @taxonworks_extension_data
-      end
-
       batch_size = 10_000
-      ids.each_slice(batch_size) do |batch_ids|
+      collection_object_ids.each_slice(batch_size) do |batch_ids|
         batch_map = Hash.new { |h, id| h[id] = {} }
 
         # Computed fields (streamed)
