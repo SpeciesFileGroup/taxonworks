@@ -90,7 +90,13 @@ module Export::Dwca
 
       @eml_data = eml_data
 
-      @taxonworks_extension_methods = taxonworks_extensions
+       # Normalize and sort extensions into a fixed, canonical order
+      extensions = Array(taxonworks_extensions).map(&:to_sym)
+      canonical  = ::CollectionObject::DwcExtensions::TaxonworksExtensions::EXTENSION_FIELDS
+
+      # Orders caller's extension in the canonical order.
+      @taxonworks_extension_methods = canonical & extensions
+
     end
 
     # !params core_scope [String, ActiveRecord::Relation]

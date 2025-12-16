@@ -887,6 +887,25 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
             d.cleanup
           end
 
+          specify 'uses canonical extension header order regardless of input order' do
+            extensions = ::CollectionObject::DwcExtensions::TaxonworksExtensions::EXTENSION_FIELDS
+
+            # Pass them in reverse order to simulate a caller shuffling things
+            d = Export::Dwca::Data.new(
+              core_scope: scope,
+              taxonworks_extensions: extensions.reverse
+            )
+
+            e = d.taxonworks_extension_data.read
+            z = CSV.parse(e, headers: true)
+
+            expected_header = extensions.map { |sym| "TW:Internal:#{sym}" }.join("\t")
+
+            expect(z.to_a.first.first).to eq(expected_header)
+
+            d.cleanup
+          end
+
         end
 
         context 'exporting otu_name' do
