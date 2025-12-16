@@ -10,12 +10,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - Observation matrix dashboard: several filter options don't work [#4640]
+- New collecting event task: Biocurations panel is not working [#4646]
 
 ### Changed
 
 - Add the POST method for Image matrix to handle many OTUs
 
 [#4640]: https://github.com/SpeciesFileGroup/taxonworks/issues/4640
+[#4646]: https://github.com/SpeciesFileGroup/taxonworks/issues/4646
 
 ## [0.56.1] - 2025-12-12
 
