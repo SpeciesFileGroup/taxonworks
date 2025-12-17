@@ -1134,29 +1134,14 @@ module Export::Dwca
       sound_ids.uniq
     end
 
-    # Create temporary tables with pre-computed API links for images and sounds
-    # This must use Ruby because API link generation uses the URL shortener
-    # @param image_ids [Array<Integer>]
-    # @param sound_ids [Array<Integer>]
-    def create_media_api_link_tables(image_ids, sound_ids)
-      create_image_api_links_table(image_ids)
-      create_sound_api_links_table(sound_ids)
-    end
-
-    def create_image_api_links_table(image_ids)
-      return if image_ids.empty?
-
+    def create_image_temp_tables
       # Create temp table with image IDs to avoid massive IN clauses (128k+ IDs).
       # This temp table will be reused for multiple queries.
       Rails.logger.debug 'dwca_export: creating temp tables for API image links'
 
       conn = ActiveRecord::Base.connection
 
-      # Drop if exists from previous run
       conn.execute("DROP TABLE IF EXISTS temp_media_image_links")
-
-      # Create temp table for image links
-      # NOTE: removed associated_specimen_reference - now computed in SQL
       conn.execute(<<-SQL)
         CREATE TEMP TABLE temp_media_image_links (
           image_id integer PRIMARY KEY,
@@ -1165,69 +1150,98 @@ module Export::Dwca
         )
       SQL
 
+      # Only needed to create temp_media_image_links.
       conn.execute("DROP TABLE IF EXISTS temp_media_image_ids")
       conn.execute("CREATE TEMP TABLE temp_media_image_ids (image_id integer PRIMARY KEY)")
+    end
 
-      # Insert IDs in batches to avoid huge INSERT statement
-      image_ids.each_slice(1000) do |batch|
-        values = batch.map { |id| "(#{id})" }.join(',')
-        conn.execute("INSERT INTO temp_media_image_ids VALUES #{values}")
+    # Create temporary tables with pre-computed API links for images and sounds
+    # This must use Ruby because API link generation uses the URL shortener
+    # @param image_ids [Array<Integer>]
+    # @param sound_ids [Array<Integer>]
+    def create_media_api_link_tables(image_ids, sound_ids)
+      populate_temp_image_api_links_table(image_ids)
+      populate_temp_sound_api_links_table(sound_ids)
+    end
+
+    def populate_temp_image_api_links_table(image_ids)
+      return if image_ids.empty?
+
+      create_image_temp_tables
+
+      raw = ActiveRecord::Base.connection.raw_connection
+
+      # Populate temp_media_image_ids.
+      ActiveRecord::Base.connection.raw_connection.copy_data("COPY temp_media_image_ids (image_id) FROM STDIN") do
+        image_ids.each do |id|
+          raw.put_copy_data("#{id}\n")
+        end
       end
 
-      # Pre-cache project tokens to avoid repeated queries (2-3x speedup)
-      # Use temp tables instead of huge IN clauses
-      Rails.logger.debug 'dwca_export: caching image project tokens'
-      all_project_ids = []
-      if image_ids.any?
-        all_project_ids += conn.execute(<<-SQL).values.flatten
-          SELECT DISTINCT i.project_id
-          FROM images i
-          INNER JOIN temp_media_image_ids tmp ON tmp.image_id = i.id
+      populate_temp_image_links_table
+    end
+
+    def populate_temp_image_links_table
+      conn = ActiveRecord::Base.connection
+
+      image_file_prefix_sql = conn.quote(Shared::Api.image_file_url_prefix)
+      image_metadata_prefix_sql =
+        conn.quote(Shared::Api.image_metadata_url_prefix)
+
+      # Relation includes short urls when they exist.
+      image_relation = Image
+        .joins("JOIN temp_media_image_ids tmp ON tmp.image_id = images.id")
+        .joins(:project)
+        .joins(<<~SQL)
+          LEFT JOIN shortened_urls su_access
+            ON su_access.url = #{image_file_prefix_sql}
+              || images.image_file_fingerprint
+              || '?project_token='
+              || projects.api_access_token
         SQL
-      end
-      # Build long URLs in SQL and lookup existing shortened URLs in bulk.
-      # This avoids calling the shortener gem for URLs that already exist (most
-      # cases on subsequent runs).
-      image_file_url_prefix = Shared::Api.image_file_url_prefix
-      image_metadata_url_prefix = Shared::Api.image_metadata_url_prefix
+        .joins(<<~SQL)
+          LEFT JOIN shortened_urls su_metadata
+            ON su_metadata.url = #{image_metadata_prefix_sql}
+              || images.id
+              || '?project_token='
+              || projects.api_access_token
+        SQL
+        .where.not(projects: { api_access_token: nil })
+        .select(
+          'images.id AS image_id',
+          'images.image_file_fingerprint',
+          'projects.api_access_token AS token',
+          'su_access.unique_key AS access_short_key',
+          'su_metadata.unique_key AS metadata_short_key'
+        )
 
-      urls_with_shorts = conn.execute(<<-SQL).to_a
-        SELECT
-          i.id as image_id,
-          i.image_file_fingerprint,
-          p.api_access_token as token,
-          su_access.unique_key as access_short_key,
-          su_metadata.unique_key as metadata_short_key
-        FROM images i
-        INNER JOIN temp_media_image_ids tmp ON tmp.image_id = i.id
-        INNER JOIN projects p ON p.id = i.project_id
-        LEFT JOIN shortened_urls su_access ON su_access.url = '#{image_file_url_prefix}' || i.image_file_fingerprint || '?project_token=' || p.api_access_token
-        LEFT JOIN shortened_urls su_metadata ON su_metadata.url = '#{image_metadata_url_prefix}' || i.id || '?project_token=' || p.api_access_token
-        WHERE p.api_access_token IS NOT NULL
-      SQL
-
-      # Batch process URLs (chunking to avoid memory issues)
-      urls_with_shorts.each_slice(1000) do |batch|
+      image_relation.in_batches(of: 10_000) do |batch_scope|
+        rows = conn.select_all(batch_scope.to_sql) # each row is a hash
         links_data = []
 
-        batch.each do |row|
+        rows.each do |row|
           begin
             image_id = row['image_id'].to_i
             fingerprint = row['image_file_fingerprint']
             token = row['token']
 
-            # Use existing shortened URL or create new one
-            access_uri = if row['access_short_key']
-              Shared::Api.short_url_from_key(row['access_short_key'])
-            else
-              Shared::Api.shorten_url(Shared::Api.image_file_long_url(fingerprint, token))
-            end
+            access_uri =
+              if row['access_short_key']
+                Shared::Api.short_url_from_key(row['access_short_key'])
+              else
+                Shared::Api.shorten_url(
+                  Shared::Api.image_file_long_url(fingerprint, token)
+                )
+              end
 
-            further_info_url = if row['metadata_short_key']
-              Shared::Api.short_url_from_key(row['metadata_short_key'])
-            else
-              Shared::Api.shorten_url(Shared::Api.image_metadata_long_url(image_id, token))
-            end
+            further_info_url =
+              if row['metadata_short_key']
+                Shared::Api.short_url_from_key(row['metadata_short_key'])
+              else
+                Shared::Api.shorten_url(
+                  Shared::Api.image_metadata_long_url(image_id, token)
+                )
+              end
 
             links_data << {
               image_id: image_id,
@@ -1239,20 +1253,27 @@ module Export::Dwca
           end
         end
 
-        # Bulk insert image links data
-        unless links_data.empty?
-          values = links_data.map do |row|
-            "(#{row[:image_id]}, #{conn.quote(row[:access_uri])}, #{conn.quote(row[:further_information_url])})"
-          end.join(', ')
+        next if links_data.empty?
 
-          conn.execute("INSERT INTO temp_media_image_links (image_id, access_uri, further_information_url) VALUES #{values}")
-        end
+        values_sql = links_data.map { |ldata|
+          "(#{ldata[:image_id]}, " \
+            "#{conn.quote(ldata[:access_uri])}, " \
+            "#{conn.quote(ldata[:further_information_url])})"
+        }.join(', ')
+
+        conn.execute(<<~SQL)
+          INSERT INTO temp_media_image_links
+            (image_id, access_uri, further_information_url)
+          VALUES
+            #{values_sql}
+        SQL
       end
 
       Rails.logger.debug 'dwca_export: temp table created with API image links'
     end
 
-    def create_sound_api_links_table(sound_ids)
+
+    def populate_temp_sound_api_links_table(sound_ids)
       return if sound_ids.empty?
 
       # Create temp table with sound IDs to avoid massive IN clauses.
