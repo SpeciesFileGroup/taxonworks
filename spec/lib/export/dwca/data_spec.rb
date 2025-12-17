@@ -362,6 +362,20 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
           d.cleanup
         end
+
+        specify 'shortened_urls table has required columns for media export' do
+          # The Shortener gem's shortened_urls table is used in lib/export/dwca/data.rb.
+          # This spec ensures the gem's internal table structure hasn't changed
+          # in a way that would break our media URL shortening functionality.
+          connection = ActiveRecord::Base.connection
+
+          expect(connection.table_exists?('shortened_urls')).to be true
+
+          # Verify required columns exist
+          columns = connection.columns('shortened_urls').map(&:name)
+          expect(columns).to include('url')
+          expect(columns).to include('unique_key')
+        end
       end
 
       context ':predicate_extensions with orphaned collection objects' do
