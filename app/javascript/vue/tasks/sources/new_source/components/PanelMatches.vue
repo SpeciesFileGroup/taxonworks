@@ -48,18 +48,13 @@ watch(
   (newVal) => {
     clearTimeout(timer)
 
-    if (!newVal) {
-      isSearching.value = true
-
+    if (newVal) {
       timer = setTimeout(() => {
         getRecent()
       }, DELAY)
-
-      return
+    } else {
+      list.value = []
     }
-
-    isSearching.value = false
-    list.value = []
   }
 )
 

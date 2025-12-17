@@ -1,5 +1,10 @@
 import { defineStore } from 'pinia'
-import { Source, SoftValidation, Documentation } from '@/routes/endpoints'
+import {
+  Source,
+  SoftValidation,
+  Documentation,
+  Document
+} from '@/routes/endpoints'
 import { useSettingStore } from './settings'
 import { SOURCE_BIBTEX, SOURCE } from '@/constants'
 import { smartSelectorRefresh } from '@/helpers/smartSelector'
@@ -75,7 +80,10 @@ export const useSourceStore = defineStore('source', {
     },
 
     async loadSource(id) {
+      const settings = useSettingStore()
+
       try {
+        settings.loading = true
         const { body } = await Source.find(id, { extend: 'roles' })
 
         this.source = makeSource(body)
@@ -92,6 +100,8 @@ export const useSourceStore = defineStore('source', {
       } catch {
         TW.workbench.alert.create('No source was found with that ID.', 'alert')
         history.pushState(null, null, RouteNames.NewSource)
+      } finally {
+        settings.loading = false
       }
     },
 

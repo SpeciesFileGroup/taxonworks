@@ -1,12 +1,13 @@
 <template>
-  <button
-    type="button"
-    class="button normal-input button-submit button-size"
+  <VBtn
+    class="button-size"
+    color="primary"
+    medium
     :disabled="!store.source.id"
     @click="cloneSource"
   >
     Clone
-  </button>
+  </VBtn>
   <ConfirmationModal ref="confirmationModalRef" />
 </template>
 
@@ -16,6 +17,7 @@ import { useSourceStore } from '../store'
 import { useHotkey } from '@/composables'
 import platformKey from '@/helpers/getPlatformKey'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const store = useSourceStore()
 

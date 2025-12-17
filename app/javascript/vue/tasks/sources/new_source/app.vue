@@ -136,6 +136,12 @@
       :logo-size="{ width: '100px', height: '100px' }"
       legend="Converting verbatim to BiBTeX..."
     />
+    <VSpinner
+      v-if="settings.loading"
+      full-screen
+      :logo-size="{ width: '100px', height: '100px' }"
+      legend="Loading source..."
+    />
   </div>
 </template>
 

@@ -20,12 +20,12 @@
         class="full_width"
         v-model="bibtexInput"
         placeholder="@article{naumann1988ambositrinae,
-          title={Ambositrinae (Insecta: Hymenoptera: Diapriidae)},
-          author={Naumann, Ian D},
-          journal={Fauna of New Zealand},
-          volume={15},
-          year={1988}
-      }"
+  title={Ambositrinae (Insecta: Hymenoptera: Diapriidae)},
+  author={Naumann, Ian D},
+  journal={Fauna of New Zealand},
+  volume={15},
+  year={1988}
+}"
       />
     </template>
     <template #footer>

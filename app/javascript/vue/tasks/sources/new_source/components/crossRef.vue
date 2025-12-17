@@ -16,12 +16,13 @@
       <ul>
         <li>Submit either a DOI or full citation.</li>
         <li>
-          DOIs should be in the form of
-          <pre>https://doi.org/10.1145/3274442</pre>
-          or
-          <pre>10.1145/3274442</pre>
-          or
-          <pre>doi:10.1145/3274442</pre>
+          DOIs should be in one of the following forms:
+          <pre>
+https://doi.org/10.1145/3274442
+10.1145/3274442
+doi:10.1145/3274442
+</pre
+          >
         </li>
         <li>
           The query will be resolved against
