@@ -1136,7 +1136,6 @@ module Export::Dwca
 
     def create_image_temp_tables
       # Create temp table with image IDs to avoid massive IN clauses (128k+ IDs).
-      # This temp table will be reused for multiple queries.
       Rails.logger.debug 'dwca_export: creating temp tables for API image links'
 
       conn = ActiveRecord::Base.connection
@@ -1272,21 +1271,16 @@ module Export::Dwca
       Rails.logger.debug 'dwca_export: temp table created with API image links'
     end
 
-
     def populate_temp_sound_api_links_table(sound_ids)
       return if sound_ids.empty?
 
-      # Create temp table with sound IDs to avoid massive IN clauses.
-      # This temp table will be reused for multiple queries.
-      Rails.logger.debug 'dwca_export: creating temp table for API sound IDs'
-
       conn = ActiveRecord::Base.connection
 
-      # Drop if exists from previous run
-      conn.execute("DROP TABLE IF EXISTS temp_media_sound_links")
+      Rails.logger.debug 'dwca_export: creating temp table for API sound IDs'
 
-      # Create temp table for sound links
-      conn.execute(<<-SQL)
+      # Drop from previous runs if present
+      conn.execute("DROP TABLE IF EXISTS temp_media_sound_links")
+      conn.execute(<<~SQL)
         CREATE TEMP TABLE temp_media_sound_links (
           sound_id integer PRIMARY KEY,
           access_uri text,
@@ -1297,39 +1291,36 @@ module Export::Dwca
       conn.execute("DROP TABLE IF EXISTS temp_media_sound_ids")
       conn.execute("CREATE TEMP TABLE temp_media_sound_ids (sound_id integer PRIMARY KEY)")
 
-      # Insert IDs in batches
-      sound_ids.each_slice(1000) do |batch|
-        values = batch.map { |id| "(#{id})" }.join(',')
-        conn.execute("INSERT INTO temp_media_sound_ids VALUES #{values}")
+      # Insert IDs into temp table in batches to avoid huge VALUES lists
+      sound_ids.each_slice(10_000) do |batch|
+        values = batch.map { |id| "(#{id})" }.join(', ')
+        conn.execute("INSERT INTO temp_media_sound_ids (sound_id) VALUES #{values}")
       end
 
-      # Pre-cache project tokens to avoid repeated queries (2-3x speedup)
-      # Use temp tables instead of huge IN clauses
-      all_project_ids = []
-      if sound_ids.any?
-        all_project_ids += conn.execute(<<-SQL).values.flatten
-          SELECT DISTINCT s.project_id
-          FROM sounds s
-          INNER JOIN temp_media_sound_ids tmp ON tmp.sound_id = s.id
-        SQL
-      end
-      project_tokens = Project.where(id: all_project_ids.uniq).pluck(:id, :api_access_token).to_h
+      # Build a relation using the temp IDs, so we don’t end up with a massive
+      # IN ().
+      Sound
+          .joins("JOIN temp_media_sound_ids tmp ON tmp.sound_id = sounds.id")
+          .includes(:sound_file_attachment, :project)
+          .in_batches(of: 10_000) do |batch_scope|
+        batch_sounds = batch_scope.to_a
+        links_data   = []
 
-      # Batch process sound API link generation
-      sound_ids.each_slice(1000) do |batch_ids|
-        links_data = []
-
-        # NOTE: Must load full AR objects because sound_link needs sound_file attachment
-        ::Sound.where(id: batch_ids).includes(:sound_file_attachment).each do |snd|
+        batch_sounds.each do |snd|
           begin
-            token = project_tokens[snd.project_id]
+            token = snd.project&.api_access_token
             if token.nil?
               Rails.logger.warn "dwca_export: skipping sound #{snd.id} - no project token"
               next
             end
 
+            # Must use full AR objects for these helpers
             access_uri = Shared::Api.sound_link(snd)
-            further_info_url = Shared::Api.sound_metadata_link(snd, raise_on_no_token: true, token: token)
+            further_info_url = Shared::Api.sound_metadata_link(
+              snd,
+              raise_on_no_token: true,
+              token: token
+            )
 
             links_data << {
               sound_id: snd.id,
@@ -1341,14 +1332,20 @@ module Export::Dwca
           end
         end
 
-        # Bulk insert sound links data
-        unless links_data.empty?
-          values = links_data.map do |row|
-            "(#{row[:sound_id]}, #{conn.quote(row[:access_uri])}, #{conn.quote(row[:further_information_url])})"
-          end.join(', ')
+        next if links_data.empty?
 
-          conn.execute("INSERT INTO temp_media_sound_links (sound_id, access_uri, further_information_url) VALUES #{values}")
-        end
+        values_sql = links_data.map { |row|
+          "(#{row[:sound_id]}, " \
+            "#{conn.quote(row[:access_uri])}, " \
+            "#{conn.quote(row[:further_information_url])})"
+        }.join(', ')
+
+        conn.execute(<<~SQL)
+          INSERT INTO temp_media_sound_links
+            (sound_id, access_uri, further_information_url)
+          VALUES
+            #{values_sql}
+        SQL
       end
 
       Rails.logger.debug 'dwca_export: temp table created with API sound links'
