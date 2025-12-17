@@ -708,15 +708,13 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           f.update!(collecting_event: c)
 
           # Create data with newlines and tabs - test that they get sanitized
-          # Insert directly into database to ensure we have the raw values
           value_with_newline = "Line 1\nLine 2\nLine 3"
           value_with_tab = "Column1\tColumn2\tColumn3"
           value_with_both = "Text with\ttab and\nnewline"
 
-          conn = ActiveRecord::Base.connection
-          conn.execute("INSERT INTO data_attributes (type, attribute_subject_id, attribute_subject_type, controlled_vocabulary_term_id, value, project_id, created_by_id, updated_by_id, created_at, updated_at) VALUES ('InternalAttribute', #{c.id}, 'CollectingEvent', #{p1.id}, #{conn.quote(value_with_newline)}, #{c.project_id}, #{c.created_by_id}, #{c.updated_by_id}, NOW(), NOW())")
-          conn.execute("INSERT INTO data_attributes (type, attribute_subject_id, attribute_subject_type, controlled_vocabulary_term_id, value, project_id, created_by_id, updated_by_id, created_at, updated_at) VALUES ('InternalAttribute', #{c.id}, 'CollectingEvent', #{p2.id}, #{conn.quote(value_with_tab)}, #{c.project_id}, #{c.created_by_id}, #{c.updated_by_id}, NOW(), NOW())")
-          conn.execute("INSERT INTO data_attributes (type, attribute_subject_id, attribute_subject_type, controlled_vocabulary_term_id, value, project_id, created_by_id, updated_by_id, created_at, updated_at) VALUES ('InternalAttribute', #{c.id}, 'CollectingEvent', #{p3.id}, #{conn.quote(value_with_both)}, #{c.project_id}, #{c.created_by_id}, #{c.updated_by_id}, NOW(), NOW())")
+          d1 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p1, value: value_with_newline)
+          d2 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p2, value: value_with_tab)
+          d3 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p3, value: value_with_both)
 
           a = Export::Dwca::Data.new(core_scope: scope,
             predicate_extensions: {collecting_event_predicate_id: predicate_ids } )
@@ -1034,8 +1032,8 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         dwc = specimen.get_dwc_occurrence
 
         # Update the verbatimLocality directly in the database to have newlines/tabs
-        conn = ActiveRecord::Base.connection
-        conn.execute("UPDATE dwc_occurrences SET \"verbatimLocality\" = #{conn.quote(locality_with_special_chars)} WHERE id = #{dwc.id}")
+        # Using update_column to bypass callbacks and set the raw value
+        dwc.update_column(:verbatimLocality, locality_with_special_chars)
 
         # Verify it was set
         dwc.reload
