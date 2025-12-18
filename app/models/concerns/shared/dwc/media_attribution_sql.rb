@@ -72,11 +72,14 @@ module Shared::Dwc::MediaAttributionSql
 
     # Copyright holders SQL fragment
     # Matches dwc_media_credit Ruby method (via attribution_copyright_label helper)
+    # Returns both comma-separated names (for non-copyright use) and an array (for grammatical sentences)
     def self.dwc_media_copyright_holders_sql(table_alias:)
       delimiter = Shared::IsDwcOccurrence::DWC_DELIMITER
       <<~SQL.squish
         LEFT JOIN LATERAL (
-          SELECT STRING_AGG(COALESCE(people.cached, organizations.name), '#{delimiter}' ORDER BY roles.position) AS names
+          SELECT
+            STRING_AGG(COALESCE(people.cached, organizations.name), '#{delimiter}' ORDER BY roles.position) AS names,
+            ARRAY_AGG(COALESCE(people.cached, organizations.name) ORDER BY roles.position) AS names_array
           FROM roles
           LEFT JOIN people ON people.id = roles.person_id
           LEFT JOIN organizations ON organizations.id = roles.organization_id

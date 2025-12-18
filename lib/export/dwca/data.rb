@@ -254,6 +254,28 @@ module Export::Dwca
       SQL
     end
 
+    # Creates a temporary PostgreSQL function that formats an array of names
+    # into a grammatically correct sentence, matching Utilities::Strings.authorship_sentence
+    # Examples:
+    #   1 name: "Smith"
+    #   2 names: "Smith & Jones"
+    #   3+ names: "Smith, Jones & Brown"
+    # The function exists only for the current database session.
+    def create_authorship_sentence_function
+      conn = ActiveRecord::Base.connection
+      conn.execute(<<~SQL)
+        CREATE OR REPLACE FUNCTION pg_temp.authorship_sentence(names text[])
+        RETURNS text AS $$
+          SELECT CASE
+            WHEN array_length(names, 1) IS NULL THEN NULL
+            WHEN array_length(names, 1) = 1 THEN names[1]
+            WHEN array_length(names, 1) = 2 THEN names[1] || ' & ' || names[2]
+            ELSE array_to_string(names[1:array_length(names,1)-1], ', ') || ' & ' || names[array_length(names,1)]
+          END
+        $$ LANGUAGE SQL IMMUTABLE;
+      SQL
+    end
+
     # Find which columns in the dwc_occurrence table have non-NULL, non-empty values
     # This implements the trim_columns: true behavior
     # Note: We check for non-empty AFTER sanitization
@@ -928,17 +950,18 @@ module Export::Dwca
     end
 
     # SQL fragment: Copyright label "© {year} {authors}"
+    # Uses pg_temp.authorship_sentence to format author names grammatically
     def copyright_label_sql
       <<-SQL
         CASE
-          WHEN attributions.copyright_year IS NOT NULL OR copyright_holders.names IS NOT NULL THEN
+          WHEN attributions.copyright_year IS NOT NULL OR copyright_holders.names_array IS NOT NULL THEN
             '©' ||
             CASE
-              WHEN attributions.copyright_year IS NOT NULL AND copyright_holders.names IS NOT NULL
-                THEN attributions.copyright_year::text || ' ' || copyright_holders.names
+              WHEN attributions.copyright_year IS NOT NULL AND copyright_holders.names_array IS NOT NULL
+                THEN attributions.copyright_year::text || ' ' || pg_temp.authorship_sentence(copyright_holders.names_array)
               WHEN attributions.copyright_year IS NOT NULL
                 THEN attributions.copyright_year::text
-              ELSE copyright_holders.names
+              ELSE pg_temp.authorship_sentence(copyright_holders.names_array)
             END
           ELSE NULL
         END
@@ -1531,8 +1554,9 @@ module Export::Dwca
     def media_extension_optimized(output_file)
       Rails.logger.debug 'dwca_export: media_extension_optimized start'
 
-      # Create temporary function for sanitizing CSV values
+      # Create temporary functions for sanitizing CSV values and formatting author lists
       create_csv_sanitize_function
+      create_authorship_sentence_function
 
       # Step 1: Collect all media IDs from collection objects and field occurrences
       media_ids = collect_media_ids

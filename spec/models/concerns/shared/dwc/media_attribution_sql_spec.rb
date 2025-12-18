@@ -237,4 +237,63 @@ RSpec.describe Shared::Dwc::MediaAttributionSql, type: :model do
 
   include_examples 'SQL method consistency', Image, 'img', :valid_image
   include_examples 'SQL method consistency', Sound, 'snd', :valid_sound
+
+  # Test the PostgreSQL authorship_sentence function matches Utilities::Strings.authorship_sentence
+  describe 'pg_temp.authorship_sentence' do
+    before(:all) do
+      # Create the temporary function
+      conn = ActiveRecord::Base.connection
+      conn.execute(<<~SQL)
+        CREATE OR REPLACE FUNCTION pg_temp.authorship_sentence(names text[])
+        RETURNS text AS $$
+          SELECT CASE
+            WHEN array_length(names, 1) IS NULL THEN NULL
+            WHEN array_length(names, 1) = 1 THEN names[1]
+            WHEN array_length(names, 1) = 2 THEN names[1] || ' & ' || names[2]
+            ELSE array_to_string(names[1:array_length(names,1)-1], ', ') || ' & ' || names[array_length(names,1)]
+          END
+        $$ LANGUAGE SQL IMMUTABLE;
+      SQL
+    end
+
+    it 'matches Ruby version with 1 name' do
+      names = ['Smith']
+      ruby_result = Utilities::Strings.authorship_sentence(names)
+      sql_result = conn.select_value("SELECT pg_temp.authorship_sentence(ARRAY['Smith'])")
+      expect(sql_result).to eq(ruby_result)
+      expect(sql_result).to eq('Smith')
+    end
+
+    it 'matches Ruby version with 2 names' do
+      names = ['Smith', 'Jones']
+      ruby_result = Utilities::Strings.authorship_sentence(names)
+      sql_result = conn.select_value("SELECT pg_temp.authorship_sentence(ARRAY['Smith', 'Jones'])")
+      expect(sql_result).to eq(ruby_result)
+      expect(sql_result).to eq('Smith & Jones')
+    end
+
+    it 'matches Ruby version with 3 names' do
+      names = ['Smith', 'Jones', 'Brown']
+      ruby_result = Utilities::Strings.authorship_sentence(names)
+      sql_result = conn.select_value("SELECT pg_temp.authorship_sentence(ARRAY['Smith', 'Jones', 'Brown'])")
+      expect(sql_result).to eq(ruby_result)
+      expect(sql_result).to eq('Smith, Jones & Brown')
+    end
+
+    it 'matches Ruby version with 4+ names' do
+      names = ['Smith', 'Jones', 'Brown', 'Davis']
+      ruby_result = Utilities::Strings.authorship_sentence(names)
+      sql_result = conn.select_value("SELECT pg_temp.authorship_sentence(ARRAY['Smith', 'Jones', 'Brown', 'Davis'])")
+      expect(sql_result).to eq(ruby_result)
+      expect(sql_result).to eq('Smith, Jones, Brown & Davis')
+    end
+
+    it 'matches Ruby version with empty array' do
+      names = []
+      ruby_result = Utilities::Strings.authorship_sentence(names)
+      sql_result = conn.select_value("SELECT pg_temp.authorship_sentence(ARRAY[]::text[])")
+      expect(sql_result).to eq(ruby_result)
+      expect(sql_result).to be_nil
+    end
+  end
 end
