@@ -10,14 +10,6 @@ module Export::Dwca
     'TW:RelatedResource': 'https://sfg.taxonworks.org/dwc/terms/resourceRelationship/relatedResource',
   }.freeze
 
-  CREATIVE_COMMONS_LICENSES_SQL_CASE = begin
-    case_logic = CREATIVE_COMMONS_LICENSES.map do |description, data|
-      d = ActiveRecord::Base.connection.quote(description)
-      l = ActiveRecord::Base.connection.quote(data['link'])
-      "WHEN #{d} THEN #{l}"
-    end.join("\n      ")
-  end.freeze
-
   # !!
   # !! This export does not support AssertedDistribution data at the moment.  While those data are indexed,
   # !! if they are in the `core_scope` they will almost certainly cause problems or be ignored.
@@ -1342,10 +1334,10 @@ module Export::Dwca
       <<~SQL.squish
         LEFT JOIN identifiers uuid_id ON uuid_id.identifier_object_id = #{table_alias}.id
                                       AND uuid_id.identifier_object_type = '#{media_type}'
-                                      AND uuid_id.type = 'Identifier::Global::Uuid'
+                                      AND uuid_id.type LIKE  'Identifier::Global::Uuid%'
         LEFT JOIN identifiers uri_id ON uri_id.identifier_object_id = #{table_alias}.id
                                      AND uri_id.identifier_object_type = '#{media_type}'
-                                     AND uri_id.type = 'Identifier::Global::Uri'
+                                     AND uri_id.type LIKE 'Identifier::Global::Uri%'
       SQL
     end
 

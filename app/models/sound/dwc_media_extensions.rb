@@ -40,7 +40,7 @@ module Sound::DwcMediaExtensions
     Shared::Api.sound_link(self)
   end
 
-   def dwc_media_further_information_url
+  def dwc_media_further_information_url
     Shared::Api.sound_metadata_link(self, raise_on_no_token: true)
   end
 end
