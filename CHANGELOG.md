@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Observation matrix dashboard: several filter options don't work [#4640]
 - New collecting event task: Biocurations panel is not working [#4646]
+- Error on batch update from left object radial in filters using 'match identifiers'
 
 ### Changed
 

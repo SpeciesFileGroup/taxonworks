@@ -81,6 +81,63 @@ describe Queries::Query::Filter, type: [:model] do
     end
   end
 
+  context 'order_by' do
+    context 'order_by: :match_identifiers' do
+      let(:query) { Queries::CollectionObject::Filter.new({}) }
+
+      let!(:namespace) { FactoryBot.create(:valid_namespace) }
+
+      let!(:co1) { Specimen.create! }
+      let!(:co2) { Specimen.create! }
+      let!(:co3) { Specimen.create! }
+
+      let!(:id1) do
+        Identifier::Local::CatalogNumber.create!(
+          namespace: namespace,
+          identifier: '111',
+          identifier_object: co1
+        )
+      end
+
+      let!(:id2) do
+        Identifier::Local::CatalogNumber.create!(
+          namespace: namespace,
+          identifier: '222',
+          identifier_object: co2
+        )
+      end
+
+      let!(:id3) do
+        Identifier::Local::CatalogNumber.create!(
+          namespace: namespace,
+          identifier: '333',
+          identifier_object: co3
+        )
+      end
+
+      before do
+        query.match_identifiers_type = 'identifier'
+        query.match_identifiers = [
+          "#{namespace.short_name} 222",
+          'not this one',
+          "#{namespace.short_name} 111",
+          "#{namespace.short_name} 333"
+        ].join(',')
+
+        query.order_by = :match_identifiers
+      end
+
+      specify 'orders results to match the order of match_identifiers' do
+        expect(query.all.to_a).to eq [co2, co1, co3] # ordered
+      end
+
+      specify 'can be counted without raising (regression check)' do
+        expect(query.all.count).to eq 3
+      end
+    end
+  end
+
+
   specify '#venn_query' do
     v = 'http://127.0.0.1:3000/otus/filter.json?per=50&name=Ant&extend%5B%5D=taxonomy&page=1'
 
