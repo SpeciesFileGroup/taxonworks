@@ -21,6 +21,128 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
     expect(a.include?('ORDER BY dwc_occurrences.id')).to be_truthy
   end
 
+  context 'SQL fragment builders' do
+    let(:data) { Export::Dwca::Data.new(core_scope: scope) }
+    let(:conn) { ActiveRecord::Base.connection }
+
+    before do
+      # Create the sanitize function for these tests
+      data.send(:create_csv_sanitize_function)
+    end
+
+    describe '#media_identifier_sql' do
+      it 'returns UUID identifier when present' do
+        img = FactoryBot.create(:valid_image)
+        uuid_value = SecureRandom.uuid
+        FactoryBot.create(:identifier_global_uuid, identifier_object: img, identifier: uuid_value)
+
+        # Build SQL using the fragment from media_identifier_sql
+        sql = <<~SQL
+          SELECT #{data.send(:media_identifier_sql, 'image', 'images')} AS identifier
+          FROM images
+          LEFT JOIN identifiers uuid_id ON uuid_id.identifier_object_id = images.id
+            AND uuid_id.identifier_object_type = 'Image'
+            AND uuid_id.type = 'Identifier::Global::Uuid'
+          LEFT JOIN identifiers uri_id ON uri_id.identifier_object_id = images.id
+            AND uri_id.identifier_object_type = 'Image'
+            AND uri_id.type = 'Identifier::Global::Uri'
+          WHERE images.id = #{img.id}
+        SQL
+
+        # Execute the SQL and verify the output
+        result = conn.select_value(sql)
+        expect(result).to eq("image:#{uuid_value}")
+      end
+
+      it 'returns URI identifier when UUID not present but URI is' do
+        img = FactoryBot.create(:valid_image)
+        uri_value = 'http://example.org/image/123'
+        FactoryBot.create(:identifier_global_uri, identifier_object: img, identifier: uri_value)
+
+        sql = <<~SQL
+          SELECT #{data.send(:media_identifier_sql, 'image', 'images')} AS identifier
+          FROM images
+          LEFT JOIN identifiers uuid_id ON uuid_id.identifier_object_id = images.id
+            AND uuid_id.identifier_object_type = 'Image'
+            AND uuid_id.type = 'Identifier::Global::Uuid'
+          LEFT JOIN identifiers uri_id ON uri_id.identifier_object_id = images.id
+            AND uri_id.identifier_object_type = 'Image'
+            AND uri_id.type = 'Identifier::Global::Uri'
+          WHERE images.id = #{img.id}
+        SQL
+
+        result = conn.select_value(sql)
+        expect(result).to eq("image:#{uri_value}")
+      end
+
+      it 'returns ID-based identifier when no UUID or URI present' do
+        img = FactoryBot.create(:valid_image)
+
+        sql = <<~SQL
+          SELECT #{data.send(:media_identifier_sql, 'image', 'images')} AS identifier
+          FROM images
+          LEFT JOIN identifiers uuid_id ON uuid_id.identifier_object_id = images.id
+            AND uuid_id.identifier_object_type = 'Image'
+            AND uuid_id.type = 'Identifier::Global::Uuid'
+          LEFT JOIN identifiers uri_id ON uri_id.identifier_object_id = images.id
+            AND uri_id.identifier_object_type = 'Image'
+            AND uri_id.type = 'Identifier::Global::Uri'
+          WHERE images.id = #{img.id}
+        SQL
+
+        result = conn.select_value(sql)
+        expect(result).to eq("image:#{img.id}")
+      end
+    end
+
+    describe '#associated_specimen_reference_sql' do
+      it 'returns CollectionObject URL when co.id is present' do
+        co = FactoryBot.create(:valid_specimen)
+
+        sql = <<~SQL
+          SELECT #{data.send(:associated_specimen_reference_sql)} AS url
+          FROM collection_objects co
+          CROSS JOIN (SELECT NULL::integer AS id) fo
+          CROSS JOIN (SELECT NULL::integer AS id) co_obs
+          CROSS JOIN (SELECT NULL::integer AS id) fo_obs
+          WHERE co.id = #{co.id}
+        SQL
+
+        result = conn.select_value(sql)
+        expect(result).to eq("#{Shared::Api.api_base_path(CollectionObject)}/#{co.id}")
+      end
+
+      it 'returns FieldOccurrence URL when fo.id is present' do
+        fo = FactoryBot.create(:valid_field_occurrence)
+
+        sql = <<~SQL
+          SELECT #{data.send(:associated_specimen_reference_sql)} AS url
+          FROM (SELECT NULL::integer AS id) co
+          CROSS JOIN field_occurrences fo
+          CROSS JOIN (SELECT NULL::integer AS id) co_obs
+          CROSS JOIN (SELECT NULL::integer AS id) fo_obs
+          WHERE fo.id = #{fo.id}
+        SQL
+
+        result = conn.select_value(sql)
+        expect(result).to eq("#{Shared::Api.api_base_path(FieldOccurrence)}/#{fo.id}")
+      end
+
+      it 'returns NULL when no IDs are present' do
+        sql = <<~SQL
+          SELECT #{data.send(:associated_specimen_reference_sql)} AS url
+          FROM (SELECT NULL::integer AS id) co
+          CROSS JOIN (SELECT NULL::integer AS id) fo
+          CROSS JOIN (SELECT NULL::integer AS id) co_obs
+          CROSS JOIN (SELECT NULL::integer AS id) fo_obs
+        SQL
+
+        result = conn.select_value(sql)
+        expect(result).to be_nil
+      end
+    end
+  end
+
   context 'when initialized with a scope' do
     let(:data) { Export::Dwca::Data.new(core_scope: scope) }
 

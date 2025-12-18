@@ -1370,6 +1370,53 @@ module Export::Dwca
       Rails.logger.debug 'dwca_export: temp table created with API sound links'
     end
 
+    # SQL fragment: Media identifier with UUID/URI fallback
+    # @param media_type [String] Type prefix (e.g., 'image', 'sound')
+    # @param media_table_alias [String] SQL table alias for the media table
+    # @return [String] SQL fragment for media identifier
+    def media_identifier_sql(media_type, media_table_alias = 'img')
+      <<~SQL.strip
+        pg_temp.sanitize_csv(
+          CASE
+            WHEN uuid_id.identifier IS NOT NULL THEN '#{media_type}:' || uuid_id.identifier
+            WHEN uri_id.identifier IS NOT NULL THEN '#{media_type}:' || uri_id.identifier
+            ELSE '#{media_type}:' || #{media_table_alias}.id::text
+          END
+        )
+      SQL
+    end
+
+    # SQL fragment: Associated specimen reference URL
+    # Handles collection objects, field occurrences, and their observations
+    # @param include_observations [Boolean] whether to include observation table aliases (co_obs, fo_obs)
+    # @return [String] SQL CASE statement for building specimen reference URLs
+    def associated_specimen_reference_sql(include_observations: true)
+      co_base = Shared::Api.api_base_path(CollectionObject)
+      fo_base = Shared::Api.api_base_path(FieldOccurrence)
+
+      base_cases = <<~SQL.strip
+        CASE
+          WHEN co.id IS NOT NULL THEN '#{co_base}/' || co.id
+          WHEN fo.id IS NOT NULL THEN '#{fo_base}/' || fo.id
+      SQL
+
+      observation_cases = if include_observations
+        <<~SQL.strip
+
+          WHEN co_obs.id IS NOT NULL THEN '#{co_base}/' || co_obs.id
+          WHEN fo_obs.id IS NOT NULL THEN '#{fo_base}/' || fo_obs.id
+        SQL
+      else
+        ""
+      end
+
+      <<~SQL.strip
+        #{base_cases}#{observation_cases}
+          ELSE NULL
+        END
+      SQL
+    end
+
     # Exports image media records to the output file using PostgreSQL COPY TO
     # Streams data directly to avoid loading entire dataset into memory
     def export_images_to_file(image_ids, output_file)
@@ -1383,13 +1430,7 @@ module Export::Dwca
         COPY (
           SELECT
             pg_temp.sanitize_csv(dwc.\"occurrenceID\") AS coreid,
-            pg_temp.sanitize_csv(
-              CASE
-                WHEN uuid_id.identifier IS NOT NULL THEN 'image:' || uuid_id.identifier
-                WHEN uri_id.identifier IS NOT NULL THEN 'image:' || uri_id.identifier
-                ELSE 'image:' || img.id::text
-              END
-            ) AS identifier,
+            #{media_identifier_sql('image', 'img')} AS identifier,
             'Image' AS \"dc:type\",
             img.id AS \"providerManagedID\",
             #{license_case} AS \"dc:rights\",
@@ -1402,13 +1443,7 @@ module Export::Dwca
             pg_temp.sanitize_csv(dep.figure_label) AS description,
             pg_temp.sanitize_csv(dep.caption) AS caption,
             -- Compute associatedSpecimenReference directly from collection object ID for this row
-            CASE
-              WHEN co.id IS NOT NULL THEN '#{Shared::Api.api_base_path(CollectionObject)}/' || co.id
-              WHEN fo.id IS NOT NULL THEN '#{Shared::Api.api_base_path(FieldOccurrence)}/' || fo.id
-              WHEN co_obs.id IS NOT NULL THEN '#{Shared::Api.api_base_path(CollectionObject)}/' || co_obs.id
-              WHEN fo_obs.id IS NOT NULL THEN '#{Shared::Api.api_base_path(FieldOccurrence)}/' || fo_obs.id
-              ELSE NULL
-            END AS \"associatedSpecimenReference\",
+            #{associated_specimen_reference_sql} AS \"associatedSpecimenReference\",
             NULL AS \"associatedObservationReference\",
             pg_temp.sanitize_csv(links.access_uri) AS \"accessURI\",
             pg_temp.sanitize_csv(img.image_file_content_type) AS \"dc:format\",
@@ -1486,13 +1521,7 @@ module Export::Dwca
         COPY (
           SELECT
             pg_temp.sanitize_csv(dwc.\"occurrenceID\") AS coreid,
-            pg_temp.sanitize_csv(
-              CASE
-                WHEN uuid_id.identifier IS NOT NULL THEN 'sound:' || uuid_id.identifier
-                WHEN uri_id.identifier IS NOT NULL THEN 'sound:' || uri_id.identifier
-                ELSE 'sound:' || snd.id::text
-              END
-            ) AS identifier,
+            #{media_identifier_sql('sound', 'snd')} AS identifier,
             'Sound' AS \"dc:type\",
             snd.id AS \"providerManagedID\",
             #{license_case} AS \"dc:rights\",
@@ -1505,11 +1534,7 @@ module Export::Dwca
             pg_temp.sanitize_csv(snd.name) AS description,
             NULL AS caption,
             -- Compute associatedSpecimenReference directly from collection object ID for this row
-            CASE
-              WHEN co.id IS NOT NULL THEN '#{Shared::Api.api_base_path(CollectionObject)}/' || co.id
-              WHEN fo.id IS NOT NULL THEN '#{Shared::Api.api_base_path(FieldOccurrence)}/' || fo.id
-              ELSE NULL
-            END AS \"associatedSpecimenReference\",
+            #{associated_specimen_reference_sql(include_observations: false)} AS \"associatedSpecimenReference\",
             NULL AS \"associatedObservationReference\",
             pg_temp.sanitize_csv(links.access_uri) AS \"accessURI\",
             pg_temp.sanitize_csv(asb.content_type) AS \"dc:format\",
