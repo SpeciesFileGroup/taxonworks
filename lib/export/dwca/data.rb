@@ -957,9 +957,10 @@ module Export::Dwca
 
     # SQL fragment: Aggregate owners from Attribution roles
     def attribution_owners_lateral_sql
+      delimiter = Shared::IsDwcOccurrence::DWC_DELIMITER
       <<-SQL
         LEFT JOIN LATERAL (
-          SELECT STRING_AGG(COALESCE(people.cached, organizations.name), ' & ' ORDER BY roles.position) AS names
+          SELECT STRING_AGG(COALESCE(people.cached, organizations.name), '#{delimiter}' ORDER BY roles.position) AS names
           FROM roles
           LEFT JOIN people ON people.id = roles.person_id
           LEFT JOIN organizations ON organizations.id = roles.organization_id
@@ -972,9 +973,10 @@ module Export::Dwca
 
     # SQL fragment: Aggregate creators from Attribution roles
     def attribution_creators_lateral_sql
+      delimiter = Shared::IsDwcOccurrence::DWC_DELIMITER
       <<-SQL
         LEFT JOIN LATERAL (
-          SELECT STRING_AGG(COALESCE(people.cached, organizations.name), ' & ' ORDER BY roles.position) AS names
+          SELECT STRING_AGG(COALESCE(people.cached, organizations.name), '#{delimiter}' ORDER BY roles.position) AS names
           FROM roles
           LEFT JOIN people ON people.id = roles.person_id
           LEFT JOIN organizations ON organizations.id = roles.organization_id
@@ -1004,9 +1006,10 @@ module Export::Dwca
 
     # SQL fragment: Aggregate copyright holders from Attribution roles
     def attribution_copyright_holders_lateral_sql
+      delimiter = Shared::IsDwcOccurrence::DWC_DELIMITER
       <<-SQL
         LEFT JOIN LATERAL (
-          SELECT STRING_AGG(COALESCE(people.cached, organizations.name), ' & ' ORDER BY roles.position) AS names
+          SELECT STRING_AGG(COALESCE(people.cached, organizations.name), '#{delimiter}' ORDER BY roles.position) AS names
           FROM roles
           LEFT JOIN people ON people.id = roles.person_id
           LEFT JOIN organizations ON organizations.id = roles.organization_id
