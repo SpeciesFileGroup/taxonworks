@@ -36,12 +36,21 @@ module Shared::Dwc::MediaExtensions
   end
 
   def dwc_media_owner
-    self.class
-      .joins(attribution: {roles: :person})
-      .where(roles: {type: 'AttributionOwner'})
-      .where(id: id)
-      .pluck('people.cached')
-      .join(CollectionObject::DWC_DELIMITER)
+    # Get all AttributionOwner roles for this media's attribution
+    roles = Role
+      .joins('INNER JOIN attributions ON attributions.id = roles.role_object_id AND roles.role_object_type = \'Attribution\'')
+      .where('attributions.attribution_object_id = ? AND attributions.attribution_object_type = ?', id, self.class.name)
+      .where(type: 'AttributionOwner')
+      .order(:position)
+
+    # Map each role to either person.cached or organization.name
+    roles.map do |role|
+      if role.person_id
+        Person.find(role.person_id).cached
+      elsif role.organization_id
+        Organization.find(role.organization_id).name
+      end
+    end.compact.join(Shared::IsDwcOccurrence::DWC_DELIMITER)
   end
 
   def dwc_media_credit
@@ -62,8 +71,9 @@ module Shared::Dwc::MediaExtensions
       .joins(attribution: {roles: :person})
       .where(roles: {type: 'AttributionCreator'})
       .where(id: id)
+      .order('roles.position')
       .pluck('people.cached')
-      .join(CollectionObject::DWC_DELIMITER)
+      .join(Shared::IsDwcOccurrence::DWC_DELIMITER)
   end
 
   def dwc_media_dcterms_creator

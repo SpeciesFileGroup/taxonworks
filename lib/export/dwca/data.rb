@@ -976,10 +976,9 @@ module Export::Dwca
       delimiter = Shared::IsDwcOccurrence::DWC_DELIMITER
       <<-SQL
         LEFT JOIN LATERAL (
-          SELECT STRING_AGG(COALESCE(people.cached, organizations.name), '#{delimiter}' ORDER BY roles.position) AS names
+          SELECT STRING_AGG(people.cached, '#{delimiter}' ORDER BY roles.position) AS names
           FROM roles
-          LEFT JOIN people ON people.id = roles.person_id
-          LEFT JOIN organizations ON organizations.id = roles.organization_id
+          JOIN people ON people.id = roles.person_id
           WHERE roles.role_object_id = attributions.id
             AND roles.role_object_type = 'Attribution'
             AND roles.type = 'AttributionCreator'
