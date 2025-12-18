@@ -2,6 +2,7 @@ module Image::DwcMediaExtensions
   extend ActiveSupport::Concern
 
   include Shared::Dwc::MediaExtensions
+  include Shared::Dwc::MediaAttributionSql
 
   # Only implementations specific to Image. See
   # Shared::Dwc::MediaExtensions#DWC_MEDIA_SHARED_EXTENSION_MAP as well.

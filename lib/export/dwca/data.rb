@@ -927,16 +927,6 @@ module Export::Dwca
       @media_tmp
     end
 
-    # SQL fragment: Creative Commons license mapping
-    def creative_commons_license_case_sql
-      <<-SQL
-        CASE attributions.license
-          #{CREATIVE_COMMONS_LICENSES_SQL_CASE}
-          ELSE NULL
-        END
-      SQL
-    end
-
     # SQL fragment: Copyright label "© {year} {authors}"
     def copyright_label_sql
       <<-SQL
@@ -952,70 +942,6 @@ module Export::Dwca
             END
           ELSE NULL
         END
-      SQL
-    end
-
-    # SQL fragment: Aggregate owners from Attribution roles
-    def attribution_owners_lateral_sql
-      delimiter = Shared::IsDwcOccurrence::DWC_DELIMITER
-      <<-SQL
-        LEFT JOIN LATERAL (
-          SELECT STRING_AGG(COALESCE(people.cached, organizations.name), '#{delimiter}' ORDER BY roles.position) AS names
-          FROM roles
-          LEFT JOIN people ON people.id = roles.person_id
-          LEFT JOIN organizations ON organizations.id = roles.organization_id
-          WHERE roles.role_object_id = attributions.id
-            AND roles.role_object_type = 'Attribution'
-            AND roles.type = 'AttributionOwner'
-        ) owners ON true
-      SQL
-    end
-
-    # SQL fragment: Aggregate creators from Attribution roles
-    def attribution_creators_lateral_sql
-      delimiter = Shared::IsDwcOccurrence::DWC_DELIMITER
-      <<-SQL
-        LEFT JOIN LATERAL (
-          SELECT STRING_AGG(people.cached, '#{delimiter}' ORDER BY roles.position) AS names
-          FROM roles
-          JOIN people ON people.id = roles.person_id
-          WHERE roles.role_object_id = attributions.id
-            AND roles.role_object_type = 'Attribution'
-            AND roles.type = 'AttributionCreator'
-        ) creators ON true
-      SQL
-    end
-
-    # SQL fragment: Aggregate creator identifiers (ORCID/Wikidata)
-    def attribution_creator_ids_lateral_sql
-      <<-SQL
-        LEFT JOIN LATERAL (
-          SELECT STRING_AGG(identifiers.cached, ' | ' ORDER BY roles.position) AS identifiers
-          FROM roles
-          JOIN people ON people.id = roles.person_id
-          JOIN identifiers ON identifiers.identifier_object_id = people.id
-                          AND identifiers.identifier_object_type = 'Person'
-          WHERE roles.role_object_id = attributions.id
-            AND roles.role_object_type = 'Attribution'
-            AND roles.type = 'AttributionCreator'
-            AND (identifiers.type = 'Identifier::Global::Orcid' OR identifiers.type = 'Identifier::Global::Wikidata')
-        ) creator_ids ON true
-      SQL
-    end
-
-    # SQL fragment: Aggregate copyright holders from Attribution roles
-    def attribution_copyright_holders_lateral_sql
-      delimiter = Shared::IsDwcOccurrence::DWC_DELIMITER
-      <<-SQL
-        LEFT JOIN LATERAL (
-          SELECT STRING_AGG(COALESCE(people.cached, organizations.name), '#{delimiter}' ORDER BY roles.position) AS names
-          FROM roles
-          LEFT JOIN people ON people.id = roles.person_id
-          LEFT JOIN organizations ON organizations.id = roles.organization_id
-          WHERE roles.role_object_id = attributions.id
-            AND roles.role_object_type = 'Attribution'
-            AND roles.type = 'AttributionCopyrightHolder'
-        ) copyright_holders ON true
       SQL
     end
 
@@ -1418,7 +1344,7 @@ module Export::Dwca
       return if image_ids.empty?
 
       conn = ActiveRecord::Base.connection
-      license_case = creative_commons_license_case_sql
+      license_case = Image.dwc_media_license_sql(table_alias: 'img')
       copyright_label = copyright_label_sql
 
       image_copy_sql = <<-SQL
@@ -1483,10 +1409,10 @@ module Export::Dwca
                                        AND uri_id.type = 'Identifier::Global::Uri'
 
           -- Aggregate attribution data using LATERAL joins
-          #{attribution_owners_lateral_sql}
-          #{attribution_creators_lateral_sql}
-          #{attribution_creator_ids_lateral_sql}
-          #{attribution_copyright_holders_lateral_sql}
+          #{Image.dwc_media_owner_sql(table_alias: 'img')}
+          #{Image.dwc_media_creator_sql(table_alias: 'img')}
+          #{Image.dwc_media_creator_identifiers_sql(table_alias: 'img')}
+          #{Image.dwc_media_copyright_holders_sql(table_alias: 'img')}
 
           -- Filter to only images in the collected set (using temp table to avoid huge IN clause)
           INNER JOIN temp_media_image_links img_filter ON img_filter.image_id = img.id
@@ -1509,7 +1435,7 @@ module Export::Dwca
       return if sound_ids.empty?
 
       conn = ActiveRecord::Base.connection
-      license_case = creative_commons_license_case_sql
+      license_case = Sound.dwc_media_license_sql(table_alias: 'snd')
       copyright_label = copyright_label_sql
 
       sound_copy_sql = <<-SQL
@@ -1571,10 +1497,10 @@ module Export::Dwca
                                        AND uri_id.type = 'Identifier::Global::Uri'
 
           -- Aggregate attribution data using LATERAL joins
-          #{attribution_owners_lateral_sql}
-          #{attribution_creators_lateral_sql}
-          #{attribution_creator_ids_lateral_sql}
-          #{attribution_copyright_holders_lateral_sql}
+          #{Sound.dwc_media_owner_sql(table_alias: 'snd')}
+          #{Sound.dwc_media_creator_sql(table_alias: 'snd')}
+          #{Sound.dwc_media_creator_identifiers_sql(table_alias: 'snd')}
+          #{Sound.dwc_media_copyright_holders_sql(table_alias: 'snd')}
 
           -- Filter to only sounds in the collected set (using temp table to avoid huge IN clause)
           INNER JOIN temp_media_sound_links snd_filter ON snd_filter.sound_id = snd.id
