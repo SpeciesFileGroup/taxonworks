@@ -159,14 +159,9 @@ RSpec.describe Export::Dwca::Data, type: :model do
 
     context 'with multiple media items' do
       it 'creates records for all provided image IDs' do
-        # TODO: Fix factory to allow creating multiple images without fingerprint collision
         image1 = FactoryBot.create(:valid_image)
-        image2 = FactoryBot.build(:valid_image)
-        image2.image_file_fingerprint = SecureRandom.hex
-        image2.save!
-        image3 = FactoryBot.build(:valid_image)
-        image3.image_file_fingerprint = SecureRandom.hex
-        image3.save!
+        image2 = FactoryBot.create(:valid_image)
+        image3 = FactoryBot.create(:valid_image)
 
         export_instance.send(:create_media_attribution_temp_tables, [image1.id, image2.id, image3.id], [])
 
