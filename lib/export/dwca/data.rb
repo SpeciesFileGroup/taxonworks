@@ -196,7 +196,13 @@ module Export::Dwca
       # Sanitize string columns by replacing newlines and tabs with spaces (matching Utilities::Strings.sanitize_for_csv behavior)
       select_list = ordered_cols.map do |col|
         if col == 'id'
-          # id is copied from occurrenceID (string), with sanitization
+          # DwCA requires the <id> column specified in meta.xml to be named "id"
+          # (not "occurrenceID") for extension records to join correctly (see
+          # commit 444262503d).
+          # We copy the occurrenceID column to the id so that id's are proper
+          # UUIDs (not db ids), then also include occurrenceID as a proper DwC
+          # term field. This means both columns contain the same values - it
+          # seems to be required in this case.
           "pg_temp.sanitize_csv(\"occurrenceID\") AS \"id\""
         elsif col == 'dwcClass'
           # Header converter: dwcClass -> class, with sanitization
@@ -1677,7 +1683,10 @@ module Export::Dwca
     def meta_fields
       return [] if no_records?
       h = File.open(all_data, &:gets)&.strip&.split("\t")
-      h&.shift # shift because the first column, id, will be specified by hand
+      # Remove "id" column from field list since it's declared separately as
+      # <id> in meta.xml.
+      # The remaining fields become <field> elements.
+      h&.shift
       h || []
     end
 
@@ -1693,7 +1702,9 @@ module Export::Dwca
             xml.files {
               xml.location 'data.tsv'
             }
-            xml.id(index: 0) # Must be named id (?)
+            # The column at the index indicated here must be literally named
+            # "id" in the TSV for DwCA extension joins to work (it seems).
+            xml.id(index: 0)
             meta_fields.each_with_index do |h,i|
               if h =~ /TW:/ # All TW headers have ':'
                 xml.field(index: i+1, term: h)
