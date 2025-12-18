@@ -709,6 +709,7 @@ module Export::Dwca
 
       # Build the query
       # Use collection_objects CTE to ensure all COs are included (even those without DAs)
+      conn.execute("DROP TABLE IF EXISTS temp_predicate_pivot")
       sql = <<-SQL
         CREATE TEMP TABLE temp_predicate_pivot AS
         SELECT
@@ -748,6 +749,7 @@ module Export::Dwca
 
       # Create ordering table based on dwc_occurrences.id order. This ensures we
       # can join and order correctly without loading all IDs into Ruby.
+      conn.execute("DROP TABLE IF EXISTS temp_co_order")
       order_sql = <<-SQL
         CREATE TEMP TABLE temp_co_order AS
         SELECT
@@ -1613,7 +1615,9 @@ module Export::Dwca
       conn = ActiveRecord::Base.connection
       conn.execute("DROP TABLE IF EXISTS temp_scoped_occurrences")
       conn.execute("DROP TABLE IF EXISTS temp_media_image_links")
+      conn.execute("DROP TABLE IF EXISTS temp_media_image_ids")
       conn.execute("DROP TABLE IF EXISTS temp_media_sound_links")
+      conn.execute("DROP TABLE IF EXISTS temp_media_sound_ids")
       conn.execute("DROP TABLE IF EXISTS temp_image_attributions")
       conn.execute("DROP TABLE IF EXISTS temp_sound_attributions")
     end
@@ -1657,6 +1661,10 @@ module Export::Dwca
       export_sounds_to_file(sound_ids, output_file)
 
       # Step 6: Cleanup temp tables
+      # PostgreSQL temp tables persist for the lifetime of the database connection/session.
+      # Rails connection pooling reuses connections across requests/jobs without calling
+      # DISCARD ALL, so temp tables created in one export would still exist when the same
+      # connection runs another export, causing "relation already exists" errors.
       cleanup_media_temp_tables
 
       Rails.logger.debug 'dwca_export: media data generated'
