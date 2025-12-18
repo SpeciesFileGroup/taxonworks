@@ -951,17 +951,18 @@ module Export::Dwca
 
     # SQL fragment: Copyright label "© {year} {authors}"
     # Uses pg_temp.authorship_sentence to format author names grammatically
-    def copyright_label_sql
+    # Expects attribution data from temp_*_attributions table
+    def copyright_label_sql_from_temp(attr_table_alias = 'attr')
       <<-SQL
         CASE
-          WHEN attributions.copyright_year IS NOT NULL OR copyright_holders.names_array IS NOT NULL THEN
+          WHEN #{attr_table_alias}.copyright_year IS NOT NULL OR #{attr_table_alias}.copyright_holder_names_array IS NOT NULL THEN
             '©' ||
             CASE
-              WHEN attributions.copyright_year IS NOT NULL AND copyright_holders.names_array IS NOT NULL
-                THEN attributions.copyright_year::text || ' ' || pg_temp.authorship_sentence(copyright_holders.names_array)
-              WHEN attributions.copyright_year IS NOT NULL
-                THEN attributions.copyright_year::text
-              ELSE pg_temp.authorship_sentence(copyright_holders.names_array)
+              WHEN #{attr_table_alias}.copyright_year IS NOT NULL AND #{attr_table_alias}.copyright_holder_names_array IS NOT NULL
+                THEN #{attr_table_alias}.copyright_year::text || ' ' || pg_temp.authorship_sentence(#{attr_table_alias}.copyright_holder_names_array)
+              WHEN #{attr_table_alias}.copyright_year IS NOT NULL
+                THEN #{attr_table_alias}.copyright_year::text
+              ELSE pg_temp.authorship_sentence(#{attr_table_alias}.copyright_holder_names_array)
             END
           ELSE NULL
         END
@@ -1367,8 +1368,7 @@ module Export::Dwca
       return if image_ids.empty?
 
       conn = ActiveRecord::Base.connection
-      license_case = Image.dwc_media_license_sql(table_alias: 'img')
-      copyright_label = copyright_label_sql
+      copyright_label = copyright_label_sql_from_temp('attr')
 
       image_copy_sql = <<-SQL
         COPY (
@@ -1377,13 +1377,13 @@ module Export::Dwca
             #{media_identifier_sql(Image, 'img')} AS identifier,
             'Image' AS \"dc:type\",
             img.id AS \"providerManagedID\",
-            #{license_case} AS \"dc:rights\",
-            #{license_case} AS \"dcterms:rights\",
-            pg_temp.sanitize_csv(owners.names) AS \"Owner\",
+            pg_temp.sanitize_csv(attr.license_url) AS \"dc:rights\",
+            pg_temp.sanitize_csv(attr.license_url) AS \"dcterms:rights\",
+            pg_temp.sanitize_csv(attr.owner_names) AS \"Owner\",
             NULL AS \"UsageTerms\",
             pg_temp.sanitize_csv(#{copyright_label}) AS \"Credit\",
-            pg_temp.sanitize_csv(creators.names) AS \"dc:creator\",
-            pg_temp.sanitize_csv(creator_ids.identifiers) AS \"dcterms:creator\",
+            pg_temp.sanitize_csv(attr.creator_names) AS \"dc:creator\",
+            pg_temp.sanitize_csv(attr.creator_identifiers) AS \"dcterms:creator\",
             pg_temp.sanitize_csv(dep.figure_label) AS description,
             pg_temp.sanitize_csv(dep.caption) AS caption,
             -- Compute associatedSpecimenReference directly from collection object ID for this row
@@ -1419,9 +1419,8 @@ module Export::Dwca
           -- Join temp table for API links
           LEFT JOIN temp_media_image_links links ON links.image_id = img.id
 
-          -- Join attribution data
-          LEFT JOIN attributions ON attributions.attribution_object_id = img.id
-                                 AND attributions.attribution_object_type = 'Image'
+          -- Join pre-computed attribution data from temp table
+          LEFT JOIN temp_image_attributions attr ON attr.image_id = img.id
 
           -- Join identifiers for UUID and URI
           LEFT JOIN identifiers uuid_id ON uuid_id.identifier_object_id = img.id
@@ -1430,12 +1429,6 @@ module Export::Dwca
           LEFT JOIN identifiers uri_id ON uri_id.identifier_object_id = img.id
                                        AND uri_id.identifier_object_type = 'Image'
                                        AND uri_id.type = 'Identifier::Global::Uri'
-
-          -- Aggregate attribution data using LATERAL joins
-          #{Image.dwc_media_owner_sql(table_alias: 'img')}
-          #{Image.dwc_media_creator_sql(table_alias: 'img')}
-          #{Image.dwc_media_creator_identifiers_sql(table_alias: 'img')}
-          #{Image.dwc_media_copyright_holders_sql(table_alias: 'img')}
 
           -- Filter to only images in the collected set (using temp table to avoid huge IN clause)
           INNER JOIN temp_media_image_links img_filter ON img_filter.image_id = img.id
@@ -1458,8 +1451,7 @@ module Export::Dwca
       return if sound_ids.empty?
 
       conn = ActiveRecord::Base.connection
-      license_case = Sound.dwc_media_license_sql(table_alias: 'snd')
-      copyright_label = copyright_label_sql
+      copyright_label = copyright_label_sql_from_temp('attr')
 
       sound_copy_sql = <<-SQL
         COPY (
@@ -1468,13 +1460,13 @@ module Export::Dwca
             #{media_identifier_sql(Sound, 'snd')} AS identifier,
             'Sound' AS \"dc:type\",
             snd.id AS \"providerManagedID\",
-            #{license_case} AS \"dc:rights\",
-            #{license_case} AS \"dcterms:rights\",
-            pg_temp.sanitize_csv(owners.names) AS \"Owner\",
+            pg_temp.sanitize_csv(attr.license_url) AS \"dc:rights\",
+            pg_temp.sanitize_csv(attr.license_url) AS \"dcterms:rights\",
+            pg_temp.sanitize_csv(attr.owner_names) AS \"Owner\",
             NULL AS \"UsageTerms\",
             pg_temp.sanitize_csv(#{copyright_label}) AS \"Credit\",
-            pg_temp.sanitize_csv(creators.names) AS \"dc:creator\",
-            pg_temp.sanitize_csv(creator_ids.identifiers) AS \"dcterms:creator\",
+            pg_temp.sanitize_csv(attr.creator_names) AS \"dc:creator\",
+            pg_temp.sanitize_csv(attr.creator_identifiers) AS \"dcterms:creator\",
             pg_temp.sanitize_csv(snd.name) AS description,
             NULL AS caption,
             -- Compute associatedSpecimenReference directly from collection object ID for this row
@@ -1507,9 +1499,8 @@ module Export::Dwca
           -- Join temp table for API links
           LEFT JOIN temp_media_sound_links links ON links.sound_id = snd.id
 
-          -- Join attribution data
-          LEFT JOIN attributions ON attributions.attribution_object_id = snd.id
-                                 AND attributions.attribution_object_type = 'Sound'
+          -- Join pre-computed attribution data from temp table
+          LEFT JOIN temp_sound_attributions attr ON attr.sound_id = snd.id
 
           -- Join identifiers for UUID and URI
           LEFT JOIN identifiers uuid_id ON uuid_id.identifier_object_id = snd.id
@@ -1518,12 +1509,6 @@ module Export::Dwca
           LEFT JOIN identifiers uri_id ON uri_id.identifier_object_id = snd.id
                                        AND uri_id.identifier_object_type = 'Sound'
                                        AND uri_id.type = 'Identifier::Global::Uri'
-
-          -- Aggregate attribution data using LATERAL joins
-          #{Sound.dwc_media_owner_sql(table_alias: 'snd')}
-          #{Sound.dwc_media_creator_sql(table_alias: 'snd')}
-          #{Sound.dwc_media_creator_identifiers_sql(table_alias: 'snd')}
-          #{Sound.dwc_media_copyright_holders_sql(table_alias: 'snd')}
 
           -- Filter to only sounds in the collected set (using temp table to avoid huge IN clause)
           INNER JOIN temp_media_sound_links snd_filter ON snd_filter.sound_id = snd.id
@@ -1540,12 +1525,76 @@ module Export::Dwca
       end
     end
 
+    # Creates temporary tables with pre-aggregated attribution data for images and sounds
+    # This avoids expensive LATERAL joins in the main export query
+    def create_media_attribution_temp_tables(image_ids, sound_ids)
+      conn = ActiveRecord::Base.connection
+
+      # Create temp table for image attributions
+      unless image_ids.empty?
+        # Get the license SQL that converts license keys to URLs
+        license_sql = Image.dwc_media_license_sql(table_alias: 'img')
+
+        conn.execute("DROP TABLE IF EXISTS temp_image_attributions")
+        conn.execute(<<~SQL)
+          CREATE TEMP TABLE temp_image_attributions AS
+          SELECT
+            img.id AS image_id,
+            #{license_sql} AS license_url,
+            attributions.copyright_year,
+            owners.names AS owner_names,
+            creators.names AS creator_names,
+            creator_ids.ids AS creator_identifiers,
+            copyright_holders.names_array AS copyright_holder_names_array
+          FROM images img
+          LEFT JOIN attributions ON attributions.attribution_object_id = img.id
+            AND attributions.attribution_object_type = 'Image'
+          #{Image.dwc_media_owner_sql(table_alias: 'img')}
+          #{Image.dwc_media_creator_sql(table_alias: 'img')}
+          #{Image.dwc_media_creator_identifiers_sql(table_alias: 'img')}
+          #{Image.dwc_media_copyright_holders_sql(table_alias: 'img')}
+          WHERE img.id IN (#{image_ids.join(',')})
+        SQL
+        conn.execute("CREATE INDEX idx_temp_image_attr ON temp_image_attributions(image_id)")
+      end
+
+      # Create temp table for sound attributions
+      unless sound_ids.empty?
+        # Get the license SQL that converts license keys to URLs
+        license_sql = Sound.dwc_media_license_sql(table_alias: 'snd')
+
+        conn.execute("DROP TABLE IF EXISTS temp_sound_attributions")
+        conn.execute(<<~SQL)
+          CREATE TEMP TABLE temp_sound_attributions AS
+          SELECT
+            snd.id AS sound_id,
+            #{license_sql} AS license_url,
+            attributions.copyright_year,
+            owners.names AS owner_names,
+            creators.names AS creator_names,
+            creator_ids.ids AS creator_identifiers,
+            copyright_holders.names_array AS copyright_holder_names_array
+          FROM sounds snd
+          LEFT JOIN attributions ON attributions.attribution_object_id = snd.id
+            AND attributions.attribution_object_type = 'Sound'
+          #{Sound.dwc_media_owner_sql(table_alias: 'snd')}
+          #{Sound.dwc_media_creator_sql(table_alias: 'snd')}
+          #{Sound.dwc_media_creator_identifiers_sql(table_alias: 'snd')}
+          #{Sound.dwc_media_copyright_holders_sql(table_alias: 'snd')}
+          WHERE snd.id IN (#{sound_ids.join(',')})
+        SQL
+        conn.execute("CREATE INDEX idx_temp_sound_attr ON temp_sound_attributions(sound_id)")
+      end
+    end
+
     # Cleans up temporary tables created for media export
     def cleanup_media_temp_tables
       conn = ActiveRecord::Base.connection
       conn.execute("DROP TABLE IF EXISTS temp_scoped_occurrences")
       conn.execute("DROP TABLE IF EXISTS temp_media_image_links")
       conn.execute("DROP TABLE IF EXISTS temp_media_sound_links")
+      conn.execute("DROP TABLE IF EXISTS temp_image_attributions")
+      conn.execute("DROP TABLE IF EXISTS temp_sound_attributions")
     end
 
     # Optimized media extension export using PostgreSQL COPY TO
@@ -1572,7 +1621,10 @@ module Export::Dwca
       # Step 2: Create temp table with scoped occurrence IDs to prevent orphaned media records
       create_scoped_occurrence_temp_table
 
-      # Step 3: Pre-compute API links using Ruby (required for URL shortener)
+      # Step 3: Pre-compute attribution data to avoid expensive LATERAL joins
+      create_media_attribution_temp_tables(image_ids, sound_ids)
+
+      # Step 4: Pre-compute API links using Ruby (required for URL shortener)
       create_media_api_link_tables(image_ids, sound_ids)
 
       # Step 4: Write header and stream media data to output file
