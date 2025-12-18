@@ -185,6 +185,9 @@ module Export::Dwca
     def csv(output_file:)
       conn = ActiveRecord::Base.connection
 
+      # Create temporary function for sanitizing CSV values
+      create_csv_sanitize_function
+
       target_cols = ::DwcOccurrence.target_columns
       excluded = ::DwcOccurrence.excluded_columns
 
@@ -202,17 +205,17 @@ module Export::Dwca
       select_list = ordered_cols.map do |col|
         if col == 'id'
           # id is copied from occurrenceID (string), with sanitization
-          "REGEXP_REPLACE(\"occurrenceID\", E'[\\n\\t]', ' ', 'g') AS \"id\""
+          "pg_temp.sanitize_csv(\"occurrenceID\") AS \"id\""
         elsif col == 'dwcClass'
           # Header converter: dwcClass -> class, with sanitization
-          "REGEXP_REPLACE(\"dwcClass\", E'[\\n\\t]', ' ', 'g') AS \"class\""
+          "pg_temp.sanitize_csv(\"dwcClass\") AS \"class\""
         else
           column_info = column_types[col]
           is_string_column = column_info && [:string, :text].include?(column_info.type)
 
           if is_string_column
             # String columns - sanitize by replacing newlines and tabs
-            "REGEXP_REPLACE(#{conn.quote_column_name(col)}, E'[\\n\\t]', ' ', 'g') AS #{conn.quote_column_name(col)}"
+            "pg_temp.sanitize_csv(#{conn.quote_column_name(col)}) AS #{conn.quote_column_name(col)}"
           else
             # Non-string columns (integer, decimal, date, etc.) - no sanitization needed
             conn.quote_column_name(col)
@@ -238,9 +241,22 @@ module Export::Dwca
       Rails.logger.debug 'dwca_export: csv data generated'
     end
 
+    # Creates a temporary PostgreSQL function for sanitizing CSV values
+    # The function removes newlines and tabs from text, replacing them with spaces.
+    # The function exists only for the current database session.
+    def create_csv_sanitize_function
+      conn = ActiveRecord::Base.connection
+      conn.execute(<<~SQL)
+        CREATE OR REPLACE FUNCTION pg_temp.sanitize_csv(text)
+        RETURNS text AS $$
+          SELECT REGEXP_REPLACE($1, E'[\\n\\t]', ' ', 'g')
+        $$ LANGUAGE SQL IMMUTABLE;
+      SQL
+    end
+
     # Find which columns in the dwc_occurrence table have non-NULL, non-empty values
     # This implements the trim_columns: true behavior
-    # Note: We check for non-empty AFTER sanitization (REGEXP_REPLACE)
+    # Note: We check for non-empty AFTER sanitization
     def columns_with_data(columns)
       return [] if columns.empty?
 
@@ -260,7 +276,7 @@ module Export::Dwca
 
         if is_string_column
           # String columns - check if any non-empty values after sanitization
-          sanitized = "REGEXP_REPLACE(#{quoted}, E'[\\n\\t]', ' ', 'g')"
+          sanitized = "pg_temp.sanitize_csv(#{quoted})"
           "CASE WHEN COUNT(CASE WHEN #{sanitized} IS NOT NULL AND #{sanitized} != '' THEN 1 END) > 0 THEN #{conn.quote(col)} ELSE NULL END AS check_#{idx}"
         else
           # Non-string columns - just check if not NULL
@@ -660,14 +676,14 @@ module Export::Dwca
       co_case_statements = co_pred_names.map do |cvt_id, pred_name|
         # Quote the column name to handle special characters.
         quoted_name = conn.quote_column_name(pred_name)
-        "MAX(REGEXP_REPLACE(co_da.value, E'[\\n\\t]', ' ', 'g')) FILTER (WHERE co_da.controlled_vocabulary_term_id = #{cvt_id}) AS #{quoted_name}"
+        "MAX(pg_temp.sanitize_csv(co_da.value)) FILTER (WHERE co_da.controlled_vocabulary_term_id = #{cvt_id}) AS #{quoted_name}"
       end
 
       # Build aggregate statements for each CE predicate.
       # Sanitize values by replacing newlines and tabs with spaces.
       ce_case_statements = ce_pred_names.map do |cvt_id, pred_name|
         quoted_name = conn.quote_column_name(pred_name)
-        "MAX(REGEXP_REPLACE(ce_da.value, E'[\\n\\t]', ' ', 'g')) FILTER (WHERE ce_da.controlled_vocabulary_term_id = #{cvt_id}) AS #{quoted_name}"
+        "MAX(pg_temp.sanitize_csv(ce_da.value)) FILTER (WHERE ce_da.controlled_vocabulary_term_id = #{cvt_id}) AS #{quoted_name}"
       end
 
       all_case_statements = (co_case_statements + ce_case_statements).join(",\n      ")
@@ -734,6 +750,9 @@ module Export::Dwca
 
     def predicate_data
       return @predicate_data if @predicate_data
+
+      # Create temporary function for sanitizing CSV values
+      create_csv_sanitize_function
 
       # Get all possible predicates from configuration
       all_possible_predicates
@@ -1363,26 +1382,25 @@ module Export::Dwca
       image_copy_sql = <<-SQL
         COPY (
           SELECT
-            REGEXP_REPLACE(dwc.\"occurrenceID\", E'[\\n\\t]', ' ', 'g') AS coreid,
-            REGEXP_REPLACE(
+            pg_temp.sanitize_csv(dwc.\"occurrenceID\") AS coreid,
+            pg_temp.sanitize_csv(
               CASE
                 WHEN uuid_id.identifier IS NOT NULL THEN 'image:' || uuid_id.identifier
                 WHEN uri_id.identifier IS NOT NULL THEN 'image:' || uri_id.identifier
                 ELSE 'image:' || img.id::text
-              END,
-              E'[\\n\\t]', ' ', 'g'
+              END
             ) AS identifier,
             'Image' AS \"dc:type\",
             img.id AS \"providerManagedID\",
             #{license_case} AS \"dc:rights\",
             #{license_case} AS \"dcterms:rights\",
-            REGEXP_REPLACE(owners.names, E'[\\n\\t]', ' ', 'g') AS \"Owner\",
+            pg_temp.sanitize_csv(owners.names) AS \"Owner\",
             NULL AS \"UsageTerms\",
-            REGEXP_REPLACE(#{copyright_label}, E'[\\n\\t]', ' ', 'g') AS \"Credit\",
-            REGEXP_REPLACE(creators.names, E'[\\n\\t]', ' ', 'g') AS \"dc:creator\",
-            REGEXP_REPLACE(creator_ids.identifiers, E'[\\n\\t]', ' ', 'g') AS \"dcterms:creator\",
-            REGEXP_REPLACE(dep.figure_label, E'[\\n\\t]', ' ', 'g') AS description,
-            REGEXP_REPLACE(dep.caption, E'[\\n\\t]', ' ', 'g') AS caption,
+            pg_temp.sanitize_csv(#{copyright_label}) AS \"Credit\",
+            pg_temp.sanitize_csv(creators.names) AS \"dc:creator\",
+            pg_temp.sanitize_csv(creator_ids.identifiers) AS \"dcterms:creator\",
+            pg_temp.sanitize_csv(dep.figure_label) AS description,
+            pg_temp.sanitize_csv(dep.caption) AS caption,
             -- Compute associatedSpecimenReference directly from collection object ID for this row
             CASE
               WHEN co.id IS NOT NULL THEN '#{Shared::Api.host}/api/v1/collection_objects/' || co.id
@@ -1392,9 +1410,9 @@ module Export::Dwca
               ELSE NULL
             END AS \"associatedSpecimenReference\",
             NULL AS \"associatedObservationReference\",
-            REGEXP_REPLACE(links.access_uri, E'[\\n\\t]', ' ', 'g') AS \"accessURI\",
-            REGEXP_REPLACE(img.image_file_content_type, E'[\\n\\t]', ' ', 'g') AS \"dc:format\",
-            REGEXP_REPLACE(links.further_information_url, E'[\\n\\t]', ' ', 'g') AS \"furtherInformationURL\",
+            pg_temp.sanitize_csv(links.access_uri) AS \"accessURI\",
+            pg_temp.sanitize_csv(img.image_file_content_type) AS \"dc:format\",
+            pg_temp.sanitize_csv(links.further_information_url) AS \"furtherInformationURL\",
             img.width AS \"PixelXDimension\",
             img.height AS \"PixelYDimension\"
           FROM images img
@@ -1467,25 +1485,24 @@ module Export::Dwca
       sound_copy_sql = <<-SQL
         COPY (
           SELECT
-            REGEXP_REPLACE(dwc.\"occurrenceID\", E'[\\n\\t]', ' ', 'g') AS coreid,
-            REGEXP_REPLACE(
+            pg_temp.sanitize_csv(dwc.\"occurrenceID\") AS coreid,
+            pg_temp.sanitize_csv(
               CASE
                 WHEN uuid_id.identifier IS NOT NULL THEN 'sound:' || uuid_id.identifier
                 WHEN uri_id.identifier IS NOT NULL THEN 'sound:' || uri_id.identifier
                 ELSE 'sound:' || snd.id::text
-              END,
-              E'[\\n\\t]', ' ', 'g'
+              END
             ) AS identifier,
             'Sound' AS \"dc:type\",
             snd.id AS \"providerManagedID\",
             #{license_case} AS \"dc:rights\",
             #{license_case} AS \"dcterms:rights\",
-            REGEXP_REPLACE(owners.names, E'[\\n\\t]', ' ', 'g') AS \"Owner\",
+            pg_temp.sanitize_csv(owners.names) AS \"Owner\",
             NULL AS \"UsageTerms\",
-            REGEXP_REPLACE(#{copyright_label}, E'[\\n\\t]', ' ', 'g') AS \"Credit\",
-            REGEXP_REPLACE(creators.names, E'[\\n\\t]', ' ', 'g') AS \"dc:creator\",
-            REGEXP_REPLACE(creator_ids.identifiers, E'[\\n\\t]', ' ', 'g') AS \"dcterms:creator\",
-            REGEXP_REPLACE(snd.name, E'[\\n\\t]', ' ', 'g') AS description,
+            pg_temp.sanitize_csv(#{copyright_label}) AS \"Credit\",
+            pg_temp.sanitize_csv(creators.names) AS \"dc:creator\",
+            pg_temp.sanitize_csv(creator_ids.identifiers) AS \"dcterms:creator\",
+            pg_temp.sanitize_csv(snd.name) AS description,
             NULL AS caption,
             -- Compute associatedSpecimenReference directly from collection object ID for this row
             CASE
@@ -1494,9 +1511,9 @@ module Export::Dwca
               ELSE NULL
             END AS \"associatedSpecimenReference\",
             NULL AS \"associatedObservationReference\",
-            REGEXP_REPLACE(links.access_uri, E'[\\n\\t]', ' ', 'g') AS \"accessURI\",
-            REGEXP_REPLACE(asb.content_type, E'[\\n\\t]', ' ', 'g') AS \"dc:format\",
-            REGEXP_REPLACE(links.further_information_url, E'[\\n\\t]', ' ', 'g') AS \"furtherInformationURL\",
+            pg_temp.sanitize_csv(links.access_uri) AS \"accessURI\",
+            pg_temp.sanitize_csv(asb.content_type) AS \"dc:format\",
+            pg_temp.sanitize_csv(links.further_information_url) AS \"furtherInformationURL\",
             NULL AS \"PixelXDimension\",
             NULL AS \"PixelYDimension\"
           FROM sounds snd
@@ -1567,6 +1584,9 @@ module Export::Dwca
     # ~10x faster than the original Ruby iteration approach
     def media_extension_optimized(output_file)
       Rails.logger.debug 'dwca_export: media_extension_optimized start'
+
+      # Create temporary function for sanitizing CSV values
+      create_csv_sanitize_function
 
       # Step 1: Collect all media IDs from collection objects and field occurrences
       media_ids = collect_media_ids
