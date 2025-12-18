@@ -39,6 +39,7 @@ RSpec.describe Export::Dwca::Data, type: :model do
         FactoryBot.create(:role, type: 'AttributionOwner', role_object: attribution, person: person1, position: 1)
         FactoryBot.create(:role, type: 'AttributionOwner', role_object: attribution, person: person2, position: 2)
 
+        export_instance.send(:populate_temp_image_api_links_table, [image.id])
         export_instance.send(:create_media_attribution_temp_tables, [image.id], [])
 
         result = conn.select_one("SELECT * FROM temp_image_attributions WHERE image_id = #{image.id}")
@@ -53,6 +54,7 @@ RSpec.describe Export::Dwca::Data, type: :model do
         FactoryBot.create(:role, type: 'AttributionCreator', role_object: attribution, person: person1, position: 1)
         FactoryBot.create(:role, type: 'AttributionCreator', role_object: attribution, person: person2, position: 2)
 
+        export_instance.send(:populate_temp_image_api_links_table, [image.id])
         export_instance.send(:create_media_attribution_temp_tables, [image.id], [])
 
         result = conn.select_one("SELECT * FROM temp_image_attributions WHERE image_id = #{image.id}")
@@ -64,6 +66,7 @@ RSpec.describe Export::Dwca::Data, type: :model do
         license_key = CREATIVE_COMMONS_LICENSES.keys.first
         attribution = FactoryBot.create(:valid_attribution, attribution_object: image, license: license_key)
 
+        export_instance.send(:populate_temp_image_api_links_table, [image.id])
         export_instance.send(:create_media_attribution_temp_tables, [image.id], [])
 
         result = conn.select_one("SELECT * FROM temp_image_attributions WHERE image_id = #{image.id}")
@@ -80,6 +83,7 @@ RSpec.describe Export::Dwca::Data, type: :model do
         FactoryBot.create(:role, type: 'AttributionCreator', role_object: attribution, person: person1, position: 1)
         FactoryBot.create(:role, type: 'AttributionCreator', role_object: attribution, person: person2, position: 2)
 
+        export_instance.send(:populate_temp_image_api_links_table, [image.id])
         export_instance.send(:create_media_attribution_temp_tables, [image.id], [])
 
         result = conn.select_one("SELECT * FROM temp_image_attributions WHERE image_id = #{image.id}")
@@ -96,6 +100,7 @@ RSpec.describe Export::Dwca::Data, type: :model do
         FactoryBot.create(:role, type: 'AttributionCopyrightHolder', role_object: attribution, person: person2, position: 2)
         FactoryBot.create(:role, type: 'AttributionCopyrightHolder', role_object: attribution, person: person3, position: 3)
 
+        export_instance.send(:populate_temp_image_api_links_table, [image.id])
         export_instance.send(:create_media_attribution_temp_tables, [image.id], [])
 
         result = conn.select_one("SELECT * FROM temp_image_attributions WHERE image_id = #{image.id}")
@@ -107,6 +112,7 @@ RSpec.describe Export::Dwca::Data, type: :model do
       it 'handles images with no attribution data' do
         image = FactoryBot.create(:valid_image)
 
+        export_instance.send(:populate_temp_image_api_links_table, [image.id])
         export_instance.send(:create_media_attribution_temp_tables, [image.id], [])
 
         result = conn.select_one("SELECT * FROM temp_image_attributions WHERE image_id = #{image.id}")
@@ -125,6 +131,7 @@ RSpec.describe Export::Dwca::Data, type: :model do
         FactoryBot.create(:role, type: 'AttributionOwner', role_object: attribution, person: person, position: 1)
         AttributionOwner.create!(role_object: attribution, organization: org, position: 2)
 
+        export_instance.send(:populate_temp_sound_api_links_table, [sound.id])
         export_instance.send(:create_media_attribution_temp_tables, [], [sound.id])
 
         result = conn.select_one("SELECT * FROM temp_sound_attributions WHERE sound_id = #{sound.id}")
@@ -139,6 +146,7 @@ RSpec.describe Export::Dwca::Data, type: :model do
         FactoryBot.create(:role, type: 'AttributionCreator', role_object: attribution, person: person1, position: 1)
         FactoryBot.create(:role, type: 'AttributionCreator', role_object: attribution, person: person2, position: 2)
 
+        export_instance.send(:populate_temp_sound_api_links_table, [sound.id])
         export_instance.send(:create_media_attribution_temp_tables, [], [sound.id])
 
         result = conn.select_one("SELECT * FROM temp_sound_attributions WHERE sound_id = #{sound.id}")
@@ -148,6 +156,7 @@ RSpec.describe Export::Dwca::Data, type: :model do
       it 'handles sounds with no attribution data' do
         sound = FactoryBot.create(:valid_sound)
 
+        export_instance.send(:populate_temp_sound_api_links_table, [sound.id])
         export_instance.send(:create_media_attribution_temp_tables, [], [sound.id])
 
         result = conn.select_one("SELECT * FROM temp_sound_attributions WHERE sound_id = #{sound.id}")
@@ -163,6 +172,7 @@ RSpec.describe Export::Dwca::Data, type: :model do
         image2 = FactoryBot.create(:valid_image)
         image3 = FactoryBot.create(:valid_image)
 
+        export_instance.send(:populate_temp_image_api_links_table, [image1.id, image2.id, image3.id])
         export_instance.send(:create_media_attribution_temp_tables, [image1.id, image2.id, image3.id], [])
 
         count = conn.select_value("SELECT COUNT(*) FROM temp_image_attributions")
@@ -173,6 +183,7 @@ RSpec.describe Export::Dwca::Data, type: :model do
         image = FactoryBot.create(:valid_image)
         sound = FactoryBot.create(:valid_sound)
 
+        export_instance.send(:create_media_api_link_tables, [image.id], [sound.id])
         export_instance.send(:create_media_attribution_temp_tables, [image.id], [sound.id])
 
         image_count = conn.select_value("SELECT COUNT(*) FROM temp_image_attributions")

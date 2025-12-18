@@ -1574,7 +1574,7 @@ module Export::Dwca
           #{Image.dwc_media_creator_sql(table_alias: 'img')}
           #{Image.dwc_media_creator_identifiers_sql(table_alias: 'img')}
           #{Image.dwc_media_copyright_holders_sql(table_alias: 'img')}
-          WHERE img.id IN (#{image_ids.join(',')})
+          JOIN temp_media_image_ids ids ON ids.image_id = img.id
         SQL
         conn.execute("CREATE INDEX idx_temp_image_attr ON temp_image_attributions(image_id)")
       end
@@ -1602,7 +1602,7 @@ module Export::Dwca
           #{Sound.dwc_media_creator_sql(table_alias: 'snd')}
           #{Sound.dwc_media_creator_identifiers_sql(table_alias: 'snd')}
           #{Sound.dwc_media_copyright_holders_sql(table_alias: 'snd')}
-          WHERE snd.id IN (#{sound_ids.join(',')})
+          JOIN temp_media_sound_ids ids ON ids.sound_id = snd.id
         SQL
         conn.execute("CREATE INDEX idx_temp_sound_attr ON temp_sound_attributions(sound_id)")
       end
@@ -1642,20 +1642,21 @@ module Export::Dwca
       # Step 2: Create temp table with scoped occurrence IDs to prevent orphaned media records
       create_scoped_occurrence_temp_table
 
-      # Step 3: Pre-compute attribution data to avoid expensive LATERAL joins
-      create_media_attribution_temp_tables(image_ids, sound_ids)
-
-      # Step 4: Pre-compute API links using Ruby (required for URL shortener)
+      # Step 3: Create temp tables with media IDs and pre-compute API links using Ruby (required for URL shortener)
       create_media_api_link_tables(image_ids, sound_ids)
 
-      # Step 4: Write header and stream media data to output file
+      # Step 4: Pre-compute attribution data to avoid expensive LATERAL joins
+      # Uses temp_media_image_ids and temp_media_sound_ids tables created in step 3
+      create_media_attribution_temp_tables(image_ids, sound_ids)
+
+      # Step 5: Write header and stream media data to output file
       Rails.logger.debug 'dwca_export: executing COPY TO for media data'
       output_file.write(Export::CSV::Dwc::Extension::Media::HEADERS.join("\t") + "\n")
 
       export_images_to_file(image_ids, output_file)
       export_sounds_to_file(sound_ids, output_file)
 
-      # Step 5: Cleanup temp tables
+      # Step 6: Cleanup temp tables
       cleanup_media_temp_tables
 
       Rails.logger.debug 'dwca_export: media data generated'
