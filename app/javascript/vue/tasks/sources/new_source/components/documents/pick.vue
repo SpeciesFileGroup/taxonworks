@@ -16,9 +16,7 @@
 </template>
 
 <script setup>
-import { ActionNames } from '../../store/actions/actions'
-import { GetterNames } from '../../store/getters/getters'
-import { useStore } from 'vuex'
+import { useSourceStore } from '../../store'
 import { useTemplateRef, computed } from 'vue'
 import { Document } from '@/routes/endpoints'
 import VAutocomplete from '@/components/ui/Autocomplete'
@@ -36,12 +34,10 @@ const props = defineProps({
   }
 })
 
-const store = useStore()
+const store = useSourceStore()
 const confirmationModalRef = useTemplateRef('confirmationModal')
 
-const documents = computed(() =>
-  store.getters[GetterNames.GetDocumentations].map((d) => d.document_id)
-)
+const documents = computed(() => store.documentation.map((d) => d.document_id))
 
 async function createNew({ id }) {
   const { body: document } = await Document.find(id)
@@ -56,7 +52,7 @@ async function createNew({ id }) {
     }
   }
 
-  store.dispatch(ActionNames.SaveDocumentation, {
+  store.saveDocumentation({
     document_id: id,
     annotated_global_entity: decodeURIComponent(props.source.global_id)
   })

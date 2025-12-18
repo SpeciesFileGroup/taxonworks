@@ -1,26 +1,14 @@
 <template>
-  <textarea v-model="verbatim" />
+  <textarea
+    v-model="store.source.verbatim"
+    @change="() => (store.source.isUnsaved = true)"
+  />
 </template>
 
-<script>
-import { GetterNames } from '../../store/getters/getters'
-import { MutationNames } from '../../store/mutations/mutations'
+<script setup>
+import { useSourceStore } from '../../store'
 
-export default {
-  computed: {
-    source() {
-      return this.$store.getters[GetterNames.GetSource]
-    },
-    verbatim: {
-      get() {
-        return this.$store.getters[GetterNames.GetVerbatim]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetVerbatim, value)
-      }
-    }
-  }
-}
+const store = useSourceStore()
 </script>
 
 <style scoped>

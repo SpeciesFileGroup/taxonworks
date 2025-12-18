@@ -1,19 +1,22 @@
 <template>
-  <div class="right-section">
+  <div
+    ref="root"
+    class="right-section"
+  >
     <div
       class="overflow-y-auto"
       ref="section"
     >
-      <documents-component
+      <VDocuments
         ref="documents"
         class="panel"
       />
-      <soft-validation
-        v-if="validations"
+      <SoftValidation
+        v-if="store.softValidation"
         class="margin-medium-top soft-validation-panel"
-        :validations="validations"
+        :validations="store.softValidation"
       />
-      <matches-component
+      <PanelMatches
         class="margin-medium-top"
         ref="matches"
       />
@@ -21,71 +24,52 @@
   </div>
 </template>
 
-<script>
-import DocumentsComponent from './documents'
+<script setup>
+import { onBeforeUnmount, onMounted, useTemplateRef } from 'vue'
+import { useSourceStore } from '../store'
+import VDocuments from './documents'
 import SoftValidation from '@/components/soft_validations/panel'
-import MatchesComponent from './matches'
-import { GetterNames } from '../store/getters/getters'
+import PanelMatches from './PanelMatches.vue'
 
-export default {
-  components: {
-    SoftValidation,
-    MatchesComponent,
-    DocumentsComponent
-  },
-  computed: {
-    validations() {
-      return this.$store.getters[GetterNames.GetSoftValidation]
-    }
-  },
-  data() {
-    return {
-      tabs: [
-        {
-          label: 'Matches',
-          value: 'MatchesComponent'
-        },
-        {
-          label: 'Soft validation',
-          value: 'SoftValidation'
-        }
-      ],
-      componentSelected: 'MatchesComponent'
-    }
-  },
-  mounted() {
-    window.addEventListener('scroll', this.scrollBox)
-    this.scrollBox()
-  },
-  methods: {
-    scrollBox() {
-      const { documents, matches, section } = this.$refs
-      const element = this.$el
-      const sectionSize = section.getBoundingClientRect()
-      const documentsSize = documents.$el.getBoundingClientRect()
-      const matchesSize = matches.$el.getBoundingClientRect()
-      const validationsSize =
-        document
-          .querySelector('.soft-validation-panel')
-          ?.getBoundingClientRect()?.height || 0
+const store = useSourceStore()
+const sectionRef = useTemplateRef('section')
+const documentsRef = useTemplateRef('documents')
+const matchesRef = useTemplateRef('matches')
+const rootRef = useTemplateRef('root')
 
-      const totalHeight =
-        documentsSize.height + validationsSize + matchesSize.height
-      const newHeight =
-        window.innerHeight - sectionSize.top < totalHeight
-          ? `${window.innerHeight - sectionSize.top}px`
-          : 'auto'
+function scrollBox() {
+  const element = rootRef.value
+  const sectionSize = sectionRef.value.getBoundingClientRect()
+  const documentsSize = documentsRef.value.$el.getBoundingClientRect()
+  const matchesSize = matchesRef.value.$el.getBoundingClientRect()
+  const validationsSize =
+    document.querySelector('.soft-validation-panel')?.getBoundingClientRect()
+      ?.height || 0
 
-      if (element.offsetTop < document.documentElement.scrollTop + 50) {
-        this.$refs.section.classList.add('float-box')
-      } else {
-        this.$refs.section.classList.remove('float-box')
-      }
+  const totalHeight =
+    documentsSize.height + validationsSize + matchesSize.height
+  const newHeight =
+    window.innerHeight - sectionSize.top < totalHeight
+      ? `${window.innerHeight - sectionSize.top}px`
+      : 'auto'
 
-      this.$refs.section.style.height = newHeight
-    }
+  if (element.offsetTop < document.documentElement.scrollTop + 50) {
+    sectionRef.value.classList.add('float-box')
+  } else {
+    sectionRef.value.classList.remove('float-box')
   }
+
+  sectionRef.value.style.height = newHeight
 }
+
+onMounted(() => {
+  window.addEventListener('scroll', scrollBox)
+  scrollBox()
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', scrollBox)
+})
 </script>
 
 <style lang="scss" scoped>
