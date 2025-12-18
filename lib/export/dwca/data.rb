@@ -1403,10 +1403,10 @@ module Export::Dwca
             pg_temp.sanitize_csv(dep.caption) AS caption,
             -- Compute associatedSpecimenReference directly from collection object ID for this row
             CASE
-              WHEN co.id IS NOT NULL THEN '#{Shared::Api.host}/api/v1/collection_objects/' || co.id
-              WHEN fo.id IS NOT NULL THEN '#{Shared::Api.host}/api/v1/field_occurrences/' || fo.id
-              WHEN co_obs.id IS NOT NULL THEN '#{Shared::Api.host}/api/v1/collection_objects/' || co_obs.id
-              WHEN fo_obs.id IS NOT NULL THEN '#{Shared::Api.host}/api/v1/field_occurrences/' || fo_obs.id
+              WHEN co.id IS NOT NULL THEN '#{Shared::Api.api_base_path(CollectionObject)}/' || co.id
+              WHEN fo.id IS NOT NULL THEN '#{Shared::Api.api_base_path(FieldOccurrence)}/' || fo.id
+              WHEN co_obs.id IS NOT NULL THEN '#{Shared::Api.api_base_path(CollectionObject)}/' || co_obs.id
+              WHEN fo_obs.id IS NOT NULL THEN '#{Shared::Api.api_base_path(FieldOccurrence)}/' || fo_obs.id
               ELSE NULL
             END AS \"associatedSpecimenReference\",
             NULL AS \"associatedObservationReference\",
@@ -1506,8 +1506,8 @@ module Export::Dwca
             NULL AS caption,
             -- Compute associatedSpecimenReference directly from collection object ID for this row
             CASE
-              WHEN co.id IS NOT NULL THEN '#{Shared::Api.host}/api/v1/collection_objects/' || co.id
-              WHEN fo.id IS NOT NULL THEN '#{Shared::Api.host}/api/v1/field_occurrences/' || fo.id
+              WHEN co.id IS NOT NULL THEN '#{Shared::Api.api_base_path(CollectionObject)}/' || co.id
+              WHEN fo.id IS NOT NULL THEN '#{Shared::Api.api_base_path(FieldOccurrence)}/' || fo.id
               ELSE NULL
             END AS \"associatedSpecimenReference\",
             NULL AS \"associatedObservationReference\",

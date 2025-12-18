@@ -15,11 +15,17 @@ module Shared::Api
     end
   end
 
-  def self.api_link(ar, id = nil)
-    s = host
-    return s + '/api/v1/' if ar.nil?
+  def self.api_base_path(model_or_instance)
+    return "#{host}/api/v1" if model_or_instance.nil?
 
-    "#{s}/api/v1/#{ar.class.base_class.name.tableize}/#{id || ar.id}"
+    klass = model_or_instance.is_a?(Class) ? model_or_instance : model_or_instance.class
+    "#{host}/api/v1/#{klass.base_class.name.tableize}"
+  end
+
+  def self.api_link(ar, id = nil)
+    return "#{host}/api/v1" if ar.nil?
+
+    "#{api_base_path(ar)}/#{id || ar.id}"
   end
 
   def self.image_link(image, raise_on_no_token: true, token: nil)
