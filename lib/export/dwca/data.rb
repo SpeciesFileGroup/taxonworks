@@ -1457,9 +1457,9 @@ module Export::Dwca
             -- Compute associatedSpecimenReference directly from collection object ID for this row
             #{associated_specimen_reference_sql} AS \"associatedSpecimenReference\",
             NULL AS \"associatedObservationReference\",
-            pg_temp.sanitize_csv(links.access_uri) AS \"accessURI\",
-            pg_temp.sanitize_csv(img.image_file_content_type) AS \"dc:format\",
-            pg_temp.sanitize_csv(links.further_information_url) AS \"furtherInformationURL\",
+            links.access_uri AS \"accessURI\",
+            img.image_file_content_type AS \"dc:format\",
+            links.further_information_url AS \"furtherInformationURL\",
             img.width AS \"PixelXDimension\",
             img.height AS \"PixelYDimension\"
           FROM images img
@@ -1517,9 +1517,9 @@ module Export::Dwca
             -- Compute associatedSpecimenReference directly from collection object ID for this row
             #{associated_specimen_reference_sql(include_observations: false)} AS \"associatedSpecimenReference\",
             NULL AS \"associatedObservationReference\",
-            pg_temp.sanitize_csv(links.access_uri) AS \"accessURI\",
-            pg_temp.sanitize_csv(asb.content_type) AS \"dc:format\",
-            pg_temp.sanitize_csv(links.further_information_url) AS \"furtherInformationURL\",
+            links.access_uri AS \"accessURI\",
+            asb.content_type AS \"dc:format\",
+            links.further_information_url AS \"furtherInformationURL\",
             NULL AS \"PixelXDimension\",
             NULL AS \"PixelYDimension\"
           FROM sounds snd
