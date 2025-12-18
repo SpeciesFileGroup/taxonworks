@@ -38,7 +38,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
         # Build SQL using the fragment from media_identifier_sql
         sql = <<~SQL
-          SELECT #{data.send(:media_identifier_sql, 'image', 'images')} AS identifier
+          SELECT #{data.send(:media_identifier_sql, Image, 'images')} AS identifier
           FROM images
           LEFT JOIN identifiers uuid_id ON uuid_id.identifier_object_id = images.id
             AND uuid_id.identifier_object_type = 'Image'
@@ -60,7 +60,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         FactoryBot.create(:identifier_global_uri, identifier_object: img, identifier: uri_value)
 
         sql = <<~SQL
-          SELECT #{data.send(:media_identifier_sql, 'image', 'images')} AS identifier
+          SELECT #{data.send(:media_identifier_sql, Image, 'images')} AS identifier
           FROM images
           LEFT JOIN identifiers uuid_id ON uuid_id.identifier_object_id = images.id
             AND uuid_id.identifier_object_type = 'Image'
@@ -79,7 +79,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         img = FactoryBot.create(:valid_image)
 
         sql = <<~SQL
-          SELECT #{data.send(:media_identifier_sql, 'image', 'images')} AS identifier
+          SELECT #{data.send(:media_identifier_sql, Image, 'images')} AS identifier
           FROM images
           LEFT JOIN identifiers uuid_id ON uuid_id.identifier_object_id = images.id
             AND uuid_id.identifier_object_type = 'Image'

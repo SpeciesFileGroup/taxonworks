@@ -1,6 +1,7 @@
 # A concern on media items like images and sounds.
 module Shared::Dwc::MediaExtensions
   extend ActiveSupport::Concern
+  include Shared::Dwc::MediaIdentifier
 
   # Shared implementation amongst all media sources.
   DWC_MEDIA_SHARED_EXTENSION_MAP = {
@@ -14,11 +15,7 @@ module Shared::Dwc::MediaExtensions
     'dcterms:creator': :dwc_media_dcterms_creator,
   }.freeze
 
-  def dwc_media_identifier
-    # Images and sounds are unlikely to have a uuid or uri, so namespace with
-    # class name (this field is suposed to be unique).
-    "#{self.class.name.downcase}:#{uuid || uri || id}"
-  end
+  # dwc_media_identifier is now provided by Shared::Dwc::MediaIdentifier
 
   def dwc_media_provider_managed_id
     id

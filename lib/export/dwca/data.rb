@@ -1371,19 +1371,13 @@ module Export::Dwca
     end
 
     # SQL fragment: Media identifier with UUID/URI fallback
-    # @param media_type [String] Type prefix (e.g., 'image', 'sound')
+    # Delegates to the class method to ensure consistency with Ruby implementation
+    # @param media_class [Class] Media class (Image or Sound)
     # @param media_table_alias [String] SQL table alias for the media table
-    # @return [String] SQL fragment for media identifier
-    def media_identifier_sql(media_type, media_table_alias = 'img')
-      <<~SQL.strip
-        pg_temp.sanitize_csv(
-          CASE
-            WHEN uuid_id.identifier IS NOT NULL THEN '#{media_type}:' || uuid_id.identifier
-            WHEN uri_id.identifier IS NOT NULL THEN '#{media_type}:' || uri_id.identifier
-            ELSE '#{media_type}:' || #{media_table_alias}.id::text
-          END
-        )
-      SQL
+    # @return [String] SQL fragment for media identifier (sanitized)
+    def media_identifier_sql(media_class, media_table_alias)
+      identifier_expr = media_class.dwc_media_identifier_sql(table_alias: media_table_alias)
+      "pg_temp.sanitize_csv(#{identifier_expr})"
     end
 
     # SQL fragment: Associated specimen reference URL
@@ -1401,18 +1395,17 @@ module Export::Dwca
       SQL
 
       observation_cases = if include_observations
-        <<~SQL.strip
+        <<~SQL
 
           WHEN co_obs.id IS NOT NULL THEN '#{co_base}/' || co_obs.id
           WHEN fo_obs.id IS NOT NULL THEN '#{fo_base}/' || fo_obs.id
         SQL
       else
-        ""
+        "\n"
       end
 
       <<~SQL.strip
-        #{base_cases}#{observation_cases}
-          ELSE NULL
+        #{base_cases}#{observation_cases}          ELSE NULL
         END
       SQL
     end
@@ -1430,7 +1423,7 @@ module Export::Dwca
         COPY (
           SELECT
             pg_temp.sanitize_csv(dwc.\"occurrenceID\") AS coreid,
-            #{media_identifier_sql('image', 'img')} AS identifier,
+            #{media_identifier_sql(Image, 'img')} AS identifier,
             'Image' AS \"dc:type\",
             img.id AS \"providerManagedID\",
             #{license_case} AS \"dc:rights\",
@@ -1521,7 +1514,7 @@ module Export::Dwca
         COPY (
           SELECT
             pg_temp.sanitize_csv(dwc.\"occurrenceID\") AS coreid,
-            #{media_identifier_sql('sound', 'snd')} AS identifier,
+            #{media_identifier_sql(Sound, 'snd')} AS identifier,
             'Sound' AS \"dc:type\",
             snd.id AS \"providerManagedID\",
             #{license_case} AS \"dc:rights\",
