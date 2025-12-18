@@ -30,6 +30,11 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
       data.send(:create_csv_sanitize_function)
     end
 
+    after do
+      # Clean up temp table between tests
+      conn.execute('DROP TABLE IF EXISTS temp_scoped_occurrences')
+    end
+
     describe '#media_identifier_sql' do
       it 'returns UUID identifier when present' do
         img = FactoryBot.create(:valid_image)
@@ -135,6 +140,193 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           CROSS JOIN (SELECT NULL::integer AS id) fo
           CROSS JOIN (SELECT NULL::integer AS id) co_obs
           CROSS JOIN (SELECT NULL::integer AS id) fo_obs
+        SQL
+
+        result = conn.select_value(sql)
+        expect(result).to be_nil
+      end
+    end
+
+    describe '#media_identifier_joins_sql' do
+      it 'makes UUID identifier available when present' do
+        img = FactoryBot.create(:valid_image)
+        uuid_value = SecureRandom.uuid
+        FactoryBot.create(:identifier_global_uuid, identifier_object: img, identifier: uuid_value)
+
+        sql = <<~SQL
+          SELECT uuid_id.identifier AS uuid_identifier
+          FROM images img
+          #{data.send(:media_identifier_joins_sql, Image, 'img')}
+          WHERE img.id = #{img.id}
+        SQL
+
+        result = conn.select_value(sql)
+        expect(result).to eq(uuid_value)
+      end
+
+      it 'makes URI identifier available when present' do
+        img = FactoryBot.create(:valid_image)
+        uri_value = 'http://example.org/image/456'
+        FactoryBot.create(:identifier_global_uri, identifier_object: img, identifier: uri_value)
+
+        sql = <<~SQL
+          SELECT uri_id.identifier AS uri_identifier
+          FROM images img
+          #{data.send(:media_identifier_joins_sql, Image, 'img')}
+          WHERE img.id = #{img.id}
+        SQL
+
+        result = conn.select_value(sql)
+        expect(result).to eq(uri_value)
+      end
+
+      it 'returns NULL for identifiers when none present' do
+        img = FactoryBot.create(:valid_image)
+
+        sql = <<~SQL
+          SELECT uuid_id.identifier AS uuid_identifier, uri_id.identifier AS uri_identifier
+          FROM images img
+          #{data.send(:media_identifier_joins_sql, Image, 'img')}
+          WHERE img.id = #{img.id}
+        SQL
+
+        result = conn.select_one(sql)
+        expect(result['uuid_identifier']).to be_nil
+        expect(result['uri_identifier']).to be_nil
+      end
+    end
+
+    describe '#image_occurrence_resolution_joins_sql' do
+      it 'resolves image to dwc_occurrence via collection_object depiction' do
+        co = FactoryBot.create(:valid_specimen)
+        dwc = FactoryBot.create(:valid_dwc_occurrence, dwc_occurrence_object: co)
+        img = FactoryBot.create(:valid_image)
+        FactoryBot.create(:valid_depiction, depiction_object: co, image: img)
+
+        # Create scoped occurrence temp table
+        conn.execute('DROP TABLE IF EXISTS temp_scoped_occurrences')
+        conn.execute(<<~SQL)
+          CREATE TEMP TABLE temp_scoped_occurrences (
+            occurrence_id integer,
+            occurrence_type varchar
+          )
+        SQL
+        conn.execute("INSERT INTO temp_scoped_occurrences VALUES (#{co.id}, 'CollectionObject')")
+
+        sql = <<~SQL
+          SELECT dwc."occurrenceID" AS occurrence_id
+          FROM images img
+          #{data.send(:image_occurrence_resolution_joins_sql, image_alias: 'img')}
+          WHERE img.id = #{img.id}
+        SQL
+
+        result = conn.select_value(sql)
+        expect(result).to eq(dwc.occurrenceID)
+      end
+
+      it 'resolves image to dwc_occurrence via field_occurrence depiction' do
+        fo = FactoryBot.create(:valid_field_occurrence)
+        # Field occurrence factory may already create dwc_occurrence, reuse if it exists
+        dwc = fo.dwc_occurrence || FactoryBot.create(:valid_dwc_occurrence, dwc_occurrence_object: fo)
+        img = FactoryBot.create(:valid_image)
+        FactoryBot.create(:valid_depiction, depiction_object: fo, image: img)
+
+        # Create scoped occurrence temp table
+        conn.execute('DROP TABLE IF EXISTS temp_scoped_occurrences')
+        conn.execute(<<~SQL)
+          CREATE TEMP TABLE temp_scoped_occurrences (
+            occurrence_id integer,
+            occurrence_type varchar
+          )
+        SQL
+        conn.execute("INSERT INTO temp_scoped_occurrences VALUES (#{fo.id}, 'FieldOccurrence')")
+
+        sql = <<~SQL
+          SELECT dwc."occurrenceID" AS occurrence_id
+          FROM images img
+          #{data.send(:image_occurrence_resolution_joins_sql, image_alias: 'img')}
+          WHERE img.id = #{img.id}
+        SQL
+
+        result = conn.select_value(sql)
+        expect(result).to eq(dwc.occurrenceID)
+      end
+
+      it 'filters out occurrences not in scope' do
+        co = FactoryBot.create(:valid_specimen)
+        dwc = FactoryBot.create(:valid_dwc_occurrence, dwc_occurrence_object: co)
+        img = FactoryBot.create(:valid_image)
+        FactoryBot.create(:valid_depiction, depiction_object: co, image: img)
+
+        # Create scoped occurrence temp table WITHOUT the occurrence
+        conn.execute('DROP TABLE IF EXISTS temp_scoped_occurrences')
+        conn.execute(<<~SQL)
+          CREATE TEMP TABLE temp_scoped_occurrences (
+            occurrence_id integer,
+            occurrence_type varchar
+          )
+        SQL
+
+        sql = <<~SQL
+          SELECT dwc."occurrenceID" AS occurrence_id
+          FROM images img
+          #{data.send(:image_occurrence_resolution_joins_sql, image_alias: 'img')}
+          WHERE img.id = #{img.id}
+        SQL
+
+        result = conn.select_value(sql)
+        expect(result).to be_nil
+      end
+    end
+
+    describe '#sound_occurrence_resolution_joins_sql' do
+      it 'resolves sound to dwc_occurrence via collection_object conveyance' do
+        co = FactoryBot.create(:valid_specimen)
+        dwc = FactoryBot.create(:valid_dwc_occurrence, dwc_occurrence_object: co)
+        snd = FactoryBot.create(:valid_sound)
+        FactoryBot.create(:valid_conveyance, conveyance_object: co, sound: snd)
+
+        # Create scoped occurrence temp table
+        conn.execute('DROP TABLE IF EXISTS temp_scoped_occurrences')
+        conn.execute(<<~SQL)
+          CREATE TEMP TABLE temp_scoped_occurrences (
+            occurrence_id integer,
+            occurrence_type varchar
+          )
+        SQL
+        conn.execute("INSERT INTO temp_scoped_occurrences VALUES (#{co.id}, 'CollectionObject')")
+
+        sql = <<~SQL
+          SELECT dwc."occurrenceID" AS occurrence_id
+          FROM sounds snd
+          #{data.send(:sound_occurrence_resolution_joins_sql, sound_alias: 'snd')}
+          WHERE snd.id = #{snd.id}
+        SQL
+
+        result = conn.select_value(sql)
+        expect(result).to eq(dwc.occurrenceID)
+      end
+
+      it 'filters out occurrences not in scope' do
+        co = FactoryBot.create(:valid_specimen)
+        dwc = FactoryBot.create(:valid_dwc_occurrence, dwc_occurrence_object: co)
+        snd = FactoryBot.create(:valid_sound)
+        FactoryBot.create(:valid_conveyance, conveyance_object: co, sound: snd)
+
+        # Create scoped occurrence temp table WITHOUT the occurrence
+        conn.execute('DROP TABLE IF EXISTS temp_scoped_occurrences')
+        conn.execute(<<~SQL)
+          CREATE TEMP TABLE temp_scoped_occurrences (
+            occurrence_id integer,
+            occurrence_type varchar
+          )
+        SQL
+
+        sql = <<~SQL
+          SELECT dwc."occurrenceID" AS occurrence_id
+          FROM sounds snd
+          #{data.send(:sound_occurrence_resolution_joins_sql, sound_alias: 'snd')}
+          WHERE snd.id = #{snd.id}
         SQL
 
         result = conn.select_value(sql)
