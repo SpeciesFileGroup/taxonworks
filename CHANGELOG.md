@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Observation matrix dashboard: several filter options don't work [#4640]
 - New collecting event task: Biocurations panel is not working [#4646]
 - Error on batch update from left object radial in filters using 'match identifiers'
+- Browse taxon names: Sometimes when users scroll through the taxonomic tree panel, names at the bottom are not visible. [#4654]
 
 ### Changed
 
@@ -19,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#4640]: https://github.com/SpeciesFileGroup/taxonworks/issues/4640
 [#4646]: https://github.com/SpeciesFileGroup/taxonworks/issues/4646
+[#4654]: https://github.com/SpeciesFileGroup/taxonworks/issues/4654
 
 ## [0.56.1] - 2025-12-12
 
