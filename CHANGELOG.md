@@ -18,7 +18,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 
 - Add the POST method for Image matrix to handle many OTUs
+- New task: Refactor the task and add responsive design to the form [#4628]
 
+[#4628]: https://github.com/SpeciesFileGroup/taxonworks/issues/4628
 [#4640]: https://github.com/SpeciesFileGroup/taxonworks/issues/4640
 [#4646]: https://github.com/SpeciesFileGroup/taxonworks/issues/4646
 [#4649]: https://github.com/SpeciesFileGroup/taxonworks/issues/4649
