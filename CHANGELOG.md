@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Error on batch update from left object radial in filters using 'match identifiers'
 - Browse taxon names: Sometimes when users scroll through the taxonomic tree panel, names at the bottom are not visible. [#4654]
 - Browse taxon names: Navbar overlaps radial modals [#4649]
+- CSD: The biocurations form doesn't show classes that do not belong to a group [#4658]
 
 ### Changed
 
@@ -25,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4646]: https://github.com/SpeciesFileGroup/taxonworks/issues/4646
 [#4649]: https://github.com/SpeciesFileGroup/taxonworks/issues/4649
 [#4654]: https://github.com/SpeciesFileGroup/taxonworks/issues/4654
+[#4658]: https://github.com/SpeciesFileGroup/taxonworks/issues/4658
 
 ## [0.56.1] - 2025-12-12
 
