@@ -149,7 +149,7 @@ function updatePreferences() {
 <style lang="scss">
 .vue-new-source-task-bibtex-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 1rem;
 }
 
