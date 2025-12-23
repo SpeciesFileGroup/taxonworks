@@ -25,10 +25,10 @@ const source = defineModel({
 
 const BIBTEX_FIELDS = [
   { attr: 'doi', component: 'input' },
-  { attr: 'isbn', component: 'input' },
-  { attr: 'issn', component: 'input' },
   { attr: 'note', component: 'textarea' },
-  { attr: 'annote', component: 'input' }
+  { attr: 'annote', component: 'input' },
+  { attr: 'isbn', component: 'input' },
+  { attr: 'issn', component: 'input' }
 ]
 
 function handleInput(event, attr) {
