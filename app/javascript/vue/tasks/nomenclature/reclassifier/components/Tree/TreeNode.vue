@@ -301,8 +301,6 @@ function expandNode(taxonId) {
     .then(({ body }) => {
       const children = body.descendants.map((c) => makeTaxonNode(c))
 
-      children.sort((a, b) => a.isValid - b.isValid)
-
       children.forEach((item, index) => {
         const current = props.taxon.children.find((c) => c.id === item.id)
 
