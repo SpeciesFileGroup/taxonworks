@@ -20,7 +20,11 @@
     </VBtn>
 
     <span
-      :class="['list-reclassifer-taxon-item', isSelected && 'selected']"
+      :class="[
+        'list-reclassifer-taxon-item',
+        isSelected && 'selected',
+        !taxon.isValid && 'taxonomy-tree-invalid-name'
+      ]"
       v-html="taxon.name"
       @contextmenu="handleContextMenu"
       @click.prevent="() => addToSelected(taxon)"
@@ -296,6 +300,8 @@ function expandNode(taxonId) {
   })
     .then(({ body }) => {
       const children = body.descendants.map((c) => makeTaxonNode(c))
+
+      children.sort((a, b) => a.isValid - b.isValid)
 
       children.forEach((item, index) => {
         const current = props.taxon.children.find((c) => c.id === item.id)
