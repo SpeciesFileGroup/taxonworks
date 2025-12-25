@@ -175,7 +175,7 @@ class DwcOccurrence < ApplicationRecord
     a = self.object_join('CollectionObject')
       .where('dwc_occurrences.project_id = ?', project_id)
       .where(dwc_occurrence_object_id: k)
-      .select(::DwcOccurrence.target_columns) # TODO !! Will have to change when AssertedDistribution and other types merge in
+      .select(::DwcOccurrence.target_occurrence_columns) # TODO !! Will have to change when AssertedDistribution and other types merge in
     a
   end
 
@@ -191,14 +191,14 @@ class DwcOccurrence < ApplicationRecord
     and correlation is null
     and null_frac = 1;").pluck('attname').map(&:to_sym)
 
-    empty_in_all_projects #  - target_columns
+    empty_in_all_projects #  - target_occurrence_columns
   end
 
   # @return [Array]
   #   of symbols
   # !! TODO: When we come to adding AssertedDistributions, FieldOccurrnces, etc. we will have to
   # make this more flexible
-  def self.target_columns
+  def self.target_occurrence_columns
     # The final DwCA file *will* have an id column, as required for matching
     # with extensions, but its values will be copies of occurrenceID - we don't
     # want to send the ephemeral dwc_occurrence.id values to GBIF.
@@ -206,23 +206,22 @@ class DwcOccurrence < ApplicationRecord
     # to preserve it (I guess).
     [:id,
      :basisOfRecord,
-     :occurrenceID,
-     :dwc_occurrence_object_id,   # !! We don't want this, but need it in joins, it is removed in trim via `.excluded_columns` below
+     :dwc_occurrence_object_id,   # !! We don't want this, but need it in joins, it is removed in trim via `.excluded_occurrence_columns` below
      :dwc_occurrence_object_type, # !! ^
     ] + CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys
   end
 
   # @return [Array]
   #   of symbols
-  def self.excluded_columns
+  def self.excluded_occurrence_columns
     # id is *not* excluded.
-    ::DwcOccurrence.columns.collect{|c| c.name.to_sym} - (self.target_columns - [:dwc_occurrence_object_id, :dwc_occurrence_object_type])
+    ::DwcOccurrence.columns.collect{|c| c.name.to_sym} - (self.target_occurrence_columns - [:dwc_occurrence_object_id, :dwc_occurrence_object_type])
   end
 
   # @return [Scope]
   #   the columns inferred to have data
-  def self.computed_columns
-    select(target_columns)
+  def self.computed_occurrence_columns
+    select(target_occurrence_columns)
   end
 
   def basis
