@@ -195,6 +195,28 @@ module Queries
         )
       end
 
+      def otu_query_facet
+        return nil if otu_query.nil?
+
+        queries = OCCURRENCE_SOURCES.map do |k|
+          source_query = "::Queries::#{k.classify}::Filter".constantize.new(
+            otu_query: otu_query.params
+          ).all
+
+          s = "WITH query_otu_#{k} AS (" + source_query.unscope(:select).select(:id).to_sql + ') ' +
+            ::DwcOccurrence
+            .select(:id, :dwc_occurrence_object_type, :dwc_occurrence_object_id)
+            .joins("JOIN query_otu_#{k} as query_otu_#{k}1 on dwc_occurrences.dwc_occurrence_object_id = query_otu_#{k}1.id AND dwc_occurrences.dwc_occurrence_object_type = '#{k.classify}'")
+            .to_sql
+
+          ::DwcOccurrence.from('(' + s + ') as dwc_occurrences').distinct
+        end
+
+        ::Queries.union(
+          ::DwcOccurrence, queries
+        )
+      end
+
       def asserted_distribution_query_facet
         return nil if asserted_distribution_query.nil?
         s = 'WITH query_ad_dwco AS (' + asserted_distribution_query.all.unscope(:select).select(:id).to_sql + ') ' +
@@ -246,6 +268,7 @@ module Queries
           collecting_event_query_facet,
           collection_object_query_facet,
           field_occurrence_query_facet,
+          otu_query_facet,
           otu_id_facet,
           person_id_facet,
           taxon_name_id_facet
