@@ -7,6 +7,7 @@ module Export::Dwca
     # Extension constants - callers pass array of these to specify which extensions to include
     DISTRIBUTION_EXTENSION = :distribution
     REFERENCES_EXTENSION = :references
+    TYPES_AND_SPECIMEN_EXTENSION = :types_and_specimen
 
     # @return [Hash] of Otu query params
     #  Required.
@@ -40,6 +41,9 @@ module Export::Dwca
     # @return [Boolean] whether to include references extension
     attr_accessor :references_extension
 
+    # @return [Boolean] whether to include types and specimen extension
+    attr_accessor :types_and_specimen_extension
+
     # @return [Array<Symbol>] list of extensions to include
     attr_accessor :extensions
 
@@ -54,6 +58,7 @@ module Export::Dwca
       # Set extension flags based on requested extensions
       @distribution_extension = extensions.include?(DISTRIBUTION_EXTENSION)
       @references_extension = extensions.include?(REFERENCES_EXTENSION)
+      @types_and_specimen_extension = extensions.include?(TYPES_AND_SPECIMEN_EXTENSION)
     end
 
     # @return [Array] use the temporarily written, and refined, CSV file to read
@@ -419,6 +424,23 @@ module Export::Dwca
             }
           end
 
+          # Types and Specimen extension
+          if types_and_specimen_extension
+            xml.extension(encoding: 'UTF-8', linesTerminatedBy: '\\n', fieldsTerminatedBy: '\\t', fieldsEnclosedBy: '"', ignoreHeaderLines: '1', rowType:'http://rs.gbif.org/terms/1.0/TypesAndSpecimen') {
+              xml.files {
+                xml.location 'types_and_specimen.tsv'
+              }
+              Export::CSV::Dwc::Extension::TypesAndSpecimen::HEADERS_NAMESPACES.each_with_index do |n, i|
+                if i == 0
+                  n == '' || (raise TaxonWorks::Error, "First types_and_specimen column (id) should have namespace '', got '#{n}'")
+                  xml.id(index: 0)
+                else
+                  xml.field(index: i, term: n)
+                end
+              end
+            }
+          end
+
           # TODO: Add additional checklist-specific extensions here (e.g., vernacular names, taxon descriptions, etc.)
         }
       end
@@ -478,6 +500,28 @@ module Export::Dwca
       @references_extension_tmp
     end
 
+    def types_and_specimen_extension_tmp
+      return nil unless types_and_specimen_extension
+      @types_and_specimen_extension_tmp = Tempfile.new('types_and_specimen.tsv')
+
+      content = nil
+      if no_records?
+        content = "\n"
+      else
+        # Generate core CSV first to populate taxon_name_to_id mapping if not already done
+        csv unless taxon_name_to_id
+
+        # Export types and specimen for CollectionObject DwcOccurrence records
+        # (only CollectionObject records with typeStatus populated)
+        content = Export::CSV::Dwc::Extension::TypesAndSpecimen.csv(core_occurrence_scope, taxon_name_to_id)
+      end
+
+      @types_and_specimen_extension_tmp.write(content)
+      @types_and_specimen_extension_tmp.flush
+      @types_and_specimen_extension_tmp.rewind
+      @types_and_specimen_extension_tmp
+    end
+
     def build_zip
       t = Tempfile.new(filename)
 
@@ -489,6 +533,7 @@ module Export::Dwca
         # Add extensions
         zip.add('distribution.tsv', distribution_extension_tmp.path) if distribution_extension
         zip.add('references.tsv', references_extension_tmp.path) if references_extension
+        zip.add('types_and_specimen.tsv', types_and_specimen_extension_tmp.path) if types_and_specimen_extension
 
         zip.add('meta.xml', meta.path)
         zip.add('eml.xml', eml.path)
@@ -572,6 +617,11 @@ module Export::Dwca
       if references_extension && @references_extension_tmp
         @references_extension_tmp.close
         @references_extension_tmp.unlink
+      end
+
+      if types_and_specimen_extension && @types_and_specimen_extension_tmp
+        @types_and_specimen_extension_tmp.close
+        @types_and_specimen_extension_tmp.unlink
       end
 
       eml.close if eml
