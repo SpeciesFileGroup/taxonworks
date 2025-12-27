@@ -12,7 +12,7 @@ module Export::Dwca
     # Derived from core_otu_scope
     attr_accessor :core_occurrence_scope
 
-    # Size of core_scope
+    # Size of core_occurrence_scope
     attr_accessor :total
 
     attr_accessor :zipfile
@@ -31,42 +31,267 @@ module Export::Dwca
 
       @core_occurrence_scope = ::Queries::DwcOccurrence::Filter.new(
         otu_query: core_scope
-      ).all.order(:id)
+      ).all
     end
 
-    # @return [Array]
-    #   use the temporarily written, and refined, CSV file to read off the existing headers
-    #   so we can use them in writing meta.yml
-    # non-standard DwC colums are handled elsewhere
+    # @return [Array] use the temporarily written, and refined, CSV file to read
+    #   off the existing headers so we can use them in writing meta.yml.
+    #   Non-standard DwC colums are handled elsewhere.
     def meta_fields
       return [] if no_records?
+
       h = File.open(all_data, &:gets)&.strip&.split("\t")
       h&.shift # shift because the first column, id, will be specified by hand
       h || []
     end
 
     def total
-      @total ||= core_scope.unscope(:order).size
+      @total ||= core_occurrence_scope.unscope(:order).size
     end
 
     # @return [Boolean]
-    #   true if provided core_scope returns no records
+    #   true if core_occurrence_scope returns no records
     def no_records?
       total == 0
     end
 
     # @return [CSV]
-    #   the data as a CSV object
+    #   The data as a CSV object.
+    #   For checklists, this produces a normalized taxonomy (one row per unique
+    #   taxon) with sequential taxonIDs and parentNameUsageID relationships -
+    #   see https://ipt.gbif.org/manual/en/ipt/latest/best-practices-checklists#normalized-classifications-parentchild
     def csv
-      ::Export::CSV.generate_csv(
-        core_scope.computed_checklist_columns,
-        exclude_columns: ::DwcOccurrence.excluded_checklist_columns,
-        column_order: ::CollectionObject::DWC_OCCURRENCE_MAP.keys + ::CollectionObject::EXTENSION_FIELDS, # TODO: add other maps here
-        trim_columns: true, # going to have to be optional
+      return "\n" if no_records?
+
+      # Get raw occurrence data with all taxonomy columns.
+      raw_csv = ::Export::CSV.generate_csv(
+        core_occurrence_scope.computed_checklist_columns,
+        exclude_columns: ::DwcOccurrence::EXCLUDED_CHECKLIST_COLUMNS,
+        column_order: ::DwcOccurrence::CHECKLIST_TAXON_EXTENSION_COLUMNS.keys,
+        trim_columns: false, # Keep all columns for now
         trim_rows: false,
-        header_converters: [:dwc_headers],
-        copy_column: { from: 'occurrenceID', to: 'id' }
+        header_converters: [:checklist_headers]
       )
+
+      # Build normalized taxonomy with sequential taxonIDs
+      normalize_taxonomy_csv(raw_csv)
+    end
+
+    # @return [Array] of rank strings in hierarchical order (highest to lowest).
+    # Includes both column-based ranks (kingdom, phylum, etc.) and all possible
+    # taxonRank values that may appear for terminal taxa (species, subspecies,
+    # variety, form, etc.).
+    def self.ordered_ranks
+      # Get rank columns available in DwcOccurrence (mapped to DwC field names).
+      dwc_rank_columns = ::DwcOccurrence::CHECKLIST_TAXON_EXTENSION_COLUMNS.keys
+        .select { |col| [:kingdom, :phylum, :dwcClass, :order, :superfamily, :family, :subfamily, :tribe, :subtribe, :genus, :subgenus].include?(col) }
+        .map { |col| col == :dwcClass ? 'class' : col.to_s }
+
+      # Get all species-level ranks from all nomenclatural codes.
+      # These can appear as taxonRank values for terminal taxa.
+      iczn_species = ::NomenclaturalRank::Iczn::SpeciesGroup.ordered_ranks.map(&:rank_name)
+      icn_species = ::NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup.ordered_ranks.map(&:rank_name)
+      icnp_species = ::NomenclaturalRank::Icnp::SpeciesGroup.ordered_ranks.map(&:rank_name)
+      # ICVCN only has "species" rank, no infraspecific ranks.
+
+      species_ranks = (iczn_species + icn_species + icnp_species).uniq
+
+      relevant_ranks = (dwc_rank_columns + species_ranks).uniq
+
+      # Use ICZN ordering as the base (most comprehensive for higher ranks).
+      all_iczn = ::NomenclaturalRank::Iczn.ordered_ranks.map(&:rank_name)
+      base_order = all_iczn.select { |r| relevant_ranks.include?(r) }
+
+      # Add any species ranks not in ICZN order (like ICN's variety, form).
+      missing_ranks = relevant_ranks - base_order
+      base_order + missing_ranks
+    end
+
+    ORDERED_RANKS = ordered_ranks.freeze
+
+    # Normalize taxonomy: deduplicate, assign sequential taxonIDs, add
+    # parentNameUsageID.
+    # @param raw_csv [String] CSV with one row per occurrence
+    # @return [String] CSV with one row per unique taxon
+    def normalize_taxonomy_csv(raw_csv)
+      parsed = CSV.parse(raw_csv, headers: true, col_sep: "\t")
+      return "\n" if parsed.empty?
+
+      all_taxa = extract_unique_taxa(parsed)
+      processed_taxa = assign_taxon_ids_and_build_hierarchy(all_taxa)
+
+      output_headers = processed_taxa.first&.keys || []
+
+      CSV.generate(col_sep: "\t") do |csv|
+        csv << output_headers
+
+        processed_taxa.each do |taxon|
+          csv << taxon.values
+        end
+      end
+    end
+
+    # Extract all unique taxa from occurrence data.
+    # @param parsed [CSV::Table] parsed occurrence data
+    # @return [Hash] hash of "rank:name" => taxon data
+    def extract_unique_taxa(parsed)
+      all_taxa = {}
+
+      parsed.each do |row|
+        # Process each rank column to extract higher taxa (DwcOccurrence doesn't
+        # include columns matching ORDERED_RANKS for speciesGroup ranks, so
+        # those are processed below).
+        ORDERED_RANKS.each do |rank|
+          rank_name = row[rank]
+          next if rank_name.nil? || rank_name.strip.empty?
+
+          key = "#{rank}:#{rank_name}"
+          next if all_taxa[key] # already have this taxon
+
+          # Build the new taxon row for this higher taxon.
+          taxon = row.to_h.dup
+          taxon['scientificName'] = rank_name
+          taxon['taxonRank'] = rank
+          clear_lower_ranks(taxon, rank)
+
+          all_taxa[key] = taxon
+        end
+
+        # Also include the terminal taxon (usually species) if it has
+        # scientificName.
+        if row['scientificName'] && !row['scientificName'].strip.empty?
+          rank = row['taxonRank']&.downcase
+          next if rank.nil?
+
+          key = "#{rank}:#{row['scientificName']}"
+          next if all_taxa[key] # already have this taxon
+
+          all_taxa[key] = row.to_h
+        end
+      end
+
+      all_taxa
+    end
+
+    # Assign sequential taxonIDs and parentNameUsageIDs to all taxa
+    # @param all_taxa [Hash] hash of "rank:name" => taxon data
+    # @return [Array<Hash>] array of processed taxa with taxonID and parentNameUsageID
+    def assign_taxon_ids_and_build_hierarchy(all_taxa)
+      taxon_id_counter = 1
+      name_to_id = {} # "rank:name" → taxonID
+      processed_taxa = []
+
+      # Process ranks from highest to lowest
+      ORDERED_RANKS.each do |rank|
+        # Find all taxa at this rank
+        rank_taxa = all_taxa.select { |k, v| k.start_with?("#{rank}:") }.values
+
+        # Sort alphabetically by scientificName
+        rank_taxa.sort_by! { |t| t['scientificName'] || '' }
+
+        rank_taxa.each do |taxon|
+          sci_name = taxon['scientificName']
+          key = "#{rank}:#{sci_name}"
+
+          # Skip if already processed
+          next if name_to_id[key]
+
+          # Assign new taxonID
+          taxon_id = taxon_id_counter
+          taxon_id_counter += 1
+          name_to_id[key] = taxon_id
+
+          # Find parent taxonID by looking at parent rank column
+          parent_id = find_parent_taxon_id_from_columns(taxon, rank, name_to_id)
+
+          # Store processed taxon with new IDs.
+          # Key order determines final CSV column order.
+          processed_taxon = {
+            'taxonID' => taxon_id,
+            'parentNameUsageID' => parent_id
+          }.merge(taxon.except('taxonID'))
+
+          processed_taxa << processed_taxon
+        end
+      end
+
+      processed_taxa
+    end
+
+    # Clear columns for ranks lower than the current rank
+    def clear_lower_ranks(taxon, current_rank)
+      current_id = ORDERED_RANKS.index(current_rank)
+      return unless current_id
+
+      ORDERED_RANKS[(current_id + 1)..-1].each do |lower_rank|
+        taxon[lower_rank] = nil
+      end
+
+      # Handle epithet fields based on rank:
+      # - Species: keep specificEpithet, clear infraspecificEpithet
+      # - Infraspecific (subspecies, variety, form, etc.): keep both epithet fields
+      # - Higher ranks (genus, family, etc.): clear both epithet fields
+      if current_rank == 'species'
+        taxon['infraspecificEpithet'] = nil
+      elsif !self.class.infraspecific_rank_names.include?(current_rank)
+        taxon['specificEpithet'] = nil
+        taxon['infraspecificEpithet'] = nil
+      end
+      # else: infraspecific rank, keep both epithet fields
+    end
+
+    # Get all infraspecific rank names (species-level ranks excluding "species" itself)
+    def self.infraspecific_rank_names
+      @infraspecific_rank_names ||= begin
+        iczn = ::NomenclaturalRank::Iczn::SpeciesGroup.ordered_ranks.map(&:rank_name)
+        icn = ::NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup.ordered_ranks.map(&:rank_name)
+        icnp = ::NomenclaturalRank::Icnp::SpeciesGroup.ordered_ranks.map(&:rank_name)
+
+        all_species_ranks = (iczn + icn + icnp).uniq
+        all_species_ranks - ['species']
+      end
+    end
+
+    # Find the taxonID of the parent taxon by looking at rank columns or
+    # constructing parent name.
+    # @param taxon [Hash] the current taxon's data
+    # @param current_rank [String] the rank of the current taxon
+    # @param name_to_id [Hash] mapping of "rank:name" → taxonID
+    # @return [Integer, nil] the parent's taxonID or nil if no parent
+    def find_parent_taxon_id_from_columns(taxon, current_rank, name_to_id)
+      current_rank_index = ORDERED_RANKS.index(current_rank)
+      return nil if current_rank_index.nil? || current_rank_index == 0
+
+      # Special handling for infraspecific ranks (subspecies, variety, form,
+      # etc.): these need to link to their parent species, which is constructed
+      # from genus + specificEpithet.
+      if self.class.infraspecific_rank_names.include?(current_rank)
+        genus = taxon['genus']
+        specific_epithet = taxon['specificEpithet']
+
+        if genus.present? && specific_epithet.present?
+          # Construct parent species scientificName
+          species_name = "#{genus} #{specific_epithet}"
+          species_key = "species:#{species_name}"
+          parent_id = name_to_id[species_key]
+
+          return parent_id if parent_id
+        end
+      else # species and higher ranks
+        (current_rank_index - 1).downto(0) do |i|
+          parent_rank = ORDERED_RANKS[i]
+          parent_name = taxon[parent_rank]
+
+          if parent_name && !parent_name.strip.empty?
+            parent_key = "#{parent_rank}:#{parent_name}"
+            parent_id = name_to_id[parent_key]
+
+            return parent_id if parent_id
+          end
+        end
+      end
+
+      nil
     end
 
     # @return [Tempfile]
@@ -118,53 +343,22 @@ module Export::Dwca
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.archive('xmlns' => 'http://rs.tdwg.org/dwc/text/') {
           # Core
+          # TODO: rowType
           xml.core(encoding: 'UTF-8', linesTerminatedBy: '\n', fieldsTerminatedBy: '\t', fieldsEnclosedBy: '"', ignoreHeaderLines: '1', rowType:'http://rs.tdwg.org/dwc/terms/Occurrence') {
             xml.files {
               xml.location 'data.tsv'
             }
-            xml.id(index: 0) # Must be named id (?)
+            xml.id(index: 0) # Must be named id
             meta_fields.each_with_index do |h,i|
               if h =~ /TW:/ # All TW headers have ':'
-                xml.field(index: i+1, term: h)
+                xml.field(index: i + 1, term: h)
               else
-                xml.field(index: i+1, term: DwcOccurrence::DC_NAMESPACE + h)
+                xml.field(index: i + 1, term: DwcOccurrence::DC_NAMESPACE + h)
               end
             end
           }
 
-          # Resource relationship (biological associations)
-          if !biological_associations_extension.nil?
-            xml.extension(encoding: 'UTF-8', linesTerminatedBy: '\n', fieldsTerminatedBy: '\t', fieldsEnclosedBy: '"', ignoreHeaderLines: '1', rowType:'http://rs.tdwg.org/dwc/terms/ResourceRelationship') {
-              xml.files {
-                xml.location 'resource_relationships.tsv'
-              }
-              Export::CSV::Dwc::Extension::BiologicalAssociations::HEADERS_NAMESPACES.each_with_index do |n, i|
-                if i == 0
-                  n == '' || (raise TaxonWorks::Error, "First resource relationship column (coreid) should have namespace '', got '#{n}'")
-                  xml.coreid(index: 0)
-                else
-                  xml.field(index: i, term: n)
-                end
-              end
-            }
-          end
-
-          # Media (images, sounds)
-          if !media_extension.nil?
-            xml.extension(encoding: 'UTF-8', linesTerminatedBy: '\n', fieldsTerminatedBy: '\t', fieldsEnclosedBy: '"', ignoreHeaderLines: '1', rowType:'http://rs.tdwg.org/ac/terms/Multimedia') {
-              xml.files {
-                xml.location 'media.tsv'
-              }
-              Export::CSV::Dwc::Extension::Media::HEADERS_NAMESPACES.each_with_index do |n, i|
-                if i == 0
-                  n == '' || (raise TaxonWorks::Error, "First media column (coreid) should have namespace '', got '#{n}'")
-                  xml.coreid(index: 0)
-                else
-                  xml.field(index: i, term: n)
-                end
-              end
-            }
-          end
+          # TODO: Add checklist-specific extensions here (e.g., vernacular names, taxon descriptions, etc.)
         }
       end
 
@@ -181,8 +375,7 @@ module Export::Dwca
       Zip::File.open(t.path, Zip::File::CREATE) do |zip|
         zip.add('data.tsv', data_file.path)
 
-        zip.add('media.tsv', media_tmp.path) if media_extension
-        zip.add('resource_relationships.tsv', biological_associations_resource_relationship_tmp.path) if biological_associations_extension
+        # TODO: Add checklist-specific extensions to zip here
 
         zip.add('meta.xml', meta.path)
         zip.add('eml.xml', eml.path)
@@ -197,6 +390,7 @@ module Export::Dwca
       if @zipfile.nil?
         @zipfile = build_zip
       end
+
       @zipfile
     end
 
@@ -214,6 +408,56 @@ module Export::Dwca
 
       # This doesn't touch the db (source_file_path is an instance var).
       download.update!(source_file_path: p)
+    end
+
+    # @return [Tempfile]
+    #   the combined data file
+    def all_data
+      return @all_data if @all_data
+
+      @all_data = Tempfile.new('data.tsv')
+
+      # For now, just the main data file
+      # Later we can add extensions like occurrence_data does
+      join_data = [data_file]
+
+      # TODO: Add extension support here (biological_associations, media, etc.)
+
+      # Combine all data files
+      join_data.each_with_index do |file, i|
+        file.rewind
+        if i == 0
+          @all_data.write(file.read)
+        else
+          # Skip header line for subsequent files
+          file.gets
+          @all_data.write(file.read)
+        end
+      end
+
+      @all_data.flush
+      @all_data.rewind
+      @all_data
+    end
+
+    # Cleanup temporary files
+    def cleanup
+      zipfile.close if zipfile
+      zipfile.unlink if zipfile
+
+      data_file.close if data_file
+      data_file.unlink if data_file
+
+      @all_data.close if @all_data
+      @all_data.unlink if @all_data
+
+      eml.close if eml
+      eml.unlink if eml
+
+      meta.close if meta
+      meta.unlink if meta
+
+      true
     end
   end
 end
