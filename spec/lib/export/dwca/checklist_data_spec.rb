@@ -610,6 +610,149 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         end
       end
 
+      context 'with vernacular name extension' do
+        # Clear Faker unique cache to avoid "Retry limit exceeded" errors
+        before(:all) { Faker::UniqueGenerator.clear }
+
+        # Create common names for testing
+        let!(:language_en) { FactoryBot.create(:valid_language, alpha_2: 'en') }
+        let!(:language_es) { FactoryBot.create(:valid_language, alpha_2: 'es') }
+
+        let!(:common_name1) { FactoryBot.create(:valid_common_name, otu: otu1, name: 'Common Butterfly', language: language_en, start_year: 2000) }
+        let!(:common_name2) { FactoryBot.create(:valid_common_name, otu: otu1, name: 'Mariposa Común', language: language_es) }
+        let!(:common_name3) { FactoryBot.create(:valid_common_name, otu: otu2, name: 'Red Moth', language: language_en, start_year: 1950, end_year: 2020) }
+
+        let(:data_with_extension) { Export::Dwca::ChecklistData.new(core_scope: otu_scope, extensions: [Export::Dwca::ChecklistData::VERNACULAR_NAME_EXTENSION]) }
+        let(:data_without_extension) { Export::Dwca::ChecklistData.new(core_scope: otu_scope, extensions: []) }
+
+        after do
+          data_with_extension.cleanup
+          data_without_extension.cleanup
+        end
+
+        specify 'vernacular_name_extension flag is set when extension is requested' do
+          expect(data_with_extension.vernacular_name_extension).to be true
+          expect(data_without_extension.vernacular_name_extension).to be false
+        end
+
+        specify 'vernacular_name_extension_tmp returns nil when extension not requested' do
+          expect(data_without_extension.vernacular_name_extension_tmp).to be_nil
+        end
+
+        specify 'vernacular_name_extension_tmp returns Tempfile when extension requested' do
+          expect(data_with_extension.vernacular_name_extension_tmp).to be_a(Tempfile)
+        end
+
+        specify 'vernacular name extension CSV has correct headers' do
+          # Generate core CSV first to populate taxon_name_to_id mapping
+          data_with_extension.csv
+
+          csv_content = data_with_extension.vernacular_name_extension_tmp.read
+          data_with_extension.vernacular_name_extension_tmp.rewind
+          csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+          expect(csv.headers).to eq(['id', 'vernacularName', 'language', 'temporal'])
+        end
+
+        specify 'vernacular name extension includes all common names' do
+          # Generate core CSV first to populate taxon_name_to_id mapping
+          data_with_extension.csv
+
+          csv_content = data_with_extension.vernacular_name_extension_tmp.read
+          data_with_extension.vernacular_name_extension_tmp.rewind
+          csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+          # Should have 3 rows (3 common names)
+          expect(csv.length).to eq(3)
+        end
+
+        specify 'vernacular name extension uses taxonID from normalized taxonomy' do
+          # Generate core CSV first to populate taxon_name_to_id mapping
+          data_with_extension.csv
+
+          csv_content = data_with_extension.vernacular_name_extension_tmp.read
+          data_with_extension.vernacular_name_extension_tmp.rewind
+          vn_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+          # All id values should be present (not nil)
+          vn_csv.each do |row|
+            expect(row['id']).to be_present
+            expect(row['id'].to_i).to be > 0
+          end
+        end
+
+        specify 'vernacular name extension includes vernacularName' do
+          # Generate core CSV first to populate taxon_name_to_id mapping
+          data_with_extension.csv
+
+          csv_content = data_with_extension.vernacular_name_extension_tmp.read
+          data_with_extension.vernacular_name_extension_tmp.rewind
+          vn_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+          names = vn_csv.map { |row| row['vernacularName'] }
+          expect(names).to include('Common Butterfly', 'Mariposa Común', 'Red Moth')
+        end
+
+        specify 'vernacular name extension includes language codes' do
+          # Generate core CSV first to populate taxon_name_to_id mapping
+          data_with_extension.csv
+
+          csv_content = data_with_extension.vernacular_name_extension_tmp.read
+          data_with_extension.vernacular_name_extension_tmp.rewind
+          vn_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+          languages = vn_csv.map { |row| row['language'] }.uniq.compact
+          expect(languages).to include('en', 'es')
+        end
+
+        specify 'vernacular name extension includes temporal information' do
+          # Generate core CSV first to populate taxon_name_to_id mapping
+          data_with_extension.csv
+
+          csv_content = data_with_extension.vernacular_name_extension_tmp.read
+          data_with_extension.vernacular_name_extension_tmp.rewind
+          vn_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+          # Find the Red Moth record which has start and end years
+          red_moth_row = vn_csv.find { |row| row['vernacularName'] == 'Red Moth' }
+          expect(red_moth_row['temporal']).to eq('1950-2020')
+
+          # Find Common Butterfly which has only start year
+          butterfly_row = vn_csv.find { |row| row['vernacularName'] == 'Common Butterfly' }
+          expect(butterfly_row['temporal']).to eq('2000')
+        end
+
+        specify 'zipfile includes vernacular_name.tsv when extension enabled' do
+          zipfile = data_with_extension.zipfile
+          Zip::File.open(zipfile.path) do |zip|
+            expect(zip.find_entry('vernacular_name.tsv')).to be_present
+          end
+        end
+
+        specify 'zipfile does not include vernacular_name.tsv when extension disabled' do
+          zipfile = data_without_extension.zipfile
+          Zip::File.open(zipfile.path) do |zip|
+            expect(zip.find_entry('vernacular_name.tsv')).to be_nil
+          end
+        end
+
+        specify 'meta.xml includes vernacular name extension when enabled' do
+          meta_content = data_with_extension.meta.read
+          data_with_extension.meta.rewind
+
+          expect(meta_content).to include('vernacular_name.tsv')
+          expect(meta_content).to include('http://rs.gbif.org/terms/1.0/VernacularName')
+        end
+
+        specify 'meta.xml does not include vernacular name extension when disabled' do
+          meta_content = data_without_extension.meta.read
+          data_without_extension.meta.rewind
+
+          expect(meta_content).not_to include('vernacular_name.tsv')
+          expect(meta_content).not_to include('http://rs.gbif.org/terms/1.0/VernacularName')
+        end
+      end
+
       specify '#cleanup returns truthy' do
         expect(data.cleanup).to be_truthy
       end
