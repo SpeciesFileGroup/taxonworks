@@ -360,6 +360,128 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         end
       end
 
+      context 'with references extension' do
+        # Create asserted distributions with sources for testing
+        let!(:source1) { FactoryBot.create(:valid_source) }
+        let!(:source2) { FactoryBot.create(:valid_source) }
+
+        let!(:ad_with_refs1) { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: otu1) }
+        let!(:ad_with_refs2) { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: otu2) }
+
+        before do
+          # Add citations to asserted distributions
+          FactoryBot.create(:valid_citation, citation_object: ad_with_refs1, source: source1)
+          FactoryBot.create(:valid_citation, citation_object: ad_with_refs1, source: source2)
+          FactoryBot.create(:valid_citation, citation_object: ad_with_refs2, source: source1)
+
+          # Create DwcOccurrence records for AssertedDistributions
+          ad_with_refs1.get_dwc_occurrence
+          ad_with_refs2.get_dwc_occurrence
+        end
+
+        let(:data_with_extension) { Export::Dwca::ChecklistData.new(core_scope: otu_scope, extensions: [Export::Dwca::ChecklistData::REFERENCES_EXTENSION]) }
+        let(:data_without_extension) { Export::Dwca::ChecklistData.new(core_scope: otu_scope, extensions: []) }
+
+        after do
+          data_with_extension.cleanup
+          data_without_extension.cleanup
+        end
+
+        specify 'references_extension flag is set when extension is requested' do
+          expect(data_with_extension.references_extension).to be true
+          expect(data_without_extension.references_extension).to be false
+        end
+
+        specify 'references_extension_tmp returns nil when extension not requested' do
+          expect(data_without_extension.references_extension_tmp).to be_nil
+        end
+
+        specify 'references_extension_tmp returns Tempfile when extension requested' do
+          expect(data_with_extension.references_extension_tmp).to be_a(Tempfile)
+        end
+
+        specify 'references extension CSV has correct headers' do
+          # Generate core CSV first to populate taxon_name_to_id mapping
+          data_with_extension.csv
+
+          csv_content = data_with_extension.references_extension_tmp.read
+          data_with_extension.references_extension_tmp.rewind
+          csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+          expect(csv.headers).to eq(['id', 'bibliographicCitation'])
+        end
+
+        specify 'references extension splits multiple citations into separate rows' do
+          # Generate core CSV first to populate taxon_name_to_id mapping
+          data_with_extension.csv
+
+          csv_content = data_with_extension.references_extension_tmp.read
+          data_with_extension.references_extension_tmp.rewind
+          csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+          # Should have multiple rows (one per citation)
+          expect(csv.length).to be >= 1
+        end
+
+        specify 'references extension uses taxonID from normalized taxonomy' do
+          # Generate core CSV first to populate taxon_name_to_id mapping
+          data_with_extension.csv
+
+          csv_content = data_with_extension.references_extension_tmp.read
+          data_with_extension.references_extension_tmp.rewind
+          refs_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+          # All id values should be present (not nil)
+          refs_csv.each do |row|
+            expect(row['id']).to be_present
+            expect(row['id'].to_i).to be > 0
+          end
+        end
+
+        specify 'references extension includes bibliographicCitation' do
+          # Generate core CSV first to populate taxon_name_to_id mapping
+          data_with_extension.csv
+
+          csv_content = data_with_extension.references_extension_tmp.read
+          data_with_extension.references_extension_tmp.rewind
+          refs_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+          refs_csv.each do |row|
+            expect(row['bibliographicCitation']).to be_present
+          end
+        end
+
+        specify 'zipfile includes references.tsv when extension enabled' do
+          zipfile = data_with_extension.zipfile
+          Zip::File.open(zipfile.path) do |zip|
+            expect(zip.find_entry('references.tsv')).to be_present
+          end
+        end
+
+        specify 'zipfile does not include references.tsv when extension disabled' do
+          zipfile = data_without_extension.zipfile
+          Zip::File.open(zipfile.path) do |zip|
+            expect(zip.find_entry('references.tsv')).to be_nil
+          end
+        end
+
+        specify 'meta.xml includes references extension when enabled' do
+          meta_content = data_with_extension.meta.read
+          data_with_extension.meta.rewind
+
+          expect(meta_content).to include('references.tsv')
+          expect(meta_content).to include('http://rs.gbif.org/terms/1.0/Reference')
+        end
+
+        specify 'meta.xml does not include references extension when disabled' do
+          meta_content = data_without_extension.meta.read
+          data_without_extension.meta.rewind
+
+          expect(meta_content).not_to include('references.tsv')
+          expect(meta_content).not_to include('http://rs.gbif.org/terms/1.0/Reference')
+        end
+      end
+
       specify '#cleanup returns truthy' do
         expect(data.cleanup).to be_truthy
       end
@@ -422,6 +544,9 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
     end
 
     context 'with infraspecific taxa at different ranks' do
+      # Clear Faker unique cache to avoid "Retry limit exceeded" errors
+      before(:all) { Faker::UniqueGenerator.clear }
+
       # Test case: same infraspecific epithet at different ranks should create distinct taxa
       # e.g., "Aus bus subsp. cus" and "Aus bus var. cus" are different taxa
       let!(:root) { FactoryBot.create(:root_taxon_name) }
