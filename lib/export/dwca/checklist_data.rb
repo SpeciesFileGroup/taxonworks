@@ -6,6 +6,7 @@ module Export::Dwca
 
     # Extension constants - callers pass array of these to specify which extensions to include
     DISTRIBUTION_EXTENSION = :distribution
+    REFERENCES_EXTENSION = :references
 
     # @return [Hash] of Otu query params
     #  Required.
@@ -36,6 +37,9 @@ module Export::Dwca
     # @return [Boolean] whether to include distribution extension
     attr_accessor :distribution_extension
 
+    # @return [Boolean] whether to include references extension
+    attr_accessor :references_extension
+
     # @return [Array<Symbol>] list of extensions to include
     attr_accessor :extensions
 
@@ -49,6 +53,7 @@ module Export::Dwca
 
       # Set extension flags based on requested extensions
       @distribution_extension = extensions.include?(DISTRIBUTION_EXTENSION)
+      @references_extension = extensions.include?(REFERENCES_EXTENSION)
     end
 
     # @return [Array] use the temporarily written, and refined, CSV file to read
@@ -397,6 +402,23 @@ module Export::Dwca
             }
           end
 
+          # Literature References extension
+          if references_extension
+            xml.extension(encoding: 'UTF-8', linesTerminatedBy: '\\n', fieldsTerminatedBy: '\\t', fieldsEnclosedBy: '"', ignoreHeaderLines: '1', rowType:'http://rs.gbif.org/terms/1.0/Reference') {
+              xml.files {
+                xml.location 'references.tsv'
+              }
+              Export::CSV::Dwc::Extension::References::HEADERS_NAMESPACES.each_with_index do |n, i|
+                if i == 0
+                  n == '' || (raise TaxonWorks::Error, "First references column (id) should have namespace '', got '#{n}'")
+                  xml.id(index: 0)
+                else
+                  xml.field(index: i, term: n)
+                end
+              end
+            }
+          end
+
           # TODO: Add additional checklist-specific extensions here (e.g., vernacular names, taxon descriptions, etc.)
         }
       end
@@ -432,6 +454,30 @@ module Export::Dwca
       @distribution_extension_tmp
     end
 
+    # @return [Tempfile, nil]
+    #   Literature references extension data
+    def references_extension_tmp
+      return nil unless references_extension
+      @references_extension_tmp = Tempfile.new('references.tsv')
+
+      content = nil
+      if no_records?
+        content = "\n"
+      else
+        # Generate core CSV first to populate taxon_name_to_id mapping if not already done
+        csv unless taxon_name_to_id
+
+        # Export references for all DwcOccurrence records
+        # (only AssertedDistribution records have associatedReferences populated)
+        content = Export::CSV::Dwc::Extension::References.csv(core_occurrence_scope, taxon_name_to_id)
+      end
+
+      @references_extension_tmp.write(content)
+      @references_extension_tmp.flush
+      @references_extension_tmp.rewind
+      @references_extension_tmp
+    end
+
     def build_zip
       t = Tempfile.new(filename)
 
@@ -442,6 +488,7 @@ module Export::Dwca
 
         # Add extensions
         zip.add('distribution.tsv', distribution_extension_tmp.path) if distribution_extension
+        zip.add('references.tsv', references_extension_tmp.path) if references_extension
 
         zip.add('meta.xml', meta.path)
         zip.add('eml.xml', eml.path)
@@ -520,6 +567,11 @@ module Export::Dwca
       if distribution_extension && @distribution_extension_tmp
         @distribution_extension_tmp.close
         @distribution_extension_tmp.unlink
+      end
+
+      if references_extension && @references_extension_tmp
+        @references_extension_tmp.close
+        @references_extension_tmp.unlink
       end
 
       eml.close if eml
