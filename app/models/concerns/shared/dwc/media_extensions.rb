@@ -48,7 +48,7 @@ module Shared::Dwc::MediaExtensions
       elsif role.organization_id
         Organization.find(role.organization_id).name
       end
-    end.compact.join(Shared::IsDwcOccurrence::DWC_DELIMITER)
+    end.compact.join(Export::Dwca::DWC_DELIMITER)
   end
 
   def dwc_media_credit
@@ -71,7 +71,7 @@ module Shared::Dwc::MediaExtensions
       .where(id: id)
       .order('roles.position')
       .pluck('people.cached')
-      .join(Shared::IsDwcOccurrence::DWC_DELIMITER)
+      .join(Export::Dwca::DELIMITER)
   end
 
   def dwc_media_dcterms_creator
@@ -82,7 +82,7 @@ module Shared::Dwc::MediaExtensions
       .where("identifiers.type = 'Identifier::Global::Orcid' OR identifiers.type = 'Identifier::Global::Wikidata'")
       .order('roles.position')
       .pluck('identifiers.cached')
-      .join(CollectionObject::DWC_DELIMITER)
+      .join(Export::Dwca::DELIMITER)
   end
 
 end

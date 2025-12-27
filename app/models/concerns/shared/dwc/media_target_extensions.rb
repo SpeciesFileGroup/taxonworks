@@ -217,7 +217,7 @@ module Shared::Dwc::MediaTargetExtensions
   #     .joins(:otu)
   #     .where(otu: {id: otu.id})
   #     .map(&:name)
-  #     .join(CollectionObject::DWC_DELIMITER)
+  #     .join(Export::Dwca::DELIMITER)
   # end
 
   # def dwc_media_identified_by(o)

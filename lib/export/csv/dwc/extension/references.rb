@@ -7,9 +7,6 @@
 #
 module Export::CSV::Dwc::Extension::References
 
-  # Delimiter used to split concatenated references in DwcOccurrence
-  REFERENCE_DELIMITER = ' | '
-
   # Maintain this for order.
   # !! Only including fields that can be populated from DwcOccurrence data,
   # which only includes Asserted Distribution data on references.
@@ -49,7 +46,7 @@ module Export::CSV::Dwc::Extension::References
       next if references_str.blank?
 
       # Split by delimiter to get individual citations
-      citations = references_str.split(REFERENCE_DELIMITER).map(&:strip).reject(&:blank?)
+      citations = references_str.split(Export::Dwca::DELIMITER).map(&:strip).reject(&:blank?)
 
       # Create one row per citation
       citations.each do |citation|
