@@ -8,6 +8,7 @@ module Export::Dwca
     DISTRIBUTION_EXTENSION = :distribution
     REFERENCES_EXTENSION = :references
     TYPES_AND_SPECIMEN_EXTENSION = :types_and_specimen
+    VERNACULAR_NAME_EXTENSION = :vernacular_name
 
     # @return [Hash] of Otu query params
     #  Required.
@@ -44,6 +45,9 @@ module Export::Dwca
     # @return [Boolean] whether to include types and specimen extension
     attr_accessor :types_and_specimen_extension
 
+    # @return [Boolean] whether to include vernacular name extension
+    attr_accessor :vernacular_name_extension
+
     # @return [Array<Symbol>] list of extensions to include
     attr_accessor :extensions
 
@@ -59,6 +63,7 @@ module Export::Dwca
       @distribution_extension = extensions.include?(DISTRIBUTION_EXTENSION)
       @references_extension = extensions.include?(REFERENCES_EXTENSION)
       @types_and_specimen_extension = extensions.include?(TYPES_AND_SPECIMEN_EXTENSION)
+      @vernacular_name_extension = extensions.include?(VERNACULAR_NAME_EXTENSION)
     end
 
     # @return [Array] use the temporarily written, and refined, CSV file to read
@@ -441,7 +446,24 @@ module Export::Dwca
             }
           end
 
-          # TODO: Add additional checklist-specific extensions here (e.g., vernacular names, taxon descriptions, etc.)
+          # Vernacular Name extension
+          if vernacular_name_extension
+            xml.extension(encoding: 'UTF-8', linesTerminatedBy: '\\n', fieldsTerminatedBy: '\\t', fieldsEnclosedBy: '"', ignoreHeaderLines: '1', rowType:'http://rs.gbif.org/terms/1.0/VernacularName') {
+              xml.files {
+                xml.location 'vernacular_name.tsv'
+              }
+              Export::CSV::Dwc::Extension::VernacularName::HEADERS_NAMESPACES.each_with_index do |n, i|
+                if i == 0
+                  n == '' || (raise TaxonWorks::Error, "First vernacular_name column (id) should have namespace '', got '#{n}'")
+                  xml.id(index: 0)
+                else
+                  xml.field(index: i, term: n)
+                end
+              end
+            }
+          end
+
+          # TODO: Add additional checklist-specific extensions here (e.g., taxon descriptions, etc.)
         }
       end
 
@@ -522,6 +544,28 @@ module Export::Dwca
       @types_and_specimen_extension_tmp
     end
 
+    def vernacular_name_extension_tmp
+      return nil unless vernacular_name_extension
+      @vernacular_name_extension_tmp = Tempfile.new('vernacular_name.tsv')
+
+      content = nil
+      if no_records?
+        content = "\n"
+      else
+        # Generate core CSV first to populate taxon_name_to_id mapping if not already done
+        csv unless taxon_name_to_id
+
+        # Export vernacular names from CommonName records
+        # Note: NOT using DwcOccurrence (vernacularName field not populated)
+        content = Export::CSV::Dwc::Extension::VernacularName.csv(core_otu_scope, taxon_name_to_id)
+      end
+
+      @vernacular_name_extension_tmp.write(content)
+      @vernacular_name_extension_tmp.flush
+      @vernacular_name_extension_tmp.rewind
+      @vernacular_name_extension_tmp
+    end
+
     def build_zip
       t = Tempfile.new(filename)
 
@@ -534,6 +578,7 @@ module Export::Dwca
         zip.add('distribution.tsv', distribution_extension_tmp.path) if distribution_extension
         zip.add('references.tsv', references_extension_tmp.path) if references_extension
         zip.add('types_and_specimen.tsv', types_and_specimen_extension_tmp.path) if types_and_specimen_extension
+        zip.add('vernacular_name.tsv', vernacular_name_extension_tmp.path) if vernacular_name_extension
 
         zip.add('meta.xml', meta.path)
         zip.add('eml.xml', eml.path)
@@ -622,6 +667,11 @@ module Export::Dwca
       if types_and_specimen_extension && @types_and_specimen_extension_tmp
         @types_and_specimen_extension_tmp.close
         @types_and_specimen_extension_tmp.unlink
+      end
+
+      if vernacular_name_extension && @vernacular_name_extension_tmp
+        @vernacular_name_extension_tmp.close
+        @vernacular_name_extension_tmp.unlink
       end
 
       eml.close if eml
