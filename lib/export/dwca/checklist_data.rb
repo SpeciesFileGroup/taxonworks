@@ -4,6 +4,9 @@ module Export::Dwca
 
   class ChecklistData
 
+    # Extension constants - callers pass array of these to specify which extensions to include
+    DISTRIBUTION_EXTENSION = :distribution
+
     # @return [Hash] of Otu query params
     #  Required.
     attr_accessor :core_otu_scope
@@ -26,12 +29,26 @@ module Export::Dwca
 
     attr_accessor :data_file
 
-    def initialize(core_scope: nil)
+    # Hash mapping "rank:scientificName" to taxonID for extension star joins
+    # Example: {"species:Rosa alba" => 5, "genus:Rosa" => 3}
+    attr_reader :taxon_name_to_id
+
+    # @return [Boolean] whether to include distribution extension
+    attr_accessor :distribution_extension
+
+    # @return [Array<Symbol>] list of extensions to include
+    attr_accessor :extensions
+
+    def initialize(core_scope: nil, extensions: [])
       @core_otu_scope = core_scope
+      @extensions = extensions
 
       @core_occurrence_scope = ::Queries::DwcOccurrence::Filter.new(
         otu_query: core_scope
       ).all
+
+      # Set extension flags based on requested extensions
+      @distribution_extension = extensions.include?(DISTRIBUTION_EXTENSION)
     end
 
     # @return [Array] use the temporarily written, and refined, CSV file to read
@@ -118,7 +135,10 @@ module Export::Dwca
       return "\n" if parsed.empty?
 
       all_taxa = extract_unique_taxa(parsed)
-      processed_taxa = assign_taxon_ids_and_build_hierarchy(all_taxa)
+      processed_taxa, name_to_id = assign_taxon_ids_and_build_hierarchy(all_taxa)
+
+      # Store the name-to-ID mapping for extensions to use
+      @taxon_name_to_id = name_to_id
 
       output_headers = processed_taxa.first&.keys || []
 
@@ -175,7 +195,7 @@ module Export::Dwca
 
     # Assign sequential taxonIDs and parentNameUsageIDs to all taxa
     # @param all_taxa [Hash] hash of "rank:name" => taxon data
-    # @return [Array<Hash>] array of processed taxa with taxonID and parentNameUsageID
+    # @return [Array] [processed_taxa, name_to_id] - processed taxa array and name-to-ID mapping
     def assign_taxon_ids_and_build_hierarchy(all_taxa)
       taxon_id_counter = 1
       name_to_id = {} # "rank:name" → taxonID
@@ -206,16 +226,18 @@ module Export::Dwca
 
           # Store processed taxon with new IDs.
           # Key order determines final CSV column order.
+          # id column is required for DwC-A star joins with extensions.
           processed_taxon = {
+            'id' => taxon_id,
             'taxonID' => taxon_id,
             'parentNameUsageID' => parent_id
-          }.merge(taxon.except('taxonID'))
+          }.merge(taxon.except('taxonID', 'id'))
 
           processed_taxa << processed_taxon
         end
       end
 
-      processed_taxa
+      [processed_taxa, name_to_id]
     end
 
     # Clear columns for ranks lower than the current rank
@@ -358,13 +380,56 @@ module Export::Dwca
             end
           }
 
-          # TODO: Add checklist-specific extensions here (e.g., vernacular names, taxon descriptions, etc.)
+          # Species Distribution extension
+          if distribution_extension
+            xml.extension(encoding: 'UTF-8', linesTerminatedBy: '\\n', fieldsTerminatedBy: '\\t', fieldsEnclosedBy: '"', ignoreHeaderLines: '1', rowType:'http://rs.gbif.org/terms/1.0/Distribution') {
+              xml.files {
+                xml.location 'distribution.tsv'
+              }
+              Export::CSV::Dwc::Extension::SpeciesDistribution::HEADERS_NAMESPACES.each_with_index do |n, i|
+                if i == 0
+                  n == '' || (raise TaxonWorks::Error, "First distribution column (id) should have namespace '', got '#{n}'")
+                  xml.id(index: 0)
+                else
+                  xml.field(index: i, term: n)
+                end
+              end
+            }
+          end
+
+          # TODO: Add additional checklist-specific extensions here (e.g., vernacular names, taxon descriptions, etc.)
         }
       end
 
       @meta.write(builder.to_xml)
       @meta.flush
+      @meta.rewind
       @meta
+    end
+
+    # @return [Tempfile, nil]
+    #   Species distribution extension data from AssertedDistribution records
+    def distribution_extension_tmp
+      return nil unless distribution_extension
+      @distribution_extension_tmp = Tempfile.new('distribution.tsv')
+
+      content = nil
+      if no_records?
+        content = "\n"
+      else
+        # Generate core CSV first to populate taxon_name_to_id mapping if not already done
+        csv unless taxon_name_to_id
+
+        # Only export distribution extension for AssertedDistribution-based DwcOccurrence records
+        distribution_scope = core_occurrence_scope.where(dwc_occurrence_object_type: 'AssertedDistribution')
+
+        content = Export::CSV::Dwc::Extension::SpeciesDistribution.csv(distribution_scope, taxon_name_to_id)
+      end
+
+      @distribution_extension_tmp.write(content)
+      @distribution_extension_tmp.flush
+      @distribution_extension_tmp.rewind
+      @distribution_extension_tmp
     end
 
     def build_zip
@@ -375,7 +440,8 @@ module Export::Dwca
       Zip::File.open(t.path, Zip::File::CREATE) do |zip|
         zip.add('data.tsv', data_file.path)
 
-        # TODO: Add checklist-specific extensions to zip here
+        # Add extensions
+        zip.add('distribution.tsv', distribution_extension_tmp.path) if distribution_extension
 
         zip.add('meta.xml', meta.path)
         zip.add('eml.xml', eml.path)
@@ -450,6 +516,11 @@ module Export::Dwca
 
       @all_data.close if @all_data
       @all_data.unlink if @all_data
+
+      if distribution_extension && @distribution_extension_tmp
+        @distribution_extension_tmp.close
+        @distribution_extension_tmp.unlink
+      end
 
       eml.close if eml
       eml.unlink if eml

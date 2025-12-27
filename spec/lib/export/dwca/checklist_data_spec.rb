@@ -72,8 +72,18 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
       end
 
       context 'CSV headers and column conversions' do
-        specify 'taxonID is the first column' do
-          expect(csv.headers.first).to eq('taxonID')
+        specify 'id is the first column (for DwC-A star joins)' do
+          expect(csv.headers.first).to eq('id')
+        end
+
+        specify 'taxonID is the second column' do
+          expect(csv.headers[1]).to eq('taxonID')
+        end
+
+        specify 'id and taxonID have the same values' do
+          csv.each do |row|
+            expect(row['id']).to eq(row['taxonID'])
+          end
         end
 
         specify 'headers include scientificName' do
@@ -159,8 +169,8 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
 
         specify 'parentNameUsageID header is present' do
           expect(csv.headers).to include('parentNameUsageID')
-          # Should be second column after taxonID
-          expect(csv.headers[1]).to eq('parentNameUsageID')
+          # Should be third column after id and taxonID
+          expect(csv.headers[2]).to eq('parentNameUsageID')
         end
 
         specify 'root taxon (kingdom) has no parent' do
@@ -232,6 +242,121 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           d = FactoryBot.build(:valid_download)
           data.package_download(d)
           expect(File.exist?(d.file_path)).to be_truthy
+        end
+      end
+
+      context 'with distribution extension' do
+        # Create asserted distributions for testing
+        let!(:asserted_distribution1) { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: otu1) }
+        let!(:asserted_distribution2) { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: otu2) }
+
+        before do
+          # Create DwcOccurrence records for AssertedDistributions
+          asserted_distribution1.get_dwc_occurrence
+          asserted_distribution2.get_dwc_occurrence
+        end
+
+        let(:data_with_extension) { Export::Dwca::ChecklistData.new(core_scope: otu_scope, extensions: [Export::Dwca::ChecklistData::DISTRIBUTION_EXTENSION]) }
+        let(:data_without_extension) { Export::Dwca::ChecklistData.new(core_scope: otu_scope, extensions: []) }
+
+        after do
+          data_with_extension.cleanup
+          data_without_extension.cleanup
+        end
+
+        specify 'distribution_extension flag is set when extension is requested' do
+          expect(data_with_extension.distribution_extension).to be true
+          expect(data_without_extension.distribution_extension).to be false
+        end
+
+        specify 'distribution_extension_tmp returns nil when extension not requested' do
+          expect(data_without_extension.distribution_extension_tmp).to be_nil
+        end
+
+        specify 'distribution_extension_tmp returns Tempfile when extension requested' do
+          expect(data_with_extension.distribution_extension_tmp).to be_a(Tempfile)
+        end
+
+        specify 'distribution extension CSV has correct headers' do
+          # Generate core CSV first to populate taxon_name_to_id mapping
+          data_with_extension.csv
+
+          csv_content = data_with_extension.distribution_extension_tmp.read
+          data_with_extension.distribution_extension_tmp.rewind
+          csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+          expect(csv.headers).to eq(['id', 'locality', 'countryCode', 'occurrenceStatus', 'source'])
+        end
+
+        specify 'distribution extension only includes AssertedDistribution records' do
+          # Generate core CSV first to populate taxon_name_to_id mapping
+          data_with_extension.csv
+
+          csv_content = data_with_extension.distribution_extension_tmp.read
+          data_with_extension.distribution_extension_tmp.rewind
+          csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+          # Should have 2 records (one for each asserted distribution)
+          expect(csv.length).to be >= 1
+        end
+
+        specify 'distribution extension uses taxonID from normalized taxonomy' do
+          # Generate core CSV first to populate taxon_name_to_id mapping
+          data_with_extension.csv
+
+          csv_content = data_with_extension.distribution_extension_tmp.read
+          data_with_extension.distribution_extension_tmp.rewind
+          dist_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+          # All id values should be present (not nil)
+          dist_csv.each do |row|
+            expect(row['id']).to be_present
+            expect(row['id'].to_i).to be > 0
+          end
+        end
+
+        specify 'distribution extension includes occurrenceStatus' do
+          # Generate core CSV first to populate taxon_name_to_id mapping
+          data_with_extension.csv
+
+          csv_content = data_with_extension.distribution_extension_tmp.read
+          data_with_extension.distribution_extension_tmp.rewind
+          dist_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+          dist_csv.each do |row|
+            # occurrenceStatus should be 'present' or 'absent'
+            expect(['present', 'absent']).to include(row['occurrenceStatus'])
+          end
+        end
+
+        specify 'zipfile includes distribution.tsv when extension enabled' do
+          zipfile = data_with_extension.zipfile
+          Zip::File.open(zipfile.path) do |zip|
+            expect(zip.find_entry('distribution.tsv')).to be_present
+          end
+        end
+
+        specify 'zipfile does not include distribution.tsv when extension disabled' do
+          zipfile = data_without_extension.zipfile
+          Zip::File.open(zipfile.path) do |zip|
+            expect(zip.find_entry('distribution.tsv')).to be_nil
+          end
+        end
+
+        specify 'meta.xml includes distribution extension when enabled' do
+          meta_content = data_with_extension.meta.read
+          data_with_extension.meta.rewind
+
+          expect(meta_content).to include('distribution.tsv')
+          expect(meta_content).to include('http://rs.gbif.org/terms/1.0/Distribution')
+        end
+
+        specify 'meta.xml does not include distribution extension when disabled' do
+          meta_content = data_without_extension.meta.read
+          data_without_extension.meta.rewind
+
+          expect(meta_content).not_to include('distribution.tsv')
+          expect(meta_content).not_to include('http://rs.gbif.org/terms/1.0/Distribution')
         end
       end
 
