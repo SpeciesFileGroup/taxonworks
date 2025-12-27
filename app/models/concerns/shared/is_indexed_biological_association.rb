@@ -133,11 +133,11 @@ module Shared::IsIndexedBiologicalAssociation
   end
 
   def biological_association_subject_properties
-    subject_biological_properties.pluck(:name).join(Shared::IsDwcOccurrence::DWC_DELIMITER).presence
+    subject_biological_properties.pluck(:name).join(Export::Dwca::DELIMITER).presence
   end
 
   def biological_association_object_properties
-    object_biological_properties.pluck(:name).join(Shared::IsDwcOccurrence::DWC_DELIMITER).presence
+    object_biological_properties.pluck(:name).join(Export::Dwca::DELIMITER).presence
   end
 
   def biological_relationship_uri
@@ -150,7 +150,7 @@ module Shared::IsIndexedBiologicalAssociation
 
   # TODO: Generic helper
   def biological_association_remarks
-    Utilities::Strings.sanitize_for_csv(notes.collect { |n| n.text }.join(Shared::IsDwcOccurrence::DWC_DELIMITER)).presence
+    Utilities::Strings.sanitize_for_csv(notes.collect { |n| n.text }.join(Export::Dwca::DELIMITER)).presence
   end
 
   # Types that have dwc_recorded_by method.
