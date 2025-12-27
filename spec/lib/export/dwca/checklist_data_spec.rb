@@ -482,12 +482,143 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         end
       end
 
+      context 'with types and specimen extension' do
+        # Clear Faker unique cache to avoid "Retry limit exceeded" errors
+        before(:all) { Faker::UniqueGenerator.clear }
+
+        # Create collection objects with type materials for testing
+        let!(:holotype_specimen) { FactoryBot.create(:valid_specimen) }
+        let!(:paratype_specimen) { FactoryBot.create(:valid_specimen) }
+
+        before do
+          # Create taxon determinations linking specimens to OTUs
+          FactoryBot.create(:valid_taxon_determination, otu: otu1, taxon_determination_object: holotype_specimen)
+          FactoryBot.create(:valid_taxon_determination, otu: otu2, taxon_determination_object: paratype_specimen)
+
+          # Create type materials
+          FactoryBot.create(:valid_type_material, protonym: taxon_name1, collection_object: holotype_specimen, type_type: 'holotype')
+          FactoryBot.create(:valid_type_material, protonym: taxon_name2, collection_object: paratype_specimen, type_type: 'paratype')
+
+          # Create DwcOccurrence records for specimens
+          holotype_specimen.get_dwc_occurrence
+          paratype_specimen.get_dwc_occurrence
+        end
+
+        let(:data_with_extension) { Export::Dwca::ChecklistData.new(core_scope: otu_scope, extensions: [Export::Dwca::ChecklistData::TYPES_AND_SPECIMEN_EXTENSION]) }
+        let(:data_without_extension) { Export::Dwca::ChecklistData.new(core_scope: otu_scope, extensions: []) }
+
+        after do
+          data_with_extension.cleanup
+          data_without_extension.cleanup
+        end
+
+        specify 'types_and_specimen_extension flag is set when extension is requested' do
+          expect(data_with_extension.types_and_specimen_extension).to be true
+          expect(data_without_extension.types_and_specimen_extension).to be false
+        end
+
+        specify 'types_and_specimen_extension_tmp returns nil when extension not requested' do
+          expect(data_without_extension.types_and_specimen_extension_tmp).to be_nil
+        end
+
+        specify 'types_and_specimen_extension_tmp returns Tempfile when extension requested' do
+          expect(data_with_extension.types_and_specimen_extension_tmp).to be_a(Tempfile)
+        end
+
+        specify 'types and specimen extension CSV has correct headers' do
+          # Generate core CSV first to populate taxon_name_to_id mapping
+          data_with_extension.csv
+
+          csv_content = data_with_extension.types_and_specimen_extension_tmp.read
+          data_with_extension.types_and_specimen_extension_tmp.rewind
+          csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+          expected_headers = ['id', 'typeStatus', 'scientificName', 'taxonRank', 'occurrenceID',
+                            'institutionCode', 'collectionCode', 'catalogNumber', 'locality',
+                            'sex', 'recordedBy', 'verbatimEventDate']
+          expect(csv.headers).to eq(expected_headers)
+        end
+
+        specify 'types and specimen extension only includes CollectionObject records' do
+          # Generate core CSV first to populate taxon_name_to_id mapping
+          data_with_extension.csv
+
+          csv_content = data_with_extension.types_and_specimen_extension_tmp.read
+          data_with_extension.types_and_specimen_extension_tmp.rewind
+          csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+          # Should have at least 2 rows (holotype and paratype)
+          expect(csv.length).to be >= 2
+        end
+
+        specify 'types and specimen extension uses taxonID from normalized taxonomy' do
+          # Generate core CSV first to populate taxon_name_to_id mapping
+          data_with_extension.csv
+
+          csv_content = data_with_extension.types_and_specimen_extension_tmp.read
+          data_with_extension.types_and_specimen_extension_tmp.rewind
+          types_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+          # All id values should be present (not nil)
+          types_csv.each do |row|
+            expect(row['id']).to be_present
+            expect(row['id'].to_i).to be > 0
+          end
+        end
+
+        specify 'types and specimen extension includes typeStatus' do
+          # Generate core CSV first to populate taxon_name_to_id mapping
+          data_with_extension.csv
+
+          csv_content = data_with_extension.types_and_specimen_extension_tmp.read
+          data_with_extension.types_and_specimen_extension_tmp.rewind
+          types_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+          types_csv.each do |row|
+            expect(row['typeStatus']).to be_present
+          end
+        end
+
+        specify 'zipfile includes types_and_specimen.tsv when extension enabled' do
+          zipfile = data_with_extension.zipfile
+          Zip::File.open(zipfile.path) do |zip|
+            expect(zip.find_entry('types_and_specimen.tsv')).to be_present
+          end
+        end
+
+        specify 'zipfile does not include types_and_specimen.tsv when extension disabled' do
+          zipfile = data_without_extension.zipfile
+          Zip::File.open(zipfile.path) do |zip|
+            expect(zip.find_entry('types_and_specimen.tsv')).to be_nil
+          end
+        end
+
+        specify 'meta.xml includes types and specimen extension when enabled' do
+          meta_content = data_with_extension.meta.read
+          data_with_extension.meta.rewind
+
+          expect(meta_content).to include('types_and_specimen.tsv')
+          expect(meta_content).to include('http://rs.gbif.org/terms/1.0/TypesAndSpecimen')
+        end
+
+        specify 'meta.xml does not include types and specimen extension when disabled' do
+          meta_content = data_without_extension.meta.read
+          data_without_extension.meta.rewind
+
+          expect(meta_content).not_to include('types_and_specimen.tsv')
+          expect(meta_content).not_to include('http://rs.gbif.org/terms/1.0/TypesAndSpecimen')
+        end
+      end
+
       specify '#cleanup returns truthy' do
         expect(data.cleanup).to be_truthy
       end
     end
 
     context 'with no matching records' do
+      # Clear Faker unique cache to avoid "Retry limit exceeded" errors
+      before(:all) { Faker::UniqueGenerator.clear }
+
       let(:empty_scope) { { otu_id: [999999] } }
       let(:empty_data) { Export::Dwca::ChecklistData.new(core_scope: empty_scope) }
 
@@ -511,6 +642,9 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
     end
 
     context 'with various OTU query scopes' do
+      # Clear Faker unique cache to avoid "Retry limit exceeded" errors
+      before(:all) { Faker::UniqueGenerator.clear }
+
       before do
         # Create one specimen with determination to otu1
         specimen = FactoryBot.create(:valid_specimen)
