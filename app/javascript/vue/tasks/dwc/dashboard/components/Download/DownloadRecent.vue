@@ -31,7 +31,7 @@
             v-for="property in PROPERTIES"
             :key="property"
           >
-            {{ item[property] }}
+            {{ property === 'type' ? formatDownloadType(item[property]) : item[property] }}
           </td>
           <td>
             <input
@@ -57,7 +57,7 @@
 </template>
 <script setup>
 import { inject, onBeforeMount, watch } from 'vue'
-import { DOWNLOAD_DWC_ARCHIVE } from '@/constants/index.js'
+import { DOWNLOAD_DWC_ARCHIVE, DOWNLOAD_DWC_ARCHIVE_CHECKLIST } from '@/constants/index.js'
 import { Download } from '@/routes/endpoints'
 import { humanize } from '@/helpers/strings'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
@@ -70,6 +70,7 @@ const TIME_BY_RECORDS = {
   100000: 30000
 }
 const PROPERTIES = [
+  'type',
   'created_at',
   'expires',
   'total_records',
@@ -150,6 +151,13 @@ const sortByDate = (list) =>
     return dateB - dateA
   })
 
+const formatDownloadType = (type) => {
+  if (!type) return ''
+  if (type.includes('Checklist')) return 'checklist'
+  if (type === DOWNLOAD_DWC_ARCHIVE) return 'occurrence'
+  return type
+}
+
 watch(
   () => store.downloadList,
   (list) => {
@@ -160,7 +168,7 @@ watch(
 
 onBeforeMount(async () => {
   store.downloadList = sortByDate(
-    (await Download.where({ download_type: DOWNLOAD_DWC_ARCHIVE })).body
+    (await Download.where({ download_type: [DOWNLOAD_DWC_ARCHIVE, DOWNLOAD_DWC_ARCHIVE_CHECKLIST] })).body
   )
 })
 </script>

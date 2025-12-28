@@ -10,7 +10,7 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
   let(:otu_scope) { { otu_id: [otu1.id, otu2.id, otu3.id] } }
 
   context 'when initialized with a scope' do
-    let(:data) { Export::Dwca::ChecklistData.new(core_scope: otu_scope) }
+    let(:data) { Export::Dwca::ChecklistData.new(core_otu_scope_params: otu_scope) }
 
     specify '#csv returns csv String' do
       expect(data.csv).to be_kind_of(String)
@@ -209,6 +209,137 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         end
       end
 
+      context 'extracted higher taxa field clearing' do
+        # Add some taxon-specific data to the DwcOccurrences to test field clearing
+        before do
+          data.core_occurrence_scope.each do |dwc|
+            dwc.update!(
+              scientificNameAuthorship: 'Smith, 1850',
+              namePublishedIn: 'Journal of Taxonomy',
+              namePublishedInYear: '1850',
+              taxonomicStatus: 'accepted',
+              nomenclaturalStatus: 'valid',
+              taxonRemarks: 'Common species',
+              vernacularName: 'Common Name'
+            )
+          end
+        end
+
+        specify 'extracted higher taxon clears taxon-specific fields from terminal taxon' do
+          # Find an extracted genus (higher than the terminal species)
+          genus = csv.find { |row| row['taxonRank'] == 'genus' }
+          expect(genus).to be_present
+
+          # These fields should be cleared (came from terminal species)
+          expect(genus['scientificNameAuthorship']).to be_nil.or be_empty
+          expect(genus['namePublishedIn']).to be_nil.or be_empty
+          expect(genus['namePublishedInYear']).to be_nil.or be_empty
+          expect(genus['taxonomicStatus']).to be_nil.or be_empty
+          expect(genus['nomenclaturalStatus']).to be_nil.or be_empty
+          expect(genus['taxonRemarks']).to be_nil.or be_empty
+          expect(genus['vernacularName']).to be_nil.or be_empty
+        end
+
+        specify 'terminal taxon retains all its taxon-specific fields' do
+          # Find a terminal species taxon (not extracted, original)
+          species = csv.find { |row| row['taxonRank'] == 'species' }
+          expect(species).to be_present
+
+          # These fields should be retained for the terminal taxon
+          expect(species['scientificNameAuthorship']).to eq('Smith, 1850')
+          expect(species['namePublishedIn']).to eq('Journal of Taxonomy')
+          expect(species['namePublishedInYear']).to eq('1850')
+          expect(species['taxonomicStatus']).to eq('accepted')
+        end
+
+        specify 'extracted higher taxon has recomputed higherClassification' do
+          # Find genus row
+          genus = csv.find { |row| row['taxonRank'] == 'genus' }
+          expect(genus).to be_present
+
+          # higherClassification should be recomputed from rank columns above genus
+          # Should include kingdom, phylum, class, order, family (in that order)
+          expected_parts = [
+            genus['kingdom'],
+            genus['phylum'],
+            genus['class'],
+            genus['order'],
+            genus['family']
+          ].compact.reject(&:empty?)
+
+          expect(genus['higherClassification']).to eq(expected_parts.join(Export::Dwca::DELIMITER))
+        end
+
+        specify 'terminal taxon keeps original higherClassification' do
+          # Get the original higherClassification from a DwcOccurrence
+          original = data.core_occurrence_scope.first
+          original_classification = original.higherClassification
+
+          # Find the corresponding species in output
+          species = csv.find { |row|
+            row['scientificName'] == original.scientificName &&
+            row['taxonRank'] == original.taxonRank&.downcase
+          }
+          expect(species).to be_present
+
+          # Should keep the original higherClassification
+          expect(species['higherClassification']).to eq(original_classification)
+        end
+
+        specify 'extracted family has correct higherClassification' do
+          family = csv.find { |row| row['taxonRank'] == 'family' }
+          expect(family).to be_present
+
+          # Should only include kingdom, phylum, class, order
+          expected_parts = [
+            family['kingdom'],
+            family['phylum'],
+            family['class'],
+            family['order']
+          ].compact.reject(&:empty?)
+
+          expect(family['higherClassification']).to eq(expected_parts.join(Export::Dwca::DELIMITER))
+        end
+
+        specify 'extracted higher taxon clears epithet fields for non-species ranks' do
+          # Genus should have epithet fields cleared
+          genus = csv.find { |row| row['taxonRank'] == 'genus' }
+          expect(genus).to be_present
+          expect(genus['specificEpithet']).to be_nil.or be_empty
+          expect(genus['infraspecificEpithet']).to be_nil.or be_empty
+
+          # Family should also have epithet fields cleared
+          family = csv.find { |row| row['taxonRank'] == 'family' }
+          expect(family).to be_present
+          expect(family['specificEpithet']).to be_nil.or be_empty
+          expect(family['infraspecificEpithet']).to be_nil.or be_empty
+        end
+
+        specify 'extracted higher taxon retains rank columns at and above its rank' do
+          # Find genus row
+          genus = csv.find { |row| row['taxonRank'] == 'genus' }
+          expect(genus).to be_present
+
+          # Rank columns at and above genus should be preserved
+          expect(genus['kingdom']).to eq('Animalia')
+          expect(genus['phylum']).to eq('Arthropoda')
+          expect(genus['class']).to eq('Insecta')
+          expect(genus['order']).to eq('Lepidoptera')
+          expect(genus['family']).to eq('Noctuidae')
+          expect(genus['genus']).to eq('Aus')
+        end
+
+        specify 'extracted higher taxon clears rank columns below its rank' do
+          # Find family row
+          family = csv.find { |row| row['taxonRank'] == 'family' }
+          expect(family).to be_present
+
+          # Rank columns below family should be cleared
+          expect(family['genus']).to be_nil.or be_empty
+          expect(family['subgenus']).to be_nil.or be_empty
+        end
+      end
+
       specify '#meta_fields returns headers without id column' do
         meta_fields = data.meta_fields
         expect(meta_fields).not_to include('id')
@@ -256,8 +387,8 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           asserted_distribution2.get_dwc_occurrence
         end
 
-        let(:data_with_extension) { Export::Dwca::ChecklistData.new(core_scope: otu_scope, extensions: [Export::Dwca::ChecklistData::DISTRIBUTION_EXTENSION]) }
-        let(:data_without_extension) { Export::Dwca::ChecklistData.new(core_scope: otu_scope, extensions: []) }
+        let(:data_with_extension) { Export::Dwca::ChecklistData.new(core_otu_scope_params: otu_scope, extensions: [Export::Dwca::ChecklistData::DISTRIBUTION_EXTENSION]) }
+        let(:data_without_extension) { Export::Dwca::ChecklistData.new(core_otu_scope_params: otu_scope, extensions: []) }
 
         after do
           data_with_extension.cleanup
@@ -379,8 +510,8 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           ad_with_refs2.get_dwc_occurrence
         end
 
-        let(:data_with_extension) { Export::Dwca::ChecklistData.new(core_scope: otu_scope, extensions: [Export::Dwca::ChecklistData::REFERENCES_EXTENSION]) }
-        let(:data_without_extension) { Export::Dwca::ChecklistData.new(core_scope: otu_scope, extensions: []) }
+        let(:data_with_extension) { Export::Dwca::ChecklistData.new(core_otu_scope_params: otu_scope, extensions: [Export::Dwca::ChecklistData::REFERENCES_EXTENSION]) }
+        let(:data_without_extension) { Export::Dwca::ChecklistData.new(core_otu_scope_params: otu_scope, extensions: []) }
 
         after do
           data_with_extension.cleanup
@@ -504,8 +635,8 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           paratype_specimen.get_dwc_occurrence
         end
 
-        let(:data_with_extension) { Export::Dwca::ChecklistData.new(core_scope: otu_scope, extensions: [Export::Dwca::ChecklistData::TYPES_AND_SPECIMEN_EXTENSION]) }
-        let(:data_without_extension) { Export::Dwca::ChecklistData.new(core_scope: otu_scope, extensions: []) }
+        let(:data_with_extension) { Export::Dwca::ChecklistData.new(core_otu_scope_params: otu_scope, extensions: [Export::Dwca::ChecklistData::TYPES_AND_SPECIMEN_EXTENSION]) }
+        let(:data_without_extension) { Export::Dwca::ChecklistData.new(core_otu_scope_params: otu_scope, extensions: []) }
 
         after do
           data_with_extension.cleanup
@@ -622,8 +753,8 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         let!(:common_name2) { FactoryBot.create(:valid_common_name, otu: otu1, name: 'Mariposa Común', language: language_es) }
         let!(:common_name3) { FactoryBot.create(:valid_common_name, otu: otu2, name: 'Red Moth', language: language_en, start_year: 1950, end_year: 2020) }
 
-        let(:data_with_extension) { Export::Dwca::ChecklistData.new(core_scope: otu_scope, extensions: [Export::Dwca::ChecklistData::VERNACULAR_NAME_EXTENSION]) }
-        let(:data_without_extension) { Export::Dwca::ChecklistData.new(core_scope: otu_scope, extensions: []) }
+        let(:data_with_extension) { Export::Dwca::ChecklistData.new(core_otu_scope_params: otu_scope, extensions: [Export::Dwca::ChecklistData::VERNACULAR_NAME_EXTENSION]) }
+        let(:data_without_extension) { Export::Dwca::ChecklistData.new(core_otu_scope_params: otu_scope, extensions: []) }
 
         after do
           data_with_extension.cleanup
@@ -763,7 +894,7 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
       before(:all) { Faker::UniqueGenerator.clear }
 
       let(:empty_scope) { { otu_id: [999999] } }
-      let(:empty_data) { Export::Dwca::ChecklistData.new(core_scope: empty_scope) }
+      let(:empty_data) { Export::Dwca::ChecklistData.new(core_otu_scope_params: empty_scope) }
 
       after { empty_data.cleanup }
 
@@ -799,14 +930,14 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
 
       specify 'with single OTU ID' do
         single_scope = { otu_id: otu1.id }
-        d = Export::Dwca::ChecklistData.new(core_scope: single_scope)
+        d = Export::Dwca::ChecklistData.new(core_otu_scope_params: single_scope)
         expect(d.total).to eq(1)
         d.cleanup
       end
 
       specify 'with array of OTU IDs' do
         array_scope = { otu_id: [otu1.id] }
-        d = Export::Dwca::ChecklistData.new(core_scope: array_scope)
+        d = Export::Dwca::ChecklistData.new(core_otu_scope_params: array_scope)
         expect(d.total).to eq(1)
         d.cleanup
       end
@@ -814,7 +945,7 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
       specify 'with range of OTU IDs converted to array' do
         # Ranges must be converted to arrays for proper querying
         range_scope = { otu_id: (otu1.id..otu1.id).to_a }
-        d = Export::Dwca::ChecklistData.new(core_scope: range_scope)
+        d = Export::Dwca::ChecklistData.new(core_otu_scope_params: range_scope)
         expect(d.total).to eq(1)
         d.cleanup
       end
@@ -848,7 +979,7 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
       end
 
       let(:infra_scope) { { otu_id: [otu_species.id, otu_subspecies.id, otu_variety.id] } }
-      let(:infra_data) { Export::Dwca::ChecklistData.new(core_scope: infra_scope) }
+      let(:infra_data) { Export::Dwca::ChecklistData.new(core_otu_scope_params: infra_scope) }
       let(:infra_csv) { CSV.parse(infra_data.csv, headers: true, col_sep: "\t") }
 
       after { infra_data.cleanup }
