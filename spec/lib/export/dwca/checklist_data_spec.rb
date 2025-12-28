@@ -169,8 +169,8 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
 
         specify 'parentNameUsageID header is present' do
           expect(csv.headers).to include('parentNameUsageID')
-          # Should be third column after id and taxonID
-          expect(csv.headers[2]).to eq('parentNameUsageID')
+          # Should be fourth column after id, taxonID, and acceptedNameUsageID
+          expect(csv.headers[3]).to eq('parentNameUsageID')
         end
 
         specify 'root taxon (kingdom) has no parent' do
@@ -930,14 +930,14 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
 
       specify 'with single OTU ID' do
         single_scope = { otu_id: otu1.id }
-        d = Export::Dwca::ChecklistData.new(core_otu_scope_params: single_scope, valid_names_only: false)
+        d = Export::Dwca::ChecklistData.new(core_otu_scope_params: single_scope, accepted_name_mode: 'accepted_name_usage_id')
         expect(d.total).to eq(1)
         d.cleanup
       end
 
       specify 'with array of OTU IDs' do
         array_scope = { otu_id: [otu1.id] }
-        d = Export::Dwca::ChecklistData.new(core_otu_scope_params: array_scope, valid_names_only: false)
+        d = Export::Dwca::ChecklistData.new(core_otu_scope_params: array_scope, accepted_name_mode: 'accepted_name_usage_id')
         expect(d.total).to eq(1)
         d.cleanup
       end
@@ -945,7 +945,7 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
       specify 'with range of OTU IDs converted to array' do
         # Ranges must be converted to arrays for proper querying
         range_scope = { otu_id: (otu1.id..otu1.id).to_a }
-        d = Export::Dwca::ChecklistData.new(core_otu_scope_params: range_scope, valid_names_only: false)
+        d = Export::Dwca::ChecklistData.new(core_otu_scope_params: range_scope, accepted_name_mode: 'accepted_name_usage_id')
         expect(d.total).to eq(1)
         d.cleanup
       end
@@ -1146,7 +1146,7 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
       end
     end
 
-    context 'with valid_names_only parameter' do
+    context 'with accepted_name_mode parameter' do
       let!(:root) { FactoryBot.create(:root_taxon_name) }
       let!(:kingdom) { Protonym.create!(name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom), parent: root) }
       let!(:family) { Protonym.create!(name: 'Felidae', rank_class: Ranks.lookup(:iczn, :family), parent: kingdom) }
@@ -1182,41 +1182,183 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         invalid_species.reload
       end
 
-      let(:valid_only_data) do
+      let(:exclude_unaccepted_data) do
         ::Export::Dwca::ChecklistData.new(
           core_otu_scope_params: { otu_id: [valid_otu.id, invalid_otu.id] },
-          valid_names_only: true
+          accepted_name_mode: 'exclude_unaccepted_names'
         )
       end
 
-      let(:all_names_data) do
+      let(:accepted_name_usage_id_data) do
         ::Export::Dwca::ChecklistData.new(
           core_otu_scope_params: { otu_id: [valid_otu.id, invalid_otu.id] },
-          valid_names_only: false
+          accepted_name_mode: 'accepted_name_usage_id'
         )
       end
 
-      specify 'valid_names_only: true excludes invalid names' do
-        valid_csv = CSV.parse(valid_only_data.csv, headers: true, col_sep: "\t")
+      specify 'exclude_unaccepted_names mode excludes invalid names' do
+        exclude_csv = CSV.parse(exclude_unaccepted_data.csv, headers: true, col_sep: "\t")
 
         # Should include valid species
-        valid_taxon = valid_csv.find { |row| row['scientificName']&.include?('catus') }
+        valid_taxon = exclude_csv.find { |row| row['scientificName']&.include?('catus') }
         expect(valid_taxon).to be_present, 'Valid species should be included'
 
         # Should NOT include invalid species (synonym)
-        invalid_taxon = valid_csv.find { |row| row['scientificName']&.include?('domesticus') }
+        invalid_taxon = exclude_csv.find { |row| row['scientificName']&.include?('domesticus') }
         expect(invalid_taxon).to be_nil, 'Invalid species (synonym) should be excluded'
       end
 
-      specify 'valid_names_only: false includes both OTUs' do
-        # When valid_names_only is false, both OTUs should be queried
-        # (even though their DwcOccurrences may resolve to the same valid name)
-        expect(all_names_data.total).to eq(2), 'Should query both valid and invalid OTUs'
+      specify 'accepted_name_usage_id mode includes both taxa' do
+        expect(accepted_name_usage_id_data.total).to eq(2), 'Should query both valid and invalid OTUs'
 
-        # The CSV may still deduplicate to one taxon if both resolve to the same scientificName
-        all_csv = CSV.parse(all_names_data.csv, headers: true, col_sep: "\t")
+        # Debug: Check filter setup
+        puts "\n=== Debug: Filter setup ==="
+        filter = accepted_name_usage_id_data.instance_variable_get(:@core_occurrence_scope)
+        if filter.is_a?(ActiveRecord::Relation)
+          # Get the filter that created this relation
+          # We need to look at ChecklistData's instance variables
+          puts "Core occurrence scope is an ActiveRecord::Relation"
+        end
+
+        # Debug: Check the SQL query
+        puts "\n=== Debug: SQL Query ==="
+        puts accepted_name_usage_id_data.core_occurrence_scope.to_sql[0..1000]
+
+        # Debug: Check what's in the DwcOccurrence scope
+        puts "\n=== Debug: DwcOccurrence records ==="
+        accepted_name_usage_id_data.core_occurrence_scope.limit(1).each do |dwc|
+          puts "  ID: #{dwc.id}, scientificName: #{dwc.scientificName}"
+          puts "  Has taxon_name_cached? #{dwc.respond_to?(:taxon_name_cached)}"
+          puts "  All attrs count: #{dwc.attributes.keys.length}"
+        end
+
+        all_csv = CSV.parse(accepted_name_usage_id_data.csv, headers: true, col_sep: "\t")
+
+        # Debug: Show all rows
+        puts "\n=== Debug: CSV rows ==="
+        all_csv.each do |row|
+          puts "  #{row['taxonRank']}: #{row['scientificName']}"
+        end
+
+        # Both should be present with their original names
         valid_taxon = all_csv.find { |row| row['scientificName']&.include?('catus') }
+        synonym_taxon = all_csv.find { |row| row['scientificName']&.include?('domesticus') }
+
         expect(valid_taxon).to be_present, 'Valid species should be included'
+        expect(synonym_taxon).to be_present, 'Synonym should be included with original name'
+      end
+
+      specify 'accepted_name_usage_id mode includes acceptedNameUsageID and taxonomicStatus fields' do
+        all_csv = CSV.parse(accepted_name_usage_id_data.csv, headers: true, col_sep: "\t")
+
+        expect(all_csv.headers).to include('acceptedNameUsageID')
+        expect(all_csv.headers).to include('taxonomicStatus')
+      end
+
+      specify 'accepted name has taxonomicStatus "accepted" and acceptedNameUsageID pointing to itself' do
+        all_csv = CSV.parse(accepted_name_usage_id_data.csv, headers: true, col_sep: "\t")
+
+        valid_taxon = all_csv.find { |row| row['scientificName']&.include?('catus') && row['taxonRank'] == 'species' }
+        expect(valid_taxon).to be_present
+
+        expect(valid_taxon['taxonomicStatus']).to eq('accepted')
+        expect(valid_taxon['acceptedNameUsageID']).to eq(valid_taxon['taxonID'])
+      end
+
+      specify 'synonym has taxonomicStatus "synonym" and acceptedNameUsageID pointing to valid name' do
+        all_csv = CSV.parse(accepted_name_usage_id_data.csv, headers: true, col_sep: "\t")
+
+        synonym_taxon = all_csv.find { |row| row['scientificName']&.include?('domesticus') && row['taxonRank'] == 'species' }
+        valid_taxon = all_csv.find { |row| row['scientificName']&.include?('catus') && row['taxonRank'] == 'species' }
+
+        expect(synonym_taxon).to be_present
+        expect(valid_taxon).to be_present
+
+        expect(synonym_taxon['taxonomicStatus']).to eq('synonym')
+        expect(synonym_taxon['acceptedNameUsageID']).to eq(valid_taxon['taxonID'])
+      end
+
+      specify 'extracted higher taxa have taxonomicStatus "accepted"' do
+        all_csv = CSV.parse(accepted_name_usage_id_data.csv, headers: true, col_sep: "\t")
+
+        # Find extracted higher taxa (kingdom, family, genus) - these don't have terminal TaxonName data
+        # They're extracted from rank columns and should be marked as accepted because
+        # DwcOccurrence builds classification from valid_taxon_name (see Shared::Taxonomy#taxonomy_for_object)
+        kingdom_taxon = all_csv.find { |row| row['scientificName'] == 'Animalia' && row['taxonRank'] == 'kingdom' }
+        family_taxon = all_csv.find { |row| row['scientificName'] == 'Felidae' && row['taxonRank'] == 'family' }
+        genus_taxon = all_csv.find { |row| row['scientificName'] == 'Felis' && row['taxonRank'] == 'genus' }
+
+        expect(kingdom_taxon).to be_present
+        expect(family_taxon).to be_present
+        expect(genus_taxon).to be_present
+
+        # All extracted higher taxa should be marked as accepted
+        expect(kingdom_taxon['taxonomicStatus']).to eq('accepted')
+        expect(kingdom_taxon['acceptedNameUsageID']).to eq(kingdom_taxon['taxonID'])
+
+        expect(family_taxon['taxonomicStatus']).to eq('accepted')
+        expect(family_taxon['acceptedNameUsageID']).to eq(family_taxon['taxonID'])
+
+        expect(genus_taxon['taxonomicStatus']).to eq('accepted')
+        expect(genus_taxon['acceptedNameUsageID']).to eq(genus_taxon['taxonID'])
+      end
+
+      context 'with terminal higher taxon that is a synonym' do
+        # Create a genus-level OTU that is a synonym
+        let!(:valid_genus) { Protonym.create!(name: 'Validus', rank_class: Ranks.lookup(:iczn, :genus), parent: family) }
+        let!(:invalid_genus) { Protonym.create!(name: 'Invalidus', rank_class: Ranks.lookup(:iczn, :genus), parent: family) }
+        let!(:valid_genus_otu) { FactoryBot.create(:valid_otu, taxon_name: valid_genus) }
+        let!(:invalid_genus_otu) { FactoryBot.create(:valid_otu, taxon_name: invalid_genus) }
+
+        # Create AssertedDistributions for genus-level OTUs (since we need occurrences)
+        let!(:valid_ad) { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: valid_genus_otu) }
+        let!(:invalid_ad) { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: invalid_genus_otu) }
+
+        # Make invalid_genus a synonym of valid_genus
+        let!(:genus_synonym_relationship) do
+          TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(
+            subject_taxon_name: invalid_genus,
+            object_taxon_name: valid_genus
+          )
+        end
+
+        before do
+          valid_ad.get_dwc_occurrence
+          invalid_ad.get_dwc_occurrence
+          valid_genus.reload
+          invalid_genus.reload
+
+        end
+
+        let(:genus_data) do
+          ::Export::Dwca::ChecklistData.new(
+            core_otu_scope_params: { otu_id: [valid_genus_otu.id, invalid_genus_otu.id] },
+            accepted_name_mode: 'accepted_name_usage_id'
+          )
+        end
+
+        specify 'terminal higher taxon that is valid has taxonomicStatus "accepted"' do
+          genus_csv = CSV.parse(genus_data.csv, headers: true, col_sep: "\t")
+
+          valid_genus_row = genus_csv.find { |row| row['scientificName'] == 'Validus' && row['taxonRank'] == 'genus' }
+          expect(valid_genus_row).to be_present
+
+          expect(valid_genus_row['taxonomicStatus']).to eq('accepted')
+          expect(valid_genus_row['acceptedNameUsageID']).to eq(valid_genus_row['taxonID'])
+        end
+
+        specify 'terminal higher taxon that is a synonym has taxonomicStatus "synonym"' do
+          genus_csv = CSV.parse(genus_data.csv, headers: true, col_sep: "\t")
+
+          invalid_genus_row = genus_csv.find { |row| row['scientificName'] == 'Invalidus' && row['taxonRank'] == 'genus' }
+          valid_genus_row = genus_csv.find { |row| row['scientificName'] == 'Validus' && row['taxonRank'] == 'genus' }
+
+          expect(invalid_genus_row).to be_present
+          expect(valid_genus_row).to be_present
+
+          expect(invalid_genus_row['taxonomicStatus']).to eq('synonym')
+          expect(invalid_genus_row['acceptedNameUsageID']).to eq(valid_genus_row['taxonID'])
+        end
       end
     end
   end

@@ -51,16 +51,22 @@ module Export::Dwca
     # @return [Array<Symbol>] list of extensions to include
     attr_accessor :extensions
 
-    def initialize(core_otu_scope_params: nil, extensions: [], valid_names_only: true)
-      # If valid_names_only is true, add a taxon_name_query to filter for valid names
-      if valid_names_only
-        otu_params = core_otu_scope_params.dup || {}
+    # @param accepted_name_mode [String] How to handle unaccepted names
+    #   'exclude_unaccepted_names' - only include accepted names (default)
+    #   'accepted_name_usage_id' - include all names, using acceptedNameUsageID for synonyms
+    attr_accessor :accepted_name_mode
 
-        # Build taxon_name_query filter for valid names
+    def initialize(core_otu_scope_params: nil, extensions: [], accepted_name_mode: 'exclude_unaccepted_names')
+      @accepted_name_mode = accepted_name_mode
+
+      # Filter OTUs based on accepted_name_mode
+      case accepted_name_mode
+      when 'exclude_unaccepted_names'
+        # Only include accepted names (cached_is_valid = true)
+        # Convert to regular Hash first to avoid gnfinder gem's buggy deep_symbolize_keys! implementation
+        otu_params = (core_otu_scope_params&.to_h || {}).deep_symbolize_keys
         taxon_name_filter = { validity: true }
 
-        # If there's already a taxon_name_query, we need to merge it
-        # Otherwise, just add our validity filter
         if otu_params[:taxon_name_query]
           otu_params[:taxon_name_query] = otu_params[:taxon_name_query].merge(taxon_name_filter)
         else
@@ -68,8 +74,11 @@ module Export::Dwca
         end
 
         @core_otu_scope_params = otu_params
+      when 'accepted_name_usage_id'
+        # Include all OTUs - we'll handle acceptedNameUsageID in CSV generation
+        @core_otu_scope_params = (core_otu_scope_params&.to_h || {}).deep_symbolize_keys
       else
-        @core_otu_scope_params = core_otu_scope_params
+        @core_otu_scope_params = (core_otu_scope_params&.to_h || {}).deep_symbolize_keys
       end
 
       @extensions = extensions
@@ -77,6 +86,12 @@ module Export::Dwca
       @core_occurrence_scope = ::Queries::DwcOccurrence::Filter.new(
         otu_query: @core_otu_scope_params
       ).all
+
+      # For accepted_name_usage_id mode, fetch TaxonName data separately
+      if accepted_name_mode == 'accepted_name_usage_id'
+        @taxon_name_data = fetch_taxon_name_data
+        @occurrence_to_otu = fetch_occurrence_to_otu_mapping
+      end
 
       # Set extension flags based on requested extensions
       @distribution_extension = extensions.include?(DISTRIBUTION_EXTENSION)
@@ -114,10 +129,18 @@ module Export::Dwca
     def csv
       return "\n" if no_records?
 
+      # In accepted_name_usage_id mode, we need dwc_occurrence_object_type/id for lookups
+      # Don't exclude them initially - we'll remove them after processing
+      excluded_columns = if accepted_name_mode == 'accepted_name_usage_id'
+        ::DwcOccurrence::EXCLUDED_CHECKLIST_COLUMNS - [:dwc_occurrence_object_type, :dwc_occurrence_object_id]
+      else
+        ::DwcOccurrence::EXCLUDED_CHECKLIST_COLUMNS
+      end
+
       # Get raw occurrence data with all taxonomy columns.
       raw_csv = ::Export::CSV.generate_csv(
         core_occurrence_scope.computed_checklist_columns,
-        exclude_columns: ::DwcOccurrence::EXCLUDED_CHECKLIST_COLUMNS,
+        exclude_columns: excluded_columns,
         column_order: ::DwcOccurrence::CHECKLIST_TAXON_EXTENSION_COLUMNS.keys,
         trim_columns: false, # Keep all columns for now
         trim_rows: false,
@@ -169,6 +192,12 @@ module Export::Dwca
       return "\n" if parsed.empty?
 
       all_taxa = extract_unique_taxa(parsed)
+
+      # In accepted_name_usage_id mode, ensure valid names exist for all synonyms
+      if accepted_name_mode == 'accepted_name_usage_id'
+        all_taxa = ensure_valid_names_for_synonyms(all_taxa, parsed)
+      end
+
       processed_taxa, name_to_id = assign_taxon_ids_and_build_hierarchy(all_taxa)
 
       # Store the name-to-ID mapping for extensions to use
@@ -185,6 +214,88 @@ module Export::Dwca
       end
     end
 
+    # Fetch TaxonName data by unique OTU (not by occurrence)
+    # @return [Hash] otu_id => { cached:, cached_is_valid:, cached_valid_taxon_name_id: }
+    def fetch_taxon_name_data
+      # Get unique OTU IDs from all three occurrence types
+      # This is MUCH faster than joining for every occurrence
+
+      # 1. Get OTU IDs from CollectionObject occurrences
+      co_otu_ids = core_occurrence_scope
+        .where(dwc_occurrence_object_type: 'CollectionObject')
+        .joins('JOIN collection_objects co ON co.id = dwc_occurrences.dwc_occurrence_object_id')
+        .joins('JOIN taxon_determinations td ON td.taxon_determination_object_id = co.id AND td.taxon_determination_object_type = \'CollectionObject\' AND td.position = 1')
+        .distinct
+        .pluck('td.otu_id')
+
+      # 2. Get OTU IDs from FieldOccurrence occurrences
+      fo_otu_ids = core_occurrence_scope
+        .where(dwc_occurrence_object_type: 'FieldOccurrence')
+        .joins('JOIN field_occurrences fo ON fo.id = dwc_occurrences.dwc_occurrence_object_id')
+        .joins('JOIN taxon_determinations td ON td.taxon_determination_object_id = fo.id AND td.taxon_determination_object_type = \'FieldOccurrence\' AND td.position = 1')
+        .distinct
+        .pluck('td.otu_id')
+
+      # 3. Get OTU IDs from AssertedDistribution occurrences
+      ad_otu_ids = core_occurrence_scope
+        .where(dwc_occurrence_object_type: 'AssertedDistribution')
+        .joins('JOIN asserted_distributions ad ON ad.id = dwc_occurrences.dwc_occurrence_object_id AND ad.asserted_distribution_object_type = \'Otu\'')
+        .distinct
+        .pluck('ad.asserted_distribution_object_id')
+
+      # Combine and get unique OTU IDs
+      all_otu_ids = (co_otu_ids + fo_otu_ids + ad_otu_ids).compact.uniq
+
+      return {} if all_otu_ids.empty?
+
+      # Fetch TaxonName data for these OTUs in a single query
+      ::Otu
+        .where(id: all_otu_ids)
+        .joins(:taxon_name)
+        .pluck(
+          'otus.id',
+          'taxon_names.cached',
+          'taxon_names.cached_is_valid',
+          'taxon_names.cached_valid_taxon_name_id'
+        )
+        .each_with_object({}) do |row, hash|
+          hash[row[0]] = {
+            cached: row[1],
+            cached_is_valid: row[2],
+            cached_valid_taxon_name_id: row[3]
+          }
+        end
+    end
+
+    # Build mapping from occurrence to OTU ID
+    # @return [Hash] "dwc_occurrence_object_type:dwc_occurrence_object_id" => otu_id
+    def fetch_occurrence_to_otu_mapping
+      # CollectionObject occurrences
+      co_mapping = core_occurrence_scope
+        .where(dwc_occurrence_object_type: 'CollectionObject')
+        .joins('JOIN collection_objects co ON co.id = dwc_occurrences.dwc_occurrence_object_id')
+        .joins('JOIN taxon_determinations td ON td.taxon_determination_object_id = co.id AND td.taxon_determination_object_type = \'CollectionObject\' AND td.position = 1')
+        .pluck('dwc_occurrences.dwc_occurrence_object_type', 'dwc_occurrences.dwc_occurrence_object_id', 'td.otu_id')
+        .each_with_object({}) { |(type, id, otu_id), h| h["#{type}:#{id}"] = otu_id }
+
+      # FieldOccurrence occurrences
+      fo_mapping = core_occurrence_scope
+        .where(dwc_occurrence_object_type: 'FieldOccurrence')
+        .joins('JOIN field_occurrences fo ON fo.id = dwc_occurrences.dwc_occurrence_object_id')
+        .joins('JOIN taxon_determinations td ON td.taxon_determination_object_id = fo.id AND td.taxon_determination_object_type = \'FieldOccurrence\' AND td.position = 1')
+        .pluck('dwc_occurrences.dwc_occurrence_object_type', 'dwc_occurrences.dwc_occurrence_object_id', 'td.otu_id')
+        .each_with_object({}) { |(type, id, otu_id), h| h["#{type}:#{id}"] = otu_id }
+
+      # AssertedDistribution occurrences
+      ad_mapping = core_occurrence_scope
+        .where(dwc_occurrence_object_type: 'AssertedDistribution')
+        .joins('JOIN asserted_distributions ad ON ad.id = dwc_occurrences.dwc_occurrence_object_id AND ad.asserted_distribution_object_type = \'Otu\'')
+        .pluck('dwc_occurrences.dwc_occurrence_object_type', 'dwc_occurrences.dwc_occurrence_object_id', 'ad.asserted_distribution_object_id')
+        .each_with_object({}) { |(type, id, otu_id), h| h["#{type}:#{id}"] = otu_id }
+
+      co_mapping.merge(fo_mapping).merge(ad_mapping)
+    end
+
     # Extract all unique taxa from occurrence data.
     # @param parsed [CSV::Table] parsed occurrence data
     # @return [Hash] hash of "rank:name" => taxon data
@@ -192,6 +303,24 @@ module Export::Dwca
       all_taxa = {}
 
       parsed.each do |row|
+        # In accepted_name_usage_id mode, look up TaxonName data
+        if accepted_name_mode == 'accepted_name_usage_id' && @taxon_name_data && @occurrence_to_otu
+          occurrence_key = "#{row['dwc_occurrence_object_type']}:#{row['dwc_occurrence_object_id']}"
+          otu_id = @occurrence_to_otu[occurrence_key]
+
+          if otu_id
+            tn_data = @taxon_name_data[otu_id]
+
+            if tn_data && tn_data[:cached].present?
+              # Store TaxonName data in the row for later use
+              # We keep the original taxon name separate from scientificName to avoid confusion
+              row['taxon_name_cached'] = tn_data[:cached]
+              row['taxon_name_cached_is_valid'] = tn_data[:cached_is_valid]
+              row['taxon_name_cached_valid_taxon_name_id'] = tn_data[:cached_valid_taxon_name_id]
+            end
+
+          end
+        end
         # Process each rank column to extract higher taxa (DwcOccurrence doesn't
         # include columns matching ORDERED_RANKS for speciesGroup ranks, so
         # those are processed below).
@@ -209,6 +338,15 @@ module Export::Dwca
           taxon['taxonRank'] = rank
           clear_lower_ranks(taxon, rank, original_rank)
 
+          # Clear taxon_name_ columns ONLY if this is an extracted higher taxon, not a terminal taxon
+          # If rank == original_rank, this is a terminal taxon at this rank (e.g., genus-level OTU)
+          # and we should preserve its validity data
+          if rank != original_rank
+            taxon['taxon_name_cached'] = nil
+            taxon['taxon_name_cached_is_valid'] = nil
+            taxon['taxon_name_cached_valid_taxon_name_id'] = nil
+          end
+
           all_taxa[key] = taxon
         end
 
@@ -218,10 +356,18 @@ module Export::Dwca
           rank = row['taxonRank']&.downcase
           next if rank.nil?
 
-          key = "#{rank}:#{row['scientificName']}"
+          # In synonym mode, use taxon_name_cached (original name) if available
+          # Otherwise use scientificName (accepted name or when not in synonym mode)
+          name_for_key = row['taxon_name_cached'].presence || row['scientificName']
+          key = "#{rank}:#{name_for_key}"
           next if all_taxa[key] # already have this taxon
 
-          all_taxa[key] = row.to_h
+          # Store the taxon with the original name if in synonym mode
+          taxon = row.to_h
+          if row['taxon_name_cached'].present?
+            taxon['scientificName'] = row['taxon_name_cached']
+          end
+          all_taxa[key] = taxon
 
           # If this is an infraspecific taxon (subspecies, variety, etc.),
           # also extract its parent species if not already present
@@ -243,11 +389,74 @@ module Export::Dwca
                 species_taxon['taxonRank'] = 'species'
                 clear_lower_ranks(species_taxon, 'species', original_rank)
 
+                # Clear taxon_name_ columns since this is an extracted parent species
+                species_taxon['taxon_name_cached'] = nil
+                species_taxon['taxon_name_cached_is_valid'] = nil
+                species_taxon['taxon_name_cached_valid_taxon_name_id'] = nil
+
                 all_taxa[species_key] = species_taxon
               end
             end
           end
         end
+      end
+
+      all_taxa
+    end
+
+    # Ensure valid names exist for all synonyms
+    # @param all_taxa [Hash] hash of "rank:name" => taxon data
+    # @param parsed [CSV::Table] parsed occurrence data (to get TaxonName data)
+    # @return [Hash] updated all_taxa with valid names added
+    def ensure_valid_names_for_synonyms(all_taxa, parsed)
+      # Track valid TaxonName IDs we need to fetch
+      valid_taxon_name_ids = Set.new
+
+      # Find all synonyms and collect their valid_taxon_name_ids
+      all_taxa.each_value do |taxon|
+        # Check if this is a synonym (not valid)
+        is_valid = taxon['taxon_name_cached_is_valid']
+        # Use !is_valid.nil? to handle false values correctly
+        next unless !is_valid.nil? && !['t', 'true', true, 1, '1'].include?(is_valid)
+
+        valid_id = taxon['taxon_name_cached_valid_taxon_name_id']
+        valid_taxon_name_ids << valid_id.to_i if valid_id.present?
+      end
+
+      return all_taxa if valid_taxon_name_ids.empty?
+
+      # Fetch valid TaxonName records
+      valid_taxon_names = ::TaxonName.where(id: valid_taxon_name_ids.to_a).includes(:ancestor_hierarchies)
+
+      # Create taxa for valid names that don't exist yet
+      valid_taxon_names.each do |valid_tn|
+        rank = valid_tn.rank&.downcase
+        next if rank.nil?
+
+        key = "#{rank}:#{valid_tn.cached}"
+        next if all_taxa[key] # already exists
+
+        # Find a synonym that points to this valid name to use as template
+        # Check both string and integer comparison since the value might be either
+        template_taxon = all_taxa.values.find do |t|
+          vid = t['taxon_name_cached_valid_taxon_name_id']
+          vid.present? && (vid.to_i == valid_tn.id || vid == valid_tn.id.to_s)
+        end
+
+        next unless template_taxon
+
+        # Create valid name taxon from template
+        valid_taxon = template_taxon.dup
+        valid_taxon['scientificName'] = valid_tn.cached
+        valid_taxon['taxonRank'] = rank
+        valid_taxon['taxon_name_cached'] = valid_tn.cached
+        valid_taxon['taxon_name_cached_is_valid'] = 't'
+        valid_taxon['taxon_name_cached_valid_taxon_name_id'] = nil
+
+        # Clear lower ranks
+        clear_lower_ranks(valid_taxon, rank, template_taxon['taxonRank']&.downcase)
+
+        all_taxa[key] = valid_taxon
       end
 
       all_taxa
@@ -262,27 +471,38 @@ module Export::Dwca
       species_binomial_to_id = {} # "genus specificEpithet" → taxonID (for infraspecific taxa lookups)
       processed_taxa = []
 
-      # Process ranks from highest to lowest
-      ORDERED_RANKS.each do |rank|
-        # Find all taxa at this rank
-        rank_taxa = all_taxa.select { |k, v| k.start_with?("#{rank}:") }.values
+      # Batch-fetch all valid TaxonNames upfront to avoid N+1 queries
+      valid_taxon_name_cache = {}
+      if accepted_name_mode == 'accepted_name_usage_id'
+        valid_ids = all_taxa.values
+          .filter_map { |t| t['taxon_name_cached_valid_taxon_name_id']&.to_i }
+          .uniq
 
-        # Sort alphabetically by scientificName
+        if valid_ids.any?
+          ::TaxonName.where(id: valid_ids).find_each do |tn|
+            valid_taxon_name_cache[tn.id] = tn
+          end
+        end
+      end
+
+      # PASS 1: Assign taxonIDs to all taxa and build name_to_id mapping
+      # This ensures all taxa have IDs before we try to look up acceptedNameUsageID
+      taxa_with_ids = []
+
+      ORDERED_RANKS.each do |rank|
+        rank_taxa = all_taxa.select { |k, v| k.start_with?("#{rank}:") }.values
         rank_taxa.sort_by! { |t| t['scientificName'] || '' }
 
         rank_taxa.each do |taxon|
           sci_name = taxon['scientificName']
           key = "#{rank}:#{sci_name}"
-
-          # Skip if already processed
           next if name_to_id[key]
 
-          # Assign new taxonID
           taxon_id = taxon_id_counter
           taxon_id_counter += 1
           name_to_id[key] = taxon_id
 
-          # For species, also add to binomial lookup for infraspecific taxa
+          # For species, also add to binomial lookup
           if rank == 'species'
             genus = taxon['genus']
             specific_epithet = taxon['specificEpithet']
@@ -292,20 +512,68 @@ module Export::Dwca
             end
           end
 
-          # Find parent taxonID by looking at parent rank column
-          parent_id = find_parent_taxon_id_from_columns(taxon, rank, name_to_id, species_binomial_to_id)
-
-          # Store processed taxon with new IDs.
-          # Key order determines final CSV column order.
-          # id column is required for DwC-A star joins with extensions.
-          processed_taxon = {
-            'id' => taxon_id,
-            'taxonID' => taxon_id,
-            'parentNameUsageID' => parent_id
-          }.merge(taxon.except('taxonID', 'id'))
-
-          processed_taxa << processed_taxon
+          taxa_with_ids << { taxon: taxon, taxon_id: taxon_id, rank: rank, key: key }
         end
+      end
+
+      # PASS 2: Build final processed taxa with parent/accepted relationships
+      # Now name_to_id is complete, so synonym lookups will work
+      taxa_with_ids.each do |item|
+        taxon = item[:taxon]
+        taxon_id = item[:taxon_id]
+        rank = item[:rank]
+
+        parent_id = find_parent_taxon_id_from_columns(taxon, rank, name_to_id, species_binomial_to_id)
+
+        # Determine acceptedNameUsageID and taxonomicStatus
+        accepted_name_usage_id = nil
+        taxonomic_status = nil
+
+        if accepted_name_mode == 'accepted_name_usage_id'
+          is_valid = taxon['taxon_name_cached_is_valid']
+
+          if !is_valid.nil?
+            # We have definitive validity data from a terminal TaxonName
+            # Check if valid - handle both boolean and string representations
+            if [true, 't', 'true', 1, '1'].include?(is_valid)
+              # This taxon is marked as valid/accepted
+              accepted_name_usage_id = taxon_id
+              taxonomic_status = 'accepted'
+            else
+              # This taxon is marked as invalid (synonym)
+              valid_taxon_name_id = taxon['taxon_name_cached_valid_taxon_name_id']
+              if valid_taxon_name_id.present?
+                valid_tn = valid_taxon_name_cache[valid_taxon_name_id.to_i]
+                if valid_tn
+                  valid_rank = valid_tn.rank&.downcase
+                  valid_key = "#{valid_rank}:#{valid_tn.cached}"
+                  accepted_name_usage_id = name_to_id[valid_key]
+                end
+                taxonomic_status = 'synonym'
+              end
+            end
+          else
+            # No validity data (is_valid is nil) - this is an extracted higher taxon from rank columns
+            # These represent accepted names because DwcOccurrence builds classification from valid_taxon_name.
+            # See Shared::Taxonomy#taxonomy_for_object which uses taxon_name.valid_taxon_name for synonyms,
+            # ensuring higher classification always comes from the accepted name's hierarchy, not the synonym's.
+            accepted_name_usage_id = taxon_id
+            taxonomic_status = 'accepted'
+          end
+        end
+
+        excluded_fields = ['taxonID', 'id', 'acceptedNameUsageID', 'parentNameUsageID', 'taxon_name_cached', 'taxon_name_cached_is_valid', 'taxon_name_cached_valid_taxon_name_id', 'dwc_occurrence_object_type', 'dwc_occurrence_object_id']
+        excluded_fields << 'taxonomicStatus' if accepted_name_mode == 'accepted_name_usage_id'
+
+        processed_taxon = {
+          'id' => taxon_id,
+          'taxonID' => taxon_id,
+          'acceptedNameUsageID' => accepted_name_usage_id,
+          'parentNameUsageID' => parent_id,
+          'taxonomicStatus' => taxonomic_status
+        }.merge(taxon.except(*excluded_fields))
+
+        processed_taxa << processed_taxon
       end
 
       [processed_taxa, name_to_id]
