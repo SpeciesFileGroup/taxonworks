@@ -18,6 +18,7 @@ module DwcOccurrence::ColumnSets
   # Note: taxonID is excluded here because it will be created via copy_column from occurrenceID
   CHECKLIST_TAXON_EXTENSION_COLUMNS = {
     scientificName: :scientificName,
+    taxonRank: :taxonRank,
     acceptedNameUsage: :acceptedNameUsage,
     parentNameUsage: :parentNameUsage,
     originalNameUsage: :originalNameUsage,
@@ -38,7 +39,6 @@ module DwcOccurrence::ColumnSets
     subgenus: :subgenus,
     specificEpithet: :specificEpithet,
     infraspecificEpithet: :infraspecificEpithet,
-    taxonRank: :taxonRank,
     verbatimTaxonRank: :verbatimTaxonRank,
     scientificNameAuthorship: :scientificNameAuthorship,
     vernacularName: :vernacularName,

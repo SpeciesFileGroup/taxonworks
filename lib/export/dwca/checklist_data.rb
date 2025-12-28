@@ -12,10 +12,10 @@ module Export::Dwca
 
     # @return [Hash] of Otu query params
     #  Required.
-    attr_accessor :core_otu_scope
+    attr_accessor :core_otu_scope_params
 
     # @return [Scope] of DwcOccurrence
-    # Derived from core_otu_scope
+    # Derived from core_otu_scope_params
     attr_accessor :core_occurrence_scope
 
     # Size of core_occurrence_scope
@@ -51,12 +51,12 @@ module Export::Dwca
     # @return [Array<Symbol>] list of extensions to include
     attr_accessor :extensions
 
-    def initialize(core_scope: nil, extensions: [])
-      @core_otu_scope = core_scope
+    def initialize(core_otu_scope_params: nil, extensions: [])
+      @core_otu_scope_params = core_otu_scope_params
       @extensions = extensions
 
       @core_occurrence_scope = ::Queries::DwcOccurrence::Filter.new(
-        otu_query: core_scope
+        otu_query: core_otu_scope_params
       ).all
 
       # Set extension flags based on requested extensions
@@ -185,9 +185,10 @@ module Export::Dwca
 
           # Build the new taxon row for this higher taxon.
           taxon = row.to_h.dup
+          original_rank = taxon['taxonRank']&.downcase
           taxon['scientificName'] = rank_name
           taxon['taxonRank'] = rank
-          clear_lower_ranks(taxon, rank)
+          clear_lower_ranks(taxon, rank, original_rank)
 
           all_taxa[key] = taxon
         end
@@ -255,11 +256,19 @@ module Export::Dwca
       [processed_taxa, name_to_id]
     end
 
-    # Clear columns for ranks lower than the current rank
-    def clear_lower_ranks(taxon, current_rank)
+    # Clear columns for ranks lower/higher than the current rank and recompute higherClassification
+    # @param taxon [Hash] the taxon data hash to modify
+    # @param current_rank [String] the rank being extracted
+    # @param original_rank [String] the original taxonRank before extraction
+    def clear_lower_ranks(taxon, current_rank, original_rank = nil)
       current_id = ORDERED_RANKS.index(current_rank)
       return unless current_id
 
+      # If extracting a taxon at the same rank as the original row, keep all fields as-is
+      # (this happens when the terminal taxon appears in a rank column, e.g., monotypic genus)
+      return if current_rank == original_rank
+
+      # Clear lower rank columns
       ORDERED_RANKS[(current_id + 1)..-1].each do |lower_rank|
         taxon[lower_rank] = nil
       end
@@ -275,6 +284,23 @@ module Export::Dwca
         taxon['infraspecificEpithet'] = nil
       end
       # else: infraspecific rank, keep both epithet fields
+
+      # Fields to keep for extracted taxa (rank columns + core fields)
+      rank_columns = ORDERED_RANKS.map(&:to_s)
+      fields_to_keep = rank_columns + ['scientificName', 'taxonRank', 'nomenclaturalCode']
+
+      # Clear all other taxon-specific fields from the original terminal taxon
+      ::DwcOccurrence::ColumnSets::CHECKLIST_TAXON_EXTENSION_COLUMNS.keys.each do |field|
+        field_str = field.to_s
+        # Convert dwcClass to 'class' for comparison
+        field_str = 'class' if field == :dwcClass
+        taxon[field_str] = nil unless fields_to_keep.include?(field_str)
+      end
+
+      # Recompute higherClassification for this rank from higher rank columns
+      higher_ranks = ORDERED_RANKS[0...current_id]
+      classification_parts = higher_ranks.map { |r| taxon[r] }.compact.reject(&:empty?)
+      taxon['higherClassification'] = classification_parts.empty? ? nil : classification_parts.join(Export::Dwca::DELIMITER)
     end
 
     # Get all infraspecific rank names (species-level ranks excluding "species" itself)
@@ -557,7 +583,7 @@ module Export::Dwca
 
         # Export vernacular names from CommonName records
         # Note: NOT using DwcOccurrence (vernacularName field not populated)
-        content = Export::CSV::Dwc::Extension::VernacularName.csv(core_otu_scope, taxon_name_to_id)
+        content = Export::CSV::Dwc::Extension::VernacularName.csv(core_otu_scope_params, taxon_name_to_id)
       end
 
       @vernacular_name_extension_tmp.write(content)

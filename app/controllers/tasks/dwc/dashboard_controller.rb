@@ -76,6 +76,29 @@ class Tasks::Dwc::DashboardController < ApplicationController
     render json: ::CollectionObject::DwcExtensions::TaxonworksExtensions::EXTENSION_FIELDS, status: :ok
   end
 
+  def checklist_extensions
+    extensions = [
+      { value: Export::Dwca::ChecklistData::DISTRIBUTION_EXTENSION, label: 'Distribution' },
+      { value: Export::Dwca::ChecklistData::REFERENCES_EXTENSION, label: 'References' },
+      { value: Export::Dwca::ChecklistData::TYPES_AND_SPECIMEN_EXTENSION, label: 'Types and Specimen' },
+      { value: Export::Dwca::ChecklistData::VERNACULAR_NAME_EXTENSION, label: 'Vernacular Name' }
+    ]
+    render json: extensions, status: :ok
+  end
+
+  def generate_checklist_download
+    core_otu_scope_params = params[:otu_query]&.to_unsafe_h || {}
+    extensions = params[:extensions] || []
+
+    @download = ::Export::Dwca.checklist_download_async(
+      core_otu_scope_params,
+      request.url,
+      extensions:,
+      project_id: sessions_current_project_id
+    )
+    render '/downloads/show'
+  end
+
   private
 
   def predicate_extension_params

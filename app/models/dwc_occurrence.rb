@@ -239,6 +239,11 @@ class DwcOccurrence < ApplicationRecord
     ] + CHECKLIST_TAXON_EXTENSION_COLUMNS.keys
   end
 
+  # @return [Array] of symbols for columns to exclude from occurrence exports
+  def self.excluded_occurrence_columns
+    EXCLUDED_OCCURRENCE_COLUMNS
+  end
+
   def basis
     if dwc_occurrence_object&.respond_to?(:dwc_occurrence_basis)
       dwc_occurrence_object.dwc_occurrence_basis
