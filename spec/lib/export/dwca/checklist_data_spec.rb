@@ -1061,6 +1061,89 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         expect(family_taxon['specificEpithet']).to be_nil.or be_empty
         expect(family_taxon['infraspecificEpithet']).to be_nil.or be_empty
       end
+
+      specify 'infraspecific ranks have correct parentNameUsageID linking to species' do
+        # Find the parent species
+        species_taxon = infra_csv.find { |row| row['taxonRank'] == 'species' && row['scientificName'].include?('alba') }
+        expect(species_taxon).to be_present
+        species_taxon_id = species_taxon['taxonID']
+        expect(species_taxon_id).to be_present
+
+        # Subspecies should link to the species
+        subspecies_taxon = infra_csv.find { |row| row['taxonRank'] == 'subspecies' }
+        expect(subspecies_taxon).to be_present
+        expect(subspecies_taxon['parentNameUsageID']).to eq(species_taxon_id)
+
+        # Variety should also link to the species
+        variety_taxon = infra_csv.find { |row| row['taxonRank'] == 'variety' }
+        expect(variety_taxon).to be_present
+        expect(variety_taxon['parentNameUsageID']).to eq(species_taxon_id)
+      end
+    end
+
+    context 'when subspecies exist but parent species is missing' do
+      # Test case: subspecies specimens exist, but no species specimen exists
+      # The parent species should be automatically extracted from the subspecies data
+      let!(:root) { FactoryBot.create(:root_taxon_name) }
+      let!(:kingdom) { Protonym.create!(name: 'Plantae', rank_class: Ranks.lookup(:icn, :kingdom), parent: root) }
+      let!(:family) { Protonym.create!(name: 'Rosaceae', rank_class: Ranks.lookup(:icn, :family), parent: kingdom) }
+      let!(:genus) { Protonym.create!(name: 'Prunus', rank_class: Ranks.lookup(:icn, :genus), parent: family) }
+      let!(:species) { Protonym.create!(name: 'dulcis', rank_class: Ranks.lookup(:icn, :species), parent: genus) }
+      let!(:subspecies1) { Protonym.create!(name: 'amara', rank_class: Ranks.lookup(:icn, :subspecies), parent: species) }
+      let!(:subspecies2) { Protonym.create!(name: 'dulcis', rank_class: Ranks.lookup(:icn, :subspecies), parent: species) }
+
+      # Create OTUs and specimens for ONLY the subspecies (not the species)
+      let!(:otu_subspecies1) { FactoryBot.create(:valid_otu, taxon_name: subspecies1) }
+      let!(:otu_subspecies2) { FactoryBot.create(:valid_otu, taxon_name: subspecies2) }
+
+      before do
+        [otu_subspecies1, otu_subspecies2].each do |otu|
+          specimen = FactoryBot.create(:valid_specimen)
+          FactoryBot.create(:valid_taxon_determination, otu: otu, taxon_determination_object: specimen)
+          specimen.get_dwc_occurrence
+        end
+      end
+
+      let(:orphan_scope) { { otu_id: [otu_subspecies1.id, otu_subspecies2.id] } }
+      let(:orphan_data) { Export::Dwca::ChecklistData.new(core_otu_scope_params: orphan_scope) }
+      let(:orphan_csv) { CSV.parse(orphan_data.csv, headers: true, col_sep: "\t") }
+
+      after { orphan_data.cleanup }
+
+      specify 'parent species is automatically extracted from subspecies' do
+        # Find the parent species (should be created automatically)
+        species_taxon = orphan_csv.find { |row| row['taxonRank'] == 'species' && row['scientificName'] == 'Prunus dulcis' }
+        expect(species_taxon).to be_present, 'Parent species should be automatically extracted'
+
+        # Get the species taxonID
+        species_taxon_id = species_taxon['taxonID']
+        expect(species_taxon_id).to be_present
+
+        # Both subspecies should link to the extracted parent species
+        subspecies1_taxon = orphan_csv.find { |row| row['taxonRank'] == 'subspecies' && row['infraspecificEpithet'] == 'amara' }
+        subspecies2_taxon = orphan_csv.find { |row| row['taxonRank'] == 'subspecies' && row['infraspecificEpithet'] == 'dulcis' }
+
+        expect(subspecies1_taxon).to be_present
+        expect(subspecies2_taxon).to be_present
+
+        expect(subspecies1_taxon['parentNameUsageID']).to eq(species_taxon_id)
+        expect(subspecies2_taxon['parentNameUsageID']).to eq(species_taxon_id)
+      end
+
+      specify 'extracted species has appropriate fields cleared' do
+        species_taxon = orphan_csv.find { |row| row['taxonRank'] == 'species' && row['scientificName'] == 'Prunus dulcis' }
+        expect(species_taxon).to be_present
+
+        # Species should have genus and specificEpithet
+        expect(species_taxon['genus']).to eq('Prunus')
+        expect(species_taxon['specificEpithet']).to eq('dulcis')
+
+        # Species should NOT have infraspecificEpithet (cleared from subspecies source)
+        expect(species_taxon['infraspecificEpithet']).to be_nil.or be_empty
+
+        # Species should have higherClassification
+        expect(species_taxon['higherClassification']).to be_present
+      end
     end
   end
 end

@@ -203,6 +203,31 @@ module Export::Dwca
           next if all_taxa[key] # already have this taxon
 
           all_taxa[key] = row.to_h
+
+          # If this is an infraspecific taxon (subspecies, variety, etc.),
+          # also extract its parent species if not already present
+          if self.class.infraspecific_rank_names.include?(rank)
+            genus = row['genus']
+            specific_epithet = row['specificEpithet']
+
+            if genus.present? && specific_epithet.present?
+              # Construct parent species scientificName from binomial
+              species_name = "#{genus} #{specific_epithet}"
+              species_key = "species:#{species_name}"
+
+              # Only add if we don't already have this species
+              unless all_taxa[species_key]
+                # Create species taxon by duping the infraspecific row
+                species_taxon = row.to_h.dup
+                original_rank = species_taxon['taxonRank']&.downcase
+                species_taxon['scientificName'] = species_name
+                species_taxon['taxonRank'] = 'species'
+                clear_lower_ranks(species_taxon, 'species', original_rank)
+
+                all_taxa[species_key] = species_taxon
+              end
+            end
+          end
         end
       end
 
@@ -215,6 +240,7 @@ module Export::Dwca
     def assign_taxon_ids_and_build_hierarchy(all_taxa)
       taxon_id_counter = 1
       name_to_id = {} # "rank:name" → taxonID
+      species_binomial_to_id = {} # "genus specificEpithet" → taxonID (for infraspecific taxa lookups)
       processed_taxa = []
 
       # Process ranks from highest to lowest
@@ -237,8 +263,18 @@ module Export::Dwca
           taxon_id_counter += 1
           name_to_id[key] = taxon_id
 
+          # For species, also add to binomial lookup for infraspecific taxa
+          if rank == 'species'
+            genus = taxon['genus']
+            specific_epithet = taxon['specificEpithet']
+            if genus.present? && specific_epithet.present?
+              binomial = "#{genus} #{specific_epithet}"
+              species_binomial_to_id[binomial] = taxon_id
+            end
+          end
+
           # Find parent taxonID by looking at parent rank column
-          parent_id = find_parent_taxon_id_from_columns(taxon, rank, name_to_id)
+          parent_id = find_parent_taxon_id_from_columns(taxon, rank, name_to_id, species_binomial_to_id)
 
           # Store processed taxon with new IDs.
           # Key order determines final CSV column order.
@@ -273,21 +309,20 @@ module Export::Dwca
         taxon[lower_rank] = nil
       end
 
-      # Handle epithet fields based on rank:
-      # - Species: keep specificEpithet, clear infraspecificEpithet
-      # - Infraspecific (subspecies, variety, form, etc.): keep both epithet fields
-      # - Higher ranks (genus, family, etc.): clear both epithet fields
-      if current_rank == 'species'
-        taxon['infraspecificEpithet'] = nil
-      elsif !self.class.infraspecific_rank_names.include?(current_rank)
-        taxon['specificEpithet'] = nil
-        taxon['infraspecificEpithet'] = nil
-      end
-      # else: infraspecific rank, keep both epithet fields
-
-      # Fields to keep for extracted taxa (rank columns + core fields)
+      # Fields to keep for extracted taxa (rank columns + core fields + epithet fields based on rank)
       rank_columns = ORDERED_RANKS.map(&:to_s)
       fields_to_keep = rank_columns + ['scientificName', 'taxonRank', 'nomenclaturalCode']
+
+      # Add epithet fields to keep based on rank:
+      # - Species: keep specificEpithet
+      # - Infraspecific (subspecies, variety, form, etc.): keep both epithet fields
+      # - Higher ranks (genus, family, etc.): don't keep epithet fields
+      if current_rank == 'species'
+        fields_to_keep << 'specificEpithet'
+      elsif self.class.infraspecific_rank_names.include?(current_rank)
+        fields_to_keep << 'specificEpithet'
+        fields_to_keep << 'infraspecificEpithet'
+      end
 
       # Clear all other taxon-specific fields from the original terminal taxon
       ::DwcOccurrence::ColumnSets::CHECKLIST_TAXON_EXTENSION_COLUMNS.keys.each do |field|
@@ -320,23 +355,22 @@ module Export::Dwca
     # @param taxon [Hash] the current taxon's data
     # @param current_rank [String] the rank of the current taxon
     # @param name_to_id [Hash] mapping of "rank:name" → taxonID
+    # @param species_binomial_to_id [Hash] mapping of "genus specificEpithet" → taxonID for species lookups
     # @return [Integer, nil] the parent's taxonID or nil if no parent
-    def find_parent_taxon_id_from_columns(taxon, current_rank, name_to_id)
+    def find_parent_taxon_id_from_columns(taxon, current_rank, name_to_id, species_binomial_to_id = {})
       current_rank_index = ORDERED_RANKS.index(current_rank)
       return nil if current_rank_index.nil? || current_rank_index == 0
 
       # Special handling for infraspecific ranks (subspecies, variety, form,
-      # etc.): these need to link to their parent species, which is constructed
-      # from genus + specificEpithet.
+      # etc.): these need to link to their parent species.
       if self.class.infraspecific_rank_names.include?(current_rank)
+        # Construct binomial from genus + specificEpithet
         genus = taxon['genus']
         specific_epithet = taxon['specificEpithet']
 
         if genus.present? && specific_epithet.present?
-          # Construct parent species scientificName
-          species_name = "#{genus} #{specific_epithet}"
-          species_key = "species:#{species_name}"
-          parent_id = name_to_id[species_key]
+          binomial = "#{genus} #{specific_epithet}"
+          parent_id = species_binomial_to_id[binomial]
 
           return parent_id if parent_id
         end

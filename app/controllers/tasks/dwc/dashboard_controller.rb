@@ -88,7 +88,7 @@ class Tasks::Dwc::DashboardController < ApplicationController
 
   def generate_checklist_download
     core_otu_scope_params = params[:otu_query]&.to_unsafe_h || {}
-    extensions = params[:extensions] || []
+    extensions = (params[:extensions] || []).map(&:to_sym)
 
     @download = ::Export::Dwca.checklist_download_async(
       core_otu_scope_params,
