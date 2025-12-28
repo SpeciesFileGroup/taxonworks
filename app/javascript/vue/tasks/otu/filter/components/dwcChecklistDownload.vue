@@ -38,6 +38,16 @@
               </label>
             </li>
           </ul>
+
+          <div class="margin-medium-top">
+            <label>
+              <input
+                type="checkbox"
+                v-model="validNamesOnly"
+              />
+              Only include valid names
+            </label>
+          </div>
         </div>
 
         <div class="margin-medium-top">
@@ -88,6 +98,7 @@ const showModal = ref(false)
 const isLoadingExtensions = ref(false)
 const availableExtensions = ref([])
 const selectedExtensions = reactive({})
+const validNamesOnly = ref(true)
 
 onMounted(async () => {
   try {
@@ -129,7 +140,8 @@ function download() {
 
   const payload = {
     otu_query: downloadParams,
-    extensions
+    extensions,
+    valid_names_only: validNamesOnly.value
   }
 
   console.log('Sending payload:', payload)

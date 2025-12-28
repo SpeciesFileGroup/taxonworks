@@ -930,14 +930,14 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
 
       specify 'with single OTU ID' do
         single_scope = { otu_id: otu1.id }
-        d = Export::Dwca::ChecklistData.new(core_otu_scope_params: single_scope)
+        d = Export::Dwca::ChecklistData.new(core_otu_scope_params: single_scope, valid_names_only: false)
         expect(d.total).to eq(1)
         d.cleanup
       end
 
       specify 'with array of OTU IDs' do
         array_scope = { otu_id: [otu1.id] }
-        d = Export::Dwca::ChecklistData.new(core_otu_scope_params: array_scope)
+        d = Export::Dwca::ChecklistData.new(core_otu_scope_params: array_scope, valid_names_only: false)
         expect(d.total).to eq(1)
         d.cleanup
       end
@@ -945,7 +945,7 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
       specify 'with range of OTU IDs converted to array' do
         # Ranges must be converted to arrays for proper querying
         range_scope = { otu_id: (otu1.id..otu1.id).to_a }
-        d = Export::Dwca::ChecklistData.new(core_otu_scope_params: range_scope)
+        d = Export::Dwca::ChecklistData.new(core_otu_scope_params: range_scope, valid_names_only: false)
         expect(d.total).to eq(1)
         d.cleanup
       end
@@ -1143,6 +1143,80 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
 
         # Species should have higherClassification
         expect(species_taxon['higherClassification']).to be_present
+      end
+    end
+
+    context 'with valid_names_only parameter' do
+      let!(:root) { FactoryBot.create(:root_taxon_name) }
+      let!(:kingdom) { Protonym.create!(name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom), parent: root) }
+      let!(:family) { Protonym.create!(name: 'Felidae', rank_class: Ranks.lookup(:iczn, :family), parent: kingdom) }
+      let!(:genus) { Protonym.create!(name: 'Felis', rank_class: Ranks.lookup(:iczn, :genus), parent: family) }
+
+      # Create a valid species
+      let!(:valid_species) { Protonym.create!(name: 'catus', rank_class: Ranks.lookup(:iczn, :species), parent: genus) }
+      let!(:valid_otu) { FactoryBot.create(:valid_otu, taxon_name: valid_species) }
+      let!(:valid_specimen) { FactoryBot.create(:valid_specimen) }
+      let!(:valid_td) { FactoryBot.create(:valid_taxon_determination, taxon_determination_object: valid_specimen, otu: valid_otu) }
+
+      # Create an invalid species (synonym)
+      let!(:invalid_species) { Protonym.create!(name: 'domesticus', rank_class: Ranks.lookup(:iczn, :species), parent: genus) }
+      let!(:invalid_otu) { FactoryBot.create(:valid_otu, taxon_name: invalid_species) }
+      let!(:invalid_specimen) { FactoryBot.create(:valid_specimen) }
+      let!(:invalid_td) { FactoryBot.create(:valid_taxon_determination, taxon_determination_object: invalid_specimen, otu: invalid_otu) }
+
+      # Make invalid_species a synonym of valid_species
+      let!(:synonym_relationship) do
+        TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(
+          subject_taxon_name: invalid_species,
+          object_taxon_name: valid_species
+        )
+      end
+
+      before do
+        # Generate DwcOccurrences
+        valid_specimen.get_dwc_occurrence
+        invalid_specimen.get_dwc_occurrence
+
+        # Verify that cached_is_valid is set correctly after synonym relationship is created
+        valid_species.reload
+        invalid_species.reload
+      end
+
+      let(:valid_only_data) do
+        ::Export::Dwca::ChecklistData.new(
+          core_otu_scope_params: { otu_id: [valid_otu.id, invalid_otu.id] },
+          valid_names_only: true
+        )
+      end
+
+      let(:all_names_data) do
+        ::Export::Dwca::ChecklistData.new(
+          core_otu_scope_params: { otu_id: [valid_otu.id, invalid_otu.id] },
+          valid_names_only: false
+        )
+      end
+
+      specify 'valid_names_only: true excludes invalid names' do
+        valid_csv = CSV.parse(valid_only_data.csv, headers: true, col_sep: "\t")
+
+        # Should include valid species
+        valid_taxon = valid_csv.find { |row| row['scientificName']&.include?('catus') }
+        expect(valid_taxon).to be_present, 'Valid species should be included'
+
+        # Should NOT include invalid species (synonym)
+        invalid_taxon = valid_csv.find { |row| row['scientificName']&.include?('domesticus') }
+        expect(invalid_taxon).to be_nil, 'Invalid species (synonym) should be excluded'
+      end
+
+      specify 'valid_names_only: false includes both OTUs' do
+        # When valid_names_only is false, both OTUs should be queried
+        # (even though their DwcOccurrences may resolve to the same valid name)
+        expect(all_names_data.total).to eq(2), 'Should query both valid and invalid OTUs'
+
+        # The CSV may still deduplicate to one taxon if both resolve to the same scientificName
+        all_csv = CSV.parse(all_names_data.csv, headers: true, col_sep: "\t")
+        valid_taxon = all_csv.find { |row| row['scientificName']&.include?('catus') }
+        expect(valid_taxon).to be_present, 'Valid species should be included'
       end
     end
   end

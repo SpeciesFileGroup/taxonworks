@@ -51,12 +51,31 @@ module Export::Dwca
     # @return [Array<Symbol>] list of extensions to include
     attr_accessor :extensions
 
-    def initialize(core_otu_scope_params: nil, extensions: [])
-      @core_otu_scope_params = core_otu_scope_params
+    def initialize(core_otu_scope_params: nil, extensions: [], valid_names_only: true)
+      # If valid_names_only is true, add a taxon_name_query to filter for valid names
+      if valid_names_only
+        otu_params = core_otu_scope_params.dup || {}
+
+        # Build taxon_name_query filter for valid names
+        taxon_name_filter = { validity: true }
+
+        # If there's already a taxon_name_query, we need to merge it
+        # Otherwise, just add our validity filter
+        if otu_params[:taxon_name_query]
+          otu_params[:taxon_name_query] = otu_params[:taxon_name_query].merge(taxon_name_filter)
+        else
+          otu_params[:taxon_name_query] = taxon_name_filter
+        end
+
+        @core_otu_scope_params = otu_params
+      else
+        @core_otu_scope_params = core_otu_scope_params
+      end
+
       @extensions = extensions
 
       @core_occurrence_scope = ::Queries::DwcOccurrence::Filter.new(
-        otu_query: core_otu_scope_params
+        otu_query: @core_otu_scope_params
       ).all
 
       # Set extension flags based on requested extensions
