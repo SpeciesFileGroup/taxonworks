@@ -40,13 +40,27 @@
           </ul>
 
           <div class="margin-medium-top">
-            <label>
-              <input
-                type="checkbox"
-                v-model="validNamesOnly"
-              />
-              Only include valid names
-            </label>
+            <p class="margin-small-bottom">How to handle unaccepted names:</p>
+            <div>
+              <label>
+                <input
+                  type="radio"
+                  v-model="acceptedNameMode"
+                  value="exclude_unaccepted_names"
+                />
+                Exclude unaccepted names
+              </label>
+            </div>
+            <div>
+              <label>
+                <input
+                  type="radio"
+                  v-model="acceptedNameMode"
+                  value="accepted_name_usage_id"
+                />
+                Classify synonyms using acceptedNameUsageID
+              </label>
+            </div>
           </div>
         </div>
 
@@ -98,7 +112,7 @@ const showModal = ref(false)
 const isLoadingExtensions = ref(false)
 const availableExtensions = ref([])
 const selectedExtensions = reactive({})
-const validNamesOnly = ref(true)
+const acceptedNameMode = ref('exclude_unaccepted_names')
 
 onMounted(async () => {
   try {
@@ -141,7 +155,7 @@ function download() {
   const payload = {
     otu_query: downloadParams,
     extensions,
-    valid_names_only: validNamesOnly.value
+    accepted_name_mode: acceptedNameMode.value
   }
 
   console.log('Sending payload:', payload)

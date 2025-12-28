@@ -89,13 +89,13 @@ class Tasks::Dwc::DashboardController < ApplicationController
   def generate_checklist_download
     core_otu_scope_params = params[:otu_query]&.to_unsafe_h || {}
     extensions = (params[:extensions] || []).map(&:to_sym)
-    valid_names_only = params[:valid_names_only] == true || params[:valid_names_only] == 'true'
+    accepted_name_mode = params[:accepted_name_mode] || 'exclude_unaccepted_names'
 
     @download = ::Export::Dwca.checklist_download_async(
       core_otu_scope_params,
       request.url,
       extensions:,
-      valid_names_only:,
+      accepted_name_mode:,
       project_id: sessions_current_project_id
     )
     render '/downloads/show'
