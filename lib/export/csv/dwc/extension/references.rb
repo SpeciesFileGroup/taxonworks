@@ -7,18 +7,23 @@
 #
 module Export::CSV::Dwc::Extension::References
 
-  # Maintain this for order.
+  # Alias for brevity
+  GBIF = Export::Dwca::GbifProfile::Reference
+
+  # Fields used in checklist exports (subset of full GBIF profile)
   # !! Only including fields that can be populated from DwcOccurrence data,
   # which only includes Asserted Distribution data on references.
-  HEADERS_HASH = {
-    # Required by dwca to link to core file (taxonID), not part of the extension.
-    id: '',
-    bibliographicCitation: 'http://purl.org/dc/terms/bibliographicCitation'
-  }.freeze
+  # Note: :id is used instead of TAXON_ID for DwC-A star joins
+  CHECKLIST_FIELDS = [
+    :id,                         # Required for DwC-A star joins (maps to taxonID)
+    GBIF::BIBLIOGRAPHIC_CITATION
+  ].freeze
 
-  HEADERS = HEADERS_HASH.keys.freeze
+  HEADERS = CHECKLIST_FIELDS
 
-  HEADERS_NAMESPACES = HEADERS_HASH.values.freeze
+  HEADERS_NAMESPACES = CHECKLIST_FIELDS.map do |field|
+    field == :id ? '' : GBIF::NAMESPACES[field]
+  end.freeze
 
   # Generate CSV for references extension using only DwcOccurrence data
   # @param scope [ActiveRecord::Relation] DwcOccurrence records

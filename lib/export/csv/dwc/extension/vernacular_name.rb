@@ -6,19 +6,24 @@
 #
 module Export::CSV::Dwc::Extension::VernacularName
 
-  # Maintain this for order.
+  # Alias for brevity
+  GBIF = Export::Dwca::GbifProfile::VernacularName
+
+  # Fields used in checklist exports (subset of full GBIF profile)
   # Only including fields that can be populated from CommonName data.
-  HEADERS_HASH = {
-    # Required by dwca to link to core file (taxonID), not part of the extension.
-    id: '',
-    vernacularName: 'http://rs.tdwg.org/dwc/terms/vernacularName',
-    language: 'http://purl.org/dc/terms/language',
-    temporal: 'http://purl.org/dc/terms/temporal'
-  }.freeze
+  # Note: :id is used instead of TAXON_ID for DwC-A star joins
+  CHECKLIST_FIELDS = [
+    :id,                     # Required for DwC-A star joins (maps to taxonID)
+    GBIF::VERNACULAR_NAME,
+    GBIF::LANGUAGE,
+    GBIF::TEMPORAL
+  ].freeze
 
-  HEADERS = HEADERS_HASH.keys.freeze
+  HEADERS = CHECKLIST_FIELDS
 
-  HEADERS_NAMESPACES = HEADERS_HASH.values.freeze
+  HEADERS_NAMESPACES = CHECKLIST_FIELDS.map do |field|
+    field == :id ? '' : GBIF::NAMESPACES[field]
+  end.freeze
 
   # Generate CSV for vernacular name extension from CommonName records
   # @param core_otu_scope [Hash] OTU query params from ChecklistData
