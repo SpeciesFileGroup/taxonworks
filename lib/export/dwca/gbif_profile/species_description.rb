@@ -4,7 +4,6 @@
 module Export::Dwca::GbifProfile
 
   class SpeciesDescription
-    # Field name constants
     TAXON_ID = :taxonID
     TYPE = :type
     DESCRIPTION = :description
@@ -16,7 +15,6 @@ module Export::Dwca::GbifProfile
     LICENSE = :license
     RIGHTS_HOLDER = :rightsHolder
 
-    # Namespace mappings
     NAMESPACES = {
       TAXON_ID => 'http://rs.tdwg.org/dwc/terms/taxonID',
       TYPE => 'http://purl.org/dc/terms/type',
@@ -109,5 +107,5 @@ module Export::Dwca::GbifProfile
     # A person or organization owning or managing rights over the resource.
     attr_accessor RIGHTS_HOLDER
   end
-  
+
 end

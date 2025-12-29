@@ -224,6 +224,7 @@ scope :tasks do
       get :index_versions, defaults: {format: :json}
       get :taxonworks_extension_methods, defaults: {format: :json}
       get :checklist_extensions, defaults: {format: :json}
+      get :accepted_name_mode_options, defaults: {format: :json}
 
       post 'generate_download', as: 'generate_dwc_download_task', defaults: {format: :json}
       post 'generate_checklist_download', as: 'generate_dwc_checklist_download_task', defaults: {format: :json}

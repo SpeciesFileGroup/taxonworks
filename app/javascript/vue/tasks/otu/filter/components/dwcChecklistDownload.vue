@@ -41,24 +41,17 @@
 
           <div class="margin-medium-top">
             <p class="margin-small-bottom">How to handle unaccepted names:</p>
-            <div>
+            <div
+              v-for="option in acceptedNameModeOptions"
+              :key="option.value"
+            >
               <label>
                 <input
                   type="radio"
                   v-model="acceptedNameMode"
-                  value="replace_with_accepted_name"
+                  :value="option.value"
                 />
-                Replace invalid names with valid names
-              </label>
-            </div>
-            <div>
-              <label>
-                <input
-                  type="radio"
-                  v-model="acceptedNameMode"
-                  value="accepted_name_usage_id"
-                />
-                Classify synonyms using acceptedNameUsageID
+                {{ option.label }}
               </label>
             </div>
           </div>
@@ -87,6 +80,7 @@ import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VModal from '@/components/ui/Modal.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import { humanize } from '@/helpers'
 
 const props = defineProps({
   params: {
@@ -112,20 +106,37 @@ const showModal = ref(false)
 const isLoadingExtensions = ref(false)
 const availableExtensions = ref([])
 const selectedExtensions = reactive({})
+const acceptedNameModeOptions = ref([])
 const acceptedNameMode = ref('replace_with_accepted_name')
 
 onMounted(async () => {
   try {
     isLoadingExtensions.value = true
-    const { body } = await DwcChecklist.checklistExtensions()
-    availableExtensions.value = body
+
+    // Fetch extensions
+    const { body: extensions } = await DwcChecklist.checklistExtensions()
+    availableExtensions.value = extensions.reduce((acc, cur) => {
+        acc.push({value: cur, label: humanize(cur)})
+        return acc
+      },
+      []
+    )
 
     // Initialize all extensions as checked by default
-    body.forEach(ext => {
-      selectedExtensions[ext.value] = true
+    extensions.forEach(ext => {
+      selectedExtensions[ext] = true
     })
+
+    // Fetch accepted name mode options
+    const { body: modeOptions } = await DwcChecklist.acceptedNameModeOptions()
+    acceptedNameModeOptions.value = modeOptions
+
+    // Set default to first option if available
+    if (modeOptions.length > 0) {
+      acceptedNameMode.value = modeOptions[0].value
+    }
   } catch (error) {
-    console.error('Failed to load checklist extensions:', error)
+    console.error('Failed to load checklist options:', error)
   } finally {
     isLoadingExtensions.value = false
   }

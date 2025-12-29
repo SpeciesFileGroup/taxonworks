@@ -4,7 +4,6 @@
 module Export::Dwca::GbifProfile
 
   class SpeciesProfile
-    # Field name constants
     TAXON_ID = :taxonID
     IS_MARINE = :isMarine
     IS_FRESHWATER = :isFreshwater
@@ -20,7 +19,6 @@ module Export::Dwca::GbifProfile
     HABITAT = :habitat
     SEX = :sex
 
-    # Namespace mappings
     NAMESPACES = {
       TAXON_ID => 'http://rs.tdwg.org/dwc/terms/taxonID',
       IS_MARINE => 'http://rs.gbif.org/terms/1.0/isMarine',

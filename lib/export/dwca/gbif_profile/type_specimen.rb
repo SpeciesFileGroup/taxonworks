@@ -4,7 +4,6 @@
 module Export::Dwca::GbifProfile
 
   class TypeSpecimen
-    # Field name constants
     TAXON_ID = :taxonID
     BIBLIOGRAPHIC_CITATION = :bibliographicCitation
     OCCURRENCE_ID = :occurrenceID
@@ -26,7 +25,6 @@ module Export::Dwca::GbifProfile
     VERBATIM_LONGITUDE = :verbatimLongitude
     VERBATIM_LATITUDE = :verbatimLatitude
 
-    # Namespace mappings
     NAMESPACES = {
       TAXON_ID => 'http://rs.tdwg.org/dwc/terms/taxonID',
       BIBLIOGRAPHIC_CITATION => 'http://purl.org/dc/terms/bibliographicCitation',

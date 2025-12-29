@@ -4,7 +4,6 @@
 module Export::Dwca::GbifProfile
 
   class ResourceRelationship
-    # Field name constants
     TAXON_ID = :taxonID
     RELATED_RESOURCE_ID = :relatedResourceID
     SCIENTIFIC_NAME = :scientificName
@@ -14,7 +13,6 @@ module Export::Dwca::GbifProfile
     RELATIONSHIP_REMARKS = :relationshipRemarks
     RESOURCE_RELATIONSHIP_ID = :resourceRelationshipID
 
-    # Namespace mappings
     NAMESPACES = {
       TAXON_ID => 'http://rs.tdwg.org/dwc/terms/taxonID',
       RELATED_RESOURCE_ID => 'http://rs.tdwg.org/dwc/terms/relatedResourceID',
@@ -98,5 +96,5 @@ module Export::Dwca::GbifProfile
     attr_accessor RESOURCE_RELATIONSHIP_ID
 
   end
-  
+
 end

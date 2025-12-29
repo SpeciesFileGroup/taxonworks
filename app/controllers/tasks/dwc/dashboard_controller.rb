@@ -77,13 +77,21 @@ class Tasks::Dwc::DashboardController < ApplicationController
   end
 
   def checklist_extensions
-    extensions = [
-      { value: Export::Dwca::ChecklistData::DISTRIBUTION_EXTENSION, label: 'Distribution' },
-      { value: Export::Dwca::ChecklistData::REFERENCES_EXTENSION, label: 'References' },
-      { value: Export::Dwca::ChecklistData::TYPES_AND_SPECIMEN_EXTENSION, label: 'Types and Specimen' },
-      { value: Export::Dwca::ChecklistData::VERNACULAR_NAME_EXTENSION, label: 'Vernacular Name' }
+    render json: ::Export::Dwca::ChecklistData::CHECKLIST_EXTENSION_OPTIONS, status: :ok
+  end
+
+  def accepted_name_mode_options
+    options = [
+      {
+        value: ::Export::Dwca::ChecklistData::REPLACE_WITH_ACCEPTED_NAME,
+        label: 'Replace invalid names with valid names'
+      },
+      {
+        value: ::Export::Dwca::ChecklistData::ACCEPTED_NAME_USAGE_ID,
+        label: 'Classify synonyms using acceptedNameUsageID'
+      }
     ]
-    render json: extensions, status: :ok
+    render json: options, status: :ok
   end
 
   def generate_checklist_download

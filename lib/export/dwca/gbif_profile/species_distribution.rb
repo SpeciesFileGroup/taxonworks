@@ -4,7 +4,6 @@
 module Export::Dwca::GbifProfile
 
   class SpeciesDistribution
-    # Field name constants
     TAXON_ID = :taxonID
     LOCALITY = :locality
     LOCATION_ID = :locationID
@@ -20,7 +19,6 @@ module Export::Dwca::GbifProfile
     SOURCE = :source
     OCCURRENCE_REMARKS = :occurrenceRemarks
 
-    # Namespace mappings
     NAMESPACES = {
       TAXON_ID => 'http://rs.tdwg.org/dwc/terms/taxonID',
       LOCALITY => 'http://rs.tdwg.org/dwc/terms/locality',
@@ -189,5 +187,5 @@ module Export::Dwca::GbifProfile
     # Example: "Excluded because of misidentification"
     attr_accessor OCCURRENCE_REMARKS
   end
-  
+
 end
