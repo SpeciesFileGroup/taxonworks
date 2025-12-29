@@ -27,9 +27,9 @@ module Export::CSV::Dwc::Extension::VernacularName
 
   # Generate CSV for vernacular name extension from CommonName records
   # @param core_otu_scope [Hash] OTU query params from ChecklistData
-  # @param taxon_name_to_id [Hash] mapping of "rank:scientificName" => taxonID
+  # @param taxon_name_id_to_taxon_id [Hash] mapping of taxon_name_id => taxonID
   # @return [String] CSV content
-  def self.csv(core_otu_scope, taxon_name_to_id)
+  def self.csv(core_otu_scope, taxon_name_id_to_taxon_id)
     tbl = []
     tbl[0] = HEADERS
 
@@ -46,13 +46,9 @@ module Export::CSV::Dwc::Extension::VernacularName
       taxon_name = cn.otu&.taxon_name
       next unless taxon_name
 
-      # Build the key for taxon_name_to_id lookup
-      rank = taxon_name.rank&.downcase
-      sci_name = taxon_name.cached
-      next unless rank.present? && sci_name.present?
-
-      key = "#{rank}:#{sci_name}"
-      taxon_id = taxon_name_to_id[key]
+      # Use valid taxon_name_id (for replace mode) or actual id
+      taxon_name_id = taxon_name.cached_valid_taxon_name_id || taxon_name.id
+      taxon_id = taxon_name_id_to_taxon_id[taxon_name_id]
       next unless taxon_id
 
       # Build temporal string from start_year and end_year

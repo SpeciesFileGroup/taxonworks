@@ -38,28 +38,41 @@ module Export::CSV::Dwc::Extension::TypesAndSpecimen
 
   # Generate CSV for types and specimen extension using only DwcOccurrence data
   # @param scope [ActiveRecord::Relation] DwcOccurrence records
-  # @param taxon_name_to_id [Hash] mapping of "rank:scientificName" => taxonID
+  # @param taxon_name_id_to_taxon_id [Hash] mapping of taxon_name_id => taxonID
   # @return [String] CSV content
-  def self.csv(scope, taxon_name_to_id)
+  def self.csv(scope, taxon_name_id_to_taxon_id)
     tbl = []
     tbl[0] = HEADERS
 
+    # Build occurrence_to_otu mapping for CollectionObjects
+    co_mapping = scope
+      .where(dwc_occurrence_object_type: 'CollectionObject')
+      .where.not(typeStatus: [nil, ''])
+      .joins('JOIN collection_objects co ON co.id = dwc_occurrences.dwc_occurrence_object_id')
+      .joins('JOIN taxon_determinations td ON td.taxon_determination_object_id = co.id AND td.taxon_determination_object_type = \'CollectionObject\' AND td.position = 1')
+      .pluck('dwc_occurrences.dwc_occurrence_object_id', 'td.otu_id')
+      .to_h
+
+    otu_ids = co_mapping.values.compact.uniq
+    otu_to_taxon_name_id = ::Otu.where(id: otu_ids)
+      .joins(:taxon_name)
+      .pluck(Arel.sql('otus.id'), Arel.sql('COALESCE(taxon_names.cached_valid_taxon_name_id, taxon_names.id)'))
+      .to_h
+
     # Only process CollectionObject records with typeStatus populated
-    # Filter at SQL level for performance
     scope
       .where(dwc_occurrence_object_type: 'CollectionObject')
       .where.not(typeStatus: [nil, ''])
       .find_each do |dwc_occ|
-      # Look up the taxonID for this occurrence's scientificName and rank
-      rank = dwc_occ.taxonRank&.downcase
-      sci_name = dwc_occ.scientificName
-      taxon_id = nil
-      if rank.present? && sci_name.present?
-        key = "#{rank}:#{sci_name}"
-        taxon_id = taxon_name_to_id[key]
-      end
+      # Look up taxon_name_id via OTU
+      otu_id = co_mapping[dwc_occ.dwc_occurrence_object_id]
+      next unless otu_id
 
-      # Skip if we can't find the taxonID (shouldn't happen if data is consistent)
+      taxon_name_id = otu_to_taxon_name_id[otu_id]
+      next unless taxon_name_id
+
+      # Look up taxonID from taxon_name_id
+      taxon_id = taxon_name_id_to_taxon_id[taxon_name_id]
       next unless taxon_id
 
       # Get typeStatus field (already filtered to non-blank)
