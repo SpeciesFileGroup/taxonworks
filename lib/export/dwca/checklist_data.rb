@@ -4,11 +4,27 @@ module Export::Dwca
 
   class ChecklistData
 
-    # Extension constants - callers pass array of these to specify which extensions to include
+    # Available extensions.
     DISTRIBUTION_EXTENSION = :distribution
     REFERENCES_EXTENSION = :references
-    TYPES_AND_SPECIMEN_EXTENSION = :types_and_specimen
+    TYPES_AND_SPECIMEN_EXTENSION = :types_and_specimens
     VERNACULAR_NAME_EXTENSION = :vernacular_name
+
+    CHECKLIST_EXTENSION_OPTIONS = [
+      DISTRIBUTION_EXTENSION,
+      REFERENCES_EXTENSION,
+      TYPES_AND_SPECIMEN_EXTENSION,
+      VERNACULAR_NAME_EXTENSION
+    ].freeze
+
+    # Accepted name mode values
+    REPLACE_WITH_ACCEPTED_NAME = 'replace_with_accepted_name'
+    ACCEPTED_NAME_USAGE_ID = 'accepted_name_usage_id'
+
+    ACCEPTED_NAME_MODE_OPTIONS = [
+      REPLACE_WITH_ACCEPTED_NAME,
+      ACCEPTED_NAME_USAGE_ID
+    ].freeze
 
     # @return [Hash] of Otu query params
     #  Required.
@@ -26,16 +42,20 @@ module Export::Dwca
     # Name of the @zipfile
     attr_reader :filename
 
+    # meta.xml tempfile
     attr_accessor :meta
 
+    # eml.xml tempfile
     attr_accessor :eml
 
+    # data.tsv tempfile
     attr_accessor :data_file
 
     # Hash mapping "rank:scientificName" to taxonID for extension star joins
     # Example: {"species:Rosa alba" => 5, "genus:Rosa" => 3}
     attr_reader :taxon_name_to_id
 
+    # TODO: distributions should be uniquified and alphabetized(?)
     # @return [Boolean] whether to include distribution extension
     attr_accessor :distribution_extension
 
@@ -52,11 +72,16 @@ module Export::Dwca
     attr_accessor :extensions
 
     # @param accepted_name_mode [String] How to handle unaccepted names
-    #   'replace_with_accepted_name' - replace invalid names with their valid names (default)
-    #   'accepted_name_usage_id' - include all names, using acceptedNameUsageID for synonyms
+    #   'replace_with_accepted_name' - replace invalid names with their valid
+    #     names (default)
+    #   'accepted_name_usage_id' - include all names, using acceptedNameUsageID
+    #     for synonyms
     attr_accessor :accepted_name_mode
 
-    def initialize(core_otu_scope_params: nil, extensions: [], accepted_name_mode: 'replace_with_accepted_name')
+    def initialize(
+      core_otu_scope_params: nil, extensions: [],
+      accepted_name_mode: 'replace_with_accepted_name'
+    )
       @accepted_name_mode = accepted_name_mode
 
       # Convert to regular Hash first to avoid gnfinder gem's buggy deep_symbolize_keys! implementation

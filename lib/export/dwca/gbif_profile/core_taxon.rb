@@ -1,10 +1,8 @@
 # Core Taxon class
 # Repository URL: http://rs.gbif.org/core/dwc_taxon.xml
-# Not yet used
 module Export::Dwca::GbifProfile
 
   class CoreTaxon
-    # Field name constants
     TAXON_ID = :taxonID
     ACCEPTED_NAME_USAGE_ID = :acceptedNameUsageID
     ACCEPTED_NAME_USAGE = :acceptedNameUsage
@@ -46,7 +44,6 @@ module Export::Dwca::GbifProfile
     DATASET_NAME = :datasetName
     SOURCE = :source
 
-    # Namespace mappings
     NAMESPACES = {
       TAXON_ID => 'http://rs.tdwg.org/dwc/terms/taxonID',
       ACCEPTED_NAME_USAGE_ID => 'http://rs.tdwg.org/dwc/terms/acceptedNameUsageID',

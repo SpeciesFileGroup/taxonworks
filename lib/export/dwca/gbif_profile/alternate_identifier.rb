@@ -4,14 +4,12 @@
 module Export::Dwca::GbifProfile
 
   class AlternateIdentifier
-    # Field name constants
     TAXON_ID = :taxonID
     IDENTIFIER = :identifier
     TITLE = :title
     SUBJECT = :subject
     FORMAT = :format
 
-    # Namespace mappings
     NAMESPACES = {
       TAXON_ID => 'http://rs.tdwg.org/dwc/terms/taxonID',
       IDENTIFIER => 'http://purl.org/dc/terms/identifier',

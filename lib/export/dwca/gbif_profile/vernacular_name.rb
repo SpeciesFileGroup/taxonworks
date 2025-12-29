@@ -4,7 +4,6 @@
 module Export::Dwca::GbifProfile
 
   class VernacularName
-    # Field name constants
     TAXON_ID = :taxonID
     VERNACULAR_NAME = :vernacularName
     SOURCE = :source
@@ -20,7 +19,6 @@ module Export::Dwca::GbifProfile
     ORGANISM_PART = :organismPart
     TAXON_REMARKS = :taxonRemarks
 
-    # Namespace mappings
     NAMESPACES = {
       TAXON_ID => 'http://rs.tdwg.org/dwc/terms/taxonID',
       VERNACULAR_NAME => 'http://rs.tdwg.org/dwc/terms/vernacularName',

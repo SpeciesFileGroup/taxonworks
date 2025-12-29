@@ -4,7 +4,6 @@
 module Export::Dwca::GbifProfile
 
   class Reference
-    # Field name constants
     TAXON_ID = :taxonID
     IDENTIFIER = :identifier
     BIBLIOGRAPHIC_CITATION = :bibliographicCitation
@@ -19,7 +18,6 @@ module Export::Dwca::GbifProfile
     TAXON_REMARKS = :taxonRemarks
     TYPE = :type
 
-    # Namespace mappings
     NAMESPACES = {
       TAXON_ID => 'http://rs.tdwg.org/dwc/terms/taxonID',
       IDENTIFIER => 'http://purl.org/dc/terms/identifier',
@@ -162,5 +160,5 @@ module Export::Dwca::GbifProfile
     attr_accessor TYPE # [USED IN SF]
 
   end
-  
+
 end
