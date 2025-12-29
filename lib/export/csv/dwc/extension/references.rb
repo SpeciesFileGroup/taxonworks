@@ -27,25 +27,41 @@ module Export::CSV::Dwc::Extension::References
 
   # Generate CSV for references extension using only DwcOccurrence data
   # @param scope [ActiveRecord::Relation] DwcOccurrence records
-  # @param taxon_name_to_id [Hash] mapping of "rank:scientificName" => taxonID
+  # @param taxon_name_id_to_taxon_id [Hash] mapping of taxon_name_id => taxonID
   # @return [String] CSV content
-  def self.csv(scope, taxon_name_to_id)
+  def self.csv(scope, taxon_name_id_to_taxon_id)
     tbl = []
     tbl[0] = HEADERS
 
-    # Only process records with associatedReferences populated
-    # Filter at SQL level for performance
-    scope.where.not(associatedReferences: [nil, '']).find_each do |dwc_occ|
-      # Look up the taxonID for this occurrence's scientificName and rank
-      rank = dwc_occ.taxonRank&.downcase
-      sci_name = dwc_occ.scientificName
-      taxon_id = nil
-      if rank.present? && sci_name.present?
-        key = "#{rank}:#{sci_name}"
-        taxon_id = taxon_name_to_id[key]
-      end
+    # Build occurrence_to_otu and otu_to_taxon_name_id mappings (similar to distribution extension)
+    # For AssertedDistributions
+    ad_mapping = scope
+      .where(dwc_occurrence_object_type: 'AssertedDistribution')
+      .where.not(associatedReferences: [nil, ''])
+      .joins('JOIN asserted_distributions ad ON ad.id = dwc_occurrences.dwc_occurrence_object_id AND ad.asserted_distribution_object_type = \'Otu\'')
+      .pluck('dwc_occurrences.dwc_occurrence_object_id', 'ad.asserted_distribution_object_id')
+      .to_h
 
-      # Skip if we can't find the taxonID (shouldn't happen if data is consistent)
+    otu_ids = ad_mapping.values.compact.uniq
+    otu_to_taxon_name_id = ::Otu.where(id: otu_ids)
+      .joins(:taxon_name)
+      .pluck(Arel.sql('otus.id'), Arel.sql('COALESCE(taxon_names.cached_valid_taxon_name_id, taxon_names.id)'))
+      .to_h
+
+    # Only process AssertedDistribution records with associatedReferences populated
+    scope
+      .where(dwc_occurrence_object_type: 'AssertedDistribution')
+      .where.not(associatedReferences: [nil, ''])
+      .find_each do |dwc_occ|
+      # Look up taxon_name_id via OTU
+      otu_id = ad_mapping[dwc_occ.dwc_occurrence_object_id]
+      next unless otu_id
+
+      taxon_name_id = otu_to_taxon_name_id[otu_id]
+      next unless taxon_name_id
+
+      # Look up taxonID from taxon_name_id
+      taxon_id = taxon_name_id_to_taxon_id[taxon_name_id]
       next unless taxon_id
 
       # Get associatedReferences field (already filtered to non-blank)

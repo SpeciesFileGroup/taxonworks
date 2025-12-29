@@ -1350,5 +1350,192 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         end
       end
     end
+
+    context 'with homonyms (same scientific name in different kingdoms)' do
+      # Create two separate taxonomic hierarchies with same species name "bus" in genus "Aus"
+      # One in Animalia, one in Plantae
+      let!(:homonym_root) { FactoryBot.create(:root_taxon_name) }
+
+      # Animalia hierarchy
+      let!(:animalia) { Protonym.create!(name: 'Animalia', parent: homonym_root, rank_class: Ranks.lookup(:iczn, :kingdom)) }
+      let!(:arthropoda) { Protonym.create!(name: 'Arthropoda', parent: animalia, rank_class: Ranks.lookup(:iczn, :phylum)) }
+      let!(:insecta) { Protonym.create!(name: 'Insecta', parent: arthropoda, rank_class: Ranks.lookup(:iczn, :class)) }
+      let!(:aus_animal) { Protonym.create!(name: 'Aus', parent: insecta, rank_class: Ranks.lookup(:iczn, :genus)) }
+      let!(:bus_animal) { Protonym.create!(name: 'bus', parent: aus_animal, rank_class: Ranks.lookup(:iczn, :species)) }
+
+      # Plantae hierarchy (using ICN)
+      let!(:plantae) { Protonym.create!(name: 'Plantae', parent: homonym_root, rank_class: Ranks.lookup(:icn, :kingdom)) }
+      let!(:magnoliophyta) { Protonym.create!(name: 'Magnoliophyta', parent: plantae, rank_class: Ranks.lookup(:icn, :phylum)) }
+      let!(:magnoliopsida) { Protonym.create!(name: 'Magnoliopsida', parent: magnoliophyta, rank_class: Ranks.lookup(:icn, :class)) }
+      let!(:aus_plant) { Protonym.create!(name: 'Aus', parent: magnoliopsida, rank_class: Ranks.lookup(:icn, :genus)) }
+      let!(:bus_plant) { Protonym.create!(name: 'bus', parent: aus_plant, rank_class: Ranks.lookup(:icn, :species)) }
+
+      # Create OTUs and specimens
+      let!(:animal_otu) { FactoryBot.create(:valid_otu, taxon_name: bus_animal) }
+      let!(:animal_specimen) { FactoryBot.create(:valid_specimen) }
+      let!(:animal_td) { FactoryBot.create(:valid_taxon_determination, taxon_determination_object: animal_specimen, otu: animal_otu) }
+
+      let!(:plant_otu) { FactoryBot.create(:valid_otu, taxon_name: bus_plant) }
+      let!(:plant_specimen) { FactoryBot.create(:valid_specimen) }
+      let!(:plant_td) { FactoryBot.create(:valid_taxon_determination, taxon_determination_object: plant_specimen, otu: plant_otu) }
+
+      before do
+        # Generate DwcOccurrences
+        animal_specimen.get_dwc_occurrence
+        plant_specimen.get_dwc_occurrence
+      end
+
+      context 'replace_with_accepted_name mode' do
+        let(:replace_data) do
+          ::Export::Dwca::ChecklistData.new(
+            core_otu_scope_params: { otu_id: [animal_otu.id, plant_otu.id] },
+            accepted_name_mode: 'replace_with_accepted_name'
+          )
+        end
+
+        specify 'both homonyms appear as separate taxa' do
+          csv = CSV.parse(replace_data.csv, headers: true, col_sep: "\t")
+
+          # Find both species named "Aus bus"
+          aus_bus_rows = csv.select { |row| row['genus'] == 'Aus' && row['specificEpithet'] == 'bus' && row['taxonRank'] == 'species' }
+          expect(aus_bus_rows.count).to eq(2), 'Both homonyms should appear in output'
+        end
+
+        specify 'homonyms have different taxonIDs' do
+          csv = CSV.parse(replace_data.csv, headers: true, col_sep: "\t")
+
+          aus_bus_rows = csv.select { |row| row['genus'] == 'Aus' && row['specificEpithet'] == 'bus' && row['taxonRank'] == 'species' }
+          taxon_ids = aus_bus_rows.map { |row| row['taxonID'] }
+
+          expect(taxon_ids.uniq.count).to eq(2), 'Homonyms should have distinct taxonIDs'
+        end
+
+        specify 'homonyms have different higher classifications' do
+          csv = CSV.parse(replace_data.csv, headers: true, col_sep: "\t")
+
+          animal_species = csv.find { |row| row['kingdom'] == 'Animalia' && row['genus'] == 'Aus' && row['specificEpithet'] == 'bus' && row['taxonRank'] == 'species' }
+          plant_species = csv.find { |row| row['kingdom'] == 'Plantae' && row['genus'] == 'Aus' && row['specificEpithet'] == 'bus' && row['taxonRank'] == 'species' }
+
+          expect(animal_species).to be_present, 'Animal Aus bus should be present'
+          expect(plant_species).to be_present, 'Plant Aus bus should be present'
+
+          expect(animal_species['kingdom']).to eq('Animalia')
+          expect(animal_species['phylum']).to eq('Arthropoda')
+          expect(animal_species['class']).to eq('Insecta')
+
+          expect(plant_species['kingdom']).to eq('Plantae')
+          expect(plant_species['phylum']).to eq('Magnoliophyta')
+          expect(plant_species['class']).to eq('Magnoliopsida')
+        end
+
+        specify 'both Aus genera appear with different higher classifications' do
+          csv = CSV.parse(replace_data.csv, headers: true, col_sep: "\t")
+
+          animal_genus = csv.find { |row| row['kingdom'] == 'Animalia' && row['scientificName'] == 'Aus' && row['taxonRank'] == 'genus' }
+          plant_genus = csv.find { |row| row['kingdom'] == 'Plantae' && row['scientificName'] == 'Aus' && row['taxonRank'] == 'genus' }
+
+          expect(animal_genus).to be_present, 'Animal Aus should be present'
+          expect(plant_genus).to be_present, 'Plant Aus should be present'
+          expect(animal_genus['taxonID']).not_to eq(plant_genus['taxonID']), 'Homonymous genera should have different taxonIDs'
+        end
+      end
+
+      context 'accepted_name_usage_id mode' do
+        let(:accepted_data) do
+          ::Export::Dwca::ChecklistData.new(
+            core_otu_scope_params: { otu_id: [animal_otu.id, plant_otu.id] },
+            accepted_name_mode: 'accepted_name_usage_id'
+          )
+        end
+
+        specify 'both homonyms appear as separate taxa' do
+          csv = CSV.parse(accepted_data.csv, headers: true, col_sep: "\t")
+
+          # Find both species named "Aus bus"
+          aus_bus_rows = csv.select { |row| row['genus'] == 'Aus' && row['specificEpithet'] == 'bus' && row['taxonRank'] == 'species' }
+          expect(aus_bus_rows.count).to eq(2), 'Both homonyms should appear in output'
+        end
+
+        specify 'homonyms have different taxonIDs' do
+          csv = CSV.parse(accepted_data.csv, headers: true, col_sep: "\t")
+
+          aus_bus_rows = csv.select { |row| row['genus'] == 'Aus' && row['specificEpithet'] == 'bus' && row['taxonRank'] == 'species' }
+          taxon_ids = aus_bus_rows.map { |row| row['taxonID'] }
+
+          expect(taxon_ids.uniq.count).to eq(2), 'Homonyms should have distinct taxonIDs'
+        end
+
+        specify 'homonyms have different higher classifications' do
+          csv = CSV.parse(accepted_data.csv, headers: true, col_sep: "\t")
+
+          animal_species = csv.find { |row| row['kingdom'] == 'Animalia' && row['genus'] == 'Aus' && row['specificEpithet'] == 'bus' && row['taxonRank'] == 'species' }
+          plant_species = csv.find { |row| row['kingdom'] == 'Plantae' && row['genus'] == 'Aus' && row['specificEpithet'] == 'bus' && row['taxonRank'] == 'species' }
+
+          expect(animal_species).to be_present, 'Animal Aus bus should be present'
+          expect(plant_species).to be_present, 'Plant Aus bus should be present'
+
+          expect(animal_species['taxonomicStatus']).to eq('accepted')
+          expect(plant_species['taxonomicStatus']).to eq('accepted')
+
+          expect(animal_species['kingdom']).to eq('Animalia')
+          expect(plant_species['kingdom']).to eq('Plantae')
+        end
+
+        specify 'both Aus genera appear with different higher classifications' do
+          csv = CSV.parse(accepted_data.csv, headers: true, col_sep: "\t")
+
+          animal_genus = csv.find { |row| row['kingdom'] == 'Animalia' && row['scientificName'] == 'Aus' && row['taxonRank'] == 'genus' }
+          plant_genus = csv.find { |row| row['kingdom'] == 'Plantae' && row['scientificName'] == 'Aus' && row['taxonRank'] == 'genus' }
+
+          expect(animal_genus).to be_present, 'Animal Aus should be present'
+          expect(plant_genus).to be_present, 'Plant Aus should be present'
+          expect(animal_genus['taxonID']).not_to eq(plant_genus['taxonID']), 'Homonymous genera should have different taxonIDs'
+        end
+      end
+
+      context 'with vernacular name extension' do
+        # Add vernacular names to distinguish the homonyms
+        let!(:english) { FactoryBot.create(:valid_language, alpha_2: 'en') }
+        let!(:animal_common_name) { FactoryBot.create(:valid_common_name, name: 'Animal Bug', otu: animal_otu, language: english) }
+        let!(:plant_common_name) { FactoryBot.create(:valid_common_name, name: 'Plant Bug', otu: plant_otu, language: english) }
+
+        let(:data_with_vernacular) do
+          ::Export::Dwca::ChecklistData.new(
+            core_otu_scope_params: { otu_id: [animal_otu.id, plant_otu.id] },
+            accepted_name_mode: 'replace_with_accepted_name',
+            extensions: [:vernacular_name]
+          )
+        end
+
+        specify 'vernacular name extension links to correct homonym' do
+          core_csv = CSV.parse(data_with_vernacular.csv, headers: true, col_sep: "\t")
+          vernacular_csv = CSV.parse(data_with_vernacular.vernacular_name_extension_tmp.read, headers: true, col_sep: "\t")
+
+          # Find the homonyms in core file
+          animal_species = core_csv.find { |row| row['kingdom'] == 'Animalia' && row['genus'] == 'Aus' && row['specificEpithet'] == 'bus' && row['taxonRank'] == 'species' }
+          plant_species = core_csv.find { |row| row['kingdom'] == 'Plantae' && row['genus'] == 'Aus' && row['specificEpithet'] == 'bus' && row['taxonRank'] == 'species' }
+
+          expect(animal_species).to be_present
+          expect(plant_species).to be_present
+
+          # Find vernacular names in extension
+          animal_bug = vernacular_csv.find { |row| row['vernacularName'] == 'Animal Bug' }
+          plant_bug = vernacular_csv.find { |row| row['vernacularName'] == 'Plant Bug' }
+
+          expect(animal_bug).to be_present, 'Animal Bug vernacular name should be in extension'
+          expect(plant_bug).to be_present, 'Plant Bug vernacular name should be in extension'
+
+          # Verify each vernacular name links to the correct homonym's taxonID
+          expect(animal_bug['id']).to eq(animal_species['taxonID']),
+            'Animal Bug should link to Animal Aus bus taxonID'
+          expect(plant_bug['id']).to eq(plant_species['taxonID']),
+            'Plant Bug should link to Plant Aus bus taxonID'
+
+          # Verify they link to different taxa
+          expect(animal_bug['id']).not_to eq(plant_bug['id']),
+            'Vernacular names for homonyms should link to different taxonIDs'
+        end
+      end
+    end
   end
 end

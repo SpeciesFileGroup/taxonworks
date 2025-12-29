@@ -23,11 +23,25 @@ module Export::CSV::Dwc::Extension::SpeciesDistribution
 
   # Generate CSV for species distribution extension
   # @param scope [ActiveRecord::Relation] DwcOccurrence records from AssertedDistribution
-  # @param taxon_name_to_id [Hash] mapping of "rank:scientificName" => taxonID
+  # @param taxon_name_id_to_taxon_id [Hash] mapping of taxon_name_id => taxonID
   # @return [String] CSV content
-  def self.csv(scope, taxon_name_to_id)
+  def self.csv(scope, taxon_name_id_to_taxon_id)
     tbl = []
     tbl[0] = HEADERS
+
+    # Build occurrence_to_otu mapping for lookups
+    occurrence_to_otu = scope
+      .where(dwc_occurrence_object_type: 'AssertedDistribution')
+      .joins('JOIN asserted_distributions ad ON ad.id = dwc_occurrences.dwc_occurrence_object_id AND ad.asserted_distribution_object_type = \'Otu\'')
+      .pluck('dwc_occurrences.dwc_occurrence_object_id', 'ad.asserted_distribution_object_id')
+      .to_h
+
+    # Get OTU to taxon_name_id mapping
+    otu_ids = occurrence_to_otu.values.compact.uniq
+    otu_to_taxon_name_id = ::Otu.where(id: otu_ids)
+      .joins(:taxon_name)
+      .pluck(Arel.sql('otus.id'), Arel.sql('COALESCE(taxon_names.cached_valid_taxon_name_id, taxon_names.id)'))
+      .to_h
 
     scope.find_each do |dwc_occ|
       # Build locality from geographic components
@@ -38,16 +52,15 @@ module Export::CSV::Dwc::Extension::SpeciesDistribution
       ].compact.reject(&:empty?)
       locality = locality_parts.join(', ').presence
 
-      # Look up the taxonID for this occurrence's scientificName and rank
-      rank = dwc_occ.taxonRank&.downcase
-      sci_name = dwc_occ.scientificName
-      taxon_id = nil
-      if rank.present? && sci_name.present?
-        key = "#{rank}:#{sci_name}"
-        taxon_id = taxon_name_to_id[key]
-      end
+      # Look up taxon_name_id via OTU
+      otu_id = occurrence_to_otu[dwc_occ.dwc_occurrence_object_id]
+      next unless otu_id
 
-      # Skip if we can't find the taxonID (shouldn't happen if data is consistent)
+      taxon_name_id = otu_to_taxon_name_id[otu_id]
+      next unless taxon_name_id
+
+      # Look up taxonID from taxon_name_id
+      taxon_id = taxon_name_id_to_taxon_id[taxon_name_id]
       next unless taxon_id
 
       row = [
