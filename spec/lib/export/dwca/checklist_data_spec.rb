@@ -108,6 +108,20 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           # taxonID should be present, plus at least some of the taxon fields
           expect(csv.headers).to include('taxonID', 'scientificName', 'taxonRank')
         end
+
+        specify 'empty columns are removed from output' do
+          # Columns that have no data across all rows should not be present in the output
+          # Check that all columns in the CSV have at least one non-empty value
+          csv.headers.each do |header|
+            # Required columns are allowed to be empty
+            next if ['id', 'taxonID', 'scientificName', 'taxonRank'].include?(header)
+
+            # Check that this column has at least one non-empty value
+            has_value = csv.any? { |row| row[header].present? }
+            expect(has_value).to be(true),
+              "Column '#{header}' is completely empty and should have been removed"
+          end
+        end
       end
 
       context 'normalized taxonomy structure' do

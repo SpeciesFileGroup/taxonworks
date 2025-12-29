@@ -203,6 +203,9 @@ module Export::Dwca
       # Store the name-to-ID mapping for extensions to use
       @taxon_name_to_id = name_to_id
 
+      # Remove empty columns to reduce file size and improve readability
+      processed_taxa = remove_empty_columns(processed_taxa)
+
       output_headers = processed_taxa.first&.keys || []
 
       CSV.generate(col_sep: "\t") do |csv|
@@ -211,6 +214,34 @@ module Export::Dwca
         processed_taxa.each do |taxon|
           csv << taxon.values
         end
+      end
+    end
+
+    # Remove columns that are completely empty across all taxa
+    # @param taxa [Array<Hash>] array of taxon hashes
+    # @return [Array<Hash>] taxa with empty columns removed
+    def remove_empty_columns(taxa)
+      return taxa if taxa.empty?
+
+      # Required columns that should never be removed, even if empty
+      required_columns = %w[id taxonID scientificName taxonRank].to_set
+
+      # Find which columns have at least one non-empty value
+      columns_with_data = Set.new
+
+      taxa.each do |taxon|
+        taxon.each do |key, value|
+          next if columns_with_data.include?(key) # Short-circuit: already found data in this column
+
+          if required_columns.include?(key) || value.present?
+            columns_with_data << key
+          end
+        end
+      end
+
+      # Filter each taxon to only include columns with data
+      taxa.map do |taxon|
+        taxon.select { |key, _| columns_with_data.include?(key) }
       end
     end
 
