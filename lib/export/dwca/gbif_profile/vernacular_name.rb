@@ -4,6 +4,40 @@
 module Export::Dwca::GbifProfile
 
   class VernacularName
+    # Field name constants
+    TAXON_ID = :taxonID
+    VERNACULAR_NAME = :vernacularName
+    SOURCE = :source
+    LANGUAGE = :language
+    TEMPORAL = :temporal
+    LOCATION_ID = :locationID
+    LOCALITY = :locality
+    COUNTRY_CODE = :countryCode
+    SEX = :sex
+    LIFE_STAGE = :lifeStage
+    IS_PLURAL = :isPlural
+    IS_PREFERRED_NAME = :isPreferredName
+    ORGANISM_PART = :organismPart
+    TAXON_REMARKS = :taxonRemarks
+
+    # Namespace mappings
+    NAMESPACES = {
+      TAXON_ID => 'http://rs.tdwg.org/dwc/terms/taxonID',
+      VERNACULAR_NAME => 'http://rs.tdwg.org/dwc/terms/vernacularName',
+      SOURCE => 'http://purl.org/dc/terms/source',
+      LANGUAGE => 'http://purl.org/dc/terms/language',
+      TEMPORAL => 'http://purl.org/dc/terms/temporal',
+      LOCATION_ID => 'http://rs.tdwg.org/dwc/terms/locationID',
+      LOCALITY => 'http://rs.tdwg.org/dwc/terms/locality',
+      COUNTRY_CODE => 'http://rs.tdwg.org/dwc/terms/countryCode',
+      SEX => 'http://rs.tdwg.org/dwc/terms/sex',
+      LIFE_STAGE => 'http://rs.tdwg.org/dwc/terms/lifeStage',
+      IS_PLURAL => 'http://rs.gbif.org/terms/1.0/isPlural',
+      IS_PREFERRED_NAME => 'http://rs.gbif.org/terms/1.0/isPreferredName',
+      ORGANISM_PART => 'http://rs.gbif.org/terms/1.0/organismPart',
+      TAXON_REMARKS => 'http://rs.tdwg.org/dwc/terms/taxonRemarks'
+    }.freeze
+
     # taxonID (http://rs.tdwg.org/dwc/terms/taxonID)
     #
     # @return [String]
@@ -11,7 +45,7 @@ module Export::Dwca::GbifProfile
     # taxon in the core data file to which this vernacular name points. This
     # identifier provides the link between the core data record and the
     # extension record.
-    attr_accessor :taxonID # [USED IN SF]
+    attr_accessor TAXON_ID # [USED IN SF]
 
     # vernacularName (http://rs.tdwg.org/dwc/terms/vernacularName)
     #
@@ -20,7 +54,7 @@ module Export::Dwca::GbifProfile
     #
     # Example: Andean Condor", "Condor Andino", "American Eagle",
     # "Gönsegeier"
-    attr_accessor :vernacularName # [USED IN SF]
+    attr_accessor VERNACULAR_NAME # [USED IN SF]
 
     # source (http://purl.org/dc/terms/source)
     #
@@ -30,23 +64,23 @@ module Export::Dwca::GbifProfile
     #
     # Example: "Peterson Field Guide to the Eastern Seashore, Houghton
     # Mifflin Co, 1961, p131"
-    attr_accessor :source
+    attr_accessor SOURCE
 
     # language (http://purl.org/dc/terms/language)
     #
     # @return [String]
     # ISO 639-1 language code used for the vernacular name value.
     #
-    # Example: “ES”, “Spanish”, “Español”
-    attr_accessor :language # [USED IN SF]
+    # Example: "ES", "Spanish", "Español"
+    attr_accessor LANGUAGE # [USED IN SF]
 
     # temporal (http://purl.org/dc/terms/temporal)
     #
     # @return [String]
     # temporal context when name is/was used
     #
-    # Example: “19th Century”; 1950
-    attr_accessor :temporal
+    # Example: "19th Century"; 1950
+    attr_accessor TEMPORAL
 
     # locationID (http://rs.tdwg.org/dwc/terms/locationID)
     #
@@ -54,7 +88,7 @@ module Export::Dwca::GbifProfile
     # An identifier for the set of location information (data associated with
     # dcterms:Location). May be a global unique identifier or an identifier
     # specific to the data set.
-    attr_accessor :locationID
+    attr_accessor LOCATION_ID
 
     # locality (http://rs.tdwg.org/dwc/terms/locality)
     #
@@ -66,7 +100,7 @@ module Export::Dwca::GbifProfile
     #
     # Example: "Southeastern coastal New England from Buzzards Bay
     # through Rhode Island"
-    attr_accessor :locality
+    attr_accessor LOCALITY
 
     # countryCode (http://rs.tdwg.org/dwc/terms/countryCode)
     #
@@ -81,7 +115,7 @@ module Export::Dwca::GbifProfile
     #
     # Example: "AR" for Argentina, "SV" for El Salvador. "AR,CR,SV" for
     # Argentina, Costa Rica, and El Salvador combined.
-    attr_accessor :countryCode
+    attr_accessor COUNTRY_CODE
 
     # sex (http://rs.tdwg.org/dwc/terms/sex)
     #
@@ -94,8 +128,8 @@ module Export::Dwca::GbifProfile
     #
     # Vocabulary: http://rs.gbif.org/vocabulary/gbif/sex.xml
     #
-    # Example: “male”
-    attr_accessor :sex
+    # Example: "male"
+    attr_accessor SEX
 
     # lifeStage (http://rs.tdwg.org/dwc/terms/lifeStage)
     #
@@ -106,9 +140,9 @@ module Export::Dwca::GbifProfile
     #
     # Vocabulary: http://rs.gbif.org/vocabulary/gbif/life_stage.xml
     #
-    # Example: ‘juvenile" is the life stage of the fish Pomatomus saltatrix
-    # for which the name "snapper blue" refers.’
-    attr_accessor :lifeStage
+    # Example: 'juvenile" is the life stage of the fish Pomatomus saltatrix
+    # for which the name "snapper blue" refers.'
+    attr_accessor LIFE_STAGE
 
     # isPlural (http://rs.gbif.org/terms/1.0/isPlural)
     #
@@ -121,7 +155,7 @@ module Export::Dwca::GbifProfile
     # Example: The term "Schoolies" is the plural form of a name used along
     # the coastal Northeastern U.S. for groups of juvenile fish of the species,
     # Morone saxatilis.
-    attr_accessor :isPlural
+    attr_accessor IS_PLURAL
 
     # isPreferredName (http://rs.gbif.org/terms/1.0/isPreferredName)
     #
@@ -138,8 +172,8 @@ module Export::Dwca::GbifProfile
     #
     # Vocabulary: http://rs.gbif.org/vocabulary/basic/boolean.xml
     #
-    # Example: “True” “False”
-    attr_accessor :isPreferredName
+    # Example: "True" "False"
+    attr_accessor IS_PREFERRED_NAME
 
     # organismPart (http://rs.gbif.org/terms/1.0/organismPart)
     #
@@ -151,7 +185,7 @@ module Export::Dwca::GbifProfile
     # The spice "Mace", is derived from the "aril" of the plant Myristica
     # fragrans while the spice "nutmeg" is derived from the "seed." "Seed"
     # and "Aril" represent two different values for organismPart.
-    attr_accessor :organismPart
+    attr_accessor ORGANISM_PART
 
     # taxonRemarks (http://rs.tdwg.org/dwc/terms/taxonRemarks)
     #
@@ -159,10 +193,10 @@ module Export::Dwca::GbifProfile
     # A description of any context that qualify the specific usage of the
     # vernacular name.
     #
-    # Example: “This name applies only when the fruit has been blessed by
-    # a tribal shaman”
-    attr_accessor :taxonRemarks
+    # Example: "This name applies only when the fruit has been blessed by
+    # a tribal shaman"
+    attr_accessor TAXON_REMARKS
 
   end
-  
+
 end
