@@ -44,8 +44,12 @@ module Export::CSV::Dwc::Extension::TypesAndSpecimen
     tbl = []
     tbl[0] = HEADERS
 
-    # Only process CollectionObject records (not FieldOccurrence)
-    scope.where(dwc_occurrence_object_type: 'CollectionObject').find_each do |dwc_occ|
+    # Only process CollectionObject records with typeStatus populated
+    # Filter at SQL level for performance
+    scope
+      .where(dwc_occurrence_object_type: 'CollectionObject')
+      .where.not(typeStatus: [nil, ''])
+      .find_each do |dwc_occ|
       # Look up the taxonID for this occurrence's scientificName and rank
       rank = dwc_occ.taxonRank&.downcase
       sci_name = dwc_occ.scientificName
@@ -58,9 +62,8 @@ module Export::CSV::Dwc::Extension::TypesAndSpecimen
       # Skip if we can't find the taxonID (shouldn't happen if data is consistent)
       next unless taxon_id
 
-      # Get typeStatus field (only populated for type specimens)
+      # Get typeStatus field (already filtered to non-blank)
       type_status_str = dwc_occ.typeStatus
-      next if type_status_str.blank?
 
       # Split by delimiter to get individual type designations
       type_statuses = type_status_str.split(Export::Dwca::DELIMITER).map(&:strip).reject(&:blank?)
