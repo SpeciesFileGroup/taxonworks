@@ -62,6 +62,42 @@ class DwcOccurrence < ApplicationRecord
     d ? d : field
   end
 
+  # Keys are dwc_occurrence columns, values are DwC Taxon Extension columns:
+  # https://rs.gbif.org/core/dwc_taxon_2024-02-19.xml
+  # Note: taxonID is excluded here because it will be created via copy_column
+  # from occurrenceID.
+  CHECKLIST_TAXON_EXTENSION_COLUMNS = {
+    scientificName: :scientificName,
+    taxonRank: :taxonRank,
+    acceptedNameUsage: :acceptedNameUsage,
+    parentNameUsage: :parentNameUsage,
+    originalNameUsage: :originalNameUsage,
+    nameAccordingTo: :nameAccordingTo,
+    namePublishedIn: :namePublishedIn,
+    namePublishedInYear: :namePublishedInYear,
+    higherClassification: :higherClassification,
+    kingdom: :kingdom,
+    phylum: :phylum,
+    dwcClass: :class,  # Note: column is dwcClass, DwC Taxon field is 'class'
+    order: :order,
+    superfamily: :superfamily,
+    family: :family,
+    subfamily: :subfamily,
+    tribe: :tribe,
+    subtribe: :subtribe,
+    genus: :genus,
+    subgenus: :subgenus,
+    specificEpithet: :specificEpithet,
+    infraspecificEpithet: :infraspecificEpithet,
+    verbatimTaxonRank: :verbatimTaxonRank,
+    scientificNameAuthorship: :scientificNameAuthorship,
+    vernacularName: :vernacularName,
+    nomenclaturalCode: :nomenclaturalCode,
+    taxonomicStatus: :taxonomicStatus,
+    nomenclaturalStatus: :nomenclaturalStatus,
+    taxonRemarks: :taxonRemarks
+  }.freeze
+
   # Header converter for checklist exports (Taxon core)
   # Converts dwc_occurrence column names to DwC Taxon extension field names
   CSV::HeaderConverters[:checklist_headers] = lambda do |field|
@@ -81,6 +117,7 @@ class DwcOccurrence < ApplicationRecord
     :tribe,
     :subtribe,
     :genus,
+    :subgenus,
     :specificEpithet
   ].freeze
 
@@ -221,7 +258,7 @@ class DwcOccurrence < ApplicationRecord
     # to preserve it (I guess).
     [:id,
      :basisOfRecord,
-     :dwc_occurrence_object_id,   # !! We don't want this, but need it in joins, it is removed in trim via EXCLUDED_OCCURRENCE_COLUMNS below
+     :dwc_occurrence_object_id,   # !! We don't want this, but need it in joins, it is removed in trim via excluded_occurrence_columns below
      :dwc_occurrence_object_type, # !! ^
     ] + CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys
   end
@@ -233,15 +270,31 @@ class DwcOccurrence < ApplicationRecord
     # to send the ephemeral dwc_occurrence.id values to GBIF.
     [
      :id,
-     :occurrenceID, # !! We don't want this, but it will be copied to the taxonID column and then removed in trim via EXCLUDED_CHECKLIST_COLUMNS below
-     :dwc_occurrence_object_id, # !! We don't want this, but need it in joins, it is removed in trim via EXCLUDED_CHECKLIST_COLUMNS below
+     :dwc_occurrence_object_id, # !! We don't want this, but need it in joins, it is removed in trim via excluded_checklist_columns below
      :dwc_occurrence_object_type, # !! ^
     ] + CHECKLIST_TAXON_EXTENSION_COLUMNS.keys
   end
 
-  # @return [Array] of symbols for columns to exclude from occurrence exports
+  # @return [Array]
+  #   of symbols
   def self.excluded_occurrence_columns
-    EXCLUDED_OCCURRENCE_COLUMNS
+    # id is *not* excluded, it's required for star-joining - but we get to
+    # choose to populate with UUIDs instead of db ids.
+    (::DwcOccurrence.columns.collect{ |c| c.name.to_sym } -
+      (
+        self.target_columns -
+          [:dwc_occurrence_object_id, :dwc_occurrence_object_type]
+      )
+    )
+  end
+
+  def self.excluded_checklist_columns
+    (::DwcOccurrence.columns.collect{ |c| c.name.to_sym } -
+      (
+        CHECKLIST_TAXON_EXTENSION_COLUMNS.keys -
+          [:dwc_occurrence_object_id, :dwc_occurrence_object_type]
+      )
+    )
   end
 
   def basis
@@ -374,10 +427,5 @@ class DwcOccurrence < ApplicationRecord
     DwcOccurrence.joins("LEFT JOIN #{tbl} tbl on dwc_occurrences.dwc_occurrence_object_id = tbl.id")
       .where('tbl.id IS NULL and dwc_occurrences.dwc_occurrence_object_type = ?', kind )
   end
-
-  # Note: ColumnSets module must be included at the end to avoid circular dependency.
-  # The constants in ColumnSets reference methods like target_occurrence_columns and target_checklist_columns
-  # which need to be defined before the module is loaded.
-  include DwcOccurrence::ColumnSets
 
 end

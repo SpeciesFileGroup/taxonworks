@@ -1227,34 +1227,7 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
       specify 'accepted_name_usage_id mode includes both taxa' do
         expect(accepted_name_usage_id_data.total).to eq(2), 'Should query both valid and invalid OTUs'
 
-        # Debug: Check filter setup
-        puts "\n=== Debug: Filter setup ==="
-        filter = accepted_name_usage_id_data.instance_variable_get(:@core_occurrence_scope)
-        if filter.is_a?(ActiveRecord::Relation)
-          # Get the filter that created this relation
-          # We need to look at ChecklistData's instance variables
-          puts "Core occurrence scope is an ActiveRecord::Relation"
-        end
-
-        # Debug: Check the SQL query
-        puts "\n=== Debug: SQL Query ==="
-        puts accepted_name_usage_id_data.core_occurrence_scope.to_sql[0..1000]
-
-        # Debug: Check what's in the DwcOccurrence scope
-        puts "\n=== Debug: DwcOccurrence records ==="
-        accepted_name_usage_id_data.core_occurrence_scope.limit(1).each do |dwc|
-          puts "  ID: #{dwc.id}, scientificName: #{dwc.scientificName}"
-          puts "  Has taxon_name_cached? #{dwc.respond_to?(:taxon_name_cached)}"
-          puts "  All attrs count: #{dwc.attributes.keys.length}"
-        end
-
         all_csv = CSV.parse(accepted_name_usage_id_data.csv, headers: true, col_sep: "\t")
-
-        # Debug: Show all rows
-        puts "\n=== Debug: CSV rows ==="
-        all_csv.each do |row|
-          puts "  #{row['taxonRank']}: #{row['scientificName']}"
-        end
 
         # Both should be present with their original names
         valid_taxon = all_csv.find { |row| row['scientificName']&.include?('catus') }
