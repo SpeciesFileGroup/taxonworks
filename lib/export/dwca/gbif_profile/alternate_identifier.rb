@@ -4,6 +4,22 @@
 module Export::Dwca::GbifProfile
 
   class AlternateIdentifier
+    # Field name constants
+    TAXON_ID = :taxonID
+    IDENTIFIER = :identifier
+    TITLE = :title
+    SUBJECT = :subject
+    FORMAT = :format
+
+    # Namespace mappings
+    NAMESPACES = {
+      TAXON_ID => 'http://rs.tdwg.org/dwc/terms/taxonID',
+      IDENTIFIER => 'http://purl.org/dc/terms/identifier',
+      TITLE => 'http://purl.org/dc/terms/title',
+      SUBJECT => 'http://purl.org/dc/terms/subject',
+      FORMAT => 'http://purl.org/dc/terms/format'
+    }.freeze
+
     # taxonID (http://rs.tdwg.org/dwc/terms/taxonID)
     #
     # @return [String]
@@ -11,7 +27,7 @@ module Export::Dwca::GbifProfile
     # taxon in the core data file to which this identifier record points. This
     # identifier provides the link between the core data record and the
     # extension record.
-    attr_accessor :taxonID
+    attr_accessor TAXON_ID
 
     # identifier (http://purl.org/dc/terms/identifier)
     #
@@ -19,8 +35,8 @@ module Export::Dwca::GbifProfile
     # External identifier used for the same taxon. Can be a URL pointing to a
     # webpage, an xml or rdf document, a DOI, UUID or any other identifer
     #
-    # Example: “urn:lsid:ipni.org:names:692570-1:1.4”
-    attr_accessor :identifier
+    # Example: "urn:lsid:ipni.org:names:692570-1:1.4"
+    attr_accessor IDENTIFIER
 
     # title (http://purl.org/dc/terms/title)
     #
@@ -29,13 +45,13 @@ module Export::Dwca::GbifProfile
     # displayed with the identifier or link
     #
     # Example: "Danaus plexippus page", "COL Taxon LSID"
-    attr_accessor :title
+    attr_accessor TITLE
 
     # subject (http://purl.org/dc/terms/subject)
     #
     # @return [String]
     # keywords qualifying the identifier
-    attr_accessor :subject
+    attr_accessor SUBJECT
 
     # format (http://purl.org/dc/terms/format)
     #
@@ -51,7 +67,7 @@ module Export::Dwca::GbifProfile
     # application/json
     #
     # Example: application/rdf+xml
-    attr_accessor :format
+    attr_accessor FORMAT
 
   end
 
