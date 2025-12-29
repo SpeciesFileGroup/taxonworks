@@ -33,7 +33,9 @@ module Export::CSV::Dwc::Extension::References
     tbl = []
     tbl[0] = HEADERS
 
-    scope.find_each do |dwc_occ|
+    # Only process records with associatedReferences populated
+    # Filter at SQL level for performance
+    scope.where.not(associatedReferences: [nil, '']).find_each do |dwc_occ|
       # Look up the taxonID for this occurrence's scientificName and rank
       rank = dwc_occ.taxonRank&.downcase
       sci_name = dwc_occ.scientificName
@@ -46,9 +48,8 @@ module Export::CSV::Dwc::Extension::References
       # Skip if we can't find the taxonID (shouldn't happen if data is consistent)
       next unless taxon_id
 
-      # Get associatedReferences field (only populated for AssertedDistribution)
+      # Get associatedReferences field (already filtered to non-blank)
       references_str = dwc_occ.associatedReferences
-      next if references_str.blank?
 
       # Split by delimiter to get individual citations
       citations = references_str.split(Export::Dwca::DELIMITER).map(&:strip).reject(&:blank?)
