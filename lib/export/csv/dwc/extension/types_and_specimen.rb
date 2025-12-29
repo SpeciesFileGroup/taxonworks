@@ -8,28 +8,33 @@
 #
 module Export::CSV::Dwc::Extension::TypesAndSpecimen
 
-  # Maintain this for order.
+  # Alias for brevity
+  GBIF = Export::Dwca::GbifProfile::TypeSpecimen
+
+  # Fields used in checklist exports (subset of full GBIF profile)
   # Only including fields that can be populated from DwcOccurrence data
   # from CollectionObject records with type materials.
-  HEADERS_HASH = {
-    # Required by dwca to link to core file (taxonID), not part of the extension.
-    id: '',
-    typeStatus: 'http://rs.tdwg.org/dwc/terms/typeStatus',
-    scientificName: 'http://rs.tdwg.org/dwc/terms/scientificName',
-    taxonRank: 'http://rs.tdwg.org/dwc/terms/taxonRank',
-    occurrenceID: 'http://rs.tdwg.org/dwc/terms/occurrenceID',
-    institutionCode: 'http://rs.tdwg.org/dwc/terms/institutionCode',
-    collectionCode: 'http://rs.tdwg.org/dwc/terms/collectionCode',
-    catalogNumber: 'http://rs.tdwg.org/dwc/terms/catalogNumber',
-    locality: 'http://rs.tdwg.org/dwc/terms/locality',
-    sex: 'http://rs.tdwg.org/dwc/terms/sex',
-    recordedBy: 'http://rs.tdwg.org/dwc/terms/recordedBy',
-    verbatimEventDate: 'http://rs.tdwg.org/dwc/terms/verbatimEventDate'
-  }.freeze
+  # Note: :id is used instead of TAXON_ID for DwC-A star joins
+  CHECKLIST_FIELDS = [
+    :id,                      # Required for DwC-A star joins (maps to taxonID)
+    GBIF::TYPE_STATUS,
+    GBIF::SCIENTIFIC_NAME,
+    GBIF::TAXON_RANK,
+    GBIF::OCCURRENCE_ID,
+    GBIF::INSTITUTION_CODE,
+    GBIF::COLLECTION_CODE,
+    GBIF::CATALOG_NUMBER,
+    GBIF::LOCALITY,
+    GBIF::SEX,
+    GBIF::RECORDED_BY,
+    GBIF::VERBATIM_EVENT_DATE
+  ].freeze
 
-  HEADERS = HEADERS_HASH.keys.freeze
+  HEADERS = CHECKLIST_FIELDS
 
-  HEADERS_NAMESPACES = HEADERS_HASH.values.freeze
+  HEADERS_NAMESPACES = CHECKLIST_FIELDS.map do |field|
+    field == :id ? '' : GBIF::NAMESPACES[field]
+  end.freeze
 
   # Generate CSV for types and specimen extension using only DwcOccurrence data
   # @param scope [ActiveRecord::Relation] DwcOccurrence records

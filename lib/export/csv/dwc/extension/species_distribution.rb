@@ -3,19 +3,23 @@
 #
 module Export::CSV::Dwc::Extension::SpeciesDistribution
 
-  # Maintain this for order.
-  HEADERS_HASH = {
-    # Required by dwca to link to core file (taxonID), not part of the extension.
-    id: '',
-    locality: 'http://rs.tdwg.org/dwc/terms/locality',
-    countryCode: 'http://rs.tdwg.org/dwc/terms/countryCode',
-    occurrenceStatus: 'http://rs.tdwg.org/dwc/terms/occurrenceStatus',
-    source: 'http://purl.org/dc/terms/source'
-  }.freeze
+  # Alias for brevity
+  GBIF = Export::Dwca::GbifProfile::SpeciesDistribution
 
-  HEADERS = HEADERS_HASH.keys.freeze
+  # Fields used in checklist exports (subset of full GBIF profile)
+  # Note: :id is used instead of TAXON_ID for DwC-A star joins
+  CHECKLIST_FIELDS = [
+    :id,                    # Required for DwC-A star joins (maps to taxonID)
+    GBIF::LOCALITY,
+    GBIF::OCCURRENCE_STATUS,
+    GBIF::SOURCE
+  ].freeze
 
-  HEADERS_NAMESPACES = HEADERS_HASH.values.freeze
+  HEADERS = CHECKLIST_FIELDS
+
+  HEADERS_NAMESPACES = CHECKLIST_FIELDS.map do |field|
+    field == :id ? '' : GBIF::NAMESPACES[field]
+  end.freeze
 
   # Generate CSV for species distribution extension
   # @param scope [ActiveRecord::Relation] DwcOccurrence records from AssertedDistribution
@@ -49,7 +53,6 @@ module Export::CSV::Dwc::Extension::SpeciesDistribution
       row = [
         taxon_id,                          # id (for star join to core taxon)
         locality,                          # locality
-        dwc_occ.countryCode,               # countryCode
         dwc_occ.occurrenceStatus,          # occurrenceStatus
         dwc_occ.associatedReferences       # source
       ]

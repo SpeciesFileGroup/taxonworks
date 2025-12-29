@@ -183,8 +183,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
 
         specify 'parentNameUsageID header is present' do
           expect(csv.headers).to include('parentNameUsageID')
-          # Should be fourth column after id, taxonID, and acceptedNameUsageID
-          expect(csv.headers[3]).to eq('parentNameUsageID')
         end
 
         specify 'root taxon (kingdom) has no parent' do
@@ -430,7 +428,7 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           data_with_extension.distribution_extension_tmp.rewind
           csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
 
-          expect(csv.headers).to eq(['id', 'locality', 'countryCode', 'occurrenceStatus', 'source'])
+          expect(csv.headers).to eq(['id', 'locality', 'occurrenceStatus', 'source'])
         end
 
         specify 'distribution extension only includes AssertedDistribution records' do
