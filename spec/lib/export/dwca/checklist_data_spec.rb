@@ -1194,10 +1194,10 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         invalid_species.reload
       end
 
-      let(:exclude_unaccepted_data) do
+      let(:replace_with_accepted_data) do
         ::Export::Dwca::ChecklistData.new(
           core_otu_scope_params: { otu_id: [valid_otu.id, invalid_otu.id] },
-          accepted_name_mode: 'exclude_unaccepted_names'
+          accepted_name_mode: 'replace_with_accepted_name'
         )
       end
 
@@ -1208,16 +1208,20 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         )
       end
 
-      specify 'exclude_unaccepted_names mode excludes invalid names' do
-        exclude_csv = CSV.parse(exclude_unaccepted_data.csv, headers: true, col_sep: "\t")
+      specify 'replace_with_accepted_name mode replaces invalid names with valid names' do
+        replace_csv = CSV.parse(replace_with_accepted_data.csv, headers: true, col_sep: "\t")
 
         # Should include valid species
-        valid_taxon = exclude_csv.find { |row| row['scientificName']&.include?('catus') }
+        valid_taxon = replace_csv.find { |row| row['scientificName']&.include?('catus') }
         expect(valid_taxon).to be_present, 'Valid species should be included'
 
-        # Should NOT include invalid species (synonym)
-        invalid_taxon = exclude_csv.find { |row| row['scientificName']&.include?('domesticus') }
-        expect(invalid_taxon).to be_nil, 'Invalid species (synonym) should be excluded'
+        # Should NOT include invalid species name (domesticus) - it should be replaced with valid name (catus)
+        invalid_taxon = replace_csv.find { |row| row['scientificName']&.include?('domesticus') }
+        expect(invalid_taxon).to be_nil, 'Invalid species name should be replaced with valid name, not appear separately'
+
+        # Should NOT have acceptedNameUsageID or taxonomicStatus columns
+        expect(replace_csv.headers).not_to include('acceptedNameUsageID')
+        expect(replace_csv.headers).not_to include('taxonomicStatus')
       end
 
       specify 'accepted_name_usage_id mode includes both taxa' do

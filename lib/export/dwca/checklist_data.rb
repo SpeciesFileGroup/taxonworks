@@ -52,34 +52,15 @@ module Export::Dwca
     attr_accessor :extensions
 
     # @param accepted_name_mode [String] How to handle unaccepted names
-    #   'exclude_unaccepted_names' - only include accepted names (default)
+    #   'replace_with_accepted_name' - replace invalid names with their valid names (default)
     #   'accepted_name_usage_id' - include all names, using acceptedNameUsageID for synonyms
     attr_accessor :accepted_name_mode
 
-    def initialize(core_otu_scope_params: nil, extensions: [], accepted_name_mode: 'exclude_unaccepted_names')
+    def initialize(core_otu_scope_params: nil, extensions: [], accepted_name_mode: 'replace_with_accepted_name')
       @accepted_name_mode = accepted_name_mode
 
-      # Filter OTUs based on accepted_name_mode
-      case accepted_name_mode
-      when 'exclude_unaccepted_names'
-        # Only include accepted names (cached_is_valid = true)
-        # Convert to regular Hash first to avoid gnfinder gem's buggy deep_symbolize_keys! implementation
-        otu_params = (core_otu_scope_params&.to_h || {}).deep_symbolize_keys
-        taxon_name_filter = { validity: true }
-
-        if otu_params[:taxon_name_query]
-          otu_params[:taxon_name_query] = otu_params[:taxon_name_query].merge(taxon_name_filter)
-        else
-          otu_params[:taxon_name_query] = taxon_name_filter
-        end
-
-        @core_otu_scope_params = otu_params
-      when 'accepted_name_usage_id'
-        # Include all OTUs - we'll handle acceptedNameUsageID in CSV generation
-        @core_otu_scope_params = (core_otu_scope_params&.to_h || {}).deep_symbolize_keys
-      else
-        @core_otu_scope_params = (core_otu_scope_params&.to_h || {}).deep_symbolize_keys
-      end
+      # Convert to regular Hash first to avoid gnfinder gem's buggy deep_symbolize_keys! implementation
+      @core_otu_scope_params = (core_otu_scope_params&.to_h || {}).deep_symbolize_keys
 
       @extensions = extensions
 
@@ -87,11 +68,9 @@ module Export::Dwca
         otu_query: @core_otu_scope_params
       ).all
 
-      # For accepted_name_usage_id mode, fetch TaxonName data separately
-      if accepted_name_mode == 'accepted_name_usage_id'
-        @taxon_name_data = fetch_taxon_name_data
-        @occurrence_to_otu = fetch_occurrence_to_otu_mapping
-      end
+      # Fetch TaxonName data to handle synonym replacement and acceptedNameUsageID
+      @taxon_name_data = fetch_taxon_name_data
+      @occurrence_to_otu = fetch_occurrence_to_otu_mapping
 
       # Set extension flags based on requested extensions
       @distribution_extension = extensions.include?(DISTRIBUTION_EXTENSION)
@@ -129,13 +108,9 @@ module Export::Dwca
     def csv
       return "\n" if no_records?
 
-      # In accepted_name_usage_id mode, we need dwc_occurrence_object_type/id for lookups
+      # We need dwc_occurrence_object_type/id for OTU lookups
       # Don't exclude them initially - we'll remove them after processing
-      excluded_columns = if accepted_name_mode == 'accepted_name_usage_id'
-        ::DwcOccurrence::EXCLUDED_CHECKLIST_COLUMNS - [:dwc_occurrence_object_type, :dwc_occurrence_object_id]
-      else
-        ::DwcOccurrence::EXCLUDED_CHECKLIST_COLUMNS
-      end
+      excluded_columns = ::DwcOccurrence::EXCLUDED_CHECKLIST_COLUMNS - [:dwc_occurrence_object_type, :dwc_occurrence_object_id]
 
       # Get raw occurrence data with all taxonomy columns.
       raw_csv = ::Export::CSV.generate_csv(
@@ -280,20 +255,24 @@ module Export::Dwca
       return {} if all_otu_ids.empty?
 
       # Fetch TaxonName data for these OTUs in a single query
+      # Also fetch the valid taxon name's cached value for synonyms
       ::Otu
         .where(id: all_otu_ids)
         .joins(:taxon_name)
+        .joins('LEFT JOIN taxon_names AS valid_taxon_names ON taxon_names.cached_valid_taxon_name_id = valid_taxon_names.id')
         .pluck(
           'otus.id',
           'taxon_names.cached',
           'taxon_names.cached_is_valid',
-          'taxon_names.cached_valid_taxon_name_id'
+          'taxon_names.cached_valid_taxon_name_id',
+          'valid_taxon_names.cached'
         )
         .each_with_object({}) do |row, hash|
           hash[row[0]] = {
             cached: row[1],
             cached_is_valid: row[2],
-            cached_valid_taxon_name_id: row[3]
+            cached_valid_taxon_name_id: row[3],
+            valid_cached: row[4]
           }
         end
     end
@@ -334,8 +313,8 @@ module Export::Dwca
       all_taxa = {}
 
       parsed.each do |row|
-        # In accepted_name_usage_id mode, look up TaxonName data
-        if accepted_name_mode == 'accepted_name_usage_id' && @taxon_name_data && @occurrence_to_otu
+        # Look up TaxonName data to handle synonyms
+        if @taxon_name_data && @occurrence_to_otu
           occurrence_key = "#{row['dwc_occurrence_object_type']}:#{row['dwc_occurrence_object_id']}"
           otu_id = @occurrence_to_otu[occurrence_key]
 
@@ -343,13 +322,25 @@ module Export::Dwca
             tn_data = @taxon_name_data[otu_id]
 
             if tn_data && tn_data[:cached].present?
-              # Store TaxonName data in the row for later use
-              # We keep the original taxon name separate from scientificName to avoid confusion
-              row['taxon_name_cached'] = tn_data[:cached]
-              row['taxon_name_cached_is_valid'] = tn_data[:cached_is_valid]
-              row['taxon_name_cached_valid_taxon_name_id'] = tn_data[:cached_valid_taxon_name_id]
-            end
+              is_valid = [true, 't', 'true', 1, '1'].include?(tn_data[:cached_is_valid])
 
+              if accepted_name_mode == 'replace_with_accepted_name'
+                # Replace invalid names with their valid names
+                if !is_valid && tn_data[:valid_cached].present?
+                  # Replace scientificName with the valid name
+                  row['scientificName'] = tn_data[:valid_cached]
+                elsif !is_valid
+                  # Invalid name with no valid name - skip this row entirely
+                  next
+                end
+                # Valid names stay as-is
+              elsif accepted_name_mode == 'accepted_name_usage_id'
+                # Store TaxonName data for later acceptedNameUsageID processing
+                row['taxon_name_cached'] = tn_data[:cached]
+                row['taxon_name_cached_is_valid'] = tn_data[:cached_is_valid]
+                row['taxon_name_cached_valid_taxon_name_id'] = tn_data[:cached_valid_taxon_name_id]
+              end
+            end
           end
         end
         # Process each rank column to extract higher taxa (DwcOccurrence doesn't
@@ -596,13 +587,20 @@ module Export::Dwca
         excluded_fields = ['taxonID', 'id', 'acceptedNameUsageID', 'parentNameUsageID', 'taxon_name_cached', 'taxon_name_cached_is_valid', 'taxon_name_cached_valid_taxon_name_id', 'dwc_occurrence_object_type', 'dwc_occurrence_object_id']
         excluded_fields << 'taxonomicStatus' if accepted_name_mode == 'accepted_name_usage_id'
 
+        # Build base fields
         processed_taxon = {
           'id' => taxon_id,
           'taxonID' => taxon_id,
-          'acceptedNameUsageID' => accepted_name_usage_id,
-          'parentNameUsageID' => parent_id,
-          'taxonomicStatus' => taxonomic_status
-        }.merge(taxon.except(*excluded_fields))
+          'parentNameUsageID' => parent_id
+        }
+
+        # Only add acceptedNameUsageID and taxonomicStatus in accepted_name_usage_id mode
+        if accepted_name_mode == 'accepted_name_usage_id'
+          processed_taxon['acceptedNameUsageID'] = accepted_name_usage_id
+          processed_taxon['taxonomicStatus'] = taxonomic_status
+        end
+
+        processed_taxon.merge!(taxon.except(*excluded_fields))
 
         processed_taxa << processed_taxon
       end

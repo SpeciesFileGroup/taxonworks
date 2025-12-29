@@ -46,9 +46,9 @@
                 <input
                   type="radio"
                   v-model="acceptedNameMode"
-                  value="exclude_unaccepted_names"
+                  value="replace_with_accepted_name"
                 />
-                Exclude unaccepted names
+                Replace invalid names with valid names
               </label>
             </div>
             <div>
@@ -112,7 +112,7 @@ const showModal = ref(false)
 const isLoadingExtensions = ref(false)
 const availableExtensions = ref([])
 const selectedExtensions = reactive({})
-const acceptedNameMode = ref('exclude_unaccepted_names')
+const acceptedNameMode = ref('replace_with_accepted_name')
 
 onMounted(async () => {
   try {
