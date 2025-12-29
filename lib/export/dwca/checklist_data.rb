@@ -354,110 +354,138 @@ module Export::Dwca
       batch_size = 25_000
 
       parsed.each_slice(batch_size) do |batch|
-        # 1. Get terminal taxon_name_ids for this batch
-        terminal_ids_for_batch = batch.map { |row|
-          occurrence_key = "#{row['dwc_occurrence_object_type']}:#{row['dwc_occurrence_object_id']}"
-          otu_id = occurrence_to_otu[occurrence_key]
-          next unless otu_id
+        terminal_ids = collect_terminal_ids_for_batch(batch)
+        ancestor_lookup = build_ancestor_lookup(terminal_ids)
 
-          tn_data = taxon_name_data[otu_id]
-          next unless tn_data
-
-          # Use valid taxon_name_id in replace mode, actual id in accepted_name_usage_id mode
-          if accepted_name_mode == 'replace_with_accepted_name'
-            tn_data[:cached_valid_taxon_name_id] || tn_data[:id]
-          else
-            tn_data[:id]
-          end
-        }.compact.uniq
-
-        # 2. Bulk fetch ancestor data for this batch
-        ancestor_lookup = build_ancestor_lookup(terminal_ids_for_batch)
-
-        # 3. Process each row in the batch
         batch.each do |row|
-          occurrence_key = "#{row['dwc_occurrence_object_type']}:#{row['dwc_occurrence_object_id']}"
-          otu_id = occurrence_to_otu[occurrence_key]
-          next unless otu_id
-
-          tn_data = taxon_name_data[otu_id]
-          next unless tn_data
-
-          # Get terminal taxon_name_id
-          terminal_tn_id = if accepted_name_mode == 'replace_with_accepted_name'
-            tn_data[:cached_valid_taxon_name_id] || tn_data[:id]
-          else
-            tn_data[:id]
-          end
-          next unless terminal_tn_id
-
-          # Store TaxonName metadata for accepted_name_usage_id mode
-          if accepted_name_mode == 'accepted_name_usage_id' && tn_data[:cached].present?
-            row['taxon_name_cached'] = tn_data[:cached]
-            row['taxon_name_cached_is_valid'] = tn_data[:cached_is_valid]
-            row['taxon_name_cached_valid_taxon_name_id'] = tn_data[:cached_valid_taxon_name_id]
-          end
-
-          # 4. Add terminal taxon
-          terminal_rank = row['taxonRank']&.downcase
-          if terminal_rank.present? && row['scientificName'].present?
-            # Use taxon_name_id as key
-            unless all_taxa[terminal_tn_id]
-              taxon = row.to_h
-              taxon['taxon_name_id'] = terminal_tn_id
-
-              # In accepted_name_usage_id mode, use original name if available
-              if row['taxon_name_cached'].present?
-                taxon['scientificName'] = row['taxon_name_cached']
-              end
-
-              all_taxa[terminal_tn_id] = taxon
-
-              # Extract parent species for infraspecific taxa
-              if self.class.infraspecific_rank_names.include?(terminal_rank)
-                extract_parent_species_for_taxon(row, terminal_rank, terminal_tn_id, ancestor_lookup, all_taxa)
-              end
-            end
-
-            # 5. Work UP the hierarchy from terminal to root
-            # Stop when we hit a taxon already in all_taxa
-            terminal_rank_index = ORDERED_RANKS.index(terminal_rank)
-            if terminal_rank_index && terminal_rank_index > 0
-              (0...terminal_rank_index).reverse_each do |i|
-                higher_rank = ORDERED_RANKS[i]
-                rank_name = row[higher_rank]
-                next if rank_name.blank?
-
-                # Look up ancestor taxon_name_id
-                ancestor_tn_id = ancestor_lookup["#{terminal_tn_id}:#{higher_rank}"]
-                next unless ancestor_tn_id
-
-                # Early termination: if this ancestor already exists, all higher ones do too
-                break if all_taxa[ancestor_tn_id]
-
-                # Create ancestor taxon
-                ancestor_taxon = row.to_h.dup
-                ancestor_taxon['taxon_name_id'] = ancestor_tn_id
-                ancestor_taxon['scientificName'] = rank_name
-                ancestor_taxon['taxonRank'] = higher_rank
-                clear_lower_ranks(ancestor_taxon, higher_rank, terminal_rank)
-
-                # Clear taxon_name_ metadata for extracted ancestors
-                ancestor_taxon['taxon_name_cached'] = nil
-                ancestor_taxon['taxon_name_cached_is_valid'] = nil
-                ancestor_taxon['taxon_name_cached_valid_taxon_name_id'] = nil
-
-                all_taxa[ancestor_tn_id] = ancestor_taxon
-              end
-            end
-          end
+          process_occurrence_row(row, all_taxa, ancestor_lookup)
         end
 
-        # 6. Clear ancestor lookup to free memory
         ancestor_lookup = nil
       end
 
       all_taxa
+    end
+
+    # Collect unique terminal taxon_name_ids from a batch of occurrence rows
+    # @param batch [Array<CSV::Row>] batch of occurrence rows
+    # @return [Array<Integer>] unique terminal taxon_name_ids
+    def collect_terminal_ids_for_batch(batch)
+      batch.map { |row|
+        occurrence_key = "#{row['dwc_occurrence_object_type']}:#{row['dwc_occurrence_object_id']}"
+        otu_id = occurrence_to_otu[occurrence_key]
+        next unless otu_id
+
+        tn_data = taxon_name_data[otu_id]
+        next unless tn_data
+
+        # Use valid taxon_name_id in replace mode, actual id in accepted_name_usage_id mode
+        if accepted_name_mode == 'replace_with_accepted_name'
+          tn_data[:cached_valid_taxon_name_id] || tn_data[:id]
+        else
+          tn_data[:id]
+        end
+      }.compact.uniq
+    end
+
+    # Process a single occurrence row and extract its taxa
+    # @param row [CSV::Row] occurrence row
+    # @param all_taxa [Hash] hash of taxon_name_id => taxon data
+    # @param ancestor_lookup [Hash] precomputed ancestor lookup
+    def process_occurrence_row(row, all_taxa, ancestor_lookup)
+      occurrence_key = "#{row['dwc_occurrence_object_type']}:#{row['dwc_occurrence_object_id']}"
+      otu_id = occurrence_to_otu[occurrence_key]
+      return unless otu_id
+
+      tn_data = taxon_name_data[otu_id]
+      return unless tn_data
+
+      terminal_tn_id = if accepted_name_mode == 'replace_with_accepted_name'
+        tn_data[:cached_valid_taxon_name_id] || tn_data[:id]
+      else
+        tn_data[:id]
+      end
+      return unless terminal_tn_id
+
+      store_taxon_name_metadata(row, tn_data) if accepted_name_mode == 'accepted_name_usage_id'
+
+      terminal_rank = row['taxonRank']&.downcase
+      return unless terminal_rank.present? && row['scientificName'].present?
+
+      add_terminal_taxon(row, terminal_tn_id, terminal_rank, all_taxa, ancestor_lookup)
+      extract_ancestor_taxa(row, terminal_tn_id, terminal_rank, ancestor_lookup, all_taxa)
+    end
+
+    # Store TaxonName metadata in row for accepted_name_usage_id mode
+    # @param row [CSV::Row] occurrence row to modify
+    # @param tn_data [Hash] taxon name data
+    def store_taxon_name_metadata(row, tn_data)
+      return unless tn_data[:cached].present?
+
+      row['taxon_name_cached'] = tn_data[:cached]
+      row['taxon_name_cached_is_valid'] = tn_data[:cached_is_valid]
+      row['taxon_name_cached_valid_taxon_name_id'] = tn_data[:cached_valid_taxon_name_id]
+    end
+
+    # Add terminal taxon to all_taxa if not already present
+    # @param row [CSV::Row] occurrence row
+    # @param terminal_tn_id [Integer] terminal taxon_name_id
+    # @param terminal_rank [String] rank of terminal taxon
+    # @param all_taxa [Hash] hash of taxon_name_id => taxon data
+    # @param ancestor_lookup [Hash] precomputed ancestor lookup
+    def add_terminal_taxon(row, terminal_tn_id, terminal_rank, all_taxa, ancestor_lookup)
+      return if all_taxa[terminal_tn_id]
+
+      taxon = row.to_h
+      taxon['taxon_name_id'] = terminal_tn_id
+
+      # In accepted_name_usage_id mode, use original name if available
+      if row['taxon_name_cached'].present?
+        taxon['scientificName'] = row['taxon_name_cached']
+      end
+
+      all_taxa[terminal_tn_id] = taxon
+
+      # Extract parent species for infraspecific taxa
+      if self.class.infraspecific_rank_names.include?(terminal_rank)
+        extract_parent_species_for_taxon(row, terminal_rank, terminal_tn_id, ancestor_lookup, all_taxa)
+      end
+    end
+
+    # Extract and add ancestor taxa from terminal taxon up to root
+    # @param row [CSV::Row] occurrence row
+    # @param terminal_tn_id [Integer] terminal taxon_name_id
+    # @param terminal_rank [String] rank of terminal taxon
+    # @param ancestor_lookup [Hash] precomputed ancestor lookup
+    # @param all_taxa [Hash] hash of taxon_name_id => taxon data
+    def extract_ancestor_taxa(row, terminal_tn_id, terminal_rank, ancestor_lookup, all_taxa)
+      terminal_rank_index = ORDERED_RANKS.index(terminal_rank)
+      return unless terminal_rank_index && terminal_rank_index > 0
+
+      (0...terminal_rank_index).reverse_each do |i|
+        higher_rank = ORDERED_RANKS[i]
+        rank_name = row[higher_rank]
+        next if rank_name.blank?
+
+        ancestor_tn_id = ancestor_lookup["#{terminal_tn_id}:#{higher_rank}"]
+        next unless ancestor_tn_id
+
+        # Early termination: if this ancestor already exists, all higher ones do too
+        break if all_taxa[ancestor_tn_id]
+
+        ancestor_taxon = row.to_h.dup
+        ancestor_taxon['taxon_name_id'] = ancestor_tn_id
+        ancestor_taxon['scientificName'] = rank_name
+        ancestor_taxon['taxonRank'] = higher_rank
+        clear_lower_ranks(ancestor_taxon, higher_rank, terminal_rank)
+
+        # Clear taxon_name_ metadata for extracted ancestors
+        ancestor_taxon['taxon_name_cached'] = nil
+        ancestor_taxon['taxon_name_cached_is_valid'] = nil
+        ancestor_taxon['taxon_name_cached_valid_taxon_name_id'] = nil
+
+        all_taxa[ancestor_tn_id] = ancestor_taxon
+      end
     end
 
     # Build a lookup hash for ancestor taxon_name_ids
@@ -616,38 +644,36 @@ module Export::Dwca
     # @param all_taxa [Hash] hash of taxon_name_id => taxon data
     # @return [Array] [processed_taxa, taxon_name_id_to_taxon_id] - processed taxa array and taxon_name_id-to-taxonID mapping
     def assign_taxon_ids_and_build_hierarchy(all_taxa)
-      taxon_id_counter = 1
-      taxon_name_id_to_taxon_id = {} # taxon_name_id → taxonID (for extensions to use)
-      processed_taxa = []
+      taxon_name_info = fetch_taxon_name_info(all_taxa.keys)
+      taxa_with_ids, taxon_name_id_to_taxon_id = assign_sequential_taxon_ids(all_taxa, taxon_name_info)
+      processed_taxa = build_processed_taxa(taxa_with_ids, taxon_name_info, taxon_name_id_to_taxon_id)
 
-      # Batch-fetch all valid TaxonNames upfront to avoid N+1 queries
-      valid_taxon_name_cache = {}
-      if accepted_name_mode == 'accepted_name_usage_id'
-        valid_ids = all_taxa.values
-          .filter_map { |t| t['taxon_name_cached_valid_taxon_name_id'] }
-          .uniq
+      [processed_taxa, taxon_name_id_to_taxon_id]
+    end
 
-        if valid_ids.any?
-          ::TaxonName.where(id: valid_ids).find_each do |tn|
-            valid_taxon_name_cache[tn.id] = tn
-          end
+    # Fetch rank and parent_id information for taxon_name_ids
+    # @param taxon_name_ids [Array<Integer>] IDs to fetch info for
+    # @return [Hash] taxon_name_id => { rank:, parent_id: }
+    def fetch_taxon_name_info(taxon_name_ids)
+      taxon_name_info = {}
+      taxon_name_ids.each_slice(1000) do |tn_ids|
+        ::TaxonName.where(id: tn_ids).find_each do |tn|
+          taxon_name_info[tn.id] = {
+            rank: tn.rank&.downcase,
+            parent_id: tn.parent_id
+          }
         end
       end
+      taxon_name_info
+    end
 
-      # Batch-fetch TaxonName rank and parent_id information
-      taxon_name_info = {}
-      all_taxa.keys.each_slice(1000) do |tn_ids|
-        ::TaxonName.where(id: tn_ids)
-          .find_each do |tn|
-            taxon_name_info[tn.id] = {
-              rank: tn.rank&.downcase,
-              parent_id: tn.parent_id
-            }
-          end
-      end
-
-      # PASS 1: Assign taxonIDs to all taxa, grouped by rank
-      # This ensures all taxa have IDs before we try to look up parentNameUsageID
+    # Assign sequential taxonIDs to all taxa, grouped by rank
+    # @param all_taxa [Hash] taxon_name_id => taxon data
+    # @param taxon_name_info [Hash] taxon_name_id => { rank:, parent_id: }
+    # @return [Array] [taxa_with_ids, taxon_name_id_to_taxon_id mapping]
+    def assign_sequential_taxon_ids(all_taxa, taxon_name_info)
+      taxon_id_counter = 1
+      taxon_name_id_to_taxon_id = {}
       taxa_with_ids = []
 
       ORDERED_RANKS.each do |rank|
@@ -669,73 +695,103 @@ module Export::Dwca
         end
       end
 
-      # PASS 2: Build final processed taxa with parent/accepted relationships
-      # Now taxon_name_id_to_taxon_id is complete, so all lookups will work
-      taxa_with_ids.each do |item|
-        taxon = item[:taxon]
-        taxon_id = item[:taxon_id]
-        taxon_name_id = item[:taxon_name_id]
-        rank = item[:rank]
+      [taxa_with_ids, taxon_name_id_to_taxon_id]
+    end
 
-        # Find parent via TaxonName parent_id
-        parent_taxon_name_id = taxon_name_info[taxon_name_id]&.[](:parent_id)
-        parent_id = parent_taxon_name_id ? taxon_name_id_to_taxon_id[parent_taxon_name_id] : nil
+    # Build final processed taxa with parent/accepted relationships
+    # @param taxa_with_ids [Array<Hash>] taxa with assigned IDs
+    # @param taxon_name_info [Hash] taxon_name_id => { rank:, parent_id: }
+    # @param taxon_name_id_to_taxon_id [Hash] taxon_name_id => taxonID
+    # @return [Array<Hash>] processed taxa ready for export
+    def build_processed_taxa(taxa_with_ids, taxon_name_info, taxon_name_id_to_taxon_id)
+      taxa_with_ids.map do |item|
+        build_final_taxon(
+          item[:taxon],
+          item[:taxon_id],
+          item[:taxon_name_id],
+          taxon_name_info,
+          taxon_name_id_to_taxon_id
+        )
+      end
+    end
 
-        # Determine acceptedNameUsageID and taxonomicStatus
-        accepted_name_usage_id = nil
-        taxonomic_status = nil
+    # Build a single processed taxon with all relationships
+    # @param taxon [Hash] source taxon data
+    # @param taxon_id [Integer] assigned taxonID
+    # @param taxon_name_id [Integer] source taxon_name_id
+    # @param taxon_name_info [Hash] taxon_name_id => { rank:, parent_id: }
+    # @param taxon_name_id_to_taxon_id [Hash] taxon_name_id => taxonID
+    # @return [Hash] processed taxon
+    def build_final_taxon(taxon, taxon_id, taxon_name_id, taxon_name_info, taxon_name_id_to_taxon_id)
+      # Find parent via TaxonName parent_id
+      parent_taxon_name_id = taxon_name_info[taxon_name_id]&.[](:parent_id)
+      parent_id = parent_taxon_name_id ? taxon_name_id_to_taxon_id[parent_taxon_name_id] : nil
 
-        if accepted_name_mode == 'accepted_name_usage_id'
-          is_valid = taxon['taxon_name_cached_is_valid']
+      # Determine acceptedNameUsageID and taxonomicStatus
+      accepted_name_usage_id, taxonomic_status = determine_accepted_name_usage(
+        taxon,
+        taxon_id,
+        taxon_name_id_to_taxon_id
+      )
 
-          if !is_valid.nil?
-            # We have definitive validity data from a terminal TaxonName
-            # Check if valid - handle both boolean and string representations
-            if [true, 't', 'true', 1, '1'].include?(is_valid)
-              # This taxon is marked as valid/accepted
-              accepted_name_usage_id = taxon_id
-              taxonomic_status = 'accepted'
-            else
-              # This taxon is marked as invalid (synonym)
-              valid_taxon_name_id = taxon['taxon_name_cached_valid_taxon_name_id']
-              if valid_taxon_name_id.present?
-                # Look up the taxonID for the valid name
-                accepted_name_usage_id = taxon_name_id_to_taxon_id[valid_taxon_name_id]
-                taxonomic_status = 'synonym'
-              end
-            end
-          else
-            # No validity data (is_valid is nil) - this is an extracted higher taxon from rank columns
-            # These represent accepted names because DwcOccurrence builds classification from valid_taxon_name.
-            # See Shared::Taxonomy#taxonomy_for_object which uses taxon_name.valid_taxon_name for synonyms,
-            # ensuring higher classification always comes from the accepted name's hierarchy, not the synonym's.
-            accepted_name_usage_id = taxon_id
-            taxonomic_status = 'accepted'
-          end
-        end
+      excluded_fields = [
+        'taxonID', 'id', 'acceptedNameUsageID', 'parentNameUsageID',
+        'taxon_name_cached', 'taxon_name_cached_is_valid',
+        'taxon_name_cached_valid_taxon_name_id', 'taxon_name_id',
+        'dwc_occurrence_object_type', 'dwc_occurrence_object_id'
+      ]
+      excluded_fields << 'taxonomicStatus' if accepted_name_mode == 'accepted_name_usage_id'
 
-        excluded_fields = ['taxonID', 'id', 'acceptedNameUsageID', 'parentNameUsageID', 'taxon_name_cached', 'taxon_name_cached_is_valid', 'taxon_name_cached_valid_taxon_name_id', 'taxon_name_id', 'dwc_occurrence_object_type', 'dwc_occurrence_object_id']
-        excluded_fields << 'taxonomicStatus' if accepted_name_mode == 'accepted_name_usage_id'
+      # Build base fields
+      processed_taxon = {
+        'id' => taxon_id,
+        'taxonID' => taxon_id,
+        'parentNameUsageID' => parent_id
+      }
 
-        # Build base fields
-        processed_taxon = {
-          'id' => taxon_id,
-          'taxonID' => taxon_id,
-          'parentNameUsageID' => parent_id
-        }
-
-        # Only add acceptedNameUsageID and taxonomicStatus in accepted_name_usage_id mode
-        if accepted_name_mode == 'accepted_name_usage_id'
-          processed_taxon['acceptedNameUsageID'] = accepted_name_usage_id
-          processed_taxon['taxonomicStatus'] = taxonomic_status
-        end
-
-        processed_taxon.merge!(taxon.except(*excluded_fields))
-
-        processed_taxa << processed_taxon
+      # Only add acceptedNameUsageID and taxonomicStatus in accepted_name_usage_id mode
+      if accepted_name_mode == 'accepted_name_usage_id'
+        processed_taxon['acceptedNameUsageID'] = accepted_name_usage_id
+        processed_taxon['taxonomicStatus'] = taxonomic_status
       end
 
-      [processed_taxa, taxon_name_id_to_taxon_id]
+      processed_taxon.merge!(taxon.except(*excluded_fields))
+    end
+
+    # Determine acceptedNameUsageID and taxonomicStatus for a taxon
+    # @param taxon [Hash] taxon data
+    # @param taxon_id [Integer] assigned taxonID
+    # @param taxon_name_id_to_taxon_id [Hash] taxon_name_id => taxonID
+    # @return [Array] [acceptedNameUsageID, taxonomicStatus]
+    def determine_accepted_name_usage(taxon, taxon_id, taxon_name_id_to_taxon_id)
+      return [nil, nil] unless accepted_name_mode == 'accepted_name_usage_id'
+
+      is_valid = taxon['taxon_name_cached_is_valid']
+
+      if !is_valid.nil?
+        # We have definitive validity data from a terminal TaxonName
+        # Check if valid - handle both boolean and string representations
+        if [true, 't', 'true', 1, '1'].include?(is_valid)
+          # This taxon is marked as valid/accepted
+          [taxon_id, 'accepted']
+        else
+          # This taxon is marked as invalid (synonym)
+          valid_taxon_name_id = taxon['taxon_name_cached_valid_taxon_name_id']
+          if valid_taxon_name_id.present?
+            # Look up the taxonID for the valid name
+            accepted_id = taxon_name_id_to_taxon_id[valid_taxon_name_id]
+            [accepted_id, 'synonym']
+          else
+            [nil, nil]
+          end
+        end
+      else
+        # No validity data (is_valid is nil) - this is an extracted higher taxon from rank columns
+        # These represent accepted names because DwcOccurrence builds classification from valid_taxon_name.
+        # See Shared::Taxonomy#taxonomy_for_object which uses taxon_name.valid_taxon_name for synonyms,
+        # ensuring higher classification always comes from the accepted name's hierarchy, not the synonym's.
+        [taxon_id, 'accepted']
+      end
     end
 
     # Clear columns for ranks lower/higher than the current rank and recompute higherClassification
