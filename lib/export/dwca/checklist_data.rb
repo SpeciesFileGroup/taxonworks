@@ -253,6 +253,7 @@ module Export::Dwca
     # @return [Hash] otu_id => { cached:, cached_is_valid:, cached_valid_taxon_name_id: }
     def taxon_name_data
       return @taxon_name_data if @taxon_name_data
+
       # Get unique OTU IDs from all three occurrence types
       # This is MUCH faster than joining for every occurrence
 
@@ -350,7 +351,7 @@ module Export::Dwca
     # @return [Hash] hash of taxon_name_id => taxon data
     def extract_unique_taxa(parsed)
       all_taxa = {}
-      batch_size = 5000
+      batch_size = 25_000
 
       parsed.each_slice(batch_size) do |batch|
         # 1. Get terminal taxon_name_ids for this batch
@@ -467,33 +468,59 @@ module Export::Dwca
 
       lookup = {}
 
-      # Query taxon_name_hierarchies with a join to get ancestor ranks
+      # Query taxon_name_hierarchies WITHOUT join (much faster)
       # This uses the pre-computed closure table from the closure_tree gem
-      results = TaxonNameHierarchy
+      hierarchy_relationships = TaxonNameHierarchy
         .where(descendant_id: terminal_taxon_name_ids)
         .where.not('ancestor_id = descendant_id') # Exclude self-references
-        .joins('JOIN taxon_names ON taxon_names.id = taxon_name_hierarchies.ancestor_id')
-        .select('taxon_name_hierarchies.descendant_id, taxon_name_hierarchies.ancestor_id, taxon_names.rank_class')
+        .pluck(:descendant_id, :ancestor_id)
+
+      # Get unique ancestor IDs
+      ancestor_ids = hierarchy_relationships.map { |_, ancestor_id| ancestor_id }.uniq
+
+      # Batch-fetch rank_class for all ancestors (one simple query instead of join)
+      ancestor_ranks = ::TaxonName
+        .where(id: ancestor_ids)
+        .pluck(:id, :rank_class)
+        .to_h
 
       # Build lookup hash: "terminal_id:rank" => ancestor_id
-      results.each do |row|
-        next unless row.rank_class
+      hierarchy_relationships.each do |descendant_id, ancestor_id|
+        rank_class = ancestor_ranks[ancestor_id]
+        next unless rank_class
 
-        # Get rank_name from the rank_class constant
-        # (can't use simple string split because Ruby class name for "class" rank is "ClassRank")
-        begin
-          rank_class_obj = row.rank_class.constantize
-          rank = rank_class_obj.rank_name
-        rescue
-          next
-        end
+        # Get rank_name using cached mapping (much faster than constantize)
+        rank = rank_class_to_name[rank_class]
         next unless rank
 
-        key = "#{row.descendant_id}:#{rank}"
-        lookup[key] = row.ancestor_id
+        key = "#{descendant_id}:#{rank}"
+        lookup[key] = ancestor_id
       end
 
       lookup
+    end
+
+    # Cached mapping of rank_class to rank_name
+    # Avoids expensive constantize calls in tight loops
+    # @return [Hash] rank_class string => rank_name string
+    def rank_class_to_name
+      @rank_class_to_name ||= begin
+        mapping = {}
+
+        # Get all NomenclaturalRank classes from all codes
+        [
+          NomenclaturalRank::Iczn,
+          NomenclaturalRank::Icn,
+          NomenclaturalRank::Icnp,
+          NomenclaturalRank::Icvcn
+        ].each do |code_module|
+          code_module.ordered_ranks.each do |rank_class|
+            mapping[rank_class.name] = rank_class.rank_name
+          end
+        end
+
+        mapping
+      end
     end
 
     # Extract parent species for infraspecific taxa
