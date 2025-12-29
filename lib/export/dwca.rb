@@ -41,10 +41,10 @@ module Export::Dwca
   # @param core_otu_scope_params [Hash] OTU query parameters
   # @param request_url [String] URL of the request
   # @param extensions [Array<Symbol>] Extensions to include (e.g., [:distribution, :references])
-  # @param accepted_name_mode [String] How to handle unaccepted names ('exclude_unaccepted_names' or 'accepted_name_usage_id')
+  # @param accepted_name_mode [String] How to handle unaccepted names ('replace_with_accepted_name' or 'accepted_name_usage_id')
   # @param project_id [Integer] Project ID
   # @return [Download::DwcArchive::Checklist] The download record
-  def self.checklist_download_async(core_otu_scope_params, request_url, extensions: [], accepted_name_mode: 'exclude_unaccepted_names', project_id: nil)
+  def self.checklist_download_async(core_otu_scope_params, request_url, extensions: [], accepted_name_mode: 'replace_with_accepted_name', project_id: nil)
     name = "dwc_checklist_#{DateTime.now}.zip"
 
     download = ::Download::DwcArchive::Checklist.create!(

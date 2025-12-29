@@ -4,9 +4,9 @@ class DwcaCreateChecklistDownloadJob < ApplicationJob
   # @param download_id [Integer] Download record ID
   # @param core_otu_scope_params [Hash] OTU query parameters
   # @param extensions [Array<Symbol>] Extensions to include
-  # @param accepted_name_mode [String] How to handle unaccepted names ('exclude_unaccepted_names' or 'accepted_name_usage_id')
+  # @param accepted_name_mode [String] How to handle unaccepted names ('replace_with_accepted_name' or 'accepted_name_usage_id')
   # @param project_id [Integer] Project ID
-  def perform(download_id, core_otu_scope_params: {}, extensions: [], accepted_name_mode: 'exclude_unaccepted_names', project_id: nil)
+  def perform(download_id, core_otu_scope_params: {}, extensions: [], accepted_name_mode: 'replace_with_accepted_name', project_id: nil)
     # Raise and fail without notifying if our download was deleted before we run.
     download = Download.find(download_id)
     # Filter queries will fail in unexpected ways without project_id set as expected!
