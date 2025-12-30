@@ -5,7 +5,7 @@
 # Other fields (title, author, date, identifier, etc.) would require accessing
 # the source objects directly.
 #
-module Export::CSV::Dwc::Extension::Checklist::References
+module Export::CSV::Dwc::Extension::Checklist::Reference
 
   # Alias for brevity
   GBIF = Export::Dwca::GbifProfile::Reference
