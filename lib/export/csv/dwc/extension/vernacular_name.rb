@@ -1,19 +1,16 @@
-# CSV for Vernacular Name extension (for checklist archives)
+# CSV for Vernacular Name extension (for checklist archives).
 # See http://rs.gbif.org/extension/gbif/1.0/vernacularname.xml
 #
 # Note: NOT using DwcOccurrence data (vernacularName field is not populated).
 # Accesses CommonName records directly via OTU relationships.
-#
 module Export::CSV::Dwc::Extension::VernacularName
 
-  # Alias for brevity
   GBIF = Export::Dwca::GbifProfile::VernacularName
 
-  # Fields used in checklist exports (subset of full GBIF profile)
+  # Fields used in checklist exports (subset of full GBIF profile).
   # Only including fields that can be populated from CommonName data.
-  # Note: :id is used instead of TAXON_ID for DwC-A star joins
   CHECKLIST_FIELDS = [
-    :id,                     # Required for DwC-A star joins (maps to taxonID)
+    :id, # Required for DwC-A star joins (maps to taxonID)
     GBIF::VERNACULAR_NAME,
     GBIF::LANGUAGE,
     GBIF::TEMPORAL
@@ -25,7 +22,7 @@ module Export::CSV::Dwc::Extension::VernacularName
     field == :id ? '' : GBIF::NAMESPACES[field]
   end.freeze
 
-  # Generate CSV for vernacular name extension from CommonName records
+  # Generate CSV for vernacular name extension from CommonName records.
   # @param core_otu_scope [Hash] OTU query params from ChecklistData
   # @param taxon_name_id_to_taxon_id [Hash] mapping of taxon_name_id => taxonID
   # @return [String] CSV content
@@ -33,24 +30,23 @@ module Export::CSV::Dwc::Extension::VernacularName
     tbl = []
     tbl[0] = HEADERS
 
-    # Get OTUs from scope using the Filter to support all query parameters
     otus = ::Queries::Otu::Filter.new(core_otu_scope).all
 
-    # Get common names for these OTUs
     common_names = CommonName
       .where(otu_id: otus.select(:id))
       .includes(:language, otu: :taxon_name)
 
     common_names.find_each do |cn|
-      # Get the taxon name for this OTU to look up taxonID
       taxon_name = cn.otu&.taxon_name
       next unless taxon_name
 
+      # TODO: needs to be fixed to reflect the actual mode?
       # Use valid taxon_name_id (for replace mode) or actual id
       taxon_name_id = taxon_name.cached_valid_taxon_name_id || taxon_name.id
       taxon_id = taxon_name_id_to_taxon_id[taxon_name_id]
       next unless taxon_id
 
+      # TODO: there's probably a helper for this?
       # Build temporal string from start_year and end_year
       temporal = nil
       if cn.start_year.present? && cn.end_year.present?
@@ -62,10 +58,10 @@ module Export::CSV::Dwc::Extension::VernacularName
       end
 
       row = [
-        taxon_id,                    # id (for star join to core taxon)
-        cn.name,                     # vernacularName (required)
-        cn.language&.alpha_2,        # language (ISO 639-1 code)
-        temporal                     # temporal
+        taxon_id,
+        cn.name,
+        cn.language&.alpha_2,
+        temporal
       ]
 
       tbl << row

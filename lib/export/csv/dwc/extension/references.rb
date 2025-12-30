@@ -10,12 +10,11 @@ module Export::CSV::Dwc::Extension::References
   # Alias for brevity
   GBIF = Export::Dwca::GbifProfile::Reference
 
-  # Fields used in checklist exports (subset of full GBIF profile)
+  # Fields used in checklist exports (subset of full GBIF profile).
   # !! Only including fields that can be populated from DwcOccurrence data,
   # which only includes Asserted Distribution data on references.
-  # Note: :id is used instead of TAXON_ID for DwC-A star joins
   CHECKLIST_FIELDS = [
-    :id,                         # Required for DwC-A star joins (maps to taxonID)
+    :id, # Required for DwC-A star joins (maps to taxonID)
     GBIF::BIBLIOGRAPHIC_CITATION
   ].freeze
 
@@ -25,7 +24,7 @@ module Export::CSV::Dwc::Extension::References
     field == :id ? '' : GBIF::NAMESPACES[field]
   end.freeze
 
-  # Generate CSV for references extension using only DwcOccurrence data
+  # Generate CSV for references extension using only DwcOccurrence data.
   # @param scope [ActiveRecord::Relation] DwcOccurrence records
   # @param taxon_name_id_to_taxon_id [Hash] mapping of taxon_name_id => taxonID
   # @return [String] CSV content
@@ -33,12 +32,12 @@ module Export::CSV::Dwc::Extension::References
     tbl = []
     tbl[0] = HEADERS
 
-    # Build occurrence_to_otu and otu_to_taxon_name_id mappings (similar to distribution extension)
-    # For AssertedDistributions
+    # Build occurrence_to_otu and otu_to_taxon_name_id mappings (similar to
+    # distribution extension) for AssertedDistributions.
     ad_mapping = scope
       .where(dwc_occurrence_object_type: 'AssertedDistribution')
       .where.not(associatedReferences: [nil, ''])
-      .joins('JOIN asserted_distributions ad ON ad.id = dwc_occurrences.dwc_occurrence_object_id AND ad.asserted_distribution_object_type = \'Otu\'')
+      .joins("JOIN asserted_distributions ad ON ad.id = dwc_occurrences.dwc_occurrence_object_id AND ad.asserted_distribution_object_type = 'Otu'")
       .pluck('dwc_occurrences.dwc_occurrence_object_id', 'ad.asserted_distribution_object_id')
       .to_h
 
@@ -48,33 +47,31 @@ module Export::CSV::Dwc::Extension::References
       .pluck(Arel.sql('otus.id'), Arel.sql('COALESCE(taxon_names.cached_valid_taxon_name_id, taxon_names.id)'))
       .to_h
 
-    # Only process AssertedDistribution records with associatedReferences populated
+    # Only process AssertedDistribution records with associatedReferences
+    # populated.
     scope
       .where(dwc_occurrence_object_type: 'AssertedDistribution')
       .where.not(associatedReferences: [nil, ''])
       .find_each do |dwc_occ|
-      # Look up taxon_name_id via OTU
+      # Look up taxon_name_id via OTU.
       otu_id = ad_mapping[dwc_occ.dwc_occurrence_object_id]
       next unless otu_id
 
       taxon_name_id = otu_to_taxon_name_id[otu_id]
       next unless taxon_name_id
 
-      # Look up taxonID from taxon_name_id
+      # Look up taxonID from taxon_name_id.
       taxon_id = taxon_name_id_to_taxon_id[taxon_name_id]
       next unless taxon_id
 
-      # Get associatedReferences field (already filtered to non-blank)
       references_str = dwc_occ.associatedReferences
 
-      # Split by delimiter to get individual citations
       citations = references_str.split(Export::Dwca::DELIMITER).map(&:strip).reject(&:blank?)
 
-      # Create one row per citation
       citations.each do |citation|
         row = [
-          taxon_id,           # id (for star join to core taxon)
-          citation            # bibliographicCitation - the formatted citation
+          taxon_id,
+          citation
         ]
 
         tbl << row
