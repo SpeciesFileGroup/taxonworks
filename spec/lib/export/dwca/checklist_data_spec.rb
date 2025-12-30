@@ -1349,6 +1349,70 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           expect(invalid_genus_row['acceptedNameUsageID']).to eq(valid_genus_row['taxonID'])
         end
       end
+
+      context 'when only synonym has occurrence (valid name auto-added)' do
+        # This tests ensure_valid_names_for_synonyms specifically
+        # Create a synonym with an occurrence, but the valid name has NO occurrence
+        # The valid name should be automatically added to the output
+
+        let!(:valid_auto_species) { Protonym.create!(name: 'autovalidus', rank_class: Ranks.lookup(:iczn, :species), parent: genus) }
+        let!(:synonym_auto_species) { Protonym.create!(name: 'autosynonymus', rank_class: Ranks.lookup(:iczn, :species), parent: genus) }
+        let!(:synonym_auto_otu) { FactoryBot.create(:valid_otu, taxon_name: synonym_auto_species) }
+        let!(:synonym_auto_specimen) { FactoryBot.create(:valid_specimen) }
+        let!(:synonym_auto_td) { FactoryBot.create(:valid_taxon_determination, taxon_determination_object: synonym_auto_specimen, otu: synonym_auto_otu) }
+
+        let!(:auto_synonym_relationship) do
+          TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(
+            subject_taxon_name: synonym_auto_species,
+            object_taxon_name: valid_auto_species
+          )
+        end
+
+        before do
+          synonym_auto_specimen.get_dwc_occurrence
+          valid_auto_species.reload
+          synonym_auto_species.reload
+        end
+
+        specify 'valid name is automatically added even without occurrence' do
+          data = ::Export::Dwca::ChecklistData.new(
+            core_otu_scope_params: { otu_id: [synonym_auto_otu.id] }, # Only synonym OTU!
+            accepted_name_mode: 'accepted_name_usage_id'
+          )
+
+          csv = CSV.parse(data.csv, headers: true, col_sep: "\t")
+
+          # Synonym should be present (has occurrence)
+          synonym_row = csv.find { |row| row['scientificName']&.include?('autosynonymus') && row['taxonRank'] == 'species' }
+          expect(synonym_row).to be_present, 'Synonym should be present'
+          expect(synonym_row['taxonomicStatus']).to eq('synonym')
+
+          # Valid name should be present (auto-added by ensure_valid_names_for_synonyms)
+          valid_row = csv.find { |row| row['scientificName']&.include?('autovalidus') && row['taxonRank'] == 'species' }
+          expect(valid_row).to be_present, 'Valid name should be auto-added even without occurrence'
+          expect(valid_row['taxonomicStatus']).to eq('accepted')
+
+          # Synonym should point to valid name
+          expect(synonym_row['acceptedNameUsageID']).to eq(valid_row['taxonID'])
+        end
+
+        specify 'auto-added valid name has correct higher classification' do
+          data = ::Export::Dwca::ChecklistData.new(
+            core_otu_scope_params: { otu_id: [synonym_auto_otu.id] },
+            accepted_name_mode: 'accepted_name_usage_id'
+          )
+
+          csv = CSV.parse(data.csv, headers: true, col_sep: "\t")
+
+          valid_row = csv.find { |row| row['scientificName']&.include?('autovalidus') && row['taxonRank'] == 'species' }
+          expect(valid_row).to be_present
+
+          # Should have same higher classification as synonym (both in same genus/family)
+          expect(valid_row['genus']).to eq('Felis')
+          expect(valid_row['family']).to eq('Felidae')
+          expect(valid_row['kingdom']).to eq('Animalia')
+        end
+      end
     end
 
     context 'with homonyms (same scientific name in different kingdoms)' do
