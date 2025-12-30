@@ -1,6 +1,6 @@
 # CSV for for a ResourceRelationship based extension
 #
-module Export::CSV::Dwc::Extension::Media
+module Export::CSV::Dwc::Extension::Occurrence::Media
   # There are 6 duplicate names:
   # * type
   # * rights

@@ -5,7 +5,7 @@
 # Only includes fields that can be populated from DwcOccurrence.
 # Type-specific fields like typeDesignationType and typeDesignatedBy would
 # require accessing TypeMaterial objects directly.
-module Export::CSV::Dwc::Extension::TypesAndSpecimen
+module Export::CSV::Dwc::Extension::Checklist::TypesAndSpecimen
 
   GBIF = Export::Dwca::GbifProfile::TypeSpecimen
 

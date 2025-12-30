@@ -87,7 +87,6 @@ module Export::Dwca
     # Example: {123 => 5, 456 => 3}
     attr_reader :taxon_name_id_to_taxon_id
 
-    # TODO: distributions should be uniquified and alphabetized(?)
     # @return [Boolean] whether to include distribution extension
     attr_accessor :distribution_extension
 
@@ -939,7 +938,7 @@ module Export::Dwca
               xml.files {
                 xml.location 'distribution.tsv'
               }
-              Export::CSV::Dwc::Extension::SpeciesDistribution::HEADERS_NAMESPACES.each_with_index do |n, i|
+              Export::CSV::Dwc::Extension::Checklist::SpeciesDistribution::HEADERS_NAMESPACES.each_with_index do |n, i|
                 if i == 0
                   n == '' || (raise TaxonWorks::Error, "First distribution column (id) should have namespace '', got '#{n}'")
                   xml.id(index: 0)
@@ -956,7 +955,7 @@ module Export::Dwca
               xml.files {
                 xml.location 'references.tsv'
               }
-              Export::CSV::Dwc::Extension::References::HEADERS_NAMESPACES.each_with_index do |n, i|
+              Export::CSV::Dwc::Extension::Checklist::References::HEADERS_NAMESPACES.each_with_index do |n, i|
                 if i == 0
                   n == '' || (raise TaxonWorks::Error, "First references column (id) should have namespace '', got '#{n}'")
                   xml.id(index: 0)
@@ -973,7 +972,7 @@ module Export::Dwca
               xml.files {
                 xml.location 'types_and_specimen.tsv'
               }
-              Export::CSV::Dwc::Extension::TypesAndSpecimen::HEADERS_NAMESPACES.each_with_index do |n, i|
+              Export::CSV::Dwc::Extension::Checklist::TypesAndSpecimen::HEADERS_NAMESPACES.each_with_index do |n, i|
                 if i == 0
                   n == '' || (raise TaxonWorks::Error, "First types_and_specimen column (id) should have namespace '', got '#{n}'")
                   xml.id(index: 0)
@@ -990,7 +989,7 @@ module Export::Dwca
               xml.files {
                 xml.location 'vernacular_name.tsv'
               }
-              Export::CSV::Dwc::Extension::VernacularName::HEADERS_NAMESPACES.each_with_index do |n, i|
+              Export::CSV::Dwc::Extension::Checklist::VernacularName::HEADERS_NAMESPACES.each_with_index do |n, i|
                 if i == 0
                   n == '' || (raise TaxonWorks::Error, "First vernacular_name column (id) should have namespace '', got '#{n}'")
                   xml.id(index: 0)
@@ -1028,7 +1027,7 @@ module Export::Dwca
         # DwcOccurrence records.
         distribution_scope = core_occurrence_scope.where(dwc_occurrence_object_type: 'AssertedDistribution')
 
-        content = Export::CSV::Dwc::Extension::SpeciesDistribution.csv(distribution_scope, taxon_name_id_to_taxon_id)
+        content = Export::CSV::Dwc::Extension::Checklist::SpeciesDistribution.csv(distribution_scope, taxon_name_id_to_taxon_id)
       end
 
       @distribution_extension_tmp.write(content)
@@ -1053,7 +1052,7 @@ module Export::Dwca
 
         # Export references for all DwcOccurrence records
         # (only AssertedDistribution records have associatedReferences populated).
-        content = Export::CSV::Dwc::Extension::References.csv(core_occurrence_scope, taxon_name_id_to_taxon_id)
+        content = Export::CSV::Dwc::Extension::Checklist::References.csv(core_occurrence_scope, taxon_name_id_to_taxon_id)
       end
 
       @references_extension_tmp.write(content)
@@ -1076,7 +1075,7 @@ module Export::Dwca
 
         # Export types and specimen for CollectionObject DwcOccurrence records
         # (only CollectionObject records with typeStatus populated).
-        content = Export::CSV::Dwc::Extension::TypesAndSpecimen.csv(core_occurrence_scope, taxon_name_id_to_taxon_id)
+        content = Export::CSV::Dwc::Extension::Checklist::TypesAndSpecimen.csv(core_occurrence_scope, taxon_name_id_to_taxon_id)
       end
 
       @types_and_specimen_extension_tmp.write(content)
@@ -1099,7 +1098,7 @@ module Export::Dwca
 
         # Export vernacular names from CommonName records
         # Note: NOT using DwcOccurrence (vernacularName field not populated).
-        content = Export::CSV::Dwc::Extension::VernacularName.csv(core_otu_scope_params, taxon_name_id_to_taxon_id)
+        content = Export::CSV::Dwc::Extension::Checklist::VernacularName.csv(core_otu_scope_params, taxon_name_id_to_taxon_id)
       end
 
       @vernacular_name_extension_tmp.write(content)
