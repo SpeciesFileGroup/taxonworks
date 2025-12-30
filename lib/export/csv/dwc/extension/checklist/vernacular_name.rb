@@ -3,7 +3,7 @@
 #
 # Note: NOT using DwcOccurrence data (vernacularName field is not populated).
 # Accesses CommonName records directly via OTU relationships.
-module Export::CSV::Dwc::Extension::VernacularName
+module Export::CSV::Dwc::Extension::Checklist::VernacularName
 
   GBIF = Export::Dwca::GbifProfile::VernacularName
 

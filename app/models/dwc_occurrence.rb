@@ -282,7 +282,7 @@ class DwcOccurrence < ApplicationRecord
     # choose to populate with UUIDs instead of db ids.
     (::DwcOccurrence.columns.collect{ |c| c.name.to_sym } -
       (
-        self.target_columns -
+        self.target_occurrence_columns -
           [:dwc_occurrence_object_id, :dwc_occurrence_object_type]
       )
     )

@@ -4,7 +4,7 @@ module Shared::Dwc::MediaTargetExtensions
   extend ActiveSupport::Concern
 
   # See https://rs.gbif.org/extension/ac/audiovisual_2024_11_07.xml and
-  # Export::CSV::Dwc::Extension::Media::HEADERS for the original list. The list
+  # Export::CSV::Dwc::Extension::Occurrence::Media::HEADERS for the original list. The list
   # here is uncommented only for those properties actually mapped by this
   # concern; see concerns on Image, Sound, and Observation for others.
   DWC_MEDIA_EXTENSION_MAP = {
@@ -115,7 +115,7 @@ module Shared::Dwc::MediaTargetExtensions
     ).flatten
     rv += images_array.collect do |i|
       image_dwc_array =
-        Export::CSV::Dwc::Extension::Media::HEADERS.collect do |h|
+        Export::CSV::Dwc::Extension::Occurrence::Media::HEADERS.collect do |h|
           dwc_reader = DWC_MEDIA_EXTENSION_MAP[h.to_sym]
           dwc_reader.present? && respond_to?(dwc_reader) ?
             send(dwc_reader, i[:image]) : nil
@@ -139,7 +139,7 @@ module Shared::Dwc::MediaTargetExtensions
     ).flatten
     rv += sounds_array.collect do |s|
       sound_dwc_array =
-        Export::CSV::Dwc::Extension::Media::HEADERS.collect do |h|
+        Export::CSV::Dwc::Extension::Occurrence::Media::HEADERS.collect do |h|
           dwc_reader = DWC_MEDIA_EXTENSION_MAP[h.to_sym]
           dwc_reader.present? && respond_to?(dwc_reader) ?
             send(dwc_reader, s[:sound]) : nil
@@ -162,7 +162,7 @@ module Shared::Dwc::MediaTargetExtensions
   end
 
   def extension_map_index(key)
-    Export::CSV::Dwc::Extension::Media::HEADERS_INDEX[key.to_sym]
+    Export::CSV::Dwc::Extension::Occurrence::Media::HEADERS_INDEX[key.to_sym]
   end
 
   def dwc_media_coreid(o)

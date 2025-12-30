@@ -1,7 +1,7 @@
 # CSV for Species Distribution extension (for checklist archives)
 # See http://rs.gbif.org/extension/gbif/1.0/distribution.xml
 #
-module Export::CSV::Dwc::Extension::SpeciesDistribution
+module Export::CSV::Dwc::Extension::Checklist::SpeciesDistribution
 
   GBIF = Export::Dwca::GbifProfile::SpeciesDistribution
 
