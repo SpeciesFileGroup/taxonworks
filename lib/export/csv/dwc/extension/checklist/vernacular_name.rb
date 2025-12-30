@@ -40,13 +40,11 @@ module Export::CSV::Dwc::Extension::Checklist::VernacularName
       taxon_name = cn.otu&.taxon_name
       next unless taxon_name
 
-      # TODO: needs to be fixed to reflect the actual mode?
-      # Use valid taxon_name_id (for replace mode) or actual id
+      # Map to valid taxon (common names are associated with valid taxa, not synonyms)
       taxon_name_id = taxon_name.cached_valid_taxon_name_id || taxon_name.id
       taxon_id = taxon_name_id_to_taxon_id[taxon_name_id]
       next unless taxon_id
 
-      # TODO: there's probably a helper for this?
       # Build temporal string from start_year and end_year
       temporal = nil
       if cn.start_year.present? && cn.end_year.present?

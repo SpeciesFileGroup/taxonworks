@@ -88,7 +88,7 @@ module Export::Dwca
     attr_reader :taxon_name_id_to_taxon_id
 
     # @return [Boolean] whether to include distribution extension
-    attr_accessor :distribution_extension
+    attr_accessor :species_distribution_extension
 
     # @return [Boolean] whether to include references extension
     attr_accessor :references_extension
@@ -130,7 +130,7 @@ module Export::Dwca
         otu_query: @core_otu_scope_params
       ).all
 
-      @distribution_extension = extensions.include?(DISTRIBUTION_EXTENSION)
+      @species_distribution_extension = extensions.include?(DISTRIBUTION_EXTENSION)
       @references_extension = extensions.include?(REFERENCES_EXTENSION)
       @types_and_specimen_extension = extensions.include?(TYPES_AND_SPECIMEN_EXTENSION)
       @vernacular_name_extension = extensions.include?(VERNACULAR_NAME_EXTENSION)
@@ -142,9 +142,7 @@ module Export::Dwca
     def meta_fields
       return [] if no_records?
 
-      # TODO: this is the only place all_data is being called, do we really need all of that?
-      h = File.open(all_data, &:gets)&.strip&.split("\t")
-      # TODO: is this comment still correct?
+      h = File.open(data_file, &:gets)&.strip&.split("\t")
       h&.shift # shift because the first column, id, will be specified by hand
       h || []
     end
@@ -598,7 +596,7 @@ module Export::Dwca
       all_taxa.each_value do |taxon|
         # Check if this is a synonym (not valid).
         is_valid = taxon['taxon_name_cached_is_valid']
-        next unless !is_valid.nil? && !['t', 'true', true, 1, '1'].include?(is_valid)
+        next unless !is_valid.nil? && is_valid != true
 
         valid_id = taxon['taxon_name_cached_valid_taxon_name_id']
         valid_taxon_name_ids << valid_id if valid_id.present?
@@ -630,7 +628,7 @@ module Export::Dwca
         valid_taxon['scientificName'] = valid_tn.cached
         valid_taxon['taxonRank'] = rank
         valid_taxon['taxon_name_cached'] = valid_tn.cached
-        valid_taxon['taxon_name_cached_is_valid'] = 't' # TODO
+        valid_taxon['taxon_name_cached_is_valid'] = true
         valid_taxon['taxon_name_cached_valid_taxon_name_id'] = nil
 
         clear_lower_ranks(valid_taxon, rank, template_taxon['taxonRank']&.downcase)
@@ -738,7 +736,8 @@ module Export::Dwca
       parent_id = parent_taxon_name_id ?
         taxon_name_id_to_taxon_id[parent_taxon_name_id] : nil
 
-      # TODO
+      # Exclude fields that are either: (1) set explicitly below, or
+      # (2) internal metadata not meant for export.
       excluded_fields = [
         'taxonID', 'id', 'acceptedNameUsageID', 'parentNameUsageID',
         'taxon_name_cached', 'taxon_name_cached_is_valid',
@@ -779,8 +778,7 @@ module Export::Dwca
 
       if !is_valid.nil?
         # We have definitive validity data from a terminal TaxonName.
-        # Check if valid - handle both boolean and string representations
-        if [true, 't', 'true', 1, '1'].include?(is_valid) # TODO
+        if is_valid == true
           [taxon_id, 'accepted']
         else
           # This taxon is marked as invalid (synonym).
@@ -906,6 +904,29 @@ module Export::Dwca
       @eml
     end
 
+    # Helper to add extension XML to meta.xml
+    # @param xml [Nokogiri::XML::Builder] XML builder
+    # @param extension_module [Module] extension module with HEADERS_NAMESPACES constant
+    # @param file_location [String] filename in the archive
+    # @param row_type [String] DwC rowType URI
+    # @param extension_name [String] name for error messages
+    def add_extension_to_meta(xml, extension_module:, file_location:, row_type:, extension_name:)
+      xml.extension(encoding: 'UTF-8', linesTerminatedBy: '\n', fieldsTerminatedBy: '\t',
+                    fieldsEnclosedBy: '"', ignoreHeaderLines: '1', rowType: row_type) {
+        xml.files {
+          xml.location file_location
+        }
+        extension_module::HEADERS_NAMESPACES.each_with_index do |n, i|
+          if i == 0
+            n == '' || (raise TaxonWorks::Error, "First #{extension_name} column (id) should have namespace '', got '#{n}'")
+            xml.id(index: 0)
+          else
+            xml.field(index: i, term: n)
+          end
+        end
+      }
+    end
+
     def meta
       return @meta if @meta
 
@@ -914,9 +935,7 @@ module Export::Dwca
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.archive('xmlns' => 'http://rs.tdwg.org/dwc/text/') {
           # Core
-          # TODO: fix rowType
-          # TODO: '\n' or '\\n' or "\n"? same for \t
-          xml.core(encoding: 'UTF-8', linesTerminatedBy: '\n', fieldsTerminatedBy: '\t', fieldsEnclosedBy: '"', ignoreHeaderLines: '1', rowType:'http://rs.tdwg.org/dwc/terms/Occurrence') {
+          xml.core(encoding: 'UTF-8', linesTerminatedBy: '\n', fieldsTerminatedBy: '\t', fieldsEnclosedBy: '"', ignoreHeaderLines: '1', rowType:'http://rs.tdwg.org/dwc/terms/Taxon') {
             xml.files {
               xml.location 'data.tsv'
             }
@@ -932,72 +951,39 @@ module Export::Dwca
           }
 
           # Species Distribution extension
-          if distribution_extension
-            # TODO: Factor this whole thing out for all extensions
-            xml.extension(encoding: 'UTF-8', linesTerminatedBy: '\\n', fieldsTerminatedBy: '\\t', fieldsEnclosedBy: '"', ignoreHeaderLines: '1', rowType:'http://rs.gbif.org/terms/1.0/Distribution') {
-              xml.files {
-                xml.location 'distribution.tsv'
-              }
-              Export::CSV::Dwc::Extension::Checklist::SpeciesDistribution::HEADERS_NAMESPACES.each_with_index do |n, i|
-                if i == 0
-                  n == '' || (raise TaxonWorks::Error, "First distribution column (id) should have namespace '', got '#{n}'")
-                  xml.id(index: 0)
-                else
-                  xml.field(index: i, term: n)
-                end
-              end
-            }
+          if species_distribution_extension
+            add_extension_to_meta(xml,
+              extension_module: Export::CSV::Dwc::Extension::Checklist::SpeciesDistribution,
+              file_location: 'species_distribution.tsv',
+              row_type: 'http://rs.gbif.org/terms/1.0/Distribution',
+              extension_name: 'species_distribution')
           end
 
           # Literature References extension
           if references_extension
-            xml.extension(encoding: 'UTF-8', linesTerminatedBy: '\\n', fieldsTerminatedBy: '\\t', fieldsEnclosedBy: '"', ignoreHeaderLines: '1', rowType:'http://rs.gbif.org/terms/1.0/Reference') {
-              xml.files {
-                xml.location 'references.tsv'
-              }
-              Export::CSV::Dwc::Extension::Checklist::References::HEADERS_NAMESPACES.each_with_index do |n, i|
-                if i == 0
-                  n == '' || (raise TaxonWorks::Error, "First references column (id) should have namespace '', got '#{n}'")
-                  xml.id(index: 0)
-                else
-                  xml.field(index: i, term: n)
-                end
-              end
-            }
+            add_extension_to_meta(xml,
+              extension_module: Export::CSV::Dwc::Extension::Checklist::Reference,
+              file_location: 'references.tsv',
+              row_type: 'http://rs.gbif.org/terms/1.0/Reference',
+              extension_name: 'references')
           end
 
           # Types and Specimen extension
           if types_and_specimen_extension
-            xml.extension(encoding: 'UTF-8', linesTerminatedBy: '\\n', fieldsTerminatedBy: '\\t', fieldsEnclosedBy: '"', ignoreHeaderLines: '1', rowType:'http://rs.gbif.org/terms/1.0/TypesAndSpecimen') {
-              xml.files {
-                xml.location 'types_and_specimen.tsv'
-              }
-              Export::CSV::Dwc::Extension::Checklist::TypesAndSpecimen::HEADERS_NAMESPACES.each_with_index do |n, i|
-                if i == 0
-                  n == '' || (raise TaxonWorks::Error, "First types_and_specimen column (id) should have namespace '', got '#{n}'")
-                  xml.id(index: 0)
-                else
-                  xml.field(index: i, term: n)
-                end
-              end
-            }
+            add_extension_to_meta(xml,
+              extension_module: Export::CSV::Dwc::Extension::Checklist::TypesAndSpecimen,
+              file_location: 'types_and_specimen.tsv',
+              row_type: 'http://rs.gbif.org/terms/1.0/TypesAndSpecimen',
+              extension_name: 'types_and_specimen')
           end
 
           # Vernacular Name extension
           if vernacular_name_extension
-            xml.extension(encoding: 'UTF-8', linesTerminatedBy: '\\n', fieldsTerminatedBy: '\\t', fieldsEnclosedBy: '"', ignoreHeaderLines: '1', rowType:'http://rs.gbif.org/terms/1.0/VernacularName') {
-              xml.files {
-                xml.location 'vernacular_name.tsv'
-              }
-              Export::CSV::Dwc::Extension::Checklist::VernacularName::HEADERS_NAMESPACES.each_with_index do |n, i|
-                if i == 0
-                  n == '' || (raise TaxonWorks::Error, "First vernacular_name column (id) should have namespace '', got '#{n}'")
-                  xml.id(index: 0)
-                else
-                  xml.field(index: i, term: n)
-                end
-              end
-            }
+            add_extension_to_meta(xml,
+              extension_module: Export::CSV::Dwc::Extension::Checklist::VernacularName,
+              file_location: 'vernacular_name.tsv',
+              row_type: 'http://rs.gbif.org/terms/1.0/VernacularName',
+              extension_name: 'vernacular_name')
           end
         }
       end
@@ -1008,103 +994,55 @@ module Export::Dwca
       @meta
     end
 
+    # Helper to generate extension tempfiles
+    # @param extension_name [String] name of extension (e.g., 'species_distribution')
+    # @param scope [ActiveRecord::Relation, Hash] scope to pass to extension's csv method
     # @return [Tempfile, nil]
-    #   Species distribution extension data from AssertedDistribution records.
-    def distribution_extension_tmp
-      # TODO: factor this all out for all extensions
-      return nil unless distribution_extension
-      @distribution_extension_tmp = Tempfile.new('distribution.tsv')
+    def generate_extension_tmp(extension_name, scope: core_occurrence_scope)
+      # Check if extension is enabled
+      return nil unless send("#{extension_name}_extension")
 
-      content = nil
+      tempfile = Tempfile.new("#{extension_name}.tsv")
+
       if no_records?
         content = "\n"
       else
-        # Generate core CSV first to populate taxon_name_id_to_taxon_id mapping
-        # if not already done (for specs).
+        # Ensure taxon_name_id_to_taxon_id mapping exists
         csv unless taxon_name_id_to_taxon_id
 
-        # Only export distribution extension for AssertedDistribution-based
-        # DwcOccurrence records.
-        distribution_scope = core_occurrence_scope.where(dwc_occurrence_object_type: 'AssertedDistribution')
+        # Build module name from extension_name (e.g., 'species_distribution' -> 'SpeciesDistribution')
+        extension_module = "Export::CSV::Dwc::Extension::Checklist::#{extension_name.classify}".constantize
 
-        content = Export::CSV::Dwc::Extension::Checklist::SpeciesDistribution.csv(distribution_scope, taxon_name_id_to_taxon_id)
+        content = extension_module.csv(scope, taxon_name_id_to_taxon_id)
       end
 
-      @distribution_extension_tmp.write(content)
-      @distribution_extension_tmp.flush
-      @distribution_extension_tmp.rewind
-      @distribution_extension_tmp
+      tempfile.write(content)
+      tempfile.flush
+      tempfile.rewind
+
+      instance_variable_set("@#{extension_name}_extension_tmp", tempfile)
+      tempfile
+    end
+
+    # @return [Tempfile, nil]
+    #   Species distribution extension data from AssertedDistribution records.
+    def species_distribution_extension_tmp
+      scope = core_occurrence_scope.where(dwc_occurrence_object_type: 'AssertedDistribution')
+      generate_extension_tmp('species_distribution', scope: scope)
     end
 
     # @return [Tempfile, nil]
     #   Literature references extension data.
     def references_extension_tmp
-      return nil unless references_extension
-      @references_extension_tmp = Tempfile.new('references.tsv')
-
-      content = nil
-      if no_records?
-        content = "\n"
-      else
-        # Generate core CSV first to populate taxon_name_id_to_taxon_id mapping
-        # if not already done (for specs).
-        csv unless taxon_name_id_to_taxon_id
-
-        # Export references for all DwcOccurrence records
-        # (only AssertedDistribution records have associatedReferences populated).
-        content = Export::CSV::Dwc::Extension::Checklist::References.csv(core_occurrence_scope, taxon_name_id_to_taxon_id)
-      end
-
-      @references_extension_tmp.write(content)
-      @references_extension_tmp.flush
-      @references_extension_tmp.rewind
-      @references_extension_tmp
+      generate_extension_tmp('references')
     end
 
     def types_and_specimen_extension_tmp
-      return nil unless types_and_specimen_extension
-      @types_and_specimen_extension_tmp = Tempfile.new('types_and_specimen.tsv')
-
-      content = nil
-      if no_records?
-        content = "\n"
-      else
-        # Generate core CSV first to populate taxon_name_id_to_taxon_id mapping
-        # if not already done (for specs).
-        csv unless taxon_name_id_to_taxon_id
-
-        # Export types and specimen for CollectionObject DwcOccurrence records
-        # (only CollectionObject records with typeStatus populated).
-        content = Export::CSV::Dwc::Extension::Checklist::TypesAndSpecimen.csv(core_occurrence_scope, taxon_name_id_to_taxon_id)
-      end
-
-      @types_and_specimen_extension_tmp.write(content)
-      @types_and_specimen_extension_tmp.flush
-      @types_and_specimen_extension_tmp.rewind
-      @types_and_specimen_extension_tmp
+      generate_extension_tmp('types_and_specimen')
     end
 
     def vernacular_name_extension_tmp
-      return nil unless vernacular_name_extension
-      @vernacular_name_extension_tmp = Tempfile.new('vernacular_name.tsv')
-
-      content = nil
-      if no_records?
-        content = "\n"
-      else
-        # Generate core CSV first to populate taxon_name_id_to_taxon_id mapping
-        # if not already done (for specs).
-        csv unless taxon_name_id_to_taxon_id
-
-        # Export vernacular names from CommonName records
-        # Note: NOT using DwcOccurrence (vernacularName field not populated).
-        content = Export::CSV::Dwc::Extension::Checklist::VernacularName.csv(core_otu_scope_params, taxon_name_id_to_taxon_id)
-      end
-
-      @vernacular_name_extension_tmp.write(content)
-      @vernacular_name_extension_tmp.flush
-      @vernacular_name_extension_tmp.rewind
-      @vernacular_name_extension_tmp
+      generate_extension_tmp('vernacular_name', scope: core_otu_scope_params)
     end
 
     def build_zip
@@ -1115,7 +1053,7 @@ module Export::Dwca
       Zip::File.open(t.path, Zip::File::CREATE) do |zip|
         zip.add('data.tsv', data_file.path)
 
-        zip.add('distribution.tsv', distribution_extension_tmp.path) if distribution_extension
+        zip.add('species_distribution.tsv', species_distribution_extension_tmp.path) if species_distribution_extension
         zip.add('references.tsv', references_extension_tmp.path) if references_extension
         zip.add('types_and_specimen.tsv', types_and_specimen_extension_tmp.path) if types_and_specimen_extension
         zip.add('vernacular_name.tsv', vernacular_name_extension_tmp.path) if vernacular_name_extension
@@ -1150,32 +1088,6 @@ module Export::Dwca
       download.update!(source_file_path: p)
     end
 
-    # @return [Tempfile]
-    #   the combined data file
-    def all_data
-      return @all_data if @all_data
-
-      @all_data = Tempfile.new('data.tsv')
-
-      join_data = [data_file]
-
-      # Combine all data files
-      join_data.each_with_index do |file, i|
-        file.rewind
-        if i == 0
-          @all_data.write(file.read)
-        else
-          # Skip header line for subsequent files.
-          file.gets
-          @all_data.write(file.read)
-        end
-      end
-
-      @all_data.flush
-      @all_data.rewind
-      @all_data
-    end
-
     # Cleanup temporary files
     def cleanup
       zipfile.close if zipfile
@@ -1184,12 +1096,9 @@ module Export::Dwca
       data_file.close if data_file
       data_file.unlink if data_file
 
-      @all_data.close if @all_data
-      @all_data.unlink if @all_data
-
-      if distribution_extension && @distribution_extension_tmp
-        @distribution_extension_tmp.close
-        @distribution_extension_tmp.unlink
+      if species_distribution_extension && @species_distribution_extension_tmp
+        @species_distribution_extension_tmp.close
+        @species_distribution_extension_tmp.unlink
       end
 
       if references_extension && @references_extension_tmp

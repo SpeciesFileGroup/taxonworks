@@ -28,15 +28,15 @@ module Export::CSV::Dwc::Extension::Checklist::SpeciesDistribution
     tbl = []
     tbl[0] = HEADERS
 
-    # Build occurrence_to_otu mapping for lookups.
-    occurrence_to_otu = scope
+    # Build asserted_distribution_id to otu_id mapping for lookups.
+    asserted_distribution_to_otu = scope
       .where(dwc_occurrence_object_type: 'AssertedDistribution')
       .joins("JOIN asserted_distributions ad ON ad.id = dwc_occurrences.dwc_occurrence_object_id AND ad.asserted_distribution_object_type = 'Otu'")
       .pluck('dwc_occurrences.dwc_occurrence_object_id', 'ad.asserted_distribution_object_id')
       .to_h
 
     # Get OTU to taxon_name_id mapping.
-    otu_ids = occurrence_to_otu.values.compact.uniq
+    otu_ids = asserted_distribution_to_otu.values.compact.uniq
     otu_to_taxon_name_id = ::Otu
       .where(id: otu_ids)
       .joins(:taxon_name)
@@ -55,8 +55,7 @@ module Export::CSV::Dwc::Extension::Checklist::SpeciesDistribution
       locality = locality_parts.join(', ').presence
 
       # Look up taxon_name_id via OTU
-      # TODO: this doesn't look right
-      otu_id = occurrence_to_otu[dwc_occ.dwc_occurrence_object_id]
+      otu_id = asserted_distribution_to_otu[dwc_occ.dwc_occurrence_object_id]
       next unless otu_id
 
       taxon_name_id = otu_to_taxon_name_id[otu_id]
@@ -76,13 +75,9 @@ module Export::CSV::Dwc::Extension::Checklist::SpeciesDistribution
       tbl << row
     end
 
-    output = StringIO.new
-    # TODO: this can't be generated from an array of lines all at once?
-    tbl.each do |row|
-      output.puts ::CSV.generate_line(row, col_sep: "\t", encoding: Encoding::UTF_8)
+    ::CSV.generate(col_sep: "\t") do |csv|
+      tbl.each { |row| csv << row }
     end
-
-    output.string
   end
 
 end

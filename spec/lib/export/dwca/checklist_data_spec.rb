@@ -408,24 +408,24 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         end
 
         specify 'distribution_extension flag is set when extension is requested' do
-          expect(data_with_extension.distribution_extension).to be true
-          expect(data_without_extension.distribution_extension).to be false
+          expect(data_with_extension.species_distribution_extension).to be true
+          expect(data_without_extension.species_distribution_extension).to be false
         end
 
         specify 'distribution_extension_tmp returns nil when extension not requested' do
-          expect(data_without_extension.distribution_extension_tmp).to be_nil
+          expect(data_without_extension.species_distribution_extension_tmp).to be_nil
         end
 
         specify 'distribution_extension_tmp returns Tempfile when extension requested' do
-          expect(data_with_extension.distribution_extension_tmp).to be_a(Tempfile)
+          expect(data_with_extension.species_distribution_extension_tmp).to be_a(Tempfile)
         end
 
         specify 'distribution extension CSV has correct headers' do
           # Generate core CSV first to populate taxon_name_to_id mapping
           data_with_extension.csv
 
-          csv_content = data_with_extension.distribution_extension_tmp.read
-          data_with_extension.distribution_extension_tmp.rewind
+          csv_content = data_with_extension.species_distribution_extension_tmp.read
+          data_with_extension.species_distribution_extension_tmp.rewind
           csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
 
           expect(csv.headers).to eq(['id', 'locality', 'occurrenceStatus', 'source'])
@@ -435,8 +435,8 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           # Generate core CSV first to populate taxon_name_to_id mapping
           data_with_extension.csv
 
-          csv_content = data_with_extension.distribution_extension_tmp.read
-          data_with_extension.distribution_extension_tmp.rewind
+          csv_content = data_with_extension.species_distribution_extension_tmp.read
+          data_with_extension.species_distribution_extension_tmp.rewind
           csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
 
           # Should have 2 records (one for each asserted distribution)
@@ -447,8 +447,8 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           # Generate core CSV first to populate taxon_name_to_id mapping
           data_with_extension.csv
 
-          csv_content = data_with_extension.distribution_extension_tmp.read
-          data_with_extension.distribution_extension_tmp.rewind
+          csv_content = data_with_extension.species_distribution_extension_tmp.read
+          data_with_extension.species_distribution_extension_tmp.rewind
           dist_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
 
           # All id values should be present (not nil)
@@ -462,8 +462,8 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           # Generate core CSV first to populate taxon_name_to_id mapping
           data_with_extension.csv
 
-          csv_content = data_with_extension.distribution_extension_tmp.read
-          data_with_extension.distribution_extension_tmp.rewind
+          csv_content = data_with_extension.species_distribution_extension_tmp.read
+          data_with_extension.species_distribution_extension_tmp.rewind
           dist_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
 
           dist_csv.each do |row|
@@ -475,14 +475,14 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         specify 'zipfile includes distribution.tsv when extension enabled' do
           zipfile = data_with_extension.zipfile
           Zip::File.open(zipfile.path) do |zip|
-            expect(zip.find_entry('distribution.tsv')).to be_present
+            expect(zip.find_entry('species_distribution.tsv')).to be_present
           end
         end
 
         specify 'zipfile does not include distribution.tsv when extension disabled' do
           zipfile = data_without_extension.zipfile
           Zip::File.open(zipfile.path) do |zip|
-            expect(zip.find_entry('distribution.tsv')).to be_nil
+            expect(zip.find_entry('species_distribution.tsv')).to be_nil
           end
         end
 
@@ -490,7 +490,7 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           meta_content = data_with_extension.meta.read
           data_with_extension.meta.rewind
 
-          expect(meta_content).to include('distribution.tsv')
+          expect(meta_content).to include('species_distribution.tsv')
           expect(meta_content).to include('http://rs.gbif.org/terms/1.0/Distribution')
         end
 
@@ -498,7 +498,7 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           meta_content = data_without_extension.meta.read
           data_without_extension.meta.rewind
 
-          expect(meta_content).not_to include('distribution.tsv')
+          expect(meta_content).not_to include('species_distribution.tsv')
           expect(meta_content).not_to include('http://rs.gbif.org/terms/1.0/Distribution')
         end
       end
