@@ -98,6 +98,40 @@ class DwcOccurrence < ApplicationRecord
     taxonRemarks: :taxonRemarks
   }.freeze
 
+  # Namespace URIs for checklist taxon core fields.
+  # Maps DwC Taxon field names to their full namespace URIs.
+  CHECKLIST_TAXON_NAMESPACES = {
+    scientificName: 'http://rs.tdwg.org/dwc/terms/scientificName',
+    taxonRank: 'http://rs.tdwg.org/dwc/terms/taxonRank',
+    acceptedNameUsage: 'http://rs.tdwg.org/dwc/terms/acceptedNameUsage',
+    parentNameUsage: 'http://rs.tdwg.org/dwc/terms/parentNameUsage',
+    originalNameUsage: 'http://rs.tdwg.org/dwc/terms/originalNameUsage',
+    nameAccordingTo: 'http://rs.tdwg.org/dwc/terms/nameAccordingTo',
+    namePublishedIn: 'http://rs.tdwg.org/dwc/terms/namePublishedIn',
+    namePublishedInYear: 'http://rs.tdwg.org/dwc/terms/namePublishedInYear',
+    higherClassification: 'http://rs.tdwg.org/dwc/terms/higherClassification',
+    kingdom: 'http://rs.tdwg.org/dwc/terms/kingdom',
+    phylum: 'http://rs.tdwg.org/dwc/terms/phylum',
+    class: 'http://rs.tdwg.org/dwc/terms/class',
+    order: 'http://rs.tdwg.org/dwc/terms/order',
+    superfamily: 'http://rs.tdwg.org/dwc/terms/superfamily',
+    family: 'http://rs.tdwg.org/dwc/terms/family',
+    subfamily: 'http://rs.tdwg.org/dwc/terms/subfamily',
+    tribe: 'http://rs.tdwg.org/dwc/terms/tribe',
+    subtribe: 'http://rs.tdwg.org/dwc/terms/subtribe',
+    genus: 'http://rs.tdwg.org/dwc/terms/genus',
+    subgenus: 'http://rs.tdwg.org/dwc/terms/subgenus',
+    specificEpithet: 'http://rs.tdwg.org/dwc/terms/specificEpithet',
+    infraspecificEpithet: 'http://rs.tdwg.org/dwc/terms/infraspecificEpithet',
+    verbatimTaxonRank: 'http://rs.tdwg.org/dwc/terms/verbatimTaxonRank',
+    scientificNameAuthorship: 'http://rs.tdwg.org/dwc/terms/scientificNameAuthorship',
+    vernacularName: 'http://rs.tdwg.org/dwc/terms/vernacularName',
+    nomenclaturalCode: 'http://rs.tdwg.org/dwc/terms/nomenclaturalCode',
+    taxonomicStatus: 'http://rs.tdwg.org/dwc/terms/taxonomicStatus',
+    nomenclaturalStatus: 'http://rs.tdwg.org/dwc/terms/nomenclaturalStatus',
+    taxonRemarks: 'http://rs.tdwg.org/dwc/terms/taxonRemarks'
+  }.freeze
+
   # Header converter for checklist exports (Taxon core)
   # Converts dwc_occurrence column names to DwC Taxon extension field names
   CSV::HeaderConverters[:checklist_headers] = lambda do |field|
