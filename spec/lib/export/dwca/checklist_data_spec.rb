@@ -205,6 +205,52 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           expect(genus['scientificName']).to eq(species['genus'])
         end
 
+        specify 'intermediate ranks not in DwC are skipped when assigning parents' do
+          # Test that taxa with intermediate parent ranks get correct parentNameUsageID
+          # pointing to the next available ancestor, even with multiple consecutive
+          # intermediate ranks.
+
+          # Create hierarchy with TWO consecutive intermediate ranks:
+          # Animalia > Arthropoda (phylum) > Hexapoda (subphylum) >
+          # Pancrustacea (superclass) > Insecta (class) > Hemiptera (order)
+          phylum_hex = Protonym.create!(name: 'Arthropodasubphylum', rank_class: Ranks.lookup(:iczn, :phylum), parent: kingdom)
+          subphylum = Protonym.create!(name: 'Hexapoda', rank_class: Ranks.lookup(:iczn, :subphylum), parent: phylum_hex)
+          superclass = Protonym.create!(name: 'Pancrustacea', rank_class: Ranks.lookup(:iczn, :superclass), parent: subphylum)
+          class_hex = Protonym.create!(name: 'Insectasubphylum', rank_class: Ranks.lookup(:iczn, :class), parent: superclass)
+          order_hex = Protonym.create!(name: 'Hemiptera', rank_class: Ranks.lookup(:iczn, :order), parent: class_hex)
+          family_hex = Protonym.create!(name: 'Cercopidae', rank_class: Ranks.lookup(:iczn, :family), parent: order_hex)
+          genus_hex = Protonym.create!(name: 'Cercopis', rank_class: Ranks.lookup(:iczn, :genus), parent: family_hex)
+          species_hex = Protonym.create!(name: 'testus', rank_class: Ranks.lookup(:iczn, :species), parent: genus_hex)
+
+          otu_hex = FactoryBot.create(:valid_otu, taxon_name: species_hex)
+          specimen = FactoryBot.create(:valid_specimen)
+          FactoryBot.create(:valid_taxon_determination, otu: otu_hex, taxon_determination_object: specimen)
+          specimen.get_dwc_occurrence
+
+          # Export with this new OTU included
+          data_hex = Export::Dwca::ChecklistData.new(core_otu_scope_params: { otu_id: [otu_hex.id] })
+          csv_hex = CSV.parse(data_hex.csv, headers: true, col_sep: "\t")
+
+          # Find the class in the export
+          class_row = csv_hex.find { |row| row['scientificName'] == 'Insectasubphylum' && row['taxonRank'] == 'class' }
+          expect(class_row).to be_present
+
+          # Find the phylum in the export
+          phylum_row = csv_hex.find { |row| row['scientificName'] == 'Arthropodasubphylum' && row['taxonRank'] == 'phylum' }
+          expect(phylum_row).to be_present
+
+          # Neither intermediate rank should be in export
+          hexapoda = csv_hex.find { |row| row['scientificName'] == 'Hexapoda' }
+          expect(hexapoda).to be_nil
+          pancrustacea = csv_hex.find { |row| row['scientificName'] == 'Pancrustacea' }
+          expect(pancrustacea).to be_nil
+
+          # Class's parent should be phylum (skipping over BOTH subphylum and superclass)
+          expect(class_row['parentNameUsageID']).to eq(phylum_row['taxonID'])
+
+          data_hex.cleanup
+        end
+
         specify 'taxa are exported in rank order' do
           # Check that kingdom comes before phylum, phylum before class, etc.
           rank_order = %w[kingdom phylum class order family genus species]
@@ -626,9 +672,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
       end
 
       context 'with types and specimen extension' do
-        # Clear Faker unique cache to avoid "Retry limit exceeded" errors
-        before(:all) { Faker::UniqueGenerator.clear }
-
         # Create collection objects with type materials for testing
         let!(:holotype_specimen) { FactoryBot.create(:valid_specimen) }
         let!(:paratype_specimen) { FactoryBot.create(:valid_specimen) }
@@ -754,9 +797,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
       end
 
       context 'with vernacular name extension' do
-        # Clear Faker unique cache to avoid "Retry limit exceeded" errors
-        before(:all) { Faker::UniqueGenerator.clear }
-
         # Create common names for testing
         let!(:language_en) { FactoryBot.create(:valid_language, alpha_2: 'en') }
         let!(:language_es) { FactoryBot.create(:valid_language, alpha_2: 'es') }
@@ -902,9 +942,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
     end
 
     context 'with no matching records' do
-      # Clear Faker unique cache to avoid "Retry limit exceeded" errors
-      before(:all) { Faker::UniqueGenerator.clear }
-
       let(:empty_scope) { { otu_id: [999999] } }
       let(:empty_data) { Export::Dwca::ChecklistData.new(core_otu_scope_params: empty_scope) }
 
@@ -928,9 +965,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
     end
 
     context 'with various OTU query scopes' do
-      # Clear Faker unique cache to avoid "Retry limit exceeded" errors
-      before(:all) { Faker::UniqueGenerator.clear }
-
       before do
         # Create one specimen with determination to otu1
         specimen = FactoryBot.create(:valid_specimen)
@@ -964,9 +998,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
     end
 
     context 'with infraspecific taxa at different ranks' do
-      # Clear Faker unique cache to avoid "Retry limit exceeded" errors
-      before(:all) { Faker::UniqueGenerator.clear }
-
       # Test case: same infraspecific epithet at different ranks should create distinct taxa
       # e.g., "Aus bus subsp. cus" and "Aus bus var. cus" are different taxa
       let!(:root) { FactoryBot.create(:root_taxon_name) }
