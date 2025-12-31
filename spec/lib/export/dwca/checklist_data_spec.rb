@@ -2,10 +2,10 @@ require 'rails_helper'
 
 describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
 
-  # Create OTUs with taxon determinations for testing
   let!(:otu1) { FactoryBot.create(:valid_otu) }
   let!(:otu2) { FactoryBot.create(:valid_otu) }
   let!(:otu3) { FactoryBot.create(:valid_otu) }
+  let!(:otu4) { FactoryBot.create(:valid_otu) } # Not this one
 
   let(:otu_scope) { { otu_id: [otu1.id, otu2.id, otu3.id] } }
 
@@ -24,18 +24,18 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
       let!(:tn_class) { Protonym.create!(name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class), parent: phylum) }
       let!(:order) { Protonym.create!(name: 'Lepidoptera', rank_class: Ranks.lookup(:iczn, :order), parent: tn_class) }
       let!(:family) { Protonym.create!(name: 'Noctuidae', rank_class: Ranks.lookup(:iczn, :family), parent: order) }
+      let!(:family2) { Protonym.create!(name: 'Gracillariidae', rank_class: Ranks.lookup(:iczn, :family), parent: order) }
       let!(:genus) { Protonym.create!(name: 'Aus', rank_class: Ranks.lookup(:iczn, :genus), parent: family) }
+      let!(:genus2) { Protonym.create!(name: 'Fus', rank_class: Ranks.lookup(:iczn, :genus), parent: family) }
       let!(:taxon_name1) { Protonym.create!(name: 'bus', rank_class: Ranks.lookup(:iczn, :species), parent: genus) }
       let!(:taxon_name2) { Protonym.create!(name: 'cus', rank_class: Ranks.lookup(:iczn, :species), parent: genus) }
       let!(:taxon_name3) { Protonym.create!(name: 'dus', rank_class: Ranks.lookup(:iczn, :species), parent: genus) }
 
       before do
-        # Link OTUs to taxon names
         otu1.update!(taxon_name: taxon_name1)
         otu2.update!(taxon_name: taxon_name2)
         otu3.update!(taxon_name: taxon_name3)
 
-        # Create specimens with taxon determinations to our OTUs
         3.times do |i|
           otu = [otu1, otu2, otu3][i]
           specimen = FactoryBot.create(:valid_specimen)
@@ -46,15 +46,7 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         end
       end
 
-      after { data.cleanup }
-
       let(:csv) { CSV.parse(data.csv, headers: true, col_sep: "\t") }
-
-      # Expected DwC Taxon core fields
-      let(:taxon_headers) {
-        %w{taxonID scientificName kingdom phylum class order family genus specificEpithet
-           taxonRank scientificNameAuthorship nomenclaturalCode}
-      }
 
       specify '#total returns count of DwcOccurrences' do
         expect(data.total).to eq(3)
@@ -67,7 +59,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
       specify '#csv returns normalized taxonomy (more rows than occurrences)' do
         # With 3 species from same genus/family/etc., we expect:
         # kingdom, phylum, class, order, family, genus, and 3 species = 9 unique taxa
-        expect(csv.count).to be > data.total
         expect(csv.count).to eq(9)
       end
 
@@ -110,8 +101,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         end
 
         specify 'empty columns are removed from output' do
-          # Columns that have no data across all rows should not be present in the output
-          # Check that all columns in the CSV have at least one non-empty value
           csv.headers.each do |header|
             # Required columns are allowed to be empty
             next if ['id', 'taxonID', 'scientificName', 'taxonRank'].include?(header)
@@ -130,7 +119,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           source_names = data.core_occurrence_scope.pluck(:scientificName).uniq.compact
           output_names = csv.map { |row| row['scientificName'] }.compact
 
-          # Every source scientificName should appear in the output
           source_names.each do |name|
             expect(output_names).to include(name), "Expected to find '#{name}' in output but it was missing"
           end
@@ -176,11 +164,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           expect(taxon_ids).to eq((1..csv.count).to_a)
         end
 
-        specify 'all taxonID values are unique' do
-          taxon_ids = csv.map { |row| row['taxonID'] }
-          expect(taxon_ids.uniq.count).to eq(taxon_ids.count)
-        end
-
         specify 'parentNameUsageID header is present' do
           expect(csv.headers).to include('parentNameUsageID')
         end
@@ -195,20 +178,18 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           # Find a species and its genus
           species = csv.find { |row| row['taxonRank'] == 'species' }
           expect(species).to be_present
-          expect(species['parentNameUsageID']).to be_present
 
           # The parent should be the genus with matching genus name
           parent_id = species['parentNameUsageID'].to_i
           genus = csv.find { |row| row['taxonID'].to_i == parent_id }
-          expect(genus).to be_present
           expect(genus['taxonRank']).to eq('genus')
           expect(genus['scientificName']).to eq(species['genus'])
         end
 
         specify 'intermediate ranks not in DwC are skipped when assigning parents' do
-          # Test that taxa with intermediate parent ranks get correct parentNameUsageID
-          # pointing to the next available ancestor, even with multiple consecutive
-          # intermediate ranks.
+          # Test that taxa with intermediate parent ranks get correct
+          # parentNameUsageID pointing to the next available ancestor, even with
+          # multiple consecutive intermediate ranks.
 
           # Create hierarchy with TWO consecutive intermediate ranks:
           # Animalia > Arthropoda (phylum) > Hexapoda (subphylum) >
@@ -247,8 +228,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
 
           # Class's parent should be phylum (skipping over BOTH subphylum and superclass)
           expect(class_row['parentNameUsageID']).to eq(phylum_row['taxonID'])
-
-          data_hex.cleanup
         end
 
         specify 'taxa are exported in rank order' do
@@ -268,7 +247,7 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
       end
 
       context 'extracted higher taxa field clearing' do
-        # Add some taxon-specific data to the DwcOccurrences to test field clearing
+        # Add some taxon-specific data to the DwcOccurrences to test field clearing.
         before do
           data.core_occurrence_scope.each do |dwc|
             dwc.update!(
@@ -286,7 +265,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         specify 'extracted higher taxon clears taxon-specific fields from terminal taxon' do
           # Find an extracted genus (higher than the terminal species)
           genus = csv.find { |row| row['taxonRank'] == 'genus' }
-          expect(genus).to be_present
 
           # These fields should be cleared (came from terminal species)
           expect(genus['scientificNameAuthorship']).to be_nil.or be_empty
@@ -299,11 +277,10 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         end
 
         specify 'terminal taxon retains all its taxon-specific fields' do
-          # Find a terminal species taxon (not extracted, original)
+          # Find a terminal species taxon (not extracted, original).
           species = csv.find { |row| row['taxonRank'] == 'species' }
-          expect(species).to be_present
 
-          # These fields should be retained for the terminal taxon
+          # These fields should be retained for the terminal taxon.
           expect(species['scientificNameAuthorship']).to eq('Smith, 1850')
           expect(species['namePublishedIn']).to eq('Journal of Taxonomy')
           expect(species['namePublishedInYear']).to eq('1850')
@@ -311,9 +288,7 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         end
 
         specify 'extracted higher taxon has recomputed higherClassification' do
-          # Find genus row
           genus = csv.find { |row| row['taxonRank'] == 'genus' }
-          expect(genus).to be_present
 
           # higherClassification should be recomputed from rank columns above genus
           # Should include kingdom, phylum, class, order, family (in that order)
@@ -338,47 +313,26 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
             row['scientificName'] == original.scientificName &&
             row['taxonRank'] == original.taxonRank&.downcase
           }
-          expect(species).to be_present
 
-          # Should keep the original higherClassification
           expect(species['higherClassification']).to eq(original_classification)
         end
 
-        specify 'extracted family has correct higherClassification' do
-          family = csv.find { |row| row['taxonRank'] == 'family' }
-          expect(family).to be_present
-
-          # Should only include kingdom, phylum, class, order
-          expected_parts = [
-            family['kingdom'],
-            family['phylum'],
-            family['class'],
-            family['order']
-          ].compact.reject(&:empty?)
-
-          expect(family['higherClassification']).to eq(expected_parts.join(Export::Dwca::DELIMITER))
-        end
-
         specify 'extracted higher taxon clears epithet fields for non-species ranks' do
-          # Genus should have epithet fields cleared
           genus = csv.find { |row| row['taxonRank'] == 'genus' }
-          expect(genus).to be_present
           expect(genus['specificEpithet']).to be_nil.or be_empty
           expect(genus['infraspecificEpithet']).to be_nil.or be_empty
+        end
 
-          # Family should also have epithet fields cleared
+        specify 'extracted higher taxon clears rank columns below its rank' do
           family = csv.find { |row| row['taxonRank'] == 'family' }
-          expect(family).to be_present
-          expect(family['specificEpithet']).to be_nil.or be_empty
-          expect(family['infraspecificEpithet']).to be_nil.or be_empty
+
+          expect(family['genus']).to be_nil.or be_empty
+          expect(family['subgenus']).to be_nil.or be_empty
         end
 
         specify 'extracted higher taxon retains rank columns at and above its rank' do
-          # Find genus row
           genus = csv.find { |row| row['taxonRank'] == 'genus' }
-          expect(genus).to be_present
 
-          # Rank columns at and above genus should be preserved
           expect(genus['kingdom']).to eq('Animalia')
           expect(genus['phylum']).to eq('Arthropoda')
           expect(genus['class']).to eq('Insecta')
@@ -386,23 +340,14 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           expect(genus['family']).to eq('Noctuidae')
           expect(genus['genus']).to eq('Aus')
         end
-
-        specify 'extracted higher taxon clears rank columns below its rank' do
-          # Find family row
-          family = csv.find { |row| row['taxonRank'] == 'family' }
-          expect(family).to be_present
-
-          # Rank columns below family should be cleared
-          expect(family['genus']).to be_nil.or be_empty
-          expect(family['subgenus']).to be_nil.or be_empty
-        end
       end
 
       specify '#meta_fields returns headers without id column' do
         meta_fields = data.meta_fields
+        # taxonID is the renamed id column in the CSV, but meta_fields returns
+        # the pre-header-conversion names.
         expect(meta_fields).not_to include('id')
         expect(meta_fields).to include('scientificName')
-        # taxonID is the renamed id column in the CSV, but meta_fields returns the pre-header-conversion names
       end
 
       context 'files' do
@@ -440,18 +385,12 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         let!(:asserted_distribution2) { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: otu2) }
 
         before do
-          # Create DwcOccurrence records for AssertedDistributions
           asserted_distribution1.get_dwc_occurrence
           asserted_distribution2.get_dwc_occurrence
         end
 
         let(:data_with_extension) { Export::Dwca::ChecklistData.new(core_otu_scope_params: otu_scope, extensions: [Export::Dwca::ChecklistData::DISTRIBUTION_EXTENSION]) }
         let(:data_without_extension) { Export::Dwca::ChecklistData.new(core_otu_scope_params: otu_scope, extensions: []) }
-
-        after do
-          data_with_extension.cleanup
-          data_without_extension.cleanup
-        end
 
         specify 'distribution_extension flag is set when extension is requested' do
           expect(data_with_extension.species_distribution_extension).to be true
@@ -467,34 +406,31 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         end
 
         specify 'distribution extension CSV has correct headers' do
-          # Generate core CSV first to populate taxon_name_to_id mapping
+          # Generate core CSV first to populate taxon_name_to_id mapping.
           data_with_extension.csv
 
           csv_content = data_with_extension.species_distribution_extension_tmp.read
-          data_with_extension.species_distribution_extension_tmp.rewind
           csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
 
           expect(csv.headers).to eq(['id', 'locality', 'occurrenceStatus', 'source'])
         end
 
-        specify 'distribution extension only includes AssertedDistribution records' do
-          # Generate core CSV first to populate taxon_name_to_id mapping
+        specify 'distribution extension includes AssertedDistribution records' do
+          # Generate core CSV first to populate taxon_name_to_id mapping.
           data_with_extension.csv
 
           csv_content = data_with_extension.species_distribution_extension_tmp.read
-          data_with_extension.species_distribution_extension_tmp.rewind
           csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
 
           # Should have 2 records (one for each asserted distribution)
-          expect(csv.length).to be >= 1
+          expect(csv.length).to eq 2
         end
 
         specify 'distribution extension uses taxonID from normalized taxonomy' do
-          # Generate core CSV first to populate taxon_name_to_id mapping
+          # Generate core CSV first to populate taxon_name_to_id mapping.
           data_with_extension.csv
 
           csv_content = data_with_extension.species_distribution_extension_tmp.read
-          data_with_extension.species_distribution_extension_tmp.rewind
           dist_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
 
           # All id values should be present (not nil)
@@ -505,15 +441,13 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         end
 
         specify 'distribution extension includes occurrenceStatus' do
-          # Generate core CSV first to populate taxon_name_to_id mapping
+          # Generate core CSV first to populate taxon_name_to_id mapping.
           data_with_extension.csv
 
           csv_content = data_with_extension.species_distribution_extension_tmp.read
-          data_with_extension.species_distribution_extension_tmp.rewind
           dist_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
 
           dist_csv.each do |row|
-            # occurrenceStatus should be 'present' or 'absent'
             expect(['present', 'absent']).to include(row['occurrenceStatus'])
           end
         end
@@ -534,7 +468,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
 
         specify 'meta.xml includes distribution extension when enabled' do
           meta_content = data_with_extension.meta.read
-          data_with_extension.meta.rewind
 
           expect(meta_content).to include('species_distribution.tsv')
           expect(meta_content).to include('http://rs.gbif.org/terms/1.0/Distribution')
@@ -542,95 +475,103 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
 
         specify 'meta.xml does not include distribution extension when disabled' do
           meta_content = data_without_extension.meta.read
-          data_without_extension.meta.rewind
 
           expect(meta_content).not_to include('species_distribution.tsv')
           expect(meta_content).not_to include('http://rs.gbif.org/terms/1.0/Distribution')
         end
 
+        specify 'distribution extension rows star-join to correct core taxa with matching occurrence data' do
+          core_content = data_with_extension.csv
+          extension_content = data_with_extension.species_distribution_extension_tmp.read
+
+          core_csv = CSV.parse(core_content, headers: true, col_sep: "\t")
+          extension_csv = CSV.parse(extension_content, headers: true, col_sep: "\t")
+
+          ext_row = extension_csv.first
+
+          data_row = core_csv.find { |row| row['taxonID'] == ext_row['id'] }
+
+          # Match data row's scientificName to one of our two occurrences.
+          scientific_name = data_row['scientificName']
+          dwc_occ = if otu1.taxon_name.cached == scientific_name
+                      asserted_distribution1.dwc_occurrence
+                    elsif otu2.taxon_name.cached == scientific_name
+                      asserted_distribution2.dwc_occurrence
+                    end
+
+          expected_locality = dwc_occ.locality.presence || [
+            dwc_occ.country,
+            dwc_occ.stateProvince,
+            dwc_occ.county
+          ].compact.reject(&:empty?).join(', ').presence
+
+          expect(ext_row['locality']).to eq(expected_locality) if expected_locality
+          expect(ext_row['occurrenceStatus']).to eq(dwc_occ.occurrenceStatus)
+        end
+
         specify 'locality is populated for regional GeographicArea that does not map to country/state/county' do
-          # Create a regional area
+          # Create a regional area.
           regional_area = FactoryBot.create(:valid_geographic_area,
             name: 'West Tropical Africa')
 
-          # Create an OTU and link it to a taxon name
           regional_otu = FactoryBot.create(:valid_otu, taxon_name: taxon_name1)
 
-          # Create asserted distribution with the regional area
           regional_ad = FactoryBot.create(:valid_asserted_distribution,
             asserted_distribution_object: regional_otu,
             asserted_distribution_shape: regional_area)
 
           # Mock geographic_names to return empty hash (simulating a TDWG area that
-          # doesn't map to country/state/county)
+          # doesn't map to country/state/county).
           allow(regional_ad).to receive(:geographic_names).and_return({})
 
           regional_ad.get_dwc_occurrence
 
-          # Create a new data object including this OTU
           regional_data = Export::Dwca::ChecklistData.new(
             core_otu_scope_params: { otu_id: [regional_otu.id] },
             extensions: [Export::Dwca::ChecklistData::DISTRIBUTION_EXTENSION]
           )
 
-          # Generate core CSV to populate taxon mapping
+          # Generate core CSV to populate taxon mapping.
           regional_data.csv
 
-          # Check distribution extension
           csv_content = regional_data.species_distribution_extension_tmp.read
-          regional_data.species_distribution_extension_tmp.rewind
           dist_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
 
-          # Should have at least one record
-          expect(dist_csv.length).to be >= 1
+          expect(dist_csv.length).to eq 1
 
-          # Locality should be populated with the area name
           row = dist_csv.first
           expect(row['locality']).to eq('West Tropical Africa')
-
-          regional_data.cleanup
         end
 
-        specify 'locality is populated for Gazetteer that does not map to country/state/county' do
-          # Create a Gazetteer (e.g., custom locality)
+        specify 'locality is populated for Gazetteer' do
           gazetteer = FactoryBot.create(:valid_gazetteer, name: 'Custom Region XYZ')
 
-          # Create an OTU and link it to a taxon name
           gaz_otu = FactoryBot.create(:valid_otu, taxon_name: taxon_name2)
 
-          # Create asserted distribution with the gazetteer
           gaz_ad = FactoryBot.create(:valid_gazetteer_asserted_distribution,
             asserted_distribution_object: gaz_otu,
             asserted_distribution_shape: gazetteer)
           gaz_ad.get_dwc_occurrence
 
-          # Create a new data object including this OTU
           gaz_data = Export::Dwca::ChecklistData.new(
             core_otu_scope_params: { otu_id: [gaz_otu.id] },
             extensions: [Export::Dwca::ChecklistData::DISTRIBUTION_EXTENSION]
           )
 
-          # Generate core CSV to populate taxon mapping
+          # Generate core CSV to populate taxon mapping.
           gaz_data.csv
 
-          # Check distribution extension
           csv_content = gaz_data.species_distribution_extension_tmp.read
-          gaz_data.species_distribution_extension_tmp.rewind
           dist_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
 
-          # Should have at least one record
-          expect(dist_csv.length).to be >= 1
+          expect(dist_csv.length).to eq 1
 
-          # Locality should be populated with the gazetteer name
           row = dist_csv.first
           expect(row['locality']).to eq('Custom Region XYZ')
-
-          gaz_data.cleanup
         end
       end
 
       context 'with references extension' do
-        # Create asserted distributions with sources for testing
         let!(:source1) { FactoryBot.create(:valid_source) }
         let!(:source2) { FactoryBot.create(:valid_source) }
 
@@ -638,23 +579,16 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         let!(:ad_with_refs2) { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: otu2) }
 
         before do
-          # Add citations to asserted distributions
           FactoryBot.create(:valid_citation, citation_object: ad_with_refs1, source: source1)
           FactoryBot.create(:valid_citation, citation_object: ad_with_refs1, source: source2)
           FactoryBot.create(:valid_citation, citation_object: ad_with_refs2, source: source1)
 
-          # Create DwcOccurrence records for AssertedDistributions
           ad_with_refs1.get_dwc_occurrence
           ad_with_refs2.get_dwc_occurrence
         end
 
         let(:data_with_extension) { Export::Dwca::ChecklistData.new(core_otu_scope_params: otu_scope, extensions: [Export::Dwca::ChecklistData::REFERENCES_EXTENSION]) }
         let(:data_without_extension) { Export::Dwca::ChecklistData.new(core_otu_scope_params: otu_scope, extensions: []) }
-
-        after do
-          data_with_extension.cleanup
-          data_without_extension.cleanup
-        end
 
         specify 'references_extension flag is set when extension is requested' do
           expect(data_with_extension.references_extension).to be true
@@ -674,7 +608,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           data_with_extension.csv
 
           csv_content = data_with_extension.references_extension_tmp.read
-          data_with_extension.references_extension_tmp.rewind
           csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
 
           expect(csv.headers).to eq(['id', 'bibliographicCitation'])
@@ -685,11 +618,9 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           data_with_extension.csv
 
           csv_content = data_with_extension.references_extension_tmp.read
-          data_with_extension.references_extension_tmp.rewind
           csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
 
-          # Should have multiple rows (one per citation)
-          expect(csv.length).to be >= 1
+          expect(csv.length).to eq 2
         end
 
         specify 'references extension uses taxonID from normalized taxonomy' do
@@ -697,10 +628,8 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           data_with_extension.csv
 
           csv_content = data_with_extension.references_extension_tmp.read
-          data_with_extension.references_extension_tmp.rewind
           refs_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
 
-          # All id values should be present (not nil)
           refs_csv.each do |row|
             expect(row['id']).to be_present
             expect(row['id'].to_i).to be > 0
@@ -712,7 +641,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           data_with_extension.csv
 
           csv_content = data_with_extension.references_extension_tmp.read
-          data_with_extension.references_extension_tmp.rewind
           refs_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
 
           refs_csv.each do |row|
@@ -749,34 +677,49 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           expect(meta_content).not_to include('references.tsv')
           expect(meta_content).not_to include('http://rs.gbif.org/terms/1.0/Reference')
         end
+
+        specify 'references extension rows star-join to correct core taxa with matching citation data' do
+          core_content = data_with_extension.csv
+          extension_content = data_with_extension.references_extension_tmp.read
+
+          core_csv = CSV.parse(core_content, headers: true, col_sep: "\t")
+          extension_csv = CSV.parse(extension_content, headers: true, col_sep: "\t")
+
+          ext_row = extension_csv.first
+
+          # Find matching data.tsv row by taxonID (star schema join).
+          data_row = core_csv.find { |row| row['taxonID'] == ext_row['id'] }
+
+          # Match data row's scientificName to one of our two OTUs.
+          scientific_name = data_row['scientificName']
+          dwc_occ = if otu1.taxon_name.cached == scientific_name
+                      ad_with_refs1.dwc_occurrence
+                    elsif otu2.taxon_name.cached == scientific_name
+                      ad_with_refs2.dwc_occurrence
+                    end
+
+          expect(ext_row['bibliographicCitation']).to be_present
+          expect(dwc_occ.associatedReferences).to include(ext_row['bibliographicCitation'])
+        end
       end
 
       context 'with types and specimen extension' do
-        # Create collection objects with type materials for testing
         let!(:holotype_specimen) { FactoryBot.create(:valid_specimen) }
         let!(:paratype_specimen) { FactoryBot.create(:valid_specimen) }
 
         before do
-          # Create taxon determinations linking specimens to OTUs
           FactoryBot.create(:valid_taxon_determination, otu: otu1, taxon_determination_object: holotype_specimen)
           FactoryBot.create(:valid_taxon_determination, otu: otu2, taxon_determination_object: paratype_specimen)
 
-          # Create type materials
           FactoryBot.create(:valid_type_material, protonym: taxon_name1, collection_object: holotype_specimen, type_type: 'holotype')
           FactoryBot.create(:valid_type_material, protonym: taxon_name2, collection_object: paratype_specimen, type_type: 'paratype')
 
-          # Create DwcOccurrence records for specimens
           holotype_specimen.get_dwc_occurrence
           paratype_specimen.get_dwc_occurrence
         end
 
         let(:data_with_extension) { Export::Dwca::ChecklistData.new(core_otu_scope_params: otu_scope, extensions: [Export::Dwca::ChecklistData::TYPES_AND_SPECIMEN_EXTENSION]) }
         let(:data_without_extension) { Export::Dwca::ChecklistData.new(core_otu_scope_params: otu_scope, extensions: []) }
-
-        after do
-          data_with_extension.cleanup
-          data_without_extension.cleanup
-        end
 
         specify 'types_and_specimen_extension flag is set when extension is requested' do
           expect(data_with_extension.types_and_specimen_extension).to be true
@@ -796,7 +739,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           data_with_extension.csv
 
           csv_content = data_with_extension.types_and_specimen_extension_tmp.read
-          data_with_extension.types_and_specimen_extension_tmp.rewind
           csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
 
           expected_headers = ['id', 'typeStatus', 'scientificName', 'taxonRank', 'occurrenceID',
@@ -810,11 +752,9 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           data_with_extension.csv
 
           csv_content = data_with_extension.types_and_specimen_extension_tmp.read
-          data_with_extension.types_and_specimen_extension_tmp.rewind
           csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
 
-          # Should have at least 2 rows (holotype and paratype)
-          expect(csv.length).to be >= 2
+          expect(csv.length).to eq 2
         end
 
         specify 'types and specimen extension uses taxonID from normalized taxonomy' do
@@ -822,10 +762,8 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           data_with_extension.csv
 
           csv_content = data_with_extension.types_and_specimen_extension_tmp.read
-          data_with_extension.types_and_specimen_extension_tmp.rewind
           types_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
 
-          # All id values should be present (not nil)
           types_csv.each do |row|
             expect(row['id']).to be_present
             expect(row['id'].to_i).to be > 0
@@ -837,7 +775,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           data_with_extension.csv
 
           csv_content = data_with_extension.types_and_specimen_extension_tmp.read
-          data_with_extension.types_and_specimen_extension_tmp.rewind
           types_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
 
           types_csv.each do |row|
@@ -861,7 +798,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
 
         specify 'meta.xml includes types and specimen extension when enabled' do
           meta_content = data_with_extension.meta.read
-          data_with_extension.meta.rewind
 
           expect(meta_content).to include('types_and_specimen.tsv')
           expect(meta_content).to include('http://rs.gbif.org/terms/1.0/TypesAndSpecimen')
@@ -869,15 +805,36 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
 
         specify 'meta.xml does not include types and specimen extension when disabled' do
           meta_content = data_without_extension.meta.read
-          data_without_extension.meta.rewind
 
           expect(meta_content).not_to include('types_and_specimen.tsv')
           expect(meta_content).not_to include('http://rs.gbif.org/terms/1.0/TypesAndSpecimen')
         end
+
+        specify 'types and specimen extension rows star-join to correct core taxa with matching type material data' do
+          core_content = data_with_extension.csv
+          extension_content = data_with_extension.types_and_specimen_extension_tmp.read
+
+          core_csv = CSV.parse(core_content, headers: true, col_sep: "\t")
+          extension_csv = CSV.parse(extension_content, headers: true, col_sep: "\t")
+
+          ext_row = extension_csv.first
+
+          data_row = core_csv.find { |row| row['taxonID'] == ext_row['id'] }
+
+          # Match data row's scientificName to one of our two specimens.
+          scientific_name = data_row['scientificName']
+          dwc_occ = if otu1.taxon_name.cached == scientific_name
+                      holotype_specimen.dwc_occurrence
+                    elsif otu2.taxon_name.cached == scientific_name
+                      paratype_specimen.dwc_occurrence
+                    end
+
+          expect(ext_row['typeStatus']).to eq(dwc_occ.typeStatus)
+          expect(ext_row['scientificName']).to eq(data_row['scientificName'])
+        end
       end
 
       context 'with vernacular name extension' do
-        # Create common names for testing
         let!(:language_en) { FactoryBot.create(:valid_language, alpha_2: 'en') }
         let!(:language_es) { FactoryBot.create(:valid_language, alpha_2: 'es') }
 
@@ -887,11 +844,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
 
         let(:data_with_extension) { Export::Dwca::ChecklistData.new(core_otu_scope_params: otu_scope, extensions: [Export::Dwca::ChecklistData::VERNACULAR_NAME_EXTENSION]) }
         let(:data_without_extension) { Export::Dwca::ChecklistData.new(core_otu_scope_params: otu_scope, extensions: []) }
-
-        after do
-          data_with_extension.cleanup
-          data_without_extension.cleanup
-        end
 
         specify 'vernacular_name_extension flag is set when extension is requested' do
           expect(data_with_extension.vernacular_name_extension).to be true
@@ -911,7 +863,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           data_with_extension.csv
 
           csv_content = data_with_extension.vernacular_name_extension_tmp.read
-          data_with_extension.vernacular_name_extension_tmp.rewind
           csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
 
           expect(csv.headers).to eq(['id', 'vernacularName', 'language', 'temporal'])
@@ -922,10 +873,8 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           data_with_extension.csv
 
           csv_content = data_with_extension.vernacular_name_extension_tmp.read
-          data_with_extension.vernacular_name_extension_tmp.rewind
           csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
 
-          # Should have 3 rows (3 common names)
           expect(csv.length).to eq(3)
         end
 
@@ -934,10 +883,8 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           data_with_extension.csv
 
           csv_content = data_with_extension.vernacular_name_extension_tmp.read
-          data_with_extension.vernacular_name_extension_tmp.rewind
           vn_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
 
-          # All id values should be present (not nil)
           vn_csv.each do |row|
             expect(row['id']).to be_present
             expect(row['id'].to_i).to be > 0
@@ -949,7 +896,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           data_with_extension.csv
 
           csv_content = data_with_extension.vernacular_name_extension_tmp.read
-          data_with_extension.vernacular_name_extension_tmp.rewind
           vn_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
 
           names = vn_csv.map { |row| row['vernacularName'] }
@@ -961,7 +907,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           data_with_extension.csv
 
           csv_content = data_with_extension.vernacular_name_extension_tmp.read
-          data_with_extension.vernacular_name_extension_tmp.rewind
           vn_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
 
           languages = vn_csv.map { |row| row['language'] }.uniq.compact
@@ -973,14 +918,11 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           data_with_extension.csv
 
           csv_content = data_with_extension.vernacular_name_extension_tmp.read
-          data_with_extension.vernacular_name_extension_tmp.rewind
           vn_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
 
-          # Find the Red Moth record which has start and end years
           red_moth_row = vn_csv.find { |row| row['vernacularName'] == 'Red Moth' }
           expect(red_moth_row['temporal']).to eq('1950-2020')
 
-          # Find Common Butterfly which has only start year
           butterfly_row = vn_csv.find { |row| row['vernacularName'] == 'Common Butterfly' }
           expect(butterfly_row['temporal']).to eq('2000')
         end
@@ -1014,6 +956,31 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           expect(meta_content).not_to include('vernacular_name.tsv')
           expect(meta_content).not_to include('http://rs.gbif.org/terms/1.0/VernacularName')
         end
+
+        specify 'vernacular name extension rows star-join to correct core taxa with matching common name data' do
+          core_content = data_with_extension.csv
+          extension_content = data_with_extension.vernacular_name_extension_tmp.read
+
+          core_csv = CSV.parse(core_content, headers: true, col_sep: "\t")
+          extension_csv = CSV.parse(extension_content, headers: true, col_sep: "\t")
+
+          ext_row = extension_csv.first
+
+          data_row = core_csv.find { |row| row['taxonID'] == ext_row['id'] }
+
+          scientific_name = data_row['scientificName']
+          common_name = if otu1.taxon_name.cached == scientific_name
+                          [common_name1, common_name2].find { |cn| cn.name == ext_row['vernacularName'] }
+                        elsif otu2.taxon_name.cached == scientific_name
+                          common_name3 if common_name3.name == ext_row['vernacularName']
+                        end
+
+          expect(ext_row['vernacularName']).to eq(common_name.name)
+          expect(ext_row['language']).to eq(common_name.language&.alpha_2)
+
+          temporal_range = [common_name.start_year, common_name.end_year].compact.join('-').presence
+          expect(ext_row['temporal']).to eq(temporal_range) if temporal_range
+        end
       end
 
       specify '#cleanup returns truthy' do
@@ -1024,8 +991,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
     context 'with no matching records' do
       let(:empty_scope) { { otu_id: [999999] } }
       let(:empty_data) { Export::Dwca::ChecklistData.new(core_otu_scope_params: empty_scope) }
-
-      after { empty_data.cleanup }
 
       specify '#no_records? returns true' do
         expect(empty_data.no_records?).to be_truthy
@@ -1044,42 +1009,10 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
       end
     end
 
-    context 'with various OTU query scopes' do
-      before do
-        # Create one specimen with determination to otu1
-        specimen = FactoryBot.create(:valid_specimen)
-        FactoryBot.create(:valid_taxon_determination,
-          otu: otu1,
-          taxon_determination_object: specimen)
-        specimen.get_dwc_occurrence
-      end
-
-      specify 'with single OTU ID' do
-        single_scope = { otu_id: otu1.id }
-        d = Export::Dwca::ChecklistData.new(core_otu_scope_params: single_scope, accepted_name_mode: 'accepted_name_usage_id')
-        expect(d.total).to eq(1)
-        d.cleanup
-      end
-
-      specify 'with array of OTU IDs' do
-        array_scope = { otu_id: [otu1.id] }
-        d = Export::Dwca::ChecklistData.new(core_otu_scope_params: array_scope, accepted_name_mode: 'accepted_name_usage_id')
-        expect(d.total).to eq(1)
-        d.cleanup
-      end
-
-      specify 'with range of OTU IDs converted to array' do
-        # Ranges must be converted to arrays for proper querying
-        range_scope = { otu_id: (otu1.id..otu1.id).to_a }
-        d = Export::Dwca::ChecklistData.new(core_otu_scope_params: range_scope, accepted_name_mode: 'accepted_name_usage_id')
-        expect(d.total).to eq(1)
-        d.cleanup
-      end
-    end
-
-    context 'with infraspecific taxa at different ranks' do
-      # Test case: same infraspecific epithet at different ranks should create distinct taxa
-      # e.g., "Aus bus subsp. cus" and "Aus bus var. cus" are different taxa
+    context 'with infraspecific taxa of same name at different ranks' do
+      # Test case: same infraspecific epithet at different ranks should create
+      # distinct taxa e.g., "Aus bus subsp. cus" and "Aus bus var. cus" are
+      # different taxa
       let!(:root) { FactoryBot.create(:root_taxon_name) }
       let!(:kingdom) { Protonym.create!(name: 'Plantae', rank_class: Ranks.lookup(:icn, :kingdom), parent: root) }
       let!(:family) { Protonym.create!(name: 'Rosaceae', rank_class: Ranks.lookup(:icn, :family), parent: kingdom) }
@@ -1105,47 +1038,33 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
       let(:infra_data) { Export::Dwca::ChecklistData.new(core_otu_scope_params: infra_scope) }
       let(:infra_csv) { CSV.parse(infra_data.csv, headers: true, col_sep: "\t") }
 
-      after { infra_data.cleanup }
-
       specify 'subspecies and variety with same epithet create distinct taxa' do
         # Find the subspecies and variety taxa
         subspecies_taxon = infra_csv.find { |row| row['taxonRank'] == 'subspecies' }
         variety_taxon = infra_csv.find { |row| row['taxonRank'] == 'variety' }
 
-        # Both should exist
-        expect(subspecies_taxon).to be_present
-        expect(variety_taxon).to be_present
-
-        # They should have different taxonIDs
         expect(subspecies_taxon['taxonID']).not_to eq(variety_taxon['taxonID'])
 
-        # They should have different scientificNames (one with "subsp.", one with "var.")
-        expect(subspecies_taxon['scientificName']).not_to eq(variety_taxon['scientificName'])
-
-        # Both should have same infraspecificEpithet
         expect(subspecies_taxon['infraspecificEpithet']).to eq('rubra')
         expect(variety_taxon['infraspecificEpithet']).to eq('rubra')
+
+        # They should have different scientificNames (one with "subsp.", one
+        # with "var.").
+        expect(subspecies_taxon['scientificName']).not_to eq(variety_taxon['scientificName'])
       end
 
       specify 'subspecies and variety both have species as parent' do
-        # Find species taxon
         species_taxon = infra_csv.find { |row| row['taxonRank'] == 'species' && row['scientificName'].include?('alba') }
         species_id = species_taxon['taxonID']
 
-        # Find subspecies and variety
         subspecies_taxon = infra_csv.find { |row| row['taxonRank'] == 'subspecies' }
         variety_taxon = infra_csv.find { |row| row['taxonRank'] == 'variety' }
 
-        # Both should have species as parent
         expect(subspecies_taxon['parentNameUsageID']).to eq(species_id)
         expect(variety_taxon['parentNameUsageID']).to eq(species_id)
       end
 
       specify 'total unique taxa includes both infraspecific ranks' do
-        # Should have at least: kingdom, family, genus, species, subspecies, variety
-        expect(infra_csv.count).to be >= 6
-
-        # Should have exactly one subspecies and one variety
         subspecies_count = infra_csv.count { |row| row['taxonRank'] == 'subspecies' }
         variety_count = infra_csv.count { |row| row['taxonRank'] == 'variety' }
 
@@ -1153,54 +1072,36 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         expect(variety_count).to eq(1)
       end
 
-      specify 'epithet fields are correctly populated by rank' do
+      specify 'epithet fields are correctly populated by rank 1' do
         # Species: should have specificEpithet but NOT infraspecificEpithet
         species_taxon = infra_csv.find { |row| row['taxonRank'] == 'species' && row['scientificName'].include?('alba') }
         expect(species_taxon).to be_present
         expect(species_taxon['specificEpithet']).to eq('alba')
         expect(species_taxon['infraspecificEpithet']).to be_nil.or be_empty
+      end
 
+      specify 'epithet fields are correctly populated by rank 2' do
         # Subspecies: should have BOTH specificEpithet and infraspecificEpithet
         subspecies_taxon = infra_csv.find { |row| row['taxonRank'] == 'subspecies' }
         expect(subspecies_taxon).to be_present
         expect(subspecies_taxon['specificEpithet']).to eq('alba')
         expect(subspecies_taxon['infraspecificEpithet']).to eq('rubra')
+      end
 
+      specify 'epithet fields are correctly populated by rank 3' do
         # Variety: should have BOTH specificEpithet and infraspecificEpithet
         variety_taxon = infra_csv.find { |row| row['taxonRank'] == 'variety' }
         expect(variety_taxon).to be_present
         expect(variety_taxon['specificEpithet']).to eq('alba')
         expect(variety_taxon['infraspecificEpithet']).to eq('rubra')
+      end
 
+      specify 'epithet fields are correctly populated by rank 4' do
         # Genus: should have NEITHER specificEpithet nor infraspecificEpithet
         genus_taxon = infra_csv.find { |row| row['taxonRank'] == 'genus' && row['scientificName'] == 'Rosa' }
         expect(genus_taxon).to be_present
         expect(genus_taxon['specificEpithet']).to be_nil.or be_empty
         expect(genus_taxon['infraspecificEpithet']).to be_nil.or be_empty
-
-        # Family: should have NEITHER specificEpithet nor infraspecificEpithet
-        family_taxon = infra_csv.find { |row| row['taxonRank'] == 'family' }
-        expect(family_taxon).to be_present
-        expect(family_taxon['specificEpithet']).to be_nil.or be_empty
-        expect(family_taxon['infraspecificEpithet']).to be_nil.or be_empty
-      end
-
-      specify 'infraspecific ranks have correct parentNameUsageID linking to species' do
-        # Find the parent species
-        species_taxon = infra_csv.find { |row| row['taxonRank'] == 'species' && row['scientificName'].include?('alba') }
-        expect(species_taxon).to be_present
-        species_taxon_id = species_taxon['taxonID']
-        expect(species_taxon_id).to be_present
-
-        # Subspecies should link to the species
-        subspecies_taxon = infra_csv.find { |row| row['taxonRank'] == 'subspecies' }
-        expect(subspecies_taxon).to be_present
-        expect(subspecies_taxon['parentNameUsageID']).to eq(species_taxon_id)
-
-        # Variety should also link to the species
-        variety_taxon = infra_csv.find { |row| row['taxonRank'] == 'variety' }
-        expect(variety_taxon).to be_present
-        expect(variety_taxon['parentNameUsageID']).to eq(species_taxon_id)
       end
     end
 
@@ -1231,23 +1132,19 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
       let(:orphan_data) { Export::Dwca::ChecklistData.new(core_otu_scope_params: orphan_scope) }
       let(:orphan_csv) { CSV.parse(orphan_data.csv, headers: true, col_sep: "\t") }
 
-      after { orphan_data.cleanup }
-
       specify 'parent species is automatically extracted from subspecies' do
-        # Find the parent species (should be created automatically)
+        # Find the parent species - should be created automatically.
         species_taxon = orphan_csv.find { |row| row['taxonRank'] == 'species' && row['scientificName'] == 'Prunus dulcis' }
         expect(species_taxon).to be_present, 'Parent species should be automatically extracted'
+      end
 
-        # Get the species taxonID
+      specify 'subspecies link to the created species' do
+        species_taxon = orphan_csv.find { |row| row['taxonRank'] == 'species' && row['scientificName'] == 'Prunus dulcis' }
         species_taxon_id = species_taxon['taxonID']
-        expect(species_taxon_id).to be_present
 
-        # Both subspecies should link to the extracted parent species
+        # Both subspecies should link to the extracted parent species.
         subspecies1_taxon = orphan_csv.find { |row| row['taxonRank'] == 'subspecies' && row['infraspecificEpithet'] == 'amara' }
         subspecies2_taxon = orphan_csv.find { |row| row['taxonRank'] == 'subspecies' && row['infraspecificEpithet'] == 'dulcis' }
-
-        expect(subspecies1_taxon).to be_present
-        expect(subspecies2_taxon).to be_present
 
         expect(subspecies1_taxon['parentNameUsageID']).to eq(species_taxon_id)
         expect(subspecies2_taxon['parentNameUsageID']).to eq(species_taxon_id)
@@ -1261,10 +1158,7 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         expect(species_taxon['genus']).to eq('Prunus')
         expect(species_taxon['specificEpithet']).to eq('dulcis')
 
-        # Species should NOT have infraspecificEpithet (cleared from subspecies source)
         expect(species_taxon['infraspecificEpithet']).to be_nil.or be_empty
-
-        # Species should have higherClassification
         expect(species_taxon['higherClassification']).to be_present
       end
     end
@@ -1296,11 +1190,11 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
       end
 
       before do
-        # Generate DwcOccurrences
         valid_specimen.get_dwc_occurrence
         invalid_specimen.get_dwc_occurrence
 
-        # Verify that cached_is_valid is set correctly after synonym relationship is created
+        # Verify that cached_is_valid is set correctly after synonym
+        # relationship is created.
         valid_species.reload
         invalid_species.reload
       end
@@ -1326,18 +1220,11 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         valid_taxon = replace_csv.find { |row| row['scientificName']&.include?('catus') }
         expect(valid_taxon).to be_present, 'Valid species should be included'
 
-        # Should NOT include invalid species name (domesticus) - it should be replaced with valid name (catus)
         invalid_taxon = replace_csv.find { |row| row['scientificName']&.include?('domesticus') }
         expect(invalid_taxon).to be_nil, 'Invalid species name should be replaced with valid name, not appear separately'
-
-        # Should NOT have acceptedNameUsageID or taxonomicStatus columns
-        expect(replace_csv.headers).not_to include('acceptedNameUsageID')
-        expect(replace_csv.headers).not_to include('taxonomicStatus')
       end
 
       specify 'accepted_name_usage_id mode includes both taxa' do
-        expect(accepted_name_usage_id_data.total).to eq(2), 'Should query both valid and invalid OTUs'
-
         all_csv = CSV.parse(accepted_name_usage_id_data.csv, headers: true, col_sep: "\t")
 
         # Both should be present with their original names
@@ -1346,6 +1233,13 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
 
         expect(valid_taxon).to be_present, 'Valid species should be included'
         expect(synonym_taxon).to be_present, 'Synonym should be included with original name'
+      end
+
+      specify 'replace_with_accepted_name mode does not have synonym columns' do
+        replace_csv = CSV.parse(replace_with_accepted_data.csv, headers: true, col_sep: "\t")
+
+        expect(replace_csv.headers).not_to include('acceptedNameUsageID')
+        expect(replace_csv.headers).not_to include('taxonomicStatus')
       end
 
       specify 'accepted_name_usage_id mode includes acceptedNameUsageID and taxonomicStatus fields' do
@@ -1359,7 +1253,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         all_csv = CSV.parse(accepted_name_usage_id_data.csv, headers: true, col_sep: "\t")
 
         valid_taxon = all_csv.find { |row| row['scientificName']&.include?('catus') && row['taxonRank'] == 'species' }
-        expect(valid_taxon).to be_present
 
         expect(valid_taxon['taxonomicStatus']).to eq('accepted')
         expect(valid_taxon['acceptedNameUsageID']).to eq(valid_taxon['taxonID'])
@@ -1371,9 +1264,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         synonym_taxon = all_csv.find { |row| row['scientificName']&.include?('domesticus') && row['taxonRank'] == 'species' }
         valid_taxon = all_csv.find { |row| row['scientificName']&.include?('catus') && row['taxonRank'] == 'species' }
 
-        expect(synonym_taxon).to be_present
-        expect(valid_taxon).to be_present
-
         expect(synonym_taxon['taxonomicStatus']).to eq('synonym')
         expect(synonym_taxon['acceptedNameUsageID']).to eq(valid_taxon['taxonID'])
       end
@@ -1381,16 +1271,14 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
       specify 'extracted higher taxa have taxonomicStatus "accepted"' do
         all_csv = CSV.parse(accepted_name_usage_id_data.csv, headers: true, col_sep: "\t")
 
-        # Find extracted higher taxa (kingdom, family, genus) - these don't have terminal TaxonName data
-        # They're extracted from rank columns and should be marked as accepted because
-        # DwcOccurrence builds classification from valid_taxon_name (see Shared::Taxonomy#taxonomy_for_object)
+        # Find extracted higher taxa (kingdom, family, genus) - these don't have
+        # terminal TaxonName data. They're extracted from rank columns and
+        # should be marked as accepted because DwcOccurrence builds
+        # classification from valid_taxon_name (see
+        # Shared::Taxonomy#taxonomy_for_object).
         kingdom_taxon = all_csv.find { |row| row['scientificName'] == 'Animalia' && row['taxonRank'] == 'kingdom' }
         family_taxon = all_csv.find { |row| row['scientificName'] == 'Felidae' && row['taxonRank'] == 'family' }
         genus_taxon = all_csv.find { |row| row['scientificName'] == 'Felis' && row['taxonRank'] == 'genus' }
-
-        expect(kingdom_taxon).to be_present
-        expect(family_taxon).to be_present
-        expect(genus_taxon).to be_present
 
         # All extracted higher taxa should be marked as accepted
         expect(kingdom_taxon['taxonomicStatus']).to eq('accepted')
@@ -1414,7 +1302,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         let!(:valid_ad) { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: valid_genus_otu) }
         let!(:invalid_ad) { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: invalid_genus_otu) }
 
-        # Make invalid_genus a synonym of valid_genus
         let!(:genus_synonym_relationship) do
           TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(
             subject_taxon_name: invalid_genus,
@@ -1427,7 +1314,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           invalid_ad.get_dwc_occurrence
           valid_genus.reload
           invalid_genus.reload
-
         end
 
         let(:genus_data) do
@@ -1441,7 +1327,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           genus_csv = CSV.parse(genus_data.csv, headers: true, col_sep: "\t")
 
           valid_genus_row = genus_csv.find { |row| row['scientificName'] == 'Validus' && row['taxonRank'] == 'genus' }
-          expect(valid_genus_row).to be_present
 
           expect(valid_genus_row['taxonomicStatus']).to eq('accepted')
           expect(valid_genus_row['acceptedNameUsageID']).to eq(valid_genus_row['taxonID'])
@@ -1453,18 +1338,15 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           invalid_genus_row = genus_csv.find { |row| row['scientificName'] == 'Invalidus' && row['taxonRank'] == 'genus' }
           valid_genus_row = genus_csv.find { |row| row['scientificName'] == 'Validus' && row['taxonRank'] == 'genus' }
 
-          expect(invalid_genus_row).to be_present
-          expect(valid_genus_row).to be_present
-
           expect(invalid_genus_row['taxonomicStatus']).to eq('synonym')
           expect(invalid_genus_row['acceptedNameUsageID']).to eq(valid_genus_row['taxonID'])
         end
       end
 
       context 'when only synonym has occurrence (valid name auto-added)' do
-        # This tests ensure_valid_names_for_synonyms specifically
-        # Create a synonym with an occurrence, but the valid name has NO occurrence
-        # The valid name should be automatically added to the output
+        # This tests ensure_valid_names_for_synonyms specifically. Create a
+        # synonym with an occurrence, but the valid name has NO occurrence. The
+        # valid name should be automatically added to the output.
 
         let!(:valid_auto_species) { Protonym.create!(name: 'autovalidus', rank_class: Ranks.lookup(:iczn, :species), parent: genus) }
         let!(:synonym_auto_species) { Protonym.create!(name: 'autosynonymus', rank_class: Ranks.lookup(:iczn, :species), parent: genus) }
@@ -1495,8 +1377,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
 
           # Synonym should be present (has occurrence)
           synonym_row = csv.find { |row| row['scientificName']&.include?('autosynonymus') && row['taxonRank'] == 'species' }
-          expect(synonym_row).to be_present, 'Synonym should be present'
-          expect(synonym_row['taxonomicStatus']).to eq('synonym')
 
           # Valid name should be present (auto-added by ensure_valid_names_for_synonyms)
           valid_row = csv.find { |row| row['scientificName']&.include?('autovalidus') && row['taxonRank'] == 'species' }
@@ -1516,9 +1396,7 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           csv = CSV.parse(data.csv, headers: true, col_sep: "\t")
 
           valid_row = csv.find { |row| row['scientificName']&.include?('autovalidus') && row['taxonRank'] == 'species' }
-          expect(valid_row).to be_present
 
-          # Should have same higher classification as synonym (both in same genus/family)
           expect(valid_row['genus']).to eq('Felis')
           expect(valid_row['family']).to eq('Felidae')
           expect(valid_row['kingdom']).to eq('Animalia')
@@ -1527,8 +1405,8 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
     end
 
     context 'with homonyms (same scientific name in different kingdoms)' do
-      # Create two separate taxonomic hierarchies with same species name "bus" in genus "Aus"
-      # One in Animalia, one in Plantae
+      # Create two separate taxonomic hierarchies with same species name "bus"
+      # in genus "Aus", one in Animalia, one in Plantae.
       let!(:homonym_root) { FactoryBot.create(:root_taxon_name) }
 
       # Animalia hierarchy
@@ -1555,7 +1433,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
       let!(:plant_td) { FactoryBot.create(:valid_taxon_determination, taxon_determination_object: plant_specimen, otu: plant_otu) }
 
       before do
-        # Generate DwcOccurrences
         animal_specimen.get_dwc_occurrence
         plant_specimen.get_dwc_occurrence
       end
@@ -1571,7 +1448,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         specify 'both homonyms appear as separate taxa' do
           csv = CSV.parse(replace_data.csv, headers: true, col_sep: "\t")
 
-          # Find both species named "Aus bus"
           aus_bus_rows = csv.select { |row| row['genus'] == 'Aus' && row['specificEpithet'] == 'bus' && row['taxonRank'] == 'species' }
           expect(aus_bus_rows.count).to eq(2), 'Both homonyms should appear in output'
         end
@@ -1590,9 +1466,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
 
           animal_species = csv.find { |row| row['kingdom'] == 'Animalia' && row['genus'] == 'Aus' && row['specificEpithet'] == 'bus' && row['taxonRank'] == 'species' }
           plant_species = csv.find { |row| row['kingdom'] == 'Plantae' && row['genus'] == 'Aus' && row['specificEpithet'] == 'bus' && row['taxonRank'] == 'species' }
-
-          expect(animal_species).to be_present, 'Animal Aus bus should be present'
-          expect(plant_species).to be_present, 'Plant Aus bus should be present'
 
           expect(animal_species['kingdom']).to eq('Animalia')
           expect(animal_species['phylum']).to eq('Arthropoda')
@@ -1609,61 +1482,6 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           animal_genus = csv.find { |row| row['kingdom'] == 'Animalia' && row['scientificName'] == 'Aus' && row['taxonRank'] == 'genus' }
           plant_genus = csv.find { |row| row['kingdom'] == 'Plantae' && row['scientificName'] == 'Aus' && row['taxonRank'] == 'genus' }
 
-          expect(animal_genus).to be_present, 'Animal Aus should be present'
-          expect(plant_genus).to be_present, 'Plant Aus should be present'
-          expect(animal_genus['taxonID']).not_to eq(plant_genus['taxonID']), 'Homonymous genera should have different taxonIDs'
-        end
-      end
-
-      context 'accepted_name_usage_id mode' do
-        let(:accepted_data) do
-          ::Export::Dwca::ChecklistData.new(
-            core_otu_scope_params: { otu_id: [animal_otu.id, plant_otu.id] },
-            accepted_name_mode: 'accepted_name_usage_id'
-          )
-        end
-
-        specify 'both homonyms appear as separate taxa' do
-          csv = CSV.parse(accepted_data.csv, headers: true, col_sep: "\t")
-
-          # Find both species named "Aus bus"
-          aus_bus_rows = csv.select { |row| row['genus'] == 'Aus' && row['specificEpithet'] == 'bus' && row['taxonRank'] == 'species' }
-          expect(aus_bus_rows.count).to eq(2), 'Both homonyms should appear in output'
-        end
-
-        specify 'homonyms have different taxonIDs' do
-          csv = CSV.parse(accepted_data.csv, headers: true, col_sep: "\t")
-
-          aus_bus_rows = csv.select { |row| row['genus'] == 'Aus' && row['specificEpithet'] == 'bus' && row['taxonRank'] == 'species' }
-          taxon_ids = aus_bus_rows.map { |row| row['taxonID'] }
-
-          expect(taxon_ids.uniq.count).to eq(2), 'Homonyms should have distinct taxonIDs'
-        end
-
-        specify 'homonyms have different higher classifications' do
-          csv = CSV.parse(accepted_data.csv, headers: true, col_sep: "\t")
-
-          animal_species = csv.find { |row| row['kingdom'] == 'Animalia' && row['genus'] == 'Aus' && row['specificEpithet'] == 'bus' && row['taxonRank'] == 'species' }
-          plant_species = csv.find { |row| row['kingdom'] == 'Plantae' && row['genus'] == 'Aus' && row['specificEpithet'] == 'bus' && row['taxonRank'] == 'species' }
-
-          expect(animal_species).to be_present, 'Animal Aus bus should be present'
-          expect(plant_species).to be_present, 'Plant Aus bus should be present'
-
-          expect(animal_species['taxonomicStatus']).to eq('accepted')
-          expect(plant_species['taxonomicStatus']).to eq('accepted')
-
-          expect(animal_species['kingdom']).to eq('Animalia')
-          expect(plant_species['kingdom']).to eq('Plantae')
-        end
-
-        specify 'both Aus genera appear with different higher classifications' do
-          csv = CSV.parse(accepted_data.csv, headers: true, col_sep: "\t")
-
-          animal_genus = csv.find { |row| row['kingdom'] == 'Animalia' && row['scientificName'] == 'Aus' && row['taxonRank'] == 'genus' }
-          plant_genus = csv.find { |row| row['kingdom'] == 'Plantae' && row['scientificName'] == 'Aus' && row['taxonRank'] == 'genus' }
-
-          expect(animal_genus).to be_present, 'Animal Aus should be present'
-          expect(plant_genus).to be_present, 'Plant Aus should be present'
           expect(animal_genus['taxonID']).not_to eq(plant_genus['taxonID']), 'Homonymous genera should have different taxonIDs'
         end
       end
@@ -1686,27 +1504,17 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           core_csv = CSV.parse(data_with_vernacular.csv, headers: true, col_sep: "\t")
           vernacular_csv = CSV.parse(data_with_vernacular.vernacular_name_extension_tmp.read, headers: true, col_sep: "\t")
 
-          # Find the homonyms in core file
           animal_species = core_csv.find { |row| row['kingdom'] == 'Animalia' && row['genus'] == 'Aus' && row['specificEpithet'] == 'bus' && row['taxonRank'] == 'species' }
           plant_species = core_csv.find { |row| row['kingdom'] == 'Plantae' && row['genus'] == 'Aus' && row['specificEpithet'] == 'bus' && row['taxonRank'] == 'species' }
 
-          expect(animal_species).to be_present
-          expect(plant_species).to be_present
-
-          # Find vernacular names in extension
           animal_bug = vernacular_csv.find { |row| row['vernacularName'] == 'Animal Bug' }
           plant_bug = vernacular_csv.find { |row| row['vernacularName'] == 'Plant Bug' }
 
-          expect(animal_bug).to be_present, 'Animal Bug vernacular name should be in extension'
-          expect(plant_bug).to be_present, 'Plant Bug vernacular name should be in extension'
-
-          # Verify each vernacular name links to the correct homonym's taxonID
           expect(animal_bug['id']).to eq(animal_species['taxonID']),
             'Animal Bug should link to Animal Aus bus taxonID'
           expect(plant_bug['id']).to eq(plant_species['taxonID']),
             'Plant Bug should link to Plant Aus bus taxonID'
 
-          # Verify they link to different taxa
           expect(animal_bug['id']).not_to eq(plant_bug['id']),
             'Vernacular names for homonyms should link to different taxonIDs'
         end

@@ -101,10 +101,13 @@ class DwcOccurrence < ApplicationRecord
   # Namespace URIs for checklist taxon core fields.
   # Maps DwC Taxon field names to their full namespace URIs.
   CHECKLIST_TAXON_NAMESPACES = {
+    taxonID: 'http://rs.tdwg.org/dwc/terms/taxonID',
     scientificName: 'http://rs.tdwg.org/dwc/terms/scientificName',
     taxonRank: 'http://rs.tdwg.org/dwc/terms/taxonRank',
     acceptedNameUsage: 'http://rs.tdwg.org/dwc/terms/acceptedNameUsage',
+    acceptedNameUsageID: 'http://rs.tdwg.org/dwc/terms/acceptedNameUsageID',
     parentNameUsage: 'http://rs.tdwg.org/dwc/terms/parentNameUsage',
+    parentNameUsageID: 'http://rs.tdwg.org/dwc/terms/parentNameUsageID',
     originalNameUsage: 'http://rs.tdwg.org/dwc/terms/originalNameUsage',
     nameAccordingTo: 'http://rs.tdwg.org/dwc/terms/nameAccordingTo',
     namePublishedIn: 'http://rs.tdwg.org/dwc/terms/namePublishedIn',

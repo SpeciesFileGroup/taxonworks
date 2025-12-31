@@ -662,6 +662,14 @@ module Export::Dwca::Occurrence
     def package_download(download)
       p = zipfile.path
 
+      # Set total_records if download is persisted (can't update_columns on new
+      # record).
+      if download.persisted?
+        download.update_columns(total_records: total)
+      else
+        download.total_records = total
+      end
+
       # This doesn't touch the db (source_file_path is an instance var).
       download.update!(source_file_path: p)
     end
