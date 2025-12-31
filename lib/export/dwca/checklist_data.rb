@@ -970,8 +970,8 @@ module Export::Dwca
               if h =~ /TW:/ # All TW headers have ':'
                 xml.field(index: i + 1, term: h)
               else
-                # TODO: namespace should go with column name, like extensions do
-                xml.field(index: i + 1, term: DwcOccurrence::DC_NAMESPACE + h)
+                xml.field(index: i + 1,
+                   term: DwcOccurrence::CHECKLIST_TAXON_NAMESPACES[h.to_sym])
               end
             end
           }
