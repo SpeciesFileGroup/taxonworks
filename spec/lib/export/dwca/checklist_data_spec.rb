@@ -547,6 +547,86 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           expect(meta_content).not_to include('species_distribution.tsv')
           expect(meta_content).not_to include('http://rs.gbif.org/terms/1.0/Distribution')
         end
+
+        specify 'locality is populated for regional GeographicArea that does not map to country/state/county' do
+          # Create a regional area
+          regional_area = FactoryBot.create(:valid_geographic_area,
+            name: 'West Tropical Africa')
+
+          # Create an OTU and link it to a taxon name
+          regional_otu = FactoryBot.create(:valid_otu, taxon_name: taxon_name1)
+
+          # Create asserted distribution with the regional area
+          regional_ad = FactoryBot.create(:valid_asserted_distribution,
+            asserted_distribution_object: regional_otu,
+            asserted_distribution_shape: regional_area)
+
+          # Mock geographic_names to return empty hash (simulating a TDWG area that
+          # doesn't map to country/state/county)
+          allow(regional_ad).to receive(:geographic_names).and_return({})
+
+          regional_ad.get_dwc_occurrence
+
+          # Create a new data object including this OTU
+          regional_data = Export::Dwca::ChecklistData.new(
+            core_otu_scope_params: { otu_id: [regional_otu.id] },
+            extensions: [Export::Dwca::ChecklistData::DISTRIBUTION_EXTENSION]
+          )
+
+          # Generate core CSV to populate taxon mapping
+          regional_data.csv
+
+          # Check distribution extension
+          csv_content = regional_data.species_distribution_extension_tmp.read
+          regional_data.species_distribution_extension_tmp.rewind
+          dist_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+          # Should have at least one record
+          expect(dist_csv.length).to be >= 1
+
+          # Locality should be populated with the area name
+          row = dist_csv.first
+          expect(row['locality']).to eq('West Tropical Africa')
+
+          regional_data.cleanup
+        end
+
+        specify 'locality is populated for Gazetteer that does not map to country/state/county' do
+          # Create a Gazetteer (e.g., custom locality)
+          gazetteer = FactoryBot.create(:valid_gazetteer, name: 'Custom Region XYZ')
+
+          # Create an OTU and link it to a taxon name
+          gaz_otu = FactoryBot.create(:valid_otu, taxon_name: taxon_name2)
+
+          # Create asserted distribution with the gazetteer
+          gaz_ad = FactoryBot.create(:valid_gazetteer_asserted_distribution,
+            asserted_distribution_object: gaz_otu,
+            asserted_distribution_shape: gazetteer)
+          gaz_ad.get_dwc_occurrence
+
+          # Create a new data object including this OTU
+          gaz_data = Export::Dwca::ChecklistData.new(
+            core_otu_scope_params: { otu_id: [gaz_otu.id] },
+            extensions: [Export::Dwca::ChecklistData::DISTRIBUTION_EXTENSION]
+          )
+
+          # Generate core CSV to populate taxon mapping
+          gaz_data.csv
+
+          # Check distribution extension
+          csv_content = gaz_data.species_distribution_extension_tmp.read
+          gaz_data.species_distribution_extension_tmp.rewind
+          dist_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+          # Should have at least one record
+          expect(dist_csv.length).to be >= 1
+
+          # Locality should be populated with the gazetteer name
+          row = dist_csv.first
+          expect(row['locality']).to eq('Custom Region XYZ')
+
+          gaz_data.cleanup
+        end
       end
 
       context 'with references extension' do
