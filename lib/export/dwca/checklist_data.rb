@@ -655,13 +655,27 @@ module Export::Dwca
     end
 
     # Fetch rank and parent_id information for taxon_name_ids.
-    # Uses lazy iteration via each_key to avoid materializing intermediate arrays.
+    # Uses TaxonNameHierarchy to get taxa AND all their ancestors (including
+    # intermediate ranks not in export) in one query.
     # @param all_taxa [Hash] taxon_name_id => taxon data
     # @return [Hash] taxon_name_id => { rank:, parent_id: }
     def fetch_taxon_name_info(all_taxa)
       taxon_name_info = {}
-      all_taxa.each_key.each_slice(25_000) do |tn_ids|
-        ::TaxonName.where(id: tn_ids).find_each do |tn|
+
+      # Get all taxon_name_ids including self and all ancestors using hierarchy table.
+      # Don't exclude self-references - this includes the taxa themselves.
+      all_ids = []
+      all_taxa.keys.each_slice(25_000) do |tn_ids|
+        ids = TaxonNameHierarchy
+          .where(descendant_id: tn_ids)
+          .pluck(:ancestor_id)
+          .uniq
+        all_ids.concat(ids)
+      end
+
+      # Fetch info for all taxa and ancestors
+      all_ids.uniq.each_slice(25_000) do |ids|
+        ::TaxonName.where(id: ids).find_each do |tn|
           taxon_name_info[tn.id] = {
             rank: tn.rank&.downcase,
             parent_id: tn.parent_id
@@ -731,10 +745,22 @@ module Export::Dwca
     def build_final_taxon(
       taxon, taxon_id, taxon_name_id, taxon_name_info, taxon_name_id_to_taxon_id
     )
-      # Find parent via TaxonName parent_id
-      parent_taxon_name_id = taxon_name_info[taxon_name_id]&.[](:parent_id)
-      parent_id = parent_taxon_name_id ?
-        taxon_name_id_to_taxon_id[parent_taxon_name_id] : nil
+      # Find parent via TaxonName parent_id, walking up hierarchy if needed.
+      # This handles cases where intermediate ranks (e.g., subphylum) exist in the
+      # database but aren't included in the export.
+      parent_id = nil
+      current_parent_id = taxon_name_info[taxon_name_id]&.[](:parent_id)
+
+      while current_parent_id
+        # Check if this parent is in the export
+        if taxon_name_id_to_taxon_id[current_parent_id]
+          parent_id = taxon_name_id_to_taxon_id[current_parent_id]
+          break
+        end
+
+        # Parent not in export, walk up to its parent
+        current_parent_id = taxon_name_info[current_parent_id]&.[](:parent_id)
+      end
 
       # Exclude fields that are either: (1) set explicitly below, or
       # (2) internal metadata not meant for export.
