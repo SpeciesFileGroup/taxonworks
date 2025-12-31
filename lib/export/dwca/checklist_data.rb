@@ -1110,8 +1110,11 @@ module Export::Dwca
     def package_download(download)
       p = zipfile.path
 
+      # Use update_columns to bypass callbacks/validations (Current may not be set in job context)
+      # Set total_records (number of taxa for UI display)
+      download.update_columns(total_records: taxon_name_id_to_taxon_id.size)
       # This doesn't touch the db (source_file_path is an instance var).
-      download.update!(source_file_path: p)
+      download.update!(source_file_path: p) # Uses instance var, triggers save_file callback
     end
 
     # Cleanup temporary files
