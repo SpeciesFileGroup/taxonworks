@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Browse taxon names: Navbar overlaps radial modals [#4649]
 - CSD: The biocurations form doesn't show classes that do not belong to a group [#4658]
 - New Extract task: Minor fixes related to the identifiers form [#4626]
+- New Biological Association task: A new citation is not added when a biological association already exists, instead, it attempts to create a new one.
 
 ### Changed
 
