@@ -8,6 +8,7 @@ module AssertedDistribution::DwcExtensions
     associatedReferences: :dwc_associated_references,
     country: :dwc_country,
     county: :dwc_county,
+    locality: :dwc_locality,
     occurrenceStatus: :dwc_occurrence_status,
     stateProvince: :dwc_state_province,
 
@@ -131,6 +132,13 @@ module AssertedDistribution::DwcExtensions
 
   def dwc_county
     geographic_names[:county]
+  end
+
+  def dwc_locality
+    # When the geographic area doesn't map to country/state/county
+    # (e.g., regional areas like "West Tropical Africa"), use the shape name.
+    # Works for both GeographicArea and Gazetteer.
+    geographic_names.empty? ? asserted_distribution_shape.name : nil
   end
 
   def dwc_nomenclatural_code
