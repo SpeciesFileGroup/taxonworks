@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :otu, traits: [:housekeeping] do
     factory :valid_otu do
-      name { Faker::Lorem.unique.word }
+      sequence(:name) { |n| "#{Faker::Lorem.word}#{n}" }
     end
   end
 end
