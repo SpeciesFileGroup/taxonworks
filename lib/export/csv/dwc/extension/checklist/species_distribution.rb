@@ -47,12 +47,16 @@ module Export::CSV::Dwc::Extension::Checklist::SpeciesDistribution
       .to_h
 
     scope.find_each do |dwc_occ|
-      locality_parts = [
-        dwc_occ.country,
-        dwc_occ.stateProvince,
-        dwc_occ.county
-      ].compact.reject(&:empty?)
-      locality = locality_parts.join(', ').presence
+      # Use locality field if populated (for regional areas like "West Tropical Africa"),
+      # otherwise build from country/state/county.
+      locality = dwc_occ.locality.presence || begin
+        locality_parts = [
+          dwc_occ.country,
+          dwc_occ.stateProvince,
+          dwc_occ.county
+        ].compact.reject(&:empty?)
+        locality_parts.join(', ').presence
+      end
 
       # Look up taxon_name_id via OTU
       otu_id = asserted_distribution_to_otu[dwc_occ.dwc_occurrence_object_id]
