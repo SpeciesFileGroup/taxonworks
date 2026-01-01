@@ -328,169 +328,20 @@ module Export::Dwca
       @collection_object_scope ||= core_scope.where(dwc_occurrence_object_type: 'CollectionObject')
     end
 
-      # rubocop:disable Metrics/MethodLength
-
-    # Writes the TaxonWorks extension file by streaming directly to a Tempfile
-    # in the same order as the core file.
     def taxonworks_extension_data
       return @taxonworks_extension_data if @taxonworks_extension_data
 
-      data = extension_data_query_data
-      query = data[:query]
-      column_data = data[:column_data]
-      used_extensions = data[:used_extensions]
-
-      if used_extensions.empty? || !collection_object_scope.exists?
-        @taxonworks_extension_data = Tempfile.new('tw_extension_data.tsv')
-        Rails.logger.debug 'dwca_export: taxonworks_extension_data prepared - ' + (used_extensions.empty? ? 'no extensions' : 'no collection objects')
-        return @taxonworks_extension_data
-      end
-
       @taxonworks_extension_data = Tempfile.new('tw_extension_data.tsv')
-      csv = CSV.new(@taxonworks_extension_data, col_sep: "\t")
-      csv << used_extensions
 
-      # Stream results and write directly to CSV
-      # Iterate over fields array to guarantee order matches used_extensions
-      query.find_each(batch_size: 10_000) do |row|
-        output_row = []
-
-        column_data.each do |source_type, col|
-          case source_type
-          when :method
-            v = row.send(col)
-          when :ce
-            # Map virtual :id to :collecting_event_id
-            attr_name = (col == :id ? :collecting_event_id : col)
-            v = row.send(attr_name)
-          when :co
-            # Map virtual :id to collection_object_id
-            attr_name = (col == :id ? :collection_object_id : col)
-            v = row.send(attr_name)
-          when :dwco
-            # Map virtual :id to dwc_occurrence_id
-            attr_name = (col == :id ? :dwc_occurrence_id : col)
-            v = row.send(attr_name)
-          end
-
-          output_row << (v.nil? ? nil : Utilities::Strings.sanitize_for_csv(v.to_s))
-        end
-
-        csv << output_row
-      end
-
-      Rails.logger.debug 'dwca_export: extension data written'
-
-      csv.flush
-      @taxonworks_extension_data.flush
-      @taxonworks_extension_data.rewind
-
-      Rails.logger.debug 'dwca_export: taxonworks_extension_data prepared'
+      # Delegate to TaxonworksExtensionExporter service object
+      exporter = Export::Dwca::TaxonworksExtensionExporter.new(
+        core_scope: @core_scope,
+        taxonworks_extension_methods: taxonworks_extension_methods
+      )
+      exporter.export_to(@taxonworks_extension_data)
 
       @taxonworks_extension_data
     end
-
-    # Builds the SQL query and metadata needed for taxonworks_extension_data export.
-    # @return [Hash] with keys:
-    #   :query - ActiveRecord::Relation with all needed joins and select columns
-    #   :fields - array of [column_source_type, column_or_method] in CSV order
-    #   :used_extensions - array of CSV header names in output order
-    def extension_data_query_data
-      # hash of internal method name => csv header name
-      methods = {}
-
-      # hash of column_name => csv header name
-      ce_fields = {}
-      co_fields = {}
-      dwco_fields = {}
-
-      # Build ordered arrays as we process extension methods
-      # fields: [source_type, column_or_method] in CSV order
-      # used_extensions: CSV header names in same order
-      column_data = []
-      used_extensions = []
-
-      taxonworks_extension_methods.map(&:to_sym).each do |sym|
-        csv_header_name = ('TW:Internal:' + sym.to_s).freeze
-
-        if (method = ::CollectionObject::EXTENSION_COMPUTED_FIELDS[sym])
-          methods[method] = csv_header_name
-          column_data << [:method, method]
-          used_extensions << csv_header_name
-        elsif (column_name = ::CollectionObject::EXTENSION_CE_FIELDS[sym])
-          ce_fields[column_name] = csv_header_name
-          column_data << [:ce, column_name]
-          used_extensions << csv_header_name
-        elsif (column_name = ::CollectionObject::EXTENSION_CO_FIELDS[sym])
-          co_fields[column_name] = csv_header_name
-          column_data << [:co, column_name]
-          used_extensions << csv_header_name
-        elsif (column_name = ::CollectionObject::EXTENSION_DWC_OCCURRENCE_FIELDS[sym])
-          dwco_fields[column_name] = csv_header_name
-          column_data << [:dwco, column_name]
-          used_extensions << csv_header_name
-        end
-      end
-
-      # Extract column arrays for query building (preserve requested order)
-      co_columns    = co_fields.keys
-      ce_columns    = ce_fields.keys
-      # map virtual :id to :collecting_event_id
-      if (idx = ce_columns.index(:id))
-        ce_columns[idx] = :collecting_event_id
-      end
-      dwco_columns  = dwco_fields.keys
-
-      # Build a single joined query to compute all csv fields (database columns
-      # + computed fields).
-      # !! This scope comes ordered by dwco.id - *this is what determines csv
-      # row order, so don't lose it. !!
-      query = collection_object_scope
-        .joins('JOIN collection_objects ON collection_objects.id = dwc_occurrences.dwc_occurrence_object_id')
-
-      # Add collecting_events join if needed
-      if ce_columns.any?
-        query = query.joins('LEFT JOIN collecting_events ON collecting_events.id = collection_objects.collecting_event_id')
-      end
-
-      # Buildup a select clause from used_extensions columns
-      select_cols = ['dwc_occurrences.id']
-
-      # !! Add here as needed for future computed fields.
-      if methods.keys.include?(:otu_name)
-        select_cols << 'otus.name AS otu_name'
-
-        query = query
-          .joins('LEFT JOIN taxon_determinations ON taxon_determinations.taxon_determination_object_id = collection_objects.id ' \
-                            'AND taxon_determinations.taxon_determination_object_type = \'CollectionObject\' ' \
-                            'AND taxon_determinations.position = 1')
-          .joins('LEFT JOIN otus ON otus.id = taxon_determinations.otu_id')
-      end
-
-      # CE fields - map virtual :id column to collecting_event_id
-      select_cols += ce_columns.map { |col| col == :collecting_event_id ? "collecting_events.id AS collecting_event_id" : "collecting_events.#{col}" } if ce_columns.any?
-
-      # CO fields - map virtual :id column to collection_object_id
-      select_cols += co_columns.map { |col| col == :id ? "collection_objects.id AS collection_object_id" : "collection_objects.#{col}" } if co_columns.any?
-
-      # DWCO fields - map virtual :id column to dwc_occurrence_id
-      # Note: dwc_occurrences.id is already selected above for find_each, so if :id is in dwco_columns
-      # we also need to alias it for data output
-      if dwco_columns.include?(:id)
-        select_cols << 'dwc_occurrences.id AS dwc_occurrence_id'
-        select_cols += dwco_columns.reject { |col| col == :id }.map { |col| "dwc_occurrences.#{col}" }
-      else
-        select_cols += dwco_columns.map { |col| "dwc_occurrences.#{col}" } if dwco_columns.any?
-      end
-
-      {
-        query: query.select(select_cols),
-        column_data:,
-        used_extensions:
-      }
-    end
-
-    # rubocop:enable Metrics/MethodLength
 
     def predicate_data
       return @predicate_data if @predicate_data
