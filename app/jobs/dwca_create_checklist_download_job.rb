@@ -15,7 +15,7 @@ class DwcaCreateChecklistDownloadJob < ApplicationJob
 
     begin
       begin
-        d = ::Export::Dwca::ChecklistData.new(core_otu_scope_params:, extensions:, accepted_name_mode:)
+        d = ::Export::Dwca::Checklist::Data.new(core_otu_scope_params:, extensions:, accepted_name_mode:)
         d.package_download(download)
       ensure
         d&.cleanup

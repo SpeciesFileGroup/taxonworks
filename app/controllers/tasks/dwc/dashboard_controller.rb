@@ -77,17 +77,17 @@ class Tasks::Dwc::DashboardController < ApplicationController
   end
 
   def checklist_extensions
-    render json: ::Export::Dwca::ChecklistData::CHECKLIST_EXTENSION_OPTIONS, status: :ok
+    render json: ::Export::Dwca::Checklist::Data::CHECKLIST_EXTENSION_OPTIONS, status: :ok
   end
 
   def accepted_name_mode_options
     options = [
       {
-        value: ::Export::Dwca::ChecklistData::REPLACE_WITH_ACCEPTED_NAME,
+        value: ::Export::Dwca::Checklist::Data::REPLACE_WITH_ACCEPTED_NAME,
         label: 'Replace invalid names with valid names'
       },
       {
-        value: ::Export::Dwca::ChecklistData::ACCEPTED_NAME_USAGE_ID,
+        value: ::Export::Dwca::Checklist::Data::ACCEPTED_NAME_USAGE_ID,
         label: 'Classify synonyms using acceptedNameUsageID'
       }
     ]
