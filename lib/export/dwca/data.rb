@@ -30,6 +30,8 @@ module Export::Dwca
   # Always use the ensure/data.cleanup pattern!
   #
   class Data
+    include Export::Dwca::SqlFragments
+    include Export::Dwca::PostgresqlFunctions
 
     attr_accessor :data
 
@@ -237,41 +239,6 @@ module Export::Dwca
       end
 
       Rails.logger.debug 'dwca_export: csv data generated'
-    end
-
-    # Creates a temporary PostgreSQL function for sanitizing CSV values
-    # The function removes newlines and tabs from text, replacing them with spaces.
-    # The function exists only for the current database session.
-    def create_csv_sanitize_function
-      conn = ActiveRecord::Base.connection
-      conn.execute(<<~SQL)
-        CREATE OR REPLACE FUNCTION pg_temp.sanitize_csv(text)
-        RETURNS text AS $$
-          SELECT REGEXP_REPLACE($1, E'[\\n\\t]', ' ', 'g')
-        $$ LANGUAGE SQL IMMUTABLE;
-      SQL
-    end
-
-    # Creates a temporary PostgreSQL function that formats an array of names
-    # into a grammatically correct sentence, matching Utilities::Strings.authorship_sentence
-    # Examples:
-    #   1 name: "Smith"
-    #   2 names: "Smith & Jones"
-    #   3+ names: "Smith, Jones & Brown"
-    # The function exists only for the current database session.
-    def create_authorship_sentence_function
-      conn = ActiveRecord::Base.connection
-      conn.execute(<<~SQL)
-        CREATE OR REPLACE FUNCTION pg_temp.authorship_sentence(names text[])
-        RETURNS text AS $$
-          SELECT CASE
-            WHEN array_length(names, 1) IS NULL THEN NULL
-            WHEN array_length(names, 1) = 1 THEN names[1]
-            WHEN array_length(names, 1) = 2 THEN names[1] || ' & ' || names[2]
-            ELSE array_to_string(names[1:array_length(names,1)-1], ', ') || ' & ' || names[array_length(names,1)]
-          END
-        $$ LANGUAGE SQL IMMUTABLE;
-      SQL
     end
 
     # Find which columns in the dwc_occurrence table have non-NULL, non-empty values
@@ -949,26 +916,6 @@ module Export::Dwca
       @media_tmp
     end
 
-    # SQL fragment: Copyright label "© {year} {authors}"
-    # Uses pg_temp.authorship_sentence to format author names grammatically
-    # Expects attribution data from temp_*_attributions table
-    def copyright_label_sql_from_temp(attr_table_alias = 'attr')
-      <<-SQL
-        CASE
-          WHEN #{attr_table_alias}.copyright_year IS NOT NULL OR #{attr_table_alias}.copyright_holder_names_array IS NOT NULL THEN
-            '©' ||
-            CASE
-              WHEN #{attr_table_alias}.copyright_year IS NOT NULL AND #{attr_table_alias}.copyright_holder_names_array IS NOT NULL
-                THEN #{attr_table_alias}.copyright_year::text || ' ' || pg_temp.authorship_sentence(#{attr_table_alias}.copyright_holder_names_array)
-              WHEN #{attr_table_alias}.copyright_year IS NOT NULL
-                THEN #{attr_table_alias}.copyright_year::text
-              ELSE pg_temp.authorship_sentence(#{attr_table_alias}.copyright_holder_names_array)
-            END
-          ELSE NULL
-        END
-      SQL
-    end
-
     # Collect all image and sound IDs that need to be exported
     # Create a temporary table containing all scoped collection_object and field_occurrence IDs
     # This is used to filter media records to only include those associated with exported occurrences
@@ -1018,91 +965,87 @@ module Export::Dwca
     end
 
     def collect_media_image_ids
-      conn = ActiveRecord::Base.connection
-      image_ids = []
-
-      if @media_extension[:collection_objects]
-        co_sql = @media_extension[:collection_objects]
-
-        # Get direct images (via depictions)
-        image_ids += conn.execute(<<-SQL).values.flatten
-          SELECT DISTINCT images.id
-          FROM (#{co_sql}) AS co
-          INNER JOIN depictions ON depictions.depiction_object_id = co.id
-            AND depictions.depiction_object_type = 'CollectionObject'
-          INNER JOIN images ON images.id = depictions.image_id
-        SQL
-
-        # Get images via observations
-        image_ids += conn.execute(<<-SQL).values.flatten
-          SELECT DISTINCT images.id
-          FROM (#{co_sql}) AS co
-          INNER JOIN observations obs ON obs.observation_object_id = co.id
-            AND obs.observation_object_type = 'CollectionObject'
-          INNER JOIN depictions ON depictions.depiction_object_id = obs.id
-            AND depictions.depiction_object_type = 'Observation'
-          INNER JOIN images ON images.id = depictions.image_id
-        SQL
-      end
-
-      if @media_extension[:field_occurrences]
-        fo_sql = @media_extension[:field_occurrences]
-
-        # Get direct images (via depictions)
-        image_ids += conn.execute(<<-SQL).values.flatten
-          SELECT DISTINCT images.id
-          FROM (#{fo_sql}) AS fo
-          INNER JOIN depictions ON depictions.depiction_object_id = fo.id
-            AND depictions.depiction_object_type = 'FieldOccurrence'
-          INNER JOIN images ON images.id = depictions.image_id
-        SQL
-
-        # Get images via observations
-        image_ids += conn.execute(<<-SQL).values.flatten
-          SELECT DISTINCT images.id
-          FROM (#{fo_sql}) AS fo
-          INNER JOIN observations obs ON obs.observation_object_id = fo.id
-            AND obs.observation_object_type = 'FieldOccurrence'
-          INNER JOIN depictions ON depictions.depiction_object_id = obs.id
-            AND depictions.depiction_object_type = 'Observation'
-          INNER JOIN images ON images.id = depictions.image_id
-        SQL
-      end
-
-      image_ids.uniq
+      collect_media_ids_for_class(
+        media_class: Image,
+        join_table: 'depictions',
+        media_id_column: 'image_id',
+        include_observations: true
+      )
     end
 
     def collect_media_sound_ids
+      collect_media_ids_for_class(
+        media_class: Sound,
+        join_table: 'conveyances',
+        media_id_column: 'sound_id',
+        include_observations: false
+      )
+    end
+
+    # Unified method to collect media IDs for any media class (Image or Sound).
+    # @param media_class [Class] Image or Sound
+    # @param join_table [String] 'depictions' or 'conveyances'
+    # @param media_id_column [String] 'image_id' or 'sound_id'
+    # @param include_observations [Boolean] whether to include observation-linked media
+    # @return [Array<Integer>] unique media IDs
+    def collect_media_ids_for_class(media_class:, join_table:, media_id_column:, include_observations: false)
       conn = ActiveRecord::Base.connection
-      sound_ids = []
+      media_ids = []
+      media_table = media_class.table_name
 
       if @media_extension[:collection_objects]
         co_sql = @media_extension[:collection_objects]
 
-        # Get direct sounds (via conveyances)
-        sound_ids += conn.execute(<<-SQL).values.flatten
-          SELECT DISTINCT sounds.id
+        # Get direct media (via join table)
+        media_ids += conn.execute(<<-SQL).values.flatten
+          SELECT DISTINCT #{media_table}.id
           FROM (#{co_sql}) AS co
-          INNER JOIN conveyances ON conveyances.conveyance_object_id = co.id
-            AND conveyances.conveyance_object_type = 'CollectionObject'
-          INNER JOIN sounds ON sounds.id = conveyances.sound_id
+          INNER JOIN #{join_table} ON #{join_table}.#{join_table.singularize}_object_id = co.id
+            AND #{join_table}.#{join_table.singularize}_object_type = 'CollectionObject'
+          INNER JOIN #{media_table} ON #{media_table}.id = #{join_table}.#{media_id_column}
         SQL
+
+        # Get media via observations (only for depictions/images)
+        if include_observations
+          media_ids += conn.execute(<<-SQL).values.flatten
+            SELECT DISTINCT #{media_table}.id
+            FROM (#{co_sql}) AS co
+            INNER JOIN observations obs ON obs.observation_object_id = co.id
+              AND obs.observation_object_type = 'CollectionObject'
+            INNER JOIN #{join_table} ON #{join_table}.#{join_table.singularize}_object_id = obs.id
+              AND #{join_table}.#{join_table.singularize}_object_type = 'Observation'
+            INNER JOIN #{media_table} ON #{media_table}.id = #{join_table}.#{media_id_column}
+          SQL
+        end
       end
 
       if @media_extension[:field_occurrences]
         fo_sql = @media_extension[:field_occurrences]
 
-        # Get direct sounds (via conveyances)
-        sound_ids += conn.execute(<<-SQL).values.flatten
-          SELECT DISTINCT sounds.id
+        # Get direct media (via join table)
+        media_ids += conn.execute(<<-SQL).values.flatten
+          SELECT DISTINCT #{media_table}.id
           FROM (#{fo_sql}) AS fo
-          INNER JOIN conveyances ON conveyances.conveyance_object_id = fo.id
-            AND conveyances.conveyance_object_type = 'FieldOccurrence'
-          INNER JOIN sounds ON sounds.id = conveyances.sound_id
+          INNER JOIN #{join_table} ON #{join_table}.#{join_table.singularize}_object_id = fo.id
+            AND #{join_table}.#{join_table.singularize}_object_type = 'FieldOccurrence'
+          INNER JOIN #{media_table} ON #{media_table}.id = #{join_table}.#{media_id_column}
         SQL
+
+        # Get media via observations (only for depictions/images)
+        if include_observations
+          media_ids += conn.execute(<<-SQL).values.flatten
+            SELECT DISTINCT #{media_table}.id
+            FROM (#{fo_sql}) AS fo
+            INNER JOIN observations obs ON obs.observation_object_id = fo.id
+              AND obs.observation_object_type = 'FieldOccurrence'
+            INNER JOIN #{join_table} ON #{join_table}.#{join_table.singularize}_object_id = obs.id
+              AND #{join_table}.#{join_table.singularize}_object_type = 'Observation'
+            INNER JOIN #{media_table} ON #{media_table}.id = #{join_table}.#{media_id_column}
+          SQL
+        end
       end
 
-      sound_ids.uniq
+      media_ids.uniq
     end
 
     def create_image_temp_tables
@@ -1322,114 +1265,6 @@ module Export::Dwca
       Rails.logger.debug 'dwca_export: temp table created with API sound links'
     end
 
-    # SQL fragment: Media identifier with UUID/URI fallback
-    # Delegates to the class method to ensure consistency with Ruby implementation
-    # @param media_class [Class] Media class (Image or Sound)
-    # @param media_table_alias [String] SQL table alias for the media table
-    # @return [String] SQL fragment for media identifier (sanitized)
-    def media_identifier_sql(media_class, media_table_alias)
-      identifier_expr = media_class.dwc_media_identifier_sql(table_alias: media_table_alias)
-      "pg_temp.sanitize_csv(#{identifier_expr})"
-    end
-
-    # SQL fragment: Media identifier JOINs for UUID and URI
-    # Provides LEFT JOINs to the identifiers table for UUID and URI lookups
-    # @param media_class [Class] Media class (Image or Sound)
-    # @param table_alias [String] SQL table alias for the media table
-    # @return [String] SQL JOIN clauses for UUID and URI identifiers
-    def media_identifier_joins_sql(media_class, table_alias)
-      media_type = media_class.name
-      <<~SQL.squish
-        LEFT JOIN identifiers uuid_id ON uuid_id.identifier_object_id = #{table_alias}.id
-                                      AND uuid_id.identifier_object_type = '#{media_type}'
-                                      AND uuid_id.type LIKE  'Identifier::Global::Uuid%'
-        LEFT JOIN identifiers uri_id ON uri_id.identifier_object_id = #{table_alias}.id
-                                     AND uri_id.identifier_object_type = '#{media_type}'
-                                     AND uri_id.type LIKE 'Identifier::Global::Uri%'
-      SQL
-    end
-
-    # SQL fragment: Image occurrence resolution JOINs
-    # Resolves images to dwc_occurrences via depictions -> collection_objects/field_occurrences
-    # Includes filtering to only scoped occurrences
-    # @param image_alias [String] SQL table alias for images table
-    # @return [String] SQL JOIN clauses for resolving image to occurrence
-    def image_occurrence_resolution_joins_sql(image_alias: 'img')
-      <<~SQL
-        -- Join to get coreid (occurrenceID) via depiction -> collection_object/field_occurrence -> dwc_occurrence
-        -- IMPORTANT: Only include media for occurrences that are actually in the export scope
-        LEFT JOIN depictions dep ON dep.image_id = #{image_alias}.id
-        LEFT JOIN collection_objects co ON co.id = dep.depiction_object_id AND dep.depiction_object_type = 'CollectionObject'
-        LEFT JOIN field_occurrences fo ON fo.id = dep.depiction_object_id AND dep.depiction_object_type = 'FieldOccurrence'
-        LEFT JOIN observations obs ON obs.id = dep.depiction_object_id AND dep.depiction_object_type = 'Observation'
-        LEFT JOIN collection_objects co_obs ON co_obs.id = obs.observation_object_id AND obs.observation_object_type = 'CollectionObject'
-        LEFT JOIN field_occurrences fo_obs ON fo_obs.id = obs.observation_object_id AND obs.observation_object_type = 'FieldOccurrence'
-
-        -- Filter to only scoped occurrences
-        LEFT JOIN temp_scoped_occurrences scope_co ON scope_co.occurrence_id = co.id AND scope_co.occurrence_type = 'CollectionObject'
-        LEFT JOIN temp_scoped_occurrences scope_fo ON scope_fo.occurrence_id = fo.id AND scope_fo.occurrence_type = 'FieldOccurrence'
-        LEFT JOIN temp_scoped_occurrences scope_co_obs ON scope_co_obs.occurrence_id = co_obs.id AND scope_co_obs.occurrence_type = 'CollectionObject'
-        LEFT JOIN temp_scoped_occurrences scope_fo_obs ON scope_fo_obs.occurrence_id = fo_obs.id AND scope_fo_obs.occurrence_type = 'FieldOccurrence'
-
-        LEFT JOIN dwc_occurrences dwc ON (dwc.dwc_occurrence_object_id = co.id AND dwc.dwc_occurrence_object_type = 'CollectionObject' AND scope_co.occurrence_id IS NOT NULL)
-                                      OR (dwc.dwc_occurrence_object_id = fo.id AND dwc.dwc_occurrence_object_type = 'FieldOccurrence' AND scope_fo.occurrence_id IS NOT NULL)
-                                      OR (dwc.dwc_occurrence_object_id = co_obs.id AND dwc.dwc_occurrence_object_type = 'CollectionObject' AND scope_co_obs.occurrence_id IS NOT NULL)
-                                      OR (dwc.dwc_occurrence_object_id = fo_obs.id AND dwc.dwc_occurrence_object_type = 'FieldOccurrence' AND scope_fo_obs.occurrence_id IS NOT NULL)
-      SQL
-    end
-
-    # SQL fragment: Sound occurrence resolution JOINs
-    # Resolves sounds to dwc_occurrences via conveyances -> collection_objects/field_occurrences
-    # Includes filtering to only scoped occurrences
-    # @param sound_alias [String] SQL table alias for sounds table
-    # @return [String] SQL JOIN clauses for resolving sound to occurrence
-    def sound_occurrence_resolution_joins_sql(sound_alias: 'snd')
-      <<~SQL
-        -- Join to get coreid (occurrenceID) via conveyance -> collection_object/field_occurrence -> dwc_occurrence
-        -- IMPORTANT: Only include media for occurrences that are actually in the export scope
-        LEFT JOIN conveyances conv ON conv.sound_id = #{sound_alias}.id
-        LEFT JOIN collection_objects co ON co.id = conv.conveyance_object_id AND conv.conveyance_object_type = 'CollectionObject'
-        LEFT JOIN field_occurrences fo ON fo.id = conv.conveyance_object_id AND conv.conveyance_object_type = 'FieldOccurrence'
-
-        -- Filter to only scoped occurrences
-        LEFT JOIN temp_scoped_occurrences scope_co ON scope_co.occurrence_id = co.id AND scope_co.occurrence_type = 'CollectionObject'
-        LEFT JOIN temp_scoped_occurrences scope_fo ON scope_fo.occurrence_id = fo.id AND scope_fo.occurrence_type = 'FieldOccurrence'
-
-        LEFT JOIN dwc_occurrences dwc ON (dwc.dwc_occurrence_object_id = co.id AND dwc.dwc_occurrence_object_type = 'CollectionObject' AND scope_co.occurrence_id IS NOT NULL)
-                                      OR (dwc.dwc_occurrence_object_id = fo.id AND dwc.dwc_occurrence_object_type = 'FieldOccurrence' AND scope_fo.occurrence_id IS NOT NULL)
-      SQL
-    end
-
-    # SQL fragment: Associated specimen reference URL
-    # Handles collection objects, field occurrences, and their observations
-    # @param include_observations [Boolean] whether to include observation table aliases (co_obs, fo_obs)
-    # @return [String] SQL CASE statement for building specimen reference URLs
-    def associated_specimen_reference_sql(include_observations: true)
-      co_base = Shared::Api.api_base_path(CollectionObject)
-      fo_base = Shared::Api.api_base_path(FieldOccurrence)
-
-      base_cases = <<~SQL.strip
-        CASE
-          WHEN co.id IS NOT NULL THEN '#{co_base}/' || co.id
-          WHEN fo.id IS NOT NULL THEN '#{fo_base}/' || fo.id
-      SQL
-
-      observation_cases = if include_observations
-        <<~SQL
-
-          WHEN co_obs.id IS NOT NULL THEN '#{co_base}/' || co_obs.id
-          WHEN fo_obs.id IS NOT NULL THEN '#{fo_base}/' || fo_obs.id
-        SQL
-      else
-        "\n"
-      end
-
-      <<~SQL.strip
-        #{base_cases}#{observation_cases}          ELSE NULL
-        END
-      SQL
-    end
-
     # Exports image media records to the output file using PostgreSQL COPY TO
     # Streams data directly to avoid loading entire dataset into memory
     def export_images_to_file(image_ids, output_file)
@@ -1557,63 +1392,65 @@ module Export::Dwca
     # Creates temporary tables with pre-aggregated attribution data for images and sounds
     # This avoids expensive LATERAL joins in the main export query
     def create_media_attribution_temp_tables(image_ids, sound_ids)
+      create_media_attribution_temp_table_for_class(
+        media_class: Image,
+        media_ids: image_ids,
+        table_alias: 'img',
+        temp_table_name: 'temp_image_attributions',
+        id_column_name: 'image_id',
+        temp_ids_table: 'temp_media_image_ids',
+        index_name: 'idx_temp_image_attr'
+      )
+
+      create_media_attribution_temp_table_for_class(
+        media_class: Sound,
+        media_ids: sound_ids,
+        table_alias: 'snd',
+        temp_table_name: 'temp_sound_attributions',
+        id_column_name: 'sound_id',
+        temp_ids_table: 'temp_media_sound_ids',
+        index_name: 'idx_temp_sound_attr'
+      )
+    end
+
+    # Helper to create attribution temp table for a specific media class.
+    # @param media_class [Class] Image or Sound
+    # @param media_ids [Array<Integer>] IDs of media to process
+    # @param table_alias [String] SQL alias for the media table
+    # @param temp_table_name [String] Name of the temp table to create
+    # @param id_column_name [String] Name of the ID column (e.g., 'image_id')
+    # @param temp_ids_table [String] Name of the temp IDs table to join against
+    # @param index_name [String] Name of the index to create
+    def create_media_attribution_temp_table_for_class(media_class:, media_ids:, table_alias:, temp_table_name:, id_column_name:, temp_ids_table:, index_name:)
+      return if media_ids.empty?
+
       conn = ActiveRecord::Base.connection
+      media_table = media_class.table_name
 
-      # Create temp table for image attributions
-      unless image_ids.empty?
-        # Get the license SQL that converts license keys to URLs
-        license_sql = Image.dwc_media_license_sql(table_alias: 'img')
+      # Get the license SQL that converts license keys to URLs
+      license_sql = media_class.dwc_media_license_sql(table_alias: table_alias)
 
-        conn.execute("DROP TABLE IF EXISTS temp_image_attributions")
-        conn.execute(<<~SQL)
-          CREATE TEMP TABLE temp_image_attributions AS
-          SELECT
-            img.id AS image_id,
-            #{license_sql} AS license_url,
-            attributions.copyright_year,
-            owners.names AS owner_names,
-            creators.names AS creator_names,
-            creator_ids.ids AS creator_identifiers,
-            copyright_holders.names_array AS copyright_holder_names_array
-          FROM images img
-          LEFT JOIN attributions ON attributions.attribution_object_id = img.id
-            AND attributions.attribution_object_type = 'Image'
-          #{Image.dwc_media_owner_sql(table_alias: 'img')}
-          #{Image.dwc_media_creator_sql(table_alias: 'img')}
-          #{Image.dwc_media_creator_identifiers_sql(table_alias: 'img')}
-          #{Image.dwc_media_copyright_holders_sql(table_alias: 'img')}
-          JOIN temp_media_image_ids ids ON ids.image_id = img.id
-        SQL
-        conn.execute("CREATE INDEX idx_temp_image_attr ON temp_image_attributions(image_id)")
-      end
-
-      # Create temp table for sound attributions
-      unless sound_ids.empty?
-        # Get the license SQL that converts license keys to URLs
-        license_sql = Sound.dwc_media_license_sql(table_alias: 'snd')
-
-        conn.execute("DROP TABLE IF EXISTS temp_sound_attributions")
-        conn.execute(<<~SQL)
-          CREATE TEMP TABLE temp_sound_attributions AS
-          SELECT
-            snd.id AS sound_id,
-            #{license_sql} AS license_url,
-            attributions.copyright_year,
-            owners.names AS owner_names,
-            creators.names AS creator_names,
-            creator_ids.ids AS creator_identifiers,
-            copyright_holders.names_array AS copyright_holder_names_array
-          FROM sounds snd
-          LEFT JOIN attributions ON attributions.attribution_object_id = snd.id
-            AND attributions.attribution_object_type = 'Sound'
-          #{Sound.dwc_media_owner_sql(table_alias: 'snd')}
-          #{Sound.dwc_media_creator_sql(table_alias: 'snd')}
-          #{Sound.dwc_media_creator_identifiers_sql(table_alias: 'snd')}
-          #{Sound.dwc_media_copyright_holders_sql(table_alias: 'snd')}
-          JOIN temp_media_sound_ids ids ON ids.sound_id = snd.id
-        SQL
-        conn.execute("CREATE INDEX idx_temp_sound_attr ON temp_sound_attributions(sound_id)")
-      end
+      conn.execute("DROP TABLE IF EXISTS #{temp_table_name}")
+      conn.execute(<<~SQL)
+        CREATE TEMP TABLE #{temp_table_name} AS
+        SELECT
+          #{table_alias}.id AS #{id_column_name},
+          #{license_sql} AS license_url,
+          attributions.copyright_year,
+          owners.names AS owner_names,
+          creators.names AS creator_names,
+          creator_ids.ids AS creator_identifiers,
+          copyright_holders.names_array AS copyright_holder_names_array
+        FROM #{media_table} #{table_alias}
+        LEFT JOIN attributions ON attributions.attribution_object_id = #{table_alias}.id
+          AND attributions.attribution_object_type = '#{media_class.name}'
+        #{media_class.dwc_media_owner_sql(table_alias: table_alias)}
+        #{media_class.dwc_media_creator_sql(table_alias: table_alias)}
+        #{media_class.dwc_media_creator_identifiers_sql(table_alias: table_alias)}
+        #{media_class.dwc_media_copyright_holders_sql(table_alias: table_alias)}
+        JOIN #{temp_ids_table} ids ON ids.#{id_column_name} = #{table_alias}.id
+      SQL
+      conn.execute("CREATE INDEX #{index_name} ON #{temp_table_name}(#{id_column_name})")
     end
 
     # Cleans up temporary tables created for media export
