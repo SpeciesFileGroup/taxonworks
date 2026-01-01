@@ -205,34 +205,34 @@ module Export::Dwca::Checklist
     def otu_to_taxon_name_data
       return @otu_to_taxon_name_data if @otu_to_taxon_name_data
 
-      # Get unique OTU IDs from all three occurrence types
-      # This is MUCH faster than joining for every occurrence
+      # Get unique OTU IDs from all three occurrence types using UNION
+      all_otu_ids = ActiveRecord::Base.connection.execute(<<~SQL).values.flatten.uniq.compact
+        SELECT DISTINCT td.otu_id
+        FROM (#{core_occurrence_scope.to_sql}) dwc_occurrences
+        JOIN collection_objects co ON co.id = dwc_occurrences.dwc_occurrence_object_id
+        JOIN taxon_determinations td ON td.taxon_determination_object_id = co.id
+          AND td.taxon_determination_object_type = 'CollectionObject'
+          AND td.position = 1
+        WHERE dwc_occurrences.dwc_occurrence_object_type = 'CollectionObject'
 
-      # 1. Get OTU IDs from CollectionObject occurrences
-      co_otu_ids = core_occurrence_scope
-        .where(dwc_occurrence_object_type: 'CollectionObject')
-        .joins('JOIN collection_objects co ON co.id = dwc_occurrences.dwc_occurrence_object_id')
-        .joins('JOIN taxon_determinations td ON td.taxon_determination_object_id = co.id AND td.taxon_determination_object_type = \'CollectionObject\' AND td.position = 1')
-        .distinct
-        .pluck('td.otu_id')
+        UNION
 
-      # 2. Get OTU IDs from FieldOccurrence occurrences
-      fo_otu_ids = core_occurrence_scope
-        .where(dwc_occurrence_object_type: 'FieldOccurrence')
-        .joins('JOIN field_occurrences fo ON fo.id = dwc_occurrences.dwc_occurrence_object_id')
-        .joins('JOIN taxon_determinations td ON td.taxon_determination_object_id = fo.id AND td.taxon_determination_object_type = \'FieldOccurrence\' AND td.position = 1')
-        .distinct
-        .pluck('td.otu_id')
+        SELECT DISTINCT td.otu_id
+        FROM (#{core_occurrence_scope.to_sql}) dwc_occurrences
+        JOIN field_occurrences fo ON fo.id = dwc_occurrences.dwc_occurrence_object_id
+        JOIN taxon_determinations td ON td.taxon_determination_object_id = fo.id
+          AND td.taxon_determination_object_type = 'FieldOccurrence'
+          AND td.position = 1
+        WHERE dwc_occurrences.dwc_occurrence_object_type = 'FieldOccurrence'
 
-      # 3. Get OTU IDs from AssertedDistribution occurrences
-      ad_otu_ids = core_occurrence_scope
-        .where(dwc_occurrence_object_type: 'AssertedDistribution')
-        .joins('JOIN asserted_distributions ad ON ad.id = dwc_occurrences.dwc_occurrence_object_id AND ad.asserted_distribution_object_type = \'Otu\'')
-        .distinct
-        .pluck('ad.asserted_distribution_object_id')
+        UNION
 
-      # Combine and get unique OTU IDs
-      all_otu_ids = (co_otu_ids + fo_otu_ids + ad_otu_ids).compact.uniq
+        SELECT DISTINCT ad.asserted_distribution_object_id AS otu_id
+        FROM (#{core_occurrence_scope.to_sql}) dwc_occurrences
+        JOIN asserted_distributions ad ON ad.id = dwc_occurrences.dwc_occurrence_object_id
+          AND ad.asserted_distribution_object_type = 'Otu'
+        WHERE dwc_occurrences.dwc_occurrence_object_type = 'AssertedDistribution'
+      SQL
 
       return {} if all_otu_ids.empty?
 
@@ -255,7 +255,7 @@ module Export::Dwca::Checklist
             id: row[1],
             cached: row[2],
             cached_is_valid: row[3],
-            cached_valid_taxon_name_id: row[4].to_i,
+            cached_valid_taxon_name_id: row[4]&.to_i,
             valid_cached: row[5]
           }
         end
@@ -268,31 +268,44 @@ module Export::Dwca::Checklist
     def occurrence_to_otu
       return @occurrence_to_otu if @occurrence_to_otu
 
-      # CollectionObject occurrences
-      co_mapping = core_occurrence_scope
-        .where(dwc_occurrence_object_type: 'CollectionObject')
-        .joins('JOIN collection_objects co ON co.id = dwc_occurrences.dwc_occurrence_object_id')
-        .joins('JOIN taxon_determinations td ON td.taxon_determination_object_id = co.id AND td.taxon_determination_object_type = \'CollectionObject\' AND td.position = 1')
-        .pluck('dwc_occurrences.dwc_occurrence_object_type', 'dwc_occurrences.dwc_occurrence_object_id', 'td.otu_id')
-        .each_with_object({}) { |(type, id, otu_id), h| h["#{type}:#{id}"] = otu_id }
+      # Combine all three occurrence types using UNION
+      results = ActiveRecord::Base.connection.execute(<<~SQL)
+        SELECT dwc_occurrences.dwc_occurrence_object_type,
+               dwc_occurrences.dwc_occurrence_object_id,
+               td.otu_id
+        FROM (#{core_occurrence_scope.to_sql}) dwc_occurrences
+        JOIN collection_objects co ON co.id = dwc_occurrences.dwc_occurrence_object_id
+        JOIN taxon_determinations td ON td.taxon_determination_object_id = co.id
+          AND td.taxon_determination_object_type = 'CollectionObject'
+          AND td.position = 1
+        WHERE dwc_occurrences.dwc_occurrence_object_type = 'CollectionObject'
 
-      # FieldOccurrence occurrences
-      fo_mapping = core_occurrence_scope
-        .where(dwc_occurrence_object_type: 'FieldOccurrence')
-        .joins('JOIN field_occurrences fo ON fo.id = dwc_occurrences.dwc_occurrence_object_id')
-        .joins('JOIN taxon_determinations td ON td.taxon_determination_object_id = fo.id AND td.taxon_determination_object_type = \'FieldOccurrence\' AND td.position = 1')
-        .pluck('dwc_occurrences.dwc_occurrence_object_type', 'dwc_occurrences.dwc_occurrence_object_id', 'td.otu_id')
-        .each_with_object({}) { |(type, id, otu_id), h| h["#{type}:#{id}"] = otu_id }
+        UNION ALL
 
-      # AssertedDistribution occurrences
-      ad_mapping = core_occurrence_scope
-        .where(dwc_occurrence_object_type: 'AssertedDistribution')
-        .joins('JOIN asserted_distributions ad ON ad.id = dwc_occurrences.dwc_occurrence_object_id AND ad.asserted_distribution_object_type = \'Otu\'')
-        .pluck('dwc_occurrences.dwc_occurrence_object_type', 'dwc_occurrences.dwc_occurrence_object_id', 'ad.asserted_distribution_object_id')
-        .each_with_object({}) { |(type, id, otu_id), h| h["#{type}:#{id}"] = otu_id }
+        SELECT dwc_occurrences.dwc_occurrence_object_type,
+               dwc_occurrences.dwc_occurrence_object_id,
+               td.otu_id
+        FROM (#{core_occurrence_scope.to_sql}) dwc_occurrences
+        JOIN field_occurrences fo ON fo.id = dwc_occurrences.dwc_occurrence_object_id
+        JOIN taxon_determinations td ON td.taxon_determination_object_id = fo.id
+          AND td.taxon_determination_object_type = 'FieldOccurrence'
+          AND td.position = 1
+        WHERE dwc_occurrences.dwc_occurrence_object_type = 'FieldOccurrence'
 
-      @occurrence_to_otu = co_mapping.merge(fo_mapping).merge(ad_mapping)
-      @occurrence_to_otu
+        UNION ALL
+
+        SELECT dwc_occurrences.dwc_occurrence_object_type,
+               dwc_occurrences.dwc_occurrence_object_id,
+               ad.asserted_distribution_object_id AS otu_id
+        FROM (#{core_occurrence_scope.to_sql}) dwc_occurrences
+        JOIN asserted_distributions ad ON ad.id = dwc_occurrences.dwc_occurrence_object_id
+          AND ad.asserted_distribution_object_type = 'Otu'
+        WHERE dwc_occurrences.dwc_occurrence_object_type = 'AssertedDistribution'
+      SQL
+
+      @occurrence_to_otu = results.each_with_object({}) do |row, hash|
+        hash["#{row['dwc_occurrence_object_type']}:#{row['dwc_occurrence_object_id']}"] = row['otu_id']
+      end
     end
 
 
