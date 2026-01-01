@@ -23,6 +23,11 @@
           legend="Loading extensions..."
         />
         <div v-else>
+          <p>
+            <i>Only OTUs linked to DwcOccurrences (by Collection Object or Field
+            Occurrence determination or Asserted Distribution OTU) will be
+            included in the checklist.</i>
+          </p>
           <p class="margin-small-bottom">Select extensions to include:</p>
           <ul class="no_bullets">
             <li
