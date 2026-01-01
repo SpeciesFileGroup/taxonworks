@@ -136,23 +136,17 @@ module Export::Dwca::Checklist
 
       lookup = {}
 
-      # Query taxon_name_hierarchies WITHOUT join (much faster).
+      # Query taxon_name_hierarchies WITH join to get rank_class in single query
       hierarchy_relationships = TaxonNameHierarchy
+        .joins('JOIN taxon_names ON taxon_names.id = taxon_name_hierarchies.ancestor_id')
         .where(descendant_id: terminal_taxon_name_ids)
         .where.not('ancestor_id = descendant_id') # exclude self-references
-        .pluck(:descendant_id, :ancestor_id)
-
-      all_ancestor_ids =
-        hierarchy_relationships.map { |_, ancestor_id| ancestor_id }.uniq
-
-      ancestor_ranks = ::TaxonName
-        .where(id: all_ancestor_ids)
-        .pluck(:id, :rank_class)
-        .to_h
+        .pluck('taxon_name_hierarchies.descendant_id',
+               'taxon_name_hierarchies.ancestor_id',
+               'taxon_names.rank_class')
 
       # Build lookup hash: "terminal_id:rank" => ancestor_id
-      hierarchy_relationships.each do |descendant_id, ancestor_id|
-        rank_class = ancestor_ranks[ancestor_id]
+      hierarchy_relationships.each do |descendant_id, ancestor_id, rank_class|
         next unless rank_class
 
         rank = rank_class_to_name[rank_class]
@@ -348,7 +342,13 @@ module Export::Dwca::Checklist
       return all_taxa if valid_taxon_name_ids.empty?
 
       # Fetch valid TaxonName records.
-      valid_taxon_names = ::TaxonName.where(id: valid_taxon_name_ids.to_a).includes(:ancestor_hierarchies)
+      valid_taxon_names = ::TaxonName.where(id: valid_taxon_name_ids.to_a)
+
+      # Build reverse lookup: valid_taxon_name_id => synonym taxon
+      synonym_to_valid = all_taxa.each_value.each_with_object({}) do |taxon, hash|
+        valid_id = taxon['taxon_name_cached_valid_taxon_name_id']
+        hash[valid_id] ||= taxon if valid_id.present?
+      end
 
       # Create taxa for valid names that don't exist yet
       valid_taxon_names.each do |valid_tn|
@@ -356,12 +356,8 @@ module Export::Dwca::Checklist
         next if rank.nil?
         next if all_taxa[valid_tn.id] # already exists
 
-        # Find a synonym that points to this valid name to use as template.
-        template_taxon = all_taxa.each_value.find do |t|
-          vid = t['taxon_name_cached_valid_taxon_name_id']
-          vid.present? && (vid == valid_tn.id)
-        end
-
+        # Find a synonym that points to this valid name to use as template
+        template_taxon = synonym_to_valid[valid_tn.id]
         next unless template_taxon
 
         valid_taxon = template_taxon.dup
@@ -410,14 +406,14 @@ module Export::Dwca::Checklist
         all_ids.concat(ids)
       end
 
-      # Fetch info for all taxa and ancestors
+      # Fetch info for all taxa and ancestors using pluck (faster than find_each when IDs known)
       all_ids.uniq.each_slice(25_000) do |ids|
-        ::TaxonName.where(id: ids).find_each do |tn|
-          taxon_name_info[tn.id] = {
-            rank: tn.rank&.downcase,
-            parent_id: tn.parent_id
+        ::TaxonName.where(id: ids)
+          .pluck(:id, :rank_class, :parent_id)
+          .each { |(id, rank_class, parent_id)|
+            rank = rank_class_to_name[rank_class]&.downcase
+            taxon_name_info[id] = { rank: rank, parent_id: parent_id }
           }
-        end
       end
 
       taxon_name_info
