@@ -530,10 +530,12 @@ module Export::Dwca::Checklist
     def package_download(download)
       p = zipfile.path
 
+      record_count = taxon_name_id_to_taxon_id&.size || 0
+
       if download.persisted?
-        download.update_columns(total_records: taxon_name_id_to_taxon_id.size)
+        download.update_columns(total_records: record_count)
       else
-        download.total_records = taxon_name_id_to_taxon_id.size
+        download.total_records = record_count
       end
 
       # This doesn't touch the db (source_file_path is an instance var).
