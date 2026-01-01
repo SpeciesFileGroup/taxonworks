@@ -115,16 +115,26 @@ onMounted(async () => {
 
     // Fetch extensions
     const { body: extensions } = await DwcChecklist.checklistExtensions()
-    availableExtensions.value = extensions.reduce((acc, cur) => {
-        acc.push({value: cur, label: humanize(cur)})
-        return acc
-      },
-      []
-    )
+    availableExtensions.value = extensions
+      .map(cur => {
+        const label = humanize(cur.value) + (cur.displayed_in_gbif ? '' : ' (not displayed in GBIF\'s checklist UI)')
+        return {
+          value: cur.value,
+          label: label,
+          displayed_in_gbif: cur.displayed_in_gbif
+        }
+      })
+      // Sort: GBIF extensions first (alphabetically), then non-GBIF (alphabetically)
+      .sort((a, b) => {
+        if (a.displayed_in_gbif === b.displayed_in_gbif) {
+          return a.label.localeCompare(b.label)
+        }
+        return a.displayed_in_gbif ? -1 : 1
+      })
 
-    // Initialize all extensions as checked by default
+    // Initialize only GBIF-displayed extensions as checked by default
     extensions.forEach(ext => {
-      selectedExtensions[ext] = true
+      selectedExtensions[ext.value] = ext.displayed_in_gbif
     })
 
     // Fetch accepted name mode options

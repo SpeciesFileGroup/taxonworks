@@ -10,10 +10,10 @@ module Export::Dwca::Checklist
     VERNACULAR_NAME_EXTENSION = :vernacular_name
 
     CHECKLIST_EXTENSION_OPTIONS = [
-      DISTRIBUTION_EXTENSION,
-      REFERENCES_EXTENSION,
-      TYPES_AND_SPECIMEN_EXTENSION,
-      VERNACULAR_NAME_EXTENSION
+      { value: DISTRIBUTION_EXTENSION, displayed_in_gbif: true },
+      { value: REFERENCES_EXTENSION, displayed_in_gbif: false },
+      { value: TYPES_AND_SPECIMEN_EXTENSION, displayed_in_gbif: false },
+      { value: VERNACULAR_NAME_EXTENSION, displayed_in_gbif: true }
     ].freeze
 
     # Accepted name mode values.
