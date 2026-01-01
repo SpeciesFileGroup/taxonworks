@@ -511,6 +511,9 @@ module Queries
     # any parameter set for the query.
     def permitted_params(hsh)
       h = self.class::PARAMS.deep_dup
+      h.unshift(:venn_ignore_pagination)
+      h.unshift(:venn_mode)
+      h.unshift(:venn)
       h.unshift(:per)
       h.unshift(:page)
       h.unshift(:paginate)
@@ -538,6 +541,9 @@ module Queries
         q = FILTER_QUERIES[a].safe_constantize
         p = q::PARAMS.deep_dup
 
+        p.unshift(:venn_ignore_pagination)
+        p.unshift(:venn_mode)
+        p.unshift(:venn)
         p.unshift(:per)
         p.unshift(:page)
         p.unshift(:paginate)
