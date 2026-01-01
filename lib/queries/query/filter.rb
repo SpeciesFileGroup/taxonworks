@@ -518,11 +518,19 @@ module Queries
       h.unshift(:page)
       h.unshift(:paginate)
 
+      # Rails' permit() format requires a specific structure:
+      #   [:scalar_param1, :scalar_param2, {array_or_nested: [...]}]
+      #
+      # The hash at the end is where we put:
+      #   1. Array parameters (e.g., collection_object_id: [])
+      #   2. Nested structures (e.g., otu_query: [...])
+      #
+      # Ensure the array has a hash at the end to hold these.
       if !h.last.kind_of?(Hash)
         h << {}
       end
 
-      c = h.last # a {}
+      c = h.last # Reference to the hash where nested/array params go.
 
       if n = self.class.annotator_params
         c.merge!(n.pop)
