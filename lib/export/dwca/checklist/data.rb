@@ -1,8 +1,7 @@
 require 'zip'
 
-module Export::Dwca
-
-  class ChecklistData
+module Export::Dwca::Checklist
+  class Data
 
     # Available extensions.
     DISTRIBUTION_EXTENSION = :distribution

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
+describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
 
   let!(:otu1) { FactoryBot.create(:valid_otu) }
   let!(:otu2) { FactoryBot.create(:valid_otu) }
@@ -10,7 +10,7 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
   let(:otu_scope) { { otu_id: [otu1.id, otu2.id, otu3.id] } }
 
   context 'when initialized with a scope' do
-    let(:data) { Export::Dwca::ChecklistData.new(core_otu_scope_params: otu_scope) }
+    let(:data) { Export::Dwca::Checklist::Data.new(core_otu_scope_params: otu_scope) }
 
     specify '#csv returns csv String' do
       expect(data.csv).to be_kind_of(String)
@@ -209,7 +209,7 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           specimen.get_dwc_occurrence
 
           # Export with this new OTU included
-          data_hex = Export::Dwca::ChecklistData.new(core_otu_scope_params: { otu_id: [otu_hex.id] })
+          data_hex = Export::Dwca::Checklist::Data.new(core_otu_scope_params: { otu_id: [otu_hex.id] })
           csv_hex = CSV.parse(data_hex.csv, headers: true, col_sep: "\t")
 
           # Find the class in the export
@@ -389,8 +389,8 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           asserted_distribution2.get_dwc_occurrence
         end
 
-        let(:data_with_extension) { Export::Dwca::ChecklistData.new(core_otu_scope_params: otu_scope, extensions: [Export::Dwca::ChecklistData::DISTRIBUTION_EXTENSION]) }
-        let(:data_without_extension) { Export::Dwca::ChecklistData.new(core_otu_scope_params: otu_scope, extensions: []) }
+        let(:data_with_extension) { Export::Dwca::Checklist::Data.new(core_otu_scope_params: otu_scope, extensions: [Export::Dwca::Checklist::Data::DISTRIBUTION_EXTENSION]) }
+        let(:data_without_extension) { Export::Dwca::Checklist::Data.new(core_otu_scope_params: otu_scope, extensions: []) }
 
         specify 'distribution_extension flag is set when extension is requested' do
           expect(data_with_extension.species_distribution_extension).to be true
@@ -526,9 +526,9 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
 
           regional_ad.get_dwc_occurrence
 
-          regional_data = Export::Dwca::ChecklistData.new(
+          regional_data = Export::Dwca::Checklist::Data.new(
             core_otu_scope_params: { otu_id: [regional_otu.id] },
-            extensions: [Export::Dwca::ChecklistData::DISTRIBUTION_EXTENSION]
+            extensions: [Export::Dwca::Checklist::Data::DISTRIBUTION_EXTENSION]
           )
 
           # Generate core CSV to populate taxon mapping.
@@ -553,9 +553,9 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
             asserted_distribution_shape: gazetteer)
           gaz_ad.get_dwc_occurrence
 
-          gaz_data = Export::Dwca::ChecklistData.new(
+          gaz_data = Export::Dwca::Checklist::Data.new(
             core_otu_scope_params: { otu_id: [gaz_otu.id] },
-            extensions: [Export::Dwca::ChecklistData::DISTRIBUTION_EXTENSION]
+            extensions: [Export::Dwca::Checklist::Data::DISTRIBUTION_EXTENSION]
           )
 
           # Generate core CSV to populate taxon mapping.
@@ -587,8 +587,8 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           ad_with_refs2.get_dwc_occurrence
         end
 
-        let(:data_with_extension) { Export::Dwca::ChecklistData.new(core_otu_scope_params: otu_scope, extensions: [Export::Dwca::ChecklistData::REFERENCES_EXTENSION]) }
-        let(:data_without_extension) { Export::Dwca::ChecklistData.new(core_otu_scope_params: otu_scope, extensions: []) }
+        let(:data_with_extension) { Export::Dwca::Checklist::Data.new(core_otu_scope_params: otu_scope, extensions: [Export::Dwca::Checklist::Data::REFERENCES_EXTENSION]) }
+        let(:data_without_extension) { Export::Dwca::Checklist::Data.new(core_otu_scope_params: otu_scope, extensions: []) }
 
         specify 'references_extension flag is set when extension is requested' do
           expect(data_with_extension.references_extension).to be true
@@ -718,8 +718,8 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
           paratype_specimen.get_dwc_occurrence
         end
 
-        let(:data_with_extension) { Export::Dwca::ChecklistData.new(core_otu_scope_params: otu_scope, extensions: [Export::Dwca::ChecklistData::TYPES_AND_SPECIMEN_EXTENSION]) }
-        let(:data_without_extension) { Export::Dwca::ChecklistData.new(core_otu_scope_params: otu_scope, extensions: []) }
+        let(:data_with_extension) { Export::Dwca::Checklist::Data.new(core_otu_scope_params: otu_scope, extensions: [Export::Dwca::Checklist::Data::TYPES_AND_SPECIMEN_EXTENSION]) }
+        let(:data_without_extension) { Export::Dwca::Checklist::Data.new(core_otu_scope_params: otu_scope, extensions: []) }
 
         specify 'types_and_specimen_extension flag is set when extension is requested' do
           expect(data_with_extension.types_and_specimen_extension).to be true
@@ -842,8 +842,8 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         let!(:common_name2) { FactoryBot.create(:valid_common_name, otu: otu1, name: 'Mariposa Común', language: language_es) }
         let!(:common_name3) { FactoryBot.create(:valid_common_name, otu: otu2, name: 'Red Moth', language: language_en, start_year: 1950, end_year: 2020) }
 
-        let(:data_with_extension) { Export::Dwca::ChecklistData.new(core_otu_scope_params: otu_scope, extensions: [Export::Dwca::ChecklistData::VERNACULAR_NAME_EXTENSION]) }
-        let(:data_without_extension) { Export::Dwca::ChecklistData.new(core_otu_scope_params: otu_scope, extensions: []) }
+        let(:data_with_extension) { Export::Dwca::Checklist::Data.new(core_otu_scope_params: otu_scope, extensions: [Export::Dwca::Checklist::Data::VERNACULAR_NAME_EXTENSION]) }
+        let(:data_without_extension) { Export::Dwca::Checklist::Data.new(core_otu_scope_params: otu_scope, extensions: []) }
 
         specify 'vernacular_name_extension flag is set when extension is requested' do
           expect(data_with_extension.vernacular_name_extension).to be true
@@ -990,7 +990,7 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
 
     context 'with no matching records' do
       let(:empty_scope) { { otu_id: [999999] } }
-      let(:empty_data) { Export::Dwca::ChecklistData.new(core_otu_scope_params: empty_scope) }
+      let(:empty_data) { Export::Dwca::Checklist::Data.new(core_otu_scope_params: empty_scope) }
 
       specify '#no_records? returns true' do
         expect(empty_data.no_records?).to be_truthy
@@ -1035,7 +1035,7 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
       end
 
       let(:infra_scope) { { otu_id: [otu_species.id, otu_subspecies.id, otu_variety.id] } }
-      let(:infra_data) { Export::Dwca::ChecklistData.new(core_otu_scope_params: infra_scope) }
+      let(:infra_data) { Export::Dwca::Checklist::Data.new(core_otu_scope_params: infra_scope) }
       let(:infra_csv) { CSV.parse(infra_data.csv, headers: true, col_sep: "\t") }
 
       specify 'subspecies and variety with same epithet create distinct taxa' do
@@ -1129,7 +1129,7 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
       end
 
       let(:orphan_scope) { { otu_id: [otu_subspecies1.id, otu_subspecies2.id] } }
-      let(:orphan_data) { Export::Dwca::ChecklistData.new(core_otu_scope_params: orphan_scope) }
+      let(:orphan_data) { Export::Dwca::Checklist::Data.new(core_otu_scope_params: orphan_scope) }
       let(:orphan_csv) { CSV.parse(orphan_data.csv, headers: true, col_sep: "\t") }
 
       specify 'parent species is automatically extracted from subspecies' do
@@ -1200,14 +1200,14 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
       end
 
       let(:replace_with_accepted_data) do
-        ::Export::Dwca::ChecklistData.new(
+        ::Export::Dwca::Checklist::Data.new(
           core_otu_scope_params: { otu_id: [valid_otu.id, invalid_otu.id] },
           accepted_name_mode: 'replace_with_accepted_name'
         )
       end
 
       let(:accepted_name_usage_id_data) do
-        ::Export::Dwca::ChecklistData.new(
+        ::Export::Dwca::Checklist::Data.new(
           core_otu_scope_params: { otu_id: [valid_otu.id, invalid_otu.id] },
           accepted_name_mode: 'accepted_name_usage_id'
         )
@@ -1317,7 +1317,7 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         end
 
         let(:genus_data) do
-          ::Export::Dwca::ChecklistData.new(
+          ::Export::Dwca::Checklist::Data.new(
             core_otu_scope_params: { otu_id: [valid_genus_otu.id, invalid_genus_otu.id] },
             accepted_name_mode: 'accepted_name_usage_id'
           )
@@ -1368,7 +1368,7 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         end
 
         specify 'valid name is automatically added even without occurrence' do
-          data = ::Export::Dwca::ChecklistData.new(
+          data = ::Export::Dwca::Checklist::Data.new(
             core_otu_scope_params: { otu_id: [synonym_auto_otu.id] }, # Only synonym OTU!
             accepted_name_mode: 'accepted_name_usage_id'
           )
@@ -1388,7 +1388,7 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         end
 
         specify 'auto-added valid name has correct higher classification' do
-          data = ::Export::Dwca::ChecklistData.new(
+          data = ::Export::Dwca::Checklist::Data.new(
             core_otu_scope_params: { otu_id: [synonym_auto_otu.id] },
             accepted_name_mode: 'accepted_name_usage_id'
           )
@@ -1439,7 +1439,7 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
 
       context 'replace_with_accepted_name mode' do
         let(:replace_data) do
-          ::Export::Dwca::ChecklistData.new(
+          ::Export::Dwca::Checklist::Data.new(
             core_otu_scope_params: { otu_id: [animal_otu.id, plant_otu.id] },
             accepted_name_mode: 'replace_with_accepted_name'
           )
@@ -1493,7 +1493,7 @@ describe Export::Dwca::ChecklistData, type: :model, group: :darwin_core do
         let!(:plant_common_name) { FactoryBot.create(:valid_common_name, name: 'Plant Bug', otu: plant_otu, language: english) }
 
         let(:data_with_vernacular) do
-          ::Export::Dwca::ChecklistData.new(
+          ::Export::Dwca::Checklist::Data.new(
             core_otu_scope_params: { otu_id: [animal_otu.id, plant_otu.id] },
             accepted_name_mode: 'replace_with_accepted_name',
             extensions: [:vernacular_name]

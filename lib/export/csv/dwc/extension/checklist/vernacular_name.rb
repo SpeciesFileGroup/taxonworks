@@ -23,7 +23,7 @@ module Export::CSV::Dwc::Extension::Checklist::VernacularName
   end.freeze
 
   # Generate CSV for vernacular name extension from CommonName records.
-  # @param core_otu_scope [Hash] OTU query params from ChecklistData
+  # @param core_otu_scope [Hash] OTU query params from Checklist::Data
   # @param taxon_name_id_to_taxon_id [Hash] mapping of taxon_name_id => taxonID
   # @return [String] CSV content
   def self.csv(core_otu_scope, taxon_name_id_to_taxon_id)
