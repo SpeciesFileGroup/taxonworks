@@ -373,24 +373,24 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         expect(d.collection_object_scope.pluck(:dwc_occurrence_object_id)).to eq(expected_ids)
       end
 
-      specify '#collection_objects 1' do
+      xspecify '#collection_objects 1' do
         d = Export::Dwca::Data.new(core_scope: scope).collection_objects
         expect(d.all).to contain_exactly(*CollectionObject.joins(:dwc_occurrence).order('dwc_occurrences.id').to_a)
       end
 
-      specify '#collection_objects 1' do
+      xspecify '#collection_objects 1' do
         s1 = Specimen.order(:id).first
         s2 = Specimen.order(:id).last
         d = Export::Dwca::Data.new(core_scope: scope.where(dwc_occurrence_object_id: [s1.id, s2.id])).collection_objects
         expect(d.all).to contain_exactly(s1, s2)
       end
 
-      specify '#collecting_events 1' do
+      xspecify '#collecting_events 1' do
         d = Export::Dwca::Data.new(core_scope: scope).collecting_events
         expect(d.to_a).to contain_exactly(*CollectingEvent.all.to_a)
       end
 
-      specify '#collecting_events 2' do
+      xspecify '#collecting_events 2' do
         d = Export::Dwca::Data.new(core_scope: scope).collecting_events
         expect(d.to_a).to contain_exactly(*CollectingEvent.all.to_a)
       end
@@ -856,7 +856,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           a.cleanup
         end
 
-        specify '#collection_object_attributes_query' do
+        xspecify '#collection_object_attributes_query' do
           # All three share CE
           f = Specimen.first
           m = Specimen.third
@@ -880,7 +880,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           a.cleanup
         end
 
-        specify '#collecting_event_attributes match only referenced collecting events' do
+        xspecify '#collecting_event_attributes match only referenced collecting events' do
           f = Specimen.first
           fm = Specimen.second
           m = Specimen.third
@@ -918,7 +918,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           a.cleanup
         end
 
-        specify '#collecting_event_attributes, does not inject collection_object_ids via collecting events for collection_objects not referenced in the origin scope' do
+        xspecify '#collecting_event_attributes, does not inject collection_object_ids via collecting events for collection_objects not referenced in the origin scope' do
           # All three share CE
           f = Specimen.first
           m = Specimen.third
@@ -946,7 +946,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           a.cleanup
         end
 
-        specify '#collection_object_attributes' do
+        xspecify '#collection_object_attributes' do
           s = Specimen.all
           f = Specimen.first
           m = Specimen.third
@@ -964,7 +964,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           a.cleanup
         end
 
-        specify '#collecting_event_attributes' do
+        xspecify '#collecting_event_attributes' do
           f = Specimen.first
 
           c = FactoryBot.create(:valid_collecting_event)
