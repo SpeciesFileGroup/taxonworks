@@ -1,8 +1,7 @@
-module Export
-  module Dwca
-    # PostgreSQL temporary function creators for DwC-A export
-    # These functions exist only for the current database session
-    module PostgresqlFunctions
+module Export::Dwca::Occurrence
+  # PostgreSQL temporary function creators for DwC-A export
+  # These functions exist only for the current database session
+  module PostgresqlFunctions
       # Creates a temporary PostgreSQL function that sanitizes CSV values
       # by replacing newlines and tabs with spaces
       # The function exists only for the current database session.
@@ -37,6 +36,5 @@ module Export
           $$ LANGUAGE SQL IMMUTABLE;
         SQL
       end
-    end
   end
 end

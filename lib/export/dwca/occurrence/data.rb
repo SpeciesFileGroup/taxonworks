@@ -1,6 +1,6 @@
 require 'zip'
 
-module Export::Dwca
+module Export::Dwca::Occurrence
 
   # Columns we include in the Resource Relationship extension table that
   # aren't DwC terms but have meaning for us and perhaps users of our
@@ -22,7 +22,7 @@ module Export::Dwca
   #
   # Usage:
   #  begin
-  #   data = Dwca::Data.new(DwcOccurrence.where(project_id: sessions_current_project_id)
+  #   data = Dwca::Occurrence::Data.new(DwcOccurrence.where(project_id: sessions_current_project_id)
   #  ensure
   #   data.cleanup
   #  end
@@ -30,8 +30,8 @@ module Export::Dwca
   # Always use the ensure/data.cleanup pattern!
   #
   class Data
-    include Export::Dwca::SqlFragments
-    include Export::Dwca::PostgresqlFunctions
+    include Export::Dwca::Occurrence::SqlFragments
+    include Export::Dwca::Occurrence::PostgresqlFunctions
 
     attr_accessor :data
 
@@ -334,7 +334,7 @@ module Export::Dwca
       @taxonworks_extension_data = Tempfile.new('tw_extension_data.tsv')
 
       # Delegate to TaxonworksExtensionExporter service object
-      exporter = Export::Dwca::TaxonworksExtensionExporter.new(
+      exporter = Export::Dwca::Occurrence::TaxonworksExtensionExporter.new(
         core_scope: @core_scope,
         taxonworks_extension_methods: taxonworks_extension_methods
       )
@@ -349,7 +349,7 @@ module Export::Dwca
       @predicate_data = Tempfile.new('predicate_data.tsv')
 
       # Delegate to PredicateExporter service object
-      exporter = Export::Dwca::PredicateExporter.new(
+      exporter = Export::Dwca::Occurrence::PredicateExporter.new(
         core_scope: @core_scope,
         collection_object_predicate_ids: collection_object_predicate_ids,
         collecting_event_predicate_ids: collecting_event_predicate_ids
@@ -470,7 +470,7 @@ module Export::Dwca
         @media_tmp.write("\n")
       else
         # Delegate to MediaExporter service object
-        exporter = Export::Dwca::MediaExporter.new(
+        exporter = Export::Dwca::Occurrence::MediaExporter.new(
           media_extension: @media_extension,
           core_scope: @core_scope
         )

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Export::Dwca::Data, type: :model, group: :darwin_core do
+describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
   let(:scope) { ::DwcOccurrence.all }
 
   # Headers added when we spec a Specimen with a ce that is a valid_collecting_events
@@ -13,16 +13,16 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
   end
 
   specify 'initializing without a scope raises' do
-    expect {Export::Dwca::Data.new()}.to raise_error ArgumentError
+    expect {Export::Dwca::Occurrence::Data.new()}.to raise_error ArgumentError
   end
 
   specify 'initializing with a DwcOccurrence scope succeeds' do
-    a = Export::Dwca::Data.new(core_scope: scope).core_scope.to_sql
+    a = Export::Dwca::Occurrence::Data.new(core_scope: scope).core_scope.to_sql
     expect(a.include?('ORDER BY dwc_occurrences.id')).to be_truthy
   end
 
   context 'SQL fragment builders' do
-    let(:data) { Export::Dwca::Data.new(core_scope: scope) }
+    let(:data) { Export::Dwca::Occurrence::Data.new(core_scope: scope) }
     let(:conn) { ActiveRecord::Base.connection }
 
     before do
@@ -336,10 +336,10 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
   end
 
   context 'when initialized with a scope' do
-    let(:data) { Export::Dwca::Data.new(core_scope: scope) }
+    let(:data) { Export::Dwca::Occurrence::Data.new(core_scope: scope) }
 
     specify 'initializing with a DwcOccurrence scope succeeds' do
-      expect(Export::Dwca::Data.new(core_scope: scope)).to be_truthy
+      expect(Export::Dwca::Occurrence::Data.new(core_scope: scope)).to be_truthy
     end
 
     specify '#data returns tempfile with CSV data' do
@@ -368,49 +368,49 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
       let(:headers) { [ 'basisOfRecord', 'individualCount', 'occurrenceID', 'occurrenceStatus' ] }
 
       specify '#collection_object_scope' do
-        d = Export::Dwca::Data.new(core_scope: scope)
+        d = Export::Dwca::Occurrence::Data.new(core_scope: scope)
         expected_ids = CollectionObject.joins(:dwc_occurrence).order('dwc_occurrences.id').pluck(:dwc_occurrence_object_id)
         expect(d.collection_object_scope.pluck(:dwc_occurrence_object_id)).to eq(expected_ids)
       end
 
       xspecify '#collection_objects 1' do
-        d = Export::Dwca::Data.new(core_scope: scope).collection_objects
+        d = Export::Dwca::Occurrence::Data.new(core_scope: scope).collection_objects
         expect(d.all).to contain_exactly(*CollectionObject.joins(:dwc_occurrence).order('dwc_occurrences.id').to_a)
       end
 
       xspecify '#collection_objects 1' do
         s1 = Specimen.order(:id).first
         s2 = Specimen.order(:id).last
-        d = Export::Dwca::Data.new(core_scope: scope.where(dwc_occurrence_object_id: [s1.id, s2.id])).collection_objects
+        d = Export::Dwca::Occurrence::Data.new(core_scope: scope.where(dwc_occurrence_object_id: [s1.id, s2.id])).collection_objects
         expect(d.all).to contain_exactly(s1, s2)
       end
 
       xspecify '#collecting_events 1' do
-        d = Export::Dwca::Data.new(core_scope: scope).collecting_events
+        d = Export::Dwca::Occurrence::Data.new(core_scope: scope).collecting_events
         expect(d.to_a).to contain_exactly(*CollectingEvent.all.to_a)
       end
 
       xspecify '#collecting_events 2' do
-        d = Export::Dwca::Data.new(core_scope: scope).collecting_events
+        d = Export::Dwca::Occurrence::Data.new(core_scope: scope).collecting_events
         expect(d.to_a).to contain_exactly(*CollectingEvent.all.to_a)
       end
 
       context 'various scopes' do
         specify 'with .where clauses' do
           s = scope.where('id > 1')
-          d = Export::Dwca::Data.new(core_scope: s)
+          d = Export::Dwca::Occurrence::Data.new(core_scope: s)
           expect(d.meta_fields).to contain_exactly(*( headers + valid_collecting_event_headers))
         end
 
         specify 'with .order clauses' do
           s = scope.order(:basisOfRecord)
-          d = Export::Dwca::Data.new(core_scope: s)
+          d = Export::Dwca::Occurrence::Data.new(core_scope: s)
           expect(d.meta_fields).to contain_exactly(*(headers + valid_collecting_event_headers) )
         end
 
         specify 'with .join clauses' do
           s = scope.object_join('CollectionObject')
-          d = Export::Dwca::Data.new(core_scope: s)
+          d = Export::Dwca::Occurrence::Data.new(core_scope: s)
           expect(d.meta_fields).to contain_exactly(*(headers + valid_collecting_event_headers))
         end
       end
@@ -426,13 +426,13 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
         specify '#biological_associations_resource_relationship_tmp is a tempfile' do
           s = scope.where('id > 1')
-          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { biological_associations:  biological_association_scope  })
+          d = Export::Dwca::Occurrence::Data.new(core_scope: s, extension_scopes: { biological_associations:  biological_association_scope  })
           expect(d.biological_associations_resource_relationship_tmp).to be_kind_of(Tempfile)
         end
 
         specify '#biological_associations_resource_relationship_tmp returns lines for specimens' do
           s = scope.where('id > 1')
-          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { biological_associations:  biological_association_scope  })
+          d = Export::Dwca::Occurrence::Data.new(core_scope: s, extension_scopes: { biological_associations:  biological_association_scope  })
           # 1 header line, two ba lines, one for each direction of the
           # relationship.
           expect(d.biological_associations_resource_relationship_tmp.count).to eq(3)
@@ -449,27 +449,27 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
         specify '#media_tmp is a tempfile' do
           s = scope.where('id > 1')
-          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
+          d = Export::Dwca::Occurrence::Data.new(core_scope: s, extension_scopes: { media: media_scope })
           expect(d.media_tmp).to be_kind_of(Tempfile)
         end
 
         specify '#media_tmp header row starts with "coreid"' do
           s = scope.where('id > 1')
-          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
+          d = Export::Dwca::Occurrence::Data.new(core_scope: s, extension_scopes: { media: media_scope })
           expect(d.media_tmp.first).to start_with('coreid')
         end
 
         specify '#media_tmp returns lines for specimen images' do
           FactoryBot.create(:valid_depiction, depiction_object: CollectionObject.last)
           s = scope.where('id > 1')
-          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
+          d = Export::Dwca::Occurrence::Data.new(core_scope: s, extension_scopes: { media: media_scope })
           expect(d.media_tmp.count).to eq(2)
         end
 
         specify '#media_tmp returns lines for specimen sounds' do
           FactoryBot.create(:valid_conveyance, conveyance_object: CollectionObject.last)
           s = scope.where('id > 1')
-          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
+          d = Export::Dwca::Occurrence::Data.new(core_scope: s, extension_scopes: { media: media_scope })
           expect(d.media_tmp.count).to eq(2)
         end
 
@@ -478,7 +478,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           o = FactoryBot.create(:valid_observation, observation_object: co)
           FactoryBot.create(:valid_depiction, depiction_object: o)
           s = scope.where('id > 1')
-          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
+          d = Export::Dwca::Occurrence::Data.new(core_scope: s, extension_scopes: { media: media_scope })
           expect(d.media_tmp.count).to eq(2)
         end
 
@@ -488,21 +488,21 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           o = FactoryBot.create(:valid_observation, observation_object: co)
           FactoryBot.create(:valid_conveyance, conveyance_object: o)
           s = scope.where('id > 1')
-          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
+          d = Export::Dwca::Occurrence::Data.new(core_scope: s, extension_scopes: { media: media_scope })
           expect(d.media_tmp.count).to eq(2)
         end
 
         specify '#media_tmp returns lines for field occurrence images' do
           FactoryBot.create(:valid_depiction, depiction_object: FieldOccurrence.last)
           s = scope.where('id > 1')
-          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
+          d = Export::Dwca::Occurrence::Data.new(core_scope: s, extension_scopes: { media: media_scope })
           expect(d.media_tmp.count).to eq(2)
         end
 
         specify '#media_tmp returns lines for field occurrence sounds' do
           FactoryBot.create(:valid_conveyance, conveyance_object: FieldOccurrence.last)
           s = scope.where('id > 1')
-          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
+          d = Export::Dwca::Occurrence::Data.new(core_scope: s, extension_scopes: { media: media_scope })
           expect(d.media_tmp.count).to eq(2)
         end
 
@@ -511,7 +511,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           o = FactoryBot.create(:valid_observation, observation_object: fo)
           FactoryBot.create(:valid_depiction, depiction_object: o)
           s = scope.where('id > 1')
-          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
+          d = Export::Dwca::Occurrence::Data.new(core_scope: s, extension_scopes: { media: media_scope })
 
           expect(d.media_tmp.count).to eq(2)
         end
@@ -522,7 +522,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           o = FactoryBot.create(:valid_observation, observation_object: fo)
           FactoryBot.create(:valid_conveyance, conveyance_object: o)
           s = scope.where('id > 1')
-          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
+          d = Export::Dwca::Occurrence::Data.new(core_scope: s, extension_scopes: { media: media_scope })
           expect(d.media_tmp.count).to eq(2)
         end
 
@@ -538,7 +538,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           )
 
           s = scope.where('id > 1')
-          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
+          d = Export::Dwca::Occurrence::Data.new(core_scope: s, extension_scopes: { media: media_scope })
 
           media_file = d.media_tmp
           media_file.rewind
@@ -572,7 +572,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
           s = DwcOccurrence.where(dwc_occurrence_object_id: co.id, dwc_occurrence_object_type: 'CollectionObject')
           co_sql = CollectionObject.where(id: co.id).to_sql
-          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: { collection_objects: co_sql, field_occurrences: nil } })
+          d = Export::Dwca::Occurrence::Data.new(core_scope: s, extension_scopes: { media: { collection_objects: co_sql, field_occurrences: nil } })
 
           media_file = d.media_tmp
           media_file.rewind
@@ -612,7 +612,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
           s = DwcOccurrence.where(dwc_occurrence_object_id: co.id, dwc_occurrence_object_type: 'CollectionObject')
           co_sql = CollectionObject.where(id: co.id).to_sql
-          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: { collection_objects: co_sql, field_occurrences: nil } })
+          d = Export::Dwca::Occurrence::Data.new(core_scope: s, extension_scopes: { media: { collection_objects: co_sql, field_occurrences: nil } })
 
           media_file = d.media_tmp
           media_file.rewind
@@ -643,7 +643,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           )
 
           s = scope.where('id > 1')
-          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
+          d = Export::Dwca::Occurrence::Data.new(core_scope: s, extension_scopes: { media: media_scope })
 
           media_file = d.media_tmp
           media_file.rewind
@@ -661,7 +661,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           depiction = FactoryBot.create(:valid_depiction, depiction_object: co)
 
           s = scope.where('id > 1')
-          d = Export::Dwca::Data.new(core_scope: s, extension_scopes: { media: media_scope })
+          d = Export::Dwca::Occurrence::Data.new(core_scope: s, extension_scopes: { media: media_scope })
 
           media_file = d.media_tmp
           media_file.rewind
@@ -715,7 +715,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
           m.update!(collecting_event: c)
 
-          a = Export::Dwca::Data.new(core_scope: scope, predicate_extensions: {collection_object_predicate_id: predicate_ids, collecting_event_predicate_id: predicate_ids } )
+          a = Export::Dwca::Occurrence::Data.new(core_scope: scope, predicate_extensions: {collection_object_predicate_id: predicate_ids, collecting_event_predicate_id: predicate_ids } )
 
           # Orphan DwcOccurrence
           f.delete
@@ -742,7 +742,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
           m.update!(collecting_event: c)
 
-          a = Export::Dwca::Data.new(core_scope: scope, predicate_extensions: {collection_object_predicate_id: predicate_ids, collecting_event_predicate_id: predicate_ids } )
+          a = Export::Dwca::Occurrence::Data.new(core_scope: scope, predicate_extensions: {collection_object_predicate_id: predicate_ids, collecting_event_predicate_id: predicate_ids } )
 
           f = a.predicate_data.read
 
@@ -771,7 +771,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
           m.update!(collecting_event: c)
 
-          a = Export::Dwca::Data.new(core_scope: scope, predicate_extensions: {collection_object_predicate_id: predicate_ids, collecting_event_predicate_id: predicate_ids } )
+          a = Export::Dwca::Occurrence::Data.new(core_scope: scope, predicate_extensions: {collection_object_predicate_id: predicate_ids, collecting_event_predicate_id: predicate_ids } )
 
           d1.destroy!
           d2.destroy!
@@ -795,7 +795,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
           m.update!(collecting_event: c)
 
-          a = Export::Dwca::Data.new(core_scope: scope, predicate_extensions: {collection_object_predicate_id: predicate_ids, collecting_event_predicate_id: predicate_ids } )
+          a = Export::Dwca::Occurrence::Data.new(core_scope: scope, predicate_extensions: {collection_object_predicate_id: predicate_ids, collecting_event_predicate_id: predicate_ids } )
 
           f = a.predicate_data.read
 
@@ -831,7 +831,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           # Now dwc_occurrence order should be: s2, s3, s1 (s1's dwc was recreated last)
           # But collection_object order is still: s1, s2, s3
 
-          a = Export::Dwca::Data.new(core_scope: scope, predicate_extensions: {collection_object_predicate_id: [p1.id]})
+          a = Export::Dwca::Occurrence::Data.new(core_scope: scope, predicate_extensions: {collection_object_predicate_id: [p1.id]})
 
           predicate_csv = a.predicate_data.read
           rows = CSV.parse(predicate_csv, headers: true, col_sep: "\t")
@@ -873,7 +873,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           # The scope is only two specimens
           q = DwcOccurrence.where(dwc_occurrence_object: Specimen.where(id: [f.id, m.id]))
 
-          a = Export::Dwca::Data.new(core_scope: q, predicate_extensions: {collecting_event_predicate_id: [p1.id] } )
+          a = Export::Dwca::Occurrence::Data.new(core_scope: q, predicate_extensions: {collecting_event_predicate_id: [p1.id] } )
 
           expect(a.collecting_event_attributes_query.to_a).to contain_exactly(d1)
 
@@ -907,7 +907,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           # The scope is only two specimens
           q = DwcOccurrence.where(dwc_occurrence_object: Specimen.where(id: [f.id, l.id])) # c1, c3
 
-          a = Export::Dwca::Data.new(core_scope: q, predicate_extensions: {collecting_event_predicate_id: [p1.id, p2.id] } )
+          a = Export::Dwca::Occurrence::Data.new(core_scope: q, predicate_extensions: {collecting_event_predicate_id: [p1.id, p2.id] } )
 
           expect(a.collecting_event_attributes).to contain_exactly(
             [f.id, "TW:DataAttribute:CollectingEvent:#{p1.name}", d1.value ],
@@ -936,7 +936,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           # The scope is only two specimens
           q = DwcOccurrence.where(dwc_occurrence_object: Specimen.where(id: [f.id, m.id]))
 
-          a = Export::Dwca::Data.new(core_scope: q, predicate_extensions: {collecting_event_predicate_id: [p1.id] } )
+          a = Export::Dwca::Occurrence::Data.new(core_scope: q, predicate_extensions: {collecting_event_predicate_id: [p1.id] } )
 
           expect(a.collecting_event_attributes).to contain_exactly(
             [f.id, "TW:DataAttribute:CollectingEvent:#{p1.name}", d1.value ],
@@ -956,7 +956,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           d2 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: l, predicate: p3 )
           d3 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: m, predicate: p2 )
 
-          a = Export::Dwca::Data.new(core_scope: scope, predicate_extensions: {collection_object_predicate_id: predicate_ids } )
+          a = Export::Dwca::Occurrence::Data.new(core_scope: scope, predicate_extensions: {collection_object_predicate_id: predicate_ids } )
 
           expect(a.collection_object_attributes).to include([f.id, "TW:DataAttribute:CollectionObject:#{p1.name}", d1.value])
           expect(a.collection_object_attributes).to include([l.id, "TW:DataAttribute:CollectionObject:#{p3.name}", d2.value])
@@ -975,7 +975,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           d1 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p1 )
           d2 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p3 )
 
-          a = Export::Dwca::Data.new(core_scope: scope, predicate_extensions: {collecting_event_predicate_id: predicate_ids } )
+          a = Export::Dwca::Occurrence::Data.new(core_scope: scope, predicate_extensions: {collecting_event_predicate_id: predicate_ids } )
 
           expect(a.collecting_event_attributes).to include([f.id, "TW:DataAttribute:CollectingEvent:#{p1.name}", d1.value])
           expect(a.collecting_event_attributes).to include([f.id, "TW:DataAttribute:CollectingEvent:#{p3.name}", d2.value])
@@ -994,7 +994,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           d2 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p3 )
 
           # Configure all 3 predicates but only 2 have data
-          a = Export::Dwca::Data.new(core_scope: scope, predicate_extensions: {collecting_event_predicate_id: predicate_ids } )
+          a = Export::Dwca::Occurrence::Data.new(core_scope: scope, predicate_extensions: {collecting_event_predicate_id: predicate_ids } )
 
           predicate_file = a.predicate_data
           predicate_file.rewind
@@ -1030,7 +1030,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
           d2 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p2, value: value_with_tab)
           d3 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p3, value: value_with_both)
 
-          a = Export::Dwca::Data.new(core_scope: scope,
+          a = Export::Dwca::Occurrence::Data.new(core_scope: scope,
             predicate_extensions: {collecting_event_predicate_id: predicate_ids } )
 
           predicate_file = a.predicate_data
@@ -1050,7 +1050,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
       end
 
       specify 'collection_object_scope maintains dwc_occurrence ordering' do
-        d = Export::Dwca::Data.new(core_scope: scope, taxonworks_extensions: [:otu_name])
+        d = Export::Dwca::Occurrence::Data.new(core_scope: scope, taxonworks_extensions: [:otu_name])
         # The scope should return objects in dwc_occurrence.id order
         expected_order = scope.where(dwc_occurrence_object_type: 'CollectionObject').order('dwc_occurrences.id').pluck(:dwc_occurrence_object_id)
         expect(d.collection_object_scope.pluck(:dwc_occurrence_object_id)).to eq(expected_order)
@@ -1071,7 +1071,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
             d2 = TaxonDetermination.create( otu: o2, taxon_determination_object: s3)
             d3 = TaxonDetermination.create( otu: o3, taxon_determination_object: s2)
 
-            d = Export::Dwca::Data.new(core_scope: scope, taxonworks_extensions: [:otu_name])
+            d = Export::Dwca::Occurrence::Data.new(core_scope: scope, taxonworks_extensions: [:otu_name])
 
             e = d.taxonworks_extension_data.read
 
@@ -1095,7 +1095,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
             d2 = TaxonDetermination.create( otu: o2, taxon_determination_object: s3)
             d3 = TaxonDetermination.create( otu: o3, taxon_determination_object: s2)
 
-            d = Export::Dwca::Data.new(core_scope: scope, taxonworks_extensions: [:otu_name])
+            d = Export::Dwca::Occurrence::Data.new(core_scope: scope, taxonworks_extensions: [:otu_name])
 
             e = d.taxonworks_extension_data.read
 
@@ -1123,7 +1123,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
             s3.update!(collecting_event: c2)
             s2.update!(collecting_event: c3)
 
-            d = Export::Dwca::Data.new(core_scope: scope, taxonworks_extensions: [:elevation_precision])
+            d = Export::Dwca::Occurrence::Data.new(core_scope: scope, taxonworks_extensions: [:elevation_precision])
 
             e = d.taxonworks_extension_data.read
 
@@ -1153,7 +1153,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
             s3.update!(collecting_event: c2)
             s2.update!(collecting_event: c3)
 
-            d = Export::Dwca::Data.new(core_scope: scope, taxonworks_extensions: [:otu_name, :elevation_precision])
+            d = Export::Dwca::Occurrence::Data.new(core_scope: scope, taxonworks_extensions: [:otu_name, :elevation_precision])
 
             e = d.taxonworks_extension_data.read
 
@@ -1187,7 +1187,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
             s2.update!(collecting_event: c1) # not this!
             s3.update!(collecting_event: c2)
 
-            d = Export::Dwca::Data.new(
+            d = Export::Dwca::Occurrence::Data.new(
               core_scope: scope.where(dwc_occurrence_object_id: [s1.id, s3.id, s2.id]),
               taxonworks_extensions: ::CollectionObject::DwcExtensions::TaxonworksExtensions::EXTENSION_FIELDS
             )
@@ -1217,7 +1217,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
             extensions = ::CollectionObject::DwcExtensions::TaxonworksExtensions::EXTENSION_FIELDS
 
             # Pass them in reverse order to simulate a caller shuffling things
-            d = Export::Dwca::Data.new(
+            d = Export::Dwca::Occurrence::Data.new(
               core_scope: scope,
               taxonworks_extensions: extensions.reverse
             )
@@ -1235,7 +1235,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         end
 
         context 'exporting otu_name' do
-          let(:d) {Export::Dwca::Data.new(core_scope: scope, taxonworks_extensions: [:otu_name])}
+          let(:d) {Export::Dwca::Occurrence::Data.new(core_scope: scope, taxonworks_extensions: [:otu_name])}
           let!(:o) {FactoryBot.create(:valid_otu)}
           let!(:det) {FactoryBot.create(
             :valid_taxon_determination,
@@ -1269,7 +1269,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         end
 
         context 'exporting header with different api column name' do
-          let(:d) { Export::Dwca::Data.new(core_scope: scope, taxonworks_extensions: [:collection_object_id]) }
+          let(:d) { Export::Dwca::Occurrence::Data.new(core_scope: scope, taxonworks_extensions: [:collection_object_id]) }
 
           specify 'should have the correct headers' do
             headers = %w[basisOfRecord individualCount occurrenceID occurrenceStatus TW:Internal:collection_object_id]
@@ -1286,7 +1286,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         end
 
         context 'exporting elevation_precision' do
-          let(:d) { Export::Dwca::Data.new(core_scope: scope, taxonworks_extensions: [:elevation_precision]) }
+          let(:d) { Export::Dwca::Occurrence::Data.new(core_scope: scope, taxonworks_extensions: [:elevation_precision]) }
           let(:ce) { FactoryBot.create(:valid_collecting_event, minimum_elevation: 100, elevation_precision: '10 m') }
 
           before do
@@ -1305,7 +1305,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         end
 
         context 'exporting dwc_occurrence.id' do
-          let(:d) { Export::Dwca::Data.new(core_scope: scope, taxonworks_extensions: [:dwc_occurrence_id]) }
+          let(:d) { Export::Dwca::Occurrence::Data.new(core_scope: scope, taxonworks_extensions: [:dwc_occurrence_id]) }
 
           specify 'should have the dwc_occurrence_id in the correct extension file row' do
             expect(File.readlines(d.taxonworks_extension_data).last&.strip).to eq(CollectionObject.last.dwc_occurrence.id.to_s)
@@ -1317,7 +1317,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
         end
 
         context 'when no extensions are selected' do
-          let(:empty_extension) { Export::Dwca::Data.new(core_scope: scope, taxonworks_extensions: []) }
+          let(:empty_extension) { Export::Dwca::Occurrence::Data.new(core_scope: scope, taxonworks_extensions: []) }
 
           specify '#taxonworks_extension_data should be a tempfile' do
             expect(empty_extension.taxonworks_extension_data).to be_kind_of(Tempfile)
@@ -1355,7 +1355,7 @@ describe Export::Dwca::Data, type: :model, group: :darwin_core do
 
         # Export just this specimen
         single_scope = DwcOccurrence.where(id: dwc.id)
-        single_export = Export::Dwca::Data.new(core_scope: single_scope)
+        single_export = Export::Dwca::Occurrence::Data.new(core_scope: single_scope)
 
         # Parse the CSV output
         tempfile = single_export.data

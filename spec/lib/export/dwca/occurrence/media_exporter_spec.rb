@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Export::Dwca::MediaExporter, type: :model do
+RSpec.describe Export::Dwca::Occurrence::MediaExporter, type: :model do
   let(:project) { FactoryBot.create(:valid_project) }
   let(:user) { FactoryBot.create(:valid_user) }
   let(:current_user_id) { user.id }

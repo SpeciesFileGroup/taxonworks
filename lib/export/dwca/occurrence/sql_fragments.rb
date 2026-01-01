@@ -1,8 +1,7 @@
-module Export
-  module Dwca
-    # SQL fragment builders for DwC-A export queries
-    # These are stateless helpers that generate SQL snippets for complex queries
-    module SqlFragments
+module Export::Dwca::Occurrence
+  # SQL fragment builders for DwC-A export queries
+  # These are stateless helpers that generate SQL snippets for complex queries
+  module SqlFragments
       # SQL fragment: Media identifier with CSV sanitization
       # @param media_class [Class] Media class (Image or Sound)
       # @param media_table_alias [String] SQL table alias for the media table
@@ -130,6 +129,5 @@ module Export
           END
         SQL
       end
-    end
   end
 end

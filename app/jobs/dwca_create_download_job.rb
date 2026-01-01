@@ -17,7 +17,7 @@ class DwcaCreateDownloadJob < ApplicationJob
 
     begin
       begin
-        d = ::Export::Dwca::Data.new(core_scope:, predicate_extensions:, extension_scopes:, taxonworks_extensions:, eml_data:)
+        d = ::Export::Dwca::Occurrence::Data.new(core_scope:, predicate_extensions:, extension_scopes:, taxonworks_extensions:, eml_data:)
         d.package_download(download)
       ensure
         d&.cleanup

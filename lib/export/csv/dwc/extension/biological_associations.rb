@@ -10,11 +10,11 @@ module Export::CSV::Dwc::Extension::BiologicalAssociations
     coreid: '',
     resourceRelationshipID: 'http://rs.tdwg.org/dwc/terms/resourceRelationshipID',
     resourceID: 'http://rs.tdwg.org/dwc/terms/resourceID',
-    'TW:Resource': Export::Dwca::LOCAL_RESOURCE_RELATIONSHIP_TERMS[:'TW:Resource'],
+    'TW:Resource': Export::Dwca::Occurrence::LOCAL_RESOURCE_RELATIONSHIP_TERMS[:'TW:Resource'],
     relationshipOfResourceID: 'http://rs.tdwg.org/dwc/terms/relationshipOfResourceID',
     relationshipOfResource: 'http://rs.tdwg.org/dwc/terms/relationshipOfResource',
     relatedResourceID: 'http://rs.tdwg.org/dwc/terms/relatedResourceID',
-    'TW:RelatedResource': Export::Dwca::LOCAL_RESOURCE_RELATIONSHIP_TERMS[:'TW:RelatedResource'],
+    'TW:RelatedResource': Export::Dwca::Occurrence::LOCAL_RESOURCE_RELATIONSHIP_TERMS[:'TW:RelatedResource'],
     relationshipAccordingTo: 'http://rs.tdwg.org/dwc/terms/relationshipAccordingTo',
     relationshipEstablishedDate: 'http://rs.tdwg.org/dwc/terms/relationshipEstablishedDate',
     relationshipRemarks: 'http://rs.tdwg.org/dwc/terms/relationshipRemarks'

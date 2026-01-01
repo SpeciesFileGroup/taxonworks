@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Export::Dwca::PredicateExporter, type: :model do
+RSpec.describe Export::Dwca::Occurrence::PredicateExporter, type: :model do
   let(:project) { FactoryBot.create(:valid_project) }
   let(:user) { FactoryBot.create(:valid_user) }
   let(:current_user_id) { user.id }
