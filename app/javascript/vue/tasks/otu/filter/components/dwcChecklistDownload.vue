@@ -28,24 +28,76 @@
             Occurrence determination or Asserted Distribution OTU) will be
             included in the checklist.</i>
           </p>
-          <p class="margin-small-bottom">Select extensions to include:</p>
-          <ul class="no_bullets">
-            <li
-              v-for="item in availableExtensions"
-              :key="item.value"
-            >
-              <label>
-                <input
-                  type="checkbox"
-                  v-model="selectedExtensions[item.value]"
-                />
-                {{ item.label }}
-              </label>
-            </li>
-          </ul>
 
-          <div class="margin-medium-top">
-            <p class="margin-small-bottom">How to handle unaccepted names:</p>
+          <div class="panel content">
+            <p class="margin-small-bottom"><strong>Select extensions to include:</strong></p>
+            <ul class="no_bullets">
+              <li
+                v-for="item in availableExtensions"
+                :key="item.value"
+              >
+                <label>
+                  <input
+                    type="checkbox"
+                    v-model="selectedExtensions[item.value]"
+                    @change="handleExtensionChange(item.value)"
+                  />
+                  {{ item.label }}
+                </label>
+              </li>
+            </ul>
+          </div>
+
+          <div
+            v-if="selectedExtensions.description"
+            class="panel content margin-medium-top"
+          >
+            <p class="margin-small-bottom"><strong>Select topics for descriptions (in order):</strong></p>
+            <p class="subtle margin-small-bottom">
+              <i>Only published (public) contents will be included in the export.</i>
+            </p>
+            <VBtn
+              color="primary"
+              medium
+              class="margin-small-bottom"
+              style="align-self: flex-start;"
+              @click="showTopicModal = true"
+            >
+              Add Topics
+            </VBtn>
+            <ul
+              v-if="selectedTopics.length"
+              class="no_bullets"
+            >
+              <li
+                v-for="(topic, index) in selectedTopics"
+                :key="topic.id"
+                class="margin-small-bottom flex-separate middle"
+              >
+                <span>{{ index + 1 }}. {{ topic.name }}</span>
+                <VBtn
+                  circle
+                  color="primary"
+                  @click="removeTopic(index)"
+                >
+                  <VIcon
+                    x-small
+                    color="white"
+                    name="trash"
+                  />
+                </VBtn>
+              </li>
+            </ul>
+            <p
+              v-else
+              class="subtle"
+            >
+              No topics selected. Click "Add Topics" to select topics.
+            </p>
+          </div>
+
+          <div class="panel content margin-medium-top">
+            <p class="margin-small-bottom"><strong>How to handle unaccepted names:</strong></p>
             <div
               v-for="option in acceptedNameModeOptions"
               :key="option.value"
@@ -74,6 +126,18 @@
         </div>
       </template>
     </v-modal>
+    <v-modal
+      v-if="showTopicModal"
+      @close="showTopicModal = false"
+      :container-style="{ width: '600px', height: '70vh' }"
+    >
+      <template #header>
+        <h3>Select Topic</h3>
+      </template>
+      <template #body>
+        <TopicList @select="addTopic" />
+      </template>
+    </v-modal>
     <ConfirmationModal ref="confirmationModalRef" />
   </div>
 </template>
@@ -83,8 +147,10 @@ import { RouteNames } from '@/routes/routes.js'
 import { DwcChecklist } from '@/routes/endpoints'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import VModal from '@/components/ui/Modal.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import TopicList from '@/tasks/contents/editor/components/Topic/TopicList.vue'
 import { humanize } from '@/helpers'
 
 const props = defineProps({
@@ -113,6 +179,8 @@ const availableExtensions = ref([])
 const selectedExtensions = reactive({})
 const acceptedNameModeOptions = ref([])
 const acceptedNameMode = ref('replace_with_accepted_name')
+const showTopicModal = ref(false)
+const selectedTopics = ref([])
 
 onMounted(async () => {
   try {
@@ -184,6 +252,11 @@ function download() {
     accepted_name_mode: acceptedNameMode.value
   }
 
+  // Add description topics if description extension is selected
+  if (selectedExtensions.description && selectedTopics.value.length > 0) {
+    payload.description_topics = selectedTopics.value.map(t => t.id)
+  }
+
   console.log('Sending payload:', payload)
 
   DwcChecklist.generateChecklistDownload(payload).then(({ body }) => {
@@ -214,6 +287,28 @@ async function openGenerateDownloadModal() {
   })
 
   setModalView(false)
+}
+
+function addTopic(topic) {
+  // Avoid duplicates
+  if (!selectedTopics.value.find(t => t.id === topic.id)) {
+    selectedTopics.value.push(topic)
+    TW.workbench.alert.create(`Added topic: ${topic.name}`, 'notice')
+  } else {
+    TW.workbench.alert.create(`Topic "${topic.name}" is already selected`, 'notice')
+  }
+  // Keep modal open to allow selecting multiple topics
+}
+
+function removeTopic(index) {
+  selectedTopics.value.splice(index, 1)
+}
+
+function handleExtensionChange(extensionValue) {
+  // Clear topics if description extension is unchecked
+  if (extensionValue === 'description' && !selectedExtensions[extensionValue]) {
+    selectedTopics.value = []
+  }
 }
 
 </script>
