@@ -4,12 +4,14 @@ module Export::Dwca::Checklist
   class Data
 
     # Available extensions.
+    DESCRIPTION_EXTENSION = :description
     DISTRIBUTION_EXTENSION = :distribution
     REFERENCES_EXTENSION = :references
     TYPES_AND_SPECIMEN_EXTENSION = :types_and_specimens
     VERNACULAR_NAME_EXTENSION = :vernacular_name
 
     CHECKLIST_EXTENSION_OPTIONS = [
+      { value: DESCRIPTION_EXTENSION, displayed_in_gbif: true },
       { value: DISTRIBUTION_EXTENSION, displayed_in_gbif: true },
       { value: REFERENCES_EXTENSION, displayed_in_gbif: false },
       { value: TYPES_AND_SPECIMEN_EXTENSION, displayed_in_gbif: false },
@@ -86,6 +88,9 @@ module Export::Dwca::Checklist
     # Example: {123 => 5, 456 => 3}
     attr_reader :taxon_name_id_to_taxon_id
 
+    # @return [Boolean] whether to include description extension
+    attr_accessor :description_extension
+
     # @return [Boolean] whether to include distribution extension
     attr_accessor :species_distribution_extension
 
@@ -97,6 +102,9 @@ module Export::Dwca::Checklist
 
     # @return [Boolean] whether to include vernacular name extension
     attr_accessor :vernacular_name_extension
+
+    # @return [Array<Integer>] ordered list of topic IDs for description extension
+    attr_accessor :description_topics
 
     # @return [Array<Symbol>] list of extensions to include
     attr_accessor :extensions
@@ -117,18 +125,21 @@ module Export::Dwca::Checklist
     def initialize(
       core_otu_scope_params: nil,
       extensions: [],
-      accepted_name_mode: 'replace_with_accepted_name'
+      accepted_name_mode: 'replace_with_accepted_name',
+      description_topics: []
     )
       @accepted_name_mode = accepted_name_mode
 
       @core_otu_scope_params = (core_otu_scope_params&.to_h || {}).deep_symbolize_keys
 
       @extensions = extensions
+      @description_topics = description_topics
 
       @core_occurrence_scope = ::Queries::DwcOccurrence::Filter.new(
         otu_query: @core_otu_scope_params
       ).all
 
+      @description_extension = extensions.include?(DESCRIPTION_EXTENSION)
       @species_distribution_extension = extensions.include?(DISTRIBUTION_EXTENSION)
       @references_extension = extensions.include?(REFERENCES_EXTENSION)
       @types_and_specimen_extension = extensions.include?(TYPES_AND_SPECIMEN_EXTENSION)
@@ -431,6 +442,15 @@ module Export::Dwca::Checklist
               row_type: 'http://rs.gbif.org/terms/1.0/VernacularName',
               extension_name: 'vernacular_name')
           end
+
+          # Description extension
+          if description_extension
+            add_extension_to_meta(xml,
+              extension_module: Export::CSV::Dwc::Extension::Checklist::Description,
+              file_location: 'description.tsv',
+              row_type: 'http://rs.gbif.org/terms/1.0/Description',
+              extension_name: 'description')
+          end
         }
       end
 
@@ -491,6 +511,32 @@ module Export::Dwca::Checklist
       generate_extension_tmp('vernacular_name', scope: core_otu_scope_params)
     end
 
+    def description_extension_tmp
+      return nil unless description_extension
+
+      tempfile = Tempfile.new('description.tsv')
+
+      if no_records?
+        content = "\n"
+      else
+        # Ensure taxon_name_id_to_taxon_id mapping exists
+        csv unless taxon_name_id_to_taxon_id
+
+        content = Export::CSV::Dwc::Extension::Checklist::Description.csv(
+          core_otu_scope_params,
+          taxon_name_id_to_taxon_id,
+          description_topics: description_topics
+        )
+      end
+
+      tempfile.write(content)
+      tempfile.flush
+      tempfile.rewind
+
+      @description_extension_tmp = tempfile
+      tempfile
+    end
+
     def build_zip
       t = Tempfile.new(zipfile_name)
 
@@ -499,6 +545,7 @@ module Export::Dwca::Checklist
       Zip::File.open(t.path, Zip::File::CREATE) do |zip|
         zip.add('data.tsv', data_file.path)
 
+        zip.add('description.tsv', description_extension_tmp.path) if description_extension
         zip.add('species_distribution.tsv', species_distribution_extension_tmp.path) if species_distribution_extension
         zip.add('references.tsv', references_extension_tmp.path) if references_extension
         zip.add('types_and_specimen.tsv', types_and_specimen_extension_tmp.path) if types_and_specimen_extension
@@ -549,6 +596,11 @@ module Export::Dwca::Checklist
 
       data_file.close if data_file
       data_file.unlink if data_file
+
+      if description_extension && @description_extension_tmp
+        @description_extension_tmp.close
+        @description_extension_tmp.unlink
+      end
 
       if species_distribution_extension && @species_distribution_extension_tmp
         @species_distribution_extension_tmp.close

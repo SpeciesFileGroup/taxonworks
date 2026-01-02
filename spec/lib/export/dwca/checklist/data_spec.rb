@@ -983,6 +983,293 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
         end
       end
 
+      context 'with description extension' do
+        let!(:topic_morphology) { FactoryBot.create(:valid_topic, name: 'Morphology') }
+        let!(:topic_biology) { FactoryBot.create(:valid_topic, name: 'Biology') }
+        let!(:topic_distribution) { FactoryBot.create(:valid_topic, name: 'Distribution') }
+        let!(:language_en) { FactoryBot.create(:valid_language, alpha_2: 'en') }
+        let!(:language_es) { FactoryBot.create(:valid_language, alpha_2: 'es') }
+
+        # Create published content
+        let!(:content1) do
+          content = FactoryBot.create(:valid_content,
+            otu: otu1,
+            topic: topic_morphology,
+            text: 'This is **bold** text with markdown.',
+            language: language_en)
+          PublicContent.create!(content: content, topic: topic_morphology, text: content.text, otu: otu1)
+          content
+        end
+
+        let!(:content2) do
+          content = FactoryBot.create(:valid_content,
+            otu: otu1,
+            topic: topic_biology,
+            text: 'Biology *italic* description.',
+            language: language_es)
+          PublicContent.create!(content: content, topic: topic_biology, text: content.text, otu: otu1)
+          content
+        end
+
+        let!(:content3) do
+          content = FactoryBot.create(:valid_content,
+            otu: otu2,
+            topic: topic_morphology,
+            text: 'Another species morphology.',
+            language: language_en)
+          PublicContent.create!(content: content, topic: topic_morphology, text: content.text, otu: otu2)
+          content
+        end
+
+        # Create content with multiple paragraphs
+        let!(:content_multi_paragraph) do
+          content = FactoryBot.create(:valid_content,
+            otu: otu2,
+            topic: topic_biology,
+            text: "First paragraph.\n\nSecond paragraph.",
+            language: language_en)
+          PublicContent.create!(content: content, topic: topic_biology, text: content.text, otu: otu2)
+          content
+        end
+
+        # Create unpublished content (should not be exported)
+        let!(:unpublished_content) do
+          FactoryBot.create(:valid_content,
+            otu: otu1,
+            topic: topic_distribution,
+            text: 'This content is not published.',
+            language: language_en)
+        end
+
+        let(:description_topics) { [topic_morphology.id, topic_biology.id] }
+        let(:data_with_extension) do
+          Export::Dwca::Checklist::Data.new(
+            core_otu_scope_params: otu_scope,
+            extensions: [Export::Dwca::Checklist::Data::DESCRIPTION_EXTENSION],
+            description_topics: description_topics
+          )
+        end
+        let(:data_without_extension) do
+          Export::Dwca::Checklist::Data.new(
+            core_otu_scope_params: otu_scope,
+            extensions: []
+          )
+        end
+
+        specify 'description_extension flag is set when extension is requested' do
+          expect(data_with_extension.description_extension).to be true
+          expect(data_without_extension.description_extension).to be false
+        end
+
+        specify 'description_extension_tmp returns nil when extension not requested' do
+          expect(data_without_extension.description_extension_tmp).to be_nil
+        end
+
+        specify 'description_extension_tmp returns Tempfile when extension requested' do
+          expect(data_with_extension.description_extension_tmp).to be_a(Tempfile)
+        end
+
+        specify 'description extension CSV has correct headers' do
+          # Generate core CSV first to populate taxon_name_to_id mapping
+          data_with_extension.csv
+
+          csv_content = data_with_extension.description_extension_tmp.read
+          csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+          expect(csv.headers).to eq(['id', 'description', 'type', 'language', 'created'])
+        end
+
+        specify 'description extension includes only published contents' do
+          # Generate core CSV first to populate taxon_name_to_id mapping
+          data_with_extension.csv
+
+          csv_content = data_with_extension.description_extension_tmp.read
+          csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+          # Should have 4 published contents (content1, content2, content3, content_multi_paragraph)
+          # but NOT unpublished_content
+          expect(csv.length).to eq(4)
+
+          descriptions = csv.map { |row| row['description'] }
+          expect(descriptions.any? { |d| d.include?('not published') }).to be false
+        end
+
+        specify 'description extension converts markdown to HTML' do
+          # Generate core CSV first to populate taxon_name_to_id mapping
+          data_with_extension.csv
+
+          csv_content = data_with_extension.description_extension_tmp.read
+          csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+          # Find the row with bold markdown
+          bold_row = csv.find { |row| row['description']&.include?('<strong>bold</strong>') }
+          expect(bold_row).to be_present
+          # Verify Redcarpet's trailing newline is removed
+          expect(bold_row['description']).not_to end_with("\n")
+
+          # Find the row with italic markdown
+          italic_row = csv.find { |row| row['description']&.include?('<em>italic</em>') }
+          expect(italic_row).to be_present
+          expect(italic_row['description']).not_to end_with("\n")
+        end
+
+        specify 'description extension handles multi-paragraph markdown' do
+          # Generate core CSV first to populate taxon_name_to_id mapping
+          data_with_extension.csv
+
+          csv_content = data_with_extension.description_extension_tmp.read
+          csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+          # Find the row with multi-paragraph content
+          multi_row = csv.find { |row| row['description']&.include?('First paragraph') && row['description']&.include?('Second paragraph') }
+          expect(multi_row).to be_present
+
+          # Verify internal newlines are converted to <br>
+          expect(multi_row['description']).to include('<br>')
+
+          # Verify no actual newline characters remain (they break TSV format)
+          expect(multi_row['description']).not_to include("\n")
+
+          # Verify trailing newline is removed
+          expect(multi_row['description']).not_to end_with("\n")
+        end
+
+        specify 'description extension preserves topic order' do
+          # Generate core CSV first to populate taxon_name_to_id mapping
+          data_with_extension.csv
+
+          csv_content = data_with_extension.description_extension_tmp.read
+          csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+          # Get types (topics) in order they appear
+          types = csv.map { |row| row['type'] }
+
+          # Morphology should appear before Biology (based on description_topics order)
+          morphology_indices = types.each_index.select { |i| types[i] == 'Morphology' }
+          biology_indices = types.each_index.select { |i| types[i] == 'Biology' }
+
+          expect(morphology_indices.first).to be < biology_indices.first
+        end
+
+        specify 'description extension includes language codes' do
+          # Generate core CSV first to populate taxon_name_to_id mapping
+          data_with_extension.csv
+
+          csv_content = data_with_extension.description_extension_tmp.read
+          csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+          languages = csv.map { |row| row['language'] }.compact.uniq
+          expect(languages).to include('en', 'es')
+        end
+
+        specify 'description extension includes created date from updated_at' do
+          # Generate core CSV first to populate taxon_name_to_id mapping
+          data_with_extension.csv
+
+          csv_content = data_with_extension.description_extension_tmp.read
+          csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+          csv.each do |row|
+            expect(row['created']).to be_present
+            expect(row['created']).to match(/\d{4}-\d{2}-\d{2}/)
+          end
+        end
+
+        specify 'description extension uses taxonID from normalized taxonomy' do
+          # Generate core CSV first to populate taxon_name_to_id mapping
+          data_with_extension.csv
+
+          csv_content = data_with_extension.description_extension_tmp.read
+          desc_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+          desc_csv.each do |row|
+            expect(row['id']).to be_present
+            expect(row['id'].to_i).to be > 0
+          end
+        end
+
+        specify 'zipfile includes description.tsv when extension enabled' do
+          zipfile = data_with_extension.zipfile
+          Zip::File.open(zipfile.path) do |zip|
+            expect(zip.find_entry('description.tsv')).to be_present
+          end
+        end
+
+        specify 'zipfile does not include description.tsv when extension disabled' do
+          zipfile = data_without_extension.zipfile
+          Zip::File.open(zipfile.path) do |zip|
+            expect(zip.find_entry('description.tsv')).to be_nil
+          end
+        end
+
+        specify 'meta.xml includes description extension when enabled' do
+          meta_content = data_with_extension.meta.read
+          data_with_extension.meta.rewind
+
+          expect(meta_content).to include('description.tsv')
+          expect(meta_content).to include('http://rs.gbif.org/terms/1.0/Description')
+        end
+
+        specify 'meta.xml does not include description extension when disabled' do
+          meta_content = data_without_extension.meta.read
+          data_without_extension.meta.rewind
+
+          expect(meta_content).not_to include('description.tsv')
+          expect(meta_content).not_to include('http://rs.gbif.org/terms/1.0/Description')
+        end
+
+        specify 'description extension rows star-join to correct core taxa' do
+          core_content = data_with_extension.csv
+          extension_content = data_with_extension.description_extension_tmp.read
+
+          core_csv = CSV.parse(core_content, headers: true, col_sep: "\t")
+          extension_csv = CSV.parse(extension_content, headers: true, col_sep: "\t")
+
+          ext_row = extension_csv.first
+
+          data_row = core_csv.find { |row| row['taxonID'] == ext_row['id'] }
+
+          expect(data_row).to be_present
+          expect(data_row['scientificName']).to be_present
+        end
+
+        specify 'description extension returns empty when no topics selected' do
+          data_no_topics = Export::Dwca::Checklist::Data.new(
+            core_otu_scope_params: otu_scope,
+            extensions: [Export::Dwca::Checklist::Data::DESCRIPTION_EXTENSION],
+            description_topics: []
+          )
+
+          # Generate core CSV first
+          data_no_topics.csv
+
+          csv_content = data_no_topics.description_extension_tmp.read
+          csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+          # Should only have header row
+          expect(csv.length).to eq(0)
+        end
+
+        specify 'description extension filters by selected topics only' do
+          # Only select morphology topic
+          data_one_topic = Export::Dwca::Checklist::Data.new(
+            core_otu_scope_params: otu_scope,
+            extensions: [Export::Dwca::Checklist::Data::DESCRIPTION_EXTENSION],
+            description_topics: [topic_morphology.id]
+          )
+
+          # Generate core CSV first
+          data_one_topic.csv
+
+          csv_content = data_one_topic.description_extension_tmp.read
+          csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+          # Should only have morphology contents (content1 and content3)
+          expect(csv.length).to eq(2)
+          expect(csv.all? { |row| row['type'] == 'Morphology' }).to be true
+        end
+      end
+
       specify '#cleanup returns truthy' do
         expect(data.cleanup).to be_truthy
       end

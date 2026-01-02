@@ -9,6 +9,7 @@ module Export::Dwca::GbifProfile
     DESCRIPTION = :description
     SOURCE = :source
     LANGUAGE = :language
+    CREATED = :created
     CREATOR = :creator
     CONTRIBUTOR = :contributor
     AUDIENCE = :audience
@@ -21,6 +22,7 @@ module Export::Dwca::GbifProfile
       DESCRIPTION => 'http://purl.org/dc/terms/description',
       SOURCE => 'http://purl.org/dc/terms/source',
       LANGUAGE => 'http://purl.org/dc/terms/language',
+      CREATED => 'http://purl.org/dc/terms/created',
       CREATOR => 'http://purl.org/dc/terms/creator',
       CONTRIBUTOR => 'http://purl.org/dc/terms/contributor',
       AUDIENCE => 'http://purl.org/dc/terms/audience',
@@ -68,6 +70,14 @@ module Export::Dwca::GbifProfile
     #
     # Example: "ES", "Spanish", "Español"
     attr_accessor LANGUAGE
+
+    # created (http://purl.org/dc/terms/created)
+    #
+    # @return [String]
+    # The date and time this description was written or last updated
+    #
+    # Example: "2010-09-29"
+    attr_accessor CREATED
 
     # creator (http://purl.org/dc/terms/creator)
     #
