@@ -1,27 +1,24 @@
 module Export::Dwca::Occurrence
-  # Service object for exporting media (images and sounds) in DwC-A format
-  # Handles collection, temp table creation, attribution computation, and streaming export
+  # Service object for exporting media (images and sounds) in DwC-A format.
   class MediaExporter
     include Export::Dwca::Occurrence::SqlFragments
     include Export::Dwca::Occurrence::PostgresqlFunctions
 
-    # @param media_extension [Hash] config with :collection_objects and :field_occurrences SQL
-    # @param core_scope [ActiveRecord::Relation] DwcOccurrence scope for filtering
-    def initialize(media_extension:, core_scope: nil)
+    # @param media_extension [Hash] config with :collection_objects and
+    # :field_occurrences SQL
+    def initialize(media_extension:)
       @media_extension = media_extension
-      @core_scope = core_scope
     end
 
-    # Main export method - writes media records to output file
+    # Main export method - writes media records to output file.
     # @param output_file [Tempfile, File] output file for media TSV data
-    # @return [void]
     def export_to(output_file)
       media_extension_optimized(output_file)
     end
 
     private
 
-    attr_reader :media_extension, :core_scope
+    attr_reader :media_extension
 
     def create_scoped_occurrence_temp_table
       conn = ActiveRecord::Base.connection

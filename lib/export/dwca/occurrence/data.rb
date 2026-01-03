@@ -59,19 +59,6 @@ module Export::Dwca::Occurrence
     #   ActiveRecord::Relation
     attr_accessor :core_scope
 
-    # @return [Hash]
-    #   Input configuration with keys core_params (params for core_scope) and
-    #   collection_objects_query. The accessor method returns a
-    #   BiologicalAssociation scope.
-    attr_accessor :biological_associations_extension
-
-    # @return [Hash]
-    #   Input configuration with keys collection_objects: query_string,
-    #   field_occurrences: query_string.
-    #   The accessor method returns a hash with CollectionObject and
-    #   FieldOccurrence scopes.
-    attr_accessor :media_extension
-
     # @return [Integer]
     #   Total number of records in the core scope.
     attr_accessor :total
@@ -125,25 +112,26 @@ module Export::Dwca::Occurrence
     # @param taxonworks_extensions [Array<Symbol>]
     #   TaxonWorks-specific fields to export
     #   (e.g., [:otu_name, :elevation_precision]).
-    def initialize(core_scope: nil, extension_scopes: {}, predicate_extensions: {}, eml_data: {}, taxonworks_extensions: [])
+    def initialize(
+      core_scope: nil, extension_scopes: {}, predicate_extensions: {},
+      eml_data: {}, taxonworks_extensions: []
+    )
       raise ArgumentError, 'must pass a core_scope' if core_scope.nil?
 
       @core_scope = core_scope
 
-      @biological_associations_extension = extension_scopes[:biological_associations] #! Hash with keys core_params (i.e. core_scope params), collection_objects_query
-      @media_extension = extension_scopes[:media] #! Hash with keys collection_objects, field_occurrences
+      @biological_associations_extension = extension_scopes[:biological_associations]
+      @media_extension = extension_scopes[:media]
 
       @data_predicate_ids = { collection_object_predicate_id: [], collecting_event_predicate_id: [] }.merge(predicate_extensions)
 
       @eml_data = eml_data
 
-       # Normalize and sort extensions into a fixed, canonical order
+      # Normalize and sort extensions into a fixed, canonical order.
       extensions = Array(taxonworks_extensions).map(&:to_sym)
       canonical  = ::CollectionObject::DwcExtensions::TaxonworksExtensions::EXTENSION_FIELDS
 
-      # Orders caller's extension in the canonical order.
       @taxonworks_extension_methods = canonical & extensions
-
     end
 
     # Normalizes and returns the core scope as an ordered ActiveRecord::Relation.
@@ -168,10 +156,10 @@ module Export::Dwca::Occurrence
       @data_predicate_ids[:collecting_event_predicate_id]
     end
 
-    # Normalizes and returns the biological associations scope.
+    # Transforms the biological associations config into an AR scope.
     # @return [ActiveRecord::Relation, nil] BiologicalAssociation scope with
     #   biological_association_index, or nil if not configured.
-    def biological_associations_extension
+    def biological_associations_scope
       return nil unless @biological_associations_extension.present?
 
       q = @biological_associations_extension[:collection_objects_query]
@@ -189,33 +177,6 @@ module Export::Dwca::Occurrence
         .includes(:biological_association_index)
     end
 
-    # Normalizes and returns media scopes for collection objects and field
-    # occurrences.
-    # @return [Hash, nil] Hash with :collection_objects and :field_occurrences
-    #   scopes, or nil if not configured.
-    def media_extension
-      return nil unless @media_extension.present?
-
-      collection_objects = ::CollectionObject.none
-      if @media_extension[:collection_objects]
-        collection_objects = ::CollectionObject
-          .from('(' + @media_extension[:collection_objects] + ') AS collection_objects')
-          .includes(:images, :sounds, observations: :images, taxon_determination: {otu: :taxon_name})
-      end
-
-      field_occurrences = ::FieldOccurrence.none
-      if @media_extension[:field_occurrences]
-        field_occurrences = ::FieldOccurrence
-          .from('(' + @media_extension[:field_occurrences] + ') AS field_occurrences')
-          .includes(:images, :sounds, observations: :images, taxon_determination: {otu: :taxon_name})
-      end
-
-      {
-        collection_objects:,
-        field_occurrences:
-      }
-    end
-
     def predicate_options_present?
       data_predicate_ids[:collection_object_predicate_id].present? || data_predicate_ids[:collecting_event_predicate_id].present?
     end
@@ -228,12 +189,11 @@ module Export::Dwca::Occurrence
       @total ||= core_scope.unscope(:order).size
     end
 
-    # Streams CSV data from PostgreSQL directly to output_file
+    # Streams CSV data from PostgreSQL directly to output_file.
     # @param output_file [File, Tempfile] File to write to directly
     def csv(output_file:)
       conn = ActiveRecord::Base.connection
 
-      # Create temporary function for sanitizing CSV values
       create_csv_sanitize_function
 
       target_cols = ::DwcOccurrence.target_columns
@@ -243,13 +203,15 @@ module Export::Dwca::Occurrence
 
       cols_with_data = columns_with_data(cols_to_export)
 
-      column_order = (::CollectionObject::DWC_OCCURRENCE_MAP.keys + ::CollectionObject::EXTENSION_FIELDS).map(&:to_s)
+      column_order = (::CollectionObject::DWC_OCCURRENCE_MAP.keys +
+        ::CollectionObject::EXTENSION_FIELDS).map(&:to_s)
       ordered_cols = order_columns(cols_with_data, column_order)
 
       column_types = ::DwcOccurrence.columns_hash
 
-      # Build SELECT list with proper column names and aliases
-      # Sanitize string columns by replacing newlines and tabs with spaces (matching Utilities::Strings.sanitize_for_csv behavior)
+      # Build SELECT list with proper column names and aliases.
+      # Sanitize string columns by replacing newlines and tabs with spaces
+      # (matching Utilities::Strings.sanitize_for_csv behavior).
       select_list = ordered_cols.map do |col|
         if col == 'id'
           # DwCA requires the <id> column specified in meta.xml to be named "id"
@@ -259,25 +221,25 @@ module Export::Dwca::Occurrence
           # UUIDs (not db ids), then also include occurrenceID as a proper DwC
           # term field. This means both columns contain the same values - it
           # seems to be required in this case.
-          "pg_temp.sanitize_csv(\"occurrenceID\") AS \"id\""
+          '"occurrenceID" AS "id"'
         elsif col == 'dwcClass'
           # Header converter: dwcClass -> class, with sanitization
-          "pg_temp.sanitize_csv(\"dwcClass\") AS \"class\""
+          '"dwcClass" AS "class"'
         else
           column_info = column_types[col]
           is_string_column = column_info && [:string, :text].include?(column_info.type)
 
           if is_string_column
-            # String columns - sanitize by replacing newlines and tabs
+            # String columns - sanitize by replacing newlines and tabs.
             "pg_temp.sanitize_csv(#{conn.quote_column_name(col)}) AS #{conn.quote_column_name(col)}"
           else
-            # Non-string columns (integer, decimal, date, etc.) - no sanitization needed
+            # Non-string columns (integer, decimal, date, etc.) - no
+            # sanitization needed.
             conn.quote_column_name(col)
           end
         end
       end.join(', ')
 
-      # Build COPY TO query
       copy_sql = <<-SQL
         COPY (
           SELECT #{select_list}
@@ -295,32 +257,29 @@ module Export::Dwca::Occurrence
       Rails.logger.debug 'dwca_export: csv data generated'
     end
 
-    # Find which columns in the dwc_occurrence table have non-NULL, non-empty values
-    # This implements the trim_columns: true behavior
-    # Note: We check for non-empty AFTER sanitization
+    # Find which columns in the dwc_occurrence table have non-NULL, non-empty
+    # values.
+    # This implements the trim_columns: true behavior.
+    # Note: We check for non-empty AFTER sanitization.
     def columns_with_data(columns)
       return [] if columns.empty?
 
       conn = ActiveRecord::Base.connection
 
-      # Get column type information from the database
       column_types = ::DwcOccurrence.columns_hash
 
-      # For each column, check if it has any non-NULL, non-empty values after sanitization
       checks = columns.map.with_index do |col, idx|
         quoted = conn.quote_column_name(col)
         col_str = col.to_s
         column_info = column_types[col_str]
 
-        # Determine if this is a string/text column
         is_string_column = column_info && [:string, :text].include?(column_info.type)
-
         if is_string_column
-          # String columns - check if any non-empty values after sanitization
+          # String columns - check if any non-empty values after sanitization.
           sanitized = "pg_temp.sanitize_csv(#{quoted})"
           "CASE WHEN COUNT(CASE WHEN #{sanitized} IS NOT NULL AND #{sanitized} != '' THEN 1 END) > 0 THEN #{conn.quote(col)} ELSE NULL END AS check_#{idx}"
         else
-          # Non-string columns - just check if not NULL
+          # Non-string columns - just check if not NULL.
           "CASE WHEN COUNT(#{quoted}) > 0 THEN #{conn.quote(col_str)} ELSE NULL END AS check_#{idx}"
         end
       end
@@ -330,8 +289,8 @@ module Export::Dwca::Occurrence
       result.values.compact
     end
 
-    # Order columns according to column_order, with unordered columns first
-    # This matches the behavior of Export::CSV.sort_column_headers
+    # Order columns according to column_order, with unordered columns first.
+    # This matches the behavior of Export::CSV.sort_column_headers.
     def order_columns(columns, column_order)
       sorted = []
       unsorted = []
@@ -348,7 +307,7 @@ module Export::Dwca::Occurrence
     end
 
     # @return [Boolean]
-    #   true if provided core_scope returns no records
+    #   true if provided core_scope returns no records.
     def no_records?
       total == 0
     end
@@ -374,14 +333,6 @@ module Export::Dwca::Occurrence
       @data
     end
 
-    # Returns a relation of dwc_occurrences for CollectionObjects in the export,
-    # ordered by dwc_occurrences.id to match the core file order.
-    # This avoids materializing all IDs in Ruby memory.
-    # @return [ActiveRecord::Relation]
-    def collection_object_scope
-      @collection_object_scope ||= core_scope.where(dwc_occurrence_object_type: 'CollectionObject')
-    end
-
     # Generates and caches TaxonWorks extension data as TSV.
     # @return [Tempfile] TSV file with TaxonWorks-specific extension fields.
     def taxonworks_extension_data
@@ -389,7 +340,6 @@ module Export::Dwca::Occurrence
 
       @taxonworks_extension_data = Tempfile.new('tw_extension_data.tsv')
 
-      # Delegate to TaxonworksExtensionExporter service object
       exporter = Export::Dwca::Occurrence::TaxonworksExtensionExporter.new(
         core_scope: core_scope,
         taxonworks_extension_methods: taxonworks_extension_methods
@@ -406,7 +356,6 @@ module Export::Dwca::Occurrence
 
       @predicate_data = Tempfile.new('predicate_data.tsv')
 
-      # Delegate to PredicateExporter service object
       exporter = Export::Dwca::Occurrence::PredicateExporter.new(
         core_scope: core_scope,
         collection_object_predicate_ids: collection_object_predicate_ids,
@@ -500,14 +449,15 @@ module Export::Dwca::Occurrence
     end
 
     def biological_associations_resource_relationship_tmp
-      return nil if biological_associations_extension.nil?
-      @biological_associations_resource_relationship_tmp = Tempfile.new('biological_resource_relationship.xml')
+      return nil if @biological_associations_extension.nil?
+
+      @biological_associations_resource_relationship_tmp = Tempfile.new('biological_resource_relationship.tsv')
 
       if no_records?
         @biological_associations_resource_relationship_tmp.write("\n")
       else
         Export::CSV::Dwc::Extension::BiologicalAssociations.csv(
-          biological_associations_extension,
+          biological_associations_scope,
           biological_association_relations_to_core,
           output_file: @biological_associations_resource_relationship_tmp
         )
@@ -520,15 +470,14 @@ module Export::Dwca::Occurrence
 
     def media_tmp
       return nil if @media_extension.nil?
-      @media_tmp = Tempfile.new('media.xml')
+
+      @media_tmp = Tempfile.new('media.tsv')
 
       if no_records?
         @media_tmp.write("\n")
       else
-        # Delegate to MediaExporter service object
         exporter = Export::Dwca::Occurrence::MediaExporter.new(
           media_extension: @media_extension,
-          core_scope: core_scope
         )
         exporter.export_to(@media_tmp)
       end
@@ -539,10 +488,9 @@ module Export::Dwca::Occurrence
     end
 
 
-    # @return [Array]
-    #   use the temporarily written, and refined, CSV file to read off the existing headers
-    #   so we can use them in writing meta.yml
-    # non-standard DwC colums are handled elsewhere
+    # @return [Array] use the temporarily written, and refined, CSV file to read
+    #   off the existing headers so we can use them in writing meta.yml.
+    # Non-standard DwC colums are handled elsewhere.
     def meta_fields
       return [] if no_records?
       h = File.open(all_data, &:gets)&.strip&.split("\t")
@@ -580,7 +528,7 @@ module Export::Dwca::Occurrence
           }
 
           # Resource relationship (biological associations)
-          if !biological_associations_extension.nil?
+          if !@biological_associations_extension.nil?
             xml.extension(encoding: 'UTF-8', linesTerminatedBy: '\n', fieldsTerminatedBy: '\t', fieldsEnclosedBy: '"', ignoreHeaderLines: '1', rowType:'http://rs.tdwg.org/dwc/terms/ResourceRelationship') {
               xml.files {
                 xml.location 'resource_relationships.tsv'
@@ -597,7 +545,7 @@ module Export::Dwca::Occurrence
           end
 
           # Media (images, sounds)
-          if !media_extension.nil?
+          if !@media_extension.nil?
             xml.extension(encoding: 'UTF-8', linesTerminatedBy: '\n', fieldsTerminatedBy: '\t', fieldsEnclosedBy: '"', ignoreHeaderLines: '1', rowType:'http://rs.tdwg.org/ac/terms/Multimedia') {
               xml.files {
                 xml.location 'media.tsv'
@@ -628,8 +576,8 @@ module Export::Dwca::Occurrence
       Zip::File.open(t.path, Zip::File::CREATE) do |zip|
         zip.add('data.tsv', all_data.path)
 
-        zip.add('media.tsv', media_tmp.path) if media_extension
-        zip.add('resource_relationships.tsv', biological_associations_resource_relationship_tmp.path) if biological_associations_extension
+        zip.add('media.tsv', media_tmp.path) if @media_extension
+        zip.add('resource_relationships.tsv', biological_associations_resource_relationship_tmp.path) if @biological_associations_extension
 
         zip.add('meta.xml', meta.path)
         zip.add('eml.xml', eml.path)
@@ -654,12 +602,12 @@ module Export::Dwca::Occurrence
     end
 
     # @return [True]
-    #   close and delete all temporary files
+    #   close and delete all temporary files.
     def cleanup
 
       Rails.logger.debug 'dwca_export: cleanup start'
 
-      # Explicitly drop temp tables to avoid automatic cleanup delay
+      # Explicitly drop temp tables to avoid automatic cleanup delay.
       if predicate_options_present?
         conn = ActiveRecord::Base.connection
         conn.execute("DROP TABLE IF EXISTS temp_predicate_pivot") rescue nil
@@ -667,8 +615,8 @@ module Export::Dwca::Occurrence
         Rails.logger.debug 'dwca_export: temp tables dropped'
       end
 
-      # Only cleanup files that were actually created (materialized)
-      # This prevents lazy-loading during cleanup
+      # Only cleanup files that were actually created (materialized).
+      # This prevents lazy-loading during cleanup.
       if defined?(@zipfile) && @zipfile
         @zipfile.close
         @zipfile.unlink
@@ -689,12 +637,12 @@ module Export::Dwca::Occurrence
         @data.unlink
       end
 
-      if biological_associations_extension && defined?(@biological_associations_resource_relationship_tmp) && @biological_associations_resource_relationship_tmp
+      if @biological_associations_extension && defined?(@biological_associations_resource_relationship_tmp) && @biological_associations_resource_relationship_tmp
         @biological_associations_resource_relationship_tmp.close
         @biological_associations_resource_relationship_tmp.unlink
       end
 
-      if media_extension && defined?(@media_tmp) && @media_tmp
+      if @media_extension && defined?(@media_tmp) && @media_tmp
         @media_tmp.close
         @media_tmp.unlink
       end

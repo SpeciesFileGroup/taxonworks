@@ -367,12 +367,6 @@ describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
       # non-standard DwC columns are handled elsewhere
       let(:headers) { [ 'basisOfRecord', 'individualCount', 'occurrenceID', 'occurrenceStatus' ] }
 
-      specify '#collection_object_scope' do
-        d = Export::Dwca::Occurrence::Data.new(core_scope: scope)
-        expected_ids = CollectionObject.joins(:dwc_occurrence).order('dwc_occurrences.id').pluck(:dwc_occurrence_object_id)
-        expect(d.collection_object_scope.pluck(:dwc_occurrence_object_id)).to eq(expected_ids)
-      end
-
       xspecify '#collection_objects 1' do
         d = Export::Dwca::Occurrence::Data.new(core_scope: scope).collection_objects
         expect(d.all).to contain_exactly(*CollectionObject.joins(:dwc_occurrence).order('dwc_occurrences.id').to_a)
@@ -1047,13 +1041,6 @@ describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
 
           a.cleanup
         end
-      end
-
-      specify 'collection_object_scope maintains dwc_occurrence ordering' do
-        d = Export::Dwca::Occurrence::Data.new(core_scope: scope, taxonworks_extensions: [:otu_name])
-        # The scope should return objects in dwc_occurrence.id order
-        expected_order = scope.where(dwc_occurrence_object_type: 'CollectionObject').order('dwc_occurrences.id').pluck(:dwc_occurrence_object_id)
-        expect(d.collection_object_scope.pluck(:dwc_occurrence_object_id)).to eq(expected_order)
       end
 
       context 'taxonworks_extensions for internal attributes' do
