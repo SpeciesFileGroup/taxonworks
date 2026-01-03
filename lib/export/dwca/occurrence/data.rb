@@ -337,7 +337,7 @@ module Export::Dwca::Occurrence
 
       # Delegate to TaxonworksExtensionExporter service object
       exporter = Export::Dwca::Occurrence::TaxonworksExtensionExporter.new(
-        core_scope: @core_scope,
+        core_scope: core_scope,
         taxonworks_extension_methods: taxonworks_extension_methods
       )
       exporter.export_to(@taxonworks_extension_data)
@@ -352,7 +352,7 @@ module Export::Dwca::Occurrence
 
       # Delegate to PredicateExporter service object
       exporter = Export::Dwca::Occurrence::PredicateExporter.new(
-        core_scope: @core_scope,
+        core_scope: core_scope,
         collection_object_predicate_ids: collection_object_predicate_ids,
         collecting_event_predicate_ids: collecting_event_predicate_ids
       )
@@ -474,7 +474,7 @@ module Export::Dwca::Occurrence
         # Delegate to MediaExporter service object
         exporter = Export::Dwca::Occurrence::MediaExporter.new(
           media_extension: @media_extension,
-          core_scope: @core_scope
+          core_scope: core_scope
         )
         exporter.export_to(@media_tmp)
       end
