@@ -148,7 +148,7 @@ gem 'nexus_parser', '~> 1.2.2'
 gem 'gnfinder', '~> 1.0'
 
 # Minor Utils/helpers
-gem 'amazing_print', '~> 1.5'
+gem 'amazing_print', '~> 2.0'
 gem 'indefinite_article', '~> 0.2.4'
 gem 'rainbow', '~> 3.0'
 
