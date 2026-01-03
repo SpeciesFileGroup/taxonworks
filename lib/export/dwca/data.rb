@@ -130,7 +130,9 @@ module Export::Dwca
         raise ArgumentError, 'Biological associations scope is not an SQL string or ActiveRecord::Relation'
       end
 
-      scope.select('biological_associations.id')
+      scope
+        .joins(:biological_association_index)
+        .select('biological_associations.id')
         .includes(:biological_association_index)
     end
 
