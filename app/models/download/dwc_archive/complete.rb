@@ -53,6 +53,11 @@ class Download::DwcArchive::Complete < Download::DwcArchive
   end
 
   private
+
+  # Builds the complete DwC-A export by enqueuing a job.
+  #
+  # Constructs the export parameters from project preferences and enqueues
+  # DwcaCreateDownloadJob to generate the archive.
   def build
     project_params = { project_id: }
     record_scope = ::DwcOccurrence.where(project_params)

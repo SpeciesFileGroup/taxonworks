@@ -1,11 +1,31 @@
 class DwcaCreateDownloadJob < ApplicationJob
   queue_as :dwca_export
 
-  # @param download [a Download instance]
+  # Creates a DwC-A export and packages it into a Download.
+  #
+  # @param download_id [Integer]
+  #   The ID of the Download instance to package the export into.
   # @param core_scope [String, ActiveRecord::Relation]
-  #   String of SQL generated from the scope
-  #   SQL must  return a list of DwcOccurrence records
-  # take a download, and a list of scopes, and save the result to the download, that's all
+  #   Required. DwcOccurrence scope (SQL string or ActiveRecord::Relation).
+  # @param extension_scopes [Hash]
+  #   Optional extensions to include:
+  #   - :biological_associations [Hash] with keys :core_params and
+  #     :collection_objects_query
+  #   - :media [Hash] with keys :collection_objects (query string) and
+  #     :field_occurrences (query string)
+  # @param predicate_extensions [Hash]
+  #   Predicate IDs to include:
+  #   - :collection_object_predicate_id [Array<Integer>]
+  #   - :collecting_event_predicate_id [Array<Integer>]
+  # @param eml_data [Hash]
+  #   EML metadata configuration:
+  #   - :dataset [String] XML string for dataset metadata
+  #   - :additional_metadata [String] XML string for additional metadata
+  # @param taxonworks_extensions [Array<Symbol>]
+  #   TaxonWorks-specific fields to export
+  #   (e.g., [:otu_name, :elevation_precision]).
+  # @param project_id [Integer]
+  #   Required. The project ID for scoping queries.
   def perform(download_id, core_scope: nil, extension_scopes: {biological_associations: nil, media: nil}, predicate_extensions: {}, eml_data: {dataset: nil, additional_metadata: nil}, taxonworks_extensions: [],
   project_id: nil)
     # Raise and fail without notifying if our download was deleted before we run.

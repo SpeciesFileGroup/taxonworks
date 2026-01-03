@@ -33,53 +33,98 @@ module Export::Dwca::Occurrence
     include Export::Dwca::Occurrence::SqlFragments
     include Export::Dwca::Occurrence::PostgresqlFunctions
 
+    # @return [Tempfile]
+    #   The core occurrence CSV data as a tempfile
     attr_accessor :data
 
-    # @return [Hash] containing dataset and additional_metadata, as xml strings,
-    # for use in construction of the eml file.
+    # @return [Hash]
+    #   Input configuration containing :dataset and :additional_metadata as xml
+    #   strings, for use in construction of the eml file.
     attr_accessor :eml_data
 
+    # @return [Tempfile]
+    #   The eml.xml metadata file.
     attr_accessor :eml
 
+    # @return [Tempfile]
+    #   The meta.xml file describing the archive structure.
     attr_accessor :meta
 
+    # @return [Tempfile]
+    #   The final DwC-A zip archive.
     attr_accessor :zipfile
 
-    # @return [Scope]
-    #  Required.  Of DwcOccurrence
+    # @return [String, ActiveRecord::Relation]
+    #   Required. The core DwcOccurrence scope - can be a SQL string or
+    #   ActiveRecord::Relation
     attr_accessor :core_scope
 
-    # @return [Hash] Hash with keys core_params (i.e. just the params for
-    # core_scope), collection_objects_query
+    # @return [Hash]
+    #   Input configuration with keys core_params (params for core_scope) and
+    #   collection_objects_query. The accessor method returns a
+    #   BiologicalAssociation scope.
     attr_accessor :biological_associations_extension
 
-    # @return [Hash] of collection_objects: query_string, field_occurrences: query_string
+    # @return [Hash]
+    #   Input configuration with keys collection_objects: query_string,
+    #   field_occurrences: query_string.
+    #   The accessor method returns a hash with CollectionObject and
+    #   FieldOccurrence scopes.
     attr_accessor :media_extension
 
-    attr_accessor :total #TODO update
+    # @return [Integer]
+    #   Total number of records in the core scope.
+    attr_accessor :total
 
+    # @return [String]
+    #   The filename for the zip archive.
     attr_reader :filename
 
+    # @return [Tempfile]
+    #   TSV file containing predicate data.
     attr_accessor :predicate_data
 
-    # @return Hash
-    # collection_object_predicate_id: [], collecting_event_predicate_id: []
+    # @return [Hash]
+    #   Predicate IDs to include:
+    #   { collection_object_predicate_id: [], collecting_event_predicate_id: [] }
     attr_accessor :data_predicate_ids
 
-    # @return Array
+    # @return [Tempfile]
+    #   TSV file containing TaxonWorks extension data.
     attr_accessor :taxonworks_extension_data
 
-    # @return Array<Symbol>
+    # @return [Array<Symbol>]
+    #   List of TaxonWorks-specific field names (e.g., :otu_name,
+    #   :elevation_precision) to export as additional columns (subset of
+    #   EXTENSION_FIELDS).
     attr_accessor :taxonworks_extension_methods
 
-    # A Tempfile, core records and predicate data (and maybe more in future) joined together in one file
+    # @return [Tempfile]
+    #   Combined TSV file with core data, predicate data, and TaxonWorks
+    #   extension data joined horizontally.
     attr_accessor :all_data
 
-    # TODO: fails when we get to AssertedDistribution
-    #  A lookup with the id pointing to the position
-    attr_accessor :dwc_id_order
-
-    # @param [Array<Symbol>] taxonworks_extensions List of methods to perform on each CO
+    # Initializes a new DwC-A export data builder.
+    #
+    # @param core_scope [String, ActiveRecord::Relation]
+    #   Required. DwcOccurrence scope (SQL string or ActiveRecord::Relation).
+    # @param extension_scopes [Hash]
+    #   Optional extensions to include:
+    #   - :biological_associations [Hash] with keys :core_params and
+    #     :collection_objects_query
+    #   - :media [Hash] with keys :collection_objects (query string) and
+    #     :field_occurrences (query string)
+    # @param predicate_extensions [Hash]
+    #   Predicate IDs to include:
+    #   - :collection_object_predicate_id [Array<Integer>]
+    #   - :collecting_event_predicate_id [Array<Integer>]
+    # @param eml_data [Hash]
+    #   EML metadata configuration:
+    #   - :dataset [String] XML string for dataset metadata
+    #   - :additional_metadata [String] XML string for additional metadata
+    # @param taxonworks_extensions [Array<Symbol>]
+    #   TaxonWorks-specific fields to export
+    #   (e.g., [:otu_name, :elevation_precision]).
     def initialize(core_scope: nil, extension_scopes: {}, predicate_extensions: {}, eml_data: {}, taxonworks_extensions: [])
       raise ArgumentError, 'must pass a core_scope' if core_scope.nil?
 
@@ -101,8 +146,8 @@ module Export::Dwca::Occurrence
 
     end
 
-    # !params core_scope [String, ActiveRecord::Relation]
-    #   String is fully formed SQL
+    # Normalizes and returns the core scope as an ordered ActiveRecord::Relation.
+    # @return [ActiveRecord::Relation] DwcOccurrence scope ordered by id
     def core_scope
       if @core_scope.kind_of?(String)
         ::DwcOccurrence.from('(' + @core_scope + ') as dwc_occurrences').order('dwc_occurrences.id')
@@ -123,6 +168,9 @@ module Export::Dwca::Occurrence
       @data_predicate_ids[:collecting_event_predicate_id]
     end
 
+    # Normalizes and returns the biological associations scope.
+    # @return [ActiveRecord::Relation, nil] BiologicalAssociation scope with
+    #   biological_association_index, or nil if not configured.
     def biological_associations_extension
       return nil unless @biological_associations_extension.present?
 
@@ -141,6 +189,10 @@ module Export::Dwca::Occurrence
         .includes(:biological_association_index)
     end
 
+    # Normalizes and returns media scopes for collection objects and field
+    # occurrences.
+    # @return [Hash, nil] Hash with :collection_objects and :field_occurrences
+    #   scopes, or nil if not configured.
     def media_extension
       return nil unless @media_extension.present?
 
@@ -301,8 +353,8 @@ module Export::Dwca::Occurrence
       total == 0
     end
 
-    # @return [Tempfile]
-    #   the csv data as a tempfile
+    # Generates and caches the core occurrence data as TSV.
+    # @return [Tempfile] The core occurrence CSV data as a tempfile.
     def data
       return @data if @data
 
@@ -330,6 +382,8 @@ module Export::Dwca::Occurrence
       @collection_object_scope ||= core_scope.where(dwc_occurrence_object_type: 'CollectionObject')
     end
 
+    # Generates and caches TaxonWorks extension data as TSV.
+    # @return [Tempfile] TSV file with TaxonWorks-specific extension fields.
     def taxonworks_extension_data
       return @taxonworks_extension_data if @taxonworks_extension_data
 
@@ -345,6 +399,8 @@ module Export::Dwca::Occurrence
       @taxonworks_extension_data
     end
 
+    # Generates and caches predicate data as TSV.
+    # @return [Tempfile] TSV file with predicate data columns.
     def predicate_data
       return @predicate_data if @predicate_data
 
@@ -361,7 +417,9 @@ module Export::Dwca::Occurrence
       @predicate_data
     end
 
-    # @return Tempfile
+    # Generates and caches the combined data file by joining core, predicate,
+    # and extension data horizontally.
+    # @return [Tempfile] Combined TSV file with all data joined side-by-side.
     def all_data
       return @all_data if @all_data
 
@@ -395,13 +453,11 @@ module Export::Dwca::Occurrence
       @all_data
     end
 
-    # This is a stub, and only half-heartedly done. You should be using IPT for the time being.
-    # @return [Tempfile]
-    #   metadata about this dataset
-    # See also
-    #    https://github.com/gbif/ipt/wiki/resourceMetadata
-    #    https://github.com/gbif/ipt/wiki/resourceMetadata#exemplar-datasets
-    #
+    # Generates and caches the eml.xml file.
+    # @return [Tempfile] The EML metadata file (uses stub if no eml_data provided)
+    # @note This is a stub implementation, users may prefer to use IPT.
+    # @see https://github.com/gbif/ipt/wiki/resourceMetadata
+    # @see https://github.com/gbif/ipt/wiki/resourceMetadata#exemplar-datasets
     # TODO: reference biological_resource_extension.csv
     def eml
       return @eml if @eml
@@ -419,8 +475,6 @@ module Export::Dwca::Occurrence
       @eml.flush
       @eml
     end
-
-    # rubocop:enable Metrics/MethodLength
 
     def biological_association_relations_to_core
       core_params = {
@@ -499,6 +553,8 @@ module Export::Dwca::Occurrence
       h || []
     end
 
+    # Generates and caches the meta.xml file describing the DwC-A structure.
+    # @return [Tempfile] The meta.xml file with core and extension definitions.
     def meta
       return @meta if @meta
 
@@ -581,8 +637,8 @@ module Export::Dwca::Occurrence
       t
     end
 
-    # @return [Tempfile]
-    #   the zipfile
+    # Generates and caches the final DwC-A zip archive.
+    # @return [Tempfile] The complete DwC-A zip file.
     def zipfile
       if @zipfile.nil?
         @zipfile = build_zip
@@ -590,8 +646,8 @@ module Export::Dwca::Occurrence
       @zipfile
     end
 
-    # @return [String]
-    # the name of zipfile
+    # Generates and caches the filename for the zip archive.
+    # @return [String] The filename with timestamp.
     def filename
       @filename ||= "dwc_occurrences_#{DateTime.now}.zip"
       @filename
