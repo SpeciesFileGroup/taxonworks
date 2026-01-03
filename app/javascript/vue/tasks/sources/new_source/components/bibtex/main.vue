@@ -1,27 +1,31 @@
 <template>
-  <div class="horizontal-left-content align-start gap-small">
-    <draggable
-      class="vue-new-source-task-bibtex full_width"
+  <div class="vue-new-source-task-bibtex-container gap-small">
+    <VDraggable
       v-for="(column, key) in columns"
-      v-model="columns[key]"
       :key="key"
+      class="vue-new-source-task-bibtex full_width gap-medium"
+      v-model="columns[key]"
       :item-key="(element) => element"
-      :disabled="!sortable"
+      :disabled="!settings.sortable"
       :group="{ name: 'components' }"
       @end="updatePreferences"
     >
       <template #item="{ element }">
         <component
-          class="separate-bottom"
-          :is="element"
+          :is="allComponents[element]"
+          v-model="store.source"
           @on-modal="setDraggable"
         />
       </template>
-    </draggable>
+    </VDraggable>
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue'
+import { useSettingStore, useSourceStore } from '../../store'
+import { useUserPreferences } from '@/composables'
+import VDraggable from 'vuedraggable'
 import SourceType from '../sourceType'
 import BibtexType from './type'
 import BibtexTitle from './title'
@@ -51,15 +55,9 @@ import BibtexVerbatim from './verbatimBibtex'
 import BibtexCrosslinks from './crosslinks'
 import BibtexTwAttributes from './twAttributes'
 
-import Draggable from 'vuedraggable'
-
-import { GetterNames } from '../../store/getters/getters'
-import { MutationNames } from '../../store/mutations/mutations'
-import { User } from '@/routes/endpoints'
-
-export default {
-  components: {
-    Draggable,
+const KEY_STORAGE = 'tasks::newsource::bibtex'
+const COMPONENTS_GROUP = {
+  componentsOrderOne: {
     SourceType,
     BibtexType,
     BibtexTitle,
@@ -67,12 +65,13 @@ export default {
     BibtexDate,
     BibtexSerial,
     BibtexVolume,
-    BibtexLanguage,
     BibtexLanguageId,
     BibtexChapter,
     BibtexBookTitle,
     BibtexEdition,
-    BibtexSeries,
+    BibtexSeries
+  },
+  componentsOrderTwo: {
     BibtexSourceEditor,
     BibtexOrganization,
     BibtexInstitution,
@@ -82,114 +81,78 @@ export default {
     BibtexSchool,
     BibtexCopyright,
     BibtexTranslator,
+    BibtexLanguage,
     BibtexAbstract,
     BibtexKey,
-    BibtexUrl,
-    BibtexVerbatim,
-    BibtexCrosslinks,
-    BibtexTwAttributes,
-    SourceType
+    BibtexUrl
   },
+  componentsOrderThree: { BibtexVerbatim, BibtexCrosslinks, BibtexTwAttributes }
+}
+const allComponents = getAllComponentsObject(COMPONENTS_GROUP)
 
-  computed: {
-    preferences: {
-      get() {
-        return this.$store.getters[GetterNames.GetPreferences]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetPreferences, value)
-      }
-    },
-    sortable() {
-      return this.$store.getters[GetterNames.GetSettings].sortable
-    }
-  },
+const settings = useSettingStore()
+const store = useSourceStore()
+const { preferences, loadPreferences, setPreference } = useUserPreferences()
 
-  data() {
-    return {
-      disableDraggable: false,
-      columns: {
-        componentsOrderOne: [
-          'SourceType',
-          'BibtexType',
-          'BibtexTitle',
-          'BibtexAuthors',
-          'BibtexDate',
-          'BibtexSerial',
-          'BibtexVolume',
-          'BibtexLanguageId',
-          'BibtexChapter',
-          'BibtexBookTitle',
-          'BibtexEdition',
-          'BibtexSeries'
-        ],
-        componentsOrderTwo: [
-          'BibtexSourceEditor',
-          'BibtexOrganization',
-          'BibtexInstitution',
-          'BibtexHowpublished',
-          'BibtexPublisher',
-          'BibtexAddress',
-          'BibtexSchool',
-          'BibtexCopyright',
-          'BibtexTranslator',
-          'BibtexLanguage',
-          'BibtexAbstract',
-          'BibtexKey',
-          'BibtexUrl'
-        ],
-        componentsOrderThree: [
-          'BibtexVerbatim',
-          'BibtexCrosslinks',
-          'BibtexTwAttributes'
-        ]
-      },
-      keyStorage: 'tasks::newsource::bibtex'
-    }
-  },
+const disableDraggable = ref(false)
 
-  watch: {
-    preferences: {
-      handler() {
-        if (this.preferences?.layout?.[this.keyStorage]) {
-          const componentNames = Object.values(this.columns).flat()
-          const userLayoutComponentNames = Object.values(
-            this.preferences.layout[this.keyStorage]
-          ).flat()
-          const hasTheSameAmount =
-            componentNames.length === userLayoutComponentNames.length
-          const hasTheSameComponents = componentNames.every((name) =>
-            userLayoutComponentNames.includes(name)
-          )
+const columns = ref(getComponentKeys(COMPONENTS_GROUP))
 
-          if (hasTheSameAmount && hasTheSameComponents) {
-            this.columns = this.preferences.layout[this.keyStorage]
-          }
-        }
-      },
-      deep: true,
-      immediate: true
-    }
-  },
+function getAllComponentsObject(componentsGroup) {
+  return Object.values(componentsGroup).reduce(
+    (acc, group) => ({ ...acc, ...group }),
+    {}
+  )
+}
 
-  methods: {
-    setDraggable(mode) {
-      this.disableDraggable = mode
-    },
+function getComponentKeys(components) {
+  return Object.fromEntries(
+    Object.entries(components).map(([groupName, group]) => [
+      groupName,
+      Object.keys(group)
+    ])
+  )
+}
 
-    updatePreferences() {
-      User.update(this.preferences.id, {
-        user: { layout: { [this.keyStorage]: this.columns } }
-      }).then((response) => {
-        this.preferences.layout = response.body.preferences
-        this.columns = response.body.preferences.layout[this.keyStorage]
-      })
+function getAllComponentKeys(componentsGroup) {
+  return Object.values(componentsGroup).flatMap((group) => Object.keys(group))
+}
+
+loadPreferences().then(() => {
+  if (preferences.value.layout?.[KEY_STORAGE]) {
+    const componentNames = getAllComponentKeys(COMPONENTS_GROUP)
+    const userLayoutComponentNames = Object.values(
+      preferences.value.layout[KEY_STORAGE]
+    ).flat()
+
+    const hasTheSameAmount =
+      componentNames.length === userLayoutComponentNames.length
+    const hasTheSameComponents = componentNames.every((name) =>
+      userLayoutComponentNames.includes(name)
+    )
+
+    if (hasTheSameAmount && hasTheSameComponents) {
+      columns.value = preferences.value.layout[KEY_STORAGE]
     }
   }
+})
+
+function setDraggable(mode) {
+  disableDraggable.value = mode
+}
+
+function updatePreferences() {
+  setPreference(KEY_STORAGE, columns.value)
 }
 </script>
 
 <style lang="scss">
+.vue-new-source-task-bibtex-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+}
+
 .vue-new-source-task-bibtex {
   display: flex;
   flex-direction: column;

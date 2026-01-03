@@ -7,7 +7,28 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+
+- Observation matrix dashboard: several filter options don't work [#4640]
+- New collecting event task: Biocurations panel is not working [#4646]
+- Error on batch update from left object radial in filters using 'match identifiers'
+- Browse taxon names: Sometimes when users scroll through the taxonomic tree panel, names at the bottom are not visible. [#4654]
+- Browse taxon names: Navbar overlaps radial modals [#4649]
+- CSD: The biocurations form doesn't show classes that do not belong to a group [#4658]
+- New Extract task: Minor fixes related to the identifiers form [#4626]
+
+### Changed
+
+- Add the POST method for Image matrix to handle many OTUs
+- New task: Refactor the task and add responsive design to the form [#4628]
+
+[#4626]: https://github.com/SpeciesFileGroup/taxonworks/issues/4626
+[#4628]: https://github.com/SpeciesFileGroup/taxonworks/issues/4628
+[#4640]: https://github.com/SpeciesFileGroup/taxonworks/issues/4640
+[#4646]: https://github.com/SpeciesFileGroup/taxonworks/issues/4646
+[#4649]: https://github.com/SpeciesFileGroup/taxonworks/issues/4649
+[#4654]: https://github.com/SpeciesFileGroup/taxonworks/issues/4654
+[#4658]: https://github.com/SpeciesFileGroup/taxonworks/issues/4658
 
 ## [0.56.1] - 2025-12-12
 

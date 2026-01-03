@@ -295,8 +295,10 @@ module Protonym::Format
   # This should never require hitting the database.
   def get_original_combination_html
     return verbatim_name if !GENUS_AND_SPECIES_RANK_NAMES.include?(rank_string) && !verbatim_name.nil?
-    return  "\"<i>Candidatus</i> #{get_original_combination}\"" if is_candidatus?
-
+    if is_candidatus?
+      return cached_html if get_original_combination.nil?
+      return  "\"<i>Candidatus</i> #{get_original_combination}\""
+    end
     # x = get_original_combination
     # y = cached_original_combination # In a transaction this is not available
     v = @_cached_build_state[:original_combination]
