@@ -639,14 +639,10 @@ module Export::Dwca
       if no_records?
         content = "\n"
       else
-        benchmark_result = Benchmark.measure do
-          content = Export::CSV::Dwc::Extension::BiologicalAssociations.csv(biological_associations_extension, biological_association_relations_to_core)
-        end
-
-        timestamp = Time.now.strftime('%Y%m%d_%H%M%S')
-        File.open("/tmp/dwc_resource_relationship_benchmark_#{timestamp}.txt", 'a') do |f|
-          f.puts "#{Time.now} - BiologicalAssociations CSV export: #{benchmark_result}"
-        end
+          content = Export::CSV::Dwc::Extension::BiologicalAssociations.csv(
+            biological_associations_extension,
+            biological_association_relations_to_core
+          )
       end
 
       @biological_associations_resource_relationship_tmp.write(content)
