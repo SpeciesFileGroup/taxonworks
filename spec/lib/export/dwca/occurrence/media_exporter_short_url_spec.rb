@@ -3,7 +3,7 @@ require 'rails_helper'
 # Spec to verify that media export correctly handles both paths:
 # 1. Using existing shortened_urls when available
 # 2. Creating new short URLs when they don't exist
-RSpec.xdescribe Export::Dwca::Occurrence::Data, type: :model do
+RSpec.describe Export::Dwca::Occurrence::MediaExporter, type: :model do
   let(:project) { FactoryBot.create(:valid_project) }
   let(:user) { FactoryBot.create(:valid_user) }
   let(:conn) { ActiveRecord::Base.connection }
@@ -22,20 +22,17 @@ RSpec.xdescribe Export::Dwca::Occurrence::Data, type: :model do
   end
 
   describe 'short URL handling in populate_temp_image_api_links_table' do
-    let(:export_instance) do
-      Export::Dwca::Occurrence::Data.new(
-        core_scope: DwcOccurrence.where('1=0'),
-        extension_scopes: {
-          media: {
-            collection_objects: CollectionObject.where('1=0'),
-            field_occurrences: FieldOccurrence.where('1=0')
-          }
+    let(:exporter) do
+      Export::Dwca::Occurrence::MediaExporter.new(
+        media_extension: {
+          collection_objects: CollectionObject.where('1=0').to_sql,
+          field_occurrences: FieldOccurrence.where('1=0').to_sql
         }
       )
     end
 
     it 'uses existing short URLs when available' do
-      image = FactoryBot.create(:valid_image)
+      image = FactoryBot.create(:valid_image, project: project)
 
       # Create existing short URLs for this image
       access_url = Shared::Api.image_file_long_url(image.image_file_fingerprint, image.project.api_access_token)
@@ -45,17 +42,20 @@ RSpec.xdescribe Export::Dwca::Occurrence::Data, type: :model do
       metadata_short = Shortener::ShortenedUrl.generate(metadata_url)
 
       # Populate the temp table
-      export_instance.send(:populate_temp_image_api_links_table, [image.id])
+      exporter.send(:populate_temp_image_api_links_table, [image.id])
 
       # Check the temp table has the pre-existing short URLs
       result = conn.select_one("SELECT * FROM temp_media_image_links WHERE image_id = #{image.id}")
 
       expect(result['access_uri']).to eq(Shared::Api.short_url_from_key(access_short.unique_key))
       expect(result['further_information_url']).to eq(Shared::Api.short_url_from_key(metadata_short.unique_key))
+
+      # Cleanup temp table
+      conn.execute("DROP TABLE IF EXISTS temp_media_image_links")
     end
 
     it 'creates new short URLs when they do not exist' do
-      image = FactoryBot.create(:valid_image)
+      image = FactoryBot.create(:valid_image, project: project)
 
       # Verify no short URLs exist for this image
       access_url = Shared::Api.image_file_long_url(image.image_file_fingerprint, image.project.api_access_token)
@@ -65,7 +65,7 @@ RSpec.xdescribe Export::Dwca::Occurrence::Data, type: :model do
       expect(Shortener::ShortenedUrl.find_by(url: metadata_url)).to be_nil
 
       # Populate the temp table - this should create new short URLs
-      export_instance.send(:populate_temp_image_api_links_table, [image.id])
+      exporter.send(:populate_temp_image_api_links_table, [image.id])
 
       # Verify short URLs were created
       access_short = Shortener::ShortenedUrl.find_by(url: access_url)
@@ -79,6 +79,9 @@ RSpec.xdescribe Export::Dwca::Occurrence::Data, type: :model do
 
       expect(result['access_uri']).to eq(Shared::Api.short_url_from_key(access_short.unique_key))
       expect(result['further_information_url']).to eq(Shared::Api.short_url_from_key(metadata_short.unique_key))
+
+      # Cleanup temp table
+      conn.execute("DROP TABLE IF EXISTS temp_media_image_links")
     end
   end
 end

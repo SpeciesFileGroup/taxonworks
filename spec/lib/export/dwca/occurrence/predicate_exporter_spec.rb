@@ -210,5 +210,300 @@ RSpec.describe Export::Dwca::Occurrence::PredicateExporter, type: :model do
         output.unlink
       end
     end
+
+    context 'with complex filtering scenarios' do
+      let!(:p1) { FactoryBot.create(:valid_controlled_vocabulary_term_predicate, project: project) }
+      let!(:p2) { FactoryBot.create(:valid_controlled_vocabulary_term_predicate, project: project) }
+      let!(:p3) { FactoryBot.create(:valid_controlled_vocabulary_term_predicate, project: project) }
+
+      specify 'includes only referenced collecting events' do
+        # All three specimens share same CE
+        s1 = FactoryBot.create(:valid_specimen, project: project)
+        s2 = FactoryBot.create(:valid_specimen, project: project)
+        s3 = FactoryBot.create(:valid_specimen, project: project)
+
+        ce = FactoryBot.create(:valid_collecting_event)
+        s1.update!(collecting_event: ce)
+        s2.update!(collecting_event: ce)
+        s3.update!(collecting_event: ce)
+
+        s1.get_dwc_occurrence
+        s2.get_dwc_occurrence
+        s3.get_dwc_occurrence
+
+        # The collecting event has a data attribute
+        d1 = FactoryBot.create(:valid_data_attribute_internal_attribute,
+          attribute_subject: ce,
+          predicate: p1,
+          value: 'shared ce value'
+        )
+
+        # The scope is only two specimens
+        scope = DwcOccurrence.where(dwc_occurrence_object: [s1, s2])
+
+        exporter = described_class.new(
+          core_scope: scope,
+          collection_object_predicate_ids: [],
+          collecting_event_predicate_ids: [p1.id]
+        )
+
+        output = Tempfile.new('test_predicates')
+        exporter.export_to(output)
+        output.rewind
+
+        content = output.read
+        lines = content.lines
+
+        # Should have header + 2 data rows (s1 and s2)
+        expect(lines.count).to eq(3)
+        expect(lines[0]).to include(p1.name)
+        expect(lines[1].strip).to eq('shared ce value')
+        expect(lines[2].strip).to eq('shared ce value')
+
+        output.close
+        output.unlink
+      end
+
+      specify 'filters collecting event attributes to only referenced CEs and predicates' do
+        s1 = FactoryBot.create(:valid_specimen, project: project)
+        s2 = FactoryBot.create(:valid_specimen, project: project)
+        s3 = FactoryBot.create(:valid_specimen, project: project)
+        s4 = FactoryBot.create(:valid_specimen, project: project)
+        s5 = FactoryBot.create(:valid_specimen, project: project)
+
+        ce1 = FactoryBot.create(:valid_collecting_event)
+        ce2 = FactoryBot.create(:valid_collecting_event)
+        ce3 = FactoryBot.create(:valid_collecting_event)
+
+        s1.update!(collecting_event: ce1)
+        s2.update!(collecting_event: ce1) # not in scope
+        s3.update!(collecting_event: ce2) # not in scope
+        s4.update!(collecting_event: ce3) # not in scope
+        s5.update!(collecting_event: ce3)
+
+        s1.get_dwc_occurrence
+        s2.get_dwc_occurrence
+        s3.get_dwc_occurrence
+        s4.get_dwc_occurrence
+        s5.get_dwc_occurrence
+
+        d1 = FactoryBot.create(:valid_data_attribute_internal_attribute,
+          attribute_subject: ce1,
+          predicate: p1,
+          value: 'ce1_p1'
+        )
+        d2 = FactoryBot.create(:valid_data_attribute_internal_attribute,
+          attribute_subject: ce3,
+          predicate: p1,
+          value: 'ce3_p1'
+        )
+        d3 = FactoryBot.create(:valid_data_attribute_internal_attribute,
+          attribute_subject: ce2,
+          predicate: p2,
+          value: 'ce2_p2'
+        ) # not in scope - wrong CE
+        d4 = FactoryBot.create(:valid_data_attribute_internal_attribute,
+          attribute_subject: ce3,
+          predicate: p2,
+          value: 'ce3_p2'
+        )
+        d5 = FactoryBot.create(:valid_data_attribute_internal_attribute,
+          attribute_subject: ce3,
+          predicate: p3,
+          value: 'ce3_p3'
+        ) # not in scope - wrong predicate
+        d6 = FactoryBot.create(:valid_data_attribute_internal_attribute,
+          attribute_subject: ce1,
+          predicate: p3,
+          value: 'ce1_p3'
+        ) # not in scope - wrong predicate
+
+        # The scope is only s1 and s5 (ce1, ce3) with predicates p1, p2
+        scope = DwcOccurrence.where(dwc_occurrence_object: [s1, s5])
+
+        exporter = described_class.new(
+          core_scope: scope,
+          collection_object_predicate_ids: [],
+          collecting_event_predicate_ids: [p1.id, p2.id]
+        )
+
+        output = Tempfile.new('test_predicates')
+        exporter.export_to(output)
+        output.rewind
+
+        content = output.read
+        lines = content.lines.map(&:strip)
+
+        # Should have header + 2 data rows
+        expect(lines.count).to eq(3)
+
+        # Parse TSV
+        rows = CSV.parse(content, col_sep: "\t", headers: true)
+
+        # Should have both predicates as columns
+        expect(rows.headers).to include("TW:DataAttribute:CollectingEvent:#{p1.name}")
+        expect(rows.headers).to include("TW:DataAttribute:CollectingEvent:#{p2.name}")
+
+        # Check values
+        row_values = rows.map { |r| [r["TW:DataAttribute:CollectingEvent:#{p1.name}"], r["TW:DataAttribute:CollectingEvent:#{p2.name}"]] }
+        expect(row_values).to contain_exactly(['ce1_p1', nil], ['ce3_p1', 'ce3_p2'])
+
+        output.close
+        output.unlink
+      end
+
+      specify 'does not inject collection_object_ids not in original scope' do
+        # All three share CE
+        s1 = FactoryBot.create(:valid_specimen, project: project)
+        s2 = FactoryBot.create(:valid_specimen, project: project)
+        s3 = FactoryBot.create(:valid_specimen, project: project)
+
+        ce = FactoryBot.create(:valid_collecting_event)
+        s1.update!(collecting_event: ce)
+        s2.update!(collecting_event: ce)
+        s3.update!(collecting_event: ce)
+
+        s1.get_dwc_occurrence
+        s2.get_dwc_occurrence
+        s3.get_dwc_occurrence
+
+        # The collecting event has a data attribute
+        d1 = FactoryBot.create(:valid_data_attribute_internal_attribute,
+          attribute_subject: ce,
+          predicate: p1,
+          value: 'shared value'
+        )
+
+        # The scope is only two specimens (s1, s2) - s3 should NOT appear
+        scope = DwcOccurrence.where(dwc_occurrence_object: [s1, s2])
+
+        exporter = described_class.new(
+          core_scope: scope,
+          collection_object_predicate_ids: [],
+          collecting_event_predicate_ids: [p1.id]
+        )
+
+        output = Tempfile.new('test_predicates')
+        exporter.export_to(output)
+        output.rewind
+
+        content = output.read
+        lines = content.lines
+
+        # Should have header + 2 data rows (NOT 3)
+        expect(lines.count).to eq(3)
+
+        # Both rows should have the shared value
+        expect(lines[1].strip).to eq('shared value')
+        expect(lines[2].strip).to eq('shared value')
+
+        output.close
+        output.unlink
+      end
+
+      specify 'exports collection object attributes correctly' do
+        s1 = FactoryBot.create(:valid_specimen, project: project)
+        s2 = FactoryBot.create(:valid_specimen, project: project)
+        s3 = FactoryBot.create(:valid_specimen, project: project)
+
+        s1.get_dwc_occurrence
+        s2.get_dwc_occurrence
+        s3.get_dwc_occurrence
+
+        d1 = FactoryBot.create(:valid_data_attribute_internal_attribute,
+          attribute_subject: s1,
+          predicate: p1,
+          value: 's1_p1'
+        )
+        d2 = FactoryBot.create(:valid_data_attribute_internal_attribute,
+          attribute_subject: s3,
+          predicate: p3,
+          value: 's3_p3'
+        )
+        d3 = FactoryBot.create(:valid_data_attribute_internal_attribute,
+          attribute_subject: s2,
+          predicate: p2,
+          value: 's2_p2'
+        )
+
+        scope = DwcOccurrence.where(dwc_occurrence_object: [s1, s2, s3])
+
+        exporter = described_class.new(
+          core_scope: scope,
+          collection_object_predicate_ids: [p1.id, p2.id, p3.id],
+          collecting_event_predicate_ids: []
+        )
+
+        output = Tempfile.new('test_predicates')
+        exporter.export_to(output)
+        output.rewind
+
+        content = output.read
+
+        # Parse TSV
+        rows = CSV.parse(content, col_sep: "\t", headers: true)
+
+        # Should have all predicates as columns
+        expect(rows.headers).to include("TW:DataAttribute:CollectionObject:#{p1.name}")
+        expect(rows.headers).to include("TW:DataAttribute:CollectionObject:#{p2.name}")
+        expect(rows.headers).to include("TW:DataAttribute:CollectionObject:#{p3.name}")
+
+        # Check that specific values are present
+        expect(content).to include('s1_p1')
+        expect(content).to include('s3_p3')
+        expect(content).to include('s2_p2')
+
+        output.close
+        output.unlink
+      end
+
+      specify 'exports collecting event attributes correctly' do
+        s1 = FactoryBot.create(:valid_specimen, project: project)
+
+        ce = FactoryBot.create(:valid_collecting_event)
+        s1.update!(collecting_event: ce)
+        s1.get_dwc_occurrence
+
+        d1 = FactoryBot.create(:valid_data_attribute_internal_attribute,
+          attribute_subject: ce,
+          predicate: p1,
+          value: 'ce_p1'
+        )
+        d2 = FactoryBot.create(:valid_data_attribute_internal_attribute,
+          attribute_subject: ce,
+          predicate: p3,
+          value: 'ce_p3'
+        )
+
+        scope = DwcOccurrence.where(dwc_occurrence_object: s1)
+
+        exporter = described_class.new(
+          core_scope: scope,
+          collection_object_predicate_ids: [],
+          collecting_event_predicate_ids: [p1.id, p2.id, p3.id]
+        )
+
+        output = Tempfile.new('test_predicates')
+        exporter.export_to(output)
+        output.rewind
+
+        content = output.read
+
+        # Parse TSV
+        rows = CSV.parse(content, col_sep: "\t", headers: true)
+
+        # Should include p1 and p3 (p2 has no data so won't be included)
+        expect(rows.headers).to include("TW:DataAttribute:CollectingEvent:#{p1.name}")
+        expect(rows.headers).to include("TW:DataAttribute:CollectingEvent:#{p3.name}")
+        expect(rows.headers).not_to include("TW:DataAttribute:CollectingEvent:#{p2.name}")
+
+        # Check values
+        expect(content).to include('ce_p1')
+        expect(content).to include('ce_p3')
+
+        output.close
+        output.unlink
+      end
+    end
   end
 end

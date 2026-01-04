@@ -78,36 +78,6 @@ module Export::Dwca::Occurrence
       SQL
     end
 
-    # SQL fragment: Associated specimen reference URL
-    # Handles collection objects, field occurrences, and their observations
-    # @param include_observations [Boolean] whether to include observation table aliases (co_obs, fo_obs)
-    # @return [String] SQL CASE statement for building specimen reference URLs
-    def associated_specimen_reference_sql(include_observations: true)
-      co_base = Shared::Api.api_base_path(CollectionObject)
-      fo_base = Shared::Api.api_base_path(FieldOccurrence)
-
-      base_cases = <<~SQL.strip
-        CASE
-          WHEN co.id IS NOT NULL THEN '#{co_base}/' || co.id
-          WHEN fo.id IS NOT NULL THEN '#{fo_base}/' || fo.id
-      SQL
-
-      observation_cases = if include_observations
-        <<~SQL
-
-          WHEN co_obs.id IS NOT NULL THEN '#{co_base}/' || co_obs.id
-          WHEN fo_obs.id IS NOT NULL THEN '#{fo_base}/' || fo_obs.id
-        SQL
-      else
-        "\n"
-      end
-
-      <<~SQL.strip
-        #{base_cases}#{observation_cases}          ELSE NULL
-        END
-      SQL
-    end
-
     # SQL fragment: Copyright label from temp attribution table.
     # Generates copyright string from year and holder names.
     # @param attr_table_alias [String] SQL table alias for attribution temp table
