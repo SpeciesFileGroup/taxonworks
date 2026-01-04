@@ -1,6 +1,6 @@
 module Export::Dwca::Occurrence
-  # SQL fragment builders for DwC-A export queries
-  # These are stateless helpers that generate SQL snippets for complex queries
+  # SQL fragment builders for DwC-A export queries.
+  # These are stateless helpers that generate SQL snippets for complex queries.
   module SqlFragments
     # SQL fragment: Media identifier with CSV sanitization
     # @param media_class [Class] Media class (Image or Sound)
@@ -11,8 +11,8 @@ module Export::Dwca::Occurrence
       "pg_temp.sanitize_csv(#{identifier_expr})"
     end
 
-    # SQL fragment: Media identifier JOINs for UUID and URI
-    # Provides LEFT JOINs to the identifiers table for UUID and URI lookups
+    # SQL fragment: Media identifier JOINs for UUID and URI.
+    # Provides LEFT JOINs to the identifiers table for UUID and URI lookups.
     # @param media_class [Class] Media class (Image or Sound)
     # @param table_alias [String] SQL table alias for the media table
     # @return [String] SQL JOIN clauses for UUID and URI identifiers
@@ -20,11 +20,11 @@ module Export::Dwca::Occurrence
       media_type = media_class.name
       <<~SQL.squish
         LEFT JOIN identifiers uuid_id ON uuid_id.identifier_object_id = #{table_alias}.id
-                                      AND uuid_id.identifier_object_type = '#{media_type}'
-                                      AND uuid_id.type LIKE  'Identifier::Global::Uuid%'
+          AND uuid_id.identifier_object_type = '#{media_type}'
+          AND uuid_id.type LIKE  'Identifier::Global::Uuid%'
         LEFT JOIN identifiers uri_id ON uri_id.identifier_object_id = #{table_alias}.id
-                                      AND uri_id.identifier_object_type = '#{media_type}'
-                                      AND uri_id.type LIKE 'Identifier::Global::Uri%'
+          AND uri_id.identifier_object_type = '#{media_type}'
+          AND uri_id.type LIKE 'Identifier::Global::Uri%'
       SQL
     end
 
@@ -37,7 +37,6 @@ module Export::Dwca::Occurrence
     def image_occurrence_resolution_joins_sql(image_alias: 'img')
       <<~SQL
         -- Join to get coreid (occurrenceID) via depiction -> collection_object/field_occurrence -> dwc_occurrence
-        -- IMPORTANT: Only include media for occurrences that are actually in the export scope
         LEFT JOIN depictions dep ON dep.image_id = #{image_alias}.id
         LEFT JOIN collection_objects co ON co.id = dep.depiction_object_id AND dep.depiction_object_type = 'CollectionObject'
         LEFT JOIN field_occurrences fo ON fo.id = dep.depiction_object_id AND dep.depiction_object_type = 'FieldOccurrence'
@@ -52,9 +51,9 @@ module Export::Dwca::Occurrence
         LEFT JOIN temp_scoped_occurrences scope_fo_obs ON scope_fo_obs.occurrence_id = fo_obs.id AND scope_fo_obs.occurrence_type = 'FieldOccurrence'
 
         LEFT JOIN dwc_occurrences dwc ON (dwc.dwc_occurrence_object_id = co.id AND dwc.dwc_occurrence_object_type = 'CollectionObject' AND scope_co.occurrence_id IS NOT NULL)
-                                      OR (dwc.dwc_occurrence_object_id = fo.id AND dwc.dwc_occurrence_object_type = 'FieldOccurrence' AND scope_fo.occurrence_id IS NOT NULL)
-                                      OR (dwc.dwc_occurrence_object_id = co_obs.id AND dwc.dwc_occurrence_object_type = 'CollectionObject' AND scope_co_obs.occurrence_id IS NOT NULL)
-                                      OR (dwc.dwc_occurrence_object_id = fo_obs.id AND dwc.dwc_occurrence_object_type = 'FieldOccurrence' AND scope_fo_obs.occurrence_id IS NOT NULL)
+          OR (dwc.dwc_occurrence_object_id = fo.id AND dwc.dwc_occurrence_object_type = 'FieldOccurrence' AND scope_fo.occurrence_id IS NOT NULL)
+          OR (dwc.dwc_occurrence_object_id = co_obs.id AND dwc.dwc_occurrence_object_type = 'CollectionObject' AND scope_co_obs.occurrence_id IS NOT NULL)
+          OR (dwc.dwc_occurrence_object_id = fo_obs.id AND dwc.dwc_occurrence_object_type = 'FieldOccurrence' AND scope_fo_obs.occurrence_id IS NOT NULL)
       SQL
     end
 
@@ -66,7 +65,6 @@ module Export::Dwca::Occurrence
     def sound_occurrence_resolution_joins_sql(sound_alias: 'snd')
       <<~SQL
         -- Join to get coreid (occurrenceID) via conveyance -> collection_object/field_occurrence -> dwc_occurrence
-        -- IMPORTANT: Only include media for occurrences that are actually in the export scope
         LEFT JOIN conveyances conv ON conv.sound_id = #{sound_alias}.id
         LEFT JOIN collection_objects co ON co.id = conv.conveyance_object_id AND conv.conveyance_object_type = 'CollectionObject'
         LEFT JOIN field_occurrences fo ON fo.id = conv.conveyance_object_id AND conv.conveyance_object_type = 'FieldOccurrence'

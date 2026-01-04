@@ -487,7 +487,6 @@ module Export::Dwca::Occurrence
       @media_tmp
     end
 
-
     # @return [Array] use the temporarily written, and refined, CSV file to read
     #   off the existing headers so we can use them in writing meta.yml.
     # Non-standard DwC colums are handled elsewhere.

@@ -659,21 +659,22 @@ module Export::Dwca::Occurrence
         return
       end
 
-      # Step 2: Create temp table with scoped occurrence IDs. Used in
-      # sql_fragments.rb to filter media records - only includes media linked to
-      # collection objects/field occurrences that are in the core export scope.
-      create_scoped_occurrence_temp_table
-
-      # Step 3: Create temp tables with media IDs and pre-compute API links
+      # Step 2: Create temp tables with media IDs and pre-compute API links
       # using Ruby (required for URL shortener).
       create_media_api_link_tables(image_ids, sound_ids)
 
+      # Step 3: Create temp table with scoped occurrence IDs. Used in step 4 to
+      # filter media records - only includes media linked to collection
+      # objects/field occurrences that are in the core export scope.
+      create_scoped_occurrence_temp_table
+
       # Step 4: Pre-compute media-to-occurrence mappings. This runs the complex
       # 14-join logic once instead of executing it in the streaming COPY query.
-      # Depends on temp_media_image_links created in step 3.
+      # Depends on temp_media_image_links (step 2) and temp_scoped_occurrences
+      # (step 3).
       create_media_occurrence_mapping_tables(image_ids, sound_ids)
 
-      # Drop temp_scoped_occurrences - no longer needed after occurrence mapping
+      # Drop temp_scoped_occurrences - no longer needed after occurrence mapping.
       conn = ActiveRecord::Base.connection
       conn.execute("DROP TABLE IF EXISTS temp_scoped_occurrences")
 
@@ -682,7 +683,7 @@ module Export::Dwca::Occurrence
       # step 3.
       create_media_attribution_temp_tables(image_ids, sound_ids)
 
-      # Drop temp_media_*_ids tables - no longer needed after attribution
+      # Drop temp_media_*_ids tables - no longer needed after attribution.
       conn.execute("DROP TABLE IF EXISTS temp_media_image_ids")
       conn.execute("DROP TABLE IF EXISTS temp_media_sound_ids")
 
