@@ -624,16 +624,16 @@ module Export::Dwca::Occurrence
       conn.execute("CREATE INDEX #{index_name} ON #{temp_table_name}(#{id_column_name})")
     end
 
-    # Cleans up temporary tables created for media export
+    # Cleans up remaining temporary tables after media export completes.
+    # Note: temp_scoped_occurrences, temp_media_image_ids, and
+    # temp_media_sound_ids are dropped earlier as soon as they're no longer
+    # needed to reduce memory usage.
     def cleanup_media_temp_tables
       conn = ActiveRecord::Base.connection
-      conn.execute("DROP TABLE IF EXISTS temp_scoped_occurrences")
       conn.execute("DROP TABLE IF EXISTS temp_image_occurrence_map")
       conn.execute("DROP TABLE IF EXISTS temp_sound_occurrence_map")
       conn.execute("DROP TABLE IF EXISTS temp_media_image_links")
-      conn.execute("DROP TABLE IF EXISTS temp_media_image_ids")
       conn.execute("DROP TABLE IF EXISTS temp_media_sound_links")
-      conn.execute("DROP TABLE IF EXISTS temp_media_sound_ids")
       conn.execute("DROP TABLE IF EXISTS temp_image_attributions")
       conn.execute("DROP TABLE IF EXISTS temp_sound_attributions")
     end
@@ -673,10 +673,18 @@ module Export::Dwca::Occurrence
       # Depends on temp_media_image_links created in step 3.
       create_media_occurrence_mapping_tables(image_ids, sound_ids)
 
+      # Drop temp_scoped_occurrences - no longer needed after occurrence mapping
+      conn = ActiveRecord::Base.connection
+      conn.execute("DROP TABLE IF EXISTS temp_scoped_occurrences")
+
       # Step 5: Pre-compute attribution data to avoid expensive LATERAL joins.
       # Uses temp_media_image_ids and temp_media_sound_ids tables created in
       # step 3.
       create_media_attribution_temp_tables(image_ids, sound_ids)
+
+      # Drop temp_media_*_ids tables - no longer needed after attribution
+      conn.execute("DROP TABLE IF EXISTS temp_media_image_ids")
+      conn.execute("DROP TABLE IF EXISTS temp_media_sound_ids")
 
       # Step 6: Write header and stream media data to output file.
       Rails.logger.debug 'dwca_export: executing COPY TO for media data'
