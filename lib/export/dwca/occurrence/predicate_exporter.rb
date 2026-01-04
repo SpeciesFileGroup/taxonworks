@@ -240,20 +240,24 @@ module Export::Dwca::Occurrence
       ce_pred_names = collecting_event_predicate_names
 
       # Build aggregate statements for each CO predicate.
-      # Use MAX with FILTER which is more efficient than MAX(CASE...).
+      # Use STRING_AGG with FILTER to concatenate multiple values with DwC delimiter.
+      # Order by data_attribute ID for deterministic output.
       # Sanitize values by replacing newlines and tabs with spaces (matching
       # Utilities::Strings.sanitize_for_csv behavior).
+      delimiter = Shared::IsDwcOccurrence::DWC_DELIMITER
       co_case_statements = co_pred_names.map do |cvt_id, pred_name|
         # Quote the column name to handle special characters.
         quoted_name = conn.quote_column_name(pred_name)
-        "MAX(pg_temp.sanitize_csv(co_da.value)) FILTER (WHERE co_da.controlled_vocabulary_term_id = #{cvt_id}) AS #{quoted_name}"
+        "STRING_AGG(pg_temp.sanitize_csv(co_da.value), '#{delimiter}' ORDER BY co_da.id) FILTER (WHERE co_da.controlled_vocabulary_term_id = #{cvt_id}) AS #{quoted_name}"
       end
 
       # Build aggregate statements for each CE predicate.
+      # Use STRING_AGG with FILTER to concatenate multiple values with DwC delimiter.
+      # Order by data_attribute ID for deterministic output.
       # Sanitize values by replacing newlines and tabs with spaces.
       ce_case_statements = ce_pred_names.map do |cvt_id, pred_name|
         quoted_name = conn.quote_column_name(pred_name)
-        "MAX(pg_temp.sanitize_csv(ce_da.value)) FILTER (WHERE ce_da.controlled_vocabulary_term_id = #{cvt_id}) AS #{quoted_name}"
+        "STRING_AGG(pg_temp.sanitize_csv(ce_da.value), '#{delimiter}' ORDER BY ce_da.id) FILTER (WHERE ce_da.controlled_vocabulary_term_id = #{cvt_id}) AS #{quoted_name}"
       end
 
       all_case_statements = (co_case_statements + ce_case_statements).join(",\n      ")

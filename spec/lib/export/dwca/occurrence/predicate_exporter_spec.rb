@@ -110,6 +110,52 @@ RSpec.describe Export::Dwca::Occurrence::PredicateExporter, type: :model do
         output.close
         output.unlink
       end
+
+      specify 'concatenates multiple values for same predicate with DwC delimiter' do
+        # Create a specimen with multiple values for the same predicate
+        multi_specimen = FactoryBot.create(:valid_specimen, project: project)
+        multi_specimen.get_dwc_occurrence
+
+        multi_predicate = FactoryBot.create(:valid_controlled_vocabulary_term_predicate, project: project)
+
+        # Create multiple data attributes with same predicate
+        FactoryBot.create(:valid_data_attribute_internal_attribute,
+          attribute_subject: multi_specimen,
+          predicate: multi_predicate,
+          value: 'first value'
+        )
+        FactoryBot.create(:valid_data_attribute_internal_attribute,
+          attribute_subject: multi_specimen,
+          predicate: multi_predicate,
+          value: 'second value'
+        )
+
+        multi_core_scope = DwcOccurrence.where(dwc_occurrence_object_id: multi_specimen.id, dwc_occurrence_object_type: 'CollectionObject')
+
+        exporter = described_class.new(
+          core_scope: multi_core_scope,
+          collection_object_predicate_ids: [multi_predicate.id],
+          collecting_event_predicate_ids: []
+        )
+
+        output = Tempfile.new('test_predicates')
+        result = exporter.export_to(output)
+        output.rewind
+
+        content = output.read
+        lines = content.lines
+
+        # Should have header + 1 data row
+        expect(lines.count).to eq(2)
+
+        # Data row should have both values concatenated with DwC delimiter
+        delimiter = Shared::IsDwcOccurrence::DWC_DELIMITER
+        data_row = lines[1].strip
+        expect(data_row).to eq("first value#{delimiter}second value")
+
+        output.close
+        output.unlink
+      end
     end
 
     context 'with collecting event predicates' do
