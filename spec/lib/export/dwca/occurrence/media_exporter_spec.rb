@@ -16,7 +16,7 @@ RSpec.describe Export::Dwca::Occurrence::MediaExporter, type: :model do
     let!(:specimen) { FactoryBot.create(:valid_specimen, project: project) }
     let(:scope) { DwcOccurrence.where(project_id: project.id) }
     let(:media_extension) { { collection_objects: CollectionObject.all.to_sql } }
-    let(:exporter) { described_class.new(media_extension: media_extension, core_scope: scope) }
+    let(:exporter) { described_class.new(media_extension: media_extension) }
 
     before(:all) do
       # Ensure project has API token for media URLs

@@ -1,8 +1,7 @@
 require 'csv'
 
 module Export::Dwca::Occurrence
-  # Service object for exporting TaxonWorks extension data in DwC-A format
-  # Handles streaming export of custom TaxonWorks fields
+  # Service object for exporting TaxonWorks custom fields to DwCA.
   class TaxonworksExtensionExporter
     # @param core_scope [ActiveRecord::Relation] DwcOccurrence scope
     # @param taxonworks_extension_methods [Array<String, Symbol>] extension field names
@@ -11,7 +10,7 @@ module Export::Dwca::Occurrence
       @taxonworks_extension_methods = taxonworks_extension_methods
     end
 
-    # Main export method - writes TaxonWorks extension data to output file
+    # Main export method - writes TaxonWorks extension data to output file.
     # @param output_file [Tempfile, File] output file for extension TSV data
     # @return [Tempfile] the output file
     def export_to(output_file)
@@ -28,11 +27,14 @@ module Export::Dwca::Occurrence
       csv = ::CSV.new(output_file, col_sep: "\t")
       csv << used_extensions
 
-      # Stream results and write directly to CSV
-      # Iterate over fields array to guarantee order matches used_extensions
-      query.find_each(batch_size: 10_000) do |row|
+      # Stream results and write directly to CSV.
+      # find_each automatically orders by dwc_occurrences.id for batching, which
+      # matches the order of data.tsv and predicate files for side-by-side paste joining.
+      query.find_each(batch_size: 50_000) do |row|
         output_row = []
 
+        # Iterate over column_data to guarantee column order matches
+        # used_extensions.
         column_data.each do |source_type, col|
           case source_type
           when :method
@@ -70,10 +72,8 @@ module Export::Dwca::Occurrence
 
     private
 
-    attr_reader :core_scope, :taxonworks_extension_methods
-
     def collection_object_scope
-      @collection_object_scope ||= core_scope.where(dwc_occurrence_object_type: 'CollectionObject')
+      @collection_object_scope ||= @core_scope.where(dwc_occurrence_object_type: 'CollectionObject')
     end
 
     # Builds the SQL query and metadata needed for taxonworks_extension_data export.
@@ -94,7 +94,7 @@ module Export::Dwca::Occurrence
       }
     end
 
-    # Classifies extension fields into their source types and builds metadata
+    # Classifies extension fields into their source types and builds metadata.
     # @return [Hash] with field classifications and metadata arrays
     def classify_extension_fields
       methods = {}
@@ -104,7 +104,7 @@ module Export::Dwca::Occurrence
       column_data = []
       used_extensions = []
 
-      taxonworks_extension_methods.map(&:to_sym).each do |sym|
+      @taxonworks_extension_methods.map(&:to_sym).each do |sym|
         csv_header_name = ('TW:Internal:' + sym.to_s).freeze
 
         if (method = ::CollectionObject::EXTENSION_COMPUTED_FIELDS[sym])
@@ -126,7 +126,7 @@ module Export::Dwca::Occurrence
         end
       end
 
-      # Extract column arrays for query building (preserve requested order)
+      # Extract column arrays for query building (preserve requested order).
       co_columns = co_fields.keys
       ce_columns = ce_fields.keys
       # map virtual :id to :collecting_event_id
@@ -136,32 +136,29 @@ module Export::Dwca::Occurrence
       dwco_columns = dwco_fields.keys
 
       {
-        methods: methods,
-        ce_columns: ce_columns,
-        co_columns: co_columns,
-        dwco_columns: dwco_columns,
-        column_data: column_data,
-        used_extensions: used_extensions
+        methods:,
+        ce_columns:,
+        co_columns:,
+        dwco_columns:,
+        column_data:,
+        used_extensions:
       }
     end
 
-    # Builds query with necessary joins based on field types
+    # Builds query with necessary joins based on field types.
     # @param field_data [Hash] field classification data from classify_extension_fields
     # @return [ActiveRecord::Relation] query with joins applied
     def build_query_joins(field_data)
       ce_columns = field_data[:ce_columns]
       methods = field_data[:methods]
 
-      # Base query - ordered by dwco.id which determines CSV row order
       query = collection_object_scope
         .joins('JOIN collection_objects ON collection_objects.id = dwc_occurrences.dwc_occurrence_object_id')
 
-      # Add collecting_events join if needed
       if ce_columns.any?
         query = query.joins('LEFT JOIN collecting_events ON collecting_events.id = collection_objects.collecting_event_id')
       end
 
-      # Add computed field joins as needed
       if methods.keys.include?(:otu_name)
         query = query
           .joins('LEFT JOIN taxon_determinations ON taxon_determinations.taxon_determination_object_id = collection_objects.id ' \
@@ -173,7 +170,7 @@ module Export::Dwca::Occurrence
       query
     end
 
-    # Builds SELECT clause columns with proper aliasing
+    # Builds SELECT clause columns with proper aliasing.
     # @param field_data [Hash] field classification data from classify_extension_fields
     # @return [Array<String>] SELECT column specifications
     def build_select_columns(field_data)
