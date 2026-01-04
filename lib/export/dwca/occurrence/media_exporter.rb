@@ -18,6 +18,30 @@ module Export::Dwca::Occurrence
 
     private
 
+    # Bulk creates short URLs for many long URLs at once.
+    # Uses Shared::Api.shorten_url within a transaction for safety and speed.
+    # @param urls_data [Array<Hash>] array of {long_url:, context:}
+    # @return [Hash] map of long_url => short_url
+    def bulk_create_short_urls(urls_data)
+      return {} if urls_data.empty?
+
+      Rails.logger.debug "dwca_export: bulk creating #{urls_data.size} short URLs"
+
+      result_map = {}
+
+      # Use transaction for speed (single commit at end)
+      ActiveRecord::Base.transaction do
+        urls_data.each do |item|
+          long_url = item[:long_url]
+          result_map[long_url] = Shared::Api.shorten_url(long_url)
+        end
+      end
+
+      Rails.logger.debug "dwca_export: bulk created #{urls_data.size} short URLs successfully"
+
+      result_map
+    end
+
     def create_scoped_occurrence_temp_table
       conn = ActiveRecord::Base.connection
 
@@ -330,32 +354,56 @@ module Export::Dwca::Occurrence
           'su_metadata.unique_key AS metadata_short_key'
         )
 
-      image_relation.in_batches(of: 10_000) do |batch_scope|
+      image_relation.in_batches(of: 50_000) do |batch_scope|
         rows = conn.select_all(batch_scope.to_sql) # each row is a hash
-        links_data = []
 
+        # Collect all URLs that need shortening
+        urls_to_shorten = []
+        rows.each do |row|
+          fingerprint = row['image_file_fingerprint']
+          token = row['token']
+          image_id = row['image_id'].to_i
+
+          unless row['access_short_key']
+            urls_to_shorten << {
+              long_url: Shared::Api.image_file_long_url(fingerprint, token),
+              context: { image_id: image_id, type: :access }
+            }
+          end
+
+          unless row['metadata_short_key']
+            urls_to_shorten << {
+              long_url: Shared::Api.image_metadata_long_url(image_id, token),
+              context: { image_id: image_id, type: :metadata }
+            }
+          end
+        end
+
+        # Bulk create short URLs
+        short_url_map = bulk_create_short_urls(urls_to_shorten)
+
+        # Build links_data using existing or newly created short URLs
+        links_data = []
         rows.each do |row|
           begin
             image_id = row['image_id'].to_i
             fingerprint = row['image_file_fingerprint']
             token = row['token']
 
+            access_long_url = Shared::Api.image_file_long_url(fingerprint, token)
             access_uri =
               if row['access_short_key']
                 Shared::Api.short_url_from_key(row['access_short_key'])
               else
-                Shared::Api.shorten_url(
-                  Shared::Api.image_file_long_url(fingerprint, token)
-                )
+                short_url_map[access_long_url]
               end
 
+            metadata_long_url = Shared::Api.image_metadata_long_url(image_id, token)
             further_info_url =
               if row['metadata_short_key']
                 Shared::Api.short_url_from_key(row['metadata_short_key'])
               else
-                Shared::Api.shorten_url(
-                  Shared::Api.image_metadata_long_url(image_id, token)
-                )
+                short_url_map[metadata_long_url]
               end
 
             links_data << {
@@ -370,9 +418,12 @@ module Export::Dwca::Occurrence
 
         next if links_data.empty?
 
+        # Deduplicate by image_id (keep last occurrence)
+        unique_links_data = links_data.reverse.uniq { |l| l[:image_id] }.reverse
+
         raw = conn.raw_connection
         raw.copy_data("COPY temp_media_image_links (image_id, access_uri, further_information_url) FROM STDIN") do
-          links_data.each do |ldata|
+          unique_links_data.each do |ldata|
             raw.put_copy_data("#{ldata[:image_id]}\t#{ldata[:access_uri]}\t#{ldata[:further_information_url]}\n")
           end
         end
