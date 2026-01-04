@@ -13,12 +13,10 @@ module Export::Dwca::Occurrence
     # Main export method - writes media records to output file.
     # @param output_file [Tempfile, File] output file for media TSV data
     def export_to(output_file)
-      media_extension_optimized(output_file)
+      media_extension_to_file(output_file)
     end
 
     private
-
-    attr_reader :media_extension
 
     def create_scoped_occurrence_temp_table
       conn = ActiveRecord::Base.connection
@@ -35,20 +33,20 @@ module Export::Dwca::Occurrence
       conn.execute(sql)
 
       # Insert scoped collection objects
-      if media_extension[:collection_objects]
+      if @media_extension[:collection_objects]
         conn.execute(<<-SQL)
           INSERT INTO temp_scoped_occurrences (occurrence_type, occurrence_id)
           SELECT 'CollectionObject', id
-          FROM (#{media_extension[:collection_objects]}) AS co
+          FROM (#{@media_extension[:collection_objects]}) AS co
         SQL
       end
 
       # Insert scoped field occurrences
-      if media_extension[:field_occurrences]
+      if @media_extension[:field_occurrences]
         conn.execute(<<-SQL)
           INSERT INTO temp_scoped_occurrences (occurrence_type, occurrence_id)
           SELECT 'FieldOccurrence', id
-          FROM (#{media_extension[:field_occurrences]}) AS fo
+          FROM (#{@media_extension[:field_occurrences]}) AS fo
         SQL
       end
 
@@ -62,7 +60,7 @@ module Export::Dwca::Occurrence
 
       Rails.logger.debug "dwca_export: found #{image_ids.count} images and #{sound_ids.count} sounds to export"
 
-      { image_ids: image_ids, sound_ids: sound_ids }
+      { image_ids:, sound_ids: }
     end
 
     def collect_media_image_ids
@@ -94,10 +92,9 @@ module Export::Dwca::Occurrence
       media_ids = []
       media_table = media_class.table_name
 
-      if media_extension[:collection_objects]
-        co_sql = media_extension[:collection_objects]
+      if @media_extension[:collection_objects]
+        co_sql = @media_extension[:collection_objects]
 
-        # Get direct media (via join table)
         media_ids += conn.execute(<<-SQL).values.flatten
           SELECT DISTINCT #{media_table}.id
           FROM (#{co_sql}) AS co
@@ -106,7 +103,9 @@ module Export::Dwca::Occurrence
           INNER JOIN #{media_table} ON #{media_table}.id = #{join_table}.#{media_id_column}
         SQL
 
-        # Get media via observations (only for depictions/images)
+        # Get media via observations (only for depictions/images).
+        # TODO: Sounds not included because there's an association conflict
+        # currently preventing it.
         if include_observations
           media_ids += conn.execute(<<-SQL).values.flatten
             SELECT DISTINCT #{media_table}.id
@@ -120,10 +119,9 @@ module Export::Dwca::Occurrence
         end
       end
 
-      if media_extension[:field_occurrences]
-        fo_sql = media_extension[:field_occurrences]
+      if @media_extension[:field_occurrences]
+        fo_sql = @media_extension[:field_occurrences]
 
-        # Get direct media (via join table)
         media_ids += conn.execute(<<-SQL).values.flatten
           SELECT DISTINCT #{media_table}.id
           FROM (#{fo_sql}) AS fo
@@ -132,7 +130,9 @@ module Export::Dwca::Occurrence
           INNER JOIN #{media_table} ON #{media_table}.id = #{join_table}.#{media_id_column}
         SQL
 
-        # Get media via observations (only for depictions/images)
+        # Get media via observations (only for depictions/images).
+        # TODO: Sounds not included because there's an association conflict
+        # currently preventing it.
         if include_observations
           media_ids += conn.execute(<<-SQL).values.flatten
             SELECT DISTINCT #{media_table}.id
@@ -164,13 +164,31 @@ module Export::Dwca::Occurrence
         )
       SQL
 
-      # Only needed to create temp_media_image_links.
+      # Only needed to create temp_media_image_links:
       conn.execute("DROP TABLE IF EXISTS temp_media_image_ids")
       conn.execute("CREATE TEMP TABLE temp_media_image_ids (image_id integer PRIMARY KEY)")
     end
 
-    # Create temporary tables with pre-computed API links for images and sounds
-    # This must use Ruby because API link generation uses the URL shortener
+    def create_sound_temp_tables
+      Rails.logger.debug 'dwca_export: creating temp table for API sound IDs'
+
+      conn = ActiveRecord::Base.connection
+
+      conn.execute("DROP TABLE IF EXISTS temp_media_sound_links")
+      conn.execute(<<~SQL)
+        CREATE TEMP TABLE temp_media_sound_links (
+          sound_id integer PRIMARY KEY,
+          access_uri text,
+          further_information_url text
+        )
+      SQL
+
+      conn.execute("DROP TABLE IF EXISTS temp_media_sound_ids")
+      conn.execute("CREATE TEMP TABLE temp_media_sound_ids (sound_id integer PRIMARY KEY)")
+    end
+
+    # Create temporary tables with pre-computed API links for images and sounds.
+    # This must use Ruby because API link generation uses the URL shortener.
     # @param image_ids [Array<Integer>]
     # @param sound_ids [Array<Integer>]
     def create_media_api_link_tables(image_ids, sound_ids)
@@ -183,10 +201,9 @@ module Export::Dwca::Occurrence
 
       create_image_temp_tables
 
-      raw = ActiveRecord::Base.connection.raw_connection
-
       # Populate temp_media_image_ids.
-      ActiveRecord::Base.connection.raw_connection.copy_data("COPY temp_media_image_ids (image_id) FROM STDIN") do
+      raw = ActiveRecord::Base.connection.raw_connection
+      raw.copy_data("COPY temp_media_image_ids (image_id) FROM STDIN") do
         image_ids.each do |id|
           raw.put_copy_data("#{id}\n")
         end
@@ -203,6 +220,9 @@ module Export::Dwca::Occurrence
         conn.quote(Shared::Api.image_metadata_url_prefix)
 
       # Relation includes short urls when they exist.
+      # !! Note this joins directly to the shortener gem's shortened_urls table
+      # so that we can collect this data in sql instead of having to do it one
+      # at a time via the gem in ruby.
       image_relation = Image
         .joins("JOIN temp_media_image_ids tmp ON tmp.image_id = images.id")
         .joins(:project)
@@ -269,18 +289,12 @@ module Export::Dwca::Occurrence
 
         next if links_data.empty?
 
-        values_sql = links_data.map { |ldata|
-          "(#{ldata[:image_id]}, " \
-            "#{conn.quote(ldata[:access_uri])}, " \
-            "#{conn.quote(ldata[:further_information_url])})"
-        }.join(', ')
-
-        conn.execute(<<~SQL)
-          INSERT INTO temp_media_image_links
-            (image_id, access_uri, further_information_url)
-          VALUES
-            #{values_sql}
-        SQL
+        raw = conn.raw_connection
+        raw.copy_data("COPY temp_media_image_links (image_id, access_uri, further_information_url) FROM STDIN") do
+          links_data.each do |ldata|
+            raw.put_copy_data("#{ldata[:image_id]}\t#{ldata[:access_uri]}\t#{ldata[:further_information_url]}\n")
+          end
+        end
       end
 
       Rails.logger.debug 'dwca_export: temp table created with API image links'
@@ -289,30 +303,18 @@ module Export::Dwca::Occurrence
     def populate_temp_sound_api_links_table(sound_ids)
       return if sound_ids.empty?
 
+      create_sound_temp_tables
+
       conn = ActiveRecord::Base.connection
 
-      Rails.logger.debug 'dwca_export: creating temp table for API sound IDs'
-
-      # Drop from previous runs if present
-      conn.execute("DROP TABLE IF EXISTS temp_media_sound_links")
-      conn.execute(<<~SQL)
-        CREATE TEMP TABLE temp_media_sound_links (
-          sound_id integer PRIMARY KEY,
-          access_uri text,
-          further_information_url text
-        )
-      SQL
-
-      conn.execute("DROP TABLE IF EXISTS temp_media_sound_ids")
-      conn.execute("CREATE TEMP TABLE temp_media_sound_ids (sound_id integer PRIMARY KEY)")
-
-      # Insert IDs into temp table in batches to avoid huge VALUES lists
-      sound_ids.each_slice(10_000) do |batch|
-        values = batch.map { |id| "(#{id})" }.join(', ')
-        conn.execute("INSERT INTO temp_media_sound_ids (sound_id) VALUES #{values}")
+      raw = conn.raw_connection
+      raw.copy_data("COPY temp_media_sound_ids (sound_id) FROM STDIN") do
+        sound_ids.each do |id|
+          raw.put_copy_data("#{id}\n")
+        end
       end
 
-      # Build a relation using the temp IDs, so we don’t end up with a massive
+      # Build a relation using the temp IDs, so we don't end up with a massive
       # IN ().
       Sound
           .joins("JOIN temp_media_sound_ids tmp ON tmp.sound_id = sounds.id")
@@ -329,12 +331,12 @@ module Export::Dwca::Occurrence
               next
             end
 
-            # Must use full AR objects for these helpers
+            # Must use full AR objects for these helpers.
             access_uri = Shared::Api.sound_link(snd)
             further_info_url = Shared::Api.sound_metadata_link(
               snd,
               raise_on_no_token: true,
-              token: token
+              token:
             )
 
             links_data << {
@@ -349,25 +351,18 @@ module Export::Dwca::Occurrence
 
         next if links_data.empty?
 
-        values_sql = links_data.map { |row|
-          "(#{row[:sound_id]}, " \
-            "#{conn.quote(row[:access_uri])}, " \
-            "#{conn.quote(row[:further_information_url])})"
-        }.join(', ')
-
-        conn.execute(<<~SQL)
-          INSERT INTO temp_media_sound_links
-            (sound_id, access_uri, further_information_url)
-          VALUES
-            #{values_sql}
-        SQL
+        raw = conn.raw_connection
+        raw.copy_data("COPY temp_media_sound_links (sound_id, access_uri, further_information_url) FROM STDIN") do
+          links_data.each do |row|
+            raw.put_copy_data("#{row[:sound_id]}\t#{row[:access_uri]}\t#{row[:further_information_url]}\n")
+          end
+        end
       end
 
       Rails.logger.debug 'dwca_export: temp table created with API sound links'
     end
 
-    # Exports image media records to the output file using PostgreSQL COPY TO
-    # Streams data directly to avoid loading entire dataset into memory
+    # Exports image media records to the output file using COPY TO.
     def export_images_to_file(image_ids, output_file)
       return if image_ids.empty?
 
@@ -384,7 +379,6 @@ module Export::Dwca::Occurrence
             pg_temp.sanitize_csv(attr.license_url) AS \"dc:rights\",
             pg_temp.sanitize_csv(attr.license_url) AS \"dcterms:rights\",
             pg_temp.sanitize_csv(attr.owner_names) AS \"Owner\",
-            NULL AS \"UsageTerms\",
             pg_temp.sanitize_csv(#{copyright_label}) AS \"Credit\",
             pg_temp.sanitize_csv(attr.creator_names) AS \"dc:creator\",
             pg_temp.sanitize_csv(attr.creator_identifiers) AS \"dcterms:creator\",
@@ -392,7 +386,6 @@ module Export::Dwca::Occurrence
             pg_temp.sanitize_csv(dep.caption) AS caption,
             -- Compute associatedSpecimenReference directly from collection object ID for this row
             #{associated_specimen_reference_sql} AS \"associatedSpecimenReference\",
-            NULL AS \"associatedObservationReference\",
             links.access_uri AS \"accessURI\",
             img.image_file_content_type AS \"dc:format\",
             links.further_information_url AS \"furtherInformationURL\",
@@ -402,17 +395,14 @@ module Export::Dwca::Occurrence
 
           #{image_occurrence_resolution_joins_sql(image_alias: 'img')}
 
-          -- Join temp table for API links
-          LEFT JOIN temp_media_image_links links ON links.image_id = img.id
+          -- Join temp table for API links and filter to collected images
+          INNER JOIN temp_media_image_links links ON links.image_id = img.id
 
           -- Join pre-computed attribution data from temp table
           LEFT JOIN temp_image_attributions attr ON attr.image_id = img.id
 
           -- Join identifiers for UUID and URI
           #{media_identifier_joins_sql(Image, 'img')}
-
-          -- Filter to only images in the collected set (using temp table to avoid huge IN clause)
-          INNER JOIN temp_media_image_links img_filter ON img_filter.image_id = img.id
 
           WHERE dwc.\"occurrenceID\" IS NOT NULL  -- Only include media with valid occurrence links
           ORDER BY img.id
@@ -444,7 +434,6 @@ module Export::Dwca::Occurrence
             pg_temp.sanitize_csv(attr.license_url) AS \"dc:rights\",
             pg_temp.sanitize_csv(attr.license_url) AS \"dcterms:rights\",
             pg_temp.sanitize_csv(attr.owner_names) AS \"Owner\",
-            NULL AS \"UsageTerms\",
             pg_temp.sanitize_csv(#{copyright_label}) AS \"Credit\",
             pg_temp.sanitize_csv(attr.creator_names) AS \"dc:creator\",
             pg_temp.sanitize_csv(attr.creator_identifiers) AS \"dcterms:creator\",
@@ -452,7 +441,6 @@ module Export::Dwca::Occurrence
             NULL AS caption,
             -- Compute associatedSpecimenReference directly from collection object ID for this row
             #{associated_specimen_reference_sql(include_observations: false)} AS \"associatedSpecimenReference\",
-            NULL AS \"associatedObservationReference\",
             links.access_uri AS \"accessURI\",
             asb.content_type AS \"dc:format\",
             links.further_information_url AS \"furtherInformationURL\",
@@ -466,17 +454,14 @@ module Export::Dwca::Occurrence
 
           #{sound_occurrence_resolution_joins_sql(sound_alias: 'snd')}
 
-          -- Join temp table for API links
-          LEFT JOIN temp_media_sound_links links ON links.sound_id = snd.id
+          -- Join temp table for API links and filter to collected sounds
+          INNER JOIN temp_media_sound_links links ON links.sound_id = snd.id
 
           -- Join pre-computed attribution data from temp table
           LEFT JOIN temp_sound_attributions attr ON attr.sound_id = snd.id
 
           -- Join identifiers for UUID and URI
           #{media_identifier_joins_sql(Sound, 'snd')}
-
-          -- Filter to only sounds in the collected set (using temp table to avoid huge IN clause)
-          INNER JOIN temp_media_sound_links snd_filter ON snd_filter.sound_id = snd.id
 
           WHERE dwc.\"occurrenceID\" IS NOT NULL  -- Only include media with valid occurrence links
           ORDER BY snd.id
@@ -490,8 +475,12 @@ module Export::Dwca::Occurrence
       end
     end
 
-    # Creates temporary tables with pre-aggregated attribution data for images and sounds
-    # This avoids expensive LATERAL joins in the main export query
+    # Creates temporary tables with pre-aggregated attribution data for images
+    # and sounds.
+    # Pre-computes attribution data using LATERAL joins once per media record.
+    # Without this, the main export query would execute these expensive LATERAL
+    # joins for every row; with it, the export query only needs a simple JOIN
+    # to retrieve pre-computed values.
     def create_media_attribution_temp_tables(image_ids, sound_ids)
       create_media_attribution_temp_table_for_class(
         media_class: Image,
@@ -528,8 +517,8 @@ module Export::Dwca::Occurrence
       conn = ActiveRecord::Base.connection
       media_table = media_class.table_name
 
-      # Get the license SQL that converts license keys to URLs
-      license_sql = media_class.dwc_media_license_sql(table_alias: table_alias)
+      # Get the license SQL that converts license keys to URLs.
+      license_sql = media_class.dwc_media_license_sql
 
       conn.execute("DROP TABLE IF EXISTS #{temp_table_name}")
       conn.execute(<<~SQL)
@@ -545,10 +534,10 @@ module Export::Dwca::Occurrence
         FROM #{media_table} #{table_alias}
         LEFT JOIN attributions ON attributions.attribution_object_id = #{table_alias}.id
           AND attributions.attribution_object_type = '#{media_class.name}'
-        #{media_class.dwc_media_owner_sql(table_alias: table_alias)}
-        #{media_class.dwc_media_creator_sql(table_alias: table_alias)}
-        #{media_class.dwc_media_creator_identifiers_sql(table_alias: table_alias)}
-        #{media_class.dwc_media_copyright_holders_sql(table_alias: table_alias)}
+        #{media_class.dwc_media_owner_sql}
+        #{media_class.dwc_media_creator_sql}
+        #{media_class.dwc_media_creator_identifiers_sql}
+        #{media_class.dwc_media_copyright_holders_sql}
         JOIN #{temp_ids_table} ids ON ids.#{id_column_name} = #{table_alias}.id
       SQL
       conn.execute("CREATE INDEX #{index_name} ON #{temp_table_name}(#{id_column_name})")
@@ -566,17 +555,17 @@ module Export::Dwca::Occurrence
       conn.execute("DROP TABLE IF EXISTS temp_sound_attributions")
     end
 
-    # Optimized media extension export using PostgreSQL COPY TO
-    # Streams directly to output_file to avoid loading entire dataset into memory
-    # ~10x faster than the original Ruby iteration approach
-    def media_extension_optimized(output_file)
+    # Media extension export using PostgreSQL COPY TO. Streams directly to
+    # output_file to avoid loading entire dataset into memory, ~10x faster than
+    # the original Ruby iteration approach.
+    def media_extension_to_file(output_file)
       Rails.logger.debug 'dwca_export: media_extension_optimized start'
 
-      # Create temporary functions for sanitizing CSV values and formatting author lists
       create_csv_sanitize_function
       create_authorship_sentence_function
 
-      # Step 1: Collect all media IDs from collection objects and field occurrences
+      # Step 1: Collect all media IDs from collection objects and field
+      # occurrences.
       media_ids = collect_media_ids
       image_ids = media_ids[:image_ids]
       sound_ids = media_ids[:sound_ids]
@@ -587,28 +576,33 @@ module Export::Dwca::Occurrence
         return
       end
 
-      # Step 2: Create temp table with scoped occurrence IDs to prevent orphaned media records
+      # Step 2: Create temp table with scoped occurrence IDs. Used in
+      # sql_fragments.rb to filter media records - only includes media linked to
+      # collection objects/field occurrences that are in the core export scope.
       create_scoped_occurrence_temp_table
 
-      # Step 3: Create temp tables with media IDs and pre-compute API links using Ruby (required for URL shortener)
+      # Step 3: Create temp tables with media IDs and pre-compute API links
+      # using Ruby (required for URL shortener).
       create_media_api_link_tables(image_ids, sound_ids)
 
-      # Step 4: Pre-compute attribution data to avoid expensive LATERAL joins
-      # Uses temp_media_image_ids and temp_media_sound_ids tables created in step 3
+      # Step 4: Pre-compute attribution data to avoid expensive LATERAL joins.
+      # Uses temp_media_image_ids and temp_media_sound_ids tables created in
+      # step 3.
       create_media_attribution_temp_tables(image_ids, sound_ids)
 
-      # Step 5: Write header and stream media data to output file
+      # Step 5: Write header and stream media data to output file.
       Rails.logger.debug 'dwca_export: executing COPY TO for media data'
       output_file.write(Export::CSV::Dwc::Extension::Media::HEADERS.join("\t") + "\n")
 
       export_images_to_file(image_ids, output_file)
       export_sounds_to_file(sound_ids, output_file)
 
-      # Step 6: Cleanup temp tables
-      # PostgreSQL temp tables persist for the lifetime of the database connection/session.
-      # Rails connection pooling reuses connections across requests/jobs without calling
-      # DISCARD ALL, so temp tables created in one export would still exist when the same
-      # connection runs another export, causing "relation already exists" errors.
+      # Step 6: Cleanup temp tables. PostgreSQL temp tables persist for the
+      # lifetime of the database connection/session. Rails connection pooling
+      # reuses connections across requests/jobs without calling DISCARD ALL, so
+      # temp tables created in one export would still exist when the same
+      # connection runs another export, causing "relation already exists"
+      # errors.
       cleanup_media_temp_tables
 
       Rails.logger.debug 'dwca_export: media data generated'
