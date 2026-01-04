@@ -53,6 +53,87 @@ module Export::Dwca::Occurrence
       Rails.logger.debug 'dwca_export: scoped occurrence temp table created'
     end
 
+    # Creates temp tables mapping media to occurrences.
+    # Pre-computes the complex join logic once instead of executing it in the
+    # streaming COPY query.
+    # @param image_ids [Array<Integer>]
+    # @param sound_ids [Array<Integer>]
+    def create_media_occurrence_mapping_tables(image_ids, sound_ids)
+      create_image_occurrence_mapping_table(image_ids) unless image_ids.empty?
+      create_sound_occurrence_mapping_table(sound_ids) unless sound_ids.empty?
+    end
+
+    # Creates temp table mapping images to their occurrences.
+    # Handles multiple paths: direct depictions and observation-based depictions.
+    # @param image_ids [Array<Integer>]
+    def create_image_occurrence_mapping_table(image_ids)
+      conn = ActiveRecord::Base.connection
+
+      conn.execute("DROP TABLE IF EXISTS temp_image_occurrence_map")
+      conn.execute(<<~SQL)
+        CREATE TEMP TABLE temp_image_occurrence_map (
+          image_id integer,
+          occurrence_id text,
+          depiction_id integer,
+          figure_label text,
+          caption text,
+          PRIMARY KEY (image_id, occurrence_id, depiction_id)
+        )
+      SQL
+
+      # Populate the mapping using the complex join logic
+      conn.execute(<<~SQL)
+        INSERT INTO temp_image_occurrence_map (image_id, occurrence_id, depiction_id, figure_label, caption)
+        SELECT DISTINCT
+          img.id AS image_id,
+          dwc."occurrenceID" AS occurrence_id,
+          dep.id AS depiction_id,
+          dep.figure_label,
+          dep.caption
+        FROM images img
+        INNER JOIN temp_media_image_links links ON links.image_id = img.id
+        #{image_occurrence_resolution_joins_sql(image_alias: 'img')}
+        WHERE dwc."occurrenceID" IS NOT NULL
+      SQL
+
+      conn.execute("CREATE INDEX idx_temp_img_occ_map ON temp_image_occurrence_map(image_id)")
+      Rails.logger.debug 'dwca_export: image occurrence mapping table created'
+    end
+
+    # Creates temp table mapping sounds to their occurrences.
+    # @param sound_ids [Array<Integer>]
+    def create_sound_occurrence_mapping_table(sound_ids)
+      conn = ActiveRecord::Base.connection
+
+      conn.execute("DROP TABLE IF EXISTS temp_sound_occurrence_map")
+      conn.execute(<<~SQL)
+        CREATE TEMP TABLE temp_sound_occurrence_map (
+          sound_id integer,
+          occurrence_id text,
+          conveyance_id integer,
+          sound_name text,
+          PRIMARY KEY (sound_id, occurrence_id, conveyance_id)
+        )
+      SQL
+
+      # Populate the mapping using the complex join logic
+      conn.execute(<<~SQL)
+        INSERT INTO temp_sound_occurrence_map (sound_id, occurrence_id, conveyance_id, sound_name)
+        SELECT DISTINCT
+          snd.id AS sound_id,
+          dwc."occurrenceID" AS occurrence_id,
+          conv.id AS conveyance_id,
+          snd.name AS sound_name
+        FROM sounds snd
+        INNER JOIN temp_media_sound_links links ON links.sound_id = snd.id
+        #{sound_occurrence_resolution_joins_sql(sound_alias: 'snd')}
+        WHERE dwc."occurrenceID" IS NOT NULL
+      SQL
+
+      conn.execute("CREATE INDEX idx_temp_snd_occ_map ON temp_sound_occurrence_map(sound_id)")
+      Rails.logger.debug 'dwca_export: sound occurrence mapping table created'
+    end
+
     # @return [Hash] { image_ids: Array<Integer>, sound_ids: Array<Integer> }
     def collect_media_ids
       image_ids = collect_media_image_ids
@@ -372,7 +453,7 @@ module Export::Dwca::Occurrence
       image_copy_sql = <<-SQL
         COPY (
           SELECT
-            pg_temp.sanitize_csv(dwc.\"occurrenceID\") AS coreid,
+            pg_temp.sanitize_csv(occ_map.occurrence_id) AS coreid,
             #{media_identifier_sql(Image, 'img')} AS identifier,
             'Image' AS \"dc:type\",
             img.id AS \"providerManagedID\",
@@ -382,10 +463,10 @@ module Export::Dwca::Occurrence
             pg_temp.sanitize_csv(#{copyright_label}) AS \"Credit\",
             pg_temp.sanitize_csv(attr.creator_names) AS \"dc:creator\",
             pg_temp.sanitize_csv(attr.creator_identifiers) AS \"dcterms:creator\",
-            pg_temp.sanitize_csv(dep.figure_label) AS description,
-            pg_temp.sanitize_csv(dep.caption) AS caption,
-            -- Compute associatedSpecimenReference directly from collection object ID for this row
-            #{associated_specimen_reference_sql} AS \"associatedSpecimenReference\",
+            pg_temp.sanitize_csv(occ_map.figure_label) AS description,
+            pg_temp.sanitize_csv(occ_map.caption) AS caption,
+            -- Compute associatedSpecimenReference from occurrence_id
+            pg_temp.sanitize_csv(occ_map.occurrence_id) AS \"associatedSpecimenReference\",
             links.access_uri AS \"accessURI\",
             img.image_file_content_type AS \"dc:format\",
             links.further_information_url AS \"furtherInformationURL\",
@@ -393,9 +474,10 @@ module Export::Dwca::Occurrence
             img.height AS \"PixelYDimension\"
           FROM images img
 
-          #{image_occurrence_resolution_joins_sql(image_alias: 'img')}
+          -- Join pre-computed occurrence mapping (replaces complex 14-join logic)
+          INNER JOIN temp_image_occurrence_map occ_map ON occ_map.image_id = img.id
 
-          -- Join temp table for API links and filter to collected images
+          -- Join temp table for API links
           INNER JOIN temp_media_image_links links ON links.image_id = img.id
 
           -- Join pre-computed attribution data from temp table
@@ -404,8 +486,7 @@ module Export::Dwca::Occurrence
           -- Join identifiers for UUID and URI
           #{media_identifier_joins_sql(Image, 'img')}
 
-          WHERE dwc.\"occurrenceID\" IS NOT NULL  -- Only include media with valid occurrence links
-          ORDER BY img.id
+          ORDER BY img.id, occ_map.occurrence_id
         ) TO STDOUT WITH (FORMAT CSV, DELIMITER E'\\t', NULL '')
       SQL
 
@@ -427,7 +508,7 @@ module Export::Dwca::Occurrence
       sound_copy_sql = <<-SQL
         COPY (
           SELECT
-            pg_temp.sanitize_csv(dwc.\"occurrenceID\") AS coreid,
+            pg_temp.sanitize_csv(occ_map.occurrence_id) AS coreid,
             #{media_identifier_sql(Sound, 'snd')} AS identifier,
             'Sound' AS \"dc:type\",
             snd.id AS \"providerManagedID\",
@@ -437,10 +518,10 @@ module Export::Dwca::Occurrence
             pg_temp.sanitize_csv(#{copyright_label}) AS \"Credit\",
             pg_temp.sanitize_csv(attr.creator_names) AS \"dc:creator\",
             pg_temp.sanitize_csv(attr.creator_identifiers) AS \"dcterms:creator\",
-            pg_temp.sanitize_csv(snd.name) AS description,
+            pg_temp.sanitize_csv(occ_map.sound_name) AS description,
             NULL AS caption,
-            -- Compute associatedSpecimenReference directly from collection object ID for this row
-            #{associated_specimen_reference_sql(include_observations: false)} AS \"associatedSpecimenReference\",
+            -- Compute associatedSpecimenReference from occurrence_id
+            pg_temp.sanitize_csv(occ_map.occurrence_id) AS \"associatedSpecimenReference\",
             links.access_uri AS \"accessURI\",
             asb.content_type AS \"dc:format\",
             links.further_information_url AS \"furtherInformationURL\",
@@ -452,9 +533,10 @@ module Export::Dwca::Occurrence
                                                     AND asa.name = 'sound_file'
           LEFT JOIN active_storage_blobs asb ON asb.id = asa.blob_id
 
-          #{sound_occurrence_resolution_joins_sql(sound_alias: 'snd')}
+          -- Join pre-computed occurrence mapping (replaces complex 6-join logic)
+          INNER JOIN temp_sound_occurrence_map occ_map ON occ_map.sound_id = snd.id
 
-          -- Join temp table for API links and filter to collected sounds
+          -- Join temp table for API links
           INNER JOIN temp_media_sound_links links ON links.sound_id = snd.id
 
           -- Join pre-computed attribution data from temp table
@@ -463,8 +545,7 @@ module Export::Dwca::Occurrence
           -- Join identifiers for UUID and URI
           #{media_identifier_joins_sql(Sound, 'snd')}
 
-          WHERE dwc.\"occurrenceID\" IS NOT NULL  -- Only include media with valid occurrence links
-          ORDER BY snd.id
+          ORDER BY snd.id, occ_map.occurrence_id
         ) TO STDOUT WITH (FORMAT CSV, DELIMITER E'\\t', NULL '')
       SQL
 
@@ -547,6 +628,8 @@ module Export::Dwca::Occurrence
     def cleanup_media_temp_tables
       conn = ActiveRecord::Base.connection
       conn.execute("DROP TABLE IF EXISTS temp_scoped_occurrences")
+      conn.execute("DROP TABLE IF EXISTS temp_image_occurrence_map")
+      conn.execute("DROP TABLE IF EXISTS temp_sound_occurrence_map")
       conn.execute("DROP TABLE IF EXISTS temp_media_image_links")
       conn.execute("DROP TABLE IF EXISTS temp_media_image_ids")
       conn.execute("DROP TABLE IF EXISTS temp_media_sound_links")
@@ -585,19 +668,24 @@ module Export::Dwca::Occurrence
       # using Ruby (required for URL shortener).
       create_media_api_link_tables(image_ids, sound_ids)
 
-      # Step 4: Pre-compute attribution data to avoid expensive LATERAL joins.
+      # Step 4: Pre-compute media-to-occurrence mappings. This runs the complex
+      # 14-join logic once instead of executing it in the streaming COPY query.
+      # Depends on temp_media_image_links created in step 3.
+      create_media_occurrence_mapping_tables(image_ids, sound_ids)
+
+      # Step 5: Pre-compute attribution data to avoid expensive LATERAL joins.
       # Uses temp_media_image_ids and temp_media_sound_ids tables created in
       # step 3.
       create_media_attribution_temp_tables(image_ids, sound_ids)
 
-      # Step 5: Write header and stream media data to output file.
+      # Step 6: Write header and stream media data to output file.
       Rails.logger.debug 'dwca_export: executing COPY TO for media data'
       output_file.write(Export::CSV::Dwc::Extension::Media::HEADERS.join("\t") + "\n")
 
       export_images_to_file(image_ids, output_file)
       export_sounds_to_file(sound_ids, output_file)
 
-      # Step 6: Cleanup temp tables. PostgreSQL temp tables persist for the
+      # Step 7: Cleanup temp tables. PostgreSQL temp tables persist for the
       # lifetime of the database connection/session. Rails connection pooling
       # reuses connections across requests/jobs without calling DISCARD ALL, so
       # temp tables created in one export would still exist when the same
