@@ -21,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - CSD: The biocurations form doesn't show classes that do not belong to a group [#4658]
 - New Extract task: Minor fixes related to the identifiers form [#4626]
 - New Biological Association task: A new citation is not added when a biological association already exists, instead, it attempts to create a new one.
+- Housekeeping facet: sometimes date range is off [#4644]
 
 ### Changed
 
@@ -35,6 +36,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4653]: https://github.com/SpeciesFileGroup/taxonworks/issues/4653
 [#4654]: https://github.com/SpeciesFileGroup/taxonworks/issues/4654
 [#4658]: https://github.com/SpeciesFileGroup/taxonworks/issues/4658
+[#4644]: https://github.com/SpeciesFileGroup/taxonworks/issues/4644
 
 ## [0.56.1] - 2025-12-12
 

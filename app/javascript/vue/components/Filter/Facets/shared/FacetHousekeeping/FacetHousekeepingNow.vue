@@ -7,28 +7,30 @@
     >
       Recent
     </VBtn>
-    <VPopup
-      class="popup-now"
-      v-if="isModalVisible"
-      @close="() => (isModalVisible = false)"
-    >
-      <div class="horizontal-left-content gap-medium">
-        <VBtn
-          v-for="(item, key) in DATE_BUTTONS"
-          :key="key"
-          color="primary"
-          medium
-          @click="
-            () => {
-              emit('select', setTimeFrom(item))
-              isModalVisible = false
-            }
-          "
-        >
-          {{ key }}
-        </VBtn>
-      </div>
-    </VPopup>
+    <div>
+      <VPopup
+        class="popup-now"
+        v-if="isModalVisible"
+        @close="() => (isModalVisible = false)"
+      >
+        <div class="horizontal-left-content gap-medium">
+          <VBtn
+            v-for="(item, key) in DATE_BUTTONS"
+            :key="key"
+            color="primary"
+            medium
+            @click="
+              () => {
+                emit('select', setTimeFrom(item))
+                isModalVisible = false
+              }
+            "
+          >
+            {{ key }}
+          </VBtn>
+        </div>
+      </VPopup>
+    </div>
   </div>
 </template>
 
