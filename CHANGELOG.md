@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Unify button to Manage Controlled vocabulary task [#4653]
+
 ### Fixed
 
 - Observation matrix dashboard: several filter options don't work [#4640]
@@ -28,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4640]: https://github.com/SpeciesFileGroup/taxonworks/issues/4640
 [#4646]: https://github.com/SpeciesFileGroup/taxonworks/issues/4646
 [#4649]: https://github.com/SpeciesFileGroup/taxonworks/issues/4649
+[#4653]: https://github.com/SpeciesFileGroup/taxonworks/issues/4653
 [#4654]: https://github.com/SpeciesFileGroup/taxonworks/issues/4654
 [#4658]: https://github.com/SpeciesFileGroup/taxonworks/issues/4658
 
