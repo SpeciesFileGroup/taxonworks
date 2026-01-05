@@ -92,6 +92,27 @@ module DwcaChecklistSpecSupport
     end
 
     def cleanup!
+      # # Delete only what this support creates.
+      # # Use disable_referential_integrity so order doesn’t matter.
+      # ApplicationRecord.connection.disable_referential_integrity do
+      #   [
+      #     PublicContent,
+      #     Content,
+      #     CommonName,
+      #     Language,
+      #     TypeMaterial,
+      #     Citation,
+      #     Source,
+      #     AssertedDistribution,
+      #     DwcOccurrence,
+      #     TaxonDetermination,
+      #     CollectionObject,
+      #     Otu,
+      #     ControlledVocabularyTerm,
+      #     Identifiers
+      #   ].each(&:delete_all)
+      #   TaxonName.where('id > 1').delete_all
+      # end
       # Truncate everything created by this support. This is faster and safer than
       # trying to chase all dependent rows.
       DatabaseCleaner.clean_with(:truncation, except: %w(spatial_ref_sys))
