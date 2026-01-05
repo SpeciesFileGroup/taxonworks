@@ -59,12 +59,12 @@ module Export::Dwca::Occurrence
         end
       end
 
-      output_file.flush
-      output_file.rewind
-
       Rails.logger.debug 'dwca_export: predicate_data written'
 
       output_file
+    ensure
+      output_file.flush
+      output_file.rewind
     end
 
     private

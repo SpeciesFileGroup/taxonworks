@@ -1,31 +1,18 @@
 require 'rails_helper'
 
-# Spec to verify that the attribution temp tables created for media export
-# contain the correct pre-aggregated data
-RSpec.xdescribe Export::Dwca::Occurrence::Data, type: :model do
-  let(:project) { FactoryBot.create(:valid_project) }
-  let(:user) { FactoryBot.create(:valid_user) }
+# Specs to verify that the attribution temp tables created for media export
+# contain the correct pre-aggregated data.
+RSpec.describe Export::Dwca::Occurrence::Data, type: :model do
   let(:conn) { ActiveRecord::Base.connection }
-
-  before(:each) do
-    Current.user_id = user.id
-    Current.project_id = project.id
-  end
-
-  after(:each) do
-    Current.user_id = nil
-    Current.project_id = nil
-  end
+  let(:delimiter) { Shared::IsDwcOccurrence::DWC_DELIMITER }
 
   describe '#create_media_attribution_temp_tables' do
     let(:export_instance) do
-      Export::Dwca::Occurrence::Data.new(
-        core_scope: DwcOccurrence.where('1=0'),
-        extension_scopes: {
-          media: {
-            collection_objects: CollectionObject.where('1=0'),
-            field_occurrences: FieldOccurrence.where('1=0')
-          }
+      # Blank instance populated by calls in specs.
+      Export::Dwca::Occurrence::MediaExporter.new(
+        media_extension: {
+          collection_objects: CollectionObject.all,
+          field_occurrences: FieldOccurrence.all
         }
       )
     end
@@ -36,14 +23,15 @@ RSpec.xdescribe Export::Dwca::Occurrence::Data, type: :model do
         attribution = FactoryBot.create(:valid_attribution, attribution_object: image)
         person1 = FactoryBot.create(:valid_person)
         person2 = FactoryBot.create(:valid_person)
-        FactoryBot.create(:role, type: 'AttributionOwner', role_object: attribution, person: person1, position: 1)
-        FactoryBot.create(:role, type: 'AttributionOwner', role_object: attribution, person: person2, position: 2)
+        FactoryBot.create(:role, type: 'AttributionOwner', role_object: attribution, person: person1)
+        FactoryBot.create(:role, type: 'AttributionOwner', role_object: attribution, person: person2)
 
         export_instance.send(:populate_temp_image_api_links_table, [image.id])
         export_instance.send(:create_media_attribution_temp_tables, [image.id], [])
 
         result = conn.select_one("SELECT * FROM temp_image_attributions WHERE image_id = #{image.id}")
-        expect(result['owner_names']).to eq("#{person1.cached} | #{person2.cached}")
+
+        expect(result['owner_names']).to eq("#{person1.cached}#{delimiter}#{person2.cached}")
       end
 
       it 'creates temp table with correct attribution data for creators' do
@@ -58,7 +46,7 @@ RSpec.xdescribe Export::Dwca::Occurrence::Data, type: :model do
         export_instance.send(:create_media_attribution_temp_tables, [image.id], [])
 
         result = conn.select_one("SELECT * FROM temp_image_attributions WHERE image_id = #{image.id}")
-        expect(result['creator_names']).to eq("#{person1.cached} | #{person2.cached}")
+        expect(result['creator_names']).to eq("#{person1.cached}#{delimiter}#{person2.cached}")
       end
 
       it 'creates temp table with correct attribution data for license' do
@@ -87,7 +75,7 @@ RSpec.xdescribe Export::Dwca::Occurrence::Data, type: :model do
         export_instance.send(:create_media_attribution_temp_tables, [image.id], [])
 
         result = conn.select_one("SELECT * FROM temp_image_attributions WHERE image_id = #{image.id}")
-        expect(result['creator_identifiers']).to eq("#{orcid1.cached} | #{orcid2.cached}")
+        expect(result['creator_identifiers']).to eq("#{orcid1.cached}#{delimiter}#{orcid2.cached}")
       end
 
       it 'creates temp table with copyright holder names as array for sentence formatting' do
@@ -103,10 +91,16 @@ RSpec.xdescribe Export::Dwca::Occurrence::Data, type: :model do
         export_instance.send(:populate_temp_image_api_links_table, [image.id])
         export_instance.send(:create_media_attribution_temp_tables, [image.id], [])
 
-        result = conn.select_one("SELECT * FROM temp_image_attributions WHERE image_id = #{image.id}")
-        # Parse the PostgreSQL array format
-        array_str = result['copyright_holder_names_array']
-        expect(array_str).to match(/\{.*#{Regexp.escape(person1.cached)}.*,.*#{Regexp.escape(person2.cached)}.*,.*#{Regexp.escape(person3.cached)}.*\}/)
+        result = conn.select_one(<<~SQL)
+          SELECT
+            array_to_json(copyright_holder_names_array)
+              AS copyright_holder_names_array
+          FROM temp_image_attributions
+          WHERE image_id = #{image.id}
+        SQL
+
+        array = JSON.parse(result['copyright_holder_names_array'])
+        expect(array).to eq([person1.cached, person2.cached, person3.cached])
       end
 
       it 'handles images with no attribution data' do
@@ -135,7 +129,7 @@ RSpec.xdescribe Export::Dwca::Occurrence::Data, type: :model do
         export_instance.send(:create_media_attribution_temp_tables, [], [sound.id])
 
         result = conn.select_one("SELECT * FROM temp_sound_attributions WHERE sound_id = #{sound.id}")
-        expect(result['owner_names']).to eq("#{person.cached} | #{org.name}")
+        expect(result['owner_names']).to eq("#{person.cached}#{delimiter}#{org.name}")
       end
 
       it 'creates temp table with correct attribution data for creators' do
@@ -150,7 +144,7 @@ RSpec.xdescribe Export::Dwca::Occurrence::Data, type: :model do
         export_instance.send(:create_media_attribution_temp_tables, [], [sound.id])
 
         result = conn.select_one("SELECT * FROM temp_sound_attributions WHERE sound_id = #{sound.id}")
-        expect(result['creator_names']).to eq("#{person1.cached} | #{person2.cached}")
+        expect(result['creator_names']).to eq("#{person1.cached}#{delimiter}#{person2.cached}")
       end
 
       it 'handles sounds with no attribution data' do

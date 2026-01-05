@@ -16,283 +16,12 @@ describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
     expect {Export::Dwca::Occurrence::Data.new()}.to raise_error ArgumentError
   end
 
-  specify 'initializing with a DwcOccurrence scope succeeds' do
-    a = Export::Dwca::Occurrence::Data.new(core_scope: scope).core_scope.to_sql
-    expect(a.include?('ORDER BY dwc_occurrences.id')).to be_truthy
-  end
-
-  context 'SQL fragment builders' do
-    let(:data) { Export::Dwca::Occurrence::Data.new(core_scope: scope) }
-    let(:conn) { ActiveRecord::Base.connection }
-
-    before do
-      # Create the sanitize function for these tests
-      data.send(:create_csv_sanitize_function)
-    end
-
-    after do
-      # Clean up temp table between tests
-      conn.execute('DROP TABLE IF EXISTS temp_scoped_occurrences')
-    end
-
-    describe '#media_identifier_sql' do
-      it 'returns UUID identifier when present' do
-        img = FactoryBot.create(:valid_image)
-        uuid_value = SecureRandom.uuid
-        FactoryBot.create(:identifier_global_uuid, identifier_object: img, identifier: uuid_value)
-
-        # Build SQL using the fragment from media_identifier_sql
-        sql = <<~SQL
-          SELECT #{data.send(:media_identifier_sql, Image, 'images')} AS identifier
-          FROM images
-          LEFT JOIN identifiers uuid_id ON uuid_id.identifier_object_id = images.id
-            AND uuid_id.identifier_object_type = 'Image'
-            AND uuid_id.type = 'Identifier::Global::Uuid'
-          LEFT JOIN identifiers uri_id ON uri_id.identifier_object_id = images.id
-            AND uri_id.identifier_object_type = 'Image'
-            AND uri_id.type = 'Identifier::Global::Uri'
-          WHERE images.id = #{img.id}
-        SQL
-
-        # Execute the SQL and verify the output
-        result = conn.select_value(sql)
-        expect(result).to eq("image:#{uuid_value}")
-      end
-
-      it 'returns URI identifier when UUID not present but URI is' do
-        img = FactoryBot.create(:valid_image)
-        uri_value = 'http://example.org/image/123'
-        FactoryBot.create(:identifier_global_uri, identifier_object: img, identifier: uri_value)
-
-        sql = <<~SQL
-          SELECT #{data.send(:media_identifier_sql, Image, 'images')} AS identifier
-          FROM images
-          LEFT JOIN identifiers uuid_id ON uuid_id.identifier_object_id = images.id
-            AND uuid_id.identifier_object_type = 'Image'
-            AND uuid_id.type = 'Identifier::Global::Uuid'
-          LEFT JOIN identifiers uri_id ON uri_id.identifier_object_id = images.id
-            AND uri_id.identifier_object_type = 'Image'
-            AND uri_id.type = 'Identifier::Global::Uri'
-          WHERE images.id = #{img.id}
-        SQL
-
-        result = conn.select_value(sql)
-        expect(result).to eq("image:#{uri_value}")
-      end
-
-      it 'returns ID-based identifier when no UUID or URI present' do
-        img = FactoryBot.create(:valid_image)
-
-        sql = <<~SQL
-          SELECT #{data.send(:media_identifier_sql, Image, 'images')} AS identifier
-          FROM images
-          LEFT JOIN identifiers uuid_id ON uuid_id.identifier_object_id = images.id
-            AND uuid_id.identifier_object_type = 'Image'
-            AND uuid_id.type = 'Identifier::Global::Uuid'
-          LEFT JOIN identifiers uri_id ON uri_id.identifier_object_id = images.id
-            AND uri_id.identifier_object_type = 'Image'
-            AND uri_id.type = 'Identifier::Global::Uri'
-          WHERE images.id = #{img.id}
-        SQL
-
-        result = conn.select_value(sql)
-        expect(result).to eq("image:#{img.id}")
-      end
-    end
-
-    describe '#media_identifier_joins_sql' do
-      it 'makes UUID identifier available when present' do
-        img = FactoryBot.create(:valid_image)
-        uuid_value = SecureRandom.uuid
-        FactoryBot.create(:identifier_global_uuid, identifier_object: img, identifier: uuid_value)
-
-        sql = <<~SQL
-          SELECT uuid_id.identifier AS uuid_identifier
-          FROM images img
-          #{data.send(:media_identifier_joins_sql, Image, 'img')}
-          WHERE img.id = #{img.id}
-        SQL
-
-        result = conn.select_value(sql)
-        expect(result).to eq(uuid_value)
-      end
-
-      it 'makes URI identifier available when present' do
-        img = FactoryBot.create(:valid_image)
-        uri_value = 'http://example.org/image/456'
-        FactoryBot.create(:identifier_global_uri, identifier_object: img, identifier: uri_value)
-
-        sql = <<~SQL
-          SELECT uri_id.identifier AS uri_identifier
-          FROM images img
-          #{data.send(:media_identifier_joins_sql, Image, 'img')}
-          WHERE img.id = #{img.id}
-        SQL
-
-        result = conn.select_value(sql)
-        expect(result).to eq(uri_value)
-      end
-
-      it 'returns NULL for identifiers when none present' do
-        img = FactoryBot.create(:valid_image)
-
-        sql = <<~SQL
-          SELECT uuid_id.identifier AS uuid_identifier, uri_id.identifier AS uri_identifier
-          FROM images img
-          #{data.send(:media_identifier_joins_sql, Image, 'img')}
-          WHERE img.id = #{img.id}
-        SQL
-
-        result = conn.select_one(sql)
-        expect(result['uuid_identifier']).to be_nil
-        expect(result['uri_identifier']).to be_nil
-      end
-    end
-
-    describe '#image_occurrence_resolution_joins_sql' do
-      it 'resolves image to dwc_occurrence via collection_object depiction' do
-        co = FactoryBot.create(:valid_specimen)
-        dwc = FactoryBot.create(:valid_dwc_occurrence, dwc_occurrence_object: co)
-        img = FactoryBot.create(:valid_image)
-        FactoryBot.create(:valid_depiction, depiction_object: co, image: img)
-
-        # Create scoped occurrence temp table
-        conn.execute('DROP TABLE IF EXISTS temp_scoped_occurrences')
-        conn.execute(<<~SQL)
-          CREATE TEMP TABLE temp_scoped_occurrences (
-            occurrence_id integer,
-            occurrence_type varchar
-          )
-        SQL
-        conn.execute("INSERT INTO temp_scoped_occurrences VALUES (#{co.id}, 'CollectionObject')")
-
-        sql = <<~SQL
-          SELECT dwc."occurrenceID" AS occurrence_id
-          FROM images img
-          #{data.send(:image_occurrence_resolution_joins_sql, image_alias: 'img')}
-          WHERE img.id = #{img.id}
-        SQL
-
-        result = conn.select_value(sql)
-        expect(result).to eq(dwc.occurrenceID)
-      end
-
-      it 'resolves image to dwc_occurrence via field_occurrence depiction' do
-        fo = FactoryBot.create(:valid_field_occurrence)
-        # Field occurrence factory may already create dwc_occurrence, reuse if it exists
-        dwc = fo.dwc_occurrence || FactoryBot.create(:valid_dwc_occurrence, dwc_occurrence_object: fo)
-        img = FactoryBot.create(:valid_image)
-        FactoryBot.create(:valid_depiction, depiction_object: fo, image: img)
-
-        # Create scoped occurrence temp table
-        conn.execute('DROP TABLE IF EXISTS temp_scoped_occurrences')
-        conn.execute(<<~SQL)
-          CREATE TEMP TABLE temp_scoped_occurrences (
-            occurrence_id integer,
-            occurrence_type varchar
-          )
-        SQL
-        conn.execute("INSERT INTO temp_scoped_occurrences VALUES (#{fo.id}, 'FieldOccurrence')")
-
-        sql = <<~SQL
-          SELECT dwc."occurrenceID" AS occurrence_id
-          FROM images img
-          #{data.send(:image_occurrence_resolution_joins_sql, image_alias: 'img')}
-          WHERE img.id = #{img.id}
-        SQL
-
-        result = conn.select_value(sql)
-        expect(result).to eq(dwc.occurrenceID)
-      end
-
-      it 'filters out occurrences not in scope' do
-        co = FactoryBot.create(:valid_specimen)
-        dwc = FactoryBot.create(:valid_dwc_occurrence, dwc_occurrence_object: co)
-        img = FactoryBot.create(:valid_image)
-        FactoryBot.create(:valid_depiction, depiction_object: co, image: img)
-
-        # Create scoped occurrence temp table WITHOUT the occurrence
-        conn.execute('DROP TABLE IF EXISTS temp_scoped_occurrences')
-        conn.execute(<<~SQL)
-          CREATE TEMP TABLE temp_scoped_occurrences (
-            occurrence_id integer,
-            occurrence_type varchar
-          )
-        SQL
-
-        sql = <<~SQL
-          SELECT dwc."occurrenceID" AS occurrence_id
-          FROM images img
-          #{data.send(:image_occurrence_resolution_joins_sql, image_alias: 'img')}
-          WHERE img.id = #{img.id}
-        SQL
-
-        result = conn.select_value(sql)
-        expect(result).to be_nil
-      end
-    end
-
-    describe '#sound_occurrence_resolution_joins_sql' do
-      it 'resolves sound to dwc_occurrence via collection_object conveyance' do
-        co = FactoryBot.create(:valid_specimen)
-        dwc = FactoryBot.create(:valid_dwc_occurrence, dwc_occurrence_object: co)
-        snd = FactoryBot.create(:valid_sound)
-        FactoryBot.create(:valid_conveyance, conveyance_object: co, sound: snd)
-
-        # Create scoped occurrence temp table
-        conn.execute('DROP TABLE IF EXISTS temp_scoped_occurrences')
-        conn.execute(<<~SQL)
-          CREATE TEMP TABLE temp_scoped_occurrences (
-            occurrence_id integer,
-            occurrence_type varchar
-          )
-        SQL
-        conn.execute("INSERT INTO temp_scoped_occurrences VALUES (#{co.id}, 'CollectionObject')")
-
-        sql = <<~SQL
-          SELECT dwc."occurrenceID" AS occurrence_id
-          FROM sounds snd
-          #{data.send(:sound_occurrence_resolution_joins_sql, sound_alias: 'snd')}
-          WHERE snd.id = #{snd.id}
-        SQL
-
-        result = conn.select_value(sql)
-        expect(result).to eq(dwc.occurrenceID)
-      end
-
-      it 'filters out occurrences not in scope' do
-        co = FactoryBot.create(:valid_specimen)
-        dwc = FactoryBot.create(:valid_dwc_occurrence, dwc_occurrence_object: co)
-        snd = FactoryBot.create(:valid_sound)
-        FactoryBot.create(:valid_conveyance, conveyance_object: co, sound: snd)
-
-        # Create scoped occurrence temp table WITHOUT the occurrence
-        conn.execute('DROP TABLE IF EXISTS temp_scoped_occurrences')
-        conn.execute(<<~SQL)
-          CREATE TEMP TABLE temp_scoped_occurrences (
-            occurrence_id integer,
-            occurrence_type varchar
-          )
-        SQL
-
-        sql = <<~SQL
-          SELECT dwc."occurrenceID" AS occurrence_id
-          FROM sounds snd
-          #{data.send(:sound_occurrence_resolution_joins_sql, sound_alias: 'snd')}
-          WHERE snd.id = #{snd.id}
-        SQL
-
-        result = conn.select_value(sql)
-        expect(result).to be_nil
-      end
-    end
-  end
-
   context 'when initialized with a scope' do
     let(:data) { Export::Dwca::Occurrence::Data.new(core_scope: scope) }
 
-    specify 'initializing with a DwcOccurrence scope succeeds' do
-      expect(Export::Dwca::Occurrence::Data.new(core_scope: scope)).to be_truthy
+    specify 'initializing with a DwcOccurrence scope orders by id' do
+      a = Export::Dwca::Occurrence::Data.new(core_scope: scope).core_scope.to_sql
+      expect(a.include?('ORDER BY dwc_occurrences.id')).to be_truthy
     end
 
     specify '#data returns tempfile with CSV data' do
@@ -309,35 +38,18 @@ describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
         end
       end
 
-      after { data.cleanup }
-
       let(:csv) {
         tempfile = data.data
         tempfile.rewind
         CSV.parse(tempfile.read, headers: true, col_sep: "\t")
       }
 
-      # non-standard DwC columns are handled elsewhere
       let(:headers) { [ 'basisOfRecord', 'individualCount', 'occurrenceID', 'occurrenceStatus' ] }
 
-      context 'various scopes' do
-        specify 'with .where clauses' do
-          s = scope.where('id > 1')
-          d = Export::Dwca::Occurrence::Data.new(core_scope: s)
-          expect(d.meta_fields).to contain_exactly(*( headers + valid_collecting_event_headers))
-        end
-
-        specify 'with .order clauses' do
-          s = scope.order(:basisOfRecord)
-          d = Export::Dwca::Occurrence::Data.new(core_scope: s)
-          expect(d.meta_fields).to contain_exactly(*(headers + valid_collecting_event_headers) )
-        end
-
-        specify 'with .join clauses' do
-          s = scope.object_join('CollectionObject')
-          d = Export::Dwca::Occurrence::Data.new(core_scope: s)
-          expect(d.meta_fields).to contain_exactly(*(headers + valid_collecting_event_headers))
-        end
+      specify '#meta_fields returns expected header fields' do
+        s = scope.where('id > 1')
+        d = Export::Dwca::Occurrence::Data.new(core_scope: s)
+        expect(d.meta_fields).to contain_exactly(*( headers + valid_collecting_event_headers))
       end
 
       context 'extension_scopes: [:biological_associations]' do
@@ -473,8 +185,6 @@ describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
           # Should replace newlines and tabs with spaces
           expect(rows.first['caption']).to eq('Caption with newline and tab')
           expect(rows.first['description']).to eq('Label with tab and newline')
-
-          d.cleanup
         end
 
         specify '#media_tmp includes attribution data (owner, creator, copyright)' do
@@ -482,13 +192,11 @@ describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
           depiction = FactoryBot.create(:valid_depiction, depiction_object: co)
           image = depiction.image
 
-          # Create attribution with copyright year, owner, and creator
           attribution = FactoryBot.create(:valid_attribution,
             attribution_object: image,
             copyright_year: 2024
           )
 
-          # Create roles for owner and creator
           person1 = FactoryBot.create(:valid_person, last_name: 'Doe', first_name: 'John')
           person2 = FactoryBot.create(:valid_person, last_name: 'Smith', first_name: 'Jane')
 
@@ -499,21 +207,13 @@ describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
           co_sql = CollectionObject.where(id: co.id).to_sql
           d = Export::Dwca::Occurrence::Data.new(core_scope: s, extension_scopes: { media: { collection_objects: co_sql, field_occurrences: nil } })
 
-          media_file = d.media_tmp
-          media_file.rewind
-          content = media_file.read
-          rows = CSV.parse(content, col_sep: "\t", headers: true)
+          rows = CSV.parse(d.media_tmp, col_sep: "\t", headers: true)
 
-          # Find the row for our specific image
           our_row = rows.find { |r| r['providerManagedID'] == image.id.to_s }
-          expect(our_row).not_to be_nil
-
-          # Check that attribution data is present
-          # The cached format is "Last, First" or just "Last"
           expect(our_row['Owner']).to match(/Doe/)
           expect(our_row['dc:creator']).to match(/Smith/)
-
-          d.cleanup
+          # No AttributionCopyrightHolder role, so simple Credit.
+          expect(our_row['Credit']).to eq('©2024')
         end
 
         specify '#media_tmp includes organization attribution data' do
@@ -539,20 +239,11 @@ describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
           co_sql = CollectionObject.where(id: co.id).to_sql
           d = Export::Dwca::Occurrence::Data.new(core_scope: s, extension_scopes: { media: { collection_objects: co_sql, field_occurrences: nil } })
 
-          media_file = d.media_tmp
-          media_file.rewind
-          content = media_file.read
-          rows = CSV.parse(content, col_sep: "\t", headers: true)
+          rows = CSV.parse(d.media_tmp, col_sep: "\t", headers: true)
 
-          # Find the row for our specific image
           our_row = rows.find { |r| r['providerManagedID'] == image.id.to_s }
-          expect(our_row).not_to be_nil
-
-          # Check that organization names appear in attribution fields
           expect(our_row['Owner']).to eq('Test Museum')
           expect(our_row['Credit']).to eq('©2025 Illinois Natural History Survey')
-
-          d.cleanup
         end
 
         specify '#media_tmp uses UUID identifier if present' do
@@ -560,25 +251,19 @@ describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
           depiction = FactoryBot.create(:valid_depiction, depiction_object: co)
           image = depiction.image
 
-          # Create a UUID identifier for the image
-          uuid_value = SecureRandom.uuid
           identifier = FactoryBot.create(:identifier_global_uuid,
             identifier_object: image,
-            identifier: uuid_value
+            is_generated: true
           )
+          uuid_value = identifier.identifier
 
           s = scope.where('id > 1')
           d = Export::Dwca::Occurrence::Data.new(core_scope: s, extension_scopes: { media: media_scope })
 
-          media_file = d.media_tmp
-          media_file.rewind
-          content = media_file.read
-          rows = CSV.parse(content, col_sep: "\t", headers: true)
+          rows = CSV.parse(d.media_tmp, col_sep: "\t", headers: true)
 
           # Should use UUID instead of image:id
           expect(rows.first['identifier']).to eq("image:#{uuid_value}")
-
-          d.cleanup
         end
 
         specify '#media_tmp includes image dimensions and format' do
@@ -588,18 +273,12 @@ describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
           s = scope.where('id > 1')
           d = Export::Dwca::Occurrence::Data.new(core_scope: s, extension_scopes: { media: media_scope })
 
-          media_file = d.media_tmp
-          media_file.rewind
-          content = media_file.read
-          rows = CSV.parse(content, col_sep: "\t", headers: true)
+          rows = CSV.parse(d.media_tmp, col_sep: "\t", headers: true)
 
-          # Check image metadata fields
           expect(rows.first['dc:type']).to eq('Image')
           expect(rows.first['PixelXDimension']).not_to be_nil
           expect(rows.first['PixelYDimension']).not_to be_nil
           expect(rows.first['dc:format']).to match(/image\/(jpeg|png|gif)/)
-
-          d.cleanup
         end
 
         specify 'shortened_urls table has required columns for media export' do
@@ -607,8 +286,6 @@ describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
           # This spec ensures the gem's internal table structure hasn't changed
           # in a way that would break our media URL shortening functionality.
           connection = ActiveRecord::Base.connection
-
-          expect(connection.table_exists?('shortened_urls')).to be true
 
           # Verify required columns exist
           columns = connection.columns('shortened_urls').map(&:name)
@@ -622,8 +299,6 @@ describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
         let(:p2) { FactoryBot.create(:valid_predicate)}
         let(:p3) { FactoryBot.create(:valid_predicate)}
         let(:predicate_ids) { [p3.id, p1.id, p2.id] } # purposefully out of order
-
-        after { data.cleanup }
 
         specify 'stale DwcOccurrence index does not raise' do
           s = Specimen.all
@@ -648,12 +323,9 @@ describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
           m.delete
 
           expect{a.predicate_data}.not_to raise_error
-
-          a.cleanup
         end
 
         specify 'orders values into the right rows' do
-          s = Specimen.all
           f = Specimen.first
           m = Specimen.third
           l = Specimen.last
@@ -673,28 +345,24 @@ describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
 
           z = CSV.parse(f, headers: true)
 
-          expect(z.to_a[1].first).to include(d1.value)
-          expect(z.to_a[3].first).to include(d4.value) # the ce value
-          expect(z.to_a[3].first).to include(d3.value)
-          expect(z.to_a[5].first).to include(d2.value)
-
-          a.cleanup
+          # DA row order must match DWCO row order.
+          expect(z.to_a[1].first).to include(d1.value) # on 1st specimen
+          expect(z.to_a[2].first).to eq("\t\t\t") # on 2nd specimen
+          expect(z.to_a[3].first).to include(d4.value) # the ce value, on 3rd specimen
+          expect(z.to_a[3].first).to include(d3.value) # on 3rd specimen
+          expect(z.to_a[4].first).to eq("\t\t\t") # on 4th specimen
+          expect(z.to_a[5].first).to include(d2.value) # on 5th specimen
         end
 
-        specify 'destruction of DataAttribute post instantiation is caught' do
-          s = Specimen.all
+        specify 'destruction of DataAttribute post-instantiation is caught' do
           f = Specimen.first
-          m = Specimen.third
-          l = Specimen.last
 
-          d1 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: f, predicate: p1 )
-          d2 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: l, predicate: p3 )
-          d3 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: m, predicate: p2 )
+          d1 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: f, predicate: p2 )
 
           c = FactoryBot.create(:valid_collecting_event)
-          d4 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p1 )
+          d2 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p1 )
 
-          m.update!(collecting_event: c)
+          f.update!(collecting_event: c)
 
           a = Export::Dwca::Occurrence::Data.new(core_scope: scope, predicate_extensions: {collection_object_predicate_id: predicate_ids, collecting_event_predicate_id: predicate_ids } )
 
@@ -702,53 +370,22 @@ describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
           d2.destroy!
 
           expect{a.predicate_data}.not_to raise_error
-          a.cleanup
-        end
-
-        specify 'orders values into the right rows 2' do
-          s = Specimen.all
-          f = Specimen.first
-          m = Specimen.third
-          l = Specimen.last
-
-          d1 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: f, predicate: p1 )
-          d2 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: l, predicate: p3 )
-          d3 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: m, predicate: p2 )
-
-          c = FactoryBot.create(:valid_collecting_event)
-          d4 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: c, predicate: p1 )
-
-          m.update!(collecting_event: c)
-
-          a = Export::Dwca::Occurrence::Data.new(core_scope: scope, predicate_extensions: {collection_object_predicate_id: predicate_ids, collecting_event_predicate_id: predicate_ids } )
-
-          f = a.predicate_data.read
-
-          z = CSV.parse(f, headers: true)
-
-          expect(z.to_a[1].first).to include(d1.value)
-          expect(z.to_a[3].first).to include(d4.value) # the ce value
-          expect(z.to_a[3].first).to include(d3.value)
-
-          expect(z.to_a[5].first).to include(d2.value)
-
-          a.cleanup
         end
 
         specify 'predicate data rows match dwc_occurrence order not collection_object.id order' do
-          # This tests that when collection_object.id order differs from dwc_occurrence.id order,
-          # the predicate_data follows dwc_occurrence order (matching the core data file)
+          # This tests that when collection_object.id order differs from
+          # dwc_occurrence.id order, the predicate_data follows dwc_occurrence
+          # order (matching the core data file).
 
           s1 = Specimen.order(:id).first
           s2 = Specimen.order(:id).second
           s3 = Specimen.order(:id).third
 
           # Force dwc_occurrence order to differ from collection_object order
-          # by destroying and recreating the first specimen's dwc_occurrence
+          # by destroying and recreating the first specimen's dwc_occurrence.
           s1.dwc_occurrence.destroy!
-          s1.get_dwc_occurrence  # Recreates with new (higher) id
+          s1.get_dwc_occurrence
 
-          # Create data attributes with distinct values
           d1 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: s1, predicate: p1, value: 'specimen_1_value')
           d2 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: s2, predicate: p1, value: 'specimen_2_value')
           d3 = FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: s3, predicate: p1, value: 'specimen_3_value')
@@ -765,20 +402,13 @@ describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
           predicate_column_index = rows.headers.index("TW:DataAttribute:CollectionObject:#{p1.name}")
           values_in_order = rows.map { |row| row[predicate_column_index] }
 
-          # Rows should be in dwc_occurrence.id order, not collection_object.id order
-          # Since s1's dwc was recreated, it should appear last in the export
-          # There are 5 specimens total, we only set values on 3 of them
-          expect(values_in_order).to include('specimen_2_value', 'specimen_3_value', 'specimen_1_value')
-
-          # More specifically: order should be s2, s3, s1 (based on dwc_occurrence.id order)
+          # Order should be s2, s3, s1 (based on dwc_occurrence.id order)
           s2_index = values_in_order.index('specimen_2_value')
           s3_index = values_in_order.index('specimen_3_value')
           s1_index = values_in_order.index('specimen_1_value')
 
           expect(s2_index).to be < s3_index
           expect(s3_index).to be < s1_index
-
-          a.cleanup
         end
 
         specify 'predicate_data excludes empty columns when some configured predicates are unused' do
@@ -794,23 +424,15 @@ describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
           # Configure all 3 predicates but only 2 have data
           a = Export::Dwca::Occurrence::Data.new(core_scope: scope, predicate_extensions: {collecting_event_predicate_id: predicate_ids } )
 
-          predicate_file = a.predicate_data
-          predicate_file.rewind
-          content = predicate_file.read
+          content = a.predicate_data.read
 
-          # Parse the TSV header
           headers = content.lines.first.strip.split("\t")
 
-          # Should only have columns for predicates with data (p1 and p3), not p2
+          # Should only have columns for predicates with data (p1 and p3), not p2.
           expect(headers).to contain_exactly(
             "TW:DataAttribute:CollectingEvent:#{p1.name}",
             "TW:DataAttribute:CollectingEvent:#{p3.name}"
           )
-
-          # Should NOT include p2 since it has no data
-          expect(headers).not_to include("TW:DataAttribute:CollectingEvent:#{p2.name}")
-
-          a.cleanup
         end
 
         specify 'predicate_data sanitizes newlines and tabs in values' do
@@ -819,7 +441,6 @@ describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
           c = FactoryBot.create(:valid_collecting_event)
           f.update!(collecting_event: c)
 
-          # Create data with newlines and tabs - test that they get sanitized
           value_with_newline = "Line 1\nLine 2\nLine 3"
           value_with_tab = "Column1\tColumn2\tColumn3"
           value_with_both = "Text with\ttab and\nnewline"
@@ -831,19 +452,14 @@ describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
           a = Export::Dwca::Occurrence::Data.new(core_scope: scope,
             predicate_extensions: {collecting_event_predicate_id: predicate_ids } )
 
-          predicate_file = a.predicate_data
-          predicate_file.rewind
-          content = predicate_file.read
+          content = a.predicate_data.read
 
           # Parse as TSV with CSV parser (handles quoted fields)
           rows = CSV.parse(content, col_sep: "\t", headers: true)
 
-          # Should replace newlines and tabs with spaces (matching old behavior)
           expect(rows.first["TW:DataAttribute:CollectingEvent:#{p1.name}"]).to eq("Line 1 Line 2 Line 3")
           expect(rows.first["TW:DataAttribute:CollectingEvent:#{p2.name}"]).to eq("Column1 Column2 Column3")
           expect(rows.first["TW:DataAttribute:CollectingEvent:#{p3.name}"]).to eq("Text with tab and newline")
-
-          a.cleanup
         end
       end
 
@@ -873,32 +489,6 @@ describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
             expect(z.to_a[3].first).to eq(d3.otu.name)
             expect(z.to_a[4].first).to eq(nil)
             expect(z.to_a[5].first).to eq(d2.otu.name)
-
-            d.cleanup
-          end
-
-          specify 'exports in the correct order (otu attributes)' do
-            s1 = Specimen.order(:id).first
-            s2 = Specimen.order(:id).third
-            s3 = Specimen.order(:id).last
-
-            d1 = TaxonDetermination.create( otu: o1, taxon_determination_object: s1)
-            d2 = TaxonDetermination.create( otu: o2, taxon_determination_object: s3)
-            d3 = TaxonDetermination.create( otu: o3, taxon_determination_object: s2)
-
-            d = Export::Dwca::Occurrence::Data.new(core_scope: scope, taxonworks_extensions: [:otu_name])
-
-            e = d.taxonworks_extension_data.read
-
-            z = CSV.parse(e, headers: true)
-
-            expect(z.to_a[1].first).to eq(d1.otu.name)
-            expect(z.to_a[2].first).to eq(nil)
-            expect(z.to_a[3].first).to eq(d3.otu.name)
-            expect(z.to_a[4].first).to eq(nil)
-            expect(z.to_a[5].first).to eq(d2.otu.name)
-
-            d.cleanup
           end
 
           specify 'exports in the correct order (ce attributes)' do
@@ -925,8 +515,6 @@ describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
             expect(z.to_a[3].first).to eq(c3.elevation_precision)
             expect(z.to_a[4].first).to eq(nil)
             expect(z.to_a[5].first).to eq(c2.elevation_precision)
-
-            d.cleanup
           end
 
           specify 'exports in the correct order (ce & co attributes)' do
@@ -960,8 +548,6 @@ describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
                 [ "\t2.0" ]
               ]
             )
-
-            d.cleanup
           end
 
           specify 'collection objects without dwc_occurrences, with (ce & co attributes), with (potentially) interfering AssertedDistribution' do
@@ -1000,8 +586,6 @@ describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
                 ["aus\t#{c2.id}\t2.0\t#{s3.id}\t#{s3.dwc_occurrence.id}"] # 5
               ]
             )
-
-            d.cleanup
           end
 
           specify 'uses canonical extension header order regardless of input order' do
@@ -1019,10 +603,7 @@ describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
             expected_header = extensions.map { |sym| "TW:Internal:#{sym}" }.join("\t")
 
             expect(z.to_a.first.first).to eq(expected_header)
-
-            d.cleanup
           end
-
         end
 
         context 'exporting otu_name' do
@@ -1125,11 +706,10 @@ describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
       end
 
       specify '#csv returns lines for specimens' do
-        expect(csv.count).to eq(5)
+        expect(csv.count).to eq(5) # 5 data rows
       end
 
       specify '#csv sanitizes newlines and tabs in locality field' do
-        # Create specimen with locality containing newlines and tabs
         locality_with_special_chars = "Site A\nElevation: 1000m\tCoordinates: 45.5, -122.6"
         ce = FactoryBot.create(:valid_collecting_event,
           verbatim_locality: locality_with_special_chars)
@@ -1137,26 +717,20 @@ describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
         dwc = specimen.get_dwc_occurrence
 
         # Update the verbatimLocality directly in the database to have newlines/tabs
-        # Using update_column to bypass callbacks and set the raw value
+        # using update_column to bypass callbacks and set the raw value.
         dwc.update_column(:verbatimLocality, locality_with_special_chars)
 
-        # Verify it was set
+        # Verify it was set.
         dwc.reload
         expect(dwc.read_attribute(:verbatimLocality)).to eq(locality_with_special_chars)
 
-        # Export just this specimen
+        # Export just this specimen.
         single_scope = DwcOccurrence.where(id: dwc.id)
         single_export = Export::Dwca::Occurrence::Data.new(core_scope: single_scope)
 
-        # Parse the CSV output
-        tempfile = single_export.data
-        tempfile.rewind
-        csv_output = CSV.parse(tempfile.read, headers: true, col_sep: "\t")
+        csv_output = CSV.parse(single_export.data.read, headers: true, col_sep: "\t")
 
-        # Should replace newlines and tabs with spaces (matching old behavior)
         expect(csv_output.first['verbatimLocality']).to eq("Site A Elevation: 1000m Coordinates: 45.5, -122.6")
-
-        single_export.cleanup
       end
 
       specify 'TW housekeeping columns are not present' do

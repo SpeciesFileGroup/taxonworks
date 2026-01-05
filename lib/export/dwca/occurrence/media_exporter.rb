@@ -754,6 +754,9 @@ module Export::Dwca::Occurrence
       cleanup_media_temp_tables
 
       Rails.logger.debug 'dwca_export: media data generated'
+    ensure
+      output_file.flush
+      output_file.rewind
     end
 
   end

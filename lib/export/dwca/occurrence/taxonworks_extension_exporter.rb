@@ -62,12 +62,12 @@ module Export::Dwca::Occurrence
       Rails.logger.debug 'dwca_export: extension data written'
 
       csv.flush
-      output_file.flush
-      output_file.rewind
 
       Rails.logger.debug 'dwca_export: taxonworks_extension_data prepared'
 
       output_file
+    ensure
+      output_file.flush
     end
 
     private

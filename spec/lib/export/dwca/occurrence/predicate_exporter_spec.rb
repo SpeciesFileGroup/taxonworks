@@ -2,27 +2,12 @@ require 'rails_helper'
 
 RSpec.describe Export::Dwca::Occurrence::PredicateExporter, type: :model do
   let(:project) { FactoryBot.create(:valid_project) }
-  let(:user) { FactoryBot.create(:valid_user) }
-  let(:current_user_id) { user.id }
-  let(:current_project_id) { project.id }
-
-  before do
-    # Set up project context
-    ProjectsController.send(:define_method, :sessions_current_project_id) { current_project_id }
-    ProjectsController.send(:define_method, :sessions_current_user_id) { current_user_id }
-  end
 
   describe '#export_to' do
-    let!(:specimen1) { FactoryBot.create(:valid_specimen, project: project) }
-    let!(:specimen2) { FactoryBot.create(:valid_specimen, project: project) }
-    let(:collection_objects) { CollectionObject.where(project_id: project.id) }
-    let(:core_scope) { DwcOccurrence.where(project_id: project.id) }
-
-    before do
-      # Ensure dwc_occurrences exist
-      specimen1.get_dwc_occurrence
-      specimen2.get_dwc_occurrence
-    end
+    let!(:specimen1) { FactoryBot.create(:valid_specimen, no_dwc_occurrence: false) }
+    let!(:specimen2) { FactoryBot.create(:valid_specimen,  no_dwc_occurrence: false) }
+    let(:collection_objects) { CollectionObject.all }
+    let(:core_scope) { DwcOccurrence.all }
 
     context 'with no predicates' do
       let(:exporter) { described_class.new(
@@ -31,21 +16,17 @@ RSpec.describe Export::Dwca::Occurrence::PredicateExporter, type: :model do
         collecting_event_predicate_ids: []
       )}
 
-      it 'returns empty file when no predicates configured' do
+      specify 'returns empty file when no predicates configured' do
         output = Tempfile.new('test_predicates')
         result = exporter.export_to(output)
-        output.rewind
 
         content = output.read
         expect(content).to be_empty
-
-        output.close
-        output.unlink
       end
     end
 
     context 'with collection object predicates' do
-      let!(:predicate) { FactoryBot.create(:valid_controlled_vocabulary_term_predicate, project: project) }
+      let!(:predicate) { FactoryBot.create(:valid_controlled_vocabulary_term_predicate) }
       let!(:data_attr1) { FactoryBot.create(:valid_data_attribute_internal_attribute,
         attribute_subject: specimen1,
         predicate: predicate,
@@ -63,29 +44,41 @@ RSpec.describe Export::Dwca::Occurrence::PredicateExporter, type: :model do
         collecting_event_predicate_ids: []
       )}
 
-      it 'exports predicate data' do
+      specify 'exports data rows' do
         output = Tempfile.new('test_predicates')
         result = exporter.export_to(output)
-        output.rewind
 
         content = output.read
         lines = content.lines
 
-        # Should have header + data rows
-        expect(lines.count).to be >= 2
+        # Should have header + 2 data rows
+        expect(lines.count).to eq 3
+      end
 
-        # Header should include predicate name
-        expect(lines.first).to include(predicate.name)
+      specify 'exports expected header' do
+        output = Tempfile.new('test_predicates')
+        result = exporter.export_to(output)
+
+        content = output.read
+        lines = content.lines
+
+        expect(lines.first.chomp)
+          .to eq("TW:DataAttribute:CollectionObject:#{predicate.name}")
+      end
+
+      specify 'exports expected predicate values' do
+        output = Tempfile.new('test_predicates')
+        result = exporter.export_to(output)
+
+        content = output.read
+        lines = content.lines
 
         # Data rows should have values
         expect(content).to include('test value 1')
         expect(content).to include('test value 2')
-
-        output.close
-        output.unlink
       end
 
-      it 'only includes predicates with data' do
+      specify 'only includes predicates with data' do
         unused_predicate = FactoryBot.create(:valid_controlled_vocabulary_term_predicate, project: project)
 
         exporter_with_unused = described_class.new(
@@ -188,7 +181,7 @@ RSpec.describe Export::Dwca::Occurrence::PredicateExporter, type: :model do
         collecting_event_predicate_ids: [predicate.id]
       )}
 
-      it 'exports collecting event predicate data' do
+      specify 'exports collecting event predicate data' do
         output = Tempfile.new('test_predicates')
         result = exporter.export_to(output)
         output.rewind
