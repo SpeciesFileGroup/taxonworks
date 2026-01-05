@@ -27,38 +27,43 @@ module Export::Dwca::Occurrence
       csv = ::CSV.new(output_file, col_sep: "\t")
       csv << used_extensions
 
-      # Stream results and write directly to CSV.
-      # find_each automatically orders by dwc_occurrences.id for batching, which
-      # matches the order of data.tsv and predicate files for side-by-side paste joining.
-      query.find_each(batch_size: 50_000) do |row|
-        output_row = []
+      # Use in_batches to stream results without ActiveRecord object overhead.
+      # This processes raw SQL results in batches to avoid loading everything
+      # into memory.
+      query.in_batches(of: 50_000, order: :asc) do |batch|
+        sql = batch.to_sql
+        conn = ActiveRecord::Base.connection
+        result = conn.select_all(sql)
 
-        # Iterate over column_data to guarantee column order matches
-        # used_extensions.
-        column_data.each do |source_type, col|
-          case source_type
-          when :method
-            v = row.send(col)
-          when :ce
-            # Map virtual :id to :collecting_event_id
-            attr_name = (col == :id ? :collecting_event_id : col)
-            v = row.send(attr_name)
-          when :co
-            # Map virtual :id to collection_object_id
-            attr_name = (col == :id ? :collection_object_id : col)
-            v = row.send(attr_name)
-          when :dwco
-            # Map virtual :id to dwc_occurrence_id
-            attr_name = (col == :id ? :dwc_occurrence_id : col)
-            v = row.send(attr_name)
+        result.each do |row|
+          output_row = []
+
+          # Iterate over column_data to guarantee column order matches
+          # used_extensions. Row is a hash with string keys.
+          column_data.each do |source_type, col|
+            v = case source_type
+            when :method
+              row[col.to_s]
+            when :ce
+              # Map virtual :id to :collecting_event_id
+              attr_name = (col == :id ? 'collecting_event_id' : col.to_s)
+              row[attr_name]
+            when :co
+              # Map virtual :id to collection_object_id
+              attr_name = (col == :id ? 'collection_object_id' : col.to_s)
+              row[attr_name]
+            when :dwco
+              # Map virtual :id to dwc_occurrence_id
+              attr_name = (col == :id ? 'dwc_occurrence_id' : col.to_s)
+              row[attr_name]
+            end
+
+            output_row << (v.nil? ? nil : Utilities::Strings.sanitize_for_csv(v.to_s))
           end
 
-          output_row << (v.nil? ? nil : Utilities::Strings.sanitize_for_csv(v.to_s))
+          csv << output_row
         end
-
-        csv << output_row
       end
-
       Rails.logger.debug 'dwca_export: extension data written'
 
       csv.flush
@@ -68,6 +73,7 @@ module Export::Dwca::Occurrence
       output_file
     ensure
       output_file.flush
+      output_file.rewind
     end
 
     private
