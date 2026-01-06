@@ -16,6 +16,7 @@ module Queries
         :author,
         :author_exact,
         :authors,
+        :availability,
         :cached,
         :collecting_event_id,
         :collection_object_id,
@@ -158,6 +159,11 @@ module Queries
       # ['true' or 'false'] on initialize
       #   true if only valid, false if only invalid, nil if both
       attr_accessor :validity
+
+      # @params availability [ Boolean]
+      # ['true' or 'false'] on initialize
+      #   true if only available, false if only unavailable, nil if both
+      attr_accessor :availability
 
       # @params validify ['true', True, nil]
       # @return Boolean
@@ -351,6 +357,7 @@ module Queries
         @author = params[:author]
         @author_exact = boolean_param(params, :author_exact)
         @authors = boolean_param(params, :authors)
+        @availability = boolean_param(params, :availability)
         @cached = params[:cached]
         @collecting_event_id = params[:collecting_event_id]
         @collection_object_id = params[:collection_object_id]
@@ -836,6 +843,15 @@ module Queries
         end
       end
 
+      def availability_facet
+        return nil if availability.nil?
+        if availability
+          table[:cached_is_available].eq(true)
+        else
+          table[:cached_is_available].eq(false)
+        end
+      end
+
       def verbatim_name_facet
         return nil if verbatim_name.nil?
         if verbatim_name
@@ -971,6 +987,7 @@ module Queries
           rank_facet,
           taxon_name_type_facet,
           validity_facet,
+          availability_facet,
           verbatim_name_facet,
           with_nomenclature_code,
           with_nomenclature_group,

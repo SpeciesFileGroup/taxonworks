@@ -7,6 +7,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Unify button to Manage Controlled vocabulary task [#4653]
+- Source autocomplete now matches on alternate values of authors as People [#4617]
+
 ### Fixed
 
 - Observation matrix dashboard: several filter options don't work [#4640]
@@ -17,19 +22,24 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - CSD: The biocurations form doesn't show classes that do not belong to a group [#4658]
 - New Extract task: Minor fixes related to the identifiers form [#4626]
 - New Biological Association task: A new citation is not added when a biological association already exists, instead, it attempts to create a new one.
+- Housekeeping facet: sometimes date range is off [#4644]
 
 ### Changed
 
 - Add the POST method for Image matrix to handle many OTUs
 - New task: Refactor the task and add responsive design to the form [#4628]
+- Removed alternate values on Source author and editor (use Person alternate values instead)
 
+[#4617]: https://github.com/SpeciesFileGroup/taxonworks/issues/4617
 [#4626]: https://github.com/SpeciesFileGroup/taxonworks/issues/4626
 [#4628]: https://github.com/SpeciesFileGroup/taxonworks/issues/4628
 [#4640]: https://github.com/SpeciesFileGroup/taxonworks/issues/4640
 [#4646]: https://github.com/SpeciesFileGroup/taxonworks/issues/4646
 [#4649]: https://github.com/SpeciesFileGroup/taxonworks/issues/4649
+[#4653]: https://github.com/SpeciesFileGroup/taxonworks/issues/4653
 [#4654]: https://github.com/SpeciesFileGroup/taxonworks/issues/4654
 [#4658]: https://github.com/SpeciesFileGroup/taxonworks/issues/4658
+[#4644]: https://github.com/SpeciesFileGroup/taxonworks/issues/4644
 
 ## [0.56.1] - 2025-12-12
 

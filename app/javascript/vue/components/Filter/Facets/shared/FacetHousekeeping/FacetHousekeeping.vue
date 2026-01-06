@@ -51,8 +51,7 @@
             v-model="params.user_date_end"
           />
           <FacetHousekeeperNow
-            type="button"
-            class="button normal-input button-default margin-small-left"
+            class="margin-small-left"
             @select="setRangeDate"
           />
         </div>
@@ -69,7 +68,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onBeforeMount } from 'vue'
+import { ref, onBeforeMount } from 'vue'
 import { ProjectMember } from '@/routes/endpoints'
 import { URLParamsToJSON } from '@/helpers/url/parse.js'
 import { TYPE_MESSAGE } from './constants/types'
@@ -92,32 +91,20 @@ const OPTIONS = [
 ]
 
 const props = defineProps({
-  modelValue: {
-    type: Object,
-    required: true
-  },
-
   type: {
     type: String,
     default: null
   }
 })
 
-const emit = defineEmits(['update:modelValue', 'onUserslist'])
-
-const params = computed({
-  get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
+const params = defineModel({
+  type: Object,
+  required: true
 })
+
+const emit = defineEmits(['onUserslist'])
 
 const usersList = ref([])
-const startDate = computed(() => params.value.user_date_start)
-
-watch(startDate, (newVal) => {
-  if (!newVal) {
-    params.value.user_date_end = undefined
-  }
-})
 
 onBeforeMount(() => {
   ProjectMember.all().then((response) => {
@@ -134,8 +121,16 @@ onBeforeMount(() => {
   }
 })
 
+function toLocalYMD(date) {
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, '0'),
+    String(date.getDate()).padStart(2, '0')
+  ].join('-')
+}
+
 function setRangeDate(date) {
-  params.value.user_date_start = date.toISOString().split('T')[0]
-  params.value.user_date_end = new Date().toISOString().split('T')[0]
+  params.value.user_date_start = toLocalYMD(date)
+  params.value.user_date_end = toLocalYMD(new Date())
 }
 </script>
