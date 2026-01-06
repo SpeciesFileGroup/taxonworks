@@ -17,7 +17,7 @@ module Shared::Dwc::MediaIdentifier
   }.freeze
 
   class_methods do
-    # Ruby implementation: generates identifier for a record instance
+    # Ruby implementation: generates identifier for a record instance.
     # @param record [Image, Sound] the media record
     # @return [String] formatted identifier (e.g., "image:uuid123" or "sound:42")
     def dwc_media_identifier_for(record)
@@ -25,8 +25,9 @@ module Shared::Dwc::MediaIdentifier
       "#{ns}:#{record.uuid || record.uri || record.id}"
     end
 
-    # SQL implementation: generates SQL CASE expression for identifier selection
-    # NOTE: This MUST produce the same result as dwc_media_identifier_for (verified by spec)
+    # SQL implementation: generates SQL CASE expression for identifier selection.
+    # NOTE: This MUST produce the same result as dwc_media_identifier_for
+    # (verified by spec).
     # @param table_alias [String] SQL table alias (e.g., 'img', 'snd')
     # @return [String] SQL CASE expression
     def dwc_media_identifier_sql(table_alias:)

@@ -212,8 +212,8 @@ describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
           our_row = rows.find { |r| r['providerManagedID'] == image.id.to_s }
           expect(our_row['Owner']).to match(/Doe/)
           expect(our_row['dc:creator']).to match(/Smith/)
-          # No AttributionCopyrightHolder role, so simple Credit.
-          expect(our_row['Credit']).to eq('©2024')
+          # No AttributionCopyrightHolder role, so no copyright.
+          expect(our_row['Credit']).to eq(nil)
         end
 
         specify '#media_tmp includes organization attribution data' do

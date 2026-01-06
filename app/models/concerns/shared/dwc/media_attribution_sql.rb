@@ -1,12 +1,12 @@
 # A concern providing SQL fragments to match Ruby methods for media attribution data
 # in Darwin Core Archive exports.
 
- # The ruby implementation methods can be found in Shared::Dwc::MediaExtensions,
- # and the specs that keep the sql and ruby versions matched are in
- # media_attribution_sql_spec.rb.
+# The ruby implementation methods can be found in Shared::Dwc::MediaExtensions,
+# and the specs that keep the sql and ruby versions matched are in
+# media_attribution_sql_spec.rb.
 
- # !! If you add a new sql method here you probably need to add specs to make
- # sure it's maintained with its ruby counterpart. !!
+# !! If you add a new sql method here you probably need to add specs to make
+# sure it's maintained with its ruby counterpart. !!
 
 module Shared::Dwc::MediaAttributionSql
   extend ActiveSupport::Concern

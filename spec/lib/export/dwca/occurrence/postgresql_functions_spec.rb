@@ -20,7 +20,6 @@ RSpec.describe Export::Dwca::Occurrence::PostgresqlFunctions, type: :model do
     end
 
     after(:all) do
-      # Clean up the function after all tests
       conn = ActiveRecord::Base.connection
       conn.execute('DROP FUNCTION IF EXISTS pg_temp.api_link_for_model_id(text, integer)')
     end
@@ -57,13 +56,10 @@ RSpec.describe Export::Dwca::Occurrence::PostgresqlFunctions, type: :model do
       specify 'returns NULL for NULL inputs' do
         conn = ActiveRecord::Base.connection
 
-        # NULL model_type
         expect(conn.select_value("SELECT pg_temp.api_link_for_model_id(NULL, 123)")).to be_nil
 
-        # NULL model_id
         expect(conn.select_value("SELECT pg_temp.api_link_for_model_id('CollectionObject', NULL)")).to be_nil
 
-        # Both NULL
         expect(conn.select_value("SELECT pg_temp.api_link_for_model_id(NULL, NULL)")).to be_nil
       end
     end
@@ -71,12 +67,6 @@ RSpec.describe Export::Dwca::Occurrence::PostgresqlFunctions, type: :model do
 
   describe 'dwc_occurrence model types' do
     specify 'only expected model types can be dwc_occurrence_object_type' do
-      # This spec ensures the SQL function handles all possible dwc_occurrence models.
-      # If a new base model is added that includes Shared::IsDwcOccurrence, this spec will fail
-      # and remind us to update the create_api_link_for_model_id_function.
-
-      # Find all base class models that include Shared::IsDwcOccurrence
-      # (excluding subclasses like CollectionObject::BiologicalCollectionObject)
       actual_models = ApplicationRecord.descendants.select do |model|
         model.included_modules.include?(Shared::IsDwcOccurrence) &&
         model.base_class == model

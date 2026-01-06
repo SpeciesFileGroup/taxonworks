@@ -74,7 +74,7 @@ module Export::Dwca::Occurrence
         LEFT JOIN temp_scoped_occurrences scope_fo ON scope_fo.occurrence_id = fo.id AND scope_fo.occurrence_type = 'FieldOccurrence'
 
         LEFT JOIN dwc_occurrences dwc ON (dwc.dwc_occurrence_object_id = co.id AND dwc.dwc_occurrence_object_type = 'CollectionObject' AND scope_co.occurrence_id IS NOT NULL)
-                                      OR (dwc.dwc_occurrence_object_id = fo.id AND dwc.dwc_occurrence_object_type = 'FieldOccurrence' AND scope_fo.occurrence_id IS NOT NULL)
+          OR (dwc.dwc_occurrence_object_id = fo.id AND dwc.dwc_occurrence_object_type = 'FieldOccurrence' AND scope_fo.occurrence_id IS NOT NULL)
       SQL
     end
 
@@ -85,14 +85,15 @@ module Export::Dwca::Occurrence
     def copyright_label_sql_from_temp(attr_table_alias = 'attr')
       <<-SQL
         CASE
-          WHEN #{attr_table_alias}.copyright_year IS NOT NULL OR #{attr_table_alias}.copyright_holder_names_array IS NOT NULL THEN
+          WHEN #{attr_table_alias}.copyright_holder_names_array IS NOT NULL
+            AND array_length(#{attr_table_alias}.copyright_holder_names_array, 1) > 0
+          THEN
             '©' ||
             CASE
-              WHEN #{attr_table_alias}.copyright_year IS NOT NULL AND #{attr_table_alias}.copyright_holder_names_array IS NOT NULL
-                THEN #{attr_table_alias}.copyright_year::text || ' ' || pg_temp.authorship_sentence(#{attr_table_alias}.copyright_holder_names_array)
               WHEN #{attr_table_alias}.copyright_year IS NOT NULL
-                THEN #{attr_table_alias}.copyright_year::text
-              ELSE pg_temp.authorship_sentence(#{attr_table_alias}.copyright_holder_names_array)
+                THEN #{attr_table_alias}.copyright_year::text || ' ' || pg_temp.authorship_sentence(#{attr_table_alias}.copyright_holder_names_array)
+              ELSE
+                pg_temp.authorship_sentence(#{attr_table_alias}.copyright_holder_names_array)
             END
           ELSE NULL
         END

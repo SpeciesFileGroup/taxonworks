@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 # Spec to verify that Ruby attribution methods match their SQL counterparts
-# in the new Shared::Dwc::MediaAttributionSql concern
+# in the new Shared::Dwc::MediaAttributionSql concern.
 RSpec.describe Shared::Dwc::MediaAttributionSql, type: :model do
   let(:conn) { ActiveRecord::Base.connection }
 
@@ -10,7 +10,7 @@ RSpec.describe Shared::Dwc::MediaAttributionSql, type: :model do
 
     context "for #{media_class.name}" do
       describe '.dwc_media_license_sql' do
-        it 'produces same result as dwc_media_dcterms_rights when license is set' do
+        specify 'produces same result as dwc_media_dcterms_rights when license is set' do
           media = FactoryBot.create(factory_name)
           license_key = CREATIVE_COMMONS_LICENSES.keys.first
           attribution = FactoryBot.create(:valid_attribution,
@@ -23,7 +23,7 @@ RSpec.describe Shared::Dwc::MediaAttributionSql, type: :model do
           ruby_result = media.dwc_media_dcterms_rights
 
           # SQL result
-          license_sql = media_class.dwc_media_license_sql(table_alias: table_alias)
+          license_sql = media_class.dwc_media_license_sql
           sql = <<~SQL
             SELECT #{license_sql} AS license
             FROM #{media_class.table_name} #{table_alias}
@@ -37,14 +37,14 @@ RSpec.describe Shared::Dwc::MediaAttributionSql, type: :model do
           expect(sql_result).to eq(CREATIVE_COMMONS_LICENSES[license_key][:link])
         end
 
-        it 'returns nil when no license is set' do
+        specify 'returns nil when no license is set' do
           media = FactoryBot.create(factory_name)
 
           # Ruby result
           ruby_result = media.dwc_media_dcterms_rights
 
           # SQL result
-          license_sql = media_class.dwc_media_license_sql(table_alias: table_alias)
+          license_sql = media_class.dwc_media_license_sql
           sql = <<~SQL
             SELECT #{license_sql} AS license
             FROM #{media_class.table_name} #{table_alias}
@@ -60,20 +60,20 @@ RSpec.describe Shared::Dwc::MediaAttributionSql, type: :model do
       end
 
       describe '.dwc_media_owner_sql' do
-        it 'produces same result as dwc_media_owner with person owners' do
+        specify 'produces same result as dwc_media_owner with person owners' do
           media = FactoryBot.create(factory_name)
           attribution = FactoryBot.create(:valid_attribution, attribution_object: media)
           person1 = FactoryBot.create(:valid_person)
           person2 = FactoryBot.create(:valid_person)
-          FactoryBot.create(:role, type: 'AttributionOwner', role_object: attribution, person: person1, position: 1)
-          FactoryBot.create(:role, type: 'AttributionOwner', role_object: attribution, person: person2, position: 2)
+          FactoryBot.create(:role, type: 'AttributionOwner', role_object: attribution, person: person1)
+          FactoryBot.create(:role, type: 'AttributionOwner', role_object: attribution, person: person2)
 
           # Ruby result
           media.reload
           ruby_result = media.dwc_media_owner
 
           # SQL result
-          owner_sql = media_class.dwc_media_owner_sql(table_alias: table_alias)
+          owner_sql = media_class.dwc_media_owner_sql
           sql = <<~SQL
             SELECT owners.names
             FROM #{media_class.table_name} #{table_alias}
@@ -88,20 +88,20 @@ RSpec.describe Shared::Dwc::MediaAttributionSql, type: :model do
           expect(sql_result).to eq("#{person1.cached} | #{person2.cached}")
         end
 
-        it 'produces same result as dwc_media_owner with organization owners' do
+        specify 'produces same result as dwc_media_owner with organization owners' do
           media = FactoryBot.create(factory_name)
           attribution = FactoryBot.create(:valid_attribution, attribution_object: media)
           org1 = FactoryBot.create(:valid_organization)
           org2 = FactoryBot.create(:valid_organization)
-          AttributionOwner.create!(role_object: attribution, organization: org1, position: 1)
-          AttributionOwner.create!(role_object: attribution, organization: org2, position: 2)
+          AttributionOwner.create!(role_object: attribution, organization: org1)
+          AttributionOwner.create!(role_object: attribution, organization: org2)
 
           # Ruby result
           media.reload
           ruby_result = media.dwc_media_owner
 
           # SQL result
-          owner_sql = media_class.dwc_media_owner_sql(table_alias: table_alias)
+          owner_sql = media_class.dwc_media_owner_sql
           sql = <<~SQL
             SELECT owners.names
             FROM #{media_class.table_name} #{table_alias}
@@ -118,20 +118,20 @@ RSpec.describe Shared::Dwc::MediaAttributionSql, type: :model do
       end
 
       describe '.dwc_media_creator_sql' do
-        it 'produces same result as dwc_media_dc_creator' do
+        specify 'produces same result as dwc_media_dc_creator' do
           media = FactoryBot.create(factory_name)
           attribution = FactoryBot.create(:valid_attribution, attribution_object: media)
           person1 = FactoryBot.create(:valid_person)
           person2 = FactoryBot.create(:valid_person)
-          FactoryBot.create(:role, type: 'AttributionCreator', role_object: attribution, person: person1, position: 1)
-          FactoryBot.create(:role, type: 'AttributionCreator', role_object: attribution, person: person2, position: 2)
+          FactoryBot.create(:role, type: 'AttributionCreator', role_object: attribution, person: person1)
+          FactoryBot.create(:role, type: 'AttributionCreator', role_object: attribution, person: person2)
 
           # Ruby result
           media.reload
           ruby_result = media.dwc_media_dc_creator
 
           # SQL result
-          creator_sql = media_class.dwc_media_creator_sql(table_alias: table_alias)
+          creator_sql = media_class.dwc_media_creator_sql
           sql = <<~SQL
             SELECT creators.names
             FROM #{media_class.table_name} #{table_alias}
@@ -148,7 +148,7 @@ RSpec.describe Shared::Dwc::MediaAttributionSql, type: :model do
       end
 
       describe '.dwc_media_creator_identifiers_sql' do
-        it 'produces same result as dwc_media_dcterms_creator with ORCID' do
+        specify 'produces same result as dwc_media_dcterms_creator with ORCID' do
           media = FactoryBot.create(factory_name)
           attribution = FactoryBot.create(:valid_attribution, attribution_object: media)
           person1 = FactoryBot.create(:valid_person)
@@ -156,15 +156,15 @@ RSpec.describe Shared::Dwc::MediaAttributionSql, type: :model do
           # Use valid ORCIDs with correct check digits
           orcid1 = FactoryBot.create(:identifier_global_orcid, identifier_object: person1, identifier: 'http://orcid.org/0000-0002-1825-0097')
           orcid2 = FactoryBot.create(:identifier_global_orcid, identifier_object: person2, identifier: 'https://orcid.org/0000-0002-1824-6098')
-          FactoryBot.create(:role, type: 'AttributionCreator', role_object: attribution, person: person1, position: 1)
-          FactoryBot.create(:role, type: 'AttributionCreator', role_object: attribution, person: person2, position: 2)
+          FactoryBot.create(:role, type: 'AttributionCreator', role_object: attribution, person: person1)
+          FactoryBot.create(:role, type: 'AttributionCreator', role_object: attribution, person: person2)
 
           # Ruby result
           media.reload
           ruby_result = media.dwc_media_dcterms_creator
 
           # SQL result
-          creator_ids_sql = media_class.dwc_media_creator_identifiers_sql(table_alias: table_alias)
+          creator_ids_sql = media_class.dwc_media_creator_identifiers_sql
           sql = <<~SQL
             SELECT creator_ids.ids
             FROM #{media_class.table_name} #{table_alias}
@@ -179,18 +179,18 @@ RSpec.describe Shared::Dwc::MediaAttributionSql, type: :model do
           expect(sql_result).to eq("#{orcid1.cached} | #{orcid2.cached}")
         end
 
-        it 'returns empty/nil when creators have no identifiers' do
+        specify 'returns empty/nil when creators have no identifiers' do
           media = FactoryBot.create(factory_name)
           attribution = FactoryBot.create(:valid_attribution, attribution_object: media)
           person = FactoryBot.create(:valid_person)
-          FactoryBot.create(:role, type: 'AttributionCreator', role_object: attribution, person: person, position: 1)
+          FactoryBot.create(:role, type: 'AttributionCreator', role_object: attribution, person: person)
 
           # Ruby result
           media.reload
           ruby_result = media.dwc_media_dcterms_creator
 
           # SQL result
-          creator_ids_sql = media_class.dwc_media_creator_identifiers_sql(table_alias: table_alias)
+          creator_ids_sql = media_class.dwc_media_creator_identifiers_sql
           sql = <<~SQL
             SELECT creator_ids.ids
             FROM #{media_class.table_name} #{table_alias}
@@ -208,16 +208,16 @@ RSpec.describe Shared::Dwc::MediaAttributionSql, type: :model do
       end
 
       describe '.dwc_media_copyright_holders_sql' do
-        it 'produces SQL matching the export query structure' do
+        specify 'produces SQL matching the export query structure' do
           media = FactoryBot.create(factory_name)
           attribution = FactoryBot.create(:valid_attribution, attribution_object: media)
           person = FactoryBot.create(:valid_person)
           org = FactoryBot.create(:valid_organization)
-          FactoryBot.create(:role, type: 'AttributionCopyrightHolder', role_object: attribution, person: person, position: 1)
-          AttributionCopyrightHolder.create!(role_object: attribution, organization: org, position: 2)
+          FactoryBot.create(:role, type: 'AttributionCopyrightHolder', role_object: attribution, person: person)
+          AttributionCopyrightHolder.create!(role_object: attribution, organization: org)
 
           # SQL result
-          holders_sql = media_class.dwc_media_copyright_holders_sql(table_alias: table_alias)
+          holders_sql = media_class.dwc_media_copyright_holders_sql
           sql = <<~SQL
             SELECT copyright_holders.names
             FROM #{media_class.table_name} #{table_alias}
@@ -256,7 +256,7 @@ RSpec.describe Shared::Dwc::MediaAttributionSql, type: :model do
       SQL
     end
 
-    it 'matches Ruby version with 1 name' do
+    specify 'matches Ruby version with 1 name' do
       names = ['Smith']
       ruby_result = Utilities::Strings.authorship_sentence(names)
       sql_result = conn.select_value("SELECT pg_temp.authorship_sentence(ARRAY['Smith'])")
@@ -264,7 +264,7 @@ RSpec.describe Shared::Dwc::MediaAttributionSql, type: :model do
       expect(sql_result).to eq('Smith')
     end
 
-    it 'matches Ruby version with 2 names' do
+    specify 'matches Ruby version with 2 names' do
       names = ['Smith', 'Jones']
       ruby_result = Utilities::Strings.authorship_sentence(names)
       sql_result = conn.select_value("SELECT pg_temp.authorship_sentence(ARRAY['Smith', 'Jones'])")
@@ -272,7 +272,7 @@ RSpec.describe Shared::Dwc::MediaAttributionSql, type: :model do
       expect(sql_result).to eq('Smith & Jones')
     end
 
-    it 'matches Ruby version with 3 names' do
+    specify 'matches Ruby version with 3 names' do
       names = ['Smith', 'Jones', 'Brown']
       ruby_result = Utilities::Strings.authorship_sentence(names)
       sql_result = conn.select_value("SELECT pg_temp.authorship_sentence(ARRAY['Smith', 'Jones', 'Brown'])")
@@ -280,7 +280,7 @@ RSpec.describe Shared::Dwc::MediaAttributionSql, type: :model do
       expect(sql_result).to eq('Smith, Jones & Brown')
     end
 
-    it 'matches Ruby version with 4+ names' do
+    specify 'matches Ruby version with 4+ names' do
       names = ['Smith', 'Jones', 'Brown', 'Davis']
       ruby_result = Utilities::Strings.authorship_sentence(names)
       sql_result = conn.select_value("SELECT pg_temp.authorship_sentence(ARRAY['Smith', 'Jones', 'Brown', 'Davis'])")
@@ -288,7 +288,7 @@ RSpec.describe Shared::Dwc::MediaAttributionSql, type: :model do
       expect(sql_result).to eq('Smith, Jones, Brown & Davis')
     end
 
-    it 'matches Ruby version with empty array' do
+    specify 'matches Ruby version with empty array' do
       names = []
       ruby_result = Utilities::Strings.authorship_sentence(names)
       sql_result = conn.select_value("SELECT pg_temp.authorship_sentence(ARRAY[]::text[])")
