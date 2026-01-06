@@ -52,10 +52,12 @@
 
   <component :is="LAYOUT_COMPONENTS[store.layout]" />
 
-  <Couplet
-    v-if="store.lead.id"
-  />
+  <Couplet v-if="store.lead.id" />
 
+  <div class="show-key-otus-lists">
+    <ListRemaining :list="store.remaining" />
+    <ListEliminated :list="store.eliminated" />
+  </div>
 </template>
 
 <script setup>
@@ -68,6 +70,8 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import setParam from '@/helpers/setParam'
 import useStore from './store/leadStore.js'
+import ListEliminated from '@/tasks/leads/show/components/List/ListEliminated.vue'
+import ListRemaining from '@/tasks/leads/show/components/List/ListRemaining.vue'
 import { computed, onBeforeMount, ref, watch } from 'vue'
 import { CITATION, DEPICTION } from '@/constants'
 import { useAnnotationHandlers } from './shared/composables/useAnnotationHandlers.js'
@@ -90,11 +94,8 @@ const annotationLists = {
   [DEPICTION]: depictions,
   [CITATION]: citations
 }
-const {
-  handleRadialCreate,
-  handleRadialDelete,
-  handleRadialUpdate
-} = useAnnotationHandlers(annotationLists)
+const { handleRadialCreate, handleRadialDelete, handleRadialUpdate } =
+  useAnnotationHandlers(annotationLists)
 
 const metadataTitle = computed(() => {
   const defaultText = 'Key metadata'
@@ -109,13 +110,16 @@ function changeLayout() {
   store.loadKey(store.lead.id, nextLayout().layout)
 }
 
-watch(() => store.layout, () => {
-  layoutButtonText.value = nextLayout().text
-  if (!store.layout) {
-    store.layout = LAYOUTS.PreviousFuture
+watch(
+  () => store.layout,
+  () => {
+    layoutButtonText.value = nextLayout().text
+    if (!store.layout) {
+      store.layout = LAYOUTS.PreviousFuture
+    }
+    localStorage.setItem(LAYOUT_STORAGE_KEY, store.layout)
   }
-  localStorage.setItem(LAYOUT_STORAGE_KEY, store.layout)
-})
+)
 
 usePopstateListener(() => {
   const { lead_id } = URLParamsToJSON(location.href)
@@ -132,8 +136,14 @@ onBeforeMount(() => {
     store.layout = value
   }
 
-  let { leadId, leadItemsData, descriptorData } =
-    useParamsSessionPop({lead_id: 'leadId', otu_ids: 'leadItemsData', descriptor_data: 'descriptorData'}, 'interactive_key_to_key')
+  let { leadId, leadItemsData, descriptorData } = useParamsSessionPop(
+    {
+      lead_id: 'leadId',
+      otu_ids: 'leadItemsData',
+      descriptor_data: 'descriptorData'
+    },
+    'interactive_key_to_key'
+  )
 
   if (leadId) {
     // Call this for history.replaceState - it replaces turbolinks state
@@ -144,15 +154,14 @@ onBeforeMount(() => {
   if (leadId && leadItemsData && descriptorData) {
     leadItemsData = JSON.parse(leadItemsData)
     descriptorData = JSON.parse(descriptorData)
-    store.process_lead_items_data(leadItemsData, leadId)
-      .then(() => {
-        store.loadKey(leadId)
-          .then(() => store.process_descriptor_data(descriptorData))
-      })
+    store.process_lead_items_data(leadItemsData, leadId).then(() => {
+      store
+        .loadKey(leadId)
+        .then(() => store.process_descriptor_data(descriptorData))
+    })
   } else if (leadId) {
     store.loadKey(leadId)
   }
-
 })
 </script>
 
@@ -163,6 +172,14 @@ onBeforeMount(() => {
 }
 
 .header-radials {
-  margin-right: .5em;
+  margin-right: 0.5em;
+}
+
+.show-key-otus-lists {
+  display: flex;
+  flex-direction: row;
+  align-items: start;
+  justify-content: center;
+  gap: 1rem;
 }
 </style>

@@ -11,7 +11,7 @@ const makeInitialState = () => ({
   // The root node of the key.
   root: makeLeadObject(),
   // The currently loaded lead.
-  lead : makeLeadObject(),
+  lead: makeLeadObject(),
   // Children of lead.
   children: [],
   // Futures of children, indexed the same as children.
@@ -45,6 +45,8 @@ const makeInitialState = () => ({
   key_ordered_parents: null,
   // Used only for full_key layout.
   key_data: null,
+  remaining: [],
+  eliminated: []
 })
 
 function makeLeadObject() {
@@ -81,7 +83,8 @@ function editableFieldsObjectForLead(lead) {
 }
 
 function differentOriginLabels(l1, l2) {
-  if (!l1 && !l2) { // treat null and '' as the same
+  if (!l1 && !l2) {
+    // treat null and '' as the same
     return false
   }
   return l1 != l2
@@ -100,7 +103,8 @@ function childrenDifferentEditableValues(arr1, arr2) {
 
 function differentEditableValues(obj1, obj2) {
   for (const field of editableChildrenFields) {
-    if (!obj1[field] && !obj2[field]) { // treat null and '' as the same
+    if (!obj1[field] && !obj2[field]) {
+      // treat null and '' as the same
       continue
     }
     if (obj1[field] != obj2[field]) {
@@ -117,10 +121,11 @@ export default defineStore('leads', {
     async loadKey(id_or_couplet, new_layout = null) {
       let lo = undefined
       let error_message = undefined
-      if (typeof(id_or_couplet) == 'object') {
+      if (typeof id_or_couplet == 'object') {
         lo = id_or_couplet
       } else if (
-        typeof(id_or_couplet) == 'number' || typeof(id_or_couplet) == 'string'
+        typeof id_or_couplet == 'number' ||
+        typeof id_or_couplet == 'string'
       ) {
         id_or_couplet = parseInt(id_or_couplet)
         const layout_for_new_data = new_layout || this.layout
@@ -129,8 +134,9 @@ export default defineStore('leads', {
         this.setLoading(true)
         try {
           lo = (await Lead.find(id_or_couplet, { extend })).body
-        }
-        catch(e) {
+          this.remaining = (await Lead.remainingOtus(id_or_couplet)).body
+          this.eliminated = (await Lead.eliminatedOtus(id_or_couplet)).body
+        } catch (e) {
           error_message = `Unable to load: couldn't find id ${id_or_couplet}.`
         }
         this.setLoading(false)
@@ -141,9 +147,10 @@ export default defineStore('leads', {
       if (error_message) {
         this.$reset()
         setParam(RouteNames.NewLead, 'lead_id')
-        error_message = error_message + " You've been redirected to the New Key page."
+        error_message =
+          error_message + " You've been redirected to the New Key page."
         TW.workbench.alert.create(error_message, 'error')
-        return;
+        return
       }
 
       this.root = lo.root
@@ -193,7 +200,7 @@ export default defineStore('leads', {
         lead_id: this.children[childIndex].id,
         otu_id: this.lead_item_otus.parent[otuIndex].id,
         exclusive, // exclusive if adding this one removes all others
-        extend,
+        extend
       }
 
       this.setLoading(true)
@@ -205,7 +212,9 @@ export default defineStore('leads', {
           this.key_data = body.key_data
         })
         .catch(() => {})
-        .finally(() => { this.setLoading(false) })
+        .finally(() => {
+          this.setLoading(false)
+        })
     },
 
     removeOtuIndex(childIndex, otuIndex) {
@@ -213,7 +222,7 @@ export default defineStore('leads', {
       const payload = {
         lead_id: this.children[childIndex].id,
         otu_id: this.lead_item_otus.parent[otuIndex].id,
-        extend,
+        extend
       }
 
       this.setLoading(true)
@@ -225,15 +234,16 @@ export default defineStore('leads', {
           this.key_data = body.key_data
         })
         .catch(() => {})
-        .finally(() => { this.setLoading(false) })
+        .finally(() => {
+          this.setLoading(false)
+        })
     },
 
     dataChangedSinceLastSave() {
       if (
-        this.children.length > 0 && (
-          this.originLabelChangedSinceLastSave(this) ||
-          this.childrenChangedSinceLastSaveList(this).length > 0
-        )
+        this.children.length > 0 &&
+        (this.originLabelChangedSinceLastSave(this) ||
+          this.childrenChangedSinceLastSaveList(this).length > 0)
       ) {
         return true
       }
@@ -271,13 +281,16 @@ export default defineStore('leads', {
       const position = child.position
       this.children[position] = child
 
-      const last_saved_data = editableFieldsObjectForLead(this.children[position])
+      const last_saved_data = editableFieldsObjectForLead(
+        this.children[position]
+      )
       this.last_saved.children[position] = last_saved_data
     },
 
     childrenChangedSinceLastSaveList() {
       return childrenDifferentEditableValues(
-        this.last_saved.children, this.children
+        this.last_saved.children,
+        this.children
       )
     },
 
@@ -319,8 +332,10 @@ export default defineStore('leads', {
       if (child.redirect_id) return false
 
       if (this.layout == LAYOUTS.FullKey) {
-        return this.key_metadata[child.id] &&
+        return (
+          this.key_metadata[child.id] &&
           this.key_metadata[child.id].children?.length > 0
+        )
       } else {
         return this.futures[i].length > 0
       }
@@ -341,26 +356,26 @@ export default defineStore('leads', {
     },
 
     extend(for_affected, for_layout = this.layout) {
-      switch(for_affected) {
+      switch (for_affected) {
         case EXTEND.All:
-          return for_layout == LAYOUTS.FullKey ?
-            ['key_data'] : ['ancestors_data', 'future_otus']
+          return for_layout == LAYOUTS.FullKey
+            ? ['key_data']
+            : ['ancestors_data', 'future_otus']
         case EXTEND.CoupletAndFutures:
-          return for_layout == LAYOUTS.FullKey ?
-            ['key_data'] : ['future_otus']
+          return for_layout == LAYOUTS.FullKey ? ['key_data'] : ['future_otus']
         case EXTEND.CoupletAndFuture:
-          return for_layout == LAYOUTS.FullKey ?
-            ['key_data'] : ['future_otu']
+          return for_layout == LAYOUTS.FullKey ? ['key_data'] : ['future_otu']
         case EXTEND.CoupletOnly:
-          return for_layout == LAYOUTS.FullKey ?
-            ['key_data'] : []
+          return for_layout == LAYOUTS.FullKey ? ['key_data'] : []
         default:
-          throw new Error(`Internal error: unrecognized for_affected ${for_affected}`)
+          throw new Error(
+            `Internal error: unrecognized for_affected ${for_affected}`
+          )
       }
     },
 
     update_from_extended(for_affected, result) {
-      switch(for_affected) {
+      switch (for_affected) {
         case EXTEND.CoupletAndFutures:
           // Doesn't replace existing store.ancestors
           this.key_data = result.key_data
@@ -380,7 +395,9 @@ export default defineStore('leads', {
           this.key_metadata = result.key_metadata
           this.key_ordered_parents = result.key_ordered_parents
         default:
-          throw new Error(`Internal error: unrecognized update for_affected ${for_affected}`)
+          throw new Error(
+            `Internal error: unrecognized update for_affected ${for_affected}`
+          )
       }
     },
 
@@ -389,13 +406,13 @@ export default defineStore('leads', {
       const right = data.map((d) => `${d.state}: ${d.unused}`).join('; ')
       if (!!left && this.children[0]) {
         this.children[0].text = !!this.children[0].text
-        ? this.children[0].text + "\n" + left
-        : left
+          ? this.children[0].text + '\n' + left
+          : left
       }
       if (!!right && this.children[1]) {
         this.children[1].text = !!this.children[1].text
-        ? this.children[1].text + "\n" + right
-        : right
+          ? this.children[1].text + '\n' + right
+          : right
       }
     },
 
@@ -411,9 +428,7 @@ export default defineStore('leads', {
         parent_id: lead_id,
         add_new_to_first_child: true
       }
-      await LeadItem.addLeadItemsToLead(payload)
-        .catch(() => {})
+      await LeadItem.addLeadItemsToLead(payload).catch(() => {})
     }
   }
 })
-
