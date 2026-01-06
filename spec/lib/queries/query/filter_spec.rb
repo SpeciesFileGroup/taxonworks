@@ -137,7 +137,6 @@ describe Queries::Query::Filter, type: [:model] do
     end
   end
 
-
   context 'venn param preservation' do
     specify 'venn params are preserved in filter params hash' do
       v = 'http://127.0.0.1:3000/otus/filter.json?name=Ant'
@@ -148,7 +147,6 @@ describe Queries::Query::Filter, type: [:model] do
         venn_ignore_pagination: true
       )
 
-      # Venn params should be in the params hash
       expect(q.params[:venn]).to eq(v)
       expect(q.params[:venn_mode]).to eq('ab')
       expect(q.params[:venn_ignore_pagination]).to be_truthy
@@ -163,12 +161,11 @@ describe Queries::Query::Filter, type: [:model] do
         venn_ignore_pagination: false
       )
 
-      # Reconstruct filter from params (as done in batch_by_filter_scope)
+      # Reconstruct filter from params (as done in batch_by_filter_scope, e.g.).
       reconstructed = ::Queries::Query::Filter.instantiated_base_filter(
         { 'otu_query' => q.params }
       )
 
-      # Venn params should be preserved in reconstructed filter
       expect(reconstructed.venn).to eq(v)
       expect(reconstructed.venn_mode).to eq(:a)
       expect(reconstructed.venn_ignore_pagination).to be_falsey
@@ -194,7 +191,6 @@ describe Queries::Query::Filter, type: [:model] do
     end
 
     specify 'venn params are preserved in nested subqueries' do
-      # Test that venn works on a subquery (e.g., otu_query within collection_object_query)
       otu_venn = 'http://127.0.0.1:3000/otus/filter.json?name=Formicidae'
 
       q = ::Queries::CollectionObject::Filter.new(
@@ -207,13 +203,24 @@ describe Queries::Query::Filter, type: [:model] do
         }
       )
 
-      # Check the nested otu_query has venn params
-      expect(q.otu_query).to be_present
       expect(q.otu_query.venn).to eq(otu_venn)
       expect(q.otu_query.venn_mode).to eq(:ab)
       expect(q.otu_query.venn_ignore_pagination).to be_truthy
+    end
 
-      # Check venn params are in the nested query's params hash
+    specify 'venn params are preserved in nested subqueries params hash' do
+      otu_venn = 'http://127.0.0.1:3000/otus/filter.json?name=Formicidae'
+
+      q = ::Queries::CollectionObject::Filter.new(
+        collection_object_id: [1, 2, 3],
+        otu_query: {
+          otu_id: [10, 20],
+          venn: otu_venn,
+          venn_mode: 'ab',
+          venn_ignore_pagination: true
+        }
+      )
+
       expect(q.otu_query.params[:venn]).to eq(otu_venn)
       expect(q.otu_query.params[:venn_mode]).to eq('ab')
       expect(q.otu_query.params[:venn_ignore_pagination]).to be_truthy
@@ -228,20 +235,18 @@ describe Queries::Query::Filter, type: [:model] do
         otu_query: {
           otu_id: [10, 20],
           venn: otu_venn,
-          venn_mode: 'a',
+          venn_mode: 'ab',
           venn_ignore_pagination: false
         }
       )
 
-      # Reconstruct from params (simulating batch_by_filter_scope)
       reconstructed = ::Queries::Query::Filter.instantiated_base_filter(
         { 'collection_object_query' => q.params }
       )
 
-      # Nested otu_query should still have venn params
-      expect(reconstructed.otu_query).to be_present
+      # Nested otu_query should still have venn params.
       expect(reconstructed.otu_query.venn).to eq(otu_venn)
-      expect(reconstructed.otu_query.venn_mode).to eq(:a)
+      expect(reconstructed.otu_query.venn_mode).to eq(:ab)
       expect(reconstructed.otu_query.venn_ignore_pagination).to be_falsey
     end
   end

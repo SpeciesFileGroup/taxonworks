@@ -715,7 +715,7 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
       otu_query: {
         otu_id: [o1.id, o2.id],
         venn: venn_url,
-        venn_mode: 'a',  # A EXCEPT B = [o1, o2] EXCEPT [o1] = [o2]
+        venn_mode: 'a',  # A - B = [o1, o2] - [o1] = [o2]
         venn_ignore_pagination: true
       }
     )
