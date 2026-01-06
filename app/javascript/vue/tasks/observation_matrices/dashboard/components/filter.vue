@@ -1,65 +1,76 @@
 <template>
-  <div class="panel vue-filter-container">
-    <div class="flex-separate content middle action-line">
-      <span>Filter</span>
-      <span
-        data-icon="reset"
-        class="cursor-pointer"
-        @click="resetFilter"
-        >Reset
-      </span>
+  <div class="vue-filter-container flex-col gap-medium">
+    <div class="panel">
+      <div class="flex-separate content middle">
+        <VBtn
+          color="primary"
+          medium
+          :disabled="!taxonName"
+          @click="sendParams"
+        >
+          Search
+        </VBtn>
+        <VBtn
+          color="primary"
+          circle
+          @click="resetFilter"
+        >
+          <VIcon
+            name="reset"
+            x-small
+          />
+        </VBtn>
+      </div>
     </div>
-    <spinner-component
+    <VSpinner
       :full-screen="true"
       legend="Searching..."
       :logo-size="{ width: '100px', height: '100px' }"
       v-if="searching"
     />
-    <div class="content">
-      <button
-        class="button normal-input button-default full_width"
-        type="button"
-        :disabled="!taxonName"
-        @click="sendParams"
-      >
-        Search
-      </button>
-      <taxon-name v-model="taxonName" />
-      <otu-filter v-model="params.validity" />
-      <combinations-filter v-model="params.combination" />
-      <ranks-filter
-        :taxon-name="taxonName"
-        v-model="params.ranks"
-      />
-      <filter-table
-        v-for="(item, key) in tableFilter"
-        :key="key"
-        :title="key"
-        v-model="tableFilter[key]"
-      />
-    </div>
+
+    <FacetTaxonName v-model="taxonName" />
+    <FacetOtu v-model="params" />
+    <FacetCombination v-model="params.combination" />
+    <FacetRanks
+      :taxon-name="taxonName"
+      v-model="params.ranks"
+    />
+    <FacetWith
+      v-for="(_, param) in tableFilter"
+      :key="param"
+      :param="param"
+      :title="param.replaceAll('_', ' ')"
+      v-model="tableFilter"
+    />
   </div>
 </template>
 
 <script>
-import SpinnerComponent from '@/components/ui/VSpinner'
-import taxonName from './filters/taxonName'
-import RanksFilter from './filters/ranks'
-import OtuFilter from './filters/otus'
-import FilterTable from './filters/with.vue'
+import VSpinner from '@/components/ui/VSpinner'
+import FacetTaxonName from './filters/taxonName'
+import FacetRanks from './filters/ranks'
+import FacetOtu from './filters/otus'
+import FacetCombination from './filters/combinations.vue'
 import CombinationsFilter from './filters/combinations'
+import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import { TaxonName } from '@/routes/endpoints'
 import { URLParamsToJSON } from '@/helpers/url/parse.js'
 import { GetterNames } from '../store/getters/getters'
 
 export default {
   components: {
-    SpinnerComponent,
+    VSpinner,
     CombinationsFilter,
-    RanksFilter,
-    OtuFilter,
-    taxonName,
-    FilterTable
+    FacetRanks,
+    FacetOtu,
+    FacetTaxonName,
+    FacetCombination,
+    FacetWith,
+    VBtn,
+    VIcon
   },
 
   props: {
@@ -141,6 +152,7 @@ export default {
         taxon_name_id: undefined,
         ranks: [],
         validity: false,
+        otus: undefined,
         combination: undefined,
         fieldsets: ['observations']
       }

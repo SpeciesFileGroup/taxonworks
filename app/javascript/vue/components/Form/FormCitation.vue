@@ -17,7 +17,7 @@
         <template #tabs-right>
           <FormCitationClone
             v-if="!inlineClone"
-            @clone="(item) => Object.assign(citation, item)"
+            @clone="setCloneCitation"
           />
           <slot name="tabs-right" />
           <VLock
@@ -269,6 +269,16 @@ function setIsAbsent(e) {
   }
 }
 
+function setCloneCitation(item) {
+  setValues(item)
+
+  if (isLocked.value) {
+    sessionStorage.setItem(STORAGE.sourceId, item.source_id)
+    sessionStorage.setItem(STORAGE.pages, item.pages)
+    sessionStorage.setItem(STORAGE.isOriginal, item.is_original)
+  }
+}
+
 onBeforeMount(() => {
   const lockStoreValue =
     props.useSession && convertType(sessionStorage.getItem(STORAGE.lock))
@@ -283,13 +293,13 @@ onBeforeMount(() => {
     props.useSession &&
     !citation.value?.id
   ) {
-    const test = {
+    const cite = {
       source_id: convertType(sessionStorage.getItem(STORAGE.sourceId)),
       is_original: convertType(sessionStorage.getItem(STORAGE.isOriginal)),
       pages: convertType(sessionStorage.getItem(STORAGE.pages))
     }
 
-    setValues(test)
+    setValues(cite)
 
     isAbsent.value = convertType(sessionStorage.getItem(STORAGE.isAbsent))
   }

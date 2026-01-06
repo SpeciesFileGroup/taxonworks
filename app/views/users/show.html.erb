@@ -91,11 +91,13 @@
             </div>
             <div class="info-item">
               <span class="info-label">Created by</span>
-              <span class="info-value">Dmitriev, Dmitry</span>
+              <span class="info-value">
+                <%= user_tag(@user.creator) %>
+              </span>
             </div>
             <div class="info-item">
               <span class="info-label">ORCID</span>
-                <% if @user.orcid %>  
+                <% if @user.orcid %>
                   <%= link_to(@user.orcid, @user.orcid , class: 'info-value link', target: '_blank') -%>
                 <% else %>
                   <%= content_tag(:span, 'NONE (add to Person)', class: 'info-value muted') -%>
@@ -103,7 +105,7 @@
             </div>
             <div class="info-item">
               <span class="info-label">Wikidata ID</span>
-                <% if @user.wikidata_id %>  
+                <% if @user.wikidata_id %>
                   <%= link_to("https://www.wikidata.org/wiki/#{@user.wikidata_id}", @user.wikidata_id , class: 'info-value link', target: '_blank') -%>
                 <% else %>
                   <%= content_tag(:span, 'NONE (add to Person)', class: 'info-value muted') -%>
@@ -199,11 +201,11 @@
         <%= form_for @user, url: reset_preferences_user_path(@user), method: :patch, html: { id: 'reset-preferences' } do |f| %>
           <%= f.button "Reset",
             class: "button btn-medium-size btn btn-update",
-            data: { confirm: "Warning, this will reset all preferences aross all projects" } 
+            data: { confirm: "Warning, this will reset all preferences aross all projects" }
           %>
         <% end %>
             </div>
-      
+
 
             <div class="code-block">
 <%= JSON.pretty_generate(@user.preferences).html_safe %>
@@ -216,7 +218,7 @@
               <%= form_for @user, url: reset_hub_favorites_user_path(@user), method: :patch, html: { id: 'reset-favorites' } do |f| %>
                 <%= f.button "Reset (for #{sessions_current_project.name})",
                   class: "button btn-medium-size btn btn-update",
-                  data: { confirm: "Clears your favorite cards for this project" } 
+                  data: { confirm: "Clears your favorite cards for this project" }
                 %>
               <% end %>
             </div>
@@ -253,7 +255,7 @@
             <a href="#" class="admin-link">Updated</a>
           </div>
         </div>
-        
+
         <div class="admin-grid">
           <div class="admin-section">
             <div class="admin-section-title">
@@ -270,8 +272,8 @@
               <% end %>
             </div>
           </div>
-     
-          
+
+
           <div class="admin-section">
             <div class="admin-section-title">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

@@ -31,9 +31,9 @@ export default ({ commit, dispatch, state }, params) => {
   state.isLoading = true
 
   AjaxCall(
-    'get',
+    'post',
     `/tasks/observation_matrices/image_matrix/${params.observation_matrix_id}/key`,
-    { params }
+    params
   )
     .then(({ body }) => {
       commit(MutationNames.SetPagination, parsePagination(body.pagination))

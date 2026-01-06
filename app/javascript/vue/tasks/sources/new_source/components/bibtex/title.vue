@@ -1,47 +1,44 @@
 <template>
-  <div class="field">
-    <label>Title</label><br>
+  <div class="label-above">
+    <label>Title</label>
     <button
       type="button"
-      @click="setItalics">
+      @click="setItalics"
+    >
       <i>Italics</i>
     </button>
-    <textarea 
+    <textarea
       id="title"
       ref="title"
-      v-model="source.title"></textarea>
-
+      v-model="source.title"
+      @change="() => (source.isUnsaved = true)"
+    ></textarea>
   </div>
 </template>
 
-<script>
+<script setup>
+import { useTemplateRef } from 'vue'
 
-import { GetterNames } from '../../store/getters/getters'
-import { MutationNames } from '../../store/mutations/mutations'
+const source = defineModel({
+  type: Object,
+  required: true
+})
 
-export default {
-  computed: {
-    source: {
-      get () {
-        return this.$store.getters[GetterNames.GetSource]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetSource, value)
-      }
-    }
-  },
-  methods: {
-    setItalics() {
-      let start = this.$refs.title.selectionStart
-      let end = this.$refs.title.selectionEnd
-      let title = this.source.title
+const titleRef = useTemplateRef('title')
 
-      if(end === start) {
-        this.source.title = title.slice(0, start) + '<i></i>' + title.slice(end)
-      } else {
-        this.source.title = title.slice(0, start) + '<i>' + title.slice(start, end) + '</i>' + title.slice(end)
-      }
-    }
-  }
+function setItalics() {
+  const { title } = source.value
+  const { selectionStart, selectionEnd } = titleRef.value
+
+  const titleStart = title.slice(0, selectionStart)
+  const titleEnd = title.slice(selectionEnd)
+
+  source.value.title =
+    selectionStart === selectionEnd
+      ? `${titleStart}<i></i>${titleEnd}`
+      : `${titleStart}<i>${title.slice(
+          selectionStart,
+          selectionEnd
+        )}</i>${titleEnd}`
 }
 </script>
