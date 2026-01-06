@@ -85,11 +85,6 @@ describe Queries::Source::Autocomplete, type: :model, group: [:sources] do
     expect(query.autocomplete_wildcard_pieces_and_year.map(&:id).first).to eq(s4.id)
   end
 
-  #  specify 'autocomplete_wildcard_author_exact_year' do # query removed from the list (not useful)
-  #  query.terms = 'ones andt 1924'
-  #  expect(query.autocomplete_wildcard_author_exact_year.map(&:id).first).to eq(s4.id)
-  # end
-
   specify 'autocomplete_cached_wildcard_anywhere 1' do
     query.terms = 'andt Things about'
     expect(query.autocomplete_cached_wildcard_anywhere.map(&:id).first).to eq(s4.id)
@@ -161,70 +156,83 @@ describe Queries::Source::Autocomplete, type: :model, group: [:sources] do
     end
   end
 
-  context 'searching with alternate author values' do
-    let!(:source_mueller) {
-      FactoryBot.create(:valid_source_bibtex,
-        author: 'Müller',
-        year: 2000,
-        title: 'A study on German names'
-      )
+  context 'searching by alternate person last name' do
+    let!(:person_mueller) {
+      FactoryBot.create(:valid_person, last_name: 'Müller')
     }
 
     let!(:alternate_mueller) {
       AlternateValue::AlternateSpelling.create!(
         value: 'Mueller',
-        alternate_value_object: source_mueller,
-        alternate_value_object_attribute: 'author'
+        alternate_value_object: person_mueller,
+        alternate_value_object_attribute: 'last_name'
+      )
+    }
+
+    let!(:source_with_person) {
+      FactoryBot.create(:valid_source_bibtex,
+        authors: [person_mueller],
+        year: 2000,
+        year_suffix: 'b',
+        title: 'One eighth note'
+      )
+    }
+
+    let!(:not_this_one) {
+      FactoryBot.create(:valid_source_bibtex,
+        authors: [FactoryBot.create(:valid_person)],
+        year: 2000,
+        title: 'Oh no'
       )
     }
 
     specify '#autocomplete_exact_author_alternate' do
       query.terms = 'Mueller'
-      expect(query.autocomplete_exact_author_alternate.map(&:id)).to contain_exactly(source_mueller.id)
+      expect(query.autocomplete_exact_author_alternate.map(&:id)).to contain_exactly(source_with_person.id)
+    end
+
+    specify '#autocomplete_exact_author_alternate includes both author and editor roles' do
+      source2 = FactoryBot.create(:valid_source_bibtex,
+        editors: [person_mueller],
+        year: 2000,
+        title: 'Two eighth notes'
+      )
+
+      query.terms = 'Mueller'
+      expect(query.autocomplete_exact_author_alternate.map(&:id)).to contain_exactly(source_with_person.id, source2.id)
+    end
+
+    specify '#autocomplete_exact_author_alternate includes person-source role' do
+      # !! Returns a role, not a source.
+      sourceSourceRole = FactoryBot.create(:valid_source_source, person: person_mueller)
+
+      query.terms = 'Mueller'
+      expect(query.autocomplete_exact_author_alternate.map(&:id)).to contain_exactly(source_with_person.id, sourceSourceRole.role_object.id)
     end
 
     specify '#autocomplete_start_of_author_alternate' do
       query.terms = 'Mue'
-      expect(query.autocomplete_start_of_author_alternate.map(&:id)).to contain_exactly(source_mueller.id)
+      expect(query.autocomplete_start_of_author_alternate.map(&:id)).to contain_exactly(source_with_person.id)
     end
 
-    specify '#autocomplete_exact_author_year_alternate' do
+     specify '#autocomplete_exact_author_year_letter_alternate' do
+      query.terms = 'Mueller 2000b'
+      expect(query.autocomplete_exact_author_year_letter_alternate.map(&:id)).to contain_exactly(source_with_person.id)
+    end
+
+    specify '#autocomplete_exact_author_year_letter_alternate' do
       query.terms = 'Mueller 2000'
-      expect(query.autocomplete_exact_author_year_alternate.map(&:id)).to contain_exactly(source_mueller.id)
+      expect(query.autocomplete_exact_author_year_alternate.map(&:id)).to contain_exactly(source_with_person.id)
     end
 
     specify '#autocomplete_start_author_year_alternate' do
       query.terms = 'Mue 2000'
-      expect(query.autocomplete_start_author_year_alternate.map(&:id)).to contain_exactly(source_mueller.id)
+      expect(query.autocomplete_start_author_year_alternate.map(&:id)).to contain_exactly(source_with_person.id)
     end
 
-    describe '#autocomplete_exact_author_year_letter_alternate' do
-      let!(:source_with_suffix) {
-        FactoryBot.create(:valid_source_bibtex,
-          author: 'Müller',
-          year: 2000,
-          year_suffix: 'b',
-          title: 'Second study on German names'
-        )
-      }
-
-      let!(:alternate_with_suffix) {
-        AlternateValue::AlternateSpelling.create!(
-          value: 'Mueller',
-          alternate_value_object: source_with_suffix,
-          alternate_value_object_attribute: 'author'
-        )
-      }
-
-      specify 'finds source by alternate author, year and suffix' do
-        query.terms = 'Mueller 2000b'
-        expect(query.autocomplete_exact_author_year_letter_alternate.map(&:id)).to contain_exactly(source_with_suffix.id)
-      end
-    end
-
-    specify '#autocomplete returns sources with alternate author' do
-      query.terms = 'Mueller 2000'
-      expect(query.autocomplete.map(&:id)).to contain_exactly(source_mueller.id)
+    specify '#autocomplete returns sources with alternate person last name' do
+      query.terms = 'Mueller'
+      expect(query.autocomplete.map(&:id)).to include(source_with_person.id)
     end
   end
 

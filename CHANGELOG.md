@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - Unify button to Manage Controlled vocabulary task [#4653]
+- Source autocomplete now matches on alternate values of authors as People [#4617]
 
 ### Fixed
 
@@ -27,7 +28,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Add the POST method for Image matrix to handle many OTUs
 - New task: Refactor the task and add responsive design to the form [#4628]
+- Removed alternate values on Source author and editor (use Person alternate values instead)
 
+[#4617]: https://github.com/SpeciesFileGroup/taxonworks/issues/4617
 [#4626]: https://github.com/SpeciesFileGroup/taxonworks/issues/4626
 [#4628]: https://github.com/SpeciesFileGroup/taxonworks/issues/4628
 [#4640]: https://github.com/SpeciesFileGroup/taxonworks/issues/4640
