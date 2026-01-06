@@ -204,8 +204,8 @@ class Source < ApplicationRecord
   ignore_whitespace_on(:verbatim_contents)
 
   ALTERNATE_VALUES_FOR = [
-    :address, :annote, :booktitle, :edition, :editor, :institution, :journal, :note, :organization,
-    :publisher, :school, :title, :doi, :abstract, :language, :translator, :author, :url].freeze
+    :address, :annote, :booktitle, :edition, :institution, :journal, :note, :organization,
+    :publisher, :school, :title, :doi, :abstract, :language, :translator, :url].freeze
 
   # @return [Boolean, nil]
   #   When true, cached values are not built

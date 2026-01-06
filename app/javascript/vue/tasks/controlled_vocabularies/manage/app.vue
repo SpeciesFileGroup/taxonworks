@@ -1,13 +1,16 @@
 <template>
   <div>
-    <spinner-component
+    <VSpinner
       v-if="isSaving"
       full-screen
       legend="Saving..."
     />
 
-    <div class="flex-separate middle">
-      <h1>Manage controlled vocabulary</h1>
+    <div class="flex-separate middle margin-medium-top">
+      <VSwitch
+        v-model="type"
+        :options="Object.keys(CVT_TYPES)"
+      />
       <ul class="context-menu">
         <li>
           <a :href="RouteNames.ManageBiocurationTask">
@@ -22,10 +25,6 @@
       </ul>
     </div>
 
-    <VSwitch
-      v-model="type"
-      :options="Object.keys(CVT_TYPES)"
-    />
     <div class="flex-separate middle">
       <h3>
         {{ CVT_TYPES[type] }}
@@ -92,7 +91,7 @@ import CVT_TYPES from './constants/controlled_vocabulary_term_types'
 import makeControlledVocabularyTerm from '@/factory/controlledVocabularyTerm'
 import VSwitch from '@/components/ui/VSwitch.vue'
 import ListComponent from './components/List.vue'
-import SpinnerComponent from '@/components/ui/VSpinner'
+import VSpinner from '@/components/ui/VSpinner'
 import FormKeyword from '@/components/Form/FormKeyword.vue'
 import CloneFromObject from '@/helpers/cloneFromObject'
 import CloneControlledVocabularyTerms from './components/CloneControlledVocabularyTerms.vue'

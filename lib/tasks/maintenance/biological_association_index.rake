@@ -37,11 +37,16 @@ namespace :tw do
               rate = count / elapsed
               remaining = total - count
               eta_seconds = remaining / rate
-              eta = Time.current + eta_seconds
+
+              # Format remaining time as hours:minutes:seconds
+              hours = (eta_seconds / 3600).to_i
+              minutes = ((eta_seconds % 3600) / 60).to_i
+              seconds = (eta_seconds % 60).to_i
+              eta_formatted = format('%02d:%02d:%02d', hours, minutes, seconds)
 
               puts "Progress: #{count}/#{total} (#{(count.to_f / total * 100).round(1)}%) - " \
                    "Rate: #{rate.round(1)}/sec - " \
-                   "ETA: #{eta.strftime('%H:%M:%S')}"
+                   "ETA: #{eta_formatted}"
             end
           end
 

@@ -226,32 +226,11 @@ class DwcOccurrence < ApplicationRecord
   end
 
   def basis
-    case dwc_occurrence_object_type
-    when 'CollectionObject'
-      if dwc_occurrence_object.is_fossil?
-        return 'FossilSpecimen'
-      else
-        return 'PreservedSpecimen'
-      end
-    when 'AssertedDistribution'
-      # Used to fork b/b Source::Human and Source::Bibtex:
-      case dwc_occurrence_object.source&.type || dwc_occurrence_object.sources.order(cached_nomenclature_date: :DESC).first.type
-      when 'Source::Bibtex'
-        return 'MaterialCitation'
-      when 'Source::Human'
-        return 'HumanObservation'
-      else # Not recommended at this point
-        return 'Occurrence'
-      end
-    when 'FieldOccurrence'
-      if dwc_occurrence_object.machine_output?
-        return 'MachineObservation'
-      else
-        return 'HumanObservation'
-      end
+    if dwc_occurrence_object&.respond_to?(:dwc_occurrence_basis)
+      dwc_occurrence_object.dwc_occurrence_basis
+    else
+      'Undefined'
     end
-
-    'Undefined'
   end
 
   def uuid_identifier_scope
