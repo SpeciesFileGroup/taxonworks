@@ -240,6 +240,24 @@ class LeadsController < ApplicationController
     @otus = Otu.associated_with_key(@lead)
   end
 
+  def remaining_otus
+    lead = Lead.find(params[:id])
+
+    @otus = lead.remaining_otus
+
+    render '/leads/otus'
+
+  end
+
+  def eliminated_otus
+    lead = Lead.find(params[:id])
+
+    @otus = lead.eliminated_otus
+
+    render '/leads/otus'
+
+  end
+
   def autocomplete
     @leads = ::Queries::Lead::Autocomplete.new(
       params.require(:term),
