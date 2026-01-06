@@ -26,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- Update to Rails 8.0; update gems
 - Add the POST method for Image matrix to handle many OTUs
 - New task: Refactor the task and add responsive design to the form [#4628]
 - Removed alternate values on Source author and editor (use Person alternate values instead)
