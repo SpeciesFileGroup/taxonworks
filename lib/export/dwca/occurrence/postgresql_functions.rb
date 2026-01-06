@@ -36,5 +36,32 @@ module Export::Dwca::Occurrence
           $$ LANGUAGE SQL IMMUTABLE;
         SQL
       end
+
+      # Creates a temporary PostgreSQL function that builds API links for models,
+      # matching Shared::Api.api_link_for_model_id
+      # Handles all current dwc_occurrence_object_type values:
+      #   - AssertedDistribution
+      #   - CollectionObject
+      #   - FieldOccurrence
+      # @example
+      #   api_link_for_model_id('CollectionObject', 123) → 'http://host/api/v1/collection_objects/123'
+      #   api_link_for_model_id('FieldOccurrence', 456) → 'http://host/api/v1/field_occurrences/456'
+      # The function exists only for the current database session.
+      def create_api_link_for_model_id_function
+        conn = ActiveRecord::Base.connection
+        host = conn.quote(Shared::Api.host)
+        conn.execute(<<~SQL)
+          CREATE OR REPLACE FUNCTION pg_temp.api_link_for_model_id(model_type text, model_id integer)
+          RETURNS text AS $$
+            SELECT CASE
+              WHEN model_type IS NULL OR model_id IS NULL THEN NULL
+              WHEN model_type = 'AssertedDistribution' THEN #{host} || '/api/v1/asserted_distributions/' || model_id
+              WHEN model_type = 'CollectionObject' THEN #{host} || '/api/v1/collection_objects/' || model_id
+              WHEN model_type = 'FieldOccurrence' THEN #{host} || '/api/v1/field_occurrences/' || model_id
+              ELSE NULL
+            END
+          $$ LANGUAGE SQL IMMUTABLE;
+        SQL
+      end
   end
 end

@@ -98,6 +98,8 @@ module Export::Dwca::Occurrence
         CREATE TEMP TABLE temp_image_occurrence_map (
           image_id integer,
           occurrence_id text,
+          occurrence_object_type text,
+          occurrence_object_id integer,
           depiction_id integer,
           figure_label text,
           caption text,
@@ -107,10 +109,12 @@ module Export::Dwca::Occurrence
 
       # Populate the mapping using the complex join logic
       conn.execute(<<~SQL)
-        INSERT INTO temp_image_occurrence_map (image_id, occurrence_id, depiction_id, figure_label, caption)
+        INSERT INTO temp_image_occurrence_map (image_id, occurrence_id, occurrence_object_type, occurrence_object_id, depiction_id, figure_label, caption)
         SELECT DISTINCT
           img.id AS image_id,
           dwc."occurrenceID" AS occurrence_id,
+          dwc.dwc_occurrence_object_type AS occurrence_object_type,
+          dwc.dwc_occurrence_object_id AS occurrence_object_id,
           dep.id AS depiction_id,
           dep.figure_label,
           dep.caption
@@ -134,6 +138,8 @@ module Export::Dwca::Occurrence
         CREATE TEMP TABLE temp_sound_occurrence_map (
           sound_id integer,
           occurrence_id text,
+          occurrence_object_type text,
+          occurrence_object_id integer,
           conveyance_id integer,
           sound_name text,
           PRIMARY KEY (sound_id, occurrence_id, conveyance_id)
@@ -142,10 +148,12 @@ module Export::Dwca::Occurrence
 
       # Populate the mapping using the complex join logic
       conn.execute(<<~SQL)
-        INSERT INTO temp_sound_occurrence_map (sound_id, occurrence_id, conveyance_id, sound_name)
+        INSERT INTO temp_sound_occurrence_map (sound_id, occurrence_id, occurrence_object_type, occurrence_object_id, conveyance_id, sound_name)
         SELECT DISTINCT
           snd.id AS sound_id,
           dwc."occurrenceID" AS occurrence_id,
+          dwc.dwc_occurrence_object_type AS occurrence_object_type,
+          dwc.dwc_occurrence_object_id AS occurrence_object_id,
           conv.id AS conveyance_id,
           snd.name AS sound_name
         FROM sounds snd
@@ -516,8 +524,8 @@ module Export::Dwca::Occurrence
             pg_temp.sanitize_csv(attr.creator_identifiers) AS \"dcterms:creator\",
             pg_temp.sanitize_csv(occ_map.figure_label) AS description,
             pg_temp.sanitize_csv(occ_map.caption) AS caption,
-            -- Compute associatedSpecimenReference from occurrence_id
-            pg_temp.sanitize_csv(occ_map.occurrence_id) AS \"associatedSpecimenReference\",
+            -- Compute associatedSpecimenReference as API URL
+            pg_temp.api_link_for_model_id(occ_map.occurrence_object_type, occ_map.occurrence_object_id) AS \"associatedSpecimenReference\",
             links.access_uri AS \"accessURI\",
             img.image_file_content_type AS \"dc:format\",
             links.further_information_url AS \"furtherInformationURL\",
@@ -697,6 +705,7 @@ module Export::Dwca::Occurrence
 
       create_csv_sanitize_function
       create_authorship_sentence_function
+      create_api_link_for_model_id_function
 
       # Step 1: Collect all media IDs from collection objects and field
       # occurrences.

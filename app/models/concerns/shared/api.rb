@@ -28,6 +28,12 @@ module Shared::Api
     "#{api_base_path(ar)}/#{id || ar.id}"
   end
 
+  def self.api_link_for_model_id(klass, id)
+    return "#{host}/api/v1" if klass.nil?
+
+    "#{api_base_path(klass)}/#{id}"
+  end
+
   def self.image_link(image, raise_on_no_token: true, token: nil)
     return host if image.nil?
 

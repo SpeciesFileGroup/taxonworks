@@ -74,6 +74,30 @@ RSpec.describe Export::Dwca::Occurrence::MediaExporter, type: :model do
 
         expect(data_line).to include(person.cached)
       end
+
+      specify 'associatedSpecimenReference is an API URL for CollectionObject' do
+        output = Tempfile.new('test_media')
+        exporter.export_to(output)
+
+        content = output.read
+        lines = content.lines
+        headers = lines[0].split("\t")
+        data_row = lines[1].split("\t")
+
+        # Find the associatedSpecimenReference column index
+        assoc_spec_ref_index = headers.index('associatedSpecimenReference')
+        expect(assoc_spec_ref_index).not_to be_nil, 'associatedSpecimenReference header should exist'
+
+        assoc_spec_ref_value = data_row[assoc_spec_ref_index]
+
+        # Should be a full API URL, not just a UUID
+        expect(assoc_spec_ref_value).to match(%r{^https?://}),
+          "Expected associatedSpecimenReference to be a URL, got: #{assoc_spec_ref_value}"
+        expect(assoc_spec_ref_value).to include('/api/v1/collection_objects/'),
+          "Expected associatedSpecimenReference to be a collection_objects API URL, got: #{assoc_spec_ref_value}"
+        expect(assoc_spec_ref_value).to include(specimen.id.to_s),
+          "Expected associatedSpecimenReference to include specimen ID #{specimen.id}, got: #{assoc_spec_ref_value}"
+      end
     end
 
     context 'with sound media' do

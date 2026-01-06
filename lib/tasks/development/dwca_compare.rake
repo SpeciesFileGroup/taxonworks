@@ -177,19 +177,56 @@ class DwcaComparer
 
     # Compare headers
     if csv1.headers != csv2.headers
-      @differences << "#{filename}: Headers differ"
-      puts "  #{red('✗')} Headers differ"
-      puts "    Dir1 headers: #{csv1.headers.size} columns"
-      puts "    Dir2 headers: #{csv2.headers.size} columns"
-
       missing_in_2 = csv1.headers - csv2.headers
       missing_in_1 = csv2.headers - csv1.headers
 
-      if missing_in_2.any?
-        puts "    Columns in dir1 but not dir2: #{missing_in_2.join(', ')}"
-      end
-      if missing_in_1.any?
-        puts "    Columns in dir2 but not dir1: #{missing_in_1.join(', ')}"
+      # Special case: Check if the only differences are removed deprecated columns
+      # that were empty in the original export
+      removed_columns = ['UsageTerms', 'associatedObservationReference']
+      is_removed_columns_case = (
+        filename == 'media.tsv' &&
+        (missing_in_2.sort == removed_columns.sort || missing_in_1.sort == removed_columns.sort)
+      )
+
+      if is_removed_columns_case
+        # Check if the removed columns were empty in the export that has them
+        source_csv = missing_in_2.any? ? csv1 : csv2
+        removed_cols = missing_in_2.any? ? missing_in_2 : missing_in_1
+
+        all_empty = removed_cols.all? do |col|
+          source_csv.all? { |row| row[col].nil? || row[col].to_s.strip.empty? }
+        end
+
+        if all_empty
+          @warnings << "#{filename}: Removed deprecated empty columns: #{removed_cols.join(', ')}"
+          puts "  #{yellow('⚠')} Headers differ (removed deprecated empty columns: #{removed_cols.join(', ')})"
+          puts "    Dir1 headers: #{csv1.headers.size} columns"
+          puts "    Dir2 headers: #{csv2.headers.size} columns"
+        else
+          @differences << "#{filename}: Headers differ"
+          puts "  #{red('✗')} Headers differ"
+          puts "    Dir1 headers: #{csv1.headers.size} columns"
+          puts "    Dir2 headers: #{csv2.headers.size} columns"
+
+          if missing_in_2.any?
+            puts "    Columns in dir1 but not dir2: #{missing_in_2.join(', ')}"
+          end
+          if missing_in_1.any?
+            puts "    Columns in dir2 but not dir1: #{missing_in_1.join(', ')}"
+          end
+        end
+      else
+        @differences << "#{filename}: Headers differ"
+        puts "  #{red('✗')} Headers differ"
+        puts "    Dir1 headers: #{csv1.headers.size} columns"
+        puts "    Dir2 headers: #{csv2.headers.size} columns"
+
+        if missing_in_2.any?
+          puts "    Columns in dir1 but not dir2: #{missing_in_2.join(', ')}"
+        end
+        if missing_in_1.any?
+          puts "    Columns in dir2 but not dir1: #{missing_in_1.join(', ')}"
+        end
       end
     else
       puts "  #{green('✓')} Headers match (#{csv1.headers.size} columns)"
@@ -254,9 +291,12 @@ class DwcaComparer
           sample_diffs << "  Row only in dir1: #{key_col}=#{row1[key_col]}"
         end
       elsif row1.to_h != row2.to_h
-        # Check if differences are only nil vs empty string
+        # Get common headers between both rows
+        common_headers = row1.headers & row2.headers
+
+        # Check if differences are only nil vs empty string, or in removed columns
         is_only_empty_diff = true
-        row1.headers.each do |header|
+        common_headers.each do |header|
           v1 = row1[header]
           v2 = row2[header]
           next if v1 == v2
@@ -275,11 +315,15 @@ class DwcaComparer
         diff_count += 1
         if sample_diffs.size < 5
           sample_diffs << "  Row differs: #{key_col}=#{row1[key_col]}"
-          # Show which fields differ
-          row1.headers.each do |header|
-            if row1[header] != row2[header]
-              sample_diffs << "    #{header}: '#{row1[header]}' vs '#{row2[header]}'"
-            end
+          # Show which fields differ (only common headers with actual differences)
+          common_headers.each do |header|
+            v1 = row1[header]
+            v2 = row2[header]
+            # Skip if values are equal (including both being nil/empty)
+            next if v1 == v2
+            next if (v1.nil? || v1 == '') && (v2.nil? || v2 == '')
+
+            sample_diffs << "    #{header}: '#{v1}' vs '#{v2}'"
           end
         end
       end
@@ -362,6 +406,20 @@ class DwcaComparer
       end
     end
 
+    # For meta.xml, check if differences are only due to removed columns
+    if filename == 'meta.xml'
+      removed_columns = ['UsageTerms', 'associatedObservationReference']
+      if meta_xml_differs_only_by_removed_columns?(content1, content2, removed_columns)
+        @warnings << "#{filename}: Field indices shifted due to removed columns: #{removed_columns.join(', ')}"
+        puts "  #{yellow('⚠')} Field indices differ (due to removed columns: #{removed_columns.join(', ')})"
+        size1 = File.size(file1)
+        size2 = File.size(file2)
+        puts "    Dir1 size: #{size1} bytes"
+        puts "    Dir2 size: #{size2} bytes"
+        return
+      end
+    end
+
     @differences << "#{filename}: XML files differ"
     puts "  #{red('✗')} Files differ"
 
@@ -381,6 +439,43 @@ class DwcaComparer
       .gsub(/packageId="[^"]+"/, 'packageId="NORMALIZED"')
       .gsub(/<alternateIdentifier>[^<]+<\/alternateIdentifier>/, '<alternateIdentifier>NORMALIZED</alternateIdentifier>')
       .gsub(/<dateStamp>[^<]+<\/dateStamp>/, '<dateStamp>NORMALIZED</dateStamp>')
+  end
+
+  def meta_xml_differs_only_by_removed_columns?(content1, content2, removed_columns)
+    # Check if one file has the removed column terms and the other doesn't
+    removed_terms = {
+      'UsageTerms' => 'http://ns.adobe.com/xap/1.0/rights/UsageTerms',
+      'associatedObservationReference' => 'http://rs.tdwg.org/ac/terms/associatedObservationReference'
+    }
+
+    # Check if removed columns exist in one but not the other
+    has_removed_1 = removed_columns.any? { |col| content1.include?(removed_terms[col]) }
+    has_removed_2 = removed_columns.any? { |col| content2.include?(removed_terms[col]) }
+
+    # If both have them or neither has them, this isn't about removed columns
+    return false if has_removed_1 == has_removed_2
+
+    # Normalize by removing the removed column fields and renumbering indices
+    normalized1 = normalize_meta_xml_for_removed_columns(content1, removed_terms.values)
+    normalized2 = normalize_meta_xml_for_removed_columns(content2, removed_terms.values)
+
+    normalized1 == normalized2
+  end
+
+  def normalize_meta_xml_for_removed_columns(content, removed_term_urls)
+    # Remove field elements for removed columns
+    result = content.dup
+    removed_term_urls.each do |term_url|
+      result.gsub!(/<field index="\d+" term="#{Regexp.escape(term_url)}"\/>\n\s*/, '')
+    end
+
+    # Renumber all field indices sequentially
+    field_index = 0
+    result.gsub(/<field index="\d+"/) do |match|
+      replacement = "<field index=\"#{field_index}\""
+      field_index += 1
+      replacement
+    end
   end
 
   def show_diff_sample(file1, file2)
