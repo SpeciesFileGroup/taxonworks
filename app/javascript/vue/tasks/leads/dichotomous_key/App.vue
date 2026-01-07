@@ -1,44 +1,32 @@
 <template>
-  <NavBar>
-    <div class="flex-separate middle full_width">
-      <VAutocomplete
-        url="/leads/autocomplete"
-        param="term"
-        label="label_html"
-        placeholder="Search a lead..."
-        @select="({ id }) => store.loadKey(id)"
-      />
-
-      <label>
-        <input
-          type="checkbox"
-          v-model="settings.indentation"
-        />
-        Tree style
-      </label>
-    </div>
-  </NavBar>
-
   <div id="dichotomous-app">
-    <PanelKey class="panel-key" />
-    <ListRemaining
-      class="panel-remaining"
-      :list="store.remaining"
-    />
-    <ListEliminated
-      class="panel-eliminated"
-      :list="store.eliminated"
-    />
+    <VSpinner v-if="settings.isLoading" />
+    <HeaderKey />
+    <div id="dichotomous-container">
+      <PanelKey class="panel-key" />
+      <ListRemaining
+        class="panel-remaining"
+        :list="store.remaining"
+      />
+      <ListEliminated
+        class="panel-eliminated"
+        :list="store.eliminated"
+      />
+    </div>
   </div>
 </template>
 
 <script setup>
+import { onBeforeMount, watch } from 'vue'
+import { usePopstateListener } from '@/composables'
+import { URLParamsToJSON, setParam } from '@/helpers/index.js'
+import { RouteNames } from '@/routes/routes.js'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import useLeadStore from './store/lead.js'
 import PanelKey from './components/PanelKey.vue'
 import ListEliminated from './components/List/ListEliminated.vue'
 import ListRemaining from './components/List/ListRemaining.vue'
-import NavBar from '@/components/layout/NavBar.vue'
-import VAutocomplete from '@/components/ui/Autocomplete.vue'
+import HeaderKey from './components/HeaderKey.vue'
 import useSettingsStore from './store/settings.js'
 
 defineOptions({
@@ -48,11 +36,33 @@ defineOptions({
 const store = useLeadStore()
 const settings = useSettingsStore()
 
-store.loadKey(1778)
+function loadFromUrlParam() {
+  const { lead_id } = URLParamsToJSON(location.href)
+
+  if (lead_id) {
+    store.loadKey(lead_id)
+  } else {
+    store.$reset()
+  }
+}
+
+watch(
+  () => store.lead?.id,
+  (id) => {
+    setParam(RouteNames.DichotomousKey, 'lead_id', id)
+  }
+)
+
+onBeforeMount(loadFromUrlParam)
+usePopstateListener(loadFromUrlParam)
 </script>
 
-<style>
+<style scoped>
 #dichotomous-app {
+  box-shadow: var(--panel-shadow);
+  margin-top: 1rem;
+}
+#dichotomous-container {
   display: grid;
   gap: 1px;
   background-color: var(--border-color);

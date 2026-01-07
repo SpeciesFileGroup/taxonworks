@@ -1,5 +1,5 @@
 <template>
-  <ul :class="['ul-lead', !store.indentation && 'padding-remove-left']">
+  <ul :class="['ul-lead', !store.treeView && 'padding-remove-left']">
     <li>
       <template
         v-for="(lead, index) in node.children"
@@ -9,7 +9,7 @@
           :lead="lead"
           :backLink="node.backLink"
           :class="[
-            !store.indentation &&
+            !store.treeView &&
               index == node.children.length - 1 &&
               'margin-medium-bottom'
           ]"

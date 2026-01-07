@@ -1,9 +1,12 @@
 import { defineStore } from 'pinia'
-import { Lead } from '@/routes/endpoints'
+import { Lead, Citation } from '@/routes/endpoints'
+import useSettingsStore from './settings'
+import { LEAD } from '@/constants'
 
 export default defineStore('dichotomous', {
   state: () => ({
     lead: undefined,
+    root: undefined,
     children: [],
     lead_item_otus: [],
     key_metadata: undefined,
@@ -97,7 +100,10 @@ export default defineStore('dichotomous', {
 
   actions: {
     async loadKey(id) {
+      const settings = useSettingsStore()
+
       try {
+        settings.isLoading = true
         const [leadResponse, remaningResponse, eliminatedResponse] =
           await Promise.all([
             Lead.find(id, {
@@ -108,9 +114,16 @@ export default defineStore('dichotomous', {
             Lead.eliminatedOtus(id)
           ])
 
-        leadResponse.body
+        const root = leadResponse.body.root
 
-        this.root = leadResponse.body.root
+        const { body: citations } = await Citation.where({
+          citation_object_type: LEAD,
+          citation_object_id: root.id
+        })
+
+        root.citations = citations
+
+        this.root = root
         this.lead = leadResponse.body.lead
         this.children = leadResponse.body.children
         this.lead_item_otus = leadResponse.body.lead_item_otus
@@ -122,7 +135,10 @@ export default defineStore('dichotomous', {
 
         this.remaining = remaningResponse.body
         this.eliminated = eliminatedResponse.body
-      } catch {}
+      } catch {
+      } finally {
+        settings.isLoading = false
+      }
     }
   }
 })
