@@ -15,7 +15,7 @@ module Export::Dwca::Occurrence
     # @return [Tempfile] the output file
     def export_to(output_file)
       data = extension_data_query_data
-      query = data[:query]
+      base_query = data[:query]
       column_data = data[:column_data]
       used_extensions = data[:used_extensions]
 
@@ -27,33 +27,45 @@ module Export::Dwca::Occurrence
       csv = ::CSV.new(output_file, col_sep: "\t")
       csv << used_extensions
 
-      # Use in_batches to stream results without ActiveRecord object overhead.
-      # This processes raw SQL results in batches to avoid loading everything
-      # into memory.
-      query.in_batches(of: 50_000, order: :asc) do |batch|
-        sql = batch.to_sql
-        conn = ActiveRecord::Base.connection
-        result = conn.select_all(sql)
+      conn = ActiveRecord::Base.connection
+
+      batch_size = 50_000
+      last_id = nil
+
+      loop do
+        # IMPORTANT:
+        # - We re-apply a deterministic order here.
+        # - We filter by id > last_id to keep batches stable and non-overlapping.
+        # - We limit the batch size to stream results.
+        batch_rel = base_query
+          .reorder('dwc_occurrences.id ASC')
+          .limit(batch_size)
+
+        batch_rel =
+          if last_id
+            batch_rel.where('dwc_occurrences.id > ?', last_id)
+          else
+            batch_rel
+          end
+
+        result = conn.select_all(batch_rel.to_sql)
+        break if result.empty?
 
         result.each do |row|
           output_row = []
 
-          # Iterate over column_data to guarantee column order matches
-          # used_extensions. Row is a hash with string keys.
+          # Iterate over column_data to guarantee column order matches used_extensions.
           column_data.each do |source_type, col|
             v = case source_type
             when :method
               row[col.to_s]
             when :ce
-              # Map virtual :id to :collecting_event_id
               attr_name = (col == :id ? 'collecting_event_id' : col.to_s)
               row[attr_name]
             when :co
-              # Map virtual :id to collection_object_id
               attr_name = (col == :id ? 'collection_object_id' : col.to_s)
               row[attr_name]
             when :dwco
-              # Map virtual :id to dwc_occurrence_id
               attr_name = (col == :id ? 'dwc_occurrence_id' : col.to_s)
               row[attr_name]
             end
@@ -63,11 +75,14 @@ module Export::Dwca::Occurrence
 
           csv << output_row
         end
+
+        # last_id must come from the actual selected "dwc_occurrences.id".
+        # Since select_cols starts with 'dwc_occurrences.id', the key should be "id".
+        last_id = result.last['id']
       end
+
       Rails.logger.debug 'dwca_export: extension data written'
-
       csv.flush
-
       Rails.logger.debug 'dwca_export: taxonworks_extension_data prepared'
 
       output_file
