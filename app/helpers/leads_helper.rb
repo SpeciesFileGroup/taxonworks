@@ -135,6 +135,20 @@ module LeadsHelper
     hsh
   end
 
+  def key_depictions(lead)
+    root = lead.parent_id.nil? ? lead : lead.ancestors.last
+    lead_ids = [root.id] + root.descendant_ids
+
+    depictions = Depiction
+      .where(
+        depiction_object_type: 'Lead',
+        depiction_object_id: lead_ids
+      )
+      .group_by(&:depiction_object_id)
+
+    lead_ids.index_with { |id| depictions[id] || [] }
+  end
+
   # An index of lead.id pointing to its content.
   # lead_items is for internal use only.
   def key_data(lead, metadata, lead_items: false, back_couplets: false)

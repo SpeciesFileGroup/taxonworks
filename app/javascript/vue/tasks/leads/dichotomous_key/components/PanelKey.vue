@@ -19,7 +19,7 @@
 <script setup>
 import { computed, useTemplateRef } from 'vue'
 import useStore from '../store/lead.js'
-import KeyCouplet from './KeyCouplet.vue'
+import KeyCouplet from './Key/KeyCouplet.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
 const store = useStore()

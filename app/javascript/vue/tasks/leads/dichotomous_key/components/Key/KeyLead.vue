@@ -33,6 +33,10 @@
 
     {{ lead.text }}
 
+    <DepictionsModal
+      v-if="lead.depictions.length"
+      :lead="lead"
+    />
     <span
       v-if="lead.hasMultipleOtus"
       class="lead-item-mark"
@@ -71,7 +75,7 @@
           :href="makeBrowseUrl({ id: lead.targetId, type: OTU })"
           target="_blank"
         >
-          {{ store.key_data[child]['target_label'] }}
+          {{ lead.targetLabel }}
         </a>
       </template>
 
@@ -89,7 +93,9 @@
 
 <script setup>
 import VBtn from '@/components/ui/VBtn/index.vue'
-import useLeadStore from '../store/lead.js'
+import useLeadStore from '../../store/lead.js'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import DepictionsModal from '../DepictionsModal.vue'
 import { makeBrowseUrl } from '@/helpers/index.js'
 import { OTU } from '@/constants'
 

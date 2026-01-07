@@ -1,8 +1,8 @@
 <template>
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    :width="elementSize"
-    :height="elementSize"
+    :width="width || elementSize"
+    :height="height || elementSize"
     :viewBox="viewbox"
     :aria-labelledby="name"
     role="presentation"
@@ -50,6 +50,16 @@ export default {
     },
 
     title: {
+      type: String,
+      default: undefined
+    },
+
+    width: {
+      type: String,
+      default: undefined
+    },
+
+    height: {
       type: String,
       default: undefined
     }

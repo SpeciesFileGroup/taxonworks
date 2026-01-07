@@ -8,13 +8,19 @@
       <li
         v-for="item in list"
         :key="item.id"
-        v-html="item.object_tag"
-      />
+      >
+        <a
+          :href="makeBrowseUrl({ id: item.id, type: OTU })"
+          v-html="item.object_tag"
+        />
+      </li>
     </ul>
   </div>
 </template>
 
 <script setup>
+import { OTU } from '@/constants'
+import { makeBrowseUrl } from '@/helpers'
 import ListRemainingOptions from './ListRemainingOptions.vue'
 
 const props = defineProps({

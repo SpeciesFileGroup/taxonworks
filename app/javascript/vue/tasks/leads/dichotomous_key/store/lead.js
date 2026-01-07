@@ -8,6 +8,7 @@ export default defineStore('dichotomous', {
     lead_item_otus: [],
     key_metadata: undefined,
     key_ordered_parents: [],
+    key_depictions: [],
     remaining: [],
     eliminated: []
   }),
@@ -40,6 +41,7 @@ export default defineStore('dichotomous', {
       Object.values(nodesById).forEach((node) => {
         node.children = node._childIds.map((childId) => {
           const data = state.key_data[childId]
+          const depictions = state.key_depictions[childId]
           const isFirstLine = data.position === 0
 
           let linkType = null
@@ -58,6 +60,7 @@ export default defineStore('dichotomous', {
             id: childId,
             parentId: node.id,
             position: data.position,
+            depictions,
             isFirstLine,
             text: data.text || '<no text>',
             coupletNumber: node.coupletNumber,
@@ -98,9 +101,7 @@ export default defineStore('dichotomous', {
         const [leadResponse, remaningResponse, eliminatedResponse] =
           await Promise.all([
             Lead.find(id, {
-              extend: {
-                key_data: ['ancestors_data', 'future_otus']
-              }
+              extend: ['key_data', 'key_depictions']
             }),
 
             Lead.remainingOtus(id),
@@ -117,6 +118,7 @@ export default defineStore('dichotomous', {
         this.key_metadata = leadResponse.body.key_metadata
         this.key_ordered_parents = leadResponse.body.key_ordered_parents
         this.key_data = leadResponse.body.key_data
+        this.key_depictions = leadResponse.body.key_depictions
 
         this.remaining = remaningResponse.body
         this.eliminated = eliminatedResponse.body

@@ -29,7 +29,7 @@
 <script setup>
 import { computed } from 'vue'
 import KeyLead from './KeyLead.vue'
-import useSettingsStore from '../store/settings.js'
+import useSettingsStore from '../../store/settings.js'
 
 const props = defineProps({
   node: {
