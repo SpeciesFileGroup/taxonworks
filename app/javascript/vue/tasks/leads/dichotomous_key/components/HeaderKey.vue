@@ -6,8 +6,10 @@
           class="key-header-name"
           v-text="store.root.text"
         />
-        <span>-</span>
-        <div>{{ citations }}</div>
+        <template v-if="citations">
+          <span>-</span>
+          <div>{{ citations }}</div>
+        </template>
       </div>
       <div class="flex-row gap-small">
         <label>
