@@ -1144,4 +1144,4 @@ dichotomous_key_task:
   related:
   categories:
   status: prototype
-  description: 'TODO: Task description'
+  description: 'Interactive dichotomous key interface'
