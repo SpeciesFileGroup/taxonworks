@@ -181,11 +181,20 @@ module Export::Dwca::Occurrence
       end
 
       if methods.keys.include?(:otu_name)
-        query = query
-          .joins('LEFT JOIN taxon_determinations ON taxon_determinations.taxon_determination_object_id = collection_objects.id ' \
-                            'AND taxon_determinations.taxon_determination_object_type = \'CollectionObject\' ' \
-                            'AND taxon_determinations.position = 1')
-          .joins('LEFT JOIN otus ON otus.id = taxon_determinations.otu_id')
+        # !! Guarding against a given otu with > 1 position=1 taxon
+        # determinations (which, at time of writing, was actually happening).
+        query = query.joins(<<~SQL.squish)
+          LEFT JOIN LATERAL (
+            SELECT td.otu_id
+            FROM taxon_determinations td
+            WHERE td.taxon_determination_object_id = collection_objects.id
+              AND td.taxon_determination_object_type = 'CollectionObject'
+              AND td.position = 1
+            ORDER BY td.id DESC
+            LIMIT 1
+          ) td1 ON true
+          LEFT JOIN otus ON otus.id = td1.otu_id
+        SQL
       end
 
       query
