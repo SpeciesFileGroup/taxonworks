@@ -99,7 +99,7 @@
       </ul>
       <a
         v-else
-        :href="makeBrowseUrl({ id: lio.id, type: OTU })"
+        :href="makeBrowseUrl({ id: lead.leadItemOtus[0].id, type: OTU })"
         target="_blank"
       >
         {{ lead.targetLabel }}

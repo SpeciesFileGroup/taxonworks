@@ -23,21 +23,14 @@
         <RadialNavigator :global-id="store.root.global_id" />
         <VBtn
           color="primary"
-          @click="closeKey"
+          @click="resetKey"
         >
-          Close
+          Reset
         </VBtn>
       </div>
     </template>
     <template v-else>
-      <VAutocomplete
-        ref="autocomplete"
-        url="/leads/autocomplete"
-        param="term"
-        label="label_html"
-        placeholder="Search a lead..."
-        @select="({ id }) => store.loadKey(id)"
-      />
+      <a :href="RouteNames.LeadsHub">Hub key</a>
     </template>
   </div>
 </template>
@@ -50,6 +43,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import { RouteNames } from '@/routes/routes.js'
 
 const store = useLeadStore()
 const settings = useSettingsStore()
@@ -59,11 +53,8 @@ const citations = computed(() =>
   store.root?.citations.map((c) => c.citation_source_body).join('; ')
 )
 
-function closeKey() {
-  store.$reset()
-  nextTick(() => {
-    autocompleteRef.value.setFocus()
-  })
+function resetKey() {
+  store.loadKey(store.root.id)
 }
 </script>
 
