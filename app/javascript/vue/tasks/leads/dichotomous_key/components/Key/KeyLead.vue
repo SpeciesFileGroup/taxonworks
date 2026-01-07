@@ -73,7 +73,7 @@
 
       <ul
         v-if="lead.leadItemOtus.length > 1"
-        class="key-ul"
+        class="no_bullets"
       >
         <li
           v-for="lio in lead.leadItemOtus"
