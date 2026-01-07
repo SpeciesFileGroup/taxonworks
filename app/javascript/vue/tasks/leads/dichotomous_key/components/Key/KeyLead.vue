@@ -19,7 +19,7 @@
       <a
         v-if="backLink"
         :href="`#cplt-${backLink}`"
-        @click.prevent="() => emit('scroll:couplet', backLink)"
+        @click.prevent="() => moveToLead(backLink)"
       >
         ({{ backLink }})
       </a>
@@ -62,7 +62,7 @@
       ...
       <a
         :href="`#cplt-${lead.targetLabel}`"
-        @click.prevent="() => emit('scroll:couplet', lead.targetLabel)"
+        @click.prevent="() => moveToLead(lead.targetLabel)"
       >
         {{ lead.targetLabel }}
       </a>
@@ -79,14 +79,29 @@
         </a>
       </template>
 
-      <ul class="key-ul">
+      <ul
+        v-if="lead.leadItemOtus.length > 1"
+        class="key-ul"
+      >
         <li
           v-for="lio in lead.leadItemOtus"
           :key="lio"
         >
-          {{ lio }}
+          <a
+            :href="makeBrowseUrl({ id: lio.id, type: OTU })"
+            target="_blank"
+          >
+            {{ lio }}
+          </a>
         </li>
       </ul>
+      <a
+        v-else
+        :href="makeBrowseUrl({ id: lio.id, type: OTU })"
+        target="_blank"
+      >
+        {{ lead.targetLabel }}
+      </a>
     </template>
   </div>
 </template>
@@ -94,7 +109,6 @@
 <script setup>
 import VBtn from '@/components/ui/VBtn/index.vue'
 import useLeadStore from '../../store/lead.js'
-import VIcon from '@/components/ui/VIcon/index.vue'
 import DepictionsModal from '../DepictionsModal.vue'
 import { makeBrowseUrl } from '@/helpers/index.js'
 import { OTU } from '@/constants'
@@ -113,6 +127,13 @@ const emit = defineEmits(['scroll:couplet'])
 
 function loadParent() {
   store.loadKey(props.lead.parentId)
+}
+
+function moveToLead(couplet) {
+  const leadId = store.key_ordered_parents[couplet - 1]
+
+  emit('scroll:couplet', couplet)
+  store.loadKey(leadId)
 }
 </script>
 
