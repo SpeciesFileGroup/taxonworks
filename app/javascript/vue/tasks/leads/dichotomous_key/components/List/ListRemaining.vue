@@ -1,5 +1,5 @@
 <template>
-  <div class="panel content">
+  <div class="content">
     <div class="flex-separate middle">
       <h3>Remaining ({{ list.length }})</h3>
       <ListRemainingOptions :list="list" />

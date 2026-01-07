@@ -32,11 +32,6 @@
       :futures="futures"
       @load-lead="(id) => loadLead(id)"
     />
-
-    <div class="show-key-otus-lists">
-      <ListRemaining :list="remaining" />
-      <ListEliminated :list="eliminated" />
-    </div>
   </template>
 </template>
 
@@ -52,8 +47,6 @@ import Header from './components/Header.vue'
 import KeyList from './components/KeyList.vue'
 import PreviousLeads from './components/PreviousLeads.vue'
 import setParam from '@/helpers/setParam'
-import ListEliminated from './components/List/ListEliminated.vue'
-import ListRemaining from './components/List/ListRemaining.vue'
 
 const lead_id = ref(URLParamsToJSON(location.href).lead_id)
 
@@ -62,8 +55,6 @@ const lead = ref({})
 const children = ref([])
 const futures = ref([])
 const ancestors = ref([])
-const remaining = ref([])
-const eliminated = ref([])
 
 const loading = ref(false)
 
@@ -86,36 +77,25 @@ usePopstateListener(() => {
   }
 })
 
-async function loadLead(id) {
+function loadLead(id) {
   lead_id.value = id
   loading.value = true
-
-  try {
-    const [leadResponse, remainingResponse, eliminatedResponse] =
-      await Promise.all([
-        Lead.find(id, { extend: ['otu', 'future_otus', 'ancestors_data'] }),
-        Lead.remainingOtus(id),
-        Lead.eliminatedOtus(id)
-      ])
-
-    const { body } = leadResponse
-
-    root.value = body.root
-    lead.value = body.lead
-    children.value = body.children
-    futures.value = body.futures
-    ancestors.value = body.ancestors
-
-    remaining.value = remainingResponse.body
-    eliminated.value = eliminatedResponse.body
-
-    setParam(RouteNames.ShowLead, 'lead_id', lead_id.value)
-  } catch (error) {
-    TW.workbench.alert.create('Unable to load the requested id.', 'error')
-    showKeyList()
-  } finally {
-    loading.value = false
-  }
+  Lead.find(id, { extend: ['otu', 'future_otus', 'ancestors_data'] })
+    .then(({ body }) => {
+      root.value = body.root
+      lead.value = body.lead
+      children.value = body.children
+      futures.value = body.futures
+      ancestors.value = body.ancestors
+      setParam(RouteNames.ShowLead, 'lead_id', lead_id.value)
+    })
+    .catch(() => {
+      TW.workbench.alert.create('Unable to load the requested id.', 'error')
+      showKeyList()
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 
 function showKeyList() {
@@ -134,14 +114,6 @@ function reset() {
 </script>
 
 <style lang="scss" scoped>
-.show-key-otus-lists {
-  display: flex;
-  flex-direction: row;
-  align-items: start;
-  justify-content: center;
-  gap: 1rem;
-}
-
 .show_keys_list {
   margin-top: 2em;
 }

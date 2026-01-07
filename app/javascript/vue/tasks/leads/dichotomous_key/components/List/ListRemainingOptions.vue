@@ -42,6 +42,7 @@
             :ids="otuIds"
             :disabled="!otuIds.length"
             :object-type="OTU"
+            use-new-key-slice
           />
         </div>
         <ul class="no_bullets">
@@ -84,6 +85,7 @@
             :ids="otuIds"
             :disabled="!otuIds.length"
             :object-type="OTU"
+            use-new-key-slice
           />
         </div>
       </template>
