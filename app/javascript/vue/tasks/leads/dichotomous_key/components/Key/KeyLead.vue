@@ -87,13 +87,15 @@
           </a>
         </li>
       </ul>
-      <a
-        v-else
-        :href="makeBrowseUrl({ id: lead.leadItemOtus[0].id, type: OTU })"
-        target="_blank"
-      >
-        {{ lead.leadItemOtus[0] }}
-      </a>
+      <template v-else>
+        ...
+        <a
+          :href="makeBrowseUrl({ id: lead.leadItemOtus[0].id, type: OTU })"
+          target="_blank"
+        >
+          {{ lead.leadItemOtus[0] }}
+        </a>
+      </template>
     </template>
   </div>
 </template>
