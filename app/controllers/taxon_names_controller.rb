@@ -146,7 +146,11 @@ class TaxonNamesController < ApplicationController
       validity: params[:validity],
       combinations: params[:combinations],
       project_id: sessions_current_project_id,
-      rank_data: params[:rank_data]
+      rank_data: params[:rank_data],
+      descriptors_scored_for_otu: params[:descriptors_scored_for_otu],
+      otu_observation_count: params[:otu_observation_count],
+      otu_observation_depictions: params[:otu_observation_depictions],
+      otus: params[:otus]
     )
   end
 

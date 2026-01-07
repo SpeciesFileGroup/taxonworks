@@ -4,36 +4,10 @@
       <h3>Identifier</h3>
     </template>
     <template #body>
-      <div class="full_width">
-        <template v-if="typeListSelected">
-          <div class="horizontal-left-content middle">
-            <span class="capitalize">{{ typeListSelected }}</span>
-            <tippy
-              animation="scale"
-              placement="bottom"
-              size="small"
-              inertia
-              arrow
-              content="Change"
-            >
-              <button
-                class="button button-circle button-default btn-undo"
-                @click="typeListSelected = undefined"
-              />
-            </tippy>
-          </div>
-          <select-type
-            v-model="typeSelected"
-            :list="typeList[typeListSelected]"
-          />
-        </template>
-
-        <ul
-          v-else
-          class="no_bullets"
-        >
+      <div class="full_width flex-col gap-small">
+        <ul class="no_bullets">
           <li
-            v-for="(item, key) in typeList"
+            v-for="(_, key) in typeList"
             :key="key"
           >
             <label class="capitalize">
@@ -46,6 +20,12 @@
             </label>
           </li>
         </ul>
+        <template v-if="typeListSelected">
+          <SelectType
+            v-model="typeSelected"
+            :list="typeList[typeListSelected]"
+          />
+        </template>
 
         <template v-if="typeSelected">
           <namespace-component
@@ -59,10 +39,10 @@
           />
         </template>
 
-        <div class="horizontal-left-content margin-small-top">
+        <div class="horizontal-left-content">
           <button
             type="button"
-            class="button button-submit normal-input"
+            class="button btn-primary normal-input"
             :disabled="isMissingData"
             @click="
               () => {
@@ -75,11 +55,34 @@
           </button>
         </div>
       </div>
-      <display-list
-        :list="identifiers"
-        label="object_tag"
-        @deleteIndex="removeIdentifier"
-      />
+      <table
+        v-if="identifiers.length"
+        class="full_width table-stripe margin-medium-top"
+      >
+        <thead>
+          <tr>
+            <th>Identifier</th>
+            <th class="w-2"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(item, index) in identifiers">
+            <td v-html="item.object_tag" />
+            <td>
+              <VBtn
+                :color="extractId ? 'destroy' : 'primary'"
+                circle
+                @click="() => removeIdentifier(index)"
+              >
+                <VIcon
+                  name="trash"
+                  x-small
+                />
+              </VBtn>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </template>
   </block-layout>
 </template>
@@ -90,6 +93,10 @@ import { Identifier } from '@/routes/endpoints'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { Tippy } from 'vue-tippy'
+import {
+  IDENTIFIER_LOCAL_RECORD_NUMBER,
+  IDENTIFIER_LOCAL_FIELD_NUMBER
+} from '@/constants'
 
 import componentExtend from './mixins/componentExtend'
 import SelectType from './Identifiers/SelectType'
@@ -97,6 +104,14 @@ import NamespaceComponent from './Identifiers/Namespace'
 import IdentifierComponent from './Identifiers/Identifier'
 import DisplayList from '@/components/displayList'
 import BlockLayout from '@/components/layout/BlockLayout'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import ActionNames from '../store/actions/actionNames'
+
+const EXCLUDE_IDENTIFIER_TYPES = [
+  IDENTIFIER_LOCAL_FIELD_NUMBER,
+  IDENTIFIER_LOCAL_RECORD_NUMBER
+]
 
 export default {
   mixins: [componentExtend],
@@ -107,7 +122,9 @@ export default {
     NamespaceComponent,
     IdentifierComponent,
     Tippy,
-    BlockLayout
+    BlockLayout,
+    VBtn,
+    VIcon
   },
 
   data() {
@@ -162,16 +179,35 @@ export default {
     Identifier.types().then(({ body }) => {
       const list = body
       const keys = Object.keys(body)
+
       keys.forEach((key) => {
         const itemList = list[key]
         itemList.common = Object.fromEntries(
-          itemList.common.map((item) => [
-            item,
-            Object.entries(itemList.all).find(([key, value]) => key === item)[1]
-          ])
+          itemList.common
+            .filter((type) => !EXCLUDE_IDENTIFIER_TYPES.includes(type))
+            .map((item) => [
+              item,
+              Object.entries(itemList.all).find(([key, _]) => key === item)[1]
+            ])
         )
+
+        EXCLUDE_IDENTIFIER_TYPES.forEach((type) => {
+          delete list[key].all[type]
+        })
       })
-      this.typeList = body
+      this.typeList = list
+    })
+
+    this.$store.subscribeAction({
+      after: (action) => {
+        if (action.type === ActionNames.ResetState) {
+          if (!this.isNamespaceLocked) {
+            this.namespace = undefined
+          }
+
+          this.identifier = undefined
+        }
+      }
     })
   },
 
@@ -198,10 +234,21 @@ export default {
     },
 
     removeIdentifier(index) {
-      if (this.identifiers[index].id) {
-        Identifier.destroy(this.identifiers[index].id)
+      const identifier = this.identifiers[index]
+
+      if (identifier.id) {
+        if (
+          window.confirm(
+            "You're trying to delete this record. Are you sure want to proceed?"
+          )
+        ) {
+          Identifier.destroy(identifier.id).then(() => {
+            this.$store.commit(MutationNames.RemoveIdentifierByIndex, index)
+          })
+        }
+      } else {
+        this.$store.commit(MutationNames.RemoveIdentifierByIndex, index)
       }
-      this.$store.commit(MutationNames.RemoveIdentifierByIndex, index)
     }
   }
 }

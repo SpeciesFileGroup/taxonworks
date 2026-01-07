@@ -20,7 +20,11 @@
     </VBtn>
 
     <span
-      :class="['list-reclassifer-taxon-item', isSelected && 'selected']"
+      :class="[
+        'list-reclassifer-taxon-item',
+        isSelected && 'selected',
+        !taxon.isValid && 'taxonomy-tree-invalid-name'
+      ]"
       v-html="taxon.name"
       @contextmenu="handleContextMenu"
       @click.prevent="() => addToSelected(taxon)"

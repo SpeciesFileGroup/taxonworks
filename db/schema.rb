@@ -10,13 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_12_12_204901) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_12_204901) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
   enable_extension "hstore"
+  enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
-  enable_extension "plpgsql"
   enable_extension "postgis"
   enable_extension "postgis_raster"
   enable_extension "tablefunc"
@@ -61,7 +61,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_12_204901) do
     t.integer "alternate_value_object_id", null: false
     t.string "alternate_value_object_type", null: false
     t.integer "project_id"
-    t.index ["alternate_value_object_attribute", "value"], name: "index_alternate_values_on_attribute_and_value"
+    t.index ["alternate_value_object_attribute", "value"], name: "idx_on_alternate_value_object_attribute_value_fc5a1a12bc"
     t.index ["alternate_value_object_id", "alternate_value_object_type"], name: "index_alternate_values_on_alternate_value_object_id_and_type"
     t.index ["created_by_id"], name: "index_alternate_values_on_created_by_id"
     t.index ["language_id"], name: "index_alternate_values_on_language_id"
@@ -2387,6 +2387,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_12_204901) do
   add_foreign_key "attributions", "projects"
   add_foreign_key "attributions", "users", column: "created_by_id"
   add_foreign_key "attributions", "users", column: "updated_by_id"
+  add_foreign_key "biocuration_classifications", "controlled_vocabulary_terms", column: "biocuration_class_id", name: "biocuration_classifications_biocuration_class_id_fkey"
   add_foreign_key "biocuration_classifications", "projects", name: "biocuration_classifications_project_id_fkey"
   add_foreign_key "biocuration_classifications", "users", column: "created_by_id", name: "biocuration_classifications_created_by_id_fkey"
   add_foreign_key "biocuration_classifications", "users", column: "updated_by_id", name: "biocuration_classifications_updated_by_id_fkey"
@@ -2620,6 +2621,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_12_204901) do
   add_foreign_key "otu_relationships", "users", column: "created_by_id"
   add_foreign_key "otu_relationships", "users", column: "updated_by_id"
   add_foreign_key "otus", "projects", name: "otus_project_id_fkey"
+  add_foreign_key "otus", "taxon_names", name: "otus_taxon_name_id_fkey"
   add_foreign_key "otus", "users", column: "created_by_id", name: "otus_created_by_id_fkey"
   add_foreign_key "otus", "users", column: "updated_by_id", name: "otus_updated_by_id_fkey"
   add_foreign_key "people", "users", column: "created_by_id", name: "people_created_by_id_fkey"
@@ -2698,6 +2700,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_12_204901) do
   add_foreign_key "tagged_section_keywords", "projects", name: "tagged_section_keywords_project_id_fkey"
   add_foreign_key "tagged_section_keywords", "users", column: "created_by_id", name: "tagged_section_keywords_created_by_id_fkey"
   add_foreign_key "tagged_section_keywords", "users", column: "updated_by_id", name: "tagged_section_keywords_updated_by_id_fkey"
+  add_foreign_key "tags", "controlled_vocabulary_terms", column: "keyword_id", name: "tags_keyword_id_fkey"
   add_foreign_key "tags", "projects", name: "tags_project_id_fkey"
   add_foreign_key "tags", "users", column: "created_by_id", name: "tags_created_by_id_fkey"
   add_foreign_key "tags", "users", column: "updated_by_id", name: "tags_updated_by_id_fkey"
@@ -2706,6 +2709,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_12_12_204901) do
   add_foreign_key "taxon_determinations", "users", column: "created_by_id", name: "taxon_determinations_created_by_id_fkey"
   add_foreign_key "taxon_determinations", "users", column: "updated_by_id", name: "taxon_determinations_updated_by_id_fkey"
   add_foreign_key "taxon_name_classifications", "projects", name: "taxon_name_classifications_project_id_fkey"
+  add_foreign_key "taxon_name_classifications", "taxon_names", name: "taxon_name_classifications_taxon_name_id_fkey"
   add_foreign_key "taxon_name_classifications", "users", column: "created_by_id", name: "taxon_name_classifications_created_by_id_fkey"
   add_foreign_key "taxon_name_classifications", "users", column: "updated_by_id", name: "taxon_name_classifications_updated_by_id_fkey"
   add_foreign_key "taxon_name_relationships", "projects", name: "taxon_name_relationships_project_id_fkey"

@@ -28,12 +28,12 @@ function setSticky(element) {
 }
 
 function removeSticky(element) {
+  const rect = element.getBoundingClientRect()
+
   element.classList.remove(...getClasses(element))
   element.style.removeProperty('top')
   element.parentElement.style.removeProperty('min-height')
-  element.style.maxHeight = `calc(100vh - ${
-    element.offsetTop - window.scrollY
-  }px)`
+  element.style.maxHeight = `calc(100vh - ${rect.top}px)`
 }
 
 export function setStickyNavbar(element) {

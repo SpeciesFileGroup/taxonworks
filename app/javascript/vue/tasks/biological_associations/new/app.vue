@@ -1,12 +1,11 @@
 <template>
-  <div>
+  <div class="margin-medium-top">
     <VSpinner
       v-if="store.isLoading"
       full-screen
       :logo-size="{ width: '100px', height: '100px' }"
       legend="Loading..."
     />
-    <h1>New biological association</h1>
     <NavBar class="margin-medium-bottom">
       <div class="flex-separate middle">
         <div>
@@ -31,7 +30,7 @@
             :disabled="!store.isSaveAvailable"
             @click="store.saveBiologicalAssociation"
           >
-            {{ store.biologicalAssociation.id ? 'Update' : 'Create' }}
+            Save
           </VBtn>
 
           <VBtn

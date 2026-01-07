@@ -657,6 +657,22 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     expect(query.all.map(&:id)).to contain_exactly()
   end
 
+  context 'availability' do
+    before(:each) {
+      TaxonNameClassification::Iczn::Unavailable.create!(taxon_name: species)
+    }
+
+    specify '#availability 1' do
+      query.availability = true
+      expect(query.all.map(&:id).size).to eq(3)
+    end
+
+    specify '#validity 2' do
+      query.availability = false
+      expect(query.all.map(&:id)).to contain_exactly(species.id)
+    end
+  end
+
   specify 'all filters combined' do
     Citation.create!(citation_object: species, source: FactoryBot.create(:valid_source))
     Otu.create!(taxon_name: species)

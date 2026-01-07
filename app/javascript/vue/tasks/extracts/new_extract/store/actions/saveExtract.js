@@ -5,7 +5,7 @@ import { addToArray } from '@/helpers/arrays'
 import SetParam from '@/helpers/setParam.js'
 import extend from '../../const/extendRequest.js'
 
-export default ({ state: { extract, recents, repository, roles }, commit }) => {
+export default ({ state: { extract, repository, roles }, commit }) => {
   const payload = {
     ...extract,
     roles_attributes: roles,
@@ -24,7 +24,6 @@ export default ({ state: { extract, recents, repository, roles }, commit }) => {
 
     commit(MutationNames.SetRoles, roles)
     commit(MutationNames.SetExtract, body)
-    addToArray(recents, body)
     SetParam(RouteNames.NewExtract, 'extract_id', body.id)
 
     SoftValidation.find(body.global_id).then((response) => {

@@ -1,7 +1,7 @@
 <template>
   <fieldset v-help.section.BibTeX.editors>
     <legend>Editors</legend>
-    <smart-selector
+    <SmartSelector
       model="people"
       label="cached"
       :target="ROLE_SOURCE_EDITOR"
@@ -16,48 +16,42 @@
     >
       <template #header>
         <RolePicker
-          v-model="roleAttributes"
+          v-model="source.roles_attributes"
           ref="rolePicker"
           filter-by-role
           hidden-list
           :autofocus="false"
           :role-type="ROLE_SOURCE_EDITOR"
+          @update:model-value="() => (source.isUnsaved = true)"
         />
       </template>
       <RolePicker
-        v-model="roleAttributes"
+        v-model="source.roles_attributes"
         :create-form="false"
         :autofocus="false"
         filter-by-role
         :role-type="ROLE_SOURCE_EDITOR"
+        @update:model-value="() => (source.isUnsaved = true)"
       />
-    </smart-selector>
+    </SmartSelector>
   </fieldset>
 </template>
 
 <script setup>
 import { computed, ref } from 'vue'
-import { useStore } from 'vuex'
-import { GetterNames } from '../../store/getters/getters'
-import { MutationNames } from '../../store/mutations/mutations'
 import { ROLE_SOURCE_EDITOR, SOURCE } from '@/constants'
 import RolePicker from '@/components/role_picker.vue'
 import SmartSelector from '@/components/ui/SmartSelector'
 
-const store = useStore()
-const rolePicker = ref(null)
-
-const roleAttributes = computed({
-  get() {
-    return store.getters[GetterNames.GetRoleAttributes]
-  },
-  set(value) {
-    store.commit(MutationNames.SetRoles, value)
-  }
+const source = defineModel({
+  type: Object,
+  required: true
 })
 
+const rolePicker = ref(null)
+
 const peopleIds = computed(() =>
-  roleAttributes.value
+  source.value.roles_attributes
     .filter(
       (item) =>
         (item.person_id || item.person) &&
@@ -68,6 +62,7 @@ const peopleIds = computed(() =>
 )
 
 function addRole(person) {
+  source.value.isUnsaved = true
   rolePicker.value.addPerson(person)
 }
 </script>
