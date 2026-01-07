@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 
 export default defineStore('settings', {
   state: () => ({
-    treeView: true,
+    treeView: false,
     isLoading: true
   })
 })
