@@ -21,6 +21,7 @@
         </label>
         <RadialAnnotator :global-id="store.root.global_id" />
         <RadialNavigator :global-id="store.root.global_id" />
+        <ToggleLayout />
         <VBtn
           color="primary"
           @click="resetKey"
@@ -42,6 +43,7 @@ import useSettingsStore from '../store/settings.js'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import ToggleLayout from './ToggleLayout.vue'
 import { RouteNames } from '@/routes/routes.js'
 
 const store = useLeadStore()

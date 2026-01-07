@@ -1,8 +1,11 @@
 <template>
-  <div id="dichotomous-app">
+  <div id="vue-dichotomous-app">
     <VSpinner v-if="settings.isLoading" />
     <HeaderKey @reset="scrollPanelKey" />
-    <div id="dichotomous-container">
+    <div
+      id="dichotomous-container"
+      :class="['dichotomous-grid', settings.layout]"
+    >
       <PanelKey
         class="panel-key"
         ref="panelKey"
@@ -20,7 +23,7 @@
 </template>
 
 <script setup>
-import { onBeforeMount, useTemplateRef, watch } from 'vue'
+import { onBeforeMount, useTemplateRef, ref, watch } from 'vue'
 import { usePopstateListener } from '@/composables'
 import { URLParamsToJSON, setParam } from '@/helpers/index.js'
 import { RouteNames } from '@/routes/routes.js'
@@ -66,29 +69,46 @@ onBeforeMount(loadFromUrlParam)
 usePopstateListener(loadFromUrlParam)
 </script>
 
-<style scoped>
-#dichotomous-app {
+<style>
+#vue-dichotomous-app {
   box-shadow: var(--panel-shadow);
   margin-top: 1rem;
-}
-#dichotomous-container {
-  display: grid;
-  gap: 1px;
-  background-color: var(--border-color);
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-  max-height: calc(100vh - 140px);
-  min-height: calc(100vh - 140px);
-}
 
-.panel-key {
-  grid-column: span 2 / span 2;
-}
+  #dichotomous-container {
+    background-color: var(--border-color);
 
-.panel-key,
-.panel-remaining,
-.panel-eliminated {
-  overflow: auto;
-  background-color: var(--bg-foreground);
+    max-height: calc(100vh - 140px);
+    min-height: calc(100vh - 140px);
+  }
+
+  .dichotomous-grid {
+    display: grid;
+    gap: 1px;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+  }
+
+  .layout-1 {
+    .panel-key {
+      grid-column: span 2 / span 2;
+    }
+  }
+
+  .layout-2 {
+    .panel-key {
+      grid-row: span 2 / span 2;
+    }
+
+    .panel-remaining {
+      grid-column-start: 2;
+    }
+  }
+
+  .panel-key,
+  .panel-remaining,
+  .panel-eliminated {
+    overflow: auto;
+    background-color: var(--bg-foreground);
+  }
 }
 </style>
