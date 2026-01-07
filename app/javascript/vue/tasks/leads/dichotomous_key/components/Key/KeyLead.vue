@@ -9,6 +9,8 @@
         :id="`cplt-${lead.beginLabel}`"
         class="couplet"
         color="primary"
+        :disabled="currentLead"
+        :title="currentLead ? 'Current couplet' : 'Select couplet'"
         @click.prevent="loadParent"
       >
         <span>
@@ -112,6 +114,7 @@ import useLeadStore from '../../store/lead.js'
 import DepictionsModal from '../DepictionsModal.vue'
 import { makeBrowseUrl } from '@/helpers/index.js'
 import { OTU } from '@/constants'
+import { computed } from 'vue'
 
 const props = defineProps({
   lead: Object,
@@ -124,6 +127,8 @@ const props = defineProps({
 const store = useLeadStore()
 
 const emit = defineEmits(['scroll:couplet'])
+
+const currentLead = computed(() => props.lead.parentId == store.lead.id)
 
 function loadParent() {
   store.loadKey(props.lead.parentId)
@@ -138,10 +143,6 @@ function moveToLead(couplet) {
 </script>
 
 <style scoped>
-.key-lead-selected {
-  font-weight: bold;
-}
-
 .key-lead-selected::before {
   display: inline-block;
   margin-left: -2rem;
