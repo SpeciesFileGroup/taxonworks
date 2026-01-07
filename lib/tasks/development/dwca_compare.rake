@@ -1,23 +1,29 @@
+# frozen_string_literal: true
+
+require 'shellwords'
+require 'securerandom'
+require 'fileutils'
+
 namespace :tw do
   namespace :development do
     namespace :dwca do
       desc 'Compare two DwCA export directories or zip files for differences'
-      task :compare, [:path1, :path2] => [:environment] do |_t, args|
+      task :compare, %i[path1 path2] => [:environment] do |_t, args|
         require 'csv'
         require 'digest'
         require 'zip'
         require 'tmpdir'
 
         if args[:path1].nil? || args[:path2].nil?
-          puts "Usage: rake tw:development:dwca:compare[path1,path2]"
+          puts 'Usage: rake tw:development:dwca:compare[path1,path2]'
           puts
-          puts "Compare DwCA exports from two directories or zip files."
-          puts "Arguments can be directories with unzipped DwCA files or .zip files."
+          puts 'Compare DwCA exports from two directories or zip files.'
+          puts 'Arguments can be directories with unzipped DwCA files or .zip files.'
           puts
-          puts "Examples:"
-          puts "  rake tw:development:dwca:compare[/path/to/export1,/path/to/export2]"
-          puts "  rake tw:development:dwca:compare[/path/to/export1.zip,/path/to/export2.zip]"
-          puts "  rake tw:development:dwca:compare[/path/to/export1,/path/to/export2.zip]"
+          puts 'Examples:'
+          puts '  rake tw:development:dwca:compare[/path/to/export1,/path/to/export2]'
+          puts '  rake tw:development:dwca:compare[/path/to/export1.zip,/path/to/export2.zip]'
+          puts '  rake tw:development:dwca:compare[/path/to/export1,/path/to/export2.zip]'
           exit 1
         end
 
@@ -49,12 +55,12 @@ class DwcaComparer
   def compare
     validate_directories
 
-    puts "=" * 80
-    puts "Comparing DwCA Exports"
-    puts "=" * 80
+    puts '=' * 80
+    puts 'Comparing DwCA Exports'
+    puts '=' * 80
     puts "Directory 1: #{@dir1}"
     puts "Directory 2: #{@dir2}"
-    puts "=" * 80
+    puts '=' * 80
     puts
 
     files1 = Dir.glob(File.join(@dir1, '*')).map { |f| File.basename(f) }.sort
@@ -80,17 +86,9 @@ class DwcaComparer
   private
 
   # Color helpers
-  def green(text)
-    "\e[32m#{text}\e[0m"
-  end
-
-  def yellow(text)
-    "\e[33m#{text}\e[0m"
-  end
-
-  def red(text)
-    "\e[31m#{text}\e[0m"
-  end
+  def green(text) = "\e[32m#{text}\e[0m"
+  def yellow(text) = "\e[33m#{text}\e[0m"
+  def red(text) = "\e[31m#{text}\e[0m"
 
   def prepare_directory(path, label)
     unless File.exist?(path)
@@ -98,10 +96,8 @@ class DwcaComparer
     end
 
     if File.directory?(path)
-      # Already a directory, use as-is
       path
     elsif File.file?(path) && path.end_with?('.zip')
-      # Zip file - extract to temp directory
       extract_zip(path, label)
     else
       abort("Error: Path must be a directory or .zip file: #{path}")
@@ -126,25 +122,16 @@ class DwcaComparer
   end
 
   def validate_directories
-    unless Dir.exist?(@dir1)
-      abort("Error: Directory does not exist: #{@dir1}")
-    end
-    unless Dir.exist?(@dir2)
-      abort("Error: Directory does not exist: #{@dir2}")
-    end
+    abort("Error: Directory does not exist: #{@dir1}") unless Dir.exist?(@dir1)
+    abort("Error: Directory does not exist: #{@dir2}") unless Dir.exist?(@dir2)
   end
 
   def compare_file_lists(files1, files2)
     missing_in_dir2 = files1 - files2
     missing_in_dir1 = files2 - files1
 
-    if missing_in_dir2.any?
-      @differences << "Files in dir1 but not in dir2: #{missing_in_dir2.join(', ')}"
-    end
-
-    if missing_in_dir1.any?
-      @differences << "Files in dir2 but not in dir1: #{missing_in_dir1.join(', ')}"
-    end
+    @differences << "Files in dir1 but not in dir2: #{missing_in_dir2.join(', ')}" if missing_in_dir2.any?
+    @differences << "Files in dir2 but not in dir1: #{missing_in_dir1.join(', ')}" if missing_in_dir1.any?
   end
 
   def compare_file(filename)
@@ -171,7 +158,17 @@ class DwcaComparer
       return
     end
 
-    # Detailed comparison
+    # Special case: data.tsv can be huge; decide:
+    #   a) same
+    #   b) same after row reordering (ERROR + note)
+    #   c) not the same rows (ERROR)
+    #   d) not the same rows, but UUID order is the same (ERROR)
+    if filename == 'data.tsv'
+      compare_data_tsv_rowset(file1, file2, filename)
+      return
+    end
+
+    # Existing detailed comparison (OK for smaller files)
     csv1 = CSV.read(file1, col_sep: "\t", headers: true, encoding: 'UTF-8')
     csv2 = CSV.read(file2, col_sep: "\t", headers: true, encoding: 'UTF-8')
 
@@ -180,8 +177,6 @@ class DwcaComparer
       missing_in_2 = csv1.headers - csv2.headers
       missing_in_1 = csv2.headers - csv1.headers
 
-      # Special case: Check if the only differences are removed deprecated columns
-      # that were empty in the original export
       removed_columns = ['UsageTerms', 'associatedObservationReference']
       is_removed_columns_case = (
         filename == 'media.tsv' &&
@@ -189,7 +184,6 @@ class DwcaComparer
       )
 
       if is_removed_columns_case
-        # Check if the removed columns were empty in the export that has them
         source_csv = missing_in_2.any? ? csv1 : csv2
         removed_cols = missing_in_2.any? ? missing_in_2 : missing_in_1
 
@@ -207,26 +201,16 @@ class DwcaComparer
           puts "  #{red('✗')} Headers differ"
           puts "    Dir1 headers: #{csv1.headers.size} columns"
           puts "    Dir2 headers: #{csv2.headers.size} columns"
-
-          if missing_in_2.any?
-            puts "    Columns in dir1 but not dir2: #{missing_in_2.join(', ')}"
-          end
-          if missing_in_1.any?
-            puts "    Columns in dir2 but not dir1: #{missing_in_1.join(', ')}"
-          end
+          puts "    Columns in dir1 but not dir2: #{missing_in_2.join(', ')}" if missing_in_2.any?
+          puts "    Columns in dir2 but not dir1: #{missing_in_1.join(', ')}" if missing_in_1.any?
         end
       else
         @differences << "#{filename}: Headers differ"
         puts "  #{red('✗')} Headers differ"
         puts "    Dir1 headers: #{csv1.headers.size} columns"
         puts "    Dir2 headers: #{csv2.headers.size} columns"
-
-        if missing_in_2.any?
-          puts "    Columns in dir1 but not dir2: #{missing_in_2.join(', ')}"
-        end
-        if missing_in_1.any?
-          puts "    Columns in dir2 but not dir1: #{missing_in_1.join(', ')}"
-        end
+        puts "    Columns in dir1 but not dir2: #{missing_in_2.join(', ')}" if missing_in_2.any?
+        puts "    Columns in dir2 but not dir1: #{missing_in_1.join(', ')}" if missing_in_1.any?
       end
     else
       puts "  #{green('✓')} Headers match (#{csv1.headers.size} columns)"
@@ -240,18 +224,13 @@ class DwcaComparer
       puts "  #{green('✓')} Row count matches (#{csv1.size} rows)"
     end
 
-    # Try to compare content by sorting (if there's an 'id' or first column)
     compare_tsv_content(csv1, csv2, filename)
   end
 
   def compare_tsv_content(csv1, csv2, filename)
-    # Find a key column to sort by (prefer 'id', 'coreid', 'occurrenceID', or first column)
     key_col = csv1.headers.find { |h| h =~ /^(id|coreid|occurrenceID)$/i } || csv1.headers.first
-
     return unless key_col
 
-    # For media.tsv, sort by coreid, dc:type (Image/Sound), then providerManagedID
-    # For other files, compare as-is to detect ordering issues
     sorted_comparison = false
     if filename == 'media.tsv'
       type_col = csv1.headers.find { |h| h == 'dc:type' }
@@ -270,7 +249,6 @@ class DwcaComparer
       rows2 = csv2
     end
 
-    # Compare rows
     max_rows = [rows1.size, rows2.size].max
     diff_count = 0
     nil_vs_empty_count = 0
@@ -282,25 +260,18 @@ class DwcaComparer
 
       if row1.nil?
         diff_count += 1
-        if sample_diffs.size < 5
-          sample_diffs << "  Row only in dir2: #{key_col}=#{row2[key_col]}"
-        end
+        sample_diffs << "  Row only in dir2: #{key_col}=#{row2[key_col]}" if sample_diffs.size < 5
       elsif row2.nil?
         diff_count += 1
-        if sample_diffs.size < 5
-          sample_diffs << "  Row only in dir1: #{key_col}=#{row1[key_col]}"
-        end
+        sample_diffs << "  Row only in dir1: #{key_col}=#{row1[key_col]}" if sample_diffs.size < 5
       elsif row1.to_h != row2.to_h
-        # Get common headers between both rows
         common_headers = row1.headers & row2.headers
 
-        # Check if differences are only nil vs empty string, or in removed columns
         is_only_empty_diff = true
         common_headers.each do |header|
           v1 = row1[header]
           v2 = row2[header]
           next if v1 == v2
-          # Check if one is nil and the other is empty string
           unless (v1.nil? && v2 == '') || (v1 == '' && v2.nil?)
             is_only_empty_diff = false
             break
@@ -315,29 +286,23 @@ class DwcaComparer
         diff_count += 1
         if sample_diffs.size < 5
           sample_diffs << "  Row differs: #{key_col}=#{row1[key_col]}"
-          # Show which fields differ (only common headers with actual differences)
           common_headers.each do |header|
             v1 = row1[header]
             v2 = row2[header]
-            # Skip if values are equal (including both being nil/empty)
             next if v1 == v2
             next if (v1.nil? || v1 == '') && (v2.nil? || v2 == '')
-
             sample_diffs << "    #{header}: '#{v1}' vs '#{v2}'"
           end
         end
       end
     end
 
-    # Report nil vs empty string differences as a warning
     if nil_vs_empty_count > 0
       @warnings << "#{filename}: #{nil_vs_empty_count} rows have nil vs empty string differences"
       puts "  #{yellow('⚠')} #{nil_vs_empty_count} row(s) have nil vs empty string differences (not counted as errors)"
     end
 
-    # Check for row ordering differences (same content, different order)
     if sorted_comparison && diff_count == 0
-      # Compare unsorted to see if order differs
       unsorted_diff = false
       csv1.size.times do |i|
         if csv1[i].to_h != csv2[i].to_h
@@ -347,40 +312,24 @@ class DwcaComparer
       end
 
       if unsorted_diff
-        if nil_vs_empty_count > 0
-          @warnings << "#{filename}: Row order differs (content matches when sorted, ignoring nil/empty)"
-          puts "  #{yellow('⚠')} Row order differs (content matches after sorting)"
-        else
-          @warnings << "#{filename}: Row order differs (content is identical when sorted)"
-          puts "  #{yellow('⚠')} Row order differs (content matches after sorting)"
-        end
+        @warnings << "#{filename}: Row order differs (content matches after sorting)"
+        puts "  #{yellow('⚠')} Row order differs (content matches after sorting)"
       end
     end
 
     if diff_count > 0
       @differences << "#{filename}: #{diff_count} rows differ"
       puts "  #{red('✗')} Content differs: #{diff_count} row(s) differ"
-
       if sample_diffs.any?
-        puts "  Sample differences (first 5):"
+        puts '  Sample differences (first 5):'
         sample_diffs.each { |diff| puts diff }
       end
-      if diff_count > 5
-        puts "  ... and #{diff_count - 5} more differences"
-      end
+      puts "  ... and #{diff_count - 5} more differences" if diff_count > 5
     else
       if filename == 'media.tsv'
-        if nil_vs_empty_count > 0
-          puts "  #{green('✓')} Content matches after sorting (ignoring nil/empty differences)"
-        else
-          puts "  #{green('✓')} Content matches (all rows identical after sorting by coreid, type, ID)"
-        end
+        puts "  #{green('✓')} Content matches (all rows identical after sorting by coreid, type, ID)"
       else
-        if nil_vs_empty_count > 0
-          puts "  #{green('✓')} Content matches (ignoring nil/empty differences)"
-        else
-          puts "  #{green('✓')} Content matches (all rows identical)"
-        end
+        puts "  #{green('✓')} Content matches (all rows identical)"
       end
     end
   end
@@ -391,11 +340,9 @@ class DwcaComparer
       return
     end
 
-    # Check for known dynamic content
     content1 = File.read(file1)
     content2 = File.read(file2)
 
-    # For EML files, try normalizing known dynamic fields
     if filename == 'eml.xml'
       normalized1 = normalize_eml(content1)
       normalized2 = normalize_eml(content2)
@@ -406,35 +353,25 @@ class DwcaComparer
       end
     end
 
-    # For meta.xml, check if differences are only due to removed columns
     if filename == 'meta.xml'
       removed_columns = ['UsageTerms', 'associatedObservationReference']
       if meta_xml_differs_only_by_removed_columns?(content1, content2, removed_columns)
         @warnings << "#{filename}: Field indices shifted due to removed columns: #{removed_columns.join(', ')}"
         puts "  #{yellow('⚠')} Field indices differ (due to removed columns: #{removed_columns.join(', ')})"
-        size1 = File.size(file1)
-        size2 = File.size(file2)
-        puts "    Dir1 size: #{size1} bytes"
-        puts "    Dir2 size: #{size2} bytes"
+        puts "    Dir1 size: #{File.size(file1)} bytes"
+        puts "    Dir2 size: #{File.size(file2)} bytes"
         return
       end
     end
 
     @differences << "#{filename}: XML files differ"
     puts "  #{red('✗')} Files differ"
-
-    # Show size difference
-    size1 = File.size(file1)
-    size2 = File.size(file2)
-    puts "    Dir1 size: #{size1} bytes"
-    puts "    Dir2 size: #{size2} bytes"
-
-    # Show a diff sample
+    puts "    Dir1 size: #{File.size(file1)} bytes"
+    puts "    Dir2 size: #{File.size(file2)} bytes"
     show_diff_sample(file1, file2)
   end
 
   def normalize_eml(content)
-    # Normalize known dynamic fields in EML files
     content
       .gsub(/packageId="[^"]+"/, 'packageId="NORMALIZED"')
       .gsub(/<alternateIdentifier>[^<]+<\/alternateIdentifier>/, '<alternateIdentifier>NORMALIZED</alternateIdentifier>')
@@ -442,36 +379,28 @@ class DwcaComparer
   end
 
   def meta_xml_differs_only_by_removed_columns?(content1, content2, removed_columns)
-    # Check if one file has the removed column terms and the other doesn't
     removed_terms = {
       'UsageTerms' => 'http://ns.adobe.com/xap/1.0/rights/UsageTerms',
       'associatedObservationReference' => 'http://rs.tdwg.org/ac/terms/associatedObservationReference'
     }
 
-    # Check if removed columns exist in one but not the other
     has_removed_1 = removed_columns.any? { |col| content1.include?(removed_terms[col]) }
     has_removed_2 = removed_columns.any? { |col| content2.include?(removed_terms[col]) }
-
-    # If both have them or neither has them, this isn't about removed columns
     return false if has_removed_1 == has_removed_2
 
-    # Normalize by removing the removed column fields and renumbering indices
     normalized1 = normalize_meta_xml_for_removed_columns(content1, removed_terms.values)
     normalized2 = normalize_meta_xml_for_removed_columns(content2, removed_terms.values)
-
     normalized1 == normalized2
   end
 
   def normalize_meta_xml_for_removed_columns(content, removed_term_urls)
-    # Remove field elements for removed columns
     result = content.dup
     removed_term_urls.each do |term_url|
       result.gsub!(/<field index="\d+" term="#{Regexp.escape(term_url)}"\/>\n\s*/, '')
     end
 
-    # Renumber all field indices sequentially
     field_index = 0
-    result.gsub(/<field index="\d+"/) do |match|
+    result.gsub(/<field index="\d+"/) do
       replacement = "<field index=\"#{field_index}\""
       field_index += 1
       replacement
@@ -479,13 +408,12 @@ class DwcaComparer
   end
 
   def show_diff_sample(file1, file2)
-    # Use diff command to show a sample of differences
     diff_output = `diff -u "#{file1}" "#{file2}" 2>&1 | head -20`
-    if diff_output && !diff_output.empty?
-      puts "    First few differences:"
-      diff_output.lines[2..-1]&.each do |line|
-        puts "    #{line.chomp}"
-      end
+    return if diff_output.nil? || diff_output.empty?
+
+    puts '    First few differences:'
+    diff_output.lines[2..]&.each do |line|
+      puts "    #{line.chomp}"
     end
   end
 
@@ -497,11 +425,8 @@ class DwcaComparer
 
     @differences << "#{filename}: Files differ"
     puts "  #{red('✗')} Files differ"
-
-    size1 = File.size(file1)
-    size2 = File.size(file2)
-    puts "    Dir1 size: #{size1} bytes"
-    puts "    Dir2 size: #{size2} bytes"
+    puts "    Dir1 size: #{File.size(file1)} bytes"
+    puts "    Dir2 size: #{File.size(file2)} bytes"
   end
 
   def files_identical?(file1, file2)
@@ -509,33 +434,143 @@ class DwcaComparer
   end
 
   def print_summary
-    puts "=" * 80
-    puts "SUMMARY"
-    puts "=" * 80
+    puts '=' * 80
+    puts 'SUMMARY'
+    puts '=' * 80
 
     if @differences.empty?
       if @warnings.any?
-        puts green("✓ After accounting for the noted allowed differences, all files are identical!")
+        puts green('✓ After accounting for the noted allowed differences, all files are identical!')
       else
-        puts green("✓ All files are identical!")
+        puts green('✓ All files are identical!')
       end
     else
       puts red("✗ Found #{@differences.size} difference(s):")
-      @differences.each do |diff|
-        puts "  - #{diff}"
-      end
+      @differences.each { |diff| puts "  - #{diff}" }
     end
 
     if @warnings.any?
       puts
-      puts yellow("Warnings:")
-      @warnings.each do |warning|
-        puts "  #{yellow('!')} #{warning}"
-      end
+      puts yellow('Warnings:')
+      @warnings.each { |warning| puts "  #{yellow('!')} #{warning}" }
     end
 
-    puts "=" * 80
-
+    puts '=' * 80
     abort if @differences.any?
+  end
+
+  ########################################
+  # data.tsv classification:
+  #
+  # a) identical file bytes => OK (handled in compare_tsv via files_identical?)
+  # b) same rows after reordering => ERROR with note
+  # c) not the same rows => ERROR
+  # d) not the same rows, but UUID order is the same => ERROR
+  #
+  # Assumptions: TSV rows are single-line records (no embedded newlines).
+  def compare_data_tsv_rowset(file1, file2, filename)
+    puts "  #{yellow('⚠')} Large TSV detected (#{filename}); comparing row multiset (order-insensitive)"
+
+    # Context-only: header + row count info
+    h1 = first_line_fields(file1)
+    h2 = first_line_fields(file2)
+    if h1 == h2
+      puts "  #{green('✓')} Headers match (#{h1.size} columns)"
+    else
+      @differences << "#{filename}: Headers differ"
+      puts "  #{red('✗')} Headers differ"
+      puts "    Dir1 headers: #{h1.size} columns"
+      puts "    Dir2 headers: #{h2.size} columns"
+    end
+
+    rows1 = [line_count_fast(file1) - 1, 0].max
+    rows2 = [line_count_fast(file2) - 1, 0].max
+    if rows1 == rows2
+      puts "  #{green('✓')} Row count matches (#{rows1} rows)"
+    else
+      @differences << "#{filename}: Row count differs (#{rows1} vs #{rows2})"
+      puts "  #{red('✗')} Row count differs: dir1=#{rows1}, dir2=#{rows2}"
+      # Keep going: the sorted-row comparison will fall into (c)/(d) anyway.
+    end
+
+    tmp_dir = '/tmp'
+    sorted1 = tmp_path('dwca_data_sorted', ext: 'tsv', tmp_dir: tmp_dir)
+    sorted2 = tmp_path('dwca_data_sorted', ext: 'tsv', tmp_dir: tmp_dir)
+
+    begin
+      # Sort full data rows (excluding header) in a locale-stable way
+      sort_data_rows_excluding_header(file1, sorted1, tmp_dir: tmp_dir)
+      sort_data_rows_excluding_header(file2, sorted2, tmp_dir: tmp_dir)
+
+      if system("cmp -s #{Shellwords.escape(sorted1)} #{Shellwords.escape(sorted2)}")
+        # b) same rows after reordering
+        @differences << "#{filename}: Same rows after row reordering (order-insensitive match)"
+        puts "  #{red('✗')} Same rows after row reordering"
+        puts "    Note: When sorted, all data rows match exactly; files differ only by row order."
+        return
+      end
+
+      # If the row multisets differ, decide between (c) and (d) by checking UUID order.
+      if uuid_order_is_identical?(file1, file2)
+        # d) different rows, same UUID order
+        @differences << "#{filename}: Not the same rows, but UUID order is the same"
+        puts "  #{red('✗')} Not the same rows, but UUID order is the same"
+        puts "    Note: UUID column (col 1) matches line-by-line, but full rows differ."
+        puts "    First few differences (sorted rows):"
+      else
+        # c) different rows
+        @differences << "#{filename}: Not the same rows (order-insensitive compare failed)"
+        puts "  #{red('✗')} Not the same rows"
+        puts "    First few differences (sorted rows):"
+      end
+
+      diff_head = `diff -u #{Shellwords.escape(sorted1)} #{Shellwords.escape(sorted2)} 2>&1 | head -20`
+      diff_head.lines.each { |l| puts "    #{l.chomp}" } if diff_head && !diff_head.empty?
+    ensure
+      FileUtils.rm_f(sorted1) rescue nil
+      FileUtils.rm_f(sorted2) rescue nil
+    end
+  end
+
+  def uuid_order_is_identical?(file1, file2)
+    # Compare first column (UUID) line-by-line in order, skipping header.
+    # We assume no embedded newlines, so split("\t", 2) is safe and fast.
+    File.open(file1, 'rb') do |f1|
+      File.open(file2, 'rb') do |f2|
+        f1.gets
+        f2.gets
+        loop do
+          l1 = f1.gets
+          l2 = f2.gets
+          return true if l1.nil? && l2.nil?
+          return false if l1.nil? || l2.nil?
+
+          u1 = l1.split("\t", 2).first
+          u2 = l2.split("\t", 2).first
+          return false if u1 != u2
+        end
+      end
+    end
+  end
+
+  def sort_data_rows_excluding_header(input_path, output_path, tmp_dir:)
+    cmd = %(bash -lc "LC_ALL=C sort -T #{Shellwords.escape(tmp_dir)} <(tail -n +2 #{Shellwords.escape(input_path)}) > #{Shellwords.escape(output_path)}")
+    system(cmd) || raise("sort failed for #{input_path}")
+  end
+
+  def first_line_fields(path)
+    File.open(path, 'rb') do |f|
+      line = f.gets
+      return [] unless line
+      line.chomp.split("\t", -1)
+    end
+  end
+
+  def line_count_fast(path)
+    `wc -l #{Shellwords.escape(path)} 2>/dev/null`.to_i
+  end
+
+  def tmp_path(prefix, ext: 'txt', tmp_dir: '/tmp')
+    File.join(tmp_dir, "#{prefix}_#{Process.pid}_#{SecureRandom.hex(6)}.#{ext}")
   end
 end
