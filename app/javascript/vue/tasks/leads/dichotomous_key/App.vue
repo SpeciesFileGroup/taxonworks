@@ -1,9 +1,12 @@
 <template>
   <div id="dichotomous-app">
     <VSpinner v-if="settings.isLoading" />
-    <HeaderKey />
+    <HeaderKey @reset="scrollPanelKey" />
     <div id="dichotomous-container">
-      <PanelKey class="panel-key" />
+      <PanelKey
+        class="panel-key"
+        ref="panelKey"
+      />
       <ListRemaining
         class="panel-remaining"
         :list="store.remaining"
@@ -17,7 +20,7 @@
 </template>
 
 <script setup>
-import { onBeforeMount, watch } from 'vue'
+import { onBeforeMount, useTemplateRef, watch } from 'vue'
 import { usePopstateListener } from '@/composables'
 import { URLParamsToJSON, setParam } from '@/helpers/index.js'
 import { RouteNames } from '@/routes/routes.js'
@@ -36,6 +39,8 @@ defineOptions({
 const store = useLeadStore()
 const settings = useSettingsStore()
 
+const panelKeyRef = useTemplateRef('panelKey')
+
 function loadFromUrlParam() {
   const { lead_id } = URLParamsToJSON(location.href)
 
@@ -44,6 +49,10 @@ function loadFromUrlParam() {
   } else {
     store.$reset()
   }
+}
+
+function scrollPanelKey() {
+  panelKeyRef.value.$el.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 watch(

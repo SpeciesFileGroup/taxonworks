@@ -39,16 +39,6 @@
       v-if="lead.depictions.length"
       :lead="lead"
     />
-    <span
-      v-if="lead.hasMultipleOtus"
-      class="lead-item-mark"
-      >!!</span
-    >
-    <span
-      v-else-if="lead.hasSingleOtuWithoutTarget"
-      class="lead-item-one"
-      >!!</span
-    >
 
     <template v-if="lead.linkType === 'otu'">
       ...

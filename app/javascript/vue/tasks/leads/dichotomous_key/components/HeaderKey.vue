@@ -36,25 +36,28 @@
 </template>
 
 <script setup>
-import { nextTick, useTemplateRef, computed } from 'vue'
+import { computed } from 'vue'
 import useLeadStore from '../store/lead.js'
 import useSettingsStore from '../store/settings.js'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
-import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import { RouteNames } from '@/routes/routes.js'
 
 const store = useLeadStore()
 const settings = useSettingsStore()
-const autocompleteRef = useTemplateRef('autocomplete')
+
+const emit = defineEmits(['reset'])
 
 const citations = computed(() =>
   store.root?.citations.map((c) => c.citation_source_body).join('; ')
 )
 
 function resetKey() {
-  store.loadKey(store.root.id)
+  emit('reset')
+  if (store.root.id !== store.lead.id) {
+    store.loadKey(store.root.id)
+  }
 }
 </script>
 
