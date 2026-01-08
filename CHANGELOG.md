@@ -15,7 +15,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Filters return incorrect results when using the right Radial Filter with 21 or more selected objects. [#4676]
 - Browse News: Old administration news is shown first instead of new news.
+- Batch operation now works on venn query results, venn query results can now be sent to other filters [#4663]
+- No error message when trying to delete a combination attached to an OTU [#4670]
+- Error notice is now returned when trying to include media extension in DwCA export with a project API token
 
+[#4663]: https://github.com/SpeciesFileGroup/taxonworks/issues/4663
+[#4670]: https://github.com/SpeciesFileGroup/taxonworks/issues/4670
 [#4676]: https://github.com/SpeciesFileGroup/taxonworks/issues/4676
 
 ## [0.57.0] - 2026-01-06
