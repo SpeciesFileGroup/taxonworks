@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- New task: Dichotomous key
+
 ### Fixed
 
 - Filters return incorrect results when using the right Radial Filter with 21 or more selected objects. [#4676]
