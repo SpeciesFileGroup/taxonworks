@@ -90,6 +90,10 @@ scope :tasks do
   end
 
   scope :leads do
+    scope :dichotomous_key, controller: 'tasks/leads/dichotomous_key' do
+      get '/', action: :index, as: 'dichotomous_key_task'
+    end
+
     scope :hub, controller: 'tasks/leads/hub' do
       get '/', action: :index, as: 'leads_hub_task'
     end

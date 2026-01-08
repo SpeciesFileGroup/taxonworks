@@ -1138,3 +1138,10 @@ browse_news_task:
   categories:
   status: prototype
   description: "A Newspaper summarizing this project's current news."
+dichotomous_key_task:
+  hub: true
+  name: 'Dichotomous key'
+  related:
+  categories:
+  status: prototype
+  description: 'Interactive dichotomous key interface'

@@ -31,6 +31,7 @@ const RouteNames = {
   BrowseOtu: '/tasks/otus/browse',
   BrowseSound: '/tasks/sounds/browse',
   ContentEditor: '/tasks/content/editor',
+  DichotomousKey: '/tasks/leads/dichotomous_key',
   DigitizeTask: '/tasks/accessions/comprehensive',
   DwcDashboard: '/tasks/dwc/dashboard',
   DwcImport: '/tasks/dwca_import/index',
