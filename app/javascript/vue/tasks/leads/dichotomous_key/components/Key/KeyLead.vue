@@ -83,7 +83,7 @@
             :href="makeBrowseUrl({ id: lio.id, type: OTU })"
             target="_blank"
           >
-            {{ lio }}
+            {{ lio.label }}
           </a>
         </li>
       </ul>
@@ -93,7 +93,7 @@
           :href="makeBrowseUrl({ id: lead.leadItemOtus[0].id, type: OTU })"
           target="_blank"
         >
-          {{ lead.leadItemOtus[0] }}
+          {{ lead.leadItemOtus[0].label }}
         </a>
       </template>
     </template>

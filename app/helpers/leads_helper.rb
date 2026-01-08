@@ -207,7 +207,7 @@ module LeadsHelper
       return []
     end
 
-    Otu.where(id: otu_ids).map { |o| label_for_otu(o) }.sort!
+    Otu.where(id: otu_ids).map { |o| { id: o.id, label:label_for_otu(o) }}.sort_by { |h| h[:label] }
   end
 
   # Used to serve Keys to the API.
