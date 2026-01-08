@@ -7,7 +7,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+
+- Filters return incorrect results when using the right Radial Filter with 21 or more selected objects. [#4676]
+
+[#4676]: https://github.com/SpeciesFileGroup/taxonworks/issues/4676
 
 ## [0.57.0] - 2026-01-06
 
