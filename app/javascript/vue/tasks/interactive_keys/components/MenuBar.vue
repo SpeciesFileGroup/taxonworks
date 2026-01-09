@@ -1,7 +1,19 @@
 <template>
   <nav-component>
     <div class="flex-separate middle">
+      <div
+        class="horizontal-left-content gap-small middle"
+        v-if="leadId"
+      >
+        <VIcon
+          name="attention"
+          color="attention"
+          small
+        />
+        <span>The task is being used in service of a key</span>
+      </div>
       <autocomplete
+        v-else
         url="/observation_matrices/autocomplete"
         param="term"
         label="label_html"
@@ -59,6 +71,7 @@
           </button>
         </div>
         <button
+          v-if="!leadId"
           type="button"
           class="button normal-input button-default margin-small-right"
           @click="resetView"
@@ -90,6 +103,7 @@ import EliminateUnknowns from './Filters/EliminateUnknowns'
 import RefreshComponent from './Filters/Refresh'
 import KeywordsComponent from './Filters/Keywords'
 import scrollToTop from '../utils/scrollToTop.js'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import { RouteNames } from '@/routes/routes'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
@@ -106,7 +120,8 @@ export default {
     KeywordsComponent,
     LanguageComponent,
     SortingComponent,
-    RefreshComponent
+    RefreshComponent,
+    VIcon
   },
 
   computed: {
@@ -122,10 +137,17 @@ export default {
       return !!this.observationMatrix?.descriptor_available_keywords?.length
     },
 
+    leadId() {
+      return this.$store.getters[GetterNames.GetLeadId]
+    },
+
     showSendToKeyButton() {
-      if (!!this.$store.getters[GetterNames.GetLeadId] &&
-          !!this.$store.getters[GetterNames.GetFilter] &&
-          this.$store.getters[GetterNames.GetObservationMatrix]?.observation_matrix_id) {
+      if (
+        !!this.leadId &&
+        !!this.$store.getters[GetterNames.GetFilter] &&
+        this.$store.getters[GetterNames.GetObservationMatrix]
+          ?.observation_matrix_id
+      ) {
         return true
       } else {
         return false
@@ -198,20 +220,27 @@ export default {
     },
 
     sendToKey() {
-      const leadId = this.$store.getters[GetterNames.GetLeadId]
-
-      const selectedDescriptorStates = this.$store.getters[GetterNames.GetSelectedDescriptorStates]
-      sessionStorage.setItem('interactive_key_to_key_descriptor_data', JSON.stringify(selectedDescriptorStates))
+      const selectedDescriptorStates =
+        this.$store.getters[GetterNames.GetSelectedDescriptorStates]
+      sessionStorage.setItem(
+        'interactive_key_to_key_descriptor_data',
+        JSON.stringify(selectedDescriptorStates)
+      )
 
       let otuIds = {}
       if (selectedDescriptorStates.length > 0) {
-        otuIds = this.$store.getters[GetterNames.GetObservationObjectIdsByType]([sides.Remaining, sides.EliminatedForKey], 'Otu')
+        otuIds = this.$store.getters[GetterNames.GetObservationObjectIdsByType](
+          [sides.Remaining, sides.EliminatedForKey],
+          'Otu'
+        )
       }
-      sessionStorage.setItem('interactive_key_to_key_otu_ids', JSON.stringify(otuIds))
+      sessionStorage.setItem(
+        'interactive_key_to_key_otu_ids',
+        JSON.stringify(otuIds)
+      )
 
-      window.location.href = `${RouteNames.NewLead}?lead_id=${leadId}`
+      window.location.href = `${RouteNames.NewLead}?lead_id=${this.leadId}`
     }
-
   }
 }
 </script>
