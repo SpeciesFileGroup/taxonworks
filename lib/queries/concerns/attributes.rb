@@ -12,6 +12,7 @@ module Queries::Concerns::Attributes
 
   def self.params
     [
+      :attribute_between_and_or,
       :attribute_exact_pair,
       :attribute_wildcard_pair,
       :wildcard_attribute,
@@ -30,6 +31,11 @@ module Queries::Concerns::Attributes
     self::ATTRIBUTES.each do |a|
       class_eval { attr_accessor a.to_sym }
     end
+
+    # @return [String]
+    #  if 'and' then 'and' the result of each pair from attribute_wildcard_pair,
+    #  otherwise 'or' those results.
+    attr_accessor :attribute_between_and_or
 
     # @return [Array]
     #   values are [attribute, value] pairs that should match exactly - repeated
@@ -86,6 +92,7 @@ module Queries::Concerns::Attributes
     @wildcard_attribute = params[:wildcard_attribute]
     @any_value_attribute = params[:any_value_attribute]
     @no_value_attribute = params[:no_value_attribute]
+    @attribute_between_and_or = params[:attribute_between_and_or] || 'and'
 
     self.class::ATTRIBUTES.each do |a|
       send("#{a}=", params[a.to_sym])
@@ -112,11 +119,14 @@ module Queries::Concerns::Attributes
 
       w = arr.shift
       arr.each do |b|
-        w = w.or(b)
+        if attribute_between_and_or == 'and'
+          w = w.and(b)
+        else
+          w = w.or(b)
+        end
       end
     end
 
-    e = nil
     if attribute_exact_pair.present?
       arr = []
       attribute_exact_pair.each do |p|
@@ -124,14 +134,17 @@ module Queries::Concerns::Attributes
         arr.push table[attr].eq(v)
       end
 
-      e = arr.shift
+      w = arr.shift if w.nil?
       arr.each do |b|
-        e = e.or(b)
+        if attribute_between_and_or == 'and'
+          w = w.and(b)
+        else
+          w = w.or(b)
+        end
       end
     end
 
-    return w.and(e) if w.present? && e.present?
-    w || e
+    w
   end
 
   def attribute_clauses

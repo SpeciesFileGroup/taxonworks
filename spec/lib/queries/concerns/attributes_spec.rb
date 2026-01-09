@@ -19,6 +19,8 @@ describe Queries::Concerns::Attributes, type: :model, group: [:filter] do
     start_date_day: 7,
     print_label: 'THERE: under the stars:18-2-2000') }
 
+  let!(:ce3) { CollectingEvent.create! } # not this one
+
   # let!(:namespace) { FactoryBot.create(:valid_namespace, short_name: 'Foo') }
   # let!(:i1) { Identifier::Local::FieldNumber.create!(identifier_object: ce1, identifier: '123', namespace: namespace) }
   # let(:p1) { FactoryBot.create(:valid_person, last_name: 'Smith') }
@@ -61,46 +63,58 @@ describe Queries::Concerns::Attributes, type: :model, group: [:filter] do
       FactoryBot.create(:valid_collecting_event) # not this
     end
 
-    specify '1 attr, 1 wildcard value' do
+    specify '1 attr, 1 wildcard value, default and' do
       query.attribute_wildcard_pair = 'verbatim_locality:Out there'
 
       expect(query.all.map(&:id)).to contain_exactly(ce1.id, ce2.id)
     end
 
-     specify '1 attr, 2 wildcard values (or)' do
+     specify '1 attr, 2 wildcard values, or' do
       query.attribute_wildcard_pair =
         ['verbatim_locality:there', 'verbatim_locality:stars']
+      query.attribute_between_and_or = 'or'
       expect(query.all.map(&:id)).to contain_exactly(ce1.id, ce2.id)
     end
 
-    specify '1 attr, 3 values (2 or wildcard, 1 and exact)' do
+    specify '1 attr, 3 values (2 wildcard, 1 exact); and results' do
       query.attribute_wildcard_pair =
         ['verbatim_locality:there', 'verbatim_locality:stars']
       query.attribute_exact_pair =
         'verbatim_locality:Out there, under the stars'
+      query.attribute_between_and_or = 'and'
       expect(query.all.map(&:id)).to contain_exactly(ce2.id)
     end
 
-    specify '1 attr, 2 exact or' do
+    specify '1 attr, 3 values (2 wildcard, 1 exact); or results' do
+      query.attribute_wildcard_pair =
+        ['verbatim_locality:there', 'verbatim_locality:stars']
       query.attribute_exact_pair =
-        ['start_date_day:7', 'start_date_day:18']
-
+        'verbatim_locality:Out there, under the stars'
+      query.attribute_between_and_or = 'or'
       expect(query.all.map(&:id)).to contain_exactly(ce1.id, ce2.id)
     end
 
-    specify '2 attr, 2 wildcard or, 1 exact' do
+    specify '1 attr, 2 exact, default and' do
+      query.no_value_attribute = [:print_label]
+      query.attribute_exact_pair =
+        ['start_date_year:2010']
+
+      expect(query.all.map(&:id)).to contain_exactly(ce1.id)
+    end
+
+    specify '2 attr, 1 wildcard, 1 exact, default is and' do
       query.attribute_wildcard_pair =
-        ['start_date_day:7', 'start_date_day:18']
+        ['start_date_day:18']
       query.attribute_exact_pair =
         'verbatim_locality:Out there, under the stars'
 
-      expect(query.all.map(&:id)).to contain_exactly(ce2.id)
+      expect(query.all.map(&:id)).to be_empty
     end
   end
 
   specify '#no_value_attribute' do
     query.no_value_attribute = [:print_label]
-    expect(query.all).to contain_exactly(ce1)
+    expect(query.all).to contain_exactly(ce1, ce3)
   end
 
   specify '#any_value_attribute' do

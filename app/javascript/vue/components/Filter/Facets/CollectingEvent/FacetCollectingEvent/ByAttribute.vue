@@ -24,7 +24,25 @@
     :field="selectedField"
     @add="addField"
   />
-
+  <div class="margin-large-bottom">
+    <label>
+      <input
+        type="radio"
+        v-model="params.attribute_between_between_and_or"
+        value="undefined"
+      />
+      And
+    </label>
+    <label class="margin-small-left">
+      <input
+        type="radio"
+        v-model="params.attribute_between_between_and_or"
+        value="or"
+      />
+      Or
+    </label>
+    <span class="small-text margin-small-left">results from different rows</span>
+  </div>
   <table
     v-if="selectedFields.length"
     class="full_width"
