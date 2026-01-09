@@ -34,7 +34,7 @@ module ::Export::ProjectData::Sql
   def self.export(project, custom_password: nil)
     zip_file_path = "/tmp/_#{SecureRandom.hex(8)}_dump.sql"
 
-    Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
+    Zip::File.open(zip_file_path) do |zipfile|
       Tempfile.create(encoding: 'UTF-8') do |tempfile|
         generate_dump(project, tempfile, custom_password: custom_password)
         tempfile.flush

@@ -180,7 +180,7 @@ module Export
       metadata_file.write(metadata.to_yaml)
       metadata_file.close
 
-      Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
+      Zip::File.open(zip_file_path, create: true) do |zipfile|
 
         zipfile.get_output_stream('Name.tsv') { |f| f.write Export::Coldp::Files::Name.generate(otu, project_members, ref_tsv) }
 

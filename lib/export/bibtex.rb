@@ -3,14 +3,14 @@ require 'zip'
 module Export
 
   # Exports to a simple format.
-  module Bibtex 
+  module Bibtex
 
     DESCRIPTION = "A zip file containing a .bib export sources."
 
     def self.export(sources, style_id)
       zip_file_path = "/tmp/_#{SecureRandom.hex(8)}_bibtex.bib"
 
-      Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
+      Zip::File.open(zip_file_path) do |zipfile|
         t = style_id ? ::Vendor::BibtexRuby.styled(sources, style_id).join("\n\n") : ::Vendor::BibtexRuby.bibliography(sources)
         zipfile.get_output_stream('bibliography.bib') { |f| f.write t }
       end
@@ -31,7 +31,7 @@ module Export
         is_public: is_public
       )
     end
-   
+
    #  # HUH
    #def self.download_async(sources, request = nil, is_public = false, style_id = 'http://www.zotero.org/styles/bibtex')
    #  download = ::Download.create!(

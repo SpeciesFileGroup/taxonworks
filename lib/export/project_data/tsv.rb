@@ -9,7 +9,7 @@ module ::Export::ProjectData::Tsv
   def self.export(project)
     zip_file_path = "/tmp/_#{SecureRandom.hex(8)}_project_tsv.zip"
 
-    Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
+    Zip::File.open(zip_file_path) do |zipfile|
       ApplicationEnumeration.project_data_classes.each do |k|
         q = k.where(project_id: project.to_param)
         next if !q.any?

@@ -18,14 +18,14 @@ gem 'rdf', '~> 3.0'
 
 # System
 gem 'thor', '~> 1.2'
-gem 'rubyzip', '~> 2.3.0'
+gem 'rubyzip', '~> 3.0.0'
 gem 'zip_tricks', '~> 5.6'
 gem 'daemons', '~> 1.4.1'
 gem 'tzinfo-data', '~> 1.2019' # , '>= 1.2019.3'
 gem 'psych', '~> 5.1'
 gem 'rmagick', '~> 6.0'
-gem 'roo', '~> 2.8', '>= 2.8.3'
-gem 'roo-xls', '~> 1.2'
+gem 'roo', '~> 3.0'
+gem 'roo-xls', '~> 2.0'
 
 gem 'csv', '~> 3.2'
 

@@ -10,7 +10,7 @@ module Export
 
       zip_file_path = "/tmp/_#{SecureRandom.hex(8)}_basic_nomenclature.zip"
 
-      Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
+      Zip::File.open(zip_file_path) do |zipfile|
         zipfile.get_output_stream('names.csv') { |f| f.write generate(t) }
       end
 
