@@ -115,6 +115,7 @@ import PanelStatus from './components/PanelStatus.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import RadialFilter from '@/components/radials/filter/radial.vue'
+import { sanitizeHtml } from '@/helpers'
 
 const EXTENDED_SLICES = [
   {
@@ -127,7 +128,10 @@ const fields = [
   { label: 'Id', value: 'taxon.id' },
   { label: 'taxon name', value: 'taxon.object_label' },
   { label: 'Author and year', value: 'taxon.cached_author_year' },
-  { label: 'Valid name', value: 'taxon.original_combination' }
+  {
+    label: 'Valid name',
+    value: (row) => sanitizeHtml(row.taxon.original_combination)
+  }
 ]
 
 const tableComponent = {
