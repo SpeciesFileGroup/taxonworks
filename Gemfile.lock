@@ -279,7 +279,7 @@ GEM
     ffi (1.17.3-x86_64-darwin)
     ffi (1.17.3-x86_64-linux-gnu)
     ffi (1.17.3-x86_64-linux-musl)
-    ffi-geos (2.4.0)
+    ffi-geos (2.5.0)
       ffi (>= 1.0.0)
     formatador (1.2.3)
       reline
@@ -877,7 +877,7 @@ DEPENDENCIES
   execjs (~> 2.8.1)
   factory_bot_rails (~> 6.5)
   faker (~> 3.2)
-  ffi-geos (~> 2.4.0)
+  ffi-geos (~> 2.5.0)
   gnfinder (~> 1.0)
   gpx (~> 1.2)
   groupdate (~> 6.4)
