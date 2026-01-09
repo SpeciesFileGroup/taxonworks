@@ -16,7 +16,7 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
     expect(query.all.pluck(:id)).to contain_exactly(d.attribute_subject.id)
   end
 
-  specify '#data_attribute_without_predicate_id' do
+  specify '#data_attribute_without_predicate_id with single predicate' do
     n = Specimen.create!
     s = Specimen.create!
     FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: s)
@@ -25,13 +25,79 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
     expect(query.all).to contain_exactly(n)
   end
 
-  specify '#data_attribute_predicate_id' do
+  specify '#data_attribute_without_predicate_id with multiple predicates default (and)' do
+    s1 = Specimen.create!  # has neither
+
+    s2 = Specimen.create!  # has p1 only
+    InternalAttribute.create!(predicate: p1, value: 'a', attribute_subject: s2)
+
+    s3 = Specimen.create!  # has p2 only
+    InternalAttribute.create!(predicate: p2, value: 'b', attribute_subject: s3)
+
+    s4 = Specimen.create!  # has both
+    InternalAttribute.create!(predicate: p1, value: 'c', attribute_subject: s4)
+    InternalAttribute.create!(predicate: p2, value: 'd', attribute_subject: s4)
+
+    query.data_attribute_without_predicate_id = [p1.id, p2.id]
+
+    # With 'and', only s1 lacks both predicates
+    expect(query.all).to contain_exactly(s1)
+  end
+
+  specify '#data_attribute_without_predicate_id with multiple predicates (or)' do
+    s1 = Specimen.create!  # has neither - matches (lacks at least one)
+
+    s2 = Specimen.create!  # has p1 only - matches (lacks p2)
+    InternalAttribute.create!(predicate: p1, value: 'a', attribute_subject: s2)
+
+    s3 = Specimen.create!  # has p2 only - matches (lacks p1)
+    InternalAttribute.create!(predicate: p2, value: 'b', attribute_subject: s3)
+
+    s4 = Specimen.create!  # has both - excluded (has both)
+    InternalAttribute.create!(predicate: p1, value: 'c', attribute_subject: s4)
+    InternalAttribute.create!(predicate: p2, value: 'd', attribute_subject: s4)
+
+    query.data_attribute_without_predicate_id = [p1.id, p2.id]
+    query.data_attribute_between_and_or = 'or'
+
+    # With 'or', s1, s2, s3 lack at least one predicate
+    expect(query.all).to contain_exactly(s1, s2, s3)
+  end
+
+  specify '#data_attribute_predicate_id with single predicate' do
     n = Specimen.create!
     s = Specimen.create!
     FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: s)
 
     query.data_attribute_predicate_id = s.data_attributes.first.controlled_vocabulary_term_id
     expect(query.all).to contain_exactly(s)
+  end
+
+  specify '#data_attribute_predicate_id with multiple predicates default (and)' do
+    s1 = Specimen.create!
+    InternalAttribute.create!(predicate: p1, value: 'a', attribute_subject: s1)
+    InternalAttribute.create!(predicate: p2, value: 'b', attribute_subject: s1)
+
+    s2 = Specimen.create!
+    InternalAttribute.create!(predicate: p1, value: 'c', attribute_subject: s2)
+
+    query.data_attribute_predicate_id = [p1.id, p2.id]
+
+    # With 'and', only s1 has both predicates
+    expect(query.all).to contain_exactly(s1)
+  end
+
+  specify '#data_attribute_predicate_id with multiple predicates (or)' do
+    s1 = Specimen.create!
+    InternalAttribute.create!(predicate: p1, value: 'a', attribute_subject: s1)
+
+    s2 = Specimen.create!
+    InternalAttribute.create!(predicate: p2, value: 'b', attribute_subject: s2)
+
+    query.data_attribute_predicate_id = [p1.id, p2.id]
+    query.data_attribute_between_and_or = 'or'
+
+    expect(query.all).to contain_exactly(s1, s2)
   end
 
   specify '#data_attribute_exact_value' do
@@ -58,15 +124,37 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
     expect(query.all).to contain_exactly(d.attribute_subject)
   end
 
-    specify '#data_attribute_exact_pair 2, multiple predicate values are ored' do
-    d = InternalAttribute.create!(predicate: p1, value: '212', attribute_subject: Specimen.create!)
-    e = InternalAttribute.create!(predicate: p1, value: '313', attribute_subject: Specimen.create!)
+    specify '#data_attribute_exact_pair 2, multiple predicates with default (and)' do
+    s1 = Specimen.create!
+    InternalAttribute.create!(predicate: p1, value: '212', attribute_subject: s1)
+    InternalAttribute.create!(predicate: p2, value: '313', attribute_subject: s1)
+
+    s2 = Specimen.create!
+    InternalAttribute.create!(predicate: p1, value: '212', attribute_subject: s2)
+
     Specimen.create!
 
     # Must use array form
-    query.data_attribute_exact_pair = ["#{p1.id}:212", "#{p1.id}:313"]
+    query.data_attribute_exact_pair = ["#{p1.id}:212", "#{p2.id}:313"]
 
-    expect(query.all).to contain_exactly(d.attribute_subject, e.attribute_subject)
+    # With 'and' (default), only s1 has both predicates
+    expect(query.all).to contain_exactly(s1)
+  end
+
+  specify '#data_attribute_exact_pair 3, multiple predicates are ored when data_attribute_between_and_or = or' do
+    s1 = Specimen.create!
+    InternalAttribute.create!(predicate: p1, value: '212', attribute_subject: s1)
+
+    s2 = Specimen.create!
+    InternalAttribute.create!(predicate: p2, value: '313', attribute_subject: s2)
+
+    Specimen.create!
+
+    # Must use array form
+    query.data_attribute_exact_pair = ["#{p1.id}:212", "#{p2.id}:313"]
+    query.data_attribute_between_and_or = 'or'
+
+    expect(query.all).to contain_exactly(s1, s2)
   end
 
   specify '#data_attribute_wildcard_pair 1' do
@@ -77,20 +165,42 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
     expect(query.all).to contain_exactly(d.attribute_subject)
   end
 
-  specify '#data_attribute_wildcard_pair 2, multiple predicate values are ored' do
-    d = InternalAttribute.create!(predicate: p1, value: '212', attribute_subject: Specimen.create!)
-    e = InternalAttribute.create!(predicate: p1, value: '313', attribute_subject: Specimen.create!)
+  specify '#data_attribute_wildcard_pair 2, multiple predicates with default (and)' do
+    s1 = Specimen.create!
+    InternalAttribute.create!(predicate: p1, value: '212', attribute_subject: s1)
+    InternalAttribute.create!(predicate: p2, value: '313', attribute_subject: s1)
+
+    s2 = Specimen.create!
+    InternalAttribute.create!(predicate: p1, value: '212', attribute_subject: s2)
+
     Specimen.create!
 
     # Must use array form
-    query.data_attribute_wildcard_pair = ["#{p1.id}:21", "#{p1.id}:31"]
+    query.data_attribute_wildcard_pair = ["#{p1.id}:21", "#{p2.id}:31"]
 
-    expect(query.all).to contain_exactly(d.attribute_subject, e.attribute_subject)
+    # With 'and' (default), only s1 has both predicates
+    expect(query.all).to contain_exactly(s1)
+  end
+
+  specify '#data_attribute_wildcard_pair 3, multiple predicates are ored when data_attribute_between_and_or = or' do
+    s1 = Specimen.create!
+    InternalAttribute.create!(predicate: p1, value: '212', attribute_subject: s1)
+
+    s2 = Specimen.create!
+    InternalAttribute.create!(predicate: p2, value: '313', attribute_subject: s2)
+
+    Specimen.create!
+
+    # Must use array form
+    query.data_attribute_wildcard_pair = ["#{p1.id}:21", "#{p2.id}:31"]
+    query.data_attribute_between_and_or = 'or'
+
+    expect(query.all).to contain_exactly(s1, s2)
   end
 
 
 
-  specify '#data_attribute_wildcard_pair and #data_attribute_exact_pair are anded' do
+  specify '#data_attribute_wildcard_pair and #data_attribute_exact_pair are anded (different facets)' do
     d = InternalAttribute.create!(predicate: p1, value: '212', attribute_subject: Specimen.create!)
     e = InternalAttribute.create!(predicate: p1, value: '313', attribute_subject: Specimen.create!)
     Specimen.create!
@@ -98,8 +208,123 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
     # Must use array form
     query.data_attribute_wildcard_pair = ["#{p1.id}:21", "#{p1.id}:31"]
     query.data_attribute_exact_pair = {p1.id => '313' }
+    query.data_attribute_between_and_or = 'or'
 
+    # wildcard_pair matches both d and e, exact_pair matches only e
+    # The two facets are AND'd together, so result is intersection = e only
     expect(query.all).to contain_exactly(e.attribute_subject)
+  end
+
+  specify '#data_attribute_wildcard_value with default (and)' do
+    s1 = Specimen.create!
+    InternalAttribute.create!(predicate: p1, value: 'abc def', attribute_subject: s1)
+
+    s2 = Specimen.create!
+    InternalAttribute.create!(predicate: p1, value: 'abc', attribute_subject: s2)
+
+    query.data_attribute_wildcard_value = ['abc', 'def']
+
+    # With 'and', only s1 has both values
+    expect(query.all).to contain_exactly(s1)
+  end
+
+  specify '#data_attribute_wildcard_value with or' do
+    s1 = Specimen.create!
+    InternalAttribute.create!(predicate: p1, value: 'abc', attribute_subject: s1)
+
+    s2 = Specimen.create!
+    InternalAttribute.create!(predicate: p1, value: 'def', attribute_subject: s2)
+
+    query.data_attribute_wildcard_value = ['abc', 'def']
+    query.data_attribute_between_and_or = 'or'
+
+    expect(query.all).to contain_exactly(s1, s2)
+  end
+
+  context 'import attributes' do
+    specify '#data_attribute_import_predicate with default (and)' do
+      s1 = Specimen.create!
+      ImportAttribute.create!(import_predicate: 'color', value: 'red', attribute_subject: s1)
+      ImportAttribute.create!(import_predicate: 'size', value: 'large', attribute_subject: s1)
+
+      s2 = Specimen.create!
+      ImportAttribute.create!(import_predicate: 'color', value: 'blue', attribute_subject: s2)
+
+      query.data_attribute_import_predicate = ['color', 'size']
+
+      # With 'and', only s1 has both predicates
+      expect(query.all).to contain_exactly(s1)
+    end
+
+    specify '#data_attribute_import_predicate with or' do
+      s1 = Specimen.create!
+      ImportAttribute.create!(import_predicate: 'color', value: 'red', attribute_subject: s1)
+
+      s2 = Specimen.create!
+      ImportAttribute.create!(import_predicate: 'size', value: 'large', attribute_subject: s2)
+
+      query.data_attribute_import_predicate = ['color', 'size']
+      query.data_attribute_import_between_and_or = 'or'
+
+      expect(query.all).to contain_exactly(s1, s2)
+    end
+
+    specify '#data_attribute_import_exact_pair with default (and)' do
+      s1 = Specimen.create!
+      ImportAttribute.create!(import_predicate: 'color', value: 'red', attribute_subject: s1)
+      ImportAttribute.create!(import_predicate: 'size', value: 'large', attribute_subject: s1)
+
+      s2 = Specimen.create!
+      ImportAttribute.create!(import_predicate: 'color', value: 'red', attribute_subject: s2)
+
+      Specimen.create!
+
+      query.data_attribute_import_exact_pair = ['color:red', 'size:large']
+
+      # With 'and' (default), only s1 has both predicates
+      expect(query.all).to contain_exactly(s1)
+    end
+
+    specify '#data_attribute_import_exact_pair with or' do
+      s1 = Specimen.create!
+      ImportAttribute.create!(import_predicate: 'color', value: 'red', attribute_subject: s1)
+
+      s2 = Specimen.create!
+      ImportAttribute.create!(import_predicate: 'size', value: 'large', attribute_subject: s2)
+
+      Specimen.create!
+
+      query.data_attribute_import_exact_pair = ['color:red', 'size:large']
+      query.data_attribute_import_between_and_or = 'or'
+
+      expect(query.all).to contain_exactly(s1, s2)
+    end
+
+    specify '#data_attribute_import_wildcard_value with default (and)' do
+      s1 = Specimen.create!
+      ImportAttribute.create!(import_predicate: 'notes', value: 'abc def', attribute_subject: s1)
+
+      s2 = Specimen.create!
+      ImportAttribute.create!(import_predicate: 'notes', value: 'abc', attribute_subject: s2)
+
+      query.data_attribute_import_wildcard_value = ['abc', 'def']
+
+      # With 'and', only s1 has both values
+      expect(query.all).to contain_exactly(s1)
+    end
+
+    specify '#data_attribute_import_wildcard_value with or' do
+      s1 = Specimen.create!
+      ImportAttribute.create!(import_predicate: 'notes', value: 'abc', attribute_subject: s1)
+
+      s2 = Specimen.create!
+      ImportAttribute.create!(import_predicate: 'notes', value: 'def', attribute_subject: s2)
+
+      query.data_attribute_import_wildcard_value = ['abc', 'def']
+      query.data_attribute_import_between_and_or = 'or'
+
+      expect(query.all).to contain_exactly(s1, s2)
+    end
   end
 
 end

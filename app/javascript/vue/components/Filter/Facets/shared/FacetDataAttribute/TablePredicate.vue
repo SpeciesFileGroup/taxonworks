@@ -1,40 +1,37 @@
 <template>
-  <table class="margin-medium-bottom table-striped">
+  <table class="margin-medium-bottom table-striped full_width">
     <thead>
       <tr>
-        <th>Predicate</th>
-        <th>Value</th>
-        <th class="w-2">Exact</th>
+        <th v-if="showPredicate">Predicate</th>
+        <th v-if="showValue">Value</th>
+        <th v-if="showExact" class="w-2">Exact</th>
         <th class="w-2"></th>
       </tr>
     </thead>
     <tbody>
       <tr
-        v-for="(predicate, index) in predicates"
+        v-for="predicate in predicates"
         :key="predicate.uuid"
       >
         <td
+          v-if="showPredicate"
           class="column-predicate ellipsis"
           :title="predicate.name || 'Any'"
           v-html="predicate.name || '<i>Any</i>'"
         />
         <td
+          v-if="showValue"
           class="column-text ellipsis"
           :title="predicate.text"
           v-text="predicate.text"
         />
-        <td>
-          <span v-if="predicate.any">Any</span>
-          <span v-else-if="!predicate.text?.length">W/O</span>
-          <label v-else>
+        <td v-if="showExact">
+          <label>
             <input
               :checked="predicate.exact"
               @click="
                 () =>
-                  emit('update', {
-                    index,
-                    predicate: { ...predicate, exact: !predicate.exact }
-                  })
+                  emit('update', { ...predicate, exact: !predicate.exact })
               "
               type="checkbox"
             />
@@ -44,7 +41,7 @@
           <VBtn
             color="primary"
             circle
-            @click="() => emit('remove', index)"
+            @click="() => emit('remove', predicate)"
           >
             <VIcon
               name="trash"
@@ -65,6 +62,18 @@ defineProps({
   predicates: {
     type: Array,
     default: () => []
+  },
+  showPredicate: {
+    type: Boolean,
+    default: true
+  },
+  showValue: {
+    type: Boolean,
+    default: true
+  },
+  showExact: {
+    type: Boolean,
+    default: true
   }
 })
 
