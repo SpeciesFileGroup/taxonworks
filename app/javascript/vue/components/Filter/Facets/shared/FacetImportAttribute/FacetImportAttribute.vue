@@ -26,6 +26,25 @@
         }
       "
     />
+    <div class="margin-medium-top">
+      <label>
+        <input
+          type="radio"
+          v-model="params.data_attribute_import_between_and_or"
+          value="undefined"
+        />
+        And
+      </label>
+      <label class="margin-small-left">
+        <input
+          type="radio"
+          v-model="params.data_attribute_import_between_and_or"
+          value="or"
+        />
+        Or
+      </label>
+      <span class="small-text margin-small-left">results from different rows</span>
+    </div>
   </FacetContainer>
 </template>
 
