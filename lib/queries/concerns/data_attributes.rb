@@ -198,25 +198,83 @@ module Queries::Concerns::DataAttributes
 
   def data_attribute_predicate_id_facet
     return nil if data_attribute_predicate_id.blank?
-    referenced_klass.joins(:internal_attributes).where(data_attributes: {controlled_vocabulary_term_id: data_attribute_predicate_id})
+
+    if data_attribute_between_and_or == 'and'
+      queries = data_attribute_predicate_id.map do |predicate_id|
+        referenced_klass.joins(:internal_attributes)
+          .where(data_attributes: {controlled_vocabulary_term_id: predicate_id})
+          .select(table[:id])
+      end
+
+      result = queries.shift
+      queries.each do |q|
+        result = result.where(table[:id].in(q.arel))
+      end
+
+      result.distinct
+    else
+      referenced_klass.joins(:internal_attributes)
+        .where(data_attributes: {controlled_vocabulary_term_id: data_attribute_predicate_id})
+    end
   end
 
   def data_attribute_import_predicate_facet
     return nil if data_attribute_import_predicate.empty?
-    referenced_klass.joins(:import_attributes).where(data_attributes: {import_predicate: data_attribute_import_predicate})
+
+    if data_attribute_import_between_and_or == 'and'
+      queries = data_attribute_import_predicate.map do |predicate|
+        referenced_klass.joins(:import_attributes)
+          .where(data_attributes: {import_predicate: predicate})
+          .select(table[:id])
+      end
+
+      result = queries.shift
+      queries.each do |q|
+        result = result.where(table[:id].in(q.arel))
+      end
+
+      result.distinct
+    else
+      referenced_klass.joins(:import_attributes)
+        .where(data_attributes: {import_predicate: data_attribute_import_predicate})
+    end
   end
 
 
   def data_attribute_without_predicate_id_facet
     return nil if data_attribute_without_predicate_id.blank?
-    not_these = referenced_klass.left_joins(:internal_attributes).where(data_attributes: {controlled_vocabulary_term_id: data_attribute_without_predicate_id})
 
-    # a Not exists without using .exists
-    s = 'WITH not_these AS (' + not_these.to_sql + ') ' +
-      referenced_klass.joins("LEFT JOIN not_these AS not_these1 ON not_these1.id = #{table.name}.id")
-      .where('not_these1.id IS NULL').to_sql
+    if data_attribute_between_and_or == 'and'
+      # 'and': Objects that don't have predicate1 AND don't have predicate2.
+      # Exclude records with ANY of the predicates (must lack ALL).
+      not_these = referenced_klass.left_joins(:internal_attributes)
+        .where(data_attributes: {controlled_vocabulary_term_id: data_attribute_without_predicate_id})
 
-    referenced_klass.from("(#{s}) as #{table.name}")
+      # a Not exists without using .exists
+      s = 'WITH not_these AS (' + not_these.to_sql + ') ' +
+        referenced_klass.joins("LEFT JOIN not_these AS not_these1 ON not_these1.id = #{table.name}.id")
+        .where('not_these1.id IS NULL').to_sql
+
+      referenced_klass.from("(#{s}) AS #{table.name}")
+    else
+      # 'or': Objects that don't have predicate1 OR don't have predicate2.
+      # Exclude only records with ALL of the predicates (must lack AT LEAST
+      # ONE).
+      # Build queries for records that HAVE each predicate, then intersect
+      # to find records with ALL.
+      queries = data_attribute_without_predicate_id.map do |predicate_id|
+        referenced_klass.joins(:internal_attributes)
+          .where(data_attributes: {controlled_vocabulary_term_id: predicate_id})
+          .select(table[:id])
+      end
+
+      result = queries.shift
+      queries.each do |q|
+        result = result.where(table[:id].in(q.arel))
+      end
+
+      referenced_klass.where.not(table[:id].in(result.select(table[:id]).arel))
+    end
   end
 
   # TODO: get rid of this
