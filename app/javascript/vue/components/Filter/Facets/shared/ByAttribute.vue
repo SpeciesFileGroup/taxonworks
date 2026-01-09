@@ -45,59 +45,121 @@
       />
       Or
    </label>
-    <span class="small-text margin-small-left">results from different rows</span>
+    <span class="small-text margin-small-left">results within groups</span>
   </div>
 
-  <table
-    v-if="selectedFields.length"
-    class="full_width"
-  >
-    <thead>
-      <tr>
-        <th>Field</th>
-        <th>Value</th>
-        <th class="w-2">Exact</th>
-        <th class="w-2" />
-      </tr>
-    </thead>
-    <tbody>
-      <tr
-        v-for="(field, index) in selectedFields"
-        :key="field.param"
-      >
-        <td>{{ field.param }}</td>
-        <td>{{ field.value }}</td>
-        <td>
-          <input
-            v-if="allowExactForField(field)"
-            v-model="field.exact"
-            type="checkbox"
-          />
-          <template v-else-if="field.any">Any</template>
-          <template v-else-if="!field.value">Empty</template>
-          <template v-else>Substring</template>
-        </td>
-        <td>
-          <VBtn
-            color="primary"
-            circle
-            @click="() => removeField(index)"
-          >
-            <VIcon
-              name="trash"
-              x-small
+  <div v-if="fieldsWithValues.length" class="facet-group">
+    <h4 class="margin-small-top">Attribute:value (exact group, wildcard group)</h4>
+    <table class="full_width">
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th>Value</th>
+          <th class="w-2">Exact</th>
+          <th class="w-2" />
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="(field, index) in fieldsWithValues"
+          :key="field.param"
+        >
+          <td>{{ field.param }}</td>
+          <td>{{ field.value }}</td>
+          <td>
+            <input
+              v-if="allowExactForField(field)"
+              v-model="field.exact"
+              type="checkbox"
             />
-          </VBtn>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+            <template v-else>Substring</template>
+          </td>
+          <td>
+            <VBtn
+              color="primary"
+              circle
+              @click="() => removeFieldByParam(field.param)"
+            >
+              <VIcon
+                name="trash"
+                x-small
+              />
+            </VBtn>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div v-if="fieldsWithAnyValue.length" class="facet-group">
+    <h4 class="margin-small-top">Attribute (any value) group</h4>
+    <table class="full_width">
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th class="w-2" />
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="field in fieldsWithAnyValue"
+          :key="field.param"
+        >
+          <td>{{ field.param }}</td>
+          <td>
+            <VBtn
+              color="primary"
+              circle
+              @click="() => removeFieldByParam(field.param)"
+            >
+              <VIcon
+                name="trash"
+                x-small
+              />
+            </VBtn>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div v-if="fieldsWithNoValue.length" class="facet-group">
+    <h4 class="margin-small-top">Attribute (no value/empty) group</h4>
+    <table class="full_width">
+      <thead>
+        <tr>
+          <th>Field</th>
+          <th class="w-2" />
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="field in fieldsWithNoValue"
+          :key="field.param"
+        >
+          <td>{{ field.param }}</td>
+          <td>
+            <VBtn
+              color="primary"
+              circle
+              @click="() => removeFieldByParam(field.param)"
+            >
+              <VIcon
+                name="trash"
+                x-small
+              />
+            </VBtn>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </template>
 
 <script setup>
 import { ref, watch, computed, onBeforeMount } from 'vue'
-import { URLParamsToJSON } from '@/helpers/url/parse.js'
 import ajaxCall from '@/helpers/ajaxCall'
+import { removeFromArray } from '@/helpers/arrays'
 import AttributeForm from '@/components/Filter/Facets/CollectingEvent/FacetCollectingEvent/AttributeForm.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
@@ -134,6 +196,18 @@ const fieldNames = ref([])
 // 'require an exact match on value'.
 const selectedFields = ref([])
 const selectedField = ref(undefined)
+
+const fieldsWithValues = computed(() =>
+  selectedFields.value.filter((f) => f.value && !f.any)
+)
+
+const fieldsWithAnyValue = computed(() =>
+  selectedFields.value.filter((f) => f.any)
+)
+
+const fieldsWithNoValue = computed(() =>
+  selectedFields.value.filter((f) => !f.value && !f.any)
+)
 
 watch(
   selectedFields,
@@ -218,8 +292,8 @@ const addField = (field) => {
   selectedField.value = undefined
 }
 
-const removeField = (index) => {
-  selectedFields.value.splice(index, 1)
+const removeFieldByParam = (param) => {
+  removeFromArray(selectedFields.value, { param }, { property: 'param' })
 }
 
 const fieldIsWildcard = (field) => {
@@ -240,3 +314,4 @@ const allowExactForField = (field) => {
   )
 }
 </script>
+

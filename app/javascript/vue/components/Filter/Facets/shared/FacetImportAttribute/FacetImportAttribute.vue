@@ -12,51 +12,42 @@
         }
       "
     />
-    <TablePredicate
-      v-if="attributes.length"
-      :predicates="attributes"
-      @update="
-        ({ index, predicate }) => {
-          attributes[index] = predicate
-        }
-      "
-      @remove="
-        (index) => {
-          attributes.splice(index, 1)
-        }
-      "
+
+    <AttributeFacetGroups
+      :predicate-pairs="predicatePairs"
+      :predicate-any-value="predicateAnyValue"
+      :predicate-without-value="[]"
+      :value-any-predicate="valueAnyPredicate"
+      v-model:and-or="params.data_attribute_import_between_and_or"
+      @update="updateAttribute"
+      @remove="removeAttribute"
     />
-    <div class="margin-medium-top">
-      <label>
-        <input
-          type="radio"
-          v-model="params.data_attribute_import_between_and_or"
-          value="undefined"
-        />
-        And
-      </label>
-      <label class="margin-small-left">
-        <input
-          type="radio"
-          v-model="params.data_attribute_import_between_and_or"
-          value="or"
-        />
-        Or
-      </label>
-      <span class="small-text margin-small-left">results from different rows</span>
-    </div>
   </FacetContainer>
 </template>
 
 <script setup>
-import { ref, watch, onBeforeMount } from 'vue'
+import { ref, watch, onBeforeMount, computed } from 'vue'
 import { randomUUID } from '@/helpers'
-import TablePredicate from '../FacetDataAttribute/TablePredicate.vue'
+import { addToArray, removeFromArray } from '@/helpers/arrays'
 import AddInternalPredicate from './AddInternalPredicate.vue'
 import AddValue from '../FacetDataAttribute/AddValue.vue'
+import AttributeFacetGroups from '../FacetDataAttribute/AttributeFacetGroups.vue'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
 const attributes = ref([])
+
+// Computed properties to filter attributes by facet type
+const predicatePairs = computed(() =>
+  attributes.value.filter((a) => a.isPair && !a.any && a.text)
+)
+
+const predicateAnyValue = computed(() =>
+  attributes.value.filter((a) => a.isPair && a.any)
+)
+
+const valueAnyPredicate = computed(() =>
+  attributes.value.filter((a) => !a.isPair)
+)
 
 const params = defineModel({
   type: Object,
@@ -154,6 +145,14 @@ function addValue({ text, exact }) {
     text,
     exact
   })
+}
+
+function updateAttribute(predicate) {
+  addToArray(attributes.value, predicate, { property: 'uuid' })
+}
+
+function removeAttribute(predicate) {
+  removeFromArray(attributes.value, predicate, { property: 'uuid' })
 }
 
 onBeforeMount(async () => {

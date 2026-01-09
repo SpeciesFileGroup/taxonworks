@@ -41,7 +41,7 @@
       />
       Or
     </label>
-    <span class="small-text margin-small-left">results from different rows</span>
+    <span class="small-text margin-small-left">results from different groups</span>
   </div>
   <table
     v-if="selectedFields.length"
