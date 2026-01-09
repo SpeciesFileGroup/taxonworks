@@ -454,7 +454,7 @@ GEM
       ast (~> 2.4.1)
       racc
     parslet (2.0.0)
-    passenger (6.0.27)
+    passenger (6.1.1)
       rack (>= 1.6.13)
       rackup (>= 1.0.1)
       rake (>= 12.3.3)
@@ -908,7 +908,7 @@ DEPENDENCIES
   paperclip-meta!
   parallel (~> 1.23)
   parallel_tests
-  passenger (~> 6.0.2)
+  passenger (~> 6.1.0)
   pdf-reader (~> 2.2)
   pg (~> 1.1)
   postgresql_cursor (~> 0.6.1)
