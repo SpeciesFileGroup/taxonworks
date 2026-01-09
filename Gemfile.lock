@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/LocoDelAssembly/dwc-archive.git
-  revision: ffb0bc70d162b9910d6ad801d4e98479cbf69ac9
+  revision: c9b3403e3f55583b6c373e228e360b46c7ae9a2d
   branch: overhaul
   specs:
     dwc-archive (1.1.4)
@@ -687,7 +687,7 @@ GEM
     ruby-progressbar (1.13.0)
     ruby-rc4 (0.1.5)
     ruby-units (4.1.0)
-    rubyzip (3.0.2)
+    rubyzip (3.2.2)
     sassc (2.4.0)
       ffi (~> 1.9)
     sassc-rails (2.1.2)
@@ -949,7 +949,7 @@ DEPENDENCIES
   ruby-prof (~> 1.2)
   ruby-progressbar (~> 1.11)
   ruby-units (~> 4.1.0)
-  rubyzip (~> 3.0.0)
+  rubyzip (~> 3.2)
   sassc-rails (~> 2.1.0)
   sdoc (~> 2.6)
   seedbank (~> 0.5.0)

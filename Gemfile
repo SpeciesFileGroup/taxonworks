@@ -18,7 +18,7 @@ gem 'rdf', '~> 3.0'
 
 # System
 gem 'thor', '~> 1.2'
-gem 'rubyzip', '~> 3.0.0'
+gem 'rubyzip', '~> 3.2'
 gem 'zip_tricks', '~> 5.6'
 gem 'daemons', '~> 1.4.1'
 gem 'tzinfo-data', '~> 1.2019' # , '>= 1.2019.3'
