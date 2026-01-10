@@ -174,7 +174,7 @@ group :test, :development do
   gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 6.5'
   gem 'selenium-webdriver', '~> 4.6', '>= 4.6.1'
-  gem 'puma', '~> 6.3'
+  gem 'puma', '~> 7.0'
 end
 
 gem 'parallel_tests', group: [:development, :test]
