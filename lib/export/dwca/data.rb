@@ -123,7 +123,7 @@ module Export::Dwca
 
       q = @biological_associations_extension[:collection_objects_query]
       scope = if q.kind_of?(String)
-        ::BiologicalAssociation.from('(' + q + ') as biological_associations')
+                ::BiologicalAssociation.from('(' + q + ') as biological_associations')
       elsif q.kind_of?(ActiveRecord::Relation)
         q
       else
@@ -237,12 +237,12 @@ module Export::Dwca
     def extension_computed_fields_data(methods)
       return [] if methods.empty?
 
-      a = "TW:Internal:otu_name".freeze
+      a = 'TW:Internal:otu_name'.freeze
 
       # n = "COALESCE( otus.name, TRIM(CONCAT(cached, ' ', cached_author_year))) as otu_name"
 
       v = collection_objects.left_joins(otu: [:taxon_name])
-        .select("collection_objects.id, otus.name as otu_name")
+        .select('collection_objects.id, otus.name as otu_name')
         .where(taxon_determinations: {position: '1'})
         .find_each(batch_size: 10000)
         .collect{|r| [r.id, a, r['otu_name'].presence] }
@@ -639,10 +639,10 @@ module Export::Dwca
       if no_records?
         content = "\n"
       else
-          content = Export::CSV::Dwc::Extension::BiologicalAssociations.csv(
-            biological_associations_extension,
-            biological_association_relations_to_core
-          )
+        content = Export::CSV::Dwc::Extension::BiologicalAssociations.csv(
+          biological_associations_extension,
+          biological_association_relations_to_core
+        )
       end
 
       @biological_associations_resource_relationship_tmp.write(content)
@@ -747,7 +747,7 @@ module Export::Dwca
 
       Zip::OutputStream.open(t) { |zos| }
 
-      Zip::File.open(t.path) do |zip|
+      Zip::File.open(t.path, create: true) do |zip|
         zip.add('data.tsv', all_data.path)
 
         zip.add('media.tsv', media_tmp.path) if media_extension
