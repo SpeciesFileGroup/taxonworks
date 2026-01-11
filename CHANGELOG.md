@@ -9,8 +9,30 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- New task: Dichotomous key
+
+### Fixed
+
+- Filters return incorrect results when using the right Radial Filter with 21 or more selected objects. [#4676]
+- Browse News: Old administration news is shown first instead of new news.
+- Batch operation now works on venn query results, venn query results can now be sent to other filters [#4663]
+- No error message when trying to delete a combination attached to an OTU [#4670]
+- Error notice is now returned when trying to include media extension in DwCA export with a project API token
+- Match Taxon Names task downloads have wrong valid name [#4682]
+
+[#4663]: https://github.com/SpeciesFileGroup/taxonworks/issues/4663
+[#4670]: https://github.com/SpeciesFileGroup/taxonworks/issues/4670
+[#4676]: https://github.com/SpeciesFileGroup/taxonworks/issues/4676
+[#4682]: https://github.com/SpeciesFileGroup/taxonworks/issues/4682
+
+## [0.57.0] - 2026-01-06
+
+### Added
+
 - Unify button to Manage Controlled vocabulary task [#4653]
 - Source autocomplete now matches on alternate values of authors as People [#4617]
+- Available facet to Filter Taxon Names [#4667]
+- Create User form now includes adding new user to projects [#4639]
 
 ### Fixed
 
@@ -23,9 +45,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New Extract task: Minor fixes related to the identifiers form [#4626]
 - New Biological Association task: A new citation is not added when a biological association already exists, instead, it attempts to create a new one.
 - Housekeeping facet: sometimes date range is off [#4644]
+- DwCA export now correctly includes 'fossil' as `basisOfRecord`
 
 ### Changed
 
+- Update to Rails 8.0; update gems
 - Add the POST method for Image matrix to handle many OTUs
 - New task: Refactor the task and add responsive design to the form [#4628]
 - Removed alternate values on Source author and editor (use Person alternate values instead)
@@ -33,13 +57,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4617]: https://github.com/SpeciesFileGroup/taxonworks/issues/4617
 [#4626]: https://github.com/SpeciesFileGroup/taxonworks/issues/4626
 [#4628]: https://github.com/SpeciesFileGroup/taxonworks/issues/4628
+[#4639]: https://github.com/SpeciesFileGroup/taxonworks/issues/4639
 [#4640]: https://github.com/SpeciesFileGroup/taxonworks/issues/4640
+[#4644]: https://github.com/SpeciesFileGroup/taxonworks/issues/4644
 [#4646]: https://github.com/SpeciesFileGroup/taxonworks/issues/4646
 [#4649]: https://github.com/SpeciesFileGroup/taxonworks/issues/4649
 [#4653]: https://github.com/SpeciesFileGroup/taxonworks/issues/4653
 [#4654]: https://github.com/SpeciesFileGroup/taxonworks/issues/4654
 [#4658]: https://github.com/SpeciesFileGroup/taxonworks/issues/4658
-[#4644]: https://github.com/SpeciesFileGroup/taxonworks/issues/4644
+[#4667]: https://github.com/SpeciesFileGroup/taxonworks/issues/4667
 
 ## [0.56.1] - 2025-12-12
 
@@ -5943,7 +5969,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.56.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.57.0...development
+[0.57.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.56.1...v0.57.0
 [0.56.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.56.0...v0.56.1
 [0.56.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.55.0...v0.56.0
 [0.55.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.3...v0.55.0

@@ -1,25 +1,43 @@
 FactoryBot.define do
-
   factory :combination, traits: [:housekeeping] do
     type { 'Combination' }
     name { nil }
+  end
 
-    # TODO Does not work. To make it work, a Protonym (a parent) should be created and saved,
-    # Combination created and saved. After that relationships could be added 
-    # could use build_stubbed perhaps
-    factory :subgenus_combination do
-      type { 'Combination' }
-      association :genus, factory: :relationship_genus, name: 'Aus'
-      association :subgenus, factory: :relationship_genus, name: 'Bus'
-      association :parent, factory: :relationship_genus, name: 'Bus'
+  factory :valid_combination, parent: :combination do
+    transient do
+      genus_name   { 'Aus' }
+      species_name { 'bus' }
     end
 
-    # Does not work. Same problem as above.
-    factory :species_combination do
-      type { 'Combination' }
-      association :genus, factory: :relationship_genus, name: 'Aus' 
-      association :species, factory: :relationship_species, name: 'bus'
-      association :parent, factory: :relationship_species, name: 'bus'
+    # Persist only after we have attached the protonyms (so validations pass).
+    to_create do |c, evaluator|
+      genus = FactoryBot.create(:relationship_genus, name: evaluator.genus_name)
+      species = FactoryBot.create(:relationship_species, parent: genus, name: evaluator.species_name)
+
+      c.genus = genus
+      c.species = species
+
+      c.save!
+    end
+  end
+
+  factory :valid_species_combination, parent: :valid_combination
+
+  factory :valid_subgenus_combination, parent: :combination do
+    transient do
+      genus_name    { 'Aus' }
+      subgenus_name { 'Bus' }
+    end
+
+    to_create do |c, evaluator|
+      genus = FactoryBot.create(:relationship_genus, name: evaluator.genus_name)
+      subgenus = FactoryBot.create(:iczn_subgenus, parent: genus, name: evaluator.subgenus_name)
+
+      c.genus = genus
+      c.subgenus = subgenus
+
+      c.save!
     end
   end
 end

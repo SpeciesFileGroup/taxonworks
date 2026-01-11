@@ -2,10 +2,10 @@
   <div id="vue-interactive-keys">
     <div class="flex-separate">
       <h1 class="task_header">
-        Interactive key
-        <span v-if="observationMatrix"
-          >| {{ observationMatrix.observation_matrix.name }}</span
-        >
+        <span
+          v-if="observationMatrix"
+          v-text="observationMatrix.observation_matrix.name"
+        />
       </h1>
       <div
         class="horizontal-left-content middle margin-small-left gap-small"
@@ -98,20 +98,20 @@ export default {
   },
 
   created() {
-    const { matrixId, leadId, otuIds } =
-      useParamsSessionPop({
+    const { matrixId, leadId, otuIds } = useParamsSessionPop(
+      {
         observation_matrix_id: 'matrixId',
         lead_id: 'leadId',
         otu_ids: 'otuIds'
-      }, 'key_to_interactive_key')
+      },
+      'key_to_interactive_key'
+    )
 
     if (otuIds) {
-      this.$store.commit(MutationNames.SetParamsFilter,
-        {
-          ...this.$store.getters[GetterNames.GetFilter],
-          otu_filter: otuIds
-        }
-      )
+      this.$store.commit(MutationNames.SetParamsFilter, {
+        ...this.$store.getters[GetterNames.GetFilter],
+        otu_filter: otuIds
+      })
     }
     if (/^\d+$/.test(matrixId)) {
       this.$store

@@ -180,11 +180,11 @@ module Export
       metadata_file.write(metadata.to_yaml)
       metadata_file.close
 
-      Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
+      Zip::File.open(zip_file_path, create: true) do |zipfile|
 
         zipfile.get_output_stream('Name.tsv') { |f| f.write Export::Coldp::Files::Name.generate(otu, project_members, ref_tsv) }
 
-        zipfile.get_output_stream("Synonym.tsv") { |f| f.write Export::Coldp::Files::Synonym.generate(otu, otus, project_members, ref_tsv) }
+        zipfile.get_output_stream('Synonym.tsv') { |f| f.write Export::Coldp::Files::Synonym.generate(otu, otus, project_members, ref_tsv) }
 
         zipfile.get_output_stream('Taxon.tsv') do |f|
           f.write Export::Coldp::Files::Taxon.generate(otu, otus, project_members, ref_tsv, prefer_unlabelled_otus)

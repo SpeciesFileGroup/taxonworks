@@ -572,7 +572,7 @@ module Export::Dwca::Occurrence
 
       Zip::OutputStream.open(t) { |zos| }
 
-      Zip::File.open(t.path, Zip::File::CREATE) do |zip|
+      Zip::File.open(t.path, create: true) do |zip|
         zip.add('data.tsv', all_data.path)
 
         zip.add('media.tsv', media_tmp.path) if @media_extension

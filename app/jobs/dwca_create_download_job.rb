@@ -1,8 +1,11 @@
 class DwcaCreateDownloadJob < ApplicationJob
   queue_as :dwca_export
 
+  def max_attempts
+    1
+  end
+
   # Creates a DwC-A export and packages it into a Download.
-  #
   # @param download_id [Integer]
   #   The ID of the Download instance to package the export into.
   # @param core_scope [String, ActiveRecord::Relation]

@@ -145,10 +145,12 @@ function download() {
     Object.assign(payload, downloadParams)
   }
 
-  DwcOcurrence.generateDownload(payload).then(({ body }) => {
-    emit('create', body)
-    openGenerateDownloadModal()
-  })
+  DwcOcurrence.generateDownload(payload)
+    .then(({ body }) => {
+      emit('create', body)
+      openGenerateDownloadModal()
+    })
+    .catch(() => {})
 }
 
 function setModalView(value) {

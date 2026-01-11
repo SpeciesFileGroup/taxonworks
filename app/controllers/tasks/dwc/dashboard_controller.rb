@@ -26,6 +26,10 @@ class Tasks::Dwc::DashboardController < ApplicationController
 
     media_query = nil
     if params[:media_extension]
+      if sessions_current_project.api_access_token.nil?
+        render json: { note: 'A project API Acess Token is required for exporting media - contact your project administrator for details' }, status: :unprocessable_entity
+        return
+      end
       media_query = {
         collection_objects: ::Queries::CollectionObject::Filter.new(
           dwc_occurrence_query: q.params

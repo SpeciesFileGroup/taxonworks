@@ -6,7 +6,7 @@ ruby '>= 3.2', '< 3.5.0'
 
 
 gem 'rake', '~> 13.0'
-gem 'rails', '~> 8.0'
+gem 'rails', '~> 8.1'
 gem 'pg', '~> 1.1'
 gem 'activerecord-postgis-adapter', '~> 11.0'
 gem 'hiredis', '~> 0.6.1'
@@ -18,14 +18,14 @@ gem 'rdf', '~> 3.0'
 
 # System
 gem 'thor', '~> 1.2'
-gem 'rubyzip', '~> 2.3.0'
+gem 'rubyzip', '~> 3.2'
 gem 'zip_tricks', '~> 5.6'
 gem 'daemons', '~> 1.4.1'
 gem 'tzinfo-data', '~> 1.2019' # , '>= 1.2019.3'
 gem 'psych', '~> 5.1'
 gem 'rmagick', '~> 6.0'
-gem 'roo', '~> 2.8', '>= 2.8.3'
-gem 'roo-xls', '~> 1.2'
+gem 'roo', '~> 3.0'
+gem 'roo-xls', '~> 2.0'
 
 gem 'csv', '~> 3.2'
 
@@ -35,12 +35,7 @@ gem 'matrix', '~> 0.4.2'
 
 # Geo
 
-# gem 'ffi-geos', '~> 2.3.0'
-# gem 'rgeo', '~> 2.2'
-# gem 'rgeo-geojson', '~> 2.1', '>= 2.1.1'
-# gem 'rgeo-proj4', '~> 3.0', '>= 3.0.1'
-
-gem 'ffi-geos', '~> 2.4.0'
+gem 'ffi-geos', '~> 2.5.0'
 gem 'rgeo', '~> 3.0'
 gem 'rgeo-geojson', '~> 2.1', '>= 2.1.1'
 gem 'rgeo-proj4', '~> 4.0' #, '>= 3.0.1'
@@ -73,7 +68,7 @@ gem 'validates_timeliness', '~> 8.0' # , '>= 4.1.1'
 
 gem 'rack', '~> 3.1.16'
 
-gem 'paper_trail', '~> 16.0'
+gem 'paper_trail', '~> 17.0'
 
 gem 'acts_as_list', '~> 1.0'
 gem 'modularity', '~> 3.0.0' # TODO: Used!?
@@ -99,7 +94,7 @@ gem 'rails-jquery-autocomplete', '~> 1.0.3'
 
 gem 'turbolinks', '~> 5.2.0'
 gem 'jquery-turbolinks', '~> 2.1'
-gem 'shakapacker', '9.4.0'
+gem 'shakapacker', '9.5.0'
 
 # BibTeX handling
 gem 'csl', '~> 2.0'
@@ -148,7 +143,7 @@ gem 'nexus_parser', '~> 1.2.2'
 gem 'gnfinder', '~> 1.0'
 
 # Minor Utils/helpers
-gem 'amazing_print', '~> 1.5'
+gem 'amazing_print', '~> 2.0'
 gem 'indefinite_article', '~> 0.2.4'
 gem 'rainbow', '~> 3.0'
 
@@ -226,6 +221,6 @@ end
 
 group :production do
   gem 'execjs', '~> 2.8.1'
-  gem 'passenger', '~> 6.0.2'
+  gem 'passenger', '~> 6.1.0'
 end
 
