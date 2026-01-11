@@ -656,10 +656,9 @@ describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
                 otu: otu2,
                 taxon_determination_object: specimen
               )
-              td2.update_columns(position: 1)
-              #ActiveRecord::Base.connection.execute(
-              #  "UPDATE taxon_determinations SET position = 1 WHERE id IN (#{td1.id}, #{td2.id})"
-              #)
+              ActiveRecord::Base.connection.execute(
+                "UPDATE taxon_determinations SET position = 1 WHERE id IN (#{td1.id}, #{td2.id})"
+              )
 
               # Verify the bug scenario: duplicate position=1 TDs
               expect(TaxonDetermination.where(

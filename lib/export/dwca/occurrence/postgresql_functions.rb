@@ -63,5 +63,46 @@ module Export::Dwca::Occurrence
           $$ LANGUAGE SQL IMMUTABLE;
         SQL
       end
+
+      # Creates temporary PostgreSQL functions for generating image URLs
+      # matching Shared::Api methods. The functions exist only for the current
+      # database session.
+      def create_image_url_functions
+        conn = ActiveRecord::Base.connection
+        host = conn.quote(Shared::Api.host)
+        image_file_prefix = conn.quote(Shared::Api.image_file_url_prefix)
+        image_metadata_prefix = conn.quote(Shared::Api.image_metadata_url_prefix)
+
+        # Regular image file URL (fingerprint-based)
+        conn.execute(<<~SQL)
+          CREATE OR REPLACE FUNCTION pg_temp.image_file_url(fingerprint text, token text)
+          RETURNS text AS $$
+            SELECT #{image_file_prefix} || fingerprint || '?project_token=' || token
+          $$ LANGUAGE SQL IMMUTABLE;
+        SQL
+
+        # Image metadata URL
+        conn.execute(<<~SQL)
+          CREATE OR REPLACE FUNCTION pg_temp.image_metadata_url(image_id integer, token text)
+          RETURNS text AS $$
+            SELECT #{image_metadata_prefix} || image_id::text || '?project_token=' || token
+          $$ LANGUAGE SQL IMMUTABLE;
+        SQL
+
+        # Sled image file URL (fingerprint-based with crop coordinates)
+        conn.execute(<<~SQL)
+          CREATE OR REPLACE FUNCTION pg_temp.sled_image_file_url(fingerprint text, svg_view_box text, token text)
+          RETURNS text AS $$
+            SELECT #{image_file_prefix} || fingerprint || '/scale_to_box/'
+              || SPLIT_PART(svg_view_box, ' ', 1)::integer::text || '/'
+              || SPLIT_PART(svg_view_box, ' ', 2)::integer::text || '/'
+              || SPLIT_PART(svg_view_box, ' ', 3)::integer::text || '/'
+              || SPLIT_PART(svg_view_box, ' ', 4)::integer::text || '/'
+              || SPLIT_PART(svg_view_box, ' ', 3)::integer::text || '/'
+              || SPLIT_PART(svg_view_box, ' ', 4)::integer::text
+              || '?project_token=' || token
+          $$ LANGUAGE SQL IMMUTABLE;
+        SQL
+      end
   end
 end

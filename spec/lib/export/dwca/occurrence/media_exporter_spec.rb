@@ -116,6 +116,125 @@ RSpec.describe Export::Dwca::Occurrence::MediaExporter, type: :model do
       end
     end
 
+    context 'with sled image media' do
+      let!(:sled_image) { FactoryBot.create(:valid_sled_image) }
+      let!(:specimen1) { FactoryBot.create(:valid_specimen, no_dwc_occurrence: false) }
+      let!(:specimen2) { FactoryBot.create(:valid_specimen, no_dwc_occurrence: false) }
+
+      # Create two depictions of different specimens from the same sled image.
+      # Each represents a different box/position on the specimen tray.
+      let!(:depiction1) do
+        FactoryBot.create(:valid_depiction,
+          image: sled_image.image,
+          depiction_object: specimen1,
+          sled_image: sled_image,
+          sled_image_x_position: 0,
+          sled_image_y_position: 0,
+          svg_view_box: '10 20 100 150'
+        )
+      end
+
+      let!(:depiction2) do
+        FactoryBot.create(:valid_depiction,
+          image: sled_image.image,
+          depiction_object: specimen2,
+          sled_image: sled_image,
+          sled_image_x_position: 1,
+          sled_image_y_position: 0,
+          svg_view_box: '120 20 100 150'
+        )
+      end
+
+      specify 'exports separate rows for each sled image box' do
+        output = Tempfile.new('test_media')
+        exporter.export_to(output)
+
+        lines = output.read.lines
+
+        # Should have header + two data rows (one per depiction).
+        expect(lines.count).to eq 3
+      end
+
+      specify 'each depiction has unique cropped accessURI with scale_to_box endpoint' do
+        output = Tempfile.new('test_media')
+        exporter.export_to(output)
+
+        content = output.read
+        lines = content.lines
+        headers = lines[0].split("\t")
+
+        access_uri_index = headers.index('accessURI')
+
+        data_row1 = lines[1].split("\t")
+        data_row2 = lines[2].split("\t")
+
+        access_uri1 = data_row1[access_uri_index]
+        access_uri2 = data_row2[access_uri_index]
+
+        expect(access_uri1).not_to eq(access_uri2)
+
+        # URLs are shortened, so expand them to verify they point to
+        # scale_to_box endpoints Extract the short key from the URL (e.g.,
+        # http://127.0.0.1:3000/s/abc123 -> abc123)
+        short_key1 = access_uri1.split('/s/').last
+        short_key2 = access_uri2.split('/s/').last
+
+        long_url1 = Shortener::ShortenedUrl.find_by(unique_key: short_key1)&.url
+        long_url2 = Shortener::ShortenedUrl.find_by(unique_key: short_key2)&.url
+
+        expect(long_url1).to include('/scale_to_box/')
+        expect(long_url2).to include('/scale_to_box/')
+
+        expect(long_url1).to include('/file/sha/')
+        expect(long_url2).to include('/file/sha/')
+        expect(long_url1).to include(sled_image.image.image_file_fingerprint)
+        expect(long_url2).to include(sled_image.image.image_file_fingerprint)
+      end
+
+      specify 'all depictions from same sled image share furtherInformationURL' do
+        output = Tempfile.new('test_media')
+        exporter.export_to(output)
+
+        content = output.read
+        lines = content.lines
+        headers = lines[0].split("\t")
+
+        further_info_index = headers.index('furtherInformationURL')
+
+        data_row1 = lines[1].split("\t")
+        data_row2 = lines[2].split("\t")
+
+        further_info1 = data_row1[further_info_index]
+        further_info2 = data_row2[further_info_index]
+
+        expect(further_info1).to eq(further_info2)
+
+        expect(further_info1).not_to include('/scale_to_box/')
+      end
+
+      specify 'each depiction links to correct specimen occurrence' do
+        output = Tempfile.new('test_media')
+        exporter.export_to(output)
+
+        content = output.read
+        lines = content.lines
+        headers = lines[0].split("\t")
+
+        # Find the coreid column (occurrenceID).
+        data_row1 = lines[1].split("\t")
+        data_row2 = lines[2].split("\t")
+
+        occurrence_id1 = data_row1[0]
+        occurrence_id2 = data_row2[0]
+
+        # Each row should link to different specimens
+        expect([occurrence_id1, occurrence_id2]).to contain_exactly(
+          specimen1.dwc_occurrence.occurrenceID,
+          specimen2.dwc_occurrence.occurrenceID
+        )
+      end
+    end
+
     context 'cleanup behavior' do
       let(:conn) { ActiveRecord::Base.connection }
 

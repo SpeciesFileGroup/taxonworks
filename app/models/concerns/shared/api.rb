@@ -90,19 +90,19 @@ module Shared::Api
     "#{s}/s/#{short_key}"
   end
 
-  # URL prefix for image file access (without fingerprint or token)
+  # URL prefix for image file access.
   # @return [String] URL prefix
   def self.image_file_url_prefix
     "#{host}/api/v1/images/file/sha/"
   end
 
-  # URL prefix for image metadata (without image_id or token)
+  # URL prefix for image metadata (without image_id or token).
   # @return [String] URL prefix
   def self.image_metadata_url_prefix
     "#{host}/api/v1/images/"
   end
 
-  # Build long URL for image file access without shortening
+  # Build long URL for image file access without shortening.
   # @param fingerprint [String] image_file_fingerprint
   # @param token [String] project API access token
   # @return [String] full long URL
@@ -110,12 +110,25 @@ module Shared::Api
     "#{image_file_url_prefix}#{fingerprint}?project_token=#{token}"
   end
 
-  # Build long URL for image metadata without shortening
+  # Build long URL for image metadata without shortening.
   # @param image_id [Integer] image ID
   # @param token [String] project API access token
   # @return [String] full long URL
   def self.image_metadata_long_url(image_id, token)
     "#{image_metadata_url_prefix}#{image_id}?project_token=#{token}"
+  end
+
+  # Build long URL for sled image extraction.
+  # @param fingerprint [String] image_file_fingerprint
+  # @param svg_view_box [String] SVG viewBox value "x y width height"
+  # @param token [String] project API access token
+  # @return [String] full long URL for cropped sled image
+  def self.sled_image_file_long_url(fingerprint, svg_view_box, token)
+    x, y, w, h = svg_view_box.split(' ')
+    box_width = w.to_i
+    box_height = h.to_i
+
+    "#{image_file_url_prefix}#{fingerprint}/scale_to_box/#{x.to_i}/#{y.to_i}/#{w.to_i}/#{h.to_i}/#{box_width}/#{box_height}?project_token=#{token}"
   end
 
   # Build short URL from unique key

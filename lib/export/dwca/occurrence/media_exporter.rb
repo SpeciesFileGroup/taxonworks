@@ -103,13 +103,15 @@ module Export::Dwca::Occurrence
           depiction_id integer,
           figure_label text,
           caption text,
+          sled_image_id integer,
+          svg_view_box text,
+          access_uri text,
           PRIMARY KEY (image_id, occurrence_id, depiction_id)
         )
       SQL
 
-      # Populate the mapping using the complex join logic
       conn.execute(<<~SQL)
-        INSERT INTO temp_image_occurrence_map (image_id, occurrence_id, occurrence_object_type, occurrence_object_id, depiction_id, figure_label, caption)
+        INSERT INTO temp_image_occurrence_map (image_id, occurrence_id, occurrence_object_type, occurrence_object_id, depiction_id, figure_label, caption, sled_image_id, svg_view_box)
         SELECT DISTINCT
           img.id AS image_id,
           dwc."occurrenceID" AS occurrence_id,
@@ -117,7 +119,9 @@ module Export::Dwca::Occurrence
           dwc.dwc_occurrence_object_id AS occurrence_object_id,
           dep.id AS depiction_id,
           dep.figure_label,
-          dep.caption
+          dep.caption,
+          dep.sled_image_id,
+          dep.svg_view_box
         FROM images img
         INNER JOIN temp_media_image_links links ON links.image_id = img.id
         #{image_occurrence_resolution_joins_sql(image_alias: 'img')}
@@ -146,7 +150,6 @@ module Export::Dwca::Occurrence
         )
       SQL
 
-      # Populate the mapping using the complex join logic
       conn.execute(<<~SQL)
         INSERT INTO temp_sound_occurrence_map (sound_id, occurrence_id, occurrence_object_type, occurrence_object_id, conveyance_id, sound_name)
         SELECT DISTINCT
@@ -328,9 +331,9 @@ module Export::Dwca::Occurrence
     def populate_temp_image_links_table
       conn = ActiveRecord::Base.connection
 
-      image_file_prefix_sql = conn.quote(Shared::Api.image_file_url_prefix)
-      image_metadata_prefix_sql =
-        conn.quote(Shared::Api.image_metadata_url_prefix)
+      regular_url_sql = "pg_temp.image_file_url(images.image_file_fingerprint, projects.api_access_token)"
+      sled_url_sql = "pg_temp.sled_image_file_url(images.image_file_fingerprint, dep.svg_view_box, projects.api_access_token)"
+      metadata_url_sql = "pg_temp.image_metadata_url(images.id, projects.api_access_token)"
 
       # Relation includes short urls when they exist.
       # !! Note this joins directly to the shortener gem's shortened_urls table
@@ -339,19 +342,17 @@ module Export::Dwca::Occurrence
       image_relation = Image
         .joins("JOIN temp_media_image_ids tmp ON tmp.image_id = images.id")
         .joins(:project)
+        .joins("LEFT JOIN depictions dep ON dep.image_id = images.id")
         .joins(<<~SQL)
           LEFT JOIN shortened_urls su_access
-            ON su_access.url = #{image_file_prefix_sql}
-              || images.image_file_fingerprint
-              || '?project_token='
-              || projects.api_access_token
+            ON su_access.url = CASE
+              WHEN dep.sled_image_id IS NOT NULL THEN #{sled_url_sql}
+              ELSE #{regular_url_sql}
+            END
         SQL
         .joins(<<~SQL)
           LEFT JOIN shortened_urls su_metadata
-            ON su_metadata.url = #{image_metadata_prefix_sql}
-              || images.id
-              || '?project_token='
-              || projects.api_access_token
+            ON su_metadata.url = #{metadata_url_sql}
         SQL
         .where.not(projects: { api_access_token: nil })
         .select(
@@ -359,23 +360,39 @@ module Export::Dwca::Occurrence
           'images.image_file_fingerprint',
           'projects.api_access_token AS token',
           'su_access.unique_key AS access_short_key',
-          'su_metadata.unique_key AS metadata_short_key'
+          'su_metadata.unique_key AS metadata_short_key',
+          'dep.id AS depiction_id',
+          'dep.sled_image_id',
+          'dep.svg_view_box'
         )
 
       image_relation.in_batches(of: 50_000) do |batch_scope|
-        rows = conn.select_all(batch_scope.to_sql) # each row is a hash
+        rows = conn.select_all(batch_scope.to_sql)
 
-        # Collect all URLs that need shortening
+        # Collect all URLs that need shortening.
         urls_to_shorten = []
         rows.each do |row|
           fingerprint = row['image_file_fingerprint']
           token = row['token']
           image_id = row['image_id'].to_i
+          is_sled = row['sled_image_id'].present?
+          svg_view_box = row['svg_view_box']
 
           unless row['access_short_key']
+            long_url = if is_sled
+              Shared::Api.sled_image_file_long_url(fingerprint, svg_view_box, token)
+            else
+              Shared::Api.image_file_long_url(fingerprint, token)
+            end
+
             urls_to_shorten << {
-              long_url: Shared::Api.image_file_long_url(fingerprint, token),
-              context: { image_id: image_id, type: :access }
+              long_url: long_url,
+              context: {
+                image_id: image_id,
+                depiction_id: row['depiction_id']&.to_i,
+                type: :access,
+                is_sled: is_sled
+              }
             }
           end
 
@@ -387,24 +404,19 @@ module Export::Dwca::Occurrence
           end
         end
 
-        # Bulk create short URLs
         short_url_map = bulk_create_short_urls(urls_to_shorten)
 
-        # Build links_data using existing or newly created short URLs
-        links_data = []
+        image_links_data = []
+        sled_access_updates = []
+
         rows.each do |row|
           begin
             image_id = row['image_id'].to_i
             fingerprint = row['image_file_fingerprint']
             token = row['token']
-
-            access_long_url = Shared::Api.image_file_long_url(fingerprint, token)
-            access_uri =
-              if row['access_short_key']
-                Shared::Api.short_url_from_key(row['access_short_key'])
-              else
-                short_url_map[access_long_url]
-              end
+            is_sled = row['sled_image_id'].present?
+            depiction_id = row['depiction_id']&.to_i
+            svg_view_box = row['svg_view_box']
 
             metadata_long_url = Shared::Api.image_metadata_long_url(image_id, token)
             further_info_url =
@@ -414,30 +426,102 @@ module Export::Dwca::Occurrence
                 short_url_map[metadata_long_url]
               end
 
-            links_data << {
-              image_id: image_id,
-              access_uri: access_uri,
-              further_information_url: further_info_url
-            }
+            if is_sled
+              sled_long_url = Shared::Api.sled_image_file_long_url(fingerprint, svg_view_box, token)
+              access_uri =
+                if row['access_short_key']
+                  Shared::Api.short_url_from_key(row['access_short_key'])
+                else
+                  short_url_map[sled_long_url]
+                end
+
+              sled_access_updates << {
+                depiction_id: depiction_id,
+                access_uri: access_uri
+              }
+
+              image_links_data << {
+                image_id: image_id,
+                access_uri: nil, # Sled images get access_uri from temp_image_occurrence_map
+                further_information_url: further_info_url
+              }
+            else
+              access_long_url = Shared::Api.image_file_long_url(fingerprint, token)
+              access_uri =
+                if row['access_short_key']
+                  Shared::Api.short_url_from_key(row['access_short_key'])
+                else
+                  short_url_map[access_long_url]
+                end
+
+              image_links_data << {
+                image_id: image_id,
+                access_uri: access_uri,
+                further_information_url: further_info_url
+              }
+            end
           rescue => e
             Rails.logger.warn "dwca_export: skipping image #{row['image_id']} - #{e.message}"
           end
         end
 
-        next if links_data.empty?
+        # Write to temp_media_image_links (deduplicate by image_id for regular
+        # images).
+        unless image_links_data.empty?
+          unique_links = image_links_data.reverse.uniq { |l| l[:image_id] }.reverse
 
-        # Deduplicate by image_id (keep last occurrence)
-        unique_links_data = links_data.reverse.uniq { |l| l[:image_id] }.reverse
-
-        raw = conn.raw_connection
-        raw.copy_data("COPY temp_media_image_links (image_id, access_uri, further_information_url) FROM STDIN") do
-          unique_links_data.each do |ldata|
-            raw.put_copy_data("#{ldata[:image_id]}\t#{ldata[:access_uri]}\t#{ldata[:further_information_url]}\n")
+          raw = conn.raw_connection
+          raw.copy_data("COPY temp_media_image_links (image_id, access_uri, further_information_url) FROM STDIN") do
+            unique_links.each do |ldata|
+              access = ldata[:access_uri] || ''
+              raw.put_copy_data("#{ldata[:image_id]}\t#{access}\t#{ldata[:further_information_url]}\n")
+            end
           end
+        end
+
+        # Store sled access URIs for later (after temp_image_occurrence_map is
+        # created).
+        unless sled_access_updates.empty?
+          @sled_access_updates ||= []
+          @sled_access_updates.concat(sled_access_updates)
         end
       end
 
       Rails.logger.debug 'dwca_export: temp table created with API image links'
+    end
+
+    # Populates access_uri column in temp_image_occurrence_map for sled images.
+    # This runs AFTER temp_image_occurrence_map is created.
+    def populate_sled_image_access_uris
+      return if @sled_access_updates.nil? || @sled_access_updates.empty?
+
+      conn = ActiveRecord::Base.connection
+
+      Rails.logger.debug "dwca_export: populating #{@sled_access_updates.size} sled image access URIs"
+
+      # Batch update using temp table
+      conn.execute("DROP TABLE IF EXISTS temp_sled_uri_updates")
+      conn.execute("CREATE TEMP TABLE temp_sled_uri_updates (depiction_id integer, access_uri text)")
+
+      raw = conn.raw_connection
+      raw.copy_data("COPY temp_sled_uri_updates (depiction_id, access_uri) FROM STDIN") do
+        @sled_access_updates.each do |upd|
+          raw.put_copy_data("#{upd[:depiction_id]}\t#{upd[:access_uri]}\n")
+        end
+      end
+
+      conn.execute(<<~SQL)
+        UPDATE temp_image_occurrence_map
+        SET access_uri = upd.access_uri
+        FROM temp_sled_uri_updates upd
+        WHERE temp_image_occurrence_map.depiction_id = upd.depiction_id
+      SQL
+
+      conn.execute("DROP TABLE temp_sled_uri_updates")
+
+      Rails.logger.debug "dwca_export: populated #{@sled_access_updates.size} sled image access URIs"
+
+      @sled_access_updates = nil
     end
 
     def populate_temp_sound_api_links_table(sound_ids)
@@ -526,7 +610,8 @@ module Export::Dwca::Occurrence
             pg_temp.sanitize_csv(occ_map.caption) AS caption,
             -- Compute associatedSpecimenReference as API URL
             pg_temp.api_link_for_model_id(occ_map.occurrence_object_type, occ_map.occurrence_object_id) AS \"associatedSpecimenReference\",
-            links.access_uri AS \"accessURI\",
+            -- For sled images, use cropped access_uri from occ_map; otherwise use full image from links
+            COALESCE(occ_map.access_uri, links.access_uri) AS \"accessURI\",
             img.image_file_content_type AS \"dc:format\",
             links.further_information_url AS \"furtherInformationURL\",
             img.width AS \"PixelXDimension\",
@@ -706,6 +791,7 @@ module Export::Dwca::Occurrence
       create_csv_sanitize_function
       create_authorship_sentence_function
       create_api_link_for_model_id_function
+      create_image_url_functions
 
       # Step 1: Collect all media IDs from collection objects and field
       # occurrences.
@@ -733,6 +819,10 @@ module Export::Dwca::Occurrence
       # Depends on temp_media_image_links (step 2) and temp_scoped_occurrences
       # (step 3).
       create_media_occurrence_mapping_tables(image_ids, sound_ids)
+
+      # Step 4a: Populate sled image access URIs. This must run AFTER
+      # temp_image_occurrence_map is created.
+      populate_sled_image_access_uris
 
       # Drop temp_scoped_occurrences - no longer needed after occurrence mapping.
       conn = ActiveRecord::Base.connection

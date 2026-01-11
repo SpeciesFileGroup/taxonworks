@@ -65,6 +65,97 @@ RSpec.describe Export::Dwca::Occurrence::PostgresqlFunctions, type: :model do
     end
   end
 
+  describe '#create_image_url_functions' do
+    before(:all) do
+      # Create the functions once for all tests
+      conn = ActiveRecord::Base.connection
+      test_obj = Class.new do
+        include Export::Dwca::Occurrence::PostgresqlFunctions
+      end.new
+      test_obj.create_image_url_functions
+    end
+
+    after(:all) do
+      conn = ActiveRecord::Base.connection
+      conn.execute('DROP FUNCTION IF EXISTS pg_temp.image_file_url(text, text)')
+      conn.execute('DROP FUNCTION IF EXISTS pg_temp.image_metadata_url(integer, text)')
+      conn.execute('DROP FUNCTION IF EXISTS pg_temp.sled_image_file_url(text, text, text)')
+    end
+
+    context 'SQL functions match Ruby implementations' do
+      let(:test_fingerprint) { 'abc123def456' }
+      let(:test_token) { 'test_api_token_xyz' }
+      let(:test_image_id) { 789 }
+      let(:test_svg_view_box) { '10 20 100 150' }
+
+      specify 'image_file_url produces same result as Shared::Api.image_file_long_url' do
+        conn = ActiveRecord::Base.connection
+
+        # Get Ruby version result
+        ruby_result = Shared::Api.image_file_long_url(test_fingerprint, test_token)
+
+        # Get SQL version result
+        sql_result = conn.select_value(
+          "SELECT pg_temp.image_file_url(#{conn.quote(test_fingerprint)}, #{conn.quote(test_token)})"
+        )
+
+        expect(sql_result).to eq(ruby_result),
+          "Expected SQL function to return #{ruby_result.inspect}, but got #{sql_result.inspect}"
+      end
+
+      specify 'image_metadata_url produces same result as Shared::Api.image_metadata_long_url' do
+        conn = ActiveRecord::Base.connection
+
+        # Get Ruby version result
+        ruby_result = Shared::Api.image_metadata_long_url(test_image_id, test_token)
+
+        # Get SQL version result
+        sql_result = conn.select_value(
+          "SELECT pg_temp.image_metadata_url(#{test_image_id}, #{conn.quote(test_token)})"
+        )
+
+        expect(sql_result).to eq(ruby_result),
+          "Expected SQL function to return #{ruby_result.inspect}, but got #{sql_result.inspect}"
+      end
+
+      specify 'sled_image_file_url produces same result as Shared::Api.sled_image_file_long_url' do
+        conn = ActiveRecord::Base.connection
+
+        # Get Ruby version result
+        ruby_result = Shared::Api.sled_image_file_long_url(test_fingerprint, test_svg_view_box, test_token)
+
+        # Get SQL version result
+        sql_result = conn.select_value(
+          "SELECT pg_temp.sled_image_file_url(#{conn.quote(test_fingerprint)}, #{conn.quote(test_svg_view_box)}, #{conn.quote(test_token)})"
+        )
+
+        expect(sql_result).to eq(ruby_result),
+          "Expected SQL function to return #{ruby_result.inspect}, but got #{sql_result.inspect}"
+      end
+
+      specify 'sled_image_file_url correctly parses svg_view_box coordinates' do
+        conn = ActiveRecord::Base.connection
+
+        # Test with different svg_view_box values
+        test_cases = [
+          '0 0 50 50',
+          '10 20 100 150',
+          '100 200 300 400'
+        ]
+
+        test_cases.each do |svg_view_box|
+          ruby_result = Shared::Api.sled_image_file_long_url(test_fingerprint, svg_view_box, test_token)
+          sql_result = conn.select_value(
+            "SELECT pg_temp.sled_image_file_url(#{conn.quote(test_fingerprint)}, #{conn.quote(svg_view_box)}, #{conn.quote(test_token)})"
+          )
+
+          expect(sql_result).to eq(ruby_result),
+            "Expected SQL function to return #{ruby_result.inspect} for svg_view_box #{svg_view_box.inspect}, but got #{sql_result.inspect}"
+        end
+      end
+    end
+  end
+
   describe 'dwc_occurrence model types' do
     specify 'only expected model types can be dwc_occurrence_object_type' do
       actual_models = ApplicationRecord.descendants.select do |model|
