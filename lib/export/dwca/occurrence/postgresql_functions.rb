@@ -94,12 +94,12 @@ module Export::Dwca::Occurrence
           CREATE OR REPLACE FUNCTION pg_temp.sled_image_file_url(fingerprint text, svg_view_box text, token text)
           RETURNS text AS $$
             SELECT #{image_file_prefix} || fingerprint || '/scale_to_box/'
-              || SPLIT_PART(svg_view_box, ' ', 1)::integer::text || '/'
-              || SPLIT_PART(svg_view_box, ' ', 2)::integer::text || '/'
-              || SPLIT_PART(svg_view_box, ' ', 3)::integer::text || '/'
-              || SPLIT_PART(svg_view_box, ' ', 4)::integer::text || '/'
-              || SPLIT_PART(svg_view_box, ' ', 3)::integer::text || '/'
-              || SPLIT_PART(svg_view_box, ' ', 4)::integer::text
+              || SPLIT_PART(svg_view_box, ' ', 1)::numeric::integer::text || '/'
+              || SPLIT_PART(svg_view_box, ' ', 2)::numeric::integer::text || '/'
+              || SPLIT_PART(svg_view_box, ' ', 3)::numeric::integer::text || '/'
+              || SPLIT_PART(svg_view_box, ' ', 4)::numeric::integer::text || '/'
+              || SPLIT_PART(svg_view_box, ' ', 3)::numeric::integer::text || '/'
+              || SPLIT_PART(svg_view_box, ' ', 4)::numeric::integer::text
               || '?project_token=' || token
           $$ LANGUAGE SQL IMMUTABLE;
         SQL

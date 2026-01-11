@@ -67,7 +67,6 @@ RSpec.describe Export::Dwca::Occurrence::PostgresqlFunctions, type: :model do
 
   describe '#create_image_url_functions' do
     before(:all) do
-      # Create the functions once for all tests
       conn = ActiveRecord::Base.connection
       test_obj = Class.new do
         include Export::Dwca::Occurrence::PostgresqlFunctions
@@ -153,6 +152,19 @@ RSpec.describe Export::Dwca::Occurrence::PostgresqlFunctions, type: :model do
             "Expected SQL function to return #{ruby_result.inspect} for svg_view_box #{svg_view_box.inspect}, but got #{sql_result.inspect}"
         end
       end
+
+      specify 'sled_image_file_url handles decimal svg_view_box values' do
+        conn = ActiveRecord::Base.connection
+        svg_view_box = '0 0 1263.0 1263.0'
+        ruby_result = Shared::Api.sled_image_file_long_url(test_fingerprint, svg_view_box, test_token)
+
+        sql_result = conn.select_value(
+          "SELECT pg_temp.sled_image_file_url(#{conn.quote(test_fingerprint)}, #{conn.quote(svg_view_box)}, #{conn.quote(test_token)})"
+        )
+
+        expect(sql_result).to eq(ruby_result)
+      end
+
     end
   end
 
