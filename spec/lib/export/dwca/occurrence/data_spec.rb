@@ -638,6 +638,66 @@ describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
           specify 'should have the otu name in the combined file' do
             expect(File.readlines(d.all_data).last).to include(o.name)
           end
+
+          context 'handling two taxon_determinations on a collection object with position 1' do
+            # Regression specs: there should never be a collection object with
+            # two taxon determinations with position=1, but there have been.
+            specify 'query includes remediation' do
+              specimen = Specimen.first
+              otu1 = Otu.create!(name: 'first_otu')
+              otu2 = Otu.create!(name: 'second_otu')
+
+              td1 = TaxonDetermination.create!(
+                otu: otu1,
+                taxon_determination_object: specimen,
+              )
+
+              td2 = TaxonDetermination.create!(
+                otu: otu2,
+                taxon_determination_object: specimen
+              )
+              td2.update_columns(position: 1)
+              #ActiveRecord::Base.connection.execute(
+              #  "UPDATE taxon_determinations SET position = 1 WHERE id IN (#{td1.id}, #{td2.id})"
+              #)
+
+              # Verify the bug scenario: duplicate position=1 TDs
+              expect(TaxonDetermination.where(
+                taxon_determination_object: specimen,
+                position: 1
+              ).count).to eq(2)
+              expect(td2.id).to be > td1.id
+
+              # Export should select the taxon_determination with the higher id.
+              # !! Yes, it's possible this could pass by chance sometimes (it
+              # should *never* fail though)! See next spec as well .
+              export_scope = DwcOccurrence.where(dwc_occurrence_object: specimen)
+              export = Export::Dwca::Occurrence::Data.new(core_scope: export_scope, taxonworks_extensions: [:otu_name])
+              result = CSV.parse(export.taxonworks_extension_data.read, headers: true)
+
+              expect(result.first['TW:Internal:otu_name']).to eq('second_otu')
+            end
+
+            specify 'query orders taxon_determinations by id DESC for deterministic selection' do
+              # Verify the SQL query includes ORDER BY with id DESC to handle
+              # duplicate position=1 taxon determinations.
+              export_scope = DwcOccurrence.where(dwc_occurrence_object_type: 'CollectionObject')
+              exporter = Export::Dwca::Occurrence::TaxonworksExtensionExporter.new(
+                core_scope: export_scope,
+                taxonworks_extension_methods: [:otu_name]
+              )
+
+              query_data = exporter.send(:extension_data_query_data)
+              sql = query_data[:query].to_sql
+
+              # Somwhat brittle, somewhat imperfect. If it breaks in a year or
+              # two and these two specs haven't been an issue, we can probably
+              # just remove it.
+              expect(sql).to match(/FROM taxon_determinations.*ORDER BY.*\.id DESC/m)
+              expect(sql).to include('position = 1')
+            end
+          end
+
         end
 
         context 'exporting header with different api column name' do
