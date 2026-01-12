@@ -19,31 +19,18 @@ module Export::Dwca::Occurrence
     # @return [Tempfile] the output file
     def export_to(output_file)
       create_csv_sanitize_function
+      return output_file if all_possible_predicates.empty?
 
-      if all_possible_predicates.empty?
-        return output_file
-      end
+      create_pivoted_predicate_tables
 
-      # Create pivoted temp table with one row per CO, one column per predicate.
-      create_pivoted_predicate_table
-
-      # Now query the temp table to find which columns actually have data
       used_preds = predicates_with_data
-
-      if used_preds.empty?
-        return output_file
-      end
+      return output_file if used_preds.empty?
 
       Rails.logger.debug 'dwca_export: predicate_data reading from temp table'
 
       conn = ActiveRecord::Base.connection
-
-      # Build column list for only the predicates that have data
       column_list = used_preds.map { |pred| conn.quote_column_name(pred) }.join(', ')
 
-      # Use PostgreSQL's COPY TO to generate TSV directly.
-      # Join with ordering table and let PostgreSQL handle the sorting - this
-      # avoids loading all IDs into Ruby memory.
       copy_sql = <<-SQL
         COPY (
           SELECT #{column_list}
@@ -54,20 +41,28 @@ module Export::Dwca::Occurrence
       SQL
 
       conn.raw_connection.copy_data(copy_sql) do
-        while row = conn.raw_connection.get_copy_data
+        while (row = conn.raw_connection.get_copy_data)
           output_file.write(row.force_encoding(Encoding::UTF_8))
         end
       end
 
       Rails.logger.debug 'dwca_export: predicate_data written'
-
       output_file
     ensure
+      cleanup_temp_tables
       output_file.flush
       output_file.rewind
     end
 
     private
+
+    def cleanup_temp_tables
+      conn = ActiveRecord::Base.connection
+      conn.execute('DROP TABLE IF EXISTS temp_predicate_pivot')
+      conn.execute('DROP TABLE IF EXISTS temp_predicate_pivot_co')
+      conn.execute('DROP TABLE IF EXISTS temp_predicate_pivot_ce')
+      conn.execute('DROP TABLE IF EXISTS temp_co_order')
+    end
 
     def collecting_events
       ::CollectingEvent
@@ -83,25 +78,18 @@ module Export::Dwca::Occurrence
         .select(:id, :collecting_event_id, :type)
     end
 
-    # Finds which predicate columns in the temp table actually have non-NULL
-    # values. This is called after create_pivoted_predicate_table to filter out
-    # empty columns - much faster than scanning data_attributes table.
+    # Finds which predicate columns in the combined temp table actually have non-NULL values.
     def predicates_with_data
       return [] if all_possible_predicates.empty?
 
       conn = ActiveRecord::Base.connection
 
-      # For each predicate column, check if it has any non-NULL values
-      # COUNT(column) only counts non-NULL values, so if it's > 0, we have data
       checks = all_possible_predicates.map.with_index do |pred, idx|
         quoted = conn.quote_column_name(pred)
-        # COUNT only counts non-NULL, so > 0 means there's at least one value
-        # Need to alias each CASE or they'll all have the same key "case"
         "CASE WHEN COUNT(#{quoted}) > 0 THEN #{conn.quote(pred)} ELSE NULL END AS check_#{idx}"
       end
 
       sql = "SELECT #{checks.join(', ')} FROM temp_predicate_pivot"
-
       result = conn.execute(sql).first
       result.values.compact
     end
@@ -157,80 +145,125 @@ module Export::Dwca::Occurrence
       end
     end
 
-    # Creates a temporary table with one row per collection object
-    # and one column per predicate (pivoted from tall to wide format).
-    def create_pivoted_predicate_table
+    # - temp_predicate_pivot_co: pivot CO attributes only, grouped by co_id
+    # - temp_predicate_pivot_ce: pivot CE attributes only, grouped by collecting_event_id
+    # - temp_predicate_pivot: join the two pivots (1 row per co_id), no join fan-out
+    # - temp_co_order: stable output ordering
+    def create_pivoted_predicate_tables
       conn = ActiveRecord::Base.connection
 
-      conn.execute("DROP TABLE IF EXISTS temp_predicate_pivot")
-      conn.execute("DROP TABLE IF EXISTS temp_co_order")
+      # Defensive cleanup in case a previous run died mid-stream on a pooled connection.
+      conn.execute('DROP TABLE IF EXISTS temp_predicate_pivot')
+      conn.execute('DROP TABLE IF EXISTS temp_predicate_pivot_co')
+      conn.execute('DROP TABLE IF EXISTS temp_predicate_pivot_ce')
+      conn.execute('DROP TABLE IF EXISTS temp_co_order')
 
       co_pred_names = collection_object_predicate_names
       ce_pred_names = collecting_event_predicate_names
-
       delimiter = Shared::IsDwcOccurrence::DWC_DELIMITER
-      co_case_statements = co_pred_names.map do |cvt_id, pred_name|
-        # Quote the column name to handle special characters.
+
+      co_src_sql = collection_objects
+        .unscope(:order)
+        .select(:id, :collecting_event_id)
+        .to_sql
+
+      # CollectionObject pivot.
+      co_select_cols = co_pred_names.map do |cvt_id, pred_name|
         quoted_name = conn.quote_column_name(pred_name)
-        # Sanitize probably not needed here, though we don't explicitly do it
-        # anywhere else in ruby code on DA values.
-        "STRING_AGG(pg_temp.sanitize_csv(co_da.value), '#{delimiter}' ORDER BY co_da.id) FILTER (WHERE co_da.controlled_vocabulary_term_id = #{cvt_id}) AS #{quoted_name}"
+        "STRING_AGG(pg_temp.sanitize_csv(co_da.value), '#{delimiter}' ORDER BY co_da.id)
+         FILTER (WHERE co_da.controlled_vocabulary_term_id = #{cvt_id}) AS #{quoted_name}"
       end
 
-      ce_case_statements = ce_pred_names.map do |cvt_id, pred_name|
-        quoted_name = conn.quote_column_name(pred_name)
-        "STRING_AGG(pg_temp.sanitize_csv(ce_da.value), '#{delimiter}' ORDER BY ce_da.id) FILTER (WHERE ce_da.controlled_vocabulary_term_id = #{cvt_id}) AS #{quoted_name}"
-      end
+      co_cols_sql = co_select_cols.any? ?
+        ",\n  #{co_select_cols.join(",\n  ")}" : ''
 
-      all_case_statements = (co_case_statements + ce_case_statements).join(",\n      ")
-
-      # If no predicates, create table with just co_id
-      if all_case_statements.empty?
-        all_case_statements = "NULL AS placeholder"
-      end
-
-      # Build the query.
-      # Use collection_objects CTE to ensure all COs are included ,even those
-      # without DAs.
-      conn.execute("DROP TABLE IF EXISTS temp_predicate_pivot")
-      sql = <<-SQL
-        CREATE TEMP TABLE temp_predicate_pivot AS
-        SELECT
-          co.id as co_id
-          #{all_case_statements.empty? ? '' : ',' + all_case_statements}
-        FROM (#{collection_objects.unscope(:order).select(:id, :collecting_event_id).to_sql}) co
-      SQL
-
-      if co_pred_names.any?
-        sql += <<-SQL
+      co_join_sql = if co_pred_names.any?
+        <<~SQL
           LEFT JOIN data_attributes co_da ON co_da.attribute_subject_id = co.id
             AND co_da.attribute_subject_type = 'CollectionObject'
             AND co_da.type = 'InternalAttribute'
             AND co_da.controlled_vocabulary_term_id IN (#{co_pred_names.keys.join(',')})
         SQL
+      else
+        ''
       end
 
+      co_sql = <<~SQL
+        CREATE TEMP TABLE temp_predicate_pivot_co AS
+        SELECT
+          co.id AS co_id,
+          co.collecting_event_id AS collecting_event_id#{co_cols_sql}
+        FROM (#{co_src_sql}) co
+        #{co_join_sql}
+        GROUP BY co.id, co.collecting_event_id
+      SQL
+
+      conn.execute(co_sql)
+      Rails.logger.debug 'dwca_export: temp_predicate_pivot_co created'
+
+      # CollectingEvent pivot.
       if ce_pred_names.any?
-        sql += <<-SQL
-          LEFT JOIN collecting_events ce ON ce.id = co.collecting_event_id
+        ce_select_cols = ce_pred_names.map do |cvt_id, pred_name|
+          quoted_name = conn.quote_column_name(pred_name)
+          "STRING_AGG(pg_temp.sanitize_csv(ce_da.value), '#{delimiter}' ORDER BY ce_da.id)
+           FILTER (WHERE ce_da.controlled_vocabulary_term_id = #{cvt_id}) AS #{quoted_name}"
+        end
+
+        ce_cols_sql = ce_select_cols.any? ?
+          ",\n  #{ce_select_cols.join(",\n  ")}" : ''
+
+        ce_sql = <<~SQL
+          CREATE TEMP TABLE temp_predicate_pivot_ce AS
+          SELECT
+            ce.id AS collecting_event_id#{ce_cols_sql}
+          FROM collecting_events ce
+          JOIN (SELECT DISTINCT collecting_event_id FROM temp_predicate_pivot_co) co
+            ON co.collecting_event_id = ce.id
           LEFT JOIN data_attributes ce_da ON ce_da.attribute_subject_id = ce.id
             AND ce_da.attribute_subject_type = 'CollectingEvent'
             AND ce_da.type = 'InternalAttribute'
             AND ce_da.controlled_vocabulary_term_id IN (#{ce_pred_names.keys.join(',')})
+          GROUP BY ce.id
         SQL
+
+        conn.execute(ce_sql)
+        Rails.logger.debug 'dwca_export: temp_predicate_pivot_ce created'
       end
 
-      sql += <<-SQL
-        GROUP BY co.id
+      # Combined pivot.
+      combined_cols = []
+      combined_cols << 'co.co_id'
+
+      co_pred_names.values.each do |pred_name|
+        combined_cols << "co.#{conn.quote_column_name(pred_name)}"
+      end
+
+      if ce_pred_names.any?
+        ce_pred_names.values.each do |pred_name|
+          combined_cols << "ce.#{conn.quote_column_name(pred_name)}"
+        end
+      end
+
+      combined_join_sql = if ce_pred_names.any?
+        <<~SQL
+          LEFT JOIN temp_predicate_pivot_ce ce
+            ON ce.collecting_event_id = co.collecting_event_id
+        SQL
+      else
+        ''
+      end
+
+      combined_sql = <<~SQL
+        CREATE TEMP TABLE temp_predicate_pivot AS
+        SELECT
+          #{combined_cols.join(",\n    ")}
+        FROM temp_predicate_pivot_co co
+        #{combined_join_sql}
       SQL
 
-      conn.execute(sql)
+      conn.execute(combined_sql)
+      Rails.logger.debug 'dwca_export: temp_predicate_pivot created'
 
-      Rails.logger.debug 'dwca_export: pivoted predicate temp table created'
-
-      # Create ordering table based on dwc_occurrences.id order. This ensures we
-      # can join and order correctly without loading all IDs into Ruby.
-      conn.execute("DROP TABLE IF EXISTS temp_co_order")
       order_sql = <<-SQL
         CREATE TEMP TABLE temp_co_order AS
         SELECT
@@ -241,8 +274,7 @@ module Export::Dwca::Occurrence
       SQL
 
       conn.execute(order_sql)
-
-      Rails.logger.debug 'dwca_export: co order temp table created'
+      Rails.logger.debug 'dwca_export: temp_co_order created'
     end
   end
 end

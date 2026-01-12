@@ -606,14 +606,6 @@ module Export::Dwca::Occurrence
 
       Rails.logger.debug 'dwca_export: cleanup start'
 
-      # Explicitly drop temp tables to avoid automatic cleanup delay.
-      if predicate_options_present?
-        conn = ActiveRecord::Base.connection
-        conn.execute("DROP TABLE IF EXISTS temp_predicate_pivot") rescue nil
-        conn.execute("DROP TABLE IF EXISTS temp_co_order") rescue nil
-        Rails.logger.debug 'dwca_export: temp tables dropped'
-      end
-
       # Only cleanup files that were actually created (materialized).
       # This prevents lazy-loading during cleanup.
       if defined?(@zipfile) && @zipfile

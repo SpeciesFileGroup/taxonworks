@@ -497,6 +497,131 @@ RSpec.describe Export::Dwca::Occurrence::PredicateExporter, type: :model do
         output.close
         output.unlink
       end
+
+      specify 'avoids n-times-m join-spread when specimen has multiple CO and CE data attributes' do
+        s1 = FactoryBot.create(:valid_specimen, no_dwc_occurrence: false)
+        ce = FactoryBot.create(:valid_collecting_event)
+        s1.update!(collecting_event: ce)
+
+        co_da1 = FactoryBot.create(:valid_data_attribute_internal_attribute,
+          attribute_subject: s1,
+          predicate: p1,
+          value: 'co_value_1'
+        )
+        co_da2 = FactoryBot.create(:valid_data_attribute_internal_attribute,
+          attribute_subject: s1,
+          predicate: p2,
+          value: 'co_value_2'
+        )
+
+        ce_da1 = FactoryBot.create(:valid_data_attribute_internal_attribute,
+          attribute_subject: ce,
+          predicate: p1,
+          value: 'ce_value_1'
+        )
+        ce_da2 = FactoryBot.create(:valid_data_attribute_internal_attribute,
+          attribute_subject: ce,
+          predicate: p2,
+          value: 'ce_value_2'
+        )
+
+        scope = DwcOccurrence.where(dwc_occurrence_object: s1)
+
+        exporter = described_class.new(
+          core_scope: scope,
+          collection_object_predicate_ids: [p1.id, p2.id],
+          collecting_event_predicate_ids: [p1.id, p2.id]
+        )
+
+        output = Tempfile.new('test_predicates')
+        exporter.export_to(output)
+        output.rewind
+
+        content = output.read
+        rows = CSV.parse(content, col_sep: "\t", headers: true)
+
+        # Should have exactly 1 data row (not duplicated)
+        expect(rows.count).to eq(1)
+
+        row = rows.first
+
+        # Each value should appear exactly once (not repeated due to nxm join)
+        expect(row["TW:DataAttribute:CollectionObject:#{p1.name}"]).to eq('co_value_1')
+        expect(row["TW:DataAttribute:CollectionObject:#{p2.name}"]).to eq('co_value_2')
+
+        expect(row["TW:DataAttribute:CollectingEvent:#{p1.name}"]).to eq('ce_value_1')
+        expect(row["TW:DataAttribute:CollectingEvent:#{p2.name}"]).to eq('ce_value_2')
+
+        output.close
+        output.unlink
+      end
+
+      specify 'concatenates multiple values for same predicate with DwC delimiter' do
+        # When a CO or CE has multiple data attributes with the same predicate,
+        # all values should be concatenated with the DwC delimiter (pipe).
+        # This preserves all data rather than arbitrarily picking one value.
+        s1 = FactoryBot.create(:valid_specimen, project: project)
+        ce = FactoryBot.create(:valid_collecting_event)
+        s1.update!(collecting_event: ce)
+        s1.get_dwc_occurrence
+
+        # Create multiple CO data attributes with the SAME predicate
+        co_da1 = FactoryBot.create(:valid_data_attribute_internal_attribute,
+          attribute_subject: s1,
+          predicate: p1,
+          value: 'first_co_value'
+        )
+        co_da2 = FactoryBot.create(:valid_data_attribute_internal_attribute,
+          attribute_subject: s1,
+          predicate: p1,
+          value: 'second_co_value'
+        )
+
+        # Create multiple CE data attributes with the SAME predicate
+        ce_da1 = FactoryBot.create(:valid_data_attribute_internal_attribute,
+          attribute_subject: ce,
+          predicate: p2,
+          value: 'first_ce_value'
+        )
+        ce_da2 = FactoryBot.create(:valid_data_attribute_internal_attribute,
+          attribute_subject: ce,
+          predicate: p2,
+          value: 'second_ce_value'
+        )
+
+        scope = DwcOccurrence.where(dwc_occurrence_object: s1)
+
+        exporter = described_class.new(
+          core_scope: scope,
+          collection_object_predicate_ids: [p1.id],
+          collecting_event_predicate_ids: [p2.id]
+        )
+
+        output = Tempfile.new('test_predicates')
+        exporter.export_to(output)
+        output.rewind
+
+        content = output.read
+        rows = CSV.parse(content, col_sep: "\t", headers: true)
+
+        expect(rows.count).to eq(1)
+        row = rows.first
+
+        # CO predicate should have both values concatenated with pipe
+        co_value = row["TW:DataAttribute:CollectionObject:#{p1.name}"]
+        expect(co_value).to include('first_co_value')
+        expect(co_value).to include('second_co_value')
+        expect(co_value).to include(' | ')
+
+        # CE predicate should have both values concatenated with pipe
+        ce_value = row["TW:DataAttribute:CollectingEvent:#{p2.name}"]
+        expect(ce_value).to include('first_ce_value')
+        expect(ce_value).to include('second_ce_value')
+        expect(ce_value).to include(' | ')
+
+        output.close
+        output.unlink
+      end
     end
   end
 end
