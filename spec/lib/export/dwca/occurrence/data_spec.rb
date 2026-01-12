@@ -604,6 +604,74 @@ describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
 
             expect(z.to_a.first.first).to eq(expected_header)
           end
+
+          specify 'internal extension data aligns with core data by creating 3 uniquely identifiable rows' do
+            # Create 3 specimens with unique characteristics
+            s1 = Specimen.order(:id).first
+            s2 = Specimen.order(:id).third
+            s3 = Specimen.order(:id).last
+
+            # Create unique OTUs for each specimen
+            otu1 = Otu.create!(name: 'unique_species_alpha')
+            otu2 = Otu.create!(name: 'unique_species_beta')
+            otu3 = Otu.create!(name: 'unique_species_gamma')
+
+            # Create unique collecting events
+            ce1 = FactoryBot.create(:valid_collecting_event, elevation_precision: 11.0, verbatim_locality: 'Site Alpha')
+            ce2 = FactoryBot.create(:valid_collecting_event, elevation_precision: 22.0, verbatim_locality: 'Site Beta')
+            ce3 = FactoryBot.create(:valid_collecting_event, elevation_precision: 33.0, verbatim_locality: 'Site Gamma')
+
+            # Link everything together
+            TaxonDetermination.create!(otu: otu1, taxon_determination_object: s1)
+            TaxonDetermination.create!(otu: otu2, taxon_determination_object: s2)
+            TaxonDetermination.create!(otu: otu3, taxon_determination_object: s3)
+
+            s1.update!(collecting_event: ce1)
+            s2.update!(collecting_event: ce2)
+            s3.update!(collecting_event: ce3)
+
+            # Export both core and internal extension data
+            export = Export::Dwca::Occurrence::Data.new(
+              core_scope: scope,
+              taxonworks_extensions: [:otu_name, :elevation_precision, :collection_object_id, :dwc_occurrence_id]
+            )
+
+            # Parse core data
+            core_csv = CSV.parse(export.data.read, headers: true, col_sep: "\t")
+
+            # Parse extension data
+            extension_csv = CSV.parse(export.taxonworks_extension_data.read, headers: true, col_sep: "\t")
+
+            # Find rows by verbatimLocality in core data
+            core_alpha = core_csv.find { |row| row['verbatimLocality'] == 'Site Alpha' }
+            core_beta = core_csv.find { |row| row['verbatimLocality'] == 'Site Beta' }
+            core_gamma = core_csv.find { |row| row['verbatimLocality'] == 'Site Gamma' }
+
+            # Get extension rows indexed by collection_object_id
+            ext_rows_by_co_id = {}
+            extension_csv.each do |row|
+              co_id = row['TW:Internal:collection_object_id']
+              ext_rows_by_co_id[co_id.to_i] = row if co_id
+            end
+
+            # Verify alignment: each specimen's extension data should match its core data
+            expect(ext_rows_by_co_id[s1.id]['TW:Internal:otu_name']).to eq('unique_species_alpha')
+            expect(ext_rows_by_co_id[s1.id]['TW:Internal:elevation_precision']).to eq('11.0')
+            expect(ext_rows_by_co_id[s1.id]['TW:Internal:dwc_occurrence_id']).to eq(s1.dwc_occurrence.id.to_s)
+
+            expect(ext_rows_by_co_id[s2.id]['TW:Internal:otu_name']).to eq('unique_species_beta')
+            expect(ext_rows_by_co_id[s2.id]['TW:Internal:elevation_precision']).to eq('22.0')
+            expect(ext_rows_by_co_id[s2.id]['TW:Internal:dwc_occurrence_id']).to eq(s2.dwc_occurrence.id.to_s)
+
+            expect(ext_rows_by_co_id[s3.id]['TW:Internal:otu_name']).to eq('unique_species_gamma')
+            expect(ext_rows_by_co_id[s3.id]['TW:Internal:elevation_precision']).to eq('33.0')
+            expect(ext_rows_by_co_id[s3.id]['TW:Internal:dwc_occurrence_id']).to eq(s3.dwc_occurrence.id.to_s)
+
+            # Verify core data occurrenceIDs match the extension dwc_occurrence_ids
+            expect(core_alpha['occurrenceID']).to eq(s1.dwc_occurrence.occurrenceID)
+            expect(core_beta['occurrenceID']).to eq(s2.dwc_occurrence.occurrenceID)
+            expect(core_gamma['occurrenceID']).to eq(s3.dwc_occurrence.occurrenceID)
+          end
         end
 
         context 'exporting otu_name' do
