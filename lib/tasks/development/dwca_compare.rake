@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require 'shellwords'
 require 'securerandom'
 require 'fileutils'
@@ -8,26 +6,32 @@ namespace :tw do
   namespace :development do
     namespace :dwca do
       desc 'Compare two DwCA export directories or zip files for differences'
-      task :compare, %i[path1 path2] => [:environment] do |_t, args|
+      task :compare, %i[path1 path2 show_all] => [:environment] do |_t, args|
         require 'csv'
         require 'digest'
         require 'zip'
         require 'tmpdir'
 
         if args[:path1].nil? || args[:path2].nil?
-          puts 'Usage: rake tw:development:dwca:compare[path1,path2]'
+          puts 'Usage: rake tw:development:dwca:compare[path1,path2,show_all]'
           puts
           puts 'Compare DwCA exports from two directories or zip files.'
           puts 'Arguments can be directories with unzipped DwCA files or .zip files.'
           puts
+          puts 'Arguments:'
+          puts '  path1     - First DwCA directory or .zip file'
+          puts '  path2     - Second DwCA directory or .zip file'
+          puts '  show_all  - Optional: "all" to show all differences (default: first 15)'
+          puts
           puts 'Examples:'
           puts '  rake tw:development:dwca:compare[/path/to/export1,/path/to/export2]'
           puts '  rake tw:development:dwca:compare[/path/to/export1.zip,/path/to/export2.zip]'
-          puts '  rake tw:development:dwca:compare[/path/to/export1,/path/to/export2.zip]'
+          puts '  rake tw:development:dwca:compare[/path/to/export1,/path/to/export2.zip,all]'
           exit 1
         end
 
-        comparer = DwcaComparer.new(args[:path1], args[:path2])
+        show_all = args[:show_all]&.downcase == 'all'
+        comparer = DwcaComparer.new(args[:path1], args[:path2], show_all: show_all)
         begin
           comparer.compare
         ensure
@@ -40,9 +44,10 @@ end
 
 # Comparison service object
 class DwcaComparer
-  def initialize(path1, path2)
+  def initialize(path1, path2, show_all: false)
     @path1 = File.expand_path(path1)
     @path2 = File.expand_path(path2)
+    @show_all = show_all
     @differences = []
     @warnings = []
     @temp_dirs = []
@@ -112,9 +117,15 @@ class DwcaComparer
 
     Zip::File.open(zip_path) do |zip_file|
       zip_file.each do |entry|
+        next if entry.directory? # Skip directory entries
+
         dest_path = File.join(temp_dir, entry.name)
         FileUtils.mkdir_p(File.dirname(dest_path))
-        entry.extract(dest_path)
+
+        # Extract manually by reading and writing
+        File.open(dest_path, 'wb') do |f|
+          f.write(entry.get_input_stream.read)
+        end
       end
     end
 
@@ -168,7 +179,7 @@ class DwcaComparer
       return
     end
 
-    # Existing detailed comparison (OK for smaller files)
+    # More detailed comparison (OK for smaller files).
     csv1 = CSV.read(file1, col_sep: "\t", headers: true, encoding: 'UTF-8')
     csv2 = CSV.read(file2, col_sep: "\t", headers: true, encoding: 'UTF-8')
 
@@ -469,7 +480,7 @@ class DwcaComparer
   #
   # Assumptions: TSV rows are single-line records (no embedded newlines).
   def compare_data_tsv_rowset(file1, file2, filename)
-    puts "  #{yellow('⚠')} Large TSV detected (#{filename}); comparing row multiset (order-insensitive)"
+    puts "  Comparing data.tsv (this can take a bit)"
 
     # Context-only: header + row count info
     h1 = first_line_fields(file1)
@@ -516,16 +527,33 @@ class DwcaComparer
         @differences << "#{filename}: Not the same rows, but UUID order is the same"
         puts "  #{red('✗')} Not the same rows, but UUID order is the same"
         puts "    Note: UUID column (col 1) matches line-by-line, but full rows differ."
-        puts "    First few differences (sorted rows):"
       else
         # c) different rows
         @differences << "#{filename}: Not the same rows (order-insensitive compare failed)"
         puts "  #{red('✗')} Not the same rows"
-        puts "    First few differences (sorted rows):"
       end
 
-      diff_head = `diff -u #{Shellwords.escape(sorted1)} #{Shellwords.escape(sorted2)} 2>&1 | head -20`
-      diff_head.lines.each { |l| puts "    #{l.chomp}" } if diff_head && !diff_head.empty?
+      # Extract UUIDs of differing rows
+      differing_uuids = extract_differing_uuids(sorted1, sorted2)
+
+      if differing_uuids.any?
+        display_limit = @show_all ? differing_uuids.size : 15
+        displayed = [display_limit, differing_uuids.size].min
+
+        puts "    Showing #{displayed} of #{differing_uuids.size} differing rows:"
+        puts
+
+        differing_uuids.take(display_limit).each do |uuid|
+          show_row_differences(file1, file2, uuid, column_limit: display_limit)
+          puts
+        end
+
+        if differing_uuids.size > display_limit
+          puts "    ... and #{differing_uuids.size - display_limit} more differences"
+          puts "    Run with 'all' parameter to see all differences:"
+          puts "      rake tw:development:dwca:compare[path1,path2,all]"
+        end
+      end
     ensure
       FileUtils.rm_f(sorted1) rescue nil
       FileUtils.rm_f(sorted2) rescue nil
@@ -572,5 +600,79 @@ class DwcaComparer
 
   def tmp_path(prefix, ext: 'txt', tmp_dir: '/tmp')
     File.join(tmp_dir, "#{prefix}_#{Process.pid}_#{SecureRandom.hex(6)}.#{ext}")
+  end
+
+  # Extract UUIDs of rows that differ between two sorted TSV files
+  def extract_differing_uuids(sorted1, sorted2)
+    uuids = []
+    diff_output = `diff #{Shellwords.escape(sorted1)} #{Shellwords.escape(sorted2)} 2>&1`
+
+    diff_output.lines.each do |line|
+      # Lines starting with < or > contain actual row data
+      if line.start_with?('< ') || line.start_with?('> ')
+        uuid = line[2..].split("\t", 2).first
+        uuids << uuid unless uuids.include?(uuid)
+      end
+    end
+
+    uuids
+  end
+
+  # Show column-by-column differences for a specific UUID (row).
+  def show_row_differences(file1, file2, uuid, column_limit: 10)
+    h1, r1 = read_row(file1, uuid)
+    h2, r2 = read_row(file2, uuid)
+
+    return unless h1 && h2 && r1 && r2
+
+    if h1 != h2
+      puts "    #{yellow('⚠')} UUID: #{uuid} - Headers don't match, skipping detailed comparison"
+      return
+    end
+
+    diffs = []
+    h1.each_with_index do |name, i|
+      a = r1[i] || ""
+      b = r2[i] || ""
+      diffs << [name, a, b] unless a == b
+    end
+
+    if diffs.empty?
+      puts "    UUID: #{uuid} - No differences found"
+      return
+    end
+
+    puts "    #{yellow('UUID:')} #{uuid}"
+    puts "    #{yellow('Different columns:')} #{diffs.size}"
+    if diffs.size > column_limit
+      puts "    (showing first #{column_limit} column differences)"
+    end
+    puts "    #{'-' * 76}"
+
+    diffs.take(column_limit).each do |name, a, b|
+      puts "    #{name}"
+      puts "      #{red('OLD:')} #{a.inspect}"
+      puts "      #{green('NEW:')} #{b.inspect}"
+    end
+
+    puts "    #{'-' * 76}"
+  end
+
+  # Read a specific row from a TSV file by UUID
+  def read_row(path, uuid)
+    File.open(path, "r:bom|utf-8") do |f|
+      header = f.gets&.chomp&.split("\t")
+      return [nil, nil] unless header
+
+      f.each_line do |line|
+        cols = line.chomp.split("\t", -1) # keep trailing empties
+        return [header, cols] if cols[0] == uuid
+      end
+
+      [nil, nil] # UUID not found
+    end
+  rescue => e
+    puts "    #{red('Error reading row:')} #{e.message}"
+    [nil, nil]
   end
 end
