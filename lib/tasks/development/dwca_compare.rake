@@ -504,6 +504,60 @@ class DwcaComparer
       # Keep going: the sorted-row comparison will fall into (c)/(d) anyway.
     end
 
+    # Check UUID order first to determine comparison strategy
+    uuid_order_identical = uuid_order_is_identical?(file1, file2)
+
+    # Fast path: if UUID order is identical, skip expensive sorting
+    if uuid_order_identical
+      # d) different rows, same UUID order - use fast comparison
+      @differences << "#{filename}: Not the same rows, but UUID order is the same"
+      puts "  #{red('✗')} Not the same rows, but UUID order is the same"
+      puts "    Note: UUID column (col 1) matches line-by-line, but full rows differ."
+
+      differing_uuids = extract_differing_uuids_fast(file1, file2)
+
+      if differing_uuids.any?
+        screen_limit = 15
+        displayed = [screen_limit, differing_uuids.size].min
+
+        # Write all differences to a file
+        output_file = "/tmp/dwca_diffs_#{Time.now.strftime('%Y%m%d_%H%M%S')}.txt"
+        File.open(output_file, 'w') do |f|
+          f.puts "DwCA Comparison Differences"
+          f.puts "="*80
+          f.puts "File 1: #{file1}"
+          f.puts "File 2: #{file2}"
+          f.puts "Total differences: #{differing_uuids.size}"
+          f.puts "="*80
+          f.puts
+
+          differing_uuids.each do |uuid|
+            write_row_differences(f, file1, file2, uuid, column_limit: 999999)
+            f.puts
+          end
+        end
+
+        puts "    All #{differing_uuids.size} differences written to: #{output_file}"
+        puts
+        puts "    Showing first #{displayed} of #{differing_uuids.size} differing rows:"
+        puts
+
+        differing_uuids.take(screen_limit).each do |uuid|
+          show_row_differences(file1, file2, uuid, column_limit: screen_limit)
+          puts
+        end
+
+        if differing_uuids.size > screen_limit
+          puts "    ... and #{differing_uuids.size - screen_limit} more differences"
+          puts "    See full output in: #{output_file}"
+        end
+      end
+
+      return
+    end
+
+    # Slow path: UUID order differs, need to sort and compare
+    puts "  UUID order differs, performing full sort and comparison..."
     tmp_dir = '/tmp'
     sorted1 = tmp_path('dwca_data_sorted', ext: 'tsv', tmp_dir: tmp_dir)
     sorted2 = tmp_path('dwca_data_sorted', ext: 'tsv', tmp_dir: tmp_dir)
@@ -521,19 +575,11 @@ class DwcaComparer
         return
       end
 
-      # If the row multisets differ, decide between (c) and (d) by checking UUID order.
-      if uuid_order_is_identical?(file1, file2)
-        # d) different rows, same UUID order
-        @differences << "#{filename}: Not the same rows, but UUID order is the same"
-        puts "  #{red('✗')} Not the same rows, but UUID order is the same"
-        puts "    Note: UUID column (col 1) matches line-by-line, but full rows differ."
-      else
-        # c) different rows
-        @differences << "#{filename}: Not the same rows (order-insensitive compare failed)"
-        puts "  #{red('✗')} Not the same rows"
-      end
+      # c) different rows
+      @differences << "#{filename}: Not the same rows (order-insensitive compare failed)"
+      puts "  #{red('✗')} Not the same rows"
 
-      # Extract UUIDs of differing rows
+      # Extract UUIDs of differing rows from sorted files
       differing_uuids = extract_differing_uuids(sorted1, sorted2)
 
       if differing_uuids.any?
@@ -618,10 +664,68 @@ class DwcaComparer
     uuids
   end
 
+  # Fast extraction of differing UUIDs when files have identical UUID order
+  # Compares line-by-line without sorting, which is much faster for large files
+  # Also caches the differing rows to avoid re-scanning files later
+  def extract_differing_uuids_fast(file1, file2)
+    puts "    Fast comparison (line-by-line)..."
+    uuids = []
+    @cached_rows ||= {} # Cache: {file_path => {uuid => [header, row_data]}}
+    @cached_rows[file1] ||= {}
+    @cached_rows[file2] ||= {}
+
+    File.open(file1, 'rb') do |f1|
+      File.open(file2, 'rb') do |f2|
+        # Read and cache headers
+        h1 = f1.gets&.chomp&.split("\t")
+        h2 = f2.gets&.chomp&.split("\t")
+
+        line_num = 1
+        loop do
+          l1 = f1.gets
+          l2 = f2.gets
+
+          break if l1.nil? && l2.nil?
+
+          # If one file has more lines than the other
+          if l1.nil? || l2.nil?
+            puts "    Warning: Files have different number of rows"
+            break
+          end
+
+          # Compare full lines
+          unless l1 == l2
+            # Parse and cache the differing rows
+            r1 = l1.chomp.split("\t", -1)
+            r2 = l2.chomp.split("\t", -1)
+            uuid = r1[0]
+
+            uuids << uuid
+            @cached_rows[file1][uuid] = [h1, r1]
+            @cached_rows[file2][uuid] = [h2, r2]
+          end
+
+          line_num += 1
+
+          # Progress indicator for large files
+          if line_num % 100_000 == 0
+            print "\r    Compared #{line_num} rows, found #{uuids.size} differences..."
+          end
+        end
+
+        print "\r" + " " * 80 + "\r" if line_num > 100_000
+      end
+    end
+
+    puts "    Found #{uuids.size} differing rows"
+    uuids
+  end
+
   # Show column-by-column differences for a specific UUID (row).
   def show_row_differences(file1, file2, uuid, column_limit: 10)
-    h1, r1 = read_row(file1, uuid)
-    h2, r2 = read_row(file2, uuid)
+    # Try to use cached rows first (from fast comparison)
+    h1, r1 = @cached_rows&.dig(file1, uuid) || read_row(file1, uuid)
+    h2, r2 = @cached_rows&.dig(file2, uuid) || read_row(file2, uuid)
 
     return unless h1 && h2 && r1 && r2
 
@@ -656,6 +760,43 @@ class DwcaComparer
     end
 
     puts "    #{'-' * 76}"
+  end
+
+  # Write column-by-column differences for a specific UUID (row) to a file.
+  def write_row_differences(file, file1_path, file2_path, uuid, column_limit: 10)
+    # Try to use cached rows first (from fast comparison)
+    h1, r1 = @cached_rows&.dig(file1_path, uuid) || read_row(file1_path, uuid)
+    h2, r2 = @cached_rows&.dig(file2_path, uuid) || read_row(file2_path, uuid)
+
+    return unless h1 && h2 && r1 && r2
+
+    if h1 != h2
+      file.puts "UUID: #{uuid} - Headers don't match, skipping detailed comparison"
+      return
+    end
+
+    diffs = []
+    h1.each_with_index do |name, i|
+      a = r1[i] || ""
+      b = r2[i] || ""
+      diffs << [name, a, b] unless a == b
+    end
+
+    if diffs.empty?
+      file.puts "UUID: #{uuid} - No differences found"
+      return
+    end
+
+    file.puts "UUID: #{uuid}"
+    if diffs.size > column_limit
+      file.puts "  (showing first #{column_limit} of #{diffs.size} column differences)"
+    end
+
+    diffs.take(column_limit).each do |name, a, b|
+      file.puts "    #{name}"
+      file.puts "      OLD: #{a.inspect}"
+      file.puts "      NEW: #{b.inspect}"
+    end
   end
 
   # Read a specific row from a TSV file by UUID
