@@ -504,7 +504,7 @@ class Source::Bibtex < Source
 
   # @return [Array] journal, nil or name
   def journal
-    [read_attribute(:journal), (serial.blank? ? nil : serial.name)].compact.first
+    [read_attribute(:journal), (serial.presence&.name)].compact.first
   end
 
   # @return [String]
@@ -975,6 +975,7 @@ class Source::Bibtex < Source
   # @return [Ignored]
   def check_has_field
     valid = false
+
     TW_REQUIRED_FIELDS.each do |i|
       if self[i].present?
         valid = true
@@ -983,8 +984,12 @@ class Source::Bibtex < Source
     end
 
     # TODO This test for auth doesn't work with a new record.
-
-    if (self.authors.count > 0 || self.editors.count > 0 || !self.serial.nil?)
+    if (
+      self.authors.count > 0 ||
+      self.editors.count > 0 ||
+      self.roles.any? { |r| r.type.in?(%w[SourceAuthor SourceEditor]) } ||
+      !self.serial.nil?
+    )
       valid = true
     end
 
