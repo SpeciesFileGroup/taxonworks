@@ -20,20 +20,26 @@ class NewsController < ApplicationController
       end
       format.json {
         @news = News::Project.where(project_id: sessions_current_project_id)
+          .order(created_at: :desc)
           .page(params[:page])
           .per(params[:per])
-          .order(created_at: :desc)
+          
       }
     end
   end
 
   # Serves only current blog_posts at the moment
   def api_index
-    @news = News::Project::BlogPost
-      .where(project_id: sessions_current_project_id)
+    @news = ::Queries::News::Filter.new(params)
+      .all
+      .current
+      .where(
+        type: News::Project::BlogPost.name, 
+        is_public: true
+      )
+      .order(created_at: :desc)
       .page(params[:page])
       .per(params[:per])
-      .order(:display_start, :created_at)
 
     render '/news/api/v1/index'
   end
