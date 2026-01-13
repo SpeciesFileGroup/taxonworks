@@ -197,7 +197,7 @@ group :development do
   gem 'rubocop-rspec', '~> 3.9'
   gem 'rubocop-faker', '~> 1.3'
   gem 'rubocop-performance', '~> 1.10'
-  gem 'brakeman', '~> 6.1', '>= 5.4', require: false
+  gem 'brakeman', '~> 7.1',  require: false # '>= 5.4', require: false
   gem 'seedbank', '~> 0.5.0'
 end
 

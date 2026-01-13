@@ -164,7 +164,7 @@ GEM
       ffi (~> 1.15)
     bootsnap (1.21.0)
       msgpack (~> 1.2)
-    brakeman (6.2.2)
+    brakeman (7.1.2)
       racc
     builder (3.3.0)
     byebug (12.0.0)
@@ -560,7 +560,7 @@ GEM
       logger (~> 1.5)
       ostruct (~> 0.6)
       readline (~> 0.0)
-    rdoc (7.0.3)
+    rdoc (7.1.0)
       erb
       psych (>= 4.0.0)
       tsort
@@ -847,7 +847,7 @@ DEPENDENCIES
   binding_of_caller
   biodiversity (~> 6.0)
   bootsnap
-  brakeman (~> 6.1, >= 5.4)
+  brakeman (~> 7.1)
   byebug (~> 12.0)
   capybara (~> 3.18)
   chartkick (~> 5.0)
