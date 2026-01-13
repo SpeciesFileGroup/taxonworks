@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rack-cors', '~> 2.0', require: 'rack/cors'
+gem 'rack-cors', '~> 3.0', require: 'rack/cors'
 
 ruby '>= 3.2', '< 3.5.0'
 
@@ -68,7 +68,7 @@ gem 'delayed_job_active_record', '~> 4.1.3'
 
 gem 'validates_timeliness', '~> 8.0' # , '>= 4.1.1'
 
-gem 'rack', '~> 3.1.16'
+gem 'rack', '~> 3.2'
 
 gem 'paper_trail', '~> 17.0'
 
