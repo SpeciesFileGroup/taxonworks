@@ -4,14 +4,14 @@ gem 'rack-cors', '~> 2.0', require: 'rack/cors'
 
 ruby '>= 3.2', '< 3.5.0'
 
-
 gem 'rake', '~> 13.0'
 gem 'rails', '~> 8.1'
 gem 'pg', '~> 1.1'
 gem 'activerecord-postgis-adapter', '~> 11.0'
 
-gem 'hiredis', '~> 0.6.1'
-gem 'redis', '~> 4.5'
+# action_cable use may re-introduce this
+# gem 'hiredis', '~> 0.6.1'
+# gem 'redis', '~> 4.5'
 
 gem 'bootsnap', require: false
 
@@ -168,7 +168,6 @@ gem 'parallel', '~> 1.23'
 gem 'ruby-progressbar', '~> 1.11'
 
 group :test, :development do
-  # gem 'term-ansicolor', '~> 1.6' # DEPRECATED
   gem 'pp_sql'
   gem 'faker', '~> 3.2'
   gem 'rspec-rails', '~> 8.0'
@@ -199,7 +198,7 @@ group :development do
   gem 'rubocop-rspec', '~> 3.9'
   gem 'rubocop-faker', '~> 1.3'
   gem 'rubocop-performance', '~> 1.10'
-  gem 'brakeman', '~> 7.1',  require: false # '>= 5.4', require: false
+  gem 'brakeman', '~> 7.1',  require: false
   gem 'seedbank', '~> 0.5.0'
 end
 
