@@ -193,9 +193,9 @@ group :development do
 
   gem 'web-console', '~> 4.0', '>= 4.0.1'
   gem 'rubocop', '~> 1.20'
-  gem 'rubocop-rails', '~> 2.4'
-  gem 'rubocop-rspec', '~>2.6'
-  gem 'rubocop-faker', '~> 1.1'
+  gem 'rubocop-rails', '~> 2.34'
+  gem 'rubocop-rspec', '~> 3.9'
+  gem 'rubocop-faker', '~> 1.3'
   gem 'rubocop-performance', '~> 1.10'
   gem 'brakeman', '~> 6.1', '>= 5.4', require: false
   gem 'seedbank', '~> 0.5.0'
