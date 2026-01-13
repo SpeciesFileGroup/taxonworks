@@ -36,10 +36,10 @@ const projectPreferences = computed(
 const unsubscribe = store.subscribeAction({
   after: (action) => {
     if (action.type === ActionNames.SaveCollectionObject) {
-      customAttributeRef.value.loadDataAttributes()
+      customAttributeRef.value?.loadDataAttributes()
     }
     if (action.type === ActionNames.ResetStore) {
-      customAttributeRef.value.resetRows()
+      customAttributeRef.value?.resetRows()
     }
   }
 })
