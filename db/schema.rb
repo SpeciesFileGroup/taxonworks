@@ -215,9 +215,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_142258) do
     t.datetime "updated_at", precision: nil, null: false
     t.integer "updated_by_id", null: false
     t.index ["biological_association_object_id", "biological_association_object_type"], name: "index_biological_associations_on_object_id_and_type"
-    t.index ["biological_association_object_type", "biological_association_object_id"], name: "index_ba_on_object"
     t.index ["biological_association_subject_id", "biological_association_subject_type"], name: "index_biological_associations_on_subject_id_and_type"
-    t.index ["biological_association_subject_type", "biological_association_subject_id"], name: "index_ba_on_subject"
     t.index ["biological_relationship_id"], name: "index_biological_associations_on_biological_relationship_id"
     t.index ["created_by_id"], name: "index_biological_associations_on_created_by_id"
     t.index ["project_id"], name: "index_biological_associations_on_project_id"
@@ -681,10 +679,9 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_142258) do
     t.datetime "updated_at", precision: nil, null: false
     t.integer "updated_by_id", null: false
     t.text "value", null: false
+    t.index ["attribute_subject_id", "attribute_subject_type", "type"], name: "index_data_attributes_on_subject_and_type"
     t.index ["attribute_subject_id", "attribute_subject_type"], name: "index_data_attributes_on_attribute_subject_id_and_type"
     t.index ["attribute_subject_id"], name: "index_data_attributes_on_attribute_subject_id"
-    t.index ["attribute_subject_type", "attribute_subject_id", "type", "controlled_vocabulary_term_id", "id"], name: "index_da_subject_type_cvt_id"
-    t.index ["attribute_subject_type", "attribute_subject_id", "type"], name: "index_data_attributes_on_subject_and_type"
     t.index ["attribute_subject_type"], name: "index_data_attributes_on_attribute_subject_type"
     t.index ["controlled_vocabulary_term_id", "project_id"], name: "index_data_attributes_on_predicate_and_project"
     t.index ["controlled_vocabulary_term_id"], name: "index_data_attributes_on_controlled_vocabulary_term_id"
@@ -1269,7 +1266,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_142258) do
     t.index ["created_by_id"], name: "index_identifiers_on_created_by_id"
     t.index ["identifier"], name: "index_identifiers_on_identifier"
     t.index ["identifier_object_id", "identifier_object_type"], name: "index_identifiers_on_identifier_object_id_and_type"
-    t.index ["identifier_object_type", "identifier_object_id"], name: "index_identifiers_on_object"
     t.index ["namespace_id"], name: "index_identifiers_on_namespace_id"
     t.index ["project_id"], name: "index_identifiers_on_project_id"
     t.index ["type"], name: "index_identifiers_on_type"
@@ -1939,8 +1935,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_142258) do
     t.index ["project_id"], name: "index_roles_on_project_id"
     t.index ["role_object_id", "role_object_type"], name: "index_roles_on_role_object_id_and_type"
     t.index ["role_object_type", "role_object_id", "type", "position"], name: "index_roles_on_object_type_position"
-    t.index ["role_object_type", "role_object_id", "type"], name: "index_roles_on_object_and_type"
-    t.index ["role_object_type", "role_object_id"], name: "index_roles_on_object"
     t.index ["type"], name: "index_roles_on_type"
     t.index ["updated_at"], name: "index_roles_on_updated_at"
     t.index ["updated_by_id"], name: "index_roles_on_updated_by_id"
@@ -2606,6 +2600,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_142258) do
   add_foreign_key "observation_matrix_rows", "projects"
   add_foreign_key "observation_matrix_rows", "users", column: "created_by_id"
   add_foreign_key "observation_matrix_rows", "users", column: "updated_by_id"
+  add_foreign_key "observations", "descriptors"
   add_foreign_key "observations", "projects"
   add_foreign_key "observations", "users", column: "created_by_id"
   add_foreign_key "observations", "users", column: "updated_by_id"
@@ -2715,6 +2710,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_142258) do
   add_foreign_key "tags", "projects", name: "tags_project_id_fkey"
   add_foreign_key "tags", "users", column: "created_by_id", name: "tags_created_by_id_fkey"
   add_foreign_key "tags", "users", column: "updated_by_id", name: "tags_updated_by_id_fkey"
+  add_foreign_key "taxon_determinations", "otus", name: "taxon_determinations_otu_id_fkey"
   add_foreign_key "taxon_determinations", "projects", name: "taxon_determinations_project_id_fkey"
   add_foreign_key "taxon_determinations", "users", column: "created_by_id", name: "taxon_determinations_created_by_id_fkey"
   add_foreign_key "taxon_determinations", "users", column: "updated_by_id", name: "taxon_determinations_updated_by_id_fkey"

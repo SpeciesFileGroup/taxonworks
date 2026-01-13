@@ -162,9 +162,9 @@ RSpec.describe Export::Dwca::Occurrence::Data, type: :model do
 
     context 'with multiple media items' do
       it 'creates records for all provided image IDs' do
-        image1 = FactoryBot.create(:valid_image)
-        image2 = FactoryBot.create(:valid_image)
-        image3 = FactoryBot.create(:valid_image)
+        image1 = FactoryBot.create(:tiny_random_image)
+        image2 = FactoryBot.create(:tiny_random_image)
+        image3 = FactoryBot.create(:tiny_random_image)
 
         export_instance.send(:populate_temp_image_api_links_table, [image1.id, image2.id, image3.id])
         export_instance.send(:create_media_attribution_temp_tables, [image1.id, image2.id, image3.id], [])

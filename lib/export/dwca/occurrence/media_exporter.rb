@@ -316,6 +316,7 @@ module Export::Dwca::Occurrence
       return if image_ids.empty?
 
       create_image_temp_tables
+      create_image_url_functions # (needed for specs)
 
       # Populate temp_media_image_ids.
       raw = ActiveRecord::Base.connection.raw_connection

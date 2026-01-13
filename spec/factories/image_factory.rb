@@ -2,9 +2,7 @@ FactoryBot.define do
   factory :image, class: Image, traits: [:creator_and_updater] do
 
     factory :valid_image do
-      # Use tiny_random_png to ensure each image has a unique fingerprint
-      # This allows creating multiple images in the same test without collisions
-      image_file { Rack::Test::UploadedFile.new(Spec::Support::Utilities::Files.generate_tiny_random_png, 'image/png') }
+      image_file { Rack::Test::UploadedFile.new((Rails.root + 'spec/files/images/tiny.png'), 'image/png') }
     end
 
     factory :weird_image do
