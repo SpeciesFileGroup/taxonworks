@@ -19,11 +19,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - No error message when trying to delete a combination attached to an OTU [#4670]
 - Error notice is now returned when trying to include media extension in DwCA export with a project API token
 - Match Taxon Names task downloads have wrong valid name [#4682]
+- New source task: Title is required to create a BibTeX source [#4688]
 
 [#4663]: https://github.com/SpeciesFileGroup/taxonworks/issues/4663
 [#4670]: https://github.com/SpeciesFileGroup/taxonworks/issues/4670
 [#4676]: https://github.com/SpeciesFileGroup/taxonworks/issues/4676
 [#4682]: https://github.com/SpeciesFileGroup/taxonworks/issues/4682
+[#4688]: https://github.com/SpeciesFileGroup/taxonworks/issues/4688
 
 ## [0.57.0] - 2026-01-06
 

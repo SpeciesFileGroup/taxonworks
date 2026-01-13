@@ -174,12 +174,24 @@ import RightSection from './components/rightSection'
 import NavBar from '@/components/layout/NavBar'
 import platformKey from '@/helpers/getPlatformKey'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
+import { usePopstateListener } from '@/composables'
 
 const componentSection = {
   [SOURCE_VERBATIM]: Verbatim,
   [SOURCE_BIBTEX]: Bibtex,
   [SOURCE_HUMAN]: Human
 }
+
+const BIBTEX_REQUIRED = [
+  'author',
+  'editor',
+  'title',
+  'url',
+  'year',
+  'journal',
+  'booktitle',
+  'stated_year'
+]
 
 defineOptions({
   name: 'NewSource'
@@ -213,11 +225,23 @@ const isSaveAvailable = computed(
       store.source.roles_attributes.length) ||
     (store.source.type === SOURCE_BIBTEX &&
       store.source.bibtex_type &&
-      store.source.title)
+      BIBTEX_REQUIRED.some((key) => store.source[key])) ||
+    store.source.roles_attributes.length
 )
 
 const isCrossRefModalVisible = ref(false)
 const isBibtexModalVisible = ref(false)
+
+function loadSourceFromParams() {
+  const urlParams = new URLSearchParams(window.location.search)
+  const sourceId = urlParams.get('source_id')
+
+  if (/^\d+$/.test(sourceId)) {
+    store.loadSource(sourceId)
+  } else {
+    store.reset()
+  }
+}
 
 onMounted(() => {
   TW.workbench.keyboard.createLegend(`${platformKey()}+s`, 'Save', 'New source')
@@ -228,13 +252,10 @@ onMounted(() => {
     'New source'
   )
 
-  const urlParams = new URLSearchParams(window.location.search)
-  const sourceId = urlParams.get('source_id')
-
-  if (/^\d+$/.test(sourceId)) {
-    store.loadSource(sourceId)
-  }
+  loadSourceFromParams()
 })
+
+usePopstateListener(loadSourceFromParams)
 
 function isSafeToDiscardChanges() {
   return (
@@ -248,7 +269,7 @@ function isSafeToDiscardChanges() {
 
 function reset() {
   if (isSafeToDiscardChanges()) {
-    store.$reset()
+    store.reset()
   }
 }
 

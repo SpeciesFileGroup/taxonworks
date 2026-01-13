@@ -225,8 +225,6 @@ export const useSourceStore = defineStore('source', {
       this.setSource({ ...data })
       this.documentation = []
       this.softValidation = undefined
-
-      history.pushState(null, null, RouteNames.NewSource)
     }
   }
 })
