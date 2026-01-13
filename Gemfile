@@ -71,7 +71,7 @@ gem 'rack', '~> 3.2'
 gem 'paper_trail', '~> 17.0'
 
 gem 'acts_as_list', '~> 1.0'
-gem 'modularity', '~> 3.0.0' # Shared::RandomTokenFields `as_traits`
+gem 'modularity', '~> 3.2' # Shared::RandomTokenFields `as_traits`
 
 gem 'kt-paperclip', '~> 7.2'
 
@@ -201,20 +201,22 @@ end
 
 group :test do
   gem 'capybara', '~> 3.18'
+ 
   gem 'codecov', '~> 0.6.0'
+  # gem 'simplecov', require: false # coming from codecov, do we need this require?
+  
   gem 'database_cleaner', '~> 2.0'
   gem 'database_cleaner-active_record', '2.2.1' # TODO: Remove when instability issues are solved
   gem 'os', '~> 1.0', '>= 1.0.1'
   gem 'rails-controller-testing', '~> 1.0.2'
   gem 'rspec', '~> 3.6'
-  gem 'simplecov', require: false
   gem 'timecop', '~> 0.9.1'
   gem 'vcr', '~> 6.0'
   gem 'webmock', '~> 3.8'
 end
 
 group :production do
-# gem 'execjs', '~> 2.8.1'
+  # gem 'execjs', '~> 2.8.1' - from babel, no need to force here.
   gem 'passenger', '~> 6.1.0'
 end
 
