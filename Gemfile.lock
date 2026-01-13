@@ -966,7 +966,7 @@ DEPENDENCIES
   waxy (~> 0.1.1)
   web-console (~> 4.0, >= 4.0.1)
   webmock (~> 3.8)
-  wikidata-client (~> 0.1.0.pre.rc1)
+  wikidata-client (~> 0.1.0)
   zaru (~> 1.0)
   zip_tricks (~> 5.6)
 

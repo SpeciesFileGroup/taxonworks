@@ -9,8 +9,10 @@ gem 'rake', '~> 13.0'
 gem 'rails', '~> 8.1'
 gem 'pg', '~> 1.1'
 gem 'activerecord-postgis-adapter', '~> 11.0'
+
 gem 'hiredis', '~> 0.6.1'
 gem 'redis', '~> 4.5'
+
 gem 'bootsnap', require: false
 
 # gem 'json', '>= 2.1.0'
@@ -159,7 +161,7 @@ gem 'asciidoctor', '~> 2.0'
 # gem 'asciidoctor-epub3', '~> 1.5'
 
 # www
-gem 'wikidata-client', '~> 0.1.0.pre.rc1', require: 'wikidata'
+gem 'wikidata-client', '~> 0.1.0', require: 'wikidata'
 
 # Maintenance
 gem 'parallel', '~> 1.23'
