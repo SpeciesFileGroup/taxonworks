@@ -169,7 +169,7 @@ group :test, :development do
   # gem 'term-ansicolor', '~> 1.6' # DEPRECATED
   gem 'pp_sql'
   gem 'faker', '~> 3.2'
-  gem 'rspec-rails', '~> 6.1'
+  gem 'rspec-rails', '~> 8.0'
   gem 'rspec-activemodel-mocks', '~> 1.1.0'
   gem 'byebug', '~> 12.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 6.5'
