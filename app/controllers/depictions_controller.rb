@@ -157,6 +157,7 @@ class DepictionsController < ApplicationController
       :figure_label,
       image_attributes: [
         :image_file,
+        :pixels_to_centimeter,
         tags_attributes: [:id, :keyword_id, :_destroy],
         identifiers_attributes: [:id, :namespace_id, :identifier, :type, :_destroy]
       ],
