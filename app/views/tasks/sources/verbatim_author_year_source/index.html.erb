@@ -1,0 +1,52 @@
+<h2>Task - TaxonName verbatim author/year without citations</h2>
+
+<div>
+  <%= link_to('Back to Filter TaxonNames', filter_taxon_names_task_path) %>
+</div>
+
+<% if @author_year_data.empty? %>
+  <p><em>No TaxonNames with verbatim author and year found.</em></p>
+<% else %>
+  <p>Found <%= @author_year_data.size %> unique author/year combinations.</p>
+
+  <table class="tablesorter">
+    <thead>
+      <tr>
+        <%= fancy_th_tag(name: 'Author') %>
+        <%= fancy_th_tag(name: 'Year') %>
+        <%= fancy_th_tag(name: 'Count') %>
+        <%= fancy_th_tag(name: 'New Source') %>
+        <%= fancy_th_tag(name: 'Filter') %>
+      </tr>
+    </thead>
+    <tbody>
+      <% @author_year_data.each do |row| %>
+        <% heat_color = Utilities::Heatmap.heatmap_color_for(row.record_count.to_f / @max_count) %>
+        <tr>
+          <td><%= row.verbatim_author %></td>
+          <td><%= row.year_of_publication %></td>
+          <td style="background-color: <%= heat_color %>; color: white; font-weight: bold; text-align: center;">
+            <%= row.record_count %>
+          </td>
+          <td>
+            <%= link_to(
+              'New Source',
+              new_source_task_path,
+              target: '_blank'
+            ) %>
+          </td>
+          <td>
+            <%= link_to(
+              'Filter TaxonNames',
+              filter_taxon_names_task_path(
+                author: row.verbatim_author,
+                year_of_publication: row.year_of_publication
+              ),
+              target: '_blank'
+            ) %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
