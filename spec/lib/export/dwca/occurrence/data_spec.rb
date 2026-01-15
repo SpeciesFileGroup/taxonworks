@@ -3,6 +3,7 @@ require 'rails_helper'
 describe Export::Dwca::Occurrence::Data, type: :model, group: :darwin_core do
   let(:scope) { ::DwcOccurrence.all }
 
+  # TODO: make dynamic?
   # Headers added when we spec a Specimen with a ce that is a valid_collecting_events
   let(:valid_collecting_event_headers) { %w{georeferenceProtocol verbatimCoordinates verbatimElevation verbatimLatitude verbatimLocality verbatimLongitude} }
 

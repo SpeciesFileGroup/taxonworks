@@ -82,7 +82,7 @@ module Export::Dwca::Occurrence
     # Generates copyright string from year and holder names.
     # @param attr_table_alias [String] SQL table alias for attribution temp table
     # @return [String] SQL CASE statement for building copyright label
-    def copyright_label_sql_from_temp(attr_table_alias = 'attr')
+    def copyright_label_from_temp_sql(attr_table_alias = 'attr')
       <<-SQL
         CASE
           WHEN #{attr_table_alias}.copyright_holder_names_array IS NOT NULL

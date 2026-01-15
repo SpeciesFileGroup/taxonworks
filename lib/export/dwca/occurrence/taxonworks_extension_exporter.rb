@@ -181,6 +181,7 @@ module Export::Dwca::Occurrence
       end
 
       if methods.keys.include?(:otu_name)
+        # TODO: remove this when the issue is fixed!
         # !! Guarding against a given otu with > 1 position=1 taxon
         # determinations (which, at time of writing, was actually happening).
         query = query.joins(<<~SQL.squish)

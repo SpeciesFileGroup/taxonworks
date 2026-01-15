@@ -8,7 +8,7 @@ class AddMoreExportIndexes < ActiveRecord::Migration[7.1]
     # Benchmark testing showed no meaningful performance difference between (id, type) and (type, id) ordering,
     # so we keep the existing indexes and only add the compound index with position.
 
-    add_index :roles, [:role_object_type, :role_object_id, :type, :position],
+    add_index :roles, [:role_object_id, :role_object_type, :type, :position],
       name: :index_roles_on_object_type_position, algorithm: :concurrently, if_not_exists: true
 
     add_index :dwc_occurrences, [:project_id, :id],

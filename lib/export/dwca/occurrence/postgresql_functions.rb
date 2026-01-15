@@ -69,27 +69,36 @@ module Export::Dwca::Occurrence
       # database session.
       def create_image_url_functions
         conn = ActiveRecord::Base.connection
-        host = conn.quote(Shared::Api.host)
         image_file_prefix = conn.quote(Shared::Api.image_file_url_prefix)
         image_metadata_prefix = conn.quote(Shared::Api.image_metadata_url_prefix)
 
-        # Regular image file URL (fingerprint-based)
+        create_image_file_url_function(conn, image_file_prefix)
+        create_image_metadata_url_function(conn, image_metadata_prefix)
+        create_sled_image_file_url_function(conn, image_file_prefix)
+      end
+
+      # Regular image file URL (fingerprint-based)
+      def create_image_file_url_function(conn, image_file_prefix)
         conn.execute(<<~SQL)
           CREATE OR REPLACE FUNCTION pg_temp.image_file_url(fingerprint text, token text)
           RETURNS text AS $$
             SELECT #{image_file_prefix} || fingerprint || '?project_token=' || token
           $$ LANGUAGE SQL IMMUTABLE;
         SQL
+      end
 
-        # Image metadata URL
+      # Image metadata URL
+      def create_image_metadata_url_function(conn, image_metadata_prefix)
         conn.execute(<<~SQL)
           CREATE OR REPLACE FUNCTION pg_temp.image_metadata_url(image_id integer, token text)
           RETURNS text AS $$
             SELECT #{image_metadata_prefix} || image_id::text || '?project_token=' || token
           $$ LANGUAGE SQL IMMUTABLE;
         SQL
+      end
 
-        # Sled image file URL (fingerprint-based with crop coordinates)
+      # Sled image file URL (fingerprint-based with crop coordinates)
+      def create_sled_image_file_url_function(conn, image_file_prefix)
         conn.execute(<<~SQL)
           CREATE OR REPLACE FUNCTION pg_temp.sled_image_file_url(fingerprint text, svg_view_box text, token text)
           RETURNS text AS $$

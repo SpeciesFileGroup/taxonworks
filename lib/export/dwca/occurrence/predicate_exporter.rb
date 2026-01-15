@@ -121,9 +121,10 @@ module Export::Dwca::Occurrence
     def collection_object_predicate_names
       return {} if @collection_object_predicate_ids.empty?
 
-      q = "SELECT id, CONCAT('TW:DataAttribute:CollectionObject:', name) AS predicate_name
-            FROM controlled_vocabulary_terms
-            WHERE id IN (#{@collection_object_predicate_ids.join(',')})"
+      q = ControlledVocabularyTerm
+        .select("id, CONCAT('TW:DataAttribute:CollectionObject:', name) AS predicate_name")
+        .where(id: @collection_object_predicate_ids)
+        .to_sql
 
       ActiveRecord::Base.connection.execute(q).each_with_object({}) do |row, hash|
         hash[row['id'].to_i] = row['predicate_name']
@@ -136,9 +137,10 @@ module Export::Dwca::Occurrence
     def collecting_event_predicate_names
       return {} if @collecting_event_predicate_ids.empty?
 
-      q = "SELECT id, name
-            FROM controlled_vocabulary_terms
-            WHERE id IN (#{@collecting_event_predicate_ids.join(',')})"
+      q = ControlledVocabularyTerm
+        .where(id: @collecting_event_predicate_ids)
+        .select(:id, :name)
+        .to_sql
 
       ActiveRecord::Base.connection.execute(q).each_with_object({}) do |row, hash|
         hash[row['id'].to_i] = "TW:DataAttribute:CollectingEvent:#{row['name']}"
@@ -167,68 +169,18 @@ module Export::Dwca::Occurrence
         .select(:id, :collecting_event_id)
         .to_sql
 
-      # CollectionObject pivot.
-      co_select_cols = co_pred_names.map do |cvt_id, pred_name|
-        quoted_name = conn.quote_column_name(pred_name)
-        "STRING_AGG(pg_temp.sanitize_csv(co_da.value), '#{delimiter}' ORDER BY co_da.id)
-         FILTER (WHERE co_da.controlled_vocabulary_term_id = #{cvt_id}) AS #{quoted_name}"
-      end
+      create_collection_object_predicate_pivot_table(
+        conn:,
+        co_pred_names:,
+        delimiter:,
+        co_src_sql:
+      )
 
-      co_cols_sql = co_select_cols.any? ?
-        ",\n  #{co_select_cols.join(",\n  ")}" : ''
-
-      co_join_sql = if co_pred_names.any?
-        <<~SQL
-          LEFT JOIN data_attributes co_da ON co_da.attribute_subject_id = co.id
-            AND co_da.attribute_subject_type = 'CollectionObject'
-            AND co_da.type = 'InternalAttribute'
-            AND co_da.controlled_vocabulary_term_id IN (#{co_pred_names.keys.join(',')})
-        SQL
-      else
-        ''
-      end
-
-      co_sql = <<~SQL
-        CREATE TEMP TABLE temp_predicate_pivot_co AS
-        SELECT
-          co.id AS co_id,
-          co.collecting_event_id AS collecting_event_id#{co_cols_sql}
-        FROM (#{co_src_sql}) co
-        #{co_join_sql}
-        GROUP BY co.id, co.collecting_event_id
-      SQL
-
-      conn.execute(co_sql)
-      Rails.logger.debug 'dwca_export: temp_predicate_pivot_co created'
-
-      # CollectingEvent pivot.
-      if ce_pred_names.any?
-        ce_select_cols = ce_pred_names.map do |cvt_id, pred_name|
-          quoted_name = conn.quote_column_name(pred_name)
-          "STRING_AGG(pg_temp.sanitize_csv(ce_da.value), '#{delimiter}' ORDER BY ce_da.id)
-           FILTER (WHERE ce_da.controlled_vocabulary_term_id = #{cvt_id}) AS #{quoted_name}"
-        end
-
-        ce_cols_sql = ce_select_cols.any? ?
-          ",\n  #{ce_select_cols.join(",\n  ")}" : ''
-
-        ce_sql = <<~SQL
-          CREATE TEMP TABLE temp_predicate_pivot_ce AS
-          SELECT
-            ce.id AS collecting_event_id#{ce_cols_sql}
-          FROM collecting_events ce
-          JOIN (SELECT DISTINCT collecting_event_id FROM temp_predicate_pivot_co) co
-            ON co.collecting_event_id = ce.id
-          LEFT JOIN data_attributes ce_da ON ce_da.attribute_subject_id = ce.id
-            AND ce_da.attribute_subject_type = 'CollectingEvent'
-            AND ce_da.type = 'InternalAttribute'
-            AND ce_da.controlled_vocabulary_term_id IN (#{ce_pred_names.keys.join(',')})
-          GROUP BY ce.id
-        SQL
-
-        conn.execute(ce_sql)
-        Rails.logger.debug 'dwca_export: temp_predicate_pivot_ce created'
-      end
+      create_collecting_event_predicate_pivot_table(
+        conn:,
+        ce_pred_names:,
+        delimiter:
+      )
 
       # Combined pivot.
       combined_cols = []
@@ -275,6 +227,73 @@ module Export::Dwca::Occurrence
 
       conn.execute(order_sql)
       Rails.logger.debug 'dwca_export: temp_co_order created'
+    end
+
+    # Creates temp_predicate_pivot_co
+    def create_collection_object_predicate_pivot_table(conn:, co_pred_names:, delimiter:, co_src_sql:)
+      co_select_cols = co_pred_names.map do |cvt_id, pred_name|
+        quoted_name = conn.quote_column_name(pred_name)
+        "STRING_AGG(pg_temp.sanitize_csv(co_da.value), '#{delimiter}' ORDER BY co_da.id)
+         FILTER (WHERE co_da.controlled_vocabulary_term_id = #{cvt_id}) AS #{quoted_name}"
+      end
+
+      co_cols_sql = co_select_cols.any? ?
+        ",\n  #{co_select_cols.join(",\n  ")}" : ''
+
+      co_join_sql = if co_pred_names.any?
+        <<~SQL
+          LEFT JOIN data_attributes co_da ON co_da.attribute_subject_id = co.id
+            AND co_da.attribute_subject_type = 'CollectionObject'
+            AND co_da.type = 'InternalAttribute'
+            AND co_da.controlled_vocabulary_term_id IN (#{co_pred_names.keys.join(',')})
+        SQL
+      else
+        ''
+      end
+
+      co_sql = <<~SQL
+        CREATE TEMP TABLE temp_predicate_pivot_co AS
+        SELECT
+          co.id AS co_id,
+          co.collecting_event_id AS collecting_event_id#{co_cols_sql}
+        FROM (#{co_src_sql}) co
+        #{co_join_sql}
+        GROUP BY co.id, co.collecting_event_id
+      SQL
+
+      conn.execute(co_sql)
+      Rails.logger.debug 'dwca_export: temp_predicate_pivot_co created'
+    end
+
+    # Creates temp_predicate_pivot_ce
+    def create_collecting_event_predicate_pivot_table(conn:, ce_pred_names:, delimiter:)
+      return if ce_pred_names.empty?
+
+      ce_select_cols = ce_pred_names.map do |cvt_id, pred_name|
+        quoted_name = conn.quote_column_name(pred_name)
+        "STRING_AGG(pg_temp.sanitize_csv(ce_da.value), '#{delimiter}' ORDER BY ce_da.id)
+         FILTER (WHERE ce_da.controlled_vocabulary_term_id = #{cvt_id}) AS #{quoted_name}"
+      end
+
+      ce_cols_sql = ce_select_cols.any? ?
+        ",\n  #{ce_select_cols.join(",\n  ")}" : ''
+
+      ce_sql = <<~SQL
+        CREATE TEMP TABLE temp_predicate_pivot_ce AS
+        SELECT
+          ce.id AS collecting_event_id#{ce_cols_sql}
+        FROM collecting_events ce
+        JOIN (SELECT DISTINCT collecting_event_id FROM temp_predicate_pivot_co) co
+          ON co.collecting_event_id = ce.id
+        LEFT JOIN data_attributes ce_da ON ce_da.attribute_subject_id = ce.id
+          AND ce_da.attribute_subject_type = 'CollectingEvent'
+          AND ce_da.type = 'InternalAttribute'
+          AND ce_da.controlled_vocabulary_term_id IN (#{ce_pred_names.keys.join(',')})
+        GROUP BY ce.id
+      SQL
+
+      conn.execute(ce_sql)
+      Rails.logger.debug 'dwca_export: temp_predicate_pivot_ce created'
     end
   end
 end

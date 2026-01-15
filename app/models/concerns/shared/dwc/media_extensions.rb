@@ -36,14 +36,12 @@ module Shared::Dwc::MediaExtensions
   end
 
   def dwc_media_owner
-    # Get all AttributionOwner roles for this media's attribution
-    roles = Role
-      .joins('INNER JOIN attributions ON attributions.id = roles.role_object_id AND roles.role_object_type = \'Attribution\'')
-      .where('attributions.attribution_object_id = ? AND attributions.attribution_object_type = ?', id, self.class.name)
-      .where(type: 'AttributionOwner')
+    roles = AttributionOwner
+      .joins("INNER JOIN attributions ON attributions.id = roles.role_object_id AND roles.role_object_type = 'Attribution'")
+      .where(attributions: {attribution_object: self})
       .order(:position)
 
-    # Map each role to either person.cached or organization.name
+    # Map each role to either person.cached or organization.name.
     roles.map do |role|
       if role.person_id
         Person.find(role.person_id).cached

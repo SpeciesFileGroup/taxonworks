@@ -50,12 +50,12 @@ RSpec.describe Export::Dwca::Occurrence::SqlFragments, type: :model do
     conn.execute("CREATE INDEX ON #{temp_table_name}(image_id)")
   end
 
-  describe '#copyright_label_sql_from_temp' do
+  describe '#copyright_label_from_temp_sql' do
     let(:temp_ids_table)  { 'temp_image_ids' }
     let(:temp_table_name) { 'temp_image_attributions' }
 
     let(:sql_fragment) do
-      fragment_host.copyright_label_sql_from_temp(temp_table_name)
+      fragment_host.copyright_label_from_temp_sql(temp_table_name)
     end
 
     after do

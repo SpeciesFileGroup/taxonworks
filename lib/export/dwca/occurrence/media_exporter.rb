@@ -592,7 +592,7 @@ module Export::Dwca::Occurrence
       return if image_ids.empty?
 
       conn = ActiveRecord::Base.connection
-      copyright_label = copyright_label_sql_from_temp('attr')
+      copyright_label = copyright_label_from_temp_sql('attr')
 
       image_copy_sql = <<-SQL
         COPY (
@@ -648,7 +648,7 @@ module Export::Dwca::Occurrence
       return if sound_ids.empty?
 
       conn = ActiveRecord::Base.connection
-      copyright_label = copyright_label_sql_from_temp('attr')
+      copyright_label = copyright_label_from_temp_sql('attr')
 
       sound_copy_sql = <<-SQL
         COPY (
