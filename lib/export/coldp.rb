@@ -19,8 +19,8 @@ module Export
 
   # # "next" in name.rb are red flags
   #
-  # * gender/etymology changes from my 2 
-  #  
+  # * gender/etymology changes from my 2
+  #
   # * write tests to check for coverage (missing methods)
   # * Update all files formats to use tabs
   # * Pending handling of both BibTeX and Verbatim
@@ -29,7 +29,7 @@ module Export
   # * biological association index now?!
   # * skipped_name_ids -> why/remove?
 
-  # - Combiantions need to skip if verbatim populated
+  # - Combinations need to skip if verbatim populated
   # - Add a secondary parser to handle verbatim
   module Coldp
 
@@ -60,7 +60,7 @@ module Export
 
     # @return [Scope]
     #  A full set of valid only OTUs (= Taxa in CoLDP) that are to be sent.
-    # 
+    #
     #  !! At present no OTU with a `name` is sent. In the future this may need to change.
     #
     #  !?! - not true !! No synonym TaxonName is sent if they don't have an OTU
@@ -208,7 +208,7 @@ module Export
           f.write Export::Coldp::Files::Taxon.generate(otu, otus, project_members, ref_tsv, prefer_unlabelled_otus)
         end
 
-        zipfile.get_output_stream('TypeMaterial.tsv') { |f| f.write Export::Coldp::Files::TypeMaterial.generate(otu, project_members, ref_tsv) }
+        #  zipfile.get_output_stream('TypeMaterial.tsv') { |f| f.write Export::Coldp::Files::TypeMaterial.generate(otu, project_members, ref_tsv) }
 
         (FILETYPES - %w{Name Taxon References Synonym TypeMaterial NameRelation}).each do |ft|
           m = "Export::Coldp::Files::#{ft}".safe_constantize
@@ -307,7 +307,7 @@ module Export
     # Reification spec
     # Duplicate Combination check -> is the Combination in question already represented int he current *classification*
 
-    # Iterates the manifest used by Name 
+    # Iterates the manifest used by Name
     # !! includes only id
     def self.all_names(otu)
       names = []
@@ -316,7 +316,7 @@ module Export
       end
 
       all_names = ::Queries.union(TaxonName, names)
-    end 
+    end
 
   end
 end
