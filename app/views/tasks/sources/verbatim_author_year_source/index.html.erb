@@ -7,7 +7,13 @@
 <% if @author_year_data.empty? %>
   <p><em>No TaxonNames with verbatim author and year found.</em></p>
 <% else %>
-  <p>Found <%= @author_year_data.size %> unique author/year combinations.</p>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+    <p style="margin: 0;">Found <%= @author_year_data.size %> unique author/year combinations.</p>
+    <div style="display: flex; gap: 10px;">
+      <button type="button" class="btn-jump-to-most" onclick="jumpToMost()">Jump to most</button>
+      <button type="button" class="btn-refresh" onclick="location.reload()">Refresh</button>
+    </div>
+  </div>
 
   <table class="tablesorter">
     <thead>
@@ -17,14 +23,14 @@
         <%= fancy_th_tag(name: 'Count') %>
         <%= fancy_th_tag(name: 'New Source') %>
         <%= fancy_th_tag(name: 'Filter') %>
-        <%= fancy_th_tag(name: 'Preview') %>
+        <%= fancy_th_tag(name: 'Taxon names') %>
         <%= fancy_th_tag(name: 'Batch Cite') %>
       </tr>
     </thead>
     <tbody>
       <% @author_year_data.each do |row| %>
-        <% heat_color = Utilities::Heatmap.heatmap_color_for(row.record_count.to_f / @max_count) %>
-        <tr data-author="<%= row.verbatim_author %>" data-year="<%= row.year_of_publication %>">
+        <% heat_color = Utilities::Heatmap.heatmap_color_for(row.record_count.to_f / @max_count, curve: :citation_count, count: row.record_count) %>
+        <tr data-author="<%= row.verbatim_author %>" data-year="<%= row.year_of_publication %>" data-count="<%= row.record_count %>">
           <td><%= row.verbatim_author %></td>
           <td><%= row.year_of_publication %></td>
           <td style="background-color: <%= heat_color %>; color: white; font-weight: bold; text-align: center;">
@@ -50,7 +56,7 @@
           </td>
           <td>
             <button type="button" class="btn-preview" data-author="<%= row.verbatim_author %>" data-year="<%= row.year_of_publication %>">
-              Preview
+              Taxon names
             </button>
           </td>
           <td class="batch-cite-cell">
@@ -155,6 +161,14 @@
   margin-bottom: 20px;
 }
 
+.modal-body table td {
+  padding: 8px;
+}
+
+.modal-body table th {
+  padding: 8px;
+}
+
 .modal-close {
   background: none;
   border: none;
@@ -171,7 +185,7 @@
   color: #000;
 }
 
-.btn-cite, .btn-preview {
+.btn-cite, .btn-preview, .btn-refresh, .btn-jump-to-most {
   padding: 4px 12px;
   background-color: #5D9CE8;
   color: white;
@@ -180,7 +194,7 @@
   cursor: pointer;
 }
 
-.btn-cite:hover, .btn-preview:hover {
+.btn-cite:hover, .btn-preview:hover, .btn-refresh:hover, .btn-jump-to-most:hover {
   background-color: #4A8CD6;
 }
 
@@ -230,6 +244,43 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 });
+
+function jumpToMost() {
+  // Find all rows with batch-cite-cell that still have a button (not cited yet)
+  const rows = Array.from(document.querySelectorAll('tbody tr'));
+  const activeRows = rows.filter(function(row) {
+    const cell = row.querySelector('.batch-cite-cell');
+    return cell && cell.querySelector('.btn-cite');
+  });
+
+  if (activeRows.length === 0) {
+    TW.workbench.alert.create('No uncited rows remaining', 'notice');
+    return;
+  }
+
+  // Find the row with the highest count
+  let maxCount = 0;
+  let targetRow = null;
+
+  activeRows.forEach(function(row) {
+    const count = parseInt(row.getAttribute('data-count'));
+    if (count > maxCount) {
+      maxCount = count;
+      targetRow = row;
+    }
+  });
+
+  if (targetRow) {
+    // Scroll to the row with smooth behavior
+    targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    // Highlight the row briefly
+    targetRow.style.outline = '3px solid #5D9CE8';
+    setTimeout(function() {
+      targetRow.style.outline = '';
+    }, 2000);
+  }
+}
 
 function openSourceModal() {
   const modal = document.getElementById('source-modal');
