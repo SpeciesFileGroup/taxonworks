@@ -13,9 +13,24 @@ module Export
   # Exports to the Catalog of Life in the new "coldp" format.
   # http://api.col.plus/datapackage
   #
+  # TODO:
+  #  - Recheck opilinies
+  #  - Check relationships export (scoping)
+
+  # # "next" in name.rb are red flags
+  #
+  # * gender/etymology changes from my 2 
+  #  
   # * write tests to check for coverage (missing methods)
   # * Update all files formats to use tabs
   # * Pending handling of both BibTeX and Verbatim
+  # * (re)move tests
+  # * docuement what Coldp *expects*, in particular inferred combionations
+  # * biological association index now?!
+  # * skipped_name_ids -> why/remove?
+
+  # - Combiantions need to skip if verbatim populated
+  # - Add a secondary parser to handle verbatim
   module Coldp
 
     class << self
@@ -45,9 +60,10 @@ module Export
 
     # @return [Scope]
     #  A full set of valid only OTUs (= Taxa in CoLDP) that are to be sent.
+    # 
     #  !! At present no OTU with a `name` is sent. In the future this may need to change.
     #
-    #  !! No synonym TaxonName is send if they don't have an OTU
+    #  !?! - not true !! No synonym TaxonName is sent if they don't have an OTU
     #
     #  This is presently not scoping Names.csv. That's probably OK.
     #
@@ -186,20 +202,21 @@ module Export
 
         zipfile.get_output_stream('Synonym.tsv') { |f| f.write Export::Coldp::Files::Synonym.generate(otu, otus, project_members, ref_tsv) }
 
+        #   zipfile.get_output_stream('NameRelation.tsv') { |f| f.write Export::Coldp::Files::NameRelation.generate(otu, project_members, ref_tsv) }
+
         zipfile.get_output_stream('Taxon.tsv') do |f|
           f.write Export::Coldp::Files::Taxon.generate(otu, otus, project_members, ref_tsv, prefer_unlabelled_otus)
         end
 
         zipfile.get_output_stream('TypeMaterial.tsv') { |f| f.write Export::Coldp::Files::TypeMaterial.generate(otu, project_members, ref_tsv) }
 
-        (FILETYPES - %w{Name Taxon References Synonym TypeMaterial}).each do |ft|
+        (FILETYPES - %w{Name Taxon References Synonym TypeMaterial NameRelation}).each do |ft|
           m = "Export::Coldp::Files::#{ft}".safe_constantize
           zipfile.get_output_stream("#{ft}.tsv") { |f| f.write m.generate(otus, project_members, ref_tsv) }
         end
 
         # TODO: Probably not used
         # skip_name_ids = Export::Coldp::Files::Name.skipped_name_ids  ||  []
-
 
         # TODO: this doesn't really help, and adds time to the process.
         # Sort the refs by full citation string
@@ -287,8 +304,19 @@ module Export
         taxon_name_id
       end
     end
-
     # Reification spec
     # Duplicate Combination check -> is the Combination in question already represented int he current *classification*
+
+    # Iterates the manifest used by Name 
+    # !! includes only id
+    def self.all_names(otu)
+      names = []
+      Export::Coldp::Files::Name::MANIFEST.each do |m|
+        names.push TaxonName.select(:id).from( Export::Coldp::Files::Name.send(m, otu))
+      end
+
+      all_names = ::Queries.union(TaxonName, names)
+    end 
+
   end
 end

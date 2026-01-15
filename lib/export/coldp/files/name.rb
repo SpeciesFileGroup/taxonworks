@@ -16,6 +16,18 @@ module Export::Coldp::Files::Name
   #  TODO: Not implemented, resolve
   # and re-implement if needed
   @skipped_name_ids = []
+  
+  MANIFEST = [
+     :valid_higher_names,
+     :valid_family_names,
+     :core_names,
+     :combination_names, # combinations
+     :historical_combination_names, # historical_combinations
+     :original_combination_names, # original_combinations
+     :invalid_family_and_higher_names,
+     :invalid_core_names,
+     :invalid_original_combination_names, 
+  ]
 
   def self.skipped_name_ids
     @skipped_name_ids
@@ -95,7 +107,6 @@ module Export::Coldp::Files::Name
   def self.invalid_core_names(otu)
     a = otu.taxon_name.self_and_descendants.unscope(:order).select(:id)
 
-
     b = ::Protonym
       .with(valid_scope: a)
       .joins('JOIN valid_scope on valid_scope.id = taxon_names.cached_valid_taxon_name_id')
@@ -142,9 +153,9 @@ module Export::Coldp::Files::Name
       ::Export::Coldp.remarks = ::Export::Coldp.get_remarks(otu.taxon_name.self_and_descendants, predicate_id)
     end
 
-    # TODO: Why is thie output here?
-    output = {}
-    output[:csv] = ::CSV.generate(col_sep: "\t") do |csv|
+    # genderAgreement boolean is ultimately derivable from TaxonNameClassification::Gender
+
+    output = ::CSV.generate(col_sep: "\t") do |csv|
       csv << %w{
         ID
         basionymID
@@ -161,21 +172,29 @@ module Export::Coldp::Files::Name
         publishedInYear
         code
         status
+        etymology
+        gender
         link
         remarks
         modified
         modifiedBy
       }
 
-      add_valid_higher_names(otu, csv, project_members, reference_csv)
-      add_valid_family_names(otu, csv, project_members, reference_csv)
-      add_core_names(otu, csv, project_members, reference_csv)
-      add_combinations(otu, csv, project_members, reference_csv)
-      add_historical_combinations(otu, csv, project_members, reference_csv)
-      add_original_combinations(otu, csv, project_members, reference_csv)
-      add_invalid_family_and_higher_names(otu, csv, project_members, reference_csv)
-      add_invalid_core_names(otu, csv, project_members, reference_csv)
-      add_invalid_original_combinations(otu, csv, project_members, reference_csv)
+      MANIFEST.each do |m|
+        send( ('add_' + m.to_s).to_sym, otu, csv, project_members, reference_csv)
+      end
+
+      true
+
+      # add_valid_higher_names(otu, csv, project_members, reference_csv)
+      # add_valid_family_names(otu, csv, project_members, reference_csv)
+      # add_core_names(otu, csv, project_members, reference_csv)
+      # add_combinations(otu, csv, project_members, reference_csv)
+      # add_historical_combinations(otu, csv, project_members, reference_csv)
+      # add_original_combinations(otu, csv, project_members, reference_csv)
+      # add_invalid_family_and_higher_names(otu, csv, project_members, reference_csv)
+      # add_invalid_core_names(otu, csv, project_members, reference_csv)
+      # add_invalid_original_combinations(otu, csv, project_members, reference_csv)
     end
   end
 
@@ -232,7 +251,7 @@ module Export::Coldp::Files::Name
   end
 
   # Invalid original combinations are:
-  #   - species or genus group names
+  #   - Species or genus group names
   #   - invalid names (not valid)
   #   - names with original combinations set
   #   - names where cached != original_combination, i.e. it needs re-ification
@@ -250,7 +269,8 @@ module Export::Coldp::Files::Name
       .joins('JOIN valid_scope on valid_scope.id = taxon_names.cached_valid_taxon_name_id')
   end
 
-  def self.add_invalid_original_combinations(otu, csv, project_members, reference_csv)
+   
+  def self.add_invalid_original_combination_names(otu, csv, project_members, reference_csv)
     names = invalid_original_combination_names(otu)
     names.length
 
@@ -293,6 +313,8 @@ module Export::Coldp::Files::Name
         row['cached_nomenclature_date']&.year,                              # publishedInYear - OK
         code_field(row['reference_rank_class']),                            # code
         nil,                                                                # status https://api.checklistbank.org/vocab/nomStatus
+        nil,                                                                # etymology     
+        nil,                                                                # gender 
         nil,                                                                # link (probably TW public or API)
         nil,                                                                # remarks (we have no way to capture this in TW)
         Export::Coldp.modified(row[:updated_at]),                           # modified
@@ -303,7 +325,7 @@ module Export::Coldp::Files::Name
     end
   end
 
-  def self.add_original_combinations(otu, csv, project_members, reference_csv)
+  def self.add_original_combination_names(otu, csv, project_members, reference_csv)
     names = original_combination_names(otu)
     names.length
 
@@ -346,6 +368,8 @@ module Export::Coldp::Files::Name
         row['cached_nomenclature_date']&.year,                              # publishedInYear - OK
         code_field(row['reference_rank_class']),                            # code
         nil,                                                                # status https://api.checklistbank.org/vocab/nomStatus
+        nil,                                                                # etymology     
+        nil,                                                                # gender 
         nil,                                                                # link (probably TW public or API)
         nil,                                                                # remarks (we have no way to capture this in TW)
         Export::Coldp.modified(row[:updated_at]),                           # modified
@@ -378,6 +402,8 @@ module Export::Coldp::Files::Name
         t.cached_nomenclature_date&.year,                                   # publishedInYear
         code_field(t.rank_class.name),                                      # code
         ::TaxonName::NOMEN_VALID[t.rank_class.name.to_sym],                 # nomStatus
+        nil,                                                                # etymology     
+        nil,                                                                # gender 
         nil,                                                                # link (probably TW public or API)
         Export::Coldp.sanitize_remarks(t.id),                               # remarks
         Export::Coldp.modified(t[:updated_at]),                             # modified
@@ -414,6 +440,8 @@ module Export::Coldp::Files::Name
         t.cached_nomenclature_date&.year,                                   # publishedInYear
         code_field(t.rank_class.name),                                      # code
         ::TaxonName::NOMEN_VALID[t.rank_class.name.to_sym],                 # nomStatus
+        nil,                                                                # etymology     
+        nil,                                                                # gender 
         nil,                                                                # link (probably TW public or API)
         Export::Coldp.sanitize_remarks(t.id),                               # remarks
         Export::Coldp.modified(t[:updated_at]),                             # modified
@@ -435,28 +463,38 @@ module Export::Coldp::Files::Name
       .joins('JOIN project_scope ps on ps.id = taxon_names.cached_valid_taxon_name_id') # Combinations that point to any of "a"
   end
 
-  # Historical combinations that may not have sources or complete relationship records,
+  # Historical combinations that may not have Sources  [ or complete relationship records <- if not complete then not in ]
   # OR were skipped by add_combinations due to gender matching.
+  #  
   # These are Combinations that point to valid names in the OTU scope but weren't
   # actually written to CSV by add_combinations.
+  # 
+  # TODO: why!?
+  # 
+  # CHANGE TO  verbatim name != ached combinations
+  #
   def self.historical_combination_names(otu)
     a = otu.taxon_name.self_and_descendants.unscope(:order).select(:id)
 
     # Exclude combinations that were actually exported (not skipped) by add_combinations
     # skipped_combinations contains IDs that combination_names returned but add_combinations skipped
     # We want to export those skipped ones here, so only exclude IDs that were NOT skipped
-    exported_ids = combination_names(otu).pluck(:id) - ::Export::Coldp.skipped_combinations
+    exported_ids = combination_names(otu).pluck(:id) -  ::Export::Coldp.skipped_combinations
 
-    Combination
+    a = Combination
       .complete
       .with(project_scope: a)
       .joins('JOIN project_scope ps on ps.id = taxon_names.cached_valid_taxon_name_id')
       .where.not(id: exported_ids)
       .eager_load(origin_citation: [:source])
+
+    b = a.pluck(:id).uniq!
+
+    a
   end
 
   # TODO: we probably have an issue where self is not included as a relationship and we need to inject it into the data?
-  def self.add_combinations(otu, csv, project_members, reference_csv)
+  def self.add_combination_names(otu, csv, project_members, reference_csv)
     names = combination_names(otu)
     names.length
 
@@ -472,10 +510,10 @@ module Export::Coldp::Files::Name
 
       # In some cases where names are described originally with missmatched gender we can exclude dupes
       # This exception needs to be in SQL to simply, a MAX/INDEX of possible ranks with values
-      if row[rank + "_cached"] == row['cached']
-        ::Export::Coldp.skipped_combinations << row['id']
-        next
-      end
+      # if row[rank + "_cached"] == row['cached']
+      #   ::Export::Coldp.skipped_combinations << row['id']
+      #   next
+      # end
 
       scientific_name = ::Utilities::Nomenclature.unmisspell_name(row['cached'])
 
@@ -497,6 +535,8 @@ module Export::Coldp::Files::Name
         row['cached_nomenclature_date']&.year,                              # publishedInYear
         code_field(row['reference_rank_class']),                            # code
         nil,                                                                # nomStatus (nil for Combination)
+        nil,                                                                # etymology     
+        nil,                                                                # gender 
         nil,                                                                # link (probably TW public or API)
         Export::Coldp.sanitize_remarks(row['id']),                          # remarks
         Export::Coldp.modified(row['updated_at']),                          # modified
@@ -515,7 +555,7 @@ module Export::Coldp::Files::Name
 
   # Export historical combinations that weren't captured by combination_names (flattened)
   # These may lack source citations or complete combination_taxon_names relationships
-  def self.add_historical_combinations(otu, csv, project_members, reference_csv)
+  def self.add_historical_combination_names(otu, csv, project_members, reference_csv)
     names = historical_combination_names(otu)
 
     names.find_each do |t|
@@ -552,6 +592,8 @@ module Export::Coldp::Files::Name
         t.year_of_publication,                                              # publishedInYear
         code_field(t.rank_class),                                           # code
         nil,                                                                # nomStatus (nil for Combination)
+        nil,                                                                # etymology     
+        nil,                                                                # gender 
         nil,                                                                # link
         nil,                                                                # remarks
         Export::Coldp.modified(t.updated_at),                               # modified
@@ -606,6 +648,8 @@ module Export::Coldp::Files::Name
         t.cached_nomenclature_date&.year,                                   # publishedInYear
         code_field(t.rank_class.name),                                      # code
         ::TaxonName::NOMEN_VALID[t.rank_class.name.to_sym],                 # nomStatus # TODO: untested
+        nil,                                                                # etymology     
+        nil,                                                                # gender 
         nil,                                                                # link (probably TW public or API)
         Export::Coldp.sanitize_remarks(t.id),                               # remarks
         Export::Coldp.modified(t[:updated_at]),                             # modified
@@ -658,6 +702,8 @@ module Export::Coldp::Files::Name
         t.cached_nomenclature_date&.year,                                 # publishedInYear
         code_field(t.rank_class.name),                                    # code
         nom_status,                                                       # nomStatus
+        nil,                                                              # etymology     
+        nil,                                                              # gender 
         nil,                                                              # link (probably TW public or API)
         Export::Coldp.sanitize_remarks(t.id),                             # remarks
         Export::Coldp.modified(t[:updated_at]),                           # modified
@@ -702,6 +748,8 @@ module Export::Coldp::Files::Name
         t.cached_nomenclature_date&.year,                                   # publishedInYear
         code_field(t.rank_class.name),                                      # code
         nom_status,                                                         # nomStatus
+        nil,                                                                # etymology     
+        nil,                                                                # gender 
         nil,                                                                # link (probably TW public or API)
         Export::Coldp.sanitize_remarks(t.id),                               # remarks
         Export::Coldp.modified(t[:updated_at]),                             # modified

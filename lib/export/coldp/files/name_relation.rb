@@ -64,8 +64,13 @@ module Export::Coldp::Files::NameRelation
   }.freeze
 
   # TODO: This is the original set, but it doesn't quite feel right.
-  def self.taxon_name_relationships(otus)
+  def self.taxon_name_relationships(otu, project_members, reference_csv)
 
+    names = ::Export::Coldp.all_names(otu)
+    # Loop all TaxonNames
+  
+    # COME BACK TO THIS 
+    
     # TODO: Join in proper name methods, don't rely on OTU scope
     a = TaxonNameRelationship.with(otu_scope: otus.select(:id, :taxon_name_id))
       .joins("JOIN taxon_names obj_tn on obj_tn.id = taxon_name_relationships.object_taxon_name_id")
@@ -76,7 +81,7 @@ module Export::Coldp::Files::NameRelation
       .select("taxon_name_relationships.*, MAX(sources.id) a_source_id")
   end
 
-  def self.generate(otus, project_members, reference_csv = nil )
+  def self.generate(otu, project_members, reference_csv = nil )
     rels = nil
     text = ::CSV.generate(col_sep: "\t") do |csv|
 
@@ -90,7 +95,7 @@ module Export::Coldp::Files::NameRelation
         remarks
       }
 
-      rels = taxon_name_relationships(otus)
+      rels = taxon_name_relationships(otu, project_members, reference_csv)
       rels.length
 
       rels.each do |tnr|
