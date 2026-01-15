@@ -254,19 +254,28 @@ namespace :tw do
           puts "Processing #{ids_in__ga.count} GeographicArea-based asserted distributions"
           puts "Processing #{ids_in__gz.count} Gazetteer-based asserted distributions"
 
+          precomputed_data_origin_ids = {
+            'ne_states' => GeographicAreasGeographicItem
+              .where(data_origin: 'ne_states')
+              .distinct
+              .pluck(:geographic_item_id)
+              .join(',')
+              .freeze
+          }.freeze
+
           ids_in__ga.sort!
           ids_in__gz.sort!
 
           Parallel.each(ids_in__ga, progress: 'build_cached_map_item_translations GA', in_processes: cached_rebuild_processes ) do |id|
             reconnected ||= CachedMapItemTranslation.connection.reconnect! || true
-            process_asserted_distribution_translation(id, true)
+            process_asserted_distribution_translation(id, true, precomputed_data_origin_ids:)
           end
 
           puts 'Geographic Area-based Asserted Distributions done.'
 
           Parallel.each(ids_in__gz, progress: 'build_cached_map_item_translations GZ', in_processes: cached_rebuild_processes ) do |id|
             reconnected ||= CachedMapItemTranslation.connection.reconnect! || true
-            process_asserted_distribution_translation(id, false)
+            process_asserted_distribution_translation(id, false, precomputed_data_origin_ids:)
           end
 
           puts 'Gazetteer-based Asserted Distributions done.'
@@ -275,7 +284,7 @@ namespace :tw do
         end
 
         def process_asserted_distribution_translation(
-          geographic_item_id, geographic_area_based
+          geographic_item_id, geographic_area_based, precomputed_data_origin_ids: nil
         )
           translations = []
 
@@ -283,7 +292,7 @@ namespace :tw do
           begin
             #  print "#{id}: "
             t = CachedMapItem.translate_geographic_item_id(
-              geographic_item_id, geographic_area_based, false, ['ne_states']
+              geographic_item_id, geographic_area_based, false, ['ne_states'], nil, precomputed_data_origin_ids:
             )
             # if t.present?
             #   print t.join(', ')
