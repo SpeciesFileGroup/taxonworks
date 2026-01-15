@@ -3,9 +3,12 @@ class Tasks::Sources::VerbatimAuthorYearSourceController < ApplicationController
 
   # GET
   def index
-    # Query for k verbatim_author and year_of_publication combinations
-    @author_year_data = TaxonName
-      .where(project_id: sessions_current_project_id)
+    # Use Filter to scope results based on params
+    @taxon_name_filter = ::Queries::TaxonName::Filter.new(params)
+
+    # Query for unique verbatim_author and year_of_publication combinations
+    # applying the filter scope first
+    @author_year_data = @taxon_name_filter.all
       .where.not(verbatim_author: nil)
       .where.not(year_of_publication: nil)
       .where.missing(:citations)
