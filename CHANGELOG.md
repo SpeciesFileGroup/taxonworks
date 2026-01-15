@@ -10,6 +10,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - New task: Dichotomous key
+- Scalebar form to New simple specimen task [#4689]
 
 ### Fixed
 
@@ -26,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4676]: https://github.com/SpeciesFileGroup/taxonworks/issues/4676
 [#4682]: https://github.com/SpeciesFileGroup/taxonworks/issues/4682
 [#4688]: https://github.com/SpeciesFileGroup/taxonworks/issues/4688
+[#4689]: https://github.com/SpeciesFileGroup/taxonworks/issues/4689
 
 ## [0.57.0] - 2026-01-06
 

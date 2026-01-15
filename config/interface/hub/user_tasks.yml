@@ -1145,3 +1145,10 @@ dichotomous_key_task:
   categories:
   status: prototype
   description: 'Interactive dichotomous key interface'
+browse_images_task:
+  hub: true
+  name: 'Browse images'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'
