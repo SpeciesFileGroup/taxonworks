@@ -202,16 +202,20 @@ class CachedMapItem < ApplicationRecord
       .pluck(:id)
   end
 
-  def self.precomputed_data_origin_ids_for(data_origin)
+  def self.precomputed_data_origin_ids_for(data_origin, refresh: false)
     return nil unless data_origin == 'ne_states' # currently only ne_states supported
 
     @precomputed_data_origin_ids ||= {}
-    @precomputed_data_origin_ids[data_origin] ||= GeographicAreasGeographicItem
-      .where(data_origin:)
-      .distinct
-      .pluck(:geographic_item_id)
-      .join(',')
-      .freeze
+    if refresh || @precomputed_data_origin_ids[data_origin].blank?
+      @precomputed_data_origin_ids[data_origin] = GeographicAreasGeographicItem
+        .where(data_origin:)
+        .distinct
+        .pluck(:geographic_item_id)
+        .join(',')
+        .freeze
+    end
+
+    @precomputed_data_origin_ids[data_origin]
   end
 
   # @return [Array]
