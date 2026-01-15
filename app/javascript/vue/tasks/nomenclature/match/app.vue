@@ -68,7 +68,7 @@
                   </li>
                   <li>
                     <CSVButton
-                      :list="matches"
+                      :list="downloadList"
                       :options="{ fields }"
                     />
                   </li>
@@ -115,6 +115,11 @@ import PanelStatus from './components/PanelStatus.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import RadialFilter from '@/components/radials/filter/radial.vue'
+import { sanitizeHtml } from '@/helpers'
+
+defineOptions({
+  name: 'MatchTaxonNamesApp'
+})
 
 const EXTENDED_SLICES = [
   {
@@ -124,10 +129,19 @@ const EXTENDED_SLICES = [
 ]
 
 const fields = [
-  { label: 'Id', value: 'taxon.id' },
-  { label: 'taxon name', value: 'taxon.object_label' },
-  { label: 'Author and year', value: 'taxon.cached_author_year' },
-  { label: 'Valid name', value: 'taxon.original_combination' }
+  { label: 'Id', value: 'id' },
+  {
+    label: 'taxon name',
+    value: 'taxonName'
+  },
+  {
+    label: 'Author and year',
+    value: 'authorYear'
+  },
+  {
+    label: 'Valid name',
+    value: 'validName'
+  }
 ]
 
 const tableComponent = {
@@ -143,6 +157,26 @@ const params = ref({})
 const tableView = ref(tableComponent.Both)
 const unmatched = ref([])
 const validTaxonNames = ref({})
+
+const downloadList = computed(() => {
+  const names = Object.values(validTaxonNames.value)
+  const list = []
+
+  names.forEach((item) => {
+    item.taxon.forEach((taxon) => {
+      list.push({
+        id: taxon.id,
+        taxonName: taxon.object_label,
+        authorYear: taxon.cached_author_year,
+        validName: `${sanitizeHtml(item.validTaxon.cached_html)} ${
+          item.validTaxon.cached_author_year
+        }`
+      })
+    })
+  })
+
+  return list
+})
 
 const sectionTitles = computed(() => ({
   Matches: `Matches (${matches.value.length})`,

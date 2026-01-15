@@ -1,27 +1,17 @@
 <template>
-  <div class="field">
-    <label>School</label><br>
+  <div class="label-above">
+    <label>School</label>
     <input
       type="text"
-      v-model="source.school"/>
+      v-model="source.school"
+      @change="() => (source.isUnsaved = true)"
+    />
   </div>
 </template>
 
-<script>
-
-import { GetterNames } from '../../store/getters/getters'
-import { MutationNames } from '../../store/mutations/mutations'
-
-export default {
-  computed: {
-    source: {
-      get () {
-        return this.$store.getters[GetterNames.GetSource]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetSource, value)
-      }
-    }
-  }
-}
+<script setup>
+const source = defineModel({
+  type: Object,
+  required: true
+})
 </script>

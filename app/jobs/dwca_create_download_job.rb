@@ -1,6 +1,10 @@
 class DwcaCreateDownloadJob < ApplicationJob
   queue_as :dwca_export
 
+  def max_attempts
+    1
+  end
+
   # @param download [a Download instance]
   # @param core_scope [String, ActiveRecord::Relation]
   #   String of SQL generated from the scope

@@ -40,6 +40,18 @@ module Queries
       #   if true than also include Combinations in counts
       attr_accessor :combinations
 
+      # @return [Boolean]
+      #   if true than also include Combinations in counts
+      attr_accessor :otu_observation_count
+
+      # @return [Boolean]
+      #   if true than also include Combinations in counts
+      attr_accessor :otu_observation_depictions
+
+      # @return [Boolean]
+      #   if true than also include Combinations in counts
+      attr_accessor :descriptors_scored_for_otu
+
       # @return [Array of Strings]
       #  named sets of columns to include
       #  valid values are
@@ -50,6 +62,10 @@ module Queries
       # @return [Boolean]
       #   if true then only include valid names
       attr_accessor :validity
+
+      # @return [Boolean]
+      #   if true then only names with otus
+      attr_accessor :otus
 
       ### Internal
 
@@ -80,6 +96,10 @@ module Queries
         @validity = boolean_param(params, :validity)
         @fieldsets = params[:fieldsets]
         @rank_id_fields = []
+        @otu_observation_count = boolean_param(params, :otu_observation_count)
+        @otu_observation_depictions = boolean_param(params, :otu_observation_depictions)
+        @descriptors_scored_for_otu = boolean_param(params, :descriptors_scored_for_otu)
+        @otus = boolean_param(params, :otus)
 
         initialize_columns
         build_query
@@ -168,6 +188,7 @@ module Queries
 
       def build_query
         q = base_query
+        q = filter_by_otus(q)
 
         # Add a join to the valid parent_id
         valid_table = table.alias('valid_taxon_names')
@@ -234,55 +255,77 @@ module Queries
         ApplicationRecord.connection.execute(@query.to_sql)
       end
 
-      # Only calculates for OTUs, not through to
-      # get CollectionObjects, nor Extracts
-      def observations_set(query)
-        o = ::Observation.arel_table
 
-        # Descriptors on OTUs scored
-        f = 'descriptors_scored_for_otus'
+      def filter_by_otus(query)
+        return query unless @otus
+
+        query.where(otu_table[:id].not_eq(nil))
+      end
+
+      def add_descriptors_scored_for_otu(query, o)
+        f  = 'descriptors_scored_for_otus'
         fa = 'fs_d1'
-        @columns.push({header: f, projected: '"' + fa + '"."' + f + '" as ' + f } )
+
+        @columns << {
+          header: f,
+          projected: %("#{fa}"."#{f}" as #{f})
+        }
 
         z = o.project(
           o[:observation_object_id],
           o[:observation_object_type],
-          o[:descriptor_id].count(true).as(f) # count(true) == distinct
+          o[:descriptor_id].count(true).as(f)
         ).group(
           o[:observation_object_id],
-          o[:observation_object_type],
+          o[:observation_object_type]
         ).as(fa)
 
         query.join(z, Arel::Nodes::OuterJoin).on(
           z[:observation_object_id].eq(otu_table[:id])
-          .and(z[:observation_object_type].eq('Otu'))
+            .and(z[:observation_object_type].eq('Otu'))
         )
+      end
 
-        # Observations on OTUs
-        f = 'otu_observation_count'
+      def add_otu_observation_count(query, o)
+        f  = 'otu_observation_count'
         fa = 'fs_o1'
-        @columns.push({header: f, projected: '"' + fa +  '"."' + f + '" as ' + f })
+
+        @columns << {
+          header: f,
+          projected: %("#{fa}"."#{f}" as #{f})
+        }
 
         x = o.project(
           o[:observation_object_id],
           o[:observation_object_type],
           o[:id].count.as(f)
-        ).group(o[:observation_object_id], o[:observation_object_type]).as(fa)
+        ).group(
+          o[:observation_object_id],
+          o[:observation_object_type]
+        ).as(fa)
 
-        query.join(x, Arel::Nodes::OuterJoin).on(x[:observation_object_id].eq(otu_table[:id]).and( x[:observation_object_type].eq('Otu')  ))
+        query.join(x, Arel::Nodes::OuterJoin).on(
+          x[:observation_object_id].eq(otu_table[:id])
+            .and(x[:observation_object_type].eq('Otu'))
+        )
+      end
 
-        # Depictions on observations on OTUs
-        f = 'otu_observation_depictions'
+      def add_otu_observation_depictions(query, o)
+        f  = 'otu_observation_depictions'
         fa = 'fs_o2'
-        @columns.push( {header: f, projected: '"' + fa + '"."' + f + '" as ' + f } )
+
+        @columns << {
+          header: f,
+          projected: %("#{fa}"."#{f}" as #{f})
+        }
 
         p = ::Depiction.arel_table
+
         y = o.join(p, Arel::Nodes::InnerJoin).on(
-          o[:id].eq(p[:depiction_object_id]).and(
-            p[:depiction_object_type].eq('Observation')
-          )
+          o[:id].eq(p[:depiction_object_id])
+            .and(p[:depiction_object_type].eq('Observation'))
         ).project(
-          o[:observation_object_id], # an OTU id
+          o[:observation_object_id],
           p[:depiction_object_type],
           p[:id].count.as(f)
         ).group(
@@ -293,6 +336,16 @@ module Queries
         query.join(y, Arel::Nodes::OuterJoin).on(
           y[:observation_object_id].eq(otu_table[:id])
         )
+      end
+
+      # Only calculates for OTUs, not through to
+      # get CollectionObjects, nor Extracts
+      def observations_set(query)
+        o = ::Observation.arel_table
+        
+        add_descriptors_scored_for_otu(query, o) if @descriptors_scored_for_otu != false
+        add_otu_observation_count(query, o) if @otu_observation_count != false
+        add_otu_observation_depictions(query, o) if @otu_observation_depictions != false
         query
       end
 

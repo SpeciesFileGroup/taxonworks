@@ -22,7 +22,22 @@
   <FacetDateYear v-model="params" />
   <FacetNomenclatureGroup v-model="params" />
   <FacetNomenclatureCode v-model="params" />
-  <FacetValidity v-model="params" />
+  <FacetWithWithout
+    v-model="params"
+    param-key="validity"
+    title="Validity"
+    either-text="in/valid"
+    with-text="only valid"
+    without-text="only invalid"
+  />
+  <FacetWithWithout
+    v-model="params"
+    param-key="availability"
+    title="Availability"
+    either-text="un/available"
+    with-text="only available"
+    without-text="only unavailable"
+  />
   <FacetTaxonNameType v-model="params" />
   <FacetRelationships v-model="params" />
   <FacetStatus v-model="params" />
@@ -59,7 +74,7 @@
 
 <script setup>
 import FacetUpdatedSince from './filters/FacetUpdatedSince'
-import FacetValidity from './filters/FacetValidity.vue'
+import FacetWithWithout from './filters/FacetWithWithout.vue'
 import FacetRelationships from './filters/FacetRelationships.vue'
 import FacetTaxonName from '@/components/Filter/Facets/TaxonName/FacetTaxonName.vue'
 import FacetStatus from './filters/FacetStatus.vue'

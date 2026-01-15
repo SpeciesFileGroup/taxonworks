@@ -90,6 +90,10 @@ scope :tasks do
   end
 
   scope :leads do
+    scope :dichotomous_key, controller: 'tasks/leads/dichotomous_key' do
+      get '/', action: :index, as: 'dichotomous_key_task'
+    end
+
     scope :hub, controller: 'tasks/leads/hub' do
       get '/', action: :index, as: 'leads_hub_task'
     end
@@ -716,7 +720,7 @@ scope :tasks do
     end
 
     scope :image_matrix, controller: 'tasks/observation_matrices/image_matrix' do
-      get ':observation_matrix_id/key', action: :key, defaults: {format: :json}
+      match ':observation_matrix_id/key', action: :key, defaults: {format: :json}, via: [:get, :post]
       get '/', action: :index, as: 'image_matrix_task'
     end
   end

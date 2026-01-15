@@ -9,7 +9,72 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- New task: Dichotomous key
+
+### Fixed
+
+- Filters return incorrect results when using the right Radial Filter with 21 or more selected objects. [#4676]
+- Browse News: Old administration news is shown first instead of new news.
+- Batch operation now works on venn query results, venn query results can now be sent to other filters [#4663]
+- No error message when trying to delete a combination attached to an OTU [#4670]
+- Error notice is now returned when trying to include media extension in DwCA export with a project API token
+- Match Taxon Names task downloads have wrong valid name [#4682]
+- New source task: Title is required to create a BibTeX source [#4688]
+
+[#4663]: https://github.com/SpeciesFileGroup/taxonworks/issues/4663
+[#4670]: https://github.com/SpeciesFileGroup/taxonworks/issues/4670
+[#4676]: https://github.com/SpeciesFileGroup/taxonworks/issues/4676
+[#4682]: https://github.com/SpeciesFileGroup/taxonworks/issues/4682
+[#4688]: https://github.com/SpeciesFileGroup/taxonworks/issues/4688
+
+## [0.57.0] - 2026-01-06
+
+### Added
+
+- Unify button to Manage Controlled vocabulary task [#4653]
+- Source autocomplete now matches on alternate values of authors as People [#4617]
+- Available facet to Filter Taxon Names [#4667]
+- Create User form now includes adding new user to projects [#4639]
+
+### Fixed
+
+- Observation matrix dashboard: several filter options don't work [#4640]
+- New collecting event task: Biocurations panel is not working [#4646]
+- Error on batch update from left object radial in filters using 'match identifiers'
+- Browse taxon names: Sometimes when users scroll through the taxonomic tree panel, names at the bottom are not visible. [#4654]
+- Browse taxon names: Navbar overlaps radial modals [#4649]
+- CSD: The biocurations form doesn't show classes that do not belong to a group [#4658]
+- New Extract task: Minor fixes related to the identifiers form [#4626]
+- New Biological Association task: A new citation is not added when a biological association already exists, instead, it attempts to create a new one.
+- Housekeeping facet: sometimes date range is off [#4644]
+- DwCA export now correctly includes 'fossil' as `basisOfRecord`
+
+### Changed
+
+- Update to Rails 8.0; update gems
+- Add the POST method for Image matrix to handle many OTUs
+- New task: Refactor the task and add responsive design to the form [#4628]
+- Removed alternate values on Source author and editor (use Person alternate values instead)
+
+[#4617]: https://github.com/SpeciesFileGroup/taxonworks/issues/4617
+[#4626]: https://github.com/SpeciesFileGroup/taxonworks/issues/4626
+[#4628]: https://github.com/SpeciesFileGroup/taxonworks/issues/4628
+[#4639]: https://github.com/SpeciesFileGroup/taxonworks/issues/4639
+[#4640]: https://github.com/SpeciesFileGroup/taxonworks/issues/4640
+[#4644]: https://github.com/SpeciesFileGroup/taxonworks/issues/4644
+[#4646]: https://github.com/SpeciesFileGroup/taxonworks/issues/4646
+[#4649]: https://github.com/SpeciesFileGroup/taxonworks/issues/4649
+[#4653]: https://github.com/SpeciesFileGroup/taxonworks/issues/4653
+[#4654]: https://github.com/SpeciesFileGroup/taxonworks/issues/4654
+[#4658]: https://github.com/SpeciesFileGroup/taxonworks/issues/4658
+[#4667]: https://github.com/SpeciesFileGroup/taxonworks/issues/4667
+
+## [0.56.1] - 2025-12-12
+
+### Added
+
 - subject/object type to indexed biological associations endpoint
+- Source autocomplete now matches on alternate author names [#4617]
 
 ### Fixed
 
@@ -21,7 +86,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Autocomplete list wraps the text instead of applying ellipses by default.
 
-## [0.56.0] - 2025-11-12
+[#4617]: https://github.com/SpeciesFileGroup/taxonworks/issues/4617
+
+## [0.56.0] - 2025-12-11
 
 ### Added
 
@@ -5904,7 +5971,9 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.56.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.57.0...development
+[0.57.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.56.1...v0.57.0
+[0.56.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.56.0...v0.56.1
 [0.56.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.55.0...v0.56.0
 [0.55.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.3...v0.55.0
 [0.54.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.2...v0.54.3
