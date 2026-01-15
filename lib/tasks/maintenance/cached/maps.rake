@@ -198,71 +198,25 @@ namespace :tw do
 
         desc 'build CachedMapItems for AssertedDistributions that do not have them'
         task parallel_create_cached_map_from_asserted_distributions: [:environment] do |t|
-          default_gagi_sql = GeographicAreasGeographicItem.default_geographic_item_data_sql
-
-          q_ga = AssertedDistribution
-            .with_otus
-            .without_is_absent
-            .where(asserted_distribution_shape_type: 'GeographicArea')
+          q = AssertedDistribution
+            .contributing_to_cached_maps
             .where.missing(:cached_map_register)
-            .joins("JOIN geographic_areas ga ON asserted_distributions.asserted_distribution_shape_id = ga.id")
-            .joins("JOIN (#{default_gagi_sql}) default_gagi ON default_gagi.geographic_area_id = ga.id")
-            .reselect(
-              'asserted_distributions.id, ' \
-              'asserted_distributions.project_id, ' \
-              'asserted_distributions.is_absent, ' \
-              'asserted_distributions.asserted_distribution_object_type, ' \
-              'asserted_distributions.asserted_distribution_object_id, ' \
-              'asserted_distributions.asserted_distribution_shape_type, ' \
-              'otus.id AS otu_id, ' \
-              'otus.taxon_name_id AS otu_taxon_name_id, ' \
-              'default_gagi.geographic_item_id AS default_geographic_item_id'
-            )
 
-          q_gz = AssertedDistribution
-            .with_otus
-            .without_is_absent
-            .where(asserted_distribution_shape_type: 'Gazetteer')
-            .where.missing(:cached_map_register)
-            .joins("JOIN gazetteers ON asserted_distributions.asserted_distribution_shape_id = gazetteers.id")
-            .reselect(
-              'asserted_distributions.id, ' \
-              'asserted_distributions.project_id, ' \
-              'asserted_distributions.is_absent, ' \
-              'asserted_distributions.asserted_distribution_object_type, ' \
-              'asserted_distributions.asserted_distribution_object_id, ' \
-              'asserted_distributions.asserted_distribution_shape_type, ' \
-              'otus.id AS otu_id, ' \
-              'otus.taxon_name_id AS otu_taxon_name_id, ' \
-              'gazetteers.geographic_item_id AS default_geographic_item_id'
-            )
-
-          ga_count = q_ga.unscope(:select).count
-          gz_count = q_gz.unscope(:select).count
-          puts "Caching #{ga_count + gz_count} AssertedDistribution records."
+          puts "Caching #{q.count} AssertedDistribution records."
 
           cached_rebuild_processes = ENV['cached_rebuild_processes'] ? ENV['cached_rebuild_processes'].to_i : 4
 
-          [
-            [q_ga, 'build_cached_map_from_asserted_distributions GA'],
-            [q_gz, 'build_cached_map_from_asserted_distributions GZ']
-          ].each do |q, progress|
-            Parallel.each(q.find_each, progress:, in_processes: cached_rebuild_processes ) do |ad|
-              begin
+          Parallel.each(q.find_each, progress: 'build_cached_map_from_asserted_distributions', in_processes: cached_rebuild_processes ) do |ad|
+            begin
+              CachedMapItem.transaction do
                 reconnected ||= AssertedDistribution.connection.reconnect! || true # https://github.com/grosser/parallel
-                context = {
-                  geographic_item_id: ad.default_geographic_item_id,
-                  otu_id: ad.otu_id,
-                  otu_taxon_name_id: ad.otu_taxon_name_id,
-                  geographic_area_based: ad.asserted_distribution_shape_type == 'GeographicArea'
-                }
-                ad.send(:create_cached_map_items, true, context: context)
-                true
-              rescue => exception
-                puts " FAILED #{exception} #{ad.id}"
+                ad.send(:create_cached_map_items, true)
               end
               true
+            rescue => exception
+              puts " FAILED #{exception} #{ad.id}"
             end
+            true
           end
 
           puts'Done.'
@@ -301,8 +255,13 @@ namespace :tw do
           puts "Processing #{ids_in__gz.count} Gazetteer-based asserted distributions"
 
           precomputed_data_origin_ids = {
-            'ne_states' => CachedMapItem.precomputed_data_origin_ids_for('ne_states')
-          }
+            'ne_states' => GeographicAreasGeographicItem
+              .where(data_origin: 'ne_states')
+              .distinct
+              .pluck(:geographic_item_id)
+              .join(',')
+              .freeze
+          }.freeze
 
           ids_in__ga.sort!
           ids_in__gz.sort!

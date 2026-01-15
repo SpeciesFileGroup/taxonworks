@@ -71,24 +71,21 @@ class GeographicAreasGeographicItem < ApplicationRecord
   end
 
   def self.default_geographic_item_data
-    q = default_geographic_item_data_sql
+    q =
+      "WITH summary AS (
+             SELECT p.id,
+                    p.geographic_area_id,
+                    p.geographic_item_id,
+                    ROW_NUMBER() OVER(
+                      PARTITION BY p.geographic_area_id
+                      ORDER BY #{origin_order_clause("p").to_sql}) AS rk
+             FROM geographic_areas_geographic_items p)
+          SELECT s.*
+            FROM summary s
+            WHERE s.rk = 1"
 
     GeographicAreasGeographicItem.joins(
       "JOIN (#{q}) as z ON geographic_areas_geographic_items.id = z.id"
     )
-  end
-
-  def self.default_geographic_item_data_sql(table_alias: 'p')
-    "WITH summary AS (
-           SELECT #{table_alias}.id,
-                  #{table_alias}.geographic_area_id,
-                  #{table_alias}.geographic_item_id,
-                  ROW_NUMBER() OVER(
-                    PARTITION BY #{table_alias}.geographic_area_id
-                    ORDER BY #{origin_order_clause(table_alias).to_sql}) AS rk
-           FROM geographic_areas_geographic_items #{table_alias})
-        SELECT s.*
-          FROM summary s
-          WHERE s.rk = 1"
   end
 end
