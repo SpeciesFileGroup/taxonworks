@@ -192,7 +192,7 @@ Rules:
 Example:
 
 ```js
-import BaseButton from '@/components/ui/Modal.vue'
+import VModal from '@/components/ui/Modal.vue'
 ```
 
 ---
