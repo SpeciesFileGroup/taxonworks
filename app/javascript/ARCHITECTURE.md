@@ -164,7 +164,7 @@ app/javascript/vue/initializers/
 
 ---
 
-## 8. Services and Data Access
+## 9. Services and Data Access
 
 Encapsulate API calls.
 
@@ -182,7 +182,7 @@ Rules:
 
 ---
 
-## 9. Import Conventions
+## 10. Import Conventions
 
 - Prefer absolute imports from `vue/`
 - Use `@` as alias of `vue/`
@@ -197,7 +197,7 @@ import BaseButton from '@/components/ui/Modal.vue'
 
 ---
 
-## 10. AI Usage Guidelines
+## 11. AI Usage Guidelines
 
 ### Allowed
 
@@ -213,7 +213,7 @@ import BaseButton from '@/components/ui/Modal.vue'
 
 ---
 
-## 11. Architectural Principles
+## 12. Architectural Principles
 
 - **Separation of concerns**
 - **Low coupling between apps**
