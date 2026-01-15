@@ -126,90 +126,66 @@ class CachedMapItem < ApplicationRecord
     end
   end
 
-  # Given a set of target shapes (via data_origin), return those that intersect
-  # with the provided geographic_item_id shape.
+  # Given a  set of target shapes, return those that intersect with the provided shape
   #
-  # @param geographic_item_id [id] the shape we are translating *from*
+  # @param geographic_item_id [id]
+  #   the shape we are translating *from*
   #
-  # @param data_origin defines the shapes we are translating to
+  # @param data_origin
+  #    defines the shapes we are translating to
   #
-  # #param buffer [nil, Decimal] in meters shrink, (or grow) the shape we are
-  #    translating from Typical use is to shrink, so that differences in spatial
-  #    resolution are minimized (low res shapes intersect with high res in
-  #    undesireable ways)
-  #
-  # @param precomputed_data_origin_ids [Hash] Optional hash of data_origin =>
-  #   SQL IN list String of all geographic_item ids corresponding to Geographic
-  #   Areas of data origin data_origin (e.g. "1,2,3")
+  # #param buffer [nil, Decimal] in meters
+  #    shrink, (or grow) the shape we are translating from
+  #    Typical use is to shrink, so that differences in spatial resolution
+  #    are minimized (low res shapes intersect with high res in undesireable ways)
   #
   # @return [Array] of GeographicItem ids
   #
-  def self.translate_by_spatial_overlap(
-    geographic_item_id, data_origin, buffer, precomputed_data_origin_ids: nil
-  )
+  def self.translate_by_spatial_overlap(geographic_item_id, data_origin, buffer)
     return [] if geographic_item_id.blank?
-    data_origin = Array(data_origin).compact
-    return [] if data_origin.empty?
 
-    precomputed_ids = nil
-    if data_origin.length == 1
-      if precomputed_data_origin_ids.present?
-        precomputed_ids = precomputed_data_origin_ids[data_origin.first]
-      else
-        precomputed_ids = precomputed_data_origin_ids_for(data_origin.first)
-      end
-    end
+    # !! Assumes all GeographicArea shapes were loaded to multi_polygon
+    # (pre-adapts us to a single geometry field type), however be
+    # aware of this assumption
 
-    raise TaxonWorks::Error, "Missing pre-computed ids for cached maps origin '#{data_origin}'" if precomputed_ids.blank?
-    raise TaxonWorks::Error, "Expected pre-computed ids for cached maps origin '#{data_origin}' to be a SQL IN list" unless precomputed_ids.is_a?(String)
-
-    sql = <<~SQL
-      SELECT gi.id
-      FROM geographic_items gi
-      CROSS JOIN (
-        SELECT geography
-        FROM geographic_items
-        WHERE id = #{geographic_item_id.to_i}
-      ) AS target
-      WHERE gi.id IN (#{precomputed_ids})
-        AND ST_Intersects(gi.geography, target.geography)
-    SQL
-
-    a = ActiveRecord::Base.connection.select_values(sql).map!(&:to_i)
+    # This is a fast first pass, pure intersection
+    a = GeographicItem
+      .with(b: GeographicItem
+        .joins(:geographic_areas_geographic_items)
+        .where(geographic_areas_geographic_items: { data_origin: })
+      )
+      .from('b')
+      .select('b.*')
+      .where(
+        'ST_Intersects(b.geography, (SELECT geography FROM geographic_items ' \
+        'WHERE geographic_items.id = ?))', geographic_item_id
+      )
+      .pluck(:id)
 
     return a if buffer.nil?
 
     # Refine the pass by smoothing using buffer/st_within
-    buffer_filter = GeographicItem
-      .st_buffer_st_within_sql(geographic_item_id, 0.0, buffer)
-      .or(
+    return GeographicItem
+      .where(id: a)
+      .where(Arel::Nodes::Case.new
+        .when(
+          GeographicItem.st_buffer_st_within_sql(geographic_item_id, 0.0, buffer)
+        )
+        .then(Arel.sql('TRUE'))
         # The intention here is to keep ne_states shapes that failed the buffer
         # check because the buffer reduced them to nothing, IF they're subsets
         # of geographic_item_id. This should prevent unexpected holes.
-        GeographicItem.subset_of_sql(
-          GeographicItem.st_buffer_sql(
-            GeographicItem.select_geometry_sql(geographic_item_id),
-            100
+        .when(
+          GeographicItem.subset_of_sql(
+            GeographicItem.st_buffer_sql(
+              GeographicItem.select_geometry_sql(geographic_item_id),
+              100
+            )
           )
         )
-      )
-
-    return GeographicItem
-      .where(id: a)
-      .where(buffer_filter)
-      .pluck(:id)
-  end
-
-  def self.precomputed_data_origin_ids_for(data_origin)
-    return nil unless data_origin == 'ne_states' # currently only ne_states supported
-
-    @precomputed_data_origin_ids ||= {}
-    @precomputed_data_origin_ids[data_origin] ||= GeographicAreasGeographicItem
-      .where(data_origin:)
-      .distinct
-      .pluck(:geographic_item_id)
-      .join(',')
-      .freeze
+        .then(Arel.sql('True'))
+        .else(Arel.sql('False'))
+      ).pluck(:id)
   end
 
   # @return [Array]
@@ -229,14 +205,9 @@ class CachedMapItem < ApplicationRecord
   #   shr,ink (or grow) the size of the target shape, in meters
   #   Typical use, do not apply for Georeferences, apply -10km for AssertedDistributions
   #
-  # @param precomputed_data_origin_ids [Hash] Optional hash of data_origin =>
-  #   SQL IN list String of all geographic_item ids corresponding to Geographic
-  #   Areas of data origin data_origin (e.g. "1,2,3")
-  #
   def self.translate_geographic_item_id(
     geographic_item_id, geographic_area_based,
-    search_existing_translates = true, data_origin = nil, buffer = nil,
-    precomputed_data_origin_ids: nil
+    search_existing_translates = true, data_origin = nil, buffer = nil
   )
     return nil if data_origin.blank?
 
@@ -266,9 +237,7 @@ class CachedMapItem < ApplicationRecord
       b = dynamic_buffer(geographic_item_id) # -1000.0 # Monaco
     end
 
-    translate_by_spatial_overlap(
-      geographic_item_id, data_origin, b, precomputed_data_origin_ids:
-    )
+    translate_by_spatial_overlap(geographic_item_id, data_origin, b)
   end
 
   def self.dynamic_buffer(geographic_item_id)
