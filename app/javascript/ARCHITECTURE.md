@@ -57,8 +57,9 @@ app/javascript/vue/components/
 
 **Conventions:**
 
-- Must not assume task-specific global state
-- Must receive data exclusively via `props`, except for complex forms, in that case use Pinia as state management
+- DO NOT assume task-specific global state
+- DO receive data exclusively via `props`, except for complex forms
+- In complex forms use `Pinia` for state management
 
 Examples:
 
@@ -105,6 +106,8 @@ app/javascript/vue/tasks/<model-name>/<task-name>
 ## 5. Creating a New App
 
 To create a new task-based application:
+
+TODO: reference and improve the taxonworks:generator with --vue js flag to eliminate 1,2,3 below.
 
 1. Create a directory under `app/javascript/vue/tasks/<model>/<new-task>`
 2. Define an `main.js` as the entry point
@@ -184,6 +187,8 @@ Rules:
 
 ## 10. Import Conventions
 
+TODO: Could this be ## Conventions then ### Import
+
 - Prefer absolute imports from `vue/`
 - Use `@` as alias of `vue/`
 - Global components may be imported from any app
@@ -210,6 +215,8 @@ import VModal from '@/components/ui/Modal.vue'
 - Introduce cross-app dependencies
 - Add business logic to global components
 - Bypass established directory conventions
+- Introduce major new libraries without confirmation
+- Re-use legacy jQuery code or patterns
 
 ---
 
