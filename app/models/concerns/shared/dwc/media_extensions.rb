@@ -38,7 +38,7 @@ module Shared::Dwc::MediaExtensions
   def dwc_media_owner
     roles = AttributionOwner
       .joins("INNER JOIN attributions ON attributions.id = roles.role_object_id AND roles.role_object_type = 'Attribution'")
-      .where(attributions: {attribution_object: self})
+      .where(attributions: {attribution_object_id: id, attribution_object_type: self.class.base_class.name})
       .order(:position)
 
     # Map each role to either person.cached or organization.name.
@@ -80,6 +80,7 @@ module Shared::Dwc::MediaExtensions
       .where(roles: {type: 'AttributionCreator'})
       .where(id: id)
       .where("identifiers.type = 'Identifier::Global::Orcid' OR identifiers.type = 'Identifier::Global::Wikidata'")
+      .order('roles.position')
       .pluck('identifiers.cached')
       .join(CollectionObject::DWC_DELIMITER)
   end
