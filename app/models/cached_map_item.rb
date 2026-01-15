@@ -140,7 +140,8 @@ class CachedMapItem < ApplicationRecord
   #
   # @param precomputed_data_origin_ids [Hash] Optional hash of data_origin =>
   #   SQL IN list String of all geographic_item ids corresponding to Geographic
-  #   Areas of data origin data_origin (e.g. "1,2,3")
+  #   Areas of data origin data_origin (e.g. "1,2,3") [an array would be better,
+  #   but this saves 200k array joins on length-4k arrays during batch create]
   #
   # @return [Array] of GeographicItem ids
   #
@@ -171,6 +172,7 @@ class CachedMapItem < ApplicationRecord
         FROM geographic_items
         WHERE id = #{geographic_item_id.to_i}
       ) AS target
+      -- Careful with IN here if we move to other data_origins (currently ~4k ids)
       WHERE gi.id IN (#{precomputed_ids})
         AND ST_Intersects(gi.geography, target.geography)
     SQL
@@ -292,8 +294,10 @@ class CachedMapItem < ApplicationRecord
     end
   end
 
+  # @param context [Hash] of cached_map_types to pre-computed data for
+  # source_object.
   # @return [Hash, nil]
-  def self.stubs(source_object, cached_map_type)
+  def self.stubs(source_object, cached_map_type, context: nil)
     # return nil unless source_object.persisted?
     o = source_object
 
@@ -307,6 +311,7 @@ class CachedMapItem < ApplicationRecord
 
     geographic_item_id = nil
     otu_id = nil
+    context = context&.symbolize_keys || {}
 
     base_class_name = o.class.base_class.name
 
@@ -316,29 +321,35 @@ class CachedMapItem < ApplicationRecord
         return h
       end
       if o.asserted_distribution_object_type == 'Otu'
-        otu_id = [o.asserted_distribution_object_id]
+        otu_id = [context[:otu_id] || o.asserted_distribution_object_id]
       else
         # TODO handle other types
         return h
       end
-      geographic_item_id = o.asserted_distribution_shape.default_geographic_item_id
+      geographic_item_id = context[:geographic_item_id] ||
+        o.asserted_distribution_shape.default_geographic_item_id
     when 'Georeference'
-      geographic_item_id = o.geographic_item_id
-      otu_id = o.otus.left_joins(:taxon_determinations).where(taxon_determinations: { position: 1 }).distinct.pluck(:id)
+      geographic_item_id = context[:geographic_item_id] || o.geographic_item_id
+      otu_id = context[:otu_id] ||
+        o.otus.left_joins(:taxon_determinations).where(taxon_determinations: { position: 1 }).distinct.pluck(:id)
     end
 
     otu = nil
-    return h if otu_id.nil? || (otu = Otu.find_by(id: otu_id)).nil?
+    taxon_name_id = context[:otu_taxon_name_id] ||
+      Otu.where(id: otu_id).pick(:taxon_name_id)
+    return h if otu_id.nil? || taxon_name_id.nil?
     # otus without taxon name have no hierarchy, so don't contribute to cached
     # maps.
-    return h if !otu.taxon_name_id
+    return h if taxon_name_id.blank?
 
     # Some AssertedDistribution don't have shapes
     if geographic_item_id
       h[:origin_geographic_item_id] = geographic_item_id
 
-      geographic_area_based = base_class_name == 'AssertedDistribution' &&
-        o.asserted_distribution_shape_type == 'GeographicArea'
+      geographic_area_based = context.key?(:geographic_area_based) ?
+        context[:geographic_area_based] :
+        base_class_name == 'AssertedDistribution' &&
+          o.asserted_distribution_shape_type == 'GeographicArea'
       search_existing_translates = base_class_name == 'AssertedDistribution'
 
       h[:geographic_item_id] = translate_geographic_item_id(
