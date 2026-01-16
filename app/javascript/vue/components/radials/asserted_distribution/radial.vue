@@ -13,9 +13,11 @@ import { ASSERTED_DISTRIBUTION } from '@/constants'
 import RadialBatch from '@/components/radials/shared/RadialBatch.vue'
 import MoveSlice from './components/MoveSlice.vue'
 import DwCSlice from './components/DwCSlice.vue'
+import ReplaceSourcesSlice from './components/ReplaceSourcesSlice.vue'
 
 const SLICES = {
-  Move: MoveSlice
+  Move: MoveSlice,
+  'Replace source': ReplaceSourcesSlice
   //'Regenerate DwC': DwCSlice
 }
 

@@ -13,6 +13,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New repository link to New type specimen task [#4692]
 - Monograph facilitator to OTU radial linker [#4690]
 - Batch create genus gender for those without one from Filter Taxon Names [#4669]
+- Source facet to Filter Asserted Distributions
+- 'Replace source' batch update to Filter Asserted Distributions [#4647]
 
 ### Fixed
 
@@ -33,6 +35,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Completed Filter connections between Filter Biological Association and Filter Taxon Name/Filter OTU to include relations by Collection Object Taxon Determination, Field Occurrence Taxon Determination, and Anatomical Part origin OTU [#4685]
 
 [#4607]: https://github.com/SpeciesFileGroup/taxonworks/issues/4607
+[#4647]: https://github.com/SpeciesFileGroup/taxonworks/issues/4647
 [#4663]: https://github.com/SpeciesFileGroup/taxonworks/issues/4663
 [#4669]: https://github.com/SpeciesFileGroup/taxonworks/issues/4669
 [#4670]: https://github.com/SpeciesFileGroup/taxonworks/issues/4670
