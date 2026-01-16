@@ -12,6 +12,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New task: Dichotomous key
 - New repository link to New type specimen task [#4692]
 - Monograph facilitator to OTU radial linker [#4690]
+- Batch create genus gender for those without one from Filter Taxon Names [#4669]
 
 ### Fixed
 
@@ -31,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#4607]: https://github.com/SpeciesFileGroup/taxonworks/issues/4607
 [#4663]: https://github.com/SpeciesFileGroup/taxonworks/issues/4663
+[#4669]: https://github.com/SpeciesFileGroup/taxonworks/issues/4669
 [#4670]: https://github.com/SpeciesFileGroup/taxonworks/issues/4670
 [#4676]: https://github.com/SpeciesFileGroup/taxonworks/issues/4676
 [#4682]: https://github.com/SpeciesFileGroup/taxonworks/issues/4682
