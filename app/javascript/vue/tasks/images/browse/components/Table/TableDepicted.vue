@@ -2,21 +2,34 @@
   <table class="table-striped">
     <thead>
       <tr>
+        <th class="w-2">
+          <input
+            type="checkbox"
+            v-model="selectAllToggle"
+          />
+        </th>
         <th>Depicted</th>
         <th></th>
       </tr>
     </thead>
     <tbody>
       <tr
-        v-for="item in records"
+        v-for="item in store.depictions"
         :key="item.id"
       >
-        <td v-html="item.object_tag" />
+        <td>
+          <input
+            type="checkbox"
+            :value="item"
+            v-model="store.selected"
+          />
+        </td>
+        <td v-html="item.depiction_object.object_tag" />
         <td>
           <div class="flex-row gap-small">
-            <RadialAnnotator :global-id="item.global_id" />
-            <RadialQuickForms :global-id="item.global_id" />
-            <RadialNavigator :global-id="item.global_id" />
+            <RadialAnnotator :global-id="item.depiction_object.global_id" />
+            <RadialQuickForms :global-id="item.depiction_object.global_id" />
+            <RadialNavigator :global-id="item.depiction_object.global_id" />
           </div>
         </td>
       </tr>
@@ -28,6 +41,8 @@
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import RadialQuickForms from '@/components/radials/object/radial.vue'
+import useStore from '../../store/store.js'
+import { computed } from 'vue'
 
 const props = defineProps({
   records: {
@@ -35,4 +50,16 @@ const props = defineProps({
     required: true
   }
 })
+
+const selectAllToggle = computed({
+  get: () =>
+    store.depictions.length &&
+    store.selected.length &&
+    store.depictions.length === store.selected.length,
+  set: (value) => {
+    store.selected = value ? [...store.depictions] : []
+  }
+})
+
+const store = useStore()
 </script>

@@ -7,9 +7,12 @@
       <ViewerImage
         v-if="store.image"
         :image-url="store.image.imageUrl"
+        :image-height="store.image.height"
+        :image-width="store.image.width"
         :pixels-to-centimeters="pixelsToCentimeters"
         :width="1920"
         :height="1080"
+        :shapes="store.svgClips"
       />
     </div>
   </div>

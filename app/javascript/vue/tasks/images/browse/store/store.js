@@ -16,14 +16,17 @@ export default defineStore('store', {
   state: () => ({
     image: null,
     isLoading: false,
-    depictions: []
+    depictions: [],
+    selected: []
   }),
   getters: {
     hasDepictions: (state) => state.depictions.length > 0,
 
     depictionObjects: (state) => {
       return state.depictions.map((depiction) => depiction.depiction_object)
-    }
+    },
+
+    svgClips: (state) => state.selected.map((d) => d.svg_clip).filter(Boolean)
   },
   actions: {
     async load(imageId) {
