@@ -7,8 +7,7 @@ module Export::Dwca::Occurrence
     # @param media_table_alias [String] SQL table alias for the media table
     # @return [String] SQL expression for sanitized identifier
     def media_identifier_sql(media_class, media_table_alias)
-      identifier_expr = media_class.dwc_media_identifier_sql(table_alias: media_table_alias)
-      "pg_temp.sanitize_csv(#{identifier_expr})"
+      media_class.dwc_media_identifier_sql(table_alias: media_table_alias)
     end
 
     # SQL fragment: Media identifier JOINs for UUID and URI.
