@@ -20,13 +20,13 @@
           type="radio"
           class="normal-input button-active"
           :value="item"
-          :id="`switch-role-${index}`"
-          :name="`switch-role-options`"
+          :id="`switch-role-${uid}-${index}`"
+          :name="`switch-role-options-${uid}`"
           :checked="item === view"
           @click="view = item"
         />
         <label
-          :for="`switch-role-${index}`"
+          :for="`switch-role-${uid}-${index}`"
           class="capitalize"
         >
           {{ item }}
@@ -62,12 +62,13 @@
         <smart-selector
           ref="smartSelector"
           model="people"
-          :target="props.type"
-          :klass="props.type"
+          :target="klass"
+          :klass="klass"
           :params="{ role_type: ROLE_COLLECTOR }"
           :autocomplete-params="{
             roles: [ROLE_COLLECTOR]
           }"
+          :input-id="`attribution-${uid}-people`"
           label="cached"
           :autocomplete="false"
           @selected="addRole"
@@ -92,18 +93,18 @@
     <div class="separate-top">
       <v-btn
         medium
-        color="create"
+        :color="buttonColor"
         @click="createNew()"
         :disabled="!validateFields"
       >
-        Create
+        {{ buttonLabel }}
       </v-btn>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, ref, reactive } from 'vue'
+import { computed, ref, reactive, getCurrentInstance } from 'vue'
 import { findRole } from '@/helpers/people/people.js'
 import { toSnakeCase } from '@/helpers/strings'
 import { Attribution } from '@/routes/endpoints'
@@ -121,13 +122,24 @@ import LicenseInput from './licenseInput.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
 const props = defineProps({
-  type: {
+  klass: {
     type: String,
     required: true
+  },
+
+  buttonLabel: {
+    type: String,
+    default: 'Create'
+  },
+
+  buttonColor: {
+    type: String,
+    default: 'create'
   }
 })
 
 const emit = defineEmits(['attribution'])
+const uid = getCurrentInstance().uid
 
 const validateFields = computed(
   () =>
