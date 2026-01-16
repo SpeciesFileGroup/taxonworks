@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - New task: Dichotomous key
 - New repository link to New type specimen task [#4692]
+- Monograph facilitator to OTU radial linker [#4690]
 
 ### Fixed
 
@@ -28,6 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4676]: https://github.com/SpeciesFileGroup/taxonworks/issues/4676
 [#4682]: https://github.com/SpeciesFileGroup/taxonworks/issues/4682
 [#4688]: https://github.com/SpeciesFileGroup/taxonworks/issues/4688
+[#4690]: https://github.com/SpeciesFileGroup/taxonworks/issues/4690
 [#4692]: https://github.com/SpeciesFileGroup/taxonworks/issues/4692
 
 ## [0.57.0] - 2026-01-06
