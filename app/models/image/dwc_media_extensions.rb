@@ -2,6 +2,7 @@ module Image::DwcMediaExtensions
   extend ActiveSupport::Concern
 
   include Shared::Dwc::MediaExtensions
+  include Shared::Dwc::MediaAttributionSql
 
   # Only implementations specific to Image. See
   # Shared::Dwc::MediaExtensions#DWC_MEDIA_SHARED_EXTENSION_MAP as well.
@@ -13,6 +14,7 @@ module Image::DwcMediaExtensions
     # 'dcterms:format',
     PixelXDimension: :dwc_media_pixel_x_dimension,
     PixelYDimension: :dwc_media_pixel_y_dimension,
+    furtherInformationURL: :dwc_media_further_information_url,
   }.freeze
 
   def darwin_core_media_extension_image_row
@@ -48,5 +50,9 @@ module Image::DwcMediaExtensions
 
   def dwc_media_pixel_y_dimension
     height
+  end
+
+  def dwc_media_further_information_url
+    Shared::Api.image_metadata_link(self, raise_on_no_token: true)
   end
 end

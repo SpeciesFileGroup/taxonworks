@@ -11,6 +11,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - New task: Dichotomous key
 - Scalebar form to New simple specimen task [#4689]
+- New repository link to New type specimen task [#4692]
+- Monograph facilitator to OTU radial linker [#4690]
+- Batch create genus gender for those without one from Filter Taxon Names [#4669]
 
 ### Fixed
 
@@ -21,13 +24,25 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Error notice is now returned when trying to include media extension in DwCA export with a project API token
 - Match Taxon Names task downloads have wrong valid name [#4682]
 - New source task: Title is required to create a BibTeX source [#4688]
+- Error on sending Taxon Name filter result to Asserted Distributions
+- DwCA export optimizations [#4607]
+- Inconsistent TW:otu_name selection from multiple values in DwCA exports in some cases
+- DwCA TW:data_attributes now includes all values on a given predicate (not just the last)
+- Performance regression in cached maps re-indexing via the rake task
+- `Create citation` button doesn't keep citations state once the observation is moved to another cell in Image matrix task
+- Add autosave option to New source task [#4691]
 
+[#4607]: https://github.com/SpeciesFileGroup/taxonworks/issues/4607
 [#4663]: https://github.com/SpeciesFileGroup/taxonworks/issues/4663
+[#4669]: https://github.com/SpeciesFileGroup/taxonworks/issues/4669
 [#4670]: https://github.com/SpeciesFileGroup/taxonworks/issues/4670
 [#4676]: https://github.com/SpeciesFileGroup/taxonworks/issues/4676
 [#4682]: https://github.com/SpeciesFileGroup/taxonworks/issues/4682
 [#4688]: https://github.com/SpeciesFileGroup/taxonworks/issues/4688
 [#4689]: https://github.com/SpeciesFileGroup/taxonworks/issues/4689
+[#4690]: https://github.com/SpeciesFileGroup/taxonworks/issues/4690
+[#4691]: https://github.com/SpeciesFileGroup/taxonworks/issues/4691
+[#4692]: https://github.com/SpeciesFileGroup/taxonworks/issues/4692
 
 ## [0.57.0] - 2026-01-06
 

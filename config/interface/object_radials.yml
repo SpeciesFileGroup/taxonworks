@@ -209,6 +209,7 @@ Otu:
     - browse_asserted_distributions_task
     - unify_objects_task
     - anatomical_parts_graph_task
+    - monograph_facilitator_task
   home: browse_otus_task
   config:
     recent: true

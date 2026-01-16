@@ -194,6 +194,21 @@ class ImagesController < ApplicationController
     send_data Image.scaled_to_box_blob(params), type: 'image/jpg', disposition: 'inline'
   end
 
+  # GET 'api/v1/images/file/sha/:sha/scale_to_box/:x/:y/:width/:height/:box_width/:box_height'
+  def api_scale_to_box_sha
+    @image = Image
+      .where(project_id: sessions_current_project_id)
+      .find_by(image_file_fingerprint: params[:sha])
+
+    if @image.present?
+      # Replace :sha with :id in params so scaled_to_box_blob works
+      modified_params = params.merge(id: @image.id)
+      send_data Image.scaled_to_box_blob(modified_params), type: 'image/jpg', disposition: 'inline'
+    else
+      render plain: 'Image not found.', status: :not_found
+    end
+  end
+
   # GET 'images/:id/as_png'
   def as_png
     send_data @image.original_as_png, type: 'image/png', disposition: 'inline'
