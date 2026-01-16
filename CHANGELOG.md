@@ -12,7 +12,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New task: Dichotomous key
 - New repository link to New type specimen task [#4692]
 - Monograph facilitator to OTU radial linker [#4690]
-- DwCA export optimizations
 
 ### Fixed
 
@@ -24,10 +23,12 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Match Taxon Names task downloads have wrong valid name [#4682]
 - New source task: Title is required to create a BibTeX source [#4688]
 - Error on sending Taxon Name filter result to Asserted Distributions
+- DwCA export optimizations [#4607]
 - Inconsistent TW:otu_name selection from multiple values in DwCA exports in some cases
 - DwCA TW:data_attributes now includes all values on a given predicate (not just the last)
 - Performance regression in cached maps re-indexing via the rake task
 
+[#4607]: https://github.com/SpeciesFileGroup/taxonworks/issues/4607
 [#4663]: https://github.com/SpeciesFileGroup/taxonworks/issues/4663
 [#4670]: https://github.com/SpeciesFileGroup/taxonworks/issues/4670
 [#4676]: https://github.com/SpeciesFileGroup/taxonworks/issues/4676
