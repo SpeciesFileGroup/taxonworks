@@ -18,16 +18,15 @@ module Export::Coldp::Files::Name
   @skipped_name_ids = []
 
   MANIFEST = [
-     :valid_higher_names,
-     :valid_family_names,
-     :core_names,
-     :combination_names, # combinations
-     # :verbatim_combination_names,
-     # :historical_combination_names, # historical_combinations
-     :original_combination_names, # original_combinations
-     :invalid_family_and_higher_names,
-     :invalid_core_names,
-     :invalid_original_combination_names,
+    :valid_higher_names,
+    :valid_family_names,
+    :core_names,
+    :combination_names, # combinations
+    # :historical_combination_names, # historical_combinations
+    :original_combination_names, # original_combinations
+    :invalid_family_and_higher_names,
+    :invalid_core_names,
+    :invalid_original_combination_names, 
   ]
 
   def self.skipped_name_ids
@@ -314,8 +313,8 @@ module Export::Coldp::Files::Name
         row['cached_nomenclature_date']&.year,                              # publishedInYear - OK
         code_field(row['reference_rank_class']),                            # code
         nil,                                                                # status https://api.checklistbank.org/vocab/nomStatus
-        nil,                                                                # etymology
-        nil,                                                                # gender
+        nil,                                                                # etymology     
+        nil,                                                                # gender 
         nil,                                                                # link (probably TW public or API)
         nil,                                                                # remarks (we have no way to capture this in TW)
         Export::Coldp.modified(row[:updated_at]),                           # modified
@@ -369,8 +368,8 @@ module Export::Coldp::Files::Name
         row['cached_nomenclature_date']&.year,                              # publishedInYear - OK
         code_field(row['reference_rank_class']),                            # code
         nil,                                                                # status https://api.checklistbank.org/vocab/nomStatus
-        nil,                                                                # etymology
-        nil,                                                                # gender
+        nil,                                                                # etymology     
+        nil,                                                                # gender 
         nil,                                                                # link (probably TW public or API)
         nil,                                                                # remarks (we have no way to capture this in TW)
         Export::Coldp.modified(row[:updated_at]),                           # modified
@@ -403,8 +402,8 @@ module Export::Coldp::Files::Name
         t.cached_nomenclature_date&.year,                                   # publishedInYear
         code_field(t.rank_class.name),                                      # code
         ::TaxonName::NOMEN_VALID[t.rank_class.name.to_sym],                 # nomStatus
-        nil,                                                                # etymology
-        nil,                                                                # gender
+        nil,                                                                # etymology     
+        nil,                                                                # gender 
         nil,                                                                # link (probably TW public or API)
         Export::Coldp.sanitize_remarks(t.id),                               # remarks
         Export::Coldp.modified(t[:updated_at]),                             # modified
@@ -441,8 +440,8 @@ module Export::Coldp::Files::Name
         t.cached_nomenclature_date&.year,                                   # publishedInYear
         code_field(t.rank_class.name),                                      # code
         ::TaxonName::NOMEN_VALID[t.rank_class.name.to_sym],                 # nomStatus
-        nil,                                                                # etymology
-        nil,                                                                # gender
+        nil,                                                                # etymology     
+        nil,                                                                # gender 
         nil,                                                                # link (probably TW public or API)
         Export::Coldp.sanitize_remarks(t.id),                               # remarks
         Export::Coldp.modified(t[:updated_at]),                             # modified
@@ -453,32 +452,25 @@ module Export::Coldp::Files::Name
     end
   end
 
-  # Combinations
-  #  - Differ from the present use of the name (i.e. we don't re-include as Chresonyms [yet])
-  #  - SEE (TODO) .... for a-typical verbatim_names
-  #
   # TODO: Complete combinations only
   # TODO: add .fully_specified ?
-  #
   def self.combination_names(otu)
     a = otu.taxon_name.self_and_descendants.unscope(:order).select(:id)
 
-    b = Combination
-      .where('taxon_names.verbatim_name is null OR taxon_names.verbatim_name = taxon_names.cached') # !! verbatim_name when present is used in cached?! if so this isn't correct!
-      .flattened
-      .with(project_scope: a)
+    b = Combination.
+      flattened.with(project_scope: a)
       .complete
       .joins('JOIN project_scope ps on ps.id = taxon_names.cached_valid_taxon_name_id') # Combinations that point to any of "a"
   end
 
   # Historical combinations that may not have Sources  [ or complete relationship records <- if not complete then not in ]
   # OR were skipped by add_combinations due to gender matching.
-  #
+  #  
   # These are Combinations that point to valid names in the OTU scope but weren't
   # actually written to CSV by add_combinations.
-  #
+  # 
   # TODO: why!?
-  #
+  # 
   # CHANGE TO  verbatim name != ached combinations
   #
   def self.historical_combination_names(otu)
@@ -496,7 +488,7 @@ module Export::Coldp::Files::Name
       .where.not(id: exported_ids)
       .eager_load(origin_citation: [:source])
 
-    b = a.pluck(:id).uniq!
+    # b = a.pluck(:id).uniq!
 
     a
   end
@@ -516,15 +508,12 @@ module Export::Coldp::Files::Name
 
       rank = elements.keys.last if rank.nil?
 
-      #
-      # Concluded that we don't need to try and keep the citations for these "skipped" names.
-      #
-      # If this Combination is identical to the current placement we skip.
-      #   TODO: This exception needs to be in SQL to simply, a MAX/INDEX of possible ranks with values
-      if row[rank + "_cached"] == row['cached']
-        ::Export::Coldp.skipped_combinations << row['id']
-        next
-      end
+      # In some cases where names are described originally with missmatched gender we can exclude dupes
+      # This exception needs to be in SQL to simply, a MAX/INDEX of possible ranks with values
+      # if row[rank + "_cached"] == row['cached']
+      #   ::Export::Coldp.skipped_combinations << row['id']
+      #   next
+      # end
 
       scientific_name = ::Utilities::Nomenclature.unmisspell_name(row['cached'])
 
@@ -546,8 +535,8 @@ module Export::Coldp::Files::Name
         row['cached_nomenclature_date']&.year,                              # publishedInYear
         code_field(row['reference_rank_class']),                            # code
         nil,                                                                # nomStatus (nil for Combination)
-        nil,                                                                # etymology
-        nil,                                                                # gender
+        nil,                                                                # etymology     
+        nil,                                                                # gender 
         nil,                                                                # link (probably TW public or API)
         Export::Coldp.sanitize_remarks(row['id']),                          # remarks
         Export::Coldp.modified(row['updated_at']),                          # modified
@@ -603,8 +592,8 @@ module Export::Coldp::Files::Name
         t.year_of_publication,                                              # publishedInYear
         code_field(t.rank_class),                                           # code
         nil,                                                                # nomStatus (nil for Combination)
-        nil,                                                                # etymology
-        nil,                                                                # gender
+        nil,                                                                # etymology     
+        nil,                                                                # gender 
         nil,                                                                # link
         nil,                                                                # remarks
         Export::Coldp.modified(t.updated_at),                               # modified
@@ -659,8 +648,8 @@ module Export::Coldp::Files::Name
         t.cached_nomenclature_date&.year,                                   # publishedInYear
         code_field(t.rank_class.name),                                      # code
         ::TaxonName::NOMEN_VALID[t.rank_class.name.to_sym],                 # nomStatus # TODO: untested
-        nil,                                                                # etymology
-        nil,                                                                # gender
+        nil,                                                                # etymology     
+        nil,                                                                # gender 
         nil,                                                                # link (probably TW public or API)
         Export::Coldp.sanitize_remarks(t.id),                               # remarks
         Export::Coldp.modified(t[:updated_at]),                             # modified
@@ -713,8 +702,8 @@ module Export::Coldp::Files::Name
         t.cached_nomenclature_date&.year,                                 # publishedInYear
         code_field(t.rank_class.name),                                    # code
         nom_status,                                                       # nomStatus
-        nil,                                                              # etymology
-        nil,                                                              # gender
+        nil,                                                              # etymology     
+        nil,                                                              # gender 
         nil,                                                              # link (probably TW public or API)
         Export::Coldp.sanitize_remarks(t.id),                             # remarks
         Export::Coldp.modified(t[:updated_at]),                           # modified
@@ -759,8 +748,8 @@ module Export::Coldp::Files::Name
         t.cached_nomenclature_date&.year,                                   # publishedInYear
         code_field(t.rank_class.name),                                      # code
         nom_status,                                                         # nomStatus
-        nil,                                                                # etymology
-        nil,                                                                # gender
+        nil,                                                                # etymology     
+        nil,                                                                # gender 
         nil,                                                                # link (probably TW public or API)
         Export::Coldp.sanitize_remarks(t.id),                               # remarks
         Export::Coldp.modified(t[:updated_at]),                             # modified
