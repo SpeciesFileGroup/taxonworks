@@ -29,6 +29,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwCA TW:data_attributes now includes all values on a given predicate (not just the last)
 - Performance regression in cached maps re-indexing via the rake task
 - `Create citation` button doesn't keep citations state once the observation is moved to another cell in Image matrix task
+- Add autosave option to New source task [#4691]
 
 [#4607]: https://github.com/SpeciesFileGroup/taxonworks/issues/4607
 [#4663]: https://github.com/SpeciesFileGroup/taxonworks/issues/4663
@@ -38,6 +39,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4682]: https://github.com/SpeciesFileGroup/taxonworks/issues/4682
 [#4688]: https://github.com/SpeciesFileGroup/taxonworks/issues/4688
 [#4690]: https://github.com/SpeciesFileGroup/taxonworks/issues/4690
+[#4691]: https://github.com/SpeciesFileGroup/taxonworks/issues/4691
 [#4692]: https://github.com/SpeciesFileGroup/taxonworks/issues/4692
 
 ## [0.57.0] - 2026-01-06

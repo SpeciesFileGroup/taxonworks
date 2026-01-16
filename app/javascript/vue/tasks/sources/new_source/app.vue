@@ -7,6 +7,15 @@
           <label>
             <input
               type="checkbox"
+              v-model="settings.autosave"
+            />
+            Autosave
+          </label>
+        </li>
+        <li>
+          <label>
+            <input
+              type="checkbox"
               v-model="settings.sortable"
             />
             Reorder fields
@@ -23,7 +32,7 @@
         </li>
       </ul>
     </div>
-    <NavBar class="source-navbar">
+    <NavBar class="relative">
       <div class="flex-separate full_width">
         <div class="middle gap-small">
           <template v-if="store.source.id">
@@ -62,7 +71,7 @@
           <button
             class="button normal-input button-submit button-size"
             type="button"
-            :disabled="!isSaveAvailable"
+            :disabled="!store.isSaveAvailable"
             @click="saveSource"
           >
             Save
@@ -101,6 +110,11 @@
             New
           </button>
         </div>
+        <Autosave
+          :disabled="!settings.autosave"
+          style="bottom: 0px; left: 0px"
+          class="position-absolute full_width"
+        />
       </div>
     </NavBar>
     <div class="horizontal-left-content align-start">
@@ -152,6 +166,8 @@ import { useSettingStore, useSourceStore } from './store'
 import { useHotkey } from '@/composables'
 import { RouteNames } from '@/routes/routes'
 
+import Autosave from './components/Autosave.vue'
+
 import Verbatim from './components/verbatim/main'
 import Bibtex from './components/bibtex/main'
 import Human from './components/person/PersonHuman.vue'
@@ -182,17 +198,6 @@ const componentSection = {
   [SOURCE_HUMAN]: Human
 }
 
-const BIBTEX_REQUIRED = [
-  'author',
-  'editor',
-  'title',
-  'url',
-  'year',
-  'journal',
-  'booktitle',
-  'stated_year'
-]
-
 defineOptions({
   name: 'NewSource'
 })
@@ -218,16 +223,6 @@ const shortcuts = ref([
 useHotkey(shortcuts.value)
 
 const isUnsaved = computed(() => store.source.isUnsaved)
-const isSaveAvailable = computed(
-  () =>
-    (store.source.type === SOURCE_VERBATIM && store.source.verbatim) ||
-    (store.source.type === SOURCE_HUMAN &&
-      store.source.roles_attributes.length) ||
-    (store.source.type === SOURCE_BIBTEX &&
-      store.source.bibtex_type &&
-      BIBTEX_REQUIRED.some((key) => store.source[key])) ||
-    store.source.roles_attributes.length
-)
 
 const isCrossRefModalVisible = ref(false)
 const isBibtexModalVisible = ref(false)
@@ -274,7 +269,7 @@ function reset() {
 }
 
 function saveSource() {
-  if (!isSaveAvailable) return
+  if (!store.isSaveAvailable) return
   store.save()
 }
 
