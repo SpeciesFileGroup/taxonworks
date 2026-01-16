@@ -30,6 +30,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Performance regression in cached maps re-indexing via the rake task
 - `Create citation` button doesn't keep citations state once the observation is moved to another cell in Image matrix task
 - Add autosave option to New source task [#4691]
+- Completed Filter connections between Filter Biological Association and Filter Taxon Name/Filter OTU to include relations by Collection Object Taxon Determination, Field Occurrence Taxon Determination, and Anatomical Part origin OTU [#4685]
 
 [#4607]: https://github.com/SpeciesFileGroup/taxonworks/issues/4607
 [#4663]: https://github.com/SpeciesFileGroup/taxonworks/issues/4663
@@ -37,6 +38,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4670]: https://github.com/SpeciesFileGroup/taxonworks/issues/4670
 [#4676]: https://github.com/SpeciesFileGroup/taxonworks/issues/4676
 [#4682]: https://github.com/SpeciesFileGroup/taxonworks/issues/4682
+[#4685]: https://github.com/SpeciesFileGroup/taxonworks/issues/4685
 [#4688]: https://github.com/SpeciesFileGroup/taxonworks/issues/4688
 [#4690]: https://github.com/SpeciesFileGroup/taxonworks/issues/4690
 [#4691]: https://github.com/SpeciesFileGroup/taxonworks/issues/4691
