@@ -27,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Inconsistent TW:otu_name selection from multiple values in DwCA exports in some cases
 - DwCA TW:data_attributes now includes all values on a given predicate (not just the last)
 - Performance regression in cached maps re-indexing via the rake task
+- `Create citation` button doesn't keep citations state once the observation is moved to another cell in Image matrix task
 
 [#4607]: https://github.com/SpeciesFileGroup/taxonworks/issues/4607
 [#4663]: https://github.com/SpeciesFileGroup/taxonworks/issues/4663
