@@ -310,22 +310,18 @@ module Export::Coldp::Files::Name
       # CAN have parenthesis in their rendering
       # if the original genus is different
       # THAN THE GENUS OF THE PROPERLY SPELLED VERSION OF THE NAME
-      author_year = nil
-      if row['cached_misspelling']
 
-        # Remember, 'genus' is `original_genus`, so
-        # by the fact that synonyms are under the same parent
-        # as that of the valid name we are comparing the
-        # placement of the properly spelled version of the name.
-        #
-        if row['cached'] =~ /\A#{row['genus']}\b/
-          author_year = row['cached_author_year'].gsub(/[\(\)]/, '')
-        else
-          author_year = row['cached_author_year']
-        end
-      else
-        author_year = row['cached_author_year'].gsub(/[\(\)]/, '')
-      end
+      # Remember, 'genus' is `original_genus`, so
+      # by the fact that synonyms are under the same parent
+      # as that of the valid name we are comparing the
+      # placement of the properly spelled version of the name.
+      author_year = row['cached_author_year']
+
+      strip_parens =
+        !row['cached_misspelling'] ||
+        row['cached'] =~ /\A#{Regexp.escape(row['genus'])}\b/
+
+      author_year = author_year.delete('()') if strip_parens
 
       csv << [
         id,                                                                 # ID
@@ -516,7 +512,7 @@ module Export::Coldp::Files::Name
     # Exclude combinations that were actually exported (not skipped) by add_combinations
     # skipped_combinations contains IDs that combination_names returned but add_combinations skipped
     # We want to export those skipped ones here, so only exclude IDs that were NOT skipped
-    exported_ids = combination_names(otu).pluck(:id) -  ::Export::Coldp.skipped_combinations
+    exported_ids = combination_names(otu).pluck(:id) - ::Export::Coldp.skipped_combinations
 
     a = Combination
       .complete
@@ -545,10 +541,9 @@ module Export::Coldp::Files::Name
 
       rank = elements.keys.last if rank.nil?
 
+      # If this Combination is identical to the current placement we skip.
       #
       # Concluded that we don't need to try and keep the citations for these "skipped" names.
-      #
-      # If this Combination is identical to the current placement we skip.
       #
       #   TODO: This exception needs to be in SQL to simply, a MAX/INDEX of possible ranks with values
       if row[rank + "_cached"] == row['cached']

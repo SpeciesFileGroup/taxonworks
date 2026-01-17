@@ -27,10 +27,22 @@ module Export
   # * (re)move tests
   # * docuement what Coldp *expects*, in particular inferred combionations
   # * biological association index now?!
+  # * skipped_name_ids -> why/remove?
   #
   # * Combinations need to skip if verbatim populated [DONE?!]
   # * Add a secondary parser to handle verbatim_name populated combinations (repurpose historical)
   module Coldp
+
+    class << self
+      # @return [Array] used to pass along inference at the
+      # name.tsv level to the synonym.tsv level. Could be replaced
+      # when Combination can use SQL to determine the rank of the
+      # name Combination applies to.  !! Should just cache this.
+      attr_accessor :skipped_combinations
+    end
+
+    # give it a default value
+    @skipped_combinations = []
 
     # TODO: probably doing nothing
     attr_accessor :remarks
@@ -111,7 +123,9 @@ module Export
       nil
     end
 
-    # @return path to the data
+    # Return path to the data itself
+    #
+    # TODO: mode: taxon_name_proxy
     #
     def self.export(otu_id, prefer_unlabelled_otus: true)
       otus = otus(otu_id)
@@ -199,6 +213,9 @@ module Export
           m = "Export::Coldp::Files::#{ft}".safe_constantize
           zipfile.get_output_stream("#{ft}.tsv") { |f| f.write m.generate(otus, project_members, ref_tsv) }
         end
+
+        # TODO: Probably not used
+        # skip_name_ids = Export::Coldp::Files::Name.skipped_name_ids  ||  []
 
         # TODO: this doesn't really help, and adds time to the process.
         # Sort the refs by full citation string
