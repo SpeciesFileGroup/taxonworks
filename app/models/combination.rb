@@ -178,6 +178,21 @@ class Combination < TaxonName
   validate :composition, unless: Proc.new {|a| disable_combination_relationship_check == true || a.errors.full_messages.include?('Combination exists.') }
   validates :rank_class, absence: true
 
+  #
+  # validate :name, nil => true
+  #
+  # See https://github.com/SpeciesFileGroup/taxonworks/issues/4697
+  # It won't be this simple likely.  Might have to be the last validation in the chain?
+  # See soft_validation that auto-sets verbatim_name in `.becomes` (which may have to go).
+  #
+  # validate :verbatim_name_is_allowed # , if: Proc.new {|a| persisted? }
+  # def verbatim_name_is_allowed
+  #   if verbatim_name == full_name
+  #     errors.add(:verbatim_name, 'verbatim name is identical to calculate value and therefor not allowed')
+  #   end
+  # end
+  #
+
   soft_validate(
     :sv_redundant_verbatim_name,
     set: :cached,
@@ -644,9 +659,12 @@ class Combination < TaxonName
 
   def sv_redundant_verbatim_name
     if verbatim_name == full_name
+
+      # TODO: Why is this check needed?  Shouldn't that be encapsulated in full_name logic?
       protonyms_by_rank.values.each do |t|
         return true unless t.has_latinized_classification?
       end
+
       soft_validations.add(:verbatim_name, 'Verbatim name is provided but not needed, it is the same as the computed value.')
     end
   end
