@@ -9,7 +9,7 @@
           />
         </th>
         <th class="header-label">
-          <div class="flex-row gap-medium">
+          <div class="flex-row gap-medium middle">
             <VIcon
               class="cursor-pointer"
               :name="toggleListVisible ? 'arrowDown' : 'arrowRight'"
@@ -32,20 +32,37 @@
             >
               Invert
             </VBtn>
-            <RadialBatch
-              :ids="store.selectedIds"
-              :object-type="store.objectType"
-            />
-            <RadialFilter
-              :ids="store.selectedIds"
-              :object-type="store.objectType"
-              :disabled="!store.selectedIds.length"
-              :extended-slices="[getExtendedFilter(store.objectType)]"
-            />
-            <component
-              :is="getRadialComponent(store.objectType)"
-              :ids="store.selectedIds"
-            />
+
+            <div
+              v-for="type in store.objectType"
+              :key="type"
+              class="flex-row middle"
+            >
+              <span class="margin-medium-right">
+                {{ type.match(/[A-Z]/g).join('') }}
+              </span>
+              <div class="square-brackets">
+                <div class="flex-row gap-small">
+                  <RadialBatch
+                    :ids="store.getSelectedIdsByObjectType(type)"
+                    :object-type="type"
+                  />
+
+                  <RadialFilter
+                    :ids="store.getSelectedIdsByObjectType(type)"
+                    :object-type="type"
+                    :disabled="!store.selectedIds.length"
+                    :extended-slices="[getExtendedFilter(type)]"
+                  />
+
+                  <component
+                    :is="getRadialComponent(type)"
+                    :ids="store.getSelectedIdsByObjectType(type)"
+                  />
+                </div>
+              </div>
+            </div>
+
             <VIcon
               class="cursor-pointer"
               :name="toggleHide ? 'hide' : 'show'"

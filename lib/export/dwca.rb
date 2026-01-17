@@ -28,13 +28,29 @@ module Export
       '2024-09-13 11:00:00.000000 -0500'     # enable collectionCode, object and collecting event related IDs
     ].freeze
 
+    # Creates a DwC-A download asynchronously by enqueuing a job.
+    #
     # @param record_scope [ActiveRecord::Relation]
-    #   a relation that returns DwcOccurrence records
-    # @param predicate_extensions Hash
-    #    keys as _symbols_ => Array of Predicate ids
-    #    valid values are collecting_event_predicate_id: [], collection_object_predicate_id
+    #   A relation that returns DwcOccurrence records.
+    # @param request [String, nil]
+    #   Optional. The request URI path this download was generated from.
+    # @param extension_scopes [Hash]
+    #   Optional extensions to include:
+    #   - :biological_associations [Hash] with keys :core_params and
+    #     :collection_objects_query
+    #   - :media [Hash] with keys :collection_objects (query string) and
+    #     :field_occurrences (query string)
+    # @param predicate_extensions [Hash]
+    #   Predicate IDs to include:
+    #   - :collection_object_predicate_id [Array<Integer>]
+    #   - :collecting_event_predicate_id [Array<Integer>]
+    # @param taxonworks_extensions [Array<Symbol>]
+    #   TaxonWorks-specific fields to export
+    #   (e.g., [:otu_name, :elevation_precision]).
+    # @param project_id [Integer]
+    #   Required. The project ID for scoping queries.
     # @return [Download]
-    #   the download object containing the archive
+    #   The Download object that will contain the archive when ready.
     def self.download_async(record_scope, request = nil, extension_scopes: {}, predicate_extensions: {}, taxonworks_extensions: {}, project_id: nil)
       raise TaxonWorks::Error, 'project_id is required in Export::Dwca::download_async!' if project_id.nil?
 

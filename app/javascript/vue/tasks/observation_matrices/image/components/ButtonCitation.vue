@@ -68,6 +68,8 @@ export default {
     }
   },
 
+  emits: ['create', 'delete'],
+
   data() {
     return {
       citationItem: undefined,
@@ -118,6 +120,7 @@ export default {
           'Citation item was successfully created.',
           'notice'
         )
+        this.$emit('create', response.body)
       })
     },
     deleteCitation() {
@@ -127,6 +130,7 @@ export default {
           'Citation item was successfully destroyed.',
           'notice'
         )
+        this.$emit('delete', this.citationItem)
       })
     }
   }
