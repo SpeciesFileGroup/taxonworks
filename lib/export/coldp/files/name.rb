@@ -13,26 +13,16 @@
 #
 module Export::Coldp::Files::Name
 
-  #  TODO: Not implemented, resolve
-  # and re-implement if needed
-  @skipped_name_ids = []
-
   MANIFEST = [
     :valid_higher_names,
     :valid_family_names,
     :core_names,
-    :combination_names, # combinations
-    # :verbatim_combination_names,  - *  can we see name is not found in cached ?! *
-    # :historical_combination_names, # historical_combinations
-    :original_combination_names, # original_combinations
+    :combination_names,
+    :original_combination_names,
     :invalid_family_and_higher_names,
     :invalid_core_names,
     :invalid_original_combination_names,
   ]
-
-  def self.skipped_name_ids
-    @skipped_name_ids
-  end
 
   def self.code_field(rank_class)
     return 'ICZN' if rank_class =~ /Iczn/
@@ -496,37 +486,6 @@ module Export::Coldp::Files::Name
       .joins('JOIN project_scope ps on ps.id = taxon_names.cached_valid_taxon_name_id') # Combinations that point to any of "a"
   end
 
-  # Historical combinations that may not have Sources  [ or complete relationship records <- if not complete then not in ]
-  # OR were skipped by add_combinations due to gender matching.
-  #
-  # These are Combinations that point to valid names in the OTU scope but weren't
-  # actually written to CSV by add_combinations.
-  #
-  # TODO: why!?
-  #
-  # CHANGE TO  verbatim name != cached combinations
-  #
-  def self.historical_combination_names(otu)
-    a = otu.taxon_name.self_and_descendants.unscope(:order).select(:id)
-
-    # Exclude combinations that were actually exported (not skipped) by add_combinations
-    # skipped_combinations contains IDs that combination_names returned but add_combinations skipped
-    # We want to export those skipped ones here, so only exclude IDs that were NOT skipped
-    exported_ids = combination_names(otu).pluck(:id) - ::Export::Coldp.skipped_combinations
-
-    a = Combination
-      .complete
-      .with(project_scope: a)
-      .joins('JOIN project_scope ps on ps.id = taxon_names.cached_valid_taxon_name_id')
-      .where.not(id: exported_ids)
-      .eager_load(origin_citation: [:source])
-
-    b = a.pluck(:id).uniq!
-
-    a
-  end
-
-  # TODO: we probably have an issue where self is not included as a relationship and we need to inject it into the data?
   def self.add_combination_names(otu, csv, project_members, reference_csv)
     names = combination_names(otu)
     names.length
@@ -542,10 +501,8 @@ module Export::Coldp::Files::Name
       rank = elements.keys.last if rank.nil?
 
       # If this Combination is identical to the current placement we skip.
+      # We decided to not include the subsequent citations for these.
       #
-      # Concluded that we don't need to try and keep the citations for these "skipped" names.
-      #
-      #   TODO: This exception needs to be in SQL to simply, a MAX/INDEX of possible ranks with values
       if row[rank + "_cached"] == row['cached']
         ::Export::Coldp.skipped_combinations << row['id']
         next
@@ -554,8 +511,6 @@ module Export::Coldp::Files::Name
       scientific_name = ::Utilities::Nomenclature.unmisspell_name(row['cached'])
 
       uninomial = scientific_name if rank == 'genus'
-
-      # TODO - elements below need to be gender aligned.
 
       csv << [
         row['id'],                                                          # ID
@@ -588,59 +543,6 @@ module Export::Coldp::Files::Name
         .find_each do |s|
           Export::Coldp::Files::Reference.add_reference_rows([s].compact, reference_csv, project_members)
         end
-    end
-  end
-
-  # UNUSED
-  # Export historical combinations that weren't captured by combination_names (flattened)
-  # These may lack source citations or complete combination_taxon_names relationships
-  def self.add_historical_combination_names(otu, csv, project_members, reference_csv)
-    names = historical_combination_names(otu)
-
-    names.find_each do |t|
-
-      # TODO: skip in SQL, not here
-      # Skip Combinations that are identical to the current valid placement
-      valid_name = TaxonName.find_by(id: t.cached_valid_taxon_name_id)
-      next if valid_name && t.cached == valid_name.cached
-
-      origin_citation = t.origin_citation
-
-      # Use full_name_hash to get the epithets
-      elements = t.full_name_hash
-
-      # Determine rank from protonyms_by_rank
-      rank = t.protonyms_by_rank.keys.last&.to_s
-
-      scientific_name = ::Utilities::Nomenclature.unmisspell_name(t.cached)
-
-      uninomial = scientific_name if rank == 'genus'
-
-      csv << [
-        t.id,                                                               # ID
-        nil,                                                                # basionymID
-        scientific_name,                                                    # scientificName
-        t.cached_author_year,                                               # authorship
-        rank,                                                               # rank
-        uninomial,                                                          # uninomial
-        elements['genus']&.last,                                            # genus
-        elements['subgenus']&.last&.gsub(/[\)\(]/, ''),                     # subgenus (no parens)
-        elements['species']&.last,                                          # species
-        elements['subspecies']&.last,                                       # infraspecificEpithet
-        origin_citation&.source_id,                                         # publishedInID
-        origin_citation&.pages,                                             # publishedInPage
-        t.year_of_publication,                                              # publishedInYear
-        code_field(t.rank_class),                                           # code
-        nil,                                                                # nomStatus (nil for Combination)
-        nil,                                                                # etymology
-        nil,                                                                # gender
-        nil,                                                                # link
-        nil,                                                                # remarks
-        Export::Coldp.modified(t.updated_at),                               # modified
-        Export::Coldp.modified_by(t.updated_by_id, project_members)         # modifiedBy
-      ]
-
-      Export::Coldp::Files::Reference.add_reference_rows([origin_citation&.source].compact, reference_csv, project_members) if reference_csv && origin_citation
     end
   end
 

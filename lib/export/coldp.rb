@@ -14,23 +14,13 @@ module Export
   # http://api.col.plus/datapackage
   #
   # TODO:
-  #  - Recheck opilinies
-  #  - Check relationships export (scoping)
-
-  # # "next" in name.rb are red flags
-  #
-  # * gender/etymology changes from my 2
-  #
-  # * write tests to check for coverage (missing methods)
+  # * Review/remove/update/add tests to check for coverage
   # * Update all files formats to use tabs
   # * Pending handling of both BibTeX and Verbatim
-  # * (re)move tests
-  # * docuement what Coldp *expects*, in particular inferred combionations
-  # * biological association index now?!
-  # * skipped_name_ids -> why/remove?
-  #
-  # * Combinations need to skip if verbatim populated [DONE?!]
-  # * Add a secondary parser to handle verbatim_name populated combinations (repurpose historical)
+  # * Document what Coldp *expects*, in particular inferred combionations
+  # * Biological association index
+  # Optimizations possible:
+  # * Eliminate next checks (though they are currently fine) by calculating in SQL
   module Coldp
 
     class << self
@@ -213,9 +203,6 @@ module Export
           m = "Export::Coldp::Files::#{ft}".safe_constantize
           zipfile.get_output_stream("#{ft}.tsv") { |f| f.write m.generate(otus, project_members, ref_tsv) }
         end
-
-        # TODO: Probably not used
-        # skip_name_ids = Export::Coldp::Files::Name.skipped_name_ids  ||  []
 
         # TODO: this doesn't really help, and adds time to the process.
         # Sort the refs by full citation string
