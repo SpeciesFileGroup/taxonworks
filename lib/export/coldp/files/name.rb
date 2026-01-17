@@ -1,6 +1,6 @@
 # The names table includes
 # * All name strings, even if hanging (= not attached to OTUs/Taxa)
-# * It contains strings that may be invalid OR valid
+# * It contains strings that may be invalid or valid
 #
 # Future considerations
 #   - see bottom, should we parameterize a CSV row add, is it performat?, it
@@ -9,7 +9,7 @@
 #
 # TODO:
 #  - [ ] refactor ref additions so that they happen at the aggregate level
-#  - [ ] resolve the `.length` issue, what the heck is that needed for
+#  - [ ] resolve the `.length` issue, what the heck is that needed for [see comment from Tom]
 #
 module Export::Coldp::Files::Name
 
@@ -18,16 +18,16 @@ module Export::Coldp::Files::Name
   @skipped_name_ids = []
 
   MANIFEST = [
-     :valid_higher_names,
-     :valid_family_names,
-     :core_names,
-     :combination_names, # combinations
-     # :verbatim_combination_names,
-     # :historical_combination_names, # historical_combinations
-     :original_combination_names, # original_combinations
-     :invalid_family_and_higher_names,
-     :invalid_core_names,
-     :invalid_original_combination_names,
+    :valid_higher_names,
+    :valid_family_names,
+    :core_names,
+    :combination_names, # combinations
+    # :verbatim_combination_names,  - *  can we see name is not found in cached ?! *
+    # :historical_combination_names, # historical_combinations
+    :original_combination_names, # original_combinations
+    :invalid_family_and_higher_names,
+    :invalid_core_names,
+    :invalid_original_combination_names,
   ]
 
   def self.skipped_name_ids
@@ -78,7 +78,7 @@ module Export::Coldp::Files::Name
   #   - Protonyms
   def self.core_names(otu)
 
-    # TODO: adding .that_is_valid increases names, why?  Are we hitting duplicates?
+    # TODO: adding .that_is_valid increases names, why? Are we hitting duplicates?
     a = otu.taxon_name.self_and_descendants.unscope(:order).select(:id)
 
     # b sets up the query that aggregates the different ranks in one row
@@ -98,11 +98,12 @@ module Export::Coldp::Files::Name
       .joins('LEFT JOIN taxon_names AS parent ON parent.id = taxon_name_hierarchies.ancestor_id')
       .group('taxon_names.id')
 
+
     c = ::TaxonName.with(n: b)
       .joins('JOIN n on n.id = taxon_names.id')
       .where(cached_is_valid: true)
       .eager_load(origin_citation: [:source])
-      .select('taxon_names.*, n.genus, n.subgenus, n.species, n.infraspecies, n.genus_gender')
+      .select('taxon_names.*, n.genus, n.subgenus, n.species, n.infraspecies, n.genus_gender, n.species_masculine_name, n.species_neuter_name, n.species_feminine_name')
   end
 
   def self.invalid_core_names(otu)
@@ -186,16 +187,6 @@ module Export::Coldp::Files::Name
       end
 
       true
-
-      # add_valid_higher_names(otu, csv, project_members, reference_csv)
-      # add_valid_family_names(otu, csv, project_members, reference_csv)
-      # add_core_names(otu, csv, project_members, reference_csv)
-      # add_combinations(otu, csv, project_members, reference_csv)
-      # add_historical_combinations(otu, csv, project_members, reference_csv)
-      # add_original_combinations(otu, csv, project_members, reference_csv)
-      # add_invalid_family_and_higher_names(otu, csv, project_members, reference_csv)
-      # add_invalid_core_names(otu, csv, project_members, reference_csv)
-      # add_invalid_original_combinations(otu, csv, project_members, reference_csv)
     end
   end
 
@@ -271,7 +262,16 @@ module Export::Coldp::Files::Name
   end
 
 
+  #
+  # May have to split out misspellings from other invalid names to handle parens
+  #
+  #
+  #
   def self.add_invalid_original_combination_names(otu, csv, project_members, reference_csv)
+
+    # !!
+    # !! Remember, the names here are loaded with values FROM THEIR ORIGINAL COMBINATIONS
+    # !!
     names = invalid_original_combination_names(otu)
     names.length
 
@@ -285,7 +285,8 @@ module Export::Coldp::Files::Name
       # Hmm- why needed?
       rank = elements.keys.last if rank.nil? # Note that this depends on order of Hash creation
 
-      scientific_name = row['cached_misspelling'] ? ::Utilities::Nomenclature.unmisspell_name(row['cached_original_combination']) : row['cached_original_combination']
+      # Generic names can also be misspelled so, just process everything, don't bother checking the flag
+      scientific_name = ::Utilities::Nomenclature.unmisspell_name(row['cached_original_combination'])
 
       # TODO: resolve/verify needed
       uninomial = scientific_name if rank == 'genus'
@@ -298,11 +299,39 @@ module Export::Coldp::Files::Name
       # By definition - for invalid names, the basionym points to itself (the reified original combination)
       basionym_id = id
 
+      # !! g-maculata
+      # if id == '1093903-f91ea42436b0bbf9a5115437e67afc27'
+      #   byebug
+      #   foo = 1
+      # end
+
+      # A major brain-@#$@#.
+      # Original combinations of misspelled names
+      # CAN have parenthesis in their rendering
+      # if the original genus is different
+      # THAN THE GENUS OF THE PROPERLY SPELLED VERSION OF THE NAME
+      author_year = nil
+      if row['cached_misspelling']
+
+        # Remember, 'genus' is `original_genus`, so
+        # by the fact that synonyms are under the same parent
+        # as that of the valid name we are comparing the
+        # placement of the properly spelled version of the name.
+        #
+        if row['cached'] =~ /\A#{row['genus']}\b/
+          author_year = row['cached_author_year'].gsub(/[\(\)]/, '')
+        else
+          author_year = row['cached_author_year']
+        end
+      else
+        author_year = row['cached_author_year'].gsub(/[\(\)]/, '')
+      end
+
       csv << [
         id,                                                                 # ID
         basionym_id,                                                        # basionymID
         scientific_name,                                                    # scientificName
-        row['cached_author_year'].gsub(/[\(\)]/, ''),                       # authorship
+        author_year,                                                        # authorship
         rank,                                                               # rank
         uninomial,                                                          # uninomial
         elements['genus']&.last,                                            # genus
@@ -340,13 +369,13 @@ module Export::Coldp::Files::Name
       # Hmm- why needed?
       rank = elements.keys.last if rank.nil? # Note that this depends on order of Hash creation
 
-      scientific_name = row['cached_misspelling'] ? ::Utilities::Nomenclature.unmisspell_name(row['cached_original_combination']) : row['cached_original_combination']
+      scientific_name = ::Utilities::Nomenclature.unmisspell_name(row['cached_original_combination'])
 
       # TODO: resolve/verify needed
       uninomial = scientific_name if rank == 'genus'
 
-      # !! Ideally we de-reify these names ina the query with (cached != cached_original_combination)
-      # !! SO that we know these *must* be reified
+      # !! Ideally we de-reify these names in the query with (cached != cached_original_combination)
+      # !! So that we know these *must* be reified
       # !! We are reifieing *without* "[sic]" in the string
       id = ::Utilities::Nomenclature.reified_id(row['id'], scientific_name)
 
@@ -357,7 +386,7 @@ module Export::Coldp::Files::Name
         id,                                                                 # ID
         basionym_id,                                                        # basionymID
         scientific_name,                                                    # scientificName
-        row['cached_author_year'].gsub(/[\(\)]/, ''),                       # authorship
+        row['cached_author_year'].gsub(/[\(\)]/, ''),                       # authorship  # TODO <- stripping author/year here
         rank,                                                               # rank
         uninomial,                                                          # uninomial
         elements['genus']&.last,                                            # genus
@@ -479,7 +508,7 @@ module Export::Coldp::Files::Name
   #
   # TODO: why!?
   #
-  # CHANGE TO  verbatim name != ached combinations
+  # CHANGE TO  verbatim name != cached combinations
   #
   def self.historical_combination_names(otu)
     a = otu.taxon_name.self_and_descendants.unscope(:order).select(:id)
@@ -520,6 +549,7 @@ module Export::Coldp::Files::Name
       # Concluded that we don't need to try and keep the citations for these "skipped" names.
       #
       # If this Combination is identical to the current placement we skip.
+      #
       #   TODO: This exception needs to be in SQL to simply, a MAX/INDEX of possible ranks with values
       if row[rank + "_cached"] == row['cached']
         ::Export::Coldp.skipped_combinations << row['id']
@@ -529,6 +559,8 @@ module Export::Coldp::Files::Name
       scientific_name = ::Utilities::Nomenclature.unmisspell_name(row['cached'])
 
       uninomial = scientific_name if rank == 'genus'
+
+      # TODO - elements below need to be gender aligned.
 
       csv << [
         row['id'],                                                          # ID
@@ -564,20 +596,22 @@ module Export::Coldp::Files::Name
     end
   end
 
+  # UNUSED
   # Export historical combinations that weren't captured by combination_names (flattened)
   # These may lack source citations or complete combination_taxon_names relationships
   def self.add_historical_combination_names(otu, csv, project_members, reference_csv)
     names = historical_combination_names(otu)
 
     names.find_each do |t|
+
+      # TODO: skip in SQL, not here
       # Skip Combinations that are identical to the current valid placement
-      # (same as old exporter's filter)
       valid_name = TaxonName.find_by(id: t.cached_valid_taxon_name_id)
       next if valid_name && t.cached == valid_name.cached
 
       origin_citation = t.origin_citation
 
-      # Use full_name_hash to get the epithets, similar to old exporter
+      # Use full_name_hash to get the epithets
       elements = t.full_name_hash
 
       # Determine rank from protonyms_by_rank
@@ -615,16 +649,26 @@ module Export::Coldp::Files::Name
     end
   end
 
+  # Return, based on the gender of the genus, the element
+  # at the rank requested. Note infraspecies is a "fake" rank
+  # that is combined data here. This is in part because
+  # CoL only handles trinomials.
+  #
+  # @param rank - the element of the name requested
+  #
   def self.align_gender(core_name, rank = :species)
-    t = core_name.send(rank)
-    return t unless core_name.name == t
-    if a = core_name.genus_gender
-      if b = core_name.send(
-          (core_name.genus_gender + '_name').to_sym
-      )
-        return b
-      else
-        return t
+    if g = core_name.genus_gender # there is a name at this rank and we can work with the gender
+
+      case core_name.rank
+      when 'species'
+        core_name.send( (g + '_name').to_sym )
+      when 'subspecies', 'form', 'variety' # See compression in core_names, may be an issue
+        case rank
+        when :species
+          core_name.send( "species_#{g}_name".to_sym )
+        when :infraspecies
+          core_name.send( (g + '_name').to_sym )
+        end
       end
     end
   end
@@ -640,7 +684,7 @@ module Export::Coldp::Files::Name
       uninomial = t.cached if t.rank == 'genus'
 
       # Future- resolve in SQL perhaps, though not very expensive here
-      species = align_gender(t)
+      species = align_gender(t, :species)
       infraspecies = align_gender(t, :infraspecies)
 
       csv << [
