@@ -3,8 +3,13 @@
     <VSpinner
       v-if="store.isLoading"
       full-screen
-      :logo-size="{ width: '100px', height: '100px' }"
       legend="Loading..."
+    />
+
+    <VSpinner
+      v-if="store.isSaving"
+      full-screen
+      legend="Saving..."
     />
     <h1>Task - New asserted distribution</h1>
     <NavBar class="margin-medium-bottom">
@@ -21,6 +26,9 @@
             <input
               v-model="store.autosave"
               type="checkbox"
+              @change="
+                (e) => setPreference(KEY_STORAGE_AUTOSAVE, e.target.checked)
+              "
             />
             Autosave
           </label>
@@ -66,9 +74,12 @@ import NavBar from '@/components/layout/NavBar'
 import platformKey from '@/helpers/getPlatformKey'
 
 import { useHotkey } from '@/composables'
-import { computed, ref, onBeforeMount } from 'vue'
+import { computed, ref, onBeforeMount, watch } from 'vue'
 import { useStore } from './store/store.js'
+import { useUserPreferences } from '@/composables'
 import VBtn from '@/components/ui/VBtn/index.vue'
+
+const KEY_STORAGE_AUTOSAVE = 'Task::NewAssertedDistribution::Autosave'
 
 defineOptions({
   name: 'NewAssertedDistribution'
@@ -86,11 +97,24 @@ const shortcuts = ref([
 useHotkey(shortcuts.value)
 
 const store = useStore()
+const { preferences, loadPreferences, setPreference } = useUserPreferences()
 
 const currentAssertedDistribution = computed(() =>
   store.assertedDistributions.find(
     (item) => item.id === store.assertedDistribution.id
   )
+)
+
+const autosave = computed(() => preferences.value?.layout[KEY_STORAGE_AUTOSAVE])
+
+watch(
+  autosave,
+  (newVal) => {
+    store.autosave = newVal
+  },
+  {
+    immediate: true
+  }
 )
 
 onBeforeMount(() => {
@@ -102,7 +126,6 @@ onBeforeMount(() => {
     'New asserted distribution'
   )
 })
-
 </script>
 
 <style scoped>

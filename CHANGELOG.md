@@ -16,6 +16,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Source facet to Filter Asserted Distributions
 - 'Replace source' batch update to Filter Asserted Distributions [#4647]
 
+### Changed
+
+- Disabled autosave by default for New asserted distribution task. [#4698]
+
 ### Fixed
 
 - Filters return incorrect results when using the right Radial Filter with 21 or more selected objects. [#4676]
@@ -46,6 +50,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4690]: https://github.com/SpeciesFileGroup/taxonworks/issues/4690
 [#4691]: https://github.com/SpeciesFileGroup/taxonworks/issues/4691
 [#4692]: https://github.com/SpeciesFileGroup/taxonworks/issues/4692
+[#4698]: https://github.com/SpeciesFileGroup/taxonworks/issues/4698
 
 ## [0.57.0] - 2026-01-06
 
