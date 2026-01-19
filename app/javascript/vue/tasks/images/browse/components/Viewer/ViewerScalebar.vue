@@ -4,17 +4,17 @@
     :transform="`translate(${x}, ${y})`"
   >
     <rect
-      class="scalebar-bar"
       :width="width"
-      height="6"
+      :height="barHeight"
+      class="scalebar-bar"
     />
 
     <text
-      class="scalebar-text"
       :x="width / 2"
-      y="-6"
+      :y="-(barHeight + 2 / zoom)"
+      :font-size="fontSize"
       text-anchor="middle"
-      font-size="12"
+      class="scalebar-text"
     >
       {{ label }}
     </text>
@@ -22,39 +22,31 @@
 </template>
 
 <script setup>
-const props = defineProps({
-  x: {
-    type: Number,
-    required: true
-  },
-
-  y: {
-    type: Number,
-    required: true
-  },
-
-  width: {
-    type: Number,
-    required: true
-  },
-
-  label: {
-    type: String,
-    required: true
-  }
+defineProps({
+  x: Number,
+  y: Number,
+  width: Number,
+  label: String,
+  fontSize: Number,
+  barHeight: Number,
+  zoom: Number
 })
 </script>
 
 <style scoped>
 .scalebar-bar,
 .scalebar-text {
-  fill: white;
-  mix-blend-mode: difference;
+  fill: black;
+  paint-order: stroke;
+  vector-effect: non-scaling-stroke;
 }
 
 .scalebar-text {
-  paint-order: stroke;
-  stroke: black;
-  stroke-width: 1.5;
+  stroke: white;
+  stroke-width: 6;
+}
+
+.scalebar-bar-white {
+  fill: white;
 }
 </style>

@@ -36,6 +36,9 @@ export default defineStore('store', {
         .then(({ body }) => {
           this.image = makeImage(body)
         })
+        .catch(() => {
+          TW.workbench.alert.create('Image not found', 'error')
+        })
         .finally(() => {
           this.isLoading = false
         })

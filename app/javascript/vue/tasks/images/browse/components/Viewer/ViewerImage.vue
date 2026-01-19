@@ -30,6 +30,9 @@
       <MeasurementLayer
         :measurements="measurements"
         :pixels-to-centimeters="pixelsToCentimeters"
+        :font-size="12 / zoom"
+        :stroke-width="2"
+        :zoom="zoom"
       />
 
       <MeasurementBar
@@ -39,33 +42,38 @@
         :x2="currentPoint.x"
         :y2="currentPoint.y"
         :pixels-to-centimeters="pixelsToCentimeters"
-        preview
+        :font-size="12 / zoom"
+        :stroke-width="2"
       />
 
       <ViewerScalebar
-        :x="imageWidth / 2"
-        :y="imageHeight - 20"
+        v-if="false"
+        :x="imageWidth / 2 - scalebarWidth / 2"
+        :y="imageHeight - 20 / zoom"
         :width="scalebarWidth"
         :label="scalebarLabel"
+        :font-size="scalebarFontSize"
+        :bar-height="scalebarBarHeight"
+        :zoom="zoom"
       />
     </g>
 
-    <ViewerScalebar
-      v-if="false"
-      :x="scalebarX"
-      :y="scalebarY"
-      :width="scalebarWidth"
-      :label="scalebarLabel"
+    <ViewerScalebarOverlay
+      :x="viewport.width / 2 - scalebarOverlay.screenWidth / 2"
+      :y="viewport.height - 24"
+      :width="scalebarOverlay.screenWidth"
+      :label="scalebarOverlay.label"
     />
   </svg>
 </template>
 
 <script setup>
 import { computed, ref, onMounted, onBeforeUnmount, watch } from 'vue'
-import { useMeasurements } from '../../composables/useMeasurements'
+import { useMeasurements, useAutoScalebar } from '../../composables'
 import ViewerScalebar from './ViewerScalebar.vue'
 import MeasurementLayer from './Measurement/MeasurementLayer.vue'
 import MeasurementBar from './Measurement/MeasurementBar.vue'
+import ViewerScalebarOverlay from './ViewerScalebarOverlay.vue'
 
 const props = defineProps({
   imageUrl: { type: String, required: true },
@@ -84,7 +92,10 @@ const viewport = ref({
 })
 
 const pan = ref({ x: 0, y: 0 })
-const zoom = ref(1)
+const baseZoom = ref(1)
+const userZoom = ref(1)
+
+const zoom = computed(() => baseZoom.value * userZoom.value)
 
 const contentRef = ref()
 
@@ -95,20 +106,30 @@ const contentTransform = computed(() => {
   `
 })
 
-const SCALEBAR_CM = 1
-
-const scalebarWidth = computed(() => {
-  return props.pixelsToCentimeters * SCALEBAR_CM
+const autoScale = useAutoScalebar({
+  pixelsToCentimeters: computed(() => props.pixelsToCentimeters),
+  zoom,
+  targetPx: 120
 })
 
-const scalebarLabel = `${SCALEBAR_CM} cm`
+const scalebarWidth = computed(() => autoScale.value.px / zoom.value)
 
-const scalebarX = computed(() => {
-  return (viewport.value.width - scalebarWidth.value) / 2
+const scalebarLabel = computed(() => {
+  const cm = autoScale.value.cm
+  return cm < 1 ? `${cm * 10} mm` : `${cm} cm`
 })
 
-const scalebarY = computed(() => {
-  return viewport.value.height - 20
+const scalebarFontSize = computed(() => 12 / zoom.value)
+const scalebarBarHeight = computed(() => 6 / zoom.value)
+
+const scalebarOverlay = computed(() => {
+  const cm = autoScale.value.cm
+
+  return {
+    label: cm < 1 ? `${cm * 10} mm` : `${cm} cm`,
+    imageWidth: cm * props.pixelsToCentimeters,
+    screenWidth: autoScale.value.px
+  }
 })
 
 const svgRef = ref(null)
@@ -137,7 +158,7 @@ function onWheel(e) {
   pan.value.x = pt.x - (pt.x - pan.value.x) * zoomFactor
   pan.value.y = pt.y - (pt.y - pan.value.y) * zoomFactor
 
-  zoom.value *= zoomFactor
+  userZoom.value *= zoomFactor
 }
 
 const panning = ref(false)
@@ -188,13 +209,13 @@ function fitImageToViewer() {
 
   viewport.value = { width: vw, height: vh }
 
-  const scale = Math.min(1, vw / props.imageWidth, vh / props.imageHeight)
+  baseZoom.value = Math.min(1, vw / props.imageWidth, vh / props.imageHeight)
 
-  zoom.value = scale
+  userZoom.value = 1
 
   pan.value = {
-    x: (vw - props.imageWidth * scale) / 2,
-    y: (vh - props.imageHeight * scale) / 2
+    x: (vw - props.imageWidth * baseZoom.value) / 2,
+    y: (vh - props.imageHeight * baseZoom.value) / 2
   }
 }
 

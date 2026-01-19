@@ -3,14 +3,14 @@
     <div class="panel">
       <TableDepicted :records="store.depictionObjects" />
     </div>
-    <div class="panel">
+    <div class="panel full_width">
       <ViewerImage
         v-if="store.image"
         :image-url="store.image.imageUrl"
         :image-height="store.image.height"
         :image-width="store.image.width"
-        :pixels-to-centimeters="pixelsToCentimeters"
-        :width="1920"
+        :pixels-to-centimeters="store.image.pixelsToCm"
+        width="100%"
         :height="1080"
         :shapes="store.svgClips"
       />
@@ -19,14 +19,12 @@
 </template>
 
 <script setup>
-import { onBeforeMount, ref } from 'vue'
+import { onBeforeMount } from 'vue'
 import { usePopstateListener } from '@/composables/usePopstateListener'
 import { URLParamsToJSON } from '@/helpers'
 import ViewerImage from './components/Viewer/ViewerImage.vue'
 import useStore from './store/store.js'
 import TableDepicted from './components/Table/TableDepicted.vue'
-
-const pixelsToCentimeters = 37
 
 const store = useStore()
 
