@@ -15,7 +15,6 @@ module Export
   #
   # TODO:
   # * Review/remove/update/add tests to check for coverage
-  # * Update all files formats to use tabs
   # * Pending handling of both BibTeX and Verbatim
   # * Document what Coldp *expects*, in particular inferred combionations
   # * Biological association index
@@ -46,7 +45,18 @@ module Export
       @remarks = values
     end
 
-    FILETYPES = %w{Distribution Name NameRelation SpeciesInteraction Synonym TaxonConceptRelation TypeMaterial VernacularName Taxon References}.freeze
+    FILETYPES = %w{
+      Distribution
+      Name
+      NameRelation
+      References
+      SpeciesInteraction
+      Synonym
+      Taxon
+      TaxonConceptRelation
+      TypeMaterial
+      VernacularName
+    }.freeze
 
     # @return [Scope]
     #  A full set of valid only OTUs (= Taxa in CoLDP) that are to be sent.
@@ -57,6 +67,7 @@ module Export
     #
     #  This is presently not scoping Names.csv. That's probably OK.
     #
+    # TODO: Lock step this with Names
     def self.otus(otu_id)
       o = ::Otu.find(otu_id)
       return ::Otu.none if o.taxon_name_id.nil?
@@ -125,13 +136,13 @@ module Export
 
       otu = ::Otu.find(otu_id)
 
-      # check for a clb_dataset_id identifier
+      # Check for a clb_dataset_id identifier
+      # TODO: Document this setup process.  Include it in Project settings likely. Remember > 1 checklist can emerge from a project.
       ns = Namespace.find_by(institution: 'ChecklistBank', name: 'clb_dataset_id')
-      clb_dataset_id =  otu.identifiers.where(namespace_id: ns.id)&.first&.identifier unless ns.nil?
+      clb_dataset_id = otu.identifiers.where(namespace_id: ns.id)&.first&.identifier unless ns.nil?
 
       project = ::Project.find(otu.project_id)
-
-      project_id = otu.project_id
+      project_id = project.id
 
       project_members = project_members(project.id)
       feedback_url = project[:data_curation_issue_tracker_url] unless project[:data_curation_issue_tracker_url].nil?
@@ -187,19 +198,16 @@ module Export
       metadata_file.close
 
       Zip::File.open(zip_file_path, create: true) do |zipfile|
+       
+  #     zipfile.get_output_stream('Name.tsv') { |f| f.write Export::Coldp::Files::Name.generate(otu, project_members, ref_tsv) }
+  #     zipfile.get_output_stream('NameRelation.tsv') { |f| f.write Export::Coldp::Files::NameRelation.generate(otu, project_members, ref_tsv) }
+  #     zipfile.get_output_stream('TypeMaterial.tsv') { |f| f.write Export::Coldp::Files::TypeMaterial.generate(otu, project_members, ref_tsv) }
 
-        zipfile.get_output_stream('Name.tsv') { |f| f.write Export::Coldp::Files::Name.generate(otu, project_members, ref_tsv) }
-        zipfile.get_output_stream('NameRelation.tsv') { |f| f.write Export::Coldp::Files::NameRelation.generate(otu, project_members, ref_tsv) }
+  #     zipfile.get_output_stream('Synonym.tsv') { |f| f.write Export::Coldp::Files::Synonym.generate(otu, otus, project_members, ref_tsv) }
+  #     zipfile.get_output_stream('Taxon.tsv') { |f| f.write Export::Coldp::Files::Taxon.generate(otu, otus, project_members, ref_tsv, prefer_unlabelled_otus) }
 
-        zipfile.get_output_stream('Synonym.tsv') { |f| f.write Export::Coldp::Files::Synonym.generate(otu, otus, project_members, ref_tsv) }
-
-        zipfile.get_output_stream('Taxon.tsv') do |f|
-          f.write Export::Coldp::Files::Taxon.generate(otu, otus, project_members, ref_tsv, prefer_unlabelled_otus)
-        end
-
-        zipfile.get_output_stream('TypeMaterial.tsv') { |f| f.write Export::Coldp::Files::TypeMaterial.generate(otu, project_members, ref_tsv) }
-
-        (FILETYPES - %w{Name Taxon References Synonym TypeMaterial NameRelation}).each do |ft|
+        (FILETYPES - %w{Name NameRelation TypeMaterial Synonym Taxon References}).each do |ft|
+          puts ft
           m = "Export::Coldp::Files::#{ft}".safe_constantize
           zipfile.get_output_stream("#{ft}.tsv") { |f| f.write m.generate(otus, project_members, ref_tsv) }
         end
@@ -216,6 +224,7 @@ module Export
         end
 
         zipfile.get_output_stream('References.tsv') { |f| f.write d }
+        
         zipfile.add('metadata.yaml', metadata_file.path) # TODO: consider isolating Files.metadata logic
       end
 
