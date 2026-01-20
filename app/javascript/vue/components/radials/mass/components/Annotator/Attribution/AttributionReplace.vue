@@ -161,6 +161,16 @@
     >
       Replace
     </VBtn>
+    <div
+      v-if="validationMessage"
+      class="text-warning-color margin-small-top"
+    >
+      {{ validationMessage }}
+    </div>
+    <div class="text-small-size margin-small-top">
+      Note: replace accepts a single attribute or one role at a time. Counts
+      reflect only actual replacements; no-op rows are not treated as failures.
+    </div>
   </div>
 </template>
 
@@ -243,11 +253,24 @@ const isFromDuplicate = computed(() => {
   })
 })
 
+const hasAnyLicenseInput = computed(() => fromLicense.value || toLicense.value)
+const hasAnyYearInput = computed(() => fromYear.value || toYear.value)
+
 const canAddRole = computed(() => {
   const fromRole = getActiveRole(fromRoleList.value)
   const toRole = getActiveRole(toRoleList.value)
 
-  return roleType.value && fromRole && toRole && !isFromDuplicate.value
+  if (hasAnyLicenseInput.value || hasAnyYearInput.value) {
+    return false
+  }
+
+  return (
+    roleType.value &&
+    fromRole &&
+    toRole &&
+    !isFromDuplicate.value &&
+    roleReplacements.value.length === 0
+  )
 })
 
 const hasLicenseReplacement = computed(() => fromLicense.value && toLicense.value)
@@ -255,7 +278,54 @@ const hasYearReplacement = computed(() => fromYear.value && toYear.value)
 const hasRoleReplacements = computed(() => roleReplacements.value.length > 0)
 
 const isValid = computed(() => {
-  return hasLicenseReplacement.value || hasYearReplacement.value || hasRoleReplacements.value
+  const types = selectedTypes.value
+
+  if (types.length !== 1) {
+    return false
+  }
+
+  if (types[0] === 'license') {
+    return hasLicenseReplacement.value
+  }
+
+  if (types[0] === 'year') {
+    return hasYearReplacement.value
+  }
+
+  return roleReplacements.value.length === 1
+})
+
+const selectedTypes = computed(() => {
+  const types = []
+
+  if (hasAnyLicenseInput.value) {
+    types.push('license')
+  }
+  if (hasAnyYearInput.value) {
+    types.push('year')
+  }
+  if (hasRoleReplacements.value) {
+    types.push('roles')
+  }
+
+  return types
+})
+
+const validationMessage = computed(() => {
+  if (!selectedTypes.value.length) return ''
+  if (selectedTypes.value.length > 1) {
+    return 'Choose only one: license, copyright year, or one role.'
+  }
+  if (selectedTypes.value[0] === 'license' && !hasLicenseReplacement.value) {
+    return 'Choose both from and to license.'
+  }
+  if (selectedTypes.value[0] === 'year' && !hasYearReplacement.value) {
+    return 'Choose both from and to year.'
+  }
+  if (selectedTypes.value[0] === 'roles' && roleReplacements.value.length !== 1) {
+    return 'Choose exactly one role replacement.'
+  }
+  return ''
 })
 
 // roleTypes are loaded async

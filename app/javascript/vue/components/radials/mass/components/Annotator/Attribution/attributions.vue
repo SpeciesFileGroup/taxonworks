@@ -103,6 +103,16 @@
       >
         {{ buttonLabel }}
       </v-btn>
+      <div
+        v-if="validationMessage"
+        class="text-warning-color margin-small-top"
+      >
+        {{ validationMessage }}
+      </div>
+      <div class="text-small-size margin-small-top">
+        Note: batch updates accept a single attribute or one role at a time.
+        Result counts reflect only actual updates; no-op rows are not treated as failures.
+      </div>
     </div>
   </div>
 </template>
@@ -157,12 +167,19 @@ const props = defineProps({
 const emit = defineEmits(['attribution'])
 const uid = getCurrentInstance().uid
 
-const validateFields = computed(
-  () =>
-    attribution.value.license ||
-    attribution.value.copyright_year ||
-    [].concat.apply([], Object.values(rolesList)).length
-)
+const validateFields = computed(() => {
+  const types = selectedTypes.value
+
+  if (types.length !== 1) {
+    return false
+  }
+
+  if (types[0] === 'roles') {
+    return totalRoles.value === 1
+  }
+
+  return true
+})
 
 const roleSelected = computed(() => {
   const index = smartSelectorList.value.findIndex((role) => role === view.value)
@@ -204,6 +221,44 @@ const attribution = ref({
   copyright_year: undefined,
   license: null,
   roles_attributes: []
+})
+
+const totalRoles = computed(() =>
+  [
+    rolesList.creator_roles,
+    rolesList.owner_roles,
+    rolesList.owner_organization_roles,
+    rolesList.editor_roles,
+    rolesList.copyright_holder_roles,
+    rolesList.copyright_organization_roles
+  ].reduce((sum, list) => sum + list.length, 0)
+)
+
+const selectedTypes = computed(() => {
+  const types = []
+
+  if (attribution.value.license) {
+    types.push('license')
+  }
+  if (attribution.value.copyright_year) {
+    types.push('copyright_year')
+  }
+  if (totalRoles.value) {
+    types.push('roles')
+  }
+
+  return types
+})
+
+const validationMessage = computed(() => {
+  if (!selectedTypes.value.length) return ''
+  if (selectedTypes.value.length > 1) {
+    return 'Choose only one: license, copyright year, or one role.'
+  }
+  if (selectedTypes.value[0] === 'roles' && totalRoles.value !== 1) {
+    return 'Choose exactly one role.'
+  }
+  return ''
 })
 
 const copyrightHolderType = ref(0)

@@ -213,10 +213,6 @@ RSpec.describe Attribution, type: :model do
           attribution: {
             roles_attributes: [
               {
-                person_id: person.id,
-                type: 'AttributionCreator'
-              },
-              {
                 person_id: another_person.id,
                 type: 'AttributionCreator'
               }
@@ -237,7 +233,7 @@ RSpec.describe Attribution, type: :model do
       org = FactoryBot.create(:valid_organization)
 
       q = ::Queries::Image::Filter.new(image_id: image.id)
-      Attribution.batch_by_filter_scope(
+      r = Attribution.batch_by_filter_scope(
         filter_query: { 'image_query' => q.params },
         mode: :add,
         params: {
@@ -250,9 +246,8 @@ RSpec.describe Attribution, type: :model do
         }
       )
 
-      attribution = Attribution.first
-      expect(attribution.owner_roles.map(&:person_id)).to include(person.id)
-      expect(attribution.owner_roles.map(&:organization_id)).to include(org.id)
+      expect(r[:errors]['exactly one role must be provided']).to eq(1)
+      expect(Attribution.all.count).to eq(0)
     end
 
     specify ':add, async' do
@@ -546,7 +541,7 @@ RSpec.describe Attribution, type: :model do
       )
 
       q = ::Queries::Image::Filter.new(image_id: image.id)
-      Attribution.batch_by_filter_scope(
+      r = Attribution.batch_by_filter_scope(
         filter_query: { 'image_query' => q.params },
         mode: :remove,
         params: {
@@ -559,10 +554,16 @@ RSpec.describe Attribution, type: :model do
         }
       )
 
+      expect(r[:errors]['exactly one role must be provided']).to eq(1)
       attribution = Attribution.first
       expect(attribution.license).to eq('Attribution')
-      expect(attribution.owner_roles.map(&:person_id).compact).to eq([person2.id])
-      expect(attribution.owner_roles.map(&:organization_id).compact).to be_empty
+      expect(attribution.owner_roles.map(&:person_id).compact).to contain_exactly(
+        person.id,
+        person2.id
+      )
+      expect(attribution.owner_roles.map(&:organization_id).compact).to contain_exactly(
+        org.id
+      )
     end
 
     specify ':replace' do
@@ -710,7 +711,7 @@ RSpec.describe Attribution, type: :model do
       )
 
       q = ::Queries::Image::Filter.new(image_id: image.id)
-      Attribution.batch_by_filter_scope(
+      r = Attribution.batch_by_filter_scope(
         filter_query: { 'image_query' => q.params },
         mode: :replace,
         params: {
@@ -737,25 +738,26 @@ RSpec.describe Attribution, type: :model do
         }
       )
 
+      expect(r[:errors]['exactly one role must be provided for replacement']).to eq(1)
       attribution = Attribution.first
       expect(attribution.creator_roles.map(&:person_id).compact).to contain_exactly(
-        to_creator.id
+        from_creator.id
       )
       expect(attribution.editor_roles.map(&:person_id).compact).to contain_exactly(
-        to_editor.id
+        from_editor.id
       )
       expect(attribution.owner_roles.map(&:person_id).compact).to contain_exactly(
-        to_owner_person.id
+        from_owner_person.id
       )
       expect(attribution.owner_roles.map(&:organization_id).compact).to contain_exactly(
-        to_owner_org.id
+        from_owner_org.id
       )
       expect(attribution.copyright_holder_roles.map(&:person_id).compact).to contain_exactly(
-        to_holder_person.id
+        from_holder_person.id
       )
       expect(
         attribution.copyright_holder_roles.map(&:organization_id).compact
-      ).to contain_exactly(to_holder_org.id)
+      ).to contain_exactly(from_holder_org.id)
     end
 
     specify ':replace, by role' do
@@ -813,7 +815,7 @@ RSpec.describe Attribution, type: :model do
       )
 
       q = ::Queries::Image::Filter.new(image_id: image.id)
-      Attribution.batch_by_filter_scope(
+      r = Attribution.batch_by_filter_scope(
         filter_query: { 'image_query' => q.params },
         mode: :replace,
         params: {
@@ -833,9 +835,10 @@ RSpec.describe Attribution, type: :model do
         }
       )
 
+      expect(r[:errors]['exactly one role must be provided for replacement']).to eq(1)
       owner_roles = Attribution.first.owner_roles
-      expect(owner_roles.map(&:person_id).compact).to contain_exactly(to_person.id)
-      expect(owner_roles.map(&:organization_id).compact).to contain_exactly(to_org.id)
+      expect(owner_roles.map(&:person_id).compact).to contain_exactly(from_person.id)
+      expect(owner_roles.map(&:organization_id).compact).to contain_exactly(from_org.id)
     end
 
     specify ':replace, keeps non-matching roles' do

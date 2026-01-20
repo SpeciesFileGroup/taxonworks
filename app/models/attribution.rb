@@ -77,6 +77,9 @@ class Attribution < ApplicationRecord
         r.errors['no attribution provided'] = 1
         return r
       end
+      unless validate_single_attribution(attribution, r)
+        return r
+      end
 
       if async && !called_from_async
         BatchByFilterScopeJob.perform_later(
@@ -124,6 +127,9 @@ class Attribution < ApplicationRecord
         r.errors['no attribution criteria provided'] = 1
         return r
       end
+      unless validate_single_attribution(attribution, r)
+        return r
+      end
 
       if async && !called_from_async
         BatchByFilterScopeJob.perform_later(
@@ -156,6 +162,9 @@ class Attribution < ApplicationRecord
 
       unless attribution_data_present?(to_attribution)
         r.errors['no replacement attribution provided'] = 1
+        return r
+      end
+      unless validate_single_replace(replace_attribution, to_attribution, r)
         return r
       end
 
@@ -221,6 +230,68 @@ class Attribution < ApplicationRecord
     Array(roles)
       .map { |role| role&.to_h&.symbolize_keys }
       .compact
+  end
+
+  def self.operation_types(attribution)
+    attrs = attribution.to_h.symbolize_keys
+    roles = matchable_roles(attrs)
+    types = []
+
+    types << :license if attrs[:license].present?
+    types << :copyright_year if attrs[:copyright_year].present?
+    types << :roles if roles.any?
+
+    [types, roles]
+  end
+
+  def self.validate_single_attribution(attribution, response)
+    types, roles = operation_types(attribution)
+
+    if types.empty?
+      response.errors['no valid attribution attribute or role provided'] = 1
+      return false
+    end
+
+    if types.length > 1
+      response.errors['only one attribution attribute or role may be specified'] = 1
+      return false
+    end
+
+    if types.first == :roles && roles.length != 1
+      response.errors['exactly one role must be provided'] = 1
+      return false
+    end
+
+    true
+  end
+
+  def self.validate_single_replace(replace_attribution, to_attribution, response)
+    replace_types, replace_roles = operation_types(replace_attribution)
+    to_types, to_roles = operation_types(to_attribution)
+
+    if replace_types.length != 1 || to_types.length != 1
+      response.errors['replace must target exactly one attribute or role'] = 1
+      return false
+    end
+
+    if replace_types.first != to_types.first
+      response.errors['replace attribute type must match replacement type'] = 1
+      return false
+    end
+
+    if replace_types.first == :roles
+      if replace_roles.length != 1 || to_roles.length != 1
+        response.errors['exactly one role must be provided for replacement'] = 1
+        return false
+      end
+
+      if replace_roles.first[:type] != to_roles.first[:type]
+        response.errors['role replacement types must match'] = 1
+        return false
+      end
+    end
+
+    true
   end
 
   def self.matchable_roles(attribution)
