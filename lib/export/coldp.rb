@@ -14,10 +14,11 @@ module Export
   # http://api.col.plus/datapackage
   #
   # TODO:
+  # * Status of Distribution  - always present in code, what's the positive assertion in 'status'
+  # * Ensure all joins are Pipes
   # * Review/remove/update/add tests to check for coverage
   # * Pending handling of both BibTeX and Verbatim
   # * Document what Coldp *expects*, in particular inferred combionations
-  # * Biological association index
   # Optimizations possible:
   # * Eliminate next checks (though they are currently fine) by calculating in SQL
   module Coldp
@@ -33,7 +34,7 @@ module Export
     # give it a default value
     @skipped_combinations = []
 
-    # TODO: probably doing nothing
+    # A hash lookup to find Notes in memory
     attr_accessor :remarks
 
     def remarks
@@ -45,6 +46,12 @@ module Export
       @remarks = values
     end
 
+
+    # Presently stubbed but excluded pending
+    # significant use.
+    #
+    #  TaxonConceptRelation
+    #
     FILETYPES = %w{
       Distribution
       Name
@@ -53,7 +60,6 @@ module Export
       SpeciesInteraction
       Synonym
       Taxon
-      TaxonConceptRelation
       TypeMaterial
       VernacularName
     }.freeze
@@ -78,7 +84,6 @@ module Export
         .where('(otus.name IS NULL) OR (otus.name = taxon_names.cached)') # !! Union does not make this faster
     end
 
-    # TODO: We are using `,` to delimit values elsewhere (e.g. Taxon)
     # TODO: find by IRI, not predicate_id so that we can unify the vocabulary.
     # Accessed per file type
     def self.get_remarks(scope, predicate_id)
@@ -198,13 +203,13 @@ module Export
       metadata_file.close
 
       Zip::File.open(zip_file_path, create: true) do |zipfile|
-       
-  #     zipfile.get_output_stream('Name.tsv') { |f| f.write Export::Coldp::Files::Name.generate(otu, project_members, ref_tsv) }
-  #     zipfile.get_output_stream('NameRelation.tsv') { |f| f.write Export::Coldp::Files::NameRelation.generate(otu, project_members, ref_tsv) }
-  #     zipfile.get_output_stream('TypeMaterial.tsv') { |f| f.write Export::Coldp::Files::TypeMaterial.generate(otu, project_members, ref_tsv) }
 
-  #     zipfile.get_output_stream('Synonym.tsv') { |f| f.write Export::Coldp::Files::Synonym.generate(otu, otus, project_members, ref_tsv) }
-  #     zipfile.get_output_stream('Taxon.tsv') { |f| f.write Export::Coldp::Files::Taxon.generate(otu, otus, project_members, ref_tsv, prefer_unlabelled_otus) }
+        zipfile.get_output_stream('Name.tsv') { |f| f.write Export::Coldp::Files::Name.generate(otu, project_members, ref_tsv) }
+        zipfile.get_output_stream('NameRelation.tsv') { |f| f.write Export::Coldp::Files::NameRelation.generate(otu, project_members, ref_tsv) }
+        zipfile.get_output_stream('TypeMaterial.tsv') { |f| f.write Export::Coldp::Files::TypeMaterial.generate(otu, project_members, ref_tsv) }
+
+        zipfile.get_output_stream('Synonym.tsv') { |f| f.write Export::Coldp::Files::Synonym.generate(otu, otus, project_members, ref_tsv) }
+        zipfile.get_output_stream('Taxon.tsv') { |f| f.write Export::Coldp::Files::Taxon.generate(otu, otus, project_members, ref_tsv, prefer_unlabelled_otus) }
 
         (FILETYPES - %w{Name NameRelation TypeMaterial Synonym Taxon References}).each do |ft|
           puts ft
@@ -212,19 +217,18 @@ module Export
           zipfile.get_output_stream("#{ft}.tsv") { |f| f.write m.generate(otus, project_members, ref_tsv) }
         end
 
-        # TODO: this doesn't really help, and adds time to the process.
         # Sort the refs by full citation string
         sorted_refs = ref_tsv.values.sort{|a,b| a[1] <=> b[1]}
 
         d = ::CSV.generate(col_sep: "\t") do |tsv|
-          tsv << %w{ID citation doi modified modifiedBy} # author year source details
+          tsv << %w{ID citation doi modified modifiedBy} # Consider: author year source details
           sorted_refs.each do |r|
             tsv << r
           end
         end
 
         zipfile.get_output_stream('References.tsv') { |f| f.write d }
-        
+
         zipfile.add('metadata.yaml', metadata_file.path) # TODO: consider isolating Files.metadata logic
       end
 

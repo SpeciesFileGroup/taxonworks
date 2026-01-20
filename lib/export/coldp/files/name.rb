@@ -305,13 +305,9 @@ module Export::Coldp::Files::Name
       # by the fact that synonyms are under the same parent
       # as that of the valid name we are comparing the
       # placement of the properly spelled version of the name.
+
       author_year = row['cached_author_year']
-
-      strip_parens =
-        !row['cached_misspelling'] ||
-        row['cached'] =~ /\A#{Regexp.escape(row['genus'])}\b/
-
-      author_year = author_year.delete('()') if strip_parens
+      author_year = author_year.delete('()') if strip_parens_for_author_year?(row)
 
       csv << [
         id,                                                                 # ID
@@ -339,6 +335,13 @@ module Export::Coldp::Files::Name
 
       # !! We do not need to add a reference here because it is the same as the corresponding Protonym id
     end
+  end
+
+  def self.strip_parens_for_author_year?(row)
+    return true unless row['cached_misspelling']
+    return true if row['genus'].nil?
+
+    row['cached'] =~ /\A#{Regexp.escape(row['genus'])}\b/
   end
 
   def self.add_original_combination_names(otu, csv, project_members, reference_csv)
