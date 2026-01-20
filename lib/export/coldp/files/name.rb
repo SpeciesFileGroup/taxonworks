@@ -561,7 +561,12 @@ module Export::Coldp::Files::Name
 
       case core_name.rank
       when 'species'
-        core_name.send( (g + '_name').to_sym )
+        case rank
+        when :species
+          core_name.send( (g + '_name').to_sym )
+        else
+          nil
+        end
       when 'subspecies', 'form', 'variety' # See compression in core_names, may be an issue
         case rank
         when :species

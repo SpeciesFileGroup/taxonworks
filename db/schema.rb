@@ -1053,6 +1053,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_142258) do
     t.index ["dwc_occurrence_object_id", "dwc_occurrence_object_type"], name: "dwc_occurrences_object_index"
     t.index ["project_id", "id"], name: "index_dwco_on_project_id"
     t.index ["project_id"], name: "index_dwc_occurrences_on_project_id"
+    t.index ["rebuild_set", "id"], name: "idx_dwc_occurrences_rebuild_set_id"
     t.index ["rebuild_set", "id"], name: "index_dwc_occurrences_on_rebuild_set_and_id"
     t.index ["stateProvince"], name: "index_dwc_occurrences_on_stateProvince"
     t.index ["updated_at"], name: "index_dwc_occurrences_on_updated_at"
@@ -1335,8 +1336,10 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_142258) do
     t.string "type"
     t.datetime "updated_at", precision: nil, null: false
     t.integer "updated_by_id"
+    t.index ["created_by_id"], name: "labels_created_by_id_index"
     t.index ["label_object_type", "label_object_id"], name: "index_labels_on_label_object_type_and_label_object_id"
     t.index ["project_id"], name: "index_labels_on_project_id"
+    t.index ["updated_by_id"], name: "labels_updated_by_id_index"
   end
 
   create_table "languages", id: :serial, force: :cascade do |t|
@@ -1357,6 +1360,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_142258) do
     t.integer "ancestor_id", null: false
     t.integer "descendant_id", null: false
     t.integer "generations", null: false
+    t.index ["ancestor_id", "descendant_id", "generations"], name: "lead_anc_desc_idx", unique: true
+    t.index ["descendant_id"], name: "lead_desc_idx"
   end
 
   create_table "lead_items", force: :cascade do |t|
@@ -1526,7 +1531,10 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_142258) do
     t.string "type", null: false
     t.datetime "updated_at", precision: nil, null: false
     t.integer "updated_by_id", null: false
+    t.index ["controlled_vocabulary_term_id"], name: "omrc_cvt_index"
     t.index ["created_by_id"], name: "index_observation_matrix_column_items_on_created_by_id"
+    t.index ["descriptor_id"], name: "omci_d_index"
+    t.index ["observation_matrix_id"], name: "omci_om_index"
     t.index ["project_id"], name: "index_observation_matrix_column_items_on_project_id"
     t.index ["updated_by_id"], name: "index_observation_matrix_column_items_on_updated_by_id"
   end
@@ -1562,7 +1570,10 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_142258) do
     t.string "type", null: false
     t.datetime "updated_at", precision: nil, null: false
     t.integer "updated_by_id", null: false
+    t.index ["controlled_vocabulary_term_id"], name: "omri_cvt_index"
     t.index ["created_by_id"], name: "index_observation_matrix_row_items_on_created_by_id"
+    t.index ["observation_matrix_id"], name: "omri_om_index"
+    t.index ["observation_object_id", "observation_object_type"], name: "omrowitem_oo_polymorphic_index"
     t.index ["project_id"], name: "index_observation_matrix_row_items_on_project_id"
     t.index ["taxon_name_id"], name: "index_observation_matrix_row_items_on_taxon_name_id"
     t.index ["updated_by_id"], name: "index_observation_matrix_row_items_on_updated_by_id"
@@ -1582,6 +1593,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_142258) do
     t.datetime "updated_at", precision: nil, null: false
     t.integer "updated_by_id", null: false
     t.index ["created_by_id"], name: "index_observation_matrix_rows_on_created_by_id"
+    t.index ["observation_matrix_id"], name: "omr_om_index"
+    t.index ["observation_object_id", "observation_object_type"], name: "obmxrow_polymorphic_obj_index"
     t.index ["project_id"], name: "index_observation_matrix_rows_on_project_id"
     t.index ["updated_by_id"], name: "index_observation_matrix_rows_on_updated_by_id"
   end
@@ -1619,6 +1632,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_142258) do
     t.integer "year_made"
     t.index ["character_state_id"], name: "index_observations_on_character_state_id"
     t.index ["descriptor_id"], name: "index_observations_on_descriptor_id"
+    t.index ["observation_object_id", "observation_object_type"], name: "observation_polymorphic_index"
     t.index ["project_id"], name: "index_observations_on_project_id"
     t.index ["updated_at"], name: "index_observations_on_updated_at"
   end
@@ -1722,6 +1736,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_142258) do
     t.datetime "updated_at", precision: nil, null: false
     t.integer "updated_by_id", null: false
     t.index ["created_by_id"], name: "index_otus_on_created_by_id"
+    t.index ["name"], name: "otu_name_gin_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["project_id"], name: "index_otus_on_project_id"
     t.index ["taxon_name_id"], name: "index_otus_on_taxon_name_id"
     t.index ["updated_at"], name: "index_otus_on_updated_at"
@@ -1744,6 +1759,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_142258) do
     t.integer "year_born"
     t.integer "year_died"
     t.index ["cached"], name: "index_people_on_cached"
+    t.index ["cached"], name: "ppl_cached_gin_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["created_by_id"], name: "index_people_on_created_by_id"
     t.index ["last_name"], name: "index_people_on_last_name"
     t.index ["type"], name: "index_people_on_type"
@@ -2081,6 +2097,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_142258) do
     t.index ["author"], name: "index_sources_on_author"
     t.index ["bibtex_type"], name: "index_sources_on_bibtex_type"
     t.index ["cached"], name: "index_sources_on_cached"
+    t.index ["cached"], name: "src_cached_gin_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["cached_author_string"], name: "index_sources_on_cached_author_string"
     t.index ["cached_nomenclature_date"], name: "index_sources_on_cached_nomenclature_date"
     t.index ["created_at"], name: "index_sources_on_created_at"
@@ -2172,6 +2189,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_142258) do
     t.index ["otu_id"], name: "index_taxon_determinations_on_otu_id"
     t.index ["position"], name: "index_taxon_determinations_on_position"
     t.index ["project_id"], name: "index_taxon_determinations_on_project_id"
+    t.index ["taxon_determination_object_type", "taxon_determination_object_id"], name: "td_poly"
     t.index ["updated_by_id"], name: "index_taxon_determinations_on_updated_by_id"
   end
 
@@ -2194,6 +2212,10 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_142258) do
     t.integer "ancestor_id", null: false
     t.integer "descendant_id", null: false
     t.integer "generations", null: false
+    t.index ["ancestor_id", "descendant_id", "generations"], name: "taxon_name_anc_desc_idx", unique: true
+    t.index ["ancestor_id", "descendant_id"], name: "index_taxon_name_hierarchies_on_ancestor_id_and_descendant_id"
+    t.index ["ancestor_id"], name: "index_taxon_name_hierarchies_on_ancestor_id"
+    t.index ["descendant_id"], name: "taxon_name_desc_idx"
   end
 
   create_table "taxon_name_relationships", id: :serial, force: :cascade do |t|
@@ -2205,6 +2227,12 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_142258) do
     t.string "type", null: false
     t.datetime "updated_at", precision: nil, null: false
     t.integer "updated_by_id", null: false
+    t.index ["created_by_id"], name: "index_taxon_name_relationships_on_created_by_id"
+    t.index ["object_taxon_name_id"], name: "index_taxon_name_relationships_on_object_taxon_name_id"
+    t.index ["project_id"], name: "index_taxon_name_relationships_on_project_id"
+    t.index ["subject_taxon_name_id"], name: "index_taxon_name_relationships_on_subject_taxon_name_id"
+    t.index ["type"], name: "index_taxon_name_relationships_on_type"
+    t.index ["updated_by_id"], name: "index_taxon_name_relationships_on_updated_by_id"
   end
 
   create_table "taxon_names", id: :serial, force: :cascade do |t|
@@ -2241,6 +2269,14 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_142258) do
     t.text "verbatim_author"
     t.text "verbatim_name"
     t.integer "year_of_publication"
+    t.index ["cached"], name: "index_taxon_names_on_cached"
+    t.index ["cached"], name: "tn_cached_gin_trgm", opclass: :gin_trgm_ops, using: :gin
+    t.index ["cached_author_year"], name: "tn_cached_auth_year_gin_trgm", opclass: :gin_trgm_ops, using: :gin
+    t.index ["cached_gender"], name: "index_taxon_names_on_cached_gender"
+    t.index ["cached_is_available"], name: "index_taxon_names_on_cached_is_available"
+    t.index ["cached_is_valid"], name: "index_taxon_names_on_cached_is_valid"
+    t.index ["cached_original_combination"], name: "index_taxon_names_on_cached_original_combination"
+    t.index ["cached_original_combination"], name: "tn_cached_original_gin_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["cached_valid_taxon_name_id"], name: "index_taxon_names_on_cached_valid_taxon_name_id"
     t.index ["created_at"], name: "index_taxon_names_on_created_at"
     t.index ["created_by_id"], name: "index_taxon_names_on_created_by_id"
@@ -2336,15 +2372,23 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_142258) do
     t.text "object"
     t.integer "transaction_id"
     t.string "whodunnit"
+    t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
+    t.index ["transaction_id"], name: "index_versions_on_transaction_id"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "alternate_values", "languages", name: "alternate_values_language_id_fkey"
+  add_foreign_key "alternate_values", "projects", name: "alternate_values_project_id_fkey"
+  add_foreign_key "alternate_values", "users", column: "created_by_id", name: "alternate_values_created_by_id_fkey"
+  add_foreign_key "alternate_values", "users", column: "updated_by_id", name: "alternate_values_updated_by_id_fkey"
   add_foreign_key "anatomical_parts", "otus", column: "cached_otu_id"
   add_foreign_key "anatomical_parts", "preparation_types"
   add_foreign_key "anatomical_parts", "projects"
   add_foreign_key "anatomical_parts", "users", column: "created_by_id"
   add_foreign_key "anatomical_parts", "users", column: "updated_by_id"
+  add_foreign_key "asserted_distributions", "projects", name: "asserted_distributions_project_id_fkey"
+  add_foreign_key "asserted_distributions", "users", column: "created_by_id", name: "asserted_distributions_created_by_id_fkey"
   add_foreign_key "asserted_distributions", "users", column: "updated_by_id", name: "asserted_distributions_updated_by_id_fkey"
   add_foreign_key "attributions", "projects"
   add_foreign_key "attributions", "users", column: "created_by_id"
@@ -2441,6 +2485,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_142258) do
   add_foreign_key "data_attributes", "projects", name: "data_attributes_project_id_fkey"
   add_foreign_key "data_attributes", "users", column: "created_by_id", name: "data_attributes_created_by_id_fkey"
   add_foreign_key "data_attributes", "users", column: "updated_by_id", name: "data_attributes_updated_by_id_fkey"
+  add_foreign_key "dataset_record_fields", "dataset_records"
   add_foreign_key "dataset_record_fields", "import_datasets"
   add_foreign_key "dataset_record_fields", "projects"
   add_foreign_key "dataset_records", "import_datasets"
