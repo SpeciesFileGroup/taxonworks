@@ -73,4 +73,8 @@ shared_context 'cached map scenario' do
     geographic_areas_geographic_items_attributes: [ { geographic_item: gi3, data_origin: 'foo' } ])
   }
 
+  before do
+    CachedMapItem.precomputed_data_origin_ids_for('ne_states', refresh: true)
+  end
+
 end

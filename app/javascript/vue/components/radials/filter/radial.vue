@@ -92,13 +92,6 @@ const props = defineProps({
 
 const emit = defineEmits(['close'])
 
-const isDisabled = computed(
-  () =>
-    props.disabled ||
-    !filterLinks.value.length ||
-    (!Object.keys(filteredParameters.value).length && !props.ids)
-)
-
 const title = computed(() =>
   isOnlyIds.value
     ? `${props.title} (Send checked rows to filter)`
@@ -116,6 +109,13 @@ const filteredParameters = computed(() => {
 
   return filterEmptyParams(params)
 })
+
+const isDisabled = computed(
+  () =>
+    props.disabled ||
+    !filterLinks.value.length ||
+    (!Object.keys(filteredParameters.value).length && !props.ids?.length)
+)
 
 const filterLinks = computed(() => {
   const slices = FILTER_LINKS[props.objectType] || []

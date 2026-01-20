@@ -61,7 +61,15 @@
           pin-section="Repositories"
           pin-type="Repository"
           @selected="setRepository"
-        />
+        >
+          <template #tabs-right>
+            <a
+              href="/repositories/new"
+              target="_blank"
+              >New</a
+            >
+          </template>
+        </smart-selector>
         <p
           v-if="labelRepository"
           class="horizontal-left-content"

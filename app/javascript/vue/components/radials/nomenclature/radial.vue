@@ -13,10 +13,12 @@ import { TAXON_NAME } from '@/constants'
 import RadialBatch from '@/components/radials/shared/RadialBatch.vue'
 import SliceParent from './components/ParentSlice.vue'
 import VerbatimSlice from './components/VerbatimSlice.vue'
+import GenderSlice from './components/GenderSlice.vue'
 
 const SLICES = {
   Parent: SliceParent,
-  Verbatim: VerbatimSlice
+  Verbatim: VerbatimSlice,
+  Gender: GenderSlice
 }
 
 defineOptions({

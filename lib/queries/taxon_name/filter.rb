@@ -904,8 +904,8 @@ module Queries
         return nil if asserted_distribution_query.nil?
         s = 'WITH query_ad_tn AS (' + asserted_distribution_query.all.to_sql + ') ' +
             ::TaxonName
-              .joins(otus: [:asserted_distributions])
-              .joins('JOIN query_ad_tn as query_ad_tn1 on query_ad_tn1.otu_id = asserted_distributions.otu_id')
+              .joins(:otus)
+              .joins("JOIN query_ad_tn ON query_ad_tn.asserted_distribution_object_id = otus.id AND query_ad_tn.asserted_distribution_object_type = 'Otu'")
               .to_sql
 
         ::TaxonName.from('(' + s + ') as taxon_names').distinct

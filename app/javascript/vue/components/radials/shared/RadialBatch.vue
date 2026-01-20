@@ -142,7 +142,7 @@ const STORAGE_KEY_AUTOREFRESH = 'RadialBatch::AutoRefresh'
 const { preferences, setPreference } = useUserPreferences()
 
 const autoRefresh = computed({
-  get: () => preferences.value.layout[STORAGE_KEY_AUTOREFRESH] ?? true,
+  get: () => preferences.value?.layout?.[STORAGE_KEY_AUTOREFRESH] ?? true,
   set: (value) => {
     setPreference(STORAGE_KEY_AUTOREFRESH, value)
   }

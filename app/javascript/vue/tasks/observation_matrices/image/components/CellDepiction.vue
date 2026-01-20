@@ -25,6 +25,17 @@
                   <button-citation
                     :global-id="element.image.global_id"
                     :citations="element.image.citations"
+                    @create="
+                      (citation) =>
+                        addToArray(depictions[index].image.citations, citation)
+                    "
+                    @delete="
+                      (citation) =>
+                        removeFromArray(
+                          depictions[index].image.citations,
+                          citation
+                        )
+                    "
                   />
                 </div>
               </template>
@@ -40,43 +51,35 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import DraggableComponent from 'vuedraggable'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import ImageViewer from '@/components/ui/ImageViewer/ImageViewer.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import ButtonCitation from './ButtonCitation.vue'
+import { addToArray, removeFromArray } from '@/helpers'
 import { MutationNames } from '../store/mutations/mutations'
+import { useStore } from 'vuex'
 
-export default {
-  components: {
-    DraggableComponent,
-    VIcon,
-    ImageViewer,
-    ButtonCitation,
-    RadialAnnotator
+const store = useStore()
+
+const props = defineProps({
+  show: {
+    type: Boolean,
+    default: true
   },
 
-  props: {
-    show: {
-      type: Boolean,
-      default: true
-    },
-
-    depictions: {
-      type: Array,
-      default: () => []
-    }
-  },
-
-  methods: {
-    setObservationDragged(event) {
-      this.$store.commit(
-        MutationNames.SetDepictionMoved,
-        this.depictions[event.oldIndex]
-      )
-    }
+  depictions: {
+    type: Array,
+    default: () => []
   }
+})
+
+function setObservationDragged(event) {
+  store.commit(
+    MutationNames.SetDepictionMoved,
+    props.depictions[event.oldIndex]
+  )
 }
 </script>
 

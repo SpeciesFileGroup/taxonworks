@@ -285,6 +285,106 @@ describe ImagesController, type: :controller do
         expect(response).to redirect_to(images_url)
       end
     end
+
+    describe 'GET api_scale_to_box_sha' do
+      let(:image) { Image.create! valid_attributes }
+      let(:fingerprint) { image.image_file_fingerprint }
+      let(:x) { image.width / 2 }
+      let(:y) { image.height / 2 }
+      let(:width) { image.width / 4 }
+      let(:height) { image.width / 4 }
+      let(:box_width) { image.width / 4 }
+      let(:box_height) { image.width / 4 }
+
+      context 'with valid fingerprint' do
+        it 'returns image data' do
+          get :api_scale_to_box_sha, params: {
+            sha: fingerprint,
+            x: x,
+            y: y,
+            width: width,
+            height: height,
+            box_width: box_width,
+            box_height: box_height
+          }, session: valid_session
+
+          expect(response).to have_http_status(:success)
+          expect(response.content_type).to eq('image/jpg')
+          expect(response.body).not_to be_empty
+        end
+
+        it 'returns inline disposition' do
+          get :api_scale_to_box_sha, params: {
+            sha: fingerprint,
+            x: x,
+            y: y,
+            width: width,
+            height: height,
+            box_width: box_width,
+            box_height: box_height
+          }, session: valid_session
+
+          expect(response.headers['Content-Disposition']).to include('inline')
+        end
+
+        it 'crops correct region from image' do
+          # Use pre-created 20x20 test image: red background with green 10x10
+          # center rectangle (5,5 to 14,14).
+          crop_image = Image.create!(
+            image_file: Rack::Test::UploadedFile.new(
+              Rails.root + 'spec/files/images/red_green_test.png',
+              'image/png'
+            )
+          )
+
+          get :api_scale_to_box_sha, params: {
+            sha: crop_image.image_file_fingerprint,
+            x: 5,
+            y: 5,
+            width: 10,
+            height: 10,
+            box_width: 10,
+            box_height: 10
+          }, session: valid_session
+
+          returned_image = Magick::Image.from_blob(response.body).first
+
+          expect(returned_image.columns).to eq(10)
+          expect(returned_image.rows).to eq(10)
+
+          # Allow for jpg distortion.
+          [
+            [0, 0],
+            [9, 0],
+            [0, 9],
+            [9, 9]
+          ].each do |x, y|
+            pixel = returned_image.pixel_color(x, y)
+            # Green is actually #000080800000, red is #FFFF00000000.
+            expect(pixel.green).to be > 0x8000
+            expect(pixel.red).to be < 0x1000
+            expect(pixel.blue).to be < 0x1000
+          end
+        end
+      end
+
+      context 'with invalid fingerprint' do
+        it 'returns 404 not found' do
+          get :api_scale_to_box_sha, params: {
+            sha: 'nonexistent_fingerprint',
+            x: x,
+            y: y,
+            width: width,
+            height: height,
+            box_width: box_width,
+            box_height: box_height
+          }, session: valid_session
+
+          expect(response).to have_http_status(:not_found)
+          expect(response.body).to include('Image not found')
+        end
+      end
+    end
   end
 
   context 'not signed in' do

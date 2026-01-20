@@ -131,6 +131,13 @@ class AssertedDistributionsController < ApplicationController
     end
   end
 
+  def sources
+    render json: AssertedDistribution.sources_from_query(
+      params[:filter_query],
+      project_id: sessions_current_project_id
+    )
+  end
+
   def batch_template_create
     if r = AssertedDistribution.batch_template_create(
         preview: params[:preview],
@@ -199,6 +206,8 @@ class AssertedDistributionsController < ApplicationController
       :asserted_distribution_shape_type,
       :asserted_distribution_shape_id,
       :is_absent,
+      :source_id,
+      remove_source_ids: [],
       otu_attributes: [:id, :_destroy, :name, :taxon_name_id],
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
       citations_attributes: [:id, :is_original, :_destroy, :source_id, :pages, :citation_object_id, :citation_object_type],
