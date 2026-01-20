@@ -2,7 +2,6 @@
   <VSwitch
     v-if="organization"
     class="separate-bottom"
-    :full-width="switchFullWidth"
     :options="Object.values(OPTIONS)"
     v-model="view"
   />
@@ -47,11 +46,6 @@ const props = defineProps({
   },
 
   autofocus: {
-    type: Boolean,
-    default: true
-  },
-
-  switchFullWidth: {
     type: Boolean,
     default: true
   }

@@ -117,7 +117,6 @@
               :role-type="roleType"
               :show-create-controls="false"
               :autofocus="false"
-              :switch-full-width="false"
             />
           </div>
         </div>
@@ -145,7 +144,6 @@
               :organization="typeHasOrganization"
               :role-type="roleType"
               :autofocus="false"
-              :switch-full-width="false"
             />
           </div>
         </div>

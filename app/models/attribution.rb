@@ -92,29 +92,34 @@ class Attribution < ApplicationRecord
         )
       else
         attribution_object_type = query.klass.name
-        query.find_each do |o|
-          existing = Attribution.find_by(
-            attribution_object_id: o.id,
+        query.find_in_batches do |records|
+          record_ids = records.map(&:id)
+          existing_map = Attribution.where(
+            attribution_object_id: record_ids,
             attribution_object_type:
-          )
-          if existing
-            result = apply_add_attribution(existing, attribution)
-            if result == :updated
-              r.updated.push existing.id
-            else
-              r.not_updated.push existing.id
-            end
-          else
-            o_params = attribution.merge({
-              attribution_object_id: o.id,
-              attribution_object_type:
-            })
-            created = Attribution.create(o_params)
+          ).index_by(&:attribution_object_id)
 
-            if created.valid?
-              r.updated.push created.id
+          records.each do |record|
+            existing = existing_map[record.id]
+            if existing
+              result = apply_add_attribution(existing, attribution)
+              if result == :updated
+                r.updated.push existing.id
+              else
+                r.not_updated.push existing.id
+              end
             else
-              r.not_updated.push nil # no id to add
+              o_params = attribution.merge({
+                attribution_object_id: record.id,
+                attribution_object_type:
+              })
+              created = Attribution.create(o_params)
+
+              if created.valid?
+                r.updated.push created.id
+              else
+                r.not_updated.push nil # no id to add
+              end
             end
           end
         end
@@ -149,6 +154,8 @@ class Attribution < ApplicationRecord
             r.not_updated.push o.id
           end
         end
+        missing = r.total_attempted - r.updated.length - r.not_updated.length
+        r.not_updated.concat([nil] * missing) if missing.positive?
       end
 
     when :replace
@@ -159,7 +166,6 @@ class Attribution < ApplicationRecord
         r.errors['no replace attribution criteria provided'] = 1
         return r
       end
-
       unless attribution_data_present?(to_attribution)
         r.errors['no replacement attribution provided'] = 1
         return r
@@ -186,6 +192,8 @@ class Attribution < ApplicationRecord
             r.not_updated.push o.id
           end
         end
+        missing = r.total_attempted - r.updated.length - r.not_updated.length
+        r.not_updated.concat([nil] * missing) if missing.positive?
       end
     end
 
@@ -216,7 +224,7 @@ class Attribution < ApplicationRecord
 
   private
 
-    def self.attribution_data_present?(attribution)
+  def self.attribution_data_present?(attribution)
     attrs = attribution.to_h.symbolize_keys
     roles = attribution_roles(attrs)
 

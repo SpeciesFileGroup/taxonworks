@@ -192,7 +192,7 @@ RSpec.describe Attribution, type: :model do
       expect(Attribution.first.copyright_year).to eq(2001)
     end
 
-    specify ':add, appends new roles only' do
+    specify ':add, appends new roles' do
       person = FactoryBot.create(:valid_person)
       another_person = FactoryBot.create(:valid_person)
       Attribution.create!(
@@ -226,6 +226,35 @@ RSpec.describe Attribution, type: :model do
         person.id,
         another_person.id
       )
+    end
+
+    specify ':add, one applies and one does not' do
+      image2 = FactoryBot.create(:tiny_random_image)
+      Attribution.create!(
+        attribution_object: image,
+        copyright_year: 2001
+      )
+      Attribution.create!(
+        attribution_object: image2,
+        license: 'Attribution'
+      )
+
+      q = ::Queries::Image::Filter.new(image_id: [image.id, image2.id])
+      r = Attribution.batch_by_filter_scope(
+        filter_query: { 'image_query' => q.params },
+        mode: :add,
+        params: {
+          attribution: {
+            license: 'Attribution'
+          }
+        }
+      )
+
+      expect(r[:updated].length).to eq(1)
+      expect(r[:not_updated].length).to eq(1)
+      expect(r[:total_attempted]).to eq(2)
+      expect(Attribution.find_by(attribution_object: image).license).to eq('Attribution')
+      expect(Attribution.find_by(attribution_object: image2).license).to eq('Attribution')
     end
 
     specify ':add, person and organization roles' do
@@ -374,6 +403,35 @@ RSpec.describe Attribution, type: :model do
       expect(Attribution.all.count).to eq(1)
       expect(Attribution.first.license).to eq('CC0 1.0 Universal (CC0 1.0) Public Domain Dedication')
       expect(Attribution.first.creator_roles).to be_empty
+    end
+
+    specify ':remove, one applies and one does not' do
+      image2 = FactoryBot.create(:tiny_random_image)
+      Attribution.create!(
+        attribution_object: image,
+        license: 'CC0 1.0 Universal (CC0 1.0) Public Domain Dedication'
+      )
+      Attribution.create!(
+        attribution_object: image2,
+        license: 'Attribution'
+      )
+
+      q = ::Queries::Image::Filter.new(image_id: [image.id, image2.id])
+      r = Attribution.batch_by_filter_scope(
+        filter_query: { 'image_query' => q.params },
+        mode: :remove,
+        params: {
+          attribution: {
+            license: 'CC0 1.0 Universal (CC0 1.0) Public Domain Dedication'
+          }
+        }
+      )
+
+      expect(r[:updated].length).to eq(1)
+      expect(r[:not_updated].length).to eq(1)
+      expect(r[:total_attempted]).to eq(2)
+      expect(Attribution.find_by(attribution_object: image)).to be_nil
+      expect(Attribution.find_by(attribution_object: image2).license).to eq('Attribution')
     end
 
     specify ':remove, async' do
@@ -682,6 +740,38 @@ RSpec.describe Attribution, type: :model do
 
       expect(r[:updated].length).to eq(0)
       expect(Attribution.first.copyright_year).to eq(2018)
+    end
+
+    specify ':replace, one applies and one does not' do
+      image2 = FactoryBot.create(:tiny_random_image)
+      Attribution.create!(
+        attribution_object: image,
+        license: 'CC0 1.0 Universal (CC0 1.0) Public Domain Dedication'
+      )
+      Attribution.create!(
+        attribution_object: image2,
+        license: 'Attribution'
+      )
+
+      q = ::Queries::Image::Filter.new(image_id: [image.id, image2.id])
+      r = Attribution.batch_by_filter_scope(
+        filter_query: { 'image_query' => q.params },
+        mode: :replace,
+        params: {
+          replace_attribution: {
+            license: 'CC0 1.0 Universal (CC0 1.0) Public Domain Dedication'
+          },
+          attribution: {
+            license: 'Attribution'
+          }
+        }
+      )
+
+      expect(r[:updated].length).to eq(1)
+      expect(r[:not_updated].length).to eq(1)
+      expect(r[:total_attempted]).to eq(2)
+      expect(Attribution.find_by(attribution_object: image).license).to eq('Attribution')
+      expect(Attribution.find_by(attribution_object: image2).license).to eq('Attribution')
     end
 
     specify ':replace, all role types with person and organization' do

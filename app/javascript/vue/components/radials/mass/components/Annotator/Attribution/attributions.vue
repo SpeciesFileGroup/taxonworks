@@ -41,23 +41,23 @@
         </label>
       </template>
     </div>
-    <template v-if="view === 'CopyrightHolder' || view === 'Owner'">
-      <switch-component
+    <template v-if="viewSupportsOrganization">
+      <VSwitch
         class="margin-medium-bottom"
-        v-model="copyrightHolderType"
+        v-model="roleAgentType"
         use-index
-        :options="copyrightHolderOptions"
+        :options="roleAgentTypeOptions"
       />
-      <div v-if="copyrightHolderType">
-        <organization-picker @select="addOrganization" />
-        <display-list
+      <div v-if="roleAgentType">
+        <OrganizationPicker @select="addOrganization" />
+        <DisplayList
           label="object_tag"
           @delete="removeOrganization"
           :list="organizationRoleList"
           :soft-delete="true"
         />
       </div>
-      <role-picker
+      <RolePicker
         v-else
         v-model="roleList"
         :role-type="roleSelected"
@@ -65,7 +65,7 @@
     </template>
     <div v-else>
       <template v-if="view">
-        <smart-selector
+        <SmartSelector
           ref="smartSelector"
           model="people"
           :target="klass"
@@ -80,31 +80,31 @@
           @selected="addRole"
         >
           <template #header>
-            <role-picker
+            <RolePicker
               hidden-list
               v-model="roleList"
               :autofocus="false"
               :role-type="roleSelected"
             />
           </template>
-          <role-picker
+          <RolePicker
             :create-form="false"
             v-model="roleList"
             :autofocus="false"
             :role-type="roleSelected"
           />
-        </smart-selector>
+        </SmartSelector>
       </template>
     </div>
     <div class="separate-top">
-      <v-btn
+      <VBtn
         medium
         :color="buttonColor"
         @click="createNew()"
         :disabled="!validateFields"
       >
         {{ buttonLabel }}
-      </v-btn>
+      </VBtn>
       <div
         v-if="validationMessage"
         class="text-warning-color margin-small-top"
@@ -128,7 +128,7 @@ import {
   ROLE_COLLECTOR
 } from '@/constants/index.js'
 import RolePicker from '@/components/role_picker'
-import SwitchComponent from '@/components/ui/VSwitch.vue'
+import VSwitch from '@/components/ui/VSwitch.vue'
 import OrganizationPicker from '@/components/organizationPicker'
 import DisplayList from '@/components/displayList'
 import SmartSelector from '@/components/ui/SmartSelector'
@@ -249,23 +249,22 @@ const selectedTypes = computed(() => {
 })
 
 const validationMessage = computed(() => {
-  if (!selectedTypes.value.length) return ''
   if (selectedTypes.value.length > 1) {
     return 'Choose only one: license, copyright year, or one role.'
-  }
-  if (selectedTypes.value[0] === 'roles' && totalRoles.value !== 1) {
-    return 'Choose exactly one role.'
   }
   return ''
 })
 
-const copyrightHolderType = ref(0)
+const roleAgentType = ref(0)
+const viewSupportsOrganization = computed(
+  () => view.value === 'Owner' || view.value === 'CopyrightHolder'
+)
 const organizationRoleList = computed(() =>
   view.value === 'Owner'
     ? rolesList.owner_organization_roles
     : rolesList.copyright_organization_roles
 )
-const copyrightHolderOptions = computed(() => {
+const roleAgentTypeOptions = computed(() => {
   const lists =
     view.value === 'Owner'
       ? [rolesList.owner_organization_roles, rolesList.owner_roles]
