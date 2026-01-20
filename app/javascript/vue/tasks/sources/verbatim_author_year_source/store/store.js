@@ -117,6 +117,7 @@ export default defineStore("verbatimAuthorYearSource", {
             citation_object_type: "TaxonName",
             citation_object_id: ids,
             source_id: sourceId,
+            is_original: true,
           },
         });
 

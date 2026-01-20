@@ -14,6 +14,7 @@
                         {{ sortDirection === "asc" ? "▲" : "▼" }}
                     </span>
                 </th>
+                <th>Copy</th>
                 <th @click="sortBy('record_count')">
                     Count
                     <span v-if="sortColumn === 'record_count'">
@@ -35,6 +36,21 @@
             >
                 <td>{{ row.verbatim_author }}</td>
                 <td>{{ row.year_of_publication }}</td>
+                <td class="copy-cell">
+                    <VBtn
+                        color="primary"
+                        circle
+                        title="Copy author and year to clipboard"
+                        @click="
+                            copyToClipboard(
+                                row.verbatim_author,
+                                row.year_of_publication,
+                            )
+                        "
+                    >
+                        <VIcon name="clip" x-small />
+                    </VBtn>
+                </td>
                 <td
                     class="count-cell"
                     :style="{ backgroundColor: row.heat_color }"
@@ -104,6 +120,7 @@ import { ref, computed } from "vue";
 import { RouteNames } from "@/routes/routes";
 import useStore from "../store/store";
 import VBtn from "@/components/ui/VBtn/index.vue";
+import VIcon from "@/components/ui/VIcon/index.vue";
 
 const store = useStore();
 
@@ -154,6 +171,13 @@ function filterUrl(author, year) {
     });
     return `${RouteNames.FilterNomenclature}?${params.toString()}`;
 }
+
+function copyToClipboard(author, year) {
+    const text = `${author} ${year}`;
+    navigator.clipboard.writeText(text).then(() => {
+        TW.workbench.alert.create("Copied to clipboard", "notice");
+    });
+}
 </script>
 
 <style scoped>
@@ -166,16 +190,20 @@ th {
     user-select: none;
     text-align: left;
     padding: 8px;
-    background-color: #f5f5f5;
+    background-color: var(--table-row-bg-odd);
 }
 
 th:hover {
-    background-color: #e0e0e0;
+    background-color: var(--bg-hover);
 }
 
 td {
     padding: 8px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.copy-cell {
+    text-align: center;
 }
 
 .count-cell {
