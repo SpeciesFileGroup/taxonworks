@@ -26,7 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Browse News: Old administration news is shown first instead of new news.
 - Batch operation now works on venn query results, venn query results can now be sent to other filters [#4663]
 - No error message when trying to delete a combination attached to an OTU [#4670]
-- Error notice is now returned when trying to include media extension in DwCA export with a project API token
+- Error notice is now returned when trying to include media extension in DwCA export without a project API token (media links embed API token)
 - Match Taxon Names task downloads have wrong valid name [#4682]
 - New source task: Title is required to create a BibTeX source [#4688]
 - Error on sending Taxon Name filter result to Asserted Distributions
