@@ -8,6 +8,13 @@
 #   @return [String]
 #     A creative-commons copyright
 #
+# @!attribute attribution_object_type
+#   @return [String]
+#     Polymorphic attribution object type
+#
+# @!attribute attribution_object_id
+#   @return [Integer]
+#     Polymorphic attribution object id
 class Attribution < ApplicationRecord
   include Housekeeping
   include Shared::BatchByFilterScope
@@ -176,7 +183,31 @@ class Attribution < ApplicationRecord
     r
   end
 
-  def self.attribution_data_present?(attribution)
+  protected
+
+  def some_roles_present
+    ATTRIBUTION_ROLES.each do |r|
+      return true if send("#{r}_roles".to_sym).any?
+    end
+
+    if self.roles.any?
+      self.roles.each do |r|
+        return true if r.type.present? && (r.person_id.present? || r.organization_id.present?)
+      end
+    end
+
+    false
+  end
+
+  def some_data_provided
+    if license.blank? && copyright_year.blank? && !some_roles_present
+      errors.add(:base, 'no attribution metadata')
+    end
+  end
+
+  private
+
+    def self.attribution_data_present?(attribution)
     attrs = attribution.to_h.symbolize_keys
     roles = attribution_roles(attrs)
 
@@ -198,10 +229,14 @@ class Attribution < ApplicationRecord
     end
   end
 
+  # @param query [Scope] the base scope to filter
+  # @param attribution [Hash, ActionController::Parameters]
+  # @return [Scope] of all Attributions associated with query that have some
+  # data that matches attribution.
   def self.attribution_scope_for(query, attribution)
     attrs = attribution.to_h.symbolize_keys
     scope = Attribution.includes(:roles).where(
-      attribution_object_id: query.pluck(:id),
+      attribution_object_id: query.select(:id),
       attribution_object_type: query.klass.name
     )
 
@@ -227,62 +262,49 @@ class Attribution < ApplicationRecord
     scope
   end
 
-  def self.apply_replace_attribution(attribution, replace_attribution, new_attribution)
+  # Assumes 1:1 replacement (enforced by UI):
+  # - If replacing license, new_attrs must have a license
+  # - If replacing copyright_year, new_attrs must have a copyright_year
+  # - If replacing a role, new_attrs must have exactly one role of the same type
+  def self.apply_replace_attribution(
+    attribution, replace_attribution, new_attribution
+  )
     replace_attrs = replace_attribution.to_h.symbolize_keys
     new_attrs = new_attribution.to_h.symbolize_keys
-    replace_roles = matchable_roles(replace_attrs)
 
     update_payload = {}
-    update_payload[:license] = new_attrs[:license] if replace_attrs[:license].present?
-    update_payload[:copyright_year] = new_attrs[:copyright_year] if replace_attrs[:copyright_year].present?
+    update_payload[:license] = new_attrs[:license] if new_attrs[:license].present? && replace_attrs[:license].present? && replace_attrs[:license] == attribution.license
+    update_payload[:copyright_year] = new_attrs[:copyright_year] if new_attrs[:copyright_year].present? && replace_attrs[:copyright_year].present? && replace_attrs[:copyright_year] == attribution.copyright_year
 
-    roles_payload = []
-    roles_to_remove = []
-    if replace_roles.any?
-      roles_payload = attribution_roles(new_attrs).map do |role|
-        role.slice(
-          :id,
-          :type,
-          :person_id,
-          :organization_id,
-          :position,
-          :person_attributes,
-          :_destroy
-        ).compact
-      end
+    replace_roles = matchable_roles(replace_attrs)
+    new_roles = matchable_roles(new_attrs)
 
-      attribution.roles.each do |role|
-        replace_roles.each do |remove_role|
-          next unless role.type == remove_role[:type]
-          if remove_role[:person_id].present? && role.person_id == remove_role[:person_id]
-            roles_to_remove << role.id
-          elsif remove_role[:organization_id].present? && role.organization_id == remove_role[:organization_id]
-            roles_to_remove << role.id
-          end
-        end
-      end
-      roles_to_remove.uniq!
-    end
+    roles_to_update, roles_to_delete =
+      role_replacement_actions(attribution, replace_roles, new_roles)
 
-    return :noop if update_payload.empty? && roles_payload.empty? && roles_to_remove.empty?
-
-    final_license = update_payload.key?(:license) ? update_payload[:license] : attribution.license
-    final_year = update_payload.key?(:copyright_year) ? update_payload[:copyright_year] : attribution.copyright_year
-    if replace_roles.any?
-      final_roles_present =
-        (attribution.roles.size - roles_to_remove.size + roles_payload.size) > 0
-    else
-      final_roles_present = attribution.roles.any?
-    end
-
-    if final_license.blank? && final_year.blank? && !final_roles_present
-      attribution.destroy
-      return :destroyed
-    end
+    return :noop if update_payload.empty? && roles_to_update.empty? && roles_to_delete.empty?
 
     Attribution.transaction do
-      attribution.roles.where(id: roles_to_remove).destroy_all if roles_to_remove.any?
-      update_payload[:roles_attributes] = roles_payload if roles_payload.any?
+      roles_to_update.each do |item|
+        role_update = {}
+        if item[:new_role][:person_id].present?
+          role_update[:person_id] = item[:new_role][:person_id]
+          role_update[:organization_id] = nil
+        elsif item[:new_role][:organization_id].present?
+          role_update[:organization_id] = item[:new_role][:organization_id]
+          role_update[:person_id] = nil
+        end
+        unless item[:role].update(role_update)
+          raise ActiveRecord::Rollback
+        end
+      end
+
+      roles_to_delete.each do |role|
+        unless role.destroy
+          raise ActiveRecord::Rollback
+        end
+      end
+
       unless update_payload.empty?
         unless attribution.update(update_payload)
           raise ActiveRecord::Rollback
@@ -293,28 +315,90 @@ class Attribution < ApplicationRecord
     attribution.errors.any? ? :invalid : :updated
   end
 
-  def self.apply_remove_attribution(attribution, remove_attribution)
-    attrs = remove_attribution.to_h.symbolize_keys
-    remove_roles = matchable_roles(attrs)
+  # Returns [roles_to_update, roles_to_delete] arrays for role replacement.
+  # roles_to_update contains { role:, new_role: } hashes for roles to update in
+  # place. roles_to_delete contains roles to delete (when "to" role already
+  # exists).
+  # Raises TaxonWorks::Error if replace_roles and new_roles are mismatched or
+  # have duplicates.
+  def self.role_replacement_actions(attribution, replace_roles, new_roles)
+    if replace_roles.size != new_roles.size
+      raise TaxonWorks::Error, "Mismatched role replacement: each 'from' role must have a corresponding 'to' role - from: #{replace_roles.inspect}, to: #{new_roles.inspect}"
+    end
 
-    update_payload = {}
-    update_payload[:license] = nil if attrs[:license].present?
-    update_payload[:copyright_year] = nil if attrs[:copyright_year].present?
+    from_keys = replace_roles.map { |r| [r[:type], r[:person_id], r[:organization_id]] }
+    if from_keys.size != from_keys.uniq.size
+      raise TaxonWorks::Error, "Duplicate 'from' role in replacement request: #{replace_roles.inspect}"
+    end
 
-    roles_to_remove = []
-    if remove_roles.any?
-      attribution.roles.each do |role|
-        remove_roles.each do |remove_role|
-          next unless role.type == remove_role[:type]
-          if remove_role[:person_id].present? && role.person_id == remove_role[:person_id]
-            roles_to_remove << role.id
-          elsif remove_role[:organization_id].present? && role.organization_id == remove_role[:organization_id]
-            roles_to_remove << role.id
-          end
+    roles_to_update = []
+    roles_to_delete = []
+
+    replace_roles.each_with_index do |replace_role, index|
+      new_role = new_roles[index]
+
+      from_role = attribution.roles.find do |role|
+        role.type == replace_role[:type] &&
+          ((replace_role[:person_id].present? && role.person_id == replace_role[:person_id]) ||
+           (replace_role[:organization_id].present? && role.organization_id == replace_role[:organization_id]))
+      end
+
+      next unless from_role
+
+      to_role_exists = attribution.roles.any? do |role|
+        role.type == new_role[:type] &&
+          ((new_role[:person_id].present? && role.person_id == new_role[:person_id]) ||
+           (new_role[:organization_id].present? && role.organization_id == new_role[:organization_id]))
+      end
+
+      if to_role_exists
+        # Target already exists, just delete the "from" role.
+        roles_to_delete << from_role
+      else
+        roles_to_update << { role: from_role, new_role: new_role }
+      end
+    end
+
+    [roles_to_update, roles_to_delete]
+  end
+
+  # Returns a hash with :license and/or :copyright_year set to nil for those
+  # that match between attribution and remove_attrs.
+  def self.attrs_to_clear(attribution, remove_attrs)
+    payload = {}
+    payload[:license] = nil if remove_attrs[:license].present? && remove_attrs[:license] == attribution.license
+    payload[:copyright_year] = nil if remove_attrs[:copyright_year].present? && remove_attrs[:copyright_year] == attribution.copyright_year
+    payload
+  end
+
+  # Returns an array of role IDs from attribution that match remove_roles.
+  def self.matching_role_ids(attribution, remove_roles)
+    return [] unless remove_roles.any?
+
+    ids = []
+    attribution.roles.each do |role|
+      remove_roles.each do |remove_role|
+        next unless role.type == remove_role[:type]
+        if remove_role[:person_id].present? && role.person_id == remove_role[:person_id]
+          ids << role.id
+        elsif remove_role[:organization_id].present? && role.organization_id == remove_role[:organization_id]
+          ids << role.id
         end
       end
-      roles_to_remove.uniq!
     end
+    ids.uniq
+  end
+
+  # Removes those attribution elements from remove_attribution that exist on
+  # attribution.
+  def self.apply_remove_attribution(attribution, remove_attribution)
+    remove_attrs = remove_attribution.to_h.symbolize_keys
+    remove_roles = matchable_roles(remove_attrs)
+
+    update_payload = attrs_to_clear(attribution, remove_attrs)
+    roles_to_remove = matching_role_ids(attribution, remove_roles)
+
+    return :noop if update_payload.empty? && roles_to_remove.empty?
 
     final_license = update_payload.key?(:license) ? nil : attribution.license
     final_year = update_payload.key?(:copyright_year) ? nil : attribution.copyright_year
@@ -324,30 +408,40 @@ class Attribution < ApplicationRecord
       attribution.roles.any?
     end
 
-    if final_license.blank? && final_year.blank? && !final_roles_present
-      attribution.destroy
-      return :destroyed
-    end
+    should_destroy = final_license.blank? && final_year.blank? && !final_roles_present
+
+    result = nil
 
     Attribution.transaction do
-      if remove_roles.any?
-        attribution.roles.where(id: roles_to_remove).destroy_all if roles_to_remove.any?
-      end
-
-      unless update_payload.empty?
-        unless attribution.update(update_payload)
+      if roles_to_remove.any?
+        destroyed_roles = attribution.roles.where(id: roles_to_remove).destroy_all
+        # destroy_all fails silently, so check its work.
+        unless destroyed_roles.all?(&:destroyed?)
           raise ActiveRecord::Rollback
         end
       end
+
+      if should_destroy
+        if attribution.destroy
+          result = :destroyed
+        else
+          raise ActiveRecord::Rollback
+        end
+      else
+        unless update_payload.empty?
+          unless attribution.update(update_payload)
+            raise ActiveRecord::Rollback
+          end
+        end
+        result = :updated
+      end
     end
 
-    if attribution.errors.any?
-      return :invalid
-    end
-
-    update_payload.empty? && roles_to_remove.empty? ? :noop : :updated
+    result || :invalid
   end
 
+  # This is add, so only add data from new_attribution that will be 'new' in
+  # attribution (the not-new case is 'replace').
   def self.apply_add_attribution(attribution, new_attribution)
     attrs = new_attribution.to_h.symbolize_keys
     roles_attributes = attribution_roles(attrs)
@@ -362,62 +456,24 @@ class Attribution < ApplicationRecord
       end.to_set
 
       new_roles = roles_attributes.map do |role|
-        [
-          role[:type],
-          role[:person_id],
-          role[:organization_id],
-          role.slice(
-            :id,
-            :type,
-            :person_id,
-            :organization_id,
-            :position,
-            :person_attributes,
-            :_destroy
-          ).compact
-        ]
+        role.slice(:type, :person_id, :organization_id).compact
       end
 
-      unique_roles = new_roles.reject do |(role_type, person_id, organization_id, _payload)|
-        existing_roles.include?([role_type, person_id, organization_id])
+      # Roles are has_many, so we add as long as the new role doesn't already
+      # exist.
+      unique_roles = new_roles.reject do |role|
+        existing_roles.include?([role[:type], role[:person_id], role[:organization_id]])
       end
 
       if unique_roles.any?
-        update_payload[:roles_attributes] = unique_roles.map { |entry| entry[3] }
+        update_payload[:roles_attributes] = unique_roles
       end
     end
 
     return :noop if update_payload.empty?
 
-    Attribution.transaction do
-      unless attribution.update(update_payload)
-        raise ActiveRecord::Rollback
-      end
-    end
-
+    attribution.update(update_payload)
     attribution.errors.any? ? :invalid : :updated
-  end
-
-  protected
-
-  def some_roles_present
-    ATTRIBUTION_ROLES.each do |r|
-      return true if send("#{r}_roles".to_sym).any?
-    end
-
-    if self.roles.any?
-      self.roles.each do |r|
-        return true if r.type.present? && (r.person_id.present? || r.organization_id.present?)
-      end
-    end
-
-    false
-  end
-
-  def some_data_provided
-    if license.blank? && copyright_year.blank? && !some_roles_present
-      errors.add(:base, 'no attribution metadata')
-    end
   end
 
 end

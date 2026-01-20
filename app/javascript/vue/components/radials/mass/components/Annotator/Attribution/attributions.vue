@@ -1,14 +1,17 @@
 <template>
   <div>
-    <license-input v-model="attribution.license" />
+    <h3>License</h3>
+    <LicenseInput
+      v-model="attribution.license"
+      :licenses="licenses"
+    />
 
     <div class="separate-top separate-bottom">
-      <label>Copyright year</label>
-      <br />
+      <h3>Copyright year</h3>
       <input
-        class="input-year"
         v-model="attribution.copyright_year"
         type="number"
+        class="input-xsmall-width margin-small-top"
       />
     </div>
     <div class="switch-radio separate-bottom">
@@ -30,13 +33,13 @@
           class="capitalize"
         >
           {{ item }}
-          <span v-if="rolesList[`${toSnakeCase(item)}_roles`].length">
-            ({{ rolesList[`${toSnakeCase(item)}_roles`].length }})
+          <span v-if="roleCount(item)">
+            ({{ roleCount(item) }})
           </span>
         </label>
       </template>
     </div>
-    <template v-if="view === 'CopyrightHolder'">
+    <template v-if="view === 'CopyrightHolder' || view === 'Owner'">
       <switch-component
         class="margin-medium-bottom"
         v-model="copyrightHolderType"
@@ -48,7 +51,8 @@
         <display-list
           label="object_tag"
           @delete="removeOrganization"
-          :list="rolesList.copyright_organization_roles"
+          :list="organizationRoleList"
+          :soft-delete="true"
         />
       </div>
       <role-picker
@@ -107,10 +111,12 @@
 import { computed, ref, reactive, getCurrentInstance } from 'vue'
 import { findRole } from '@/helpers/people/people.js'
 import { toSnakeCase } from '@/helpers/strings'
-import { Attribution } from '@/routes/endpoints'
 import { CreatePerson } from '@/helpers/people/createPerson'
 import {
   ROLE_ATTRIBUTION_COPYRIGHT_HOLDER,
+  ROLE_ATTRIBUTION_CREATOR,
+  ROLE_ATTRIBUTION_EDITOR,
+  ROLE_ATTRIBUTION_OWNER,
   ROLE_COLLECTOR
 } from '@/constants/index.js'
 import RolePicker from '@/components/role_picker'
@@ -125,6 +131,16 @@ const props = defineProps({
   klass: {
     type: String,
     required: true
+  },
+
+  licenses: {
+    type: Array,
+    default: () => []
+  },
+
+  roleTypes: {
+    type: Array,
+    default: () => []
   },
 
   buttonLabel: {
@@ -151,7 +167,7 @@ const validateFields = computed(
 const roleSelected = computed(() => {
   const index = smartSelectorList.value.findIndex((role) => role === view.value)
 
-  return roleTypes.value[index]
+  return orderedRoleTypes.value[index]
 })
 
 const roleList = computed({
@@ -162,11 +178,24 @@ const roleList = computed({
 })
 
 const view = ref(undefined)
-const smartSelectorList = ref([])
-const roleTypes = ref([])
+const ROLE_TYPE_ORDER = [
+  ROLE_ATTRIBUTION_CREATOR,
+  ROLE_ATTRIBUTION_EDITOR,
+  ROLE_ATTRIBUTION_OWNER,
+  ROLE_ATTRIBUTION_COPYRIGHT_HOLDER
+]
+
+const orderedRoleTypes = computed(() =>
+  ROLE_TYPE_ORDER.filter((type) => props.roleTypes.includes(type))
+)
+
+const smartSelectorList = computed(() =>
+  orderedRoleTypes.value.map((role) => role.substring(11))
+)
 const rolesList = reactive({
   creator_roles: [],
   owner_roles: [],
+  owner_organization_roles: [],
   editor_roles: [],
   copyright_holder_roles: [],
   copyright_organization_roles: []
@@ -178,23 +207,26 @@ const attribution = ref({
 })
 
 const copyrightHolderType = ref(0)
-const copyrightHolderOptions = computed(() =>
-  ['person', 'organization'].map((label) => {
+const organizationRoleList = computed(() =>
+  view.value === 'Owner'
+    ? rolesList.owner_organization_roles
+    : rolesList.copyright_organization_roles
+)
+const copyrightHolderOptions = computed(() => {
+  const lists =
+    view.value === 'Owner'
+      ? [rolesList.owner_organization_roles, rolesList.owner_roles]
+      : [rolesList.copyright_organization_roles, rolesList.copyright_holder_roles]
+
+  return ['person', 'organization'].map((label) => {
     const count = []
-      .concat(
-        rolesList.copyright_organization_roles,
-        rolesList.copyright_holder_roles
-      )
+      .concat(...lists)
       .filter((item) => item.agent_type === label).length
 
     return label + (count ? ` (${count})` : '')
   })
-)
-
-Attribution.roleTypes().then(({ body }) => {
-  roleTypes.value = body
-  smartSelectorList.value = roleTypes.value.map((role) => role.substring(11))
 })
+
 
 const createNew = () => {
   updateIndex()
@@ -218,23 +250,35 @@ const updateIndex = () => {
 }
 
 const addOrganization = (organization) => {
-  rolesList.copyright_organization_roles.push({
+  const roleType =
+    view.value === 'Owner'
+      ? ROLE_ATTRIBUTION_OWNER
+      : ROLE_ATTRIBUTION_COPYRIGHT_HOLDER
+  const targetList =
+    view.value === 'Owner'
+      ? rolesList.owner_organization_roles
+      : rolesList.copyright_organization_roles
+
+  targetList.push({
     organization_id: organization.id,
-    type: ROLE_ATTRIBUTION_COPYRIGHT_HOLDER,
-    object_tag: organization?.object_tag || organization.label
+    type: roleType,
+    object_tag: organization?.object_tag || organization.label,
+    agent_type: 'organization'
   })
 }
 
 const removeOrganization = (organization) => {
+  const targetList =
+    view.value === 'Owner'
+      ? rolesList.owner_organization_roles
+      : rolesList.copyright_organization_roles
   const index = organization?.id
-    ? rolesList.copyright_organization_roles.findIndex(
-        (item) => item?.id === organization.id
-      )
-    : rolesList.copyright_organization_roles.findIndex(
+    ? targetList.findIndex((item) => item?.id === organization.id)
+    : targetList.findIndex(
         (item) => item?.organization_id === organization.organization_id
       )
 
-  rolesList.copyright_organization_roles.splice(index, 1)
+  targetList.splice(index, 1)
 }
 
 const addRole = (role) => {
@@ -242,13 +286,29 @@ const addRole = (role) => {
     roleList.value.push(CreatePerson(role, roleSelected.value))
   }
 }
+
+const roleCount = (label) => {
+  const key = `${toSnakeCase(label)}_roles`
+
+  if (label === 'Owner') {
+    return (
+      rolesList.owner_roles.length + rolesList.owner_organization_roles.length
+    )
+  }
+
+  if (label === 'CopyrightHolder') {
+    return (
+      rolesList.copyright_holder_roles.length +
+      rolesList.copyright_organization_roles.length
+    )
+  }
+
+  return rolesList[key]?.length || 0
+}
 </script>
 
 <style lang="scss">
 .attribution_annotator {
-  .input-year {
-    width: 80px;
-  }
   .switch-radio {
     label {
       width: 120px;

@@ -1,69 +1,163 @@
 <template>
   <div class="attribution-replace">
-    <div class="margin-medium-bottom">
-      <h4>
-        Change (match criteria)
-        <VBtn
-          v-if="replaceAttribution"
-          circle
-          color="primary"
-          @click="replaceAttribution = null"
-        >
-          <VIcon
-            name="trash"
-            x-small
-          />
-        </VBtn>
-      </h4>
-      <div
-        v-if="replaceAttribution"
-        class="attribution-summary"
-      >
-        <AttributionSummary :attribution="replaceAttribution" />
+    <div class="replace-section margin-medium-bottom padding-medium-bottom">
+      <h3>License</h3>
+      <div class="pair-grid margin-small-bottom">
+        <label>From</label>
+        <LicenseInput
+          v-model="fromLicense"
+          :licenses="licenses"
+        />
+        <label>To</label>
+        <LicenseInput
+          v-model="toLicense"
+          :licenses="licenses"
+        />
       </div>
-      <AttributionForm
-        v-else
-        :klass="klass"
-        button-label="Set as match"
-        button-color="primary"
-        @attribution="(attr) => (replaceAttribution = attr)"
-      />
     </div>
 
-    <div class="margin-medium-bottom">
-      <h4>
-        To (new values)
+    <div class="replace-section margin-medium-bottom padding-medium-bottom">
+      <h3>Copyright year</h3>
+      <div class="pair-grid margin-small-bottom">
+        <label>From</label>
+        <input
+          class="input-xsmall-width"
+          v-model="fromYear"
+          type="number"
+        />
+        <label>To</label>
+        <input
+          class="input-xsmall-width"
+          v-model="toYear"
+          type="number"
+        />
+      </div>
+    </div>
+
+    <div class="replace-section margin-medium-bottom">
+      <h3>Roles</h3>
+      <div class="margin-medium-bottom">
+        <label>Role type</label>
+        <select
+          v-model="roleType"
+          class="full_width margin-small-top"
+        >
+          <option
+            v-for="type in roleTypeList"
+            :key="type"
+            :value="type"
+          >
+            {{ getRoleTypeLabel(type) }}
+          </option>
+        </select>
+      </div>
+
+      <div class="pair-grid margin-medium-bottom">
+        <label>From</label>
+        <div>
+          <div
+            v-if="fromSelectedRole"
+            class="flex-separate middle"
+          >
+            <span>{{ getRoleLabel(fromSelectedRole) }}</span>
+            <VBtn
+              circle
+              color="primary"
+              @click="fromRoleList = []"
+            >
+              <VIcon name="trash" x-small />
+            </VBtn>
+          </div>
+          <div
+            v-else-if="roleType"
+          >
+            <PeopleSelector
+              v-model="fromRoleList"
+              :organization="typeHasOrganization"
+              :role-type="roleType"
+              :show-create-controls="false"
+              :autofocus="false"
+            />
+          </div>
+        </div>
+        <label>To</label>
+        <div>
+          <div
+            v-if="toSelectedRole"
+            class="flex-separate middle"
+          >
+            <span>{{ getRoleLabel(toSelectedRole) }}</span>
+            <VBtn
+              circle
+              color="primary"
+              @click="toRoleList = []"
+            >
+              <VIcon name="trash" x-small />
+            </VBtn>
+          </div>
+          <div
+            v-else-if="roleType"
+          >
+            <PeopleSelector
+              v-model="toRoleList"
+              :organization="typeHasOrganization"
+              :role-type="roleType"
+              :autofocus="false"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="horizontal-left-content gap-small">
         <VBtn
-          v-if="toAttribution"
-          circle
           color="primary"
-          @click="toAttribution = null"
+          :disabled="!canAddRole"
+          @click="addRoleToList"
+        >
+          Add to list
+        </VBtn>
+        <span
+          v-if="isFromDuplicate"
+          class="horizontal-left-content gap-small"
         >
           <VIcon
-            name="trash"
-            x-small
+            name="attention"
+            color="attention"
+            small
           />
-        </VBtn>
-      </h4>
-      <div
-        v-if="toAttribution"
-        class="attribution-summary"
-      >
-        <AttributionSummary :attribution="toAttribution" />
+          <span>This role/agent combination is already in the list</span>
+        </span>
       </div>
-      <AttributionForm
-        v-else
-        :klass="klass"
-        button-label="Set as target"
-        button-color="primary"
-        @attribution="(attr) => (toAttribution = attr)"
-      />
+
+      <ul
+        v-if="roleReplacements.length"
+        class="table-entrys-list margin-medium-top"
+      >
+        <li
+          v-for="(item, index) in roleReplacements"
+          :key="index"
+          class="list-complete-item flex-separate middle"
+        >
+          <span>{{ item.displayText }}</span>
+          <VBtn
+            circle
+            color="primary"
+            @click="removeRoleFromList(index)"
+          >
+            <VIcon
+              name="trash"
+              x-small
+            />
+          </VBtn>
+        </li>
+      </ul>
     </div>
 
     <VBtn
+      class="margin-medium-top"
       color="update"
-      :disabled="!isFilled"
-      @click="() => emit('select', [replaceAttribution, toAttribution])"
+      :disabled="!isValid"
+      @click="emitReplace"
     >
       Replace
     </VBtn>
@@ -71,34 +165,224 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
-import AttributionForm from './attributions.vue'
-import AttributionSummary from './AttributionSummary.vue'
+import { computed, ref, watch } from 'vue'
+import {
+  ROLE_ATTRIBUTION_COPYRIGHT_HOLDER,
+  ROLE_ATTRIBUTION_CREATOR,
+  ROLE_ATTRIBUTION_EDITOR,
+  ROLE_ATTRIBUTION_OWNER
+} from '@/constants'
+import LicenseInput from './licenseInput.vue'
+import PeopleSelector from '@/components/radials/annotator/components/attribution/PeopleSelector.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 
-defineProps({
+const ROLE_TYPE_ORDER = [
+  ROLE_ATTRIBUTION_CREATOR,
+  ROLE_ATTRIBUTION_EDITOR,
+  ROLE_ATTRIBUTION_OWNER,
+  ROLE_ATTRIBUTION_COPYRIGHT_HOLDER
+]
+
+const props = defineProps({
   klass: {
     type: String,
     required: true
+  },
+
+  licenses: {
+    type: Array,
+    default: () => []
+  },
+
+  roleTypes: {
+    type: Array,
+    default: () => []
   }
 })
 
 const emit = defineEmits(['select'])
 
-const replaceAttribution = ref(null)
-const toAttribution = ref(null)
+// License
+const fromLicense = ref(null)
+const toLicense = ref(null)
 
-const isFilled = computed(
-  () => replaceAttribution.value !== null && toAttribution.value !== null
+// Copyright year
+const fromYear = ref(null)
+const toYear = ref(null)
+
+// Roles
+const roleType = ref(null)
+const fromRoleList = ref([])
+const toRoleList = ref([])
+const roleReplacements = ref([])
+
+const roleTypeList = computed(() =>
+  ROLE_TYPE_ORDER.filter((type) => props.roleTypes.includes(type))
 )
+
+const typeHasOrganization = computed(() =>
+  roleType.value === ROLE_ATTRIBUTION_OWNER ||
+  roleType.value === ROLE_ATTRIBUTION_COPYRIGHT_HOLDER
+)
+
+const fromSelectedRole = computed(() => getActiveRole(fromRoleList.value))
+const toSelectedRole = computed(() => getActiveRole(toRoleList.value))
+
+const isFromDuplicate = computed(() => {
+  const fromRole = getActiveRole(fromRoleList.value)
+  if (!fromRole || !roleType.value) return false
+  const agentId = getRoleAgentId(fromRole)
+  const isOrganization = isOrganizationRole(fromRole)
+
+  return roleReplacements.value.some((item) => {
+    if (item.roleType !== roleType.value) return false
+    return isOrganization
+      ? item.fromRole.organization_id === agentId
+      : item.fromRole.person_id === agentId
+  })
+})
+
+const canAddRole = computed(() => {
+  const fromRole = getActiveRole(fromRoleList.value)
+  const toRole = getActiveRole(toRoleList.value)
+
+  return roleType.value && fromRole && toRole && !isFromDuplicate.value
+})
+
+const hasLicenseReplacement = computed(() => fromLicense.value && toLicense.value)
+const hasYearReplacement = computed(() => fromYear.value && toYear.value)
+const hasRoleReplacements = computed(() => roleReplacements.value.length > 0)
+
+const isValid = computed(() => {
+  return hasLicenseReplacement.value || hasYearReplacement.value || hasRoleReplacements.value
+})
+
+// roleTypes are loaded async
+watch(
+  () => props.roleTypes,
+  (types) => {
+    if (types.length && !roleType.value) {
+      roleType.value = types[0]
+    }
+  },
+  { immediate: true }
+)
+
+watch(roleType, () => {
+  fromRoleList.value = []
+  toRoleList.value = []
+})
+
+function addRoleToList() {
+  const fromSelected = getActiveRole(fromRoleList.value)
+  const toSelected = getActiveRole(toRoleList.value)
+  if (!fromSelected || !toSelected) return
+
+  const fromRole = {
+    type: roleType.value,
+    ...(isOrganizationRole(fromSelected)
+      ? { organization_id: getRoleAgentId(fromSelected) }
+      : { person_id: getRoleAgentId(fromSelected) })
+  }
+  const toRole = {
+    type: roleType.value,
+    ...(isOrganizationRole(toSelected)
+      ? { organization_id: getRoleAgentId(toSelected) }
+      : { person_id: getRoleAgentId(toSelected) })
+  }
+
+  roleReplacements.value.push({
+    roleType: roleType.value,
+    fromRole,
+    toRole,
+    displayText: `${getRoleTypeLabel(roleType.value)}: ${getRoleLabel(
+      fromSelected
+    )} → ${getRoleLabel(toSelected)}`
+  })
+
+  fromRoleList.value = []
+  toRoleList.value = []
+}
+
+function removeRoleFromList(index) {
+  roleReplacements.value.splice(index, 1)
+}
+
+function emitReplace() {
+  const replaceAttribution = {}
+  const toAttribution = {}
+
+  if (hasLicenseReplacement.value) {
+    replaceAttribution.license = fromLicense.value
+    toAttribution.license = toLicense.value
+  }
+
+  if (hasYearReplacement.value) {
+    replaceAttribution.copyright_year = fromYear.value
+    toAttribution.copyright_year = toYear.value
+  }
+
+  if (hasRoleReplacements.value) {
+    replaceAttribution.roles_attributes = roleReplacements.value.map((r) => r.fromRole)
+    toAttribution.roles_attributes = roleReplacements.value.map((r) => r.toRole)
+  }
+
+  emit('select', [replaceAttribution, toAttribution])
+}
+
+function getActiveRole(list) {
+  const roles = list || []
+  return roles[roles.length - 1]
+}
+
+// returns, e.g., 'Creator' instead of 'AttributionCreator'
+function getRoleTypeLabel(type) {
+  return type?.substring(11) || ''
+}
+
+function getRoleAgentId(role) {
+  return (
+    role?.person_id ||
+    role?.person?.id ||
+    role?.organization_id ||
+    role?.organization?.id
+  )
+}
+
+function isOrganizationRole(role) {
+  return !!(role?.organization_id || role?.organization?.id)
+}
+
+function getRoleLabel(role) {
+  return (
+    role?.name ||
+    role?.organization?.name ||
+    role?.cached ||
+    role?.person?.cached ||
+    role?.label
+  )
+}
 </script>
 
 <style scoped>
-.attribution-summary {
-  padding: 8px;
-  background-color: var(--bg-muted);
-  border-radius: 4px;
-  margin-bottom: 8px;
+.replace-section {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.pair-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 12px;
+  row-gap: 8px;
+  align-items: center;
+}
+
+.pair-grid label {
+  text-align: right;
+}
+
+.replace-section:last-of-type {
+  border-bottom: none;
 }
 </style>

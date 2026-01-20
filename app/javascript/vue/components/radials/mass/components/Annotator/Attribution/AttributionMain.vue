@@ -1,29 +1,37 @@
 <template>
   <div class="attribution_annotator">
     <VSpinner
+      v-if="isLoading"
+      legend="Loading..."
+    />
+    <VSpinner
       v-if="isSaving"
       legend="Updating..."
     />
     <h3>Mode</h3>
-    <ul class="no_bullets">
-      <li
-        v-for="(value, key) in MODE"
-        :key="key"
-      >
-        <label>
-          <input
-            type="radio"
-            :value="value"
-            v-model="selectedMode"
-          />
-          {{ key }}
-        </label>
-      </li>
-    </ul>
+    <div class="margin-small-bottom">
+      <ul class="no_bullets">
+        <li
+          v-for="(value, key) in MODE"
+          :key="key"
+        >
+          <label>
+            <input
+              type="radio"
+              :value="value"
+              v-model="selectedMode"
+            />
+            {{ key }}
+          </label>
+        </li>
+      </ul>
+    </div>
 
     <component
       :is="selectedMode.component"
       :klass="klass"
+      :licenses="licenses"
+      :role-types="roleTypes"
       @select="makeBatchRequest"
     />
 
@@ -47,7 +55,7 @@
 </template>
 
 <script setup>
-import { computed, ref, shallowRef } from 'vue'
+import { computed, ref, shallowRef, onMounted } from 'vue'
 import { Attribution } from '@/routes/endpoints'
 import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams.js'
 import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam'
@@ -87,11 +95,33 @@ const MODE = {
   Replace: { mode: 'replace', component: AttributionReplace }
 }
 
+const isLoading = ref(true)
 const isSaving = ref(false)
 const isTableVisible = ref(false)
 const confirmationModalRef = ref(null)
 const response = ref(null)
 const selectedMode = shallowRef(MODE.Add)
+const licenses = ref([])
+const roleTypes = ref([])
+
+onMounted(() => {
+  Promise.all([
+    Attribution.licenses(),
+    Attribution.roleTypes()
+  ]).then(([licensesResponse, roleTypesResponse]) => {
+    licenses.value = [
+      ...Object.entries(licensesResponse.body).map(([key, { name, link }]) => ({
+        key,
+        label: `${name}: ${link}`
+      })),
+      { label: '-- None --', key: null }
+    ]
+
+    roleTypes.value = roleTypesResponse.body
+  }).finally(() => {
+    isLoading.value = false
+  })
+})
 
 const queryParam = computed(() => [QUERY_PARAM[props.objectType]])
 const klass = computed(() => props.objectType)
