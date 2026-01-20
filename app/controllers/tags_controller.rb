@@ -65,7 +65,7 @@ class TagsController < ApplicationController
           redirect_back(fallback_location: (request.referer || root_path),
                         notice: 'Tag was NOT successfully created.')
         }
-        format.json { render json: @tag.errors, status: :unprocessable_entity }
+        format.json { render json: @tag.errors, status: :unprocessable_content }
       end
     end
   end
@@ -81,7 +81,7 @@ class TagsController < ApplicationController
       else
         format.html { redirect_back(fallback_location: (request.referer || root_path),
                                     notice: 'Tag was NOT successfully updated.') }
-        format.json { render json: @tag.errors, status: :unprocessable_entity }
+        format.json { render json: @tag.errors, status: :unprocessable_content }
       end
     end
   end
@@ -96,7 +96,7 @@ class TagsController < ApplicationController
         format.json { head :no_content}
       else
         format.html { destroy_redirect @tag, notice: 'Tag was not destroyed, ' + @tag.errors.full_messages.join('; ') }
-        format.json { render json: @tag.errors, status: :unprocessable_entity }
+        format.json { render json: @tag.errors, status: :unprocessable_content }
       end
     end
   end

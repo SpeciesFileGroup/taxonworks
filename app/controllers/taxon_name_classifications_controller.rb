@@ -47,7 +47,7 @@ class TaxonNameClassificationsController < ApplicationController
           redirect_back(fallback_location: (request.referer || root_path),
                         notice: 'Taxon name classification was NOT successfully created.')
         }
-        format.json { render json: @taxon_name_classification.errors, status: :unprocessable_entity }
+        format.json { render json: @taxon_name_classification.errors, status: :unprocessable_content }
       end
     end
   end
@@ -68,7 +68,7 @@ class TaxonNameClassificationsController < ApplicationController
           redirect_back(fallback_location: (request.referer || root_path),
                         notice: 'Taxon name classification was NOT successfully updated.')
         }
-        format.json { render json: @taxon_name_classification.errors, status: :unprocessable_entity }
+        format.json { render json: @taxon_name_classification.errors, status: :unprocessable_content }
       end
     end
   end
@@ -97,7 +97,7 @@ class TaxonNameClassificationsController < ApplicationController
         format.json { head :no_content }
       else
         format.html { destroy_redirect @taxon_name_classification, notice: 'Taxon name classification was not destroyed, ' + @taxon_name_classification.errors.full_messages.join('; ') }
-        format.json { render json: @taxon_name_classification.errors, status: :unprocessable_entity }
+        format.json { render json: @taxon_name_classification.errors, status: :unprocessable_content }
       end
     end
   end

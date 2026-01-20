@@ -53,7 +53,7 @@ class DescriptorsController < ApplicationController
         format.json { render :show, status: :created, location: @descriptor.metamorphosize }
       else
         format.html { render :new }
-        format.json { render json: @descriptor.metamorphosize.errors, status: :unprocessable_entity }
+        format.json { render json: @descriptor.metamorphosize.errors, status: :unprocessable_content }
       end
     end
   end
@@ -69,12 +69,12 @@ class DescriptorsController < ApplicationController
           format.json { render :show, status: :ok, location: @descriptor.metamorphosize }
         else
           format.html { render :edit }
-          format.json { render json: @descriptor.metamorphosize.errors, status: :unprocessable_entity }
+          format.json { render json: @descriptor.metamorphosize.errors, status: :unprocessable_content }
         end
         # Can not cascade destroy Observations
       rescue ActiveRecord::RecordNotDestroyed
         format.html { render :edit }
-        format.json { render json: 'Could not destroy, do observations still exist?', status: :unprocessable_entity }
+        format.json { render json: 'Could not destroy, do observations still exist?', status: :unprocessable_content }
       end
     end
   end
@@ -89,7 +89,7 @@ class DescriptorsController < ApplicationController
         format.json { head :no_content }
       else
         format.html { destroy_redirect @descriptor, notice: 'Descriptor was not destroyed, ' + @descriptor.errors.full_messages.join('; ') }
-        format.json { render json: @descriptor.errors, status: :unprocessable_entity }
+        format.json { render json: @descriptor.errors, status: :unprocessable_content }
       end
     end
   end

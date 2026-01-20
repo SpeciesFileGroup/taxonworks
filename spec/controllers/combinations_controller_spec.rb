@@ -17,7 +17,7 @@ describe CombinationsController, type: :controller do
           delete :destroy, params: { id: combination.to_param, format: :json }, session: valid_session
         end.not_to change(Combination, :count)
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
 
         body = JSON.parse(response.body)
         expect(response.body.downcase).to include('dependent otus')

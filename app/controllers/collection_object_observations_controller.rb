@@ -37,7 +37,7 @@ class CollectionObjectObservationsController < ApplicationController
         format.json { render :show, status: :created, location: @collection_object_observation }
       else
         format.html { render :new }
-        format.json { render json: @collection_object_observation.errors, status: :unprocessable_entity }
+        format.json { render json: @collection_object_observation.errors, status: :unprocessable_content }
       end
     end
   end
@@ -52,7 +52,7 @@ class CollectionObjectObservationsController < ApplicationController
         format.json { render :show, status: :ok, location: @collection_object_observation }
       else
         format.html { render :edit }
-        format.json { render json: @collection_object_observation.errors, status: :unprocessable_entity }
+        format.json { render json: @collection_object_observation.errors, status: :unprocessable_content }
       end
     end
   end

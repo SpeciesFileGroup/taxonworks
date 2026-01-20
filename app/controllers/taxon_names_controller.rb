@@ -45,7 +45,7 @@ class TaxonNamesController < ApplicationController
         format.json { render :show, status: :created, location: @taxon_name.metamorphosize }
       else
         format.html { render action: :new }
-        format.json { render json: @taxon_name.errors, status: :unprocessable_entity }
+        format.json { render json: @taxon_name.errors, status: :unprocessable_content }
       end
     end
   end
@@ -63,7 +63,7 @@ class TaxonNamesController < ApplicationController
         format.json { render :show, status: :ok, location: @taxon_name.metamorphosize }
       else
         format.html { render action: :edit }
-        format.json { render json: @taxon_name.errors, status: :unprocessable_entity }
+        format.json { render json: @taxon_name.errors, status: :unprocessable_content }
       end
     end
   end
@@ -78,7 +78,7 @@ class TaxonNamesController < ApplicationController
         format.json { head :no_content }
       else
         format.html { destroy_redirect @taxon_name, notice: 'TaxonName was not destroyed, ' + @taxon_name.errors.full_messages.join('; ') }
-        format.json { render json: @taxon_name.errors, status: :unprocessable_entity }
+        format.json { render json: @taxon_name.errors, status: :unprocessable_content }
       end
     end
   end
@@ -249,7 +249,7 @@ class TaxonNamesController < ApplicationController
         project_id: sessions_current_project_id)
       render json: r.to_json, status: :ok
     else
-      render json: {}, status: :unprocessable_entity
+      render json: {}, status: :unprocessable_content
     end
   end
 

@@ -45,7 +45,7 @@ class AlternateValuesController < ApplicationController
         format.json { render action: :show, status: :created, location: @alternate_value.metamorphosize }
       else
         format.html { render 'new', notice: 'Alternate value was NOT successfully created.' }
-        format.json { render json: @alternate_value.errors, status: :unprocessable_entity }
+        format.json { render json: @alternate_value.errors, status: :unprocessable_content }
       end
     end
   end
@@ -60,7 +60,7 @@ class AlternateValuesController < ApplicationController
         format.json { render action: :show, status: :ok, location: @alternate_value.metamorphosize }
       else
         format.html { redirect_back(fallback_location: (request.referer || root_path), notice: 'Alternate value was NOT successfully updated.')}
-        format.json { render json: @alternate_value.errors, status: :unprocessable_entity }
+        format.json { render json: @alternate_value.errors, status: :unprocessable_content }
       end
     end
   end

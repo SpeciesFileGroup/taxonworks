@@ -76,7 +76,7 @@ class DepictionsController < ApplicationController
         format.json { render :show, status: :created, location: @depiction }
       else
         format.html { render :new }
-        format.json { render json: @depiction.errors, status: :unprocessable_entity }
+        format.json { render json: @depiction.errors, status: :unprocessable_content }
       end
     end
   end
@@ -90,7 +90,7 @@ class DepictionsController < ApplicationController
         format.json { render :show, status: :ok, location: @depiction }
       else
         format.html { render :edit }
-        format.json { render json: @depiction.errors, status: :unprocessable_entity }
+        format.json { render json: @depiction.errors, status: :unprocessable_content }
       end
     end
   end
@@ -113,9 +113,9 @@ class DepictionsController < ApplicationController
           Depiction.find(d).update_column(:position, i + 1)
         end
       rescue ActionController::ParameterMissing
-        format.json { render json: {success: false}, status: :unprocessable_entity and return }
+        format.json { render json: {success: false}, status: :unprocessable_content and return }
       rescue ActiveRecord::RecordInvalid
-        format.json { render json: {success: false}, status: :unprocessable_entity and return }
+        format.json { render json: {success: false}, status: :unprocessable_content and return }
       end
 
       format.json { render json: {success: true}, status: :ok and return }

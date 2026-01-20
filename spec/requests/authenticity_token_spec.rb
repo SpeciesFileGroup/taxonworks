@@ -14,7 +14,7 @@ describe 'ActionController::InvalidAuthenticityToken handling', type: :request d
       before { post '/users.json' }
       
       it 'returns status 422' do
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
       end
 
       it 'indicates unsuccessful response in body' do

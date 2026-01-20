@@ -49,7 +49,7 @@ class AttributionsController < ApplicationController
         format.json { render :show, status: :created, location: @attribution }
       else
         format.html { render :new }
-        format.json { render json: @attribution.errors, status: :unprocessable_entity }
+        format.json { render json: @attribution.errors, status: :unprocessable_content }
       end
     end
   end
@@ -63,7 +63,7 @@ class AttributionsController < ApplicationController
         format.json { render :show, status: :ok, location: @attribution }
       else
         format.html { render :edit }
-        format.json { render json: @attribution.errors, status: :unprocessable_entity }
+        format.json { render json: @attribution.errors, status: :unprocessable_content }
       end
     end
   end
