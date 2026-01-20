@@ -1,6 +1,39 @@
 <template>
   <div class="attribution-replace">
     <div class="replace-section margin-medium-bottom padding-medium-bottom">
+      <h3>Replace</h3>
+      <div class="switch-radio">
+        <input
+          type="radio"
+          class="normal-input button-active"
+          id="replace-license"
+          value="license"
+          v-model="replaceType"
+        />
+        <label for="replace-license">License</label>
+        <input
+          type="radio"
+          class="normal-input button-active"
+          id="replace-year"
+          value="year"
+          v-model="replaceType"
+        />
+        <label for="replace-year">Copyright year</label>
+        <input
+          type="radio"
+          class="normal-input button-active"
+          id="replace-role"
+          value="role"
+          v-model="replaceType"
+        />
+        <label for="replace-role">Role</label>
+      </div>
+    </div>
+
+    <div
+      v-if="replaceType === 'license'"
+      class="replace-section margin-medium-bottom padding-medium-bottom"
+    >
       <h3>License</h3>
       <div class="pair-grid margin-small-bottom">
         <label>From</label>
@@ -16,7 +49,10 @@
       </div>
     </div>
 
-    <div class="replace-section margin-medium-bottom padding-medium-bottom">
+    <div
+      v-if="replaceType === 'year'"
+      class="replace-section margin-medium-bottom padding-medium-bottom"
+    >
       <h3>Copyright year</h3>
       <div class="pair-grid margin-small-bottom">
         <label>From</label>
@@ -34,13 +70,17 @@
       </div>
     </div>
 
-    <div class="replace-section margin-medium-bottom">
+    <div
+      v-if="replaceType === 'role'"
+      class="replace-section margin-medium-bottom"
+    >
       <h3>Roles</h3>
       <div class="margin-medium-bottom">
         <label>Role type</label>
         <select
           v-model="roleType"
           class="full_width margin-small-top"
+          :disabled="!!roleReplacement"
         >
           <option
             v-for="type in roleTypeList"
@@ -77,9 +117,11 @@
               :role-type="roleType"
               :show-create-controls="false"
               :autofocus="false"
+              :switch-full-width="false"
             />
           </div>
         </div>
+        <hr class="divisor full_width" />
         <label>To</label>
         <div>
           <div
@@ -103,54 +145,30 @@
               :organization="typeHasOrganization"
               :role-type="roleType"
               :autofocus="false"
+              :switch-full-width="false"
             />
           </div>
         </div>
       </div>
 
-      <div class="horizontal-left-content gap-small">
-        <VBtn
-          color="primary"
-          :disabled="!canAddRole"
-          @click="addRoleToList"
-        >
-          Add to list
-        </VBtn>
-        <span
-          v-if="isFromDuplicate"
-          class="horizontal-left-content gap-small"
-        >
-          <VIcon
-            name="attention"
-            color="attention"
-            small
-          />
-          <span>This role/agent combination is already in the list</span>
-        </span>
-      </div>
-
-      <ul
-        v-if="roleReplacements.length"
+      <div
+        v-if="roleReplacement"
         class="table-entrys-list margin-medium-top"
       >
-        <li
-          v-for="(item, index) in roleReplacements"
-          :key="index"
-          class="list-complete-item flex-separate middle"
-        >
-          <span>{{ item.displayText }}</span>
+        <div class="list-complete-item flex-separate middle">
+          <span>{{ roleReplacement.displayText }}</span>
           <VBtn
             circle
             color="primary"
-            @click="removeRoleFromList(index)"
+            @click="removeRoleFromList"
           >
             <VIcon
               name="trash"
               x-small
             />
           </VBtn>
-        </li>
-      </ul>
+        </div>
+      </div>
     </div>
 
     <VBtn
@@ -161,16 +179,6 @@
     >
       Replace
     </VBtn>
-    <div
-      v-if="validationMessage"
-      class="text-warning-color margin-small-top"
-    >
-      {{ validationMessage }}
-    </div>
-    <div class="text-small-size margin-small-top">
-      Note: replace accepts a single attribute or one role at a time. Counts
-      reflect only actual replacements; no-op rows are not treated as failures.
-    </div>
   </div>
 </template>
 
@@ -213,6 +221,8 @@ const props = defineProps({
 
 const emit = defineEmits(['select'])
 
+const replaceType = ref('license') // license, year, role
+
 // License
 const fromLicense = ref(null)
 const toLicense = ref(null)
@@ -225,7 +235,7 @@ const toYear = ref(null)
 const roleType = ref(null)
 const fromRoleList = ref([])
 const toRoleList = ref([])
-const roleReplacements = ref([])
+const roleReplacement = ref(null)
 
 const roleTypeList = computed(() =>
   ROLE_TYPE_ORDER.filter((type) => props.roleTypes.includes(type))
@@ -239,93 +249,20 @@ const typeHasOrganization = computed(() =>
 const fromSelectedRole = computed(() => getActiveRole(fromRoleList.value))
 const toSelectedRole = computed(() => getActiveRole(toRoleList.value))
 
-const isFromDuplicate = computed(() => {
-  const fromRole = getActiveRole(fromRoleList.value)
-  if (!fromRole || !roleType.value) return false
-  const agentId = getRoleAgentId(fromRole)
-  const isOrganization = isOrganizationRole(fromRole)
-
-  return roleReplacements.value.some((item) => {
-    if (item.roleType !== roleType.value) return false
-    return isOrganization
-      ? item.fromRole.organization_id === agentId
-      : item.fromRole.person_id === agentId
-  })
-})
-
-const hasAnyLicenseInput = computed(() => fromLicense.value || toLicense.value)
-const hasAnyYearInput = computed(() => fromYear.value || toYear.value)
-
-const canAddRole = computed(() => {
-  const fromRole = getActiveRole(fromRoleList.value)
-  const toRole = getActiveRole(toRoleList.value)
-
-  if (hasAnyLicenseInput.value || hasAnyYearInput.value) {
-    return false
-  }
-
-  return (
-    roleType.value &&
-    fromRole &&
-    toRole &&
-    !isFromDuplicate.value &&
-    roleReplacements.value.length === 0
-  )
-})
-
 const hasLicenseReplacement = computed(() => fromLicense.value && toLicense.value)
 const hasYearReplacement = computed(() => fromYear.value && toYear.value)
-const hasRoleReplacements = computed(() => roleReplacements.value.length > 0)
+const hasRoleReplacements = computed(() => !!roleReplacement.value)
 
 const isValid = computed(() => {
-  const types = selectedTypes.value
-
-  if (types.length !== 1) {
-    return false
-  }
-
-  if (types[0] === 'license') {
+  if (replaceType.value === 'license') {
     return hasLicenseReplacement.value
   }
 
-  if (types[0] === 'year') {
+  if (replaceType.value === 'year') {
     return hasYearReplacement.value
   }
 
-  return roleReplacements.value.length === 1
-})
-
-const selectedTypes = computed(() => {
-  const types = []
-
-  if (hasAnyLicenseInput.value) {
-    types.push('license')
-  }
-  if (hasAnyYearInput.value) {
-    types.push('year')
-  }
-  if (hasRoleReplacements.value) {
-    types.push('roles')
-  }
-
-  return types
-})
-
-const validationMessage = computed(() => {
-  if (!selectedTypes.value.length) return ''
-  if (selectedTypes.value.length > 1) {
-    return 'Choose only one: license, copyright year, or one role.'
-  }
-  if (selectedTypes.value[0] === 'license' && !hasLicenseReplacement.value) {
-    return 'Choose both from and to license.'
-  }
-  if (selectedTypes.value[0] === 'year' && !hasYearReplacement.value) {
-    return 'Choose both from and to year.'
-  }
-  if (selectedTypes.value[0] === 'roles' && roleReplacements.value.length !== 1) {
-    return 'Choose exactly one role replacement.'
-  }
-  return ''
+  return !!roleReplacement.value
 })
 
 // roleTypes are loaded async
@@ -343,6 +280,27 @@ watch(roleType, () => {
   fromRoleList.value = []
   toRoleList.value = []
 })
+
+watch(replaceType, () => {
+  fromLicense.value = null
+  toLicense.value = null
+  fromYear.value = null
+  toYear.value = null
+  fromRoleList.value = []
+  toRoleList.value = []
+  roleReplacement.value = null
+})
+
+watch(
+  [fromSelectedRole, toSelectedRole],
+  ([fromRole, toRole]) => {
+    if (replaceType.value !== 'role') return
+    if (!fromRole || !toRole) return
+    if (!roleType.value || roleReplacement.value) return
+
+    addRoleToList()
+  }
+)
 
 function addRoleToList() {
   const fromSelected = getActiveRole(fromRoleList.value)
@@ -362,40 +320,40 @@ function addRoleToList() {
       : { person_id: getRoleAgentId(toSelected) })
   }
 
-  roleReplacements.value.push({
+  roleReplacement.value = {
     roleType: roleType.value,
     fromRole,
     toRole,
     displayText: `${getRoleTypeLabel(roleType.value)}: ${getRoleLabel(
       fromSelected
     )} → ${getRoleLabel(toSelected)}`
-  })
+  }
 
   fromRoleList.value = []
   toRoleList.value = []
 }
 
-function removeRoleFromList(index) {
-  roleReplacements.value.splice(index, 1)
+function removeRoleFromList() {
+  roleReplacement.value = null
 }
 
 function emitReplace() {
   const replaceAttribution = {}
   const toAttribution = {}
 
-  if (hasLicenseReplacement.value) {
+  if (replaceType.value === 'license' && hasLicenseReplacement.value) {
     replaceAttribution.license = fromLicense.value
     toAttribution.license = toLicense.value
   }
 
-  if (hasYearReplacement.value) {
+  if (replaceType.value === 'year' && hasYearReplacement.value) {
     replaceAttribution.copyright_year = fromYear.value
     toAttribution.copyright_year = toYear.value
   }
 
-  if (hasRoleReplacements.value) {
-    replaceAttribution.roles_attributes = roleReplacements.value.map((r) => r.fromRole)
-    toAttribution.roles_attributes = roleReplacements.value.map((r) => r.toRole)
+  if (replaceType.value === 'role' && hasRoleReplacements.value) {
+    replaceAttribution.roles_attributes = [roleReplacement.value.fromRole]
+    toAttribution.roles_attributes = [roleReplacement.value.toRole]
   }
 
   emit('select', [replaceAttribution, toAttribution])
@@ -403,10 +361,11 @@ function emitReplace() {
 
 function getActiveRole(list) {
   const roles = list || []
+  // Always index 0 in practice since we hide the picker after selection.
   return roles[roles.length - 1]
 }
 
-// returns, e.g., 'Creator' instead of 'AttributionCreator'
+// Returns, e.g., 'Creator' instead of 'AttributionCreator'.
 function getRoleTypeLabel(type) {
   return type?.substring(11) || ''
 }
@@ -451,6 +410,12 @@ function getRoleLabel(role) {
 .pair-grid label {
   text-align: right;
 }
+
+.pair-grid .divisor {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
 
 .replace-section:last-of-type {
   border-bottom: none;

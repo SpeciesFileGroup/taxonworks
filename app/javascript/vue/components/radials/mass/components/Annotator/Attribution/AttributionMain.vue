@@ -8,6 +8,9 @@
       v-if="isSaving"
       legend="Updating..."
     />
+    <p>
+      <i>Only one piece of data can be added/removed/replaced at a time - this keeps result counts precise.</i>
+    </p>
     <h3>Mode</h3>
     <div class="margin-small-bottom">
       <ul class="no_bullets">

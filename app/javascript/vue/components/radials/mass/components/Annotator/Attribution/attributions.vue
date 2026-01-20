@@ -1,11 +1,12 @@
 <template>
   <div>
-    <h3>License</h3>
-    <LicenseInput
-      v-model="attribution.license"
-      :licenses="licenses"
-    />
-
+    <div class="separate-bottom">
+      <h3>License</h3>
+      <LicenseInput
+        v-model="attribution.license"
+        :licenses="licenses"
+      />
+    </div>
     <div class="separate-top separate-bottom">
       <h3>Copyright year</h3>
       <input
@@ -15,6 +16,7 @@
       />
     </div>
     <div class="switch-radio separate-bottom">
+      <h3>Role</h3>
       <template
         v-for="(item, index) in smartSelectorList"
         :key="item"
@@ -108,10 +110,6 @@
         class="text-warning-color margin-small-top"
       >
         {{ validationMessage }}
-      </div>
-      <div class="text-small-size margin-small-top">
-        Note: batch updates accept a single attribute or one role at a time.
-        Result counts reflect only actual updates; no-op rows are not treated as failures.
       </div>
     </div>
   </div>
@@ -365,6 +363,13 @@ const roleCount = (label) => {
 <style lang="scss">
 .attribution_annotator {
   .switch-radio {
+    flex-wrap: wrap;
+
+    h3 {
+      flex-basis: 100%;
+      margin-bottom: 6px;
+    }
+
     label {
       width: 120px;
     }
