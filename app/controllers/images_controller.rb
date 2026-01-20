@@ -57,6 +57,7 @@ class ImagesController < ApplicationController
     end
 
     render plain: 'Not found. You may need to add a &project_token= param to the URL currently in your address bar to access these data. See https://api.taxonworks.org/ for more.', status: :not_found and return if @image.nil?
+
     render '/images/api/v1/show'
   end
 

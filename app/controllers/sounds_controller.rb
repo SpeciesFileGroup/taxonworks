@@ -32,6 +32,10 @@ class SoundsController < ApplicationController
   def show
   end
 
+  def api_show
+    render template: '/sounds/api/v1/show'
+  end
+
   # GET /sounds/new
   def new
     @sound = Sound.new

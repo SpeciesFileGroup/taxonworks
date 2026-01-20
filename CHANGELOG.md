@@ -33,6 +33,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - DwCA export optimizations [#4607]
 - Inconsistent TW:otu_name selection from multiple values in DwCA exports in some cases
 - DwCA TW:data_attributes now includes all values on a given predicate (not just the last)
+- /api/v1/sounds/1
+- furtherInformationURL for sounds in DwCA media export
 - Performance regression in cached maps re-indexing via the rake task
 - `Create citation` button doesn't keep citations state once the observation is moved to another cell in Image matrix task
 - Add autosave option to New source task [#4691]
