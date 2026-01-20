@@ -16,19 +16,25 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Source facet to Filter Asserted Distributions
 - 'Replace source' batch update to Filter Asserted Distributions [#4647]
 
+### Changed
+
+- Disabled autosave by default for New asserted distribution task. [#4698]
+
 ### Fixed
 
 - Filters return incorrect results when using the right Radial Filter with 21 or more selected objects. [#4676]
 - Browse News: Old administration news is shown first instead of new news.
 - Batch operation now works on venn query results, venn query results can now be sent to other filters [#4663]
 - No error message when trying to delete a combination attached to an OTU [#4670]
-- Error notice is now returned when trying to include media extension in DwCA export with a project API token
+- Error notice is now returned when trying to include media extension in DwCA export without a project API token (media links embed API token)
 - Match Taxon Names task downloads have wrong valid name [#4682]
 - New source task: Title is required to create a BibTeX source [#4688]
 - Error on sending Taxon Name filter result to Asserted Distributions
 - DwCA export optimizations [#4607]
 - Inconsistent TW:otu_name selection from multiple values in DwCA exports in some cases
 - DwCA TW:data_attributes now includes all values on a given predicate (not just the last)
+- /api/v1/sounds/1
+- furtherInformationURL for sounds in DwCA media export
 - Performance regression in cached maps re-indexing via the rake task
 - `Create citation` button doesn't keep citations state once the observation is moved to another cell in Image matrix task
 - Add autosave option to New source task [#4691]
@@ -46,6 +52,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4690]: https://github.com/SpeciesFileGroup/taxonworks/issues/4690
 [#4691]: https://github.com/SpeciesFileGroup/taxonworks/issues/4691
 [#4692]: https://github.com/SpeciesFileGroup/taxonworks/issues/4692
+[#4698]: https://github.com/SpeciesFileGroup/taxonworks/issues/4698
 
 ## [0.57.0] - 2026-01-06
 
