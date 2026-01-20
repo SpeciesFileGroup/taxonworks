@@ -2,15 +2,15 @@
   <svg
     ref="svgRef"
     :viewBox="`0 0 ${viewport.width} ${viewport.height}`"
+    :style="{ cursor: viewerMode.cursor.value }"
     @mousedown="onMouseDown"
     @mousemove="onMouseMove"
     @mouseup="onMouseUp"
-    @dblclick="resetView"
     @wheel.prevent="onWheel"
   >
     <g
-      class="content"
       ref="contentRef"
+      class="content"
       :transform="contentTransform"
     >
       <image
@@ -36,25 +36,14 @@
       />
 
       <MeasurementBar
-        v-if="drawing"
-        :x1="startPoint.x"
-        :y1="startPoint.y"
-        :x2="currentPoint.x"
-        :y2="currentPoint.y"
+        v-if="viewerMode.active?.value.drawing?.value"
+        :x1="viewerMode.active.value.start.value.x"
+        :y1="viewerMode.active.value.start.value.y"
+        :x2="viewerMode.active.value.current.value.x"
+        :y2="viewerMode.active.value.current.value.y"
         :pixels-to-centimeters="pixelsToCentimeters"
         :font-size="12 / zoom"
         :stroke-width="2"
-      />
-
-      <ViewerScalebar
-        v-if="false"
-        :x="imageWidth / 2 - scalebarWidth / 2"
-        :y="imageHeight - 20 / zoom"
-        :width="scalebarWidth"
-        :label="scalebarLabel"
-        :font-size="scalebarFontSize"
-        :bar-height="scalebarBarHeight"
-        :zoom="zoom"
       />
     </g>
 
@@ -68,9 +57,22 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted, onBeforeUnmount, watch } from 'vue'
-import { useMeasurements, useAutoScalebar } from '../../composables'
-import ViewerScalebar from './ViewerScalebar.vue'
+import { ref, computed } from 'vue'
+
+import {
+  useAutoScalebar,
+  useViewerModes,
+  useMeasureMode,
+  usePanMode,
+  useViewerTransform,
+  useZoom,
+  useEraseMode,
+  useViewportFit,
+  usePanGesture,
+  useZoomGesture,
+  useViewerGestures
+} from '../../composables'
+
 import MeasurementLayer from './Measurement/MeasurementLayer.vue'
 import MeasurementBar from './Measurement/MeasurementBar.vue'
 import ViewerScalebarOverlay from './ViewerScalebarOverlay.vue'
@@ -86,24 +88,33 @@ const props = defineProps({
   }
 })
 
+const measurements = defineModel('measurements', {
+  type: Array,
+  default: () => []
+})
+
+const mode = defineModel('mode', {
+  type: String,
+  default: 'pan'
+})
+
+const svgRef = ref()
+const contentRef = ref()
+
+const pan = ref({ x: 0, y: 0 })
+const baseZoom = ref(1)
+const userZoom = ref(1)
 const viewport = ref({
   width: props.imageWidth,
   height: props.imageHeight
 })
 
-const pan = ref({ x: 0, y: 0 })
-const baseZoom = ref(1)
-const userZoom = ref(1)
-
 const zoom = computed(() => baseZoom.value * userZoom.value)
 
-const contentRef = ref()
-
-const contentTransform = computed(() => {
-  return `
-    translate(${pan.value.x}, ${pan.value.y})
-    scale(${zoom.value})
-  `
+const transform = useViewerTransform({
+  svgRef,
+  pan,
+  zoom
 })
 
 const autoScale = useAutoScalebar({
@@ -112,140 +123,78 @@ const autoScale = useAutoScalebar({
   targetPx: 120
 })
 
-const scalebarWidth = computed(() => autoScale.value.px / zoom.value)
-
-const scalebarLabel = computed(() => {
-  const cm = autoScale.value.cm
-  return cm < 1 ? `${cm * 10} mm` : `${cm} cm`
-})
-
-const scalebarFontSize = computed(() => 12 / zoom.value)
-const scalebarBarHeight = computed(() => 6 / zoom.value)
+const contentTransform = computed(
+  () => `
+  translate(${pan.value.x}, ${pan.value.y})
+  scale(${zoom.value})
+`
+)
 
 const scalebarOverlay = computed(() => {
   const cm = autoScale.value.cm
 
   return {
     label: cm < 1 ? `${cm * 10} mm` : `${cm} cm`,
-    imageWidth: cm * props.pixelsToCentimeters,
     screenWidth: autoScale.value.px
   }
 })
 
-const svgRef = ref(null)
-
-const {
+const ctx = {
+  svgRef,
+  pan,
+  zoom,
+  contentRef,
   measurements,
-  drawing,
-  startPoint,
-  currentPoint,
-  startMeasurement,
-  moveMeasurement,
-  endMeasurement
-} = useMeasurements(svgRef, contentRef)
-
-function svgPoint(evt, svg) {
-  const pt = svg.createSVGPoint()
-  pt.x = evt.clientX
-  pt.y = evt.clientY
-  return pt.matrixTransform(svg.getScreenCTM().inverse())
+  transform,
+  baseZoom,
+  userZoom,
+  viewport,
+  imageWidth: computed(() => props.imageWidth),
+  imageHeight: computed(() => props.imageHeight)
 }
 
-function onWheel(e) {
-  const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9
-  const pt = svgPoint(e, svgRef.value)
+const { fit } = useViewportFit(ctx)
 
-  pan.value.x = pt.x - (pt.x - pan.value.x) * zoomFactor
-  pan.value.y = pt.y - (pt.y - pan.value.y) * zoomFactor
-
-  userZoom.value *= zoomFactor
+const modes = {
+  pan: usePanMode(ctx),
+  measure: useMeasureMode(ctx),
+  erase: useEraseMode(ctx),
+  zoom: useZoom(ctx)
 }
 
-const panning = ref(false)
-const panStartMouse = ref(null)
-const panStartPan = ref(null)
+const viewerMode = useViewerModes({
+  mode,
+  modes
+})
 
-function startPan(e) {
-  panning.value = true
-  panStartMouse.value = { x: e.clientX, y: e.clientY }
-  panStartPan.value = { ...pan.value }
-}
-
-function movePan(e) {
-  if (!panning.value) return
-
-  const dx = e.clientX - panStartMouse.value.x
-  const dy = e.clientY - panStartMouse.value.y
-
-  pan.value.x = panStartPan.value.x + dx
-  pan.value.y = panStartPan.value.y + dy
-}
-
-function endPan() {
-  panning.value = false
-}
+const viewerGestures = useViewerGestures({
+  pan: usePanGesture(ctx),
+  zoom: useZoomGesture(ctx)
+})
 
 function onMouseDown(e) {
-  if (e.shiftKey) {
-    startMeasurement(e)
-  } else {
-    startPan(e)
-  }
+  viewerGestures.onMouseDown(e)
+  viewerMode.onMouseDown(e)
 }
 
 function onMouseMove(e) {
-  moveMeasurement(e)
-  movePan(e)
+  viewerGestures.onMouseMove(e)
+  viewerMode.onMouseMove(e)
 }
 
-function onMouseUp() {
-  endMeasurement()
-  endPan()
+function onMouseUp(e) {
+  viewerGestures.onMouseUp(e)
+  viewerMode.onMouseUp(e)
 }
 
-function fitImageToViewer() {
-  const vw = svgRef.value.clientWidth
-  const vh = svgRef.value.clientHeight
-
-  viewport.value = { width: vw, height: vh }
-
-  baseZoom.value = Math.min(1, vw / props.imageWidth, vh / props.imageHeight)
-
-  userZoom.value = 1
-
-  pan.value = {
-    x: (vw - props.imageWidth * baseZoom.value) / 2,
-    y: (vh - props.imageHeight * baseZoom.value) / 2
-  }
+function onWheel(e) {
+  viewerGestures.onWheel(e)
 }
-
-function resetView() {
-  fitImageToViewer()
-}
-
-let resizeObserver
-
-watch(() => [props.imageWidth, props.imageHeight], fitImageToViewer)
-
-onMounted(() => {
-  fitImageToViewer()
-
-  resizeObserver = new ResizeObserver(() => {
-    fitImageToViewer()
-  })
-
-  resizeObserver.observe(svgRef.value)
-})
-
-onBeforeUnmount(() => {
-  resizeObserver?.disconnect()
-})
 </script>
 
 <style scoped>
-.viewer {
+svg {
   user-select: none;
-  cursor: crosshair;
 }
 
 svg * {
@@ -259,10 +208,5 @@ svg * {
 
 svg {
   pointer-events: all;
-}
-
-.overlay,
-.overlay * {
-  pointer-events: none;
 }
 </style>

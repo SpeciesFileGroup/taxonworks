@@ -47,7 +47,7 @@ const props = defineProps({
 
 const blackHeight = computed(() => props.barHeight / 3)
 const blackY = computed(() => (props.barHeight - blackHeight.value) / 2)
-const textOffset = computed(() => props.fontSize * 0.6)
+const textOffset = computed(() => props.fontSize * 0.1)
 </script>
 
 <style scoped>
@@ -65,7 +65,7 @@ const textOffset = computed(() => props.fontSize * 0.6)
   fill: black;
   paint-order: stroke;
   stroke: white;
-  stroke-width: 3;
+  stroke-width: 6;
   vector-effect: non-scaling-stroke;
 }
 </style>
