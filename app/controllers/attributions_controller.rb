@@ -97,7 +97,10 @@ class AttributionsController < ApplicationController
   end
 
   def batch_by_filter_scope_params
-    params.require(:params).permit(attribution: [*attribution_params_list])
+    params.require(:params).permit(
+      attribution: [*attribution_params_list],
+      replace_attribution: [*attribution_params_list]
+    )
   end
 
   def attribution_params_list
