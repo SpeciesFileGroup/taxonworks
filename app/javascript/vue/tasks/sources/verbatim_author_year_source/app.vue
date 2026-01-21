@@ -1,7 +1,8 @@
 <template>
-  <div id="verbatim-author-year-source-task">
-    <h2>Task - TaxonName verbatim author/year without citations</h2>
-
+  <div
+    id="verbatim-author-year-source-task"
+    class="margin-medium-top"
+  >
     <div>
       <a :href="RouteNames.FilterNomenclature">Back to Filter TaxonNames</a>
     </div>
