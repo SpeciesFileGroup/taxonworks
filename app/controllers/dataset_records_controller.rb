@@ -34,7 +34,7 @@ class DatasetRecordsController < ApplicationController
         format.json { render :show, status: :created, location: @dataset_record }
       else
         format.html { render :new }
-        format.json { render json: @dataset_record.errors, status: :unprocessable_entity }
+        format.json { render json: @dataset_record.errors, status: :unprocessable_content }
       end
     end
   end
@@ -49,7 +49,7 @@ class DatasetRecordsController < ApplicationController
       if @dataset_record.save
         format.json { render :show, status: :ok }
       else
-        format.json { render json: @dataset_record.errors, status: :unprocessable_entity }
+        format.json { render json: @dataset_record.errors, status: :unprocessable_content }
       end
     end
   end

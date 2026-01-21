@@ -256,10 +256,12 @@ class TWAutocomplete {
 
     const rect = this.input.getBoundingClientRect()
     const appendRect = this._appendTo.getBoundingClientRect()
+
     const scrollTop =
       this._appendTo === document.body
         ? window.pageYOffset
         : this._appendTo.scrollTop
+
     const scrollLeft =
       this._appendTo === document.body
         ? window.pageXOffset
@@ -268,42 +270,48 @@ class TWAutocomplete {
     let left = rect.left - appendRect.left + scrollLeft
     let top = rect.bottom - appendRect.top + scrollTop
 
-    this._menu.style.minWidth = rect.width + 'px'
     this._menu.style.display = 'block'
+    this._menu.style.visibility = 'hidden'
+    this._menu.style.minWidth = rect.width + 'px'
     this._menu.innerHTML = ''
 
     const term = this.input.value
+
     this._items.forEach((item, idx) => {
-      const d = document.createElement('li')
-      d.className = `autocomplete-item ${
-        this.options.classes.item || ''
-      }`.trim()
-      d.setAttribute('role', 'option')
-      d.setAttribute('data-index', String(idx))
-      d.setAttribute('data-model-id', String(item.id))
-      d.setAttribute('tabindex', '-1')
-      d.innerHTML = item.label_html || this._highlightLabel(item.label, term)
-      this._menu.appendChild(d)
+      const li = document.createElement('li')
+      li.className =
+        `autocomplete-item ${this.options.classes.item || ''}`.trim()
+      li.setAttribute('role', 'option')
+      li.setAttribute('data-index', String(idx))
+      li.setAttribute('data-model-id', String(item.id))
+      li.setAttribute('tabindex', '-1')
+      li.innerHTML = item.label_html || this._highlightLabel(item.label, term)
+      this._menu.appendChild(li)
     })
 
-    const contentWidth = this._menu.scrollWidth
-    const inputWidth = rect.width
+    let maxItemWidth = rect.width
+    Array.from(this._menu.children).forEach((li) => {
+      const width = li.scrollWidth
+      if (width > maxItemWidth) {
+        maxItemWidth = width
+      }
+    })
+
     const viewportWidth = window.innerWidth - rect.left - 20
-    const finalWidth = Math.min(
-      Math.max(contentWidth, inputWidth),
-      viewportWidth
-    )
+
+    const finalWidth = Math.min(maxItemWidth, viewportWidth)
+
     this._menu.style.width = finalWidth + 'px'
-    this._menu.style.minWidth = inputWidth + 'px'
+    this._menu.style.minWidth = rect.width + 'px'
     this._menu.style.maxWidth = viewportWidth + 'px'
 
     const maxLeftRel = Math.max(0, appendRect.width - this._menu.offsetWidth)
 
-    top = rect.bottom - appendRect.top + scrollTop
     left = Math.max(0, Math.min(left, maxLeftRel))
 
     this._menu.style.left = Math.round(left) + 'px'
     this._menu.style.top = Math.round(top) + 'px'
+    this._menu.style.visibility = 'visible'
   }
 
   _highlightLabel(label, term) {
@@ -326,7 +334,7 @@ class TWAutocomplete {
           '>': '&gt;',
           '"': '&quot;',
           "'": '&#39;'
-        }[c])
+        })[c]
     )
   }
 

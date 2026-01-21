@@ -49,7 +49,7 @@ class IdentifiersController < ApplicationController
         format.json { render action: 'show', status: :created, location: @identifier.becomes(Identifier) }
       else
         format.html { render 'new', notice: 'Identifier was NOT successfully created.' }
-        format.json { render json: @identifier.errors, status: :unprocessable_entity }
+        format.json { render json: @identifier.errors, status: :unprocessable_content }
       end
     end
   end
@@ -64,7 +64,7 @@ class IdentifiersController < ApplicationController
         format.json { render :show, status: :ok, location: @identifier.becomes(Identifier) }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Identifier was NOT successfully created.')}
-        format.json { render json: @identifier.errors, status: :unprocessable_entity }
+        format.json { render json: @identifier.errors, status: :unprocessable_content }
       end
     end
   end

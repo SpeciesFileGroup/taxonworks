@@ -451,8 +451,8 @@ resources :identifiers, except: [:show] do
   # Must be before member
   collection do
     patch :reorder, defaults: {format: :json}
-    get :identifier_types, {format: :json}
-    post :namespaces, {format: :json}
+    get :identifier_types, format: :json
+    post :namespaces, format: :json
     post :batch_by_filter_scope, defaults: {format: :json}
   end
 
@@ -621,26 +621,26 @@ resources :observation_matrices do
   end
 
   collection do
-    get :otus_used_in_matrices, {format: :json}
-    get :nexus_data, {format: :json}
+    get :otus_used_in_matrices, format: :json
+    get :nexus_data, format: :json
 
-    post :batch_create, {format: :json}
-    post :batch_add, {format: :json}
-    post :import_from_nexus, {format: :json}
+    post :batch_create, format: :json
+    post :batch_add, format: :json
+    post :import_from_nexus, format: :json
   end
 end
 
 resources :observation_matrix_columns, only: [:index, :show] do
   concerns [:data_routes]
   collection do
-    patch 'sort', {format: :json}
+    patch 'sort', format: :json
   end
 end
 
 resources :observation_matrix_rows, only: [:index, :show] do
   concerns [:data_routes]
   collection do
-    patch 'sort', {format: :json}
+    patch 'sort', format: :json
   end
 end
 
@@ -955,7 +955,7 @@ resources :taxon_names do
 
     post :preview_simple_batch_load # should be get
     post :create_simple_batch_load
-    get :ranks, {format: :json}
+    get :ranks, format: :json
 
     post :preview_nomen_batch_load
     post :create_nomen_batch_load
@@ -965,7 +965,7 @@ resources :taxon_names do
     get :random
 
     get :rank_table, defaults: {format: :json}
-    get :predicted_rank, {format: :json}
+    get :predicted_rank, format: :json
 
     patch :batch_update
 
@@ -975,7 +975,7 @@ resources :taxon_names do
 
   member do
     get :original_combination, defaults: {format: :json}
-    get :taxonomy, {format: :json}
+    get :taxonomy, format: :json
   end
 end
 
@@ -992,8 +992,8 @@ end
 resources :taxon_name_relationships do
   concerns [:data_routes]
   collection do
-    get :type_relationships, {format: :json}
-    get :taxon_name_relationship_types, {format: :json}
+    get :type_relationships, format: :json
+    get :taxon_name_relationship_types, format: :json
     match :filter, to: 'taxon_name_relationships#index', via: [:get, :post]
   end
 end
@@ -1011,6 +1011,6 @@ end
 resources :type_materials do
   concerns [:data_routes]
   collection do
-    get :type_types, {format: :json}
+    get :type_types, format: :json
   end
 end

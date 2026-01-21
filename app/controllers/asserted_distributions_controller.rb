@@ -49,7 +49,7 @@ class AssertedDistributionsController < ApplicationController
         format.json { render :show, status: :created, location: @asserted_distribution }
       else
         format.html { render :new }
-        format.json { render json: @asserted_distribution.errors, status: :unprocessable_entity }
+        format.json { render json: @asserted_distribution.errors, status: :unprocessable_content }
       end
     end
   end
@@ -63,7 +63,7 @@ class AssertedDistributionsController < ApplicationController
         format.json { render :show, status: :ok, location: @asserted_distribution }
       else
         format.html { render :edit }
-        format.json { render json: @asserted_distribution.errors, status: :unprocessable_entity }
+        format.json { render json: @asserted_distribution.errors, status: :unprocessable_content }
       end
     end
   end
@@ -80,7 +80,7 @@ class AssertedDistributionsController < ApplicationController
         format.json { head :no_content}
       else
         format.html { destroy_redirect @asserted_distribution, notice: 'Asserted distribution was not destroyed, ' + @asserted_distribution.errors.full_messages.join('; ') }
-        format.json { render json: @asserted_distribution.errors, status: :unprocessable_entity }
+        format.json { render json: @asserted_distribution.errors, status: :unprocessable_content }
       end
     end
   end
@@ -127,7 +127,7 @@ class AssertedDistributionsController < ApplicationController
         project_id: sessions_current_project_id)
       render json: r.to_json, status: :ok
     else
-      render json: {}, status: :unprocessable_entity
+      render json: {}, status: :unprocessable_content
     end
   end
 
@@ -149,7 +149,7 @@ class AssertedDistributionsController < ApplicationController
     )
       render json: r.to_json, status: :ok
     else
-      render json: {}, status: :unprocessable_entity
+      render json: {}, status: :unprocessable_content
     end
   end
 

@@ -3,11 +3,13 @@
     <VBtn
       color="primary"
       circle
+      title="Move annotation"
       @click="() => (isModalVisible = true)"
     >
       <VIcon
         name="swap"
         x-small
+        title="Move annotation"
       />
     </VBtn>
     <VModal

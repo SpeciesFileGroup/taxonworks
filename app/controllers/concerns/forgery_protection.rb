@@ -12,7 +12,7 @@ module ForgeryProtection
           flash[:notice] = "Your last request could not be fulfilled. Please retry."
           redirect_to '/'
         end
-        format.json { render body: '{ "success": false }', status: :unprocessable_entity }
+        format.json { render body: '{ "success": false }', status: :unprocessable_content }
       end
     end
 

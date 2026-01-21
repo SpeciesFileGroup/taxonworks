@@ -37,7 +37,7 @@ class GeographicAreaTypesController < ApplicationController
         format.json { render action: 'show', status: :created, location: @geographic_area_type }
       else
         format.html { render action: 'new' }
-        format.json { render json: @geographic_area_type.errors, status: :unprocessable_entity }
+        format.json { render json: @geographic_area_type.errors, status: :unprocessable_content }
       end
     end
   end
@@ -51,7 +51,7 @@ class GeographicAreaTypesController < ApplicationController
         format.json { head :no_content }
       else
         format.html { render action: 'edit' }
-        format.json { render json: @geographic_area_type.errors, status: :unprocessable_entity }
+        format.json { render json: @geographic_area_type.errors, status: :unprocessable_content }
       end
     end
   end

@@ -44,7 +44,7 @@ class MetadataController < ApplicationController
     if @words = Vocabulary.words(**p)
       render json: @words, status: :ok
     else
-      render json: {}, status: :unprocessable_entity
+      render json: {}, status: :unprocessable_content
     end
   end
 

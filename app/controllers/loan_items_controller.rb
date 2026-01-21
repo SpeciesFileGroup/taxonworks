@@ -49,7 +49,7 @@ class LoanItemsController < ApplicationController
         format.json { render :show, status: :created, location: @loan_item }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Loan item was NOT successfully created.')}
-        format.json { render json: @loan_item.errors, status: :unprocessable_entity }
+        format.json { render json: @loan_item.errors, status: :unprocessable_content }
       end
     end
   end
@@ -63,7 +63,7 @@ class LoanItemsController < ApplicationController
         format.json { render :show, status: :ok, location: @loan_item }
       else
         format.html { redirect_back(fallback_location: (request.referer || root_path), notice: 'Loan item was NOT successfully updated.' + @loan_item.errors.full_messages.join('; '))}
-        format.json { render json: @loan_item.errors, status: :unprocessable_entity }
+        format.json { render json: @loan_item.errors, status: :unprocessable_content }
       end
     end
   end
