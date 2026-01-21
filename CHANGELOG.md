@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- New task: Verbatim author/year to citated taxon name
 - New task: Dichotomous key
 - New repository link to New type specimen task [#4692]
 - Monograph facilitator to OTU radial linker [#4690]

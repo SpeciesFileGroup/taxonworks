@@ -2,7 +2,7 @@
   <div>
     <h3>Verbatim from BibTeX</h3>
     <div
-      v-for="{ attr, label, component, bind } in VERBATIM_BIBTEX_FIELDS"
+      v-for="{ attr, label, component } in VERBATIM_BIBTEX_FIELDS"
       :key="attr"
       class="field"
     >
@@ -10,7 +10,8 @@
       <component
         :is="component"
         type="text"
-        v-model="source[attr]"
+        :value="source[attr]"
+        @input="(e) => (source[attr] = e.target.value)"
         @change="() => (source.isUnsaved = true)"
       />
     </div>

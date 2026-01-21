@@ -815,9 +815,9 @@ module Queries
       def author_facet
         return nil if author.blank?
         if author_exact
-          table[:cached_author_year].eq(author.strip)
+          table[:cached_author].eq(author.strip)
         else
-          table[:cached_author_year].matches('%' + author.strip.gsub(/\s/, '%') + '%')
+          table[:cached_author].matches('%' + author.strip.gsub(/\s/, '%') + '%')
         end
       end
 
