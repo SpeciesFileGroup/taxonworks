@@ -103,12 +103,30 @@
                     >
                         Cite
                     </VBtn>
-                    <span v-else-if="row.isPending" class="pending-text">
-                        Creating citations...
-                    </span>
-                    <span v-else class="success-text">
-                        ✓ Citations created
-                    </span>
+                    <div v-else-if="row.isPending" class="progress-container">
+                        <span class="pending-text">
+                            {{
+                                row.pendingStage === "citations"
+                                    ? "Creating citations..."
+                                    : "Updating taxon name authors..."
+                            }}
+                        </span>
+                        <div v-if="row.progressTotal > 0" class="progress-bar">
+                            <div
+                                class="progress-fill"
+                                :style="{
+                                    width: `${(row.progressCurrent / row.progressTotal) * 100}%`,
+                                }"
+                            />
+                        </div>
+                        <span
+                            v-if="row.progressTotal > 0"
+                            class="progress-text"
+                        >
+                            {{ row.progressCurrent }} / {{ row.progressTotal }}
+                        </span>
+                    </div>
+                    <span v-else class="completed-text"> ✓ Complete </span>
                 </td>
             </tr>
         </tbody>
@@ -212,12 +230,38 @@ td {
     text-align: center;
 }
 
-.pending-text {
-    color: #666;
-    font-style: italic;
+.progress-container {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 180px;
 }
 
-.success-text {
-    color: #666;
+.pending-text {
+    color: var(--text-muted-color);
+    font-style: italic;
+    font-size: 0.9em;
+}
+
+.progress-bar {
+    height: 6px;
+    background-color: var(--border-color);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background-color: var(--color-primary);
+    transition: width 0.2s ease;
+}
+
+.progress-text {
+    font-size: 0.8em;
+    color: var(--text-muted-color);
+}
+
+.completed-text {
+    color: var(--text-muted-color);
 }
 </style>

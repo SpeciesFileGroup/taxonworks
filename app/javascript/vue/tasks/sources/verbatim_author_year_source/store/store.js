@@ -51,6 +51,9 @@ export default defineStore("verbatimAuthorYearSource", {
           heat_color: row.heat_color,
           isCited: false,
           isPending: false,
+          pendingStage: null,
+          progressCurrent: 0,
+          progressTotal: 0,
         }));
 
         this.maxCount = response.body.max_count;
@@ -100,6 +103,9 @@ export default defineStore("verbatimAuthorYearSource", {
       }
 
       row.isPending = true;
+      row.pendingStage = "citations";
+      row.progressCurrent = 0;
+      row.progressTotal = 0;
 
       try {
         // Get TaxonName IDs
@@ -109,9 +115,24 @@ export default defineStore("verbatimAuthorYearSource", {
           year_of_publication: year,
         });
 
-        const ids = taxonNamesResponse.body.map((tn) => tn.id);
+        const taxonNames = taxonNamesResponse.body;
+        const ids = taxonNames.map((tn) => tn.id);
 
-        // Batch create citations
+        // Validate we have the expected count
+        if (ids.length === 0) {
+          throw new Error("No TaxonNames found for this author/year");
+        }
+
+        if (ids.length !== row.record_count) {
+          throw new Error(
+            `Expected ${row.record_count} TaxonNames but found ${ids.length}`,
+          );
+        }
+
+        // Stage 1: Create citations
+        row.progressTotal = ids.length;
+        row.progressCurrent = 0;
+
         await Citation.createBatch({
           citation: {
             citation_object_type: "TaxonName",
@@ -121,18 +142,36 @@ export default defineStore("verbatimAuthorYearSource", {
           },
         });
 
-        // Mark as cited
+        row.progressCurrent = ids.length;
+
+        // Stage 2: Clear verbatim_author from TaxonNames
+        row.pendingStage = "updating";
+        row.progressCurrent = 0;
+
+        for (let i = 0; i < ids.length; i++) {
+          await TaxonName.update(ids[i], {
+            taxon_name: { verbatim_author: null, year_of_publication: null },
+          });
+          row.progressCurrent = i + 1;
+        }
+
+        // Mark as complete
         row.isCited = true;
         row.isPending = false;
+        row.pendingStage = null;
 
         TW.workbench.alert.create(
-          "Citations were successfully created",
+          "Citations created and taxon names updated",
           "notice",
         );
       } catch (error) {
-        console.error("Error creating citations:", error);
+        console.error("Error in batch cite:", error);
         row.isPending = false;
-        TW.workbench.alert.create("Error creating citations", "error");
+        row.pendingStage = null;
+        TW.workbench.alert.create(
+          error.message || "Error creating citations",
+          "error",
+        );
         throw error;
       }
     },
