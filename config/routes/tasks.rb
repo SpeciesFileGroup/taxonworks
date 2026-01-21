@@ -260,6 +260,7 @@ scope :tasks do
   scope :content do
     scope :filter, controller: 'tasks/contents/filter' do
       get '/', action: :index, as: 'filter_contents_task'
+      post 'download', action: 'download', as: 'download_contents_filter_result'
     end
     scope :publisher, controller: 'tasks/content/publisher' do
       get 'summary', as: :publisher_summary,  defaults: {format: :json}
