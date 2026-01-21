@@ -132,7 +132,6 @@ import { ref, computed } from 'vue'
 import { RouteNames } from '@/routes/routes'
 import useStore from '../store/store'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
 import ButtonClipboard from '@/components/ui/Button/ButtonClipboard.vue'
 
 const store = useStore()
@@ -183,13 +182,6 @@ function filterUrl(author, year) {
     year_of_publication: year
   })
   return `${RouteNames.FilterNomenclature}?${params.toString()}`
-}
-
-function copyToClipboard(author, year) {
-  const text = `${author} ${year}`
-  navigator.clipboard.writeText(text).then(() => {
-    TW.workbench.alert.create('Copied to clipboard', 'notice')
-  })
 }
 
 function textColorFromHSL(hsl) {

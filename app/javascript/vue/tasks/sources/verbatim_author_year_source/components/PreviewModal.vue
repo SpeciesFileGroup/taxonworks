@@ -1,7 +1,7 @@
 <template>
-  <Modal
+  <VModal
     @close="$emit('close')"
-    container-style="max-width: 600px;"
+    :container-style="{ width: '800px' }"
   >
     <template #header>
       <h3>{{ author }} {{ year }}</h3>
@@ -43,13 +43,13 @@
         </tbody>
       </table>
     </template>
-  </Modal>
+  </VModal>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import useStore from '../store/store'
-import Modal from '@/components/ui/Modal.vue'
+import VModal from '@/components/ui/Modal.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
 const props = defineProps({
