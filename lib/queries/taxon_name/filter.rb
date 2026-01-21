@@ -8,6 +8,7 @@ module Queries
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
       include Queries::Concerns::Notes
+      include Queries::Concerns::Sounds
       include Queries::Concerns::Tags
 
       PARAMS = [
@@ -900,6 +901,14 @@ module Queries
         ::TaxonName.from('(' + s + ') as taxon_names').distinct
       end
 
+      def sound_query_facet
+        return nil if sound_query.nil?
+        otus = otus_from_sound_query
+        return nil if otus.nil?
+
+        ::TaxonName.joins(:otus).where(otus: {id: otus.select(:id)}).distinct
+      end
+
       def asserted_distribution_query_facet
         return nil if asserted_distribution_query.nil?
         s = 'WITH query_ad_tn AS (' + asserted_distribution_query.all.to_sql + ') ' +
@@ -1002,6 +1011,7 @@ module Queries
           collecting_event_query_facet,
           collection_object_query_facet,
           otu_query_facet,
+          sound_query_facet,
           taxon_name_relationship_query_facet,
 
           ancestor_facet,

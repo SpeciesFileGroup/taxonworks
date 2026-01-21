@@ -15,6 +15,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Batch create genus gender for those without one from Filter Taxon Names [#4669]
 - Source facet to Filter Asserted Distributions
 - 'Replace source' batch update to Filter Asserted Distributions [#4647]
+- Send filter results between Sounds and OTUs/TaxonNames
 
 ### Changed
 
