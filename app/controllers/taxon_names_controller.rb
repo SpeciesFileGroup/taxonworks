@@ -287,7 +287,9 @@ class TaxonNamesController < ApplicationController
   # GET /api/v1/taxon_names/:id/inventory/catalog
   # Contains stats block
   def api_catalog
-    @data = helpers.recursive_catalog_json(taxon_name: @taxon_name, target_depth: params[:target_depth] || 0 )
+    @data = helpers.recursive_catalog_json(
+      taxon_name: @taxon_name, target_depth: params[:target_depth] || 0, include_distribution: false
+    )
     render '/taxon_names/api/v1/catalog'
   end
 

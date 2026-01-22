@@ -18,6 +18,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - 'Replace source' batch update to Filter Asserted Distributions [#4647]
 - Send filter results between Sounds and OTUs/TaxonNames
 - Batch upload Asserted Distributions can now match on an OTU's Taxon Name name instead of/in addition to the OTU's name
+- Batch update 'Prioritize Geographic Area when indexing' value from Filter Collecting Events [#4036]
 
 ### Changed
 
@@ -48,8 +49,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Depictions stop changing when switching between types in Edit Type Specimen task [#4702]
 - Citations with italics don't match in Batch Upload Asserted Distributions [#4268]
 - Useful error messages when batch loan operations fail in Filter Collection Objects [#4171]
-- The biological associations index showed an error for Anatomical Part citations [#4712]
+- The biological associations index computed an error string for Anatomical Part citations [#4712]
+- Don't calculate distribution for api/v1/taxon_names/:id/inventory/catalog (performance improvement for Taxon Pages)
 
+[#4036]: https://github.com/SpeciesFileGroup/taxonworks/issues/4036
 [#4171]: https://github.com/SpeciesFileGroup/taxonworks/issues/4171
 [#4268]: https://github.com/SpeciesFileGroup/taxonworks/issues/4268
 [#4607]: https://github.com/SpeciesFileGroup/taxonworks/issues/4607

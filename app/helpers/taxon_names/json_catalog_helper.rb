@@ -12,15 +12,18 @@ module TaxonNames
     #  timeline: []
     #  sources: []
     #  respositories: []
-    #  distribution: String
+    #  distribution: String or nil
     #
-    def recursive_catalog_json(taxon_name: nil, target_depth: 0, depth: 0, data: { timeline: [], sources: [], repositories: []} )
+    def recursive_catalog_json(
+      taxon_name: nil, target_depth: 0, depth: 0, include_distribution: false,
+      data: { timeline: [], sources: [], repositories: [] }
+    )
       return data if taxon_name.nil?
 
       cat = ::Catalog::Nomenclature::Entry.new(taxon_name)
       data[:sources] += [cat.sources].flatten
 
-      if target_depth == depth
+      if include_distribution && target_depth == depth
         # distribution is only calculated for species level here!!
         d = paper_distribution_entry(taxon_name)
         if d && d.items.any?
@@ -44,7 +47,10 @@ module TaxonNames
 
       if depth < target_depth
         taxon_name.children.that_is_valid.order(:cached).each do |t|
-          recursive_catalog_json(taxon_name: t, depth: depth + 1, target_depth: nil, data: nil)
+          recursive_catalog_json(
+            taxon_name: t, depth: depth + 1, target_depth: nil, data: nil
+            include_distribution:
+          )
         end
       end
 
