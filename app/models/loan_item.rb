@@ -240,6 +240,9 @@ class LoanItem < ApplicationRecord
       begin
         update!(date_returned:, disposition:)
 
+        # Reset cached association so on_loan? returns correct value
+        loan_item_object.association(:loan_item).reset
+
         new_loan_item = LoanItem.create!(
           project_id:,
           loan_item_object:,
