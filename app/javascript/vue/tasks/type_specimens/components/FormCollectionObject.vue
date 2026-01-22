@@ -6,6 +6,7 @@
         class="full_width"
         rows="5"
         v-model="store.typeMaterial.collectionObject.bufferedCollectingEvent"
+        @change="() => (store.typeMaterial.isUnsaved = true)"
       />
     </div>
     <div class="field label-above">
@@ -14,6 +15,7 @@
         class="full_width"
         rows="5"
         v-model="store.typeMaterial.collectionObject.bufferedDeterminations"
+        @change="() => (store.typeMaterial.isUnsaved = true)"
       />
     </div>
     <div class="field label-above">
@@ -22,6 +24,7 @@
         class="full_width"
         rows="5"
         v-model="store.typeMaterial.collectionObject.bufferedOtherLabels"
+        @change="() => (store.typeMaterial.isUnsaved = true)"
       />
     </div>
     <div class="horizontal-left-content">
@@ -31,6 +34,7 @@
           class="input-xsmall-width"
           type="number"
           v-model="store.typeMaterial.collectionObject.total"
+          @change="() => (store.typeMaterial.isUnsaved = true)"
         />
       </div>
       <div class="field label-above margin-small-left full_width">
@@ -38,6 +42,7 @@
         <select
           v-model="store.typeMaterial.collectionObject.preparationTypeId"
           class="normal-input full_width"
+          @change="() => (store.typeMaterial.isUnsaved = true)"
         >
           <option
             v-for="item in preparationTypes"
@@ -61,7 +66,10 @@
           pin-section="Repositories"
           pin-type="Repository"
           @selected="
-            ({ id }) => (store.typeMaterial.collectionObject.repositoryId = id)
+            ({ id }) => {
+              store.typeMaterial.collectionObject.repositoryId = id
+              store.typeMaterial.isUnsaved = true
+            }
           "
         >
           <template #tabs-right>
@@ -77,7 +85,10 @@
           :item="labelRepository"
           :label="false"
           @unset="
-            () => (store.typeMaterial.collectionObject.repositoryId = null)
+            () => {
+              store.typeMaterial.collectionObject.repositoryId = null
+              store.typeMaterial.isUnsaved = true
+            }
           "
         />
       </fieldset>
@@ -91,8 +102,10 @@
           pin-section="CollectingEvents"
           pin-type="CollectingEvent"
           @selected="
-            ({ id }) =>
-              (store.typeMaterial.collectionObject.collectingEventId = id)
+            ({ id }) => {
+              store.typeMaterial.collectionObject.collectingEventId = id
+              store.typeMaterial.isUnsaved = true
+            }
           "
         />
 
@@ -100,7 +113,10 @@
           :item="labelCE"
           :label="false"
           @unset="
-            () => (store.typeMaterial.collectionObject.collectingEventId = null)
+            () => {
+              store.typeMaterial.collectionObject.collectingEventId = null
+              store.typeMaterial.isUnsaved = true
+            }
           "
         />
       </fieldset>
@@ -132,10 +148,6 @@ const labelCE = ref('')
 PreparationType.all().then(({ body }) => {
   preparationTypes.value = body
 })
-
-const collectionObjectId = computed(
-  () => store.typeMaterial.collectionObject.id
-)
 
 const collectingEventId = computed(
   () => store.typeMaterial.collectionObject.collectingEventId

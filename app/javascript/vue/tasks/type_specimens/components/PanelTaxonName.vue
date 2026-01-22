@@ -1,9 +1,9 @@
 <template>
-  <div class="panel type-specimen-box">
-    <div class="header flex-separate middle">
+  <BlockLayout>
+    <template #header>
       <h3>Taxon name</h3>
-    </div>
-    <div class="body">
+    </template>
+    <template #body>
       <div class="field">
         <label>Species name</label>
         <VAutocomplete
@@ -20,18 +20,27 @@
           @select="({ id }) => loadTypeMaterials(id)"
         />
       </div>
-    </div>
-  </div>
+    </template>
+  </BlockLayout>
 </template>
 
 <script setup>
+import BlockLayout from '@/components/layout/BlockLayout.vue'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import useStore from '../store/store.js'
+import useSettingStore from '../store/settings.js'
 
 const store = useStore()
+const settings = useSettingStore()
 
-function loadTypeMaterials(id) {
-  store.loadTaxonName(id)
-  store.loadTypeMaterials(id)
+async function loadTypeMaterials(id) {
+  settings.isLoading = true
+
+  try {
+    await Promise.all([store.loadTaxonName(id), store.loadTypeMaterials(id)])
+  } catch {
+  } finally {
+    settings.isLoading = false
+  }
 }
 </script>

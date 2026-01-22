@@ -1,5 +1,5 @@
 <template>
-  <div id="typeBox">
+  <div>
     <div class="panel separate-bottom">
       <div class="content header">
         <h3
@@ -16,6 +16,12 @@
             <div
               class="horizontal-right-content margin-small-bottom gap-xsmall"
             >
+              <VIcon
+                v-if="store.hasUnsavedChanges"
+                name="attention"
+                color="attention"
+                title="You have unsaved changes."
+              />
               <OtuRadial
                 ref="browseOtu"
                 :object-id="store.taxonName.id"
@@ -146,7 +152,7 @@ const taxonNameAndAuthor = computed(() =>
 function reset() {
   store.$reset()
   depictionStore.$reset()
-  biocurationStore.$reset()
+  biocurationStore.reset()
   validationStore.$reset()
 }
 

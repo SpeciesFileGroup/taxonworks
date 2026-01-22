@@ -1,29 +1,27 @@
 <template>
-  <div
-    id="vue_type_specimens"
-    class="margin-medium-top"
-  >
+  <div id="vue_type_specimens">
     <VSpinner
       v-if="settings.isLoading || settings.isSaving"
       full-screen
       :legend="settings.isLoading ? 'Loading...' : 'Saving...'"
       :logo-size="{ width: '100px', height: '100px' }"
     />
-    <div>
-      <div class="align-start gap-medium">
-        <div class="full_width flex-col gap-medium">
-          <NameSection v-if="!store.taxonName" />
-          <MetadataSection v-else />
-          <TypeMaterialSection />
-        </div>
-        <div
-          v-if="store.taxonName"
-          class="cright item"
-        >
-          <div id="cright-panel">
-            <TypeBox class="separate-bottom" />
-            <SoftValidation :validations="validationStore.softValidations" />
-          </div>
+
+    <div class="align-start gap-medium">
+      <div class="cleft flex-col gap-medium">
+        <PanelTaxonName v-if="!store.taxonName" />
+        <template v-else>
+          <MetadataSection />
+          <PanelCollectionObject />
+        </template>
+      </div>
+      <div
+        v-if="store.taxonName"
+        class="cright"
+      >
+        <div class="full_width">
+          <TypeBox class="separate-bottom" />
+          <SoftValidation :validations="validationStore.softValidations" />
         </div>
       </div>
     </div>
@@ -38,9 +36,9 @@ import { ref, onMounted, watch } from 'vue'
 import { URLParamsToJSON } from '@/helpers'
 
 import SoftValidation from '@/components/soft_validations/panel.vue'
-import NameSection from './components/nameSection.vue'
-import TypeMaterialSection from './components/typeMaterial.vue'
-import MetadataSection from './components/metadataSection.vue'
+import PanelTaxonName from './components/PanelTaxonName.vue'
+import PanelCollectionObject from './components/PanelCollectionObject.vue'
+import MetadataSection from './components/PanelMetadata.vue'
 import TypeBox from './components/typeBox.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import platformKey from '@/helpers/getPlatformKey.js'
@@ -162,76 +160,21 @@ function switchToTask(url) {
   }
 }
 </script>
+
 <style lang="scss">
 #vue_type_specimens {
   margin: 0 auto;
-  margin-top: 1em;
-  max-width: 1240px;
   width: 1240px;
+  max-width: 1240px;
+  margin-top: 1rem;
 
-  .cleft,
   .cright {
-    min-width: 350px;
-    max-width: 350px;
-    width: 300px;
-  }
-  #cright-panel {
-    width: 350px;
-    max-width: 350px;
-  }
-  .cright-fixed-top {
-    top: 68px;
-    width: 1240px;
-    z-index: 200;
-    position: fixed;
-  }
-  .anchor {
-    display: block;
-    height: 65px;
-    margin-top: -65px;
-    visibility: hidden;
+    width: 420px;
+    min-width: 420px;
   }
 
-  hr {
-    height: 1px;
-    color: #f5f5f5;
-    background: #f5f5f5;
-    font-size: 0;
-    margin: 15px;
-    border: 0;
-  }
-  .reload-app {
-    cursor: pointer;
-    &:hover {
-      opacity: 0.8;
-    }
-  }
-  .type-specimen-box {
-    transition: all 1s;
-
-    height: 100%;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    .header {
-      border-left: 4px solid green;
-      padding: 1em;
-      padding-left: 1.5em;
-      border-bottom: 1px solid var(--border-color);
-
-      h3 {
-        font-weight: 300;
-      }
-    }
-    .body {
-      padding: 2em;
-      padding-top: 1em;
-      padding-bottom: 1em;
-    }
-    .taxonName-input,
-    #error_explanation {
-      width: 300px;
-    }
+  .cleft {
+    width: 100%;
   }
 }
 </style>

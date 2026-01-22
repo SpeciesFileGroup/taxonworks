@@ -1,5 +1,5 @@
 <template>
-  <div class="depiction-container">
+  <div>
     <dropzone
       class="dropzone-card separate-bottom"
       @vdropzone-sending="sending"
@@ -37,7 +37,7 @@
 </template>
 
 <script setup>
-import { computed, useTemplateRef } from 'vue'
+import { computed, useTemplateRef, watch, nextTick } from 'vue'
 import ImageViewer from '@/components/ui/ImageViewer/ImageViewer.vue'
 import Dropzone from '@/components/dropzone.vue'
 import useStore from '../../store/store.js'
@@ -79,10 +79,23 @@ function removeDepiction(depiction) {
     depictionStore.destroy(depiction)
   }
 }
+
+const unsubscribe = store.$onAction(({ name }) => {
+  const actionNames = ['setCollectionObject', 'setTypeMaterial']
+
+  if (actionNames.includes(name)) {
+    dropzoneRef.value?.removeAllFiles()
+  }
+})
+
+watch(
+  () => store.typeMaterial.id,
+  (newVal) => {
+    if (newVal) {
+      nextTick(() => {
+        dropzoneRef.value?.processQueue()
+      })
+    }
+  }
+)
 </script>
-<style scoped>
-.depiction-container {
-  width: 500px;
-  max-width: 500px;
-}
-</style>

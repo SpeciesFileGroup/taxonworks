@@ -1,14 +1,9 @@
 <template>
-  <div class="panel type-specimen-box">
-    <spinner
-      :show-spinner="false"
-      :show-legend="false"
-      v-if="!store.taxonName?.id"
-    />
-    <div class="header flex-separate middle">
+  <BlockLayout class="panel type-specimen-box">
+    <template #header>
       <h3>Metadata</h3>
-    </div>
-    <div class="body">
+    </template>
+    <template #body>
       <label>Type</label>
       <div class="flex-wrap-row separate-top separate-bottom">
         <template v-if="store.taxonName && types">
@@ -23,6 +18,7 @@
                   type="radio"
                   name="typetype"
                   :value="key"
+                  @change="() => (store.typeMaterial.isUnsaved = true)"
                 />
                 {{ key }}
               </label>
@@ -35,15 +31,17 @@
           :original="false"
           :new-button="false"
           v-model="store.typeMaterial.citation"
+          @update="() => (store.typeMaterial.isUnsaved = true)"
         />
       </div>
-    </div>
-  </div>
+    </template>
+  </BlockLayout>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { TypeMaterial } from '@/routes/endpoints'
+import BlockLayout from '@/components/layout/BlockLayout.vue'
 import Spinner from '@/components/ui/VSpinner.vue'
 import FormCitation from '@/components/Form/FormCitation.vue'
 import useStore from '../store/store.js'

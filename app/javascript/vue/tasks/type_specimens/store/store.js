@@ -1,4 +1,6 @@
+import { toRaw } from 'vue'
 import { defineStore } from 'pinia'
+import { COLLECTION_OBJECT } from '@/constants'
 import { TypeMaterial, TaxonName, CollectionObject } from '@/routes/endpoints'
 import { removeFromArray, addToArray } from '@/helpers'
 import {
@@ -9,8 +11,6 @@ import {
 import useBiocurationStore from '@/tasks/field_occurrences/new/store/biocurations.js'
 import extend from '../const/extendRequest'
 import useDepictionStore from './depictions.js'
-import { COLLECTION_OBJECT } from '@/constants'
-import { state } from '@/tasks/dwc/dashboard/store'
 import useSoftvalidationStore from '@/components/Form/FormCollectingEvent/store/softValidations'
 import useSettingStore from './settings'
 
@@ -20,6 +20,14 @@ export default defineStore('store', {
     typeMaterials: [],
     typeMaterial: makeTypeMaterial()
   }),
+
+  getters: {
+    hasUnsavedChanges(state) {
+      const biocurationStore = useBiocurationStore()
+
+      return state.typeMaterial.isUnsaved || biocurationStore.hasUnsaved
+    }
+  },
 
   actions: {
     async loadTypeMaterials(protonymId) {
@@ -42,16 +50,12 @@ export default defineStore('store', {
       const validationStore = useSoftvalidationStore()
       const settings = useSettingStore()
 
-      this.typeMaterial = typeMaterial
+      this.typeMaterial = structuredClone(toRaw(typeMaterial))
       settings.isLoading = true
 
       try {
         await Promise.all([
-          validationStore.load(
-            [typeMaterial.globalId, typeMaterial.citation.globalId].filter(
-              Boolean
-            )
-          ),
+          this.loadValidations(),
           depictionStore.load(typeMaterial.collectionObjectId),
           biocurationStore.load({
             objectId: typeMaterial.collectionObject.id,
@@ -74,6 +78,16 @@ export default defineStore('store', {
       })
     },
 
+    loadValidations() {
+      const validationStore = useSoftvalidationStore()
+      return validationStore.load(
+        [
+          this.typeMaterial.globalId,
+          this.typeMaterial.citation.globalId
+        ].filter(Boolean)
+      )
+    },
+
     async save() {
       const settings = useSettingStore()
 
@@ -84,7 +98,8 @@ export default defineStore('store', {
           type_material: {
             ...makeTypeMaterialPayload(this.typeMaterial),
             protonym_id: this.taxonName.id
-          }
+          },
+          extend
         }
 
         settings.isSaving = true
@@ -100,6 +115,8 @@ export default defineStore('store', {
           objectType: COLLECTION_OBJECT
         })
 
+        this.loadValidations()
+
         addToArray(this.typeMaterials, this.typeMaterial)
       } catch {
       } finally {
@@ -107,19 +124,44 @@ export default defineStore('store', {
       }
     },
 
-    setCollectionObject(id) {
-      CollectionObject.find(id).then(({ body }) => {
-        state.typeMaterial.isUnsaved = true
-        state.typeMaterial.collectionObject = makeCollectionObject(body)
-      })
+    async setCollectionObject(id) {
+      const depictionStore = useDepictionStore()
+      const biocurationStore = useBiocurationStore()
+      const settings = useSettingStore()
+
+      settings.isLoading = true
+
+      try {
+        const { body } = await CollectionObject.find(id)
+
+        this.typeMaterial.isUnsaved = true
+        this.typeMaterial.collectionObjectId = body.id
+        this.typeMaterial.collectionObject = makeCollectionObject(body)
+
+        biocurationStore.reset()
+        depictionStore.$reset()
+
+        await Promise.all([
+          depictionStore.load(body.id),
+          biocurationStore.load({
+            objectId: body.id,
+            objectType: COLLECTION_OBJECT
+          })
+        ])
+      } catch {
+      } finally {
+        settings.isLoading = false
+      }
     },
 
     setNewTypeMaterial() {
       const biocurationStore = useBiocurationStore()
       const depictionStore = useDepictionStore()
+      const validationStore = useSoftvalidationStore()
 
-      biocurationStore.$reset()
+      biocurationStore.reset()
       depictionStore.$reset()
+      validationStore.$reset()
 
       this.typeMaterial = makeTypeMaterial()
     }
