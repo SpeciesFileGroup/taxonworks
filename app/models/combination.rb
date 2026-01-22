@@ -447,6 +447,7 @@ class Combination < TaxonName
 
   # TODO: consider an 'include_cached_misspelling' Boolean to extend result to include `cached_misspelling`
   # !! References name, not cached, so 'sic' is not possible
+  # !! TODO: limit to a subset of APPLICABLE_RANKS
   def self.flattened
     s = []
     abbreviation_cutoff = 'subspecies'
@@ -458,8 +459,10 @@ class Combination < TaxonName
               MAX(combination_taxon_names_taxon_names.feminine_name) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_feminine,
               MAX(combination_taxon_names_taxon_names.cached) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_cached"
 
+      s.push "BOOL_OR(combination_taxon_names_taxon_names.cached_is_valid) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_cached_is_valid"
+
       # Calculate a flag that helps determine if the target rank Protonym is presently an "inferred combination."
-      s.push "MAX(combination_taxon_names_taxon_names.cached_primary_homonym) FILTER (WHERE taxon_name_relationships.type = '#{t}') !=
+      s.push "MAX(combination_taxon_names_taxon_names.cached_primary_homonym) FILTER (WHERE taxon_name_relationships.type = '#{t}') =
               MAX(combination_taxon_names_taxon_names.cached_secondary_homonym) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_inferred_combination"
 
       if abbreviate

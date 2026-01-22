@@ -511,7 +511,7 @@ module Export::Coldp::Files::Name
       #             * No - skip
       #      * No - include
       #
-      if row[rank + "_cached"] == row['cached'] && !( row[rank + '_inferred_combination'] )
+      if (row[rank + "_cached"] == row['cached']) &&  row[rank + '_cached_is_valid'] && !( row[rank + '_inferred_combination'] )
         ::Export::Coldp.skipped_combinations << row['id']
         next
       end
