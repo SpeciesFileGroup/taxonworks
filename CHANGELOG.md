@@ -48,6 +48,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Depictions stop changing when switching between types in Edit Type Specimen task [#4702]
 - Citations with italics don't match in Batch Upload Asserted Distributions [#4268]
 - Useful error messages when batch loan operations fail in Filter Collection Objects [#4171]
+- The biological associations index showed an error for Anatomical Part citations [#4712]
 
 [#4171]: https://github.com/SpeciesFileGroup/taxonworks/issues/4171
 [#4268]: https://github.com/SpeciesFileGroup/taxonworks/issues/4268
@@ -66,6 +67,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4698]: https://github.com/SpeciesFileGroup/taxonworks/issues/4698
 [#4702]: https://github.com/SpeciesFileGroup/taxonworks/issues/4702
 [#4703]: https://github.com/SpeciesFileGroup/taxonworks/issues/4703
+[#4712]: https://github.com/SpeciesFileGroup/taxonworks/issues/4712
 
 ## [0.57.0] - 2026-01-06
 
