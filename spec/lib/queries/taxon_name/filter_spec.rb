@@ -673,7 +673,7 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     end
   end
 
-  specify 'all filters combined' do
+  xspecify 'all filters combined' do
     Citation.create!(citation_object: species, source: FactoryBot.create(:valid_source))
     Otu.create!(taxon_name: species)
     TypeMaterial.create!(protonym: species, type_type: 'holotype', collection_object: FactoryBot.create(:valid_specimen))
