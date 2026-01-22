@@ -9,6 +9,7 @@ module Queries
       include Queries::Concerns::Tags
       include Queries::Concerns::Notes
       include Queries::Concerns::Confidences
+      include Queries::Concerns::Sounds
       include Queries::Helpers
 
       PARAMS = [
@@ -613,6 +614,10 @@ module Queries
         ::Otu.from('(' + s + ') as otus').distinct
       end
 
+      def sound_query_facet
+        otus_from_sound_query
+      end
+
       def anatomical_part_query_facet
         return nil if anatomical_part_query.nil?
 
@@ -713,6 +718,7 @@ module Queries
           extract_query_facet,
           loan_query_facet,
           observation_query_facet,
+          sound_query_facet,
           taxon_name_query_facet,
 
           biological_association_id_facet,

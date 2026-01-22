@@ -44,7 +44,7 @@ class SequencesController < ApplicationController
         format.json { render :show, status: :created, location: @sequence }
       else
         format.html { render :new }
-        format.json { render json: @sequence.errors, status: :unprocessable_entity }
+        format.json { render json: @sequence.errors, status: :unprocessable_content }
       end
     end
   end
@@ -58,7 +58,7 @@ class SequencesController < ApplicationController
         format.json { render :show, status: :ok, location: @sequence }
       else
         format.html { render :edit }
-        format.json { render json: @sequence.errors, status: :unprocessable_entity }
+        format.json { render json: @sequence.errors, status: :unprocessable_content }
       end
     end
   end

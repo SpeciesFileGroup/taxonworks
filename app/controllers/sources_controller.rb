@@ -52,7 +52,7 @@ class SourcesController < ApplicationController
         format.json { render :show }
       else
         format.html { redirect_to edit_source_path(@source), notice: 'Clone failed.  On original original.' }
-        format.json { render json: @source.errors, status: :unprocessable_entity }
+        format.json { render json: @source.errors, status: :unprocessable_content }
       end
     end
   end
@@ -81,14 +81,14 @@ class SourcesController < ApplicationController
           format.json { render action: 'show', status: :created, location: @source.metamorphosize }
         else
           format.html { render action: 'new' }
-          format.json { render json: @source.errors, status: :unprocessable_entity }
+          format.json { render json: @source.errors, status: :unprocessable_content }
         end
       rescue ActiveRecord::InvalidForeignKey => e
         serial = Serial.find_by(id: params.dig(:source, :serial_id))
         errors = serial.nil? ? ["Serial '#{params.dig(:source, :serial_id)}' not found."] : [e.to_s]
 
         format.html { render action: 'new' }
-        format.json { render json: { errors: }, status: :unprocessable_entity }
+        format.json { render json: { errors: }, status: :unprocessable_content }
       end
     end
   end
@@ -136,7 +136,7 @@ class SourcesController < ApplicationController
         format.json { render :show, status: :ok, location: @source.metamorphosize }
       else
         format.html { render action: 'edit' }
-        format.json { render json: @source.errors, status: :unprocessable_entity }
+        format.json { render json: @source.errors, status: :unprocessable_content }
       end
     end
   end
@@ -152,7 +152,7 @@ class SourcesController < ApplicationController
     else
       respond_to do |format|
         format.html { render action: :show, notice: 'failed to destroy the source, there is likely data associated with it' }
-        format.json { render json: @source.errors, status: :unprocessable_entity }
+        format.json { render json: @source.errors, status: :unprocessable_content }
       end
     end
   end
@@ -189,7 +189,7 @@ class SourcesController < ApplicationController
       )
       render json: r.to_json, status: :ok
     else
-      render json: {}, status: :unprocessable_entity
+      render json: {}, status: :unprocessable_content
     end
   end
 

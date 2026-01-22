@@ -250,6 +250,18 @@ module Queries
           .where("origin_relationships.old_object_id IN (#{ anatomical_part_query.all.select(:id).to_sql })")
       end
 
+      def otu_query_facet
+        return nil if otu_query.nil?
+        sound_from_otu_ids(otu_query.all.select(:id))
+      end
+
+      def taxon_name_query_facet
+        return nil if taxon_name_query.nil?
+
+        otu_ids = ::Otu.where(taxon_name_id: taxon_name_query.all.select(:id)).select(:id)
+        sound_from_otu_ids(otu_ids)
+      end
+
       def query_facets_facet(name = nil)
         return nil if name.nil?
 
@@ -275,20 +287,53 @@ module Queries
       end
 
       def merge_clauses
-        s = ::Queries::Query::Filter::SUBQUERIES.select{|k,v| v.include?(:sound)}.keys.map(&:to_s) - ['source', 'observation']
+        s = ::Queries::Query::Filter::SUBQUERIES.select{|k,v| v.include?(:sound)}.keys.map(&:to_s) - ['source', 'observation', 'otu', 'taxon_name']
         [
           *s.collect{|m| query_facets_facet(m)}, # Reference all the Sound referencing SUBQUERIES
           anatomical_part_query_facet,
           conveyance_object_type_facet,
           conveyances_facet,
           observation_query_facet,
+          otu_query_facet,
           otu_id_facet,
           otu_scope_facet,
           collecting_event_facet,
           collection_object_facet,
           field_occurrence_facet,
+          taxon_name_query_facet,
           with_name_facet
         ]
+      end
+
+      def sound_from_otu_ids(otu_ids)
+        anatomical_part_ids = ::AnatomicalPart.where(cached_otu_id: otu_ids).select(:id)
+        collection_object_ids = ::CollectionObject
+          .joins(:taxon_determinations)
+          .where(taxon_determinations: {otu_id: otu_ids})
+          .select(:id)
+        field_occurrence_ids = ::FieldOccurrence
+          .joins(:taxon_determinations)
+          .where(taxon_determinations: {otu_id: otu_ids})
+          .select(:id)
+        collecting_event_ids = ::CollectingEvent
+          .joins(collection_objects: :taxon_determinations)
+          .where(taxon_determinations: {otu_id: otu_ids})
+          .select(:id)
+
+        queries = [
+          otu_facet_otus(otu_ids),
+          otu_facet_collection_objects(otu_ids),
+          otu_facet_field_occurrence(otu_ids),
+          ::Sound.joins(:collecting_events).where(collecting_events: {id: collecting_event_ids}),
+          ::Sound.joins(:conveyances).where(conveyances: {conveyance_object_type: 'AnatomicalPart', conveyance_object_id: anatomical_part_ids}),
+          ::Sound.joins(:related_origin_relationships).where(origin_relationships: {old_object_type: 'AnatomicalPart', old_object_id: anatomical_part_ids}),
+          ::Sound.joins(:related_origin_relationships).where(origin_relationships: {old_object_type: 'Otu', old_object_id: otu_ids}),
+          ::Sound.joins(:related_origin_relationships).where(origin_relationships: {old_object_type: ['CollectionObject', 'Specimen', 'Lot', 'RangedLot'], old_object_id: collection_object_ids}),
+          ::Sound.joins(:related_origin_relationships).where(origin_relationships: {old_object_type: 'FieldOccurrence', old_object_id: field_occurrence_ids}),
+          ::Sound.joins(:related_origin_relationships).where(origin_relationships: {old_object_type: 'CollectingEvent', old_object_id: collecting_event_ids})
+        ]
+
+        referenced_klass_union(queries)
       end
 
     end

@@ -44,7 +44,7 @@ class AnatomicalPartsController < ApplicationController
       @origin_relationship = @anatomical_part.inbound_origin_relationship
       render :show, status: :created
     else
-      render json: { errors: @anatomical_part.errors.full_messages }, status: :unprocessable_entity
+      render json: { errors: @anatomical_part.errors.full_messages }, status: :unprocessable_content
     end
   end
 
@@ -53,7 +53,7 @@ class AnatomicalPartsController < ApplicationController
     if @anatomical_part.update(anatomical_part_params)
       render :show, status: :ok, location: @anatomical_part
     else
-      render json: @anatomical_part.errors, status: :unprocessable_entity
+      render json: @anatomical_part.errors, status: :unprocessable_content
     end
   end
 
@@ -79,7 +79,7 @@ class AnatomicalPartsController < ApplicationController
       }
       format.json {
         render json: { errors: @anatomical_part.errors.full_messages },
-          status: :unprocessable_entity
+          status: :unprocessable_content
       }
     end
   end

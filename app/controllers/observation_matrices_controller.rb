@@ -54,7 +54,7 @@ class ObservationMatricesController < ApplicationController
         format.json { render :show, status: :created, location: @observation_matrix }
       else
         format.html { render :new }
-        format.json { render json: @observation_matrix.errors, status: :unprocessable_entity }
+        format.json { render json: @observation_matrix.errors, status: :unprocessable_content }
       end
     end
   end
@@ -68,7 +68,7 @@ class ObservationMatricesController < ApplicationController
         format.json { render :show, status: :ok, location: @observation_matrix }
       else
         format.html { render :edit }
-        format.json { render json: @observation_matrix.errors, status: :unprocessable_entity }
+        format.json { render json: @observation_matrix.errors, status: :unprocessable_content }
       end
     end
   end
@@ -89,7 +89,7 @@ class ObservationMatricesController < ApplicationController
     if o.kind_of?(Hash)
       render json: o
     else
-      render json: o, status: :unprocessable_entity
+      render json: o, status: :unprocessable_content
     end
   end
 
@@ -99,7 +99,7 @@ class ObservationMatricesController < ApplicationController
     if o.kind_of?(Hash)
       render json: o
     else
-      render json: o, status: :unprocessable_entity
+      render json: o, status: :unprocessable_content
     end
   end
 
@@ -107,7 +107,7 @@ class ObservationMatricesController < ApplicationController
     if @observation_matrix.reorder_rows(params.require(:by))
       render json: :success
     else
-      render json:  :error, status: :unprocessable_entity
+      render json:  :error, status: :unprocessable_content
     end
   end
 
@@ -393,7 +393,7 @@ class ObservationMatricesController < ApplicationController
       render json: {
           errors: 'Citation option(s) checked but no source selected'
         },
-        status: :unprocessable_entity
+        status: :unprocessable_content
 
       return false
     end
@@ -406,15 +406,15 @@ class ObservationMatricesController < ApplicationController
       Vendor::NexusParser.document_id_to_nexus(doc_id)
     rescue ActiveRecord::RecordNotFound, NexusParser::ParseError => e
       render json: { errors: "Nexus parse error: #{e}" },
-        status: :unprocessable_entity
+        status: :unprocessable_content
       return nil
     rescue ArgumentError => e
       render json: { errors: "Error reading document: #{e} - are you sure it's a nexus document?" },
-        status: :unprocessable_entity
+        status: :unprocessable_content
       return nil
     rescue TaxonWorks::Error => e
       render json: { errors: "Error converting nexus to TaxonWorks: #{e}" },
-        status: :unprocessable_entity
+        status: :unprocessable_content
       return nil
     end
   end
@@ -426,7 +426,7 @@ class ObservationMatricesController < ApplicationController
         m = ObservationMatrix.create!(name: matrix_name)
       rescue ActiveRecord::RecordInvalid
         render json: { errors: 'The provided matrix name is already in use, try another' },
-          status: :unprocessable_entity
+          status: :unprocessable_content
       end
 
       return m
@@ -468,7 +468,7 @@ class ObservationMatricesController < ApplicationController
       error_message = "The nexus file must include both taxa and characters, this one has #{nf.taxa.size} taxa and #{nf.characters.size} characters"
     end
 
-    render json: { errors: error_message }, status: :unprocessable_entity
+    render json: { errors: error_message }, status: :unprocessable_content
 
     false
   end

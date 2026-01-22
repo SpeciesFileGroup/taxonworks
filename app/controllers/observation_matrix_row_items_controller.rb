@@ -40,7 +40,7 @@ class ObservationMatrixRowItemsController < ApplicationController
       if @observation_matrix_row_item.save
         format.json { render :show, status: :created, location: @observation_matrix_row_item.metamorphosize }
       else
-        format.json { render json: @observation_matrix_row_item.errors, status: :unprocessable_entity }
+        format.json { render json: @observation_matrix_row_item.errors, status: :unprocessable_content }
       end
     end
   end
@@ -51,7 +51,7 @@ class ObservationMatrixRowItemsController < ApplicationController
       if @observation_matrix_row_item.update(observation_matrix_row_item_params)
         format.json { render :show, status: :ok, location: @observation_matrix_row_item.metamorphosize }
       else
-        format.json { render json: @observation_matrix_row_item.errors, status: :unprocessable_entity }
+        format.json { render json: @observation_matrix_row_item.errors, status: :unprocessable_content }
       end
     end
   end
@@ -67,7 +67,7 @@ class ObservationMatrixRowItemsController < ApplicationController
         format.json { head :no_content }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Observation matrix row item was not destroyed, ' + @observation_matrix_row_item.errors.full_messages.join('; '))}
-        format.json {render json: @observation_matrix_row_item.errors, status: :unprocessable_entity}
+        format.json {render json: @observation_matrix_row_item.errors, status: :unprocessable_content}
       end
     end
   end
@@ -79,7 +79,7 @@ class ObservationMatrixRowItemsController < ApplicationController
       ObservationMatrixRowItem.batch_create(batch_params)
       render :index
     rescue TaxonWorks::Error => e
-      render json: { errors: e.to_s }, status: :unprocessable_entity
+      render json: { errors: e.to_s }, status: :unprocessable_content
     end
   end
 

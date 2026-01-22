@@ -21,7 +21,7 @@ module DataControllerConfiguration::BatchByFilterScope
       if r[:errors].empty?
         render json: r.to_json, status: :ok
       else
-        render json: r.to_json, status: :unprocessable_entity
+        render json: r.to_json, status: :unprocessable_content
       end
 
     end

@@ -52,7 +52,7 @@ class BiologicalAssociationsController < ApplicationController
         format.json { render :show, status: :created, location: @biological_association }
       else
         format.html { render :new }
-        format.json { render json: @biological_association.errors, status: :unprocessable_entity }
+        format.json { render json: @biological_association.errors, status: :unprocessable_content }
       end
     end
   end
@@ -66,7 +66,7 @@ class BiologicalAssociationsController < ApplicationController
         format.json { render :show, status: :ok, location: @biological_association }
       else
         format.html { render :edit }
-        format.json { render json: @biological_association.errors, status: :unprocessable_entity }
+        format.json { render json: @biological_association.errors, status: :unprocessable_content }
       end
     end
   end
@@ -127,7 +127,7 @@ class BiologicalAssociationsController < ApplicationController
             type: 'text',
             filename: "biological_associations_globi_#{DateTime.now}.tsv"
         else
-          render json: { msg: 'At present this format is only allowed for 1000 or less records.' }, status: :unprocessable_entity
+          render json: { msg: 'At present this format is only allowed for 1000 or less records.' }, status: :unprocessable_content
         end
       }
     end
@@ -192,7 +192,7 @@ class BiologicalAssociationsController < ApplicationController
         project_id: sessions_current_project_id)
       render json: r.to_json, status: :ok
     else
-      render json: {}, status: :unprocessable_entity
+      render json: {}, status: :unprocessable_content
     end
   end
 

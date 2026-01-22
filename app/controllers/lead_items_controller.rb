@@ -29,8 +29,8 @@ class LeadItemsController < ApplicationController
         format.html { redirect_to @lead_item, notice: 'Lead item was successfully created.' }
         format.json { render :show, status: :created, location: @lead_item }
       else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @lead_item.errors, status: :unprocessable_entity }
+        format.html { render :new, status: :unprocessable_content }
+        format.json { render json: @lead_item.errors, status: :unprocessable_content }
       end
     end
   end
@@ -42,8 +42,8 @@ class LeadItemsController < ApplicationController
         format.html { redirect_to @lead_item, notice: 'Lead item was successfully updated.' }
         format.json { render :show, status: :ok, location: @lead_item }
       else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @lead_item.errors, status: :unprocessable_entity }
+        format.html { render :edit, status: :unprocessable_content }
+        format.json { render json: @lead_item.errors, status: :unprocessable_content }
       end
     end
   end
@@ -80,7 +80,7 @@ class LeadItemsController < ApplicationController
     added = LeadItem.add_items_to_lead(parent, otu_ids, exclusive, add_new_to_first_child)
 
     if !added
-      render json: parent.errors, status: :unprocessable_entity
+      render json: parent.errors, status: :unprocessable_content
     end
   end
 
@@ -90,7 +90,7 @@ class LeadItemsController < ApplicationController
       @lead, params[:otu_id], params[:exclusive]
     )
     if !added
-      render json: @lead.errors, status: :unprocessable_entity
+      render json: @lead.errors, status: :unprocessable_content
       return
     end
 
@@ -103,7 +103,7 @@ class LeadItemsController < ApplicationController
     @lead = Lead.find(params[:lead_id])
     removed = LeadItem.remove_otu_index_for_lead(@lead, params[:otu_id])
     if !removed
-      render json: @lead.errors, status: :unprocessable_entity
+      render json: @lead.errors, status: :unprocessable_content
       return
     end
 

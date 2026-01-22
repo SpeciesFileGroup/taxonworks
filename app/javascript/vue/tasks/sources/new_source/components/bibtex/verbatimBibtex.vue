@@ -2,14 +2,16 @@
   <div>
     <h3>Verbatim from BibTeX</h3>
     <div
-      v-for="{ attr, label } in VERBATIM_BIBTEX_FIELDS"
+      v-for="{ attr, label, component } in VERBATIM_BIBTEX_FIELDS"
       :key="attr"
       class="field"
     >
       <label>{{ label }}</label>
-      <input
+      <component
+        :is="component"
         type="text"
-        v-model="source[attr]"
+        :value="source[attr]"
+        @input="(e) => (source[attr] = e.target.value)"
         @change="() => (source.isUnsaved = true)"
       />
     </div>
@@ -23,8 +25,12 @@ const source = defineModel({
 })
 
 const VERBATIM_BIBTEX_FIELDS = [
-  { attr: 'author', label: 'Author(s)' },
-  { attr: 'editor', label: 'Editor(s)' },
-  { attr: 'journal', label: 'Journal' }
+  {
+    attr: 'author',
+    label: 'Author(s)',
+    component: 'textarea'
+  },
+  { attr: 'editor', label: 'Editor(s)', component: 'input' },
+  { attr: 'journal', label: 'Journal', component: 'input' }
 ]
 </script>

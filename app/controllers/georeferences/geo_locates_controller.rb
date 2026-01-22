@@ -30,7 +30,7 @@ class Georeferences::GeoLocatesController < ApplicationController
           #         end
         }
 
-        format.json { render json: @georeference.errors, status: :unprocessable_entity }
+        format.json { render json: @georeference.errors, status: :unprocessable_content }
       end
     end
   end

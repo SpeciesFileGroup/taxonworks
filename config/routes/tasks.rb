@@ -8,7 +8,7 @@ scope :tasks do
       get '/', action: :index, as: 'new_news_task'
     end
   end
-  
+
   scope :anatomical_parts do
     scope :edit_anatomical_part, controller: 'tasks/anatomical_parts/edit_anatomical_part' do
       get '/', action: :index, as: 'edit_anatomical_part_task'
@@ -260,6 +260,7 @@ scope :tasks do
   scope :content do
     scope :filter, controller: 'tasks/contents/filter' do
       get '/', action: :index, as: 'filter_contents_task'
+      post 'download', action: 'download', as: 'download_contents_filter_result'
     end
     scope :publisher, controller: 'tasks/content/publisher' do
       get 'summary', as: :publisher_summary,  defaults: {format: :json}
@@ -384,6 +385,10 @@ scope :tasks do
 
     scope :individual_bibtex_source, controller: 'tasks/sources/individual_bibtex_source' do
       get '/', action: :index, as: 'new_bibtex_source_task'
+    end
+
+    scope :verbatim_author_year_source, controller: 'tasks/sources/verbatim_author_year_source' do
+      get '/', action: :index, as: 'verbatim_author_year_source_task'
     end
   end
 
