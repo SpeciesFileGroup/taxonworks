@@ -93,4 +93,87 @@ describe BatchLoad::Import::AssertedDistributions, type: :model do
     end
   end
 
+  context 'Citation matches after stripping italics tags' do
+    let(:file_name) { 'spec/files/batch/asserted_distribution/citation_strip_html.tsv' }
+    let(:upload_file) { Rack::Test::UploadedFile.new(file_name) }
+    let(:import) { BatchLoad::Import::AssertedDistributions.new(
+      project_id: project.id,
+      user_id: user.id,
+      file: upload_file)
+    }
+
+    let!(:otu) { FactoryBot.create(:valid_otu, name: 'Alpha') }
+    let!(:ga) { FactoryBot.create(:valid_geographic_area, name: 'Mallow') }
+    let!(:source) {
+      Source::Verbatim.create!(
+        verbatim: 'Miyamoto, S. (1956) Anatomy of bug. <i>Shin. Konchu</i>, 9(4), 18-23.'
+      )
+    }
+
+    before { import.create }
+
+    specify 'created asserted distribution with citation' do
+      expect(import.total_records_created).to eq(1)
+      expect(AssertedDistribution.count).to eq(1)
+      expect(AssertedDistribution.first.sources).to contain_exactly(source)
+    end
+  end
+
+  context 'Name and taxon_name columns resolve OTU' do
+    let(:file_name) { 'spec/files/batch/asserted_distribution/taxon_name.tsv' }
+    let(:upload_file) { Rack::Test::UploadedFile.new(file_name) }
+    let(:import) { BatchLoad::Import::AssertedDistributions.new(
+      project_id: project.id,
+      user_id: user.id,
+      file: upload_file)
+    }
+
+    let!(:taxon_name_one) { FactoryBot.create(:valid_taxon_name, name: 'Adidae') }
+    let!(:taxon_name_two) { FactoryBot.create(:valid_taxon_name, name: 'Bididae') }
+    let!(:otu_one) { FactoryBot.create(:valid_otu, name: 'Alpha', taxon_name: taxon_name_one) }
+    let!(:otu_two) { FactoryBot.create(:valid_otu, name: 'Beta', taxon_name: taxon_name_two) }
+    let!(:ga) { FactoryBot.create(:valid_geographic_area, name: 'Fallow') }
+    let!(:source) { FactoryBot.create(:valid_source, id: 121) }
+
+    before { import.create }
+
+    specify 'created asserted distributions via name and taxon_name' do
+      expect(import.total_records_created).to eq(2)
+      expect(AssertedDistribution.count).to eq(2)
+      expect(AssertedDistribution.all.map(&:asserted_distribution_object)).to match_array([otu_one, otu_two])
+    end
+
+    specify 'uses taxon_name column when provided' do
+      taxon_name_distribution = AssertedDistribution.find_by(
+        asserted_distribution_object_id: otu_two.id,
+        asserted_distribution_object_type: 'Otu'
+      )
+
+      expect(taxon_name_distribution).to be_present
+    end
+  end
+
+  context 'Name column prefers OTU name over taxon_name' do
+    let(:file_name) { 'spec/files/batch/asserted_distribution/name_precedence.tsv' }
+    let(:upload_file) { Rack::Test::UploadedFile.new(file_name) }
+    let(:import) { BatchLoad::Import::AssertedDistributions.new(
+      project_id: project.id,
+      user_id: user.id,
+      file: upload_file)
+    }
+
+    let!(:otu_name_match) { FactoryBot.create(:valid_otu, name: 'Alpha', taxon_name: FactoryBot.create(:valid_taxon_name, name: 'Gamma')) }
+    let!(:otu_taxon_name_match) { FactoryBot.create(:valid_otu, name: 'Different', taxon_name: FactoryBot.create(:valid_taxon_name, name: 'Alpha')) }
+    let!(:ga) { FactoryBot.create(:valid_geographic_area, name: 'Fallow') }
+    let!(:source) { FactoryBot.create(:valid_source, id: 121) }
+
+    before { import.create }
+
+    specify 'resolves to OTU name match' do
+      expect(import.total_records_created).to eq(1)
+      expect(AssertedDistribution.count).to eq(1)
+      expect(AssertedDistribution.first.asserted_distribution_object).to eq(otu_name_match)
+    end
+  end
+
 end

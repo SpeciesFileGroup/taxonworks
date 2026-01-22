@@ -17,6 +17,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Source facet to Filter Asserted Distributions
 - 'Replace source' batch update to Filter Asserted Distributions [#4647]
 - Send filter results between Sounds and OTUs/TaxonNames
+- Batch upload Asserted Distributions can now match on an OTU's Taxon Name name instead of/in addition to the OTU's name
 
 ### Changed
 
@@ -45,7 +46,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Alt+t on Browse Taxon Names doesn't work unless you've focused the page [#4703]
 - Selection tool not working on the Monograph Facilitator map
 - Depictions stop changing when switching between types in Edit Type Specimen task [#4702]
+- Citations with italics don't match in Batch Upload Asserted Distributions [#4268]
 
+[#4268]: https://github.com/SpeciesFileGroup/taxonworks/issues/4268
 [#4607]: https://github.com/SpeciesFileGroup/taxonworks/issues/4607
 [#4647]: https://github.com/SpeciesFileGroup/taxonworks/issues/4647
 [#4663]: https://github.com/SpeciesFileGroup/taxonworks/issues/4663
