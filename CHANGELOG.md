@@ -43,6 +43,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Add autosave option to New source task [#4691]
 - Completed Filter connections between Filter Biological Association and Filter Taxon Name/Filter OTU to include relations by Collection Object Taxon Determination, Field Occurrence Taxon Determination, and Anatomical Part origin OTU [#4685]
 - Alt+t on Browse Taxon Names doesn't work unless you've focused the page [#4703]
+- Selection tool not working on the Monograph Facilitator map
 
 [#4607]: https://github.com/SpeciesFileGroup/taxonworks/issues/4607
 [#4647]: https://github.com/SpeciesFileGroup/taxonworks/issues/4647
