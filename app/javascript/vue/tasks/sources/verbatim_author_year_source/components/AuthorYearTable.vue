@@ -38,7 +38,7 @@
         <td>{{ row.year_of_publication }}</td>
         <td class="copy-cell">
           <ButtonClipboard
-            :text="[row.verbatim_autor, row.year_of_publication].join(' ')"
+            :text="[row.verbatim_author, row.year_of_publication].join(' ')"
           />
         </td>
         <td
