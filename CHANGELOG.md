@@ -44,6 +44,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Completed Filter connections between Filter Biological Association and Filter Taxon Name/Filter OTU to include relations by Collection Object Taxon Determination, Field Occurrence Taxon Determination, and Anatomical Part origin OTU [#4685]
 - Alt+t on Browse Taxon Names doesn't work unless you've focused the page [#4703]
 - Selection tool not working on the Monograph Facilitator map
+- Depictions stop changing when switching between types in Edit Type Specimen task [#4702]
 
 [#4607]: https://github.com/SpeciesFileGroup/taxonworks/issues/4607
 [#4647]: https://github.com/SpeciesFileGroup/taxonworks/issues/4647
@@ -58,6 +59,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4691]: https://github.com/SpeciesFileGroup/taxonworks/issues/4691
 [#4692]: https://github.com/SpeciesFileGroup/taxonworks/issues/4692
 [#4698]: https://github.com/SpeciesFileGroup/taxonworks/issues/4698
+[#4702]: https://github.com/SpeciesFileGroup/taxonworks/issues/4702
 [#4703]: https://github.com/SpeciesFileGroup/taxonworks/issues/4703
 
 ## [0.57.0] - 2026-01-06
