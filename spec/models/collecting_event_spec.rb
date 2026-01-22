@@ -67,6 +67,94 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
       expect(c1.reload.verbatim_locality).to eq(l)
     end
 
+    specify 'can set meta_prioritize_geographic_area' do
+      geographic_area = FactoryBot.create(:valid_geographic_area)
+      c1 = FactoryBot.create(
+        :valid_collecting_event,
+        geographic_area: geographic_area
+      )
+
+      params = {
+        async_cutoff: 3,
+        collecting_event: { meta_prioritize_geographic_area: true },
+        collecting_event_query: { collecting_event_id: [c1.id] }
+      }
+
+      response = CollectingEvent.batch_update(params).to_json
+
+      expect(response[:updated]).to include(c1.id)
+      expect(response[:not_updated]).to eq([])
+      expect(c1.reload.meta_prioritize_geographic_area).to be(true)
+    end
+
+    specify 'can update meta_prioritize_geographic_area' do
+      geographic_area = FactoryBot.create(:valid_geographic_area)
+      c1 = FactoryBot.create(
+        :valid_collecting_event,
+        geographic_area: geographic_area,
+        meta_prioritize_geographic_area: false
+      )
+
+      params = {
+        async_cutoff: 3,
+        collecting_event: { meta_prioritize_geographic_area: true },
+        collecting_event_query: { collecting_event_id: [c1.id] }
+      }
+
+      response = CollectingEvent.batch_update(params).to_json
+
+      expect(response[:updated]).to include(c1.id)
+      expect(response[:not_updated]).to eq([])
+      expect(c1.reload.meta_prioritize_geographic_area).to be(true)
+    end
+
+    specify 'can update meta_prioritize_geographic_area 2' do
+      geographic_area = FactoryBot.create(:valid_geographic_area)
+      c1 = FactoryBot.create(
+        :valid_collecting_event,
+        geographic_area: geographic_area,
+        meta_prioritize_geographic_area: true
+      )
+
+      params = {
+        async_cutoff: 3,
+        collecting_event: { meta_prioritize_geographic_area: false },
+        collecting_event_query: { collecting_event_id: [c1.id] }
+      }
+
+      response = CollectingEvent.batch_update(params).to_json
+
+      expect(response[:updated]).to include(c1.id)
+      expect(response[:not_updated]).to eq([])
+      expect(c1.reload.meta_prioritize_geographic_area).to be(false)
+    end
+
+    specify 'can update meta_prioritize_geographic_area async' do
+      geographic_area = FactoryBot.create(:valid_geographic_area)
+      c1 = FactoryBot.create(
+        :valid_collecting_event,
+        geographic_area: geographic_area,
+        meta_prioritize_geographic_area: false
+      )
+
+      params = {
+        async_cutoff: 0,
+        collecting_event: { meta_prioritize_geographic_area: true },
+        collecting_event_query: { collecting_event_id: [c1.id] },
+        project_id: Project.first.id,
+        user_id: User.first.id
+      }
+
+      CollectingEvent.batch_update(params)
+
+      expect(c1.reload.meta_prioritize_geographic_area).to be(false)
+
+      sleep 1.1 # batch_update job is delayed 1 sec
+      Delayed::Worker.new.work_off
+
+      expect(c1.reload.meta_prioritize_geographic_area).to be(true)
+    end
+
     context 'updating collector roles' do
       let(:c1) { FactoryBot.create(:valid_collecting_event) }
 
