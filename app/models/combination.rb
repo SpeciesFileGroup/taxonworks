@@ -458,12 +458,18 @@ class Combination < TaxonName
               MAX(combination_taxon_names_taxon_names.feminine_name) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_feminine,
               MAX(combination_taxon_names_taxon_names.cached) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_cached"
 
+      # Calculate a flag that helps determine if the target rank Protonym is presently an "inferred combination."
+      s.push "MAX(combination_taxon_names_taxon_names.cached_primary_homonym) FILTER (WHERE taxon_name_relationships.type = '#{t}') !=
+              MAX(combination_taxon_names_taxon_names.cached_secondary_homonym) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_inferred_combination"
+
       if abbreviate
         s.push "MAX(combination_taxon_names_taxon_names.rank_class) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_rank_class"
       end
 
       # Include the rank of the genus, which is typicaly there, for reference so we can return the code of nomenclature behind this combination
       s.push "MAX(combination_taxon_names_taxon_names.rank_class) AS reference_rank_class"
+
+      s.push "MAX(combination_taxon_names_taxon_names.rank_class) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_rank_class"
 
       abbreviate = true if rank == abbreviation_cutoff
     end

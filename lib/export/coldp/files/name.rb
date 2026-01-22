@@ -63,9 +63,13 @@ module Export::Coldp::Files::Name
   end
 
   # Core names are:
-  #   - valid
-  #   - genus or species group
   #   - Protonyms
+  #   - Valid
+  #   - Genus or species group
+  # They are NOT
+  #   - "inferred combinations" - We have consciously excluded inferred combinations (sensu Browse TaxonNames) from the result set.
+  # If you wish to include an inferred combination then you must create an equivalent (subsequent) Combination.
+  #
   def self.core_names(otu)
 
     # TODO: adding .that_is_valid increases names, why? Are we hitting duplicates?
@@ -470,11 +474,9 @@ module Export::Coldp::Files::Name
   end
 
   # Combinations
-  #  - Differ from the present use of the name (i.e. we don't re-include as Chresonyms [yet])
-  #  - SEE (TODO) .... for a-typical verbatim_names
-  #
-  # TODO: Complete combinations only
-  # TODO: add .fully_specified ?
+  #   See also self.core_names
+  #  - Potential TODO: a-typical verbatim_names (though perhaps OK)
+  #    - If not OK, then simply provide verbatim_name *without* genus, subgenus, species fields
   #
   def self.combination_names(otu)
     a = otu.taxon_name.self_and_descendants.unscope(:order).select(:id)
@@ -501,12 +503,15 @@ module Export::Coldp::Files::Name
 
       rank = elements.keys.last if rank.nil?
 
-      # If this Combination is identical to the current placement we skip.
-      # We decided to not include the subsequent citations for these.
+      # Decide whether or not to skip this Combination
+      #   * Is it identical to the current placement?
+      #      * Yes
+      #         * Is the current placement an "inferred combination"?
+      #             * Yes - include
+      #             * No - skip
+      #      * No - include
       #
-      #  TODO: We dont' want to skip combinations identical to invalid inferred combinations
-      #
-      if row[rank + "_cached"] == row['cached']
+      if row[rank + "_cached"] == row['cached'] && !( row[rank + '_inferred_combination'] )
         ::Export::Coldp.skipped_combinations << row['id']
         next
       end
