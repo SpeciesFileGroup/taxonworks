@@ -223,6 +223,228 @@ describe LoanItem, type: :model, group: :loans do
       end
     end
   end
+
+    context '.batch_by_filter_scope' do
+      before do
+        s1
+        s2
+      end
+
+      specify 'creates loan items with :add mode' do
+        q = ::Queries::CollectionObject::Filter.new(collection_object_id: [s1.id, s2.id])
+        result = LoanItem.batch_by_filter_scope(
+          filter_query: {'collection_object_query' => q.params},
+          mode: :add,
+          params: {loan_id: loan.id},
+          project_id:,
+          user_id:
+        )
+
+        expect(result[:updated].size).to eq(2)
+        expect(result[:not_updated]).to be_empty
+        expect(result[:total_attempted]).to eq(2)
+        expect(LoanItem.count).to eq(2)
+      end
+
+      specify 'returns error when loan_id not provided' do
+        q = ::Queries::CollectionObject::Filter.new(collection_object_id: [s1.id, s2.id])
+        result = LoanItem.batch_by_filter_scope(
+          filter_query: {'collection_object_query' => q.params},
+          mode: :add,
+          params: {},
+          project_id:,
+          user_id:
+        )
+
+        expect(result[:errors]).to include('no loan_id provided' => 1)
+        expect(LoanItem.count).to eq(0)
+      end
+
+      specify 'tracks items that cannot be added in not_updated' do
+        # Create a loan item for s1 so it's already on loan
+        LoanItem.create!(loan:, loan_item_object: s1)
+
+        q = ::Queries::CollectionObject::Filter.new(collection_object_id: [s1.id, s2.id])
+        result = LoanItem.batch_by_filter_scope(
+          filter_query: {'collection_object_query' => q.params},
+          mode: :add,
+          params: {loan_id: loan.id},
+          project_id:,
+          user_id:
+        )
+
+        expect(result[:updated].size).to eq(1) # only s2
+        expect(result[:not_updated].size).to eq(1) # s1 already on loan
+        expect(result[:errors]).to be_empty # per-item errors not tracked in errors hash
+        expect(LoanItem.count).to eq(2) # original + s2
+      end
+
+      specify 'populates validation_errors with reasons for failure' do
+        # Create a loan item for s1 so it's already on loan
+        LoanItem.create!(loan:, loan_item_object: s1)
+
+        q = ::Queries::CollectionObject::Filter.new(collection_object_id: [s1.id, s2.id])
+        result = LoanItem.batch_by_filter_scope(
+          filter_query: {'collection_object_query' => q.params},
+          mode: :add,
+          params: {loan_id: loan.id},
+          project_id:,
+          user_id:
+        )
+
+        expect(result[:validation_errors]).not_to be_empty
+        expect(result[:validation_errors].values.sum).to eq(1) # 1 item failed
+        expect(result[:validation_errors].first.first).to include('already on loan')
+      end
+
+      context ':return mode' do
+        let!(:li1) { LoanItem.create!(loan:, loan_item_object: s1) }
+        let!(:li2) { LoanItem.create!(loan:, loan_item_object: s2) }
+
+        specify 'returns loan items' do
+          q = ::Queries::CollectionObject::Filter.new(collection_object_id: [s1.id, s2.id])
+          result = LoanItem.batch_by_filter_scope(
+            filter_query: {'collection_object_query' => q.params},
+            mode: :return,
+            params: {disposition: 'Returned', date_returned: Time.current.to_date},
+            project_id:,
+            user_id:
+          )
+
+          expect(result[:updated].size).to eq(2)
+          expect(result[:not_updated]).to be_empty
+          expect(li1.reload.disposition).to eq('Returned')
+          expect(li2.reload.disposition).to eq('Returned')
+        end
+
+        specify 'returns error when disposition not provided' do
+          q = ::Queries::CollectionObject::Filter.new(collection_object_id: [s1.id])
+          result = LoanItem.batch_by_filter_scope(
+            filter_query: {'collection_object_query' => q.params},
+            mode: :return,
+            params: {date_returned: Time.current.to_date},
+            project_id:,
+            user_id:
+          )
+
+          expect(result[:errors]).to include('no disposition provided' => 1)
+        end
+
+        specify 'tracks items not on loan in not_updated' do
+          s3 = FactoryBot.create(:valid_specimen) # not on loan
+          q = ::Queries::CollectionObject::Filter.new(collection_object_id: [s1.id, s3.id])
+          result = LoanItem.batch_by_filter_scope(
+            filter_query: {'collection_object_query' => q.params},
+            mode: :return,
+            params: {disposition: 'Returned', date_returned: Time.current.to_date},
+            project_id:,
+            user_id:
+          )
+
+          expect(result[:updated].size).to eq(1) # only s1
+          expect(result[:not_updated].size).to eq(1) # s3 not on loan
+        end
+
+        specify 'populates validation_errors when items not on loan' do
+          s3 = FactoryBot.create(:valid_specimen) # not on loan
+          q = ::Queries::CollectionObject::Filter.new(collection_object_id: [s3.id])
+          result = LoanItem.batch_by_filter_scope(
+            filter_query: {'collection_object_query' => q.params},
+            mode: :return,
+            params: {disposition: 'Returned', date_returned: Time.current.to_date},
+            project_id:,
+            user_id:
+          )
+
+          expect(result[:validation_errors]).to include('not currently on loan' => 1)
+        end
+
+        specify 'finds items with disposition set but date_returned nil' do
+          # Item has disposition but hasn't been physically returned yet
+          li1.update_column(:disposition, 'Retained')
+          s1.reload
+
+          q = ::Queries::CollectionObject::Filter.new(collection_object_id: [s1.id])
+          result = LoanItem.batch_by_filter_scope(
+            filter_query: {'collection_object_query' => q.params},
+            mode: :return,
+            params: {disposition: 'Returned', date_returned: Time.current.to_date},
+            project_id:,
+            user_id:
+          )
+
+          expect(result[:updated].size).to eq(1)
+          expect(result[:not_updated]).to be_empty
+        end
+      end
+
+      context ':move mode' do
+        let(:loan2) { FactoryBot.create(:valid_loan) }
+        let!(:li1) { LoanItem.create!(loan:, loan_item_object: s1) }
+        let!(:li2) { LoanItem.create!(loan:, loan_item_object: s2) }
+
+        specify 'moves loan items to new loan' do
+          q = ::Queries::CollectionObject::Filter.new(collection_object_id: [s1.id, s2.id])
+          result = LoanItem.batch_by_filter_scope(
+            filter_query: {'collection_object_query' => q.params},
+            mode: :move,
+            params: {loan_id: loan2.id, disposition: 'Returned', date_returned: Time.current.to_date},
+            project_id:,
+            user_id:
+          )
+
+          expect(result[:updated].size).to eq(2)
+          expect(result[:not_updated]).to be_empty
+          expect(li1.reload.disposition).to eq('Returned')
+          expect(LoanItem.where(loan: loan2).count).to eq(2)
+        end
+
+        specify 'returns error when loan_id not provided' do
+          q = ::Queries::CollectionObject::Filter.new(collection_object_id: [s1.id])
+          result = LoanItem.batch_by_filter_scope(
+            filter_query: {'collection_object_query' => q.params},
+            mode: :move,
+            params: {disposition: 'Returned', date_returned: Time.current.to_date},
+            project_id:,
+            user_id:
+          )
+
+          expect(result[:errors]).to include('no loan_id provided' => 1)
+        end
+
+        specify 'populates validation_errors when items not on loan' do
+          s3 = FactoryBot.create(:valid_specimen) # not on loan
+          q = ::Queries::CollectionObject::Filter.new(collection_object_id: [s3.id])
+          result = LoanItem.batch_by_filter_scope(
+            filter_query: {'collection_object_query' => q.params},
+            mode: :move,
+            params: {loan_id: loan2.id, disposition: 'Returned', date_returned: Time.current.to_date},
+            project_id:,
+            user_id:
+          )
+
+          expect(result[:validation_errors]).to include('not currently on loan' => 1)
+        end
+
+        specify 'finds items with disposition set but date_returned nil' do
+          # Item has disposition but hasn't been physically returned yet
+          li1.update_column(:disposition, 'Retained')
+          s1.reload
+
+          q = ::Queries::CollectionObject::Filter.new(collection_object_id: [s1.id])
+          result = LoanItem.batch_by_filter_scope(
+            filter_query: {'collection_object_query' => q.params},
+            mode: :move,
+            params: {loan_id: loan2.id, disposition: 'Returned', date_returned: Time.current.to_date},
+            project_id:,
+            user_id:
+          )
+
+          expect(result[:updated].size).to eq(1)
+          expect(result[:not_updated]).to be_empty
+        end
+      end
+    end
 end
 
   context 'concerns' do
