@@ -47,7 +47,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Selection tool not working on the Monograph Facilitator map
 - Depictions stop changing when switching between types in Edit Type Specimen task [#4702]
 - Citations with italics don't match in Batch Upload Asserted Distributions [#4268]
+- Useful error messages when batch loan operations fail in Filter Collection Objects [#4171]
 
+[#4171]: https://github.com/SpeciesFileGroup/taxonworks/issues/4171
 [#4268]: https://github.com/SpeciesFileGroup/taxonworks/issues/4268
 [#4607]: https://github.com/SpeciesFileGroup/taxonworks/issues/4607
 [#4647]: https://github.com/SpeciesFileGroup/taxonworks/issues/4647
