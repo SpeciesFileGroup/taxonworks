@@ -88,7 +88,6 @@ module Export::Coldp::Files::Name
       .joins('LEFT JOIN taxon_names AS parent ON parent.id = taxon_name_hierarchies.ancestor_id')
       .group('taxon_names.id')
 
-
     c = ::TaxonName.with(n: b)
       .joins('JOIN n on n.id = taxon_names.id')
       .where(cached_is_valid: true)
@@ -227,7 +226,8 @@ module Export::Coldp::Files::Name
 
     b = Protonym
       .original_combination_specified
-      .original_combinations_flattened.with(project_scope: a)
+      .original_combinations_flattened
+      .with(project_scope: a)
       .where('taxon_names.cached != taxon_names.cached_original_combination') # Only reified!!
       .joins('JOIN project_scope ps on ps.id = taxon_names.id')
   end
@@ -251,10 +251,8 @@ module Export::Coldp::Files::Name
       .joins('JOIN valid_scope on valid_scope.id = taxon_names.cached_valid_taxon_name_id')
   end
 
-
   #
   # May have to split out misspellings from other invalid names to handle parens
-  #
   #
   #
   def self.add_invalid_original_combination_names(otu, csv, project_members, reference_csv)
@@ -505,6 +503,8 @@ module Export::Coldp::Files::Name
 
       # If this Combination is identical to the current placement we skip.
       # We decided to not include the subsequent citations for these.
+      #
+      #  TODO: We dont' want to skip combinations identical to invalid inferred combinations
       #
       if row[rank + "_cached"] == row['cached']
         ::Export::Coldp.skipped_combinations << row['id']
