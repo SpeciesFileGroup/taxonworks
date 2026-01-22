@@ -162,8 +162,8 @@ describe BatchLoad::Import::AssertedDistributions, type: :model do
       file: upload_file)
     }
 
-    let!(:otu_name_match) { FactoryBot.create(:valid_otu, name: 'Alpha', taxon_name: FactoryBot.create(:valid_taxon_name, name: 'Gamma')) }
-    let!(:otu_taxon_name_match) { FactoryBot.create(:valid_otu, name: 'Different', taxon_name: FactoryBot.create(:valid_taxon_name, name: 'Alpha')) }
+    let!(:otu_name_match) { FactoryBot.create(:valid_otu, name: 'Alpha', taxon_name: FactoryBot.create(:valid_taxon_name, name: 'Gammaidae')) }
+    let!(:otu_taxon_name_match) { FactoryBot.create(:valid_otu, name: 'Different', taxon_name: FactoryBot.create(:valid_taxon_name, name: 'Alphaidae')) }
     let!(:ga) { FactoryBot.create(:valid_geographic_area, name: 'Fallow') }
     let!(:source) { FactoryBot.create(:valid_source, id: 121) }
 
