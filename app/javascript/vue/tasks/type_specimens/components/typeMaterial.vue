@@ -2,26 +2,26 @@
   <div>
     <div class="panel type-specimen-box separate-bottom">
       <spinner
-        v-if="!(protonymId && type)"
+        v-if="!store.typeMaterial.type"
         :show-spinner="false"
         :show-legend="false"
       />
       <div class="header flex-separate middle">
         <h3>Collection object</h3>
-        <div class="horizontal-left-content middle">
+        <div class="horizontal-left-content middle gap-small">
           <a
-            v-if="biologicalId"
+            v-if="store.typeMaterial.collectionObject.id"
             target="blank"
-            :href="getDigitizeRoute()"
+            :href="`${RouteNames.DigitizeTask}?collection_object_id=${store.typeMaterial.collectionObject.id}&taxon_name_id=${store.taxonName?.id}`"
             >Expanded edit
           </a>
           <radial-annotator
-            v-if="typeMaterial.id"
-            :global-id="typeMaterial.collection_object.global_id"
+            v-if="store.typeMaterial.id"
+            :global-id="store.typeMaterial.collectionObject.globalId"
           />
           <radial-object
-            v-if="typeMaterial.id"
-            :global-id="typeMaterial.collection_object.global_id"
+            v-if="store.typeMaterial.id"
+            :global-id="store.typeMaterial.collectionObject.globalId"
           />
         </div>
       </div>
@@ -47,17 +47,14 @@
                 param="term"
                 label="label_html"
                 placeholder="Search..."
-                @getItem="setCollectionObject"
                 display="label"
                 min="2"
+                @getItem="({ id }) => store.setCollectionObject(id)"
               />
             </div>
           </div>
           <div class="margin-medium-left">
-            <div
-              class="field"
-              v-if="protonymId"
-            >
+            <div class="field">
               <label>Depiction</label>
               <depictions-section />
               To add a catalog number use the radial annotator above after save.
@@ -68,21 +65,23 @@
     </div>
     <div class="field separate-top">
       <button
-        @click="saveTypeMaterial"
-        :disabled="total < 1 || !(protonymId && type)"
+        :disabled="
+          store.typeMaterial.collectionObject.total < 1 ||
+          !store.typeMaterial.type
+        "
         type="button"
         class="button normal-input button-submit"
+        @click="() => store.save()"
       >
-        {{ typeMaterial.id ? 'Update' : 'Create' }}
+        {{ store.typeMaterial.id ? 'Update' : 'Create' }}
       </button>
     </div>
   </div>
 </template>
 
-<script>
-import { GetterNames } from '../store/getters/getters'
+<script setup>
+import { watch, computed, ref } from 'vue'
 import { RouteNames } from '@/routes/routes'
-import ActionNames from '../store/actions/actionNames'
 import RadialObject from '@/components/radials/object/radial.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
@@ -90,6 +89,7 @@ import Spinner from '@/components/ui/VSpinner.vue'
 import CollectionObject from './collectionObject.vue'
 import DepictionsSection from './depictions/depictions.vue'
 import SwitchComponent from '@/components/ui/VSwitch.vue'
+import useStore from '../store/store.js'
 
 const TAB = {
   edit: 'edit',
@@ -97,84 +97,20 @@ const TAB = {
   existing: 'existing'
 }
 
-export default {
-  components: {
-    DepictionsSection,
-    CollectionObject,
-    Autocomplete,
-    RadialAnnotator,
-    Spinner,
-    SwitchComponent,
-    RadialObject
-  },
+const store = useStore()
 
-  computed: {
-    typeMaterial() {
-      return this.$store.getters[GetterNames.GetTypeMaterial]
-    },
+const tabOptions = computed(() =>
+  store.typeMaterial.id ? [TAB.edit, TAB.existing] : [TAB.new, TAB.existing]
+)
 
-    total() {
-      return this.$store.getters[GetterNames.GetCollectionObjectTotal]
-    },
+const view = ref(TAB.new)
 
-    protonymId() {
-      return this.$store.getters[GetterNames.GetProtonymId]
-    },
-
-    type() {
-      return this.$store.getters[GetterNames.GetType]
-    },
-
-    biologicalId() {
-      return this.$store.getters[GetterNames.GetBiologicalId]
-    }
-  },
-
-  data() {
-    return {
-      tabOptions: [TAB.new, TAB.existing],
-      view: TAB.new,
-      TAB
-    }
-  },
-
-  watch: {
-    typeMaterial(newVal) {
-      if (newVal.id) {
-        this.view = TAB.edit
-        this.tabOptions = [TAB.edit, TAB.existing]
-      } else {
-        this.tabOptions = [TAB.new, TAB.existing]
-      }
-    }
-  },
-
-  methods: {
-    getDigitizeRoute() {
-      return `${RouteNames.DigitizeTask}?collection_object_id=${this.biologicalId}&taxon_name_id=${this.protonymId}`
-    },
-
-    createTypeMaterial() {
-      this.$store.dispatch(ActionNames.CreateTypeMaterial)
-    },
-
-    saveTypeMaterial() {
-      if (this.typeMaterial.id) {
-        this.updateTypeMaterial()
-      } else {
-        this.createTypeMaterial()
-      }
-    },
-
-    updateTypeMaterial() {
-      const typeMaterial = this.$store.getters[GetterNames.GetTypeMaterial]
-
-      this.$store.dispatch(ActionNames.UpdateTypeSpecimen, typeMaterial)
-    },
-
-    setCollectionObject(collectionObject) {
-      this.$store.dispatch(ActionNames.SetTypeMaterialCO, collectionObject)
+watch(
+  () => store.typeMaterial.id,
+  (newVal) => {
+    if (newVal) {
+      view.value = TAB.edit
     }
   }
-}
+)
 </script>

@@ -3,34 +3,48 @@
     <div class="panel separate-bottom">
       <div class="content header">
         <h3
-          v-if="taxon.id"
+          v-if="store.taxonName?.id"
           class="flex-separate middle"
         >
           <a
-            :href="`/tasks/nomenclature/browse?taxon_name_id=${taxon.id}`"
+            :href="`${RouteNames.BrowseNomenclature}?taxon_name_id=${store.taxonName.id}`"
             class="taxonname"
           >
             <span v-html="taxonNameAndAuthor" />
           </a>
           <div>
-            <div class="horizontal-right-content margin-small-bottom gap-small">
+            <div
+              class="horizontal-right-content margin-small-bottom gap-xsmall"
+            >
               <OtuRadial
                 ref="browseOtu"
-                :object-id="taxon.id"
-                :taxon-name="taxon.object_tag"
+                :object-id="store.taxonName.id"
+                :taxon-name="store.taxonName.object_tag"
               />
-              <RadialAnnotator :global-id="taxon.global_id" />
-              <RadialObject :global-id="taxon.global_id" />
+              <RadialAnnotator :global-id="store.taxonName.global_id" />
+              <RadialObject :global-id="store.taxonName.global_id" />
             </div>
-            <div class="horizontal-right-content gap-small">
+            <div class="horizontal-right-content gap-xsmall">
+              <VBtn
+                circle
+                color="primary"
+                title="Change taxon name"
+                @click="reset"
+              >
+                <VIcon
+                  title="Change taxon name"
+                  name="undo"
+                  x-small
+                />
+              </VBtn>
               <VPin
                 type="TaxonName"
-                :object-id="taxon.id"
+                :object-id="store.taxonName.id"
               />
               <VBtn
                 circle
                 color="primary"
-                :href="`/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxon.id}`"
+                :href="`${RouteNames.NewTaxonName}?taxon_name_id=${store.taxonName.id}`"
               >
                 <VIcon
                   x-small
@@ -41,19 +55,19 @@
           </div>
         </h3>
         <span
-          v-if="typeMaterial.id"
-          v-html="typeMaterial.object_tag"
+          v-if="store.typeMaterial.id"
+          v-html="store.typeMaterial.label"
         />
       </div>
     </div>
     <div
       class="panel content"
-      v-if="typesMaterial.length"
+      v-if="store.typeMaterials.length"
     >
       <button
         type="button"
-        @click="newType"
         class="button normal-input button-default"
+        @click="() => store.setNewTypeMaterial()"
       >
         New type
       </button>
@@ -67,18 +81,18 @@
         </thead>
         <tbody>
           <tr
-            v-for="item in typesMaterial"
+            v-for="item in store.typeMaterials"
             :key="item.id"
-            :class="{ highlight: typeMaterial.id === item.id }"
+            :class="{ highlight: store.typeMaterial.id === item.id }"
           >
-            <td>{{ item.type_type }} ({{ item.collection_object.total }})</td>
+            <td>{{ item.type }} ({{ item.collectionObject.total }})</td>
             <td>
               <div class="horizontal-right-content gap-xsmall">
-                <RadialAnnotator :global-id="item.global_id" />
+                <RadialAnnotator :global-id="item.globalId" />
                 <VBtn
                   circle
                   color="primary"
-                  @click="setTypeMaterial(item)"
+                  @click="() => store.setTypeMaterial(item)"
                 >
                   <VIcon
                     name="pencil"
@@ -88,7 +102,7 @@
                 <VBtn
                   circle
                   color="destroy"
-                  @click="removeTypeSpecimen(item)"
+                  @click="() => removeTypeMaterial(item)"
                 >
                   <VIcon
                     name="trash"
@@ -105,40 +119,45 @@
 </template>
 
 <script setup>
-import { GetterNames } from '../store/getters/getters'
 import { computed } from 'vue'
-import { useStore } from 'vuex'
+import { RouteNames } from '@/routes/routes.js'
+import useStore from '../store/store.js'
+import useDepictionStore from '../store/depictions.js'
+import useBiocurationStore from '@/tasks/field_occurrences/new/store/biocurations.js'
+import useSoftvalidationStore from '@/components/Form/FormCollectingEvent/store/softValidations'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/navigation/radial.vue'
-import ActionNames from '../store/actions/actionNames'
 import VPin from '@/components/ui/Button/ButtonPin.vue'
 import OtuRadial from '@/components/otu/otu.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 
 const store = useStore()
+const depictionStore = useDepictionStore()
+const biocurationStore = useBiocurationStore()
+const validationStore = useSoftvalidationStore()
 
-const typeMaterial = computed(() => store.getters[GetterNames.GetTypeMaterial])
-const typesMaterial = computed(
-  () => store.getters[GetterNames.GetTypeMaterials]
-)
-const taxon = computed(() => store.getters[GetterNames.GetTaxon])
-const taxonNameAndAuthor = computed(
-  () => `${taxon.value.cached_html} ${taxon.value.cached_author_year || ''}`
+const taxonNameAndAuthor = computed(() =>
+  [store.taxonName.cached_html, store.taxonName.cached_author_year]
+    .filter(Boolean)
+    .join(' ')
 )
 
-function removeTypeSpecimen(item) {
-  if (window.confirm('Are you sure you want to destroy this record?')) {
-    store.dispatch(ActionNames.RemoveTypeSpecimen, item.id)
+function reset() {
+  store.$reset()
+  depictionStore.$reset()
+  biocurationStore.$reset()
+  validationStore.$reset()
+}
+
+function removeTypeMaterial(item) {
+  if (
+    window.confirm(
+      `You're trying to delete this record. Are you sure want to proceed?`
+    )
+  ) {
+    store.remove(item)
   }
-}
-
-function setTypeMaterial(material) {
-  store.dispatch(ActionNames.LoadTypeMaterial, material)
-}
-
-function newType() {
-  store.dispatch(ActionNames.SetNewTypeMaterial)
 }
 </script>
 <style lang="scss" scoped>

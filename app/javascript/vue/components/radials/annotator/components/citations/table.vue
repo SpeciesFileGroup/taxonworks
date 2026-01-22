@@ -28,7 +28,7 @@
             <div class="horizontal-right-content middle gap-small">
               <a
                 class="button-default circle-button btn-citation"
-                title="Go to citations by source task"
+                title="Open in citations by source task"
                 :href="`${RouteNames.NomenclatureBySource}?source_id=${item.source_id}`"
                 target="blank"
               />

@@ -5,7 +5,7 @@
       <textarea
         class="full_width"
         rows="5"
-        v-model="bufferedEvent"
+        v-model="store.typeMaterial.collectionObject.bufferedCollectingEvent"
       />
     </div>
     <div class="field label-above">
@@ -13,7 +13,7 @@
       <textarea
         class="full_width"
         rows="5"
-        v-model="bufferedDeterminations"
+        v-model="store.typeMaterial.collectionObject.bufferedDeterminations"
       />
     </div>
     <div class="field label-above">
@@ -21,7 +21,7 @@
       <textarea
         class="full_width"
         rows="5"
-        v-model="bufferedLabels"
+        v-model="store.typeMaterial.collectionObject.bufferedOtherLabels"
       />
     </div>
     <div class="horizontal-left-content">
@@ -30,19 +30,19 @@
         <input
           class="input-xsmall-width"
           type="number"
-          v-model="total"
+          v-model="store.typeMaterial.collectionObject.total"
         />
       </div>
       <div class="field label-above margin-small-left full_width">
         <label>Preparation type</label>
         <select
-          v-model="preparationId"
+          v-model="store.typeMaterial.collectionObject.preparationTypeId"
           class="normal-input full_width"
         >
           <option
-            class="full_width"
-            v-for="item in types"
+            v-for="item in preparationTypes"
             :key="item.id"
+            class="full_width"
             :value="item.id"
           >
             {{ item.name }}
@@ -53,14 +53,16 @@
     <div class="field">
       <fieldset>
         <legend>Repository</legend>
-        <smart-selector
+        <SmartSelector
           class="full_width"
           model="repositories"
           target="CollectionObject"
           klass="CollectionObject"
           pin-section="Repositories"
           pin-type="Repository"
-          @selected="setRepository"
+          @selected="
+            ({ id }) => (store.typeMaterial.collectionObject.repositoryId = id)
+          "
         >
           <template #tabs-right>
             <a
@@ -69,221 +71,96 @@
               >New</a
             >
           </template>
-        </smart-selector>
-        <p
-          v-if="labelRepository"
-          class="horizontal-left-content"
-        >
-          <span v-html="labelRepository" />
-          <span
-            class="button circle-button btn-delete button-default"
-            @click="unsetRepository"
-          />
-        </p>
+        </SmartSelector>
+
+        <SmartSelectorItem
+          :item="labelRepository"
+          :label="false"
+          @unset="
+            () => (store.typeMaterial.collectionObject.repositoryId = null)
+          "
+        />
       </fieldset>
     </div>
     <div class="field">
-      <label>Collection event</label>
-      <autocomplete
-        class="types_field"
-        url="/collecting_events/autocomplete"
-        param="term"
-        label="label_html"
-        :send-label="labelEvent"
-        placeholder="Select a collection event"
-        @get-item="
-          ($event) => {
-            eventId = $event.id
-            labelEvent = $event.label
-          }
-        "
-        display="label"
-        min="2"
-      />
+      <fieldset>
+        <legend>Collecting event</legend>
+        <SmartSelector
+          model="collecting_events"
+          klass="CollectionObject"
+          pin-section="CollectingEvents"
+          pin-type="CollectingEvent"
+          @selected="
+            ({ id }) =>
+              (store.typeMaterial.collectionObject.collectingEventId = id)
+          "
+        />
+
+        <SmartSelectorItem
+          :item="labelCE"
+          :label="false"
+          @unset="
+            () => (store.typeMaterial.collectionObject.collectingEventId = null)
+          "
+        />
+      </fieldset>
     </div>
+
     <div class="field">
-      <toggle-switch :biological-id="biologicalId" />
+      <FormBiocurations />
     </div>
   </div>
 </template>
 
-<script>
-import Autocomplete from '@/components/ui/Autocomplete.vue'
+<script setup>
+import { computed, ref, watch } from 'vue'
 import SmartSelector from '@/components/ui/SmartSelector'
-import ToggleSwitch from './toggleSwitch.vue'
-import { GetterNames } from '../store/getters/getters'
-import { MutationNames } from '../store/mutations/mutations'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import FormBiocurations from './Biocurations.vue'
+import useStore from '../store/store.js'
 import {
   CollectingEvent,
   Repository,
   PreparationType
 } from '@/routes/endpoints'
 
-export default {
-  components: {
-    Autocomplete,
-    ToggleSwitch,
-    SmartSelector
-  },
+const store = useStore()
+const preparationTypes = ref([])
+const labelRepository = ref('')
+const labelCE = ref('')
 
-  computed: {
-    typeMaterial() {
-      return this.$store.getters[GetterNames.GetTypeMaterial]
-    },
+PreparationType.all().then(({ body }) => {
+  preparationTypes.value = body
+})
 
-    biologicalId() {
-      return this.$store.getters[GetterNames.GetBiologicalId]
-    },
+const collectionObjectId = computed(
+  () => store.typeMaterial.collectionObject.id
+)
 
-    repositoryId: {
-      get() {
-        return this.$store.getters[GetterNames.GetCollectionObject]
-          .repository_id
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetCollectionObjectRepositoryId, value)
-      }
-    },
+const collectingEventId = computed(
+  () => store.typeMaterial.collectionObject.collectingEventId
+)
+const repositoryId = computed(
+  () => store.typeMaterial.collectionObject.repositoryId
+)
 
-    bufferedDeterminations: {
-      get() {
-        return this.$store.getters[
-          GetterNames.GetCollectionObjectBufferedDeterminations
-        ]
-      },
-      set(value) {
-        this.$store.commit(
-          MutationNames.SetCollectionObjectBufferedDeterminations,
-          value
-        )
-      }
-    },
-
-    bufferedEvent: {
-      get() {
-        return this.$store.getters[GetterNames.GetCollectionObjectBufferedEvent]
-      },
-      set(value) {
-        this.$store.commit(
-          MutationNames.SetCollectionObjectBufferedEvent,
-          value
-        )
-      }
-    },
-
-    bufferedLabels: {
-      get() {
-        return this.$store.getters[
-          GetterNames.GetCollectionObjectBufferedLabels
-        ]
-      },
-      set(value) {
-        this.$store.commit(
-          MutationNames.SetCollectionObjectBufferedLabels,
-          value
-        )
-      }
-    },
-
-    eventId: {
-      get() {
-        return this.$store.getters[
-          GetterNames.GetCollectionObjectCollectionEventId
-        ]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetCollectionObjectEventId, value)
-      }
-    },
-
-    preparationId: {
-      get() {
-        return this.$store.getters[GetterNames.GetCollectionObjectPreparationId]
-      },
-      set(value) {
-        this.$store.commit(
-          MutationNames.SetCollectionObjectPreparationId,
-          value
-        )
-      }
-    },
-
-    total: {
-      get() {
-        return this.$store.getters[GetterNames.GetCollectionObjectTotal]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetCollectionObjectTotal, value)
-      }
-    }
-  },
-
-  data() {
-    return {
-      types: [],
-      labelRepository: undefined,
-      labelEvent: undefined
-    }
-  },
-
-  watch: {
-    biologicalId: {
-      handler(newVal) {
-        if (newVal) {
-          this.updateLabels()
-        }
-      }
-    },
-
-    repositoryId: {
-      handler(newVal) {
-        if (!newVal) {
-          this.labelRepository = ''
-        }
-      },
-      deep: true
-    }
-  },
-
-  mounted() {
-    this.updateLabels()
-    PreparationType.all().then((response) => {
-      this.types = response.body
+watch(collectingEventId, (id) => {
+  if (id) {
+    CollectingEvent.find(id).then(({ body }) => {
+      labelCE.value = body.cached
     })
-  },
-
-  methods: {
-    updateLabels() {
-      this.labelRepository = this.labelEvent = undefined
-      this.setEventLabel(this.eventId)
-      this.setRepositoryLabel(this.repositoryId)
-    },
-
-    setEventLabel(id) {
-      if (id) {
-        CollectingEvent.find(id).then((response) => {
-          this.labelEvent = response.body.verbatim_label
-        })
-      }
-    },
-
-    setRepositoryLabel(id) {
-      if (id) {
-        Repository.find(id).then((response) => {
-          this.labelRepository = response.body.name
-        })
-      }
-    },
-
-    setRepository(repository) {
-      this.labelRepository = repository.name
-      this.repositoryId = repository.id
-    },
-
-    unsetRepository() {
-      this.labelRepository = null
-      this.repositoryId = null
-    }
+  } else {
+    labelCE.value = ''
   }
-}
+})
+
+watch(repositoryId, (id) => {
+  if (id) {
+    Repository.find(id).then(({ body }) => {
+      labelRepository.value = body.name
+    })
+  } else {
+    labelRepository.value = ''
+  }
+})
 </script>

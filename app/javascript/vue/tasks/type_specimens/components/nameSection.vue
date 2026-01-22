@@ -2,71 +2,36 @@
   <div class="panel type-specimen-box">
     <div class="header flex-separate middle">
       <h3>Taxon name</h3>
-      <expand v-model="displayBody" />
     </div>
-    <div
-      class="body"
-      v-if="displayBody"
-    >
+    <div class="body">
       <div class="field">
         <label>Species name</label>
-        <autocomplete
+        <VAutocomplete
           class="types_field"
           url="/taxon_names/autocomplete"
           param="term"
           label="label_html"
           display="label"
-          @getItem="setTypeSpecimen($event.id)"
           min="2"
           :add-params="{
             'type[]': 'Protonym',
             'nomenclature_group[]': 'SpeciesGroup'
           }"
+          @select="({ id }) => loadTypeMaterials(id)"
         />
       </div>
-      <display-list
-        :list="typesMaterial"
-        :annotator="true"
-        @delete="removeTypeSpecimen"
-        label="object_tag"
-      />
     </div>
   </div>
 </template>
 
-<script>
-import Expand from '@/components/expand.vue'
-import Autocomplete from '@/components/ui/Autocomplete.vue'
-import DisplayList from '@/components/displayList.vue'
+<script setup>
+import VAutocomplete from '@/components/ui/Autocomplete.vue'
+import useStore from '../store/store.js'
 
-import { GetterNames } from '../store/getters/getters'
-import ActionNames from '../store/actions/actionNames'
+const store = useStore()
 
-export default {
-  components: {
-    DisplayList,
-    Autocomplete,
-    Expand
-  },
-  computed: {
-    typesMaterial() {
-      return this.$store.getters[GetterNames.GetTypeMaterials]
-    }
-  },
-  data: function () {
-    return {
-      displayBody: true
-    }
-  },
-  methods: {
-    setTypeSpecimen(id) {
-      this.$store.dispatch(ActionNames.LoadTaxonName, id).then(() => {
-        this.$store.dispatch(ActionNames.LoadTypeMaterials, id)
-      })
-    },
-    removeTypeSpecimen(item) {
-      this.$store.dispatch(ActionNames.RemoveTypeSpecimen, item.id)
-    }
-  }
+function loadTypeMaterials(id) {
+  store.loadTaxonName(id)
+  store.loadTypeMaterials(id)
 }
 </script>

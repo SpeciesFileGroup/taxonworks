@@ -1,44 +1,28 @@
 <template>
-  <div id="vue_type_specimens">
+  <div
+    id="vue_type_specimens"
+    class="margin-medium-top"
+  >
     <VSpinner
-      v-if="settings.loading || settings.saving"
+      v-if="settings.isLoading || settings.isSaving"
       full-screen
-      :legend="settings.loading ? 'Loading...' : 'Saving...'"
+      :legend="settings.isLoading ? 'Loading...' : 'Saving...'"
       :logo-size="{ width: '100px', height: '100px' }"
     />
-    <div class="flex-separate middle">
-      <h1>{{ isNew }} type specimen</h1>
-      <VBtn
-        circle
-        color="primary"
-        @click="reloadApp"
-      >
-        <VIcon
-          name="reset"
-          x-small
-        />
-      </VBtn>
-    </div>
     <div>
       <div class="align-start gap-medium">
-        <div class="full_width">
-          <NameSection
-            class="separate-bottom"
-            v-if="!taxon"
-          />
-          <MetadataSection
-            v-if="taxon"
-            class="separate-bottom"
-          />
-          <TypeMaterialSection class="separate-bottom" />
+        <div class="full_width flex-col gap-medium">
+          <NameSection v-if="!store.taxonName" />
+          <MetadataSection v-else />
+          <TypeMaterialSection />
         </div>
         <div
-          v-if="taxon"
+          v-if="store.taxonName"
           class="cright item"
         >
           <div id="cright-panel">
             <TypeBox class="separate-bottom" />
-            <SoftValidation :validations="softValidations" />
+            <SoftValidation :validations="validationStore.softValidations" />
           </div>
         </div>
       </div>
@@ -47,6 +31,12 @@
 </template>
 
 <script setup>
+import { setParam } from '@/helpers'
+import { useHotkey } from '@/composables'
+import { RouteNames } from '@/routes/routes'
+import { ref, onMounted, watch } from 'vue'
+import { URLParamsToJSON } from '@/helpers'
+
 import SoftValidation from '@/components/soft_validations/panel.vue'
 import NameSection from './components/nameSection.vue'
 import TypeMaterialSection from './components/typeMaterial.vue'
@@ -54,30 +44,17 @@ import MetadataSection from './components/metadataSection.vue'
 import TypeBox from './components/typeBox.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import platformKey from '@/helpers/getPlatformKey.js'
-import setParamsId from '@/helpers/setParam.js'
-import VIcon from '@/components/ui/VIcon/index.vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
-import { useHotkey } from '@/composables'
-import ActionNames from './store/actions/actionNames'
-import { GetterNames } from './store/getters/getters'
-import { RouteNames } from '@/routes/routes'
-import { computed, ref, onMounted, watch } from 'vue'
-import { useStore } from 'vuex'
+import useSoftvalidationStore from '@/components/Form/FormCollectingEvent/store/softValidations'
+import useSettingStore from './store/settings.js'
+import useStore from './store/store.js'
 
 defineOptions({
   name: 'NewTypeMaterial'
 })
 
 const store = useStore()
-
-const taxon = computed(() => store.getters[GetterNames.GetTaxon])
-const settings = computed(() => store.getters[GetterNames.GetSettings])
-const softValidations = computed(
-  () => store.getters[GetterNames.GetSoftValidation]
-)
-const isNew = computed(() =>
-  store.getters[GetterNames.GetTypeMaterial].id ? 'Edit' : 'New'
-)
+const settings = useSettingStore()
+const validationStore = useSoftvalidationStore()
 
 const shortcuts = ref([
   {
@@ -137,45 +114,49 @@ onMounted(() => {
   )
 })
 
-watch(taxon, (newVal) => {
-  if (newVal?.id) {
-    setParamsId(RouteNames.TypeMaterial, 'taxon_name_id', newVal.id)
+watch(
+  () => store.taxonName?.id,
+  (newVal) => {
+    setParam(RouteNames.TypeMaterial, 'taxon_name_id', newVal)
   }
-})
+)
 
-function reloadApp() {
-  window.location.href = '/tasks/type_material/edit_type_material'
-}
+watch(
+  () => store.typeMaterial.id,
+  (newVal) => {
+    setParam(RouteNames.TypeMaterial, 'type_material_id', newVal)
+  }
+)
 
-function loadTaxonTypes() {
-  const params = new URLSearchParams(window.location.search)
-  const typeId = params.get('type_material_id')
-  const protonymId = params.get('protonym_id') || params.get('taxon_name_id')
+async function loadTaxonTypes() {
+  const params = URLParamsToJSON(window.location.href)
+  const typeId = params.type_material_id
+  const protonymId = params.protonym_id || params.taxon_name_id
 
   if (/^\d+$/.test(protonymId)) {
-    store.dispatch(ActionNames.LoadTaxonName, protonymId).then(() => {
-      store
-        .dispatch(ActionNames.LoadTypeMaterials, protonymId)
-        .then((response) => {
-          if (/^\d+$/.test(typeId)) {
-            loadType(response, typeId)
-          }
-        })
-    })
-  }
-}
+    settings.isLoading = true
 
-function loadType(list, typeId) {
-  const findType = list.find((type) => type.id === Number(typeId))
+    try {
+      store.loadTaxonName(protonymId)
+      await store.loadTypeMaterials(protonymId)
 
-  if (findType) {
-    store.dispatch(ActionNames.LoadTypeMaterial, findType)
+      if (typeId) {
+        const item = store.typeMaterials.find((t) => t.id == typeId)
+
+        if (item) {
+          store.setTypeMaterial(item)
+        }
+      }
+    } catch {
+    } finally {
+      settings.isLoading = false
+    }
   }
 }
 
 function switchToTask(url) {
-  if (taxon.value.id) {
-    window.open(`${url}?taxon_name_id=${taxon.value.id}`, '_self')
+  if (store.taxonName.id) {
+    window.open(`${url}?taxon_name_id=${store.taxonName.id}`, '_self')
   } else {
     window.open(url, '_self')
   }
