@@ -46,6 +46,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Useful error messages when batch loan operations fail in Filter Collection Objects [#4171]
 - The Biological Associations index computed an error string for Anatomical Part citations [#4712]
 - Don't calculate distribution for api/v1/taxon_names/:id/inventory/catalog (performance improvement for Taxon Pages)
+- Add more LSID validations [#3608]
 
 ### Changed
 
@@ -55,6 +56,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated NPM packages
 
 
+[#3608]: https://github.com/SpeciesFileGroup/taxonworks/issues/3608
 [#4036]: https://github.com/SpeciesFileGroup/taxonworks/issues/4036
 [#4171]: https://github.com/SpeciesFileGroup/taxonworks/issues/4171
 [#4268]: https://github.com/SpeciesFileGroup/taxonworks/issues/4268
