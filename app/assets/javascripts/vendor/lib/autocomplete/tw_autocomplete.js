@@ -299,7 +299,7 @@ class TWAutocomplete {
 
     const viewportWidth = window.innerWidth - rect.left - 20
 
-    const finalWidth = Math.min(maxItemWidth, viewportWidth)
+    const finalWidth = Math.min(maxItemWidth + 20, viewportWidth)
 
     this._menu.style.width = finalWidth + 'px'
     this._menu.style.minWidth = rect.width + 'px'
