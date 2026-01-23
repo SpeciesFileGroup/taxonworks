@@ -146,17 +146,13 @@ module Protonym::Format
 
       # ranks are symbols here, elsewhere strings.
       # loop protonyms
+      finest_rank = nil
       ORIGINAL_COMBINATION_RANKS.each do |rank, type|
         next if row[rank].nil?
 
-        last = if row[rank]
-          row[:cached_original_combination] =~ /#{row[rank]}\z/ ? true : false
-        else
-          false
-        end
+        finest_rank = rank
 
-        # Do not genderize the last name
-        name_target = (gender.nil? || last) ? rank : (rank.to_s + '_' + gender).to_sym
+        name_target = gender.nil? ? rank : (rank.to_s + '_' + gender).to_sym
 
         # TODO: add verbatim to row(?)
         name = row[name_target] || row[rank] || row[(rank.to_s + '_' + 'verbatim')]
@@ -168,9 +164,9 @@ module Protonym::Format
         end
 
         data[rank.to_s] = v
-
-        break if last
       end
+
+      data[finest_rank.to_s][1] = row[:name] # Ensure the last name is not genderized
       data
     end
 
