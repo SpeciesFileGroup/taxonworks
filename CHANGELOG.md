@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.58.0] - 2026-01-23
+
 ### Added
 
 - New task: Verbatim author/year to cite taxon name
@@ -6024,7 +6028,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.57.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.58.0...development
+[0.58.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.57.0...v0.58.0
 [0.57.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.56.1...v0.57.0
 [0.56.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.56.0...v0.56.1
 [0.56.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.55.0...v0.56.0
