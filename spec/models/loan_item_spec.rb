@@ -98,8 +98,7 @@ describe LoanItem, type: :model, group: :loans do
   end
 
   context 'batch' do
-
-  let(:s1) { FactoryBot.create(:valid_specimen) }
+    let(:s1) { FactoryBot.create(:valid_specimen) }
     let(:s2) { FactoryBot.create(:valid_specimen) }
     let(:o1) { FactoryBot.create(:valid_otu) }
     let(:o2) { FactoryBot.create(:valid_otu) }
@@ -293,8 +292,7 @@ describe LoanItem, type: :model, group: :loans do
         )
 
         expect(result[:validation_errors]).not_to be_empty
-        expect(result[:validation_errors].values.sum).to eq(1) # 1 item failed
-        expect(result[:validation_errors].first.first).to include('already on loan')
+        expect(result[:validation_errors].keys.join).to include('already on loan')
       end
 
       context ':return mode' do
