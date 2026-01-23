@@ -52,6 +52,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
+- Large performance improvements to Catalog of Life Data Package export; some small regressions introduced 
 - Disabled autosave by default for New asserted distribution task. [#4698]
 - Filter Contents downloads are TSV (no longer CSV)
 - Updated Ruby gems
