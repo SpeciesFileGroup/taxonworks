@@ -249,7 +249,8 @@ module Export::Coldp::Files::Name
 
     b = Protonym
       .original_combination_specified
-      .original_combinations_flattened.with(valid_scope: a)
+      .original_combinations_flattened
+      .with(valid_scope: a)
       .where(cached_is_valid: false)
       .where('taxon_names.cached != taxon_names.cached_original_combination') # Only reified!!
       .joins('JOIN valid_scope on valid_scope.id = taxon_names.cached_valid_taxon_name_id')

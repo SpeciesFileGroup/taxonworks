@@ -49,7 +49,7 @@ module Protonym::Format
 
       gender = genus&.cached_gender
 
-      # Apply gender to everything but the last
+      # Apply gender to everything ***but the last***
       total = r.count - 1
 
       r.each_with_index do |j, i|
@@ -95,6 +95,7 @@ module Protonym::Format
 
   module ClassMethods
 
+    # CAREFUL - the last name doesn't get genderized in rendering !!!
     # TODO: consider an 'include_cached_misspelling' Boolean to extend result to include `cached_misspelling`
     def original_combinations_flattened
       s = []
@@ -106,6 +107,7 @@ module Protonym::Format
 
         # See unused original_combination_flat
         s.push "MAX(original_combination_protonyms_taxon_names.cached_gender) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_gender"
+
         s.push "MAX(original_combination_protonyms_taxon_names.neuter_name) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_neuter"
         s.push "MAX(original_combination_protonyms_taxon_names.masculine_name) FILTER (WHERE taxon_name_relationships.type  =  '#{t}') AS #{rank}_masculine"
         s.push "MAX(original_combination_protonyms_taxon_names.feminine_name) FILTER (WHERE taxon_name_relationships.type  = '#{t}') AS #{rank}_feminine"
@@ -142,17 +144,17 @@ module Protonym::Format
       gender = nil
       data = {}
 
+      gender = row['genus_gender']
+
       # ranks are symbols here, elsewhere strings.
       # protonym loop
       ORIGINAL_COMBINATION_RANKS.each do |rank, type|
-        if rank == :genus
-          a = "#{rank}_gender".to_sym
-          gender = row[a]
-        end
 
-        name_target = gender.nil? ? rank : (rank.to_s + '_' + gender).to_sym
+        # Do not genderize the last name
+        name_target = gender.nil? || (row.rank.to_sym == rank) ? rank : (rank.to_s + '_' + gender).to_sym  # <-
 
         # TODO: add verbatim to row
+
         name = row[name_target] || row[rank.to_s] || row[(rank.to_s + '_' + 'verbatim')]
 
         next if name.nil?
