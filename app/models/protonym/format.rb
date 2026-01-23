@@ -120,7 +120,7 @@ module Protonym::Format
 
       end
 
-      s.push 'taxon_names.id, taxon_names.cached, taxon_names.cached_original_combination, taxon_names.cached_author_year, taxon_names.cached_nomenclature_date,
+      s.push 'taxon_names.id, taxon_names.name, taxon_names.cached, taxon_names.cached_original_combination, taxon_names.cached_author_year, taxon_names.cached_nomenclature_date,
         taxon_names.rank_class, taxon_names.cached_misspelling, taxon_names.cached_is_valid, taxon_names.cached_valid_taxon_name_id,
         taxon_names.updated_by_id, taxon_names.updated_at, sources.id source_id, citations.pages'
 
@@ -138,26 +138,28 @@ module Protonym::Format
     #
     # Intent is to chain with scopes within COLDP export.
     #
-    # If this becomes more broadly useful consider optional `sic` inclusion
+    # If this becomes more broadly useful consider optional `sic` inclusion.
     #
     def original_combination_full_name_hash_from_flat(row)
-      gender = nil
       data = {}
-
       gender = row['genus_gender']
 
       # ranks are symbols here, elsewhere strings.
-      # protonym loop
+      # loop protonyms
       ORIGINAL_COMBINATION_RANKS.each do |rank, type|
+        next if row[rank].nil?
+
+        last = if row[rank]
+          row[:cached_original_combination] =~ /#{row[rank]}\z/ ? true : false
+        else
+          false
+        end
 
         # Do not genderize the last name
-        name_target = gender.nil? || (row.rank.to_sym == rank) ? rank : (rank.to_s + '_' + gender).to_sym  # <-
+        name_target = (gender.nil? || last) ? rank : (rank.to_s + '_' + gender).to_sym
 
-        # TODO: add verbatim to row
-
-        name = row[name_target] || row[rank.to_s] || row[(rank.to_s + '_' + 'verbatim')]
-
-        next if name.nil?
+        # TODO: add verbatim to row(?)
+        name = row[name_target] || row[rank] || row[(rank.to_s + '_' + 'verbatim')]
 
         v = [nil, name]
 
@@ -166,6 +168,8 @@ module Protonym::Format
         end
 
         data[rank.to_s] = v
+
+        break if last
       end
       data
     end
