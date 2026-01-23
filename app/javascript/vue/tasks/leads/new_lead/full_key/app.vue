@@ -149,7 +149,7 @@
 
           <ul class="key-ul">
             <li v-for="lio in store.key_data[child]['lead_item_otus']">
-              {{ lio }}
+              <a :href="makeBrowseUrl({ id: lio.id, type: OTU })">{{ lio.label }}</a>
             </li>
           </ul>
         </template>
@@ -165,6 +165,8 @@ import { Lead as LeadEndpoint } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
 import { nextTick, onMounted, ref, watch } from 'vue'
 import { useUserOkayToLeave } from '../shared/composables/useUserOkayToLeave.js'
+import { makeBrowseUrl } from '@/helpers/index.js'
+import { OTU } from '@/constants'
 import useStore from '../store/leadStore'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'

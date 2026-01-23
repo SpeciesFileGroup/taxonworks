@@ -25,7 +25,7 @@ class DataAttributesController < ApplicationController
     q = ::Queries::DataAttribute::Filter.new(params)
 
     # Disabling now, the extra over-head on complex queries is costly
-    # render json: [], status: :unprocessable_entity and return if q.all.count > 30000
+    # render json: [], status: :unprocessable_content and return if q.all.count > 30000
 
     @data = q.all.pluck('data_attributes.id, data_attributes.attribute_subject_id as object_id, data_attributes.controlled_vocabulary_term_id, data_attributes.value')
 
@@ -80,7 +80,7 @@ class DataAttributesController < ApplicationController
       else
 
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Data attribute was NOT successfully created.')}
-        format.json { render json: @data_attribute.errors, status: :unprocessable_entity }
+        format.json { render json: @data_attribute.errors, status: :unprocessable_content }
       end
     end
   end
@@ -94,7 +94,7 @@ class DataAttributesController < ApplicationController
         format.json { render :show, status: :ok, location: @data_attribute.metamorphosize }
       else
         format.html { redirect_back(fallback_location: (request.referer || root_path), notice: 'Data attribute was NOT successfully updated.')}
-        format.json { render json: @data_attribute.errors, status: :unprocessable_entity }
+        format.json { render json: @data_attribute.errors, status: :unprocessable_content }
       end
     end
   end
@@ -115,7 +115,7 @@ class DataAttributesController < ApplicationController
     if @data_attributes.present?
       render '/data_attributes/index'
     else
-      render json: { errors: ['Batch create failed - make sure your controlled vocabulary term is a predicate.'] }, status: :unprocessable_entity
+      render json: { errors: ['Batch create failed - make sure your controlled vocabulary term is a predicate.'] }, status: :unprocessable_content
     end
   end
 
@@ -126,7 +126,7 @@ class DataAttributesController < ApplicationController
       render json: {}, status: :ok
     else
       r ||= 'Batch update or create failed for an unkown reason.'
-      render json: { errors: [r] }, status: :unprocessable_entity
+      render json: { errors: [r] }, status: :unprocessable_content
     end
   end
 

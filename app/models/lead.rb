@@ -447,6 +447,39 @@ class Lead < ApplicationRecord
       .where(is_public: true)
   end
 
+  def remaining_otu_ids
+    Lead
+      .where(id: subtree_ids)
+      .where.not(otu_id: nil)
+      .pluck(:otu_id)
+  end
+
+  def eliminated_otu_ids
+    root_remaining_otu_ids - remaining_otu_ids
+  end
+
+
+  def remaining_otus
+    Otu.where(id: remaining_otu_ids)
+  end
+
+  def eliminated_otus
+    Otu.where(id: eliminated_otu_ids)
+  end
+
+  protected
+
+  def subtree_ids
+    [id] + descendant_ids
+  end
+
+  def root_remaining_otu_ids
+    Lead
+      .where(id: root.subtree_ids)
+      .where.not(otu_id: nil)
+      .pluck(:otu_id)
+  end
+
   private
 
   # Appends `nodes`` to the children of `new_parent``, in their given order.

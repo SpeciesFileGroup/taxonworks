@@ -57,6 +57,7 @@ class ImagesController < ApplicationController
     end
 
     render plain: 'Not found. You may need to add a &project_token= param to the URL currently in your address bar to access these data. See https://api.taxonworks.org/ for more.', status: :not_found and return if @image.nil?
+
     render '/images/api/v1/show'
   end
 
@@ -113,7 +114,7 @@ class ImagesController < ApplicationController
           format.json { render :show, status: :created, location: @image }
         else
           format.html { render :new }
-          format.json { render json: @image.errors, status: :unprocessable_entity }
+          format.json { render json: @image.errors, status: :unprocessable_content }
         end
       end
     end
@@ -128,7 +129,7 @@ class ImagesController < ApplicationController
         format.json { render :show, status: :ok, location: @image }
       else
         format.html { render :edit }
-        format.json { render json: @image.errors, status: :unprocessable_entity }
+        format.json { render json: @image.errors, status: :unprocessable_content }
       end
     end
   end
@@ -192,6 +193,21 @@ class ImagesController < ApplicationController
   # GET 'api/v1/images/:id/scale_to_box/:x/:y/:width/:height/:box_width/:box_height'
   def api_scale_to_box
     send_data Image.scaled_to_box_blob(params), type: 'image/jpg', disposition: 'inline'
+  end
+
+  # GET 'api/v1/images/file/sha/:sha/scale_to_box/:x/:y/:width/:height/:box_width/:box_height'
+  def api_scale_to_box_sha
+    @image = Image
+      .where(project_id: sessions_current_project_id)
+      .find_by(image_file_fingerprint: params[:sha])
+
+    if @image.present?
+      # Replace :sha with :id in params so scaled_to_box_blob works
+      modified_params = params.merge(id: @image.id)
+      send_data Image.scaled_to_box_blob(modified_params), type: 'image/jpg', disposition: 'inline'
+    else
+      render plain: 'Image not found.', status: :not_found
+    end
   end
 
   # GET 'images/:id/as_png'

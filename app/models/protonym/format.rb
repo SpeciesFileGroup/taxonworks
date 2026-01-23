@@ -49,7 +49,7 @@ module Protonym::Format
 
       gender = genus&.cached_gender
 
-      # Apply gender to everything but the last
+      # Apply gender to everything ***but the last***
       total = r.count - 1
 
       r.each_with_index do |j, i|
@@ -95,27 +95,38 @@ module Protonym::Format
 
   module ClassMethods
 
+    # CAREFUL - the last name doesn't get genderized in rendering !!!
     # TODO: consider an 'include_cached_misspelling' Boolean to extend result to include `cached_misspelling`
     def original_combinations_flattened
       s = []
       abbreviation_cutoff = 'subspecies'
       abbreviate = false
+
       ::ORIGINAL_COMBINATION_RANKS.each do |rank, t|
         s.push "MAX(original_combination_protonyms_taxon_names.name) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}"
+
+        # See unused original_combination_flat
+        s.push "MAX(original_combination_protonyms_taxon_names.cached_gender) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_gender"
+
+        s.push "MAX(original_combination_protonyms_taxon_names.neuter_name) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_neuter"
+        s.push "MAX(original_combination_protonyms_taxon_names.masculine_name) FILTER (WHERE taxon_name_relationships.type  =  '#{t}') AS #{rank}_masculine"
+        s.push "MAX(original_combination_protonyms_taxon_names.feminine_name) FILTER (WHERE taxon_name_relationships.type  = '#{t}') AS #{rank}_feminine"
 
         if abbreviate
           s.push "MAX(original_combination_protonyms_taxon_names.rank_class) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_rank_class"
         end
 
         abbreviate = true if rank == abbreviation_cutoff
+
       end
 
-      s.push 'taxon_names.id, taxon_names.cached, taxon_names.cached_original_combination, taxon_names.cached_author_year, taxon_names.cached_nomenclature_date,
-        taxon_names.rank_class, taxon_names.cached_misspelling, taxon_names.cached_is_valid, taxon_names.cached_valid_taxon_name_id, taxon_names.updated_by_id, taxon_names.updated_at, sources.id source_id, citations.pages'
+      s.push 'taxon_names.id, taxon_names.name, taxon_names.cached, taxon_names.cached_original_combination, taxon_names.cached_author_year, taxon_names.cached_nomenclature_date,
+        taxon_names.rank_class, taxon_names.cached_misspelling, taxon_names.cached_is_valid, taxon_names.cached_valid_taxon_name_id,
+        taxon_names.updated_by_id, taxon_names.updated_at, sources.id source_id, citations.pages'
 
       sel = s.join(',')
 
-      Protonym.joins(:original_combination_protonyms, :source)
+      Protonym.joins(:source, :original_combination_protonyms)
         .select(sel)
         .group('taxon_names.id, sources.id, citations.pages')
     end
@@ -127,26 +138,24 @@ module Protonym::Format
     #
     # Intent is to chain with scopes within COLDP export.
     #
-    # If this becomes more broadly useful consider optional `sic` inclusion
+    # If this becomes more broadly useful consider optional `sic` inclusion.
     #
     def original_combination_full_name_hash_from_flat(row)
-      gender = nil
       data = {}
+      gender = row['genus_gender']
 
       # ranks are symbols here, elsewhere strings.
-      # protonym loop
+      # loop protonyms
+      finest_rank = nil
       ORIGINAL_COMBINATION_RANKS.each do |rank, type|
-        if rank == :genus
-          a = "#{rank}_gender".to_sym
-          gender = row[a]
-        end
+        next if row[rank].nil?
+
+        finest_rank = rank
 
         name_target = gender.nil? ? rank : (rank.to_s + '_' + gender).to_sym
 
-        # TODO: add  verbatim to row
-        name = row[name_target] || row[rank.to_s] || row[(rank.to_s + '_' + 'verbatim')]
-
-        next if name.nil?
+        # TODO: add verbatim to row(?)
+        name = row[name_target] || row[rank] || row[(rank.to_s + '_' + 'verbatim')]
 
         v = [nil, name]
 
@@ -156,6 +165,8 @@ module Protonym::Format
 
         data[rank.to_s] = v
       end
+
+      data[finest_rank.to_s][1] = row[:name] # Ensure the last name is not genderized
       data
     end
 
@@ -167,7 +178,7 @@ module Protonym::Format
       s.push "MAX(name) FILTER (WHERE rt = '#{t}') AS #{rank},
               MAX(cached_gender) FILTER (WHERE rt = '#{t}') AS #{rank}_gender,
               MAX(neuter_name) FILTER (WHERE rt = '#{t}') AS #{rank}_neuter,
-              MAX(masculine_name) FILTER (WHERE rt =  '#{t}') AS #{rank}_masculine,
+              MAX(masculine_name) FILTER (WHERE rt = '#{t}') AS #{rank}_masculine,
               MAX(feminine_name) FILTER (WHERE rt = '#{t}') AS #{rank}_feminine"
     end
 

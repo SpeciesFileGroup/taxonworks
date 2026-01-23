@@ -72,7 +72,7 @@ class LeadsController < ApplicationController
         expand_lead
         format.json { render action: :show, status: :created, location: @lead }
       else
-        format.json { render json: @lead.errors, status: :unprocessable_entity}
+        format.json { render json: @lead.errors, status: :unprocessable_content}
       end
     end
   end
@@ -84,7 +84,7 @@ class LeadsController < ApplicationController
       @lead.errors.add(:add_children,
         "request must be for 1 or 2, was '#{num_to_add}'"
       )
-      render json: @lead.errors, status: :unprocessable_entity
+      render json: @lead.errors, status: :unprocessable_content
       return
     end
 
@@ -108,7 +108,7 @@ class LeadsController < ApplicationController
         @lead.parent.apportioned_lead_item_otus :
         { parent: [], children: [] }
     rescue ActiveRecord::RecordInvalid
-      render json: @lead.errors, status: :unprocessable_entity
+      render json: @lead.errors, status: :unprocessable_content
     end
   end
 
@@ -119,7 +119,7 @@ class LeadsController < ApplicationController
       respond_to do |format|
         flash[:error] = 'Delete aborted - you can only delete on root nodes.'
         format.html { redirect_back(fallback_location: (request.referer || root_path)) }
-        format.json { head :no_content, status: :unprocessable_entity }
+        format.json { head :no_content, status: :unprocessable_content }
       end
       return
     end
@@ -135,7 +135,7 @@ class LeadsController < ApplicationController
       respond_to do |format|
         flash[:error] = 'Delete failed!'
         format.html { redirect_back(fallback_location: (request.referer || root_path)) }
-        format.json { render json: @lead.errors, status: :unprocessable_entity }
+        format.json { render json: @lead.errors, status: :unprocessable_content }
       end
     end
   end
@@ -151,7 +151,7 @@ class LeadsController < ApplicationController
       )
     rescue TaxonWorks::Error => e
       parent.errors.add(:error, e)
-      render json: parent.errors, status: :unprocessable_entity
+      render json: parent.errors, status: :unprocessable_content
       return
     end
 
@@ -168,11 +168,11 @@ class LeadsController < ApplicationController
         head :no_content
       else
         @lead.errors.add(:delete, 'failed!')
-        render json: @lead.errors, status: :unprocessable_entity
+        render json: @lead.errors, status: :unprocessable_content
       end
     else
       @lead.errors.add(:destroy, "failed - can't delete the only couplet.")
-      render json: @lead.errors, status: :unprocessable_entity
+      render json: @lead.errors, status: :unprocessable_content
     end
   end
 
@@ -186,7 +186,7 @@ class LeadsController < ApplicationController
       else
         @lead.errors.add(:delete, 'failed!')
         format.json {
-          render json: @lead.errors, status: :unprocessable_entity
+          render json: @lead.errors, status: :unprocessable_content
         }
       end
     end
@@ -214,7 +214,7 @@ class LeadsController < ApplicationController
   # POST /leads/1/insert_key.json?key_to_insert=:id
   def insert_key
     if !@lead.insert_key(params[:key_to_insert])
-      render json: @lead.errors, status: :unprocessable_entity
+      render json: @lead.errors, status: :unprocessable_content
       return
     end
 
@@ -227,7 +227,7 @@ class LeadsController < ApplicationController
       @lead.reorder_children(reorder_params[:reorder_list])
     rescue TaxonWorks::Error => e
       @lead.errors.add(:reorder_failed, e.to_s)
-      render json: @lead.errors, status: :unprocessable_entity
+      render json: @lead.errors, status: :unprocessable_content
       return
     end
 
@@ -238,6 +238,24 @@ class LeadsController < ApplicationController
   # GET /leads/1/otus.json
   def otus
     @otus = Otu.associated_with_key(@lead)
+  end
+
+  def remaining_otus
+    lead = Lead.find(params[:id])
+
+    @otus = lead.remaining_otus
+
+    render '/leads/otus'
+
+  end
+
+  def eliminated_otus
+    lead = Lead.find(params[:id])
+
+    @otus = lead.eliminated_otus
+
+    render '/leads/otus'
+
   end
 
   def autocomplete
@@ -285,7 +303,7 @@ class LeadsController < ApplicationController
   def set_observation_matrix
     if params[:observation_matrix_id].nil?
       @lead.errors.add(:observation_matrix_id, 'is required.')
-      render json: @lead.errors, status: :unprocessable_entity
+      render json: @lead.errors, status: :unprocessable_content
     end
 
     @lead.update!(observation_matrix_id: params[:observation_matrix_id])

@@ -20,20 +20,26 @@ class NewsController < ApplicationController
       end
       format.json {
         @news = News::Project.where(project_id: sessions_current_project_id)
+          .order(created_at: :desc)
           .page(params[:page])
           .per(params[:per])
-          .order(created_at: :desc)
+          
       }
     end
   end
 
   # Serves only current blog_posts at the moment
   def api_index
-    @news = News::Project::BlogPost
-      .where(project_id: sessions_current_project_id)
+    @news = ::Queries::News::Filter.new(params)
+      .all
+      .current
+      .where(
+        type: News::Project::BlogPost.name, 
+        is_public: true
+      )
+      .order(created_at: :desc)
       .page(params[:page])
       .per(params[:per])
-      .order(:display_start, :created_at)
 
     render '/news/api/v1/index'
   end
@@ -66,8 +72,8 @@ class NewsController < ApplicationController
         format.html { redirect_to @news.becomes(@news.class.base_class), notice: 'News was successfully created.' }
         format.json { render :show, status: :created, location: @news.metamorphosize }
       else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @news.errors, status: :unprocessable_entity }
+        format.html { render :new, status: :unprocessable_content }
+        format.json { render json: @news.errors, status: :unprocessable_content }
       end
     end
   end
@@ -79,8 +85,8 @@ class NewsController < ApplicationController
         format.html { redirect_to @news.metamorphosize, notice: 'News was successfully updated.', status: :see_other }
         format.json { render :show, status: :ok, location: @news.metamorphosize }
       else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @news.errors, status: :unprocessable_entity }
+        format.html { render :edit, status: :unprocessable_content }
+        format.json { render json: @news.errors, status: :unprocessable_content }
       end
     end
   end

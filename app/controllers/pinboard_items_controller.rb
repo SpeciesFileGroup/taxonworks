@@ -13,7 +13,7 @@ class PinboardItemsController < ApplicationController
         format.js {}
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: "Couldn't pin this item! Is it already there?")}
-        format.json { render json: @pinboard_item.errors, status: :unprocessable_entity }
+        format.json { render json: @pinboard_item.errors, status: :unprocessable_content }
       end
     end
   end
@@ -28,7 +28,7 @@ class PinboardItemsController < ApplicationController
         format.js {}
       else
         format.html { render action: 'edit' }
-        format.json { render json: @pinboard_item.errors, status: :unprocessable_entity }
+        format.json { render json: @pinboard_item.errors, status: :unprocessable_content }
         format.js {}
       end
     end
@@ -60,7 +60,7 @@ class PinboardItemsController < ApplicationController
         .symbolize_keys)
       render json: {}, status: :ok
     else
-      render json: {}, status: :unprocessable_entity
+      render json: {}, status: :unprocessable_content
     end
   end
 

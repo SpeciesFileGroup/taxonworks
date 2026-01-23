@@ -2,7 +2,10 @@
   <div>
     <template v-if="createForm">
       <div v-if="organization">
-        <OrganizationPicker @select="addOrganization" />
+        <OrganizationPicker
+          :show-new-button="showCreateControls"
+          @select="addOrganization"
+        />
       </div>
 
       <div
@@ -36,7 +39,7 @@
         </div>
         <div
           class="flex-wrap-column separate-left"
-          v-if="searchPerson.length > 0"
+          v-if="showCreateControls && searchPerson.length > 0"
         >
           <div class="flex-wrap-row gap-xsmall">
             <input
@@ -199,6 +202,10 @@ const props = defineProps({
   organization: {
     type: Boolean,
     default: false
+  },
+  showCreateControls: {
+    type: Boolean,
+    default: true
   },
   roleTypes: {
     type: Array,

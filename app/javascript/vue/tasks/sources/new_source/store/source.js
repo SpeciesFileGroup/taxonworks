@@ -6,12 +6,28 @@ import {
   Document
 } from '@/routes/endpoints'
 import { useSettingStore } from './settings'
-import { SOURCE_BIBTEX, SOURCE } from '@/constants'
+import {
+  SOURCE,
+  SOURCE_BIBTEX,
+  SOURCE_HUMAN,
+  SOURCE_VERBATIM
+} from '@/constants'
 import { smartSelectorRefresh } from '@/helpers/smartSelector'
 import { removeFromArray } from '@/helpers'
 import { RouteNames } from '@/routes/routes'
 import makeSource from '../const/source'
 import setParam from '@/helpers/setParam'
+
+const BIBTEX_REQUIRED = [
+  'author',
+  'editor',
+  'title',
+  'url',
+  'year',
+  'journal',
+  'booktitle',
+  'stated_year'
+]
 
 export const useSourceStore = defineStore('source', {
   state: () => ({
@@ -19,6 +35,20 @@ export const useSourceStore = defineStore('source', {
     source: makeSource(),
     softValidation: undefined
   }),
+
+  getters: {
+    isSaveAvailable(state) {
+      return (
+        (state.source.type === SOURCE_VERBATIM && state.source.verbatim) ||
+        (state.source.type === SOURCE_HUMAN &&
+          state.source.roles_attributes.length) ||
+        (state.source.type === SOURCE_BIBTEX &&
+          state.source.bibtex_type &&
+          BIBTEX_REQUIRED.some((key) => state.source[key])) ||
+        state.source.roles_attributes.length
+      )
+    }
+  },
 
   actions: {
     cloneSource() {
@@ -225,8 +255,6 @@ export const useSourceStore = defineStore('source', {
       this.setSource({ ...data })
       this.documentation = []
       this.softValidation = undefined
-
-      history.pushState(null, null, RouteNames.NewSource)
     }
   }
 })

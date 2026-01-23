@@ -57,11 +57,11 @@ module Queries
       image: [:content, :collection_object, :collecting_event, :field_occurrence, :otu, :observation, :source, :taxon_name ],
       loan: [:collection_object, :otu],
       observation: [:asserted_distribution, :collection_object, :descriptor, :extract, :field_occurrence, :image, :otu, :sound, :source, :taxon_name, :anatomical_part],
-      otu: [:asserted_distribution, :biological_association, :collection_object, :dwc_occurrence, :field_occurrence, :collecting_event, :content, :descriptor, :extract, :image, :loan, :observation, :source, :taxon_name, :anatomical_part ],
+      otu: [:asserted_distribution, :biological_association, :collection_object, :dwc_occurrence, :field_occurrence, :collecting_event, :content, :descriptor, :extract, :image, :loan, :observation, :source, :taxon_name, :anatomical_part, :sound ],
       person: [],
       source: [:asserted_distribution,  :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :image, :observation, :otu, :taxon_name, :taxon_name_relationship],
-      sound: [:observation, :anatomical_part],
-      taxon_name: [:asserted_distribution, :biological_association, :collection_object, :collecting_event, :image, :otu, :source, :taxon_name_relationship],
+      sound: [:observation, :anatomical_part, :otu, :taxon_name],
+      taxon_name: [:asserted_distribution, :biological_association, :collection_object, :collecting_event, :image, :otu, :source, :taxon_name_relationship, :sound],
       taxon_name_relationship: [:taxon_name, :source],
     }.freeze
 
@@ -511,15 +511,26 @@ module Queries
     # any parameter set for the query.
     def permitted_params(hsh)
       h = self.class::PARAMS.deep_dup
+      h.unshift(:venn_ignore_pagination)
+      h.unshift(:venn_mode)
+      h.unshift(:venn)
       h.unshift(:per)
       h.unshift(:page)
       h.unshift(:paginate)
 
+      # Rails' permit() format requires a specific structure:
+      #   [:scalar_param1, :scalar_param2, {array_or_nested: [...]}]
+      #
+      # The hash at the end is where we put:
+      #   1. Array parameters (e.g., collection_object_id: [])
+      #   2. Nested structures (e.g., otu_query: [...])
+      #
+      # Ensure the array has a hash at the end to hold these.
       if !h.last.kind_of?(Hash)
         h << {}
       end
 
-      c = h.last # a {}
+      c = h.last # Reference to the hash where nested/array params go.
 
       if n = self.class.annotator_params
         c.merge!(n.pop)
@@ -538,6 +549,9 @@ module Queries
         q = FILTER_QUERIES[a].safe_constantize
         p = q::PARAMS.deep_dup
 
+        p.unshift(:venn_ignore_pagination)
+        p.unshift(:venn_mode)
+        p.unshift(:venn)
         p.unshift(:per)
         p.unshift(:page)
         p.unshift(:paginate)

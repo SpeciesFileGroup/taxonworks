@@ -8,7 +8,7 @@ module Export
     def self.export(taxon_name, body = nil, options = {})
       zip_file_path = "/tmp/_#{SecureRandom.hex(8)}_paper_catalog.zip"
 
-      Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
+      Zip::File.open(zip_file_path, create: true) do |zipfile|
 
         zipfile.get_output_stream('catalog.md') do |f|
           f.write body

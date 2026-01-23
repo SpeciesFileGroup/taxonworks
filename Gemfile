@@ -1,31 +1,32 @@
 source 'https://rubygems.org'
 
-gem 'rack-cors', '~> 2.0', require: 'rack/cors'
+gem 'rack-cors', '~> 3.0', require: 'rack/cors'
 
 ruby '>= 3.2', '< 3.5.0'
 
-
 gem 'rake', '~> 13.0'
-gem 'rails', '~> 8.0'
+gem 'rails', '~> 8.1.0'
 gem 'pg', '~> 1.1'
 gem 'activerecord-postgis-adapter', '~> 11.0'
-gem 'hiredis', '~> 0.6.1'
-gem 'redis', '~> 4.5'
+
+# action_cable use may re-introduce this
+# gem 'hiredis', '~> 0.6.1'
+# gem 'redis', '~> 4.5'
+
 gem 'bootsnap', require: false
 
-# gem 'json', '>= 2.1.0'
-gem 'rdf', '~> 3.0'
+gem 'rdf', '~> 3.3'
 
 # System
 gem 'thor', '~> 1.2'
-gem 'rubyzip', '~> 2.3.0'
+gem 'rubyzip', '~> 3.2'
 gem 'zip_tricks', '~> 5.6'
 gem 'daemons', '~> 1.4.1'
-gem 'tzinfo-data', '~> 1.2019' # , '>= 1.2019.3'
+gem 'tzinfo-data', '~> 1.2019'
 gem 'psych', '~> 5.1'
 gem 'rmagick', '~> 6.0'
-gem 'roo', '~> 2.8', '>= 2.8.3'
-gem 'roo-xls', '~> 1.2'
+gem 'roo', '~> 3.0'
+gem 'roo-xls', '~> 2.0'
 
 gem 'csv', '~> 3.2'
 
@@ -34,16 +35,10 @@ gem 'mail', '~> 2.8', '>= 2.8.1'
 gem 'matrix', '~> 0.4.2'
 
 # Geo
-
-# gem 'ffi-geos', '~> 2.3.0'
-# gem 'rgeo', '~> 2.2'
-# gem 'rgeo-geojson', '~> 2.1', '>= 2.1.1'
-# gem 'rgeo-proj4', '~> 3.0', '>= 3.0.1'
-
-gem 'ffi-geos', '~> 2.4.0'
+gem 'ffi-geos', '~> 2.5.0'
 gem 'rgeo', '~> 3.0'
 gem 'rgeo-geojson', '~> 2.1', '>= 2.1.1'
-gem 'rgeo-proj4', '~> 4.0' #, '>= 3.0.1'
+gem 'rgeo-proj4', '~> 4.0'
 gem 'rgeo-shapefile', '~> 3.0'
 
 gem 'postgresql_cursor', '~> 0.6.1'
@@ -71,12 +66,12 @@ gem 'delayed_job_active_record', '~> 4.1.3'
 
 gem 'validates_timeliness', '~> 8.0' # , '>= 4.1.1'
 
-gem 'rack', '~> 3.1.16'
+gem 'rack', '~> 3.2'
 
-gem 'paper_trail', '~> 16.0'
+gem 'paper_trail', '~> 17.0'
 
 gem 'acts_as_list', '~> 1.0'
-gem 'modularity', '~> 3.0.0' # TODO: Used!?
+gem 'modularity', '~> 3.2' # Shared::RandomTokenFields `as_traits`
 
 gem 'kt-paperclip', '~> 7.2'
 
@@ -87,19 +82,18 @@ gem 'shortener', '~> 1.0'
 gem 'rails_or', '~> 1.1.8'
 
 # javascript
-gem 'sprockets-rails', '~> 3.4.0' # UPDATE TODO
-gem 'sprockets', '~> 4.2' # TODO: Cannot use '~> 4.0' (app fails to initialize properly)
+gem 'sprockets-rails', '~> 3.5' # UPDATE TODO
+gem 'sprockets', '~> 4.2'
 gem 'sprockets-es6', '~> 0.9.2', require: 'sprockets/es6'
 gem 'terser', '~> 1.2'
 
 gem 'jquery-rails', '~> 4.4'
-# gem 'jquery-ui-rails', '~> 6.0.1'
-gem 'jquery-ui-rails', git: 'https://github.com/jquery-ui-rails/jquery-ui-rails.git'
+gem 'jquery-ui-rails', git: 'https://github.com/jquery-ui-rails/jquery-ui-rails.git' # '~> 6.0.1'
 gem 'rails-jquery-autocomplete', '~> 1.0.3'
 
 gem 'turbolinks', '~> 5.2.0'
 gem 'jquery-turbolinks', '~> 2.1'
-gem 'shakapacker', '9.4.0'
+gem 'shakapacker', '9.5.0'
 
 # BibTeX handling
 gem 'csl', '~> 2.0'
@@ -149,14 +143,13 @@ gem 'gnfinder', '~> 1.0'
 
 # Minor Utils/helpers
 gem 'amazing_print', '~> 2.0'
-gem 'indefinite_article', '~> 0.2.4'
-gem 'rainbow', '~> 3.0'
-
 gem 'chronic', '~> 0.10.2'
-gem 'logical_query_parser'
-gem 'logic_tools'
 gem 'chunky_png', '~> 1.4.0'
+gem 'indefinite_article', '~> 0.2.4'
+gem 'logic_tools'
+gem 'logical_query_parser'
 gem 'namecase', '~> 2.0'
+gem 'rainbow', '~> 3.0'
 gem 'zaru', '~> 1.0'
 
 # Export
@@ -164,46 +157,42 @@ gem 'asciidoctor', '~> 2.0'
 # gem 'asciidoctor-epub3', '~> 1.5'
 
 # www
-gem 'wikidata-client', '~> 0.1.0.pre.rc1', require: 'wikidata'
+gem 'wikidata-client', '~> 0.1.0', require: 'wikidata'
 
 # Maintenance
 gem 'parallel', '~> 1.23'
 gem 'ruby-progressbar', '~> 1.11'
 
 group :test, :development do
-  # gem 'term-ansicolor', '~> 1.6' # DEPRECATED
-  gem 'pp_sql'
-  gem 'faker', '~> 3.2'
-  gem 'rspec-rails', '~> 6.1'
-  gem 'rspec-activemodel-mocks', '~> 1.1.0'
-  gem 'byebug', '~> 11.1', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
+  gem 'byebug', '~> 12.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 6.5'
+  gem 'faker', '~> 3.2'
+  gem 'pp_sql'
+  gem 'puma', '~> 7.0'
+  gem 'rspec-activemodel-mocks', '~> 1.1.0'
+  gem 'rspec-rails', '~> 8.0'
   gem 'selenium-webdriver', '~> 4.6', '>= 4.6.1'
-  gem 'puma', '~> 6.3'
 end
 
 gem 'parallel_tests', group: [:development, :test]
 
 group :development do
   # gem "ruby-lsp", "~> 0.4.1", require: false
-
-  gem 'thruster'
-
   # gem 'tunemygc'
-  gem 'ruby-prof', '~> 1.2'
   gem 'better_errors', '~> 2.9'
   gem 'binding_of_caller'
-  gem 'spring-commands-rspec', '~> 1.0.4'
+  gem 'brakeman', '~> 7.1',  require: false
   gem 'guard-rspec', '~> 4.7.3', require: false
-
-  gem 'web-console', '~> 4.0', '>= 4.0.1'
   gem 'rubocop', '~> 1.20'
-  gem 'rubocop-rails', '~> 2.4'
-  gem 'rubocop-rspec', '~>2.6'
-  gem 'rubocop-faker', '~> 1.1'
+  gem 'rubocop-faker', '~> 1.3'
   gem 'rubocop-performance', '~> 1.10'
-  gem 'brakeman', '~> 6.1', '>= 5.4', require: false
+  gem 'rubocop-rails', '~> 2.34'
+  gem 'rubocop-rspec', '~> 3.9'
+  gem 'ruby-prof', '~> 1.2'
   gem 'seedbank', '~> 0.5.0'
+  gem 'spring-commands-rspec', '~> 1.0.4'
+  gem 'thruster'
+  gem 'web-console', '~> 4.0', '>= 4.0.1'
 end
 
 group :doc do
@@ -211,21 +200,23 @@ group :doc do
 end
 
 group :test do
-  gem 'rspec', '~> 3.6'
-  gem 'codecov', '~> 0.6.0'
-  gem 'simplecov', require: false
   gem 'capybara', '~> 3.18'
-  gem 'timecop', '~> 0.9.1'
-  gem 'webmock', '~> 3.8' # , '>= 3.6.2'
-  gem 'vcr', '~> 6.0'
+ 
+  gem 'codecov', '~> 0.6.0'
+  # gem 'simplecov', require: false # coming from codecov, do we need this require?
+  
   gem 'database_cleaner', '~> 2.0'
   gem 'database_cleaner-active_record', '2.2.1' # TODO: Remove when instability issues are solved
-  gem 'rails-controller-testing', '~> 1.0.2'
   gem 'os', '~> 1.0', '>= 1.0.1'
+  gem 'rails-controller-testing', '~> 1.0.2'
+  gem 'rspec', '~> 3.6'
+  gem 'timecop', '~> 0.9.1'
+  gem 'vcr', '~> 6.0'
+  gem 'webmock', '~> 3.8'
 end
 
 group :production do
-  gem 'execjs', '~> 2.8.1'
-  gem 'passenger', '~> 6.0.2'
+  # gem 'execjs', '~> 2.8.1' - from babel, no need to force here.
+  gem 'passenger', '~> 6.1.0'
 end
 

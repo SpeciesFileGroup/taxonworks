@@ -7,6 +7,15 @@
           <label>
             <input
               type="checkbox"
+              v-model="settings.autosave"
+            />
+            Autosave
+          </label>
+        </li>
+        <li>
+          <label>
+            <input
+              type="checkbox"
               v-model="settings.sortable"
             />
             Reorder fields
@@ -23,7 +32,7 @@
         </li>
       </ul>
     </div>
-    <NavBar class="source-navbar">
+    <NavBar class="relative">
       <div class="flex-separate full_width">
         <div class="middle gap-small">
           <template v-if="store.source.id">
@@ -62,7 +71,7 @@
           <button
             class="button normal-input button-submit button-size"
             type="button"
-            :disabled="!isSaveAvailable"
+            :disabled="!store.isSaveAvailable"
             @click="saveSource"
           >
             Save
@@ -101,6 +110,11 @@
             New
           </button>
         </div>
+        <Autosave
+          :disabled="!settings.autosave"
+          style="bottom: 0px; left: 0px"
+          class="position-absolute full_width"
+        />
       </div>
     </NavBar>
     <div class="horizontal-left-content align-start">
@@ -152,6 +166,8 @@ import { useSettingStore, useSourceStore } from './store'
 import { useHotkey } from '@/composables'
 import { RouteNames } from '@/routes/routes'
 
+import Autosave from './components/Autosave.vue'
+
 import Verbatim from './components/verbatim/main'
 import Bibtex from './components/bibtex/main'
 import Human from './components/person/PersonHuman.vue'
@@ -174,6 +190,7 @@ import RightSection from './components/rightSection'
 import NavBar from '@/components/layout/NavBar'
 import platformKey from '@/helpers/getPlatformKey'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
+import { usePopstateListener } from '@/composables'
 
 const componentSection = {
   [SOURCE_VERBATIM]: Verbatim,
@@ -206,18 +223,20 @@ const shortcuts = ref([
 useHotkey(shortcuts.value)
 
 const isUnsaved = computed(() => store.source.isUnsaved)
-const isSaveAvailable = computed(
-  () =>
-    (store.source.type === SOURCE_VERBATIM && store.source.verbatim) ||
-    (store.source.type === SOURCE_HUMAN &&
-      store.source.roles_attributes.length) ||
-    (store.source.type === SOURCE_BIBTEX &&
-      store.source.bibtex_type &&
-      store.source.title)
-)
 
 const isCrossRefModalVisible = ref(false)
 const isBibtexModalVisible = ref(false)
+
+function loadSourceFromParams() {
+  const urlParams = new URLSearchParams(window.location.search)
+  const sourceId = urlParams.get('source_id')
+
+  if (/^\d+$/.test(sourceId)) {
+    store.loadSource(sourceId)
+  } else {
+    store.reset()
+  }
+}
 
 onMounted(() => {
   TW.workbench.keyboard.createLegend(`${platformKey()}+s`, 'Save', 'New source')
@@ -228,13 +247,10 @@ onMounted(() => {
     'New source'
   )
 
-  const urlParams = new URLSearchParams(window.location.search)
-  const sourceId = urlParams.get('source_id')
-
-  if (/^\d+$/.test(sourceId)) {
-    store.loadSource(sourceId)
-  }
+  loadSourceFromParams()
 })
+
+usePopstateListener(loadSourceFromParams)
 
 function isSafeToDiscardChanges() {
   return (
@@ -248,12 +264,12 @@ function isSafeToDiscardChanges() {
 
 function reset() {
   if (isSafeToDiscardChanges()) {
-    store.$reset()
+    store.reset()
   }
 }
 
 function saveSource() {
-  if (!isSaveAvailable) return
+  if (!store.isSaveAvailable) return
   store.save()
 }
 

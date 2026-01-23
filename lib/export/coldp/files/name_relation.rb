@@ -64,22 +64,29 @@ module Export::Coldp::Files::NameRelation
   }.freeze
 
   # TODO: This is the original set, but it doesn't quite feel right.
-  def self.taxon_name_relationships(otus)
+  def self.taxon_name_relationships(otu)
+    names = ::Export::Coldp.all_names(otu)
 
-    # TODO: Join in proper name methods, don't rely on OTU scope
-    a = TaxonNameRelationship.with(otu_scope: otus.select(:id, :taxon_name_id))
-      .joins("JOIN taxon_names obj_tn on obj_tn.id = taxon_name_relationships.object_taxon_name_id")
-      .joins("JOIN otu_scope on otu_scope.taxon_name_id = obj_tn.id")
-      .left_joins(:sources)
+    a = TaxonNameRelationship.with(name_scope: names)
+      .joins("JOIN name_scope ns on ns.id = taxon_name_relationships.object_taxon_name_id")
       .where.not(taxon_name_relationships: {type: BLOCKED})
+      .left_joins(:sources)
       .group('taxon_name_relationships.id')
       .select("taxon_name_relationships.*, MAX(sources.id) a_source_id")
+
+    b = TaxonNameRelationship.with(name_scope: names)
+      .joins("JOIN name_scope ns on ns.id = taxon_name_relationships.subject_taxon_name_id")
+      .where.not(taxon_name_relationships: {type: BLOCKED})
+      .left_joins(:sources)
+      .group('taxon_name_relationships.id')
+      .select("taxon_name_relationships.*, MAX(sources.id) a_source_id")
+
+    ::Queries.union(TaxonNameRelationship, [a,b])
   end
 
-  def self.generate(otus, project_members, reference_csv = nil )
+  def self.generate(otu, project_members, reference_csv = nil )
     rels = nil
     text = ::CSV.generate(col_sep: "\t") do |csv|
-
       csv << %w{
         nameID
         relatedNameID
@@ -90,12 +97,13 @@ module Export::Coldp::Files::NameRelation
         remarks
       }
 
-      rels = taxon_name_relationships(otus)
+      rels = taxon_name_relationships(otu)
       rels.length
 
-      rels.each do |tnr|
+      rels.find_each do |tnr|
 
-        next if ::Export::Coldp.skipped_combinations.include?(tnr.subject_taxon_name_id)
+        # TODO: should not be required if we scope properly
+        # next if ::Export::Coldp.skipped_combinations.include?(tnr.subject_taxon_name_id)
 
         unless tnr.type.constantize.nomen_uri.blank?
           csv << [

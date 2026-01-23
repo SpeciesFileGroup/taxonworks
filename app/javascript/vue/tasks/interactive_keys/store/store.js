@@ -3,7 +3,7 @@ import { GetterFunctions } from './getters/getters'
 import { MutationFunctions } from './mutations/mutations'
 import { ActionFunctions } from './actions/actions'
 
-function makeInitialState () {
+function makeInitialState() {
   return {
     settings: {
       gridLayout: 'layout-mode-1',
@@ -12,6 +12,7 @@ function makeInitialState () {
       refreshOnlyTaxa: false,
       rowFilter: true
     },
+    leadId: undefined,
     observationMatrix: undefined,
     observationMatrixDescriptors: [],
     descriptorsFilter: {},
@@ -28,7 +29,7 @@ function makeInitialState () {
   }
 }
 
-function newStore () {
+function newStore() {
   return createStore({
     state: makeInitialState(),
     getters: GetterFunctions,
@@ -37,7 +38,4 @@ function newStore () {
   })
 }
 
-export {
-  newStore,
-  makeInitialState
-}
+export { newStore, makeInitialState }

@@ -45,7 +45,7 @@ class TaxonNamesController < ApplicationController
         format.json { render :show, status: :created, location: @taxon_name.metamorphosize }
       else
         format.html { render action: :new }
-        format.json { render json: @taxon_name.errors, status: :unprocessable_entity }
+        format.json { render json: @taxon_name.errors, status: :unprocessable_content }
       end
     end
   end
@@ -63,7 +63,7 @@ class TaxonNamesController < ApplicationController
         format.json { render :show, status: :ok, location: @taxon_name.metamorphosize }
       else
         format.html { render action: :edit }
-        format.json { render json: @taxon_name.errors, status: :unprocessable_entity }
+        format.json { render json: @taxon_name.errors, status: :unprocessable_content }
       end
     end
   end
@@ -71,14 +71,17 @@ class TaxonNamesController < ApplicationController
   # DELETE /taxon_names/1
   # DELETE /taxon_names/1.json
   def destroy
+    parent_id = @taxon_name.parent_id
     @taxon_name.destroy
     respond_to do |format|
       if @taxon_name.destroyed?
         format.html { destroy_redirect @taxon_name, notice: 'TaxonName was successfully destroyed.' }
-        format.json { head :no_content }
+        format.json {
+          render json: { parent_id: }
+        }
       else
         format.html { destroy_redirect @taxon_name, notice: 'TaxonName was not destroyed, ' + @taxon_name.errors.full_messages.join('; ') }
-        format.json { render json: @taxon_name.errors, status: :unprocessable_entity }
+        format.json { render json: @taxon_name.errors, status: :unprocessable_content }
       end
     end
   end
@@ -249,7 +252,7 @@ class TaxonNamesController < ApplicationController
         project_id: sessions_current_project_id)
       render json: r.to_json, status: :ok
     else
-      render json: {}, status: :unprocessable_entity
+      render json: {}, status: :unprocessable_content
     end
   end
 
@@ -287,7 +290,9 @@ class TaxonNamesController < ApplicationController
   # GET /api/v1/taxon_names/:id/inventory/catalog
   # Contains stats block
   def api_catalog
-    @data = helpers.recursive_catalog_json(taxon_name: @taxon_name, target_depth: params[:target_depth] || 0 )
+    @data = helpers.recursive_catalog_json(
+      taxon_name: @taxon_name, target_depth: params[:target_depth] || 0, include_distribution: false
+    )
     render '/taxon_names/api/v1/catalog'
   end
 

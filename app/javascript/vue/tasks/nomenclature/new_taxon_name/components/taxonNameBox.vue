@@ -95,6 +95,7 @@ import { TaxonName } from '@/routes/endpoints'
 import { GetterNames } from '../store/getters/getters'
 import { computed, ref, onBeforeMount } from 'vue'
 import { useStore } from 'vuex'
+import { RouteNames } from '@/routes/routes'
 
 const isModalVisible = ref(false)
 const otuRadialRef = ref(null)
@@ -140,8 +141,12 @@ onBeforeMount(() => {
 
 function deleteTaxon() {
   TaxonName.destroy(taxon.value.id)
-    .then(() => {
-      reloadPage()
+    .then(({ body }) => {
+      if (body.parent_id) {
+        window.location.href = `${RouteNames.BrowseNomenclature}?taxon_name_id=${body.parent_id}`
+      } else {
+        reloadPage()
+      }
     })
     .catch(() => {})
 }

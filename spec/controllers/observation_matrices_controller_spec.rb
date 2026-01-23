@@ -246,7 +246,7 @@ RSpec.describe ObservationMatricesController, type: :controller do
         }
         post :import_from_nexus, params:, session: valid_session
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         errors = JSON.parse(response.body)['errors']
         expect(errors).to include('matrix name is already in use')
       end
@@ -257,7 +257,7 @@ RSpec.describe ObservationMatricesController, type: :controller do
         }
         post :import_from_nexus, params:, session: valid_session
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         errors = JSON.parse(response.body)['errors']
         expect(errors).to include("Couldn't find Document")
       end
@@ -274,7 +274,7 @@ RSpec.describe ObservationMatricesController, type: :controller do
         }
         post :import_from_nexus, params:, session: valid_session
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         errors = JSON.parse(response.body)['errors']
         expect(errors).to include('File is missing at least some required headers')
       end
@@ -287,7 +287,7 @@ RSpec.describe ObservationMatricesController, type: :controller do
         }
         post :import_from_nexus, params:, session: valid_session
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         errors = JSON.parse(response.body)['errors']
         expect(errors).to include("are you sure it's a nexus document?")
       end
@@ -304,7 +304,7 @@ RSpec.describe ObservationMatricesController, type: :controller do
         }
         post :import_from_nexus, params:, session: valid_session
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         errors = JSON.parse(response.body)['errors']
         expect(errors).to include('Error converting nexus to TaxonWorks')
       end
@@ -317,7 +317,7 @@ RSpec.describe ObservationMatricesController, type: :controller do
 
         post :import_from_nexus, params:, session: valid_session
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
         errors = JSON.parse(response.body)['errors']
         expect(errors).to include('no source selected')
       end

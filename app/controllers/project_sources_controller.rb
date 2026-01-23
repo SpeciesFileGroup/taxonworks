@@ -26,7 +26,7 @@ class ProjectSourcesController < ApplicationController
           flash[:notice] = "Failed to add source to project. #{@project_source.error_messages}."
           render source_path(@project_source.source)
         }
-        format.json { render json: @project_source.errors, status: :unprocessable_entity }
+        format.json { render json: @project_source.errors, status: :unprocessable_content }
         format.js { }
       end
     end
@@ -46,7 +46,7 @@ class ProjectSourcesController < ApplicationController
           flash[:notice] = @project_source.error_messages.join('; ')
           render source_path(@project_source.source)
         }
-        format.json { render json: @project_source.errors, status: :unprocessable_entity }
+        format.json { render json: @project_source.errors, status: :unprocessable_content }
         format.js { } # TODO: remove
       end
     end
@@ -74,7 +74,7 @@ class ProjectSourcesController < ApplicationController
     if a
       render json: { success: true, total: a }, status: :ok
     else
-      render json: {}, status: :unprocessable_entity
+      render json: {}, status: :unprocessable_content
     end
   end
 

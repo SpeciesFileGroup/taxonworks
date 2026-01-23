@@ -99,7 +99,7 @@ module Export::Coldp::Files::Taxon
   # Potentially- all other Citations tied to Otu, what exactly supports a concept?
   def self.reference_id(sources)
     i = sources.pluck(:id)
-    return i.join(',') if i.any?
+    return i.join('|') if i.any?
     nil
   end
 

@@ -141,8 +141,11 @@ News.types()
       return acc
     }, {})
     newspapperTypes.value = keys
-    newspapperType.value = keys[0]
     types.value = items
+
+    if (!newspapperType.value) {
+      newspapperType.value = keys[0]
+    }
   })
   .catch(() => {})
 

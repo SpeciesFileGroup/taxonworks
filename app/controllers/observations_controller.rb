@@ -68,7 +68,7 @@ class ObservationsController < ApplicationController
         format.json { render :show, status: :created, location: @observation.metamorphosize }
       else
         format.html { render :new }
-        format.json { render json: @observation.metamorphosize.errors, status: :unprocessable_entity }
+        format.json { render json: @observation.metamorphosize.errors, status: :unprocessable_content }
       end
     end
   end
@@ -83,7 +83,7 @@ class ObservationsController < ApplicationController
         format.json { render :show, status: :ok, location: @observation.metamorphosize }
       else
         format.html { render :edit }
-        format.json { render json: @observation.metamorphosize.errors, status: :unprocessable_entity }
+        format.json { render json: @observation.metamorphosize.errors, status: :unprocessable_content }
       end
     end
   end
@@ -98,7 +98,7 @@ class ObservationsController < ApplicationController
         format.json { head :no_content}
       else
         format.html { destroy_redirect @observation, notice: 'Observation was not destroyed, ' + @observation.errors.full_messages.join('; ') }
-        format.json { render json: @observation.errors, status: :unprocessable_entity }
+        format.json { render json: @observation.errors, status: :unprocessable_content }
       end
     end
   end

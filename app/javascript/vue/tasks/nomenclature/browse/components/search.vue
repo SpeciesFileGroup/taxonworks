@@ -3,6 +3,7 @@
     <br />
     <VAutocomplete
       class="vue-autocomplete"
+      input-class="mousetrap"
       url="/taxon_names/autocomplete"
       placeholder="Select a taxon name"
       autofocus
