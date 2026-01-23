@@ -42,7 +42,7 @@
         {{ submitButton.label }}
       </VBtn>
       <VBtn
-        v-if="citation.id"
+        v-if="newButton && citation.id"
         color="primary"
         medium
         @click="() => (citation = makeCitation())"
@@ -150,6 +150,11 @@ const props = defineProps({
   submitButton: {
     type: Object,
     default: undefined
+  },
+
+  newButton: {
+    type: Boolean,
+    default: true
   },
 
   klass: {

@@ -104,14 +104,14 @@ module Shared::IsIndexedBiologicalAssociation
 
   def biological_association_subject_uuid
     case biological_association_subject.class.base_class.name
-    when 'Otu', 'CollectionObject', 'FieldOccurrence'
+    when 'Otu', 'CollectionObject', 'FieldOccurrence', 'AnatomicalPart'
       biological_association_subject.uuid
     end
   end
 
   def biological_association_object_uuid
     case biological_association_object.class.base_class.name
-    when 'Otu', 'CollectionObject', 'FieldOccurrence'
+    when 'Otu', 'CollectionObject', 'FieldOccurrence', 'AnatomicalPart'
       biological_association_object.uuid
     end
   end
@@ -153,47 +153,63 @@ module Shared::IsIndexedBiologicalAssociation
     Utilities::Strings.sanitize_for_csv(notes.collect { |n| n.text }.join(Shared::IsDwcOccurrence::DWC_DELIMITER)).presence
   end
 
+  # Types that have dwc_recorded_by method.
+  DWC_TYPES = %w{CollectionObject FieldOccurrence}.freeze
+
+  # Types that don't have dwc_recorded_by - use citation sources instead.
+  SOURCE_TYPES = %w{Otu AnatomicalPart}.freeze
+
    # TODO: Should reference DOIs, Identifiers,  or identifiers in lieu of short
    # citations.
+   # Could be collectors (ORCID or ...)
+   # Could be citation providers
   def biological_association_citations
-    # Could be collectors (ORCID or ...)
-    # Could be citation providers
-    t = [biological_association_subject_type , biological_association_object_type]
+    subject_type = biological_association_subject_type
+    object_type = biological_association_object_type
 
-    case t
-    when %w{Otu Otu}
+    subject_is_dwc = DWC_TYPES.include?(subject_type)
+    object_is_dwc = DWC_TYPES.include?(object_type)
+
+    if !subject_is_dwc && !object_is_dwc
+      # Both are source-based types, like OTU.
       ApplicationController.helpers.short_sources_tag(sources)
-    when %w{CollectionObject Otu}, %w{FieldOccurrence Otu} # Assume exists on label
+    elsif subject_is_dwc && !object_is_dwc
+      # Subject is specimen-like, object is OTU-like.
       biological_association_subject.dwc_recorded_by || ApplicationController.helpers.short_sources_tag(sources)
-    when %w{Otu CollectionObject}, %w{Otu FieldOccurrence} # Assume exists on label
+    elsif !subject_is_dwc && object_is_dwc
+      # Subject is OTU-like, object is specimen-like.
       biological_association_object.dwc_recorded_by || ApplicationController.helpers.short_sources_tag(sources)
-    when %w{CollectionObject CollectionObject}, %w{FieldOccurrence FieldOccurrence}, %w{CollectionObject FieldOccurrence}, %w{FieldOccurrence CollectionObject}
-      # Lots of assumptions behind this.  What if specimens were marked as
+    else
+      # Both are specimen-like.
+      # Lots of assumptions behind this. What if specimens were marked as
       # collected in 2 different events, that would be odd but perhaps not
       # impossible.
       biological_association_subject.dwc_recorded_by || biological_association_object.dwc_recorded_by
-    else
-      'BAD DATA: TYPE ERROR'
     end
   end
 
   def biological_association_established_date
-    t = [biological_association_subject_type, biological_association_object_type]
+    subject_type = biological_association_subject_type
+    object_type = biological_association_object_type
 
-    case t
-    when %w{Otu Otu}
+    subject_is_dwc = DWC_TYPES.include?(subject_type)
+    object_is_dwc = DWC_TYPES.include?(object_type)
+
+    if !subject_is_dwc && !object_is_dwc
+      # Both are source-based types, like OTU.
       ApplicationController.helpers.short_sources_year_tag(sources)
-    when %w{CollectionObject Otu}, %w{FieldOccurrence Otu}
+    elsif subject_is_dwc && !object_is_dwc
+      # Subject is specimen-like, object is OTU-like.
       biological_association_subject.dwc_event_date || ApplicationController.helpers.short_sources_year_tag(sources)
-    when %w{Otu CollectionObject}, %w{Otu FieldOccurrence}
+    elsif !subject_is_dwc && object_is_dwc
+      # Subject is OTU-like, object is specimen-like.
       biological_association_object.dwc_event_date || ApplicationController.helpers.short_sources_year_tag(sources)
-    when %w{CollectionObject CollectionObject}, %w{FieldOccurrence FieldOccurrence}, %w{CollectionObject FieldOccurrence}, %w{FieldOccurrence CollectionObject}
-      # Lots of assumptions behind this.  What if specimens were marked as
+    else
+      # Both are specimen-like.
+      # Lots of assumptions behind this. What if specimens were marked as
       # collected in 2 different events, that would be odd but perhaps not
       # impossible.
       biological_association_subject.dwc_event_date || biological_association_object.dwc_event_date
-    else
-      'BAD DATA: TYPE ERROR'
     end
   end
 

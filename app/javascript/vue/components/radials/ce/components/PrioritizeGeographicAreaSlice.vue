@@ -12,45 +12,26 @@
       </h3>
 
       <fieldset>
-        <legend>Geographic area</legend>
-        <SmartSelector
-          model="geographic_areas"
-          label="name"
-          :target="COLLECTING_EVENT"
-          :klass="COLLECTING_EVENT"
-          @selected="(item) => (geographicArea = item)"
-        >
-          <template #body>
-            <ul class="no_bullets">
-              <li>
-                <label>
-                  <input
-                    :value="GEOGRAPHIC_AREA_NULL"
-                    type="radio"
-                    v-model="geographicArea"
-                  />
-                  <span v-html="GEOGRAPHIC_AREA_NULL.name" />
-                </label>
-              </li>
-            </ul>
-          </template>
-        </SmartSelector>
-        <SmartSelectorItem
-          label="name"
-          :item="geographicArea"
-          @unset="geographicArea = undefined"
-        />
-      </fieldset>
-
-      <div>
+        <legend>Indexing</legend>
         <label>
           <input
-            type="checkbox"
+            type="radio"
+            name="prioritize-geographic-area"
+            :value="true"
             v-model="prioritizeGeographicArea"
           />
-          Use GeographicArea, not Georeference, to assign geography fields in Darwin Core
+          Prioritize geographic area
         </label>
-      </div>
+        <label>
+          <input
+            type="radio"
+            name="prioritize-geographic-area"
+            :value="false"
+            v-model="prioritizeGeographicArea"
+          />
+          Do not prioritize geographic area
+        </label>
+      </fieldset>
 
       <div
         class="horizontal-left-content gap-small margin-large-top margin-large-bottom"
@@ -59,7 +40,7 @@
           ref="updateBatchRef"
           :batch-service="CollectingEvent.batchUpdate"
           :payload="payload"
-          :disabled="geographicArea === undefined || isCountExceeded"
+          :disabled="prioritizeGeographicArea === null || isCountExceeded"
           @update="updateMessage"
           @close="emit('close')"
         />
@@ -67,7 +48,7 @@
         <PreviewBatch
           :batch-service="CollectingEvent.batchUpdate"
           :payload="payload"
-          :disabled="geographicArea === undefined || isCountExceeded"
+          :disabled="prioritizeGeographicArea === null || isCountExceeded"
           @finalize="
             () => {
               updateBatchRef.openModal()
@@ -80,21 +61,13 @@
 </template>
 
 <script setup>
-import { COLLECTING_EVENT } from '@/constants/index.js'
 import { CollectingEvent } from '@/routes/endpoints'
 import { ref, computed } from 'vue'
-import SmartSelector from '@/components/ui/SmartSelector.vue'
-import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
 import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
 import updateMessage from '../utils/updateMessage.js'
 
 const MAX_LIMIT = 1000
-
-const GEOGRAPHIC_AREA_NULL = {
-  id: null,
-  name: '<i>None (Remove geographic area)</i>'
-}
 
 const props = defineProps({
   parameters: {
@@ -109,15 +82,13 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['close'])
-const geographicArea = ref()
 const isCountExceeded = computed(() => props.count > MAX_LIMIT)
 const updateBatchRef = ref(null)
-const prioritizeGeographicArea = ref(undefined)
+const prioritizeGeographicArea = ref(null)
 
 const payload = computed(() => ({
   collecting_event_query: props.parameters,
   collecting_event: {
-    geographic_area_id: geographicArea.value?.id,
     meta_prioritize_geographic_area: prioritizeGeographicArea.value
   }
 }))

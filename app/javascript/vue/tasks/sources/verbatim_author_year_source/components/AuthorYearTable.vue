@@ -38,7 +38,7 @@
         <td>{{ row.year_of_publication }}</td>
         <td class="copy-cell">
           <ButtonClipboard
-            :text="[row.verbatim_autor, row.year_of_publication].join(' ')"
+            :text="[row.verbatim_author, row.year_of_publication].join(' ')"
           />
         </td>
         <td
@@ -179,7 +179,7 @@ function filterUrl(author, year) {
   const params = new URLSearchParams({
     author: author,
     author_exact: true,
-    year_of_publication: year
+    year: year
   })
   return `${RouteNames.FilterNomenclature}?${params.toString()}`
 }

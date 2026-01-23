@@ -9,7 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
-- New task: Verbatim author/year to citated taxon name
+- New task: Verbatim author/year to cite taxon name
 - New task: Dichotomous key
 - New repository link to New type specimen task [#4692]
 - Monograph facilitator to OTU radial linker [#4690]
@@ -17,11 +17,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Source facet to Filter Asserted Distributions
 - 'Replace source' batch update to Filter Asserted Distributions [#4647]
 - Send filter results between Sounds and OTUs/TaxonNames
-
-### Changed
-
-- Disabled autosave by default for New asserted distribution task. [#4698]
-- Filter Contents downloads are TSV (no longer CSV)
+- Batch upload Asserted Distributions can now match on an OTU's Taxon Name name instead of/in addition to the OTU's name
+- Batch update 'Prioritize Geographic Area when indexing' value from Filter Collecting Events [#4036]
+- Deleting a taxon name from the New Taxon Name task takes you to Browse Taxon Name for the parent of the taxon [#3155]
 
 ### Fixed
 
@@ -44,7 +42,26 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Completed Filter connections between Filter Biological Association and Filter Taxon Name/Filter OTU to include relations by Collection Object Taxon Determination, Field Occurrence Taxon Determination, and Anatomical Part origin OTU [#4685]
 - Alt+t on Browse Taxon Names doesn't work unless you've focused the page [#4703]
 - Selection tool not working on the Monograph Facilitator map
+- Depictions stop changing when switching between types in Edit Type Specimen task [#4702]
+- Citations with italics don't match in Batch Upload Asserted Distributions [#4268]
+- Useful error messages when batch loan operations fail in Filter Collection Objects [#4171]
+- The Biological Associations index computed an error string for Anatomical Part citations [#4712]
+- Don't calculate distribution for api/v1/taxon_names/:id/inventory/catalog (performance improvement for Taxon Pages)
+- Add more LSID validations [#3608]
+- Filter depiction doesn't return field occurrence images
 
+### Changed
+
+- Disabled autosave by default for New asserted distribution task. [#4698]
+- Filter Contents downloads are TSV (no longer CSV)
+- Updated Ruby gems
+- Updated NPM packages
+
+[#3155]: https://github.com/SpeciesFileGroup/taxonworks/issues/3155
+[#3608]: https://github.com/SpeciesFileGroup/taxonworks/issues/3608
+[#4036]: https://github.com/SpeciesFileGroup/taxonworks/issues/4036
+[#4171]: https://github.com/SpeciesFileGroup/taxonworks/issues/4171
+[#4268]: https://github.com/SpeciesFileGroup/taxonworks/issues/4268
 [#4607]: https://github.com/SpeciesFileGroup/taxonworks/issues/4607
 [#4647]: https://github.com/SpeciesFileGroup/taxonworks/issues/4647
 [#4663]: https://github.com/SpeciesFileGroup/taxonworks/issues/4663
@@ -58,7 +75,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4691]: https://github.com/SpeciesFileGroup/taxonworks/issues/4691
 [#4692]: https://github.com/SpeciesFileGroup/taxonworks/issues/4692
 [#4698]: https://github.com/SpeciesFileGroup/taxonworks/issues/4698
+[#4702]: https://github.com/SpeciesFileGroup/taxonworks/issues/4702
 [#4703]: https://github.com/SpeciesFileGroup/taxonworks/issues/4703
+[#4712]: https://github.com/SpeciesFileGroup/taxonworks/issues/4712
 
 ## [0.57.0] - 2026-01-06
 

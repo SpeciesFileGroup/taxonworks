@@ -6,7 +6,7 @@
         :disabled="disabled"
         v-model="prioritize"
       >
-      Prioritize Geographic area when indexing
+      Use GeographicArea, not Georeference, to assign geography fields in Darwin Core
     </label>
   </div>
 </template>

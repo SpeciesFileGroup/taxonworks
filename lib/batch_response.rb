@@ -23,9 +23,12 @@ class BatchResponse
   attr_accessor :not_updated
 
   # @return Hash
-  #   a list of error messages summarized by times encountered (not the objects they were on)
-  #
+  #   operational error messages (e.g., missing required params) - triggers 422 when non-empty
   attr_accessor :errors
+
+  # @return Hash
+  #   per-item validation error messages summarized by times encountered - does not trigger 422
+  attr_accessor :validation_errors
 
   attr_accessor :total_attempted
 
@@ -41,6 +44,7 @@ class BatchResponse
     @async = params[:async] || false
     @preview = params[:preview] || false
     @errors = Hash.new(0)
+    @validation_errors = Hash.new(0)
     @total_attempted = params[:total_attempted] || 0
   end
 
@@ -53,6 +57,7 @@ class BatchResponse
       updated:,
       not_updated:,
       errors:,
+      validation_errors:,
       total_attempted:,
       cap:,
       cap_reason:,

@@ -37,21 +37,22 @@ module BatchLoad::ColumnResolver
     def otu(columns)
       r = BatchLoad::ColumnResolver::Result.new
 
-      if columns['otu_id']
+      if columns['otu_id'].present?
         begin
           r.assign Otu.find(columns['otu_id'])
         rescue => _e # ActiveRecord::RecordNotFound
           r.error_messages << "No OTU with id #{columns['otu_id']} exists."
         end
-      elsif columns['otu_name']
+      elsif columns['otu_name'].present?
         r.assign Otu.where(name: columns['otu_name'], project_id: columns['project_id']).limit(10).to_a
         r.error_messages << "Multiple OTUs matched the name '#{columns['otu_name']}'." if r.multiple_matches?
         r.error_messages << "No OTU with name '#{columns['otu_name']}' exists." if r.no_matches?
-      elsif columns['taxon_name']
-        r.assign Otu.joins(:taxon_names).where(taxon_names: {cached: columns['taxon_name']}, project_id: columns['project_id']).limit(10).to_a
+      elsif columns['taxon_name'].present?
+        r.assign Otu.joins(:taxon_name).where(taxon_names: {cached: columns['taxon_name']}, project_id: columns['project_id']).limit(10).to_a
         r.error_messages << "Multiple OTUs matched the taxon name '#{columns['taxon_name']}'." if r.multiple_matches?
-      elsif columns.key?('otuname')
-        name = columns['otuname']
+        r.error_messages << "No OTU with taxon name '#{columns['taxon_name']}' exists." if r.no_matches?
+      elsif columns.key?('otuname') || columns.key?('name')
+        name = columns['otuname'] || columns['name']
         proj_id = columns['project_id']
         list = Otu.where(name: name, project_id: proj_id).limit(2)
         if list.blank? # treat it like a taxon name
@@ -108,12 +109,27 @@ module BatchLoad::ColumnResolver
           r.error_messages << "No source with id #{columns['source_id']} exists."
         end
       elsif columns['doi']
-        r.assign Source.where(doi: columns['doi']).limit(10).to_a # identifier is cached here, so we don't have to join Identifers
-        r.error_messages << "Multiple matches to the DOI '#{column['doi']}' were found." if r.multiple_matches?
+        r.assign Source.where(doi: columns['doi']).limit(2).to_a # identifier is cached here, so we don't have to join Identifers
+        r.error_messages << "Multiple matches to the DOI '#{columns['doi']}' were found." if r.multiple_matches?
       elsif columns['citation']
-        r.assign Source.where(cached: columns['citation']).limit(10).to_a
-        r.error_messages << "Multiple matches to the citation '#{column['citation']}' were found." if r.multiple_matches?
-        r.error_messages << "No source with citation '#{columns['citation']}' exists." if r.no_matches?
+        citation_value = columns['citation']
+        matches = Source.where(cached: citation_value).limit(2).to_a
+
+        if matches.empty? && citation_value.present?
+          normalized_citation = strip_html(citation_value).squish
+          # Slow un-indexed search
+          matches = Source
+            .where(
+              "#{strip_html_sql('cached')} = ?",
+              normalized_citation
+            )
+            .limit(2)
+            .to_a
+        end
+
+        r.assign matches
+        r.error_messages << "Multiple matches to the citation '#{citation_value}' were found." if r.multiple_matches?
+        r.error_messages << "No source with citation '#{citation_value}' exists." if r.no_matches?
       end
 
       r
@@ -144,6 +160,7 @@ module BatchLoad::ColumnResolver
 
         # @tuckerjd - tweak as necessary
         r.error_messages << "Multiple matches to '#{search_list}' (data_origin: #{data_origin}) were found." if r.multiple_matches?
+        r.error_messages << "'#{search_list}' (data_origin: #{data_origin}): Geographic area was not determinable." if r.no_matches?
 
       elsif columns['country'] || columns['state'] || columns['county']
         search_list = [columns['country'], columns['state'], columns['county']].compact.join(', ')
@@ -163,5 +180,22 @@ module BatchLoad::ColumnResolver
       r
     end
     # rubocop:enable Metrics/MethodLength
+
+    def strip_html(value)
+      value
+        .to_s
+        .gsub('<i>', '')
+        .gsub('</i>', '')
+        .gsub('<em>', '')
+        .gsub('</em>', '')
+    end
+
+    def strip_html_sql(column_name)
+      clean = column_name.to_s
+      clean = "replace(#{clean}, '<i>', '')"
+      clean = "replace(#{clean}, '</i>', '')"
+      clean = "replace(#{clean}, '<em>', '')"
+      "replace(#{clean}, '</em>', '')"
+    end
   end
 end

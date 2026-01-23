@@ -1,5 +1,6 @@
 class LoanItemsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
+  include DataControllerConfiguration::BatchByFilterScope
 
   before_action :set_loan_item, only: [:update, :destroy, :show, :edit]
   after_action -> { set_pagination_headers(:loan_items) }, only: [:index], if: :json_request?
@@ -166,5 +167,9 @@ class LoanItemsController < ApplicationController
       :global_entity,
       :position
     )
+  end
+
+  def batch_by_filter_scope_params
+    params.require(:params).permit(:loan_id, :disposition, :date_returned)
   end
 end

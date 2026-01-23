@@ -55,7 +55,12 @@
                     :name="`author-match-${index}`"
                     :value="person.id"
                     v-model="row.selectedPersonId"
-                    @change="row.createdPerson = null"
+                    @change="
+                      () => {
+                        row.createdPerson = null
+                        applySelections()
+                      }
+                    "
                   />
                   <span v-html="person.cached || person.name" />
                 </label>
@@ -131,15 +136,6 @@
         @click="() => emit('close')"
       >
         Close
-      </VBtn>
-      <VBtn
-        v-else
-        color="primary"
-        medium
-        :disabled="!hasSelections"
-        @click="applySelections"
-      >
-        Apply
       </VBtn>
     </template>
   </Modal>
@@ -308,6 +304,8 @@ async function createPerson(row) {
     row.selectedPersonId = null
 
     TW.workbench.alert.create('Person created successfully', 'notice')
+
+    applySelections()
   } catch {}
 }
 

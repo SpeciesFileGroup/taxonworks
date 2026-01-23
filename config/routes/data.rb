@@ -568,6 +568,7 @@ resources :loan_items do
     post :batch_create
     post :batch_return
     post :batch_move
+    post :batch_by_filter_scope, defaults: {format: :json}
   end
 end
 

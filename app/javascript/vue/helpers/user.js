@@ -12,7 +12,7 @@ export function getCurrentUserId() {
 export function isCurrentUserAdministrator() {
   const el = document.querySelector(`[${ATTR_CURRENT_USER_IS_ADMINISTRATOR}]`)
 
-  return el.getAttribute(ATTR_CURRENT_USER_IS_ADMINISTRATOR) === 'true'
+  return el?.getAttribute(ATTR_CURRENT_USER_IS_ADMINISTRATOR) === 'true'
 }
 
 export function getCSRFToken() {
