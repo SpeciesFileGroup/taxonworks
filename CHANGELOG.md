@@ -48,6 +48,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - The Biological Associations index computed an error string for Anatomical Part citations [#4712]
 - Don't calculate distribution for api/v1/taxon_names/:id/inventory/catalog (performance improvement for Taxon Pages)
 - Add more LSID validations [#3608]
+- Filter depiction doesn't return field occurrence images
 
 ### Changed
 
@@ -55,7 +56,6 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filter Contents downloads are TSV (no longer CSV)
 - Updated Ruby gems
 - Updated NPM packages
-
 
 [#3155]: https://github.com/SpeciesFileGroup/taxonworks/issues/3155
 [#3608]: https://github.com/SpeciesFileGroup/taxonworks/issues/3608
