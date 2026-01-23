@@ -179,7 +179,7 @@ function filterUrl(author, year) {
   const params = new URLSearchParams({
     author: author,
     author_exact: true,
-    year_of_publication: year
+    year: year
   })
   return `${RouteNames.FilterNomenclature}?${params.toString()}`
 }
