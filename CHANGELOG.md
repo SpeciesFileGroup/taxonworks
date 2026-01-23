@@ -19,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Send filter results between Sounds and OTUs/TaxonNames
 - Batch upload Asserted Distributions can now match on an OTU's Taxon Name name instead of/in addition to the OTU's name
 - Batch update 'Prioritize Geographic Area when indexing' value from Filter Collecting Events [#4036]
+- Deleting a taxon name from the New Taxon Name task takes you to Browse Taxon Name for the parent of the taxon [#3155]
 
 ### Fixed
 
@@ -56,6 +57,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Updated NPM packages
 
 
+[#3155]: https://github.com/SpeciesFileGroup/taxonworks/issues/3155
 [#3608]: https://github.com/SpeciesFileGroup/taxonworks/issues/3608
 [#4036]: https://github.com/SpeciesFileGroup/taxonworks/issues/4036
 [#4171]: https://github.com/SpeciesFileGroup/taxonworks/issues/4171

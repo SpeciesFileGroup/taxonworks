@@ -71,11 +71,14 @@ class TaxonNamesController < ApplicationController
   # DELETE /taxon_names/1
   # DELETE /taxon_names/1.json
   def destroy
+    parent_id = @taxon_name.parent_id
     @taxon_name.destroy
     respond_to do |format|
       if @taxon_name.destroyed?
         format.html { destroy_redirect @taxon_name, notice: 'TaxonName was successfully destroyed.' }
-        format.json { head :no_content }
+        format.json {
+          render json: { parent_id: }
+        }
       else
         format.html { destroy_redirect @taxon_name, notice: 'TaxonName was not destroyed, ' + @taxon_name.errors.full_messages.join('; ') }
         format.json { render json: @taxon_name.errors, status: :unprocessable_content }
