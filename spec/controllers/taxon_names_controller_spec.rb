@@ -163,4 +163,92 @@ describe TaxonNamesController, type: :controller do
 
     include_examples 'DELETE #destroy', TaxonName
   end
+
+  describe 'DELETE #destroy with OTU' do
+    let(:taxon_name) { TaxonName.create!(valid_attributes) }
+
+    context 'when TaxonName has one OTU with no related data' do
+      let!(:otu) { Otu.create!(taxon_name:) }
+
+      it 'destroys both the OTU and TaxonName' do
+        expect {
+          delete :destroy, params: {id: taxon_name.to_param}, session: valid_session
+        }.to change(TaxonName, :count).by(-1).and change(Otu, :count).by(-1)
+      end
+
+      it 'returns success' do
+        delete :destroy, params: {id: taxon_name.to_param}, session: valid_session
+        expect(assigns(:taxon_name)).to be_destroyed
+      end
+    end
+
+    context 'when TaxonName has one OTU with related data' do
+      let!(:otu) { Otu.create!(taxon_name:) }
+      let!(:note) { otu.citations.create!(source: FactoryBot.create(:valid_source)) }
+
+      it 'does not destroy the TaxonName' do
+        expect {
+          delete :destroy, params: {id: taxon_name.to_param}, session: valid_session
+        }.not_to change(TaxonName, :count)
+      end
+
+      it 'does not destroy the OTU' do
+        expect {
+          delete :destroy, params: {id: taxon_name.to_param}, session: valid_session
+        }.not_to change(Otu, :count)
+      end
+
+      it 'returns error about otus' do
+        delete :destroy, params: {id: taxon_name.to_param}, session: valid_session
+        expect(assigns(:taxon_name).errors.full_messages.join).to include('otus')
+      end
+    end
+
+    context 'when TaxonName has multiple OTUs' do
+      let!(:otu1) { Otu.create!(taxon_name:) }
+      let!(:otu2) { Otu.create!(taxon_name:) }
+
+      it 'does not destroy the TaxonName' do
+        expect {
+          delete :destroy, params: {id: taxon_name.to_param}, session: valid_session
+        }.not_to change(TaxonName, :count)
+      end
+
+      it 'does not destroy any OTUs' do
+        expect {
+          delete :destroy, params: {id: taxon_name.to_param}, session: valid_session
+        }.not_to change(Otu, :count)
+      end
+    end
+
+    context 'when OTU can be destroyed but TaxonName has another blocker (relationship)' do
+      let(:genus) { Protonym.create!(name: 'Aus', rank_class: Ranks.lookup(:iczn, :genus), parent: taxon_name) }
+      let(:species) { Protonym.create!(name: 'bus', rank_class: Ranks.lookup(:iczn, :species), parent: genus) }
+      let(:other_species) { Protonym.create!(name: 'cus', rank_class: Ranks.lookup(:iczn, :species), parent: genus) }
+      let!(:otu) { Otu.create!(taxon_name: species) }
+      let!(:relationship) {
+        TaxonNameRelationship::Iczn::Invalidating.create!(
+          subject_taxon_name: other_species,
+          object_taxon_name: species
+        )
+      }
+
+      it 'does not destroy the TaxonName' do
+        expect {
+          delete :destroy, params: {id: species.to_param}, session: valid_session
+        }.not_to change(TaxonName, :count)
+      end
+
+      it 'does not destroy the OTU (transaction rolled back)' do
+        expect {
+          delete :destroy, params: {id: species.to_param}, session: valid_session
+        }.not_to change(Otu, :count)
+      end
+
+      it 'returns the original OTU error' do
+        delete :destroy, params: {id: species.to_param}, session: valid_session
+        expect(assigns(:taxon_name).errors.full_messages.join).to include('otus')
+      end
+    end
+  end
 end

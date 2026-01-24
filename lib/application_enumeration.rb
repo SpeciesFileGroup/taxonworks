@@ -134,5 +134,41 @@ module ApplicationEnumeration
     raise TaxonWorks::Error, "Unknown relationship type for #{relation.name}."
   end
 
+  # TODO: DRY with Unify::EXCLUDE_RELATIONS
+  EXCLUDE_RELATIONS_FOR_RELATED_DATA = [
+    :versions,
+    :dwc_occurrence,
+    :pinboard_items,
+    :cached_map_register,
+    :cached_map_items,
+    :cached_maps
+  ].freeze
+
+  # @param object [ApplicationRecord]
+  # @param ignore [Array<Symbol>] additional relation names to ignore
+  # @return [Boolean]
+  #   true if object has no data in any has_many or has_one associations
+  #   Excludes `through` associations and cached/computed relations.
+  def self.no_related_data?(object, ignore: [])
+    excluded = EXCLUDE_RELATIONS_FOR_RELATED_DATA + ignore
+
+    (klass_reflections(object.class, :has_many) + klass_reflections(object.class, :has_one)).each do |relation|
+      next if relation.options[:through].present?
+      next if excluded.include?(relation.name)
+      next if relation.options[:foreign_key]&.match?(/cache/)
+
+      related = object.send(relation.name)
+
+      has_data = if relation.collection?
+                   related.any?
+                 else
+                   related.present?
+                 end
+
+      return false if has_data
+    end
+
+    true
+  end
 
 end

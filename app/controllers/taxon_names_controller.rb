@@ -73,6 +73,28 @@ class TaxonNamesController < ApplicationController
   def destroy
     parent_id = @taxon_name.parent_id
     @taxon_name.destroy
+
+    if !@taxon_name.destroyed? &&
+       @taxon_name.errors.full_messages.any? { |m| m.include?('otus') } &&
+       @taxon_name.otus.count == 1
+      otu = @taxon_name.otus.first
+      if otu.identifiers.where.not("type LIKE 'Identifier::Global::Uuid%'").none? &&
+         ApplicationEnumeration.no_related_data?(otu, ignore: [:identifiers, :uuids])
+        original_errors = @taxon_name.errors.full_messages.dup
+        begin
+          TaxonName.transaction do
+            otu.destroy!
+            @taxon_name.reload
+            @taxon_name.destroy!
+          end
+        rescue ActiveRecord::RecordNotDestroyed
+          # Transaction rolled back, restore original errors
+          @taxon_name.errors.clear
+          original_errors.each { |msg| @taxon_name.errors.add(:base, msg) }
+        end
+      end
+    end
+
     respond_to do |format|
       if @taxon_name.destroyed?
         format.html { destroy_redirect @taxon_name, notice: 'TaxonName was successfully destroyed.' }
