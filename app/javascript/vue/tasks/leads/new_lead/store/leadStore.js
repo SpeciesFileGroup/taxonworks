@@ -23,6 +23,8 @@ const makeInitialState = () => ({
   loading: false,
   // Ref count for loading spinner.
   loadingCount: 0,
+  // Used to trigger annotation refreshes after out-of-band changes.
+  depictionsRefreshToken: 0,
   // Keep a copy of values from the last time a save occurred.
   last_saved: {
     origin_label: undefined,
@@ -403,7 +405,7 @@ export default defineStore('leads', {
       }
     },
 
-    async process_lead_items_data(otu_ids, lead_id) {
+    async process_lead_items_data(otu_ids, lead_id, depictionImageIds = []) {
       const remaining = otu_ids.remaining || []
       const eliminated_for_key = otu_ids.eliminatedForKey || []
       const both = intersectArrays(remaining, eliminated_for_key)
@@ -416,6 +418,19 @@ export default defineStore('leads', {
         add_new_to_first_child: true
       }
       await LeadItem.addLeadItemsToLead(payload)
+        .then(({ body }) => {
+          const targetLeadId = body?.lead_id
+          if (targetLeadId && depictionImageIds.length) {
+            return this.addDepictionsToLead(targetLeadId, depictionImageIds)
+          }
+          return undefined
+        })
+        .catch(() => {})
+    },
+
+    async addDepictionsToLead(leadId, imageIds) {
+      return Lead.depictions(leadId, { image_ids: imageIds })
+        .then(() => { this.depictionsRefreshToken += 1 })
         .catch(() => {})
     },
 
@@ -435,4 +450,3 @@ export default defineStore('leads', {
     }
   }
 })
-

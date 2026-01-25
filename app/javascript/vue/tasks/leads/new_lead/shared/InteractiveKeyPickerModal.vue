@@ -88,8 +88,6 @@ const emit = defineEmits(['click'])
 onBeforeMount(() => {
   if (store.root.observation_matrix_id) {
     chosenMatrixId.value = store.root.observation_matrix_id
-    emit('click')
-    return
   }
 
   isLoading.value = true

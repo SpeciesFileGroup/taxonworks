@@ -519,6 +519,7 @@ end
 resources :leads do
   concerns [:data_routes]
   member do
+    post :depictions, defaults: {format: :json}
     post :add_children, defaults: {format: :json}
     post :insert_couplet, defaults: {format: :json}
     post :destroy_children, defaults: {format: :json}

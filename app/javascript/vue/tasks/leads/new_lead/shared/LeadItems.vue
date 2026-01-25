@@ -31,7 +31,7 @@
             v-if="showSendToInteractiveKey"
             medium
             color="primary"
-            @click="() => { matricesModalVisible = true }"
+            @click="openInteractiveKey"
             class="lead_item_long_button"
           >
             Send OTUs to interactive key
@@ -249,6 +249,16 @@ function sendToInteractiveKey() {
   sessionStorage.setItem('key_to_interactive_key_otu_ids', otuIds)
 
   window.location.href = `${RouteNames.InteractiveKeys}?observation_matrix_id=${chosenMatrixId.value}&lead_id=${store.lead.id}`
+}
+
+function openInteractiveKey() {
+  if (store.root.observation_matrix_id) {
+    chosenMatrixId.value = store.root.observation_matrix_id
+    sendToInteractiveKey()
+    return
+  }
+
+  matricesModalVisible.value = true
 }
 
 </script>

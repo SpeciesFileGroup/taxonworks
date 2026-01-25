@@ -177,7 +177,11 @@ class LeadItem < ApplicationRecord
 
         a = new_otu_ids.map { |id| { lead_id: lead_to_add_to.id, otu_id: id } }
         LeadItem.create!(a)
-        return true
+        return {
+          lead_id: lead_to_add_to.id,
+          added_count: new_otu_ids.length,
+          exclusive_added_count: (new_otu_ids & exclusive_otu_ids).length
+        }
       rescue ActiveRecord::RecordNotDestroyed => e
         lead.errors.add(:base, e.to_s)
         byebug
@@ -189,7 +193,11 @@ class LeadItem < ApplicationRecord
       end
     end
 
-    true
+    {
+      lead_id: lead_to_add_to.id,
+      added_count: new_otu_ids.length,
+      exclusive_added_count: (new_otu_ids & exclusive_otu_ids).length
+    }
   end
 
 end

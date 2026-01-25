@@ -4,7 +4,7 @@ class LeadsController < ApplicationController
     edit add_children update destroy show
     redirect_option_texts destroy_children insert_couplet delete_children
     duplicate otus destroy_subtree reorder_children insert_key
-    set_observation_matrix reset_lead_items
+    set_observation_matrix reset_lead_items depictions
   ]
 
   # GET /leads
@@ -219,6 +219,30 @@ class LeadsController < ApplicationController
     end
 
     head :no_content
+  end
+
+  # POST /leads/:id/depictions.json
+  def depictions
+    image_ids = params.permit(image_ids: [])[:image_ids] || []
+    created = 0
+
+    Depiction.transaction do
+      image_ids.each do |image_id|
+        depiction = Depiction.find_or_initialize_by(
+          depiction_object: @lead,
+          image_id: image_id
+        )
+        next unless depiction.new_record?
+
+        unless depiction.save
+          render json: depiction.errors, status: :unprocessable_content
+          raise ActiveRecord::Rollback
+        end
+        created += 1
+      end
+    end
+
+    render json: { success: true, created: created }
   end
 
   # PATCH /leads/1/reorder_children.json

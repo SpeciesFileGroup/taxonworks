@@ -90,6 +90,8 @@ class LeadItemsController < ApplicationController
 
     if !added
       render json: parent.errors, status: :unprocessable_content
+    else
+      render json: added
     end
   end
 
