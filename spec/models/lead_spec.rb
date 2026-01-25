@@ -226,6 +226,33 @@ RSpec.describe Lead, type: :model do
       expect(q.first.otus_count).to eq(2)
     end
 
+    specify 'otus_count includes lead_items' do
+      ids = lead.insert_couplet
+      otu1 = FactoryBot.create(:valid_otu)
+      otu2 = FactoryBot.create(:valid_otu)
+      otu3 = FactoryBot.create(:valid_otu)
+
+      lead.update!(otu_id: otu1.id)
+      child = Lead.find(ids[0])
+      FactoryBot.create(:valid_lead_item, lead: child, otu: otu2)
+      FactoryBot.create(:valid_lead_item, lead: child, otu: otu3)
+
+      q = Lead.roots_with_data(project_id)
+      expect(q.first.otus_count).to eq(3)
+    end
+
+    specify 'otus_count does not double-count otus on both lead and lead_items' do
+      ids = lead.insert_couplet
+      otu = FactoryBot.create(:valid_otu)
+
+      child = Lead.find(ids[0])
+      child.update!(otu_id: otu.id)
+      FactoryBot.create(:valid_lead_item, lead: child, otu: otu)
+
+      q = Lead.roots_with_data(project_id)
+      expect(q.first.otus_count).to eq(1)
+    end
+
     specify 'returns correct key_updated_at' do
       child = FactoryBot.create(:valid_lead)
       lead.add_child(child)

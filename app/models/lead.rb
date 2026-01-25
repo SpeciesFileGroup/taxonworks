@@ -331,17 +331,28 @@ class Lead < ApplicationRecord
         ON leads.id = lh.ancestor_id')
       .joins('JOIN leads AS otus_source
         ON lh.descendant_id = otus_source.id')
+      .joins('LEFT JOIN lead_items
+        ON lead_items.lead_id = otus_source.id')
       .where("
         leads.parent_id IS NULL
         AND leads.project_id = #{project_id}
       ")
       .group(:id)
-      .select('
+      .select("
         leads.*,
-        COUNT(DISTINCT otus_source.otu_id) AS otus_count,
+        -- PG-specific functions to handle the otu count here:
+        (SELECT COUNT(DISTINCT u.otu_id)
+          -- explode combined array into rows with values in an 'otu_id' column
+          FROM UNNEST(
+            -- array of otus on leads, || is array concatenation
+            ARRAY_AGG(DISTINCT otus_source.otu_id) ||
+            -- array of otus on lead_items
+            ARRAY_AGG(DISTINCT lead_items.otu_id)
+          ) AS u(otu_id)
+          WHERE u.otu_id IS NOT NULL
+        ) AS otus_count,
         MAX(otus_source.updated_at) AS key_updated_at,
-        0 AS couplets_count' # count is now computed in views
-        #·(COUNT(otus_source.id) - 1) / 2 AS couplet_count
+        0 AS couplets_count" # count is now computed in views
       )
 
     root_leads = Lead

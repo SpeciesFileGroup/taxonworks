@@ -74,10 +74,15 @@
         </Transition>
 
         <div
-          v-html="otu.object_tag"
           class="flex-grow-2"
           :class="{ excluded: otuIndices.findIndex((c) => (c == i)) == -1 }"
-        />
+        >
+          <a
+            :href="`${RouteNames.BrowseOtu}?otu_id=${otu.id}`"
+            v-html="otu.object_tag"
+            target="_blank"
+          />
+        </div>
 
         <div class="flex-row gap-xsmall">
           <RadialObject :global-id="otu.global_id" />

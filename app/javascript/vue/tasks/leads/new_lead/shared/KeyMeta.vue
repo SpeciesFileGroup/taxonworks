@@ -7,6 +7,7 @@
   <div class="field label-above">
     <label>Title</label>
     <textarea
+      ref="autofocusInput"
       class="full_width"
       v-model="store.root.text"
       rows="2"
@@ -76,7 +77,7 @@ import OtuChooser from './OtuChooser.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import useStore from '../store/leadStore.js'
 import VSpinner from '@/components/ui/VSpinner.vue'
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { LEAD } from '@/constants/index.js'
 import { Lead } from '@/routes/endpoints'
 import { EXTEND } from './constants'
@@ -84,6 +85,7 @@ import { EXTEND } from './constants'
 const store = useStore()
 
 const loading = ref(false)
+const autofocusInput = ref(null)
 
 const depictions = defineModel(
   'depiction',
@@ -147,6 +149,10 @@ function processKeyMeta() {
   }
   loading.value = false
 }
+
+onMounted(() => {
+  autofocusInput.value.focus()
+})
 </script>
 
 <style lang="scss" scoped>
