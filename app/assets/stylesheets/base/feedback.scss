@@ -75,6 +75,21 @@
 
 // -------- END bootstrap clone experiment -------
 
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.session-dot.active {
+  background-color: var(--badge-green-color);
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+}
+
+.session-dot.inactive {
+  background-color: #52525b;
+}
+
 .success {
   background-color: $color-complement-4;
 }

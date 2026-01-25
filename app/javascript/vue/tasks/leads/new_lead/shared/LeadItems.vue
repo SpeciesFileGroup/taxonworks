@@ -50,37 +50,29 @@
         :index="otu.id"
         class="lead_otu_row flex-row"
       >
-        <div
-          v-if="otuIndices.findIndex((c) => (c == i)) != -1"
-          class="inline"
-        >
-          <div class="in" />
+        <Transition name="otu-status" mode="out-in">
           <div
-            title="Remove OTU from this lead"
-            :class="['remove', 'circle-button', 'btn-delete',
-              { 'btn-disabled': leadItemCount(i) == 1 }]"
-            @click="() => removeOtuIndex(i)"
-          />
-        </div>
-        <div
-          v-else
-          class="inline"
-        >
-          <span
-            class="out margin-xsmall-left"
-            title="Add OTU to this lead and remove from others"
-            @click="() => addOtuIndex(i)"
+            v-if="otuIndices.findIndex((c) => (c == i)) != -1"
+            class="status-glow"
+            :key="'in-' + i"
           >
-            +
-          </span>
+            <span
+              v-if="leadItemCount(i) > 1"
+              class="remove-otu-button"
+              title="Remove OTU from this lead"
+              @click="() => removeOtuIndex(i)"
+            >×</span>
+          </div>
           <span
-            class="out"
-            title="Add OTU to this lead and don't remove from others"
-            @click="() => addAdditionalOtuIndex(i)"
-          >
-            ++
-          </span>
-        </div>
+            v-else
+            class="add-otu-button"
+            :key="'out-' + i"
+            :title="addOtuTooltip"
+            @click.prevent="() => handleAddClick(i)"
+            @dblclick.prevent="() => handleAddDblClick(i)"
+          >+</span>
+        </Transition>
+
         <div
           v-html="otu.object_tag"
           class="flex-grow-2"
@@ -88,7 +80,7 @@
         />
 
         <div class="flex-row">
-          <radial-object :global-id="otu.global_id" />
+          <RadialObject :global-id="otu.global_id" />
           <span
             class="circle-button btn-delete"
             title="Remove OTU from all leads"
@@ -119,6 +111,7 @@ import RadialObject from '@/components/radials/navigation/radial.vue'
 import useStore from '../store/leadStore.js'
 import { Lead, LeadItem } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
+import { useDoubleClick } from '@/composables'
 import { RouteNames } from '@/routes/routes'
 import InteractiveKeyPickerModal from './InteractiveKeyPickerModal.vue'
 
@@ -152,6 +145,13 @@ const otuIndices = computed(() => {
   // otus are checked for this child.
   return store.lead_item_otus.children[props.position].otu_indices
 })
+
+const addOtuTooltip = 'Click: add to this lead, remove from others — Double-click: keep on others'
+
+const { handleClick: handleAddClick, handleDoubleClick: handleAddDblClick } = useDoubleClick(
+  (otuIndex) => addOtuIndex(otuIndex),
+  (otuIndex) => addAdditionalOtuIndex(otuIndex)
+)
 
 const showSendToInteractiveKey = computed(() => {
   if (
@@ -258,34 +258,61 @@ function sendToInteractiveKey() {
   padding: 1em 2em;
 }
 
-.in {
-  width: 30px;
-  height: 24px;
+.status-glow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: var(--color-create);
+  box-shadow: 0 0 8px var(--color-create);
+  margin-right: 8px;
+  flex-shrink: 0;
 }
 
-.out {
-  display: inline-block;
-  width: 24px;
-  height: 24px;
-  line-height: 24px;
-  margin-right: 6.5px;
-  cursor: pointer;
-  vertical-align: bottom;
-  text-align: center;
+.add-otu-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  margin-left: 28px;
+  margin-right: 8px;
+  border-radius: 50%;
   background-color: var(--color-create);
   color: white;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
 }
 
-.remove {
-  vertical-align: middle;
-  margin-left: 3.25px;
-  margin-right: 3.25px;
+.remove-otu-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: var(--color-delete);
+  color: white;
+  font-size: 11px;
+  font-weight: bold;
+  line-height: 1;
+  cursor: pointer;
 }
 
 .lead_otu_rows {
   border: solid 1px var(--border-color);
   padding-left: 1px;
   padding-right: 1px;
+}
+
+.lead_otu_row {
+  align-items: center;
 }
 
 .lead_otu_row:nth-child(odd) {
@@ -316,6 +343,17 @@ function sendToInteractiveKey() {
 
 .excluded {
   opacity: 0.6;
+}
+
+.otu-status-enter-active,
+.otu-status-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.otu-status-enter-from,
+.otu-status-leave-to {
+  opacity: 0;
+  transform: scale(0.8);
 }
 
 </style>
