@@ -17,6 +17,17 @@
           </VBtn>
 
           <VBtn
+            v-if="showResetOtus"
+            medium
+            color="create"
+            @click="resetLeadItems"
+            class="lead_item_button"
+            title="Reset all OTUs to the right lead"
+          >
+            Reset all OTUs
+          </VBtn>
+
+          <VBtn
             v-if="showSendToInteractiveKey"
             medium
             color="primary"
@@ -73,7 +84,7 @@
         <div
           v-html="otu.object_tag"
           class="flex-grow-2"
-          :class="{ highlight: otuIndices.findIndex((c) => (c == i)) != -1 }"
+          :class="{ excluded: otuIndices.findIndex((c) => (c == i)) == -1 }"
         />
 
         <div class="flex-row">
@@ -106,7 +117,7 @@ import LeadItemOtuModal from './LeadItemOtuModal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import RadialObject from '@/components/radials/navigation/radial.vue'
 import useStore from '../store/leadStore.js'
-import { LeadItem } from '@/routes/endpoints'
+import { Lead, LeadItem } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
 import { RouteNames } from '@/routes/routes'
 import InteractiveKeyPickerModal from './InteractiveKeyPickerModal.vue'
@@ -117,6 +128,10 @@ const props = defineProps({
     required: true
   },
   showAddOtu: {
+    type: Boolean,
+    default: false
+  },
+  showResetOtus: {
     type: Boolean,
     default: false
   },
@@ -152,6 +167,22 @@ const showSendToInteractiveKey = computed(() => {
 
 function addOtu() {
   otusModalVisible.value = true
+}
+
+function resetLeadItems() {
+  if (!window.confirm('Are you sure you want to move all OTUs to the right-most lead?')) {
+    return
+  }
+
+  store.setLoading(true)
+  Lead
+    .resetLeadItems(store.lead.id)
+    .then(() => {
+      store.loadKey(store.lead.id)
+      TW.workbench.alert.create('Reset all lead items to the right lead.')
+    })
+    .catch(() => {})
+    .finally(() => { store.setLoading(false) })
 }
 
 function addOtuIndex(otuIndex) {
@@ -283,9 +314,8 @@ function sendToInteractiveKey() {
   flex-grow: 2;
 }
 
-.highlight {
-  background-color: var(--feedback-info-text-color);
-  border: 1px solid var(--feedback-info-border-color);
+.excluded {
+  opacity: 0.6;
 }
 
 </style>

@@ -197,6 +197,7 @@
       :position="position"
       :lead-id="store.children[position].id"
       :show-add-otu="position == 0"
+      :show-reset-otus="position == store.children.length - 1"
     />
   </div>
 </template>

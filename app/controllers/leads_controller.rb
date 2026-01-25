@@ -4,7 +4,7 @@ class LeadsController < ApplicationController
     edit add_children update destroy show
     redirect_option_texts destroy_children insert_couplet delete_children
     duplicate otus destroy_subtree reorder_children insert_key
-    set_observation_matrix
+    set_observation_matrix reset_lead_items
   ]
 
   # GET /leads
@@ -298,6 +298,12 @@ class LeadsController < ApplicationController
     @lead.add_children(sessions_current_project_id, sessions_current_user_id)
 
     render json: @lead
+  end
+
+  def reset_lead_items
+    @lead.reset_lead_items
+
+    head :no_content
   end
 
   def set_observation_matrix

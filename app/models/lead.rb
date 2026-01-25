@@ -467,6 +467,23 @@ class Lead < ApplicationRecord
     Otu.where(id: eliminated_otu_ids)
   end
 
+  # !! Overwrites any existing otu set by the user !!
+  def sync_otu_to_lead_items_list
+    if lead_items.count == 1
+      self.otu_id = lead_items.first.otu_id
+    else
+      self.otu_id = nil
+    end
+    # We have no way of knowing what the "old" lead_items.count
+    # was, so we just have to save every time.
+    save!
+  end
+
+  # Move all lead items of children to the right-most (last) child.
+  def reset_lead_items
+    LeadItem.consolidate_descendant_items(self, children.last)
+  end
+
   protected
 
   def subtree_ids
@@ -478,18 +495,6 @@ class Lead < ApplicationRecord
       .where(id: root.subtree_ids)
       .where.not(otu_id: nil)
       .pluck(:otu_id)
-  end
-
-  # !! Overwrites any existing otu set by the user !!
-  def sync_otu_to_lead_items_list
-    if lead_items.count == 1
-      self.otu_id = lead_items.first.otu_id
-    else
-      self.otu_id = nil
-    end
-    # We have no way of knowing what the "old" lead_items.count
-    # was, so we just have to save every time.
-    save!
   end
 
   private

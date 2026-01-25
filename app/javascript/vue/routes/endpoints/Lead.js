@@ -56,6 +56,8 @@ export const Lead = {
   batchCreateLeadItems: (params) =>
     AjaxCall('post', `/${controller}/batch_create_lead_items.json`, params),
 
+  resetLeadItems: (id) => AjaxCall('post', `/${controller}/${id}/reset_lead_items.json`),
+
   setObservationMatrix: (id, params) =>
     AjaxCall(
       'post',
