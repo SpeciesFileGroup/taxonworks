@@ -97,7 +97,7 @@
   />
 
   <InteractiveKeyPickerModal
-    v-model:visible="matricesModalVisible"
+    v-if="matricesModalVisible"
     v-model:chosen-matrix-id="chosenMatrixId"
     @click="sendToInteractiveKey"
   />
