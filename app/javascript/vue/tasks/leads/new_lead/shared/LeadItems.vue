@@ -150,7 +150,8 @@ const addOtuTooltip = 'Click: add to this lead, remove from others — Double-cl
 
 const { handleClick: handleAddClick, handleDoubleClick: handleAddDblClick } = useDoubleClick(
   (otuIndex) => addOtuIndex(otuIndex),
-  (otuIndex) => addAdditionalOtuIndex(otuIndex)
+  (otuIndex) => addAdditionalOtuIndex(otuIndex),
+  300
 )
 
 const showSendToInteractiveKey = computed(() => {
@@ -275,10 +276,11 @@ function sendToInteractiveKey() {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  position: relative;
   width: 14px;
   height: 14px;
-  margin-left: 28px;
-  margin-right: 8px;
+  margin-left: 3px;
+  margin-right: 11px;
   border-radius: 50%;
   background-color: var(--color-create);
   color: white;
@@ -288,6 +290,17 @@ function sendToInteractiveKey() {
   cursor: pointer;
   user-select: none;
   flex-shrink: 0;
+}
+
+.add-otu-button::before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
 }
 
 .remove-otu-button {
