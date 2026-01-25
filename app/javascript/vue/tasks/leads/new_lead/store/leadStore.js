@@ -417,6 +417,15 @@ export default defineStore('leads', {
       }
       await LeadItem.addLeadItemsToLead(payload)
         .catch(() => {})
+    },
+
+    expanded_lead_has_no_lead_items() {
+      return this.lead_item_otus.parent.length == 0
+    },
+
+    lead_position_has_divided_lead_items(position) {
+      return this.lead_item_otus.children[position].length > 0 &&
+        this.lead_item_otus.children[position].length < this.lead_item_otus.parent.length
     }
   }
 })
