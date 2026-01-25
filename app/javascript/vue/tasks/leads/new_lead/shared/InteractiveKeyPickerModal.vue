@@ -59,7 +59,7 @@ import VSpinner from '@/components/ui/VSpinner'
 import VModal from '@/components/ui/Modal.vue'
 import useStore from '../store/leadStore.js'
 import { ObservationMatrix } from '@/routes/endpoints'
-import { computed, onBeforeMount, ref } from 'vue'
+import { onBeforeMount, ref } from 'vue'
 
 const props = defineProps({
   childIndex: {
@@ -93,9 +93,10 @@ onBeforeMount(() => {
   }
 
   isLoading.value = true
-  ObservationMatrix.where({ per: 500 }).then(({ body }) => {
-    observationMatrices.value = body
-    isLoading.value = false
-  })
+  ObservationMatrix.where({ per: 500 })
+    .then(({ body }) => {
+      observationMatrices.value = body
+    })
+    .then(() => { isLoading.value = false })
 })
 </script>

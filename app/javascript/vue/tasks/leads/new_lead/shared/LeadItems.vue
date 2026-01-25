@@ -55,14 +55,17 @@
             v-if="otuIndices.findIndex((c) => (c == i)) != -1"
             class="status-glow"
             :key="'in-' + i"
+            :title="leadItemCount(i) > 1 ? 'Remove OTU from this lead' : null"
+            :class="{ 'cursor-pointer': leadItemCount(i) > 1 }"
+            @click="() => (leadItemCount(i) > 1 ? removeOtuIndex(i) : null)"
           >
             <span
               v-if="leadItemCount(i) > 1"
               class="remove-otu-button"
               title="Remove OTU from this lead"
-              @click="() => removeOtuIndex(i)"
             >×</span>
           </div>
+
           <span
             v-else
             class="add-otu-button"
@@ -70,7 +73,7 @@
             :title="addOtuTooltip"
             @click.prevent="() => handleAddClick(i)"
             @dblclick.prevent="() => handleAddDblClick(i)"
-          >+</span>
+          ><span class="add-otu-button-inner">+</span></span>
         </Transition>
 
         <div
@@ -103,6 +106,7 @@
 
   <InteractiveKeyPickerModal
     v-if="matricesModalVisible"
+    v-model:visible="matricesModalVisible"
     v-model:chosen-matrix-id="chosenMatrixId"
     @click="sendToInteractiveKey"
   />
@@ -268,8 +272,8 @@ function sendToInteractiveKey() {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   background-color: var(--color-status-included);
   box-shadow: 0 0 8px var(--color-status-included-glow);
@@ -283,14 +287,13 @@ function sendToInteractiveKey() {
   align-items: center;
   justify-content: center;
   position: relative;
-  width: 14px;
-  height: 14px;
-  margin-left: 9px;
-  margin-right: 11px;
+  width: 24px;
+  height: 24px;
+  margin-left: 6px;
+  margin-right: 8px;
   border-radius: 50%;
-  background-color: var(--color-create);
   color: white;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: bold;
   line-height: 1;
   cursor: pointer;
@@ -298,15 +301,17 @@ function sendToInteractiveKey() {
   flex-shrink: 0;
 }
 
-.add-otu-button::before {
-  content: '';
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+.add-otu-button-inner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
+  background-color: var(--color-create);
+  font-size: 12px;
+  line-height: 1;
+  pointer-events: none;
 }
 
 .remove-otu-button {
