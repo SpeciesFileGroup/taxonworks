@@ -79,9 +79,9 @@
           :class="{ excluded: otuIndices.findIndex((c) => (c == i)) == -1 }"
         />
 
-        <div class="flex-row">
+        <div class="flex-row gap-xsmall">
           <RadialObject :global-id="otu.global_id" />
-          <span
+          <div
             class="circle-button btn-delete"
             title="Remove OTU from all leads"
             @click="() => leadItemOtuDeleted(otu.id)"
@@ -266,8 +266,9 @@ function sendToInteractiveKey() {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background-color: var(--color-create);
-  box-shadow: 0 0 8px var(--color-create);
+  background-color: var(--color-status-included);
+  box-shadow: 0 0 8px var(--color-status-included-glow);
+  margin-left: 6px;
   margin-right: 8px;
   flex-shrink: 0;
 }
@@ -279,7 +280,7 @@ function sendToInteractiveKey() {
   position: relative;
   width: 14px;
   height: 14px;
-  margin-left: 3px;
+  margin-left: 9px;
   margin-right: 11px;
   border-radius: 50%;
   background-color: var(--color-create);
