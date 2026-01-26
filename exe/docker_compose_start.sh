@@ -13,7 +13,7 @@ function wait_for_db() {
   done
 }
 # Could do sanity check of environment here
-# * Raise a warning of the database.yml file looks like it is setup for docker-compose
+# * Raise a warning if the database.yml file looks like it is setup for docker compose
 
 wait_for_db "postgres10_legacy"
 wait_for_db "db"
