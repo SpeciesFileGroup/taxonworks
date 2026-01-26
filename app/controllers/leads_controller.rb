@@ -316,7 +316,9 @@ class LeadsController < ApplicationController
 
   # Creates a new key populated with otus from params[:otu_query].
   def batch_create_lead_items
-    @lead = Lead.create!(params.require(:lead).permit(:text))
+    @lead = Lead.create!(
+      params.require(:lead).permit(:text, :observation_matrix_id)
+    )
     @lead.batch_populate_lead_items(params[:otu_query],
       sessions_current_project_id, sessions_current_user_id
     )
