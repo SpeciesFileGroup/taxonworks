@@ -178,7 +178,6 @@
         <Annotations
           :object_type="LEAD"
           :object_id="store.children[position].id"
-          :refresh_token="store.depictionsRefreshToken"
           v-model:depiction="depictions"
         />
 

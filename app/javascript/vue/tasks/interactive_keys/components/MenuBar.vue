@@ -305,7 +305,7 @@ export default {
       )
       const imageIds = depictions
         .flat()
-        .map((depiction) => depiction.image_id || depiction.image?.id)
+        .map((depiction) => depiction.image_id)
         .filter((id) => id)
       return [...new Set(imageIds)]
     }

@@ -40,11 +40,6 @@ const props = defineProps({
   object_id: {
     type: Number,
     required: true
-  },
-
-  refresh_token: {
-    type: Number,
-    default: 0
   }
 })
 
@@ -98,12 +93,6 @@ watch(
   { immediate: true }
 )
 
-watch(
-  () => props.refresh_token,
-  () => {
-    updateDepictions()
-  }
-)
 </script>
 
 <style lang="scss" scoped>

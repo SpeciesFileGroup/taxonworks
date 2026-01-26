@@ -226,6 +226,8 @@ class LeadsController < ApplicationController
     image_ids = params.permit(image_ids: [])[:image_ids] || []
     created = 0
 
+    render json: { success: true, created: } if image_ids.empty?
+
     Depiction.transaction do
       image_ids.each do |image_id|
         depiction = Depiction.find_or_initialize_by(

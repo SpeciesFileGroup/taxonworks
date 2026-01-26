@@ -23,8 +23,6 @@ const makeInitialState = () => ({
   loading: false,
   // Ref count for loading spinner.
   loadingCount: 0,
-  // Used to trigger annotation refreshes after out-of-band changes.
-  depictionsRefreshToken: 0,
   // Keep a copy of values from the last time a save occurred.
   last_saved: {
     origin_label: undefined,
@@ -430,7 +428,6 @@ export default defineStore('leads', {
 
     async addDepictionsToLead(leadId, imageIds) {
       return Lead.depictions(leadId, { image_ids: imageIds })
-        .then(() => { this.depictionsRefreshToken += 1 })
         .catch(() => {})
     },
 

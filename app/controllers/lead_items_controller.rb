@@ -86,12 +86,14 @@ class LeadItemsController < ApplicationController
     otu_ids = params[:otu_ids]
     exclusive = params[:exclusive_otu_ids] || []
     add_new_to_first_child = params[:add_new_to_first_child] || false
-    added = LeadItem.add_items_to_lead(parent, otu_ids, exclusive, add_new_to_first_child)
+    added = LeadItem.add_items_to_lead(
+      parent, otu_ids, exclusive, add_new_to_first_child
+    )
 
-    if !added
-      render json: parent.errors, status: :unprocessable_content
-    else
+    if added
       render json: added
+    else
+      render json: parent.errors, status: :unprocessable_content
     end
   end
 
@@ -105,7 +107,7 @@ class LeadItemsController < ApplicationController
       return
     end
 
-    @lead.parent.children. each { |c|
+    @lead.parent.children.each { |c|
       c.sync_otu_to_lead_items_list
     }
 
