@@ -203,6 +203,8 @@ export default defineStore('leads', {
           this.key_metadata = body.key_metadata
           this.key_ordered_parents = body.key_ordered_parents
           this.key_data = body.key_data
+          // Lead otu(s) may have changed, so reload.
+          this.loadKey(this.lead.id)
         })
         .catch(() => {})
         .finally(() => { this.setLoading(false) })
@@ -223,6 +225,8 @@ export default defineStore('leads', {
           this.key_metadata = body.key_metadata
           this.key_ordered_parents = body.key_ordered_parents
           this.key_data = body.key_data
+          // Lead otu(s) may have changed, so reload.
+          this.loadKey(this.lead.id)
         })
         .catch(() => {})
         .finally(() => { this.setLoading(false) })
@@ -399,7 +403,7 @@ export default defineStore('leads', {
       }
     },
 
-    async process_lead_items_data(otu_ids, lead_id) {
+    async process_lead_items_data(otu_ids, lead_id, depictionImageIds = []) {
       const remaining = otu_ids.remaining || []
       const eliminated_for_key = otu_ids.eliminatedForKey || []
       const both = intersectArrays(remaining, eliminated_for_key)
@@ -412,8 +416,34 @@ export default defineStore('leads', {
         add_new_to_first_child: true
       }
       await LeadItem.addLeadItemsToLead(payload)
+        .then(({ body }) => {
+          const targetLeadId = body?.lead_id
+          if (targetLeadId && depictionImageIds.length) {
+            return this.addDepictionsToLead(targetLeadId, depictionImageIds)
+          }
+          return undefined
+        })
         .catch(() => {})
+    },
+
+    async addDepictionsToLead(leadId, imageIds) {
+      return Lead.depictions(leadId, { image_ids: imageIds })
+        .catch(() => {})
+    },
+
+    expanded_lead_has_no_lead_items() {
+      return this.lead_item_otus.parent.length == 0
+    },
+
+    lead_position_has_divided_lead_items(position) {
+      return this.lead_item_otus.children[position].otu_indices.length > 0 &&
+        ((this.lead_item_otus.children[position].otu_indices.length <
+            this.lead_item_otus.parent.length) ||
+          // this lead has all lead item otus, but some other also has at least
+          // one:
+          this.lead_item_otus.children.some((child, i) =>
+            i !== position && child.otu_indices.length > 0
+          ))
     }
   }
 })
-

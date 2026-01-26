@@ -51,7 +51,7 @@
           </div>
 
           <VBtn
-            :disabled="nextButtonDisabled"
+            :disabled="nextButtonDisabled || !leadItemsDivided"
             color="update"
             medium
             @click="() => nextCouplet()"
@@ -94,7 +94,10 @@
           />
         </div>
 
-        <OtuChooser :lead="store.children[position]"/>
+        <OtuChooser
+          v-if="!showLeadItems"
+          :lead="store.children[position]"
+        />
 
         <div
           @click="() => { expandOptions = !expandOptions }"
@@ -118,6 +121,10 @@
           v-if="expandOptions"
           class="separate-top"
         >
+          <OtuChooser
+            v-if="!showLeadItems"
+            :lead="store.children[position]"
+          />
           <div class="field label-above">
             <label>External link</label>
             <fieldset>
@@ -190,6 +197,7 @@
       :position="position"
       :lead-id="store.children[position].id"
       :show-add-otu="position == 0"
+      :show-reset-otus="position == store.children.length - 1"
     />
   </div>
 </template>
@@ -276,6 +284,11 @@ const positionIsLast = computed(() => {
 const showLeadItems = computed(() => {
   return !!store.lead_item_otus.children[props.position] &&
     !store.lead_item_otus.children[props.position].fixed
+})
+
+const leadItemsDivided = computed(() => {
+  return store.expanded_lead_has_no_lead_items() ||
+    store.lead_position_has_divided_lead_items(props.position)
 })
 
 const annotationLists = { [DEPICTION]: depictions }

@@ -68,6 +68,15 @@ export const TASK_IMAGE_MATRIX = {
   }),
 };
 
+export const TASK_INTERACTIVE_KEY = {
+  label: "Interactive key",
+  link: "/tasks/observation_matrices/interactive_key",
+  saveQuery: true,
+  parseParams: ({ params }) => ({
+    otu_filter: params.otu_id?.join("|"),
+  }),
+};
+
 export const TASK_BIOLOGICAL_ASSOCIATION_EXTENSION = {
   label: "DwC Extension Preview",
   link: "/tasks/biological_associations/dwc_extension_preview",

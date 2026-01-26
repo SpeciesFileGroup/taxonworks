@@ -85,6 +85,9 @@
   --badge-green-color: #10b981;
   --color-green-soft-shadow: rgba(16, 185, 129, 0.5);
 
+  --color-status-included: #60bf5e;
+  --color-status-included-glow: rgba(96, 191, 94, 0.4);
+
   --badge-blue-bg: rgba(59, 130, 246, 0.15);
   --badge-blue-color: #3b82f6;
 
@@ -173,6 +176,9 @@
 
   --taxon-name-valid-color: #b6cfff;
   --taxon-name-invalid-color: #cf873b;
+
+  --color-status-included: #10b981;
+  --color-status-included-glow: rgba(16, 185, 129, 0.5);
 }
 
 $tw-dark-colors: (

@@ -58,6 +58,50 @@ RSpec.describe Lead, type: :model do
     expect(bl.reload.position).to be < br.reload.position
   end
 
+  specify '#reset_lead_items consolidates onto rightmost child when creation order is reversed' do
+    parent = FactoryBot.create(:valid_lead)
+    right = parent.children.create!(text: 'right')
+    left = parent.children.create!(text: 'left')
+
+    parent.reorder_children([1, 0])
+    parent.reload
+    left.reload
+    right.reload
+
+    expect(right.id).to be < left.id
+    expect(parent.children.order(:position).first).to eq(left)
+    expect(parent.children.order(:position).last).to eq(right)
+
+    otu1 = FactoryBot.create(:valid_otu)
+    otu2 = FactoryBot.create(:valid_otu)
+    FactoryBot.create(:valid_lead_item, lead: left, otu: otu1)
+    FactoryBot.create(:valid_lead_item, lead: right, otu: otu2)
+
+    parent.reset_lead_items
+
+    expect(left.reload.lead_items.count).to eq(0)
+    expect(right.reload.lead_items.pluck(:otu_id))
+      .to contain_exactly(otu1.id, otu2.id)
+  end
+
+  specify '#reset_lead_items excludes otus already on target' do
+    parent = FactoryBot.create(:valid_lead)
+    right = parent.children.create!(text: 'right')
+    left = parent.children.create!(text: 'left')
+
+    parent.reorder_children([1, 0])
+    parent.reload
+
+    shared_otu = FactoryBot.create(:valid_otu)
+    FactoryBot.create(:valid_lead_item, lead: left, otu: shared_otu)
+    FactoryBot.create(:valid_lead_item, lead: right, otu: shared_otu)
+
+    parent.reset_lead_items
+
+    expect(left.reload.lead_items.count).to eq(0)
+    expect(right.reload.lead_items.where(otu_id: shared_otu.id).count).to eq(1)
+  end
+
   specify '#node_position of root' do
     expect(lead.node_position).to eq(:root)
   end
@@ -180,6 +224,33 @@ RSpec.describe Lead, type: :model do
 
       q = Lead.roots_with_data(project_id)
       expect(q.first.otus_count).to eq(2)
+    end
+
+    specify 'otus_count includes lead_items' do
+      ids = lead.insert_couplet
+      otu1 = FactoryBot.create(:valid_otu)
+      otu2 = FactoryBot.create(:valid_otu)
+      otu3 = FactoryBot.create(:valid_otu)
+
+      lead.update!(otu_id: otu1.id)
+      child = Lead.find(ids[0])
+      FactoryBot.create(:valid_lead_item, lead: child, otu: otu2)
+      FactoryBot.create(:valid_lead_item, lead: child, otu: otu3)
+
+      q = Lead.roots_with_data(project_id)
+      expect(q.first.otus_count).to eq(3)
+    end
+
+    specify 'otus_count does not double-count otus on both lead and lead_items' do
+      ids = lead.insert_couplet
+      otu = FactoryBot.create(:valid_otu)
+
+      child = Lead.find(ids[0])
+      child.update!(otu_id: otu.id)
+      FactoryBot.create(:valid_lead_item, lead: child, otu: otu)
+
+      q = Lead.roots_with_data(project_id)
+      expect(q.first.otus_count).to eq(1)
     end
 
     specify 'returns correct key_updated_at' do
