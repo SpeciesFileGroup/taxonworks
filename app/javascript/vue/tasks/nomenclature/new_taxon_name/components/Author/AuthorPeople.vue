@@ -87,7 +87,9 @@ export default {
       })
 
       this.roles = authors
-      this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
+      this.$store
+        .dispatch(ActionNames.UpdateTaxonName, this.taxon)
+        .catch(() => {})
     },
 
     updateLastChange() {
