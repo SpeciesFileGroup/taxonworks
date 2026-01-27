@@ -132,6 +132,15 @@
       >
         Close
       </VBtn>
+      <VBtn
+        v-else
+        color="primary"
+        medium
+        :disabled="!hasSelections"
+        @click="applySelections"
+      >
+        Apply
+      </VBtn>
     </template>
   </Modal>
 </template>
