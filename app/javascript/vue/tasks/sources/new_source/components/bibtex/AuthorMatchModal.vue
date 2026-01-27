@@ -55,12 +55,7 @@
                     :name="`author-match-${index}`"
                     :value="person.id"
                     v-model="row.selectedPersonId"
-                    @change="
-                      () => {
-                        row.createdPerson = null
-                        applySelections()
-                      }
-                    "
+                    @change="row.createdPerson = null"
                   />
                   <span v-html="person.cached || person.name" />
                 </label>
