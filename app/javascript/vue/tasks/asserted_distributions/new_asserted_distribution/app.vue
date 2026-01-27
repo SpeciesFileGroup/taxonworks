@@ -105,7 +105,9 @@ const currentAssertedDistribution = computed(() =>
   )
 )
 
-const autosave = computed(() => preferences.value?.layout[KEY_STORAGE_AUTOSAVE])
+const autosave = computed(
+  () => preferences.value?.layout?.[KEY_STORAGE_AUTOSAVE]
+)
 
 watch(
   autosave,
