@@ -101,7 +101,7 @@ jobs:
       run: |
         sudo sed -Ei 's/^# deb-src /deb-src /' /etc/apt/sources.list
         sudo apt-get update
-        sudo apt-get install -y tesseract-ocr libgeos-dev libproj-dev build-essential imagemagick
+        sudo apt-get install -y tesseract-ocr libgeos-dev libproj-dev build-essential imagemagick libmagickwand-dev
 
     - name: Change ownership of /usr/src to runner user to allow cache to be restored
       run: sudo chown $(id -u) /usr/src
