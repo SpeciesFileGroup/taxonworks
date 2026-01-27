@@ -1,7 +1,7 @@
 <template>
-  <Modal
+  <VModal
+    :container-style="{ maxWidth: '900px', width: '90vw' }"
     @close="$emit('close')"
-    container-style="max-width: 900px; width: 90vw;"
   >
     <template #header>
       <h3>Match Authors to People</h3>
@@ -142,13 +142,13 @@
         Apply
       </VBtn>
     </template>
-  </Modal>
+  </VModal>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { People } from '@/routes/endpoints'
-import Modal from '@/components/ui/Modal.vue'
+import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
