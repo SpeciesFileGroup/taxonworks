@@ -7,7 +7,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+
+- Clone last attribution button [#4718]
+
+[#4718]: https://github.com/SpeciesFileGroup/taxonworks/issues/4718
 
 ## [0.58.0] - 2026-01-23
 
@@ -56,7 +60,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Changed
 
-- Large performance improvements to Catalog of Life Data Package export; some small regressions introduced 
+- Large performance improvements to Catalog of Life Data Package export; some small regressions introduced
 - Disabled autosave by default for New asserted distribution task. [#4698]
 - Filter Contents downloads are TSV (no longer CSV)
 - Updated Ruby gems
