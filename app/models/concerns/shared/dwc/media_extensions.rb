@@ -48,7 +48,7 @@ module Shared::Dwc::MediaExtensions
       elsif role.organization_id
         Organization.find(role.organization_id).name
       end
-    end.compact.join(Export::Dwca::DWC_DELIMITER)
+    end.compact.join(Export::Dwca::DELIMITER)
   end
 
   def dwc_media_credit
