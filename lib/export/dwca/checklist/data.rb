@@ -542,7 +542,7 @@ module Export::Dwca::Checklist
 
       Zip::OutputStream.open(t) { |zos| }
 
-      Zip::File.open(t.path, Zip::File::CREATE) do |zip|
+      Zip::File.open(t.path, create: true) do |zip|
         zip.add('data.tsv', data_file.path)
 
         zip.add('description.tsv', description_extension_tmp.path) if description_extension

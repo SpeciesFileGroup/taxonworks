@@ -277,6 +277,12 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
           end
         end
 
+        # Override csv to generate fresh CSV after the before block modifies records
+        let(:csv) do
+          fresh_data = Export::Dwca::Checklist::Data.new(core_otu_scope_params: cached_otu_scope)
+          CSV.parse(fresh_data.csv, headers: true, col_sep: "\t")
+        end
+
         specify 'extracted higher taxon clears taxon-specific fields from terminal taxon' do
           # Find an extracted genus (higher than the terminal species)
           genus = csv.find { |row| row['taxonRank'] == 'genus' }
@@ -1062,9 +1068,9 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
           end
         end
 
-        let(:topic_morphology) { FactoryBot.create(:valid_topic, name: 'MorphologyDesc') }
-        let(:topic_biology) { FactoryBot.create(:valid_topic, name: 'BiologyDesc') }
-        let(:topic_distribution) { FactoryBot.create(:valid_topic, name: 'DistributionDesc') }
+        let(:topic_morphology) { ControlledVocabularyTerm.find_or_create_by!(name: 'Morphology', type: 'Topic') { |t| t.definition = 'Physical structure and form of organisms' } }
+        let(:topic_biology) { ControlledVocabularyTerm.find_or_create_by!(name: 'Biology', type: 'Topic') { |t| t.definition = 'The study of living organisms and life processes' } }
+        let(:topic_distribution) { ControlledVocabularyTerm.find_or_create_by!(name: 'Distribution', type: 'Topic') { |t| t.definition = 'Geographic range and habitat of organisms' } }
         let(:language_en) { Language.find_or_create_by!(alpha_2: 'en') { |l| l.assign_attributes(FactoryBot.attributes_for(:valid_language, alpha_2: 'en')) } }
         let(:language_es) { Language.find_or_create_by!(alpha_2: 'es') { |l| l.assign_attributes(FactoryBot.attributes_for(:valid_language, alpha_2: 'es')) } }
 
@@ -1378,7 +1384,7 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
       # Test case: same infraspecific epithet at different ranks should create
       # distinct taxa e.g., "Aus bus subsp. cus" and "Aus bus var. cus" are
       # different taxa
-      let!(:root) { Project.find(1).root_taxon_name }
+      let!(:root) { find_or_create_root_taxon_name }
       let!(:kingdom) { Protonym.create!(name: 'Plantae', rank_class: Ranks.lookup(:icn, :kingdom), parent: root) }
       let!(:family) { Protonym.create!(name: 'Rosaceae', rank_class: Ranks.lookup(:icn, :family), parent: kingdom) }
       let!(:genus) { Protonym.create!(name: 'Rosa', rank_class: Ranks.lookup(:icn, :genus), parent: family) }
@@ -1473,7 +1479,7 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
     context 'when subspecies exist but parent species is missing' do
       # Test case: subspecies specimens exist, but no species specimen exists
       # The parent species should be automatically extracted from the subspecies data
-      let!(:root) { Project.find(1).root_taxon_name }
+      let!(:root) { find_or_create_root_taxon_name }
       let!(:kingdom) { Protonym.create!(name: 'Plantae', rank_class: Ranks.lookup(:icn, :kingdom), parent: root) }
       let!(:family) { Protonym.create!(name: 'Rosaceae', rank_class: Ranks.lookup(:icn, :family), parent: kingdom) }
       let!(:genus) { Protonym.create!(name: 'Prunus', rank_class: Ranks.lookup(:icn, :genus), parent: family) }
@@ -1529,7 +1535,7 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
     end
 
     context 'with accepted_name_mode parameter' do
-      let!(:root) { Project.find(1).root_taxon_name }
+      let!(:root) { find_or_create_root_taxon_name }
       let!(:kingdom) { Protonym.create!(name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom), parent: root) }
       let!(:family) { Protonym.create!(name: 'Felidae', rank_class: Ranks.lookup(:iczn, :family), parent: kingdom) }
       let!(:genus) { Protonym.create!(name: 'Felis', rank_class: Ranks.lookup(:iczn, :genus), parent: family) }
@@ -1772,7 +1778,7 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
     context 'with homonyms (same scientific name in different kingdoms)' do
       # Create two separate taxonomic hierarchies with same species name "bus"
       # in genus "Aus", one in Animalia, one in Plantae.
-      let!(:homonym_root) { Project.find(1).root_taxon_name }
+      let!(:homonym_root) { find_or_create_root_taxon_name }
 
       # Animalia hierarchy
       let!(:animalia) { Protonym.create!(name: 'Animalia', parent: homonym_root, rank_class: Ranks.lookup(:iczn, :kingdom)) }

@@ -45,6 +45,7 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
 
     download = Export::Dwca.download_async(
       scope,
+      'https://example.org/dwca_url',
       predicate_extensions:,
       project_id: Current.project_id
     )

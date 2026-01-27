@@ -295,6 +295,7 @@ class DwcOccurrence < ApplicationRecord
     # to preserve it (I guess).
     [:id,
      :basisOfRecord,
+     :occurrenceID,
      :dwc_occurrence_object_id,   # !! We don't want this, but need it in joins, it is removed in trim via excluded_occurrence_columns below
      :dwc_occurrence_object_type, # !! ^
     ] + CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys
