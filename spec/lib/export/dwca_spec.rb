@@ -211,10 +211,10 @@ describe Export::Dwca, type: :model, group: :darwin_core do
       expect(z.find_entry('data.tsv')).to be_truthy
     end
 
-    specify 'includes distribution.tsv when extension enabled' do
+    specify 'includes species_distribution.tsv when extension enabled' do
       perform_enqueued_jobs
       z = Zip::File.open(Download.first.file_path)
-      expect(z.find_entry('distribution.tsv')).to be_truthy
+      expect(z.find_entry('species_distribution.tsv')).to be_truthy
     end
 
     specify 'includes references.tsv when extension enabled' do

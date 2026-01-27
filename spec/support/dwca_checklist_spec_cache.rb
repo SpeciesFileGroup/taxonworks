@@ -115,7 +115,7 @@ module DwcaChecklistSpecSupport
       # end
       # Truncate everything created by this support. This is faster and safer than
       # trying to chase all dependent rows.
-      DatabaseCleaner.clean_with(:truncation, except: %w(spatial_ref_sys))
+      DatabaseCleaner.clean_with(:truncation, except: %w(spatial_ref_sys users projects project_members people))
       DwcaChecklistSpecSupport::CsvCache.clear!
       remove_instance_variable(:@setup_done) if defined?(@setup_done)
       remove_instance_variable(:@ids) if defined?(@ids)
