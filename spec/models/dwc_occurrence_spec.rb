@@ -13,8 +13,8 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
   let(:source_bibtex) { FactoryBot.create(:valid_source_bibtex) }
   let(:asserted_distribution) { FactoryBot.create(:valid_asserted_distribution) }
 
-  specify '.target_columns must include occurrenceID' do
-    expect(DwcOccurrence.target_columns).to include(:occurrenceID)
+  specify '.target_occurrence_columns must include occurrenceID' do
+    expect(DwcOccurrence.target_occurrence_columns).to include(:occurrenceID)
   end
 
   specify 'extending predicates' do
@@ -45,6 +45,7 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
 
     download = Export::Dwca.download_async(
       scope,
+      'https://example.org/dwca_url',
       predicate_extensions:,
       project_id: Current.project_id
     )

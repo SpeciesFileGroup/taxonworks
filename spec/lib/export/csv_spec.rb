@@ -8,8 +8,8 @@ describe Export::Dwca, type: :model do
     let!(:core_scope) { DwcOccurrence.where(project_id: Project.first.id) }
     let(:csv_string) {
       ::Export::CSV.generate_csv(
-        core_scope.computed_columns,
-        exclude_columns: ::DwcOccurrence.excluded_columns,
+        core_scope.computed_occurrence_columns,
+        exclude_columns: ::DwcOccurrence.excluded_occurrence_columns,
         column_order: ::CollectionObject::DWC_OCCURRENCE_MAP.keys + ::CollectionObject::EXTENSION_FIELDS,
         trim_columns: true,
         trim_rows: false,

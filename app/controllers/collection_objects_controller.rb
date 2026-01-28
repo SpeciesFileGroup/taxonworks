@@ -40,7 +40,7 @@ class CollectionObjectsController < ApplicationController
       current_respository: Repository,
       collecting_event: CollectingEvent,
       taxon_determinations: TaxonDetermination })
-      .merge( dwc_occurrence:  DwcOccurrence.target_columns.inject({}){|hsh,p| hsh[p] = nil; hsh}.delete_if{|k,v| k =~ /(_id|_type)\z/} )
+      .merge( dwc_occurrence:  DwcOccurrence.target_occurrence_columns.inject({}){|hsh,p| hsh[p] = nil; hsh}.delete_if{|k,v| k =~ /(_id|_type)\z/} )
       .merge( CollectionObject.core_attributes.inject({}){|hsh,p| hsh[p] = nil; hsh})
       .merge(
         identifiers: nil,

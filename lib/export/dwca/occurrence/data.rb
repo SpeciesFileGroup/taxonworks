@@ -196,8 +196,8 @@ module Export::Dwca::Occurrence
 
       create_csv_sanitize_function
 
-      target_cols = ::DwcOccurrence.target_columns
-      excluded = ::DwcOccurrence.excluded_columns
+      target_cols = ::DwcOccurrence.target_occurrence_columns
+      excluded = ::DwcOccurrence.excluded_occurrence_columns
 
       cols_to_export = target_cols - excluded
 
@@ -456,7 +456,7 @@ module Export::Dwca::Occurrence
       if no_records?
         @biological_associations_resource_relationship_tmp.write("\n")
       else
-        Export::CSV::Dwc::Extension::BiologicalAssociations.csv(
+        Export::CSV::Dwc::Extension::Occurrence::BiologicalAssociations.csv(
           biological_associations_scope,
           biological_association_relations_to_core,
           output_file: @biological_associations_resource_relationship_tmp
@@ -532,7 +532,7 @@ module Export::Dwca::Occurrence
               xml.files {
                 xml.location 'resource_relationships.tsv'
               }
-              Export::CSV::Dwc::Extension::BiologicalAssociations::HEADERS_NAMESPACES.each_with_index do |n, i|
+              Export::CSV::Dwc::Extension::Occurrence::BiologicalAssociations::HEADERS_NAMESPACES.each_with_index do |n, i|
                 if i == 0
                   n == '' || (raise TaxonWorks::Error, "First resource relationship column (coreid) should have namespace '', got '#{n}'")
                   xml.coreid(index: 0)
@@ -549,7 +549,7 @@ module Export::Dwca::Occurrence
               xml.files {
                 xml.location 'media.tsv'
               }
-              Export::CSV::Dwc::Extension::Media::HEADERS_NAMESPACES.each_with_index do |n, i|
+              Export::CSV::Dwc::Extension::Occurrence::Media::HEADERS_NAMESPACES.each_with_index do |n, i|
                 if i == 0
                   n == '' || (raise TaxonWorks::Error, "First media column (coreid) should have namespace '', got '#{n}'")
                   xml.coreid(index: 0)
@@ -661,6 +661,14 @@ module Export::Dwca::Occurrence
     # @param download [a Download]
     def package_download(download)
       p = zipfile.path
+
+      # Set total_records if download is persisted (can't update_columns on new
+      # record).
+      if download.persisted?
+        download.update_columns(total_records: total)
+      else
+        download.total_records = total
+      end
 
       # This doesn't touch the db (source_file_path is an instance var).
       download.update!(source_file_path: p)

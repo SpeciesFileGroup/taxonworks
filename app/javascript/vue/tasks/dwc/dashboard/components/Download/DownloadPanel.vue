@@ -1,7 +1,11 @@
 <template>
   <div class="panel content">
     <h2>Download Darwin Core Archive</h2>
-    <i>Includes only records stored as DwC occurrences.</i>
+
+    <div class="margin-medium-bottom">
+      <h3>Occurrence Downloads</h3>
+      <i>Includes only records stored as DwC occurrences.</i>
+    </div>
     <div class="field label-above margin-medium-top">
       <DwcDownload
         :params="{ per: downloadCount }"
@@ -45,11 +49,24 @@
     <filter-link>
       Create DwC Archive by filtered collection object result
     </filter-link>
+
+    <hr class="divisor full_width margin-large-top" />
+
+    <div class="margin-large-top">
+      <h3>Checklist Downloads</h3>
+      Taxonomic checklists with optional extensions. <i>Includes only records stored as DwC occurrences.</i>
+      <div class="margin-medium-top">
+        <a :href="filterOtusLink">
+          Create DwC Checklist by filtered OTU result
+        </a>
+      </div>
+    </div>
   </div>
 </template>
 <script setup>
 import { getPastDateByDays } from '@/helpers/dates.js'
 import { inject, computed } from 'vue'
+import { RouteNames } from '@/routes/routes.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import DwcDownload from '@/tasks/collection_objects/filter/components/dwcDownload.vue'
 import FilterLink from '../FilterLink.vue'
@@ -76,4 +93,9 @@ function makeParameters(days) {
     dwc_indexed: true
   }
 }
+
+const filterOtusLink = computed(() => {
+  const params = new URL(window.location.href).searchParams.toString()
+  return `${RouteNames.FilterOtus}${params ? '?' + params : ''}`
+})
 </script>
