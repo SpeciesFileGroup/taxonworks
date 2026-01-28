@@ -11,6 +11,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Clone last attribution button [#4718]
 
+### Fixed
+
+- New asserted distribution task is not loading
+
+### Changed
+
+- The inventory keys API endpoint has been updated to indicate when an observation matrix is a media matrix.
+
 [#4718]: https://github.com/SpeciesFileGroup/taxonworks/issues/4718
 
 ## [0.58.0] - 2026-01-23
