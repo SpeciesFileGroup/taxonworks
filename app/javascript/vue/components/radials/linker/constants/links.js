@@ -34,6 +34,12 @@ export const TASK_SOURCE_CITATION_TOTALS = {
   link: "/tasks/sources/source_citation_totals/",
 };
 
+export const TASK_DOCUMENTS_PACKAGER = {
+  label: "Documents packager",
+  link: "/tasks/sources/documents_packager",
+  saveQuery: true,
+};
+
 export const TASK_LOANS_DASHBOARD = {
   label: "Loan dashboard",
   link: "/tasks/loans/dashboard/",
