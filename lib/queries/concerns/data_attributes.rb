@@ -9,6 +9,8 @@ module Queries::Concerns::DataAttributes
   def self.params
     [
       :data_attributes,
+      :data_attribute_between_and_or,
+      :data_attribute_import_between_and_or,
 
       :data_attribute_import_exact_pair,
       :data_attribute_import_exact_value,
@@ -93,6 +95,18 @@ module Queries::Concerns::DataAttributes
     #   nil - not applied
     attr_accessor :data_attributes
 
+    # @return [String]
+    # @param data_attribute_between_and_or [String]
+    #   'and' - _and_ the individual predicate result sets
+    #   'or' - _or_ the individual predicate result sets
+    attr_accessor :data_attribute_between_and_or
+
+    # @return [String]
+    # @param data_attribute_import_between_and_or [String]
+    #   'and' - _and_ the individual predicate result sets
+    #   'or' - _or_ the individual predicate result sets
+    attr_accessor :data_attribute_import_between_and_or
+
     def data_attribute_predicate_id
       [@data_attribute_predicate_id].flatten.compact
     end
@@ -102,7 +116,7 @@ module Queries::Concerns::DataAttributes
     end
 
     def data_attribute_exact_value
-      [@data_attribute_exact_value].flatten.compact
+      [@data_attribute_exact_value].flatten.compact.uniq
     end
 
     def data_attribute_wildcard_value
@@ -173,6 +187,8 @@ module Queries::Concerns::DataAttributes
     @data_attribute_wildcard_pair = params[:data_attribute_wildcard_pair]
     @data_attribute_import_wildcard_pair = params[:data_attribute_import_wildcard_pair]
     @data_attributes = boolean_param(params, :data_attributes)
+    @data_attribute_between_and_or = params[:data_attribute_between_and_or] || 'and'
+    @data_attribute_import_between_and_or = params[:data_attribute_import_between_and_or] || 'and'
   end
 
   # @return [Arel::Table]
@@ -182,25 +198,83 @@ module Queries::Concerns::DataAttributes
 
   def data_attribute_predicate_id_facet
     return nil if data_attribute_predicate_id.blank?
-    referenced_klass.joins(:internal_attributes).where(data_attributes: {controlled_vocabulary_term_id: data_attribute_predicate_id})
+
+    if data_attribute_between_and_or == 'and'
+      queries = data_attribute_predicate_id.map do |predicate_id|
+        referenced_klass.joins(:internal_attributes)
+          .where(data_attributes: {controlled_vocabulary_term_id: predicate_id})
+          .select(table[:id])
+      end
+
+      result = queries.shift
+      queries.each do |q|
+        result = result.where(table[:id].in(q.arel))
+      end
+
+      result.distinct
+    else
+      referenced_klass.joins(:internal_attributes)
+        .where(data_attributes: {controlled_vocabulary_term_id: data_attribute_predicate_id})
+    end
   end
 
   def data_attribute_import_predicate_facet
     return nil if data_attribute_import_predicate.empty?
-    referenced_klass.joins(:import_attributes).where(data_attributes: {import_predicate: data_attribute_import_predicate})
+
+    if data_attribute_import_between_and_or == 'and'
+      queries = data_attribute_import_predicate.map do |predicate|
+        referenced_klass.joins(:import_attributes)
+          .where(data_attributes: {import_predicate: predicate})
+          .select(table[:id])
+      end
+
+      result = queries.shift
+      queries.each do |q|
+        result = result.where(table[:id].in(q.arel))
+      end
+
+      result.distinct
+    else
+      referenced_klass.joins(:import_attributes)
+        .where(data_attributes: {import_predicate: data_attribute_import_predicate})
+    end
   end
 
 
   def data_attribute_without_predicate_id_facet
     return nil if data_attribute_without_predicate_id.blank?
-    not_these = referenced_klass.left_joins(:internal_attributes).where(data_attributes: {controlled_vocabulary_term_id: data_attribute_without_predicate_id})
 
-    # a Not exists without using .exists
-    s = 'WITH not_these AS (' + not_these.to_sql + ') ' +
-      referenced_klass.joins("LEFT JOIN not_these AS not_these1 ON not_these1.id = #{table.name}.id")
-      .where('not_these1.id IS NULL').to_sql
+    if data_attribute_between_and_or == 'and'
+      # 'and': Objects that don't have predicate1 AND don't have predicate2.
+      # Exclude records with ANY of the predicates (must lack ALL).
+      not_these = referenced_klass.left_joins(:internal_attributes)
+        .where(data_attributes: {controlled_vocabulary_term_id: data_attribute_without_predicate_id})
 
-    referenced_klass.from("(#{s}) as #{table.name}")
+      # a Not exists without using .exists
+      s = 'WITH not_these AS (' + not_these.to_sql + ') ' +
+        referenced_klass.joins("LEFT JOIN not_these AS not_these1 ON not_these1.id = #{table.name}.id")
+        .where('not_these1.id IS NULL').to_sql
+
+      referenced_klass.from("(#{s}) AS #{table.name}")
+    else
+      # 'or': Objects that don't have predicate1 OR don't have predicate2.
+      # Exclude only records with ALL of the predicates (must lack AT LEAST
+      # ONE).
+      # Build queries for records that HAVE each predicate, then intersect
+      # to find records with ALL.
+      queries = data_attribute_without_predicate_id.map do |predicate_id|
+        referenced_klass.joins(:internal_attributes)
+          .where(data_attributes: {controlled_vocabulary_term_id: predicate_id})
+          .select(table[:id])
+      end
+
+      result = queries.shift
+      queries.each do |q|
+        result = result.where(table[:id].in(q.arel))
+      end
+
+      referenced_klass.where.not(table[:id].in(result.select(table[:id]).arel))
+    end
   end
 
   # TODO: get rid of this
@@ -209,109 +283,61 @@ module Queries::Concerns::DataAttributes
   end
 
   def value_facet
-    return nil if data_attribute_exact_value.blank?  && data_attribute_wildcard_value.blank?
-
-    a,b = nil, nil
-
-    if data_attribute_wildcard_value.present?
-      v = data_attribute_wildcard_value.collect{|a| wildcard_value(a) } # TODO: should be standardized much earlier on
-      a = data_attribute_table[:value].matches_any(v)
-    end
-
-    b = data_attribute_table[:value].in(data_attribute_exact_value) if data_attribute_exact_value.present?
-
-    q = referenced_klass.joins(:internal_attributes)
-
-    if a && b
-      q.where(a.or(b))
-    elsif a
-      q.where(a)
-    elsif b
-      q.where(b)
-    else
-      nil
-    end
+    build_value_facet(
+      exact_values: data_attribute_exact_value,
+      wildcard_values: data_attribute_wildcard_value,
+      join_method: :internal_attributes,
+      and_or: data_attribute_between_and_or
+    )
   end
 
   def import_value_facet
-    return nil if data_attribute_import_exact_value.blank? && data_attribute_import_wildcard_value.blank?
-
-    a,b = nil, nil
-
-    if data_attribute_import_wildcard_value.present?
-      v = data_attribute_import_wildcard_value.collect{|z| wildcard_value(z) } # TODO: should be standardized much earlier on
-      a = data_attribute_table[:value].matches_any(v)
-    end
-
-    b = data_attribute_table[:value].in(data_attribute_import_exact_value) if data_attribute_import_exact_value.present?
-
-    q = referenced_klass.joins(:import_attributes)
-
-    if a && b
-      q.where(a.or(b))
-    elsif a
-      q.where(a)
-    elsif b
-      q.where(b)
-    else
-      nil
-    end
+    build_value_facet(
+      exact_values: data_attribute_import_exact_value,
+      wildcard_values: data_attribute_import_wildcard_value,
+      join_method: :import_attributes,
+      and_or: data_attribute_import_between_and_or
+    )
   end
 
   def data_attribute_wildcard_pair_facet
-    return nil if data_attribute_wildcard_pair.blank?
-    a = []
-    data_attribute_wildcard_pair.each do |k,v|
-      a.push data_attribute_table[:controlled_vocabulary_term_id].eq(k).and( data_attribute_table[:value].matches(wildcard_value(v)) )
-    end
-    w = a.shift
-    a.each do |c|
-      w = w.or(c)
-    end
-
-    referenced_klass.joins(:internal_attributes).where(w).distinct
+    build_pair_facet(
+      pairs: data_attribute_wildcard_pair,
+      predicate_column: :controlled_vocabulary_term_id,
+      exact: false,
+      join_method: :internal_attributes,
+      and_or: data_attribute_between_and_or
+    )
   end
 
   def data_attribute_import_wildcard_pair_facet
-    return nil if data_attribute_import_wildcard_pair.blank?
-    a = []
-    data_attribute_import_wildcard_pair.each do |k,v|
-      a.push data_attribute_table[:import_predicate].eq(k).and( data_attribute_table[:value].matches(wildcard_value(v)) )
-    end
-    w = a.shift
-    a.each do |c|
-      w = w.or(c)
-    end
-
-    referenced_klass.joins(:import_attributes).where(w)
+    build_pair_facet(
+      pairs: data_attribute_import_wildcard_pair,
+      predicate_column: :import_predicate,
+      exact: false,
+      join_method: :import_attributes,
+      and_or: data_attribute_import_between_and_or
+    )
   end
 
   def data_attribute_exact_pair_facet
-    return nil if data_attribute_exact_pair.blank?
-    a = []
-    data_attribute_exact_pair.each do |k,v|
-      a.push data_attribute_table[:controlled_vocabulary_term_id].eq(k).and( data_attribute_table[:value].eq(v) )
-    end
-    w = a.shift
-    a.each do |c|
-      w = w.or(c)
-    end
-
-    referenced_klass.joins(:internal_attributes).where(w).distinct
+    build_pair_facet(
+      pairs: data_attribute_exact_pair,
+      predicate_column: :controlled_vocabulary_term_id,
+      exact: true,
+      join_method: :internal_attributes,
+      and_or: data_attribute_between_and_or
+    )
   end
 
   def data_attribute_import_exact_pair_facet
-    return nil if data_attribute_import_exact_pair.blank?
-    a = []
-    data_attribute_import_exact_pair.each do |k,v|
-      a.push data_attribute_table[:import_predicate].eq(k).and( data_attribute_table[:value].eq(v) )
-    end
-    w = a.shift
-    a.each do |c|
-      w = w.or(c)
-    end
-
-    referenced_klass.joins(:import_attributes).where(w)
+    build_pair_facet(
+      pairs: data_attribute_import_exact_pair,
+      predicate_column: :import_predicate,
+      exact: true,
+      join_method: :import_attributes,
+      and_or: data_attribute_import_between_and_or
+    )
   end
 
   def data_attributes_facet
@@ -339,6 +365,86 @@ module Queries::Concerns::DataAttributes
       :value_facet,
       :import_value_facet
     ]
+  end
+
+  private
+
+  def build_value_facet(exact_values:, wildcard_values:, join_method:, and_or:)
+    return nil if exact_values.blank? && wildcard_values.blank?
+
+    a, b = nil, nil
+
+    if wildcard_values.present?
+      v = wildcard_values.collect { |value| wildcard_value(value) } # TODO: should be standardized much earlier on
+      a = if and_or == 'and'
+        data_attribute_table[:value].matches_all(v)
+      else
+        data_attribute_table[:value].matches_any(v)
+      end
+    end
+
+    if exact_values.present? && (
+      and_or == 'or' ||
+        # 'and' with more than one value can never match since values are uniq
+        exact_values.count == 1
+    )
+      b = data_attribute_table[:value].in(exact_values)
+    end
+
+    q = referenced_klass.joins(join_method)
+
+    if a && b
+      if and_or == 'and'
+        q.where(a.and(b))
+      else
+        q.where(a.or(b))
+      end
+    elsif a
+      q.where(a)
+    elsif b
+      q.where(b)
+    else
+      nil
+    end
+  end
+
+  def build_pair_facet(pairs:, predicate_column:, exact:, join_method:, and_or:)
+    return nil if pairs.blank?
+
+    if and_or == 'and'
+      # Build separate queries for each pair and intersect them.
+      queries = pairs.map do |k, v|
+        value_condition = exact ?
+          data_attribute_table[:value].eq(v) :
+          data_attribute_table[:value].matches(wildcard_value(v))
+
+        condition = data_attribute_table[predicate_column].eq(k).and(value_condition)
+        referenced_klass.joins(join_method).where(condition).select(table[:id])
+      end
+
+      result = queries.shift
+      queries.each do |q|
+        result = result.where(table[:id].in(q.arel))
+      end
+
+      result.distinct
+    else
+      a = []
+      pairs.each do |k, v|
+        value_condition = exact ?
+          data_attribute_table[:value].eq(v) :
+          data_attribute_table[:value].matches(wildcard_value(v))
+
+        a.push data_attribute_table[predicate_column].eq(k).and(value_condition)
+      end
+
+      w = a.shift
+      a.each do |c|
+        w = w.or(c)
+      end
+
+      referenced_klass.joins(join_method).where(w).distinct
+    end
   end
 
 end
