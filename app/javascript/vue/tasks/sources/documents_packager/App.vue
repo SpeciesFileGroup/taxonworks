@@ -50,7 +50,8 @@
               <a
                 :href="downloadUrl(group.index)"
                 data-turbo="false"
-                @click.prevent="downloadGroup(group.index)"
+                target="_blank"
+                rel="noopener"
               >
                 {{ downloadFilename(group.index) }}
               </a>
@@ -146,7 +147,6 @@ const errorMessage = ref('')
 const filterParams = ref(null)
 const maxBytes = ref(0)
 const token = ref(null)
-const downloading = ref({})
 
 const tableRows = computed(() => {
   const rows = []
@@ -192,35 +192,6 @@ const downloadUrl = (index) => {
     params.append('nickname', nick)
   }
   return `/tasks/sources/documents_packager/download?${params.toString()}`
-}
-
-const downloadGroup = (index) => {
-  const url = downloadUrl(index)
-  downloading.value[index] = true
-
-  fetch(url, { credentials: 'same-origin' })
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`Download failed (${response.status})`)
-      }
-      return response.blob()
-    })
-    .then((blob) => {
-      const blobUrl = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = blobUrl
-      a.download = downloadFilename(index)
-      document.body.appendChild(a)
-      a.click()
-      a.remove()
-      URL.revokeObjectURL(blobUrl)
-    })
-    .catch(() => {
-      errorMessage.value = 'Download failed. Please try again.'
-    })
-    .finally(() => {
-      downloading.value[index] = false
-    })
 }
 
 const downloadFilename = (index) => {
