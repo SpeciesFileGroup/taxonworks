@@ -1,5 +1,6 @@
 class Tasks::Sources::DocumentsPackagerController < ApplicationController
   include TaskControllerConfiguration
+  include ZipKit::RailsStreaming
 
   MAX_BYTES = 50.megabytes
 
@@ -52,32 +53,27 @@ class Tasks::Sources::DocumentsPackagerController < ApplicationController
     render json: { error: 'No files available for this package.' }, status: :unprocessable_content and return if entries.empty?
 
     filename = build_zip_filename(nickname, group_index, groups.length)
-    zipfile = Tempfile.new(['documents_packager', '.zip'])
+    response.headers['Content-Disposition'] = "attachment; filename=\"#{filename}\""
 
-    begin
+    zip_kit_stream do |zip|
       written = false
 
-      Zip::File.open(zipfile.path, create: true) do |zip|
-        entries.each_with_index do |document, idx|
-          begin
-            stream_document_to_zip(zip, document, idx)
-            written = true
-          rescue StandardError => e
-            Rails.logger.warn("Documents packager: failed to stream document #{document.id}: #{e.class} #{e.message}")
+      entries.each_with_index do |document, idx|
+        begin
+          zip.write_deflated_file(document_entry_name(document, idx)) do |sink|
+            stream_document(document, sink)
           end
-        end
-
-        unless written
-          zip.get_output_stream('errors.txt') do |f|
-            f.write("No documents could be streamed for this package.\n")
-          end
+          written = true
+        rescue StandardError => e
+          Rails.logger.warn("Documents packager: failed to stream document #{document.id}: #{e.class} #{e.message}")
         end
       end
 
-      send_data File.binread(zipfile.path), filename: filename, type: 'application/zip'
-    ensure
-      zipfile.close
-      zipfile.unlink
+      unless written
+        zip.write_deflated_file('errors.txt') do |sink|
+          sink.write("No documents could be streamed for this package.\n")
+        end
+      end
     end
   end
 
@@ -227,10 +223,10 @@ class Tasks::Sources::DocumentsPackagerController < ApplicationController
     false
   end
 
-  def stream_document_to_zip(zip, document, index)
+  def stream_document(document, sink)
     path = document_file_path(document)
     if path.present?
-      zip.add(document_entry_name(document, index), path)
+      File.open(path, 'rb') { |io| IO.copy_stream(io, sink) }
       return
     end
 
@@ -240,19 +236,10 @@ class Tasks::Sources::DocumentsPackagerController < ApplicationController
     uri = URI.parse(url)
     uri = URI.join(request.base_url, uri) if uri.host.blank?
 
-    temp = Tempfile.new(['document_packager', '.bin'])
-    begin
-      download_to_tempfile(uri, temp)
-      temp.rewind
-      raise "Empty download for #{document.id}" if temp.size.zero?
-      zip.add(document_entry_name(document, index), temp.path)
-    ensure
-      temp.close
-      temp.unlink
-    end
+    download_to_stream(uri, sink)
   end
 
-  def download_to_tempfile(uri, temp)
+  def download_to_stream(uri, sink)
     ::Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
       request = Net::HTTP::Get.new(uri.request_uri)
       response = http.request(request)
@@ -260,14 +247,14 @@ class Tasks::Sources::DocumentsPackagerController < ApplicationController
       if response.is_a?(Net::HTTPRedirection) && response['location'].present?
         redirect_uri = URI.parse(response['location'])
         redirect_uri = URI.join(request.base_url, redirect_uri) if redirect_uri.host.blank?
-        return download_to_tempfile(redirect_uri, temp)
+        return download_to_stream(redirect_uri, sink)
       end
 
       unless response.is_a?(Net::HTTPSuccess)
         raise "HTTP #{response.code} for #{uri}"
       end
 
-      response.read_body { |chunk| temp.write(chunk) }
+      response.read_body { |chunk| sink.write(chunk) }
     end
   end
 
