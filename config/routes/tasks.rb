@@ -362,6 +362,12 @@ scope :tasks do
   end
 
   scope :sources do
+    scope :documents_packager, controller: 'tasks/sources/documents_packager' do
+      get '/', action: :index, as: 'documents_packager_task'
+      post 'preview', action: :preview, defaults: { format: :json }
+      get 'download', action: :download
+    end
+
     scope :source_citation_totals, controller: 'tasks/sources/source_citation_totals' do
       get '/', action: :index, as: 'source_citation_totals_task'
     end

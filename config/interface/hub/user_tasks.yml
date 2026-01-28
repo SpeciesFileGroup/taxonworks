@@ -533,6 +533,14 @@ filter_sources_task:
     - filters
   status: prototype
   description: "Filter and find sources then download or share bibliographies."
+documents_packager_task:
+  name: "Documents packager"
+  related:
+  categories:
+    - source
+    - filters
+  status: prototype
+  description: "Bundle Source Documents into size-limited download packages."
 gnfinder_task:
   hub: true
   name: "Gnfinder playground"
