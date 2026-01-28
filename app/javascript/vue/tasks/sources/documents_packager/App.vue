@@ -30,15 +30,33 @@
       <div class="documents-packager__downloads">
         <div class="flex-separate middle">
           <h2>Download packages</h2>
-          <label class="documents-packager__nickname">
-            Nickname
-            <input
-              type="text"
-              class="normal-input"
-              v-model="nickname"
-              placeholder="e.g. smith_sources"
-            />
-          </label>
+          <div class="documents-packager__controls">
+            <label class="documents-packager__nickname">
+              Nickname
+              <input
+                type="text"
+                class="normal-input"
+                v-model="nickname"
+                placeholder="e.g. smith_sources"
+              />
+            </label>
+            <label class="documents-packager__nickname">
+              Max MB
+              <input
+                type="number"
+                class="normal-input"
+                v-model.number="maxMb"
+                min="1"
+                max="500"
+              />
+            </label>
+            <button
+              class="button normal-input button-default"
+              @click="refreshPreview"
+            >
+              Update packages
+            </button>
+          </div>
         </div>
         <ul v-if="groups.length">
           <li
@@ -52,6 +70,7 @@
                 data-turbo="false"
                 target="_blank"
                 rel="noopener"
+                :download="downloadFilename(group.index)"
               >
                 {{ downloadFilename(group.index) }}
               </a>
@@ -147,6 +166,7 @@ const errorMessage = ref('')
 const filterParams = ref(null)
 const maxBytes = ref(0)
 const token = ref(null)
+const maxMb = ref(50)
 
 const tableRows = computed(() => {
   const rows = []
@@ -187,6 +207,9 @@ const downloadUrl = (index) => {
   params.append('group', index)
   if (token.value) {
     params.append('token', token.value)
+  }
+  if (maxMb.value) {
+    params.append('max_mb', maxMb.value)
   }
   if (nick) {
     params.append('nickname', nick)
@@ -237,7 +260,10 @@ const loadPreview = (params) => {
   isLoading.value = true
   errorMessage.value = ''
 
-  ajaxCall('post', '/tasks/sources/documents_packager/preview.json', params)
+  ajaxCall('post', '/tasks/sources/documents_packager/preview.json', {
+    ...params,
+    max_mb: maxMb.value
+  })
     .then(({ body }) => {
       sources.value = body.sources || []
       groups.value = body.groups || []
@@ -273,4 +299,9 @@ onBeforeMount(() => {
 
   loadPreview(params)
 })
+
+const refreshPreview = () => {
+  if (!filterParams.value) return
+  loadPreview(filterParams.value)
+}
 </script>

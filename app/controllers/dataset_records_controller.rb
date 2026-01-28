@@ -1,6 +1,6 @@
 class DatasetRecordsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
-  include ZipKit::RailsStreaming
+  include ZipTricks::RailsStreaming
 
   before_action :set_dataset_record, only: [:show, :update, :destroy]
   after_action -> { set_pagination_headers(:dataset_records) }, only: [:index], if: :json_request?
@@ -125,7 +125,7 @@ class DatasetRecordsController < ApplicationController
 
       response.headers["Content-Disposition"] = "attachment; filename=\"#{filename}.zip\""
 
-      zip_kit_stream do |zip|
+      zip_tricks_stream do |zip|
         zip.write_deflated_file('filters.txt') do |sink|
           sink.write "Status: #{params[:status] || 'Any'}\n---\n"
           params[:filter].each {|k, v| sink.write("#{headers[k.to_i]}: #{v}\n") } if params[:filter]
