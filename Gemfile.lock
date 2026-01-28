@@ -815,7 +815,7 @@ GEM
       nokogiri (~> 1.8)
     zaru (1.0.1)
     zeitwerk (2.7.4)
-    zip_kit (6.3.4)
+    zip_tricks (5.6.0)
 
 PLATFORMS
   aarch64-linux
@@ -963,7 +963,7 @@ DEPENDENCIES
   webmock (~> 3.8)
   wikidata-client (~> 0.1.0)
   zaru (~> 1.0)
-  zip_kit (~> 6.3)
+  zip_tricks (~> 5.6)
 
 RUBY VERSION
    ruby 3.3.4p94

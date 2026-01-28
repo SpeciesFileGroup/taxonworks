@@ -20,7 +20,7 @@ gem 'rdf', '~> 3.3'
 # System
 gem 'thor', '~> 1.2'
 gem 'rubyzip', '~> 3.2'
-gem 'zip_kit', '~> 6.3'
+gem 'zip_tricks', '~> 5.6'
 gem 'daemons', '~> 1.4.1'
 gem 'tzinfo-data', '~> 1.2019'
 gem 'psych', '~> 5.1'

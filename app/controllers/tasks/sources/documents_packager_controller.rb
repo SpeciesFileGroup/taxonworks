@@ -1,8 +1,10 @@
 class Tasks::Sources::DocumentsPackagerController < ApplicationController
   include TaskControllerConfiguration
-  include ZipKit::RailsStreaming
+  include ZipTricks::RailsStreaming
 
-  MAX_BYTES = 50.megabytes
+  DEFAULT_MAX_BYTES = 50.megabytes
+  MIN_MAX_BYTES = 1.megabyte
+  MAX_MAX_BYTES = 500.megabytes
 
   before_action :set_query_params, only: [:preview]
 
@@ -15,7 +17,8 @@ class Tasks::Sources::DocumentsPackagerController < ApplicationController
     sources = sources_for_query(@query_params)
     table_documents = documents_for_sources(sources)
     unique_documents = unique_document_entries(table_documents)
-    groups = group_documents(unique_documents)
+    max_bytes = requested_max_bytes
+    groups = group_documents(unique_documents, max_bytes)
     group_map = build_group_map(groups)
 
     token = SecureRandom.uuid
@@ -27,7 +30,7 @@ class Tasks::Sources::DocumentsPackagerController < ApplicationController
       filter_params: @query_params,
       token:,
       total_documents: unique_documents.length,
-      max_bytes: MAX_BYTES
+      max_bytes: max_bytes
     }
   end
 
@@ -40,9 +43,10 @@ class Tasks::Sources::DocumentsPackagerController < ApplicationController
 
     render json: { error: 'No sources queued.' }, status: :unprocessable_content and return if query_params.blank?
 
+    max_bytes = requested_max_bytes
     sources = sources_for_query(query_params)
     documents = unique_document_entries(documents_for_sources(sources))
-    groups = group_documents(documents)
+    groups = group_documents(documents, max_bytes)
     group = groups[group_index - 1]
 
     render json: { error: 'Group not found.' }, status: :not_found and return if group.blank?
@@ -53,9 +57,8 @@ class Tasks::Sources::DocumentsPackagerController < ApplicationController
     render json: { error: 'No files available for this package.' }, status: :unprocessable_content and return if entries.empty?
 
     filename = build_zip_filename(nickname, group_index, groups.length)
-    response.headers['Content-Disposition'] = "attachment; filename=\"#{filename}\""
-
-    zip_kit_stream do |zip|
+    response.headers["Content-Disposition"] = "attachment; filename=\"#{filename}\""
+    zip_tricks_stream do |zip|
       written = false
 
       entries.each_with_index do |document, idx|
@@ -131,7 +134,7 @@ class Tasks::Sources::DocumentsPackagerController < ApplicationController
     documents.uniq { |entry| entry[:document].id }
   end
 
-  def group_documents(documents)
+  def group_documents(documents, max_bytes)
     groups = []
     current_group = []
     current_size = 0
@@ -139,7 +142,7 @@ class Tasks::Sources::DocumentsPackagerController < ApplicationController
     documents.each do |entry|
       size = entry[:document].document_file_file_size.to_i
 
-      if current_group.any? && (current_size + size > MAX_BYTES)
+      if current_group.any? && (current_size + size > max_bytes)
         groups << current_group
         current_group = []
         current_size = 0
@@ -199,6 +202,17 @@ class Tasks::Sources::DocumentsPackagerController < ApplicationController
         available_count:
       }
     end
+  end
+
+  def requested_max_bytes
+    mb = params[:max_mb].presence
+    mb = mb.to_f if mb
+    bytes = if mb && mb.positive?
+              (mb * 1.megabyte).to_i
+            else
+              DEFAULT_MAX_BYTES
+            end
+    bytes.clamp(MIN_MAX_BYTES, MAX_MAX_BYTES)
   end
 
   def build_zip_filename(nickname, index, total)
