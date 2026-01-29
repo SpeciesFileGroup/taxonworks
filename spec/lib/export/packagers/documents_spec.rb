@@ -3,6 +3,20 @@ require 'rails_helper'
 describe Export::Packagers::Documents, type: :model do
   let(:project) { Project.find(1) }
 
+  class FakeZip
+    attr_reader :files
+
+    def initialize
+      @files = {}
+    end
+
+    def write_deflated_file(name)
+      sink = StringIO.new
+      yield sink
+      @files[name] = sink.string
+    end
+  end
+
   specify 'builds grouped preview data for selected sources' do
     source_a = FactoryBot.create(
       :source_bibtex_with_document,
@@ -229,5 +243,85 @@ describe Export::Packagers::Documents, type: :model do
       expect(preview[:groups].first[:document_ids].length).to eq(3)
       expect(preview[:groups].first[:available_count]).to eq(1)
     end
+  end
+
+  specify 'writes a documents.tsv manifest with correct columns' do
+    source_a = FactoryBot.create(
+      :source_bibtex_with_document,
+      size_bytes: 2.megabytes,
+      filename: 'a.pdf',
+      pages: 1
+    )
+    source_b = FactoryBot.create(
+      :source_bibtex_with_document,
+      size_bytes: 2.megabytes,
+      filename: 'b.pdf',
+      pages: 2
+    )
+
+    packager = described_class.new(
+      query_params: { source_id: [source_a.id, source_b.id] },
+      project_id: project.id
+    )
+
+    group = packager.groups(max_bytes: 10.megabytes).first
+    zip = FakeZip.new
+
+    packager.stream(entries: group, zip_streamer: ->(&block) { block.call(zip) })
+
+    manifest = zip.files['documents.tsv']
+    expect(manifest).to be_present
+
+    lines = manifest.split("\n")
+    expect(lines.first).to eq("source_id\tdocument_id\tzip_filename\tfile_size_bytes")
+
+    expected_rows = group.map do |entry|
+      document = entry[:document]
+      source = entry[:source]
+      [
+        source.id.to_s,
+        document.id.to_s,
+        Zaru.sanitize!(document.document_file_file_name).to_s,
+        document.document_file_file_size.to_i.to_s
+      ].join("\t")
+    end
+
+    expect(lines.drop(1)).to eq(expected_rows)
+  end
+
+  specify 'disambiguates duplicate filenames in documents.tsv' do
+    source_a = FactoryBot.create(
+      :source_bibtex_with_document,
+      size_bytes: 2.megabytes,
+      filename: 'shared.pdf',
+      pages: 1
+    )
+    source_b = FactoryBot.create(
+      :source_bibtex_with_document,
+      size_bytes: 2.megabytes,
+      filename: 'shared.pdf',
+      pages: 2
+    )
+
+    packager = described_class.new(
+      query_params: { source_id: [source_a.id, source_b.id] },
+      project_id: project.id
+    )
+
+    group = packager.groups(max_bytes: 10.megabytes).first
+    zip = FakeZip.new
+
+    packager.stream(entries: group, zip_streamer: ->(&block) { block.call(zip) })
+
+    manifest = zip.files['documents.tsv']
+    expect(manifest).to be_present
+
+    lines = manifest.split("\n").drop(1)
+    names = lines.map { |row| row.split("\t")[2] }
+
+    document_a = source_a.documents.first
+    document_b = source_b.documents.first
+
+    expect(names).to eq(['shared.pdf', "shared-#{document_b.id}.pdf"])
   end
 end

@@ -39,8 +39,7 @@ class Tasks::Sources::DocumentsPackagerController < ApplicationController
 
     render json: { error: 'Group not found.' }, status: :not_found and return if group.blank?
 
-    entries = group.map { |entry| entry[:document] }
-    entries.select! { |document| packager.file_available?(document) }
+    entries = group.select { |entry| packager.file_available?(entry) }
 
     render json: { error: 'No files available for this package.' }, status: :unprocessable_content and return if entries.empty?
 

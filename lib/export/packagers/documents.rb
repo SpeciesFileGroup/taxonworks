@@ -40,6 +40,7 @@ module Export
       end
 
       def file_available?(document)
+        document = document_from_entry(document)
         path = document.document_file.path
         path.present? && File.exist?(path)
       end
@@ -48,10 +49,12 @@ module Export
         Export::ZipStreamer.new.stream(
           entries: entries,
           zip_streamer: zip_streamer,
-          file_path: ->(doc) { file_path(doc) },
-          file_name: ->(doc) { doc.document_file_file_name },
-          entry_id: ->(doc) { doc.id },
-          logger_prefix: 'Documents packager'
+          file_path: ->(entry) { file_path(document_from_entry(entry)) },
+          file_name: ->(entry) { document_from_entry(entry).document_file_file_name },
+          entry_id: ->(entry) { document_from_entry(entry).id },
+          logger_prefix: 'Documents packager',
+          on_entry: method(:add_manifest_row),
+          after_stream: method(:write_manifest)
         )
       end
 
@@ -140,9 +143,38 @@ module Export
       end
 
       def file_path(document)
+        document = document_from_entry(document)
         path = document.document_file.path
         return path if path.present? && File.exist?(path)
         nil
+      end
+
+      def document_from_entry(entry)
+        entry.is_a?(Hash) ? entry[:document] : entry
+      end
+
+      def add_manifest_row(entry, name, rows)
+        return unless entry.is_a?(Hash)
+
+        document = entry[:document]
+        source = entry[:source]
+        rows << [
+          source&.id,
+          document.id,
+          name,
+          document.document_file_file_size.to_i
+        ]
+      end
+
+      def write_manifest(zip, rows, written)
+        return if !written || rows.empty?
+
+        zip.write_deflated_file('documents.tsv') do |sink|
+          sink.write("source_id\tdocument_id\tzip_filename\tfile_size_bytes\n")
+          rows.each do |row|
+            sink.write("#{row.join("\t")}\n")
+          end
+        end
       end
 
       def source_ids
