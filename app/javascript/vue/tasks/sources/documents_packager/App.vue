@@ -7,13 +7,13 @@
           Packages are capped at {{ formatBytes(maxBytes) }}.
         </p>
       </div>
-      <button
-        class="button normal-input button-default"
+      <VBtn
         :disabled="!filterParams"
+        color="primary"
         @click="goBackToFilter"
       >
         Back to Filter sources
-      </button>
+      </VBtn>
     </div>
 
     <VSpinner
@@ -27,11 +27,11 @@
     </div>
 
     <div v-if="!isLoading && !errorMessage">
-      <div class="documents-packager__downloads">
+      <div class="documents-packager__downloads margin-large-bottom">
         <div class="flex-separate middle">
           <h2>Download packages</h2>
-          <div class="documents-packager__controls">
-            <label class="documents-packager__nickname">
+          <div class="documents-packager__controls display-flex align-center gap-medium">
+            <label class="documents-packager__nickname display-flex align-center gap-small">
               Nickname
               <input
                 type="text"
@@ -40,7 +40,7 @@
                 placeholder="e.g. smith_sources"
               />
             </label>
-            <label class="documents-packager__nickname">
+            <label class="documents-packager__nickname display-flex align-center gap-small">
               Max MB
               <input
                 type="number"
@@ -50,28 +50,27 @@
                 max="500"
               />
             </label>
-            <button
-              class="button normal-input button-default"
+            <VBtn
+              color="primary"
               @click="refreshPreview"
             >
               Update packages
-            </button>
+            </VBtn>
           </div>
         </div>
         <ul v-if="groups.length">
           <li
             v-for="group in groups"
             :key="group.index"
-            class="documents-packager__download-item"
+            class="documents-packager__download-item margin-small-bottom"
           >
             <template v-if="group.available_count > 0">
-              <button
-                type="button"
-                class="button-link"
+              <VBtn
+                color="primary"
                 @click="downloadGroup(group.index)"
               >
                 {{ downloadFilename(group.index) }}
-              </button>
+              </VBtn>
             </template>
             <template v-else>
               <span class="documents-packager__disabled-link">
@@ -88,7 +87,7 @@
         <p v-else class="subtle">No documents found in the selected sources.</p>
       </div>
 
-      <div class="documents-packager__table">
+      <div class="documents-packager__table margin-large-top">
         <h2>Sources</h2>
         <table class="table-striped documents-packager__table-table">
           <thead>
@@ -113,7 +112,7 @@
                   Source {{ row.source.id }}
                 </a>
                 <span
-                  class="documents-packager__detail margin-small-left"
+                  class="margin-small-left"
                   :class="{ subtle: !row.document }"
                 >
                   {{ row.source.cached }}
@@ -125,7 +124,7 @@
                     Doc {{ row.document.id }}
                   </a>
                   <span
-                    class="documents-packager__detail margin-small-left"
+                    class="margin-small-left"
                     :class="{ subtle: !row.document }"
                   >
                     {{ row.document.name }}
@@ -148,6 +147,7 @@
 import { computed, onBeforeMount, ref } from 'vue'
 import qs from 'qs'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import ajaxCall from '@/helpers/ajaxCall'
 import { LinkerStorage } from '@/shared/Filter/utils'
 import {
@@ -244,7 +244,7 @@ const formatBytes = (value) => {
 }
 
 const rowClass = (row) => ({
-  'documents-packager__row--empty': !row.document,
+  'opacity-50': !row.document,
   'documents-packager__row--divider': row.document?.isGroupStart
 })
 
@@ -307,3 +307,62 @@ const refreshPreview = () => {
   loadPreview(filterParams.value)
 }
 </script>
+
+<style scoped lang="scss">
+
+.documents-packager__table {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.documents-packager__table-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.documents-packager__table-table th,
+.documents-packager__table-table td {
+  padding: 0.65rem 0.85rem;
+  vertical-align: top;
+}
+
+.documents-packager__table-table th:nth-child(2),
+.documents-packager__table-table td:nth-child(2) {
+  width: 60%;
+}
+
+.documents-packager__table-table th:nth-child(3),
+.documents-packager__table-table td:nth-child(3) {
+  width: 25%;
+}
+
+.documents-packager__table-table th:nth-child(1),
+.documents-packager__table-table td:nth-child(1) {
+  width: 5%;
+}
+
+.documents-packager__table-table th:nth-child(4),
+.documents-packager__table-table td:nth-child(4) {
+  width: 8%;
+}
+
+.documents-packager__table-table td:nth-child(3) {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.documents-packager__package {
+  white-space: nowrap;
+}
+
+.documents-packager__disabled-link {
+  color: #666;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+.documents-packager__row--divider td {
+  border-top: 3px solid #2a6db0;
+}
+</style>
