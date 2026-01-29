@@ -3,7 +3,7 @@
     <div class="flex-separate middle margin-medium-top">
       <div>
         <p>
-          Individual downloads are capped at {{ formatBytes(maxBytes) }}; you can specify a different maximum download size to the right.
+          Individual downloads are capped at {{ formatBytes(maxBytes, 0) }}; you can specify a different maximum download size to the right.
         </p>
       </div>
       <VBtn
@@ -232,7 +232,7 @@ function downloadFilename(index) {
   return `TaxonWorks-sources_download-${formatted}-${index}_of_${groups.value.length}.zip`
 }
 
-function formatBytes(value) {
+function formatBytes(value, decimals = 1) {
   const bytes = Number(value) || 0
   if (bytes === 0) return '0 B'
   const units = ['B', 'KB', 'MB', 'GB']
@@ -241,7 +241,7 @@ function formatBytes(value) {
     units.length - 1
   )
   const size = bytes / 1000 ** exponent
-  return `${size.toFixed(0)} ${units[exponent]}`
+  return `${size.toFixed(decimals)} ${units[exponent]}`
 }
 
 function rowClass(row) {
