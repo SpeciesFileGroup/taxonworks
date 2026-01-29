@@ -65,15 +65,13 @@
             class="documents-packager__download-item"
           >
             <template v-if="group.available_count > 0">
-              <a
-                :href="downloadUrl(group.index)"
-                data-turbo="false"
-                target="_blank"
-                rel="noopener"
-                :download="downloadFilename(group.index)"
+              <button
+                type="button"
+                class="button-link"
+                @click="downloadGroup(group.index)"
               >
                 {{ downloadFilename(group.index) }}
-              </a>
+              </button>
             </template>
             <template v-else>
               <span class="documents-packager__disabled-link">
@@ -157,6 +155,7 @@ import {
   STORAGE_FILTER_QUERY_STATE_PARAMETER
 } from '@/constants'
 import { randomUUID } from '@/helpers'
+import { createAndSubmitForm } from '@/helpers/forms'
 
 const isLoading = ref(false)
 const groups = ref([])
@@ -165,7 +164,6 @@ const nickname = ref('')
 const errorMessage = ref('')
 const filterParams = ref(null)
 const maxBytes = ref(0)
-const token = ref(null)
 const maxMb = ref(50)
 
 const tableRows = computed(() => {
@@ -201,20 +199,25 @@ const tableRows = computed(() => {
   return rows
 })
 
-const downloadUrl = (index) => {
+const downloadGroup = (index) => {
   const nick = nickname.value.trim()
-  const params = new URLSearchParams()
-  params.append('group', index)
-  if (token.value) {
-    params.append('token', token.value)
+  const data = {
+    ...(filterParams.value || {}),
+    group: index,
+    max_mb: maxMb.value
   }
-  if (maxMb.value) {
-    params.append('max_mb', maxMb.value)
-  }
+
   if (nick) {
-    params.append('nickname', nick)
+    data.nickname = nick
   }
-  return `/tasks/sources/documents_packager/download?${params.toString()}`
+
+  createAndSubmitForm({
+    action: '/tasks/sources/documents_packager/download',
+    data,
+    openTab: true,
+    openTabStrategy: 'target',
+    absoluteAction: true
+  })
 }
 
 const downloadFilename = (index) => {
@@ -269,7 +272,6 @@ const loadPreview = (params) => {
       groups.value = body.groups || []
       filterParams.value = body.filter_params || null
       maxBytes.value = body.max_bytes || 0
-      token.value = body.token || null
     })
     .catch(() => {
       errorMessage.value = 'Unable to load sources for packaging.'

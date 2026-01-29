@@ -6,7 +6,7 @@ class Tasks::Sources::DocumentsPackagerController < ApplicationController
   MIN_MAX_BYTES = 1.megabyte
   MAX_MAX_BYTES = 500.megabytes
 
-  before_action :set_query_params, only: [:preview]
+  before_action :set_query_params, only: [:preview, :download]
 
   # GET /tasks/sources/documents_packager
   def index
@@ -21,14 +21,10 @@ class Tasks::Sources::DocumentsPackagerController < ApplicationController
     groups = group_documents(unique_documents, max_bytes)
     group_map = build_group_map(groups)
 
-    token = SecureRandom.uuid
-    Rails.cache.write(cache_key(token), @query_params, expires_in: 2.hours)
-
     render json: {
       sources: serialize_sources(sources, table_documents, group_map),
       groups: serialize_groups(groups),
       filter_params: @query_params,
-      token:,
       total_documents: unique_documents.length,
       max_bytes: max_bytes
     }
@@ -36,8 +32,7 @@ class Tasks::Sources::DocumentsPackagerController < ApplicationController
 
   # GET /tasks/sources/documents_packager/download
   def download
-    token = params[:token]
-    query_params = token.present? ? Rails.cache.read(cache_key(token)) : nil
+    query_params = @query_params
     group_index = params[:group].to_i
     nickname = params[:nickname].to_s
 
@@ -85,7 +80,16 @@ class Tasks::Sources::DocumentsPackagerController < ApplicationController
   def set_query_params
     @query_params = params[:source_query].presence || params
     @query_params = @query_params.to_unsafe_h if @query_params.respond_to?(:to_unsafe_h)
-    @query_params = @query_params.except('controller', 'action', 'format')
+    @query_params = @query_params.except(
+      'controller',
+      'action',
+      'format',
+      'group',
+      'nickname',
+      'max_mb',
+      'authenticity_token',
+      'token'
+    )
   end
 
   def sources_for_query(query_params)
@@ -224,10 +228,6 @@ class Tasks::Sources::DocumentsPackagerController < ApplicationController
   def document_entry_name(document, index)
     base = document.document_file_file_name.presence || "document_#{document.id}"
     Zaru::sanitize!("#{index + 1}_#{document.id}_#{base}").gsub(' ', '_')
-  end
-
-  def cache_key(token)
-    "documents_packager:#{sessions_current_project_id}:#{token}"
   end
 
   def document_source_available?(document)
