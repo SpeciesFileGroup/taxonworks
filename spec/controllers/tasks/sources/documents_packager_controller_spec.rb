@@ -72,7 +72,7 @@ describe Tasks::Sources::DocumentsPackagerController, type: :controller do
       post :download, params: { source_id: [source.id], group: 1, max_mb: 50 }
 
       expect(response).to have_http_status(:ok)
-      expect(response.headers['Content-Disposition']).to include('TaxonWorks-download-')
+      expect(response.headers['Content-Disposition']).to include('TaxonWorks-sources_download-')
     end
   end
 end

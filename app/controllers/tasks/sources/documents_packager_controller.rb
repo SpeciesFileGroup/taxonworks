@@ -2,9 +2,9 @@ class Tasks::Sources::DocumentsPackagerController < ApplicationController
   include TaskControllerConfiguration
   include ZipTricks::RailsStreaming
 
-  DEFAULT_MAX_BYTES = 1_000.megabytes
-  MIN_MAX_BYTES = 10.megabyte
-  MAX_MAX_BYTES = 1_000.megabytes
+  DEFAULT_MAX_MB = 50
+  MIN_MAX_MB = 10
+  MAX_MAX_MB = 1000
 
   before_action :set_query_params, only: [:preview, :download]
 
@@ -30,7 +30,6 @@ class Tasks::Sources::DocumentsPackagerController < ApplicationController
   def download
     query_params = @query_params
     group_index = params[:group].to_i
-    nickname = params[:nickname].to_s
 
     render json: { error: 'No sources queued.' }, status: :unprocessable_content and return if query_params.blank?
 
@@ -45,7 +44,7 @@ class Tasks::Sources::DocumentsPackagerController < ApplicationController
 
     render json: { error: 'No files available for this package.' }, status: :unprocessable_content and return if entries.empty?
 
-    filename = build_zip_filename(nickname, group_index, groups.length)
+    filename = build_zip_filename(group_index, groups.length)
     response.headers["Content-Disposition"] = "attachment; filename=\"#{filename}\""
     streamer.stream(entries: entries, zip_streamer: method(:zip_tricks_stream))
   end
@@ -60,7 +59,6 @@ class Tasks::Sources::DocumentsPackagerController < ApplicationController
       'action',
       'format',
       'group',
-      'nickname',
       'max_mb',
       'authenticity_token',
       'token'
@@ -70,12 +68,13 @@ class Tasks::Sources::DocumentsPackagerController < ApplicationController
   def requested_max_bytes
     mb = params[:max_mb].presence
     mb = mb.to_f if mb
-    bytes = if mb && mb.positive?
-              (mb * 1.megabyte).to_i
-            else
-              DEFAULT_MAX_BYTES
-            end
-    bytes.clamp(MIN_MAX_BYTES, MAX_MAX_BYTES)
+    mb = if mb && mb.positive?
+           mb
+         else
+           DEFAULT_MAX_MB
+         end
+    mb = mb.clamp(MIN_MAX_MB, MAX_MAX_MB)
+    (mb * 1_000_000).to_i
   end
 
   def packager
@@ -85,10 +84,9 @@ class Tasks::Sources::DocumentsPackagerController < ApplicationController
     )
   end
 
-  def build_zip_filename(nickname, index, total)
-    safe_nickname = nickname.presence || 'download'
+  def build_zip_filename(index, total)
     date = Time.zone.today.strftime('%-m_%-d_%y')
-    Zaru::sanitize!("TaxonWorks-#{safe_nickname}-#{date}-#{index}_of_#{total}.zip").gsub(' ', '_')
+    Zaru::sanitize!("TaxonWorks-sources_download-#{date}-#{index}_of_#{total}.zip").gsub(' ', '_')
   end
 
   def streamer

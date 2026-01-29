@@ -1,10 +1,9 @@
 <template>
   <div class="documents-packager">
-    <div class="flex-separate middle">
+    <div class="flex-separate middle margin-medium-top">
       <div>
-        <h1>Documents packager</h1>
         <p>
-          Packages are capped at {{ formatBytes(maxBytes) }}.
+          Individual downloads are capped at {{ formatBytes(maxBytes) }}; you can specify a different maximum download size to the right.
         </p>
       </div>
       <VBtn
@@ -19,7 +18,7 @@
     <VSpinner
       v-if="isLoading"
       full-screen
-      legend="Preparing packages..."
+      legend="Preparing downloads..."
     />
 
     <div v-if="errorMessage && !isLoading">
@@ -32,32 +31,24 @@
           <h2>Download packages</h2>
           <div class="documents-packager__controls display-flex align-center gap-medium">
             <label class="documents-packager__nickname display-flex align-center gap-small">
-              Nickname
-              <input
-                type="text"
-                class="normal-input"
-                v-model="nickname"
-                placeholder="e.g. smith_sources"
-              />
-            </label>
-            <label class="documents-packager__nickname display-flex align-center gap-small">
               Max MB
               <input
                 type="number"
                 class="normal-input"
                 v-model.number="maxMb"
-                min="1"
-                max="500"
+              min="10"
+              max="1000"
               />
             </label>
             <VBtn
               color="primary"
               @click="refreshPreview"
             >
-              Update packages
+              Update downloads
             </VBtn>
           </div>
         </div>
+
         <ul v-if="groups.length">
           <li
             v-for="group in groups"
@@ -72,11 +63,13 @@
                 {{ downloadFilename(group.index) }}
               </VBtn>
             </template>
+
             <template v-else>
               <span class="documents-packager__disabled-link">
                 {{ downloadFilename(group.index) }}
               </span>
             </template>
+
             <span class="margin-small-left">
               {{ group.available_count || 0 }} available of
               {{ group.document_ids.length }} docs ·
@@ -84,6 +77,7 @@
             </span>
           </li>
         </ul>
+
         <p v-else class="subtle">No documents found in the selected sources.</p>
       </div>
 
@@ -92,7 +86,7 @@
         <table class="table-striped documents-packager__table-table">
           <thead>
             <tr>
-              <th>Package</th>
+              <th>Download</th>
               <th>Source</th>
               <th>Doc</th>
               <th>Doc size</th>
@@ -109,7 +103,7 @@
               </td>
               <td>
                 <a :href="`/sources/${row.source.id}`">
-                  Source {{ row.source.id }}
+                  Source
                 </a>
                 <span
                   class="margin-small-left"
@@ -121,7 +115,7 @@
               <td>
                 <template v-if="row.document">
                   <a :href="row.document.url">
-                    Doc {{ row.document.id }}
+                    Doc
                   </a>
                   <span
                     class="margin-small-left"
@@ -130,6 +124,7 @@
                     {{ row.document.name }}
                   </span>
                 </template>
+
                 <span v-else class="subtle">No documents</span>
               </td>
               <td>
@@ -144,7 +139,7 @@
 </template>
 
 <script setup>
-import { computed, onBeforeMount, ref } from 'vue'
+import { computed, onBeforeMount, ref, watch } from 'vue'
 import qs from 'qs'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
@@ -160,11 +155,25 @@ import { createAndSubmitForm } from '@/helpers/forms'
 const isLoading = ref(false)
 const groups = ref([])
 const sources = ref([])
-const nickname = ref('')
 const errorMessage = ref('')
 const filterParams = ref(null)
 const maxBytes = ref(0)
-const maxMb = ref(50)
+const absoluteMinMb = 10
+const absoluteMaxMb = 1000
+const maxMb = ref(absoluteMaxMb)
+
+watch(maxMb, (value) => {
+  const clamped = clampMaxMb(value)
+  if (clamped !== value) {
+    maxMb.value = clamped
+  }
+})
+
+function clampMaxMb(value) {
+  const parsed = Number(value)
+  if (Number.isNaN(parsed)) return absoluteMaxMb
+  return Math.min(absoluteMaxMb, Math.max(absoluteMinMb, Math.round(parsed)))
+}
 
 const tableRows = computed(() => {
   const rows = []
@@ -199,16 +208,11 @@ const tableRows = computed(() => {
   return rows
 })
 
-const downloadGroup = (index) => {
-  const nick = nickname.value.trim()
+function downloadGroup(index) {
   const data = {
     ...(filterParams.value || {}),
     group: index,
     max_mb: maxMb.value
-  }
-
-  if (nick) {
-    data.nickname = nick
   }
 
   createAndSubmitForm({
@@ -220,35 +224,34 @@ const downloadGroup = (index) => {
   })
 }
 
-const downloadFilename = (index) => {
-  const nick = nickname.value.trim() || 'download'
+function downloadFilename(index) {
   const date = new Date()
   const formatted = `${date.getMonth() + 1}_${date.getDate()}_${String(
     date.getFullYear()
   ).slice(-2)}`
-  return `TaxonWorks-${nick}-${formatted}-${index}_of_${groups.value.length}.zip`
+  return `TaxonWorks-sources_download-${formatted}-${index}_of_${groups.value.length}.zip`
 }
 
-const formatBytes = (value) => {
+function formatBytes(value) {
   const bytes = Number(value) || 0
   if (bytes === 0) return '0 B'
   const units = ['B', 'KB', 'MB', 'GB']
   const exponent = Math.min(
-    Math.floor(Math.log(bytes) / Math.log(1024)),
+    Math.floor(Math.log(bytes) / Math.log(1000)),
     units.length - 1
   )
-  const size = bytes / 1024 ** exponent
-  return `${size.toFixed(size >= 10 || exponent === 0 ? 0 : 1)} ${
-    units[exponent]
-  }`
+  const size = bytes / 1000 ** exponent
+  return `${size.toFixed(0)} ${units[exponent]}`
 }
 
-const rowClass = (row) => ({
-  'opacity-50': !row.document,
-  'documents-packager__row--divider': row.document?.isGroupStart
-})
+function rowClass(row) {
+  return {
+    'opacity-50': !row.document,
+    'documents-packager__row--divider': row.document?.isGroupStart
+  }
+}
 
-const goBackToFilter = () => {
+function goBackToFilter() {
   if (!filterParams.value) return
 
   const uuid = randomUUID()
@@ -259,7 +262,7 @@ const goBackToFilter = () => {
   window.location.href = `/tasks/sources/filter?${STORAGE_FILTER_QUERY_STATE_PARAMETER}=${uuid}`
 }
 
-const loadPreview = (params) => {
+function loadPreview(params) {
   isLoading.value = true
   errorMessage.value = ''
 
@@ -281,7 +284,7 @@ const loadPreview = (params) => {
     })
 }
 
-onBeforeMount(() => {
+onBeforeMount(function () {
   const stored = LinkerStorage.getParameters() || {}
   const params = {
     ...qs.parse(window.location.search, {
@@ -295,15 +298,16 @@ onBeforeMount(() => {
 
   if (!Object.keys(params).length) {
     errorMessage.value =
-      'No source filter parameters were found. Launch this task from Filter Sources.'
+      'No source filter parameters were found. Launch this task from Filter Sources using the right side linker radial.'
     return
   }
 
   loadPreview(params)
 })
 
-const refreshPreview = () => {
+function refreshPreview() {
   if (!filterParams.value) return
+
   loadPreview(filterParams.value)
 }
 </script>
