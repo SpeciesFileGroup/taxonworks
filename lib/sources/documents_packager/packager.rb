@@ -1,3 +1,7 @@
+# Prepares Source documents for batch download.
+#
+# Groups documents by size and provides preview data for the UI.
+# Uses Export::FileGrouper for size-based grouping.
 module Sources::DocumentsPackager
   class Packager
     attr_reader :query_params, :project_id
@@ -5,6 +9,7 @@ module Sources::DocumentsPackager
     def initialize(query_params:, project_id:)
       @query_params = query_params
       @project_id = project_id
+      @file_grouper = Export::FileGrouper.new
     end
 
     def preview(max_bytes:)
@@ -14,7 +19,10 @@ module Sources::DocumentsPackager
       table_documents = documents_for_sources(sources)
       unique_documents = unique_document_entries(table_documents)
       groups = group_documents(unique_documents, max_bytes)
-      group_map = build_group_map(groups)
+      group_map = @file_grouper.build_group_map(
+        groups: groups,
+        id_extractor: ->(entry) { entry[:document].id }
+      )
 
       {
         sources: serialize_sources(sources, table_documents, group_map),
@@ -69,37 +77,11 @@ module Sources::DocumentsPackager
     end
 
     def group_documents(documents, max_bytes)
-      groups = []
-      current_group = []
-      current_size = 0
-
-      documents.each do |entry|
-        size = entry[:document].document_file_file_size.to_i
-
-        if current_group.any? && (current_size + size > max_bytes)
-          groups << current_group
-          current_group = []
-          current_size = 0
-        end
-
-        current_group << entry
-        current_size += size
-      end
-
-      groups << current_group if current_group.any?
-      groups
-    end
-
-    def build_group_map(groups)
-      group_map = {}
-
-      groups.each_with_index do |group, index|
-        group.each do |entry|
-          group_map[entry[:document].id] = index + 1
-        end
-      end
-
-      group_map
+      @file_grouper.group(
+        items: documents,
+        max_bytes: max_bytes,
+        size_extractor: ->(entry) { entry[:document].document_file_file_size.to_i }
+      )
     end
 
     def serialize_sources(sources, documents, group_map)
@@ -119,7 +101,7 @@ module Sources::DocumentsPackager
               size: document.document_file_file_size.to_i,
               name: document.document_file_file_name,
               url: document.document_file.url(:original, false),
-              available: document_file_path(document).present?
+              available: document_file_available?(document)
             }
           end
         }
@@ -128,7 +110,7 @@ module Sources::DocumentsPackager
 
     def serialize_groups(groups)
       groups.map.with_index(1) do |group, index|
-        available_count = group.count { |entry| document_file_path(entry[:document]).present? }
+        available_count = group.count { |entry| document_file_available?(entry[:document]) }
         {
           index:,
           size: group.sum { |entry| entry[:document].document_file_file_size.to_i },
@@ -138,10 +120,9 @@ module Sources::DocumentsPackager
       end
     end
 
-    def document_file_path(document)
+    def document_file_available?(document)
       path = document.document_file.path
-      return path if path.present? && File.exist?(path)
-      nil
+      path.present? && File.exist?(path)
     end
 
     def source_ids
