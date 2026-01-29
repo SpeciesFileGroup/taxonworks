@@ -50,7 +50,9 @@ module Export
           file_path: ->(img) { file_path(img) },
           file_name: ->(img) { img.image_file_file_name },
           entry_id: ->(img) { img.id },
-          logger_prefix: 'Images packager'
+          logger_prefix: 'Images packager',
+          on_entry: method(:add_manifest_row),
+          after_stream: method(:write_manifest)
         )
       end
 
@@ -108,6 +110,27 @@ module Export
         path = image.image_file.path
         return path if path.present? && File.exist?(path)
         nil
+      end
+
+      def add_manifest_row(image, name, rows)
+        rows << [
+          image.id,
+          name,
+          image.image_file_file_size.to_i,
+          image.width,
+          image.height
+        ]
+      end
+
+      def write_manifest(zip, rows, written)
+        return if !written || rows.empty?
+
+        zip.write_deflated_file('images.tsv') do |sink|
+          sink.write("image_id\tzip_filename\tfile_size_bytes\twidth\theight\n")
+          rows.each do |row|
+            sink.write("#{row.join("\t")}\n")
+          end
+        end
       end
 
       def image_ids

@@ -3,6 +3,20 @@ require 'rails_helper'
 describe Export::Packagers::Images, type: :model do
   let(:project) { Project.find(1) }
 
+  class FakeZip
+    attr_reader :files
+
+    def initialize
+      @files = {}
+    end
+
+    def write_deflated_file(name)
+      sink = StringIO.new
+      yield sink
+      @files[name] = sink.string
+    end
+  end
+
   specify 'builds grouped preview data for selected images' do
     image_a = FactoryBot.create(:tiny_random_image)
     image_b = FactoryBot.create(:tiny_random_image)
@@ -172,5 +186,61 @@ describe Export::Packagers::Images, type: :model do
       expect(preview[:groups].first[:image_ids].length).to eq(3)
       expect(preview[:groups].first[:available_count]).to eq(1)
     end
+  end
+
+  specify 'writes an images.tsv manifest with correct columns' do
+    image_a = FactoryBot.create(:tiny_random_image, image_file_file_name: 'a.png')
+    image_b = FactoryBot.create(:tiny_random_image, image_file_file_name: 'b.png')
+
+    packager = described_class.new(
+      query_params: { image_id: [image_a.id, image_b.id] },
+      project_id: project.id
+    )
+
+    group = packager.groups(max_bytes: 10.megabytes).first
+    zip = FakeZip.new
+
+    packager.stream(entries: group, zip_streamer: ->(&block) { block.call(zip) })
+
+    manifest = zip.files['images.tsv']
+    expect(manifest).to be_present
+
+    lines = manifest.split("\n")
+    expect(lines.first).to eq("image_id\tzip_filename\tfile_size_bytes\twidth\theight")
+
+    expected_rows = group.map do |image|
+      [
+        image.id.to_s,
+        Zaru.sanitize!(image.image_file_file_name).to_s,
+        image.image_file_file_size.to_i.to_s,
+        image.width.to_s,
+        image.height.to_s
+      ].join("\t")
+    end
+
+    expect(lines.drop(1)).to match_array(expected_rows)
+  end
+
+  specify 'disambiguates duplicate filenames in images.tsv' do
+    image_a = FactoryBot.create(:tiny_random_image, image_file_file_name: 'shared.png')
+    image_b = FactoryBot.create(:tiny_random_image, image_file_file_name: 'shared.png')
+
+    packager = described_class.new(
+      query_params: { image_id: [image_a.id, image_b.id] },
+      project_id: project.id
+    )
+
+    group = packager.groups(max_bytes: 10.megabytes).first
+    zip = FakeZip.new
+
+    packager.stream(entries: group, zip_streamer: ->(&block) { block.call(zip) })
+
+    manifest = zip.files['images.tsv']
+    rows = manifest.split("\n").drop(1)
+    filenames = rows.map { |row| row.split("\t")[1] }
+
+    base_name = Zaru.sanitize!(image_a.image_file_file_name)
+    expect(filenames).to include(base_name)
+    expect(filenames.find { |name| name != base_name }).to match(/\Ashared-\d+\.png\z/)
   end
 end

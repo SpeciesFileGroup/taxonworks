@@ -37,10 +37,13 @@ module Export
     # @param file_name [Proc] extracts original filename from entry
     # @param entry_id [Proc] extracts unique ID from entry (for disambiguation)
     # @param logger_prefix [String] prefix for log messages
-    def stream(entries:, zip_streamer:, file_path:, file_name:, entry_id:, logger_prefix: 'ZipStreamer')
+    # @param on_entry [Proc, nil] optional callback (entry, filename, results) -> void
+    # @param after_stream [Proc, nil] optional callback (zip, results, written) -> void
+    def stream(entries:, zip_streamer:, file_path:, file_name:, entry_id:, logger_prefix: 'ZipStreamer', on_entry: nil, after_stream: nil)
       zip_streamer.call do |zip|
         written = false
         used_names = {}
+        results = []
 
         entries.each do |entry|
           begin
@@ -50,10 +53,10 @@ module Export
               file_name: file_name,
               entry_id: entry_id
             )
-
             zip.write_deflated_file(name) do |sink|
               stream_file(entry, sink, file_path: file_path, entry_id: entry_id)
             end
+            on_entry&.call(entry, name, results)
             written = true
           rescue StandardError => e
             Rails.logger.warn(
@@ -62,6 +65,7 @@ module Export
           end
         end
 
+        after_stream&.call(zip, results, written)
         write_error_fallback(zip) unless written
       end
     end
