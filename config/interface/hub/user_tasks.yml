@@ -577,6 +577,14 @@ filter_images_task:
     - filters
   status: prototype
   description: "Filter images."
+images_packager_task:
+  name: "Images packager"
+  related:
+  categories:
+    - image
+    - filters
+  status: prototype
+  description: "Bundle Images into size-limited download packages."
 project_data_task:
   hub: true
   name: "Project data overview and download"

@@ -40,6 +40,12 @@ export const TASK_DOCUMENTS_PACKAGER = {
   saveQuery: true,
 };
 
+export const TASK_IMAGES_PACKAGER = {
+  label: "Images packager",
+  link: "/tasks/images/images_packager",
+  saveQuery: true,
+};
+
 export const TASK_LOANS_DASHBOARD = {
   label: "Loan dashboard",
   link: "/tasks/loans/dashboard/",

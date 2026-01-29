@@ -94,6 +94,7 @@ import "../vue/tasks/collection_objects/match/main.js";
 import "../vue/tasks/collection_objects/browse/main.js";
 import "../vue/tasks/sources/filter/main.js";
 import "../vue/tasks/sources/documents_packager/main.js";
+import "../vue/tasks/images/images_packager/main.js";
 import "../vue/tasks/sources/verbatim_author_year_source/main.js";
 import "../vue/tasks/collecting_events/new_collecting_event/main.js";
 import "../vue/tasks/interactive_keys/main.js";

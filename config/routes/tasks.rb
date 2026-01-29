@@ -300,6 +300,12 @@ scope :tasks do
       get '/', action: :index, as: 'filter_images_task'
     end
 
+    scope :images_packager, controller: 'tasks/images/images_packager' do
+      get '/', action: :index, as: 'images_packager_task'
+      post 'preview', action: :preview, defaults: { format: :json }
+      post 'download', action: :download
+    end
+
     scope :new_image, controller: 'tasks/images/new_image' do
       get :index, as: 'new_image_task'
     end
