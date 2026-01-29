@@ -4,8 +4,6 @@
       v-if="isLoading"
       full-screen
     />
-    <h1>Duplicate OTU predictor</h1>
-
     <NavBar>
       <div class="flex-separate middle gap-medium">
         <ButtonUnify
@@ -135,6 +133,7 @@ onBeforeMount(() => loadDuplicates({ page: 1 }))
 .task-container {
   width: 1240px;
   margin: 0 auto;
+  margin-top: 1rem;
 }
 
 table {
