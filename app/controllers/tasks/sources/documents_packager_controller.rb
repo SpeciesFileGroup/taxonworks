@@ -15,18 +15,18 @@ class Tasks::Sources::DocumentsPackagerController < ApplicationController
   # POST /tasks/sources/documents_packager/preview.json
   def preview
     max_bytes = requested_max_bytes
-    preview = packager.preview(max_bytes: max_bytes)
+    preview_data = packager.preview(max_bytes: max_bytes)
 
     render json: {
-      sources: preview[:sources],
-      groups: preview[:groups],
+      sources: preview_data[:sources],
+      groups: preview_data[:groups],
       filter_params: @query_params,
-      total_documents: preview[:total_documents],
+      total_documents: preview_data[:total_documents],
       max_bytes: max_bytes
     }
   end
 
-  # GET /tasks/sources/documents_packager/download
+  # POST /tasks/sources/documents_packager/download
   def download
     query_params = @query_params
     group_index = params[:group].to_i
@@ -40,13 +40,13 @@ class Tasks::Sources::DocumentsPackagerController < ApplicationController
     render json: { error: 'Group not found.' }, status: :not_found and return if group.blank?
 
     entries = group.map { |entry| entry[:document] }
-    entries.select! { |document| streamer.document_source_available?(document) }
+    entries.select! { |document| packager.file_available?(document) }
 
     render json: { error: 'No files available for this package.' }, status: :unprocessable_content and return if entries.empty?
 
     filename = build_zip_filename(group_index, groups.length)
-    response.headers["Content-Disposition"] = "attachment; filename=\"#{filename}\""
-    streamer.stream(entries: entries, zip_streamer: method(:zip_tricks_stream))
+    response.headers['Content-Disposition'] = "attachment; filename=\"#{filename}\""
+    packager.stream(entries: entries, zip_streamer: method(:zip_tricks_stream))
   end
 
   private
@@ -78,7 +78,7 @@ class Tasks::Sources::DocumentsPackagerController < ApplicationController
   end
 
   def packager
-    @packager ||= ::Sources::DocumentsPackager::Packager.new(
+    @packager ||= Export::Packagers::Documents.new(
       query_params: @query_params,
       project_id: sessions_current_project_id
     )
@@ -86,10 +86,6 @@ class Tasks::Sources::DocumentsPackagerController < ApplicationController
 
   def build_zip_filename(index, total)
     date = Time.zone.today.strftime('%-m_%-d_%y')
-    Zaru::sanitize!("TaxonWorks-sources_download-#{date}-#{index}_of_#{total}.zip").gsub(' ', '_')
-  end
-
-  def streamer
-    @streamer ||= ::Sources::DocumentsPackager::Streamer.new
+    Zaru.sanitize!("TaxonWorks-sources_download-#{date}-#{index}_of_#{total}.zip").gsub(' ', '_')
   end
 end

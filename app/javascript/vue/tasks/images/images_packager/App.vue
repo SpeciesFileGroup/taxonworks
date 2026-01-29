@@ -1,9 +1,9 @@
 <template>
-  <div class="documents-packager">
+  <div class="images-packager">
     <PackagerHeader
       v-if="!errorMessage"
       :max-bytes="maxBytes"
-      filter-name="Filter sources"
+      filter-name="Filter images"
       :can-go-back="!!filterParams"
       @back="goBackToFilter"
     />
@@ -16,8 +16,8 @@
 
     <div v-if="errorMessage && !isLoading">
       <p v-if="errorMessage === 'no-params'" class="feedback feedback-warning">
-        No source filter parameters were found. Launch this task from
-        <a href="/tasks/sources/filter">Filter Sources</a>
+        No image filter parameters were found. Launch this task from
+        <a href="/tasks/images/filter">Filter Images</a>
         using the right side linker radial.
       </p>
       <p v-else class="feedback feedback-warning">{{ errorMessage }}</p>
@@ -27,29 +27,37 @@
       <PackagerDownloads
         :groups="groups"
         v-model:max-mb="maxMb"
-        filename-prefix="sources_download"
-        item-label="docs"
-        item-count-key="document_ids"
-        empty-message="No documents found in the selected sources."
+        filename-prefix="images_download"
+        item-label="images"
+        item-count-key="image_ids"
+        empty-message="No images found in the selection."
         @refresh="refreshPreview"
         @download="downloadGroup"
       />
 
       <PackagerTable
-        title="Sources"
-        :items="tableRows"
+        title="Images"
+        :items="images"
         :columns="tableColumns"
       >
-        <template #source="{ item }">
-          <a :href="`/sources/${item.source.id}`">Source</a>
-          <span class="margin-small-left">{{ item.source.cached }}</span>
+        <template #image="{ item }">
+          <span class="images-packager__cell">
+            <template v-if="item.available">
+              <a :href="`/images/${item.id}`" target="_blank">
+                <img
+                  :src="item.thumb_url"
+                  :alt="item.name"
+                  class="images-packager__thumb"
+                  loading="lazy"
+                />
+              </a>
+              <span>{{ item.name }}</span>
+            </template>
+            <span v-else class="unavailable">{{ item.name }} (unavailable)</span>
+          </span>
         </template>
-        <template #document="{ item }">
-          <template v-if="item.available">
-            <a :href="item.document.url">Doc</a>
-            <span class="margin-small-left">{{ item.document.name }}</span>
-          </template>
-          <span v-else class="unavailable">{{ item.document.name }} (unavailable)</span>
+        <template #dimensions="{ item }">
+          {{ item.width }}×{{ item.height }}
         </template>
       </PackagerTable>
     </div>
@@ -57,7 +65,7 @@
 </template>
 
 <script setup>
-import { computed, onBeforeMount, ref, watch } from 'vue'
+import { onBeforeMount, ref, watch } from 'vue'
 import qs from 'qs'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import {
@@ -77,15 +85,15 @@ import { createAndSubmitForm } from '@/helpers/forms'
 
 const isLoading = ref(false)
 const groups = ref([])
-const sources = ref([])
+const images = ref([])
 const errorMessage = ref('')
 const filterParams = ref(null)
 const maxBytes = ref(0)
 const maxMb = ref(1000)
 
 const tableColumns = [
-  { title: 'Source', slot: 'source' },
-  { title: 'Document', slot: 'document' }
+  { title: 'Image', slot: 'image' },
+  { title: 'Dimensions', slot: 'dimensions' }
 ]
 
 watch(maxMb, (value) => {
@@ -95,29 +103,9 @@ watch(maxMb, (value) => {
   }
 })
 
-const tableRows = computed(() => {
-  const rows = []
-  const sorted = [...sources.value].sort((a, b) => a.id - b.id)
-
-  sorted.forEach((source) => {
-    source.documents.forEach((doc) => {
-      rows.push({
-        id: `source-${source.id}-doc-${doc.id}`,
-        source,
-        document: doc,
-        group_index: doc.group_index,
-        size: doc.size,
-        available: doc.available
-      })
-    })
-  })
-
-  return rows
-})
-
 function downloadGroup(index) {
   createAndSubmitForm({
-    action: '/tasks/sources/documents_packager/download',
+    action: '/tasks/images/images_packager/download',
     data: {
       ...(filterParams.value || {}),
       group: index,
@@ -137,25 +125,25 @@ function goBackToFilter() {
     STORAGE_FILTER_QUERY_KEY,
     JSON.stringify({ [uuid]: filterParams.value })
   )
-  window.location.href = `/tasks/sources/filter?${STORAGE_FILTER_QUERY_STATE_PARAMETER}=${uuid}`
+  window.location.href = `/tasks/images/filter?${STORAGE_FILTER_QUERY_STATE_PARAMETER}=${uuid}`
 }
 
 function loadPreview(params) {
   isLoading.value = true
   errorMessage.value = ''
 
-  ajaxCall('post', '/tasks/sources/documents_packager/preview.json', {
+  ajaxCall('post', '/tasks/images/images_packager/preview.json', {
     ...params,
     max_mb: maxMb.value
   })
     .then(({ body }) => {
-      sources.value = body.sources || []
+      images.value = body.images || []
       groups.value = body.groups || []
       filterParams.value = body.filter_params || null
       maxBytes.value = body.max_bytes || 0
     })
     .catch(() => {
-      errorMessage.value = 'Unable to load sources for packaging.'
+      errorMessage.value = 'Unable to load images for packaging.'
     })
     .finally(() => {
       isLoading.value = false
@@ -189,6 +177,20 @@ function refreshPreview() {
 </script>
 
 <style scoped>
+.images-packager__cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.images-packager__thumb {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  background: #f5f5f5;
+  border-radius: 2px;
+}
+
 .unavailable {
   color: var(--text-muted-color);
   font-style: italic;
