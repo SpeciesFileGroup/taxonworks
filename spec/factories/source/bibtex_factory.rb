@@ -8,22 +8,19 @@ FactoryBot.define do
 
     factory :source_bibtex_with_document, parent: :valid_source_bibtex do
       transient do
-        project { nil }
         size_bytes { 1.megabyte }
         filename { nil }
         pages { nil }
       end
 
       after(:create) do |source, evaluator|
-        project = evaluator.project || Project.find(Current.project_id)
         filename = evaluator.filename || "doc-#{SecureRandom.hex(4)}.pdf"
         pages = evaluator.pages || rand(1..3)
 
-        ProjectSource.create!(project_id: project.id, source_id: source.id)
+        ProjectSource.create!(source_id: source.id)
 
         document = FactoryBot.create(
           :document,
-          project_id: project.id,
           document_file: Rack::Test::UploadedFile.new(
             Spec::Support::Utilities::Files.generate_pdf(
               pages: pages,
@@ -35,7 +32,6 @@ FactoryBot.define do
         document.update_column(:document_file_file_size, evaluator.size_bytes)
 
         Documentation.create!(
-          project_id: project.id,
           documentation_object: source,
           document: document
         )

@@ -77,7 +77,8 @@ export function usePackager({
         group: index,
         max_mb: maxMb.value
       },
-      openTab: true
+      openTab: true,
+      openTabStrategy: 'target'
     })
   }
 
