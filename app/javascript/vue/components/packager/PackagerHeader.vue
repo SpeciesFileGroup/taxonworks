@@ -9,7 +9,7 @@
     <VBtn
       :disabled="!canGoBack"
       color="primary"
-      @click="$emit('back')"
+      @click="onBack"
     >
       Back to {{ filterName }}
     </VBtn>
@@ -35,5 +35,9 @@ defineProps({
   }
 })
 
-defineEmits(['back'])
+const emit = defineEmits(['back'])
+
+function onBack() {
+  emit('back')
+}
 </script>

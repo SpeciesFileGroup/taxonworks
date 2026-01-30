@@ -71,7 +71,7 @@ describe Tasks::Sources::DocumentsPackagerController, type: :controller do
       expect(body['error']).to eq('No sources queued.')
     end
 
-    specify 'returns 404 when group index is invalid' do
+    specify 'returns 404 when group index is out of range' do
       source = FactoryBot.create(
         :source_bibtex_with_document,
         size_bytes: 1.megabyte,
@@ -84,6 +84,21 @@ describe Tasks::Sources::DocumentsPackagerController, type: :controller do
       expect(response).to have_http_status(:not_found)
       body = JSON.parse(response.body)
       expect(body['error']).to eq('Group not found.')
+    end
+
+    specify 'returns 400 when group index is zero or negative' do
+      source = FactoryBot.create(
+        :source_bibtex_with_document,
+        size_bytes: 1.megabyte,
+        filename: 'e.pdf',
+        pages: 1
+      )
+
+      post :download, params: { source_id: [source.id], group: 0, max_mb: 50 }
+
+      expect(response).to have_http_status(:bad_request)
+      body = JSON.parse(response.body)
+      expect(body['error']).to eq('Invalid group index.')
     end
   end
 end

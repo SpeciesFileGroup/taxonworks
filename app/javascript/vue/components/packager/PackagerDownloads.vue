@@ -11,12 +11,12 @@
             :value="maxMb"
             min="10"
             max="1000"
-            @input="$emit('update:maxMb', Number($event.target.value))"
+            @input="onMaxMbInput"
           />
         </label>
         <VBtn
           color="primary"
-          @click="$emit('refresh')"
+          @click="onRefresh"
         >
           Update downloads
         </VBtn>
@@ -32,7 +32,7 @@
         <template v-if="group.available_count > 0">
           <VBtn
             color="primary"
-            @click="$emit('download', group.index)"
+            @click="onDownload(group.index)"
           >
             {{ buildDownloadFilename(filenamePrefix, group.index, groups.length) }}
           </VBtn>
@@ -58,7 +58,7 @@
 
 <script setup>
 import VBtn from '@/components/ui/VBtn/index.vue'
-import { formatBytes, buildDownloadFilename } from './utils'
+import { formatBytes, buildDownloadFilename, clampMaxMb } from './utils'
 
 const props = defineProps({
   groups: {
@@ -87,7 +87,7 @@ const props = defineProps({
   }
 })
 
-defineEmits(['update:maxMb', 'refresh', 'download'])
+const emit = defineEmits(['update:maxMb', 'refresh', 'download'])
 
 function itemCount(group) {
   const key = props.itemCountKey
@@ -95,6 +95,18 @@ function itemCount(group) {
     return group[key].length
   }
   return 0
+}
+
+function onMaxMbInput(event) {
+  emit('update:maxMb', clampMaxMb(Number(event.target.value)))
+}
+
+function onRefresh() {
+  emit('refresh')
+}
+
+function onDownload(index) {
+  emit('download', index)
 }
 </script>
 

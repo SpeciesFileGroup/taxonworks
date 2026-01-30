@@ -57,10 +57,6 @@ const props = defineProps({
     required: true,
     validator: (cols) => cols.every((c) => c.title && c.slot)
   },
-  groupMap: {
-    type: Object,
-    default: () => ({})
-  },
   keyField: {
     type: String,
     default: 'id'

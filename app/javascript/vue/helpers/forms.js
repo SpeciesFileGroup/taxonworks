@@ -4,18 +4,13 @@ import qs from 'qs'
 export function createAndSubmitForm({
   action,
   data,
-  openTab = false,
-  openTabStrategy = 'popup',
-  absoluteAction = false
+  openTab = false
 }) {
   const CSRFToken = getCSRFToken()
   const form = document.createElement('form')
 
   form.setAttribute('method', 'post')
-  const resolvedAction = absoluteAction
-    ? new URL(action, window.location.origin).toString()
-    : action
-  form.setAttribute('action', resolvedAction)
+  form.setAttribute('action', action)
 
   const inputToken = document.createElement('input')
 
@@ -38,16 +33,10 @@ export function createAndSubmitForm({
   form.style.display = 'none'
 
   if (openTab) {
-    if (openTabStrategy === 'target') {
-      form.setAttribute('target', '_blank')
-      document.body.appendChild(form)
-    } else {
-      const newWindow = window.open('', '_blank')
-      newWindow.document.body.appendChild(form)
-    }
-  } else {
-    document.body.appendChild(form)
+    form.setAttribute('target', '_blank')
   }
+
+  document.body.appendChild(form)
 
   form.submit()
 }

@@ -17,7 +17,7 @@
     <div v-if="errorMessage && !isLoading">
       <p v-if="errorMessage === 'no-params'" class="feedback feedback-warning">
         No source filter parameters were found. Launch this task from
-        <a href="/tasks/sources/filter">Filter Sources</a>
+        <a :href="RouteNames.FilterSources">Filter Sources</a>
         using the right side linker radial.
       </p>
       <p v-else class="feedback feedback-warning">{{ errorMessage }}</p>
@@ -57,17 +57,17 @@
 </template>
 
 <script setup>
-import { computed, onBeforeMount, ref, watch } from 'vue'
+import { computed, onBeforeMount, ref } from 'vue'
 import qs from 'qs'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import {
   PackagerHeader,
   PackagerDownloads,
-  PackagerTable,
-  clampMaxMb
+  PackagerTable
 } from '@/components/packager'
 import ajaxCall from '@/helpers/ajaxCall'
 import { LinkerStorage } from '@/shared/Filter/utils'
+import { RouteNames } from '@/routes/routes.js'
 import {
   STORAGE_FILTER_QUERY_KEY,
   STORAGE_FILTER_QUERY_STATE_PARAMETER
@@ -87,13 +87,6 @@ const tableColumns = [
   { title: 'Source', slot: 'source' },
   { title: 'Document', slot: 'document' }
 ]
-
-watch(maxMb, (value) => {
-  const clamped = clampMaxMb(value)
-  if (clamped !== value) {
-    maxMb.value = clamped
-  }
-})
 
 const tableRows = computed(() => {
   const rows = []
@@ -123,9 +116,7 @@ function downloadGroup(index) {
       group: index,
       max_mb: maxMb.value
     },
-    openTab: true,
-    openTabStrategy: 'target',
-    absoluteAction: true
+    openTab: true
   })
 }
 
@@ -137,7 +128,7 @@ function goBackToFilter() {
     STORAGE_FILTER_QUERY_KEY,
     JSON.stringify({ [uuid]: filterParams.value })
   )
-  window.location.href = `/tasks/sources/filter?${STORAGE_FILTER_QUERY_STATE_PARAMETER}=${uuid}`
+  window.location.href = `${RouteNames.FilterSources}?${STORAGE_FILTER_QUERY_STATE_PARAMETER}=${uuid}`
 }
 
 function loadPreview(params) {

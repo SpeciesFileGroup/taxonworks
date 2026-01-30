@@ -11,16 +11,11 @@ class Tasks::Sources::DocumentsPackagerController < ApplicationController
 
   # POST /tasks/sources/documents_packager/preview.json
   def preview
-    max_bytes = requested_max_bytes
-    preview_data = packager.preview(max_bytes: max_bytes)
-
-    render json: {
-      sources: preview_data[:sources],
-      groups: preview_data[:groups],
-      filter_params: @query_params,
-      total_documents: preview_data[:total_documents],
-      max_bytes: max_bytes
-    }
+    preview_packager(
+      packager: packager,
+      payload_key: :sources,
+      total_key: :total_documents
+    )
   end
 
   # POST /tasks/sources/documents_packager/download
