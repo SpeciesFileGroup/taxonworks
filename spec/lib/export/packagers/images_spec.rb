@@ -200,9 +200,9 @@ describe Export::Packagers::Images, type: :model do
     group = packager.groups(max_bytes: 10.megabytes).first
     zip = FakeZip.new
 
-    packager.stream(entries: group, zip_streamer: ->(&block) { block.call(zip) })
+    packager.stream(entries: group, zip_streamer: ->(&block) { block.call(zip) }, group_index: 1)
 
-    manifest = zip.files['images.tsv']
+    manifest = zip.files['images-1.tsv']
     expect(manifest).to be_present
 
     lines = manifest.split("\n")
@@ -233,9 +233,9 @@ describe Export::Packagers::Images, type: :model do
     group = packager.groups(max_bytes: 10.megabytes).first
     zip = FakeZip.new
 
-    packager.stream(entries: group, zip_streamer: ->(&block) { block.call(zip) })
+    packager.stream(entries: group, zip_streamer: ->(&block) { block.call(zip) }, group_index: 1)
 
-    manifest = zip.files['images.tsv']
+    manifest = zip.files['images-1.tsv']
     rows = manifest.split("\n").drop(1)
     filenames = rows.map { |row| row.split("\t")[1] }
 

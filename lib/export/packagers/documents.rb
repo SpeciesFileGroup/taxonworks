@@ -48,7 +48,7 @@ module Export
         end
       end
 
-      def stream(entries:, zip_streamer:)
+      def stream(entries:, zip_streamer:, group_index:)
         Export::ZipStreamer.new.stream(
           entries: entries,
           zip_streamer: zip_streamer,
@@ -57,7 +57,9 @@ module Export
           entry_id: ->(entry) { document_from_entry(entry).id },
           logger_prefix: 'Documents packager',
           on_entry: method(:add_manifest_row),
-          after_stream: method(:write_manifest)
+          after_stream: ->(zip, rows, written) {
+            write_manifest(zip, rows, written, group_index: group_index)
+          }
         )
       end
 
@@ -169,10 +171,10 @@ module Export
         ]
       end
 
-      def write_manifest(zip, rows, written)
+      def write_manifest(zip, rows, written, group_index:)
         return if !written || rows.empty?
 
-        zip.write_deflated_file('documents.tsv') do |sink|
+        zip.write_deflated_file("documents-#{group_index}.tsv") do |sink|
           sink.write("source_id\tdocument_id\tzip_filename\tfile_size_bytes\n")
           rows.each do |row|
             sink.write("#{row.join("\t")}\n")
