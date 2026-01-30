@@ -57,31 +57,40 @@
 </template>
 
 <script setup>
-import { computed, onBeforeMount, ref } from 'vue'
-import qs from 'qs'
+import { computed } from 'vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import {
   PackagerHeader,
   PackagerDownloads,
-  PackagerTable
+  PackagerTable,
+  usePackager
 } from '@/components/packager'
-import ajaxCall from '@/helpers/ajaxCall'
-import { LinkerStorage } from '@/shared/Filter/utils'
 import { RouteNames } from '@/routes/routes.js'
 import {
   STORAGE_FILTER_QUERY_KEY,
   STORAGE_FILTER_QUERY_STATE_PARAMETER
 } from '@/constants'
-import { randomUUID } from '@/helpers'
-import { createAndSubmitForm } from '@/helpers/forms'
 
-const isLoading = ref(false)
-const groups = ref([])
-const sources = ref([])
-const errorMessage = ref('')
-const filterParams = ref(null)
-const maxBytes = ref(0)
-const maxMb = ref(1000)
+const {
+  isLoading,
+  groups,
+  items: sources,
+  errorMessage,
+  filterParams,
+  maxBytes,
+  maxMb,
+  refreshPreview,
+  downloadGroup,
+  goBackToFilter
+} = usePackager({
+  previewUrl: '/tasks/sources/documents_packager/preview.json',
+  downloadUrl: '/tasks/sources/documents_packager/download',
+  filterRoute: RouteNames.FilterSources,
+  storageKey: STORAGE_FILTER_QUERY_KEY,
+  storageStateParam: STORAGE_FILTER_QUERY_STATE_PARAMETER,
+  payloadKey: 'sources',
+  loadErrorMessage: 'Unable to load sources for packaging.'
+})
 
 const tableColumns = [
   { title: 'Source', slot: 'source' },
@@ -108,75 +117,6 @@ const tableRows = computed(() => {
   return rows
 })
 
-function downloadGroup(index) {
-  createAndSubmitForm({
-    action: '/tasks/sources/documents_packager/download',
-    data: {
-      ...(filterParams.value || {}),
-      group: index,
-      max_mb: maxMb.value
-    },
-    openTab: true
-  })
-}
-
-function goBackToFilter() {
-  if (!filterParams.value) return
-
-  const uuid = randomUUID()
-  localStorage.setItem(
-    STORAGE_FILTER_QUERY_KEY,
-    JSON.stringify({ [uuid]: filterParams.value })
-  )
-  window.location.href = `${RouteNames.FilterSources}?${STORAGE_FILTER_QUERY_STATE_PARAMETER}=${uuid}`
-}
-
-function loadPreview(params) {
-  isLoading.value = true
-  errorMessage.value = ''
-
-  ajaxCall('post', '/tasks/sources/documents_packager/preview.json', {
-    ...params,
-    max_mb: maxMb.value
-  })
-    .then(({ body }) => {
-      sources.value = body.sources || []
-      groups.value = body.groups || []
-      filterParams.value = body.filter_params || null
-      maxBytes.value = body.max_bytes || 0
-    })
-    .catch(() => {
-      errorMessage.value = 'Unable to load sources for packaging.'
-    })
-    .finally(() => {
-      isLoading.value = false
-    })
-}
-
-onBeforeMount(function () {
-  const stored = LinkerStorage.getParameters() || {}
-  const params = {
-    ...qs.parse(window.location.search, {
-      ignoreQueryPrefix: true,
-      arrayLimit: 2000
-    }),
-    ...stored
-  }
-
-  LinkerStorage.removeParameters()
-
-  if (!Object.keys(params).length) {
-    errorMessage.value = 'no-params'
-    return
-  }
-
-  loadPreview(params)
-})
-
-function refreshPreview() {
-  if (!filterParams.value) return
-  loadPreview(filterParams.value)
-}
 </script>
 
 <style scoped>
