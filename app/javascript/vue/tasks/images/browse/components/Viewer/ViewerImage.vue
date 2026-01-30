@@ -35,19 +35,15 @@
         :zoom="zoom"
       />
 
-      <MeasurementBar
-        v-if="viewerMode.active?.value.drawing?.value"
-        :x1="viewerMode.active.value.start.value.x"
-        :y1="viewerMode.active.value.start.value.y"
-        :x2="viewerMode.active.value.current.value.x"
-        :y2="viewerMode.active.value.current.value.y"
-        :pixels-to-centimeters="pixelsToCentimeters"
-        :font-size="12 / zoom"
-        :stroke-width="2"
+      <component
+        v-if="viewerMode.overlay.value && viewerMode.overlayProps.value"
+        :is="viewerMode.overlay.value"
+        v-bind="viewerMode.overlayProps.value"
       />
     </g>
 
     <ViewerScalebarOverlay
+      v-if="pixelsToCentimeters"
       :x="viewport.width / 2 - scalebarOverlay.screenWidth / 2"
       :y="viewport.height - 24"
       :width="scalebarOverlay.screenWidth"
@@ -58,6 +54,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useEventListener } from '@/composables'
 
 import {
   useAutoScalebar,
@@ -149,6 +146,7 @@ const ctx = {
   baseZoom,
   userZoom,
   viewport,
+  pixelsToCentimeters: computed(() => props.pixelsToCentimeters),
   imageWidth: computed(() => props.imageWidth),
   imageHeight: computed(() => props.imageHeight)
 }
@@ -172,6 +170,14 @@ const viewerGestures = useViewerGestures({
   zoom: useZoomGesture(ctx)
 })
 
+function onKeyDown(e) {
+  viewerMode.onKeyDown(e)
+}
+
+function onKeyUp(e) {
+  viewerMode.onKeyUp(e)
+}
+
 function onMouseDown(e) {
   viewerGestures.onMouseDown(e)
   viewerMode.onMouseDown(e)
@@ -190,6 +196,9 @@ function onMouseUp(e) {
 function onWheel(e) {
   viewerGestures.onWheel(e)
 }
+
+useEventListener(window, 'keyup', onKeyUp)
+useEventListener(window, 'keydown', onKeyDown)
 </script>
 
 <style scoped>

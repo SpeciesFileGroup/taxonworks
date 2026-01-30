@@ -6,6 +6,7 @@ function makeImage(data) {
     id: data.id,
     globalId: data.global_id,
     imageUrl: data.original_png,
+    label: data.object_label,
     pixelsToCm: data.pixels_to_centimeter,
     width: data.width,
     height: data.height
@@ -17,7 +18,8 @@ export default defineStore('store', {
     image: null,
     isLoading: false,
     depictions: [],
-    selected: []
+    selected: [],
+    currentPixelsToCm: null
   }),
   getters: {
     hasDepictions: (state) => state.depictions.length > 0,
@@ -35,6 +37,7 @@ export default defineStore('store', {
       return Image.find(imageId)
         .then(({ body }) => {
           this.image = makeImage(body)
+          this.currentPixelsToCm = body.pixels_to_centimeter
         })
         .catch(() => {
           TW.workbench.alert.create('Image not found', 'error')

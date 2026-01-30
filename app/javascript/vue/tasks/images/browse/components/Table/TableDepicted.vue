@@ -2,13 +2,16 @@
   <table class="table-striped">
     <thead>
       <tr>
-        <th class="w-2">
+        <th
+          v-if="hasSvgClips"
+          class="w-2"
+        >
           <input
             type="checkbox"
             v-model="selectAllToggle"
           />
         </th>
-        <th>Depicted</th>
+        <th>Depicted objects</th>
         <th></th>
       </tr>
     </thead>
@@ -17,8 +20,9 @@
         v-for="item in store.depictions"
         :key="item.id"
       >
-        <td>
+        <td v-if="hasSvgClips">
           <input
+            v-if="item.svg_clip"
             type="checkbox"
             :value="item"
             v-model="store.selected"
@@ -50,6 +54,8 @@ const props = defineProps({
     required: true
   }
 })
+
+const hasSvgClips = computed(() => store.depictions.some((d) => d.svg_clip))
 
 const selectAllToggle = computed({
   get: () =>

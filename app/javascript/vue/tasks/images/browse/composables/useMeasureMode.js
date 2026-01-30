@@ -1,6 +1,6 @@
-// composables/modes/useMeasureMode.js
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { svgPoint } from '../utils/svgPoint'
+import MeasurementBar from '../components/Viewer/Measurement/MeasurementBar.vue'
 
 export function useMeasureMode(ctx) {
   const drawing = ref(false)
@@ -35,6 +35,32 @@ export function useMeasureMode(ctx) {
     drawing.value = false
   }
 
+  const overlayProps = computed(() => {
+    if (!drawing.value || !start.value || !current.value) return null
+
+    return {
+      x1: start.value.x,
+      y1: start.value.y,
+      x2: current.value.x,
+      y2: current.value.y,
+      pixelsToCentimeters: ctx.pixelsToCentimeters.value,
+      fontSize: 12 / ctx.zoom.value,
+      strokeWidth: 2
+    }
+  })
+
+  function onKeyDown(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+      e.preventDefault()
+
+      ctx.measurements.value = ctx.measurements.value.slice(0, -1)
+    }
+
+    if (e.key === 'Escape') {
+      drawing.value = false
+    }
+  }
+
   return {
     cursor,
     drawing,
@@ -42,6 +68,10 @@ export function useMeasureMode(ctx) {
     current,
     onMouseDown,
     onMouseMove,
-    onMouseUp
+    onMouseUp,
+    onKeyDown,
+
+    overlay: MeasurementBar,
+    overlayProps
   }
 }

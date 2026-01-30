@@ -26,7 +26,7 @@ export function usePanMode(ctx) {
   }
 
   return {
-    cursor: computed(() => 'grab'),
+    cursor: computed(() => 'all-scroll'),
     onMouseDown,
     onMouseMove,
     onMouseUp
