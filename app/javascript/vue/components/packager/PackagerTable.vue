@@ -1,5 +1,5 @@
 <template>
-  <div class="packager-table margin-large-top">
+  <div class="packager-table margin-large-top margin-large-bottom">
     <h2>{{ title }} ({{ items.length }})</h2>
     <table class="table-striped packager-table__table">
       <thead>
