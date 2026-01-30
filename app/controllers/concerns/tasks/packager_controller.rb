@@ -62,7 +62,7 @@ module Tasks
 
       filename = build_zip_filename(filename_prefix, group_index, groups.length)
       response.headers['Content-Disposition'] = "attachment; filename=\"#{filename}\""
-      packager.stream(entries: entries, zip_streamer: method(:zip_tricks_stream))
+      packager.stream(entries: entries, zip_streamer: method(:zip_tricks_stream), group_index: group_index)
     end
 
     def preview_packager(packager:, payload_key:, total_key:)
