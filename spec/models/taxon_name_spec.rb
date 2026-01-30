@@ -1116,6 +1116,102 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     end
   end
 
+  context '#destroy with OTU' do
+    let(:root) { FactoryBot.create(:root_taxon_name) }
+    let(:family) { Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: root) }
+
+    context 'when TaxonName has one OTU with no related data' do
+      let!(:otu) { Otu.create!(taxon_name: family) }
+
+      specify 'destroys both the OTU and TaxonName' do
+        expect {
+          family.destroy
+        }.to change(TaxonName, :count).by(-1).and change(Otu, :count).by(-1)
+      end
+
+      specify 'returns truthy' do
+        expect(family.destroy).to be_truthy
+      end
+    end
+
+    context 'when TaxonName has one OTU with related data (citation)' do
+      let!(:otu) { Otu.create!(taxon_name: family) }
+      let!(:citation) { otu.citations.create!(source: FactoryBot.create(:valid_source)) }
+
+      specify 'does not destroy the TaxonName' do
+        expect {
+          family.destroy
+        }.not_to change(TaxonName, :count)
+      end
+
+      specify 'does not destroy the OTU' do
+        expect {
+          family.destroy
+        }.not_to change(Otu, :count)
+      end
+
+      specify 'returns falsey with error about otus' do
+        expect(family.destroy).to be_falsey
+        expect(family.errors.full_messages.join).to include('otus')
+      end
+    end
+
+    context 'when TaxonName has multiple OTUs' do
+      let!(:otu1) { Otu.create!(taxon_name: family) }
+      let!(:otu2) { Otu.create!(taxon_name: family) }
+
+      specify 'does not destroy the TaxonName' do
+        expect {
+          family.destroy
+        }.not_to change(TaxonName, :count)
+      end
+
+      specify 'does not destroy any OTUs' do
+        expect {
+          family.destroy
+        }.not_to change(Otu, :count)
+      end
+    end
+
+    context 'when OTU is empty but TaxonName has another blocker (relationship)' do
+      let(:genus) { Protonym.create!(name: 'Aus', rank_class: Ranks.lookup(:iczn, :genus), parent: family) }
+      let(:species) { Protonym.create!(name: 'bus', rank_class: Ranks.lookup(:iczn, :species), parent: genus) }
+      let(:other_species) { Protonym.create!(name: 'cus', rank_class: Ranks.lookup(:iczn, :species), parent: genus) }
+      let!(:otu) { Otu.create!(taxon_name: species) }
+      let!(:relationship) {
+        TaxonNameRelationship::Iczn::Invalidating.create!(
+          subject_taxon_name: other_species,
+          object_taxon_name: species
+        )
+      }
+
+      specify 'does not destroy the TaxonName' do
+        expect {
+          species.destroy
+        }.not_to change(TaxonName, :count)
+      end
+
+      specify 'OTU is destroyed then restored when transaction rolls back' do
+        destroyed_otu_ids = []
+        allow_any_instance_of(Otu).to receive(:destroy!).and_wrap_original do |method, *args|
+          destroyed_otu_ids << method.receiver.id
+          method.call(*args)
+        end
+
+        species.destroy
+
+        expect(destroyed_otu_ids).to include(otu.id) # OTU destroy! was called
+        expect(Otu.exists?(otu.id)).to be true       # but rolled back
+      end
+
+      specify 'returns error about relationships, not otus' do
+        species.destroy
+        expect(species.errors.full_messages.join).to include('relationships')
+        expect(species.errors.full_messages.join).not_to include('otus')
+      end
+    end
+  end
+
   context 'concerns' do
     it_behaves_like 'data_attributes'
     it_behaves_like 'identifiable'

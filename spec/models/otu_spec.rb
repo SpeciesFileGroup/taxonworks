@@ -342,6 +342,24 @@ describe Otu, type: :model, group: :otu do
 
   end
 
+  context '#unused?' do
+    let(:otu) { FactoryBot.create(:valid_otu) }
+
+    specify 'true when OTU has no related data' do
+      expect(otu.unused?).to be true
+    end
+
+    specify 'false when OTU has citations' do
+      otu.citations.create!(source: FactoryBot.create(:valid_source))
+      expect(otu.unused?).to be false
+    end
+
+    specify 'false when OTU has non-UUID identifiers' do
+      otu.identifiers.create!(type: 'Identifier::Local::OtuUtility', namespace: FactoryBot.create(:valid_namespace), identifier: '123')
+      expect(otu.unused?).to be false
+    end
+  end
+
   context 'concerns' do
     it_behaves_like 'citations'
     it_behaves_like 'data_attributes'

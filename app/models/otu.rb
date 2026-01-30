@@ -564,6 +564,13 @@ class Otu < ApplicationRecord
       .or(BiologicalAssociationIndex.where('object_id = ? AND object_type = ?', id, self.class.base_class.name))
   end
 
+  # @return [Boolean]
+  #   true if the OTU has no meaningful related data attached.
+  def unused?
+    identifiers.where.not("type LIKE 'Identifier::Global::Uuid%'").none? &&
+      ApplicationEnumeration.no_related_data?(self, ignore: [:identifiers, :uuids])
+  end
+
   protected
 
   def check_required_fields
