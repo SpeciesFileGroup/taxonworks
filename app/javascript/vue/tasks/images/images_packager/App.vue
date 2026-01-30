@@ -1,13 +1,5 @@
 <template>
   <div class="images-packager">
-    <PackagerHeader
-      v-if="!errorMessage"
-      :max-bytes="maxBytes"
-      filter-name="Filter images"
-      :can-go-back="!!filterParams"
-      @back="goBackToFilter"
-    />
-
     <VSpinner
       v-if="isLoading"
       full-screen
@@ -27,12 +19,16 @@
       <PackagerDownloads
         :groups="groups"
         v-model:max-mb="maxMb"
+        filter-name="Filter images"
+        :can-go-back="!!filterParams"
+        :show-back="!errorMessage"
         filename-prefix="images_download"
         item-label="images"
         item-count-key="image_ids"
         empty-message="No images found in the selection."
         @refresh="refreshPreview"
         @download="downloadGroup"
+        @back="goBackToFilter"
       />
 
       <PackagerTable
@@ -67,7 +63,6 @@
 <script setup>
 import VSpinner from '@/components/ui/VSpinner.vue'
 import {
-  PackagerHeader,
   PackagerDownloads,
   PackagerTable,
   usePackager
@@ -84,7 +79,6 @@ const {
   items: images,
   errorMessage,
   filterParams,
-  maxBytes,
   maxMb,
   refreshPreview,
   downloadGroup,
