@@ -70,7 +70,6 @@ describe Export::Packagers::Documents, type: :model do
   specify 'includes a file larger than max in a group' do
     source = FactoryBot.create(
       :source_bibtex_with_document,
-      project: project,
       size_bytes: 2.megabytes,
       filename: 'big.pdf',
       pages: 1

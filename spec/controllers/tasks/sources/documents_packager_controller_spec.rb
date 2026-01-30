@@ -25,12 +25,13 @@ describe Tasks::Sources::DocumentsPackagerController, type: :controller do
         pages: 2
       )
 
-      post :preview, params: { source_id: [source_a.id, source_b.id], max_mb: 1 }, format: :json
+    post :preview, params: { source_id: [source_a.id, source_b.id], max_mb: 10 }, format: :json
 
-      expect(response).to have_http_status(:ok)
-      body = JSON.parse(response.body)
+    expect(response).to have_http_status(:ok)
+    body = JSON.parse(response.body)
 
-      expect(body['groups'].length).to be >= 1
+    expect(body['groups'].length).to eq(1)
+    expect(body['max_bytes']).to eq(10_000_000)
 
       first_source = body['sources'].find { |s| s['id'] == source_a.id }
       expect(first_source['documents'].first['group_index']).to eq(1)
