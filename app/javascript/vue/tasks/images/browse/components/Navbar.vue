@@ -7,6 +7,7 @@
           param="term"
           placeholder="Search an image..."
           label="label_html"
+          clear-after
           @select="(e) => emit('select', e.id)"
         />
         <span v-if="store.image">Image ID {{ store.image?.id }}</span>

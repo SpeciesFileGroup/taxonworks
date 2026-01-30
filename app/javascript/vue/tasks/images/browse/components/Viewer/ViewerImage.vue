@@ -22,7 +22,7 @@
       />
 
       <g
-        v-for="group in shapes"
+        v-for="group in layers"
         :key="group"
         v-html="group"
       />
@@ -71,7 +71,6 @@ import {
 } from '../../composables'
 
 import MeasurementLayer from './Measurement/MeasurementLayer.vue'
-import MeasurementBar from './Measurement/MeasurementBar.vue'
 import ViewerScalebarOverlay from './ViewerScalebarOverlay.vue'
 
 const props = defineProps({
@@ -79,7 +78,7 @@ const props = defineProps({
   imageWidth: { type: Number, required: true },
   imageHeight: { type: Number, required: true },
   pixelsToCentimeters: { type: Number, required: true },
-  shapes: {
+  layers: {
     type: Array,
     default: () => []
   }

@@ -3,6 +3,10 @@
     class="margin-medium-top"
     @select="loadImage"
   />
+  <VSpinner
+    v-if="isLoading"
+    full-screen
+  />
   <div class="flex-row gap-medium align-start margin-medium-top">
     <template v-if="store.image">
       <ViewerToolbar
@@ -17,7 +21,7 @@
           :image-height="store.image.height"
           :image-width="store.image.width"
           :pixels-to-centimeters="store.currentPixelsToCm"
-          :shapes="store.svgClips"
+          :layers="store.layers"
         />
       </div>
       <div class="flex-col gap-medium">
@@ -32,6 +36,7 @@
 import { onBeforeMount, ref } from 'vue'
 import { usePopstateListener } from '@/composables/usePopstateListener'
 import { URLParamsToJSON } from '@/helpers'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import VNavbar from './components/Navbar.vue'
 import ViewerImage from './components/Viewer/ViewerImage.vue'
 import useStore from './store/store.js'
@@ -41,6 +46,7 @@ import PanelPixelToCm from './components/Panel/PanelPixelToCm.vue'
 
 const store = useStore()
 const mode = ref('pan')
+const isLoading = ref(false)
 
 function loadFromUrlParam() {
   const { image_id: imageId } = URLParamsToJSON(location.href)
@@ -51,8 +57,13 @@ function loadFromUrlParam() {
 }
 
 function loadImage(imageId) {
-  store.load(imageId)
-  store.loadDepictions(imageId)
+  isLoading.value = true
+
+  Promise.all([store.load(imageId), store.loadDepictions(imageId)])
+    .catch(() => {})
+    .finally(() => {
+      isLoading.value = false
+    })
 }
 
 usePopstateListener(loadFromUrlParam)

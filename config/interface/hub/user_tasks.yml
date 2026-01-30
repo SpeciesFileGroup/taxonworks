@@ -1151,4 +1151,4 @@ browse_images_task:
   related:
   categories:
   status: prototype
-  description: 'TODO: Task description'
+  description: 'Browse and explore images in this project, including their depictions and related objects, and take measurements by drawing lines on images.'

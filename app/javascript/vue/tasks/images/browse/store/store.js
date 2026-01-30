@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { Depiction, Image } from '@/routes/endpoints'
+import { getHexColorFromString } from '@/tasks/biological_associations/biological_associations_graph/utils'
 
 function makeImage(data) {
   return {
@@ -11,6 +12,13 @@ function makeImage(data) {
     width: data.width,
     height: data.height
   }
+}
+
+function createGroupElement(text) {
+  const el = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+  el.innerHTML = text
+
+  return el.firstChild
 }
 
 export default defineStore('store', {
@@ -28,7 +36,30 @@ export default defineStore('store', {
       return state.depictions.map((depiction) => depiction.depiction_object)
     },
 
-    svgClips: (state) => state.selected.map((d) => d.svg_clip).filter(Boolean)
+    layers: (state) => {
+      return state.selected
+        .map((d) => {
+          const el = createGroupElement(d.svg_clip)
+          const attributes = {
+            fill: getHexColorFromString(String(d.depiction_object_id)),
+            'fill-opacity': 0.25,
+            'stroke-width': 1 * window.devicePixelRatio
+          }
+
+          const shapes = [...el.children].map((child) => {
+            const shape = child.firstChild
+
+            Object.entries(attributes).forEach(([attribute, value]) => {
+              shape.setAttribute(attribute, value)
+            })
+
+            return child.innerHTML
+          })
+
+          return shapes
+        })
+        .flat()
+    }
   },
   actions: {
     async load(imageId) {
