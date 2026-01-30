@@ -14,6 +14,7 @@ export function usePackager({
   payloadKey,
   loadErrorMessage
 }) {
+  const sessionKey = `${storageKey}-session`
   const isLoading = ref(false)
   const groups = ref([])
   const items = ref([])
@@ -35,6 +36,7 @@ export function usePackager({
         groups.value = body.groups || []
         filterParams.value = body.filter_params || null
         maxBytes.value = body.max_bytes || 0
+        sessionStorage.setItem(sessionKey, JSON.stringify(filterParams.value || {}))
       })
       .catch(() => {
         errorMessage.value = loadErrorMessage
@@ -62,6 +64,12 @@ export function usePackager({
     LinkerStorage.removeParameters()
 
     if (!Object.keys(params).length) {
+      const cached = sessionStorage.getItem(sessionKey)
+      if (cached) {
+        loadPreview(JSON.parse(cached))
+        return
+      }
+
       errorMessage.value = 'no-params'
       return
     }
