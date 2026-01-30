@@ -59,6 +59,8 @@ function loadFromUrlParam() {
 function loadImage(imageId) {
   isLoading.value = true
 
+  store.$reset()
+
   Promise.all([store.load(imageId), store.loadDepictions(imageId)])
     .catch(() => {})
     .finally(() => {
