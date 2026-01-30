@@ -1,13 +1,5 @@
 <template>
   <div class="documents-packager">
-    <PackagerHeader
-      v-if="!errorMessage"
-      :max-bytes="maxBytes"
-      filter-name="Filter sources"
-      :can-go-back="!!filterParams"
-      @back="goBackToFilter"
-    />
-
     <VSpinner
       v-if="isLoading"
       full-screen
@@ -27,12 +19,16 @@
       <PackagerDownloads
         :groups="groups"
         v-model:max-mb="maxMb"
+        filter-name="Filter sources"
+        :can-go-back="!!filterParams"
+        :show-back="!errorMessage"
         filename-prefix="sources_download"
         item-label="docs"
         item-count-key="document_ids"
         empty-message="No documents found in the selected sources."
         @refresh="refreshPreview"
         @download="downloadGroup"
+        @back="goBackToFilter"
       />
 
       <PackagerTable
@@ -41,12 +37,12 @@
         :columns="tableColumns"
       >
         <template #source="{ item }">
-          <a :href="`/sources/${item.source.id}`">Source</a>
+          <a :href="`/sources/${item.source.id}`" target="_blank" rel="noopener">Source</a>
           <span class="margin-small-left">{{ item.source.cached }}</span>
         </template>
         <template #document="{ item }">
           <template v-if="item.available">
-            <a :href="item.document.url">Doc</a>
+            <a :href="item.document.url" target="_blank" rel="noopener">Doc</a>
             <span class="margin-small-left">{{ item.document.name }}</span>
           </template>
           <span v-else class="unavailable">{{ item.document.name }} (unavailable)</span>
@@ -60,7 +56,6 @@
 import { computed } from 'vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import {
-  PackagerHeader,
   PackagerDownloads,
   PackagerTable,
   usePackager
@@ -77,7 +72,6 @@ const {
   items: sources,
   errorMessage,
   filterParams,
-  maxBytes,
   maxMb,
   refreshPreview,
   downloadGroup,

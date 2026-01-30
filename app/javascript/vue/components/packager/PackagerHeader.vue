@@ -1,11 +1,5 @@
 <template>
-  <div class="packager-header flex-separate middle margin-medium-top">
-    <div>
-      <p>
-        Individual downloads are capped at {{ formatBytes(maxBytes, 0) }};
-        you can specify a different maximum download size to the right.
-      </p>
-    </div>
+  <div class="packager-header margin-medium-top">
     <VBtn
       :disabled="!canGoBack"
       color="primary"
@@ -18,7 +12,6 @@
 
 <script setup>
 import VBtn from '@/components/ui/VBtn/index.vue'
-import { formatBytes } from './utils'
 
 defineProps({
   maxBytes: {
@@ -41,3 +34,9 @@ function onBack() {
   emit('back')
 }
 </script>
+
+<style scoped>
+.packager-header {
+  text-align: right;
+}
+</style>

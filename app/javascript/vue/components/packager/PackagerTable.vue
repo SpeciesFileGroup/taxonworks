@@ -22,7 +22,13 @@
           :class="rowClass(item, index)"
         >
           <td class="packager-table__col-zip">
-            {{ item.group_index ? `Zip ${item.group_index}` : '—' }}
+            {{
+              item.available === false
+                ? '—'
+                : item.group_index
+                  ? `Zip ${item.group_index}`
+                  : '—'
+            }}
           </td>
           <td
             v-for="col in columns"
