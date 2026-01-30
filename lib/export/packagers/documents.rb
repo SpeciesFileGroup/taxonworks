@@ -11,6 +11,7 @@ module Export
         @query_params = query_params
         @project_id = project_id
         @file_grouper = Export::FileGrouper.new
+        @file_available_cache = {}
       end
 
       def preview(max_bytes:)
@@ -41,8 +42,10 @@ module Export
 
       def file_available?(document)
         document = document_from_entry(document)
-        path = document.document_file.path
-        path.present? && File.exist?(path)
+        @file_available_cache.fetch(document.id) do
+          path = document.document_file.path
+          @file_available_cache[document.id] = path.present? && File.exist?(path)
+        end
       end
 
       def stream(entries:, zip_streamer:)

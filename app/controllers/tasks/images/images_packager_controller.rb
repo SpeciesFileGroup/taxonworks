@@ -12,16 +12,11 @@ class Tasks::Images::ImagesPackagerController < ApplicationController
 
   # POST /tasks/images/images_packager/preview.json
   def preview
-    max_bytes = requested_max_bytes
-    preview_data = packager.preview(max_bytes: max_bytes)
-
-    render json: {
-      images: preview_data[:images],
-      groups: preview_data[:groups],
-      filter_params: @query_params,
-      total_images: preview_data[:total_images],
-      max_bytes: max_bytes
-    }
+    preview_packager(
+      packager: packager,
+      payload_key: :images,
+      total_key: :total_images
+    )
   end
 
   # POST /tasks/images/images_packager/download

@@ -17,7 +17,7 @@
     <div v-if="errorMessage && !isLoading">
       <p v-if="errorMessage === 'no-params'" class="feedback feedback-warning">
         No image filter parameters were found. Launch this task from
-        <a href="/tasks/images/filter">Filter Images</a>
+        <a :href="RouteNames.FilterImages">Filter Images</a>
         using the right side linker radial.
       </p>
       <p v-else class="feedback feedback-warning">{{ errorMessage }}</p>
@@ -65,17 +65,17 @@
 </template>
 
 <script setup>
-import { onBeforeMount, ref, watch } from 'vue'
+import { onBeforeMount, ref } from 'vue'
 import qs from 'qs'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import {
   PackagerHeader,
   PackagerDownloads,
-  PackagerTable,
-  clampMaxMb
+  PackagerTable
 } from '@/components/packager'
 import ajaxCall from '@/helpers/ajaxCall'
 import { LinkerStorage } from '@/shared/Filter/utils'
+import { RouteNames } from '@/routes/routes.js'
 import {
   STORAGE_FILTER_QUERY_KEY,
   STORAGE_FILTER_QUERY_STATE_PARAMETER
@@ -96,13 +96,6 @@ const tableColumns = [
   { title: 'Dimensions', slot: 'dimensions' }
 ]
 
-watch(maxMb, (value) => {
-  const clamped = clampMaxMb(value)
-  if (clamped !== value) {
-    maxMb.value = clamped
-  }
-})
-
 function downloadGroup(index) {
   createAndSubmitForm({
     action: '/tasks/images/images_packager/download',
@@ -111,9 +104,7 @@ function downloadGroup(index) {
       group: index,
       max_mb: maxMb.value
     },
-    openTab: true,
-    openTabStrategy: 'target',
-    absoluteAction: true
+    openTab: true
   })
 }
 
@@ -125,7 +116,7 @@ function goBackToFilter() {
     STORAGE_FILTER_QUERY_KEY,
     JSON.stringify({ [uuid]: filterParams.value })
   )
-  window.location.href = `/tasks/images/filter?${STORAGE_FILTER_QUERY_STATE_PARAMETER}=${uuid}`
+  window.location.href = `${RouteNames.FilterImages}?${STORAGE_FILTER_QUERY_STATE_PARAMETER}=${uuid}`
 }
 
 function loadPreview(params) {
