@@ -9,11 +9,34 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Clone last attribution button [#4718]
+
+### Fixed
+
+- New asserted distribution task is not loading
+
+### Changed
+
+- The inventory keys API endpoint has been updated to indicate when an observation matrix is a media matrix.
+
+[#4718]: https://github.com/SpeciesFileGroup/taxonworks/issues/4718
+
+## [0.58.0] - 2026-01-23
+
+### Added
+
+- New task: Verbatim author/year to cite taxon name
 - New task: Dichotomous key
 - Scalebar form to New simple specimen task [#4689]
 - New repository link to New type specimen task [#4692]
 - Monograph facilitator to OTU radial linker [#4690]
 - Batch create genus gender for those without one from Filter Taxon Names [#4669]
+- Source facet to Filter Asserted Distributions
+- 'Replace source' batch update to Filter Asserted Distributions [#4647]
+- Send filter results between Sounds and OTUs/TaxonNames
+- Batch upload Asserted Distributions can now match on an OTU's Taxon Name name instead of/in addition to the OTU's name
+- Batch update 'Prioritize Geographic Area when indexing' value from Filter Collecting Events [#4036]
+- Deleting a taxon name from the New Taxon Name task takes you to Browse Taxon Name for the parent of the taxon [#3155]
 
 ### Fixed
 
@@ -21,28 +44,59 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Browse News: Old administration news is shown first instead of new news.
 - Batch operation now works on venn query results, venn query results can now be sent to other filters [#4663]
 - No error message when trying to delete a combination attached to an OTU [#4670]
-- Error notice is now returned when trying to include media extension in DwCA export with a project API token
+- Error notice is now returned when trying to include media extension in DwCA export without a project API token (media links embed API token)
 - Match Taxon Names task downloads have wrong valid name [#4682]
 - New source task: Title is required to create a BibTeX source [#4688]
 - Error on sending Taxon Name filter result to Asserted Distributions
 - DwCA export optimizations [#4607]
 - Inconsistent TW:otu_name selection from multiple values in DwCA exports in some cases
 - DwCA TW:data_attributes now includes all values on a given predicate (not just the last)
+- /api/v1/sounds/1
+- furtherInformationURL for sounds in DwCA media export
 - Performance regression in cached maps re-indexing via the rake task
 - `Create citation` button doesn't keep citations state once the observation is moved to another cell in Image matrix task
 - Add autosave option to New source task [#4691]
+- Completed Filter connections between Filter Biological Association and Filter Taxon Name/Filter OTU to include relations by Collection Object Taxon Determination, Field Occurrence Taxon Determination, and Anatomical Part origin OTU [#4685]
+- Alt+t on Browse Taxon Names doesn't work unless you've focused the page [#4703]
+- Selection tool not working on the Monograph Facilitator map
+- Depictions stop changing when switching between types in Edit Type Specimen task [#4702]
+- Citations with italics don't match in Batch Upload Asserted Distributions [#4268]
+- Useful error messages when batch loan operations fail in Filter Collection Objects [#4171]
+- The Biological Associations index computed an error string for Anatomical Part citations [#4712]
+- Don't calculate distribution for api/v1/taxon_names/:id/inventory/catalog (performance improvement for Taxon Pages)
+- Add more LSID validations [#3608]
+- Filter depiction doesn't return field occurrence images
 
+### Changed
+
+- Large performance improvements to Catalog of Life Data Package export; some small regressions introduced
+- Disabled autosave by default for New asserted distribution task. [#4698]
+- Filter Contents downloads are TSV (no longer CSV)
+- Updated Ruby gems
+- Updated NPM packages
+
+[#3155]: https://github.com/SpeciesFileGroup/taxonworks/issues/3155
+[#3608]: https://github.com/SpeciesFileGroup/taxonworks/issues/3608
+[#4036]: https://github.com/SpeciesFileGroup/taxonworks/issues/4036
+[#4171]: https://github.com/SpeciesFileGroup/taxonworks/issues/4171
+[#4268]: https://github.com/SpeciesFileGroup/taxonworks/issues/4268
 [#4607]: https://github.com/SpeciesFileGroup/taxonworks/issues/4607
+[#4647]: https://github.com/SpeciesFileGroup/taxonworks/issues/4647
 [#4663]: https://github.com/SpeciesFileGroup/taxonworks/issues/4663
 [#4669]: https://github.com/SpeciesFileGroup/taxonworks/issues/4669
 [#4670]: https://github.com/SpeciesFileGroup/taxonworks/issues/4670
 [#4676]: https://github.com/SpeciesFileGroup/taxonworks/issues/4676
 [#4682]: https://github.com/SpeciesFileGroup/taxonworks/issues/4682
+[#4685]: https://github.com/SpeciesFileGroup/taxonworks/issues/4685
 [#4688]: https://github.com/SpeciesFileGroup/taxonworks/issues/4688
 [#4689]: https://github.com/SpeciesFileGroup/taxonworks/issues/4689
 [#4690]: https://github.com/SpeciesFileGroup/taxonworks/issues/4690
 [#4691]: https://github.com/SpeciesFileGroup/taxonworks/issues/4691
 [#4692]: https://github.com/SpeciesFileGroup/taxonworks/issues/4692
+[#4698]: https://github.com/SpeciesFileGroup/taxonworks/issues/4698
+[#4702]: https://github.com/SpeciesFileGroup/taxonworks/issues/4702
+[#4703]: https://github.com/SpeciesFileGroup/taxonworks/issues/4703
+[#4712]: https://github.com/SpeciesFileGroup/taxonworks/issues/4712
 
 ## [0.57.0] - 2026-01-06
 
@@ -5988,7 +6042,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.57.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.58.0...development
+[0.58.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.57.0...v0.58.0
 [0.57.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.56.1...v0.57.0
 [0.56.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.56.0...v0.56.1
 [0.56.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.55.0...v0.56.0

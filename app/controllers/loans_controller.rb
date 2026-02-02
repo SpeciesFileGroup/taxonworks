@@ -55,7 +55,7 @@ class LoansController < ApplicationController
         format.json { render :show, status: :created, location: @loan }
       else
         format.html { render :new }
-        format.json { render json: @loan.errors, status: :unprocessable_entity }
+        format.json { render json: @loan.errors, status: :unprocessable_content }
       end
     end
   end
@@ -81,7 +81,7 @@ class LoansController < ApplicationController
         format.json { render :show, status: :ok, location: @loan }
       else
         format.html { render :edit }
-        format.json { render json: @loan.errors, status: :unprocessable_entity }
+        format.json { render json: @loan.errors, status: :unprocessable_content }
       end
     end
   end

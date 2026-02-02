@@ -40,7 +40,7 @@ class DwcOccurrencesController < ApplicationController
     target = params[:target] || 'country'
 
     if !['country', 'stateProvince', 'county'].include?(target) || params[:term].blank?
-      render json: {}, status: :unprocessable_entity and return
+      render json: {}, status: :unprocessable_content and return
     end
 
     names = DwcOccurrence.select(target.to_sym)
@@ -69,7 +69,7 @@ class DwcOccurrencesController < ApplicationController
         updated_at:  @object.dwc_occurrence&.updated_at
       }
     else
-      render json: {}, status: :unprocessable_entity
+      render json: {}, status: :unprocessable_content
     end
   end
 

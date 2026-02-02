@@ -44,7 +44,7 @@ class NamespacesController < ApplicationController
         format.json { render action: 'show', status: :created, location: @namespace }
       else
         format.html { render action: 'new' }
-        format.json { render json: @namespace.errors, status: :unprocessable_entity }
+        format.json { render json: @namespace.errors, status: :unprocessable_content }
       end
     end
   end
@@ -58,7 +58,7 @@ class NamespacesController < ApplicationController
         format.json { render action: 'show', status: :ok, location: @namespace }
       else
         format.html { render action: 'edit' }
-        format.json { render json: @namespace.errors, status: :unprocessable_entity }
+        format.json { render json: @namespace.errors, status: :unprocessable_content }
       end
     end
   end

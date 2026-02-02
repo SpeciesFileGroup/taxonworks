@@ -27,6 +27,7 @@ module Queries
         :otu_id,
         :presence,
         :radius,
+        :source_id,
         :shape_type,
         :taxon_name_id,
         :wkt,
@@ -40,6 +41,7 @@ module Queries
         geographic_area_id: [],
         geographic_item_id: [],
         otu_id: [],
+        source_id: [],
         taxon_name_id: []
       ].freeze
 
@@ -93,6 +95,10 @@ module Queries
       #   all Otus matching these taxon names
       attr_accessor :taxon_name_id
 
+      # @param source_id [Array, Integer, String]
+      # @return [Array]
+      attr_accessor :source_id
+
       # @return [Boolean, nil]
       #  true - include descendants of taxon_name_id in scope
       #  false, nil - only exact matches
@@ -125,6 +131,7 @@ module Queries
         @radius = params[:radius].presence || 100.0
         @asserted_distribution_shape_type =
           params[:asserted_distribution_shape_type]
+        @source_id = integer_param(params, :source_id)
         @taxon_name_id = integer_param(params, :taxon_name_id)
         @wkt = params[:wkt]
 
@@ -170,6 +177,10 @@ module Queries
 
       def taxon_name_id
         [@taxon_name_id].flatten.compact
+      end
+
+      def source_id
+        [@source_id].flatten.compact
       end
 
       def presence_facet
@@ -409,6 +420,15 @@ module Queries
         end
       end
 
+      def source_id_facet
+        return nil if source_id.empty?
+
+        ::AssertedDistribution
+          .joins(:citations)
+          .where(citations: { source_id: })
+          .distinct
+      end
+
       def otu_query_facet
         return nil if otu_query.nil?
         s = 'WITH query_otu_ad AS (' + otu_query.all.to_sql + ') ' +
@@ -491,6 +511,7 @@ module Queries
           geo_json_facet,
           otu_query_facet,
           taxon_name_query_facet,
+          source_id_facet,
 
           asserted_distribution_geo_facet,
           geographic_item_id_facet,

@@ -18,7 +18,7 @@ class SledImagesController < ApplicationController
     if @sled_image.save
       render :show, status: :created, location: @sled_image
     else
-      render json: @sled_image.errors, status: :unprocessable_entity
+      render json: @sled_image.errors, status: :unprocessable_content
     end
   end
 
@@ -27,7 +27,7 @@ class SledImagesController < ApplicationController
     if @sled_image.update(sled_image_params)
       render :show, status: :ok, location: @sled_image
     else
-      render json: @sled_image.errors, status: :unprocessable_entity
+      render json: @sled_image.errors, status: :unprocessable_content
     end
   end
 

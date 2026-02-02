@@ -13,9 +13,14 @@ module Export
   # Exports to the Catalog of Life in the new "coldp" format.
   # http://api.col.plus/datapackage
   #
-  # * write tests to check for coverage (missing methods)
-  # * Update all files formats to use tabs
+  # TODO:
+  # * Status of Distribution  - always present in code, what's the positive assertion in 'status'
+  # * Ensure all joins are Pipes
+  # * Review/remove/update/add tests to check for coverage
   # * Pending handling of both BibTeX and Verbatim
+  # * Document what Coldp *expects*, in particular inferred combionations
+  # Optimizations possible:
+  # * Eliminate next checks (though they are currently fine) by calculating in SQL
   module Coldp
 
     class << self
@@ -29,7 +34,7 @@ module Export
     # give it a default value
     @skipped_combinations = []
 
-    # TODO: probably doing nothing
+    # A hash lookup to find Notes in memory
     attr_accessor :remarks
 
     def remarks
@@ -41,16 +46,34 @@ module Export
       @remarks = values
     end
 
-    FILETYPES = %w{Distribution Name NameRelation SpeciesInteraction Synonym TaxonConceptRelation TypeMaterial VernacularName Taxon References}.freeze
+
+    # Presently stubbed but excluded pending
+    # significant use.
+    #
+    #  TaxonConceptRelation
+    #
+    FILETYPES = %w{
+      Distribution
+      Name
+      NameRelation
+      References
+      SpeciesInteraction
+      Synonym
+      Taxon
+      TypeMaterial
+      VernacularName
+    }.freeze
 
     # @return [Scope]
     #  A full set of valid only OTUs (= Taxa in CoLDP) that are to be sent.
+    #
     #  !! At present no OTU with a `name` is sent. In the future this may need to change.
     #
-    #  !! No synonym TaxonName is send if they don't have an OTU
+    #  !?! - not true !! No synonym TaxonName is sent if they don't have an OTU
     #
     #  This is presently not scoping Names.csv. That's probably OK.
     #
+    # TODO: Lock step this with Names
     def self.otus(otu_id)
       o = ::Otu.find(otu_id)
       return ::Otu.none if o.taxon_name_id.nil?
@@ -61,7 +84,6 @@ module Export
         .where('(otus.name IS NULL) OR (otus.name = taxon_names.cached)') # !! Union does not make this faster
     end
 
-    # TODO: We are using `,` to delimit values elsewhere (e.g. Taxon)
     # TODO: find by IRI, not predicate_id so that we can unify the vocabulary.
     # Accessed per file type
     def self.get_remarks(scope, predicate_id)
@@ -119,13 +141,13 @@ module Export
 
       otu = ::Otu.find(otu_id)
 
-      # check for a clb_dataset_id identifier
+      # Check for a clb_dataset_id identifier
+      # TODO: Document this setup process.  Include it in Project settings likely. Remember > 1 checklist can emerge from a project.
       ns = Namespace.find_by(institution: 'ChecklistBank', name: 'clb_dataset_id')
-      clb_dataset_id =  otu.identifiers.where(namespace_id: ns.id)&.first&.identifier unless ns.nil?
+      clb_dataset_id = otu.identifiers.where(namespace_id: ns.id)&.first&.identifier unless ns.nil?
 
       project = ::Project.find(otu.project_id)
-
-      project_id = otu.project_id
+      project_id = project.id
 
       project_members = project_members(project.id)
       feedback_url = project[:data_curation_issue_tracker_url] unless project[:data_curation_issue_tracker_url].nil?
@@ -182,37 +204,31 @@ module Export
 
       Zip::File.open(zip_file_path, create: true) do |zipfile|
 
-        zipfile.get_output_stream('Name.tsv') { |f| f.write Export::Coldp::Files::Name.generate(otu, project_members, ref_tsv) }
+       zipfile.get_output_stream('Name.tsv') { |f| f.write Export::Coldp::Files::Name.generate(otu, project_members, ref_tsv) }
+       zipfile.get_output_stream('NameRelation.tsv') { |f| f.write Export::Coldp::Files::NameRelation.generate(otu, project_members, ref_tsv) }
+       zipfile.get_output_stream('TypeMaterial.tsv') { |f| f.write Export::Coldp::Files::TypeMaterial.generate(otu, project_members, ref_tsv) }
 
-        zipfile.get_output_stream('Synonym.tsv') { |f| f.write Export::Coldp::Files::Synonym.generate(otu, otus, project_members, ref_tsv) }
+       zipfile.get_output_stream('Synonym.tsv') { |f| f.write Export::Coldp::Files::Synonym.generate(otu, otus, project_members, ref_tsv) }
+       zipfile.get_output_stream('Taxon.tsv') { |f| f.write Export::Coldp::Files::Taxon.generate(otu, otus, project_members, ref_tsv, prefer_unlabelled_otus) }
 
-        zipfile.get_output_stream('Taxon.tsv') do |f|
-          f.write Export::Coldp::Files::Taxon.generate(otu, otus, project_members, ref_tsv, prefer_unlabelled_otus)
-        end
+       (FILETYPES - %w{Name NameRelation TypeMaterial Synonym Taxon References}).each do |ft|
+         puts ft
+         m = "Export::Coldp::Files::#{ft}".safe_constantize
+         zipfile.get_output_stream("#{ft}.tsv") { |f| f.write m.generate(otus, project_members, ref_tsv) }
+       end
 
-        zipfile.get_output_stream('TypeMaterial.tsv') { |f| f.write Export::Coldp::Files::TypeMaterial.generate(otu, project_members, ref_tsv) }
-
-        (FILETYPES - %w{Name Taxon References Synonym TypeMaterial}).each do |ft|
-          m = "Export::Coldp::Files::#{ft}".safe_constantize
-          zipfile.get_output_stream("#{ft}.tsv") { |f| f.write m.generate(otus, project_members, ref_tsv) }
-        end
-
-        # TODO: Probably not used
-        # skip_name_ids = Export::Coldp::Files::Name.skipped_name_ids  ||  []
-
-
-        # TODO: this doesn't really help, and adds time to the process.
         # Sort the refs by full citation string
         sorted_refs = ref_tsv.values.sort{|a,b| a[1] <=> b[1]}
 
         d = ::CSV.generate(col_sep: "\t") do |tsv|
-          tsv << %w{ID citation	doi modified modifiedBy} # author year source details
+          tsv << %w{ID citation doi modified modifiedBy} # Consider: author year source details
           sorted_refs.each do |r|
             tsv << r
           end
         end
 
         zipfile.get_output_stream('References.tsv') { |f| f.write d }
+
         zipfile.add('metadata.yaml', metadata_file.path) # TODO: consider isolating Files.metadata logic
       end
 
@@ -287,8 +303,19 @@ module Export
         taxon_name_id
       end
     end
-
     # Reification spec
     # Duplicate Combination check -> is the Combination in question already represented int he current *classification*
+
+    # Iterates the manifest used by Name
+    # !! includes only id
+    def self.all_names(otu)
+      names = []
+      Export::Coldp::Files::Name::MANIFEST.each do |m|
+        names.push TaxonName.select(:id).from( Export::Coldp::Files::Name.send(m, otu))
+      end
+
+      all_names = ::Queries.union(TaxonName, names)
+    end
+
   end
 end

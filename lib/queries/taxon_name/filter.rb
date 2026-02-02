@@ -8,6 +8,7 @@ module Queries
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
       include Queries::Concerns::Notes
+      include Queries::Concerns::Sounds
       include Queries::Concerns::Tags
 
       PARAMS = [
@@ -814,9 +815,9 @@ module Queries
       def author_facet
         return nil if author.blank?
         if author_exact
-          table[:cached_author_year].eq(author.strip)
+          table[:cached_author].eq(author.strip)
         else
-          table[:cached_author_year].matches('%' + author.strip.gsub(/\s/, '%') + '%')
+          table[:cached_author].matches('%' + author.strip.gsub(/\s/, '%') + '%')
         end
       end
 
@@ -898,6 +899,14 @@ module Queries
               .to_sql
 
         ::TaxonName.from('(' + s + ') as taxon_names').distinct
+      end
+
+      def sound_query_facet
+        return nil if sound_query.nil?
+        otus = otus_from_sound_query
+        return nil if otus.nil?
+
+        ::TaxonName.joins(:otus).where(otus: {id: otus.select(:id)}).distinct
       end
 
       def asserted_distribution_query_facet
@@ -1002,6 +1011,7 @@ module Queries
           collecting_event_query_facet,
           collection_object_query_facet,
           otu_query_facet,
+          sound_query_facet,
           taxon_name_relationship_query_facet,
 
           ancestor_facet,

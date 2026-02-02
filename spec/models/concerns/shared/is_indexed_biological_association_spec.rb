@@ -237,4 +237,80 @@ describe 'IsIndexedBiologicalAssociation', type: :model do
       expect(BiologicalAssociationIndex.where(id: index_id)).to be_empty
     end
   end
+
+  # Dynamically generate tests for all BIOLOGICALLY_RELATABLE_TYPES to catch
+  # any future additions that aren't properly handled.
+  context 'all biologically relatable type combinations' do
+    let(:biological_relationship) { FactoryBot.create(:valid_biological_relationship) }
+
+    def create_biologically_relatable(type)
+      factory_name = "valid_#{type.underscore}"
+      # CollectionObject needs no_dwc_occurrence: false to generate a UUID via dwc_occurrence_id
+      if type == 'CollectionObject'
+        FactoryBot.create(factory_name.to_sym, no_dwc_occurrence: false)
+      else
+        FactoryBot.create(factory_name.to_sym)
+      end
+    end
+
+    context '#biological_association_citations' do
+      BIOLOGICALLY_RELATABLE_TYPES.product(BIOLOGICALLY_RELATABLE_TYPES).each do |subject_type, object_type|
+        specify "#{subject_type} + #{object_type}" do
+          ba = FactoryBot.create(
+            :valid_biological_association,
+            biological_association_subject: create_biologically_relatable(subject_type),
+            biological_association_object: create_biologically_relatable(object_type),
+            biological_relationship: biological_relationship
+          )
+
+          expect(ba.biological_association_index_attributes[:citations]).not_to eq('BAD DATA: TYPE ERROR')
+        end
+      end
+    end
+
+    context '#biological_association_established_date' do
+      BIOLOGICALLY_RELATABLE_TYPES.product(BIOLOGICALLY_RELATABLE_TYPES).each do |subject_type, object_type|
+        specify "#{subject_type} + #{object_type}" do
+          ba = FactoryBot.create(
+            :valid_biological_association,
+            biological_association_subject: create_biologically_relatable(subject_type),
+            biological_association_object: create_biologically_relatable(object_type),
+            biological_relationship: biological_relationship
+          )
+
+          expect(ba.biological_association_index_attributes[:established_date]).not_to eq('BAD DATA: TYPE ERROR')
+        end
+      end
+    end
+
+    context '#biological_association_subject_uuid' do
+      BIOLOGICALLY_RELATABLE_TYPES.each do |type|
+        specify "#{type}" do
+          ba = FactoryBot.create(
+            :valid_biological_association,
+            biological_association_subject: create_biologically_relatable(type),
+            biological_association_object: FactoryBot.create(:valid_otu),
+            biological_relationship: biological_relationship
+          )
+
+          expect(ba.biological_association_index.subject_uuid).to be_present
+        end
+      end
+    end
+
+    context '#biological_association_object_uuid' do
+      BIOLOGICALLY_RELATABLE_TYPES.each do |type|
+        specify "#{type}" do
+          ba = FactoryBot.create(
+            :valid_biological_association,
+            biological_association_subject: FactoryBot.create(:valid_otu),
+            biological_association_object: create_biologically_relatable(type),
+            biological_relationship: biological_relationship
+          )
+
+          expect(ba.biological_association_index.object_uuid).to be_present
+        end
+      end
+    end
+  end
 end

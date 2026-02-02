@@ -178,6 +178,21 @@ class Combination < TaxonName
   validate :composition, unless: Proc.new {|a| disable_combination_relationship_check == true || a.errors.full_messages.include?('Combination exists.') }
   validates :rank_class, absence: true
 
+  #
+  # validate :name, nil => true
+  #
+  # See https://github.com/SpeciesFileGroup/taxonworks/issues/4697
+  # It won't be this simple likely.  Might have to be the last validation in the chain?
+  # See soft_validation that auto-sets verbatim_name in `.becomes` (which may have to go).
+  #
+  # validate :verbatim_name_is_allowed # , if: Proc.new {|a| persisted? }
+  # def verbatim_name_is_allowed
+  #   if verbatim_name == full_name
+  #     errors.add(:verbatim_name, 'verbatim name is identical to calculate value and therefor not allowed')
+  #   end
+  # end
+  #
+
   soft_validate(
     :sv_redundant_verbatim_name,
     set: :cached,
@@ -432,6 +447,7 @@ class Combination < TaxonName
 
   # TODO: consider an 'include_cached_misspelling' Boolean to extend result to include `cached_misspelling`
   # !! References name, not cached, so 'sic' is not possible
+  # !! TODO: limit to a subset of APPLICABLE_RANKS
   def self.flattened
     s = []
     abbreviation_cutoff = 'subspecies'
@@ -443,12 +459,20 @@ class Combination < TaxonName
               MAX(combination_taxon_names_taxon_names.feminine_name) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_feminine,
               MAX(combination_taxon_names_taxon_names.cached) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_cached"
 
+      s.push "BOOL_OR(combination_taxon_names_taxon_names.cached_is_valid) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_cached_is_valid"
+
+      # Calculate a flag that helps determine if the target rank Protonym is presently an "inferred combination."
+      s.push "MAX(combination_taxon_names_taxon_names.cached_primary_homonym) FILTER (WHERE taxon_name_relationships.type = '#{t}') =
+              MAX(combination_taxon_names_taxon_names.cached_secondary_homonym) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_inferred_combination"
+
       if abbreviate
         s.push "MAX(combination_taxon_names_taxon_names.rank_class) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_rank_class"
       end
 
       # Include the rank of the genus, which is typicaly there, for reference so we can return the code of nomenclature behind this combination
       s.push "MAX(combination_taxon_names_taxon_names.rank_class) AS reference_rank_class"
+
+      s.push "MAX(combination_taxon_names_taxon_names.rank_class) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_rank_class"
 
       abbreviate = true if rank == abbreviation_cutoff
     end
@@ -644,9 +668,12 @@ class Combination < TaxonName
 
   def sv_redundant_verbatim_name
     if verbatim_name == full_name
+
+      # TODO: Why is this check needed?  Shouldn't that be encapsulated in full_name logic?
       protonyms_by_rank.values.each do |t|
         return true unless t.has_latinized_classification?
       end
+
       soft_validations.add(:verbatim_name, 'Verbatim name is provided but not needed, it is the same as the computed value.')
     end
   end

@@ -10,6 +10,8 @@ const permitParams = {
     asserted_distribution_shape_type: String,
     asserted_distribution_shape_id: Number,
     is_absent: Boolean,
+    source_id: Number,
+    remove_source_ids: Array,
     otu_attributes: {
       id: Number,
       _destroy: Boolean,
@@ -55,5 +57,7 @@ export const AssertedDistribution = {
     AjaxCall('post', `/${controller}/batch_template_create.json`, params),
 
   batchUpdateDwcOccurrence: (params) =>
-    AjaxCall('post', `/${controller}/batch_update_dwc_occurrence`, params)
+    AjaxCall('post', `/${controller}/batch_update_dwc_occurrence`, params),
+
+  sources: (params) => AjaxCall('post', `/${controller}/sources.json`, params)
 }

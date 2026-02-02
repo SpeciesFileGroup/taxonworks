@@ -22,6 +22,7 @@ import {
 
 const RouteNames = {
   BiologicalRelationshipComposer: '/tasks/biological_relationships/composer',
+  EditLoan: '/tasks/loans/edit_loan',
   BrowseAssertedDistribution: '/tasks/otus/browse_asserted_distributions',
   BrowseCollectionObject: '/tasks/collection_objects/browse',
   BrowseCollectingEvent: '/tasks/collecting_events/browse',

@@ -14,7 +14,7 @@ class CitationTopicsController < ApplicationController
         format.json { render json: @citation_topic, status: :created, location: @citation_topic }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Citation topic was NOT successfully updated.')}
-        format.json { render json: @citation_topic.errors, status: :unprocessable_entity }
+        format.json { render json: @citation_topic.errors, status: :unprocessable_content }
       end
     end
   end
@@ -28,7 +28,7 @@ class CitationTopicsController < ApplicationController
         format.json { render json: @citation_topic, status: :ok, location: @citation_topic }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Citation topic was NOT successfully updated.')}
-        format.json { render json: @citation_topic.errors, status: :unprocessable_entity }
+        format.json { render json: @citation_topic.errors, status: :unprocessable_content }
       end
     end
   end

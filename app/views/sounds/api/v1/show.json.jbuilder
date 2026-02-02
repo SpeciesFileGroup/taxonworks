@@ -1,1 +1,1 @@
-json.partial! '/sounds/api/v1/show', sound: @sound
+json.partial! '/sounds/api/v1/attributes', sound: @sound

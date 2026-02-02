@@ -1264,7 +1264,7 @@ class TaxonName < ApplicationRecord
     update_column(:cached_classified_as, get_cached_classified_as)
   end
 
-  # @proceps I feel this needs to go away.  If you want to define misspelling you can not use a verbatim_name. In general
+  # @proceps I feel this needs to go away. If you want to define misspelling you can not use a verbatim_name. In general
   # verbatim_name should not have downstream factual consequences.
 
   # TODO:  Missing specs

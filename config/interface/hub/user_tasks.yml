@@ -1076,7 +1076,7 @@ monograph_facilitator_task:
   related:
   categories:
   status: prototype
-  description: 'TODO: Task description'
+  description: 'Plot objects on a map.  Group, updated determinations, and more.'
 filter_anatomical_parts_task:
   hub: true
   name: 'Filter anatomical parts'
@@ -1152,3 +1152,10 @@ browse_images_task:
   categories:
   status: prototype
   description: 'Browse and explore images in this project, including their depictions and related objects, and take measurements by drawing lines on images.'
+verbatim_author_year_source_task:
+  hub: true
+  name: 'TaxonName verbatim author/year without citations'
+  related:
+  categories:
+  status: prototype
+  description: 'Facilitate working through TaxonName records that have verbatim author-year data, but no citations/source.'

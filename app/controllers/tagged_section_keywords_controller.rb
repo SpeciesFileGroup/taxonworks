@@ -14,7 +14,7 @@ class TaggedSectionKeywordsController < ApplicationController
         format.json {render json: @tagged_section_keyword, status: :created, location: @tagged_section_keyword}
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Tagged section keyword was NOT successfully created.')}
-        format.json {render json: @tagged_section_keyword.errors, status: :unprocessable_entity}
+        format.json {render json: @tagged_section_keyword.errors, status: :unprocessable_content}
       end
     end
   end
@@ -28,7 +28,7 @@ class TaggedSectionKeywordsController < ApplicationController
         format.json {render json: @tagged_section_keyword, status: :ok, location: @tagged_section_keyword}
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Tagged section keyword was NOT successfully updated.')}
-        format.json {render json: @tagged_section_keyword.errors, status: :unprocessable_entity}
+        format.json {render json: @tagged_section_keyword.errors, status: :unprocessable_content}
       end
     end
   end

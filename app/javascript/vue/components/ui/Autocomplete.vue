@@ -28,7 +28,7 @@ headers to be used in the call. Using it will override the common headers
         !spinner && 'vue-autocomplete-input-search',
         inputClass
       ]"
-      @input="checkTime(), sendType()"
+      @input="(checkTime(), sendType())"
       @keydown.down="downKey"
       @keydown.up="upKey"
       @keydown.enter="enterKey"
@@ -489,7 +489,7 @@ export default {
         const contentWidth = items
           ? items.reduce((acc, li) => Math.max(acc, li.scrollWidth), 0)
           : 0
-        const finalWidth = Math.min(contentWidth, maxWidth)
+        const finalWidth = Math.min(contentWidth + 20, maxWidth)
         const dropdownHeight = dropdown.offsetHeight || maxHeight
 
         const top = showAbove
