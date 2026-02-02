@@ -75,7 +75,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         expect(taxon_name.errors[:year_of_publication]).to be_empty
       end
 
-      specify 'format 4' do
+      specify 'format 5' do
         taxon_name.year_of_publication = 2999
         taxon_name.valid?
         expect(taxon_name.errors[:year_of_publication]).to_not be_empty
@@ -1153,6 +1153,58 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       specify 'returns falsey with error about otus' do
         expect(family.destroy).to be_falsey
         expect(family.errors.full_messages.join).to include('otus')
+      end
+    end
+
+    context 'when OTU is in frequently-used associations' do
+      let!(:otu) { Otu.create!(taxon_name: family) }
+
+      context 'OTU in BiologicalAssociation' do
+        let!(:ba) { FactoryBot.create(:valid_biological_association, biological_association_subject: otu) }
+
+        specify 'does not destroy OTU' do
+          expect {
+            family.destroy
+          }.not_to change(TaxonName, :count)
+        end
+
+        specify 'does not destroy TaxonName' do
+          expect {
+            family.destroy
+          }.not_to change(Otu, :count)
+        end
+      end
+
+      context 'OTU in TaxonDetermination' do
+        let!(:td) { FactoryBot.create(:valid_taxon_determination, otu: otu) }
+
+        specify 'does not destroy OTU' do
+          expect {
+            family.destroy
+          }.not_to change(TaxonName, :count)
+        end
+
+        specify 'does not destroy TaxonName' do
+          expect {
+            family.destroy
+          }.not_to change(Otu, :count)
+        end
+      end
+
+      context 'OTU in AssertedDistribution' do
+        let!(:ad) { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: otu) }
+
+        specify 'does not destroy OTU' do
+          expect {
+            family.destroy
+          }.not_to change(TaxonName, :count)
+        end
+
+        specify 'does not destroy TaxonName' do
+          expect {
+            family.destroy
+          }.not_to change(Otu, :count)
+        end
       end
     end
 

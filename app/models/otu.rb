@@ -567,6 +567,8 @@ class Otu < ApplicationRecord
   # @return [Boolean]
   #   true if the OTU has no meaningful related data attached.
   def unused?
+    # Otus are AutoUUID, so ignore UUID identifiers (but not others a user may
+    # have intentionally added).
     identifiers.where.not("type LIKE 'Identifier::Global::Uuid%'").none? &&
       ApplicationEnumeration.no_related_data?(self, ignore: [:identifiers, :uuids])
   end
