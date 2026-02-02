@@ -22,65 +22,68 @@
   </div>
 </div>
 
+
 <div id="year-in-review-graphs" style="display: none;">
-  <div class="panel content margin-medium-bottom">
-    <div class="horizontal-left-content middle gap-small">
-      <h2>Created and Updated Records</h2>
-      <span class="circle-button btn-download" title="Download PNG" onclick="downloadChart('graph1', 'created_updated_records')"></span>
+  <div class="gap-medium margin-medium-bottom" style="display: grid; grid-template-columns: 1fr 1fr">
+    <div class="panel content">
+      <div class="horizontal-left-content middle gap-small">
+        <h2>Created and Updated Records</h2>
+        <span class="circle-button btn-download" title="Download PNG" onclick="downloadChart('graph1', 'created_updated_records')"></span>
+      </div>
+      <p>Stacked bar chart showing records created (bottom) and updated delta (top) per table. Sorted by total activity.</p>
+      <div class="chart-container chartjs-container" >
+        <canvas id="graph1"></canvas>
+      </div>
     </div>
-    <p class="subtle">Stacked bar chart showing records created (bottom) and updated delta (top) per table. Sorted by total activity.</p>
-    <div class="chart-container" style="position: relative; height: 1800px; width: 100%;">
-      <canvas id="graph1"></canvas>
+
+    <div class="panel content">
+      <div class="horizontal-left-content middle gap-small">
+        <h2>Percentage Growth</h2>
+        <span class="circle-button btn-download" title="Download PNG" onclick="downloadChart('graph2', 'percentage_growth')"></span>
+      </div>
+      <p>Percentage of all-time records that were created this year. Sorted descending.</p>
+      <div class="chart-container chartjs-container">
+        <canvas id="graph2"></canvas>
+      </div>
+    </div>
+
+    <div class="panel content">
+      <div class="horizontal-left-content middle gap-small">
+        <h2>Records vs. Contributors</h2>
+        <span class="circle-button btn-download" title="Download PNG" onclick="downloadChart('graph3', 'records_vs_contributors')"></span>
+      </div>
+      <p>Scatter plot comparing normalized record activity (x-axis) to normalized unique contributor count (y-axis). Each point represents a table.</p>
+      <div class="chart-container chartjs-container" style="position: relative; height: 600px; width: 100%;">
+        <canvas id="graph3"></canvas>
+      </div>
+    </div>
+
+    <div class="panel content">
+      <div class="horizontal-left-content middle gap-small">
+        <h2>Average Update Latency</h2>
+        <span class="circle-button btn-download" title="Download PNG" onclick="downloadChart('graph4', 'update_latency')"></span>
+      </div>
+      <p>Normalized average time (in days) between record creation and first update. Sorted descending.</p>
+      <div class="chart-container chartjs-container" >
+        <canvas id="graph4"></canvas>
+      </div>
     </div>
   </div>
 
-  <div class="panel content margin-medium-bottom">
-    <div class="horizontal-left-content middle gap-small">
-      <h2>Percentage Growth</h2>
-      <span class="circle-button btn-download" title="Download PNG" onclick="downloadChart('graph2', 'percentage_growth')"></span>
-    </div>
-    <p class="subtle">Percentage of all-time records that were created this year. Sorted descending.</p>
-    <div class="chart-container" style="position: relative; height: 1800px; width: 100%;">
-      <canvas id="graph2"></canvas>
-    </div>
-  </div>
-
-  <div class="panel content margin-medium-bottom">
-    <div class="horizontal-left-content middle gap-small">
-      <h2>Records vs. Contributors</h2>
-      <span class="circle-button btn-download" title="Download PNG" onclick="downloadChart('graph3', 'records_vs_contributors')"></span>
-    </div>
-    <p class="subtle">Scatter plot comparing normalized record activity (x-axis) to normalized unique contributor count (y-axis). Each point represents a table.</p>
-    <div class="chart-container" style="position: relative; height: 600px; width: 100%;">
-      <canvas id="graph3"></canvas>
-    </div>
-  </div>
-
-  <div class="panel content margin-medium-bottom">
-    <div class="horizontal-left-content middle gap-small">
-      <h2>Average Update Latency</h2>
-      <span class="circle-button btn-download" title="Download PNG" onclick="downloadChart('graph4', 'update_latency')"></span>
-    </div>
-    <p class="subtle">Normalized average time (in days) between record creation and first update. Sorted descending.</p>
-    <div class="chart-container" style="position: relative; height: 1800px; width: 100%;">
-      <canvas id="graph4"></canvas>
-    </div>
-  </div>
-
-  <div class="panel content margin-medium-bottom">
+  <div class="panel content">
     <div class="horizontal-left-content middle gap-small">
       <h2>Summary Table</h2>
-      <span class="circle-button btn-clipboard" title="Copy to clipboard" data-clipboard-table-selector="#year-in-review-summary-table"></span>
+      <span class="circle-button btn-primary btn-clipboard" title="Copy to clipboard" data-clipboard-table-selector="#year-in-review-summary-table"></span>
     </div>
     <div id="summary-table-container"></div>
   </div>
 </div>
 
 <script>
-document.addEventListener('turbo:load', initYearInReview);
-document.addEventListener('DOMContentLoaded', initYearInReview);
 
-var yearInReviewCharts = {};
+document.addEventListener('turbolinks:load', initYearInReview);
+
+let yearInReviewCharts = {};
 
 function initYearInReview() {
   const dashboard = document.getElementById('year-in-review-dashboard');
@@ -102,6 +105,17 @@ function initYearInReview() {
     });
 }
 
+function autoHeightForBarChart(canvasId, labelsCount, barHeight = 32, minHeight = 300) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+
+  const container = canvas.closest('.chartjs-container');
+  if (!container) return;
+
+  const height = Math.max(labelsCount * barHeight, minHeight);
+  container.style.height = height + 'px';
+}
+
 function downloadChart(canvasId, filename) {
   const canvas = document.getElementById(canvasId);
   if (!canvas) return;
@@ -113,15 +127,8 @@ function downloadChart(canvasId, filename) {
   link.click();
 }
 
-function getChartTextColor() {
-  const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark' ||
-                     window.matchMedia('(prefers-color-scheme: dark)').matches ||
-                     document.body.classList.contains('dark-mode');
-  return isDarkMode ? '#e0e0e0' : '#000000';
-}
-
 function getChartOptions(customOptions) {
-  const textColor = getChartTextColor();
+  const textColor = '#000000'
 
   const baseOptions = {
     responsive: true,
@@ -184,6 +191,8 @@ function renderGraph1(graphData) {
   const ctx = document.getElementById('graph1');
   if (!ctx) return;
 
+  autoHeightForBarChart('graph1', graphData.labels.length);
+
   yearInReviewCharts.graph1 = new Chart(ctx, {
     type: 'bar',
     data: graphData,
@@ -218,6 +227,8 @@ function renderGraph1(graphData) {
 function renderGraph2(graphData) {
   const ctx = document.getElementById('graph2');
   if (!ctx) return;
+
+  autoHeightForBarChart('graph2', graphData.labels.length)
 
   yearInReviewCharts.graph2 = new Chart(ctx, {
     type: 'bar',
@@ -297,6 +308,8 @@ function renderGraph3(graphData) {
 function renderGraph4(graphData) {
   const ctx = document.getElementById('graph4');
   if (!ctx) return;
+
+  autoHeightForBarChart('graph4', graphData.labels.length);
 
   yearInReviewCharts.graph4 = new Chart(ctx, {
     type: 'bar',
