@@ -11,7 +11,7 @@
             v-model="selectAllToggle"
           />
         </th>
-        <th>Depicted objects</th>
+        <th>Objects</th>
         <th></th>
       </tr>
     </thead>

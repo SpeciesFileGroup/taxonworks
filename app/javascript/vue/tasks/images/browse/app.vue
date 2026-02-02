@@ -24,9 +24,10 @@
           :layers="store.layers"
         />
       </div>
-      <div class="flex-col gap-medium">
+      <div class="flex-col gap-medium right-column overflow-y-auto">
         <PanelPixelToCm />
-        <TableDepicted :records="store.depictionObjects" />
+        <PanelDepictions />
+        <PanelExif :image-url="store.image.imageUrl" />
       </div>
     </template>
   </div>
@@ -35,14 +36,16 @@
 <script setup>
 import { onBeforeMount, ref } from 'vue'
 import { usePopstateListener } from '@/composables/usePopstateListener'
-import { URLParamsToJSON } from '@/helpers'
+import { setParam, URLParamsToJSON } from '@/helpers'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VNavbar from './components/Navbar.vue'
 import ViewerImage from './components/Viewer/ViewerImage.vue'
 import useStore from './store/store.js'
-import TableDepicted from './components/Table/TableDepicted.vue'
 import ViewerToolbar from './components/Viewer/ViewerToolbar.vue'
 import PanelPixelToCm from './components/Panel/PanelPixelToCm.vue'
+import PanelExif from './components/Panel/PanelExif.vue'
+import PanelDepictions from './components/Panel/PanelDepictions.vue'
+import { RouteNames } from '@/routes/routes'
 
 const store = useStore()
 const mode = ref('pan')
@@ -65,6 +68,7 @@ function loadImage(imageId) {
     .catch(() => {})
     .finally(() => {
       isLoading.value = false
+      setParam(RouteNames.BrowseImage, 'image_id', imageId)
     })
 }
 
@@ -73,8 +77,15 @@ onBeforeMount(loadFromUrlParam)
 </script>
 
 <style scoped>
+.right-column {
+  width: 100%;
+  max-width: 440px;
+  height: calc(100vh - 180px);
+}
+
 .svg-viewer-container {
   width: 100%;
-  height: calc(100vh - 200px);
+  height: calc(100vh - 180px);
+  max-height: calc(100vh - 180px);
 }
 </style>

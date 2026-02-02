@@ -28,6 +28,7 @@
       />
 
       <MeasurementLayer
+        v-if="pixelsToCentimeters"
         :measurements="measurements"
         :pixels-to-centimeters="pixelsToCentimeters"
         :font-size="12 / zoom"

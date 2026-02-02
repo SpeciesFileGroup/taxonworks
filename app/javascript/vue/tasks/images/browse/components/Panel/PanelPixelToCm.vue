@@ -1,7 +1,7 @@
 <template>
   <div class="panel content">
     <div class="field label-above">
-      <label>Pixels to CM</label>
+      <h3>Pixels to CM</h3>
       <div class="flex flex-row gap-small">
         <input
           class="full_width"
