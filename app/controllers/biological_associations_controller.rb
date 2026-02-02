@@ -31,7 +31,7 @@ class BiologicalAssociationsController < ApplicationController
 
   # GET /biological_associations/new
   def new
-    redirect_to edit_biological_associations_graph_task_path
+    redirect_to new_biological_association_task_path
   end
 
   # GET /biological_associations/1/edit
@@ -228,7 +228,7 @@ class BiologicalAssociationsController < ApplicationController
 
   def subject_object_types
     hash = BIOLOGICALLY_RELATABLE_TYPES.reduce({}) do |h, val|
-       h[val] = val.tableize
+      h[val] = val.tableize
        h
     end
     render json: hash

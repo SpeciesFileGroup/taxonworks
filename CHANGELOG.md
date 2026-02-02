@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - New asserted distribution task is not loading
 - Biological Associations always report success on delete, even when the destroy fails because the association is the object of an Asserted Distribution [#4731]
+- `New` link redirects to graph instead of new Biological Association task [#4732]
 
 ### Changed
 
@@ -23,6 +24,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#4718]: https://github.com/SpeciesFileGroup/taxonworks/issues/4718
 [#4731]: https://github.com/SpeciesFileGroup/taxonworks/issues/4731
+[#4732]: https://github.com/SpeciesFileGroup/taxonworks/issues/4732
 
 ## [0.58.0] - 2026-01-23
 
