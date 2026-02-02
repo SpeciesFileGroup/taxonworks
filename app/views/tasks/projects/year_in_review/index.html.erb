@@ -2,7 +2,7 @@
 
 <h1>Year in review</h1>
 
-<%= form_tag(year_in_review_task_path, method: :get, class: 'margin-medium-bottom') do %>
+<%= form_tag(@form_url, method: :get, class: 'margin-medium-bottom') do %>
   <div class="horizontal-left-content gap-small">
     <%= tag.label 'Year:', for: :year %>
     <%= select_tag :year,
@@ -14,7 +14,7 @@
 
 <div id="year-in-review-dashboard"
      data-year="<%= @year %>"
-     data-url="<%= year_in_review_data_path(format: :json) %>">
+     data-url="<%= @data_url %>">
 
   <div class="panel content margin-medium-bottom">
     <h2>Loading data for <%= @year %>...</h2>
@@ -24,7 +24,10 @@
 
 <div id="year-in-review-graphs" style="display: none;">
   <div class="panel content margin-medium-bottom">
-    <h2>Created and Updated Records</h2>
+    <div class="horizontal-left-content middle gap-small">
+      <h2>Created and Updated Records</h2>
+      <span class="circle-button btn-download" title="Download PNG" onclick="downloadChart('graph1', 'created_updated_records')"></span>
+    </div>
     <p class="subtle">Stacked bar chart showing records created (bottom) and updated delta (top) per table. Sorted by total activity.</p>
     <div class="chart-container" style="position: relative; height: 1800px; width: 100%;">
       <canvas id="graph1"></canvas>
@@ -32,7 +35,10 @@
   </div>
 
   <div class="panel content margin-medium-bottom">
-    <h2>Percentage Growth</h2>
+    <div class="horizontal-left-content middle gap-small">
+      <h2>Percentage Growth</h2>
+      <span class="circle-button btn-download" title="Download PNG" onclick="downloadChart('graph2', 'percentage_growth')"></span>
+    </div>
     <p class="subtle">Percentage of all-time records that were created this year. Sorted descending.</p>
     <div class="chart-container" style="position: relative; height: 1800px; width: 100%;">
       <canvas id="graph2"></canvas>
@@ -40,7 +46,10 @@
   </div>
 
   <div class="panel content margin-medium-bottom">
-    <h2>Records vs. Contributors</h2>
+    <div class="horizontal-left-content middle gap-small">
+      <h2>Records vs. Contributors</h2>
+      <span class="circle-button btn-download" title="Download PNG" onclick="downloadChart('graph3', 'records_vs_contributors')"></span>
+    </div>
     <p class="subtle">Scatter plot comparing normalized record activity (x-axis) to normalized unique contributor count (y-axis). Each point represents a table.</p>
     <div class="chart-container" style="position: relative; height: 600px; width: 100%;">
       <canvas id="graph3"></canvas>
@@ -48,7 +57,10 @@
   </div>
 
   <div class="panel content margin-medium-bottom">
-    <h2>Average Update Latency</h2>
+    <div class="horizontal-left-content middle gap-small">
+      <h2>Average Update Latency</h2>
+      <span class="circle-button btn-download" title="Download PNG" onclick="downloadChart('graph4', 'update_latency')"></span>
+    </div>
     <p class="subtle">Normalized average time (in days) between record creation and first update. Sorted descending.</p>
     <div class="chart-container" style="position: relative; height: 1800px; width: 100%;">
       <canvas id="graph4"></canvas>
@@ -56,7 +68,10 @@
   </div>
 
   <div class="panel content margin-medium-bottom">
-    <h2>Summary Table</h2>
+    <div class="horizontal-left-content middle gap-small">
+      <h2>Summary Table</h2>
+      <span class="circle-button btn-clipboard" title="Copy to clipboard" data-clipboard-table-selector="#year-in-review-summary-table"></span>
+    </div>
     <div id="summary-table-container"></div>
   </div>
 </div>
@@ -64,6 +79,8 @@
 <script>
 document.addEventListener('turbo:load', initYearInReview);
 document.addEventListener('DOMContentLoaded', initYearInReview);
+
+var yearInReviewCharts = {};
 
 function initYearInReview() {
   const dashboard = document.getElementById('year-in-review-dashboard');
@@ -85,8 +102,18 @@ function initYearInReview() {
     });
 }
 
+function downloadChart(canvasId, filename) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+
+  const year = document.getElementById('year-in-review-dashboard').dataset.year;
+  const link = document.createElement('a');
+  link.download = filename + '_' + year + '.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
+
 function getChartTextColor() {
-  // Detect dark mode by checking computed background color or CSS custom property
   const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark' ||
                      window.matchMedia('(prefers-color-scheme: dark)').matches ||
                      document.body.classList.contains('dark-mode');
@@ -157,7 +184,7 @@ function renderGraph1(graphData) {
   const ctx = document.getElementById('graph1');
   if (!ctx) return;
 
-  new Chart(ctx, {
+  yearInReviewCharts.graph1 = new Chart(ctx, {
     type: 'bar',
     data: graphData,
     options: getChartOptions({
@@ -192,7 +219,7 @@ function renderGraph2(graphData) {
   const ctx = document.getElementById('graph2');
   if (!ctx) return;
 
-  new Chart(ctx, {
+  yearInReviewCharts.graph2 = new Chart(ctx, {
     type: 'bar',
     data: graphData,
     options: getChartOptions({
@@ -224,7 +251,7 @@ function renderGraph3(graphData) {
   const ctx = document.getElementById('graph3');
   if (!ctx) return;
 
-  new Chart(ctx, {
+  yearInReviewCharts.graph3 = new Chart(ctx, {
     type: 'scatter',
     data: graphData,
     options: getChartOptions({
@@ -271,7 +298,7 @@ function renderGraph4(graphData) {
   const ctx = document.getElementById('graph4');
   if (!ctx) return;
 
-  new Chart(ctx, {
+  yearInReviewCharts.graph4 = new Chart(ctx, {
     type: 'bar',
     data: graphData,
     options: getChartOptions({
@@ -314,7 +341,7 @@ function renderSummaryTable(data) {
   const container = document.getElementById('summary-table-container');
   if (!container || !data.tables) return;
 
-  let html = '<table class="tablesorter">';
+  let html = '<table id="year-in-review-summary-table" class="tablesorter">';
   html += '<thead><tr>';
   html += '<th>Table</th>';
   html += '<th>Created</th>';
@@ -345,10 +372,9 @@ function renderSummaryTable(data) {
 
   // Initialize tablesorter on the new table
   if (typeof jQuery !== 'undefined' && jQuery.fn.tablesorter) {
-    jQuery('#summary-table-container table').tablesorter({
+    jQuery('#year-in-review-summary-table').tablesorter({
       widgets: ['zebra'],
       textExtraction: function(node) {
-        // Use data-sort-value attribute if present for proper numeric sorting
         const sortValue = node.getAttribute('data-sort-value');
         return sortValue !== null ? sortValue : node.textContent;
       }

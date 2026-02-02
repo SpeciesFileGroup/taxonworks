@@ -5,13 +5,16 @@
 module Tasks::Projects::YearInReviewHelper
 
   # Tables to exclude from the year in review report (indexing/cache tables).
-  EXCLUDED_TABLE_PATTERNS = [/cached/i].freeze
+  EXCLUDED_TABLE_PATTERNS = [/cached|pinboard/i].freeze
 
   # Tables to include in the year in review report.
   # Based on Project#MANIFEST plus User and Project, excluding indexing tables.
   YEAR_IN_REVIEW_TABLES = (Project::MANIFEST + %w{User Project}).uniq.reject { |t|
     EXCLUDED_TABLE_PATTERNS.any? { |pattern| t.match?(pattern) }
   }.freeze
+
+  # Tables only shown in the admin (cross-project) version.
+  ADMIN_ONLY_TABLES = %w{User Project}.freeze
 
   # Returns all data for the year in review dashboard.
   #
@@ -25,6 +28,9 @@ module Tasks::Projects::YearInReviewHelper
     table_data = []
 
     YEAR_IN_REVIEW_TABLES.each do |table_name|
+      # Skip admin-only tables when scoped to a project
+      next if project_id.present? && ADMIN_ONLY_TABLES.include?(table_name)
+
       klass = table_name.safe_constantize
       next unless klass
       next unless klass.respond_to?(:table_name)
@@ -62,7 +68,7 @@ module Tasks::Projects::YearInReviewHelper
 
   # Returns available years for the dropdown selector.
   #
-  # @param project_id [Integer]
+  # @param project_id [Integer, nil] if nil, queries across all projects
   # @return [Array<Integer>] years in descending order
   def available_years_for_review(project_id)
     # Find the earliest created_at across project-scoped tables
@@ -72,7 +78,7 @@ module Tasks::Projects::YearInReviewHelper
       klass = table_name.safe_constantize
       next unless klass
 
-      result = if klass.column_names.include?('project_id')
+      result = if klass.column_names.include?('project_id') && project_id.present?
         klass.where(project_id: project_id).minimum(:created_at)
       else
         klass.minimum(:created_at)
@@ -106,11 +112,13 @@ module Tasks::Projects::YearInReviewHelper
   end
 
   # Calculate all statistics for a single table
+  # @param project_id [Integer, nil] if nil, queries across all projects
   def calculate_table_stats(klass:, table_name:, start_date:, end_date:, project_id:)
     is_project_scoped = table_is_project_scoped?(klass)
     has_housekeeping = table_has_housekeeping_users?(klass)
 
-    project_clause = is_project_scoped ? "AND project_id = #{project_id.to_i}" : ""
+    # Only add project clause if project_id is provided and table has project_id column
+    project_clause = (is_project_scoped && project_id.present?) ? "AND project_id = #{project_id.to_i}" : ""
 
     # Total created in target year
     created_count = execute_count_sql(<<~SQL)

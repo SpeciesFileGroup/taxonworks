@@ -633,6 +633,14 @@ batch_add_users_task:
   categories:
   status: prototype
   description: "Add a list of users."
+administrator_year_in_review_task:
+  hub: false
+  name: "Administration: Year in review"
+  related:
+    - year_in_review_task
+  categories:
+  status: prototype
+  description: "A dashboard summarizing activity across all projects for a calendar year."
 filter_extract_task:
   hub: true
   name: "Filter extracts"

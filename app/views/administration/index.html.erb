@@ -69,6 +69,7 @@
     <div class="content">
       <ul class="no_bullets list list-arrow">
         <%= content_tag(:li, link_to("Overview", data_overview_path, data: { turbolinks: false })) -%>
+        <%= content_tag(:li, link_to("Year in review", administrator_year_in_review_task_path, data: { turbolinks: false })) -%>
         <%= content_tag(:li, link_to("Project classification", project_classification_task_path, data: { turbolinks: false })) -%>
         <%= content_tag(:li, link_to("Health", administration_data_health_task_path, data: { turbolinks: false })) -%>
         <%= content_tag(:li, link_to("Cached Map Status", cached_maps_status_path, data: { turbolinks: false })) -%>

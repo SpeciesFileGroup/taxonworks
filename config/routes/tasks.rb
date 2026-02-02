@@ -159,6 +159,11 @@ scope :tasks do
     scope :batch_add_users, controller: 'tasks/administrator/batch_add_users' do
       get '/', as: 'batch_add_users_task', action: :index
     end
+
+    scope :year_in_review, controller: 'tasks/administrator/year_in_review' do
+      get '/', action: :index, as: 'administrator_year_in_review_task'
+      get :data, as: 'administrator_year_in_review_data', defaults: {format: :json}
+    end
   end
 
   scope :dwca_import, controller: 'tasks/dwca_import/dwca_import' do
