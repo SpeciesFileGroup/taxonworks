@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- New task - Year in review - graphs and data summarizing a calendar year
 - Clone last attribution button [#4718]
 
 ### Fixed
