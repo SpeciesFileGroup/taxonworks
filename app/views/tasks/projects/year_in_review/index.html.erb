@@ -85,6 +85,67 @@ function initYearInReview() {
     });
 }
 
+function getChartTextColor() {
+  // Detect dark mode by checking computed background color or CSS custom property
+  const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark' ||
+                     window.matchMedia('(prefers-color-scheme: dark)').matches ||
+                     document.body.classList.contains('dark-mode');
+  return isDarkMode ? '#e0e0e0' : '#000000';
+}
+
+function getChartOptions(customOptions) {
+  const textColor = getChartTextColor();
+
+  const baseOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      title: {
+        color: textColor
+      },
+      legend: {
+        labels: {
+          color: textColor
+        }
+      }
+    },
+    scales: {
+      x: {
+        ticks: { color: textColor },
+        title: { color: textColor }
+      },
+      y: {
+        ticks: { color: textColor },
+        title: { color: textColor }
+      }
+    }
+  };
+
+  return mergeDeep(baseOptions, customOptions);
+}
+
+function mergeDeep(target, source) {
+  const output = Object.assign({}, target);
+  if (isObject(target) && isObject(source)) {
+    Object.keys(source).forEach(key => {
+      if (isObject(source[key])) {
+        if (!(key in target)) {
+          Object.assign(output, { [key]: source[key] });
+        } else {
+          output[key] = mergeDeep(target[key], source[key]);
+        }
+      } else {
+        Object.assign(output, { [key]: source[key] });
+      }
+    });
+  }
+  return output;
+}
+
+function isObject(item) {
+  return (item && typeof item === 'object' && !Array.isArray(item));
+}
+
 function renderGraphs(data) {
   renderGraph1(data.graph1);
   renderGraph2(data.graph2);
@@ -99,15 +160,12 @@ function renderGraph1(graphData) {
   new Chart(ctx, {
     type: 'bar',
     data: graphData,
-    options: {
+    options: getChartOptions({
       indexAxis: 'y',
-      responsive: true,
-      maintainAspectRatio: false,
       plugins: {
         title: {
           display: true,
-          text: 'Created and Updated Records by Table',
-          color: '#000000'
+          text: 'Created and Updated Records by Table'
         },
         legend: {
           display: true,
@@ -123,13 +181,10 @@ function renderGraph1(graphData) {
           }
         },
         y: {
-          stacked: true,
-          ticks: {
-            color: '#000000'
-          }
+          stacked: true
         }
       }
-    }
+    })
   });
 }
 
@@ -140,15 +195,12 @@ function renderGraph2(graphData) {
   new Chart(ctx, {
     type: 'bar',
     data: graphData,
-    options: {
+    options: getChartOptions({
       indexAxis: 'y',
-      responsive: true,
-      maintainAspectRatio: false,
       plugins: {
         title: {
           display: true,
-          text: 'Percentage of All-Time Records Created This Year',
-          color: '#000000'
+          text: 'Percentage of All-Time Records Created This Year'
         },
         legend: {
           display: false
@@ -162,14 +214,9 @@ function renderGraph2(graphData) {
             display: true,
             text: 'Percentage (%)'
           }
-        },
-        y: {
-          ticks: {
-            color: '#000000'
-          }
         }
       }
-    }
+    })
   });
 }
 
@@ -180,14 +227,11 @@ function renderGraph3(graphData) {
   new Chart(ctx, {
     type: 'scatter',
     data: graphData,
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
+    options: getChartOptions({
       plugins: {
         title: {
           display: true,
-          text: 'Normalized Records vs. Unique Contributors',
-          color: '#000000'
+          text: 'Normalized Records vs. Unique Contributors'
         },
         legend: {
           display: false
@@ -219,7 +263,7 @@ function renderGraph3(graphData) {
           }
         }
       }
-    }
+    })
   });
 }
 
@@ -230,15 +274,12 @@ function renderGraph4(graphData) {
   new Chart(ctx, {
     type: 'bar',
     data: graphData,
-    options: {
+    options: getChartOptions({
       indexAxis: 'y',
-      responsive: true,
-      maintainAspectRatio: false,
       plugins: {
         title: {
           display: true,
-          text: 'Average Days Between Creation and Update (Normalized)',
-          color: '#000000'
+          text: 'Average Days Between Creation and Update (Normalized)'
         },
         legend: {
           display: false
@@ -263,14 +304,9 @@ function renderGraph4(graphData) {
             display: true,
             text: 'Normalized Value'
           }
-        },
-        y: {
-          ticks: {
-            color: '#000000'
-          }
         }
       }
-    }
+    })
   });
 }
 
@@ -278,7 +314,7 @@ function renderSummaryTable(data) {
   const container = document.getElementById('summary-table-container');
   if (!container || !data.tables) return;
 
-  let html = '<table class="table-striped">';
+  let html = '<table class="tablesorter">';
   html += '<thead><tr>';
   html += '<th>Table</th>';
   html += '<th>Created</th>';
@@ -294,17 +330,29 @@ function renderSummaryTable(data) {
   data.tables.forEach(function(t) {
     html += '<tr>';
     html += '<td>' + t.display_name + '</td>';
-    html += '<td>' + t.created_count.toLocaleString() + '</td>';
-    html += '<td>' + t.updated_delta.toLocaleString() + '</td>';
-    html += '<td>' + t.all_time_count.toLocaleString() + '</td>';
-    html += '<td>' + t.percent_new.toFixed(1) + '%</td>';
-    html += '<td>' + t.unique_created_by + '</td>';
-    html += '<td>' + t.unique_updated_by + '</td>';
-    html += '<td>' + (t.avg_update_delta_days > 0 ? t.avg_update_delta_days.toFixed(1) : '-') + '</td>';
+    html += '<td data-sort-value="' + t.created_count + '">' + t.created_count.toLocaleString() + '</td>';
+    html += '<td data-sort-value="' + t.updated_delta + '">' + t.updated_delta.toLocaleString() + '</td>';
+    html += '<td data-sort-value="' + t.all_time_count + '">' + t.all_time_count.toLocaleString() + '</td>';
+    html += '<td data-sort-value="' + t.percent_new + '">' + t.percent_new.toFixed(1) + '%</td>';
+    html += '<td data-sort-value="' + t.unique_created_by + '">' + t.unique_created_by + '</td>';
+    html += '<td data-sort-value="' + t.unique_updated_by + '">' + t.unique_updated_by + '</td>';
+    html += '<td data-sort-value="' + t.avg_update_delta_days + '">' + (t.avg_update_delta_days > 0 ? t.avg_update_delta_days.toFixed(1) : '-') + '</td>';
     html += '</tr>';
   });
 
   html += '</tbody></table>';
   container.innerHTML = html;
+
+  // Initialize tablesorter on the new table
+  if (typeof jQuery !== 'undefined' && jQuery.fn.tablesorter) {
+    jQuery('#summary-table-container table').tablesorter({
+      widgets: ['zebra'],
+      textExtraction: function(node) {
+        // Use data-sort-value attribute if present for proper numeric sorting
+        const sortValue = node.getAttribute('data-sort-value');
+        return sortValue !== null ? sortValue : node.textContent;
+      }
+    });
+  }
 }
 </script>
