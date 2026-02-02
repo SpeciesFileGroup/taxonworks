@@ -1152,3 +1152,13 @@ verbatim_author_year_source_task:
   categories:
   status: prototype
   description: "Facilitate working through TaxonName records that have verbatim author-year data, but no citations/source."
+
+year_in_review_task:
+  hub: true
+  name: "Year in review"
+  related:
+    - week_in_review_task
+  categories:
+    - project
+  status: prototype
+  description: "A dashboard summarizing project activity for a calendar year."

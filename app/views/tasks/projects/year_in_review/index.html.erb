@@ -1,0 +1,310 @@
+<%= graph_javascript_tag %>
+
+<h1>Year in review</h1>
+
+<%= form_tag(year_in_review_task_path, method: :get, class: 'margin-medium-bottom') do %>
+  <div class="horizontal-left-content gap-small">
+    <%= tag.label 'Year:', for: :year %>
+    <%= select_tag :year,
+        options_for_select(@available_years, @year),
+        onchange: 'this.form.submit()',
+        class: 'normal-input' %>
+  </div>
+<% end %>
+
+<div id="year-in-review-dashboard"
+     data-year="<%= @year %>"
+     data-url="<%= year_in_review_data_path(format: :json) %>">
+
+  <div class="panel content margin-medium-bottom">
+    <h2>Loading data for <%= @year %>...</h2>
+    <div class="spinner"></div>
+  </div>
+</div>
+
+<div id="year-in-review-graphs" style="display: none;">
+  <div class="panel content margin-medium-bottom">
+    <h2>Created and Updated Records</h2>
+    <p class="subtle">Stacked bar chart showing records created (bottom) and updated delta (top) per table. Sorted by total activity.</p>
+    <div class="chart-container" style="position: relative; height: 1800px; width: 100%;">
+      <canvas id="graph1"></canvas>
+    </div>
+  </div>
+
+  <div class="panel content margin-medium-bottom">
+    <h2>Percentage Growth</h2>
+    <p class="subtle">Percentage of all-time records that were created this year. Sorted descending.</p>
+    <div class="chart-container" style="position: relative; height: 1800px; width: 100%;">
+      <canvas id="graph2"></canvas>
+    </div>
+  </div>
+
+  <div class="panel content margin-medium-bottom">
+    <h2>Records vs. Contributors</h2>
+    <p class="subtle">Scatter plot comparing normalized record activity (x-axis) to normalized unique contributor count (y-axis). Each point represents a table.</p>
+    <div class="chart-container" style="position: relative; height: 600px; width: 100%;">
+      <canvas id="graph3"></canvas>
+    </div>
+  </div>
+
+  <div class="panel content margin-medium-bottom">
+    <h2>Average Update Latency</h2>
+    <p class="subtle">Normalized average time (in days) between record creation and first update. Sorted descending.</p>
+    <div class="chart-container" style="position: relative; height: 1800px; width: 100%;">
+      <canvas id="graph4"></canvas>
+    </div>
+  </div>
+
+  <div class="panel content margin-medium-bottom">
+    <h2>Summary Table</h2>
+    <div id="summary-table-container"></div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('turbo:load', initYearInReview);
+document.addEventListener('DOMContentLoaded', initYearInReview);
+
+function initYearInReview() {
+  const dashboard = document.getElementById('year-in-review-dashboard');
+  if (!dashboard) return;
+
+  const year = dashboard.dataset.year;
+  const url = dashboard.dataset.url + '?year=' + year;
+
+  fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      dashboard.style.display = 'none';
+      document.getElementById('year-in-review-graphs').style.display = 'block';
+      renderGraphs(data);
+      renderSummaryTable(data);
+    })
+    .catch(error => {
+      dashboard.innerHTML = '<div class="panel content"><h2>Error loading data</h2><p>' + error.message + '</p></div>';
+    });
+}
+
+function renderGraphs(data) {
+  renderGraph1(data.graph1);
+  renderGraph2(data.graph2);
+  renderGraph3(data.graph3);
+  renderGraph4(data.graph4);
+}
+
+function renderGraph1(graphData) {
+  const ctx = document.getElementById('graph1');
+  if (!ctx) return;
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: graphData,
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Created and Updated Records by Table',
+          color: '#000000'
+        },
+        legend: {
+          display: true,
+          position: 'top'
+        }
+      },
+      scales: {
+        x: {
+          stacked: true,
+          title: {
+            display: true,
+            text: 'Record Count'
+          }
+        },
+        y: {
+          stacked: true,
+          ticks: {
+            color: '#000000'
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderGraph2(graphData) {
+  const ctx = document.getElementById('graph2');
+  if (!ctx) return;
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: graphData,
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Percentage of All-Time Records Created This Year',
+          color: '#000000'
+        },
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        x: {
+          min: 0,
+          max: 100,
+          title: {
+            display: true,
+            text: 'Percentage (%)'
+          }
+        },
+        y: {
+          ticks: {
+            color: '#000000'
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderGraph3(graphData) {
+  const ctx = document.getElementById('graph3');
+  if (!ctx) return;
+
+  new Chart(ctx, {
+    type: 'scatter',
+    data: graphData,
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Normalized Records vs. Unique Contributors',
+          color: '#000000'
+        },
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const point = context.raw;
+              return point.label + ' (' + point.x.toFixed(2) + ', ' + point.y.toFixed(2) + ')';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          min: 0,
+          max: 1,
+          title: {
+            display: true,
+            text: 'Normalized Record Activity'
+          }
+        },
+        y: {
+          min: 0,
+          max: 1,
+          title: {
+            display: true,
+            text: 'Normalized Unique Contributors'
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderGraph4(graphData) {
+  const ctx = document.getElementById('graph4');
+  if (!ctx) return;
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: graphData,
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Average Days Between Creation and Update (Normalized)',
+          color: '#000000'
+        },
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const rawValues = context.dataset.raw_values;
+              if (rawValues && rawValues[context.dataIndex] !== undefined) {
+                return rawValues[context.dataIndex].toFixed(1) + ' days';
+              }
+              return context.formattedValue;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          min: 0,
+          max: 1,
+          title: {
+            display: true,
+            text: 'Normalized Value'
+          }
+        },
+        y: {
+          ticks: {
+            color: '#000000'
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderSummaryTable(data) {
+  const container = document.getElementById('summary-table-container');
+  if (!container || !data.tables) return;
+
+  let html = '<table class="table-striped">';
+  html += '<thead><tr>';
+  html += '<th>Table</th>';
+  html += '<th>Created</th>';
+  html += '<th>Updated (delta)</th>';
+  html += '<th>All Time</th>';
+  html += '<th>% New</th>';
+  html += '<th>Unique Creators</th>';
+  html += '<th>Unique Updaters</th>';
+  html += '<th>Avg Update (days)</th>';
+  html += '</tr></thead>';
+  html += '<tbody>';
+
+  data.tables.forEach(function(t) {
+    html += '<tr>';
+    html += '<td>' + t.display_name + '</td>';
+    html += '<td>' + t.created_count.toLocaleString() + '</td>';
+    html += '<td>' + t.updated_delta.toLocaleString() + '</td>';
+    html += '<td>' + t.all_time_count.toLocaleString() + '</td>';
+    html += '<td>' + t.percent_new.toFixed(1) + '%</td>';
+    html += '<td>' + t.unique_created_by + '</td>';
+    html += '<td>' + t.unique_updated_by + '</td>';
+    html += '<td>' + (t.avg_update_delta_days > 0 ? t.avg_update_delta_days.toFixed(1) : '-') + '</td>';
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+</script>
