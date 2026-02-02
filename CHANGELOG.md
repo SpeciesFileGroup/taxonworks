@@ -15,12 +15,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - New asserted distribution task is not loading
+- Biological Associations always report success on delete, even when the destroy fails because the association is the object of an Asserted Distribution [#4731]
 
 ### Changed
 
 - The inventory keys API endpoint has been updated to indicate when an observation matrix is a media matrix.
 
 [#4718]: https://github.com/SpeciesFileGroup/taxonworks/issues/4718
+[#4731]: https://github.com/SpeciesFileGroup/taxonworks/issues/4731
 
 ## [0.58.0] - 2026-01-23
 

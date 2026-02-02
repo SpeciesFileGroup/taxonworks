@@ -76,8 +76,13 @@ class BiologicalAssociationsController < ApplicationController
   def destroy
     @biological_association.destroy
     respond_to do |format|
-      format.html { redirect_to biological_associations_url, notice: 'Biological association was successfully destroyed.' }
-      format.json { head :no_content }
+      if @biological_association.destroyed?
+        format.html { redirect_to biological_associations_url, notice: 'Biological association was successfully destroyed.' }
+        format.json { head :no_content }
+      else
+        format.html { destroy_redirect @biological_association, notice: 'Biological association was not destroyed: ' + @biological_association.errors.full_messages.join('; ') }
+        format.json { render json: @biological_association.errors, status: :unprocessable_content }
+      end
     end
   end
 
