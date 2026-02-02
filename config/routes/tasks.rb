@@ -300,6 +300,12 @@ scope :tasks do
       get '/', action: :index, as: 'filter_images_task'
     end
 
+    scope :images_packager, controller: 'tasks/images/images_packager' do
+      get '/', action: :index, as: 'images_packager_task'
+      post 'preview', action: :preview, defaults: { format: :json }
+      post 'download', action: :download
+    end
+
     scope :new_image, controller: 'tasks/images/new_image' do
       get :index, as: 'new_image_task'
     end
@@ -362,6 +368,12 @@ scope :tasks do
   end
 
   scope :sources do
+    scope :documents_packager, controller: 'tasks/sources/documents_packager' do
+      get '/', action: :index, as: 'documents_packager_task'
+      post 'preview', action: :preview, defaults: { format: :json }
+      post 'download', action: :download
+    end
+
     scope :source_citation_totals, controller: 'tasks/sources/source_citation_totals' do
       get '/', action: :index, as: 'source_citation_totals_task'
     end
