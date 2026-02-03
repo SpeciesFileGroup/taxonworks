@@ -1,23 +1,20 @@
 <template>
-  <div class="label-above">
-    <select v-model="value">
-      <option disabled>Match</option>
-      <option
-        v-for="(label, v) in COMBINATIONS"
-        :key="label"
-        :value="v"
-      >
-        {{ label }}
-      </option>
-    </select>
-  </div>
+  <select v-model="value">
+    <option
+      v-for="(label, v) in COMBINATIONS"
+      :key="v"
+      :value="label"
+    >
+      {{ v }}
+    </option>
+  </select>
 </template>
 
 <script setup>
 const COMBINATIONS = {
-  null: 'AND',
-  true: 'OR',
-  false: 'AND NOT'
+  AND: null,
+  OR: true,
+  'AND NOT': false
 }
 
 const value = defineModel({

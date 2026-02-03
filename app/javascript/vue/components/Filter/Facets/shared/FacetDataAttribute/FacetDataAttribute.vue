@@ -35,7 +35,7 @@ function makeDataAttribute(baseObject = {}) {
     type: 'exact',
     value: null,
     predicate: null,
-    negator: null,
+    negator: false,
     logic: null,
     ...baseObject
   }
@@ -122,7 +122,7 @@ onBeforeMount(async () => {
         value: values[i],
         logic: logic[i],
         type: type[i],
-        negator: negator[i]
+        negator: negator[i] || false
       })
     )
   }
