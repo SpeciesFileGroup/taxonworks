@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - New task - Year in review - graphs and data summarizing a calendar year
 - Clone last attribution button [#4718]
+- Browse images task [#4689][#3194]
 
 ### Fixed
 
@@ -22,6 +23,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - The inventory keys API endpoint has been updated to indicate when an observation matrix is a media matrix.
 
+[#3194]: https://github.com/SpeciesFileGroup/taxonworks/issues/3194
+[#4689]: https://github.com/SpeciesFileGroup/taxonworks/issues/4689
 [#4718]: https://github.com/SpeciesFileGroup/taxonworks/issues/4718
 [#4731]: https://github.com/SpeciesFileGroup/taxonworks/issues/4731
 [#4732]: https://github.com/SpeciesFileGroup/taxonworks/issues/4732
