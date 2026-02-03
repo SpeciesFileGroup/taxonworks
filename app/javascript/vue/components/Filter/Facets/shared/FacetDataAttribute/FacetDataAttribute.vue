@@ -49,7 +49,10 @@ const params = defineModel({
 watch(
   dataAttributes,
   (newVal) => {
-    const attributes = newVal.filter((da) => da.predicate || da.value)
+    const attributes = newVal.filter((da) => {
+      // Require something other than the default
+      return da.predicate || da.negator || da.value || da.type != 'exact'
+    })
     const hasAttributes = attributes.length > 0
 
     const paramValues = {
