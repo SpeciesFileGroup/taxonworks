@@ -3,7 +3,7 @@ class OtusController < ApplicationController
 
   before_action :set_otu, only: [
     :show, :edit, :update, :destroy, :collection_objects, :navigation,
-    :breadcrumbs, :timeline, :coordinate, :distribution,
+    :breadcrumbs, :timeline, :inventory, :coordinate, :distribution,
     :api_show, :api_taxonomy_inventory, :api_type_material_inventory,
     :api_nomenclature_citations, :api_distribution, :api_content, :api_dwc_inventory, :api_dwc_gallery, :api_key_inventory, :api_determined_to_rank]
 
@@ -48,6 +48,11 @@ class OtusController < ApplicationController
   # GET /otus/1/timeline.json
   def timeline
     @catalog = Catalog::Timeline.new(targets: [@otu])
+  end
+
+  # GET /otus/1/inventory.json
+  def inventory
+    @catalog = Catalog::Inventory.new(targets: [@otu])
   end
 
   # GET /otus/1/navigation.json

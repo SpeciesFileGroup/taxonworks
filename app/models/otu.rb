@@ -74,7 +74,8 @@ class Otu < ApplicationRecord
 
   has_many :type_materials, through: :protonym
 
-  # TODO: no longer true since they can come through Otu as well
+  # TODO: no longer true since they can come through Otu and AnatomicalPart as
+  # well
   has_many :extracts, through: :collection_objects, source: :extracts
   has_many :sequences, through: :extracts, source: :derived_sequences
 
