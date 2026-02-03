@@ -21,7 +21,7 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
           # s3 has no data attributes
 
           query.set_data_attributes_params(
-            data_attribute_predicate_id: [p1.id],
+            data_attribute_predicate_row_id: [p1.id],
             data_attribute_value: ['green'],
             data_attribute_value_negator: [false],
             data_attribute_value_type: ['exact']
@@ -34,7 +34,7 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
           InternalAttribute.create!(predicate: p1, value: 'blue', attribute_subject: s1)
 
           query.set_data_attributes_params(
-            data_attribute_predicate_id: [p1.id],
+            data_attribute_predicate_row_id: [p1.id],
             data_attribute_value: ['green'],
             data_attribute_value_negator: [false],
             data_attribute_value_type: ['exact']
@@ -47,7 +47,7 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
           InternalAttribute.create!(predicate: p2, value: 'green', attribute_subject: s1)
 
           query.set_data_attributes_params(
-            data_attribute_predicate_id: [p1.id],
+            data_attribute_predicate_row_id: [p1.id],
             data_attribute_value: ['green'],
             data_attribute_value_negator: [false],
             data_attribute_value_type: ['exact']
@@ -64,7 +64,7 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
           # s3 has no data attributes
 
           query.set_data_attributes_params(
-            data_attribute_predicate_id: [p1.id],
+            data_attribute_predicate_row_id: [p1.id],
             data_attribute_value: ['green'],
             data_attribute_value_negator: [true],
             data_attribute_value_type: ['exact']
@@ -79,7 +79,7 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
           # s3 has no data attributes
 
           query.set_data_attributes_params(
-            data_attribute_predicate_id: [p1.id],
+            data_attribute_predicate_row_id: [p1.id],
             data_attribute_value: ['green'],
             data_attribute_value_negator: [true],
             data_attribute_value_type: ['exact']
@@ -98,7 +98,7 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
           InternalAttribute.create!(predicate: p1, value: 'blue', attribute_subject: s3)
 
           query.set_data_attributes_params(
-            data_attribute_predicate_id: [0],
+            data_attribute_predicate_row_id: [0],
             data_attribute_value: ['green'],
             data_attribute_value_negator: [false],
             data_attribute_value_type: ['exact']
@@ -111,7 +111,7 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
           InternalAttribute.create!(predicate: p1, value: 'blue', attribute_subject: s1)
 
           query.set_data_attributes_params(
-            data_attribute_predicate_id: [0],
+            data_attribute_predicate_row_id: [0],
             data_attribute_value: ['green'],
             data_attribute_value_negator: [false],
             data_attribute_value_type: ['exact']
@@ -128,7 +128,7 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
           # s3 has no data attributes
 
           query.set_data_attributes_params(
-            data_attribute_predicate_id: [0],
+            data_attribute_predicate_row_id: [0],
             data_attribute_value: ['green'],
             data_attribute_value_negator: [true],
             data_attribute_value_type: ['exact']
@@ -142,7 +142,7 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
           # s2, s3 have no data attributes
 
           query.set_data_attributes_params(
-            data_attribute_predicate_id: [0],
+            data_attribute_predicate_row_id: [0],
             data_attribute_value: ['green'],
             data_attribute_value_negator: [true],
             data_attribute_value_type: ['exact']
@@ -167,7 +167,7 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
           InternalAttribute.create!(predicate: p1, value: 'blue', attribute_subject: s3)
 
           query.set_data_attributes_params(
-            data_attribute_predicate_id: [p1.id],
+            data_attribute_predicate_row_id: [p1.id],
             data_attribute_value: ['green'],
             data_attribute_value_negator: [false],
             data_attribute_value_type: ['wildcard']
@@ -180,7 +180,7 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
           InternalAttribute.create!(predicate: p1, value: 'blue', attribute_subject: s1)
 
           query.set_data_attributes_params(
-            data_attribute_predicate_id: [p1.id],
+            data_attribute_predicate_row_id: [p1.id],
             data_attribute_value: ['green'],
             data_attribute_value_negator: [false],
             data_attribute_value_type: ['wildcard']
@@ -197,7 +197,7 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
           # s3 has no data attributes
 
           query.set_data_attributes_params(
-            data_attribute_predicate_id: [p1.id],
+            data_attribute_predicate_row_id: [p1.id],
             data_attribute_value: ['green'],
             data_attribute_value_negator: [true],
             data_attribute_value_type: ['wildcard']
@@ -212,7 +212,7 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
           # s3 has no data attributes
 
           query.set_data_attributes_params(
-            data_attribute_predicate_id: [p1.id],
+            data_attribute_predicate_row_id: [p1.id],
             data_attribute_value: ['green'],
             data_attribute_value_negator: [true],
             data_attribute_value_type: ['wildcard']
@@ -231,7 +231,7 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
           InternalAttribute.create!(predicate: p1, value: 'blue', attribute_subject: s3)
 
           query.set_data_attributes_params(
-            data_attribute_predicate_id: [0],
+            data_attribute_predicate_row_id: [0],
             data_attribute_value: ['green'],
             data_attribute_value_negator: [false],
             data_attribute_value_type: ['wildcard']
@@ -244,7 +244,7 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
           InternalAttribute.create!(predicate: p1, value: 'blue', attribute_subject: s1)
 
           query.set_data_attributes_params(
-            data_attribute_predicate_id: [0],
+            data_attribute_predicate_row_id: [0],
             data_attribute_value: ['green'],
             data_attribute_value_negator: [false],
             data_attribute_value_type: ['wildcard']
@@ -261,7 +261,7 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
           # s3 has no data attributes
 
           query.set_data_attributes_params(
-            data_attribute_predicate_id: [0],
+            data_attribute_predicate_row_id: [0],
             data_attribute_value: ['green'],
             data_attribute_value_negator: [true],
             data_attribute_value_type: ['wildcard']
@@ -275,7 +275,7 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
           # s2, s3 have no data attributes
 
           query.set_data_attributes_params(
-            data_attribute_predicate_id: [0],
+            data_attribute_predicate_row_id: [0],
             data_attribute_value: ['green'],
             data_attribute_value_negator: [true],
             data_attribute_value_type: ['wildcard']
@@ -299,7 +299,7 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
         # s3 has no data attributes
 
         query.set_data_attributes_params(
-          data_attribute_predicate_id: [p1.id],
+          data_attribute_predicate_row_id: [p1.id],
           data_attribute_value: ['ignored'],
           data_attribute_value_negator: [false],
           data_attribute_value_type: ['any']
@@ -314,7 +314,7 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
         # s3 has no data attributes
 
         query.set_data_attributes_params(
-          data_attribute_predicate_id: [p1.id],
+          data_attribute_predicate_row_id: [p1.id],
           data_attribute_value: ['ignored'],
           data_attribute_value_negator: [true],
           data_attribute_value_type: ['any']
@@ -331,7 +331,7 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
         # s3 has no data attributes
 
         query.set_data_attributes_params(
-          data_attribute_predicate_id: [0],
+          data_attribute_predicate_row_id: [0],
           data_attribute_value: ['ignored'],
           data_attribute_value_negator: [false],
           data_attribute_value_type: ['any']
@@ -345,7 +345,7 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
         InternalAttribute.create!(predicate: p2, value: 'blue', attribute_subject: s2)
 
         query.set_data_attributes_params(
-          data_attribute_predicate_id: [0],
+          data_attribute_predicate_row_id: [0],
           data_attribute_value: ['ignored'],
           data_attribute_value_negator: [true],
           data_attribute_value_type: ['any']
@@ -368,7 +368,7 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
         # s3 has no data attributes
 
         query.set_data_attributes_params(
-          data_attribute_predicate_id: [p1.id],
+          data_attribute_predicate_row_id: [p1.id],
           data_attribute_value: ['ignored'],
           data_attribute_value_negator: [false],
           data_attribute_value_type: ['no']
@@ -382,7 +382,7 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
         InternalAttribute.create!(predicate: p2, value: 'blue', attribute_subject: s2)
 
         query.set_data_attributes_params(
-          data_attribute_predicate_id: [p1.id],
+          data_attribute_predicate_row_id: [p1.id],
           data_attribute_value: ['ignored'],
           data_attribute_value_negator: [true],
           data_attribute_value_type: ['no']
@@ -411,11 +411,11 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
         InternalAttribute.create!(predicate: p2, value: 'large', attribute_subject: s3)
 
         query.set_data_attributes_params(
-          data_attribute_predicate_id: [p1.id, p2.id],
+          data_attribute_predicate_row_id: [p1.id, p2.id],
           data_attribute_value: ['green', 'large'],
           data_attribute_value_negator: [false, false],
           data_attribute_value_type: ['exact', 'exact'],
-          data_attribute_combine_logic: [nil]
+          data_attribute_combine_logic: [nil, nil]
         )
 
         expect(query.all).to contain_exactly(s1)
@@ -432,11 +432,11 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
         InternalAttribute.create!(predicate: p1, value: 'red', attribute_subject: s3)
 
         query.set_data_attributes_params(
-          data_attribute_predicate_id: [p1.id, p1.id],
+          data_attribute_predicate_row_id: [p1.id, p1.id],
           data_attribute_value: ['green', 'blue'],
           data_attribute_value_negator: [false, false],
           data_attribute_value_type: ['exact', 'exact'],
-          data_attribute_combine_logic: [true]
+          data_attribute_combine_logic: [true, nil]
         )
 
         expect(query.all).to contain_exactly(s1, s2)
@@ -455,11 +455,11 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
         InternalAttribute.create!(predicate: p1, value: 'green', attribute_subject: s3)
 
         query.set_data_attributes_params(
-          data_attribute_predicate_id: [p1.id, p2.id],
+          data_attribute_predicate_row_id: [p1.id, p2.id],
           data_attribute_value: ['green', 'small'],
           data_attribute_value_negator: [false, false],
           data_attribute_value_type: ['exact', 'exact'],
-          data_attribute_combine_logic: [false]
+          data_attribute_combine_logic: [false, nil]
         )
 
         expect(query.all).to contain_exactly(s1, s3)
@@ -481,11 +481,11 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
         p3 = FactoryBot.create(:valid_predicate) # Weight
 
         query.set_data_attributes_params(
-          data_attribute_predicate_id: [p1.id, p2.id, p2.id],
+          data_attribute_predicate_row_id: [p1.id, p2.id, p2.id],
           data_attribute_value: ['green', 'large', 'heavy'],
           data_attribute_value_negator: [false, false, false],
           data_attribute_value_type: ['exact', 'exact', 'exact'],
-          data_attribute_combine_logic: [nil, true]  # AND, then OR
+          data_attribute_combine_logic: [nil, true, nil]  # AND, then OR
         )
 
         expect(query.all).to contain_exactly(s1, s3)
@@ -507,11 +507,11 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
         InternalAttribute.create!(predicate: p2, value: 'large', attribute_subject: s4)
 
         query.set_data_attributes_params(
-          data_attribute_predicate_id: [p1.id, p2.id, p3.id],
+          data_attribute_predicate_row_id: [p1.id, p2.id, p3.id],
           data_attribute_value: ['green', 'large', 'heavy'],
           data_attribute_value_negator: [false, false, false],
           data_attribute_value_type: ['exact', 'exact', 'exact'],
-          data_attribute_combine_logic: [true, nil]  # OR, then AND
+          data_attribute_combine_logic: [true, nil, nil]  # OR, then AND
         )
 
         expect(query.all).to contain_exactly(s1, s2)
@@ -530,11 +530,11 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
         # s4: no attributes (no match)
 
         query.set_data_attributes_params(
-          data_attribute_predicate_id: [p1.id, p2.id, p3.id],
+          data_attribute_predicate_row_id: [p1.id, p2.id, p3.id],
           data_attribute_value: ['ignored', 'large', 'ignored'],
           data_attribute_value_negator: [false, false, false],
           data_attribute_value_type: ['any', 'exact', 'no'],
-          data_attribute_combine_logic: [true, false] # OR, then AND NOT
+          data_attribute_combine_logic: [true, false, nil] # OR, then AND NOT
         )
 
         expect(query.all).to contain_exactly(s1, s2)
@@ -555,15 +555,93 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
         InternalAttribute.create!(predicate: p1, value: 'green', attribute_subject: s4)
 
         query.set_data_attributes_params(
-          data_attribute_predicate_id: [p1.id, p2.id, p3.id],
+          data_attribute_predicate_row_id: [p1.id, p2.id, p3.id],
           data_attribute_value: ['ignored', 'ignored', 'ignored'],
           data_attribute_value_negator: [false, false, false],
           data_attribute_value_type: ['no', 'any', 'any'],
-          data_attribute_combine_logic: [true, nil] # OR, then AND
+          data_attribute_combine_logic: [true, nil, nil] # OR, then AND
         )
 
         expect(query.all).to contain_exactly(s1, s3)
       end
+    end
+  end
+
+  context 'row-based data attributes' do
+    let(:s1) { Specimen.create! }
+    let(:s2) { Specimen.create! }
+    let(:s3) { Specimen.create! }
+
+    specify 'exact match with predicate' do
+      InternalAttribute.create!(predicate: p1, value: 'green', attribute_subject: s1)
+      InternalAttribute.create!(predicate: p2, value: 'green', attribute_subject: s2)
+
+      query.set_data_attributes_params(
+        data_attribute_predicate_row_id: [p1.id],
+        data_attribute_value: ['green'],
+        data_attribute_value_negator: [false],
+        data_attribute_value_type: ['exact'],
+        data_attribute_combine_logic: [nil]
+      )
+
+      expect(query.all).to contain_exactly(s1)
+    end
+
+    specify 'wildcard match with any predicate' do
+      InternalAttribute.create!(predicate: p1, value: 'dark green', attribute_subject: s1)
+      InternalAttribute.create!(predicate: p2, value: 'greenish', attribute_subject: s2)
+      InternalAttribute.create!(predicate: p1, value: 'blue', attribute_subject: s3)
+
+      query.set_data_attributes_params(
+        data_attribute_predicate_row_id: [0],
+        data_attribute_value: ['green'],
+        data_attribute_value_negator: [false],
+        data_attribute_value_type: ['wildcard'],
+        data_attribute_combine_logic: [nil]
+      )
+
+      expect(query.all).to contain_exactly(s1, s2)
+    end
+
+    specify 'any/no value types' do
+      InternalAttribute.create!(predicate: p1, value: 'green', attribute_subject: s1)
+      InternalAttribute.create!(predicate: p1, value: 'blue', attribute_subject: s2)
+
+      query.set_data_attributes_params(
+        data_attribute_predicate_row_id: [p1.id],
+        data_attribute_value: ['ignored'],
+        data_attribute_value_negator: [false],
+        data_attribute_value_type: ['no'],
+        data_attribute_combine_logic: [nil]
+      )
+
+      expect(query.all).to contain_exactly(s3)
+    end
+
+    specify 'combine logic OR' do
+      InternalAttribute.create!(predicate: p1, value: 'green', attribute_subject: s1)
+      InternalAttribute.create!(predicate: p1, value: 'blue', attribute_subject: s2)
+
+      query.set_data_attributes_params(
+        data_attribute_predicate_row_id: [p1.id, p1.id],
+        data_attribute_value: ['green', 'blue'],
+        data_attribute_value_negator: [false, false],
+        data_attribute_value_type: ['exact', 'exact'],
+        data_attribute_combine_logic: [true]
+      )
+
+      expect(query.all).to contain_exactly(s1, s2)
+    end
+  end
+
+  context 'legacy predicate filter (API only)' do
+    specify '#data_attribute_predicate_id' do
+      n = Specimen.create!
+      s = Specimen.create!
+      FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: s)
+
+      query.data_attribute_predicate_id = s.data_attributes.first.controlled_vocabulary_term_id
+      expect(query.all).to contain_exactly(s)
     end
   end
 

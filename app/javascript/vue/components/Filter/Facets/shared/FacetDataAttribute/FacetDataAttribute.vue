@@ -56,7 +56,7 @@ watch(
     const hasAttributes = attributes.length > 0
 
     const paramValues = {
-      data_attribute_predicate_id: [],
+      data_attribute_predicate_row_id: [],
       data_attribute_value: [],
       data_attribute_value_negator: [],
       data_attribute_value_type: [],
@@ -65,7 +65,7 @@ watch(
 
     if (hasAttributes) {
       attributes.forEach((a) => {
-        paramValues.data_attribute_predicate_id.push(a.predicate?.id ?? '')
+        paramValues.data_attribute_predicate_row_id.push(a.predicate?.id ?? '')
         paramValues.data_attribute_value.push(a.value ?? '')
         paramValues.data_attribute_value_negator.push(a.negator ?? '')
         paramValues.data_attribute_value_type.push(a.type)
@@ -80,7 +80,7 @@ watch(
 
 watch(
   [
-    () => params.value.data_attribute_predicate_id,
+    () => params.value.data_attribute_predicate_row_id,
     () => params.value.data_attribute_value,
     () => params.value.data_attribute_combine_logic,
     () => params.value.data_attribute_value_type,
@@ -99,7 +99,7 @@ watch(
 
 onBeforeMount(async () => {
   const {
-    data_attribute_predicate_id: predicateId = [],
+    data_attribute_predicate_row_id: predicateId = [],
     data_attribute_value: values = [],
     data_attribute_combine_logic: logic = [],
     data_attribute_value_type: type = [],
