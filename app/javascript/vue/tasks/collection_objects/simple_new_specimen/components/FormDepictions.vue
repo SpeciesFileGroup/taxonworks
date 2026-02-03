@@ -64,9 +64,7 @@ const sending = (file, xhr, formData) => {
   formData.append('depiction[depiction_object_type]', COLLECTION_OBJECT)
 
   if (store.pixelsToCm) {
-    formData.append(
-      'depiction[image_attributes][pixels_to_centimeter]',
-      store.pixelsToCm
+    formData.append('depiction[image_attributes][pixels_to_centimeter]', store.pixelsToCm
     )
   }
 }

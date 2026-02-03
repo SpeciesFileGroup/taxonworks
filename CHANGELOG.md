@@ -32,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - New task: Verbatim author/year to cite taxon name
 - New task: Dichotomous key
+- Scalebar form to New simple specimen task [#4689]
 - New repository link to New type specimen task [#4692]
 - Monograph facilitator to OTU radial linker [#4690]
 - Batch create genus gender for those without one from Filter Taxon Names [#4669]
@@ -93,6 +94,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4682]: https://github.com/SpeciesFileGroup/taxonworks/issues/4682
 [#4685]: https://github.com/SpeciesFileGroup/taxonworks/issues/4685
 [#4688]: https://github.com/SpeciesFileGroup/taxonworks/issues/4688
+[#4689]: https://github.com/SpeciesFileGroup/taxonworks/issues/4689
 [#4690]: https://github.com/SpeciesFileGroup/taxonworks/issues/4690
 [#4691]: https://github.com/SpeciesFileGroup/taxonworks/issues/4691
 [#4692]: https://github.com/SpeciesFileGroup/taxonworks/issues/4692

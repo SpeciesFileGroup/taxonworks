@@ -161,6 +161,7 @@ Image:
   tasks:
     - filter_images_task
     - unify_objects_task
+    - browse_images_task
   config:
     recent: false
   new: new_image_task

@@ -297,6 +297,10 @@ scope :tasks do
   end
 
   scope :images do
+    scope :browse, controller: 'tasks/images/browse' do
+      get '', action: :index, as: 'browse_images_task'
+    end
+
     scope :new_filename_depicting_image, controller: 'tasks/images/new_filename_depicting_image' do
       get '/', action: :index, as: 'new_filename_depicting_image_task'
     end
