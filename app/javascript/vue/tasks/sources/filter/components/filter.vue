@@ -25,7 +25,7 @@
     </template>
   </FacetTaxonName>
   <FacetCitationTypes v-model="params" />
-  <FacetByAttribute
+  <FacetByAttributeRow
     controller="sources"
     v-model="params"
     :exclude="['title', 'author', 'bibtex_type']"
@@ -69,7 +69,7 @@ import FacetBibtexType from '@/components/Filter/Facets/Source/FacetBibtexType.v
 import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute/FacetDataAttribute.vue'
 import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportAttribute/FacetImportAttribute.vue'
 import CitationOnOtus from '@/components/Filter/Facets/Source/CitationOnOtus.vue'
-import FacetByAttribute from '@/components/Filter/Facets/shared/FacetByAttribute.vue'
+import FacetByAttributeRow from '@/components/Filter/Facets/shared/FacetByAttributeRow/FacetByAttributeRow.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 import FacetEditors from '@/components/Filter/Facets/Source/FacetEditors.vue'
 import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
