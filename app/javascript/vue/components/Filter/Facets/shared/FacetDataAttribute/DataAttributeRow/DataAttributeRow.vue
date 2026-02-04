@@ -41,7 +41,7 @@
     </div>
     <textarea
       class="full_width"
-      rows="5"
+      rows="3"
       placeholder="Type a value..."
       v-model="dataAttribute.value"
     ></textarea>
