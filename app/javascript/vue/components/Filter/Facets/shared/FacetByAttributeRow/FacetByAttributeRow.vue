@@ -1,7 +1,7 @@
 <template>
   <FacetContainer>
     <h3>By attributes</h3>
-    <ByAttribute
+    <ByAttributeRowFacet
       :controller="controller"
       :exclude="exclude"
       v-model="params"
@@ -11,7 +11,7 @@
 
 <script setup>
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
-import ByAttribute from './ByAttribute.vue'
+import ByAttributeRowFacet from './ByAttributeRowFacet.vue'
 import { computed } from 'vue'
 
 const props = defineProps({

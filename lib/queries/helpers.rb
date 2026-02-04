@@ -50,4 +50,24 @@ module Queries::Helpers
     a
   end
 
+  # @param values [Array]
+  # @return [Array<Boolean, nil>]
+  #   Converts array elements to boolean or nil values
+  #   Accepts: true, false, nil, 'true', 'false', 'nil', ''
+  def tri_value_array(values)
+    return [] if values.nil?
+    [values].flatten.map do |v|
+      case v
+      when true, 'true'
+        true
+      when false, 'false'
+        false
+      when nil, 'nil', ''
+        nil
+      else
+        raise TaxonWorks::Error::API, "value must be boolean or nil (provided: #{v.inspect})"
+      end
+    end
+  end
+
 end
