@@ -67,7 +67,7 @@ module Queries::Concerns::DataAttributes
     attr_accessor :data_attribute_import_exact_value
     attr_accessor :data_attribute_import_predicate
     attr_accessor :data_attribute_import_wildcard_value
-    attr_accessor :data_attribute_wildcard_pair
+    attr_accessor :data_attribute_import_wildcard_pair
 
     # @param data_attribute_predicate_id [Integer, String, Array] of Predicate (CVT) ids
     # @return Array

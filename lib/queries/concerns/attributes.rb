@@ -87,7 +87,10 @@ module Queries::Concerns::Attributes
 
     # @param attribute_combine_logic
     # @return Array[Boolean]
-    #   How to combine the results of the queries in this row and the next.
+    #   How to combine the results of the queries in this row and the next:
+    #     nil - AND
+    #     true - OR
+    #     false - AND NOT
     attr_accessor :attribute_combine_logic
 
     def attribute_exact_pair
