@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.59.0] - 2026-02-04
+
 ### Added
 
 - New task - Year in review - graphs and data summarizing a calendar year
