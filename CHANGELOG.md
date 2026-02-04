@@ -7,9 +7,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+
+- Batch Upload Asserted Distributions now supports a `gazetteer_id` column [#4739]
+
 ### Fixed
 
 - Save notice is missing in New type specimen task
+
+[#4739]: https://github.com/SpeciesFileGroup/taxonworks/issues/4739
 
 ## [0.59.0] - 2026-02-04
 
