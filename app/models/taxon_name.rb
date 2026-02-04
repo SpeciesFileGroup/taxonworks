@@ -259,6 +259,7 @@ class TaxonName < ApplicationRecord
 
   after_create :create_otu, if: :also_create_otu
   before_destroy :check_for_children, prepend: true
+  before_destroy :destroy_empty_otu, prepend: true
 
   # With this @taxonomy can more or less replace full_name_hash
   #  after_save :reset_taxonomy
@@ -1728,6 +1729,20 @@ class TaxonName < ApplicationRecord
       errors.add(:base, 'This taxon has children names attached, delete those first.')
       throw :abort
     end
+  end
+
+  # Destroys the single associated OTU if it has no related data.
+  # This allows deleting a TaxonName when its only blocker is an
+  # auto-created OTU with no meaningful information attached.
+  def destroy_empty_otu
+    return true unless otus.count == 1
+
+    otu = otus.first
+    return true unless otu.unused?
+
+    otu.destroy!
+    otus.reset # Clear association cache
+    true
   end
 
   def validate_parent_from_the_same_project
