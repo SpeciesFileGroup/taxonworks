@@ -438,6 +438,10 @@ export default defineStore('leads', {
     },
 
     lead_position_has_divided_lead_items(position) {
+      if (this.lead_item_otus.children[position].fixed) {
+        return true
+      }
+
       return this.lead_item_otus.children[position].otu_indices.length > 0 &&
         ((this.lead_item_otus.children[position].otu_indices.length <
             this.lead_item_otus.parent.length) ||
