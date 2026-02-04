@@ -6,7 +6,7 @@
     >
       <ByAttributeRow
         :attribute="attribute"
-        :field-names="fieldNames"
+        :field-names="fields"
         :remove-button="attributes.length > 1"
         @remove="() => attributes.splice(index, 1)"
         @add="() => attributes.splice(index + 1, 0, makeAttribute())"
@@ -39,7 +39,6 @@ const params = defineModel({
 })
 
 const fields = ref({})
-const fieldNames = ref([])
 const attributes = ref([makeAttribute()])
 
 function makeAttribute(baseObject = {}) {
@@ -118,11 +117,12 @@ onBeforeMount(async () => {
     ({ name }) => !props.exclude.includes(name)
   )
 
-  fields.value = {}
-  includedAttributes.forEach(({ name, type }) => {
-    fields.value[name] = type
-  })
-  fieldNames.value = Object.keys(fields.value).sort()
+  fields.value = Object.fromEntries(
+    includedAttributes
+      .slice()
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map(({ name, type }) => [name, type])
+  )
 
   const minLength = Math.min(
     names.length,

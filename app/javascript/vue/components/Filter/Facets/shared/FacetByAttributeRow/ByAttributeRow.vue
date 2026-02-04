@@ -9,8 +9,8 @@
         >
           <option :value="null">Select a field</option>
           <option
-            v-for="name in fieldNames"
-            :key="name"
+            v-for="(type, name) in fieldNames"
+            :key="type"
             :value="name"
           >
             {{ name }}
@@ -50,9 +50,10 @@
       </div>
     </div>
 
-    <input
+    <component
       class="full_width"
-      type="text"
+      :is="field.component"
+      v-bind="field.bind"
       placeholder="Type a value..."
       v-model="attribute.value"
     />
@@ -60,20 +61,44 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import DataAttributeRowLogic from '@/components/Filter/Facets/shared/FacetDataAttribute/DataAttributeRow/DataAttributeRowLogic.vue'
 import DataAttributeRowTypeSelector from '@/components/Filter/Facets/shared/FacetDataAttribute/DataAttributeRow/DataAttributeRowType.vue'
 import DataAttributeRowNegatorSelector from '@/components/Filter/Facets/shared/FacetDataAttribute/DataAttributeRow/DataAttributeRowNegator.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 
-defineProps({
+const COMPONENT_TYPES = {
+  default: {
+    component: 'input',
+    bind: {
+      type: 'text'
+    }
+  },
+
+  integer: {
+    component: 'input',
+    bind: {
+      type: 'number'
+    }
+  },
+
+  text: {
+    component: 'textarea',
+    bind: {
+      rows: 3
+    }
+  }
+}
+
+const props = defineProps({
   attribute: {
     type: Object,
     required: true
   },
 
   fieldNames: {
-    type: Array,
+    type: Object,
     required: true
   },
 
@@ -81,6 +106,12 @@ defineProps({
     type: Boolean,
     default: false
   }
+})
+
+const field = computed(() => {
+  const type = props.fieldNames[props.attribute.fieldName]
+
+  return COMPONENT_TYPES[type] || COMPONENT_TYPES.default
 })
 
 const emit = defineEmits(['remove', 'add'])

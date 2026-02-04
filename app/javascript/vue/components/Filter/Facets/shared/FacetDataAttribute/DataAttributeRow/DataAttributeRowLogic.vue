@@ -18,7 +18,7 @@ const COMBINATIONS = {
 }
 
 const value = defineModel({
-  type: [Boolean, null],
+  type: [Boolean, null, String],
   required: true
 })
 </script>
