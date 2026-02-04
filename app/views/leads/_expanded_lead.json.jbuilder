@@ -11,13 +11,9 @@ end
 
 json.children do
   json.array! @children do |lead|
-    if child_has_descendant_lead_items.nil?
-      json.partial! 'attributes', lead:
-    else
-      json.partial! 'attributes',
-        lead:,
-        has_descendant_lead_items: child_has_descendant_lead_items.fetch(lead.id, false)
-    end
+    json.partial! 'attributes',
+      lead:,
+      has_descendant_lead_items: child_has_descendant_lead_items&.fetch(lead.id, false)
   end
 end
 

@@ -319,7 +319,7 @@ const showDescendantStatus = computed(() => {
 const descendantStatusText = computed(() => {
   return childHasDescendantLeadItems.value
     ? 'More key work below'
-    : 'Descendants complete'
+    : 'Descendants key-complete'
 })
 
 const descendantStatusClass = computed(() => {

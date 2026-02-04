@@ -438,18 +438,25 @@ export default defineStore('leads', {
     },
 
     lead_position_has_divided_lead_items(position) {
-      if (this.lead_item_otus.children[position].fixed) {
+      const child = this.lead_item_otus.children[position]
+      if (child.fixed) {
         return true
       }
 
-      return this.lead_item_otus.children[position].otu_indices.length > 0 &&
-        ((this.lead_item_otus.children[position].otu_indices.length <
-            this.lead_item_otus.parent.length) ||
-          // this lead has all lead item otus, but some other also has at least
-          // one:
-          this.lead_item_otus.children.some((child, i) =>
-            i !== position && child.otu_indices.length > 0
-          ))
+      const childOtuCount = child.otu_indices.length
+      if (childOtuCount == 0) {
+        return false
+      }
+
+      if (childOtuCount < this.lead_item_otus.parent.length) {
+        return true
+      }
+
+      // If this lead has all lead item otus, require another lead to be fixed
+      // before treating the couplet as divided.
+      return this.lead_item_otus.children.some((otherChild, i) =>
+        i !== position && otherChild.fixed
+      )
     }
   }
 })

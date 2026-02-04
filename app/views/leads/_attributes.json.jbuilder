@@ -27,7 +27,7 @@ else
     json.key_updated_by lead[:key_updated_by]
   end
 
-  if local_assigns.key?(:has_descendant_lead_items)
+  if !local_assigns[:has_descendant_lead_items].nil?
     json.has_descendant_lead_items has_descendant_lead_items
   end
 
