@@ -5,6 +5,18 @@
   />
 
   <div class="lead_and_lead_items">
+    <div
+      v-if="showDescendantStatus"
+      class="descendant-status-wrap"
+    >
+      <div
+        class="descendant-status"
+        :class="descendantStatusClass"
+      >
+        {{ descendantStatusText }}
+      </div>
+    </div>
+
     <BlockLayout class="lead">
       <template #header>
         <div class="full_width header-left-right">
@@ -48,14 +60,6 @@
                 name="trash"
               />
             </VBtn>
-          </div>
-
-          <div
-            v-if="showDescendantStatus"
-            class="descendant-status"
-            :class="descendantStatusClass"
-          >
-            {{ descendantStatusText }}
           </div>
 
           <VBtn
@@ -454,11 +458,20 @@ function changeLeadPosition(direction) {
   max-width: 600px;
   display: flex;
   flex-direction: column;
+  position: relative;
+}
+
+.descendant-status-wrap {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -100%);
+  z-index: 2;
 }
 
 .descendant-status {
   align-self: center;
-  border-radius: 999px;
+  border-radius: 999px 999px 0 0;
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.02em;
