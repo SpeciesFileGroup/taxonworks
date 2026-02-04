@@ -1,6 +1,8 @@
 <template>
-  <div id="content_editor">
-    <h1>New content</h1>
+  <div
+    id="content_editor"
+    class="margin-medium-top"
+  >
     <div
       class="flex-separate"
       id="panels-content"

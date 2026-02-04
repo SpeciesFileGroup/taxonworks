@@ -46,22 +46,34 @@ class LeadItem < ApplicationRecord
   end
 
   # Transfers any items on leaf-node descendants of source to a new lead.
+  # Items with otu_ids already on target are deleted rather than moved.
   # @param target [Lead or nil] A lead to add the descendant lead_items to; if
   #   nil a new lead is created.
   # @return [Lead or nil] If items exist, the lead now holding those items.
   def self.consolidate_descendant_items(lead, target = nil)
+    target_otu_ids = target ? target.lead_items.pluck(:otu_id) : []
+
     # Both lead and lead_item have `position`, which .leaves orders by, so need
     # to remove that.
-    items =
-      lead.leaves.unscope(:order).joins(:lead_items).pluck('lead_items.id')
+    source_leaves_scope = lead.leaves.unscope(:order)
+    source_leaves_scope = source_leaves_scope.where.not(id: target.id) if target
 
-    return nil if items.empty?
+    source_items = LeadItem.where(lead_id: source_leaves_scope.select(:id))
+
+    # Identify duplicates and items to move before modifying.
+    duplicate_ids = target_otu_ids.any? ? source_items.where(otu_id: target_otu_ids).pluck(:id) : []
+    items_to_move_ids = source_items.where.not(otu_id: target_otu_ids).pluck(:id)
+
+    return nil if items_to_move_ids.empty? && duplicate_ids.empty?
 
     items_lead = target || Lead.create!(text:
       'PLACEHOLDER LEAD TO HOLD OTU OPTIONS FROM A DELETED SUBTREE'
     )
 
-    self.move_items(LeadItem.where(id: items), items_lead)
+    LeadItem.transaction do
+      LeadItem.where(id: duplicate_ids).delete_all if duplicate_ids.any?
+      move_items(LeadItem.where(id: items_to_move_ids), items_lead) if items_to_move_ids.any?
+    end
 
     items_lead
   end
@@ -165,7 +177,11 @@ class LeadItem < ApplicationRecord
 
         a = new_otu_ids.map { |id| { lead_id: lead_to_add_to.id, otu_id: id } }
         LeadItem.create!(a)
-        return true
+        return {
+          lead_id: lead_to_add_to.id,
+          added_count: new_otu_ids.length,
+          exclusive_added_count: (new_otu_ids & exclusive_otu_ids).length
+        }
       rescue ActiveRecord::RecordNotDestroyed => e
         lead.errors.add(:base, e.to_s)
         byebug
@@ -177,7 +193,11 @@ class LeadItem < ApplicationRecord
       end
     end
 
-    true
+    {
+      lead_id: lead_to_add_to.id,
+      added_count: new_otu_ids.length,
+      exclusive_added_count: (new_otu_ids & exclusive_otu_ids).length
+    }
   end
 
 end

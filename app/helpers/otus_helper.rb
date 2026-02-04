@@ -400,17 +400,33 @@ module OtusHelper
     r
   end
 
+  def serialize_matrices(scope)
+    scope
+      .where(is_public: true)
+      .map do |m|
+        {
+          id: m.id,
+          name: m.name,
+          is_media: m.is_media_matrix?
+        }
+      end
+  end
+
   def otu_key_inventory(otu)
     return {
       observation_matrices: {
-        scoped: otu.in_scope_observation_matrices.where(is_public: true).select(:id, :name).inject({}){|hsh, m| hsh[m.id] = m.name; hsh;} || {} ,
-
-        in: otu.observation_matrices.where(is_public: true).select(:id, :name).inject({}){|hsh, m| hsh[m.id] = m.name; hsh;} || {},
+        scoped: serialize_matrices(otu.in_scope_observation_matrices),
+        in: serialize_matrices(otu.observation_matrices)
       },
       leads: {
-        scoped: otu.leads.where(parent_id: nil, is_public: true).select(:id, :text).inject({}){|hsh, m| hsh[m.id] = m.text; hsh;} || {},
+        scoped: otu.leads
+          .where(parent_id: nil, is_public: true)
+          .select(:id, :text)
+          .map { |l| { id: l.id, text: l.text } },
 
-        in: Lead.public_root_leads_for_leaf_otus(otu).select(:id, :text).inject({}){|hsh, m| hsh[m.id] = m.text; hsh;} || {},
+        in: Lead.public_root_leads_for_leaf_otus(otu)
+          .select(:id, :text)
+          .map { |l| { id: l.id, text: l.text } }
       }
     }
   end

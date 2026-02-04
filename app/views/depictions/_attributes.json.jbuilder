@@ -18,6 +18,12 @@ json.image do
   json.partial! '/images/attributes', image: depiction.image
 end
 
+if extend_response_with('depiction_object')
+  json.depiction_object do
+    json.partial! '/shared/data/all/metadata', object: depiction.depiction_object
+  end
+end
+
 # TODO: extend with
 if depiction.sqed_depiction
   json.sqed_depiction do

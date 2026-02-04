@@ -1,5 +1,5 @@
 <template>
-  <FacetByAttribute
+  <FacetByAttributeRow
     v-model="params"
     controller="dwc_occurrences"
   />
@@ -7,7 +7,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import FacetByAttribute from '@/components/Filter/Facets/shared/FacetByAttribute.vue'
+import FacetByAttributeRow from '@/components/Filter/Facets/shared/FacetByAttributeRow/FacetByAttributeRow.vue'
 
 const emit = defineEmits(['update:modelValue'])
 

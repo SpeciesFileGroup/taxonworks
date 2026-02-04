@@ -30,7 +30,7 @@
       <nav-header />
       <div class="flexbox horizontal-center-content align-start">
         <div class="ccenter item">
-          <spinner
+          <VSpinner
             full-screen
             :legend="isLoading ? 'Loading...' : 'Saving changes...'"
             :logo-size="{ width: '100px', height: '100px' }"
@@ -87,7 +87,7 @@ import NavHeader from './components/navHeader.vue'
 import TaxonNameBox from './components/taxonNameBox.vue'
 import CheckChanges from './components/checkChanges.vue'
 import SoftValidation from '@/components/soft_validations/panel.vue'
-import Spinner from '@/components/ui/VSpinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import platformKey from '@/helpers/getPlatformKey'
 import { useHotkey } from '@/composables'
 import { SectionComponents } from './const/components.js'
@@ -155,6 +155,7 @@ onMounted(() => {
 
   initLoad().then(() => {
     if (/^\d+$/.test(taxonId)) {
+      isLoading.value = true
       store
         .dispatch(ActionNames.LoadTaxonName, taxonId)
         .then((taxon) => {
@@ -166,8 +167,6 @@ onMounted(() => {
         .finally(() => {
           isLoading.value = false
         })
-    } else {
-      isLoading.value = false
     }
   })
 

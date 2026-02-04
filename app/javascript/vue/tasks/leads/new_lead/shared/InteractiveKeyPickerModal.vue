@@ -14,18 +14,8 @@
         v-if="isLoading"
         legend="Loading..."
       />
-      <VBtn
-        v-if="defaultInteractiveKey"
-        color="primary"
-        @click="() => {
-          chosenMatrixId = store.root.observation_matrix_id
-          emit('click')
-          modalVisible = false
-        }"
-        class="margin-large-bottom"
-      >
-        Send to '{{ defaultInteractiveKey }}'
-      </VBtn>
+
+      <div class="display-flex gap-small">
       <select
         class="full_width margin-medium-bottom"
         v-model="chosenMatrixId"
@@ -39,6 +29,13 @@
           {{ item.name }}
         </option>
       </select>
+
+      <ButtonPinned
+        type="ObservationMatrix"
+        section="ObservationMatrices"
+        @get-item="({ id }) => (chosenMatrixId = id)"
+      />
+      </div>
 
       <VBtn
         :disabled="!chosenMatrixId"
@@ -56,12 +53,13 @@
 </template>
 
 <script setup>
+import ButtonPinned from '@/components/ui/Button/ButtonPinned.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner'
 import VModal from '@/components/ui/Modal.vue'
 import useStore from '../store/leadStore.js'
 import { ObservationMatrix } from '@/routes/endpoints'
-import { computed, onBeforeMount, ref } from 'vue'
+import { onBeforeMount, ref } from 'vue'
 
 const props = defineProps({
   childIndex: {
@@ -71,7 +69,6 @@ const props = defineProps({
 })
 
 const observationMatrices = ref([])
-const selectValue = ref([])
 const isLoading = ref(false)
 
 const store = useStore()
@@ -88,15 +85,16 @@ const chosenMatrixId = defineModel('chosenMatrixId', {
 
 const emit = defineEmits(['click'])
 
-const defaultInteractiveKey = computed(() => {
-  return observationMatrices.value.filter((m) => m.id == store.root.observation_matrix_id)[0]?.name
-})
-
 onBeforeMount(() => {
+  if (store.root.observation_matrix_id) {
+    chosenMatrixId.value = store.root.observation_matrix_id
+  }
+
   isLoading.value = true
-  ObservationMatrix.where({ per: 500 }).then(({ body }) => {
-    observationMatrices.value = body
-    isLoading.value = false
-  })
+  ObservationMatrix.where({ per: 500 })
+    .then(({ body }) => {
+      observationMatrices.value = body
+    })
+    .then(() => { isLoading.value = false })
 })
 </script>

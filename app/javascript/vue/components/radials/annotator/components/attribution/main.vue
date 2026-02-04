@@ -29,6 +29,11 @@
         {{ attribution.id ? 'Update' : 'Create' }}
       </VBtn>
 
+      <CloneLastAttribution
+        :disabled="attribution.id"
+        @clone="(item) => setAttribution(item)"
+      />
+
       <VBtn
         v-if="attribution.id"
         color="destroy"
@@ -48,6 +53,7 @@ import VSwitch from '@/components/ui/VSwitch.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import LicenseSelector from './LicenseSelector.vue'
 import PeopleSelector from './PeopleSelector.vue'
+import CloneLastAttribution from './CloneLastAttribution.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import { Attribution } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
@@ -165,8 +171,7 @@ function saveAttribution() {
 
   response
     .then(({ body }) => {
-      attribution.value = makeAttribution(body)
-      roleList.value = makeRoleList(body)
+      setAttribution(body)
       emit('updateCount', 1)
       TW.workbench.alert.create(
         'Attribution was successfully created.',
@@ -174,6 +179,11 @@ function saveAttribution() {
       )
     })
     .catch(() => {})
+}
+
+function setAttribution(item) {
+  attribution.value = makeAttribution(item)
+  roleList.value = makeRoleList(item)
 }
 
 const isLoading = ref(true)
@@ -185,8 +195,7 @@ Attribution.where({
   .then(({ body }) => {
     const [item] = body
 
-    attribution.value = makeAttribution(item)
-    roleList.value = makeRoleList(item)
+    setAttribution(item)
   })
   .finally(() => {
     isLoading.value = false

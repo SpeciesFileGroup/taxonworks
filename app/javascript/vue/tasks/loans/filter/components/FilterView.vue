@@ -1,5 +1,5 @@
 <template>
-  <FacetByAttribute
+  <FacetByAttributeRow
     controller="loans"
     v-model="params"
   />
@@ -68,7 +68,7 @@ import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
 import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
-import FacetByAttribute from '@/components/Filter/Facets/shared/FacetByAttribute.vue'
+import FacetByAttributeRow from '@/components/Filter/Facets/shared/FacetByAttributeRow/FacetByAttributeRow.vue'
 import FacetIdentifiers from '@/components/Filter/Facets/shared/FacetIdentifiers.vue'
 import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
 import FacetTaxonName from '@/components/Filter/Facets/TaxonName/FacetTaxonName.vue'

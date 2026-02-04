@@ -1,7 +1,7 @@
 <template>
-  <Modal
+  <VModal
+    :container-style="{ maxWidth: '900px', width: '90vw' }"
     @close="$emit('close')"
-    container-style="max-width: 900px; width: 90vw;"
   >
     <template #header>
       <h3>Match Authors to People</h3>
@@ -55,12 +55,7 @@
                     :name="`author-match-${index}`"
                     :value="person.id"
                     v-model="row.selectedPersonId"
-                    @change="
-                      () => {
-                        row.createdPerson = null
-                        applySelections()
-                      }
-                    "
+                    @change="row.createdPerson = null"
                   />
                   <span v-html="person.cached || person.name" />
                 </label>
@@ -137,14 +132,23 @@
       >
         Close
       </VBtn>
+      <VBtn
+        v-else
+        color="primary"
+        medium
+        :disabled="!hasSelections"
+        @click="applySelections"
+      >
+        Apply
+      </VBtn>
     </template>
-  </Modal>
+  </VModal>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { People } from '@/routes/endpoints'
-import Modal from '@/components/ui/Modal.vue'
+import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 

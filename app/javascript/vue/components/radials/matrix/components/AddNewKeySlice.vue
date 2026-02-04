@@ -52,11 +52,20 @@ const created = ref(undefined)
 const isSaving = ref(false)
 
 function addToLead() {
+  const leadPayload = {
+    text: keyName.value
+  }
+
+  const observationMatrixId =
+    props.parameters?.observation_matrix_id ||
+    props.parameters?.otu_query?.observation_matrix_id
+  if (observationMatrixId) {
+    leadPayload.observation_matrix_id = observationMatrixId
+  }
+
   const payload = {
     ...props.parameters,
-    lead: {
-      text: keyName.value
-    }
+    lead: leadPayload
   }
 
   isSaving.value = true
