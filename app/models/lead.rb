@@ -53,7 +53,7 @@
 #   @return [Integer]
 #   id of the observation matrix from which lead item otus have been selected to
 #   build a key on, if any
-#   
+#
 class Lead < ApplicationRecord
   include Housekeeping
   include Shared::Citations
@@ -331,17 +331,28 @@ class Lead < ApplicationRecord
         ON leads.id = lh.ancestor_id')
       .joins('JOIN leads AS otus_source
         ON lh.descendant_id = otus_source.id')
+      .joins('LEFT JOIN lead_items
+        ON lead_items.lead_id = otus_source.id')
       .where("
         leads.parent_id IS NULL
         AND leads.project_id = #{project_id}
       ")
       .group(:id)
-      .select('
+      .select("
         leads.*,
-        COUNT(DISTINCT otus_source.otu_id) AS otus_count,
+        -- PG-specific functions to handle the otu count here:
+        (SELECT COUNT(DISTINCT u.otu_id)
+          -- explode combined array into rows with values in an 'otu_id' column
+          FROM UNNEST(
+            -- array of otus on leads, || is array concatenation
+            ARRAY_AGG(DISTINCT otus_source.otu_id) ||
+            -- array of otus on lead_items
+            ARRAY_AGG(DISTINCT lead_items.otu_id)
+          ) AS u(otu_id)
+          WHERE u.otu_id IS NOT NULL
+        ) AS otus_count,
         MAX(otus_source.updated_at) AS key_updated_at,
-        0 AS couplets_count' # count is now computed in views
-        #·(COUNT(otus_source.id) - 1) / 2 AS couplet_count
+        0 AS couplets_count" # count is now computed in views
       )
 
     root_leads = Lead
@@ -447,6 +458,36 @@ class Lead < ApplicationRecord
       .where(is_public: true)
   end
 
+  # Returns nil when no children are provided, otherwise a hash of
+  # {lead_id => Boolean} for each child lead indicating whether it has a
+  # descendant leaf with more than one lead_item.
+  def self.child_descendant_lead_item_flags(children:, root:)
+    return nil if children.blank?
+
+    child_flags = children.to_h { |child| [child.id, false] }
+
+    leaves_with_lead_items =
+      root.leaves.reorder(nil).joins(:lead_items).distinct
+    return nil unless leaves_with_lead_items.exists?
+
+    leaf_ids_with_multiple_items = leaves_with_lead_items
+      .group('leads.id')
+      .having('COUNT(lead_items.id) > 1')
+      .pluck(:id)
+    return child_flags if leaf_ids_with_multiple_items.empty?
+
+    LeadHierarchy
+      .where(
+        ancestor_id: children.map(&:id),
+        descendant_id: leaf_ids_with_multiple_items
+      )
+      .distinct
+      .pluck(:ancestor_id)
+      .each { |ancestor_id| child_flags[ancestor_id] = true }
+
+    child_flags
+  end
+
   def remaining_otu_ids
     Lead
       .where(id: subtree_ids)
@@ -465,6 +506,23 @@ class Lead < ApplicationRecord
 
   def eliminated_otus
     Otu.where(id: eliminated_otu_ids)
+  end
+
+  # !! Overwrites any existing otu set by the user !!
+  def sync_otu_to_lead_items_list
+    if lead_items.count == 1
+      self.otu_id = lead_items.first.otu_id
+    else
+      self.otu_id = nil
+    end
+    # We have no way of knowing what the "old" lead_items.count
+    # was, so we just have to save every time.
+    save!
+  end
+
+  # Move all lead items of children to the right-most (last) child.
+  def reset_lead_items
+    LeadItem.consolidate_descendant_items(self, children.last)
   end
 
   protected

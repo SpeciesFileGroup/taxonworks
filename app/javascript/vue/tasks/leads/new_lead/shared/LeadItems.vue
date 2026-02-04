@@ -6,35 +6,36 @@
     <div class="flex-separate full_width">
       <div class="button_row">
         <div>
-        <VBtn
-          :disabled="otuIndices.length != 1"
-          medium
-          color="create"
-          @click="setLeadOtu"
-          class="lead_item_button"
-        >
-          Set as lead OTU
-        </VBtn>
+          <VBtn
+            v-if="showAddOtu"
+            medium
+            color="create"
+            @click="addOtu"
+            class="lead_item_button"
+          >
+            Add OTUs
+          </VBtn>
 
-        <VBtn
-          v-if="showAddOtu"
-          medium
-          color="create"
-          @click="addOtu"
-          class="lead_item_button"
-        >
-          Add OTUs
-        </VBtn>
+          <VBtn
+            v-if="showResetOtus"
+            medium
+            color="create"
+            @click="resetLeadItems"
+            class="lead_item_button"
+            title="Reset all OTUs to the right lead"
+          >
+            Reset all OTUs
+          </VBtn>
 
-        <VBtn
-          v-if="showSendToInteractiveKey"
-          medium
-          color="primary"
-          @click="() => { matricesModalVisible = true }"
-          class="lead_item_long_button"
-        >
-          Send OTUs to interactive key
-        </VBtn>
+          <VBtn
+            v-if="showSendToInteractiveKey"
+            medium
+            color="primary"
+            @click="openInteractiveKey"
+            class="lead_item_long_button"
+          >
+            Send OTUs to interactive key
+          </VBtn>
         </div>
 
         <div class="button-row-text">
@@ -47,41 +48,53 @@
       <div
         v-for="(otu, i) in store.lead_item_otus.parent"
         :index="otu.id"
-        class="lead_otu_row"
+        class="lead_otu_row flex-row"
       >
-        <span v-if="otuIndices.findIndex((c) => (c == i)) != -1">
-          <span class="in">
-            &#10003;
-          </span>
-          <span
-            title="Remove OTU from this lead"
-            :class="['remove', 'circle-button', 'btn-delete',
-              { 'btn-disabled': leadItemCount(i) == 1 }]"
-            @click="() => removeOtuIndex(i)"
-          />
-        </span>
-        <span v-else>
-          <span
-            class="out circle btn-radio-like-add"
-            title="Add OTU to this lead and remove from others"
-            @click="() => addOtuIndex(i)"
-          />
-          <span
-            class="out btn-checkbox-like-add"
-            title="Add OTU to this lead and don't remove from others"
-            @click="() => addAdditionalOtuIndex(i)"
-          />
-        </span>
-        <span v-html="otu.object_tag" />
+        <Transition name="otu-status" mode="out-in">
+          <div
+            v-if="otuIndices.findIndex((c) => (c == i)) != -1"
+            class="status-glow"
+            :key="'in-' + i"
+            :title="leadItemCount(i) > 1 ? 'Remove OTU from this lead' : null"
+            :class="{ 'cursor-pointer': leadItemCount(i) > 1 }"
+            @click="() => (leadItemCount(i) > 1 ? removeOtuIndex(i) : null)"
+          >
+            <span
+              v-if="leadItemCount(i) > 1"
+              class="remove-otu-button"
+              title="Remove OTU from this lead"
+            >×</span>
+          </div>
 
-        <span class="horizontal-right-content gap-small radials">
-          <radial-object :global-id="otu.global_id" />
           <span
+            v-else
+            class="add-otu-button"
+            :key="'out-' + i"
+            :title="addOtuTooltip"
+            @click.prevent="() => handleAddClick(i)"
+            @dblclick.prevent="() => handleAddDblClick(i)"
+          ><span class="add-otu-button-inner">+</span></span>
+        </Transition>
+
+        <div
+          class="flex-grow-2"
+          :class="{ excluded: otuIndices.findIndex((c) => (c == i)) == -1 }"
+        >
+          <a
+            :href="`${RouteNames.BrowseOtu}?otu_id=${otu.id}`"
+            v-html="otu.object_tag"
+            target="_blank"
+          />
+        </div>
+
+        <div class="flex-row gap-xsmall">
+          <RadialObject :global-id="otu.global_id" />
+          <div
             class="circle-button btn-delete"
             title="Remove OTU from all leads"
             @click="() => leadItemOtuDeleted(otu.id)"
           />
-        </span>
+        </div>
       </div>
     </div>
   </div>
@@ -92,6 +105,7 @@
   />
 
   <InteractiveKeyPickerModal
+    v-if="matricesModalVisible"
     v-model:visible="matricesModalVisible"
     v-model:chosen-matrix-id="chosenMatrixId"
     @click="sendToInteractiveKey"
@@ -106,6 +120,7 @@ import RadialObject from '@/components/radials/navigation/radial.vue'
 import useStore from '../store/leadStore.js'
 import { Lead, LeadItem } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
+import { useDoubleClick } from '@/composables'
 import { RouteNames } from '@/routes/routes'
 import InteractiveKeyPickerModal from './InteractiveKeyPickerModal.vue'
 
@@ -115,6 +130,10 @@ const props = defineProps({
     required: true
   },
   showAddOtu: {
+    type: Boolean,
+    default: false
+  },
+  showResetOtus: {
     type: Boolean,
     default: false
   },
@@ -136,6 +155,14 @@ const otuIndices = computed(() => {
   return store.lead_item_otus.children[props.position].otu_indices
 })
 
+const addOtuTooltip = 'Click: add to this lead, remove from others — Double-click: keep on others'
+
+const { handleClick: handleAddClick, handleDoubleClick: handleAddDblClick } = useDoubleClick(
+  (otuIndex) => addOtuIndex(otuIndex),
+  (otuIndex) => addAdditionalOtuIndex(otuIndex),
+  300
+)
+
 const showSendToInteractiveKey = computed(() => {
   if (
     store.children.length == 2 && props.position == 1 &&
@@ -152,6 +179,22 @@ function addOtu() {
   otusModalVisible.value = true
 }
 
+function resetLeadItems() {
+  if (!window.confirm('Are you sure you want to move all OTUs to the right-most lead?')) {
+    return
+  }
+
+  store.setLoading(true)
+  Lead
+    .resetLeadItems(store.lead.id)
+    .then(() => {
+      store.loadKey(store.lead.id)
+      TW.workbench.alert.create('Reset all lead items to the right lead.')
+    })
+    .catch(() => {})
+    .finally(() => { store.setLoading(false) })
+}
+
 function addOtuIndex(otuIndex) {
   store.addOtuIndex(props.position, otuIndex)
 }
@@ -166,27 +209,6 @@ function removeOtuIndex(otuIndex) {
   }
 
   store.removeOtuIndex(props.position, otuIndex)
-}
-
-function setLeadOtu() {
-  const checkedOtu =
-    store.lead_item_otus.parent[
-      store.lead_item_otus.children[props.position].otu_indices[0]
-    ]
-  const payload = {
-    lead: {
-      otu_id: checkedOtu.id
-    }
-  }
-
-  store.setLoading(true)
-  Lead.update(props.leadId, payload)
-    .then(() => {
-      TW.workbench.alert.create('Set and saved OTU on lead.', 'notice')
-      store.loadKey(store.lead.id)
-    })
-    .catch(() => {})
-    .finally(() => { store.setLoading(false) })
 }
 
 function leadItemOtuDeleted(otuId) {
@@ -229,6 +251,16 @@ function sendToInteractiveKey() {
   window.location.href = `${RouteNames.InteractiveKeys}?observation_matrix_id=${chosenMatrixId.value}&lead_id=${store.lead.id}`
 }
 
+function openInteractiveKey() {
+  if (store.root.observation_matrix_id) {
+    chosenMatrixId.value = store.root.observation_matrix_id
+    sendToInteractiveKey()
+    return
+  }
+
+  matricesModalVisible.value = true
+}
+
 </script>
 
 <style scoped>
@@ -246,36 +278,65 @@ function sendToInteractiveKey() {
   padding: 1em 2em;
 }
 
-.in {
-  display: inline-block;
+.status-glow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 24px;
   height: 24px;
-  margin-right: 6.5px;
-  color: green;
-  vertical-align: middle;
-  text-align: center;
-}
-
-.out {
-  display: inline-block;
-  width: 24px;
-  height: 24px;
-  margin-right: 6.5px;
-  cursor: pointer;
-  vertical-align: middle;
-  text-align: center;
-  background-color: var(--color-create);
-  color: white;
-}
-
-.circle {
   border-radius: 50%;
+  background-color: var(--color-status-included);
+  box-shadow: 0 0 8px var(--color-status-included-glow);
+  margin-left: 6px;
+  margin-right: 8px;
+  flex-shrink: 0;
 }
 
-.remove {
-  display: inline-block;
-  vertical-align: middle;
-  margin-right: 6.5px;
+.add-otu-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 24px;
+  height: 24px;
+  margin-left: 6px;
+  margin-right: 8px;
+  border-radius: 50%;
+  color: white;
+  font-size: 13px;
+  font-weight: bold;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.add-otu-button-inner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: var(--color-create);
+  font-size: 12px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.remove-otu-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: var(--color-delete);
+  color: white;
+  font-size: 11px;
+  font-weight: bold;
+  line-height: 1;
+  cursor: pointer;
 }
 
 .lead_otu_rows {
@@ -284,12 +345,12 @@ function sendToInteractiveKey() {
   padding-right: 1px;
 }
 
-.lead_otu_row:nth-child(odd) {
-  background-color: var(--table-row-bg-odd);
+.lead_otu_row {
+  align-items: center;
 }
 
-.radials {
-  float: right;
+.lead_otu_row:nth-child(odd) {
+  background-color: var(--table-row-bg-odd);
 }
 
 .spacer {
@@ -314,5 +375,19 @@ function sendToInteractiveKey() {
   flex-grow: 2;
 }
 
+.excluded {
+  opacity: 0.6;
+}
+
+.otu-status-enter-active,
+.otu-status-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.otu-status-enter-from,
+.otu-status-leave-to {
+  opacity: 0;
+  transform: scale(0.8);
+}
 
 </style>
