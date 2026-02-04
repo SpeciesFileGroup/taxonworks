@@ -7,7 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Fixed
+
+- Save notice is missing in New type specimen task
 
 ## [0.59.0] - 2026-02-04
 
