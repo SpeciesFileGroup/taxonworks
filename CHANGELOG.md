@@ -22,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 
 - The inventory keys API endpoint has been updated to indicate when an observation matrix is a media matrix.
+- Updated Ruby Gems
 
 [#3194]: https://github.com/SpeciesFileGroup/taxonworks/issues/3194
 [#4689]: https://github.com/SpeciesFileGroup/taxonworks/issues/4689
