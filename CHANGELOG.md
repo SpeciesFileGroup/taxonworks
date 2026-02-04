@@ -9,17 +9,25 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- New task - Year in review - graphs and data summarizing a calendar year
 - Clone last attribution button [#4718]
+- Browse images task [#4689][#3194]
 
 ### Fixed
 
 - New asserted distribution task is not loading
+- Biological Associations always report success on delete, even when the destroy fails because the association is the object of an Asserted Distribution [#4731]
+- `New` link redirects to graph instead of new Biological Association task [#4732]
 
 ### Changed
 
 - The inventory keys API endpoint has been updated to indicate when an observation matrix is a media matrix.
 
+[#3194]: https://github.com/SpeciesFileGroup/taxonworks/issues/3194
+[#4689]: https://github.com/SpeciesFileGroup/taxonworks/issues/4689
 [#4718]: https://github.com/SpeciesFileGroup/taxonworks/issues/4718
+[#4731]: https://github.com/SpeciesFileGroup/taxonworks/issues/4731
+[#4732]: https://github.com/SpeciesFileGroup/taxonworks/issues/4732
 
 ## [0.58.0] - 2026-01-23
 
@@ -27,6 +35,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - New task: Verbatim author/year to cite taxon name
 - New task: Dichotomous key
+- Scalebar form to New simple specimen task [#4689]
 - New repository link to New type specimen task [#4692]
 - Monograph facilitator to OTU radial linker [#4690]
 - Batch create genus gender for those without one from Filter Taxon Names [#4669]
@@ -88,6 +97,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4682]: https://github.com/SpeciesFileGroup/taxonworks/issues/4682
 [#4685]: https://github.com/SpeciesFileGroup/taxonworks/issues/4685
 [#4688]: https://github.com/SpeciesFileGroup/taxonworks/issues/4688
+[#4689]: https://github.com/SpeciesFileGroup/taxonworks/issues/4689
 [#4690]: https://github.com/SpeciesFileGroup/taxonworks/issues/4690
 [#4691]: https://github.com/SpeciesFileGroup/taxonworks/issues/4691
 [#4692]: https://github.com/SpeciesFileGroup/taxonworks/issues/4692

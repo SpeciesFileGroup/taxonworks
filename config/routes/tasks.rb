@@ -159,6 +159,11 @@ scope :tasks do
     scope :batch_add_users, controller: 'tasks/administrator/batch_add_users' do
       get '/', as: 'batch_add_users_task', action: :index
     end
+
+    scope :year_in_review, controller: 'tasks/administrator/year_in_review' do
+      get '/', action: :index, as: 'administrator_year_in_review_task'
+      get :data, as: 'administrator_year_in_review_data', defaults: {format: :json}
+    end
   end
 
   scope :dwca_import, controller: 'tasks/dwca_import/dwca_import' do
@@ -292,6 +297,10 @@ scope :tasks do
   end
 
   scope :images do
+    scope :browse, controller: 'tasks/images/browse' do
+      get '', action: :index, as: 'browse_images_task'
+    end
+
     scope :new_filename_depicting_image, controller: 'tasks/images/new_filename_depicting_image' do
       get '/', action: :index, as: 'new_filename_depicting_image_task'
     end
@@ -327,6 +336,11 @@ scope :tasks do
   end
 
   scope :projects do
+    scope :year_in_review, controller: 'tasks/projects/year_in_review' do
+      get '/', action: :index, as: 'year_in_review_task'
+      get :data, as: 'year_in_review_data', defaults: {format: :json}
+    end
+
     scope :dwc_export_preferences, controller: 'tasks/projects/dwc_export_preferences' do
       get '/', action: :index, as: 'project_dwc_export_preferences_task'
       # See other routes in data.rb.

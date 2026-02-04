@@ -360,6 +360,31 @@ describe Otu, type: :model, group: :otu do
     end
   end
 
+  context '::associated_with_key' do
+    let(:root_lead) { FactoryBot.create(:valid_lead) }
+    let(:child_lead) { root_lead.children.create!(text: 'child') }
+
+    specify 'finds otus from both lead.otu_id and lead_items' do
+      otu_on_lead = FactoryBot.create(:valid_otu)
+      otu_on_lead_item = FactoryBot.create(:valid_otu)
+
+      root_lead.update!(otu: otu_on_lead)
+      child_lead.update!(otu: otu_on_lead_item)
+      FactoryBot.create(:valid_lead_item, lead: child_lead, otu: otu_on_lead_item)
+
+      expect(Otu.associated_with_key(root_lead))
+        .to contain_exactly(otu_on_lead, otu_on_lead_item)
+    end
+
+    specify 'does not include otus from unrelated leads' do
+      other_lead = FactoryBot.create(:valid_lead)
+      otu = FactoryBot.create(:valid_otu)
+      other_lead.update!(otu: otu)
+
+      expect(Otu.associated_with_key(root_lead)).to be_empty
+    end
+  end
+
   context 'concerns' do
     it_behaves_like 'citations'
     it_behaves_like 'data_attributes'

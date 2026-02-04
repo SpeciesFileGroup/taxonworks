@@ -132,8 +132,16 @@ onBeforeMount(() => {
     store.layout = value
   }
 
-  let { leadId, leadItemsData, descriptorData } =
-    useParamsSessionPop({lead_id: 'leadId', otu_ids: 'leadItemsData', descriptor_data: 'descriptorData'}, 'interactive_key_to_key')
+  let { leadId, leadItemsData, descriptorData, depictionImageIds } =
+    useParamsSessionPop(
+      {
+        lead_id: 'leadId',
+        otu_ids: 'leadItemsData',
+        descriptor_data: 'descriptorData',
+        depiction_image_ids: 'depictionImageIds'
+      },
+      'interactive_key_to_key'
+    )
 
   if (leadId) {
     // Call this for history.replaceState - it replaces turbolinks state
@@ -144,7 +152,10 @@ onBeforeMount(() => {
   if (leadId && leadItemsData && descriptorData) {
     leadItemsData = JSON.parse(leadItemsData)
     descriptorData = JSON.parse(descriptorData)
-    store.process_lead_items_data(leadItemsData, leadId)
+    depictionImageIds = depictionImageIds
+      ? JSON.parse(depictionImageIds)
+      : []
+    store.process_lead_items_data(leadItemsData, leadId, depictionImageIds)
       .then(() => {
         store.loadKey(leadId)
           .then(() => store.process_descriptor_data(descriptorData))

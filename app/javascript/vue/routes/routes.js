@@ -27,6 +27,7 @@ const RouteNames = {
   BrowseCollectionObject: '/tasks/collection_objects/browse',
   BrowseCollectingEvent: '/tasks/collecting_events/browse',
   BrowseFieldOccurrence: '/tasks/field_occurrences/browse',
+  BrowseImage: '/tasks/images/browse',
   BrowseNews: '/tasks/news/browse',
   BrowseNomenclature: '/tasks/nomenclature/browse',
   BrowseOtu: '/tasks/otus/browse',

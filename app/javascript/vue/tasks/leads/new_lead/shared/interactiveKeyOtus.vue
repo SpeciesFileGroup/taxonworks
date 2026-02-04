@@ -25,7 +25,7 @@
       :disabled="!rowsSelected.length"
       @click="addRows"
     >
-      Add otus
+      Add OTUs
     </VBtn>
     <div
       class="horizontal-right-content middle gap-small"
@@ -80,7 +80,7 @@
       :disabled="!rowsSelected.length"
       @click="addRows"
     >
-      Add rows
+      Add OTUs
     </VBtn>
     <div
       class="horizontal-right-content middle gap-small"

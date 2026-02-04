@@ -56,6 +56,8 @@ export const Lead = {
   batchCreateLeadItems: (params) =>
     AjaxCall('post', `/${controller}/batch_create_lead_items.json`, params),
 
+  resetLeadItems: (id) => AjaxCall('post', `/${controller}/${id}/reset_lead_items.json`),
+
   setObservationMatrix: (id, params) =>
     AjaxCall(
       'post',
@@ -66,5 +68,8 @@ export const Lead = {
   remainingOtus: (id) => AjaxCall('get', `/${controller}/${id}/remaining_otus`),
 
   eliminatedOtus: (id) =>
-    AjaxCall('get', `/${controller}/${id}/eliminated_otus`)
+    AjaxCall('get', `/${controller}/${id}/eliminated_otus`),
+
+  depictions: (id, params) =>
+    AjaxCall('post', `/${controller}/${id}/depictions.json`, params)
 }
