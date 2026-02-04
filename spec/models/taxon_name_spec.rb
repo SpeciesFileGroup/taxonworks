@@ -1206,6 +1206,182 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           }.not_to change(TaxonName, :count)
         end
       end
+
+      context 'OTU in LoanItem' do
+        let!(:loan_item) { FactoryBot.create(:valid_loan_item, loan_item_object: otu) }
+
+        specify 'does not destroy OTU' do
+          expect {
+            family.destroy
+          }.not_to change(Otu, :count)
+        end
+
+        specify 'does not destroy TaxonName' do
+          expect {
+            family.destroy
+          }.not_to change(TaxonName, :count)
+        end
+      end
+
+      context 'OTU in CommonName' do
+        let!(:common_name) { FactoryBot.create(:valid_common_name, otu: otu) }
+
+        specify 'does not destroy OTU' do
+          expect {
+            family.destroy
+          }.not_to change(Otu, :count)
+        end
+
+        specify 'does not destroy TaxonName' do
+          expect {
+            family.destroy
+          }.not_to change(TaxonName, :count)
+        end
+      end
+
+      context 'OTU in Content' do
+        let!(:content) { FactoryBot.create(:valid_content, otu: otu) }
+
+        specify 'does not destroy OTU' do
+          expect {
+            family.destroy
+          }.not_to change(Otu, :count)
+        end
+
+        specify 'does not destroy TaxonName' do
+          expect {
+            family.destroy
+          }.not_to change(TaxonName, :count)
+        end
+      end
+
+      context 'OTU in Lead' do
+        let!(:lead) { FactoryBot.create(:valid_lead, otu: otu) }
+
+        specify 'does not destroy OTU' do
+          expect {
+            family.destroy
+          }.not_to change(Otu, :count)
+        end
+
+        specify 'does not destroy TaxonName' do
+          expect {
+            family.destroy
+          }.not_to change(TaxonName, :count)
+        end
+      end
+
+      context 'OTU in LeadItem' do
+        let!(:lead_item) { FactoryBot.create(:valid_lead_item, otu: otu) }
+
+        specify 'does not destroy OTU' do
+          expect {
+            family.destroy
+          }.not_to change(Otu, :count)
+        end
+
+        specify 'does not destroy TaxonName' do
+          expect {
+            family.destroy
+          }.not_to change(TaxonName, :count)
+        end
+      end
+
+      context 'OTU in AnatomicalPart' do
+        let!(:anatomical_part) { FactoryBot.create(:valid_anatomical_part, ancestor: otu) }
+
+        specify 'does not destroy OTU' do
+          expect {
+            family.destroy
+          }.not_to change(Otu, :count)
+        end
+
+        specify 'does not destroy TaxonName' do
+          expect {
+            family.destroy
+          }.not_to change(TaxonName, :count)
+        end
+      end
+
+      context 'OTU in DataAttribute' do
+        let!(:data_attribute) { FactoryBot.create(:valid_data_attribute, attribute_subject: otu) }
+
+        specify 'does not destroy OTU' do
+          expect {
+            family.destroy
+          }.not_to change(Otu, :count)
+        end
+
+        specify 'does not destroy TaxonName' do
+          expect {
+            family.destroy
+          }.not_to change(TaxonName, :count)
+        end
+      end
+
+      context 'OTU in Depiction' do
+        let!(:depiction) { FactoryBot.create(:valid_depiction, depiction_object: otu) }
+
+        specify 'does not destroy OTU' do
+          expect {
+            family.destroy
+          }.not_to change(Otu, :count)
+        end
+
+        specify 'does not destroy TaxonName' do
+          expect {
+            family.destroy
+          }.not_to change(TaxonName, :count)
+        end
+      end
+
+      context 'OTU in Observation' do
+        let!(:observation) { FactoryBot.create(:valid_observation, observation_object: otu) }
+
+        specify 'does not destroy OTU' do
+          expect {
+            family.destroy
+          }.not_to change(Otu, :count)
+        end
+
+        specify 'does not destroy TaxonName' do
+          expect {
+            family.destroy
+          }.not_to change(TaxonName, :count)
+        end
+      end
+
+      context 'OTU in Conveyance' do
+        let!(:conveyance) { FactoryBot.create(:valid_conveyance, conveyance_object: otu) }
+
+        specify 'does not destroy OTU' do
+          expect {
+            family.destroy
+          }.not_to change(Otu, :count)
+        end
+
+        specify 'does not destroy TaxonName' do
+          expect {
+            family.destroy
+          }.not_to change(TaxonName, :count)
+        end
+      end
+
+      context 'OTU in Role' do
+        let!(:role) { FactoryBot.create(:valid_role, type: 'AttributionCreator', role_object: otu) }
+
+        specify 'does not destroy OTU' do
+          expect {
+            family.destroy
+          }.not_to change(Otu, :count)
+        end
+
+        specify 'does not destroy TaxonName' do
+          expect {
+            family.destroy
+          }.not_to change(TaxonName, :count)
+        end
+      end
     end
 
     context 'when TaxonName has multiple OTUs' do
