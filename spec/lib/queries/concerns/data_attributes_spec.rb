@@ -645,4 +645,110 @@ describe Queries::Concerns::DataAttributes, type: :model, group: [:filter] do
     end
   end
 
+  context 'legacy API-only params' do
+    specify '#data_attributes' do
+      d = InternalAttribute.create!(predicate: p1, value: 1, attribute_subject: Specimen.create!)
+      Specimen.create!
+
+      query.data_attributes = true
+      expect(query.all.pluck(:id)).to contain_exactly(d.attribute_subject.id)
+    end
+
+    specify '#data_attribute_without_predicate_id' do
+      n = Specimen.create!
+      s = Specimen.create!
+      FactoryBot.create(:valid_data_attribute_internal_attribute, attribute_subject: s)
+
+      query.data_attribute_without_predicate_id = s.data_attributes.first.controlled_vocabulary_term_id
+      expect(query.all).to contain_exactly(n)
+    end
+
+    specify '#data_attribute_exact_value' do
+      d = InternalAttribute.create!(predicate: p1, value: 1, attribute_subject: Specimen.create!)
+      Specimen.create!
+
+      query.data_attribute_exact_value = 1
+      expect(query.all).to contain_exactly(d.attribute_subject)
+    end
+
+    specify '#data_attribute_wildcard_value' do
+      d = InternalAttribute.create!(predicate: p1, value: '212', attribute_subject: Specimen.create!)
+      Specimen.create!
+
+      query.data_attribute_wildcard_value = 1
+      expect(query.all).to contain_exactly(d.attribute_subject)
+    end
+
+    specify '#data_attribute_exact_pair' do
+      d = InternalAttribute.create!(predicate: p1, value: '212', attribute_subject: Specimen.create!)
+      Specimen.create!
+
+      query.data_attribute_exact_pair = { p1.id => '212' }
+      expect(query.all).to contain_exactly(d.attribute_subject)
+    end
+
+    specify '#data_attribute_wildcard_pair' do
+      d = InternalAttribute.create!(predicate: p1, value: '212', attribute_subject: Specimen.create!)
+      Specimen.create!
+
+      query.data_attribute_wildcard_pair = { p1.id => '2' }
+      expect(query.all).to contain_exactly(d.attribute_subject)
+    end
+
+    specify '#data_attribute_wildcard_pair and #data_attribute_exact_pair are anded' do
+      d = InternalAttribute.create!(predicate: p1, value: '212', attribute_subject: Specimen.create!)
+      e = InternalAttribute.create!(predicate: p1, value: '313', attribute_subject: Specimen.create!)
+      Specimen.create!
+
+      query.data_attribute_wildcard_pair = ["#{p1.id}:21", "#{p1.id}:31"]
+      query.data_attribute_exact_pair = { p1.id => '313' }
+
+      expect(query.all).to contain_exactly(e.attribute_subject)
+    end
+  end
+
+  context 'legacy import params (API only)' do
+    let(:import_predicate) { 'import:predicate' }
+
+    specify '#data_attribute_import_predicate' do
+      d = ImportAttribute.create!(import_predicate:, value: 'foo', attribute_subject: Specimen.create!)
+      Specimen.create!
+
+      query.data_attribute_import_predicate = [import_predicate]
+      expect(query.all).to contain_exactly(d.attribute_subject)
+    end
+
+    specify '#data_attribute_import_exact_value' do
+      d = ImportAttribute.create!(import_predicate:, value: 'foo', attribute_subject: Specimen.create!)
+      Specimen.create!
+
+      query.data_attribute_import_exact_value = ['foo']
+      expect(query.all).to contain_exactly(d.attribute_subject)
+    end
+
+    specify '#data_attribute_import_wildcard_value' do
+      d = ImportAttribute.create!(import_predicate:, value: 'foo bar', attribute_subject: Specimen.create!)
+      Specimen.create!
+
+      query.data_attribute_import_wildcard_value = ['foo']
+      expect(query.all).to contain_exactly(d.attribute_subject)
+    end
+
+    specify '#data_attribute_import_exact_pair' do
+      d = ImportAttribute.create!(import_predicate:, value: 'foo', attribute_subject: Specimen.create!)
+      Specimen.create!
+
+      query.data_attribute_import_exact_pair = { import_predicate => 'foo' }
+      expect(query.all).to contain_exactly(d.attribute_subject)
+    end
+
+    specify '#data_attribute_import_wildcard_pair' do
+      d = ImportAttribute.create!(import_predicate:, value: 'foo bar', attribute_subject: Specimen.create!)
+      Specimen.create!
+
+      query.data_attribute_import_wildcard_pair = { import_predicate => 'foo' }
+      expect(query.all).to contain_exactly(d.attribute_subject)
+    end
+  end
+
 end
