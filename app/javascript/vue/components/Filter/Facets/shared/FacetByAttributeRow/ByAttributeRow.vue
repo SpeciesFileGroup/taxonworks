@@ -53,9 +53,10 @@
     <component
       class="full_width"
       :is="field.component"
+      :value="attribute.value"
       v-bind="field.bind"
       placeholder="Type a value..."
-      v-model="attribute.value"
+      @input="(e) => (attribute.value = e.target.value)"
     />
   </div>
 </template>
