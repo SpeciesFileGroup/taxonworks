@@ -1165,13 +1165,13 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         specify 'does not destroy OTU' do
           expect {
             family.destroy
-          }.not_to change(TaxonName, :count)
+          }.not_to change(Otu, :count)
         end
 
         specify 'does not destroy TaxonName' do
           expect {
             family.destroy
-          }.not_to change(Otu, :count)
+          }.not_to change(TaxonName, :count)
         end
       end
 
@@ -1181,13 +1181,13 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         specify 'does not destroy OTU' do
           expect {
             family.destroy
-          }.not_to change(TaxonName, :count)
+          }.not_to change(Otu, :count)
         end
 
         specify 'does not destroy TaxonName' do
           expect {
             family.destroy
-          }.not_to change(Otu, :count)
+          }.not_to change(TaxonName, :count)
         end
       end
 
@@ -1197,13 +1197,13 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         specify 'does not destroy OTU' do
           expect {
             family.destroy
-          }.not_to change(TaxonName, :count)
+          }.not_to change(Otu, :count)
         end
 
         specify 'does not destroy TaxonName' do
           expect {
             family.destroy
-          }.not_to change(Otu, :count)
+          }.not_to change(TaxonName, :count)
         end
       end
     end
