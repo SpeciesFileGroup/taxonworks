@@ -50,6 +50,14 @@
             </VBtn>
           </div>
 
+          <div
+            v-if="showDescendantStatus"
+            class="descendant-status"
+            :class="descendantStatusClass"
+          >
+            {{ descendantStatusText }}
+          </div>
+
           <VBtn
             :disabled="nextButtonDisabled || !leadItemsDivided"
             color="update"
@@ -291,6 +299,31 @@ const leadItemsDivided = computed(() => {
     store.lead_position_has_divided_lead_items(props.position)
 })
 
+const childHasDescendantLeadItems = computed(() => {
+  return store.children[props.position]?.has_descendant_lead_items
+})
+
+const childHasLeadItems = computed(() => {
+  const childLeadItems = store.lead_item_otus.children[props.position]
+  return !!childLeadItems && !childLeadItems.fixed
+})
+
+const showDescendantStatus = computed(() => {
+  return childHasDescendantLeadItems.value != null && !childHasLeadItems.value
+})
+
+const descendantStatusText = computed(() => {
+  return childHasDescendantLeadItems.value
+    ? 'More key work below'
+    : 'Descendants complete'
+})
+
+const descendantStatusClass = computed(() => {
+  return childHasDescendantLeadItems.value
+    ? 'descendant-status--open'
+    : 'descendant-status--done'
+})
+
 const annotationLists = { [DEPICTION]: depictions }
 const {
   handleRadialCreate,
@@ -421,6 +454,29 @@ function changeLeadPosition(direction) {
   max-width: 600px;
   display: flex;
   flex-direction: column;
+}
+
+.descendant-status {
+  align-self: center;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 0.25em 0.75em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.descendant-status--open {
+  background: #fff3cd;
+  color: #7a5b00;
+  border: 1px solid #f0d493;
+}
+
+.descendant-status--done {
+  background: #e8f5e9;
+  color: #1b5e20;
+  border: 1px solid #b7e1b9;
 }
 
 .redirect_notice {

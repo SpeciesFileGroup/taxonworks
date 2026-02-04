@@ -27,6 +27,10 @@ else
     json.key_updated_by lead[:key_updated_by]
   end
 
+  if local_assigns.key?(:has_descendant_lead_items)
+    json.has_descendant_lead_items has_descendant_lead_items
+  end
+
   json.partial! '/shared/data/all/metadata', object: lead
 
   if extend_response_with('otu')

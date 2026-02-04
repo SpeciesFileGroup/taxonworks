@@ -12,7 +12,8 @@ const makeInitialState = () => ({
   root: makeLeadObject(),
   // The currently loaded lead.
   lead : makeLeadObject(),
-  // Children of lead.
+  // Children of lead. Each child includes `has_descendant_lead_items` to
+  // indicate a descendant leaf with more than one lead_item.
   children: [],
   // Futures of children, indexed the same as children.
   futures: [],
@@ -61,6 +62,7 @@ function makeLeadObject() {
     redirect_id: undefined,
     text: undefined,
     observation_matrix_id: undefined,
+    has_descendant_lead_items: undefined,
     future: []
   }
 }

@@ -315,6 +315,50 @@ RSpec.describe Lead, type: :model do
 
   end
 
+  context '::child_descendant_lead_item_flags' do
+    specify 'returns child ids with descendant leaves having more than one lead_item' do
+      root = FactoryBot.create(:valid_lead)
+      child_with_items = FactoryBot.create(:valid_lead, parent: root)
+      child_without_items = FactoryBot.create(:valid_lead, parent: root)
+
+      leaf_with_two_items = FactoryBot.create(:valid_lead, parent: child_with_items)
+      leaf_with_one_item = FactoryBot.create(:valid_lead, parent: child_without_items)
+
+      otu1 = FactoryBot.create(:valid_otu)
+      otu2 = FactoryBot.create(:valid_otu)
+      otu3 = FactoryBot.create(:valid_otu)
+
+      FactoryBot.create(:valid_lead_item, lead: leaf_with_two_items, otu: otu1)
+      FactoryBot.create(:valid_lead_item, lead: leaf_with_two_items, otu: otu2)
+      FactoryBot.create(:valid_lead_item, lead: leaf_with_one_item, otu: otu3)
+
+      flags = Lead.child_descendant_lead_item_flags(
+        children: [child_with_items, child_without_items],
+        root:
+      )
+
+      expect(flags).to eq(
+        child_with_items.id => true,
+        child_without_items.id => false
+      )
+    end
+
+    specify 'returns empty hash when no descendant leaves have lead_items' do
+      root = FactoryBot.create(:valid_lead)
+      child1 = FactoryBot.create(:valid_lead, parent: root)
+      child2 = FactoryBot.create(:valid_lead, parent: root)
+      FactoryBot.create(:valid_lead, parent: child1)
+      FactoryBot.create(:valid_lead, parent: child2)
+
+      flags = Lead.child_descendant_lead_item_flags(
+        children: [child1, child2],
+        root:
+      )
+
+      expect(flags).to be(nil)
+    end
+  end
+
   context 'with multiple couplets' do
     before(:all) do
       Lead.delete_all

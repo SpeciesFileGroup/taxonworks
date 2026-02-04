@@ -458,6 +458,36 @@ class Lead < ApplicationRecord
       .where(is_public: true)
   end
 
+  # Returns nil when no children are provided, otherwise a hash of
+  # {lead_id => Boolean} for each child lead indicating whether it has a
+  # descendant leaf with more than one lead_item.
+  def self.child_descendant_lead_item_flags(children:, root:)
+    return nil if children.blank?
+
+    child_flags = children.to_h { |child| [child.id, false] }
+
+    leaves_with_lead_items =
+      root.leaves.reorder(nil).joins(:lead_items).distinct
+    return nil unless leaves_with_lead_items.exists?
+
+    leaf_ids_with_multiple_items = leaves_with_lead_items
+      .group('leads.id')
+      .having('COUNT(lead_items.id) > 1')
+      .pluck(:id)
+    return child_flags if leaf_ids_with_multiple_items.empty?
+
+    LeadHierarchy
+      .where(
+        ancestor_id: children.map(&:id),
+        descendant_id: leaf_ids_with_multiple_items
+      )
+      .distinct
+      .pluck(:ancestor_id)
+      .each { |ancestor_id| child_flags[ancestor_id] = true }
+
+    child_flags
+  end
+
   def remaining_otu_ids
     Lead
       .where(id: subtree_ids)
