@@ -225,9 +225,6 @@ const CHARS_PER_ROW = 60
 function calculateRows(value) {
   if (!value) return 1
 
-  // Count explicit newlines
-  const newlineCount = (value.match(/\n/g) || []).length
-
   // Calculate wrapped lines based on character length
   const lines = value.split('\n')
   const wrappedLines = lines.reduce((total, line) => {
@@ -263,10 +260,10 @@ async function saveDataAttribute(da) {
     })
 
     originalValues.value[da.id] = da.value
+
     da.updated_at = response.body.updated_at
     da.updater_name = response.body.updater?.name
 
-    pulseElement(event?.target)
     TW.workbench.alert.create('Data attribute updated successfully.', 'notice')
   } catch (error) {
     da.value = originalValue
