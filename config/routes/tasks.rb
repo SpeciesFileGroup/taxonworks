@@ -79,7 +79,7 @@ scope :tasks do
 
   scope :data_attributes do
     scope :duplicate_data_attributes, controller: 'tasks/data_attributes/duplicate_data_attributes' do
-      get '/', action: :index, as: 'index_duplicate_data_attributes_task'
+      get '/', action: :index, as: 'duplicate_data_attributes_task'
       match :data, action: :data, defaults: { format: :json }, via: [:get, :post]
     end
 
