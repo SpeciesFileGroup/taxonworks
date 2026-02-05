@@ -378,15 +378,6 @@ new_source_task:
     - new
   status: stable
   description: 'Add a source (person, or reference to a book, serial, publication etc.) via a number of different methods including CrossRef lookup, DOI, or cut-paste of BibTeX.'
-new_bibtex_source_task:
-  hub: true
-  name: 'New source from BibTeX'
-  related:
-  categories:
-    - source
-    - new
-  status: prototype
-  description: 'Parse a captured BibTeX string into a new source'
 visualize_confidences_task:
   hub: true
   name: 'Visualize confidences'

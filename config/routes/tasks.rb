@@ -397,10 +397,6 @@ scope :tasks do
       get '/', action: :index, as: 'source_hub_task'
     end
 
-    scope :individual_bibtex_source, controller: 'tasks/sources/individual_bibtex_source' do
-      get '/', action: :index, as: 'new_bibtex_source_task'
-    end
-
     scope :verbatim_author_year_source, controller: 'tasks/sources/verbatim_author_year_source' do
       get '/', action: :index, as: 'verbatim_author_year_source_task'
     end

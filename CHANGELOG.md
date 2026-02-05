@@ -16,6 +16,11 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Save notice is missing in New type specimen task
 
+### Changed
+
+- Removed unused BibTeX task [#1440]
+
+[#1440]: https://github.com/SpeciesFileGroup/taxonworks/issues/1440
 [#4739]: https://github.com/SpeciesFileGroup/taxonworks/issues/4739
 
 ## [0.59.0] - 2026-02-04

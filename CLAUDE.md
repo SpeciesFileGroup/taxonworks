@@ -19,8 +19,6 @@ TaxonWorks is a Biodiversity Informatics workbench.
 - Queries and filters `lib/queries/ARCHITECTURE.md`
 - Exports: `lib/export/ARCHITECTURE.md`
 
-
-
 ### Application
 - Both server-side and client-side rendering are used
 - Vue.js 3 is used for CS, e.g. `app/javascript/vue/` for Vue.js components and single-page applications
@@ -41,30 +39,30 @@ TaxonWorks is a Biodiversity Informatics workbench.
 
 ## Code
 - DO us a comment when you have provide > 50% of the code for a class " 
-- Follow Conventions in ARCHITECTURE.md
-- When requesting clarification from a user, propose to add it to an ARCHITECTURE.md file if it appears systematic
+- DO follow conventions in ARCHITECTURE.md
+- When requesting clarification from a user, propose to add it to an ARCHITECTURE.md file if it appears systemic
 
 ### Syntax
-- Always prefer verbose method and variable names
-- Variable name abbreviation permitted in loops and simple assignments within methods
-- Only `sv_`, soft validation methods are allowed to be abbreviated
+- DO prefer verbose method and variable names
+- DO permit abbreviated variable names in loops and simple assignments within methods
+- DO NOT change quoting format unless specifically asked to
+- DO allow `sv_` abbreviation in soft validation methods
 
 ### New TaxonWorks Tasks
-- Task are nested within Rails conventions in `tasks/`, e.g. `app/controllers/tasks/`
 - Initialize with generator, see `rails generate taxon_works:task --help`
 - Then write a headless functional test that reaches page without a 404
+- Task are nested within Rails conventions in `tasks/`, e.g. `app/controllers/tasks/`
 
 ## Tests
 - Use `rspec` - `rspec path/to/test_spec.rb`
-- Tests facilitate developing complex processes
-- DO tend to write a test first, have it fail (RED), then make it pass (GREEN) when:
-  - Work is complex
-  - Work is on a model
-  - Work is in lib/
+- DO tend to test first, have it fail (RED), then make it pass (GREEN) when:
+  - Work is COMPLEX
+  - Work is on a MODEL
+  - Work is in `lib/`
   - At the start of adding a new resource/route/page
 - DO reference Factories 
   - All models have a corresponding `valid_<model>` factory
-- NEVER write Controller tests by default
+- NEVER write Controller tests unless asked to
 
 ## Git
 - DO NOT try to commit unless asked
