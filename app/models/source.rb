@@ -249,14 +249,15 @@ class Source < ApplicationRecord
 
     # Redirect type here
   # @param [String] file
+  # @param [Integer] namespace_id optional namespace for creating Identifier::Local::Import::Bibtex from BibTeX key
   # @return [[Array, message]]
   #   TODO: return a more informative response?
-  def self.batch_preview(file)
+  def self.batch_preview(file, namespace_id = nil)
     begin
       bibliography = BibTeX::Bibliography.parse(file.read.force_encoding('UTF-8'), filter: :latex)
       sources = []
       bibliography.each do |record|
-        a = Source::Bibtex.new_from_bibtex(record)
+        a = Source::Bibtex.new_from_bibtex(record, nil, namespace_id)
         sources.push(a)
       end
       return sources, nil
@@ -275,8 +276,10 @@ class Source < ApplicationRecord
   end
 
     # @param [String] file
+  # @param [Integer] project_id optional project to associate sources with
+  # @param [Integer] namespace_id optional namespace for creating Identifier::Local::Import::Bibtex from BibTeX key
   # @return [Array, Boolean]
-  def self.batch_create(file, project_id = nil)
+  def self.batch_create(file, project_id = nil, namespace_id = nil)
     sources = []
     valid = 0
     begin
@@ -284,15 +287,7 @@ class Source < ApplicationRecord
       Source.transaction do
         bibliography = BibTeX::Bibliography.parse(file.read.force_encoding('UTF-8'), filter: :latex)
         bibliography.each do |record|
-          a = Source::Bibtex.new_from_bibtex(record)
-
-          if project_id.present?
-            a.assign_attributes(
-              project_sources_attributes: [
-                { project_id: project_id }
-              ]
-            )
-          end
+          a = Source::Bibtex.new_from_bibtex(record, project_id, namespace_id)
 
           if a.valid?
             if a.save
