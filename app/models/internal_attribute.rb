@@ -11,8 +11,9 @@ class InternalAttribute < DataAttribute
 
   include Shared::DwcOccurrenceHooks
 
-  validates_presence_of :predicate
-  validates_uniqueness_of :value, scope: [:attribute_subject_id, :attribute_subject_type, :type, :controlled_vocabulary_term_id, :project_id]
+  validates :predicate, presence: true
+
+  validates_uniqueness_of :value, scope: [:attribute_subject_id, :attribute_subject_type, :controlled_vocabulary_term_id, :project_id]
 
   def dwc_occurrences
     if DWC_ATTRIBUTE_URIS.values.flatten.include?(predicate&.uri)

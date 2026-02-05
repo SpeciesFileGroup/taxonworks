@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Report per-object duplicate predicate use [#4741]
 - Batch import BibTeX sources option to include Identifier
 - Batch Upload Asserted Distributions now supports a `gazetteer_id` column [#4739]
 
@@ -20,6 +21,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Removed unused BibTeX task [#1440]
 
+[#4741]: https://github.com/SpeciesFileGroup/taxonworks/issues/4741
 [#1440]: https://github.com/SpeciesFileGroup/taxonworks/issues/1440
 [#4739]: https://github.com/SpeciesFileGroup/taxonworks/issues/4739
 
