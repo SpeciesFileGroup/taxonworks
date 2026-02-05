@@ -413,12 +413,14 @@ class Source::Bibtex < Source
   # @return [Person, Boolean] new person, or false
   def self.bibtex_author_to_person(bibtex_author)
     return false if bibtex_author.class != BibTeX::Name
-    p = Person.new(
+    p = Person.find_or_initialize_by(
       first_name: bibtex_author.first,
       prefix: bibtex_author.prefix,
       last_name: bibtex_author.last,
       suffix: bibtex_author.suffix)
-    p.namecase_names
+    unless p.persisted?
+      p.namecase_names
+    end
     p
   end
 
@@ -951,7 +953,7 @@ class Source::Bibtex < Source
     begin
       Person.transaction do
         authors_to_create.each do |shs|
-          p = Person.create!(shs)
+          p = Person.find_or_create_by!(shs)
           author_roles.build(person: p)
         end
       end
