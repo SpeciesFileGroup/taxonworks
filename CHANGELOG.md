@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Batch import BibTeX sources option to include Identifier
 - Batch Upload Asserted Distributions now supports a `gazetteer_id` column [#4739]
 
 ### Fixed
