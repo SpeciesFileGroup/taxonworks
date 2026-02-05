@@ -106,6 +106,7 @@ module Tasks::DataAttributes::DuplicateDataAttributesHelper
       predicate_id: da.controlled_vocabulary_term_id,
       predicate_name: predicate&.name,
       predicate_css_color: predicate&.css_color,
+      object_tag: object_tag(predicate),
       value: da.value,
       creator_name: da.creator&.name,
       updater_name: da.updater&.name,
