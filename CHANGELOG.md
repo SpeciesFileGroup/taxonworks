@@ -9,6 +9,18 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Batch Upload Asserted Distributions now supports a `gazetteer_id` column [#4739]
+
+### Fixed
+
+- Save notice is missing in New type specimen task
+
+[#4739]: https://github.com/SpeciesFileGroup/taxonworks/issues/4739
+
+## [0.59.0] - 2026-02-04
+
+### Added
+
 - New task - Year in review - graphs and data summarizing a calendar year
 - Clone last attribution button [#4718]
 - Browse images task [#4689][#3194]
@@ -18,12 +30,20 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New asserted distribution task is not loading
 - Biological Associations always report success on delete, even when the destroy fails because the association is the object of an Asserted Distribution [#4731]
 - `New` link redirects to graph instead of new Biological Association task [#4732]
+- Improvements to key work using OTU lists and interactions with interactive keys [#4527]
 
 ### Changed
 
+- Data Attribute and Object Attribute facets in all filters, to add functionality and make it clearer what is being searched for [#4634]
 - The inventory keys API endpoint has been updated to indicate when an observation matrix is a media matrix.
+- You can now delete a TaxonName if the only thing blocking the delete is an "empty" OTU [#1451]
+- Updated Ruby gems
+- Updated NPM packages
 
+[#1451]: https://github.com/SpeciesFileGroup/taxonworks/issues/1451
 [#3194]: https://github.com/SpeciesFileGroup/taxonworks/issues/3194
+[#4527]: https://github.com/SpeciesFileGroup/taxonworks/issues/4527
+[#4634]: https://github.com/SpeciesFileGroup/taxonworks/issues/4634
 [#4689]: https://github.com/SpeciesFileGroup/taxonworks/issues/4689
 [#4718]: https://github.com/SpeciesFileGroup/taxonworks/issues/4718
 [#4731]: https://github.com/SpeciesFileGroup/taxonworks/issues/4731

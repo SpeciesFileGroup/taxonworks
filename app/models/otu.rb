@@ -101,8 +101,10 @@ class Otu < ApplicationRecord
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id:) }
   scope :with_name, -> (name) { where(name:) }
   scope :associated_with_key, -> (root_lead) {
-    joins(:leads)
-      .where(leads: { id: root_lead.self_and_descendants.map(&:id) })
+    lead_ids = root_lead.self_and_descendants.select(:id)
+
+    where(id: joins(:leads).where(leads: { id: lead_ids }).select(:id))
+      .or(where(id: joins(:lead_items).where(lead_items: { lead_id: lead_ids }).select(:id)))
       .distinct
   }
 
@@ -562,6 +564,15 @@ class Otu < ApplicationRecord
   def biological_association_indices
     BiologicalAssociationIndex.where('subject_id = ? AND subject_type = ?', id, self.class.base_class.name)
       .or(BiologicalAssociationIndex.where('object_id = ? AND object_type = ?', id, self.class.base_class.name))
+  end
+
+  # @return [Boolean]
+  #   true if the OTU has no meaningful related data attached.
+  def unused?
+    # Otus are AutoUUID, so ignore UUID identifiers (but not others a user may
+    # have intentionally added).
+    identifiers.where.not("type LIKE 'Identifier::Global::Uuid%'").none? &&
+      ApplicationEnumeration.no_related_data?(self, ignore: [:identifiers, :uuids])
   end
 
   protected

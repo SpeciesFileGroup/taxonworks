@@ -12,7 +12,8 @@ const makeInitialState = () => ({
   root: makeLeadObject(),
   // The currently loaded lead.
   lead : makeLeadObject(),
-  // Children of lead.
+  // Children of lead. Each child includes `has_descendant_lead_items` to
+  // indicate a descendant leaf with more than one lead_item.
   children: [],
   // Futures of children, indexed the same as children.
   futures: [],
@@ -61,6 +62,7 @@ function makeLeadObject() {
     redirect_id: undefined,
     text: undefined,
     observation_matrix_id: undefined,
+    has_descendant_lead_items: undefined,
     future: []
   }
 }
@@ -203,6 +205,8 @@ export default defineStore('leads', {
           this.key_metadata = body.key_metadata
           this.key_ordered_parents = body.key_ordered_parents
           this.key_data = body.key_data
+          // Lead otu(s) may have changed, so reload.
+          this.loadKey(this.lead.id)
         })
         .catch(() => {})
         .finally(() => { this.setLoading(false) })
@@ -223,6 +227,8 @@ export default defineStore('leads', {
           this.key_metadata = body.key_metadata
           this.key_ordered_parents = body.key_ordered_parents
           this.key_data = body.key_data
+          // Lead otu(s) may have changed, so reload.
+          this.loadKey(this.lead.id)
         })
         .catch(() => {})
         .finally(() => { this.setLoading(false) })
@@ -399,7 +405,7 @@ export default defineStore('leads', {
       }
     },
 
-    async process_lead_items_data(otu_ids, lead_id) {
+    async process_lead_items_data(otu_ids, lead_id, depictionImageIds = []) {
       const remaining = otu_ids.remaining || []
       const eliminated_for_key = otu_ids.eliminatedForKey || []
       const both = intersectArrays(remaining, eliminated_for_key)
@@ -412,8 +418,45 @@ export default defineStore('leads', {
         add_new_to_first_child: true
       }
       await LeadItem.addLeadItemsToLead(payload)
+        .then(({ body }) => {
+          const targetLeadId = body?.lead_id
+          if (targetLeadId && depictionImageIds.length) {
+            return this.addDepictionsToLead(targetLeadId, depictionImageIds)
+          }
+          return undefined
+        })
         .catch(() => {})
+    },
+
+    async addDepictionsToLead(leadId, imageIds) {
+      return Lead.depictions(leadId, { image_ids: imageIds })
+        .catch(() => {})
+    },
+
+    expanded_lead_has_no_lead_items() {
+      return this.lead_item_otus.parent.length == 0
+    },
+
+    lead_position_has_divided_lead_items(position) {
+      const child = this.lead_item_otus.children[position]
+      if (child.fixed) {
+        return true
+      }
+
+      const childOtuCount = child.otu_indices.length
+      if (childOtuCount == 0) {
+        return false
+      }
+
+      if (childOtuCount < this.lead_item_otus.parent.length) {
+        return true
+      }
+
+      // If this lead has all lead item otus, require another lead to be fixed
+      // before treating the couplet as divided.
+      return this.lead_item_otus.children.some((otherChild, i) =>
+        i !== position && otherChild.fixed
+      )
     }
   }
 })
-

@@ -10,7 +10,8 @@ function makeInitialState() {
       isLoading: false,
       isRefreshing: false,
       refreshOnlyTaxa: false,
-      rowFilter: true
+      rowFilter: true,
+      sendCharacterDepictions: false
     },
     leadId: undefined,
     observationMatrix: undefined,

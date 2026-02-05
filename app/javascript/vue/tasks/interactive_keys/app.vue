@@ -106,6 +106,11 @@ export default {
       },
       'key_to_interactive_key'
     )
+    const sendDepictions =
+      sessionStorage.getItem('interactive_key_send_character_depictions')
+    if (sendDepictions !== null) {
+      this.settings.sendCharacterDepictions = sendDepictions === 'true'
+    }
 
     if (otuIds) {
       this.$store.commit(MutationNames.SetParamsFilter, {

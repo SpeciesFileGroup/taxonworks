@@ -8,7 +8,7 @@ module Queries::Concerns::DataAttributes
 
   def self.params
     [
-      :data_attributes,
+      :data_attributes, # API only
 
       :data_attribute_import_exact_pair,
       :data_attribute_import_exact_value,
@@ -16,19 +16,31 @@ module Queries::Concerns::DataAttributes
       :data_attribute_import_wildcard_value,
       :data_attribute_import_wildcard_pair,
 
-      :data_attribute_exact_pair,
-      :data_attribute_exact_value,
-      :data_attribute_predicate_id,
-      :data_attribute_wildcard_pair,
-      :data_attribute_wildcard_value,
-      :data_attribute_without_predicate_id,
+      :data_attribute_exact_pair, # API only
+      :data_attribute_exact_value, # API only
+      :data_attribute_predicate_id, # API only
+      :data_attribute_wildcard_pair, # API only
+      :data_attribute_wildcard_value, # API only
+      :data_attribute_without_predicate_id, # API only
 
-      data_attribute_exact_pair: [],
-      data_attribute_exact_value: [],
-      data_attribute_predicate_id: [],
-      data_attribute_wildcard_pair: [],
-      data_attribute_wildcard_value: [],
-      data_attribute_without_predicate_id: [],
+      :data_attribute_predicate_row_id,
+      :data_attribute_value,
+      :data_attribute_value_negator,
+      :data_attribute_value_type,
+      :data_attribute_combine_logic,
+
+      data_attribute_exact_pair: [], # API only
+      data_attribute_exact_value: [], # API only
+      data_attribute_predicate_id: [], # API only
+      data_attribute_wildcard_pair: [], # API only
+      data_attribute_wildcard_value: [], # API only
+      data_attribute_without_predicate_id: [], # API only
+
+      data_attribute_predicate_row_id: [],
+      data_attribute_value: [],
+      data_attribute_value_negator: [],
+      data_attribute_value_type: [],
+      data_attribute_combine_logic: [],
 
       data_attribute_import_wildcard_pair: [],
       data_attribute_import_exact_pair: [],
@@ -55,43 +67,68 @@ module Queries::Concerns::DataAttributes
     attr_accessor :data_attribute_import_exact_value
     attr_accessor :data_attribute_import_predicate
     attr_accessor :data_attribute_import_wildcard_value
-    attr_accessor :data_attribute_wildcard_pair
+    attr_accessor :data_attribute_import_wildcard_pair
 
     # @param data_attribute_predicate_id [Integer, String, Array] of Predicate (CVT) ids
     # @return Array
-    #  match any record that has a data attribute with these predicate_ids
+    #  API only: match any record that has a data attribute with these predicate_ids
     attr_accessor :data_attribute_predicate_id
 
     # @param data_attribute_without_predicate_id [Integer, String, Array] of Predicate (CVT) ids
     # @return Array
-    #  match any record that does not have a data attribute with this predicate_id
+    #  API only: match any record that does not have a data attribute with this predicate_id
     attr_accessor :data_attribute_without_predicate_id
 
     # @param data_attribute_exact_value [String, Array] of values
     # @return Array
-    #  match any record that matches a data_attribute with any of these exact values
+    #  API only: match any record that matches a data_attribute with any of these exact values
     attr_accessor :data_attribute_exact_value
 
     # @param data_attribute_wildcard_value [String, Array] of values
     # @return Array
-    #  match any record that matches a data_attribute with any of these values, wildcarded
+    #  API only: match any record that matches a data_attribute with any of these values, wildcarded
     attr_accessor :data_attribute_wildcard_value
 
     # @return [Hash]
     # @param [Array]
-    #  string formatted as predicate_id:value
+    #  API only: string formatted as predicate_id:value
     attr_accessor :data_attribute_exact_pair
 
     # @return [Hash]
     # @param [Array]
-    #  string formatted as predicate_id:value
+    #  API only: string formatted as predicate_id:value
     attr_accessor :data_attribute_wildcard_pair
 
     # @return [True, False, nil]
-    #   true - has a data_attribute
-    #   false - does not have a data_attribute
-    #   nil - not applied
+    #   API only: true - has a data_attribute
+    #   API only: false - does not have a data_attribute
+    #   API only: nil - not applied
     attr_accessor :data_attributes
+
+    # @param data_attribute_predicate_row_id
+    # @return Array[0 or positive integers]
+    #   Row-based predicate id or 0 to mean 'any predicate'
+    attr_accessor :data_attribute_predicate_row_id
+
+    # @param data_attribute_value
+    # @return Array[String]
+    #   Row-based values of data attributes.
+    attr_accessor :data_attribute_value
+
+    # @param data_attribute_value_negator
+    # @return Array[Boolean]
+    #   Row-based value negator.
+    attr_accessor :data_attribute_value_negator
+
+    # @param data_attribute_value_type
+    # @return Array[String]
+    #   Row-based value types: exact, wildcard, any, no.
+    attr_accessor :data_attribute_value_type
+
+    # @param data_attribute_combine_logic
+    # @return Array[Boolean]
+    #   Row-based combine logic.
+    attr_accessor :data_attribute_combine_logic
 
     def data_attribute_predicate_id
       [@data_attribute_predicate_id].flatten.compact
@@ -101,12 +138,32 @@ module Queries::Concerns::DataAttributes
       [@data_attribute_without_predicate_id].flatten.compact
     end
 
+    def data_attribute_predicate_row_id
+      [@data_attribute_predicate_row_id].flatten.compact
+    end
+
     def data_attribute_exact_value
       [@data_attribute_exact_value].flatten.compact
     end
 
     def data_attribute_wildcard_value
       [@data_attribute_wildcard_value].flatten.compact
+    end
+
+    def data_attribute_value
+      [@data_attribute_value].flatten.compact
+    end
+
+    def data_attribute_value_negator
+      [@data_attribute_value_negator].flatten
+    end
+
+    def data_attribute_value_type
+      [@data_attribute_value_type].flatten.compact
+    end
+
+    def data_attribute_combine_logic
+      [@data_attribute_combine_logic].flatten
     end
 
     def data_attribute_import_wildcard_value
@@ -173,6 +230,37 @@ module Queries::Concerns::DataAttributes
     @data_attribute_wildcard_pair = params[:data_attribute_wildcard_pair]
     @data_attribute_import_wildcard_pair = params[:data_attribute_import_wildcard_pair]
     @data_attributes = boolean_param(params, :data_attributes)
+
+    row_count = [params[:data_attribute_predicate_row_id]].flatten.compact.count
+    return if (
+      row_count == 0 ||
+      [params[:data_attribute_value]].flatten.compact.count != row_count ||
+      [params[:data_attribute_value_type]].flatten.compact.count != row_count
+    )
+
+    negators = tri_value_array(params[:data_attribute_value_negator])
+    negators = Array.new(row_count) if negators.empty? && params[:data_attribute_value_negator].nil?
+
+    combine_logic = tri_value_array(params[:data_attribute_combine_logic])
+    if combine_logic.empty? && params[:data_attribute_combine_logic].nil?
+      combine_logic = Array.new(row_count)
+    elsif combine_logic.length == row_count - 1
+      combine_logic = combine_logic + [nil]
+    end
+
+    return if (
+      negators.length != row_count ||
+      combine_logic.length != row_count
+    )
+
+    @data_attribute_predicate_row_id =
+      [params[:data_attribute_predicate_row_id]].flatten.compact
+    @data_attribute_value =
+      [params[:data_attribute_value]].flatten.compact
+    @data_attribute_value_negator = negators
+    @data_attribute_value_type =
+      [params[:data_attribute_value_type]].flatten.compact
+    @data_attribute_combine_logic = combine_logic
   end
 
   # @return [Arel::Table]
@@ -185,11 +273,78 @@ module Queries::Concerns::DataAttributes
     referenced_klass.joins(:internal_attributes).where(data_attributes: {controlled_vocabulary_term_id: data_attribute_predicate_id})
   end
 
+  def data_attribute_row_facet
+    return nil if data_attribute_predicate_row_id.empty?
+
+    queries = []
+    data_attribute_value_type.map(&:to_sym).each_with_index do |value_type, i|
+      id = data_attribute_predicate_row_id[i].to_i
+      value = data_attribute_value[i]
+      negator = data_attribute_value_negator[i]
+
+      q = nil
+      case value_type
+      when :exact, :wildcard
+        value_clause = if value_type == :exact
+          data_attribute_table[:value].eq(value)
+        else
+          data_attribute_table[:value].matches("%#{value}%")
+        end
+
+        value_clause = value_clause.not if negator
+
+        if id > 0
+          value_clause = value_clause.and(
+            data_attribute_table[:controlled_vocabulary_term_id].eq(id)
+          )
+        end
+
+        q = referenced_klass
+          .joins(:internal_attributes)
+          .where(value_clause)
+          .distinct
+
+      when :any, :no
+        has_attr = (value_type == :any && !negator) || (value_type == :no && negator)
+
+        if id == 0 # any predicate
+          q = has_attr ?
+            referenced_klass.joins(:internal_attributes) :
+            referenced_klass.left_joins(:internal_attributes)
+              .where(data_attributes: { id: nil })
+        else
+          with_predicate = referenced_klass
+            .joins(:internal_attributes)
+            .where(data_attributes: { controlled_vocabulary_term_id: id })
+          q = has_attr ? with_predicate : referenced_klass.where.not(id: with_predicate)
+        end
+
+        q.distinct
+      end
+
+      queries << q
+    end
+
+    return nil if queries.empty?
+
+    q = queries.first
+    data_attribute_combine_logic.each_with_index do |c, i|
+      if c.nil?
+        q = referenced_klass_intersection([q, queries[i + 1]])
+      elsif c == true
+        q = referenced_klass_union([q, queries[i + 1]])
+      else
+        q = q.where.not(id: queries[i + 1])
+      end
+    end
+
+    q
+  end
+
   def data_attribute_import_predicate_facet
     return nil if data_attribute_import_predicate.empty?
     referenced_klass.joins(:import_attributes).where(data_attributes: {import_predicate: data_attribute_import_predicate})
   end
-
 
   def data_attribute_without_predicate_id_facet
     return nil if data_attribute_without_predicate_id.blank?
@@ -332,6 +487,7 @@ module Queries::Concerns::DataAttributes
       :data_attribute_exact_pair_facet,
       :data_attribute_import_predicate_facet,
       :data_attribute_predicate_id_facet,
+      :data_attribute_row_facet,
       :data_attribute_wildcard_pair_facet,
       :data_attribute_import_wildcard_pair_facet,
       :data_attribute_without_predicate_id_facet,

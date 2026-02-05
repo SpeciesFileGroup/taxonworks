@@ -23,7 +23,10 @@
                 geographic_area_name - you may need to select your 'Preferred gazetteer' in the dropdown as well to restrict to a unique match on name
               </li>
               <li>
-                country, state, county, if more than one provided all will be used to match and the finest recorded.
+                country, state, county, if more than one provided all will be used to match and the finest recorded
+              </li>
+              <li>
+                gazetteer_id - used only if none of the above geographic area columns are present
               </li>
             </ul>
           </li>
@@ -57,6 +60,7 @@
           <td colspan="4">one of these</td>
           <td colspan="2">one of these</td>
           <td colspan="3">or one or more of these</td>
+          <td colspan="1">or this</td>
           <td colspan="3">one of these</td>
         </tr>
 
@@ -70,6 +74,7 @@
           <th>country</th>
           <th>state</th>
           <th>county</th>
+          <th>gazetteer_id</th>
           <th>source_id</th>
           <th>doi</th>
           <th>citation</th>
@@ -85,8 +90,8 @@
           <td></td>
           <td>Saskatchewan</td>
           <td></td>
-          <td>19</td>
           <td></td>
+          <td>19</td>
           <td></td>
           <td></td>
         </tr>
@@ -102,7 +107,25 @@
           <td></td>
           <td></td>
           <td></td>
+          <td></td>
+          <td></td>
           <td>Smith, 1920. Bears on the coast. Jr. Chilly Waters. 0:0 pp0-40.</td>
+        </tr>
+
+        <tr>
+          <td></td>
+          <td></td>
+          <td>Cus dus</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>42</td>
+          <td></td>
+          <td>10.1234/example.doi</td>
+          <td></td>
         </tr>
       </table>
     </div>

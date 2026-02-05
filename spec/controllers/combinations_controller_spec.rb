@@ -11,6 +11,8 @@ describe CombinationsController, type: :controller do
     context 'when the combination is used as an OTU taxon name' do
       let!(:combination) { FactoryBot.create(:valid_combination) }
       let!(:otu) { Otu.create!(name: 'otu_using_combination', taxon_name: combination) }
+      # Make the otu 'non-trivial'
+      let!(:_ad) { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: otu) }
 
       specify 'does not destroy the combination and returns unprocessable_entity with errors' do
         expect do
