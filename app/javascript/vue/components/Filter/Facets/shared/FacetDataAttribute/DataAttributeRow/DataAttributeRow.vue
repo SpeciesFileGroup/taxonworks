@@ -42,19 +42,23 @@
     <textarea
       class="full_width"
       rows="3"
-      placeholder="Type a value..."
+      :placeholder="!isValueDisabled ? 'Type a value...' : 'Value'"
+      :disabled="isValueDisabled"
       v-model="dataAttribute.value"
     ></textarea>
   </div>
 </template>
 
 <script setup>
+import { computed, watch } from 'vue'
 import DataAttributeRowLogic from './DataAttributeRowLogic.vue'
 import DataAttributeRowTypeSelector from './DataAttributeRowType.vue'
 import DataAttributeRowNegatorSelector from './DataAttributeRowNegator.vue'
 import DataAttributeRowPredicateSelector from './DataAttributeRowPredicate.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+
+const DISABLED_VALUE_ON = ['any', 'no']
 
 const props = defineProps({
   dataAttribute: {
@@ -74,6 +78,16 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['remove', 'add'])
+
+const isValueDisabled = computed(() =>
+  DISABLED_VALUE_ON.includes(props.dataAttribute.type)
+)
+
+watch(isValueDisabled, (newVal) => {
+  if (newVal) {
+    props.dataAttribute.value = ''
+  }
+})
 </script>
 
 <style scoped>

@@ -55,19 +55,22 @@
       :is="field.component"
       :value="attribute.value"
       v-bind="field.bind"
-      placeholder="Type a value..."
+      :disabled="isValueDisabled"
+      :placeholder="!isValueDisabled ? 'Type a value...' : 'Value'"
       @input="(e) => (attribute.value = e.target.value)"
     />
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import DataAttributeRowLogic from '@/components/Filter/Facets/shared/FacetDataAttribute/DataAttributeRow/DataAttributeRowLogic.vue'
 import DataAttributeRowTypeSelector from '@/components/Filter/Facets/shared/FacetDataAttribute/DataAttributeRow/DataAttributeRowType.vue'
 import DataAttributeRowNegatorSelector from '@/components/Filter/Facets/shared/FacetDataAttribute/DataAttributeRow/DataAttributeRowNegator.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+
+const DISABLED_VALUE_ON = ['any', 'no']
 
 const COMPONENT_TYPES = {
   default: {
@@ -109,6 +112,10 @@ const props = defineProps({
   }
 })
 
+const isValueDisabled = computed(() =>
+  DISABLED_VALUE_ON.includes(props.attribute.type)
+)
+
 const field = computed(() => {
   const type = props.fieldNames[props.attribute.fieldName]
 
@@ -116,6 +123,12 @@ const field = computed(() => {
 })
 
 const emit = defineEmits(['remove', 'add'])
+
+watch(isValueDisabled, (newVal) => {
+  if (newVal) {
+    props.attribute.value = ''
+  }
+})
 </script>
 
 <style scoped>
