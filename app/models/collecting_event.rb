@@ -797,7 +797,7 @@ class CollectingEvent < ApplicationRecord
 
   # @return Hash
   #  a geographic_name_classification.
-  # This prioritizes Georeferences over GeographicAreas!
+  # This (normally) prioritizes Georeferences over GeographicArea!
   def get_geographic_name_classification
     case geographic_name_classification_method
     when :preferred_georeference
