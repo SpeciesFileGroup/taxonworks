@@ -111,7 +111,7 @@
                   v-model="da.value"
                   class="value-input"
                   :rows="calculateRows(da.value)"
-                  @blur="() => saveDataAttribute(da)"
+                  @blur="(e) => saveDataAttribute(e, da)"
                   @keydown="(e) => handleKeydown(e, da)"
                   @input="(e) => autoResize(e.target)"
                 />
@@ -243,12 +243,11 @@ function autoResize(textarea) {
 function handleKeydown(event, da) {
   if (event.key === 'Enter' && !event.shiftKey) {
     event.preventDefault()
-    saveDataAttribute(da)
-    event.target.blur()
+    saveDataAttribute(event, da)
   }
 }
 
-async function saveDataAttribute(da) {
+async function saveDataAttribute(e, da) {
   const originalValue = originalValues.value[da.id]
   if (originalValue === da.value) {
     return
@@ -265,6 +264,8 @@ async function saveDataAttribute(da) {
     da.updater_name = response.body.updater?.name
 
     TW.workbench.alert.create('Data attribute updated successfully.', 'notice')
+
+    pulseElement(e.target)
   } catch (error) {
     da.value = originalValue
   }
