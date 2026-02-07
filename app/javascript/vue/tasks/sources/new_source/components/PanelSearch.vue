@@ -6,6 +6,7 @@
     placeholder="Search a source..."
     label="label_html"
     clear-after
+    autofocus
     @get-item="({ id }) => store.loadSource(id)"
   />
 </template>
