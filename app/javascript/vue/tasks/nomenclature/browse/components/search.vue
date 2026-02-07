@@ -2,6 +2,7 @@
   <div>
     <br />
     <VAutocomplete
+      ref="autocomplete"
       class="vue-autocomplete"
       input-class="mousetrap"
       url="/taxon_names/autocomplete"
@@ -25,7 +26,21 @@
 <script setup>
 import VAutocomplete from '@/components/ui/Autocomplete'
 import { RouteNames } from '@/routes/routes'
+import { useHotkey } from '@/composables'
 import { ref, watch, onMounted } from 'vue'
+
+const autocomplete = ref(null)
+
+const shortcuts = ref([
+  {
+    keys: ['Alt', 'f'],
+    handler() {
+      autocomplete.value?.setFocus()
+    }
+  }
+])
+
+useHotkey(shortcuts.value)
 
 const SettingsStore = {
   redirectValid: 'browseNomenclature::redirectValid'
@@ -42,6 +57,8 @@ onMounted(() => {
   if (value !== null) {
     validName.value = value === 'true'
   }
+
+  TW.workbench.keyboard.createLegend('Alt+f', 'Search', 'Browse nomenclature')
 })
 
 function redirect(event) {
