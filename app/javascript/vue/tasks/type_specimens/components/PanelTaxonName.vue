@@ -9,6 +9,7 @@
         <VAutocomplete
           class="types_field"
           url="/taxon_names/autocomplete"
+          autofocus
           param="term"
           label="label_html"
           display="label"
