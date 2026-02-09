@@ -20,12 +20,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Fix: Rails now correctly applies time zones for `user_date_start` and `user_date_end` parameters from the `X-Timezone` header [#4721]
 - Classes not being eager loaded in background jobs, causing dwc importer to fail
 - Admin checkboxes in project members table are not visible to project administrators.
+- Add historical determination options to Taxon Name facet of Filter Collection Objects [#4742]
 
 ### Changed
 
 - Removed unused BibTeX task [#1440]
 
 [#4741]: https://github.com/SpeciesFileGroup/taxonworks/issues/4741
+[#4742]: https://github.com/SpeciesFileGroup/taxonworks/issues/4742
 [#1440]: https://github.com/SpeciesFileGroup/taxonworks/issues/1440
 [#4721]: https://github.com/SpeciesFileGroup/taxonworks/issues/4721
 [#4739]: https://github.com/SpeciesFileGroup/taxonworks/issues/4739
