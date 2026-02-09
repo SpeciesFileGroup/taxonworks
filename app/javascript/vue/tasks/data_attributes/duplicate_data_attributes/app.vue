@@ -1,5 +1,5 @@
 <template>
-  <div class="task-container">
+  <div class="container-xl mx-auto margin-medium-top relative">
     <VSpinner
       v-if="isLoading"
       full-screen
@@ -24,7 +24,7 @@
     </div>
 
     <template v-if="hasData">
-      <NavBar>
+      <NavBar :scroll-fix="false">
         <div class="flex-separate middle">
           <span class="separate-right"
             >Total objects with duplicates:
@@ -37,7 +37,7 @@
         <thead>
           <tr>
             <th
-              class="w-4"
+              class="w-4 position-sticky"
               @click="sortBy('object_tag')"
             >
               Object
@@ -45,10 +45,10 @@
                 sortAscending ? '&uarr;' : '&darr;'
               }}</span>
             </th>
-            <th class="w-2">Predicate</th>
-            <th class="w-3">Value</th>
+            <th class="w-2 position-sticky">Predicate</th>
+            <th class="w-3 position-sticky">Value</th>
             <th
-              class="w-2"
+              class="w-2 position-sticky"
               @click="sortBy('creator_name')"
             >
               Creator
@@ -57,7 +57,7 @@
               }}</span>
             </th>
             <th
-              class="w-2"
+              class="w-2 position-sticky"
               @click="sortBy('updater_name')"
             >
               Updater
@@ -66,7 +66,7 @@
               }}</span>
             </th>
             <th
-              class="w-2"
+              class="w-2 position-sticky"
               @click="sortBy('updated_at')"
             >
               Updated
@@ -74,7 +74,7 @@
                 sortAscending ? '&uarr;' : '&darr;'
               }}</span>
             </th>
-            <th class="w-2"></th>
+            <th class="w-2 position-sticky" />
           </tr>
         </thead>
         <tbody>
@@ -353,52 +353,28 @@ onBeforeMount(() => {
 </script>
 
 <style scoped>
-.task-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 1rem;
-}
-
-table {
-  border-collapse: collapse;
-}
-
 th {
   cursor: pointer;
   user-select: none;
-  text-align: left;
-  padding: 8px;
-  position: sticky;
-  top: 0;
-  background-color: var(--color-menu-background);
-  color: var(--color-menu-foreground);
   z-index: 10;
-}
-
-th:hover {
-  background-color: var(--color-menu-highlight);
+  top: 0;
 }
 
 td {
-  padding: 8px;
   vertical-align: middle;
+  padding: 0.5em 1em;
 }
 
 .object-header-row {
-  background-color: var(--color-menu-background);
-  font-weight: bold;
-}
-
-.object-header-row td:first-child {
-  padding-left: 8px;
+  td {
+    background-color: var(--bg-foreground) !important;
+    border-bottom: 2px solid var(--border-color) !important;
+    border-top: 2px solid var(--border-color) !important;
+  }
 }
 
 .exact-duplicate {
-  background-color: var(--color-caution) !important;
-}
-
-.predicate-tag {
-  display: inline-block;
+  background-color: var(--color-warning);
 }
 
 .value-input {
@@ -410,24 +386,7 @@ td {
   font-size: inherit;
 }
 
-.radial-cell {
-  text-align: right;
-  white-space: nowrap;
-}
-
 .pulse-success {
-  animation: pulse 0.5s ease-in-out;
-}
-
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
-  }
-  70% {
-    box-shadow: 0 0 0 10px rgba(40, 167, 69, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
-  }
+  animation: pulse-green 0.5s ease-in-out;
 }
 </style>
