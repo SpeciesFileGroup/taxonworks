@@ -80,16 +80,17 @@ Object.assign(TW.workbench.keyboard, {
       document.body.append(legendElement)
     })
 
-    window.addEventListener('keydown', function (e) {
+    this._keydownListener = (e) => {
       if (!e[modifierProp]) return
 
       const match = shortcuts.find((s) => s.key === e.key)
-
       if (match) {
         e.preventDefault()
         match.handler()
       }
-    })
+    }
+
+    window.addEventListener('keydown', this._keydownListener)
   },
 
   createTable() {
@@ -278,4 +279,14 @@ Object.assign(TW.workbench.keyboard, {
 document.addEventListener('turbolinks:load', () => {
   TW.workbench.help.init()
   TW.workbench.keyboard.init_keyShortcuts()
+})
+
+document.addEventListener('turbolinks:before-cache', () => {
+  if (TW.workbench.keyboard._keydownListener) {
+    window.removeEventListener(
+      'keydown',
+      TW.workbench.keyboard._keydownListener
+    )
+    TW.workbench.keyboard._keydownListener = null
+  }
 })
