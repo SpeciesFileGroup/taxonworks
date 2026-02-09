@@ -64,7 +64,7 @@ module Queries::Concerns::Users
 
     def updated_since
       return nil if @updated_since.blank?
-      Date.parse(@updated_since)
+      Time.zone.parse(@updated_since).beginning_of_day
     end
   end
 
@@ -145,28 +145,20 @@ module Queries::Concerns::Users
       user_date_start,
       user_date_end)
 
-    # TODO: this is ultimately going to require hourly scope
-    s += ' 00:00:00' # adjust dates to beginning
-    e += ' 23:59:59' # and end of date days
+    start_time = Time.zone.parse(s).beginning_of_day
+    end_time   = Time.zone.parse(e).end_of_day
 
-    q = nil
-
-    # handle date range
-
-    # What date?
     if !user_date_start.nil? || !user_date_end.nil?
       case user_target
       when 'updated'
-        q = target.updated_in_date_range(s, e)
+        target.updated_in_date_range(start_time, end_time)
       when 'created'
-        q = target.created_in_date_range(s, e)
+        target.created_in_date_range(start_time, end_time)
       else
-        # TODO: UNION !!!
-        q = target.updated_in_date_range(s, e).or(target.created_in_date_range(s,e))
+        target.updated_in_date_range(start_time, end_time)
+              .or(target.created_in_date_range(start_time, end_time))
       end
     end
-
-    q
   end
 
   def user_scope(target: base_user)

@@ -17,6 +17,12 @@ const axios = Axios.create({
   }
 })
 
+axios.interceptors.request.use((config) => {
+  config.headers['X-Timezone'] =
+    Intl.DateTimeFormat().resolvedOptions().timeZone
+  return config
+})
+
 axios.interceptors.response.use(
   function (response) {
     return setDataProperty(response)
