@@ -1167,3 +1167,13 @@ year_in_review_task:
     - project
   status: prototype
   description: 'A dashboard summarizing project activity for a calendar year.'
+duplicate_data_attributes_task:
+  hub: false
+  name: 'Repeated DataAttributes'
+  related:
+    - index_multi_update_task
+    - field_synchronize_task
+  categories:
+    - data_attributes
+  status: prototype
+  description: 'Report identifying objects with duplicate predicates on their data attributes.'
