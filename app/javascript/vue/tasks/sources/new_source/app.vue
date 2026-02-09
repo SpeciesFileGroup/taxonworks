@@ -32,7 +32,7 @@
         </li>
       </ul>
     </div>
-    <NavBar class="relative">
+    <NavBar>
       <div class="flex-separate full_width">
         <div class="middle gap-small">
           <template v-if="store.source.id">
