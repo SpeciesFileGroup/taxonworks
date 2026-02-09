@@ -25,7 +25,7 @@
           <a :href="RouteNames.SourceHub">Back to source hub</a>
         </li>
         <li>
-          <PanelSearch />
+          <PanelSearch ref="panelSearch" />
         </li>
         <li>
           <VRecent />
@@ -204,6 +204,7 @@ defineOptions({
 
 const store = useSourceStore()
 const settings = useSettingStore()
+const panelSearch = ref(null)
 
 const shortcuts = ref([
   {
@@ -216,6 +217,12 @@ const shortcuts = ref([
     keys: [platformKey(), 'n'],
     handler() {
       reset()
+    }
+  },
+  {
+    keys: ['Alt', 'f'],
+    handler() {
+      panelSearch.value?.focusSearch()
     }
   }
 ])
@@ -246,6 +253,7 @@ onMounted(() => {
     'Clone source',
     'New source'
   )
+  TW.workbench.keyboard.createLegend('Alt+f', 'Search', 'New source')
 
   loadSourceFromParams()
 })
