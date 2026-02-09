@@ -220,7 +220,8 @@ const shortcuts = ref([
     }
   },
   {
-    keys: ['Alt', 'f'],
+    keys: [platformKey(), 'f'],
+    preventDefault: true,
     handler() {
       panelSearch.value?.focusSearch()
     }
