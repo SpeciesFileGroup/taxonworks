@@ -35,6 +35,11 @@ export default {
     configs: {
       type: Object,
       default: () => ({})
+    },
+
+    stripNewlinesOnPaste: {
+      type: Boolean,
+      default: false
     }
   },
 
@@ -101,6 +106,14 @@ export default {
     },
 
     bindingEvents() {
+      if (this.stripNewlinesOnPaste) {
+        this.simplemde.codemirror.on('beforeChange', (cm, change) => {
+          if (change.origin === 'paste') {
+            change.update(change.from, change.to, [change.text.join(' ')])
+          }
+        })
+      }
+
       this.simplemde.codemirror.on('change', () => {
         this.$emit('update:modelValue', this.simplemde.value())
       })

@@ -25,14 +25,14 @@
           <a :href="RouteNames.SourceHub">Back to source hub</a>
         </li>
         <li>
-          <PanelSearch />
+          <PanelSearch ref="panelSearch" />
         </li>
         <li>
           <VRecent />
         </li>
       </ul>
     </div>
-    <NavBar class="relative">
+    <NavBar>
       <div class="flex-separate full_width">
         <div class="middle gap-small">
           <template v-if="store.source.id">
@@ -204,6 +204,7 @@ defineOptions({
 
 const store = useSourceStore()
 const settings = useSettingStore()
+const panelSearch = ref(null)
 
 const shortcuts = ref([
   {
@@ -216,6 +217,13 @@ const shortcuts = ref([
     keys: [platformKey(), 'n'],
     handler() {
       reset()
+    }
+  },
+  {
+    keys: [platformKey(), 'f'],
+    preventDefault: true,
+    handler() {
+      panelSearch.value?.focusSearch()
     }
   }
 ])
@@ -246,6 +254,7 @@ onMounted(() => {
     'Clone source',
     'New source'
   )
+  TW.workbench.keyboard.createLegend('Alt+f', 'Search', 'New source')
 
   loadSourceFromParams()
 })

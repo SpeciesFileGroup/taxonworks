@@ -164,6 +164,7 @@ onMounted(() => {
           store.dispatch(ActionNames.LoadOriginalCombination, taxonId)
           store.dispatch(ActionNames.LoadCombinations, taxon.id)
         })
+        .catch(() => {})
         .finally(() => {
           isLoading.value = false
         })

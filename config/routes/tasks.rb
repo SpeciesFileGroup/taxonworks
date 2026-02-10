@@ -78,6 +78,11 @@ scope :tasks do
   end
 
   scope :data_attributes do
+    scope :duplicate_data_attributes, controller: 'tasks/data_attributes/duplicate_data_attributes' do
+      get '/', action: :index, as: 'duplicate_data_attributes_task'
+      match :data, action: :data, defaults: { format: :json }, via: [:get, :post]
+    end
+
     scope :multi_update, controller: 'tasks/data_attributes/multi_update' do
       get '/', action: :index, as: 'index_multi_update_task'
     end
@@ -395,10 +400,6 @@ scope :tasks do
 
     scope :hub, controller: 'tasks/sources/hub' do
       get '/', action: :index, as: 'source_hub_task'
-    end
-
-    scope :individual_bibtex_source, controller: 'tasks/sources/individual_bibtex_source' do
-      get '/', action: :index, as: 'new_bibtex_source_task'
     end
 
     scope :verbatim_author_year_source, controller: 'tasks/sources/verbatim_author_year_source' do

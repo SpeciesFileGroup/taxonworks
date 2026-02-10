@@ -378,15 +378,6 @@ new_source_task:
     - new
   status: stable
   description: 'Add a source (person, or reference to a book, serial, publication etc.) via a number of different methods including CrossRef lookup, DOI, or cut-paste of BibTeX.'
-new_bibtex_source_task:
-  hub: true
-  name: 'New source from BibTeX'
-  related:
-  categories:
-    - source
-    - new
-  status: prototype
-  description: 'Parse a captured BibTeX string into a new source'
 visualize_confidences_task:
   hub: true
   name: 'Visualize confidences'
@@ -1176,3 +1167,13 @@ year_in_review_task:
     - project
   status: prototype
   description: 'A dashboard summarizing project activity for a calendar year.'
+duplicate_data_attributes_task:
+  hub: false
+  name: 'Repeated DataAttributes'
+  related:
+    - index_multi_update_task
+    - field_synchronize_task
+  categories:
+    - data_attributes
+  status: prototype
+  description: 'Report identifying objects with duplicate predicates on their data attributes.'
