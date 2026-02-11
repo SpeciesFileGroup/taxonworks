@@ -287,8 +287,18 @@ module Workbench::NavigationHelper
   end
 
   def title_tag
-    splash = request.path =~ /task/ ? request.path.demodulize.humanize : request.path.split('/')&.second&.humanize
-    content_tag(:title, ['TaxonWorks', splash].compact.join(' - ') )
+    splash =
+      if current_page?(root_path)
+        'Dashboard'
+      elsif request.path.include?('task')
+        request.path.demodulize.humanize
+      else
+        request.path.split('/')&.second&.humanize
+      end
+
+    project_name = sessions_current_project&.name || 'TaxonWorks'
+
+    content_tag(:title, [project_name, splash].compact.join(' - ') )
   end
 
 
