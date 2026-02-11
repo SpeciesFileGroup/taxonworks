@@ -176,17 +176,22 @@ namespace :tw do
           # TODO: this doesn't currently account for FOs
           q = Georeference.joins(:otus).where.missing(:cached_map_register).distinct
 
-          puts "Caching #{q.count} georeferences records."
-
           cached_rebuild_processes = ENV['cached_rebuild_processes'] ? ENV['cached_rebuild_processes'].to_i : 4
-          cached_rebuild_batch_size = ENV['cached_rebuild_batch_size'] ? ENV['cached_rebuild_batch_size'].to_i : 1000
+          cached_rebuild_batch_size = ENV['cached_rebuild_batch_size'] ? ENV['cached_rebuild_batch_size'].to_i : 10000
 
-          Parallel.each(q.find_in_batches(batch_size: cached_rebuild_batch_size), progress: 'build_cached_map_from_georeferences',
-            in_processes: cached_rebuild_processes ) do |batch|
+          # Pluck IDs only - avoids Parallel.each calling .to_a on the
+          # enumerator and materializing all AR objects in the parent process.
+          ids = q.pluck(:id)
+          puts "Caching #{ids.size} georeferences records."
+
+          slices = ids.each_slice(cached_rebuild_batch_size).to_a
+
+          Parallel.each(slices, progress: 'build_cached_map_from_georeferences',
+            in_processes: cached_rebuild_processes ) do |slice_ids|
             registrations = []
             begin
               reconnected ||= Georeference.connection.reconnect! || true # https://github.com/grosser/parallel
-              batch.each do |g|
+              Georeference.where(id: slice_ids).each do |g|
                 g.send(:create_cached_map_items, true, skip_register: true, register_queue: registrations)
               end
               CachedMapRegister.insert_all(registrations) if registrations.present?
@@ -241,23 +246,27 @@ namespace :tw do
               'gazetteers.geographic_item_id AS default_geographic_item_id'
             )
 
-          ga_count = q_ga.unscope(:select).count
-          gz_count = q_gz.unscope(:select).count
-          puts "Caching #{ga_count + gz_count} AssertedDistribution records."
-
           cached_rebuild_processes = ENV['cached_rebuild_processes'] ? ENV['cached_rebuild_processes'].to_i : 4
-          cached_rebuild_batch_size = ENV['cached_rebuild_batch_size'] ? ENV['cached_rebuild_batch_size'].to_i : 1000
+          cached_rebuild_batch_size = ENV['cached_rebuild_batch_size'] ? ENV['cached_rebuild_batch_size'].to_i : 10000
+
+          # Pluck IDs only - avoids Parallel.each calling .to_a on the
+          # enumerator and materializing all AR objects in the parent process.
+          ga_ids = q_ga.pluck('asserted_distributions.id')
+          gz_ids = q_gz.pluck('asserted_distributions.id')
+          puts "Caching #{ga_ids.size + gz_ids.size} AssertedDistribution records."
 
           [
-            [q_ga, 'build_cached_map_from_asserted_distributions GA'],
-            [q_gz, 'build_cached_map_from_asserted_distributions GZ']
-          ].each do |q, progress|
-            Parallel.each(q.find_in_batches(batch_size: cached_rebuild_batch_size), progress:,
-              in_processes: cached_rebuild_processes ) do |batch|
+            [ga_ids, q_ga, 'build_cached_map_from_asserted_distributions GA'],
+            [gz_ids, q_gz, 'build_cached_map_from_asserted_distributions GZ']
+          ].each do |ids, q, progress|
+            slices = ids.each_slice(cached_rebuild_batch_size).to_a
+
+            Parallel.each(slices, progress:,
+              in_processes: cached_rebuild_processes ) do |slice_ids|
               registrations = []
               begin
                 reconnected ||= AssertedDistribution.connection.reconnect! || true # https://github.com/grosser/parallel
-                batch.each do |ad|
+                q.where('asserted_distributions.id': slice_ids).each do |ad|
                   context = {
                     geographic_item_id: ad.default_geographic_item_id,
                     otu_id: ad.otu_id,
@@ -277,7 +286,7 @@ namespace :tw do
             end
           end
 
-          puts'Done.'
+          puts 'Done.'
         end
 
         desc 'prebuild CachedMapItemTranslations, NOT idempotent'
