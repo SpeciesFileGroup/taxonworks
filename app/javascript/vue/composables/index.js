@@ -1,6 +1,7 @@
 export * from './useBeforeUnloadListener'
 export * from './useBroadcastChannel'
 export * from './useClickOutside'
+export * from './useDebounce'
 export * from './useDoubleClick'
 export * from './useDraggable'
 export * from './useEventListener'

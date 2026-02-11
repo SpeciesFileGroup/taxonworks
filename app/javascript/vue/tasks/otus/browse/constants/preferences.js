@@ -1,8 +1,8 @@
-import BROWSE_SECTIONS from './components.js'
+import { PANEL_COMPONENTS } from './components.js'
 
-export default {
+export const DEFAULT_PREFERENCES = {
   preferenceSchema: 20260205,
-  sections: Object.keys(BROWSE_SECTIONS),
+  sections: Object.keys(PANEL_COMPONENTS),
   filterSections: {
     and: {
       current: [

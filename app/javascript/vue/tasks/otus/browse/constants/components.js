@@ -1,26 +1,29 @@
-import ImageGallery from './components/gallery/Main'
+/* 
 import ContentComponent from './components/Content'
 import ConveyanceComponent from './components/Conveyance/PanelConveyance.vue'
 import AssertedDistribution from './components/AssertedDistribution'
 import BiologicalAssociations from './components/BiologicalAssociations'
 import AnnotationsComponent from './components/Annotations'
-import NomenclatureHistory from './components/timeline/Timeline.vue'
-import Distribution from './components/Distribution/Distribution.vue'
-import Descendants from './components/Descendants/Descendants.vue'
+import NomenclatureHistory from './components/timeline/Timeline.vue' */
+import PanelDistribution from '../components/Panel/PanelDistribution/PanelDistribution.vue'
+import PanelCoordinate from '../components/Panel/PanelCoordinates/PanelCoordinates.vue'
+import PanelDepictions from '../components/Panel/PanelDepictions/PanelDepictions.vue'
+/* import Descendants from './components/Descendants/Descendants.vue'
 import CollectionObjects from './components/CollectionObjects'
 import TypeSpecimens from './components/specimens/Type'
 import TypeSection from './components/TypeSection.vue'
 import CommonNames from './components/CommonNames'
 import DescriptionComponent from './components/Description.vue'
-import CoordinateOtus from './components/coordinate/CoordinateOtus.vue'
-import FieldOccurrences from './components/FieldOccurrence/FieldOccurrence.vue'
 
-export default {
-  CoordinateOtus: {
-    component: CoordinateOtus,
+import FieldOccurrences from './components/FieldOccurrence/FieldOccurrence.vue' */
+
+export const PANEL_COMPONENTS = {
+  PanelCoordinate: {
+    component: PanelCoordinate,
     title: 'Coordinate OTUs',
     status: 'stable'
   },
+  /*
   NomenclatureHistory: {
     component: NomenclatureHistory,
     title: 'Timeline',
@@ -30,12 +33,12 @@ export default {
     component: Descendants,
     title: 'Descendants',
     status: 'prototype'
-  },
-  ImageGallery: {
-    component: ImageGallery,
+  },*/
+  PanelDepictions: {
+    component: PanelDepictions,
     title: 'Images',
     status: 'prototype'
-  },
+  } /*
   ConveyanceComponent: {
     component: ConveyanceComponent,
     title: 'Sounds',
@@ -96,9 +99,9 @@ export default {
     component: AnnotationsComponent,
     title: 'Annotations',
     status: 'prototype'
-  },
-  Distribution: {
-    component: Distribution,
+  }, */,
+  PanelDistribution: {
+    component: PanelDistribution,
     title: 'Distribution',
     status: 'prototype'
   }

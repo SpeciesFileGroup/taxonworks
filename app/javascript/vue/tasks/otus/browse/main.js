@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import App from './app.vue'
+import App from './App.vue'
 
 function init() {
   const app = createApp(App)

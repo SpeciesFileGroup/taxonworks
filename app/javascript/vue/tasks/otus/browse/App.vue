@@ -1,7 +1,7 @@
 <template>
   <div id="browse-otu">
     <select-otu
-      :otus="otuList"
+      :otus="otus"
       @selected="loadOtu"
     />
     <VSpinner
@@ -30,8 +30,8 @@
             placeholder="Search a otu"
             param="term"
             clear-after
-            @getItem="loadOtu"
             label="label_html"
+            @getItem="(e) => otuStore.loadOtu(e.id)"
           />
           <ul
             v-if="navigate"
@@ -47,27 +47,30 @@
         </template>
       </div>
     </div>
-    <template v-if="otu">
+    <template v-if="otuStore.otu && otuStore.taxonName">
       <HeaderBar
         class="separate-bottom"
         :menu="menu"
-        :otu="otu"
+        :otu="otuStore.otu"
       />
       <div class="separate-top separate-bottom"></div>
+
       <VDraggable
-        v-if="preferences[KEY_STORAGE]"
+        v-if="preferences?.layout?.[KEY_STORAGE]"
         handle=".handle"
         :item-key="(element) => element"
-        v-model="preferences[KEY_STORAGE].sections"
+        v-model="preferences.layout[KEY_STORAGE].sections"
       >
         <template #item="{ element }">
           <component
-            v-if="showForRanks(COMPONENT_NAMES[element])"
+            v-if="showForRanks(PANEL_COMPONENTS[element])"
             class="separate-bottom full_width"
-            :title="componentNames[element].title"
-            :status="componentNames[element].status"
-            :otu="otu"
-            :is="componentNames[element].component"
+            :title="PANEL_COMPONENTS[element].title"
+            :status="PANEL_COMPONENTS[element].status"
+            :otu="otuStore.otu"
+            :otus="otuStore.selectedOtus"
+            :taxon-name="otuStore.taxonName"
+            :is="PANEL_COMPONENTS[element].component"
           />
         </template>
       </VDraggable>
@@ -81,115 +84,101 @@
 </template>
 
 <script setup>
-import {ref, onBeforeCreate } from 'vue'
-import HeaderBar from './components/HeaderBar'
-import VSpinner from '@/components/ui/VSpinner'
+import { computed, ref, onBeforeMount } from 'vue'
+//import HeaderBar from './components/HeaderBar'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
 import VAutocomplete from '@/components/ui/Autocomplete'
-import SearchOtu from './components/SearchOtu'
+import SearchOtu from './components/Navbar/NavbarSearchOtu.vue'
 import VDraggable from 'vuedraggable'
 import { RouteNames } from '@/routes/routes'
 import { useUserPreferences } from '@/composables'
 import { CollectionObject, TaxonName, Otu } from '@/routes/endpoints'
-import { useOtuStore } from './store'
-import defaultPreferences from './constants/preferences.js'
-import COMPONENT_NAMES from './const/componentNames'
+import { useOtuStore, useSettingsStore } from './store'
+import { PANEL_COMPONENTS, DEFAULT_PREFERENCES } from './constants'
 import ShowForThisGroup from '@/tasks/nomenclature/new_taxon_name/helpers/showForThisGroup.js'
 
-const otuStore = useOtuStore()
-const { preferences, loadPreferences } = useUserPreferences()
+defineOptions({
+  name: 'BrowseOtu'
+})
 
 const KEY_STORAGE = 'task::BrowseOtus'
 
-loadPreferences().then(() => {
-  const taskPreferences = preferences.value[KEY_STORAGE]
+const otuStore = useOtuStore()
+const settings = useSettingsStore()
 
-  if (!taskPreferences || taskPreferences.preferenceSchema < defaultPreferences.preferenceSchema) {
-    preferences.value[KEY_STORAGE] = { ...defaultPreferences }
+const { preferences, loadPreferences } = useUserPreferences()
+
+loadPreferences().then(() => {
+  const taskPreferences = preferences.value?.layout[KEY_STORAGE]
+
+  if (
+    !taskPreferences ||
+    taskPreferences.preferenceSchema < DEFAULT_PREFERENCES.preferenceSchema
+  ) {
+    preferences.value.layout[KEY_STORAGE] = { ...DEFAULT_PREFERENCES }
   }
 })
 
-
-
-const menu = computed(() => preferences.value.sections.map(
-        (name) => COMPONENT_NAMES[name].title
-      ))
-
-
-const isLoading = ref(false)
 const navigate = ref()
-const
-  data() {
-    return {
-      isLoading: false,
-      navigate: undefined,
-      otuList: [],
-      componentNames: COMPONENT_NAMES
-    }
-  },
+const otus = ref([])
 
-  onBeforeCreate(() => {
-    const urlParams = new URLSearchParams(window.location.search)
-    const otuId = urlParams.get('otu_id')
-      ? urlParams.get('otu_id')
-      : location.pathname.split('/')[4]
-    const taxonId = urlParams.get('taxon_name_id')
+onBeforeMount(() => {
+  const urlParams = new URLSearchParams(window.location.search)
+  const otuId = urlParams.get('otu_id')
+  const taxonId = urlParams.get('taxon_name_id')
 
-    const collectionObjectId = urlParams.get('collection_object_id')
+  const collectionObjectId = urlParams.get('collection_object_id')
 
-    if (/^\d+$/.test(otuId)) {
-      this.$store.dispatch(ActionNames.LoadOtus, otuId).then(() => {
-        this.isLoading = false
-      })
-      Otu.navigation(otuId).then((response) => {
-        this.navigate = response.body
-      })
-    } else if (taxonId) {
-      TaxonName.otus(taxonId).then(({ body }) => {
-        if (!body.length) {
-          TW.workbench.alert.create(
-            `No page available. There is no OTU for this taxon name.`,
-            'notice'
-          )
-          return
-        }
+  if (/^\d+$/.test(otuId)) {
+    otuStore.loadOtu(otuId)
 
-        if (body.length > 1) {
-          this.otuList = body
-        } else {
-          this.$store.dispatch(ActionNames.LoadOtus, body[0].id).then(() => {
-            this.isLoading = false
-          })
-        }
-      })
-    } else if (collectionObjectId) {
-      CollectionObject.find(collectionObjectId, {
-        extend: ['taxon_determinations']
-      }).then(({ body }) => {
-        const id = body.taxon_determinations?.[0]?.otu_id
+    Otu.navigation(otuId).then(({ body }) => {
+      navigate.value = body
+    })
+  } else if (taxonId) {
+    TaxonName.otus(taxonId).then(({ body }) => {
+      if (!body.length) {
+        TW.workbench.alert.create(
+          `No page available. There is no OTU for this taxon name.`,
+          'notice'
+        )
+        return
+      }
 
-        if (id) {
-          otuStore.loadOtu(id)
-        }
-      })
-    } else {
-      this.isLoading = false
-    }
+      if (body.length > 1) {
+        otus.value = body
+      } else {
+        otuStore.loadOtu(body[0].id)
+      }
+    })
+  } else if (collectionObjectId) {
+    CollectionObject.find(collectionObjectId, {
+      extend: ['taxon_determinations']
+    }).then(({ body }) => {
+      const id = body.taxon_determinations?.[0]?.otu_id
 
+      if (id) {
+        otuStore.loadOtu(id)
+      }
+    })
+  } else {
+    settings.isLoading = false
+  }
 })
 
-function loadOtu(event) {
-      window.open(`/tasks/otus/browse?otu_id=${event.id}`, '_self')
-    }
+function loadOtu({ id }) {
+  window.open(`${RouteNames.BrowseOtu}?otu_id=${id}`, '_self')
+}
 
 function showForRanks(section) {
-      const rankGroup = section.rankGroup
-      return rankGroup
-        ? otuStore.taxonName
-          ? ShowForThisGroup(rankGroup, otuStore.taxonName)
-          : section.otu
-        : true
-    }
+  const rankGroup = section.rankGroup
+  return rankGroup
+    ? otuStore.taxonName
+      ? ShowForThisGroup(rankGroup, otuStore.taxonName)
+      : section.otu
+    : true
+}
 </script>
 
 <style lang="scss">
