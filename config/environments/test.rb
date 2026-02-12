@@ -22,7 +22,6 @@ TaxonWorks::Application.configure do
   # preloads Rails for running tests, you may have to set it to true.
   #
   config.eager_load = true
-  config.rake_eager_load = true
 
   # Configure static asset server for tests with Cache-Control for performance.
   # config.serve_static_files                         = true

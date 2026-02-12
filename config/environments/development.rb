@@ -24,9 +24,8 @@ TaxonWorks::Application.configure do
   # since you don't have to restart the web server when you make code changes.
   config.cache_classes = false
 
-  # Do eager load code on boot.
+  # Do not eager load code on boot.
   config.eager_load = true
-  config.rake_eager_load = true
 
   # Show full error reports and disable caching.
   config.consider_all_requests_local = true
