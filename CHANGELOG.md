@@ -19,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Save notice is missing in New type specimen task
 - Fix: Rails now correctly applies time zones for `user_date_start` and `user_date_end` parameters from the `X-Timezone` header [#4721]
 - Classes not being eager loaded in background jobs, causing dwc importer to fail
+- Admin checkboxes in project members table are not visible to project administrators.
 
 ### Changed
 
