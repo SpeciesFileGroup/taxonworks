@@ -177,7 +177,7 @@ namespace :tw do
           q = Georeference.joins(:otus).where.missing(:cached_map_register).distinct
 
           cached_rebuild_processes = ENV['cached_rebuild_processes'] ? ENV['cached_rebuild_processes'].to_i : 4
-          cached_rebuild_batch_size = ENV['cached_rebuild_batch_size'] ? ENV['cached_rebuild_batch_size'].to_i : 10000
+          cached_rebuild_batch_size = ENV['cached_rebuild_batch_size'] ? ENV['cached_rebuild_batch_size'].to_i : 2000
 
           # Pluck IDs only - avoids Parallel.each calling .to_a on the
           # enumerator and materializing all AR objects in the parent process.
@@ -290,7 +290,7 @@ namespace :tw do
           # enumerator and materializing all AR objects in the parent process.
           ga_ids = q_ga.pluck('asserted_distributions.id')
           gz_ids = q_gz.pluck('asserted_distributions.id')
-          puts "Caching #{ga_ids.size + gz_ids.size} AssertedDistribution records."
+          puts "Caching #{ga_ids.size} GA + #{gz_ids.size} GZ = #{ga_ids.size + gz_ids.size} AssertedDistribution records."
 
           [
             [ga_ids, q_ga, 'build_cached_map_from_asserted_distributions GA'],
@@ -344,37 +344,36 @@ namespace :tw do
           ids_out = CachedMapItemTranslation.select(:geographic_item_id).distinct
           default_gagi_sql = GeographicAreasGeographicItem.default_geographic_item_data_sql
 
-          ga_ids = GeographicArea.joins(:asserted_distributions).distinct
+          ga_gi_ids = GeographicArea.joins(:asserted_distributions)
             .joins("JOIN (#{default_gagi_sql}) default_gagi ON default_gagi.geographic_area_id = geographic_areas.id")
             .select('DISTINCT default_gagi.geographic_item_id AS id')
 
-          gz_ids = Gazetteer.joins(:asserted_distributions).distinct
+          gz_gi_ids = Gazetteer.joins(:asserted_distributions)
             .select('DISTINCT gazetteers.geographic_item_id AS id')
 
-          ga_total = ga_ids.count
-          ga_done = ga_ids.where(id: ids_out).count
-          puts "Total GeographicArea-based asserted distributions: #{ga_total}"
-          puts "GeographicArea-based asserted distributions already done: #{ga_done}"
+          # .count on SELECT ... AS id produces invalid COUNT(... AS id),
+          # so unscope and count the raw column.
+          ga_total = ga_gi_ids.unscope(:select).count('DISTINCT default_gagi.geographic_item_id')
+          ga_done = ga_gi_ids.where(id: ids_out).unscope(:select).count('DISTINCT default_gagi.geographic_item_id')
+          puts "Total GeographicArea-based geographic items to translate: #{ga_total}"
+          puts "GeographicArea-based geographic items already done: #{ga_done}"
 
-          gz_total = gz_ids.count
-          gz_done = gz_ids.where(id: ids_out).count
-          puts "Total Gazetteer-based asserted distributions: #{gz_total}"
-          puts "Gazetteer-based asserted distributions already done: #{gz_done}"
+          gz_total = gz_gi_ids.unscope(:select).count('DISTINCT gazetteers.geographic_item_id')
+          gz_done = gz_gi_ids.where(id: ids_out).unscope(:select).count('DISTINCT gazetteers.geographic_item_id')
+          puts "Total Gazetteer-based geographic items to translate: #{gz_total}"
+          puts "Gazetteer-based geographic items already done: #{gz_done}"
 
-          ga_missing = ga_ids.where.not(id: ids_out)
-          gz_missing = gz_ids.where.not(id: ids_out)
+          ga_missing_gi_ids = ga_gi_ids.where.not(id: ids_out).map(&:id)
+          gz_missing_gi_ids = gz_gi_ids.where.not(id: ids_out).map(&:id)
 
-          puts "Processing #{ga_missing.count} GeographicArea-based asserted distributions"
-          puts "Processing #{gz_missing.count} Gazetteer-based asserted distributions"
+          puts "Processing #{ga_missing_gi_ids.size} GeographicArea-based geographic items"
+          puts "Processing #{gz_missing_gi_ids.size} Gazetteer-based geographic items"
 
           precomputed_data_origin_ids = {
             'ne_states' => CachedMapItem.precomputed_data_origin_ids_for('ne_states')
           }
 
-          ga_batch = 0
-          ga_missing.in_batches(of: 1000) do |batch|
-            ga_batch += 1
-            ids = batch.pluck(:id)
+          ga_missing_gi_ids.each_slice(1000).with_index(1) do |ids, ga_batch|
             Parallel.each(ids, progress: "build_cached_map_item_translations GA (batch #{ga_batch})",
               in_processes: cached_rebuild_processes ) do |id|
               reconnected ||= CachedMapItemTranslation.connection.reconnect! || true
@@ -384,10 +383,7 @@ namespace :tw do
 
           puts 'Geographic Area-based Asserted Distributions done.'
 
-          gz_batch = 0
-          gz_missing.in_batches(of: 1000) do |batch|
-            gz_batch += 1
-            ids = batch.pluck(:id)
+          gz_missing_gi_ids.each_slice(1000).with_index(1) do |ids, gz_batch|
             Parallel.each(ids, progress: "build_cached_map_item_translations GZ (batch #{gz_batch})",
               in_processes: cached_rebuild_processes ) do |id|
               reconnected ||= CachedMapItemTranslation.connection.reconnect! || true
@@ -416,7 +412,7 @@ namespace :tw do
             # else
             #   print ' !! NO MATCH'
             # end
-          rescue ActiveRecord::StatementInvalid  => e
+          rescue ActiveRecord::StatementInvalid, ActiveRecord::RecordNotFound => e
             puts "#{geographic_item_id}:" + e.to_s.gsub(/\n/, '')
             t = []
           end
