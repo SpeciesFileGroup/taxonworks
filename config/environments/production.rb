@@ -16,6 +16,7 @@ TaxonWorks::Application.configure do
   # at present this resolved TW-261
 
   config.eager_load = true
+  config.rake_eager_load = true
   # config.eager_load = false
 
   # Full error reports are disabled and caching is turned on.
