@@ -25,7 +25,6 @@ document.addEventListener('turbolinks:load', () => {
             setClosedNews(closed)
           }
 
-          console.log(closed)
           closeBtn.parentNode.remove()
         },
         { once: true }
