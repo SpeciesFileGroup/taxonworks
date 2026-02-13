@@ -224,7 +224,7 @@ namespace :tw do
                     context: { otu_id: otu_ids },
                     skip_register: true, register_queue: registrations)
                 rescue ActiveRecord::StatementInvalid, ActiveRecord::RecordNotFound => e
-                  puts " FAILED georeference_id:#{g.id} geographic_item_id:#{g.geographic_item_id} #{e}"
+                  puts " FAILED georeference_id:#{g.id} geographic_item_id:#{g.geographic_item_id} project_id:#{g.project_id} #{e}"
                 end
               end
               CachedMapRegister.insert_all(registrations) if registrations.present?
@@ -310,7 +310,7 @@ namespace :tw do
                     ad.send(:create_cached_map_items, true, context: context,
                       skip_register: true, register_queue: registrations)
                   rescue ActiveRecord::StatementInvalid, ActiveRecord::RecordNotFound => e
-                    puts " FAILED asserted_distribution_id:#{ad.id} geographic_item_id:#{ad.default_geographic_item_id} #{e}"
+                    puts " FAILED asserted_distribution_id:#{ad.id} geographic_item_id:#{ad.default_geographic_item_id} project_id:#{ad.project_id} #{e}"
                   end
                 end
 
