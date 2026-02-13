@@ -30,10 +30,10 @@
           color="primary"
           circle
           class="cursor-grab handle"
-          title="Press and hold to drag taxon determination"
+          title="Press and hold to drag depiction"
         >
           <VIcon
-            title="Press and hold to drag taxon determination"
+            title="Press and hold to drag depiction"
             color="white"
             name="scrollV"
             small
