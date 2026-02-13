@@ -1,10 +1,7 @@
 <template>
   <tr>
-    <td
-      class="cursor-grab"
-      v-html="depiction.object_tag"
-    />
-    <td class="cursor-grab">{{ depiction.is_metadata_depiction }}</td>
+    <td v-html="depiction.object_tag" />
+    <td>{{ depiction.is_metadata_depiction }}</td>
     <td>
       <EditInPlace
         v-model="label"
@@ -21,8 +18,27 @@
       <RadialAnnotator :global-id="depiction.image.global_id" />
     </td>
     <td>
-      <div class="flex-wrap-column gap-small">
+      <div
+        class="flex-wrap-column gap-small padding-small-top padding-small-bottom"
+      >
         <RadialAnnotator :global-id="depiction.global_id" />
+        <MoveAnnotation
+          :annotation="depiction"
+          @move="(item) => emit('move', item)"
+        />
+        <VBtn
+          color="primary"
+          circle
+          class="cursor-grab handle"
+          title="Press and hold to drag taxon determination"
+        >
+          <VIcon
+            title="Press and hold to drag taxon determination"
+            color="white"
+            name="scrollV"
+            small
+          />
+        </VBtn>
         <VBtn
           class="circle-button"
           color="primary"
@@ -34,10 +50,7 @@
             x-small
           />
         </VBtn>
-        <MoveAnnotation
-          :annotation="depiction"
-          @move="(item) => emit('move', item)"
-        />
+
         <VBtn
           class="circle-button"
           color="destroy"
