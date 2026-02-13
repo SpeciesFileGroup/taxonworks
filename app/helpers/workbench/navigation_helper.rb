@@ -11,22 +11,27 @@ module Workbench::NavigationHelper
 
   def class_navigation_json(klass)
     k = klass
-
     b = {}
-    %w{new edit home}.each do |t|
-      if OBJECT_RADIALS[k]
+    tasks = {}
+
+    if OBJECT_RADIALS[k]
+      %w{new edit home}.each do |t|
         if c = OBJECT_RADIALS[k][t]
-          b[t] = send(OBJECT_RADIALS[k][t] + '_path')
+          b[t] = send(c + '_path')
         end
+      end
+
+      if OBJECT_RADIALS[k]['tasks']
+        tasks = OBJECT_RADIALS[k]['tasks'].inject({}) { |hsh, t| hsh[t] = send(t + '_path'); hsh }
       end
     end
 
     return {
-     klass: k,
-     id: k.tableize.singularize + '_id',
-     tasks: OBJECT_RADIALS[k]['tasks'].inject({}){|hsh, t| hsh[t] = send(t + '_path'); hsh },
-     base: b
-   }
+      klass: k,
+      id: k.tableize.singularize + '_id',
+      tasks: tasks,
+      base: b
+    }
   end
 
   # Slideout panels
