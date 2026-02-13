@@ -212,23 +212,19 @@ namespace :tw do
 
               # Group by collecting_event_id since georeference belongs_to
               # collecting_event - hash lookup replaces per-record queries.
+              # Only include OTUs that have a taxon_name_id — OTUs without
+              # taxon names have no hierarchy and don't contribute to cached maps.
               ce_otu_lookup = {}
               otu_rows.each do |ce_id, otu_id, taxon_name_id|
-                entry = (ce_otu_lookup[ce_id] ||= { otu_ids: [], taxon_name_id: nil })
-                entry[:otu_ids] << otu_id
-                entry[:taxon_name_id] ||= taxon_name_id if taxon_name_id
+                next unless taxon_name_id
+                (ce_otu_lookup[ce_id] ||= []) << otu_id
               end
 
               Georeference.where(id: slice_ids).each do |g|
-                ce_data = ce_otu_lookup[g.collecting_event_id]
-                context = if ce_data
-                  {
-                    geographic_item_id: g.geographic_item_id,
-                    otu_id: ce_data[:otu_ids],
-                    otu_taxon_name_id: ce_data[:taxon_name_id]
-                  }
-                end
-                g.send(:create_cached_map_items, true, context: context,
+                otu_ids = ce_otu_lookup[g.collecting_event_id]
+                next unless otu_ids
+                g.send(:create_cached_map_items, true,
+                  context: { otu_id: otu_ids },
                   skip_register: true, register_queue: registrations)
               end
               CachedMapRegister.insert_all(registrations) if registrations.present?
