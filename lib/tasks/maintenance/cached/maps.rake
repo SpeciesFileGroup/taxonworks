@@ -99,22 +99,18 @@ namespace :tw do
           puts "Labelling #{items.count} CachedMapItems."
 
           Parallel.each(items.each, progress: 'labelling_geographic_items', in_processes: cached_rebuild_processes ) do |o|
+            reconnected ||= CachedMapItem.connection.reconnect! || true
 
             h = CachedMapItem.cached_map_name_hierarchy(o.geographic_item_id)
 
             z = CachedMapItem.where(geographic_item_id: o.geographic_item_id)
               .where(untranslated: [nil, false])
 
-            #puts 'Size: ' + z.size.to_s
-
             z.update_all(
               level0_geographic_name: h[:country],
               level1_geographic_name: h[:state],
               level2_geographic_name: h[:county]
             )
-
-            #puts o.geographic_item_id
-            #puts h
           end
           puts 'Done labelling cached map items.'
         end
@@ -138,6 +134,8 @@ namespace :tw do
           puts "#{otus.count} total OTUs."
 
           Parallel.each(otus.find_each, progress: 'build_cached_map_for_otu', in_processes: cached_rebuild_processes ) do |o|
+            reconnected ||= Georeference.connection.reconnect! || true # https://github.com/grosser/parallel
+
             o.collecting_events.each do |ce|
 
               # !! All georeferences, not just one
@@ -145,7 +143,6 @@ namespace :tw do
 
                 begin
                   CachedMapItem.transaction do
-                    reconnected ||= Georeference.connection.reconnect! || true # https://github.com/grosser/parallel
                     g.send(:create_cached_map_items, true)
                   end
                   true
@@ -159,7 +156,6 @@ namespace :tw do
             o.asserted_distributions.where.missing(:cached_map_register).each do |ad|
               begin
                 CachedMapItem.transaction do
-                  reconnected ||= AssertedDistribution.connection.reconnect! || true # https://github.com/grosser/parallel
                   ad.send(:create_cached_map_items, true)
                 end
                 true
@@ -478,7 +474,7 @@ namespace :tw do
               end
 
             rescue => exception
-              puts " FAILED #{exception} #{g.id}"
+              puts " FAILED #{exception} #{a.id}"
             end
           end
           puts 'Done.'
