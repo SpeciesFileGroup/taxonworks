@@ -580,6 +580,7 @@ resources :namespaces do
     post :preview_simple_batch_load
     post :create_simple_batch_load
     get :select_options, defaults: {format: :json}
+    match :filter, to: 'namespaces#index', via: [:get, :post]
   end
 
   concerns [:data_routes]

@@ -41,6 +41,8 @@ module Queries
         @namespace_id = params[:namespace_id]
         @short_name = params[:short_name]
         @verbatim_short_name = params[:verbatim_short_name]
+
+        set_user_dates(params)
       end
 
       def name
@@ -76,12 +78,17 @@ module Queries
 
       def institution_facet
         return nil if institution.nil?
-        table[:institution].matches('%' + insititution + '%')
+        table[:institution].matches('%' + institution + '%')
       end
 
       def is_virtual_facet
         return nil if is_virtual.nil?
         table[:is_virtual].eq(is_virtual)
+      end
+
+      # Namespace is shared data, not project-scoped
+      def project_id_facet
+        nil
       end
 
       def and_clauses
