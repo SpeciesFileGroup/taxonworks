@@ -223,14 +223,18 @@ namespace :tw do
               Georeference.where(id: slice_ids).each do |g|
                 otu_ids = ce_otu_lookup[g.collecting_event_id]
                 next unless otu_ids
-                g.send(:create_cached_map_items, true,
-                  context: { otu_id: otu_ids },
-                  skip_register: true, register_queue: registrations)
+                begin
+                  g.send(:create_cached_map_items, true,
+                    context: { otu_id: otu_ids },
+                    skip_register: true, register_queue: registrations)
+                rescue ActiveRecord::StatementInvalid, ActiveRecord::RecordNotFound => e
+                  puts " FAILED georeference_id:#{g.id} geographic_item_id:#{g.geographic_item_id} #{e}"
+                end
               end
               CachedMapRegister.insert_all(registrations) if registrations.present?
               true
             rescue => exception
-              puts " FAILED #{exception}"
+              puts " FAILED (slice) #{exception}"
             end
             true
           end
@@ -306,14 +310,18 @@ namespace :tw do
                     otu_taxon_name_id: ad.otu_taxon_name_id,
                     geographic_area_based: ad.asserted_distribution_shape_type == 'GeographicArea'
                   }
-                  ad.send(:create_cached_map_items, true, context: context,
-                    skip_register: true, register_queue: registrations)
+                  begin
+                    ad.send(:create_cached_map_items, true, context: context,
+                      skip_register: true, register_queue: registrations)
+                  rescue ActiveRecord::StatementInvalid, ActiveRecord::RecordNotFound => e
+                    puts " FAILED asserted_distribution_id:#{ad.id} geographic_item_id:#{ad.default_geographic_item_id} #{e}"
+                  end
                 end
 
                 CachedMapRegister.insert_all(registrations) if registrations.present?
                 true
               rescue => exception
-                puts " FAILED #{exception}"
+                puts " FAILED (slice) #{exception}"
               end
               true
             end
@@ -397,24 +405,14 @@ namespace :tw do
         )
           translations = []
 
-          #  b = ( Benchmark.measure {
           begin
-            #  print "#{id}: "
             t = CachedMapItem.translate_geographic_item_id(
               geographic_item_id, geographic_area_based, false, ['ne_states'], nil, precomputed_data_origin_ids:
             )
-            # if t.present?
-            #   print t.join(', ')
-            # else
-            #   print ' !! NO MATCH'
-            # end
           rescue ActiveRecord::StatementInvalid, ActiveRecord::RecordNotFound => e
             puts "#{geographic_item_id}:" + e.to_s.gsub(/\n/, '')
             t = []
           end
-
-          #  })
-          #  puts ' | ' + b.to_s
 
           t.each do |u|
             translations.push({
