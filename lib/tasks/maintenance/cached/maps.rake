@@ -47,6 +47,11 @@ namespace :tw do
       #
       namespace :maps do
 
+        def format_elapsed(start_time)
+          s = (Time.current - start_time).to_i
+          format('%d:%02d:%02d', s / 3600, (s % 3600) / 60, s % 60)
+        end
+
         desc 'destroy all cached map references'
         task destroy_all: [:environment] do |t|
           puts 'Destroying everything related to cached maps'
@@ -87,6 +92,7 @@ namespace :tw do
 
         desc 'label cached_map_items'
         task parallel_label_cached_map_items: [:environment] do |t|
+          task_start = Time.current
 
           cached_rebuild_processes = ENV['cached_rebuild_processes'] ? ENV['cached_rebuild_processes'].to_i : 4
 
@@ -116,7 +122,7 @@ namespace :tw do
             #puts o.geographic_item_id
             #puts h
           end
-          puts 'Done labelling cached map items.'
+          puts "Done labelling cached map items. elapsed=#{format_elapsed(task_start)}"
         end
 
         # NOT considered a batch = true method (labels as it builds)
@@ -173,6 +179,7 @@ namespace :tw do
 
         desc 'build CachedMapItems for Georeferences that do not have them, idempotent'
         task parallel_create_cached_map_from_georeferences: [:environment] do |t|
+          task_start = Time.current
           # TODO: this doesn't currently account for FOs
           q = Georeference.joins(:otus).where.missing(:cached_map_register).distinct
 
@@ -206,11 +213,12 @@ namespace :tw do
             true
           end
 
-          puts 'Done.'
+          puts "Done. elapsed=#{format_elapsed(task_start)}"
         end
 
         desc 'build CachedMapItems for AssertedDistributions that do not have them'
         task parallel_create_cached_map_from_asserted_distributions: [:environment] do |t|
+          task_start = Time.current
           default_gagi_sql = GeographicAreasGeographicItem.default_geographic_item_data_sql
 
           q_ga = AssertedDistribution
@@ -220,17 +228,6 @@ namespace :tw do
             .where.missing(:cached_map_register)
             .joins("JOIN geographic_areas ga ON asserted_distributions.asserted_distribution_shape_id = ga.id")
             .joins("JOIN (#{default_gagi_sql}) default_gagi ON default_gagi.geographic_area_id = ga.id")
-            .reselect(
-              'asserted_distributions.id, ' \
-              'asserted_distributions.project_id, ' \
-              'asserted_distributions.is_absent, ' \
-              'asserted_distributions.asserted_distribution_object_type, ' \
-              'asserted_distributions.asserted_distribution_object_id, ' \
-              'asserted_distributions.asserted_distribution_shape_type, ' \
-              'otus.id AS otu_id, ' \
-              'otus.taxon_name_id AS otu_taxon_name_id, ' \
-              'default_gagi.geographic_item_id AS default_geographic_item_id'
-            )
 
           q_gz = AssertedDistribution
             .with_otus
@@ -238,17 +235,6 @@ namespace :tw do
             .where(asserted_distribution_shape_type: 'Gazetteer')
             .where.missing(:cached_map_register)
             .joins("JOIN gazetteers ON asserted_distributions.asserted_distribution_shape_id = gazetteers.id")
-            .reselect(
-              'asserted_distributions.id, ' \
-              'asserted_distributions.project_id, ' \
-              'asserted_distributions.is_absent, ' \
-              'asserted_distributions.asserted_distribution_object_type, ' \
-              'asserted_distributions.asserted_distribution_object_id, ' \
-              'asserted_distributions.asserted_distribution_shape_type, ' \
-              'otus.id AS otu_id, ' \
-              'otus.taxon_name_id AS otu_taxon_name_id, ' \
-              'gazetteers.geographic_item_id AS default_geographic_item_id'
-            )
 
           ga_count = q_ga.unscope(:select).count
           gz_count = q_gz.unscope(:select).count
@@ -321,7 +307,7 @@ namespace :tw do
             end
           end
 
-          puts'Done.'
+          puts "Done. elapsed=#{format_elapsed(task_start)}"
         end
 
         desc 'prebuild CachedMapItemTranslations, NOT idempotent'
@@ -377,7 +363,7 @@ namespace :tw do
 
           puts 'Gazetteer-based Asserted Distributions done.'
 
-          puts 'Done.'
+          puts "Done. elapsed=#{format_elapsed(task_start)}"
         end
 
         def process_asserted_distribution_translation(
@@ -420,6 +406,7 @@ namespace :tw do
         # This is Idempotent
         desc 'index Georeferences with a "breadth-first" approach, idempotent '
         task parallel_create_cached_map_from_georeferences_by_area: [:environment] do |t|
+          task_start = Time.current
 
           cached_rebuild_processes = ENV['cached_rebuild_processes'] ? ENV['cached_rebuild_processes'].to_i : 4
 
@@ -427,10 +414,10 @@ namespace :tw do
           puts "Looping through #{g.size} GeographicAreas."
 
           Parallel.each(g.find_each, progress: 'build_cached_map_from_georeferences', in_processes: cached_rebuild_processes ) do |a|
+            reconnected ||= CachedMapItemTranslation.connection.reconnect! || true
 
             begin
               CachedMapItem.transaction do
-                reconnected ||= CachedMapItemTranslation.connection.reconnect! || true
 
                 j = a.default_geographic_item_id
 
@@ -471,7 +458,7 @@ namespace :tw do
               puts " FAILED #{exception} #{g.id}"
             end
           end
-          puts 'Done.'
+          puts "Done. elapsed=#{format_elapsed(task_start)}"
         end
 
 
