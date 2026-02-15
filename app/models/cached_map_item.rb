@@ -164,24 +164,25 @@ class CachedMapItem < ApplicationRecord
     raise TaxonWorks::Error, "Missing pre-computed ids for cached maps origin '#{data_origin}'" if precomputed_ids.blank?
     raise TaxonWorks::Error, "Expected pre-computed ids for cached maps origin '#{data_origin}' to be a SQL IN list" unless precomputed_ids.is_a?(String)
 
-    sql = <<~SQL
+    # Step 1: Find the (few) ne_states shapes that intersect the source shape.
+    # This must be a separate query so that the expensive buffer/ST_CoveredBy
+    # refinement in step 2 only runs against the small result set (~1-5 rows),
+    # not all ~3.7k ne_states rows. Combining into a single query allows the
+    # planner to evaluate ST_CoveredBy on every ne_states row before
+    # ST_Intersects eliminates most of them — a 1000x+ slowdown.
+    intersecting_ids = ActiveRecord::Base.connection.select_values(<<~SQL.squish).map!(&:to_i)
       SELECT gi.id
       FROM geographic_items gi
-      CROSS JOIN (
-        SELECT geography
-        FROM geographic_items
-        WHERE id = #{geographic_item_id.to_i}
-      ) AS target
-      -- Careful with IN here if we move to other data_origins (currently ~4k ids)
       WHERE gi.id IN (#{precomputed_ids})
-        AND ST_Intersects(gi.geography, target.geography)
+        AND ST_Intersects(
+          gi.geography,
+          (SELECT geography FROM geographic_items WHERE id = #{geographic_item_id.to_i})
+        )
     SQL
 
-    a = ActiveRecord::Base.connection.select_values(sql).map!(&:to_i)
+    return intersecting_ids if buffer.nil?
 
-    return a if buffer.nil?
-
-    # Refine the pass by smoothing using buffer/st_within
+    # Step 2: Refine the small set by smoothing using buffer/st_within
     buffer_filter = GeographicItem
       .st_buffer_st_within_sql(geographic_item_id, 0.0, buffer)
       .or(
@@ -197,7 +198,7 @@ class CachedMapItem < ApplicationRecord
       )
 
     return GeographicItem
-      .where(id: a)
+      .where(id: intersecting_ids)
       .where(buffer_filter)
       .pluck(:id)
   end
