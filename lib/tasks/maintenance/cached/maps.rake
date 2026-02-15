@@ -187,7 +187,17 @@ namespace :tw do
 
           cached_rebuild_processes = ENV['cached_rebuild_processes'] ? ENV['cached_rebuild_processes'].to_i : 4
 
-          Parallel.each(q.find_each, progress: 'build_cached_map_from_georeferences', in_processes: cached_rebuild_processes ) do |g|
+          # Pluck IDs only - avoids Parallel.each calling .to_a on the
+          # enumerator and materializing all AR objects in the parent process.
+          ids = q.pluck(:id)
+          puts "Caching #{ids.size} georeferences records."
+
+          slices = ids.each_slice(cached_rebuild_batch_size).to_a
+
+          Parallel.each(slices, progress: 'build_cached_map_from_georeferences',
+            in_processes: cached_rebuild_processes ) do |slice_ids|
+            slice_start = Time.current
+            registrations = []
             begin
               CachedMapItem.transaction do
                 reconnected ||= Georeference.connection.reconnect! || true # https://github.com/grosser/parallel
@@ -210,6 +220,7 @@ namespace :tw do
             rescue => exception
               puts " FAILED #{exception} #{g.id}"
             end
+            puts " slice ids:#{slice_ids.first}..#{slice_ids.last} n:#{slice_ids.size} regs:#{registrations.size} elapsed:#{(Time.current - slice_start).round(1)}s"
             true
           end
 
@@ -282,6 +293,7 @@ namespace :tw do
 
             Parallel.each(slices, progress:,
               in_processes: cached_rebuild_processes ) do |slice_ids|
+              slice_start = Time.current
               registrations = []
               begin
                 reconnected ||= AssertedDistribution.connection.reconnect! || true # https://github.com/grosser/parallel
@@ -303,6 +315,7 @@ namespace :tw do
               rescue => exception
                 puts " FAILED #{exception} #{ad.id}"
               end
+              puts " slice ids:#{slice_ids.first}..#{slice_ids.last} n:#{slice_ids.size} regs:#{registrations.size} elapsed:#{(Time.current - slice_start).round(1)}s"
               true
             end
           end
