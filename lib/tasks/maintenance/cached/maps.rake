@@ -454,13 +454,9 @@ namespace :tw do
             t = CachedMapItem.translate_geographic_item_id(
               geographic_item_id, geographic_area_based, false, ['ne_states'], nil, precomputed_data_origin_ids:
             )
-            # if t.present?
-            #   print t.join(', ')
-            # else
-            #   print ' !! NO MATCH'
-            # end
-          rescue ActiveRecord::StatementInvalid  => e
-            puts "#{geographic_item_id}:" + e.to_s.gsub(/\n/, '')
+          rescue ActiveRecord::StatementInvalid, ActiveRecord::RecordNotFound => e
+            context = translation_failure_context(geographic_item_id, geographic_area_based)
+            puts " FAILED translation geographic_item_id:#{geographic_item_id} geographic_area_based:#{geographic_area_based} total_matching_ads:#{context[:total_matching_ads]} sample_asserted_distribution_ids:#{context[:sample_ad_ids].join(',')} sample_project_ids:#{context[:sample_project_ids].join(',')} #{e.to_s.gsub(/\n/, '')}"
             t = []
           end
 
@@ -478,6 +474,36 @@ namespace :tw do
           end
 
           CachedMapItemTranslation.insert_all(translations) if translations.present?
+        end
+
+        def translation_failure_context(geographic_item_id, geographic_area_based, sample_limit: 5)
+          q = AssertedDistribution
+            .without_is_absent
+            .where(asserted_distribution_shape_type: geographic_area_based ? 'GeographicArea' : 'Gazetteer')
+
+          if geographic_area_based
+            default_gagi_sql = GeographicAreasGeographicItem.default_geographic_item_data_sql
+            q = q
+              .joins("JOIN geographic_areas ga ON asserted_distributions.asserted_distribution_shape_id = ga.id")
+              .joins("JOIN (#{default_gagi_sql}) default_gagi ON default_gagi.geographic_area_id = ga.id")
+              .where('default_gagi.geographic_item_id = ?', geographic_item_id)
+          else
+            q = q
+              .joins("JOIN gazetteers ON asserted_distributions.asserted_distribution_shape_id = gazetteers.id")
+              .where('gazetteers.geographic_item_id = ?', geographic_item_id)
+          end
+
+          total_matching_ads = q.count
+
+          sample = q
+            .limit(sample_limit)
+            .pluck('asserted_distributions.id', 'asserted_distributions.project_id')
+
+          {
+            total_matching_ads:,
+            sample_ad_ids: sample.map(&:first).compact.uniq,
+            sample_project_ids: sample.map(&:last).compact.uniq
+          }
         end
 
         # This is Idempotent
