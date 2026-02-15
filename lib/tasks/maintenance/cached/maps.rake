@@ -7,6 +7,7 @@ namespace :tw do
       #      We find the unique geographic_items from ADs
       #      We find the unique geographic_items from GZs
       #
+      #
       #   Now we LOOP NE states!!! (not georeferences)
       #     We find all point Georeferences in each state 
       #        Register translations en-masse
@@ -15,6 +16,8 @@ namespace :tw do
       #       Register translations en-masse
       #
       #   At this point there should be _no need for any spatial calculations (until we make the map itself)_
+      # 
+      #  !! Now we sanity check and ensure that all GIs are translated, so that we never hit spatial calculations downstream. 
       #       
       #  Now we should be able to loop OTUs and simply register IDs... 
       # 
