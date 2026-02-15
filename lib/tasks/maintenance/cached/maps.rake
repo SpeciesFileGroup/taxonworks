@@ -276,6 +276,9 @@ namespace :tw do
         task parallel_create_cached_map_from_asserted_distributions: [:environment] do |t|
           task_start = Time.current
           default_gagi_sql = GeographicAreasGeographicItem.default_geographic_item_data_sql
+          ga_default_gi = ActiveRecord::Base.connection.select_rows(
+            "SELECT default_gagi.geographic_area_id, default_gagi.geographic_item_id FROM (#{default_gagi_sql}) default_gagi"
+          ).to_h { |ga_id, gi_id| [ga_id.to_i, gi_id.to_i] }
 
           q_ga = AssertedDistribution
             .with_otus
@@ -283,7 +286,6 @@ namespace :tw do
             .where(asserted_distribution_shape_type: 'GeographicArea')
             .where.missing(:cached_map_register)
             .joins("JOIN geographic_areas ga ON asserted_distributions.asserted_distribution_shape_id = ga.id")
-            .joins("JOIN (#{default_gagi_sql}) default_gagi ON default_gagi.geographic_area_id = ga.id")
 
           q_gz = AssertedDistribution
             .with_otus
@@ -304,9 +306,12 @@ namespace :tw do
             'asserted_distributions.id',
             'otus.id',
             'otus.taxon_name_id',
-            'default_gagi.geographic_item_id',
+            'asserted_distributions.asserted_distribution_shape_id',
             'asserted_distributions.project_id'
           )
+          ga_rows.map! do |ad_id, otu_id, otu_taxon_name_id, geographic_area_id, project_id|
+            [ad_id, otu_id, otu_taxon_name_id, ga_default_gi[geographic_area_id.to_i], project_id]
+          end
 
           gz_rows = q_gz.pluck(
             'asserted_distributions.id',
