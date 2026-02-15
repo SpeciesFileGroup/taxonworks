@@ -325,9 +325,14 @@ class CachedMapItem < ApplicationRecord
         # TODO handle other types
         return h
       end
+
+      # 
+      # !! TODO: This is a potential n+1 query!
+      #
       geographic_item_id = context[:geographic_item_id] ||
         o.asserted_distribution_shape.default_geographic_item_id
 
+      # TODO: UGH! This shouldn't be here at all, we shouldn't be building for OTUs without taxon name_ids !!
       taxon_name_id = context[:otu_taxon_name_id] ||
         Otu.where(id: otu_id).pick(:taxon_name_id)
       return h if taxon_name_id.blank?
@@ -345,7 +350,11 @@ class CachedMapItem < ApplicationRecord
       return h if otu_id.empty?
     end
 
+    # 
+    #
     # Some AssertedDistribution don't have shapes
+    #
+    #
     if geographic_item_id
       h[:origin_geographic_item_id] = geographic_item_id
 

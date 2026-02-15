@@ -2,6 +2,23 @@ namespace :tw do
   namespace :maintenance do
     namespace :cached do
 
+      # Everything is wiped
+      #   We build cached_map_item_tranlsations for every observed unique geographic_item
+      #      We find the unique geographic_items from ADs
+      #      We find the unique geographic_items from GZs
+      #
+      #   Now we LOOP NE states!!! (not georeferences)
+      #     We find all point Georeferences in each state 
+      #        Register translations en-masse
+      #     We find all non-point Georeferences
+      #       ONLY HERE SHOULD WE DO FANCY GEO MATH
+      #       Register translations en-masse
+      #
+      #   At this point there should be _no need for any spatial calculations (until we make the map itself)_
+      #       
+      #  Now we should be able to loop OTUs and simply register IDs... 
+      # 
+
       # !! These tasks only build new records. They will not synchronize/refresh existing records. !!
       #
       # If starting from nothing, or to start completely anew:
@@ -227,6 +244,7 @@ namespace :tw do
                   puts " FAILED georeference_id:#{g.id} geographic_item_id:#{g.geographic_item_id} project_id:#{g.project_id} #{e}"
                 end
               end
+              
               CachedMapRegister.insert_all(registrations) if registrations.present?
               true
             rescue => exception

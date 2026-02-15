@@ -129,6 +129,8 @@ module Shared::Maps
     # * !! Does NOT check register.
     def create_cached_map_items(batch = false, context: nil, skip_register: false, register_queue: nil)
       ::DEFAULT_CACHED_MAP_BUILD_TYPES.each do |map_type|
+
+        
         stubs = CachedMapItem.stubs(self, map_type, context: context)
 
         return true if stubs[:otu_id].empty?
@@ -146,6 +148,8 @@ module Shared::Maps
               stubs[:otu_id].sort.each do |otu_id|
                 begin
 
+                  #  TODO: Contradicts this:   # * !! Assumes this is the first time CachedMapItem is being indexed for this object., should never be find if this is true?
+                  #    Is this because parallel?  Seems we can just fail in parallel rather than find.  Find adds a lot of work?
                   a = CachedMapItem.find_or_initialize_by(
                     type: map_type,
                     otu_id:,
@@ -176,6 +180,7 @@ module Shared::Maps
 
                     # Assume in batch we're going to pre-translate records
                     unless batch
+                    
                       # There is little or no point to logging translations
                       # for Georeferences, i.e. it is overhead with no benefit.
                       # !! If we do log then we should SHA the wkt as a check and store that in the translation table
@@ -220,6 +225,7 @@ module Shared::Maps
               end
             end
           end
+         
         rescue ActiveRecord::Deadlocked => e
           retries += 1
           if retries <= max_retries
