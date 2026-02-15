@@ -353,11 +353,23 @@ class CachedMapItem < ApplicationRecord
         base_class_name == 'AssertedDistribution' &&
           o.asserted_distribution_shape_type == 'GeographicArea'
       search_existing_translates = base_class_name == 'AssertedDistribution'
+      require_existing_translation = base_class_name == 'AssertedDistribution' &&
+        context[:require_existing_translation] == true
 
-      h[:geographic_item_id] = translate_geographic_item_id(
-        geographic_item_id, geographic_area_based, search_existing_translates,
-        cached_map_type.safe_constantize::SOURCE_GAZETEERS
-      )
+      if require_existing_translation
+        h[:geographic_item_id] = translate_by_geographic_item_translation(
+          geographic_item_id,
+          cached_map_type
+        )
+        h[:translation_missing] = h[:geographic_item_id].blank?
+        return h if h[:translation_missing]
+      else
+
+        h[:geographic_item_id] = translate_geographic_item_id(
+          geographic_item_id, geographic_area_based, search_existing_translates,
+          cached_map_type.safe_constantize::SOURCE_GAZETEERS
+        )
+      end
 
       if h[:geographic_item_id].blank?
         h[:geographic_item_id] = [geographic_item_id]

@@ -284,7 +284,8 @@ namespace :tw do
                 otu_id:,
                 otu_taxon_name_id:,
                 geographic_item_id:,
-                geographic_area_based:
+                geographic_area_based:,
+                require_existing_translation: true
               }
             end
 

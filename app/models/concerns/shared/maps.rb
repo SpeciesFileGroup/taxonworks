@@ -131,6 +131,11 @@ module Shared::Maps
       ::DEFAULT_CACHED_MAP_BUILD_TYPES.each do |map_type|
         stubs = CachedMapItem.stubs(self, map_type, context: context)
 
+        if stubs[:translation_missing]
+          puts " MISSING_TRANSLATION cached_map_type:#{map_type} object_type:#{self.class.base_class.name} object_id:#{id} project_id:#{project_id} origin_geographic_item_id:#{stubs[:origin_geographic_item_id]}"
+          next
+        end
+
         return true if stubs[:otu_id].empty?
 
         name_hierarchy = {}
