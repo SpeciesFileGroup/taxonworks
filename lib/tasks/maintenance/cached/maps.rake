@@ -198,29 +198,74 @@ namespace :tw do
             in_processes: cached_rebuild_processes ) do |slice_ids|
             slice_start = Time.current
             registrations = []
+            loaded_georefs = []
+            context_miss = 0
+            create_errors = 0
+            build_context_ms = 0.0
+            load_georef_ms = 0.0
+            create_cmi_ms = 0.0
+            register_insert_ms = 0.0
             begin
-              CachedMapItem.transaction do
-                reconnected ||= Georeference.connection.reconnect! || true # https://github.com/grosser/parallel
-                g.send(:create_cached_map_items, true)
+              reconnected ||= Georeference.connection.reconnect! || true # https://github.com/grosser/parallel
+
+              # Pre-compute OTU context for the slice in 1 query instead of
+              # 2 queries per georeference (N+1 elimination).
+              # Chain: georeference -> collecting_event -> collection_objects
+              #        -> taxon_determinations (position 1) -> otu
+              otu_rows = Otu
+                .joins(collection_objects: [:collecting_event])
+                .joins(:taxon_determinations)
+                .where(taxon_determinations: { position: 1 })
+                .where(collecting_events: {
+                  id: Georeference.where(id: slice_ids).select(:collecting_event_id)
+                })
+                .distinct
+                .pluck(
+                  'collecting_events.id',
+                  'otus.id',
+                  'otus.taxon_name_id'
+                )
+              build_context_ms = ((Time.current - slice_start) * 1000).round(1)
+
+              # Group by collecting_event_id since georeference belongs_to
+              # collecting_event - hash lookup replaces per-record queries.
+              # Only include OTUs that have a taxon_name_id — OTUs without
+              # taxon names have no hierarchy and don't contribute to cached maps.
+              ce_otu_lookup = {}
+              otu_rows.each do |ce_id, otu_id, taxon_name_id|
+                next unless taxon_name_id
+                (ce_otu_lookup[ce_id] ||= []) << otu_id
               end
 
-              Georeference.where(id: slice_ids).each do |g|
+              load_georef_start = Time.current
+              loaded_georefs = Georeference.where(id: slice_ids).to_a
+              load_georef_ms = ((Time.current - load_georef_start) * 1000).round(1)
+
+              create_cmi_start = Time.current
+              loaded_georefs.each do |g|
                 otu_ids = ce_otu_lookup[g.collecting_event_id]
-                next unless otu_ids
+                unless otu_ids
+                  context_miss += 1
+                  next
+                end
                 begin
                   g.send(:create_cached_map_items, true,
                     context: { otu_id: otu_ids },
                     skip_register: true, register_queue: registrations)
                 rescue ActiveRecord::StatementInvalid, ActiveRecord::RecordNotFound => e
+                  create_errors += 1
                   puts " FAILED georeference_id:#{g.id} geographic_item_id:#{g.geographic_item_id} project_id:#{g.project_id} #{e}"
                 end
               end
+              create_cmi_ms = ((Time.current - create_cmi_start) * 1000).round(1)
+              register_insert_start = Time.current
               CachedMapRegister.insert_all(registrations) if registrations.present?
+              register_insert_ms = ((Time.current - register_insert_start) * 1000).round(1)
               true
             rescue => exception
               puts " FAILED #{exception} #{g.id}"
             end
-            puts " slice ids:#{slice_ids.first}..#{slice_ids.last} n:#{slice_ids.size} regs:#{registrations.size} elapsed:#{(Time.current - slice_start).round(1)}s"
+            puts " slice ids:#{slice_ids.first}..#{slice_ids.last} n:#{slice_ids.size} loaded:#{loaded_georefs.size} context_miss:#{context_miss} errors:#{create_errors} regs:#{registrations.size} build_context_ms:#{build_context_ms} load_georef_ms:#{load_georef_ms} create_cmi_ms:#{create_cmi_ms} register_insert_ms:#{register_insert_ms} elapsed:#{(Time.current - slice_start).round(1)}s"
             true
           end
 
@@ -296,27 +341,45 @@ namespace :tw do
               in_processes: cached_rebuild_processes ) do |slice_ids|
               slice_start = Time.current
               registrations = []
+              loaded_ads = []
+              context_miss = 0
+              create_errors = 0
+              load_ad_ms = 0.0
+              create_cmi_ms = 0.0
+              register_insert_ms = 0.0
               begin
                 reconnected ||= AssertedDistribution.connection.reconnect! || true # https://github.com/grosser/parallel
 
                 # Simple primary-key lookup — no expensive CTE re-execution.
-                AssertedDistribution.where(id: slice_ids).each do |ad|
+                load_ad_start = Time.current
+                loaded_ads = AssertedDistribution.where(id: slice_ids).to_a
+                load_ad_ms = ((Time.current - load_ad_start) * 1000).round(1)
+
+                create_cmi_start = Time.current
+                loaded_ads.each do |ad|
                   context = ad_context[ad.id]
-                  next unless context
+                  unless context
+                    context_miss += 1
+                    next
+                  end
                   begin
                     ad.send(:create_cached_map_items, true, context: context,
                       skip_register: true, register_queue: registrations)
                   rescue ActiveRecord::StatementInvalid, ActiveRecord::RecordNotFound => e
+                    create_errors += 1
                     puts " FAILED asserted_distribution_id:#{ad.id} geographic_item_id:#{context[:geographic_item_id]} project_id:#{ad.project_id} #{e}"
                   end
                 end
+                create_cmi_ms = ((Time.current - create_cmi_start) * 1000).round(1)
 
+                register_insert_start = Time.current
                 CachedMapRegister.insert_all(registrations) if registrations.present?
+                register_insert_ms = ((Time.current - register_insert_start) * 1000).round(1)
                 true
               rescue => exception
                 puts " FAILED #{exception} #{ad.id}"
               end
-              puts " slice ids:#{slice_ids.first}..#{slice_ids.last} n:#{slice_ids.size} regs:#{registrations.size} elapsed:#{(Time.current - slice_start).round(1)}s"
+              puts " slice ids:#{slice_ids.first}..#{slice_ids.last} n:#{slice_ids.size} loaded:#{loaded_ads.size} context_miss:#{context_miss} errors:#{create_errors} regs:#{registrations.size} load_ad_ms:#{load_ad_ms} create_cmi_ms:#{create_cmi_ms} register_insert_ms:#{register_insert_ms} elapsed:#{(Time.current - slice_start).round(1)}s"
               true
             end
           end
