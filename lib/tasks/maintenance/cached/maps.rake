@@ -254,22 +254,65 @@ namespace :tw do
           gz_count = q_gz.unscope(:select).count
           puts "Caching #{ga_count + gz_count} AssertedDistribution records."
 
-          cached_rebuild_processes = ENV['cached_rebuild_processes'] ? ENV['cached_rebuild_processes'].to_i : 4
+          # Pluck all needed context data from the expensive joined query ONCE.
+          # The q_ga query includes a CTE (default_geographic_item_data_sql) with
+          # a window function over the entire geographic_areas_geographic_items
+          # table. Re-executing that per slice caused a 5x regression.
+          ga_rows = q_ga.pluck(
+            'asserted_distributions.id',
+            'otus.id',
+            'otus.taxon_name_id',
+            'default_gagi.geographic_item_id',
+            'asserted_distributions.project_id'
+          )
+
+          gz_rows = q_gz.pluck(
+            'asserted_distributions.id',
+            'otus.id',
+            'otus.taxon_name_id',
+            'gazetteers.geographic_item_id',
+            'asserted_distributions.project_id'
+          )
+
+          puts "Caching #{ga_rows.size} GA + #{gz_rows.size} GZ = #{ga_rows.size + gz_rows.size} AssertedDistribution records."
 
           [
-            [q_ga, 'build_cached_map_from_asserted_distributions GA'],
-            [q_gz, 'build_cached_map_from_asserted_distributions GZ']
-          ].each do |q, progress|
-            Parallel.each(q.find_each, progress:, in_processes: cached_rebuild_processes ) do |ad|
+            [ga_rows, true, 'build_cached_map_from_asserted_distributions GA'],
+            [gz_rows, false, 'build_cached_map_from_asserted_distributions GZ']
+          ].each do |rows, geographic_area_based, progress|
+            # Build a lookup hash: ad_id => context
+            ad_context = {}
+            rows.each do |ad_id, otu_id, otu_taxon_name_id, geographic_item_id, project_id|
+              ad_context[ad_id] = {
+                otu_id:,
+                otu_taxon_name_id:,
+                geographic_item_id:,
+                geographic_area_based:
+              }
+            end
+
+            ad_ids = rows.map(&:first)
+            slices = ad_ids.each_slice(cached_rebuild_batch_size).to_a
+
+            Parallel.each(slices, progress:,
+              in_processes: cached_rebuild_processes ) do |slice_ids|
+              registrations = []
               begin
                 reconnected ||= AssertedDistribution.connection.reconnect! || true # https://github.com/grosser/parallel
-                context = {
-                  geographic_item_id: ad.default_geographic_item_id,
-                  otu_id: ad.otu_id,
-                  otu_taxon_name_id: ad.otu_taxon_name_id,
-                  geographic_area_based: ad.asserted_distribution_shape_type == 'GeographicArea'
-                }
-                ad.send(:create_cached_map_items, true, context: context)
+
+                # Simple primary-key lookup — no expensive CTE re-execution.
+                AssertedDistribution.where(id: slice_ids).each do |ad|
+                  context = ad_context[ad.id]
+                  next unless context
+                  begin
+                    ad.send(:create_cached_map_items, true, context: context,
+                      skip_register: true, register_queue: registrations)
+                  rescue ActiveRecord::StatementInvalid, ActiveRecord::RecordNotFound => e
+                    puts " FAILED asserted_distribution_id:#{ad.id} geographic_item_id:#{context[:geographic_item_id]} project_id:#{ad.project_id} #{e}"
+                  end
+                end
+
+                CachedMapRegister.insert_all(registrations) if registrations.present?
                 true
               rescue => exception
                 puts " FAILED #{exception} #{ad.id}"
