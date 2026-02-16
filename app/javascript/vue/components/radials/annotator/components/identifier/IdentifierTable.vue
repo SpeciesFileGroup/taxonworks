@@ -10,6 +10,7 @@
     <VDraggable
       class="table-entrys-list"
       tag="tbody"
+      handle=".handle"
       item-key="id"
       v-model="list"
       @end="updatePosition"
@@ -19,7 +20,20 @@
           <td v-html="element.cached"></td>
           <td v-text="element.type" />
           <td>
-            <div class="horizontal-right-content">
+            <div class="horizontal-right-content gap-small">
+              <VBtn
+                color="primary"
+                circle
+                class="handle"
+                title="Press and hold to drag identifier"
+              >
+                <VIcon
+                  title="Press and hold to drag identifier"
+                  color="white"
+                  name="scrollV"
+                  small
+                />
+              </VBtn>
               <VBtn
                 circle
                 color="destroy"

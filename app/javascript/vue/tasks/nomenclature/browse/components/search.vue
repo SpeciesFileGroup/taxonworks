@@ -28,12 +28,14 @@ import VAutocomplete from '@/components/ui/Autocomplete'
 import { RouteNames } from '@/routes/routes'
 import { useHotkey } from '@/composables'
 import { ref, watch, onMounted } from 'vue'
+import { getPlatformKey } from '@/helpers'
 
 const autocomplete = ref(null)
 
 const shortcuts = ref([
   {
-    keys: ['Alt', 'f'],
+    keys: [getPlatformKey(), 'f'],
+    preventDefault: true,
     handler() {
       autocomplete.value?.setFocus()
     }

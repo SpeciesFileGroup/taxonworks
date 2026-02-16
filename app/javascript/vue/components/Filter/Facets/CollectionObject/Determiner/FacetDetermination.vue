@@ -53,27 +53,11 @@
       />
     </div>
 
-    <div
+    <FacetCurrentDetermination
       v-if="isCurrentDeterminationVisible"
-      class="field"
-    >
-      <ul class="no_bullets">
-        <li
-          v-for="item in CURRENT_DETERMINATION_OPTIONS"
-          :key="item.value"
-        >
-          <label>
-            <input
-              type="radio"
-              :value="item.value"
-              name="current-determination"
-              v-model="params.current_determinations"
-            />
-            {{ item.label }}
-          </label>
-        </li>
-      </ul>
-    </div>
+      v-model="params"
+      param-name="current_determinations"
+    />
   </FacetContainer>
 </template>
 
@@ -81,26 +65,12 @@
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import Autocomplete from '@/components/ui/Autocomplete'
 import FacetPeople from '../../shared/FacetPeople.vue'
+import FacetCurrentDetermination from '@/components/Filter/Facets/shared/FacetCurrentDetermination.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import { DETERMINER_SELECTOR } from '@/constants/index.js'
 import { Otu } from '@/routes/endpoints'
 import { ref, computed, watch, onBeforeMount } from 'vue'
-
-const CURRENT_DETERMINATION_OPTIONS = [
-  {
-    label: 'Current and historical',
-    value: undefined
-  },
-  {
-    label: 'Current only',
-    value: true
-  },
-  {
-    label: 'Historical only',
-    value: false
-  }
-]
 
 const props = defineProps({
   modelValue: {

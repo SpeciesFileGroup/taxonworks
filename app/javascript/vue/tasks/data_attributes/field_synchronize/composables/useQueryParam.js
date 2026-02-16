@@ -14,8 +14,6 @@ export function useQueryParam() {
     ...LinkerStorage.getParameters()
   }
 
-  console.log(parameters)
-
   LinkerStorage.removeParameters()
 
   queryParam.value = Object.keys(parameters).find((param) =>

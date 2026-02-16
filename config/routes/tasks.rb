@@ -78,6 +78,11 @@ scope :tasks do
   end
 
   scope :data_attributes do
+    scope :duplicate_data_attributes, controller: 'tasks/data_attributes/duplicate_data_attributes' do
+      get '/', action: :index, as: 'duplicate_data_attributes_task'
+      match :data, action: :data, defaults: { format: :json }, via: [:get, :post]
+    end
+
     scope :multi_update, controller: 'tasks/data_attributes/multi_update' do
       get '/', action: :index, as: 'index_multi_update_task'
     end
@@ -194,6 +199,10 @@ scope :tasks do
   end
 
   scope :namespaces do
+    scope :filter, controller: 'tasks/namespaces/filter' do
+      get '/', action: :index, as: 'filter_namespaces_task'
+    end
+
     scope :new_namespace, controller: 'tasks/namespaces/new_namespace' do
       get '/', action: :index, as: 'new_namespace_task'
     end
