@@ -132,7 +132,10 @@ module Shared::Maps
         stubs = CachedMapItem.stubs(self, map_type, context: context)
 
         if stubs[:translation_missing]
-          puts " MISSING_TRANSLATION cached_map_type:#{map_type} object_type:#{self.class.base_class.name} object_id:#{id} project_id:#{project_id} origin_geographic_item_id:#{stubs[:origin_geographic_item_id]}"
+          suppress_missing_translation_log = context&.symbolize_keys&.fetch(:suppress_missing_translation_log, false)
+          unless suppress_missing_translation_log
+            puts " MISSING_TRANSLATION cached_map_type:#{map_type} object_type:#{self.class.base_class.name} object_id:#{id} project_id:#{project_id} origin_geographic_item_id:#{stubs[:origin_geographic_item_id]}"
+          end
           next
         end
 
