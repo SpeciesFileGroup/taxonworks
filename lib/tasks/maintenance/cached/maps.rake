@@ -301,7 +301,7 @@ namespace :tw do
           # Pluck all needed context data from the expensive joined query ONCE.
           # The q_ga query includes a CTE (default_geographic_item_data_sql) with
           # a window function over the entire geographic_areas_geographic_items
-          # table. Re-executing that per slice caused a 5x regression.
+          # table. Re-executing that per slice is needlessly slow.
           ga_rows = q_ga.pluck(
             'asserted_distributions.id',
             'otus.id',
@@ -339,7 +339,8 @@ namespace :tw do
               }
             end
 
-            ad_ids = rows.map(&:first)
+            # Sort just for consistent comparisons across runs.
+            ad_ids = rows.map(&:first).sort
             slices = ad_ids.each_slice(cached_rebuild_batch_size).to_a
 
             Parallel.each(slices, progress:,
@@ -365,6 +366,12 @@ namespace :tw do
                   context = ad_context[ad.id]
                   unless context
                     context_miss += 1
+                    next
+                  end
+                  if context[:geographic_item_id].blank?
+                    # Defensive: this should never happen.
+                    create_errors += 1
+                    puts " FAILED asserted_distribution_id:#{ad.id} geographic_item_id:nil project_id:#{ad.project_id} unexpected_missing_default_geographic_item_id"
                     next
                   end
                   begin
@@ -452,16 +459,23 @@ namespace :tw do
           geographic_item_id, geographic_area_based, precomputed_data_origin_ids: nil
         )
           translations = []
+          slow_translation_ms = ENV.fetch('cached_translation_slow_ms', '5000').to_f
+          translation_elapsed_ms = 0.0
 
           #  b = ( Benchmark.measure {
           begin
-            #  print "#{id}: "
+            translation_start = Time.current
             t = CachedMapItem.translate_geographic_item_id(
               geographic_item_id, geographic_area_based, false, ['ne_states'], nil, precomputed_data_origin_ids:
             )
+            translation_elapsed_ms = ((Time.current - translation_start) * 1000).round(1)
+            if translation_elapsed_ms >= slow_translation_ms
+              context = translation_failure_context(geographic_item_id, geographic_area_based)
+              puts " SLOW translation geographic_item_id:#{geographic_item_id} geographic_area_based:#{geographic_area_based} elapsed_ms:#{translation_elapsed_ms} threshold_ms:#{slow_translation_ms} total_matching_ads:#{context[:total_matching_ads]} sample_asserted_distribution_ids:#{context[:sample_ad_ids].join(',')} sample_project_ids:#{context[:sample_project_ids].join(',')}"
+            end
           rescue ActiveRecord::StatementInvalid, ActiveRecord::RecordNotFound => e
             context = translation_failure_context(geographic_item_id, geographic_area_based)
-            puts " FAILED translation geographic_item_id:#{geographic_item_id} geographic_area_based:#{geographic_area_based} total_matching_ads:#{context[:total_matching_ads]} sample_asserted_distribution_ids:#{context[:sample_ad_ids].join(',')} sample_project_ids:#{context[:sample_project_ids].join(',')} #{e.to_s.gsub(/\n/, '')}"
+            puts " FAILED translation geographic_item_id:#{geographic_item_id} geographic_area_based:#{geographic_area_based} elapsed_ms:#{translation_elapsed_ms} total_matching_ads:#{context[:total_matching_ads]} sample_asserted_distribution_ids:#{context[:sample_ad_ids].join(',')} sample_project_ids:#{context[:sample_project_ids].join(',')} #{e.to_s.gsub(/\n/, '')}"
             t = []
           end
 
