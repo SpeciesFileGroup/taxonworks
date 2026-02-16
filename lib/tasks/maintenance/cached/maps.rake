@@ -695,7 +695,7 @@ namespace :tw do
           geographic_item_id, geographic_area_based, precomputed_data_origin_ids: nil
         )
           translations = []
-          slow_translation_ms = ENV.fetch('cached_translation_slow_ms', '5000').to_f
+          slow_translation_ms = ENV.fetch('cached_translation_slow_ms', '600000').to_f
           translation_elapsed_ms = 0.0
 
           #  b = ( Benchmark.measure {
