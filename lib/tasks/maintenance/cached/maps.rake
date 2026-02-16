@@ -280,22 +280,19 @@ namespace :tw do
                 .joins("LEFT JOIN field_occurrences ON field_occurrences.id = taxon_determinations.taxon_determination_object_id AND taxon_determinations.taxon_determination_object_type = 'FieldOccurrence'")
                 .where(taxon_determinations: { position: 1 })
                 .where(taxon_determinations: { taxon_determination_object_type: ['CollectionObject', 'FieldOccurrence'] })
+                .where.not(otus: { taxon_name_id: nil })
                 .where('COALESCE(collection_objects.collecting_event_id, field_occurrences.collecting_event_id) IN (?)', ce_ids)
                 .distinct
                 .pluck(
                   Arel.sql('COALESCE(collection_objects.collecting_event_id, field_occurrences.collecting_event_id)'),
-                  'otus.id',
-                  'otus.taxon_name_id'
+                  'otus.id'
                 )
               build_context_ms = ((Time.current - slice_start) * 1000).round(1)
 
               # Group by collecting_event_id since georeference belongs_to
               # collecting_event - hash lookup replaces per-record queries.
-              # Only include OTUs that have a taxon_name_id — OTUs without
-              # taxon names have no hierarchy and don't contribute to cached maps.
               ce_otu_lookup = {}
-              otu_rows.each do |ce_id, otu_id, taxon_name_id|
-                next unless taxon_name_id
+              otu_rows.each do |ce_id, otu_id|
                 (ce_otu_lookup[ce_id] ||= []) << otu_id
               end
 
@@ -303,25 +300,31 @@ namespace :tw do
               loaded_georefs = Georeference.where(id: slice_ids).to_a
               load_georef_ms = ((Time.current - load_georef_start) * 1000).round(1)
 
-              point_translated_ids_by_source_geographic_item_id = {}
-              point_translation_rows = GeographicItem
-                .from('geographic_items source_gi')
-                .joins('JOIN georeferences g ON g.geographic_item_id = source_gi.id')
-                .joins("JOIN geographic_areas_geographic_items gagi ON gagi.data_origin = 'ne_states'")
-                .joins('JOIN geographic_items translated_gi ON translated_gi.id = gagi.geographic_item_id')
-                .where(g: { id: slice_ids })
-                .where("ST_GeometryType(source_gi.geography::geometry) = 'ST_Point'")
-                .where('ST_Intersects(translated_gi.geography, source_gi.geography)')
-                .distinct
-                .pluck(
-                  Arel.sql('source_gi.id'),
-                  Arel.sql('translated_gi.id')
-                )
+              source_geographic_item_ids = loaded_georefs.map(&:geographic_item_id).compact.uniq
+              point_source_geographic_item_ids =
+                GeographicItem
+                  .where(id: source_geographic_item_ids)
+                  .points
+                  .pluck(:id)
 
-              point_translation_rows.each do |source_geographic_item_id, translated_geographic_item_id|
-                source_geographic_item_id = source_geographic_item_id.to_i
-                translated_geographic_item_id = translated_geographic_item_id.to_i
-                (point_translated_ids_by_source_geographic_item_id[source_geographic_item_id] ||= []) << translated_geographic_item_id
+              point_translated_ids_by_source_geographic_item_id = {}
+              if point_source_geographic_item_ids.present?
+                precomputed_state_ids = CachedMapItem.precomputed_data_origin_ids_for('ne_states')
+
+                point_translation_rows = ActiveRecord::Base.connection.select_rows(<<~SQL.squish)
+                  SELECT source_gi.id, translated_gi.id
+                  FROM geographic_items source_gi
+                  JOIN geographic_items translated_gi
+                    ON translated_gi.id IN (#{precomputed_state_ids})
+                   AND ST_Intersects(translated_gi.geography, source_gi.geography)
+                  WHERE source_gi.id IN (#{point_source_geographic_item_ids.join(',')})
+                SQL
+
+                point_translation_rows.each do |source_geographic_item_id, translated_geographic_item_id|
+                  source_geographic_item_id = source_geographic_item_id.to_i
+                  translated_geographic_item_id = translated_geographic_item_id.to_i
+                  (point_translated_ids_by_source_geographic_item_id[source_geographic_item_id] ||= []) << translated_geographic_item_id
+                end
               end
 
               create_cmi_start = Time.current
@@ -462,7 +465,6 @@ namespace :tw do
                 AND COALESCE(ad.is_absent, FALSE) = FALSE
                 AND cmr.id IS NULL
                 AND otus.taxon_name_id IS NOT NULL
-                AND gazetteers.geographic_item_id IS NOT NULL
             SQL
 
             ga_total_sql = <<~SQL.squish
