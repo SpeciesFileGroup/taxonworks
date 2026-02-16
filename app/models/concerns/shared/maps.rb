@@ -127,9 +127,15 @@ module Shared::Maps
     # Creates or increments a CachedMapItem and creates a CachedMapRegister for this object.
     # * !! Assumes this is the first time CachedMapItem is being indexed for this object.
     # * !! Does NOT check register.
-    def create_cached_map_items(batch = false, context: nil)
+    def create_cached_map_items(batch = false, context: nil, skip_register: false, register_queue: nil, perf_stats: nil)
+      perf_stats ||= context&.dig(:perf_stats) || context&.dig('perf_stats')
       ::DEFAULT_CACHED_MAP_BUILD_TYPES.each do |map_type|
+        stubs_start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
         stubs = CachedMapItem.stubs(self, map_type, context: context)
+        if perf_stats
+          perf_stats[:stubs_ms] ||= 0.0
+          perf_stats[:stubs_ms] += ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - stubs_start) * 1000.0)
+        end
 
         if stubs[:translation_missing]
           suppress_missing_translation_log = context&.symbolize_keys&.fetch(:suppress_missing_translation_log, false)
@@ -145,6 +151,7 @@ module Shared::Maps
 
         max_retries = 3
         retries = 0
+        persist_start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
         begin
           CachedMapItem.transaction do
             # Sort by primary keys so that every thread processes items in the
@@ -222,6 +229,10 @@ module Shared::Maps
           else
             raise e
           end
+        end
+        if perf_stats
+          perf_stats[:persist_ms] ||= 0.0
+          perf_stats[:persist_ms] += ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - persist_start) * 1000.0)
         end
 
       end
