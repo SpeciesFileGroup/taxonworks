@@ -501,6 +501,7 @@ namespace :tw do
             .with_otus
             .without_is_absent
             .where(asserted_distribution_shape_type: 'GeographicArea')
+            .where.not('otus.taxon_name_id': nil)
             .where.missing(:cached_map_register)
             .joins("JOIN geographic_areas ga ON asserted_distributions.asserted_distribution_shape_id = ga.id")
 
@@ -508,6 +509,7 @@ namespace :tw do
             .with_otus
             .without_is_absent
             .where(asserted_distribution_shape_type: 'Gazetteer')
+            .where.not('otus.taxon_name_id': nil)
             .where.missing(:cached_map_register)
             .joins("JOIN gazetteers ON asserted_distributions.asserted_distribution_shape_id = gazetteers.id")
 
@@ -522,12 +524,11 @@ namespace :tw do
           ga_rows = q_ga.pluck(
             'asserted_distributions.id',
             'otus.id',
-            'otus.taxon_name_id',
             'asserted_distributions.asserted_distribution_shape_id',
             'asserted_distributions.project_id'
           )
-          ga_rows.map! do |ad_id, otu_id, otu_taxon_name_id, geographic_area_id, project_id|
-            [ad_id, otu_id, otu_taxon_name_id, ga_default_gi[geographic_area_id.to_i], project_id]
+          ga_rows.map! do |ad_id, otu_id, geographic_area_id, project_id|
+            [ad_id, otu_id, ga_default_gi[geographic_area_id.to_i], project_id]
           end
           ga_missing_default_gi = ga_rows.count { |row| row[3].blank? }
           ga_rows.select! { |row| row[3].present? }
@@ -536,7 +537,6 @@ namespace :tw do
           gz_rows = q_gz.pluck(
             'asserted_distributions.id',
             'otus.id',
-            'otus.taxon_name_id',
             'gazetteers.geographic_item_id',
             'asserted_distributions.project_id'
           )
@@ -563,10 +563,9 @@ namespace :tw do
 
             # Build a lookup hash: ad_id => context
             ad_context = {}
-            rows.each do |ad_id, otu_id, otu_taxon_name_id, geographic_item_id, project_id|
+            rows.each do |ad_id, otu_id, geographic_item_id, project_id|
               ad_context[ad_id] = {
                 otu_id:,
-                otu_taxon_name_id:,
                 source_geographic_item_id: geographic_item_id,
                 translated_geographic_item_ids_by_type: {
                   'CachedMapItem::WebLevel1' => pretranslated_by_source[geographic_item_id.to_i]

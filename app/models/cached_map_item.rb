@@ -330,6 +330,7 @@ class CachedMapItem < ApplicationRecord
     otu_id = nil
     context = context&.symbolize_keys || {}
     perf_stats = context[:perf_stats]
+    context_provided = context.present?
 
     base_class_name = o.class.base_class.name
 
@@ -348,9 +349,11 @@ class CachedMapItem < ApplicationRecord
         context[:geographic_item_id] ||
         o.asserted_distribution_shape.default_geographic_item_id
 
-      taxon_name_id = context[:otu_taxon_name_id] ||
-        Otu.where(id: otu_id).pick(:taxon_name_id)
-      return h if taxon_name_id.blank?
+      # In batch mode callers already pre-filter OTUs without taxon names.
+      unless context_provided
+        taxon_name_id = Otu.where(id: otu_id).pick(:taxon_name_id)
+        return h if taxon_name_id.blank?
+      end
 
     when 'Georeference'
       geographic_item_id = context[:geographic_item_id] || o.geographic_item_id
