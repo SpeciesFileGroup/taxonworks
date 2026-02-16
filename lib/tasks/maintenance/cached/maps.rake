@@ -645,7 +645,6 @@ namespace :tw do
               load_ad_ms = 0.0
               create_cmi_ms = 0.0
               register_insert_ms = 0.0
-              perf_stats = { stubs_ms: 0.0, translation_lookup_ms: 0.0, persist_ms: 0.0 }
               begin
                 reconnected ||= AssertedDistribution.connection.reconnect! || true # https://github.com/grosser/parallel
 
@@ -668,7 +667,7 @@ namespace :tw do
                     next
                   end
                   begin
-                    ad.send(:create_cached_map_items, true, context: context.merge(perf_stats:),
+                    ad.send(:create_cached_map_items, true, context: context,
                       skip_register: true, register_queue: registrations)
                   rescue ActiveRecord::StatementInvalid, ActiveRecord::RecordNotFound => e
                     create_errors += 1
@@ -684,7 +683,7 @@ namespace :tw do
               rescue => exception
                 puts " FAILED #{exception} #{ad.id}"
               end
-              puts " slice ids:#{slice_ids.first}..#{slice_ids.last} n:#{slice_ids.size} loaded:#{loaded_ads.size} context_miss:#{context_miss} errors:#{create_errors} regs:#{registrations.size} load_ad_ms:#{load_ad_ms} create_cmi_ms:#{create_cmi_ms} stubs_ms:#{perf_stats[:stubs_ms].round(1)} translation_lookup_ms:#{perf_stats[:translation_lookup_ms].round(1)} persist_ms:#{perf_stats[:persist_ms].round(1)} register_insert_ms:#{register_insert_ms} elapsed:#{(Time.current - slice_start).round(1)}s"
+              puts " slice ids:#{slice_ids.first}..#{slice_ids.last} n:#{slice_ids.size} loaded:#{loaded_ads.size} context_miss:#{context_miss} errors:#{create_errors} regs:#{registrations.size} load_ad_ms:#{load_ad_ms} create_cmi_ms:#{create_cmi_ms} register_insert_ms:#{register_insert_ms} elapsed:#{(Time.current - slice_start).round(1)}s"
               true
             end
           end

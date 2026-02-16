@@ -329,7 +329,6 @@ class CachedMapItem < ApplicationRecord
     geographic_item_id = nil
     otu_id = nil
     context = context&.symbolize_keys || {}
-    perf_stats = context[:perf_stats]
     context_provided = context.present?
 
     base_class_name = o.class.base_class.name
@@ -383,7 +382,6 @@ class CachedMapItem < ApplicationRecord
       if pretranslated_for_type.present?
         h[:geographic_item_id] = pretranslated_for_type
       elsif require_existing_translation
-        translation_lookup_start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
         if pretranslated.present?
           # Preserve existing semantics: when caller supplies pretranslated
           # values, trust that set as authoritative (including empty).
@@ -392,12 +390,6 @@ class CachedMapItem < ApplicationRecord
           h[:geographic_item_id] = translate_by_geographic_item_translation(
             geographic_item_id,
             cached_map_type
-          )
-        end
-        if perf_stats
-          perf_stats[:translation_lookup_ms] ||= 0.0
-          perf_stats[:translation_lookup_ms] += (
-            (Process.clock_gettime(Process::CLOCK_MONOTONIC) - translation_lookup_start) * 1000.0
           )
         end
         h[:translation_missing] = h[:geographic_item_id].blank?
