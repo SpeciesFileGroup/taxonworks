@@ -242,7 +242,6 @@ namespace :tw do
         desc 'build CachedMapItems for Georeferences that do not have them, idempotent'
         task parallel_create_cached_map_from_georeferences: [:environment] do |t|
           task_start = Time.current
-          # TODO: this doesn't currently account for FOs
           q = Georeference.joins(:otus).where.missing(:cached_map_register).distinct
 
           puts "Caching #{q.count} georeferences records."
@@ -272,18 +271,19 @@ namespace :tw do
 
               # Pre-compute OTU context for the slice in 1 query instead of
               # 2 queries per georeference (N+1 elimination).
-              # Chain: georeference -> collecting_event -> collection_objects
-              #        -> taxon_determinations (position 1) -> otu
+              # Chain: georeference -> collecting_event -> (collection_objects or
+              # field_occurrences) -> taxon_determinations (position 1) -> otu
+              ce_ids = Georeference.where(id: slice_ids).select(:collecting_event_id)
               otu_rows = Otu
-                .joins(collection_objects: [:collecting_event])
                 .joins(:taxon_determinations)
+                .joins("LEFT JOIN collection_objects ON collection_objects.id = taxon_determinations.taxon_determination_object_id AND taxon_determinations.taxon_determination_object_type = 'CollectionObject'")
+                .joins("LEFT JOIN field_occurrences ON field_occurrences.id = taxon_determinations.taxon_determination_object_id AND taxon_determinations.taxon_determination_object_type = 'FieldOccurrence'")
                 .where(taxon_determinations: { position: 1 })
-                .where(collecting_events: {
-                  id: Georeference.where(id: slice_ids).select(:collecting_event_id)
-                })
+                .where(taxon_determinations: { taxon_determination_object_type: ['CollectionObject', 'FieldOccurrence'] })
+                .where('COALESCE(collection_objects.collecting_event_id, field_occurrences.collecting_event_id) IN (?)', ce_ids)
                 .distinct
                 .pluck(
-                  'collecting_events.id',
+                  Arel.sql('COALESCE(collection_objects.collecting_event_id, field_occurrences.collecting_event_id)'),
                   'otus.id',
                   'otus.taxon_name_id'
                 )
@@ -310,13 +310,33 @@ namespace :tw do
                   context_miss += 1
                   next
                 end
+                # Parallel workers can race on the same (type, otu_id,
+                # geographic_item_id, project_id) CMI key. If we hit that
+                # unique index once, retry the full create in a new transaction
+                # so the second pass can increment the row that won the race.
+                unique_conflict_retried = false
                 begin
                   g.send(:create_cached_map_items, true,
                     context: { otu_id: otu_ids },
                     skip_register: true, register_queue: registrations)
-                rescue ActiveRecord::StatementInvalid, ActiveRecord::RecordNotFound => e
+                rescue ActiveRecord::RecordNotUnique, PG::UniqueViolation => e
+                  if unique_conflict_retried
+                    create_errors += 1
+                    puts " FAILED_UNIQUE georeference_id:#{g.id} geographic_item_id:#{g.geographic_item_id} project_id:#{g.project_id} #{e}"
+                  else
+                    unique_conflict_retried = true
+                    retry
+                  end
+                rescue ActiveRecord::StatementInvalid => e
+                  if !unique_conflict_retried && e.message.include?('index_cached_map_items_on_type_otu_gi_project')
+                    unique_conflict_retried = true
+                    retry
+                  end
                   create_errors += 1
-                  puts " FAILED georeference_id:#{g.id} geographic_item_id:#{g.geographic_item_id} project_id:#{g.project_id} #{e}"
+                  puts " FAILED_STATEMENT georeference_id:#{g.id} geographic_item_id:#{g.geographic_item_id} project_id:#{g.project_id} #{e}"
+                rescue ActiveRecord::RecordNotFound => e
+                  create_errors += 1
+                  puts " FAILED_RECORD_NOT_FOUND georeference_id:#{g.id} geographic_item_id:#{g.geographic_item_id} project_id:#{g.project_id} #{e}"
                 end
               end
               create_cmi_ms = ((Time.current - create_cmi_start) * 1000).round(1)
