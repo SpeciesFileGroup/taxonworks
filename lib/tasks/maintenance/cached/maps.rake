@@ -52,6 +52,89 @@ namespace :tw do
           format('%d:%02d:%02d', s / 3600, (s % 3600) / 60, s % 60)
         end
 
+        def sql_bool_env(key, default:)
+          return default unless ENV.key?(key)
+
+          %w[1 true yes on].include?(ENV[key].to_s.strip.downcase)
+        end
+
+        def sql_update_cached_map_items_from_counts_sql(counts_sql)
+          <<~SQL
+            WITH counts AS (
+              #{counts_sql}
+            )
+            UPDATE cached_map_items cmi
+            SET
+              reference_count = COALESCE(cmi.reference_count, 0) + counts.reference_count,
+              updated_at = NOW()
+            FROM counts
+            WHERE
+              cmi.type = counts.type
+              AND cmi.otu_id = counts.otu_id
+              AND cmi.geographic_item_id = counts.geographic_item_id
+              AND cmi.project_id = counts.project_id;
+          SQL
+        end
+
+        def sql_insert_cached_map_items_from_counts_sql(counts_sql)
+          <<~SQL
+            WITH counts AS (
+              #{counts_sql}
+            )
+            INSERT INTO cached_map_items (
+              type,
+              otu_id,
+              geographic_item_id,
+              project_id,
+              reference_count,
+              untranslated,
+              created_at,
+              updated_at
+            )
+            SELECT
+              counts.type,
+              counts.otu_id,
+              counts.geographic_item_id,
+              counts.project_id,
+              counts.reference_count,
+              FALSE,
+              NOW(),
+              NOW()
+            FROM counts
+            WHERE NOT EXISTS (
+              SELECT 1
+              FROM cached_map_items cmi
+              WHERE
+                cmi.type = counts.type
+                AND cmi.otu_id = counts.otu_id
+                AND cmi.geographic_item_id = counts.geographic_item_id
+                AND cmi.project_id = counts.project_id
+            );
+          SQL
+        end
+
+        def sql_insert_cached_map_registers_from_source_sql(source_sql)
+          <<~SQL
+            WITH source_rows AS (
+              #{source_sql}
+            )
+            INSERT INTO cached_map_registers (
+              cached_map_register_object_type,
+              cached_map_register_object_id,
+              project_id,
+              created_at,
+              updated_at
+            )
+            SELECT
+              'AssertedDistribution',
+              source_rows.ad_id,
+              source_rows.project_id,
+              NOW(),
+              NOW()
+            FROM source_rows;
+          SQL
+        end
+
         desc 'destroy all cached map references'
         task destroy_all: [:environment] do |t|
           puts 'Destroying everything related to cached maps'
@@ -276,6 +359,142 @@ namespace :tw do
         task parallel_create_cached_map_from_asserted_distributions: [:environment] do |t|
           task_start = Time.current
           default_gagi_sql = GeographicAreasGeographicItem.default_geographic_item_data_sql
+
+          sql_aggregate_on_clean_slate_default =
+            CachedMapItem.count.zero? &&
+            CachedMapRegister.count.zero?
+
+          use_sql_aggregate = sql_bool_env(
+            'cached_ad_sql_aggregate',
+            default: sql_aggregate_on_clean_slate_default
+          )
+
+          if use_sql_aggregate
+            puts "Using SQL aggregate AD cache build path (clean_slate_default=#{sql_aggregate_on_clean_slate_default})."
+
+            connection = ActiveRecord::Base.connection
+
+            ga_base_sql = <<~SQL.squish
+              SELECT
+                ad.id AS ad_id,
+                ad.project_id AS project_id,
+                otus.id AS otu_id,
+                default_gagi.geographic_item_id AS source_geographic_item_id
+              FROM asserted_distributions ad
+              JOIN otus
+                ON ad.asserted_distribution_object_type = 'Otu'
+                AND ad.asserted_distribution_object_id = otus.id
+              LEFT JOIN cached_map_registers cmr
+                ON cmr.cached_map_register_object_type = 'AssertedDistribution'
+                AND cmr.cached_map_register_object_id = ad.id
+              JOIN geographic_areas ga
+                ON ad.asserted_distribution_shape_id = ga.id
+              JOIN (#{default_gagi_sql}) default_gagi
+                ON default_gagi.geographic_area_id = ga.id
+              WHERE
+                ad.asserted_distribution_shape_type = 'GeographicArea'
+                AND COALESCE(ad.is_absent, FALSE) = FALSE
+                AND cmr.id IS NULL
+                AND otus.taxon_name_id IS NOT NULL
+            SQL
+
+            gz_base_sql = <<~SQL.squish
+              SELECT
+                ad.id AS ad_id,
+                ad.project_id AS project_id,
+                otus.id AS otu_id,
+                gazetteers.geographic_item_id AS source_geographic_item_id
+              FROM asserted_distributions ad
+              JOIN otus
+                ON ad.asserted_distribution_object_type = 'Otu'
+                AND ad.asserted_distribution_object_id = otus.id
+              LEFT JOIN cached_map_registers cmr
+                ON cmr.cached_map_register_object_type = 'AssertedDistribution'
+                AND cmr.cached_map_register_object_id = ad.id
+              JOIN gazetteers
+                ON ad.asserted_distribution_shape_id = gazetteers.id
+              WHERE
+                ad.asserted_distribution_shape_type = 'Gazetteer'
+                AND COALESCE(ad.is_absent, FALSE) = FALSE
+                AND cmr.id IS NULL
+                AND otus.taxon_name_id IS NOT NULL
+                AND gazetteers.geographic_item_id IS NOT NULL
+            SQL
+
+            ga_total_sql = <<~SQL.squish
+              SELECT COUNT(*)
+              FROM asserted_distributions ad
+              JOIN otus
+                ON ad.asserted_distribution_object_type = 'Otu'
+                AND ad.asserted_distribution_object_id = otus.id
+              LEFT JOIN cached_map_registers cmr
+                ON cmr.cached_map_register_object_type = 'AssertedDistribution'
+                AND cmr.cached_map_register_object_id = ad.id
+              WHERE
+                ad.asserted_distribution_shape_type = 'GeographicArea'
+                AND COALESCE(ad.is_absent, FALSE) = FALSE
+                AND cmr.id IS NULL
+                AND otus.taxon_name_id IS NOT NULL
+            SQL
+
+            ga_total = connection.select_value(ga_total_sql).to_i
+            ga_with_default = connection.select_value("SELECT COUNT(*) FROM (#{ga_base_sql}) ga").to_i
+            ga_missing_default_gi = ga_total - ga_with_default
+            puts "Skipping #{ga_missing_default_gi} GA AssertedDistribution rows without default geographic_item_id." if ga_missing_default_gi.positive?
+
+            gz_rows_count = connection.select_value("SELECT COUNT(*) FROM (#{gz_base_sql}) gz").to_i
+            puts "Caching #{ga_with_default} GA + #{gz_rows_count} GZ = #{ga_with_default + gz_rows_count} AssertedDistribution records."
+
+            ga_counts_sql = <<~SQL.squish
+              SELECT
+                'CachedMapItem::WebLevel1'::text AS type,
+                ga.otu_id,
+                t.translated_geographic_item_id AS geographic_item_id,
+                ga.project_id,
+                COUNT(*)::integer AS reference_count
+              FROM (#{ga_base_sql}) ga
+              JOIN cached_map_item_translations t
+                ON t.cached_map_type = 'CachedMapItem::WebLevel1'
+                AND t.geographic_item_id = ga.source_geographic_item_id
+              GROUP BY ga.otu_id, t.translated_geographic_item_id, ga.project_id
+            SQL
+
+            gz_counts_sql = <<~SQL.squish
+              SELECT
+                'CachedMapItem::WebLevel1'::text AS type,
+                gz.otu_id,
+                t.translated_geographic_item_id AS geographic_item_id,
+                gz.project_id,
+                COUNT(*)::integer AS reference_count
+              FROM (#{gz_base_sql}) gz
+              JOIN cached_map_item_translations t
+                ON t.cached_map_type = 'CachedMapItem::WebLevel1'
+                AND t.geographic_item_id = gz.source_geographic_item_id
+              GROUP BY gz.otu_id, t.translated_geographic_item_id, gz.project_id
+            SQL
+
+            ga_cmi_start = Time.current
+            connection.execute(sql_update_cached_map_items_from_counts_sql(ga_counts_sql))
+            connection.execute(sql_insert_cached_map_items_from_counts_sql(ga_counts_sql))
+            puts "build_cached_map_from_asserted_distributions GA (sql_aggregate) |Time: #{format_elapsed(ga_cmi_start)}"
+
+            gz_cmi_start = Time.current
+            connection.execute(sql_update_cached_map_items_from_counts_sql(gz_counts_sql))
+            connection.execute(sql_insert_cached_map_items_from_counts_sql(gz_counts_sql))
+            puts "build_cached_map_from_asserted_distributions GZ (sql_aggregate) |Time: #{format_elapsed(gz_cmi_start)}"
+
+            ga_reg_start = Time.current
+            connection.execute(sql_insert_cached_map_registers_from_source_sql(ga_base_sql))
+            puts "register_cached_map_from_asserted_distributions GA (sql_aggregate) |Time: #{format_elapsed(ga_reg_start)}"
+
+            gz_reg_start = Time.current
+            connection.execute(sql_insert_cached_map_registers_from_source_sql(gz_base_sql))
+            puts "register_cached_map_from_asserted_distributions GZ (sql_aggregate) |Time: #{format_elapsed(gz_reg_start)}"
+
+            puts "Done. elapsed=#{format_elapsed(task_start)}"
+            next
+          end
+
           ga_default_gi = ActiveRecord::Base.connection.select_rows(
             "SELECT default_gagi.geographic_area_id, default_gagi.geographic_item_id FROM (#{default_gagi_sql}) default_gagi"
           ).to_h { |ga_id, gi_id| [ga_id.to_i, gi_id.to_i] }
@@ -437,15 +656,14 @@ namespace :tw do
           ids_out = CachedMapItemTranslation.select(:geographic_item_id)
           .distinct.pluck(:geographic_item_id).compact
 
-          ids_in__ga = GeographicArea.joins(:asserted_distributions).distinct
-            .map(&:default_geographic_item_id).compact
-          puts "Total GeographicArea-based asserted distributions: #{ids_in__ga.count}"
-          puts "GeographicArea-based asserted distributions already done: #{(ids_out & ids_in__ga).count}"
+          ga_gi_ids = GeographicArea.joins(:asserted_distributions)
+            .merge(AssertedDistribution.without_is_absent)
+            .joins("JOIN (#{default_gagi_sql}) default_gagi ON default_gagi.geographic_area_id = geographic_areas.id")
+            .select('DISTINCT default_gagi.geographic_item_id AS id')
 
-          ids_in__gz = Gazetteer.joins(:asserted_distributions).distinct
-            .map(&:default_geographic_item_id).compact
-          puts "Total Gazetteer-based asserted distributions: #{ids_in__gz.count}"
-          puts "Gazetteer-based asserted distributions already done: #{(ids_out & ids_in__gz).count}"
+          gz_gi_ids = Gazetteer.joins(:asserted_distributions)
+            .merge(AssertedDistribution.without_is_absent)
+            .select('DISTINCT gazetteers.geographic_item_id AS id')
 
           ids_in__ga = ids_in__ga - ids_out
           ids_in__gz = ids_in__gz - ids_out
