@@ -108,7 +108,9 @@ namespace :tw do
               source_rows.project_id,
               NOW(),
               NOW()
-            FROM source_rows;
+            FROM source_rows
+            ON CONFLICT (cached_map_register_object_type, cached_map_register_object_id)
+            DO NOTHING;
           SQL
         end
 
