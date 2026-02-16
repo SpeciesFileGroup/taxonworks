@@ -303,6 +303,33 @@ namespace :tw do
               loaded_georefs = Georeference.where(id: slice_ids).to_a
               load_georef_ms = ((Time.current - load_georef_start) * 1000).round(1)
 
+              source_geographic_item_ids = loaded_georefs.map(&:geographic_item_id).compact.uniq
+              point_source_geographic_item_ids =
+                GeographicItem
+                  .where(id: source_geographic_item_ids)
+                  .points
+                  .pluck(:id)
+
+              point_translated_ids_by_source_geographic_item_id = {}
+              if point_source_geographic_item_ids.present?
+                precomputed_state_ids = CachedMapItem.precomputed_data_origin_ids_for('ne_states')
+
+                point_translation_rows = ActiveRecord::Base.connection.select_rows(<<~SQL.squish)
+                  SELECT source_gi.id, translated_gi.id
+                  FROM geographic_items source_gi
+                  JOIN geographic_items translated_gi
+                    ON translated_gi.id IN (#{precomputed_state_ids})
+                   AND ST_Intersects(translated_gi.geography, source_gi.geography)
+                  WHERE source_gi.id IN (#{point_source_geographic_item_ids.join(',')})
+                SQL
+
+                point_translation_rows.each do |source_geographic_item_id, translated_geographic_item_id|
+                  source_geographic_item_id = source_geographic_item_id.to_i
+                  translated_geographic_item_id = translated_geographic_item_id.to_i
+                  (point_translated_ids_by_source_geographic_item_id[source_geographic_item_id] ||= []) << translated_geographic_item_id
+                end
+              end
+
               create_cmi_start = Time.current
               loaded_georefs.each do |g|
                 otu_ids = ce_otu_lookup[g.collecting_event_id]
@@ -316,8 +343,16 @@ namespace :tw do
                 # so the second pass can increment the row that won the race.
                 unique_conflict_retried = false
                 begin
+                  context = { otu_id: otu_ids }
+                  pretranslated_for_point = point_translated_ids_by_source_geographic_item_id[g.geographic_item_id]
+                  if pretranslated_for_point.present?
+                    context[:translated_geographic_item_ids_by_type] = {
+                      'CachedMapItem::WebLevel1' => pretranslated_for_point
+                    }
+                  end
+
                   g.send(:create_cached_map_items, true,
-                    context: { otu_id: otu_ids },
+                    context:,
                     skip_register: true, register_queue: registrations)
                 rescue ActiveRecord::RecordNotUnique, PG::UniqueViolation => e
                   if unique_conflict_retried

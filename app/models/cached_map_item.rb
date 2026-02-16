@@ -373,13 +373,21 @@ class CachedMapItem < ApplicationRecord
       require_existing_translation = base_class_name == 'AssertedDistribution' &&
         context[:require_existing_translation] == true
 
-      if require_existing_translation
+      pretranslated = context[:translated_geographic_item_ids_by_type]
+      pretranslated_for_type = if pretranslated.present?
+        Array(pretranslated[cached_map_type] || pretranslated[cached_map_type.to_sym])
+      else
+        []
+      end
+
+      if pretranslated_for_type.present?
+        h[:geographic_item_id] = pretranslated_for_type
+      elsif require_existing_translation
         translation_lookup_start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-        pretranslated = context[:translated_geographic_item_ids_by_type]
         if pretranslated.present?
-          h[:geographic_item_id] = Array(
-            pretranslated[cached_map_type] || pretranslated[cached_map_type.to_sym]
-          )
+          # Preserve existing semantics: when caller supplies pretranslated
+          # values, trust that set as authoritative (including empty).
+          h[:geographic_item_id] = pretranslated_for_type
         else
           h[:geographic_item_id] = translate_by_geographic_item_translation(
             geographic_item_id,
