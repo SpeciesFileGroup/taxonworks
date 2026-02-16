@@ -337,19 +337,35 @@ namespace :tw do
           task_start = Time.current
           default_gagi_sql = GeographicAreasGeographicItem.default_geographic_item_data_sql
 
-          sql_aggregate_on_clean_slate_default =
+          clean_slate =
             CachedMapItem.count.zero? &&
             CachedMapRegister.count.zero?
 
+          use_legacy_path = sql_bool_env(
+            'cached_ad_legacy_path',
+            default: false
+          )
+
           use_sql_aggregate = sql_bool_env(
             'cached_ad_sql_aggregate',
-            default: sql_aggregate_on_clean_slate_default
+            default: !use_legacy_path
           )
 
           if use_sql_aggregate
-            puts "Using SQL aggregate AD cache build path (clean_slate_default=#{sql_aggregate_on_clean_slate_default})."
+            unless ActiveRecord::Base.connection.index_exists?(
+              :cached_map_items,
+              [:type, :otu_id, :geographic_item_id, :project_id],
+              unique: true,
+              name: :index_cached_map_items_on_type_otu_gi_project
+            )
+              raise 'SQL aggregate AD cache build requires unique index index_cached_map_items_on_type_otu_gi_project. Run migrations first, or set cached_ad_legacy_path=true.'
+            end
+
+            puts "Using SQL aggregate AD cache build path (clean_slate=#{clean_slate})."
 
             connection = ActiveRecord::Base.connection
+            cmi_before = CachedMapItem.count
+            cmr_before = CachedMapRegister.where(cached_map_register_object_type: 'AssertedDistribution').count
 
             ga_base_sql = <<~SQL.squish
               SELECT
@@ -466,9 +482,14 @@ namespace :tw do
             connection.execute(sql_insert_cached_map_registers_from_source_sql(gz_base_sql))
             puts "register_cached_map_from_asserted_distributions GZ (sql_aggregate) |Time: #{format_elapsed(gz_reg_start)}"
 
+            cmi_after = CachedMapItem.count
+            cmr_after = CachedMapRegister.where(cached_map_register_object_type: 'AssertedDistribution').count
+            puts "SQL aggregate AD cache delta: cached_map_items +#{cmi_after - cmi_before}, asserted_distribution_registers +#{cmr_after - cmr_before}"
             puts "Done. elapsed=#{format_elapsed(task_start)}"
             next
           end
+
+          puts "Using legacy Ruby AD cache build path (cached_ad_sql_aggregate=#{use_sql_aggregate}, cached_ad_legacy_path=#{use_legacy_path})."
 
           ga_default_gi = ActiveRecord::Base.connection.select_rows(
             "SELECT default_gagi.geographic_area_id, default_gagi.geographic_item_id FROM (#{default_gagi_sql}) default_gagi"
