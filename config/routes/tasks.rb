@@ -199,6 +199,10 @@ scope :tasks do
   end
 
   scope :namespaces do
+    scope :filter, controller: 'tasks/namespaces/filter' do
+      get '/', action: :index, as: 'filter_namespaces_task'
+    end
+
     scope :new_namespace, controller: 'tasks/namespaces/new_namespace' do
       get '/', action: :index, as: 'new_namespace_task'
     end

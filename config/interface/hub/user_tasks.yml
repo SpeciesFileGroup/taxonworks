@@ -1177,3 +1177,10 @@ duplicate_data_attributes_task:
     - data_attributes
   status: prototype
   description: 'Report identifying objects with duplicate predicates on their data attributes.'
+filter_namespaces_task:
+  hub: true
+  name: 'Filter namespaces'
+  related:
+  categories:
+  status: prototype
+  description: 'Filter namespaces by many different facets, download or visualize results.'
