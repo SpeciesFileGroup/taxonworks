@@ -240,6 +240,7 @@ class TaxonNamesController < ApplicationController
 
   # POST /taxon_names/match.json
   def match
+
     result = Match::Otu::TaxonName.new(
       names: match_params[:names] || [],
       project_id: sessions_current_project_id,
@@ -252,11 +253,13 @@ class TaxonNamesController < ApplicationController
       {
         scientific_name: r[:scientific_name],
         taxon_name_id: r[:taxon_name_id],
-        taxon_name: r[:taxon_name]&.as_json(
-          only: [:id, :cached, :cached_html, :cached_author_year, :cached_valid_taxon_name_id, :name, :rank_class, :type],
-          methods: [:object_label]
-        ),
-        otus: r[:otus].map { |o| o.as_json(only: [:id, :name, :taxon_name_id], methods: [:object_label]) },
+        taxon_name: (r[:taxon_name]&.as_json(
+          only: [:id, :cached, :cached_html, :cached_author_year, :cached_valid_taxon_name_id, :name, :rank_class, :type]
+         ) || {}).merge(object_label: helpers.label_for_taxon_name(r[:taxon_name])),
+        otus: r[:otus].map { |o| ( o.as_json(
+          only: [:id, :name, :taxon_name_id]
+        ) || {}).merge(object_label: helpers.label_for_otu(o) )
+        },
         ambiguous: r[:ambiguous],
         matched: r[:matched]
       }
