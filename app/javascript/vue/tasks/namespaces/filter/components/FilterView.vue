@@ -1,5 +1,8 @@
 <template>
-  <FacetNamespace v-model="params" />
+  <FacetByAttribute
+    controller="namespaces"
+    v-model="params"
+  />
   <FacetUsers v-model="params" />
   <FacetWith
     v-for="param in WITH_PARAMS"
@@ -13,7 +16,7 @@
 <script setup>
 import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
-import FacetNamespace from '@/components/Filter/Facets/Namespace/FacetNamespace.vue'
+import FacetByAttribute from '@/components/Filter/Facets/shared/FacetByAttributeRow/FacetByAttributeRow.vue'
 
 const WITH_PARAMS = ['is_virtual']
 

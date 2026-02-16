@@ -5,6 +5,8 @@ export function listParser(list) {
     name: item.name,
     shortName: item.short_name,
     institution: item.institution,
-    verbatimShortName: item.verbatim_short_name
+    delimiter: item.delimiter,
+    verbatimShortName: item.verbatim_short_name,
+    isVirtual: item.is_virtual ? 'Yes' : 'No'
   }))
 }

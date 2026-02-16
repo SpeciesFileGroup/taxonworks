@@ -576,6 +576,7 @@ end
 
 resources :namespaces do
   collection do
+    get :attributes, defaults: {format: :json}
     get :autocomplete, defaults: {format: :json} # TODO: add JSON to all autocomplete as default, until then this line has to be above concerns
     post :preview_simple_batch_load
     post :create_simple_batch_load

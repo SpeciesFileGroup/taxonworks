@@ -81,6 +81,13 @@ class NamespacesController < ApplicationController
     @namespaces = Namespace.order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
+  def attributes
+    render json: ::Namespace.columns.select{
+      |a| (Queries::Namespace::Filter::ATTRIBUTES).include?(
+        a.name.to_sym)
+    }.collect{|b| {'name' => b.name, 'type' => b.type } }
+  end
+
   def search
     if params[:id].blank?
       redirect_to namespace_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'

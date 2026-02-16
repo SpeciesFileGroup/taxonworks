@@ -1,6 +1,9 @@
 module Queries
   module Namespace
     class Filter < Query::Filter
+      ATTRIBUTES = (::Namespace.core_attributes - %w{is_virtual}).map(&:to_sym).freeze
+
+      include Queries::Concerns::Attributes
 
       PARAMS =  [
         :institution,
@@ -42,6 +45,7 @@ module Queries
         @short_name = params[:short_name]
         @verbatim_short_name = params[:verbatim_short_name]
 
+        set_attributes_params(params)
         set_user_dates(params)
       end
 
