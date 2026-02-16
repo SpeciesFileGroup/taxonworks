@@ -22,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Classes not being eager loaded in background jobs, causing dwc importer to fail
 - Admin checkboxes in project members table are not visible to project administrators.
 - Add historical determination options to Taxon Name facet of Filter Collection Objects [#4742]
+- Serial author match out of order when reopened after one match selected [#4743]
 
 ### Changed
 
@@ -32,6 +33,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1440]: https://github.com/SpeciesFileGroup/taxonworks/issues/1440
 [#4721]: https://github.com/SpeciesFileGroup/taxonworks/issues/4721
 [#4739]: https://github.com/SpeciesFileGroup/taxonworks/issues/4739
+[#4743]: https://github.com/SpeciesFileGroup/taxonworks/issues/4743
 [#4749]: https://github.com/SpeciesFileGroup/taxonworks/issues/4749
 [#4750]: https://github.com/SpeciesFileGroup/taxonworks/issues/4750
 
