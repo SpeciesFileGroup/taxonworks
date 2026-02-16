@@ -58,25 +58,7 @@ namespace :tw do
           %w[1 true yes on].include?(ENV[key].to_s.strip.downcase)
         end
 
-        def sql_update_cached_map_items_from_counts_sql(counts_sql)
-          <<~SQL
-            WITH counts AS (
-              #{counts_sql}
-            )
-            UPDATE cached_map_items cmi
-            SET
-              reference_count = COALESCE(cmi.reference_count, 0) + counts.reference_count,
-              updated_at = NOW()
-            FROM counts
-            WHERE
-              cmi.type = counts.type
-              AND cmi.otu_id = counts.otu_id
-              AND cmi.geographic_item_id = counts.geographic_item_id
-              AND cmi.project_id = counts.project_id;
-          SQL
-        end
-
-        def sql_insert_cached_map_items_from_counts_sql(counts_sql)
+        def sql_upsert_cached_map_items_from_counts_sql(counts_sql)
           <<~SQL
             WITH counts AS (
               #{counts_sql}
@@ -101,15 +83,10 @@ namespace :tw do
               NOW(),
               NOW()
             FROM counts
-            WHERE NOT EXISTS (
-              SELECT 1
-              FROM cached_map_items cmi
-              WHERE
-                cmi.type = counts.type
-                AND cmi.otu_id = counts.otu_id
-                AND cmi.geographic_item_id = counts.geographic_item_id
-                AND cmi.project_id = counts.project_id
-            );
+            ON CONFLICT (type, otu_id, geographic_item_id, project_id)
+            DO UPDATE SET
+              reference_count = COALESCE(cached_map_items.reference_count, 0) + EXCLUDED.reference_count,
+              updated_at = NOW();
           SQL
         end
 
@@ -474,13 +451,11 @@ namespace :tw do
             SQL
 
             ga_cmi_start = Time.current
-            connection.execute(sql_update_cached_map_items_from_counts_sql(ga_counts_sql))
-            connection.execute(sql_insert_cached_map_items_from_counts_sql(ga_counts_sql))
+            connection.execute(sql_upsert_cached_map_items_from_counts_sql(ga_counts_sql))
             puts "build_cached_map_from_asserted_distributions GA (sql_aggregate) |Time: #{format_elapsed(ga_cmi_start)}"
 
             gz_cmi_start = Time.current
-            connection.execute(sql_update_cached_map_items_from_counts_sql(gz_counts_sql))
-            connection.execute(sql_insert_cached_map_items_from_counts_sql(gz_counts_sql))
+            connection.execute(sql_upsert_cached_map_items_from_counts_sql(gz_counts_sql))
             puts "build_cached_map_from_asserted_distributions GZ (sql_aggregate) |Time: #{format_elapsed(gz_cmi_start)}"
 
             ga_reg_start = Time.current
