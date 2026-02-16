@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Batch import BibTeX sources option to include Identifier
 - Batch Upload Asserted Distributions now supports a `gazetteer_id` column [#4739]
 - Lock header bar button [#4750]
+- Filter namespaces [#4749]
 
 ### Fixed
 
@@ -31,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#1440]: https://github.com/SpeciesFileGroup/taxonworks/issues/1440
 [#4721]: https://github.com/SpeciesFileGroup/taxonworks/issues/4721
 [#4739]: https://github.com/SpeciesFileGroup/taxonworks/issues/4739
+[#4749]: https://github.com/SpeciesFileGroup/taxonworks/issues/4749
 [#4750]: https://github.com/SpeciesFileGroup/taxonworks/issues/4750
 
 ## [0.59.0] - 2026-02-04
