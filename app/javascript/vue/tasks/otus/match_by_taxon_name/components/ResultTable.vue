@@ -4,13 +4,32 @@
       <tr>
         <th />
         <th />
-        <th>scientificName</th>
-        <th>Match</th>
+        <th>
+          scientificName
+          <ButtonClipboard
+            :text="columnText('scientificName')"
+            title="Copy scientific names"
+          />
+        </th>
+        <th>
+          Match
+          <ButtonClipboard
+            :text="columnText('matchString')"
+            title="Copy match strings"
+          />
+        </th>
         <th>TaxonName</th>
         <th />
         <th>Refine</th>
         <th>OTU</th>
-        <th>OTU id</th>
+        <th>
+          OTU id
+          <ButtonClipboard
+            :text="columnText('otuId')"
+            title="Copy OTU IDs"
+          />
+        </th>
+
         <th />
         <th>Set</th>
       </tr>
@@ -88,12 +107,8 @@
             v-if="row.taxonName"
             class="horizontal-left-content gap-xsmall"
           >
-            <RadialAnnotator
-              :global-id="taxonNameGlobalId(row.taxonNameId)"
-            />
-            <RadialNavigator
-              :global-id="taxonNameGlobalId(row.taxonNameId)"
-            />
+            <RadialAnnotator :global-id="taxonNameGlobalId(row.taxonNameId)" />
+            <RadialNavigator :global-id="taxonNameGlobalId(row.taxonNameId)" />
           </div>
         </td>
 
@@ -199,7 +214,9 @@
             v-for="(value, key) in contextRow.csvRow"
             :key="key"
           >
-            <td><strong>{{ key }}</strong></td>
+            <td>
+              <strong>{{ key }}</strong>
+            </td>
             <td>{{ value }}</td>
           </tr>
         </tbody>
@@ -216,6 +233,7 @@ import VIcon from '@/components/ui/VIcon/index.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
+import ButtonClipboard from '@/components/ui/Button/ButtonClipboard.vue'
 
 const props = defineProps({
   rows: {
@@ -229,13 +247,26 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits([
-  'update-row',
-  'create-otu',
-  'scroll-to-row'
-])
+const emit = defineEmits(['update-row', 'create-otu', 'scroll-to-row'])
 
 const contextRow = ref(null)
+
+function columnText(column) {
+  return props.rows
+    .map((row) => {
+      switch (column) {
+        case 'scientificName':
+          return row.scientificName
+        case 'matchString':
+          return row.matchString || row.scientificName
+        case 'otuId':
+          return row.selectedOtuId || ''
+        default:
+          return ''
+      }
+    })
+    .join('\n')
+}
 
 function browseTaxonNameUrl(id) {
   return `${RouteNames.BrowseNomenclature}?taxon_name_id=${id}`
