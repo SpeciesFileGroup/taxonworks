@@ -330,13 +330,30 @@ namespace :tw do
             [ga_rows, true, 'build_cached_map_from_asserted_distributions GA'],
             [gz_rows, false, 'build_cached_map_from_asserted_distributions GZ']
           ].each do |rows, geographic_area_based, progress|
+            source_geographic_item_ids = rows.map { |r| r[3] }.compact.uniq
+            pretranslated_by_source = Hash.new { |h, k| h[k] = [] }
+            CachedMapItemTranslation
+              .where(
+                cached_map_type: 'CachedMapItem::WebLevel1',
+                geographic_item_id: source_geographic_item_ids
+              )
+              .pluck(:geographic_item_id, :translated_geographic_item_id)
+              .each do |source_gi_id, translated_gi_id|
+                pretranslated_by_source[source_gi_id.to_i] << translated_gi_id.to_i
+              end
+
+            pretranslated_by_source.each_value(&:uniq!)
+
             # Build a lookup hash: ad_id => context
             ad_context = {}
             rows.each do |ad_id, otu_id, otu_taxon_name_id, geographic_item_id, project_id|
               ad_context[ad_id] = {
                 otu_id:,
                 otu_taxon_name_id:,
-                geographic_item_id:,
+                source_geographic_item_id: geographic_item_id,
+                translated_geographic_item_ids_by_type: {
+                  'CachedMapItem::WebLevel1' => pretranslated_by_source[geographic_item_id.to_i]
+                },
                 geographic_area_based:,
                 require_existing_translation: true,
                 suppress_missing_translation_log: true
@@ -373,7 +390,7 @@ namespace :tw do
                     context_miss += 1
                     next
                   end
-                  if context[:geographic_item_id].blank?
+                  if context[:source_geographic_item_id].blank?
                     # Defensive: this should never happen.
                     create_errors += 1
                     puts " FAILED asserted_distribution_id:#{ad.id} geographic_item_id:nil project_id:#{ad.project_id} unexpected_missing_default_geographic_item_id"
@@ -384,7 +401,7 @@ namespace :tw do
                       skip_register: true, register_queue: registrations)
                   rescue ActiveRecord::StatementInvalid, ActiveRecord::RecordNotFound => e
                     create_errors += 1
-                    puts " FAILED asserted_distribution_id:#{ad.id} geographic_item_id:#{context[:geographic_item_id]} project_id:#{ad.project_id} #{e}"
+                    puts " FAILED asserted_distribution_id:#{ad.id} geographic_item_id:#{context[:source_geographic_item_id]} project_id:#{ad.project_id} #{e}"
                   end
                 end
                 create_cmi_ms = ((Time.current - create_cmi_start) * 1000).round(1)

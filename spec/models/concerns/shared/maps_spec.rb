@@ -267,6 +267,31 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
       expect(CachedMapRegister.count).to eq(0)
       expect(CachedMapItemTranslation.count).to eq(1)
     end
+
+    specify 'strict translation mode uses precomputed translated ids without lookup query' do
+      queue = []
+      source_gi_id = ad_offset.asserted_distribution_shape.default_geographic_item_id
+      translated_gi_id = ga.default_geographic_item_id
+
+      context = {
+        otu_id: ad_offset.asserted_distribution_object_id,
+        otu_taxon_name_id: ad_offset.otu.taxon_name_id,
+        source_geographic_item_id: source_gi_id,
+        translated_geographic_item_ids_by_type: {
+          'CachedMapItem::WebLevel1' => [translated_gi_id]
+        },
+        geographic_area_based: true,
+        require_existing_translation: true
+      }
+
+      expect(CachedMapItem).not_to receive(:translate_by_geographic_item_translation)
+
+      ad_offset.send(:create_cached_map_items, true, context:, skip_register: true, register_queue: queue)
+
+      expect(CachedMapItem.count).to eq(1)
+      expect(CachedMapItem.first.geographic_item_id).to eq(translated_gi_id)
+      expect(queue.size).to eq(1)
+    end
   end
 
   context 'Georeference-based cached map items' do

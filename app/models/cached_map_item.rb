@@ -332,7 +332,8 @@ class CachedMapItem < ApplicationRecord
         # TODO handle other types
         return h
       end
-      geographic_item_id = context[:geographic_item_id] ||
+      geographic_item_id = context[:source_geographic_item_id] ||
+        context[:geographic_item_id] ||
         o.asserted_distribution_shape.default_geographic_item_id
 
       taxon_name_id = context[:otu_taxon_name_id] ||
@@ -359,10 +360,17 @@ class CachedMapItem < ApplicationRecord
 
       if require_existing_translation
         translation_lookup_start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-        h[:geographic_item_id] = translate_by_geographic_item_translation(
-          geographic_item_id,
-          cached_map_type
-        )
+        pretranslated = context[:translated_geographic_item_ids_by_type]
+        if pretranslated.present?
+          h[:geographic_item_id] = Array(
+            pretranslated[cached_map_type] || pretranslated[cached_map_type.to_sym]
+          )
+        else
+          h[:geographic_item_id] = translate_by_geographic_item_translation(
+            geographic_item_id,
+            cached_map_type
+          )
+        end
         if perf_stats
           perf_stats[:translation_lookup_ms] ||= 0.0
           perf_stats[:translation_lookup_ms] += (
