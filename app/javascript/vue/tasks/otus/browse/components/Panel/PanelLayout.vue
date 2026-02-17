@@ -10,15 +10,6 @@
     </template>
 
     <template #options>
-      <div
-        v-help.section.options.drag
-        class="option-box button-default circle-button cursor-pointer handle"
-      >
-        <VIcon
-          name="scrollV"
-          x-small
-        />
-      </div>
       <VBtn
         circle
         :class="{ 'button-default': menu }"
@@ -42,9 +33,8 @@
 </template>
 
 <script setup>
-import VSpinner from '@/components/ui/VSpinner'
 import { computed, ref } from 'vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import VSpinner from '@/components/ui/VSpinner'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 
 const props = defineProps({

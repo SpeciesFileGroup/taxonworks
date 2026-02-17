@@ -24,7 +24,6 @@ import { ref, watch } from 'vue'
 import { Depiction } from '@/routes/endpoints'
 import PanelLayout from '../PanelLayout.vue'
 import ImageViewer from '@/components/ui/ImageViewer/ImageViewer.vue'
-import isLoading from '@/tasks/digitize/store/getters/isLoading'
 
 const props = defineProps({
   otu: {
@@ -39,7 +38,7 @@ const props = defineProps({
 
   status: {
     type: String,
-    default: status.LOADING
+    default: 'unknown'
   },
 
   title: {
@@ -49,12 +48,13 @@ const props = defineProps({
 })
 
 const depictions = ref([])
+const isLoading = ref(false)
 
-function loadDepictions(otuId) {
+async function loadDepictions(otuId) {
   isLoading.value = true
 
   try {
-    const { body } = Depiction.where({
+    const { body } = await Depiction.where({
       otu_id: otuId,
       otu_scope: ['all'],
       per: 500
@@ -70,8 +70,10 @@ function loadDepictions(otuId) {
 watch(
   () => props.otus,
   (newVal) => {
-    if (newVal.length > 0) {
-      loadDepictions(newVal)
+    const otuIds = newVal.map((o) => o.id)
+
+    if (otuIds.length > 0) {
+      loadDepictions(otuIds)
     }
   },
   { immediate: true }

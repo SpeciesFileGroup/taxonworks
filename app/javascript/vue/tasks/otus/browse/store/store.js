@@ -21,6 +21,7 @@ export const useOtuStore = defineStore('browse-otu', {
         const { body: coordinateOtus } = await Otu.coordinate(otuId)
 
         this.coordinateOtus = coordinateOtus
+        this.selectedOtus = [...coordinateOtus]
 
         if (body.taxon_name_id) {
           await this.loadTaxonName(body.taxon_name_id)

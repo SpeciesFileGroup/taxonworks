@@ -1,14 +1,16 @@
 /* 
 import ContentComponent from './components/Content'
 import ConveyanceComponent from './components/Conveyance/PanelConveyance.vue'
-import AssertedDistribution from './components/AssertedDistribution'
+
 import BiologicalAssociations from './components/BiologicalAssociations'
 import AnnotationsComponent from './components/Annotations'
 import NomenclatureHistory from './components/timeline/Timeline.vue' */
+import PanelAssertedDistribution from '../components/Panel/PanelAssertedDistribution/PanelAssertedDistribution.vue'
 import PanelDistribution from '../components/Panel/PanelDistribution/PanelDistribution.vue'
 import PanelCoordinate from '../components/Panel/PanelCoordinates/PanelCoordinates.vue'
 import PanelDepictions from '../components/Panel/PanelDepictions/PanelDepictions.vue'
-/* import Descendants from './components/Descendants/Descendants.vue'
+import PanelDescendants from '../components/Panel/PanelDescendants/PanelDescendants.vue'
+ /*
 import CollectionObjects from './components/CollectionObjects'
 import TypeSpecimens from './components/specimens/Type'
 import TypeSection from './components/TypeSection.vue'
@@ -29,11 +31,12 @@ export const PANEL_COMPONENTS = {
     title: 'Timeline',
     status: 'stable'
   },
-  Descendants: {
-    component: Descendants,
+  */
+  PanelDescendants: {
+    component: PanelDescendants,
     title: 'Descendants',
     status: 'prototype'
-  },*/
+  },
   PanelDepictions: {
     component: PanelDepictions,
     title: 'Images',
@@ -85,11 +88,6 @@ export const PANEL_COMPONENTS = {
     title: 'Content',
     status: 'prototype'
   },
-  AssertedDistribution: {
-    component: AssertedDistribution,
-    title: 'Asserted distribution',
-    status: 'prototype'
-  },
   BiologicalAssociations: {
     component: BiologicalAssociations,
     title: 'Biological associations',
@@ -100,6 +98,11 @@ export const PANEL_COMPONENTS = {
     title: 'Annotations',
     status: 'prototype'
   }, */,
+  PanelAssertedDistribution: {
+    component: PanelAssertedDistribution,
+    title: 'Asserted distribution',
+    status: 'prototype'
+  },
   PanelDistribution: {
     component: PanelDistribution,
     title: 'Distribution',
