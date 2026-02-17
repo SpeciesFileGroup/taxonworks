@@ -584,8 +584,8 @@ namespace :tw do
           ga_rows.map! do |ad_id, otu_id, geographic_area_id, project_id|
             [ad_id, otu_id, ga_default_gi[geographic_area_id.to_i], project_id]
           end
-          ga_missing_default_gi = ga_rows.count { |row| row[3].blank? }
-          ga_rows.select! { |row| row[3].present? }
+          ga_missing_default_gi = ga_rows.count { |row| row[2].blank? }
+          ga_rows.select! { |row| row[2].present? }
           puts "Skipping #{ga_missing_default_gi} GA AssertedDistribution rows without default geographic_item_id." if ga_missing_default_gi.positive?
 
           gz_rows = q_gz.pluck(

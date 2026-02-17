@@ -431,9 +431,7 @@ class CachedMapItem < ApplicationRecord
     k = batch_stubs[:otu_id]
 
     j.each do |geographic_item_id|
-      k.each do |otu_id|
-        otu_id = otu_id.first
-        project_id = otu_id.second
+      k.each do |otu_id, project_id|
 
         begin
           a = CachedMapItem.find_or_initialize_by(
