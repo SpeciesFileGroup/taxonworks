@@ -590,11 +590,33 @@ namespace :tw do
             .merge(AssertedDistribution.without_is_absent)
             .select('DISTINCT gazetteers.geographic_item_id AS id')
 
-          ids_in__ga = ids_in__ga - ids_out
-          ids_in__gz = ids_in__gz - ids_out
+          ga_total = ga_gi_ids.unscope(:select).count('DISTINCT default_gagi.geographic_item_id')
+          ga_done = ga_gi_ids
+            .where("default_gagi.geographic_item_id IN (#{ids_out.to_sql})")
+            .unscope(:select)
+            .count('DISTINCT default_gagi.geographic_item_id')
+          puts "Total GeographicArea-based geographic items to translate: #{ga_total}"
+          puts "GeographicArea-based geographic items already done: #{ga_done}"
 
-          puts "Processing #{ids_in__ga.count} GeographicArea-based asserted distributions"
-          puts "Processing #{ids_in__gz.count} Gazetteer-based asserted distributions"
+          gz_total = gz_gi_ids.unscope(:select).count('DISTINCT gazetteers.geographic_item_id')
+          gz_done = gz_gi_ids
+            .where("gazetteers.geographic_item_id IN (#{ids_out.to_sql})")
+            .unscope(:select)
+            .count('DISTINCT gazetteers.geographic_item_id')
+          puts "Total Gazetteer-based geographic items to translate: #{gz_total}"
+          puts "Gazetteer-based geographic items already done: #{gz_done}"
+
+          ga_missing_gi_ids = ga_gi_ids
+            .where("default_gagi.geographic_item_id NOT IN (#{ids_out.to_sql})")
+            .distinct
+            .pluck('default_gagi.geographic_item_id')
+          gz_missing_gi_ids = gz_gi_ids
+            .where("gazetteers.geographic_item_id NOT IN (#{ids_out.to_sql})")
+            .distinct
+            .pluck('gazetteers.geographic_item_id')
+
+          puts "Processing #{ga_missing_gi_ids.size} GeographicArea-based geographic items"
+          puts "Processing #{gz_missing_gi_ids.size} Gazetteer-based geographic items"
 
           precomputed_data_origin_ids = {
             'ne_states' => CachedMapItem.precomputed_data_origin_ids_for('ne_states')
