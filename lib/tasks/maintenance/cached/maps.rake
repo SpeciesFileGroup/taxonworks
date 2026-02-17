@@ -313,29 +313,37 @@ namespace :tw do
               SELECT DISTINCT
                 g.id AS georef_id,
                 g.project_id AS project_id,
-                otus.id AS otu_id,
+                td_paths.otu_id AS otu_id,
                 g.geographic_item_id AS source_geographic_item_id
               FROM georeferences g
               LEFT JOIN cached_map_registers cmr
                 ON cmr.cached_map_register_object_type = 'Georeference'
                 AND cmr.cached_map_register_object_id = g.id
-              JOIN collecting_events ce
-                ON ce.id = g.collecting_event_id
-              LEFT JOIN collection_objects co
-                ON co.collecting_event_id = ce.id
-              LEFT JOIN field_occurrences fo
-                ON fo.collecting_event_id = ce.id
-              JOIN taxon_determinations td
-                ON (td.taxon_determination_object_type = 'CollectionObject'
-                    AND td.taxon_determination_object_id = co.id)
-                OR (td.taxon_determination_object_type = 'FieldOccurrence'
-                    AND td.taxon_determination_object_id = fo.id)
+              JOIN (
+                SELECT
+                  co.collecting_event_id AS collecting_event_id,
+                  td.otu_id AS otu_id
+                FROM collection_objects co
+                JOIN taxon_determinations td
+                  ON td.taxon_determination_object_type = 'CollectionObject'
+                  AND td.taxon_determination_object_id = co.id
+                  AND td.position = 1
+                UNION ALL
+                SELECT
+                  fo.collecting_event_id AS collecting_event_id,
+                  td.otu_id AS otu_id
+                FROM field_occurrences fo
+                JOIN taxon_determinations td
+                  ON td.taxon_determination_object_type = 'FieldOccurrence'
+                  AND td.taxon_determination_object_id = fo.id
+                  AND td.position = 1
+              ) td_paths
+                ON td_paths.collecting_event_id = g.collecting_event_id
               JOIN otus
-                ON otus.id = td.otu_id
+                ON otus.id = td_paths.otu_id
               WHERE
                 g.position = 1
                 AND cmr.id IS NULL
-                AND td.position = 1
                 AND otus.taxon_name_id IS NOT NULL
             SQL
 
