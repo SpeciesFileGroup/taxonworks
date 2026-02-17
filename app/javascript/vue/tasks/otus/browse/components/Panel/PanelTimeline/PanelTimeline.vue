@@ -93,156 +93,32 @@
                   v-html="topic.name"
                 />
               </template>
-              <radial-annotator :global-id="key" />
-              <radial-navigation :global-id="key" />
+              <RadialAnnotator :global-id="key" />
+              <RadialNavigation :global-id="key" />
             </li>
           </template>
         </template>
       </ul>
     </div>
     <soft-validation-modal />
-    <modal-component
+    <PanelTimelineSettings
       v-if="isModalVisible"
+      :nomenclature="nomenclature"
+      :preferences="preferences"
+      v-model:topic="topicsSelected"
       @close="() => (isModalVisible = false)"
-    >
-      <template #header>
-        <h3>Visualize</h3>
-      </template>
-      <template #body>
-        <div class="flex-separate">
-          <div class="full_width">
-            <h4 class="capitalize separate-bottom">Time</h4>
-            <ul class="no_bullets">
-              <li
-                class="separate-right"
-                v-for="(item, key) in preferences.filterSections.and.time"
-                :key="key"
-              >
-                <label>
-                  <input
-                    v-model="item.value"
-                    type="checkbox"
-                  />
-                  {{ item.label }}
-                </label>
-              </li>
-            </ul>
-            <h4 class="capitalize separate-bottom">Year</h4>
-            <year-picker
-              v-model.number="preferences.filterSections.and.year[0].value"
-              :years="nomenclature.sources.year_metadata"
-            />
-          </div>
-          <div class="full_width">
-            <h4 class="capitalize separate-bottom">Filter</h4>
-            <ul class="no_bullets">
-              <li
-                class="separate-right"
-                v-for="(item, key) in preferences.filterSections.and.current"
-                :key="key"
-              >
-                <label>
-                  <input
-                    v-model="item.value"
-                    type="checkbox"
-                  />
-                  {{ item.label }}
-                </label>
-              </li>
-            </ul>
-            <template v-for="section in preferences.filterSections.or">
-              <ul class="no_bullets">
-                <li
-                  v-for="(item, key) in section"
-                  :key="key"
-                  class="separate-right"
-                >
-                  <label>
-                    <input
-                      v-model="item.value"
-                      type="checkbox"
-                    />
-                    {{ item.label }}
-                  </label>
-                </li>
-              </ul>
-            </template>
-          </div>
-          <div class="full_width">
-            <h4 class="capitalize separate-bottom">Show</h4>
-            <ul class="no_bullets">
-              <li
-                class="separate-right"
-                v-for="(item, key) in preferences.filterSections.show"
-                :key="key"
-              >
-                <label>
-                  <input
-                    v-model="item.value"
-                    type="checkbox"
-                  />
-                  {{ item.label }}
-                </label>
-              </li>
-            </ul>
-            <h4 class="capitalize separate-bottom">Topic</h4>
-            <ul class="no_bullets">
-              <li
-                v-for="(item, key) in preferences.filterSections.topic"
-                :key="key"
-              >
-                <label>
-                  <input
-                    v-model="item.value"
-                    type="checkbox"
-                  />
-                  {{ item.label }}
-                </label>
-              </li>
-              <li>
-                <label>
-                  <input
-                    v-model="showReferencesTopic"
-                    type="checkbox"
-                  />
-                  On references
-                </label>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <div class="separate-bottom"></div>
-            <ul class="no_bullets topic-section">
-              <li
-                v-for="(topic, key) in nomenclature.topics.list"
-                :key="key"
-              >
-                <label>
-                  <input
-                    type="checkbox"
-                    :value="key"
-                    v-model="topicsSelected"
-                  />
-                  {{ topic.name }}
-                </label>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </template>
-    </modal-component>
+    />
   </PanelLayout>
 </template>
 
 <script setup>
 import { Otu } from '@/routes/endpoints'
 import { useUserPreferences } from '@/composables'
-import { computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import PanelLayout from '../PanelLayout.vue'
-import ModalComponent from '@/components/ui/Modal'
-import YearPicker from './TimelineYearsPick.vue'
-import SoftValidationModal from '../softValidationModal'
-import TimelineCitations from './TimelineCitations.vue'
+//import SoftValidationModal from '../softValidationModal'
+import TimelineCitations from './PanelTimelineCitations.vue'
+import PanelTimelineSettings from './PanelTimelineSettings.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigation from '@/components/radials/navigation/radial.vue'
 
@@ -253,7 +129,13 @@ const props = defineProps({
   }
 })
 
-const { preferences } = useUserPreferences()
+const KEY_STORAGE = 'task::BrowseOtus'
+
+const userPref = useUserPreferences()
+
+const preferences = computed(
+  () => userPref.preferences.value.layout?.[KEY_STORAGE]
+)
 
 const filterTabs = [
   {
@@ -310,7 +192,6 @@ const tabSelected = ref({
   key: '',
   value: ''
 })
-const hideInfo = ref([])
 
 watch(
   () => props.otu,

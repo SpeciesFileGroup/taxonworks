@@ -35,6 +35,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import VSpinner from '@/components/ui/VSpinner'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 
 const props = defineProps({
@@ -42,18 +43,22 @@ const props = defineProps({
     type: String,
     default: ''
   },
+
   spinner: {
     type: Boolean,
     default: false
   },
+
   status: {
     type: String,
     default: 'unknown'
   },
+
   name: {
     type: String,
     default: undefined
   },
+
   menu: {
     type: Boolean,
     default: false

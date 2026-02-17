@@ -4,13 +4,14 @@ import ConveyanceComponent from './components/Conveyance/PanelConveyance.vue'
 
 import BiologicalAssociations from './components/BiologicalAssociations'
 import AnnotationsComponent from './components/Annotations'
-import NomenclatureHistory from './components/timeline/Timeline.vue' */
+ */
+import PanelTimeline from '../components/Panel/PanelTimeline/PanelTimeline.vue'
 import PanelAssertedDistribution from '../components/Panel/PanelAssertedDistribution/PanelAssertedDistribution.vue'
 import PanelDistribution from '../components/Panel/PanelDistribution/PanelDistribution.vue'
 import PanelCoordinate from '../components/Panel/PanelCoordinates/PanelCoordinates.vue'
 import PanelDepictions from '../components/Panel/PanelDepictions/PanelDepictions.vue'
 import PanelDescendants from '../components/Panel/PanelDescendants/PanelDescendants.vue'
- /*
+/*
 import CollectionObjects from './components/CollectionObjects'
 import TypeSpecimens from './components/specimens/Type'
 import TypeSection from './components/TypeSection.vue'
@@ -25,13 +26,13 @@ export const PANEL_COMPONENTS = {
     title: 'Coordinate OTUs',
     status: 'stable'
   },
-  /*
+
   NomenclatureHistory: {
-    component: NomenclatureHistory,
+    component: PanelTimeline,
     title: 'Timeline',
     status: 'stable'
   },
-  */
+
   PanelDescendants: {
     component: PanelDescendants,
     title: 'Descendants',
