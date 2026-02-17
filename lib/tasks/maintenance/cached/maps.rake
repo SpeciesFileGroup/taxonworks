@@ -90,7 +90,7 @@ namespace :tw do
           SQL
         end
 
-        def sql_insert_cached_map_registers_from_source_sql(source_sql)
+        def sql_insert_cached_map_registers_from_source_sql(source_sql, object_type: 'AssertedDistribution', id_column: 'ad_id')
           <<~SQL
             WITH source_rows AS (
               #{source_sql}
@@ -103,14 +103,47 @@ namespace :tw do
               updated_at
             )
             SELECT
-              'AssertedDistribution',
-              source_rows.ad_id,
+              '#{object_type}',
+              source_rows.#{id_column},
               source_rows.project_id,
               NOW(),
               NOW()
             FROM source_rows
             ON CONFLICT (cached_map_register_object_type, cached_map_register_object_id)
             DO NOTHING;
+          SQL
+        end
+
+        def sql_upsert_untranslated_cached_map_items_from_counts_sql(counts_sql)
+          <<~SQL
+            WITH counts AS (
+              #{counts_sql}
+            )
+            INSERT INTO cached_map_items (
+              type,
+              otu_id,
+              geographic_item_id,
+              project_id,
+              reference_count,
+              untranslated,
+              created_at,
+              updated_at
+            )
+            SELECT
+              counts.type,
+              counts.otu_id,
+              counts.geographic_item_id,
+              counts.project_id,
+              counts.reference_count,
+              TRUE,
+              NOW(),
+              NOW()
+            FROM counts
+            ON CONFLICT (type, otu_id, geographic_item_id, project_id)
+            DO UPDATE SET
+              reference_count = COALESCE(cached_map_items.reference_count, 0) + EXCLUDED.reference_count,
+              untranslated = TRUE,
+              updated_at = NOW();
           SQL
         end
 
@@ -242,6 +275,208 @@ namespace :tw do
         desc 'build CachedMapItems for Georeferences that do not have them, idempotent'
         task parallel_create_cached_map_from_georeferences: [:environment] do |t|
           task_start = Time.current
+
+          use_legacy_path = sql_bool_env(
+            'cached_georef_legacy_path',
+            default: false
+          )
+
+          use_sql_aggregate = sql_bool_env(
+            'cached_georef_sql_aggregate',
+            default: !use_legacy_path
+          )
+
+          if use_sql_aggregate
+            unless ActiveRecord::Base.connection.index_exists?(
+              :cached_map_items,
+              [:type, :otu_id, :geographic_item_id, :project_id],
+              unique: true,
+              name: :index_cached_map_items_on_type_otu_gi_project
+            )
+              raise 'SQL aggregate georef cache build requires unique index index_cached_map_items_on_type_otu_gi_project. Run migrations first, or set cached_georef_legacy_path=true.'
+            end
+
+            puts "Using SQL aggregate georef cache build path."
+
+            connection = ActiveRecord::Base.connection
+            cmi_before = CachedMapItem.count
+            cmr_before = CachedMapRegister.where(cached_map_register_object_type: 'Georeference').count
+
+            precomputed_state_ids = CachedMapItem.precomputed_data_origin_ids_for('ne_states')
+
+            # Base SQL: georeferences (position=1, no existing register)
+            #   → collecting_events
+            #   → collection_objects / field_occurrences
+            #   → taxon_determinations (position=1)
+            #   → otus (taxon_name_id IS NOT NULL)
+            georef_base_sql = <<~SQL.squish
+              SELECT DISTINCT
+                g.id AS georef_id,
+                g.project_id AS project_id,
+                otus.id AS otu_id,
+                g.geographic_item_id AS source_geographic_item_id
+              FROM georeferences g
+              LEFT JOIN cached_map_registers cmr
+                ON cmr.cached_map_register_object_type = 'Georeference'
+                AND cmr.cached_map_register_object_id = g.id
+              JOIN collecting_events ce
+                ON ce.id = g.collecting_event_id
+              LEFT JOIN collection_objects co
+                ON co.collecting_event_id = ce.id
+              LEFT JOIN field_occurrences fo
+                ON fo.collecting_event_id = ce.id
+              JOIN taxon_determinations td
+                ON (td.taxon_determination_object_type = 'CollectionObject'
+                    AND td.taxon_determination_object_id = co.id)
+                OR (td.taxon_determination_object_type = 'FieldOccurrence'
+                    AND td.taxon_determination_object_id = fo.id)
+              JOIN otus
+                ON otus.id = td.otu_id
+              WHERE
+                g.position = 1
+                AND cmr.id IS NULL
+                AND td.position = 1
+                AND otus.taxon_name_id IS NOT NULL
+            SQL
+
+            georef_total = connection.select_value("SELECT COUNT(*) FROM (#{georef_base_sql}) base").to_i
+            puts "Caching #{georef_total} georeference-OTU rows (SQL aggregate)."
+
+            # Step 1: Pre-compute translations for georef source geographic_items
+            # that don't already have entries in cached_map_item_translations.
+            # Points and non-points both translate the same way for georeferences:
+            # ST_Intersects against ne_states with no buffer (unlike AD which uses
+            # buffer/within refinement for geographic_area_based shapes).
+            translate_start = Time.current
+            translate_sql = <<~SQL.squish
+              INSERT INTO cached_map_item_translations (
+                geographic_item_id,
+                translated_geographic_item_id,
+                cached_map_type,
+                created_at,
+                updated_at
+              )
+              SELECT DISTINCT
+                source_gi.id,
+                translated_gi.id,
+                'CachedMapItem::WebLevel1',
+                NOW(),
+                NOW()
+              FROM geographic_items source_gi
+              JOIN geographic_items translated_gi
+                ON translated_gi.id IN (#{precomputed_state_ids})
+                AND ST_Intersects(translated_gi.geography, source_gi.geography)
+              WHERE source_gi.id IN (
+                SELECT DISTINCT base.source_geographic_item_id
+                FROM (#{georef_base_sql}) base
+              )
+              AND NOT EXISTS (
+                SELECT 1 FROM cached_map_item_translations cmt
+                WHERE cmt.geographic_item_id = source_gi.id
+                  AND cmt.translated_geographic_item_id = translated_gi.id
+                  AND cmt.cached_map_type = 'CachedMapItem::WebLevel1'
+              )
+            SQL
+            translate_result = connection.execute(translate_sql)
+            translate_count = translate_result.cmd_tuples
+            puts "Pre-computed #{translate_count} georef translations |Time: #{format_elapsed(translate_start)}"
+
+            # Step 2: Translated counts — join base to translations, same pattern as AD path
+            translated_counts_sql = <<~SQL.squish
+              SELECT
+                'CachedMapItem::WebLevel1'::text AS type,
+                base.otu_id,
+                t.translated_geographic_item_id AS geographic_item_id,
+                base.project_id,
+                COUNT(*)::integer AS reference_count
+              FROM (#{georef_base_sql}) base
+              JOIN cached_map_item_translations t
+                ON t.cached_map_type = 'CachedMapItem::WebLevel1'
+                AND t.geographic_item_id = base.source_geographic_item_id
+              GROUP BY base.otu_id, t.translated_geographic_item_id, base.project_id
+            SQL
+
+            translated_start = Time.current
+            connection.execute(sql_upsert_cached_map_items_from_counts_sql(translated_counts_sql))
+            puts "build_cached_map_from_georeferences translated (sql_aggregate) |Time: #{format_elapsed(translated_start)}"
+
+            # Step 3: Untranslated counts — source geographic_items with no translation
+            untranslated_counts_sql = <<~SQL.squish
+              SELECT
+                'CachedMapItem::WebLevel1'::text AS type,
+                base.otu_id,
+                base.source_geographic_item_id AS geographic_item_id,
+                base.project_id,
+                COUNT(*)::integer AS reference_count
+              FROM (#{georef_base_sql}) base
+              LEFT JOIN cached_map_item_translations t
+                ON t.cached_map_type = 'CachedMapItem::WebLevel1'
+                AND t.geographic_item_id = base.source_geographic_item_id
+              WHERE t.id IS NULL
+              GROUP BY base.otu_id, base.source_geographic_item_id, base.project_id
+            SQL
+
+            untranslated_start = Time.current
+            connection.execute(sql_upsert_untranslated_cached_map_items_from_counts_sql(untranslated_counts_sql))
+            puts "build_cached_map_from_georeferences untranslated (sql_aggregate) |Time: #{format_elapsed(untranslated_start)}"
+
+            # Register all processed georeferences
+            georef_register_sql = <<~SQL.squish
+              SELECT DISTINCT
+                g.id AS georef_id,
+                g.project_id AS project_id
+              FROM georeferences g
+              LEFT JOIN cached_map_registers cmr
+                ON cmr.cached_map_register_object_type = 'Georeference'
+                AND cmr.cached_map_register_object_id = g.id
+              WHERE
+                g.position = 1
+                AND cmr.id IS NULL
+                AND (
+                  EXISTS (
+                    SELECT 1
+                    FROM collection_objects co
+                    JOIN taxon_determinations td
+                      ON td.taxon_determination_object_type = 'CollectionObject'
+                      AND td.taxon_determination_object_id = co.id
+                    JOIN otus ON otus.id = td.otu_id
+                    WHERE co.collecting_event_id = g.collecting_event_id
+                      AND td.position = 1
+                      AND otus.taxon_name_id IS NOT NULL
+                  )
+                  OR EXISTS (
+                    SELECT 1
+                    FROM field_occurrences fo
+                    JOIN taxon_determinations td
+                      ON td.taxon_determination_object_type = 'FieldOccurrence'
+                      AND td.taxon_determination_object_id = fo.id
+                    JOIN otus ON otus.id = td.otu_id
+                    WHERE fo.collecting_event_id = g.collecting_event_id
+                      AND td.position = 1
+                      AND otus.taxon_name_id IS NOT NULL
+                  )
+                )
+            SQL
+
+            register_start = Time.current
+            connection.execute(
+              sql_insert_cached_map_registers_from_source_sql(
+                georef_register_sql,
+                object_type: 'Georeference',
+                id_column: 'georef_id'
+              )
+            )
+            puts "register_cached_map_from_georeferences (sql_aggregate) |Time: #{format_elapsed(register_start)}"
+
+            cmi_after = CachedMapItem.count
+            cmr_after = CachedMapRegister.where(cached_map_register_object_type: 'Georeference').count
+            puts "SQL aggregate georef cache delta: cached_map_items +#{cmi_after - cmi_before}, georeference_registers +#{cmr_after - cmr_before}"
+            puts "Done. elapsed=#{format_elapsed(task_start)}"
+            next
+          end
+
+          puts "Using legacy Ruby georef cache build path (cached_georef_sql_aggregate=#{use_sql_aggregate}, cached_georef_legacy_path=#{use_legacy_path})."
+
           q = Georeference
             .where(position: 1)
             .having_otu
