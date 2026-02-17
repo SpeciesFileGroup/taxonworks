@@ -39,11 +39,16 @@
             :checked="row.selected"
             :disabled="isDuplicate(row) || row.isEmpty"
             @change="
-              emit('update-row', {
-                index: row.index,
-                field: 'selected',
-                value: $event.target.checked
-              })
+              (e) => {
+                emit('update-row', {
+                  index: row.index,
+                  field: 'selected',
+                  value: e.target.checked
+                })
+                if (e.target.checked) {
+                  emit('update-selection')
+                }
+              }
             "
           />
         </td>
@@ -243,7 +248,12 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update-row', 'create-otu', 'scroll-to-row'])
+const emit = defineEmits([
+  'update-row',
+  'create-otu',
+  'scroll-to-row',
+  'update-selection'
+])
 
 const contextRow = ref(null)
 
@@ -267,6 +277,7 @@ function toggleSelectAll(checked) {
       })
     }
   })
+  emit('update-selection', checked)
 }
 
 function browseTaxonNameUrl(id) {
