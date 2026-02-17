@@ -108,7 +108,7 @@ namespace :tw do
           SQL
         end
 
-        def sql_upsert_untranslated_cached_map_items_from_counts_sql(counts_sql)
+        def sql_upsert_cached_map_items_with_untranslated_from_counts_sql(counts_sql)
           <<~SQL
             WITH counts AS (
               #{counts_sql}
@@ -129,14 +129,14 @@ namespace :tw do
               counts.geographic_item_id,
               counts.project_id,
               counts.reference_count,
-              TRUE,
+              counts.untranslated,
               NOW(),
               NOW()
             FROM counts
             ON CONFLICT (type, otu_id, geographic_item_id, project_id)
             DO UPDATE SET
               reference_count = COALESCE(cached_map_items.reference_count, 0) + EXCLUDED.reference_count,
-              untranslated = TRUE,
+              untranslated = COALESCE(cached_map_items.untranslated, FALSE) OR COALESCE(EXCLUDED.untranslated, FALSE),
               updated_at = NOW();
           SQL
         end
@@ -328,73 +328,29 @@ namespace :tw do
           georef_total = connection.select_value("SELECT COUNT(*) FROM (#{georef_base_sql}) base").to_i
           puts "Caching #{georef_total} georeference-OTU rows (SQL aggregate)."
 
-          translate_start = Time.current
-          translate_sql = <<~SQL.squish
-            INSERT INTO cached_map_item_translations (
-              geographic_item_id,
-              translated_geographic_item_id,
-              cached_map_type,
-              created_at,
-              updated_at
-            )
-            SELECT DISTINCT
-              source_gi.id,
-              translated_gi.id,
-              'CachedMapItem::WebLevel1',
-              NOW(),
-              NOW()
-            FROM geographic_items source_gi
-            JOIN geographic_items translated_gi
+          georef_counts_sql = <<~SQL.squish
+            SELECT
+              'CachedMapItem::WebLevel1'::text AS type,
+              base.otu_id,
+              COALESCE(translated_gi.id, base.source_geographic_item_id) AS geographic_item_id,
+              base.project_id,
+              COUNT(*)::integer AS reference_count,
+              (translated_gi.id IS NULL) AS untranslated
+            FROM (#{georef_base_sql}) base
+            JOIN geographic_items source_gi
+              ON source_gi.id = base.source_geographic_item_id
+            LEFT JOIN geographic_items translated_gi
               ON translated_gi.id IN (#{precomputed_state_ids})
               AND ST_Intersects(translated_gi.geography, source_gi.geography)
-            WHERE source_gi.id IN (
-              SELECT DISTINCT base.source_geographic_item_id
-              FROM (#{georef_base_sql}) base
-            )
-            AND NOT EXISTS (
-              SELECT 1 FROM cached_map_item_translations cmt
-              WHERE cmt.geographic_item_id = source_gi.id
-                AND cmt.translated_geographic_item_id = translated_gi.id
-                AND cmt.cached_map_type = 'CachedMapItem::WebLevel1'
-            )
-          SQL
-          translate_result = connection.execute(translate_sql)
-          puts "Pre-computed #{translate_result.cmd_tuples} georef translations |Time: #{format_elapsed(translate_start)}"
-
-          translated_counts_sql = <<~SQL.squish
-            SELECT
-              'CachedMapItem::WebLevel1'::text AS type,
+            GROUP BY
               base.otu_id,
-              t.translated_geographic_item_id AS geographic_item_id,
+              COALESCE(translated_gi.id, base.source_geographic_item_id),
               base.project_id,
-              COUNT(*)::integer AS reference_count
-            FROM (#{georef_base_sql}) base
-            JOIN cached_map_item_translations t
-              ON t.cached_map_type = 'CachedMapItem::WebLevel1'
-              AND t.geographic_item_id = base.source_geographic_item_id
-            GROUP BY base.otu_id, t.translated_geographic_item_id, base.project_id
+              (translated_gi.id IS NULL)
           SQL
-          translated_start = Time.current
-          connection.execute(sql_upsert_cached_map_items_from_counts_sql(translated_counts_sql))
-          puts "build_cached_map_from_georeferences translated (sql_aggregate) |Time: #{format_elapsed(translated_start)}"
-
-          untranslated_counts_sql = <<~SQL.squish
-            SELECT
-              'CachedMapItem::WebLevel1'::text AS type,
-              base.otu_id,
-              base.source_geographic_item_id AS geographic_item_id,
-              base.project_id,
-              COUNT(*)::integer AS reference_count
-            FROM (#{georef_base_sql}) base
-            LEFT JOIN cached_map_item_translations t
-              ON t.cached_map_type = 'CachedMapItem::WebLevel1'
-              AND t.geographic_item_id = base.source_geographic_item_id
-            WHERE t.id IS NULL
-            GROUP BY base.otu_id, base.source_geographic_item_id, base.project_id
-          SQL
-          untranslated_start = Time.current
-          connection.execute(sql_upsert_untranslated_cached_map_items_from_counts_sql(untranslated_counts_sql))
-          puts "build_cached_map_from_georeferences untranslated (sql_aggregate) |Time: #{format_elapsed(untranslated_start)}"
+          cmi_start = Time.current
+          connection.execute(sql_upsert_cached_map_items_with_untranslated_from_counts_sql(georef_counts_sql))
+          puts "build_cached_map_from_georeferences (sql_aggregate) |Time: #{format_elapsed(cmi_start)}"
 
           georef_register_sql = <<~SQL.squish
             SELECT DISTINCT

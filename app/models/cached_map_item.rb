@@ -198,7 +198,7 @@ class CachedMapItem < ApplicationRecord
         .where(combined_filter)
         .pluck(:id)
     rescue ActiveRecord::StatementInvalid, PG::Error => e
-      # subset_of_sql (ST_CoveredBy) is know bad on
+      # subset_of_sql (ST_CoveredBy) is known bad on
       # PostGIS: POSTGIS="3.6.0 4c1967d" [EXTENSION] PGSQL="170" GEOS="3.10.2-CAPI-1.16.0",
       # known good on PostGIS: POSTGIS="3.6.1 f533623" GEOS="3.14.1-CAPI-1.20.5"
       # so try keeping the st_within refinement and skip only the
