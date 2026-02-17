@@ -344,8 +344,9 @@ class CachedMapItem < ApplicationRecord
       geographic_item_id = o.geographic_item_id
       # Filter to only OTUs that have a taxon_name_id — OTUs without
       # taxon names have no hierarchy and don't contribute to cached maps.
-      otu_id = o
-        .otus # through CollectionObject and FieldOccurrence TaxonDeterminations
+      otu_id = o.otus # OTUS through CollectionObject and FieldOccurrence TaxonDeterminations
+        .joins(:taxon_determinations)
+        .where(taxon_determinations: { position: 1 })
         .where.not(taxon_name_id: nil)
         .distinct.pluck(:id)
 
