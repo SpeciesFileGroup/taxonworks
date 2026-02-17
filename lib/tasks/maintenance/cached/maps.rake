@@ -190,8 +190,17 @@ namespace :tw do
             level1_geographic_name: nil,
             level2_geographic_name: nil
           ).distinct
+          untranslated_items = CachedMapItem.where(
+            level0_geographic_name: nil,
+            level1_geographic_name: nil,
+            level2_geographic_name: nil,
+            untranslated: true
+          )
 
           puts "Labelling #{items.count} CachedMapItems."
+          if untranslated_items.exists?
+            puts "Skipping #{untranslated_items.count} untranslated CachedMapItem rows (#{untranslated_items.distinct.count(:geographic_item_id)} geographic_item_ids) because untranslated rows do not receive geographic name labels."
+          end
 
           Parallel.each(items.each, progress: 'labelling_geographic_items', in_processes: cached_rebuild_processes ) do |o|
 
