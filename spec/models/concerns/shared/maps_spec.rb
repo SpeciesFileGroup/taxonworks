@@ -221,77 +221,6 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
       expect { CachedMapRegister.insert_all(queue) }.to change(CachedMapRegister, :count).by(1)
     end
 
-    specify 'strict translation mode logs and skips creation when translation is missing' do
-      queue = []
-      context = {
-        otu_id: ad_offset.asserted_distribution_object_id,
-        otu_taxon_name_id: ad_offset.otu.taxon_name_id,
-        geographic_item_id: ad_offset.asserted_distribution_shape.default_geographic_item_id,
-        geographic_area_based: true,
-        require_existing_translation: true
-      }
-
-      expect {
-        ad_offset.send(:create_cached_map_items, true, context:, skip_register: true, register_queue: queue)
-      }.to output(/MISSING_TRANSLATION/).to_stdout
-
-      expect(CachedMapItem.count).to eq(0)
-      expect(queue).to be_empty
-      expect(CachedMapRegister.count).to eq(0)
-    end
-
-    specify 'strict translation mode uses existing translation when present' do
-      queue = []
-      source_gi_id = ad_offset.asserted_distribution_shape.default_geographic_item_id
-      translated_gi_id = ga.default_geographic_item_id
-
-      CachedMapItemTranslation.create!(
-        geographic_item_id: source_gi_id,
-        translated_geographic_item_id: translated_gi_id,
-        cached_map_type: 'CachedMapItem::WebLevel1'
-      )
-
-      context = {
-        otu_id: ad_offset.asserted_distribution_object_id,
-        otu_taxon_name_id: ad_offset.otu.taxon_name_id,
-        geographic_item_id: source_gi_id,
-        geographic_area_based: true,
-        require_existing_translation: true
-      }
-
-      ad_offset.send(:create_cached_map_items, true, context:, skip_register: true, register_queue: queue)
-
-      expect(CachedMapItem.count).to eq(1)
-      expect(CachedMapItem.first.geographic_item_id).to eq(translated_gi_id)
-      expect(queue.size).to eq(1)
-      expect(CachedMapRegister.count).to eq(0)
-      expect(CachedMapItemTranslation.count).to eq(1)
-    end
-
-    specify 'strict translation mode uses precomputed translated ids without lookup query' do
-      queue = []
-      source_gi_id = ad_offset.asserted_distribution_shape.default_geographic_item_id
-      translated_gi_id = ga.default_geographic_item_id
-
-      context = {
-        otu_id: ad_offset.asserted_distribution_object_id,
-        otu_taxon_name_id: ad_offset.otu.taxon_name_id,
-        source_geographic_item_id: source_gi_id,
-        translated_geographic_item_ids_by_type: {
-          'CachedMapItem::WebLevel1' => [translated_gi_id]
-        },
-        geographic_area_based: true,
-        require_existing_translation: true
-      }
-
-      expect(CachedMapItem).not_to receive(:translate_by_geographic_item_translation)
-
-      ad_offset.send(:create_cached_map_items, true, context:, skip_register: true, register_queue: queue)
-
-      expect(CachedMapItem.count).to eq(1)
-      expect(CachedMapItem.first.geographic_item_id).to eq(translated_gi_id)
-      expect(queue.size).to eq(1)
-    end
   end
 
   context 'Georeference-based cached map items' do
@@ -336,7 +265,7 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
       expect(georeference.reload.cached_map_register).to be_present
     end
 
-    context 'batch mode with context' do
+    context 'batch mode' do
       before do
         georeference
         Delayed::Worker.new.work_off
@@ -344,21 +273,16 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
         CachedMapItem.delete_all
       end
 
-      specify 'creates CachedMapItem with pre-computed context' do
-        context = {
-          otu_id: [otu.id]
-        }
-        georeference.send(:create_cached_map_items, true, context:,
+      specify 'creates CachedMapItem' do
+        georeference.send(:create_cached_map_items, true,
           skip_register: true, register_queue: [])
         expect(CachedMapItem.count).to eq(1)
         expect(CachedMapItem.first.geographic_item_id).to eq(gi1.id)
       end
 
-      specify 'context with empty otu_id skips creation' do
-        context = {
-          otu_id: []
-        }
-        georeference.send(:create_cached_map_items, true, context:,
+      specify 'without qualifying OTUs skips creation' do
+        taxon_determination.destroy!
+        georeference.send(:create_cached_map_items, true,
           skip_register: true, register_queue: [])
         expect(CachedMapItem.count).to eq(0)
       end
@@ -401,26 +325,18 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
       expect(stubs[:geographic_item_id]).to contain_exactly(gi1.id)
     end
 
-    specify 'with pre-computed context uses provided values' do
-      georeference
-      Delayed::Worker.new.work_off
-      context = {
-        otu_id: [otu.id]
-      }
-      stubs = CachedMapItem.stubs(georeference, 'CachedMapItem::WebLevel1', context:)
-      expect(stubs[:otu_id]).to eq([otu.id])
-      expect(stubs[:geographic_item_id]).to contain_exactly(gi1.id)
-    end
-
-    specify 'with context containing multiple OTU ids' do
+    specify 'only uses OTUs from position=1 determinations' do
       otu2 = Otu.create!(taxon_name: genus)
+      taxon_determination.update!(position: 1)
+      TaxonDetermination.create!(
+        taxon_determination_object: specimen,
+        otu: otu2,
+        position: 2
+      )
       georeference
       Delayed::Worker.new.work_off
-      context = {
-        otu_id: [otu.id, otu2.id]
-      }
-      stubs = CachedMapItem.stubs(georeference, 'CachedMapItem::WebLevel1', context:)
-      expect(stubs[:otu_id]).to contain_exactly(otu.id, otu2.id)
+      stubs = CachedMapItem.stubs(georeference, 'CachedMapItem::WebLevel1')
+      expect(stubs[:otu_id]).to contain_exactly(otu.id)
     end
   end
 end

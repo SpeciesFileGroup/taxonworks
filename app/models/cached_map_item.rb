@@ -311,10 +311,8 @@ class CachedMapItem < ApplicationRecord
     end
   end
 
-  # @param context [Hash] of cached_map_types to pre-computed data for
-  # source_object.
   # @return [Hash, nil]
-  def self.stubs(source_object, cached_map_type, context: nil)
+  def self.stubs(source_object, cached_map_type)
     # return nil unless source_object.persisted?
     o = source_object
 
@@ -328,9 +326,6 @@ class CachedMapItem < ApplicationRecord
 
     geographic_item_id = nil
     otu_id = nil
-    context = context&.symbolize_keys || {}
-    context_provided = context.present?
-
     base_class_name = o.class.base_class.name
 
     case base_class_name
@@ -339,68 +334,39 @@ class CachedMapItem < ApplicationRecord
         return h
       end
       if o.asserted_distribution_object_type == 'Otu'
-        otu_id = [context[:otu_id] || o.asserted_distribution_object_id]
+        otu_id = [o.asserted_distribution_object_id]
       else
         # TODO handle other types
         return h
       end
-      geographic_item_id = context[:source_geographic_item_id] ||
-        context[:geographic_item_id] ||
-        o.asserted_distribution_shape.default_geographic_item_id
-
-      # In batch mode callers already pre-filter OTUs without taxon names.
-      unless context_provided
-        taxon_name_id = Otu.where(id: otu_id).pick(:taxon_name_id)
-        return h if taxon_name_id.blank?
-      end
+      geographic_item_id = o.asserted_distribution_shape.default_geographic_item_id
+      taxon_name_id = Otu.where(id: otu_id).pick(:taxon_name_id)
+      return h if taxon_name_id.blank?
 
     when 'Georeference'
-      geographic_item_id = context[:geographic_item_id] || o.geographic_item_id
-      otu_id = context[:otu_id] ||
-        o.otus.left_joins(:taxon_determinations).where(taxon_determinations: { position: 1 }).distinct.pluck(:id)
+      geographic_item_id = o.geographic_item_id
+      # Filter to only OTUs that have a taxon_name_id — OTUs without
+      # taxon names have no hierarchy and don't contribute to cached maps.
+      otu_id = o.otus.left_joins(:taxon_determinations)
+        .where(taxon_determinations: { position: 1 })
+        .where.not(taxon_name_id: nil)
+        .distinct.pluck(:id)
+
+      return h if otu_id.empty?
     end
 
     # Some AssertedDistribution don't have shapes
     if geographic_item_id
       h[:origin_geographic_item_id] = geographic_item_id
 
-      geographic_area_based = context.key?(:geographic_area_based) ?
-        context[:geographic_area_based] :
-        base_class_name == 'AssertedDistribution' &&
-          o.asserted_distribution_shape_type == 'GeographicArea'
+      geographic_area_based = base_class_name == 'AssertedDistribution' &&
+        o.asserted_distribution_shape_type == 'GeographicArea'
       search_existing_translates = base_class_name == 'AssertedDistribution'
-      require_existing_translation = base_class_name == 'AssertedDistribution' &&
-        context[:require_existing_translation] == true
 
-      pretranslated = context[:translated_geographic_item_ids_by_type]
-      pretranslated_for_type = if pretranslated.present?
-        Array(pretranslated[cached_map_type] || pretranslated[cached_map_type.to_sym])
-      else
-        []
-      end
-
-      if pretranslated_for_type.present?
-        h[:geographic_item_id] = pretranslated_for_type
-      elsif require_existing_translation
-        if pretranslated.present?
-          # Preserve existing semantics: when caller supplies pretranslated
-          # values, trust that set as authoritative (including empty).
-          h[:geographic_item_id] = pretranslated_for_type
-        else
-          h[:geographic_item_id] = translate_by_geographic_item_translation(
-            geographic_item_id,
-            cached_map_type
-          )
-        end
-        h[:translation_missing] = h[:geographic_item_id].blank?
-        return h if h[:translation_missing]
-      else
-
-        h[:geographic_item_id] = translate_geographic_item_id(
-          geographic_item_id, geographic_area_based, search_existing_translates,
-          cached_map_type.safe_constantize::SOURCE_GAZETEERS
-        )
-      end
+      h[:geographic_item_id] = translate_geographic_item_id(
+        geographic_item_id, geographic_area_based, search_existing_translates,
+        cached_map_type.safe_constantize::SOURCE_GAZETEERS
+      )
 
       if h[:geographic_item_id].blank?
         h[:geographic_item_id] = [geographic_item_id]

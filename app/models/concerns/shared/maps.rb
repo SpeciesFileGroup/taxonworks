@@ -127,17 +127,9 @@ module Shared::Maps
     # Creates or increments a CachedMapItem and creates a CachedMapRegister for this object.
     # * !! Assumes this is the first time CachedMapItem is being indexed for this object.
     # * !! Does NOT check register.
-    def create_cached_map_items(batch = false, context: nil, skip_register: false, register_queue: nil)
+    def create_cached_map_items(batch = false, skip_register: false, register_queue: nil)
       ::DEFAULT_CACHED_MAP_BUILD_TYPES.each do |map_type|
-        stubs = CachedMapItem.stubs(self, map_type, context: context)
-
-        if stubs[:translation_missing]
-          suppress_missing_translation_log = context&.symbolize_keys&.fetch(:suppress_missing_translation_log, false)
-          unless suppress_missing_translation_log
-            puts " MISSING_TRANSLATION cached_map_type:#{map_type} object_type:#{self.class.base_class.name} object_id:#{id} project_id:#{project_id} origin_geographic_item_id:#{stubs[:origin_geographic_item_id]}"
-          end
-          next
-        end
+        stubs = CachedMapItem.stubs(self, map_type)
 
         return true if stubs[:otu_id].empty?
 
