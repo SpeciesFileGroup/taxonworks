@@ -165,11 +165,8 @@ class CachedMapItem < ApplicationRecord
     raise TaxonWorks::Error, "Expected pre-computed ids for cached maps origin '#{data_origin}' to be a SQL IN list" unless precomputed_ids.is_a?(String)
 
     # Step 1: Find the (few) ne_states shapes that intersect the source shape.
-    # This must be a separate query so that the expensive buffer/ST_CoveredBy
-    # refinement in step 2 only runs against the small result set (~1-5 rows),
-    # not all ~3.7k ne_states rows. Combining into a single query allows the
-    # planner to evaluate ST_CoveredBy on every ne_states row before
-    # ST_Intersects eliminates most of them — a 1000x+ slowdown.
+    # Check the planner carefully if you combine steps 1 and 2 into a single
+    # query.
     intersecting_ids = ActiveRecord::Base.connection.select_values(<<~SQL.squish).map!(&:to_i)
       SELECT gi.id
       FROM geographic_items gi
@@ -347,8 +344,8 @@ class CachedMapItem < ApplicationRecord
       geographic_item_id = o.geographic_item_id
       # Filter to only OTUs that have a taxon_name_id — OTUs without
       # taxon names have no hierarchy and don't contribute to cached maps.
-      otu_id = o.otus.left_joins(:taxon_determinations)
-        .where(taxon_determinations: { position: 1 })
+      otu_id = o
+        .otus # through CollectionObject and FieldOccurrence TaxonDeterminations
         .where.not(taxon_name_id: nil)
         .distinct.pluck(:id)
 

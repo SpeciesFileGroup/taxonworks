@@ -329,24 +329,39 @@ namespace :tw do
           puts "Caching #{georef_total} georeference-OTU rows (SQL aggregate)."
 
           georef_counts_sql = <<~SQL.squish
+            WITH base AS (
+              #{georef_base_sql}
+            ),
+            source_geographic_items AS (
+              SELECT DISTINCT base.source_geographic_item_id
+              FROM base
+            ),
+            translated_by_source AS (
+              SELECT
+                sgi.source_geographic_item_id,
+                translated_gi.id AS translated_geographic_item_id
+              FROM source_geographic_items sgi
+              JOIN geographic_items source_gi
+                ON source_gi.id = sgi.source_geographic_item_id
+              LEFT JOIN geographic_items translated_gi
+                ON translated_gi.id IN (#{precomputed_state_ids})
+                AND ST_Intersects(translated_gi.geography, source_gi.geography)
+            )
             SELECT
               'CachedMapItem::WebLevel1'::text AS type,
               base.otu_id,
-              COALESCE(translated_gi.id, base.source_geographic_item_id) AS geographic_item_id,
+              COALESCE(tbs.translated_geographic_item_id, base.source_geographic_item_id) AS geographic_item_id,
               base.project_id,
               COUNT(*)::integer AS reference_count,
-              (translated_gi.id IS NULL) AS untranslated
-            FROM (#{georef_base_sql}) base
-            JOIN geographic_items source_gi
-              ON source_gi.id = base.source_geographic_item_id
-            LEFT JOIN geographic_items translated_gi
-              ON translated_gi.id IN (#{precomputed_state_ids})
-              AND ST_Intersects(translated_gi.geography, source_gi.geography)
+              (tbs.translated_geographic_item_id IS NULL) AS untranslated
+            FROM base
+            LEFT JOIN translated_by_source tbs
+              ON tbs.source_geographic_item_id = base.source_geographic_item_id
             GROUP BY
               base.otu_id,
-              COALESCE(translated_gi.id, base.source_geographic_item_id),
+              COALESCE(tbs.translated_geographic_item_id, base.source_geographic_item_id),
               base.project_id,
-              (translated_gi.id IS NULL)
+              (tbs.translated_geographic_item_id IS NULL)
           SQL
           cmi_start = Time.current
           connection.execute(sql_upsert_cached_map_items_with_untranslated_from_counts_sql(georef_counts_sql))
