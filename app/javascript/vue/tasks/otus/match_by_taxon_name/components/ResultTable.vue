@@ -10,40 +10,15 @@
                     />
                 </th>
                 <th />
-                <th>
-                    scientificName
-                    <ButtonClipboard
-                        :text="columnText('scientificName')"
-                        title="Copy scientific names"
-                    />
-                </th>
-                <th>
-                    Match
-                    <ButtonClipboard
-                        :text="columnText('matchString')"
-                        title="Copy match strings"
-                    />
-                </th>
+                <th>scientificName</th>
+                <th>Match</th>
                 <th>TaxonName</th>
                 <th />
                 <th>Refine</th>
                 <th>OTU</th>
-                <th>
-                    OTU id
-                    <ButtonClipboard
-                        :text="columnText('otuId')"
-                        title="Copy OTU IDs"
-                    />
-                </th>
-
+                <th>OTU id</th>
                 <th />
-                <th>
-                    Set
-                    <ButtonClipboard
-                        :text="columnText('all')"
-                        title="Copy all columns"
-                    />
-                </th>
+                <th>Set</th>
             </tr>
         </thead>
         <tbody>
@@ -250,7 +225,6 @@ import VIcon from "@/components/ui/VIcon/index.vue";
 import Autocomplete from "@/components/ui/Autocomplete.vue";
 import RadialAnnotator from "@/components/radials/annotator/annotator.vue";
 import RadialNavigator from "@/components/radials/navigation/radial.vue";
-import ButtonClipboard from "@/components/ui/Button/ButtonClipboard.vue";
 
 const props = defineProps({
     rows: {
@@ -288,34 +262,6 @@ function toggleSelectAll(checked) {
             });
         }
     });
-}
-
-function columnText(column) {
-    if (column === "all") {
-        return props.rows
-            .map((row) => {
-                const name = row.scientificName;
-                const match = row.matchString || row.scientificName;
-                const otuId = row.selectedOtuId || "";
-                return `${name}\t${match}\t${otuId}`;
-            })
-            .join("\n");
-    }
-
-    return props.rows
-        .map((row) => {
-            switch (column) {
-                case "scientificName":
-                    return row.scientificName;
-                case "matchString":
-                    return row.matchString || row.scientificName;
-                case "otuId":
-                    return row.selectedOtuId || "";
-                default:
-                    return "";
-            }
-        })
-        .join("\n");
 }
 
 function browseTaxonNameUrl(id) {

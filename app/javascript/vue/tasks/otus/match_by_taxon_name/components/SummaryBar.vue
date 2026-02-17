@@ -19,6 +19,10 @@
                     <strong>{{ uniqueOtuCount }}</strong> unique OTUs
                 </span>
             </div>
+            <ButtonClipboard
+                :text="clipboardText"
+                title="Copy scientificName, match, and OTU id columns"
+            />
         </div>
 
         <div class="progress-bar margin-small-top">
@@ -36,6 +40,7 @@
 
 <script setup>
 import { computed } from "vue";
+import ButtonClipboard from "@/components/ui/Button/ButtonClipboard.vue";
 
 const props = defineProps({
     rows: {
@@ -79,6 +84,18 @@ const uniqueOtuCount = computed(() => {
     });
     return ids.size;
 });
+
+const clipboardText = computed(() =>
+    props.rows
+        .map((row) => {
+            const name = row.scientificName || "";
+            const match = row.matchString || row.scientificName || "";
+            const otuId =
+                row.selectedOtuId != null ? String(row.selectedOtuId) : "";
+            return `${name}\t${match}\t${otuId}`;
+        })
+        .join("\n"),
+);
 </script>
 
 <style scoped>

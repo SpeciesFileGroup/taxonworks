@@ -59,7 +59,6 @@ import { TaxonName, Otu } from "@/routes/endpoints";
 import VSpinner from "@/components/ui/VSpinner.vue";
 import VBtn from "@/components/ui/VBtn/index.vue";
 import VIcon from "@/components/ui/VIcon/index.vue";
-import ButtonClipboard from "@/components/ui/Button/ButtonClipboard.vue";
 import InputPanel from "./components/InputPanel.vue";
 import ResultTable from "./components/ResultTable.vue";
 import SummaryBar from "./components/SummaryBar.vue";
