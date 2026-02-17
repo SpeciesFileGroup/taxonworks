@@ -405,7 +405,7 @@ namespace :tw do
           puts "Done. elapsed=#{format_elapsed(task_start)}"
         end
 
-        desc 'build CachedMapItems for AssertedDistributions that do not have them'
+        desc 'build CachedMapItems for AssertedDistributions that do not have them, idempotent'
         task parallel_create_cached_map_from_asserted_distributions: [:environment] do |t|
           task_start = Time.current
           default_gagi_sql = GeographicAreasGeographicItem.default_geographic_item_data_sql
@@ -550,7 +550,7 @@ namespace :tw do
           puts "Done. elapsed=#{format_elapsed(task_start)}"
         end
 
-        desc 'prebuild CachedMapItemTranslations, NOT idempotent'
+        desc 'prebuild CachedMapItemTranslations, idempotent'
         task parallel_create_cached_map_item_translations_from_asserted_distributions: [:environment] do |t|
           cached_rebuild_processes = ENV['cached_rebuild_processes'] ? ENV['cached_rebuild_processes'].to_i : 4
 
@@ -642,7 +642,10 @@ namespace :tw do
             })
           end
 
-          CachedMapItemTranslation.insert_all(translations) if translations.present?
+          CachedMapItemTranslation.insert_all(
+            translations,
+            unique_by: :cmgit_translation
+          ) if translations.present?
         end
 
         def translation_failure_context(geographic_item_id, geographic_area_based, sample_limit: 5)
