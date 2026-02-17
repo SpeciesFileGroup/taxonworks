@@ -246,7 +246,8 @@ class TaxonNamesController < ApplicationController
       project_id: sessions_current_project_id,
       levenshtein_distance: match_params[:levenshtein_distance] || 0,
       taxon_name_id: match_params[:taxon_name_id],
-      resolve_synonyms: match_params[:resolve_synonyms] == 'true'
+      resolve_synonyms: match_params[:resolve_synonyms] == 'true',
+      try_without_subgenus: match_params[:try_without_subgenus] == 'true'
     ).call
 
     render json: result.map { |r|
@@ -392,6 +393,7 @@ class TaxonNamesController < ApplicationController
       :levenshtein_distance,
       :taxon_name_id,
       :resolve_synonyms,
+      :try_without_subgenus,
       names: []
     )
   end

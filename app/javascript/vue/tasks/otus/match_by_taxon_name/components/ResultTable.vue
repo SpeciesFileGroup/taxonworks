@@ -2,7 +2,13 @@
     <table class="table-striped full_width">
         <thead>
             <tr>
-                <th />
+                <th>
+                    <input
+                        type="checkbox"
+                        :checked="allSelected"
+                        @change="toggleSelectAll($event.target.checked)"
+                    />
+                </th>
                 <th />
                 <th>
                     scientificName
@@ -237,7 +243,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { RouteNames } from "@/routes/routes";
 import VBtn from "@/components/ui/VBtn/index.vue";
 import VIcon from "@/components/ui/VIcon/index.vue";
@@ -261,6 +267,28 @@ const props = defineProps({
 const emit = defineEmits(["update-row", "create-otu", "scroll-to-row"]);
 
 const contextRow = ref(null);
+
+const selectableRows = computed(() =>
+    props.rows.filter((r) => !r.isEmpty && !isDuplicate(r)),
+);
+
+const allSelected = computed(
+    () =>
+        selectableRows.value.length > 0 &&
+        selectableRows.value.every((r) => r.selected),
+);
+
+function toggleSelectAll(checked) {
+    props.rows.forEach((row) => {
+        if (!row.isEmpty && !isDuplicate(row)) {
+            emit("update-row", {
+                index: row.index,
+                field: "selected",
+                value: checked,
+            });
+        }
+    });
+}
 
 function columnText(column) {
     if (column === "all") {
@@ -308,6 +336,7 @@ function firstUniqueIndex(row) {
 }
 
 function isDuplicate(row) {
+    if (row.isEmpty) return false;
     return firstUniqueIndex(row) !== row.index;
 }
 

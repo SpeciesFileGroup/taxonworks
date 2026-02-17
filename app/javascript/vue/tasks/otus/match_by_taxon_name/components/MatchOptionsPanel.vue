@@ -39,6 +39,22 @@
                 </div>
             </div>
 
+            <!-- Try without subgenus -->
+            <div class="field margin-medium-bottom">
+                <label class="middle">
+                    <input
+                        type="checkbox"
+                        :checked="tryWithoutSubgenus"
+                        @change="handleTryWithoutSubgenusChange"
+                    />
+                    Try without subgenus
+                </label>
+                <span class="subtle">
+                    When checked and cached match fails, tries
+                    cached_secondary_homonym then cached_primary_homonym.
+                </span>
+            </div>
+
             <!-- Fuzzy match slider -->
             <div class="field margin-medium-bottom">
                 <label>
@@ -182,6 +198,10 @@ const levenshteinDistance = defineModel("levenshteinDistance", {
     type: Number,
     default: 0,
 });
+const tryWithoutSubgenus = defineModel("tryWithoutSubgenus", {
+    type: Boolean,
+    default: false,
+});
 const resolveSynonyms = defineModel("resolveSynonyms", {
     type: Boolean,
     default: false,
@@ -218,6 +238,11 @@ function clearScope() {
 function handleLevenshteinChange(event) {
     levenshteinDistance.value = parseInt(event.target.value);
     debouncedUpdate();
+}
+
+function handleTryWithoutSubgenusChange(event) {
+    tryWithoutSubgenus.value = event.target.checked;
+    emit("update-options");
 }
 
 function handleResolveSynonymsChange(event) {

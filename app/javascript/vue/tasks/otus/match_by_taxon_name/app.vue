@@ -12,8 +12,8 @@
                             <VBtn
                                 color="primary"
                                 medium
-                                :disabled="!checkedRowIndices.length"
-                                @click="runMatch"
+                                :disabled="!rows.length"
+                                @click="runMatch({ matchAll: true })"
                             >
                                 Match
                             </VBtn>
@@ -26,6 +26,7 @@
                     <MatchOptionsPanel
                         v-model:scope-taxon-name-id="scopeTaxonNameId"
                         v-model:levenshtein-distance="levenshteinDistance"
+                        v-model:try-without-subgenus="tryWithoutSubgenus"
                         v-model:resolve-synonyms="resolveSynonyms"
                         v-model:modifiers="modifiers"
                         :filter-result-link="filterResultLink"
@@ -77,6 +78,7 @@ const csvData = ref(null);
 
 const scopeTaxonNameId = ref(null);
 const levenshteinDistance = ref(0);
+const tryWithoutSubgenus = ref(false);
 const resolveSynonyms = ref(false);
 const filterResultLink = ref(false);
 
@@ -122,7 +124,7 @@ function handleDataSubmit({ names, csv }) {
     stage.value = "results";
 
     nextTick(() => {
-        runMatch();
+        runMatch({ matchAll: true });
     });
 }
 
@@ -149,18 +151,26 @@ function computeMatchStrings() {
     );
 
     rows.value.forEach((row) => {
-        if (hasActiveModifier) {
+        if (row.isEmpty) return;
+
+        if (hasActiveModifier && row.selected) {
             row.matchString = applyModifiers(row.scientificName);
+        } else if (!row.selected) {
+            // Don't change matchString for unselected rows
         } else {
             row.matchString = "";
         }
     });
 }
 
-async function runMatch() {
+async function runMatch({ matchAll = false } = {}) {
     computeMatchStrings();
+    syncAllDuplicates();
 
-    const selectedRows = rows.value.filter((r) => r.selected && !r.isEmpty);
+    const checkedRows = rows.value.filter((r) => r.selected && !r.isEmpty);
+    const selectedRows = matchAll
+        ? rows.value.filter((r) => !r.isEmpty)
+        : checkedRows;
     if (!selectedRows.length) return;
 
     const nameMap = new Map();
@@ -183,6 +193,7 @@ async function runMatch() {
             levenshtein_distance: levenshteinDistance.value,
             taxon_name_id: scopeTaxonNameId.value,
             resolve_synonyms: resolveSynonyms.value ? "true" : "false",
+            try_without_subgenus: tryWithoutSubgenus.value ? "true" : "false",
         });
 
         body.forEach((result) => {
@@ -307,6 +318,8 @@ function syncAllDuplicates() {
     const seen = new Map();
 
     rows.value.forEach((row) => {
+        if (row.isEmpty) return;
+
         const name = row.matchString || row.scientificName;
         if (!seen.has(name)) {
             seen.set(name, row);
@@ -318,6 +331,7 @@ function syncAllDuplicates() {
             row.selectedOtuId = source.selectedOtuId;
             row.ambiguous = source.ambiguous;
             row.matched = source.matched;
+            row.selected = false;
         }
     });
 }
@@ -349,6 +363,7 @@ function reset() {
     csvData.value = null;
     scopeTaxonNameId.value = null;
     levenshteinDistance.value = 0;
+    tryWithoutSubgenus.value = false;
     resolveSynonyms.value = false;
     modifiers.value = [
         { active: false, pattern: "^(\\S*\\s+\\S*).*", replacement: "$1" },
