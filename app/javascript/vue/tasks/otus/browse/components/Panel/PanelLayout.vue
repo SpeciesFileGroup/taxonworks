@@ -11,9 +11,9 @@
 
     <template #options>
       <VBtn
+        v-if="menu"
         circle
         :class="{ 'button-default': menu }"
-        :disabled="!menu"
         v-help.section.options.filter
         @click="emit('menu')"
       >
