@@ -52,6 +52,8 @@
         class="separate-bottom"
         :menu="menu"
         :otu="otuStore.otu"
+        :preferences="preferences"
+        :storage-key="KEY_STORAGE"
       />
       <div class="separate-top separate-bottom"></div>
 

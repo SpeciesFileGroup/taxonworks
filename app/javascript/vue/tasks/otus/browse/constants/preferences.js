@@ -1,7 +1,7 @@
 import { PANEL_COMPONENTS } from './components.js'
 
 export const DEFAULT_PREFERENCES = {
-  preferenceSchema: 20260205,
+  preferenceSchema: 20260218,
   sections: Object.keys(PANEL_COMPONENTS),
   filterSections: {
     and: {

@@ -40,31 +40,48 @@
           v-html="navigation.current_otu.object_label"
         />
       </ul>
-      <div class="horizontal-left-content middle gap-small">
+      <div class="flex-separate middle">
         <h2 v-html="otu.object_tag" />
-        <QuickForms :global-id="otu.global_id" />
-        <RadialAnnotator
-          :global-id="otu.global_id"
-          type="annotations"
-        />
-        <RadialObject
-          :global-id="otu.global_id"
-          type="annotations"
-        />
-        <BrowseTaxon
-          v-if="otu.taxon_name_id"
-          ref="browseTaxonRef"
-          :object-id="otu.taxon_name_id"
-        />
-        <button
-          v-if="isInvalid"
-          v-help.section.header.validButton
-          class="button button-default normal-input"
-          @click="openValid"
-        >
-          Browse current OTU
-        </button>
+        <div class="horizontal-left-content middle gap-small">
+          <button
+            v-if="isInvalid"
+            v-help.section.header.validButton
+            class="button button-default normal-input"
+            @click="openValid"
+          >
+            Browse current OTU
+          </button>
+          <QuickForms :global-id="otu.global_id" />
+          <RadialAnnotator
+            :global-id="otu.global_id"
+            type="annotations"
+          />
+          <RadialObject
+            :global-id="otu.global_id"
+            type="annotations"
+          />
+          <BrowseTaxon
+            v-if="otu.taxon_name_id"
+            ref="browseTaxonRef"
+            :object-id="otu.taxon_name_id"
+          />
+          <VBtn
+            color="primary"
+            @click="showLayoutSettings = true"
+          >
+            <VIcon
+              name="hamburger"
+              x-small
+            />
+          </VBtn>
+        </div>
       </div>
+      <HeaderBarLayoutSettings
+        v-if="showLayoutSettings"
+        :preferences="preferences"
+        :storage-key="storageKey"
+        @close="showLayoutSettings = false"
+      />
       <ul class="context-menu no_bullets">
         <template
           v-for="item in menu"
@@ -98,6 +115,9 @@ import RadialAnnotator from '@/components/radials/annotator/annotator'
 import RadialObject from '@/components/radials/navigation/radial.vue'
 import QuickForms from '@/components/radials/object/radial.vue'
 import BrowseTaxon from '@/components/taxon_names/browseTaxon.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import HeaderBarLayoutSettings from './HeaderBarLayoutSettings.vue'
 
 const props = defineProps({
   otu: {
@@ -108,12 +128,23 @@ const props = defineProps({
   menu: {
     type: Array,
     required: true
+  },
+
+  preferences: {
+    type: Object,
+    required: true
+  },
+
+  storageKey: {
+    type: String,
+    required: true
   }
 })
 
 const otuStore = useOtuStore()
 const browseTaxonRef = ref(null)
 const navigation = ref()
+const showLayoutSettings = ref(false)
 
 const taxonName = computed(() => otuStore.taxonName)
 const isInvalid = computed(
