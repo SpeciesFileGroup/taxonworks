@@ -3,6 +3,8 @@ class NamespacesController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
   before_action :set_namespace, only: [:show, :edit, :update, :destroy]
 
+  after_action -> { set_pagination_headers(:namespaces) }, only: [:index], if: :json_request?
+
   # GET /namespaces
   # GET /namespaces.json
   def index
@@ -12,7 +14,9 @@ class NamespacesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @namespaces = Queries::Namespace::Filter.new(params).all.page(params[:page]).per(params[:per])
+        @namespaces = Queries::Namespace::Filter.new(params).all
+          .page(params[:page])
+          .per(params[:per])
       }
     end
   end
@@ -75,6 +79,13 @@ class NamespacesController < ApplicationController
 
   def list
     @namespaces = Namespace.order(:id).page(params[:page]) #.per(10) #.per(3)
+  end
+
+  def attributes
+    render json: ::Namespace.columns.select{
+      |a| (Queries::Namespace::Filter::ATTRIBUTES).include?(
+        a.name.to_sym)
+    }.collect{|b| {'name' => b.name, 'type' => b.type } }
   end
 
   def search

@@ -25,6 +25,7 @@
             v-if="!element.taxon"
           >
             <Autocomplete
+              :ref="(el) => setAutocompleteRef(el, index)"
               url="/taxon_names/autocomplete"
               label="label_html"
               min="2"
@@ -89,7 +90,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
-import { ref, watch, computed } from 'vue'
+import { ref, watch, watchPostEffect, computed } from 'vue'
 import { TaxonName } from '@/routes/endpoints'
 
 const props = defineProps({
@@ -126,6 +127,16 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'onUpdate'])
 const taxonList = ref([])
+const autocompleteRefs = {}
+const pendingFocusIndex = ref(-1)
+
+const setAutocompleteRef = (el, index) => {
+  if (el) {
+    autocompleteRefs[index] = el
+  } else {
+    delete autocompleteRefs[index]
+  }
+}
 
 const combination = computed({
   get: () => props.modelValue,
@@ -165,6 +176,7 @@ const onUpdate = () => {
 }
 
 const removeTaxonFromCombination = (index) => {
+  pendingFocusIndex.value = index
   taxonList.value[index].taxon = null
   updateCombination()
 }
@@ -189,4 +201,12 @@ watch(
     immediate: true
   }
 )
+
+watchPostEffect(() => {
+  if (pendingFocusIndex.value >= 0) {
+    const index = pendingFocusIndex.value
+    pendingFocusIndex.value = -1
+    autocompleteRefs[index]?.setFocus()
+  }
+})
 </script>

@@ -5,6 +5,7 @@
     v-model="params"
     coverage
     validity
+    current-determination
   />
   <FilterType v-model="params" />
   <FacetBiocurations v-model="params" />

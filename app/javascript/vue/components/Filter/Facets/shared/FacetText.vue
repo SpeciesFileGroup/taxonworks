@@ -1,6 +1,6 @@
 <template>
   <FacetContainer>
-    <h3> {{ title }} </h3>
+    <h3>{{ title }}</h3>
     <div class="field">
       <input
         type="text"
@@ -8,7 +8,7 @@
         class="full_width"
       />
     </div>
-    <label>
+    <label v-if="paramExact">
       <input
         v-model="params[paramExact]"
         type="checkbox"
@@ -36,8 +36,8 @@ const props = defineProps({
 
   paramExact: {
     type: String,
-    required: true
-  },
+    default: undefined
+  }
 })
 
 const params = defineModel({
@@ -47,9 +47,11 @@ const params = defineModel({
 
 onBeforeMount(() => {
   const urlParams = URLParamsToJSON(location.href)
+
   params.value[props.paramText] = urlParams[props.paramText]
+
+  if (props.paramExact) {
+    params.value[props.paramExact] = urlParams[props.paramExact]
+  }
 })
 </script>
-
-<style scoped>
-</style>
