@@ -185,6 +185,172 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
       expect(CachedMapItemTranslation.count).to eq(1)
     end
   end
+
+  context '.create_cached_map_items with skip_register and register_queue' do
+    before :each do
+      ad_offset.save!
+      Delayed::Worker.new.work_off
+      # Clear the register created by the callback so we can test the batch path
+      CachedMapRegister.delete_all
+      CachedMapItem.delete_all
+      CachedMapItemTranslation.delete_all
+    end
+
+    specify 'skip_register: true does not create a CachedMapRegister' do
+      ad_offset.send(:create_cached_map_items, true, skip_register: true)
+      expect(CachedMapRegister.count).to eq(0)
+    end
+
+    specify 'skip_register: true with register_queue appends registration hash' do
+      queue = []
+      ad_offset.send(:create_cached_map_items, true, skip_register: true, register_queue: queue)
+      expect(queue.size).to eq(1)
+      expect(queue.first[:cached_map_register_object_type]).to eq('AssertedDistribution')
+      expect(queue.first[:cached_map_register_object_id]).to eq(ad_offset.id)
+    end
+
+    specify 'skip_register: true with register_queue only appends one registration per call' do
+      queue = []
+      ad_offset.send(:create_cached_map_items, true, skip_register: true, register_queue: queue)
+      expect(queue.size).to eq(1)
+    end
+
+    specify 'queued registrations can be bulk inserted' do
+      queue = []
+      ad_offset.send(:create_cached_map_items, true, skip_register: true, register_queue: queue)
+      expect { CachedMapRegister.insert_all(queue) }.to change(CachedMapRegister, :count).by(1)
+    end
+  end
+
+  context 'Georeference-based cached map items' do
+    let(:root) { FactoryBot.create(:root_taxon_name) }
+    let(:genus) { FactoryBot.create(:relationship_genus, parent: root) }
+    let(:otu) { Otu.create!(taxon_name: genus) }
+
+    let(:collecting_event) { FactoryBot.create(:valid_collecting_event) }
+
+    let(:georeference) {
+      Georeference::VerbatimData.create!(
+        collecting_event:,
+        geographic_item: gi2
+      )
+    }
+
+    let(:specimen) {
+      Specimen.create!(
+        collecting_event:,
+        total: 1,
+      )
+    }
+
+    let!(:taxon_determination) {
+      TaxonDetermination.create!(
+        taxon_determination_object: specimen,
+        otu:
+      )
+    }
+
+    specify 'Georeference creates CachedMapItem via callback' do
+      georeference
+      Delayed::Worker.new.work_off
+      expect(CachedMapItem.count).to eq(1)
+      expect(CachedMapItem.first.otu_id).to eq(otu.id)
+      expect(CachedMapItem.first.geographic_item_id).to eq(gi1.id)
+    end
+
+    specify 'Georeference creates CachedMapRegister via callback' do
+      georeference
+      Delayed::Worker.new.work_off
+      expect(georeference.reload.cached_map_register).to be_present
+    end
+
+    context 'batch mode with context' do
+      before do
+        georeference
+        Delayed::Worker.new.work_off
+        CachedMapRegister.delete_all
+        CachedMapItem.delete_all
+      end
+
+      specify 'creates CachedMapItem with pre-computed context' do
+        context = {
+          otu_id: [otu.id]
+        }
+        georeference.send(:create_cached_map_items, true, context:,
+          skip_register: true, register_queue: [])
+        expect(CachedMapItem.count).to eq(1)
+        expect(CachedMapItem.first.geographic_item_id).to eq(gi1.id)
+      end
+
+      specify 'context with empty otu_id skips creation' do
+        context = {
+          otu_id: []
+        }
+        georeference.send(:create_cached_map_items, true, context:,
+          skip_register: true, register_queue: [])
+        expect(CachedMapItem.count).to eq(0)
+      end
+    end
+  end
+
+  context 'CachedMapItem.stubs for Georeference' do
+    let(:root) { FactoryBot.create(:root_taxon_name) }
+    let(:genus) { FactoryBot.create(:relationship_genus, parent: root) }
+    let(:otu) { Otu.create!(taxon_name: genus) }
+
+    let(:collecting_event) { FactoryBot.create(:valid_collecting_event) }
+
+    let(:georeference) {
+      Georeference::VerbatimData.create!(
+        collecting_event:,
+        geographic_item: gi2
+      )
+    }
+
+    let(:specimen) {
+      Specimen.create!(
+        collecting_event:,
+        total: 1,
+      )
+    }
+
+    let!(:taxon_determination) {
+      TaxonDetermination.create!(
+        taxon_determination_object: specimen,
+        otu:
+      )
+    }
+
+    specify 'without context queries for OTUs' do
+      georeference
+      Delayed::Worker.new.work_off
+      stubs = CachedMapItem.stubs(georeference, 'CachedMapItem::WebLevel1')
+      expect(stubs[:otu_id]).to contain_exactly(otu.id)
+      expect(stubs[:geographic_item_id]).to contain_exactly(gi1.id)
+    end
+
+    specify 'with pre-computed context uses provided values' do
+      georeference
+      Delayed::Worker.new.work_off
+      context = {
+        otu_id: [otu.id]
+      }
+      stubs = CachedMapItem.stubs(georeference, 'CachedMapItem::WebLevel1', context:)
+      expect(stubs[:otu_id]).to eq([otu.id])
+      expect(stubs[:geographic_item_id]).to contain_exactly(gi1.id)
+    end
+
+    specify 'with context containing multiple OTU ids' do
+      otu2 = Otu.create!(taxon_name: genus)
+      georeference
+      Delayed::Worker.new.work_off
+      context = {
+        otu_id: [otu.id, otu2.id]
+      }
+      stubs = CachedMapItem.stubs(georeference, 'CachedMapItem::WebLevel1', context:)
+      expect(stubs[:otu_id]).to contain_exactly(otu.id, otu2.id)
+    end
+  end
 end
 
 # class TestMaps < ApplicationRecord
