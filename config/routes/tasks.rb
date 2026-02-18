@@ -241,6 +241,11 @@ scope :tasks do
       post 'generate_download', as: 'generate_dwc_download_task', defaults: {format: :json}
       post :create_index, as: 'create_dwc_index_task', defaults: {format: :json}
     end
+
+    scope :compact, controller: 'tasks/dwc/compact' do
+      get '/', action: :index, as: 'compact_dwc_task'
+      post :compact, defaults: {format: :json}
+    end
   end
 
   scope :exports do
