@@ -146,7 +146,6 @@ class AnatomicalPartsController < ApplicationController
       .where.not(name: [nil, ''])
       .pluck(:name)
       .uniq
-      .sort_by(&:downcase)
       .map { |name| { type: 'name', name: } }
 
     uris = scope
@@ -154,10 +153,14 @@ class AnatomicalPartsController < ApplicationController
       .where.not(uri_label: [nil, ''])
       .pluck(:uri, :uri_label)
       .uniq
-      .sort_by { |uri, uri_label| [uri_label.downcase, uri.downcase] }
       .map { |uri, uri_label| { type: 'uri', uri:, uri_label: } }
 
-    render json: names + uris
+    merged = (names + uris).sort_by do |item|
+      label = item[:type] == 'name' ? item[:name] : item[:uri_label]
+      [label.to_s.downcase, item[:type], item[:uri].to_s.downcase]
+    end
+
+    render json: merged
   end
 
   private

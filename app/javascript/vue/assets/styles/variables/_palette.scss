@@ -103,6 +103,13 @@
   --badge-purple-bg: rgba(139, 92, 246, 0.15);
   --badge-purple-color: #8b5cf6;
 
+  --anatomical-part-uri-pill-bg: #1f7e9a;
+  --anatomical-part-uri-pill-border: #176177;
+  --anatomical-part-uri-pill-text: #ffffff;
+  --anatomical-part-pill-selected-ring: #2b69b1;
+  --anatomical-part-pill-selected-glow: rgba(43, 105, 177, 0.35);
+  --anatomical-part-pill-selected-outer: rgba(255, 193, 7, 0.85);
+
   --news-blogpost-bg: var(--badge-blue-bg);
   --news-blogpost-color: var(--badge-blue-color);
   --news-notice-bg: var(--badge-yellow-bg);
@@ -176,6 +183,13 @@
 
   --taxon-name-valid-color: #b6cfff;
   --taxon-name-invalid-color: #cf873b;
+
+  --anatomical-part-uri-pill-bg: #246d84;
+  --anatomical-part-uri-pill-border: #4ea3c0;
+  --anatomical-part-uri-pill-text: #ffffff;
+  --anatomical-part-pill-selected-ring: #5d9ece;
+  --anatomical-part-pill-selected-glow: rgba(93, 158, 206, 0.45);
+  --anatomical-part-pill-selected-outer: rgba(123, 211, 255, 0.9);
 
   --color-status-included: #10b981;
   --color-status-included-glow: rgba(16, 185, 129, 0.5);

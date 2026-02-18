@@ -21,18 +21,17 @@
           <td class="subject-col">
             <span
               v-if="item.subject_anatomical_part?.name"
-              class="button normal-input tag_button button-data subject-pill"
+              class="button normal-input tag_button button-data subject-pill name-pill"
               :title="item.subject_anatomical_part.name"
             >
               <span class="subject-name">{{ item.subject_anatomical_part.name }}</span>
             </span>
             <span
               v-else
-              class="button normal-input tag_button button-data subject-pill"
-              :title="item.subject_anatomical_part?.uri"
+              class="button normal-input tag_button button-data subject-pill uri-pill"
+              :title="uriPillTitle(item)"
             >
               <span class="subject-uri-label">{{ item.subject_anatomical_part?.uri_label }}</span>
-              <span class="subject-uri">{{ item.subject_anatomical_part?.uri }}</span>
             </span>
           </td>
           <td
@@ -106,6 +105,13 @@ function deleteItem(item) {
     emit('delete', item)
   }
 }
+
+function uriPillTitle(item) {
+  const label = item.subject_anatomical_part?.uri_label
+  const uri = item.subject_anatomical_part?.uri
+
+  return [label, uri].filter(Boolean).join('\n')
+}
 </script>
 
 <style lang="scss" scoped>
@@ -150,6 +156,15 @@ function deleteItem(item) {
   max-width: 100%;
   padding-top: 0.2rem;
   padding-bottom: 0.2rem;
+  cursor: default;
+}
+
+.subject-pill:hover,
+.subject-pill:focus,
+.subject-pill:active {
+  box-shadow: none;
+  filter: none;
+  transform: none;
 }
 
 .subject-name,
@@ -166,9 +181,10 @@ function deleteItem(item) {
   font-weight: 600;
 }
 
-.subject-uri {
-  font-size: 0.8em;
-  opacity: 0.9;
+.uri-pill {
+  background-color: var(--anatomical-part-uri-pill-bg);
+  border-color: var(--anatomical-part-uri-pill-border);
+  color: var(--anatomical-part-uri-pill-text);
 }
 
 .list-complete-item {

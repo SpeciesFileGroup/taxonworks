@@ -86,6 +86,7 @@
           :key="index"
           class="button normal-input tag_button button-data template-pill"
           type="button"
+          :title="item.type === 'uri' ? uriTemplateTitle(item) : item.name"
           :class="{ selected: selectedTemplateIndex === index, uri: item.type === 'uri', name: item.type === 'name' }"
           @click="selectTemplate(item, index)"
         >
@@ -94,7 +95,6 @@
           </template>
           <template v-else>
             <div>{{ item.uri_label }}</div>
-            <div class="uri-label">{{ item.uri }}</div>
           </template>
         </button>
       </div>
@@ -180,6 +180,10 @@ function selectTemplate(item, index) {
   }
 }
 
+function uriTemplateTitle(item) {
+  return [item.uri_label, item.uri].filter(Boolean).join('\n')
+}
+
 function payload() {
   const base = {
     name: hasName.value ? form.value.name.trim() : undefined,
@@ -239,7 +243,9 @@ onMounted(() => {
 }
 
 .template-pill.uri {
-  border-color: #2b69b1;
+  border-color: var(--anatomical-part-uri-pill-border);
+  background-color: var(--anatomical-part-uri-pill-bg);
+  color: var(--anatomical-part-uri-pill-text);
 }
 
 .template-pill.name {
@@ -247,10 +253,11 @@ onMounted(() => {
 }
 
 .template-pill.selected {
-  box-shadow: inset 0 0 0 2px #000;
+  box-shadow:
+    inset 0 0 0 2px var(--anatomical-part-pill-selected-ring),
+    0 0 0 3px var(--anatomical-part-pill-selected-outer);
+  filter: brightness(0.9) saturate(1.08);
+  font-weight: 700;
 }
 
-.uri-label {
-  font-size: 0.9em;
-}
 </style>
