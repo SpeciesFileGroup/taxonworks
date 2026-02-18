@@ -21,6 +21,7 @@
         </li>
       </ul>
     </div>
+    <div v-else>No content available</div>
   </PanelLayout>
 </template>
 

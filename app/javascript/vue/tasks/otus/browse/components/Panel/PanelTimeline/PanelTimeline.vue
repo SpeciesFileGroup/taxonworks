@@ -6,7 +6,10 @@
     menu
     @menu="() => (isModalVisible = true)"
   >
-    <div class="switch-radio separate-top separate-bottom">
+    <div
+      v-if="!isLoading"
+      class="switch-radio separate-top separate-bottom"
+    >
       <template
         v-for="(item, index) in filterTabs"
         :key="index"
@@ -48,8 +51,10 @@
           >
             <li
               v-show="filterSource(nomenclature.sources.list[item])"
-              class="horizontal-left-content gap-small"
+              class="horizontal-left-content gap-small padding-small-bottom padding-small-top"
             >
+              <RadialAnnotator :global-id="item" />
+              <RadialNavigation :global-id="item" />
               <label>
                 <input
                   v-model="references"
@@ -59,8 +64,6 @@
                 />
                 <span v-html="nomenclature.sources.list[item].cached" />
               </label>
-              <RadialAnnotator :global-id="item" />
-              <RadialNavigation :global-id="item" />
             </li>
           </template>
         </template>
@@ -71,8 +74,10 @@
           >
             <li
               v-show="filterSource(item)"
-              class="horizontal-left-content gap-small"
+              class="horizontal-left-content gap-small padding-small-bottom padding-small-top"
             >
+              <RadialAnnotator :global-id="key" />
+              <RadialNavigation :global-id="key" />
               <label>
                 <input
                   v-model="references"
@@ -93,8 +98,6 @@
                   v-html="topic.name"
                 />
               </template>
-              <RadialAnnotator :global-id="key" />
-              <RadialNavigation :global-id="key" />
             </li>
           </template>
         </template>

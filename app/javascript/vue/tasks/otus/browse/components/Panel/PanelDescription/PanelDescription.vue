@@ -7,6 +7,7 @@
     <div v-if="generatedDescription">
       {{ generatedDescription }}
     </div>
+    <div v-else>No description available</div>
   </PanelLayout>
 </template>
 

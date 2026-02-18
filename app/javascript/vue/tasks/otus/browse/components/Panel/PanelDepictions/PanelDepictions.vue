@@ -16,6 +16,7 @@
         edit
       />
     </div>
+    <div v-else>No images available</div>
   </PanelLayout>
 </template>
 

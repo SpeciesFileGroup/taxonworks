@@ -1,6 +1,6 @@
 <template>
   <NavBar :class="{ 'feedback-warning': isInvalid }">
-    <div>
+    <div class="container-2xl w-full mx-auto padding-medium-top">
       <ul
         v-if="navigation"
         class="breadcrumb_list"
@@ -40,8 +40,16 @@
           v-html="navigation.current_otu.object_label"
         />
       </ul>
+      <VSkeleton
+        v-else
+        variant="text"
+        :rows="1"
+      />
       <div class="flex-separate middle">
-        <h2 v-html="otu.object_tag" />
+        <div class="padding-medium-top padding-medium-bottom">
+          <h3 v-html="otu.object_tag" />
+          <CoordinateOtus />
+        </div>
         <div class="horizontal-left-content middle gap-small">
           <button
             v-if="isInvalid"
@@ -69,10 +77,7 @@
             color="primary"
             @click="showLayoutSettings = true"
           >
-            <VIcon
-              name="hamburger"
-              x-small
-            />
+            Layout settings
           </VBtn>
         </div>
       </div>
@@ -108,6 +113,7 @@ import { Otu } from '@/routes/endpoints'
 import { useHotkey } from '@/composables'
 import { useOtuStore } from '../../store'
 import { PANEL_COMPONENTS } from '../../constants'
+import CoordinateOtus from '../CoordinateOtus.vue'
 import platformKey from '@/helpers/getPlatformKey.js'
 import ShowForThisGroup from '@/tasks/nomenclature/new_taxon_name/helpers/showForThisGroup.js'
 import NavBar from '@/components/layout/NavBar.vue'
@@ -116,7 +122,7 @@ import RadialObject from '@/components/radials/navigation/radial.vue'
 import QuickForms from '@/components/radials/object/radial.vue'
 import BrowseTaxon from '@/components/taxon_names/browseTaxon.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import VSkeleton from '@/components/ui/VSkeleton/VSkeleton.vue'
 import HeaderBarLayoutSettings from './HeaderBarLayoutSettings.vue'
 
 const props = defineProps({
@@ -145,6 +151,7 @@ const otuStore = useOtuStore()
 const browseTaxonRef = ref(null)
 const navigation = ref()
 const showLayoutSettings = ref(false)
+const isLoading = ref(true)
 
 const taxonName = computed(() => otuStore.taxonName)
 const isInvalid = computed(
@@ -182,10 +189,16 @@ useHotkey(shortcuts.value)
 
 watch(
   () => props.otu,
-  (newVal) => {
-    Otu.breadcrumbs(newVal.id).then(({ body }) => {
+  async (newVal) => {
+    isLoading.value = true
+    try {
+      const { body } = await Otu.breadcrumbs(newVal.id)
+
       navigation.value = body
-    })
+    } catch {
+    } finally {
+      isLoading.value = false
+    }
   },
   { immediate: true }
 )

@@ -24,6 +24,7 @@
         'end_year'
       ]"
     />
+    <div v-else>No common names available</div>
   </PanelLayout>
 </template>
 

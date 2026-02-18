@@ -1,7 +1,6 @@
 import PanelTimeline from '../components/Panel/PanelTimeline/PanelTimeline.vue'
 import PanelAssertedDistribution from '../components/Panel/PanelAssertedDistribution/PanelAssertedDistribution.vue'
 import PanelDistribution from '../components/Panel/PanelDistribution/PanelDistribution.vue'
-import PanelCoordinate from '../components/Panel/PanelCoordinates/PanelCoordinates.vue'
 import PanelDepictions from '../components/Panel/PanelDepictions/PanelDepictions.vue'
 import PanelDescendants from '../components/Panel/PanelDescendants/PanelDescendants.vue'
 import PanelCommonNames from '../components/Panel/PanelCommonNames/PanelCommonNames.vue'
@@ -16,12 +15,6 @@ import PanelCollectionObjects from '../components/Panel/PanelCollectionObjects/P
 import PanelFieldOccurrences from '../components/Panel/PanelFieldOccurrences/PanelFieldOccurrences.vue'
 
 export const PANEL_COMPONENTS = {
-  PanelCoordinate: {
-    component: PanelCoordinate,
-    title: 'Coordinate OTUs',
-    status: 'stable'
-  },
-
   NomenclatureHistory: {
     component: PanelTimeline,
     title: 'Timeline',

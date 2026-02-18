@@ -3,8 +3,13 @@
     :status="status"
     :title="title"
     :spinner="isLoading"
+    :skeleton="{
+      variant: 'rect',
+      height: '500px'
+    }"
   >
     <SwitchComponent
+      v-if="!isAggregateMap"
       :options="Object.values(TABS)"
       v-model="view"
     />
@@ -113,9 +118,11 @@ const view = ref(TABS.Both)
 
 watch(
   () => props.otu,
-  (newOtu) => {
+  async (newOtu) => {
     if (newOtu) {
-      loadMapData(newOtu.id, props.taxonName?.rank_string)
+      isLoading.value = true
+      await loadMapData(newOtu.id, props.taxonName?.rank_string)
+      isLoading.value = false
     }
   },
   { immediate: true }

@@ -13,30 +13,33 @@
       <VBtn
         v-if="menu"
         circle
-        :class="{ 'button-default': menu }"
+        color="primary"
         v-help.section.options.filter
         @click="emit('menu')"
       >
-        <div class="hamburger-menu">
-          <div class="hamburger-menu-bar" />
-          <div class="hamburger-menu-bar" />
-          <div class="hamburger-menu-bar" />
-        </div>
+        <VIcon
+          name="hamburger"
+          x-small
+        />
       </VBtn>
     </template>
 
     <template #body>
-      <VSpinner v-if="spinner" />
-      <slot v-if="!hidden" />
+      <VSkeleton
+        v-if="spinner"
+        v-bind="skeleton"
+      />
+      <slot v-if="!spinner" />
     </template>
   </BlockLayout>
 </template>
 
 <script setup>
 import { computed, ref } from 'vue'
-import VSpinner from '@/components/ui/VSpinner'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
+import VSkeleton from '@/components/ui/VSkeleton/VSkeleton.vue'
 
 const props = defineProps({
   title: {
@@ -62,6 +65,14 @@ const props = defineProps({
   menu: {
     type: Boolean,
     default: false
+  },
+
+  skeleton: {
+    type: Object,
+    default: {
+      variant: 'text',
+      lines: 6
+    }
   }
 })
 

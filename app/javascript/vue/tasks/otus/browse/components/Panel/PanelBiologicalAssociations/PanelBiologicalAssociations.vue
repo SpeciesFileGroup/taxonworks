@@ -156,12 +156,12 @@ function checkExist(filterList, item, property) {
   }
 }
 
-async function loadBiologicalAssociations(otu) {
+async function loadBiologicalAssociations(otuIds) {
   isLoading.value = true
 
   try {
-    const { body } = await BiologicalAssociation.all({
-      any_global_id: [otu.global_id],
+    const { body } = await BiologicalAssociation.filter({
+      otu_id: otuIds,
       extend: EXTEND
     })
 
@@ -173,10 +173,12 @@ async function loadBiologicalAssociations(otu) {
 }
 
 watch(
-  () => props.otu,
+  () => props.otus,
   (newVal) => {
-    if (newVal?.id) {
-      loadBiologicalAssociations(newVal)
+    if (newVal.length) {
+      const otuIds = newVal.map((o) => o.id)
+
+      loadBiologicalAssociations(otuIds)
     }
   },
   { immediate: true }

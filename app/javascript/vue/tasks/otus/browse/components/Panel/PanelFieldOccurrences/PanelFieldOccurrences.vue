@@ -54,6 +54,7 @@
         </tbody>
       </table>
     </div>
+    <div v-else>No specimen records available</div>
   </PanelLayout>
 </template>
 

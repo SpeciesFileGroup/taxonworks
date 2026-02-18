@@ -11,41 +11,45 @@
         >Expand</a
       >
     </template>
-    <TableList
-      :list="list"
-      :columns="COLUMNS"
-      @sort="sortTable"
-    >
-      <template #citations="{ column }">
-        <div class="flex-row gap-small middle">
-          Citations
-          <VBtn
-            title="Sort alphabetically"
-            color="primary"
-            circle
-            @click.stop="() => sortTable(column)"
-          >
-            <VIcon
-              name="alphabeticalSort"
+    <div class="overflow-x-auto">
+      <TableList
+        v-if="list.length"
+        :list="list"
+        :columns="COLUMNS"
+        @sort="sortTable"
+      >
+        <template #citations="{ column }">
+          <div class="flex-row gap-small middle">
+            Citations
+            <VBtn
               title="Sort alphabetically"
-              x-small
-            />
-          </VBtn>
-          <VBtn
-            color="primary"
-            circle
-            title="Sort by year"
-            @click.stop="() => sortTable('year')"
-          >
-            <VIcon
-              name="numberSort"
+              color="primary"
+              circle
+              @click.stop="() => sortTable(column)"
+            >
+              <VIcon
+                name="alphabeticalSort"
+                title="Sort alphabetically"
+                x-small
+              />
+            </VBtn>
+            <VBtn
+              color="primary"
+              circle
               title="Sort by year"
-              x-small
-            />
-          </VBtn>
-        </div>
-      </template>
-    </TableList>
+              @click.stop="() => sortTable('year')"
+            >
+              <VIcon
+                name="numberSort"
+                title="Sort by year"
+                x-small
+              />
+            </VBtn>
+          </div>
+        </template>
+      </TableList>
+      <div v-else>No asserted distributions available</div>
+    </div>
   </PanelLayout>
 </template>
 
@@ -113,12 +117,9 @@ const list = ref([])
 const currentOtu = computed(() => props.otu)
 
 function sortTable(sortProperty) {
-  list.value = sortArray(
-    list.value,
-    sortProperty,
-    ascending.value,
-    { stripHtml: true }
-  )
+  list.value = sortArray(list.value, sortProperty, ascending.value, {
+    stripHtml: true
+  })
 
   ascending.value = !ascending.value
 }
@@ -126,8 +127,11 @@ function sortTable(sortProperty) {
 async function loadAssertedDistrbutions(otuIds) {
   isLoading.value = true
   try {
-    
-    const { body } = await AssertedDistribution.all({ otu_id: otuIds, embed: EMBED, extend: EXTEND })
+    const { body } = await AssertedDistribution.all({
+      otu_id: otuIds,
+      embed: EMBED,
+      extend: EXTEND
+    })
     list.value = listParser(body)
   } catch {
   } finally {
@@ -135,12 +139,15 @@ async function loadAssertedDistrbutions(otuIds) {
   }
 }
 
-watch(() => props.otus, (newVal) => {
-  if (newVal.length > 0) {
-    const otuIds = newVal.map((o) => o.id)
+watch(
+  () => props.otus,
+  (newVal) => {
+    if (newVal.length > 0) {
+      const otuIds = newVal.map((o) => o.id)
 
-    loadAssertedDistrbutions(otuIds)
-  }
-}, { immediate: true })
-
+      loadAssertedDistrbutions(otuIds)
+    }
+  },
+  { immediate: true }
+)
 </script>

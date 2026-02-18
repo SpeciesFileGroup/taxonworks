@@ -16,6 +16,7 @@
         />
       </tbody>
     </table>
+    <div v-else>No sounds available</div>
   </PanelLayout>
 </template>
 

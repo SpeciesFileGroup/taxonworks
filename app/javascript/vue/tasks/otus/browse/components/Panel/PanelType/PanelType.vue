@@ -44,6 +44,8 @@ const props = defineProps({
 })
 
 const taxonNameType = computed(
-  () => props.taxonName?.type_taxon_name_relationship?.object_tag
+  () =>
+    props.taxonName?.type_taxon_name_relationship?.object_tag ||
+    'No type available'
 )
 </script>

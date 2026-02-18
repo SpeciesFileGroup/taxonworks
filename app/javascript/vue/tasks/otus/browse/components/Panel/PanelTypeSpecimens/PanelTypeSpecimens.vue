@@ -26,6 +26,7 @@
         </li>
       </ul>
     </div>
+    <div v-else>No type specimen records available</div>
   </PanelLayout>
 </template>
 
