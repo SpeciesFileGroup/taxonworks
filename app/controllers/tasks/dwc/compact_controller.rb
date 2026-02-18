@@ -20,18 +20,38 @@ class Tasks::Dwc::CompactController < ApplicationController
     preview = params[:preview] == 'true' || params[:preview] == true
     table.compact(by: :catalog_number, preview:)
 
+    skipped = table.skipped_rows
+    skipped_individual_count = skipped.sum { |r| r['individualCount'].to_i }
+
+    all_rows = table.rows + skipped
+
+    pre_1700_rows = all_rows.select { |r| year_before_1700?(r['eventDate']) }
+    pre_1700_individual_count = pre_1700_rows.sum { |r| r['individualCount'].to_i }
+
     render json: {
       headers: ordered_headers(table.headers),
       rows: table.rows,
+      all_rows:,
       errors: table.errors,
       meta: {
         total_rows: table.rows.size,
-        preview:
+        preview:,
+        without_catalog_number_rows: skipped.size,
+        without_catalog_number_individual_count: skipped_individual_count,
+        pre_1700_rows: pre_1700_rows.size,
+        pre_1700_individual_count:
       }
     }
   end
 
   private
+
+  def year_before_1700?(event_date)
+    return false if event_date.blank?
+    date_part = event_date.include?('/') ? event_date.split('/').first : event_date
+    match = date_part.match(/\A(\d{4})/)
+    match && match[1].to_i < 1700
+  end
 
   def ordered_headers(headers)
     ordered = DWC_COMPACT_COLUMN_ORDER.select { |h| headers.include?(h) }

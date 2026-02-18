@@ -17,12 +17,20 @@ module Utilities::DarwinCore::Compact
   DERIVED_COLUMNS = %w[adultMale adultFemale immatureNymph exuvia].freeze
 
   # Merge rows with identical catalogNumber values.
+  # Rows without a catalogNumber are excluded from compaction
+  # but tracked in table.skipped_rows.
   #
   # @param table [Utilities::DarwinCore::Table]
   # @param preview [Boolean] if true, log errors without modifying data
   # @return [void]
   def self.by_catalog_number(table, preview: false)
-    grouped = table.rows.group_by { |row| row['catalogNumber'] }
+    with_catalog_number, without_catalog_number = table.rows.partition { |row|
+      row['catalogNumber'].to_s.strip.present?
+    }
+
+    table.skipped_rows = without_catalog_number
+
+    grouped = with_catalog_number.group_by { |row| row['catalogNumber'] }
 
     merged_rows = []
 

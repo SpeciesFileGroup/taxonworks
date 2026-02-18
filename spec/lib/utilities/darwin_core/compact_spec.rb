@@ -90,6 +90,32 @@ describe Utilities::DarwinCore::Compact do
     end
   end
 
+  context 'rows without catalogNumber' do
+    specify 'excludes rows without catalogNumber from compaction' do
+      tsv = [
+        tsv_headers,
+        tsv_row_male,
+        "\tNus nus\t5\tmale\tadult\tXYZ-9\t2024-08-01\tUSA"
+      ].join("\n") + "\n"
+      table = Utilities::DarwinCore::Table.new(tsv_string: tsv)
+      table.compact(by: :catalog_number)
+      expect(table.rows.size).to eq(1)
+      expect(table.rows.first['catalogNumber']).to eq('ABC-001')
+    end
+
+    specify 'populates skipped_rows with excluded rows' do
+      tsv = [
+        tsv_headers,
+        tsv_row_male,
+        "\tNus nus\t5\tmale\tadult\tXYZ-9\t2024-08-01\tUSA"
+      ].join("\n") + "\n"
+      table = Utilities::DarwinCore::Table.new(tsv_string: tsv)
+      table.compact(by: :catalog_number)
+      expect(table.skipped_rows.size).to eq(1)
+      expect(table.skipped_rows.first['scientificName']).to eq('Nus nus')
+    end
+  end
+
   context 'preview mode' do
     specify 'does not modify rows' do
       table = Utilities::DarwinCore::Table.new(tsv_string: basic_tsv)

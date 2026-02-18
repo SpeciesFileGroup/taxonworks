@@ -19,6 +19,10 @@ class Utilities::DarwinCore::Table
   #   each entry: { type: :error|:warning, column:, message:, values: }
   attr_accessor :errors
 
+  # @return [Array<Hash>]
+  #   rows excluded from compaction (e.g. no catalogNumber)
+  attr_accessor :skipped_rows
+
   # Construct a Table from one of three input types:
   #
   # @param csv [CSV, nil] a parsed CSV object with headers
@@ -26,6 +30,7 @@ class Utilities::DarwinCore::Table
   # @param file [String, nil] path to a TSV file
   def initialize(csv: nil, tsv_string: nil, file: nil)
     @errors = []
+    @skipped_rows = []
     @headers = []
     @rows = []
 
