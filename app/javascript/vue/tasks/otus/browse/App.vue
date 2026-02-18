@@ -85,7 +85,7 @@
 
 <script setup>
 import { computed, ref, onBeforeMount } from 'vue'
-//import HeaderBar from './components/HeaderBar'
+import HeaderBar from './components/HeaderBar/HeaderBar.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
 import VAutocomplete from '@/components/ui/Autocomplete'
@@ -118,6 +118,14 @@ loadPreferences().then(() => {
   ) {
     preferences.value.layout[KEY_STORAGE] = { ...DEFAULT_PREFERENCES }
   }
+})
+
+const menu = computed(() => {
+  const sections = preferences.value?.layout?.[KEY_STORAGE]?.sections || []
+
+  return sections
+    .filter((name) => PANEL_COMPONENTS[name])
+    .map((name) => PANEL_COMPONENTS[name].title)
 })
 
 const navigate = ref()
