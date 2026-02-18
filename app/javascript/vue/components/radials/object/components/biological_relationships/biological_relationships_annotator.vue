@@ -1,5 +1,18 @@
 <template>
   <div class="biological_relationships_annotator">
+    <Teleport
+      :to="`#${props.headerRightTargetId}`"
+      :disabled="!props.headerRightTargetId"
+    >
+      <label class="support-ap-toggle">
+        <input
+          v-model="supportsAnatomicalPartCreation"
+          type="checkbox"
+        />
+        Support anatomical parts creation
+      </label>
+    </Teleport>
+
     <template v-if="createdBiologicalAssociation">
       <div class="flex-separate">
         <h3>Edit mode</h3>
@@ -13,14 +26,6 @@
       </div>
       <br />
     </template>
-
-    <label class="support-ap-toggle">
-      <input
-        v-model="supportsAnatomicalPartCreation"
-        type="checkbox"
-      />
-      Support anatomical parts creation
-    </label>
 
     <FormCitation
       v-model="citation"
@@ -259,6 +264,11 @@ const props = defineProps({
   radialEmit: {
     type: Object,
     required: true
+  },
+
+  headerRightTargetId: {
+    type: String,
+    required: true
   }
 })
 
@@ -294,6 +304,23 @@ const usesAnatomicalPartFlow = computed(
     (enableSubjectAnatomicalPart.value || enableRelatedAnatomicalPart.value)
 )
 
+const canAutoSaveOnRelatedSelection = computed(() => {
+  if (!biologicalRelation.value?.id) {
+    return false
+  }
+
+  if (!citation.value.source_id || !biologicalRelationship.value?.id) {
+    return false
+  }
+
+  // AP support mode is explicit-create only.
+  if (supportsAnatomicalPartCreation.value) {
+    return false
+  }
+
+  return true
+})
+
 const validateFields = computed(() => {
   const hasBaseFields = biologicalRelationship.value && biologicalRelation.value
 
@@ -327,7 +354,7 @@ const displayRelated = computed(() => {
 })
 
 const createdBiologicalAssociation = computed(() =>
-  usesAnatomicalPartFlow.value
+  supportsAnatomicalPartCreation.value
     ? undefined
     : list.value.find(
         (item) =>
@@ -394,12 +421,7 @@ watch(biologicalRelation, () => {
     updateRelatedTaxonDeterminationState()
   }
 
-  if (
-    biologicalRelation.value?.id &&
-    citation.value.source_id &&
-    biologicalRelationship.value?.id &&
-    !usesAnatomicalPartFlow.value
-  ) {
+  if (canAutoSaveOnRelatedSelection.value) {
     saveAssociation()
   }
 })
@@ -441,6 +463,7 @@ onBeforeMount(() => {
     list.value = body
   })
 })
+
 
 function reset() {
   if (!lock.relationship) {
@@ -640,8 +663,9 @@ function unsetBiologicalRelationship() {
 .radial-annotator {
   .biological_relationships_annotator {
     .support-ap-toggle {
-      display: inline-block;
-      margin-bottom: 0.5em;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
     }
 
     .flip-button {

@@ -35,12 +35,19 @@
               </div>
               <div
                 class="radial-annotator-template panel"
-                v-if="currentAnnotator"
+                v-show="currentAnnotator"
               >
-                <h2 class="capitalize view-title">
-                  {{ currentAnnotator.replaceAll('_', ' ') }}
-                </h2>
+                <div class="flex-separate middle">
+                  <h2 class="capitalize view-title">
+                    {{ currentAnnotator ? currentAnnotator.replaceAll('_', ' ') : '' }}
+                  </h2>
+                  <div
+                    :id="headerRightTargetId"
+                    class="horizontal-right-content middle"
+                  />
+                </div>
                 <component
+                  v-if="currentAnnotator"
                   class="radial-annotator-container"
                   :is="SLICE[currentAnnotator]"
                   :type="currentAnnotator"
@@ -49,6 +56,7 @@
                   :global-id="globalId"
                   :object-id="metadata.object_id"
                   :object-type="metadata.object_type"
+                  :header-right-target-id="headerRightTargetId"
                   :radial-emit="handleEmitRadial"
                   @update-count="setTotal"
                   @close="closeModal"
@@ -93,7 +101,7 @@ import Icons from './images/icons.js'
 import { useShortcuts } from '@/components/radials/composables'
 import { SLICE, SLICES_BY_OBJECT_TYPE } from './constants/slices.js'
 import { Tag } from '@/routes/endpoints'
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, getCurrentInstance } from 'vue'
 
 const MIDDLE_RADIAL_BUTTON = 'circleButton'
 
@@ -154,6 +162,7 @@ const isVisible = ref(false)
 const metadata = ref(null)
 const title = ref('Quick forms')
 const defaultTag = ref(null)
+const headerRightTargetId = `radial-object-header-right-${getCurrentInstance().uid}`
 const { removeListener, setShortcutsEvent } = useShortcuts({
   metadata,
   currentAnnotator

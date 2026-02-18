@@ -84,7 +84,7 @@
         <button
           v-for="(item, index) in templates"
           :key="index"
-          class="button button-default template-pill"
+          class="button normal-input tag_button button-data template-pill"
           type="button"
           :class="{ selected: selectedTemplateIndex === index, uri: item.type === 'uri', name: item.type === 'name' }"
           @click="selectTemplate(item, index)"
@@ -235,8 +235,7 @@ onMounted(() => {
 }
 
 .template-pill {
-  border: 1px solid #666;
-  background: #f7f7f7;
+  margin: 0;
 }
 
 .template-pill.uri {
