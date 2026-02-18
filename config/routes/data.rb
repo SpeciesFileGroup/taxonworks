@@ -967,6 +967,7 @@ resources :taxon_names do
 
     get :parse, defaults: {format: :json}
     post :remove_authors, defaults: {format: :json}
+    post :match, defaults: {format: :json}
     get :random
 
     get :rank_table, defaults: {format: :json}

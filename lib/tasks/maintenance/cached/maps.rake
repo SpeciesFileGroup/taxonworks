@@ -2,6 +2,26 @@ namespace :tw do
   namespace :maintenance do
     namespace :cached do
 
+      # Everything is wiped
+      #   We build cached_map_item_tranlsations for every observed unique geographic_item
+      #      We find the unique geographic_items from ADs
+      #      We find the unique geographic_items from GZs
+      #
+      #
+      #   Now we LOOP NE states!!! (not georeferences)
+      #     We find all point Georeferences in each state 
+      #        Register translations en-masse
+      #     We find all non-point Georeferences
+      #       ONLY HERE SHOULD WE DO FANCY GEO MATH
+      #       Register translations en-masse
+      #
+      #   At this point there should be _no need for any spatial calculations (until we make the map itself)_
+      # 
+      #  !! Now we sanity check and ensure that all GIs are translated, so that we never hit spatial calculations downstream. 
+      #       
+      #  Now we should be able to loop OTUs and simply register IDs... 
+      # 
+
       # !! These tasks only build new records. They will not synchronize/refresh existing records. !!
       #
       # If starting from nothing, or to start completely anew:
@@ -99,22 +119,18 @@ namespace :tw do
           puts "Labelling #{items.count} CachedMapItems."
 
           Parallel.each(items.each, progress: 'labelling_geographic_items', in_processes: cached_rebuild_processes ) do |o|
+            reconnected ||= CachedMapItem.connection.reconnect! || true
 
             h = CachedMapItem.cached_map_name_hierarchy(o.geographic_item_id)
 
             z = CachedMapItem.where(geographic_item_id: o.geographic_item_id)
               .where(untranslated: [nil, false])
 
-            #puts 'Size: ' + z.size.to_s
-
             z.update_all(
               level0_geographic_name: h[:country],
               level1_geographic_name: h[:state],
               level2_geographic_name: h[:county]
             )
-
-            #puts o.geographic_item_id
-            #puts h
           end
           puts 'Done labelling cached map items.'
         end
@@ -138,6 +154,8 @@ namespace :tw do
           puts "#{otus.count} total OTUs."
 
           Parallel.each(otus.find_each, progress: 'build_cached_map_for_otu', in_processes: cached_rebuild_processes ) do |o|
+            reconnected ||= Georeference.connection.reconnect! || true # https://github.com/grosser/parallel
+
             o.collecting_events.each do |ce|
 
               # !! All georeferences, not just one
@@ -145,7 +163,6 @@ namespace :tw do
 
                 begin
                   CachedMapItem.transaction do
-                    reconnected ||= Georeference.connection.reconnect! || true # https://github.com/grosser/parallel
                     g.send(:create_cached_map_items, true)
                   end
                   true
@@ -159,7 +176,6 @@ namespace :tw do
             o.asserted_distributions.where.missing(:cached_map_register).each do |ad|
               begin
                 CachedMapItem.transaction do
-                  reconnected ||= AssertedDistribution.connection.reconnect! || true # https://github.com/grosser/parallel
                   ad.send(:create_cached_map_items, true)
                 end
                 true
@@ -176,19 +192,66 @@ namespace :tw do
           # TODO: this doesn't currently account for FOs
           q = Georeference.joins(:otus).where.missing(:cached_map_register).distinct
 
-          puts "Caching #{q.count} georeferences records."
-
           cached_rebuild_processes = ENV['cached_rebuild_processes'] ? ENV['cached_rebuild_processes'].to_i : 4
+          cached_rebuild_batch_size = ENV['cached_rebuild_batch_size'] ? ENV['cached_rebuild_batch_size'].to_i : 2000
 
-          Parallel.each(q.find_each, progress: 'build_cached_map_from_georeferences', in_processes: cached_rebuild_processes ) do |g|
+          # Pluck IDs only - avoids Parallel.each calling .to_a on the
+          # enumerator and materializing all AR objects in the parent process.
+          ids = q.pluck(:id)
+          puts "Caching #{ids.size} georeferences records."
+
+          slices = ids.each_slice(cached_rebuild_batch_size).to_a
+
+          Parallel.each(slices, progress: 'build_cached_map_from_georeferences',
+            in_processes: cached_rebuild_processes ) do |slice_ids|
+            registrations = []
             begin
-              CachedMapItem.transaction do
-                reconnected ||= Georeference.connection.reconnect! || true # https://github.com/grosser/parallel
-                g.send(:create_cached_map_items, true)
+              reconnected ||= Georeference.connection.reconnect! || true # https://github.com/grosser/parallel
+
+              # Pre-compute OTU context for the slice in 1 query instead of
+              # 2 queries per georeference (N+1 elimination).
+              # Chain: georeference -> collecting_event -> collection_objects
+              #        -> taxon_determinations (position 1) -> otu
+              otu_rows = Otu
+                .joins(collection_objects: [:collecting_event])
+                .joins(:taxon_determinations)
+                .where(taxon_determinations: { position: 1 })
+                .where(collecting_events: {
+                  id: Georeference.where(id: slice_ids).select(:collecting_event_id)
+                })
+                .distinct
+                .pluck(
+                  'collecting_events.id',
+                  'otus.id',
+                  'otus.taxon_name_id'
+                )
+
+              # Group by collecting_event_id since georeference belongs_to
+              # collecting_event - hash lookup replaces per-record queries.
+              # Only include OTUs that have a taxon_name_id — OTUs without
+              # taxon names have no hierarchy and don't contribute to cached maps.
+              ce_otu_lookup = {}
+              otu_rows.each do |ce_id, otu_id, taxon_name_id|
+                next unless taxon_name_id
+                (ce_otu_lookup[ce_id] ||= []) << otu_id
               end
+
+              Georeference.where(id: slice_ids).each do |g|
+                otu_ids = ce_otu_lookup[g.collecting_event_id]
+                next unless otu_ids
+                begin
+                  g.send(:create_cached_map_items, true,
+                    context: { otu_id: otu_ids },
+                    skip_register: true, register_queue: registrations)
+                rescue ActiveRecord::StatementInvalid, ActiveRecord::RecordNotFound => e
+                  puts " FAILED georeference_id:#{g.id} geographic_item_id:#{g.geographic_item_id} project_id:#{g.project_id} #{e}"
+                end
+              end
+              
+              CachedMapRegister.insert_all(registrations) if registrations.present?
               true
             rescue => exception
-              puts " FAILED #{exception} #{g.id}"
+              puts " FAILED (slice) #{exception}"
             end
             true
           end
@@ -237,40 +300,58 @@ namespace :tw do
               'gazetteers.geographic_item_id AS default_geographic_item_id'
             )
 
-          ga_count = q_ga.unscope(:select).count
-          gz_count = q_gz.unscope(:select).count
-          puts "Caching #{ga_count + gz_count} AssertedDistribution records."
-
           cached_rebuild_processes = ENV['cached_rebuild_processes'] ? ENV['cached_rebuild_processes'].to_i : 4
+          cached_rebuild_batch_size = ENV['cached_rebuild_batch_size'] ? ENV['cached_rebuild_batch_size'].to_i : 10000
+
+          # Pluck IDs only - avoids Parallel.each calling .to_a on the
+          # enumerator and materializing all AR objects in the parent process.
+          ga_ids = q_ga.pluck('asserted_distributions.id')
+          gz_ids = q_gz.pluck('asserted_distributions.id')
+          puts "Caching #{ga_ids.size} GA + #{gz_ids.size} GZ = #{ga_ids.size + gz_ids.size} AssertedDistribution records."
 
           [
-            [q_ga, 'build_cached_map_from_asserted_distributions GA'],
-            [q_gz, 'build_cached_map_from_asserted_distributions GZ']
-          ].each do |q, progress|
-            Parallel.each(q.find_each, progress:, in_processes: cached_rebuild_processes ) do |ad|
+            [ga_ids, q_ga, 'build_cached_map_from_asserted_distributions GA'],
+            [gz_ids, q_gz, 'build_cached_map_from_asserted_distributions GZ']
+          ].each do |ids, q, progress|
+            slices = ids.each_slice(cached_rebuild_batch_size).to_a
+
+            Parallel.each(slices, progress:,
+              in_processes: cached_rebuild_processes ) do |slice_ids|
+              registrations = []
               begin
                 reconnected ||= AssertedDistribution.connection.reconnect! || true # https://github.com/grosser/parallel
-                context = {
-                  geographic_item_id: ad.default_geographic_item_id,
-                  otu_id: ad.otu_id,
-                  otu_taxon_name_id: ad.otu_taxon_name_id,
-                  geographic_area_based: ad.asserted_distribution_shape_type == 'GeographicArea'
-                }
-                ad.send(:create_cached_map_items, true, context: context)
+                q.where('asserted_distributions.id': slice_ids).each do |ad|
+                  context = {
+                    geographic_item_id: ad.default_geographic_item_id,
+                    otu_id: ad.otu_id,
+                    otu_taxon_name_id: ad.otu_taxon_name_id,
+                    geographic_area_based: ad.asserted_distribution_shape_type == 'GeographicArea'
+                  }
+                  begin
+                    ad.send(:create_cached_map_items, true, context: context,
+                      skip_register: true, register_queue: registrations)
+                  rescue ActiveRecord::StatementInvalid, ActiveRecord::RecordNotFound => e
+                    puts " FAILED asserted_distribution_id:#{ad.id} geographic_item_id:#{ad.default_geographic_item_id} project_id:#{ad.project_id} #{e}"
+                  end
+                end
+
+                CachedMapRegister.insert_all(registrations) if registrations.present?
                 true
               rescue => exception
-                puts " FAILED #{exception} #{ad.id}"
+                puts " FAILED (slice) #{exception}"
               end
               true
             end
           end
 
-          puts'Done.'
+          puts 'Done.'
         end
 
         desc 'prebuild CachedMapItemTranslations, NOT idempotent'
         task parallel_create_cached_map_item_translations_from_asserted_distributions: [:environment] do |t|
           cached_rebuild_processes = ENV['cached_rebuild_processes'] ? ENV['cached_rebuild_processes'].to_i : 4
+
+          task_start = Time.current
 
           # ids = GeographicAreasGeographicItem.where(geographic_area: GeographicArea.joins(:asserted_distributions))
           #        .where.missing(:cached_map_item_translations)
@@ -279,49 +360,61 @@ namespace :tw do
           #        .distinct
           #        .pluck(:geographic_item_id)
 
-          puts 'Preparing...'
+          puts "Preparing... #{task_start}"
 
-          ids_out = CachedMapItemTranslation.select(:geographic_item_id)
-          .distinct.pluck(:geographic_item_id).compact
+          ids_out = CachedMapItemTranslation.select(:geographic_item_id).distinct
+          default_gagi_sql = GeographicAreasGeographicItem.default_geographic_item_data_sql
 
-          ids_in__ga = GeographicArea.joins(:asserted_distributions).distinct
-            .map(&:default_geographic_item_id).compact
-          puts "Total GeographicArea-based asserted distributions: #{ids_in__ga.count}"
-          puts "GeographicArea-based asserted distributions already done: #{(ids_out & ids_in__ga).count}"
+          ga_gi_ids = GeographicArea.joins(:asserted_distributions)
+            .joins("JOIN (#{default_gagi_sql}) default_gagi ON default_gagi.geographic_area_id = geographic_areas.id")
+            .select('DISTINCT default_gagi.geographic_item_id AS id')
 
-          ids_in__gz = Gazetteer.joins(:asserted_distributions).distinct
-            .map(&:default_geographic_item_id).compact
-          puts "Total Gazetteer-based asserted distributions: #{ids_in__gz.count}"
-          puts "Gazetteer-based asserted distributions already done: #{(ids_out & ids_in__gz).count}"
+          gz_gi_ids = Gazetteer.joins(:asserted_distributions)
+            .select('DISTINCT gazetteers.geographic_item_id AS id')
 
-          ids_in__ga = ids_in__ga - ids_out
-          ids_in__gz = ids_in__gz - ids_out
+          # .count on SELECT ... AS id produces invalid COUNT(... AS id),
+          # so unscope and count the raw column.
+          ga_total = ga_gi_ids.unscope(:select).count('DISTINCT default_gagi.geographic_item_id')
+          ga_done = ga_gi_ids.where(id: ids_out).unscope(:select).count('DISTINCT default_gagi.geographic_item_id')
+          puts "Total GeographicArea-based geographic items to translate: #{ga_total}"
+          puts "GeographicArea-based geographic items already done: #{ga_done}"
 
-          puts "Processing #{ids_in__ga.count} GeographicArea-based asserted distributions"
-          puts "Processing #{ids_in__gz.count} Gazetteer-based asserted distributions"
+          gz_total = gz_gi_ids.unscope(:select).count('DISTINCT gazetteers.geographic_item_id')
+          gz_done = gz_gi_ids.where(id: ids_out).unscope(:select).count('DISTINCT gazetteers.geographic_item_id')
+          puts "Total Gazetteer-based geographic items to translate: #{gz_total}"
+          puts "Gazetteer-based geographic items already done: #{gz_done}"
+
+          ga_missing_gi_ids = ga_gi_ids.where.not(id: ids_out).map(&:id)
+          gz_missing_gi_ids = gz_gi_ids.where.not(id: ids_out).map(&:id)
+
+          puts "Processing #{ga_missing_gi_ids.size} GeographicArea-based geographic items"
+          puts "Processing #{gz_missing_gi_ids.size} Gazetteer-based geographic items"
 
           precomputed_data_origin_ids = {
             'ne_states' => CachedMapItem.precomputed_data_origin_ids_for('ne_states')
           }
 
-          ids_in__ga.sort!
-          ids_in__gz.sort!
-
-          Parallel.each(ids_in__ga, progress: 'build_cached_map_item_translations GA', in_processes: cached_rebuild_processes ) do |id|
-            reconnected ||= CachedMapItemTranslation.connection.reconnect! || true
-            process_asserted_distribution_translation(id, true, precomputed_data_origin_ids:)
+          ga_missing_gi_ids.each_slice(1000).with_index(1) do |ids, ga_batch|
+            Parallel.each(ids, progress: "build_cached_map_item_translations GA (batch #{ga_batch})",
+              in_processes: cached_rebuild_processes ) do |id|
+              reconnected ||= CachedMapItemTranslation.connection.reconnect! || true
+              process_asserted_distribution_translation(id, true, precomputed_data_origin_ids:)
+            end
           end
 
           puts 'Geographic Area-based Asserted Distributions done.'
 
-          Parallel.each(ids_in__gz, progress: 'build_cached_map_item_translations GZ', in_processes: cached_rebuild_processes ) do |id|
-            reconnected ||= CachedMapItemTranslation.connection.reconnect! || true
-            process_asserted_distribution_translation(id, false, precomputed_data_origin_ids:)
+          gz_missing_gi_ids.each_slice(1000).with_index(1) do |ids, gz_batch|
+            Parallel.each(ids, progress: "build_cached_map_item_translations GZ (batch #{gz_batch})",
+              in_processes: cached_rebuild_processes ) do |id|
+              reconnected ||= CachedMapItemTranslation.connection.reconnect! || true
+              process_asserted_distribution_translation(id, false, precomputed_data_origin_ids:)
+            end
           end
 
           puts 'Gazetteer-based Asserted Distributions done.'
 
-          puts 'Done.'
+          puts "Done. elapsed=#{(Time.current - task_start).round(2)}s"
         end
 
         def process_asserted_distribution_translation(
@@ -329,24 +422,14 @@ namespace :tw do
         )
           translations = []
 
-          #  b = ( Benchmark.measure {
           begin
-            #  print "#{id}: "
             t = CachedMapItem.translate_geographic_item_id(
               geographic_item_id, geographic_area_based, false, ['ne_states'], nil, precomputed_data_origin_ids:
             )
-            # if t.present?
-            #   print t.join(', ')
-            # else
-            #   print ' !! NO MATCH'
-            # end
-          rescue ActiveRecord::StatementInvalid  => e
+          rescue ActiveRecord::StatementInvalid, ActiveRecord::RecordNotFound => e
             puts "#{geographic_item_id}:" + e.to_s.gsub(/\n/, '')
             t = []
           end
-
-          #  })
-          #  puts ' | ' + b.to_s
 
           t.each do |u|
             translations.push({
@@ -412,7 +495,7 @@ namespace :tw do
               end
 
             rescue => exception
-              puts " FAILED #{exception} #{g.id}"
+              puts " FAILED #{exception} #{a.id}"
             end
           end
           puts 'Done.'
