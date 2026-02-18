@@ -189,12 +189,30 @@
     </div>
 
     <TableList
-      class="separate-top"
+      class="separate-top margin-large-bottom"
       :list="list"
       :metadata="metadata"
       @edit="editBiologicalRelationship"
       @delete="removeItem"
     />
+
+    <template v-if="supportsAnatomicalPartCreation">
+      <div class="anatomical-part-subject-table-block">
+      <h3 class="anatomical-part-heading">
+        <span>Anatomical parts of</span>
+        <span
+          class="anatomical-part-heading-object"
+          v-html="anatomicalPartSubjectHeadingHtml"
+        />
+        <span>as subject:</span>
+      </h3>
+      <TableAnatomicalPartMode
+        :list="anatomicalPartModeList"
+        @edit="editBiologicalRelationship"
+        @delete="removeItem"
+      />
+      </div>
+    </template>
   </div>
 </template>
 
@@ -203,6 +221,7 @@ import Biological from '@/components/Form/FormBiologicalAssociation/BiologicalAs
 import Related from '@/components/Form/FormBiologicalAssociation/BiologicalAssociationRelated.vue'
 import TaxonDeterminationOtu from '@/components/TaxonDetermination/TaxonDeterminationOtu.vue'
 import TableList from './table.vue'
+import TableAnatomicalPartMode from './table_anatomical_part_mode.vue'
 import CreateAnatomicalPart from './components/CreateAnatomicalPart.vue'
 import LockComponent from '@/components/ui/VLock/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
@@ -292,6 +311,7 @@ const relatedTaxonDeterminationOtuId = ref(undefined)
 const relatedNeedsTaxonDetermination = ref(false)
 const subjectPartKey = ref(0)
 const relatedPartKey = ref(0)
+const anatomicalPartModeList = ref([])
 
 const lock = reactive({
   source: false,
@@ -369,6 +389,14 @@ const biologicalRelationLabel = computed(
     biologicalRelationship.value?.object_label
 )
 
+const anatomicalPartSubjectHeadingHtml = computed(() => {
+  if (props.metadata.object_tag) {
+    return props.metadata.object_tag
+  }
+
+  return props.metadata.object_label || 'selected object'
+})
+
 watch(
   () => lock.relationship,
   (newVal) => {
@@ -380,6 +408,10 @@ watch(
   supportsAnatomicalPartCreation,
   (newVal) => {
     sessionStorage.setItem(STORAGE_KEYS.supportsAnatomicalPartCreation, newVal)
+
+    if (newVal) {
+      loadAnatomicalPartModeList()
+    }
   }
 )
 
@@ -462,6 +494,10 @@ onBeforeMount(() => {
   }).then(({ body }) => {
     list.value = body
   })
+
+  if (supportsAnatomicalPartCreation.value) {
+    loadAnatomicalPartModeList()
+  }
 })
 
 
@@ -587,6 +623,9 @@ function saveAssociation() {
   saveRequest
     .then(({ body }) => {
       addToList(body)
+      if (supportsAnatomicalPartCreation.value) {
+        loadAnatomicalPartModeList()
+      }
       reset()
       TW.workbench.alert.create(
         'Biological association was successfully saved.',
@@ -603,6 +642,19 @@ function saveAssociation() {
 function removeItem(item) {
   BiologicalAssociation.destroy(item.id).then(() => {
     removeFromList(item)
+    if (supportsAnatomicalPartCreation.value) {
+      loadAnatomicalPartModeList()
+    }
+  })
+}
+
+function loadAnatomicalPartModeList() {
+  BiologicalAssociation.originSubjectIndex({
+    origin_object_id: props.objectId,
+    origin_object_type: props.objectType,
+    extend: EXTEND_PARAMS
+  }).then(({ body }) => {
+    anatomicalPartModeList.value = body
   })
 }
 
@@ -686,6 +738,26 @@ function unsetBiologicalRelationship() {
       padding-right: 6px;
       border-radius: 3px;
       background-color: #ded2f9;
+    }
+
+    .anatomical-part-subject-table-block {
+      margin-top: 1rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid #d9d9d9;
+    }
+
+    .anatomical-part-heading {
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin: 0;
+    }
+
+    .anatomical-part-heading-object {
+      display: inline-flex;
+      align-items: center;
+      line-height: 1;
     }
   }
 }

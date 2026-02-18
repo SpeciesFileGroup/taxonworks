@@ -81,6 +81,7 @@ resources :biological_associations do
     get :autocomplete, defaults: {format: :json}
     get :select_options, defaults: {format: :json}
     get :subject_object_types, defaults: {format: :json}
+    get :origin_subject_index, defaults: {format: :json}
   end
 end
 

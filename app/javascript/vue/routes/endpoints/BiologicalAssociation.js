@@ -65,5 +65,8 @@ export const BiologicalAssociation = {
 
   navigation: (id) => AjaxCall('get', `/${controller}/${id}/navigation`),
 
+  originSubjectIndex: (params) =>
+    AjaxCall('get', `/${controller}/origin_subject_index.json`, { params }),
+
   subject_object_types: () => AjaxCall('get', `/${controller}/subject_object_types.json`)
 }

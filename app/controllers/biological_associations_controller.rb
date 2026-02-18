@@ -243,6 +243,27 @@ class BiologicalAssociationsController < ApplicationController
     render json: hash
   end
 
+  # GET /biological_associations/origin_subject_index.json?origin_object_id=1&origin_object_type=Otu
+  # Returns BAs whose subject is an AnatomicalPart originated from the base object.
+  def origin_subject_index
+    object_id = params.require(:origin_object_id).to_i
+    object_type = params.require(:origin_object_type).to_s
+
+    @biological_associations = BiologicalAssociation
+      .joins("INNER JOIN origin_relationships ap_origin_relationships ON ap_origin_relationships.new_object_id = biological_associations.biological_association_subject_id")
+      .where(project_id: sessions_current_project_id)
+      .where(biological_association_subject_type: 'AnatomicalPart')
+      .where("ap_origin_relationships.new_object_type = 'AnatomicalPart'")
+      .where(
+        'ap_origin_relationships.old_object_id = ? AND ap_origin_relationships.old_object_type = ?',
+        object_id,
+        object_type
+      )
+      .order('biological_associations.id')
+
+    render '/biological_associations/origin_subject_index'
+  end
+
   private
 
   def set_biological_association
