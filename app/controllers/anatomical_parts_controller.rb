@@ -139,6 +139,27 @@ class AnatomicalPartsController < ApplicationController
     @parts_list = @parts_list[:results]
   end
 
+  def templates
+    scope = AnatomicalPart.where(project_id: sessions_current_project_id)
+
+    names = scope
+      .where.not(name: [nil, ''])
+      .pluck(:name)
+      .uniq
+      .sort_by(&:downcase)
+      .map { |name| { type: 'name', name: } }
+
+    uris = scope
+      .where.not(uri: [nil, ''])
+      .where.not(uri_label: [nil, ''])
+      .pluck(:uri, :uri_label)
+      .uniq
+      .sort_by { |uri, uri_label| [uri_label.downcase, uri.downcase] }
+      .map { |uri, uri_label| { type: 'uri', uri:, uri_label: } }
+
+    render json: names + uris
+  end
+
   private
 
   def set_anatomical_part

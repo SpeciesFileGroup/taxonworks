@@ -11,6 +11,26 @@ const permitParams = {
     biological_association_object_type: String,
     subject_global_id: Number,
     object_global_id: Number,
+    subject_anatomical_part_attributes: {
+      name: String,
+      uri: String,
+      uri_label: String,
+      is_material: Boolean,
+      preparation_type_id: Number
+    },
+    object_anatomical_part_attributes: {
+      name: String,
+      uri: String,
+      uri_label: String,
+      is_material: Boolean,
+      preparation_type_id: Number
+    },
+    subject_taxon_determination_attributes: {
+      otu_id: Number
+    },
+    object_taxon_determination_attributes: {
+      otu_id: Number
+    },
     origin_citation_attributes: {
       id: Number,
       _destroy: Boolean,

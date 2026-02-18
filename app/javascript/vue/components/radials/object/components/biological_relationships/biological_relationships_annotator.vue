@@ -14,6 +14,14 @@
       <br />
     </template>
 
+    <label class="support-ap-toggle">
+      <input
+        v-model="supportsAnatomicalPartCreation"
+        type="checkbox"
+      />
+      Support anatomical parts creation
+    </label>
+
     <FormCitation
       v-model="citation"
       :klass="BIOLOGICAL_ASSOCIATION"
@@ -33,6 +41,25 @@
     />
     <div>
       <h3 v-html="metadata.object_tag" />
+
+      <template v-if="supportsAnatomicalPartCreation">
+        <label>
+          <input
+            v-model="enableSubjectAnatomicalPart"
+            type="checkbox"
+          />
+          Anatomical part
+        </label>
+
+        <CreateAnatomicalPart
+          v-if="enableSubjectAnatomicalPart"
+          :key="`subject-${subjectPartKey}`"
+          class="margin-small-top margin-small-bottom"
+          :include-is-material="props.objectType === 'FieldOccurrence'"
+          @change="setSubjectAnatomicalPart"
+        />
+      </template>
+
       <h3
         v-if="biologicalRelationship"
         class="relationship-title middle"
@@ -94,7 +121,7 @@
         v-else
         class="subtle relation-title"
       >
-        Choose related OTU/collection object
+        Choose related OTU/collection object/field occurrence
       </h3>
     </div>
     <biological
@@ -102,6 +129,17 @@
       class="separate-bottom"
       @select="setBiologicalRelationship"
     />
+
+    <template v-if="supportsAnatomicalPartCreation">
+      <label>
+        <input
+          v-model="enableRelatedAnatomicalPart"
+          type="checkbox"
+        />
+        Anatomical part
+      </label>
+    </template>
+
     <related
       v-if="!biologicalRelation"
       ref="related"
@@ -110,6 +148,29 @@
       class="separate-bottom separate-top"
       @select="biologicalRelation = $event"
     />
+
+    <template v-if="supportsAnatomicalPartCreation && enableRelatedAnatomicalPart && biologicalRelation">
+      <div
+        v-if="relatedNeedsTaxonDetermination"
+        class="margin-small-top"
+      >
+        The origin of an anatomical part requires a taxon determination on this {{ biologicalRelation.base_class }}.
+      </div>
+
+      <TaxonDeterminationOtu
+        v-if="relatedNeedsTaxonDetermination"
+        v-model="relatedTaxonDeterminationOtuId"
+      />
+
+      <CreateAnatomicalPart
+        v-if="!relatedNeedsTaxonDetermination || relatedTaxonDeterminationOtuId"
+        :key="`related-${relatedPartKey}`"
+        class="margin-small-top margin-small-bottom"
+        :include-is-material="biologicalRelation.base_class === 'FieldOccurrence'"
+        :requires-is-material-before-template="biologicalRelation.base_class === 'FieldOccurrence'"
+        @change="setRelatedAnatomicalPart"
+      />
+    </template>
 
     <div class="separate-top">
       <button
@@ -135,7 +196,9 @@
 <script setup>
 import Biological from '@/components/Form/FormBiologicalAssociation/BiologicalAssociationRelationship.vue'
 import Related from '@/components/Form/FormBiologicalAssociation/BiologicalAssociationRelated.vue'
+import TaxonDeterminationOtu from '@/components/TaxonDetermination/TaxonDeterminationOtu.vue'
 import TableList from './table.vue'
+import CreateAnatomicalPart from './components/CreateAnatomicalPart.vue'
 import LockComponent from '@/components/ui/VLock/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
@@ -145,7 +208,8 @@ import DisplayList from '@/components/displayList.vue'
 import { convertType } from '@/helpers/types'
 import {
   BiologicalAssociation,
-  BiologicalRelationship
+  BiologicalRelationship,
+  TaxonDetermination
 } from '@/routes/endpoints'
 import { BIOLOGICAL_ASSOCIATION } from '@/constants/index.js'
 import {
@@ -167,6 +231,14 @@ const EXTEND_PARAMS = [
   'citations',
   'source'
 ]
+
+const STORAGE_KEYS = {
+  lockRelationship: 'radialObject::biologicalRelationship::lock',
+  relationshipId: 'radialObject::biologicalRelationship::id',
+  supportsAnatomicalPartCreation: 'radialObject::biologicalRelationship::supportsAnatomicalPartCreation',
+  enableSubjectAnatomicalPart: 'radialObject::biologicalRelationship::enableSubjectAnatomicalPart',
+  enableRelatedAnatomicalPart: 'radialObject::biologicalRelationship::enableRelatedAnatomicalPart'
+}
 
 const props = defineProps({
   objectId: {
@@ -196,9 +268,57 @@ const { list, addToList, removeFromList } = useSlice({
 
 const relatedRef = useTemplateRef('related')
 
-const validateFields = computed(
-  () => biologicalRelationship.value && biologicalRelation.value
+const biologicalRelation = ref()
+const biologicalRelationship = ref()
+const citation = ref(makeEmptyCitation())
+const flip = ref(false)
+const supportsAnatomicalPartCreation = ref(false)
+const enableSubjectAnatomicalPart = ref(false)
+const enableRelatedAnatomicalPart = ref(false)
+
+const subjectAnatomicalPart = ref({ valid: false, payload: {} })
+const relatedAnatomicalPart = ref({ valid: false, payload: {} })
+const relatedTaxonDeterminationOtuId = ref(undefined)
+const relatedNeedsTaxonDetermination = ref(false)
+const subjectPartKey = ref(0)
+const relatedPartKey = ref(0)
+
+const lock = reactive({
+  source: false,
+  relationship: false
+})
+
+const usesAnatomicalPartFlow = computed(
+  () =>
+    supportsAnatomicalPartCreation.value &&
+    (enableSubjectAnatomicalPart.value || enableRelatedAnatomicalPart.value)
 )
+
+const validateFields = computed(() => {
+  const hasBaseFields = biologicalRelationship.value && biologicalRelation.value
+
+  if (!hasBaseFields) {
+    return false
+  }
+
+  if (!usesAnatomicalPartFlow.value) {
+    return true
+  }
+
+  if (enableSubjectAnatomicalPart.value && !subjectAnatomicalPart.value.valid) {
+    return false
+  }
+
+  if (!enableRelatedAnatomicalPart.value) {
+    return true
+  }
+
+  if (relatedNeedsTaxonDetermination.value && !relatedTaxonDeterminationOtuId.value) {
+    return false
+  }
+
+  return relatedAnatomicalPart.value.valid
+})
 
 const displayRelated = computed(() => {
   return (
@@ -207,11 +327,13 @@ const displayRelated = computed(() => {
 })
 
 const createdBiologicalAssociation = computed(() =>
-  list.value.find(
-    (item) =>
-      item.biological_relationship_id === biologicalRelationship.value?.id &&
-      item.biological_association_object_id === biologicalRelation.value?.id
-  )
+  usesAnatomicalPartFlow.value
+    ? undefined
+    : list.value.find(
+        (item) =>
+          item.biological_relationship_id === biologicalRelationship.value?.id &&
+          item.biological_association_object_id === biologicalRelation.value?.id
+      )
 )
 
 const biologicalRelationLabel = computed(
@@ -220,44 +342,87 @@ const biologicalRelationLabel = computed(
     biologicalRelationship.value?.object_label
 )
 
-const biologicalRelation = ref()
-const biologicalRelationship = ref()
-const citation = ref(makeEmptyCitation())
-const flip = ref(false)
-
-const lock = reactive({
-  source: false,
-  relationship: false
-})
-
 watch(
   () => lock.relationship,
   (newVal) => {
-    sessionStorage.setItem('radialObject::biologicalRelationship::lock', newVal)
+    sessionStorage.setItem(STORAGE_KEYS.lockRelationship, newVal)
   }
 )
 
-watch(biologicalRelation, (newVal) => {
+watch(
+  supportsAnatomicalPartCreation,
+  (newVal) => {
+    sessionStorage.setItem(STORAGE_KEYS.supportsAnatomicalPartCreation, newVal)
+  }
+)
+
+watch(
+  enableSubjectAnatomicalPart,
+  (newVal) => {
+    sessionStorage.setItem(STORAGE_KEYS.enableSubjectAnatomicalPart, newVal)
+
+    if (!newVal) {
+      subjectAnatomicalPart.value = { valid: false, payload: {} }
+      subjectPartKey.value += 1
+    }
+  }
+)
+
+watch(
+  enableRelatedAnatomicalPart,
+  (newVal) => {
+    sessionStorage.setItem(STORAGE_KEYS.enableRelatedAnatomicalPart, newVal)
+
+    relatedTaxonDeterminationOtuId.value = undefined
+    relatedNeedsTaxonDetermination.value = false
+    relatedAnatomicalPart.value = { valid: false, payload: {} }
+    relatedPartKey.value += 1
+
+    if (newVal && biologicalRelation.value?.id) {
+      updateRelatedTaxonDeterminationState()
+    }
+  }
+)
+
+watch(biologicalRelation, () => {
+  relatedTaxonDeterminationOtuId.value = undefined
+  relatedNeedsTaxonDetermination.value = false
+  relatedAnatomicalPart.value = { valid: false, payload: {} }
+  relatedPartKey.value += 1
+
+  if (enableRelatedAnatomicalPart.value && biologicalRelation.value?.id) {
+    updateRelatedTaxonDeterminationState()
+  }
+
   if (
-    newVal?.id &&
+    biologicalRelation.value?.id &&
     citation.value.source_id &&
-    biologicalRelationship.value?.id
+    biologicalRelationship.value?.id &&
+    !usesAnatomicalPartFlow.value
   ) {
     saveAssociation()
   }
 })
 
 onBeforeMount(() => {
-  const value = convertType(
-    sessionStorage.getItem('radialObject::biologicalRelationship::lock')
+  const relationshipLock = convertType(
+    sessionStorage.getItem(STORAGE_KEYS.lockRelationship)
   )
-  if (value !== null) {
-    lock.relationship = value === true
+
+  if (relationshipLock !== null) {
+    lock.relationship = relationshipLock === true
   }
+
+  supportsAnatomicalPartCreation.value =
+    convertType(sessionStorage.getItem(STORAGE_KEYS.supportsAnatomicalPartCreation)) === true
+  enableSubjectAnatomicalPart.value =
+    convertType(sessionStorage.getItem(STORAGE_KEYS.enableSubjectAnatomicalPart)) === true
+  enableRelatedAnatomicalPart.value =
+    convertType(sessionStorage.getItem(STORAGE_KEYS.enableRelatedAnatomicalPart)) === true
 
   if (lock.relationship) {
     const relationshipId = convertType(
-      sessionStorage.getItem('radialObject::biologicalRelationship::id')
+      sessionStorage.getItem(STORAGE_KEYS.relationshipId)
     )
 
     if (relationshipId) {
@@ -284,11 +449,84 @@ function reset() {
   biologicalRelation.value = undefined
   flip.value = false
 
+  subjectAnatomicalPart.value = { valid: false, payload: {} }
+  relatedAnatomicalPart.value = { valid: false, payload: {} }
+  relatedTaxonDeterminationOtuId.value = undefined
+  relatedNeedsTaxonDetermination.value = false
+  subjectPartKey.value += 1
+  relatedPartKey.value += 1
+
   if (lock.source) {
     citation.value.id = undefined
   } else {
     citation.value = makeEmptyCitation()
   }
+}
+
+function setSubjectAnatomicalPart(data) {
+  subjectAnatomicalPart.value = data
+}
+
+function setRelatedAnatomicalPart(data) {
+  relatedAnatomicalPart.value = data
+}
+
+function relatedIsCollectionObjectOrFieldOccurrence() {
+  const type = biologicalRelation.value?.base_class
+  return ['CollectionObject', 'FieldOccurrence'].includes(type)
+}
+
+function updateRelatedTaxonDeterminationState() {
+  if (!biologicalRelation.value?.id || !relatedIsCollectionObjectOrFieldOccurrence()) {
+    relatedNeedsTaxonDetermination.value = false
+    return
+  }
+
+  TaxonDetermination.where({
+    taxon_determination_object_id: [biologicalRelation.value.id],
+    taxon_determination_object_type: biologicalRelation.value.base_class,
+    per: 1
+  }).then(({ body }) => {
+    relatedNeedsTaxonDetermination.value = body.length === 0
+  })
+}
+
+function mapAnatomicalPartAttributesToAssociationSides() {
+  const mapped = {}
+
+  if (!usesAnatomicalPartFlow.value || createdBiologicalAssociation.value) {
+    return mapped
+  }
+
+  if (enableSubjectAnatomicalPart.value) {
+    if (flip.value) {
+      mapped.object_anatomical_part_attributes = subjectAnatomicalPart.value.payload
+    } else {
+      mapped.subject_anatomical_part_attributes = subjectAnatomicalPart.value.payload
+    }
+  }
+
+  if (enableRelatedAnatomicalPart.value) {
+    if (flip.value) {
+      mapped.subject_anatomical_part_attributes = relatedAnatomicalPart.value.payload
+    } else {
+      mapped.object_anatomical_part_attributes = relatedAnatomicalPart.value.payload
+    }
+
+    if (relatedNeedsTaxonDetermination.value && relatedTaxonDeterminationOtuId.value) {
+      if (flip.value) {
+        mapped.subject_taxon_determination_attributes = {
+          otu_id: relatedTaxonDeterminationOtuId.value
+        }
+      } else {
+        mapped.object_taxon_determination_attributes = {
+          otu_id: relatedTaxonDeterminationOtuId.value
+        }
+      }
+    }
+  }
+
+  return mapped
 }
 
 function saveAssociation() {
@@ -310,10 +548,12 @@ function saveAssociation() {
             biological_association_subject_type: props.objectType
           }),
       biological_relationship_id: biologicalRelationship.value.id,
-      citations_attributes: citation.value ? [citation.value] : undefined
+      citations_attributes: citation.value ? [citation.value] : undefined,
+      ...mapAnatomicalPartAttributesToAssociationSides()
     },
     extend: EXTEND_PARAMS
   }
+
   const saveRequest = createdBiologicalAssociation.value
     ? BiologicalAssociation.update(
         createdBiologicalAssociation.value.id,
@@ -343,12 +583,12 @@ function removeItem(item) {
   })
 }
 
-function setCitation(citation) {
+function setCitation(existingCitation) {
   citation.value = {
-    id: citation.id,
-    pages: citation.pages,
-    source_id: citation.source_id,
-    is_original: citation.is_original
+    id: existingCitation.id,
+    pages: existingCitation.pages,
+    source_id: existingCitation.source_id,
+    is_original: existingCitation.is_original
   }
 }
 
@@ -388,7 +628,7 @@ function editBiologicalRelationship(bioRelation) {
 
 function setBiologicalRelationship(item) {
   biologicalRelationship.value = item
-  sessionStorage.setItem('radialObject::biologicalRelationship::id', item.id)
+  sessionStorage.setItem(STORAGE_KEYS.relationshipId, item.id)
 }
 
 function unsetBiologicalRelationship() {
@@ -399,12 +639,19 @@ function unsetBiologicalRelationship() {
 <style lang="scss">
 .radial-annotator {
   .biological_relationships_annotator {
+    .support-ap-toggle {
+      display: inline-block;
+      margin-bottom: 0.5em;
+    }
+
     .flip-button {
       min-width: 30px;
     }
+
     .relationship-title {
       margin-left: 1em;
     }
+
     .relation-title {
       margin-left: 2em;
     }

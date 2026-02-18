@@ -31,6 +31,7 @@ resources :anatomical_parts do
     get :ontologies, defaults: {format: :json}
     get :children_of, defaults: {format: :json}
     get :ontology_autocomplete, defaults: {format: :json}
+    get :templates, defaults: {format: :json}
 
     scope :select_ontologies, controller: 'tasks/anatomical_parts/select_ontologies' do
       # Scope these under the select_ontologies task controller for access

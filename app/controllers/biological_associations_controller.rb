@@ -45,14 +45,23 @@ class BiologicalAssociationsController < ApplicationController
   # POST /biological_associations
   # POST /biological_associations.json
   def create
-    @biological_association = BiologicalAssociation.new(biological_association_params)
+    if create_with_anatomical_parts?
+      service = ::BiologicalAssociations::CreateWithAnatomicalParts.new(biological_association_params)
+      success = service.call
+      @biological_association = service.biological_association
+    else
+      @biological_association = BiologicalAssociation.new(biological_association_params)
+      success = @biological_association.save
+    end
+
     respond_to do |format|
-      if @biological_association.save
+      if success
         format.html { redirect_to @biological_association, notice: 'Biological association was successfully created.' }
         format.json { render :show, status: :created, location: @biological_association }
       else
         format.html { render :new }
-        format.json { render json: @biological_association.errors, status: :unprocessable_content }
+        errors = @biological_association&.errors&.presence || { errors: service&.errors || [] }
+        format.json { render json: errors, status: :unprocessable_content }
       end
     end
   end
@@ -247,8 +256,20 @@ class BiologicalAssociationsController < ApplicationController
       :subject_global_id,
       :object_global_id,
       :rotate,
+      subject_anatomical_part_attributes: [:name, :uri, :uri_label, :is_material, :preparation_type_id],
+      object_anatomical_part_attributes: [:name, :uri, :uri_label, :is_material, :preparation_type_id],
+      subject_taxon_determination_attributes: [:otu_id],
+      object_taxon_determination_attributes: [:otu_id],
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
       citations_attributes: [:id, :is_original, :_destroy, :source_id, :pages, :citation_object_id, :citation_object_type],
     )
+  end
+
+  def create_with_anatomical_parts?
+    p = biological_association_params
+    p[:subject_anatomical_part_attributes].present? ||
+      p[:object_anatomical_part_attributes].present? ||
+      p[:subject_taxon_determination_attributes].present? ||
+      p[:object_taxon_determination_attributes].present?
   end
 end
