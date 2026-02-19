@@ -8,12 +8,18 @@ require 'yaml'
 #   d = ::Export::Coldp.download(o, 'foo')
 #   d.file_path
 #
+#   Current.user_id = ; Current.project_id = ;  o = Otu.find()  d = ::Export::Coldp.download(o, 'foo'); 
+#
 module Export
 
   # Exports to the Catalog of Life in the new "coldp" format.
   # http://api.col.plus/datapackage
   #
   # TODO:
+  #  * Resolve missing/something Refs
+  #  * Resolve duplicate/extra names?!
+  #   
+  #
   # * Status of Distribution  - always present in code, what's the positive assertion in 'status'
   # * Ensure all joins are Pipes
   # * Review/remove/update/add tests to check for coverage
