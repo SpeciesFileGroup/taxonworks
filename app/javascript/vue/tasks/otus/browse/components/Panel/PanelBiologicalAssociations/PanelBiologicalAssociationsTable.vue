@@ -39,6 +39,7 @@
         v-for="row in list"
         :key="row.id"
         :row="row"
+        @open-detail="emit('open-detail', $event)"
       />
     </tbody>
   </table>
@@ -53,4 +54,6 @@ defineProps({
     default: () => []
   }
 })
+
+const emit = defineEmits(['open-detail'])
 </script>

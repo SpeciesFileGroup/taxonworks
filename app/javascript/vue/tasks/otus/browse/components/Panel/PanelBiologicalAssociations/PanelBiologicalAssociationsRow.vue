@@ -4,6 +4,17 @@
       <div class="flex-row gap-small">
         <RadialAnnotator :global-id="row.globalId" />
         <RadialNavigator :global-id="row.globalId" />
+        <VBtn
+          circle
+          color="primary"
+          title="View details"
+          @click="emit('open-detail', row)"
+        >
+          <VIcon
+            name="expand"
+            x-small
+          />
+        </VBtn>
       </div>
     </td>
     <td class="table-cell-border-left-thick">
@@ -85,6 +96,8 @@
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import PanelBiologicalAssociationsRelated from './PanelBiologicalAssociationsRelated.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import { makeBrowseUrl } from '@/helpers'
 
 defineProps({
@@ -93,4 +106,6 @@ defineProps({
     required: true
   }
 })
+
+const emit = defineEmits(['open-detail'])
 </script>

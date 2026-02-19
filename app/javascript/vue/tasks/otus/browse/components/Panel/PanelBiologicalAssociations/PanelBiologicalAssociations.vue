@@ -6,9 +6,24 @@
     menu
     @menu="showModal = true"
   >
-    <div class="overflow-x-auto">
-      <PanelBiologicalAssociationsTable :list="filteredList" />
-    </div>
+    <SlidingStack>
+      <template #master="{ push }">
+        <div class="overflow-x-auto">
+          <PanelBiologicalAssociationsTable
+            :list="filteredList"
+            @open-detail="push"
+          />
+        </div>
+      </template>
+
+      <template #detail="{ payload, pop }">
+        <PanelBiologicalAssociationsDetail
+          :association="payload"
+          @close="pop"
+        />
+      </template>
+    </SlidingStack>
+
     <VModal
       v-if="showModal"
       @close="showModal = false"
@@ -55,7 +70,9 @@ import { BiologicalAssociation } from '@/routes/endpoints'
 import { getUnique, sortArray } from '@/helpers/arrays.js'
 import PanelLayout from '../PanelLayout.vue'
 import VModal from '@/components/ui/Modal'
+import SlidingStack from '@/components/ui/SlidingStack.vue'
 import PanelBiologicalAssociationsTable from './PanelBiologicalAssociationsTable.vue'
+import PanelBiologicalAssociationsDetail from './PanelBiologicalAssociationsDetail.vue'
 import PanelBiologicalAssociationsFilterList from './PanelBiologicalAssociationsFilterList.vue'
 import { listAdapter, EXTEND } from './utils/listAdapter.js'
 
