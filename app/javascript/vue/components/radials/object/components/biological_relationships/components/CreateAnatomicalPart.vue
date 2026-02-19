@@ -5,71 +5,29 @@
       :options="MODE_OPTIONS"
     />
 
-    <div
-      v-if="props.includeIsMaterial"
-      class="margin-small-top"
-    >
-      <label>
-        <input
-          type="checkbox"
-          v-model="form.is_material"
-        />
-        Is material
-      </label>
-    </div>
-
     <template v-if="mode === MODE_OPTIONS[0]">
-      <fieldset class="margin-small-top">
-        <legend>Name or URI</legend>
-
-        <div class="margin-small-bottom">
-          <input
-            v-model="form.name"
-            class="normal-input"
-            placeholder="Name"
-            type="text"
-          />
-        </div>
-
-        <div class="margin-small-bottom">or</div>
-
-        <div class="horizontal-left-content gap-small">
-          <input
-            v-model="form.uri_label"
-            class="normal-input"
-            placeholder="URI label"
-            type="text"
-          />
-          <input
-            v-model="form.uri"
-            class="normal-input"
-            placeholder="URI"
-            type="text"
-          />
-        </div>
-      </fieldset>
-
-      <div class="margin-small-top">
-        <label>
-          Preparation type
-          <select
-            v-model="form.preparation_type_id"
-            class="normal-input"
-          >
-            <option :value="null">None</option>
-            <option
-              v-for="type in preparationTypes"
-              :key="type.id"
-              :value="type.id"
-            >
-              {{ type.name }}
-            </option>
-          </select>
-        </label>
-      </div>
+      <AnatomicalPartFormFields
+        v-model="form"
+        :include-is-material="props.includeIsMaterial"
+        show-ontology-search
+        preparation-type-display="select"
+      />
     </template>
 
     <template v-else>
+      <div
+        v-if="props.includeIsMaterial"
+        class="margin-small-top"
+      >
+        <label>
+          <input
+            type="checkbox"
+            v-model="form.is_material"
+          />
+          Is material
+        </label>
+      </div>
+
       <div
         v-if="props.requiresIsMaterialBeforeTemplate && form.is_material === null"
         class="margin-small-top"
@@ -103,8 +61,9 @@
 </template>
 
 <script setup>
-import { AnatomicalPart, PreparationType } from '@/routes/endpoints'
+import { AnatomicalPart } from '@/routes/endpoints'
 import VSwitch from '@/components/ui/VSwitch.vue'
+import AnatomicalPartFormFields from '@/components/radials/object/components/origin_relationship/create/anatomical_parts/components/AnatomicalPartFormFields.vue'
 import { computed, onMounted, ref, watch } from 'vue'
 
 const MODE_OPTIONS = ['Create new part', 'Create from existing part']
@@ -125,7 +84,6 @@ const emit = defineEmits(['change'])
 
 const mode = ref(MODE_OPTIONS[1])
 const templates = ref([])
-const preparationTypes = ref([])
 const selectedTemplateIndex = ref(null)
 
 const form = ref({
@@ -218,12 +176,6 @@ onMounted(() => {
   AnatomicalPart.templates()
     .then(({ body }) => {
       templates.value = body
-    })
-    .catch(() => {})
-
-  PreparationType.all()
-    .then(({ body }) => {
-      preparationTypes.value = body
     })
     .catch(() => {})
 })

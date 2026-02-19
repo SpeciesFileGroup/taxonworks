@@ -5,85 +5,11 @@
     />
 
     <div>
-      <fieldset>
-        <legend>Name or URI</legend>
-        <div class="margin-large-bottom">
-          <input
-            class="normal-input"
-            type="text"
-            v-model="anatomicalPart.name"
-            placeholder="Name"
-          />
-        </div>
-
-        or
-
-        <fieldset class="margin-large-top">
-          <legend>Search ontologies for terms</legend>
-          <div class="margin-medium-bottom margin-small-top">Ontology search sources:</div>
-          <div>
-            <div
-              v-for="pref in ontologyPreferences"
-              :key="pref.oid"
-            >
-              <input
-                type="checkbox"
-                :value="pref.oid"
-                v-model="selectedOntologies"
-                class="margin-medium-left"
-              >
-                <span :title="pref.oid" class="padding-xsmall-left">
-                  {{ pref.title }}
-                </span>
-              </input>
-            </div>
-          </div>
-          <Autocomplete
-            url="/anatomical_parts/ontology_autocomplete"
-            :add-params="{ ontologies: selectedOntologies }"
-            label="ontology_label"
-            min="3"
-            clear-after
-            placeholder="Search for an ontology term, e.g. femur"
-            param="term"
-            class="margin-large-top"
-            @get-item="
-              (value) => {
-                anatomicalPart.uri_label = value.label
-                anatomicalPart.uri = value.iri
-            }"
-          />
-        </fieldset>
-
-
-        <div class="margin-large-top flex-row gap-medium">
-          <input
-            class="normal-input input-width-smaller"
-            type="text"
-            v-model="anatomicalPart.uri_label"
-            :title="anatomicalPart.uri_label"
-            placeholder="URI label"
-          />
-          <input
-            class="normal-input input-width-larger"
-            type="text"
-            v-model="anatomicalPart.uri"
-            :title="anatomicalPart.uri"
-            placeholder="URI"
-          />
-        </div>
-      </fieldset>
-
-      <input
-        class="margin-large-top margin-large-bottom"
-        type="checkbox"
-        v-model="anatomicalPart.is_material"
-      >
-        Is material
-      </input>
-
-      <PreparationType
+      <AnatomicalPartFormFields
         v-model="anatomicalPart"
+        include-is-material
+        show-ontology-search
+        preparation-type-display="radio"
       />
 
       <div class="horizontal-left-content gap-small margin-large-top margin-large-bottom">
@@ -114,8 +40,7 @@ import { computed, onMounted, ref } from 'vue'
 import { AnatomicalPart } from '@/routes/endpoints'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
-import PreparationType from './components/PreparationType.vue'
-import Autocomplete from '@/components/ui/Autocomplete.vue'
+import AnatomicalPartFormFields from './components/AnatomicalPartFormFields.vue'
 import { URLParamsToJSON } from '@/helpers'
 import { CREATE_VERB, EDIT_VERB } from '@/constants'
 
@@ -140,8 +65,6 @@ const props = defineProps({
 })
 
 const anatomicalPart = ref({})
-const ontologyPreferences = ref([])
-const selectedOntologies = ref([])
 const isLoading = ref(false)
 
 const emit = defineEmits([
@@ -234,31 +157,5 @@ onMounted(() => {
     }
   }
 
-  AnatomicalPart.ontologyPreferences()
-    .then(({ body }) => {
-      if (body.length > 0) {
-        ontologyPreferences.value = body
-      } else {
-        ontologyPreferences.value = [{oid: 'uberon', title: 'Uber-anatomy ontology'}]
-      }
-      selectedOntologies.value = ontologyPreferences.value.map((pref) => pref.oid)
-    })
-    .catch(() => {})
 })
 </script>
-
-<style scoped>
-.input-width-larger {
-  flex-grow: 2;
-}
-
-.input-width-smaller {
-  flex-grow: 1;
-}
-
-.uri-inputs {
-  display: flex;
-  gap: 1em;
-}
-
-</style>
