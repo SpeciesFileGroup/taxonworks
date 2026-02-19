@@ -1,6 +1,5 @@
 <template>
   <PanelLayout
-    :status="status"
     :title="title"
     :spinner="isLoading"
     menu
@@ -27,82 +26,86 @@
         }}</label>
       </template>
     </div>
-    <div
-      v-if="nomenclature"
-      :class="
-        Object.assign(
-          {},
-          ...preferences.filterSections.show
-            .concat(preferences.filterSections.topic)
-            .map((item) => ({ [item.key]: !item.value }))
-        )
-      "
-    >
-      <timeline-citations :citations="filteredList" />
-      <h3>References</h3>
-      <ul
+    <template v-if="filteredList?.length">
+      <div
         v-if="nomenclature"
-        class="no_bullets"
+        :class="
+          Object.assign(
+            {},
+            ...preferences.filterSections.show
+              .concat(preferences.filterSections.topic)
+              .map((item) => ({ [item.key]: !item.value }))
+          )
+        "
       >
-        <template v-if="selectedReferences.length">
-          <template
-            v-for="item in references"
-            :key="item"
-          >
-            <li
-              v-show="filterSource(nomenclature.sources.list[item])"
-              class="horizontal-left-content gap-small padding-small-bottom padding-small-top"
+        <timeline-citations :citations="filteredList" />
+        <div class="text-base font-bold">References</div>
+        <ul
+          v-if="nomenclature"
+          class="no_bullets"
+        >
+          <template v-if="selectedReferences.length">
+            <template
+              v-for="item in references"
+              :key="item"
             >
-              <RadialAnnotator :global-id="item" />
-              <RadialNavigation :global-id="item" />
-              <label>
-                <input
-                  v-model="references"
-                  :value="item"
-                  class="margin-small-right"
-                  type="checkbox"
-                />
-                <span v-html="nomenclature.sources.list[item].cached" />
-              </label>
-            </li>
+              <li
+                v-show="filterSource(nomenclature.sources.list[item])"
+                class="horizontal-left-content gap-small padding-small-bottom padding-small-top"
+              >
+                <RadialAnnotator :global-id="item" />
+                <RadialNavigation :global-id="item" />
+                <label>
+                  <input
+                    v-model="references"
+                    :value="item"
+                    class="margin-small-right"
+                    type="checkbox"
+                  />
+                  <span v-html="nomenclature.sources.list[item].cached" />
+                </label>
+              </li>
+            </template>
           </template>
-        </template>
-        <template v-else>
-          <template
-            v-for="(item, key) in nomenclature.sources.list"
-            :key="key"
-          >
-            <li
-              v-show="filterSource(item)"
-              class="horizontal-left-content gap-small padding-small-bottom padding-small-top"
+          <template v-else>
+            <template
+              v-for="(item, key) in nomenclature.sources.list"
+              :key="key"
             >
-              <RadialAnnotator :global-id="key" />
-              <RadialNavigation :global-id="key" />
-              <label>
-                <input
-                  v-model="references"
-                  :value="key"
-                  class="margin-small-right"
-                  type="checkbox"
-                />
-                <span v-html="item.cached" />
-              </label>
-              <template v-if="showReferencesTopic">
-                <span
-                  v-for="(topic, index) in getSourceTopics(item).map(
-                    (key) => nomenclature.topics.list[key]
-                  )"
-                  class="pill topic references_topics"
-                  :key="index"
-                  :style="{ 'background-color': topic.css_color }"
-                  v-html="topic.name"
-                />
-              </template>
-            </li>
+              <li
+                v-show="filterSource(item)"
+                class="horizontal-left-content gap-small padding-small-bottom padding-small-top"
+              >
+                <RadialAnnotator :global-id="key" />
+                <RadialNavigation :global-id="key" />
+                <label>
+                  <input
+                    v-model="references"
+                    :value="key"
+                    class="margin-small-right"
+                    type="checkbox"
+                  />
+                  <span v-html="item.cached" />
+                </label>
+                <template v-if="showReferencesTopic">
+                  <span
+                    v-for="(topic, index) in getSourceTopics(item).map(
+                      (key) => nomenclature.topics.list[key]
+                    )"
+                    class="pill topic references_topics"
+                    :key="index"
+                    :style="{ 'background-color': topic.css_color }"
+                    v-html="topic.name"
+                  />
+                </template>
+              </li>
+            </template>
           </template>
-        </template>
-      </ul>
-    </div>
+        </ul>
+      </div>
+    </template>
+    <div v-else>No citations available.</div>
+
     <soft-validation-modal />
     <PanelTimelineSettings
       v-if="isModalVisible"

@@ -79,7 +79,6 @@ const props = defineProps({
 const emit = defineEmits(['menu'])
 
 const linkName = computed(() => props.name || props.title)
-const hidden = ref(false)
 </script>
 
 <style>

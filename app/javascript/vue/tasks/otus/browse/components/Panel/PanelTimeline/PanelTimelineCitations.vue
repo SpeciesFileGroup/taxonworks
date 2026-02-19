@@ -1,5 +1,5 @@
 <template>
-  <h3>Citations ({{ citations.length }})</h3>
+  <div class="text-base font-bold">Citations ({{ citations.length }})</div>
   <div
     v-if="citations.length"
     class="margin-medium-top margin-medium-bottom"

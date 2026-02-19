@@ -29,9 +29,13 @@
               class="horizontal-left-content gap-small"
             >
               <span
-                :class="{
-                  'font-bold': store.selectedOtus.some((o) => o.id === otu.id)
-                }"
+                v-if="store.selectedOtus.some((o) => o.id === otu.id)"
+                class="font-bold"
+              >
+                > {{ otu.object_label }}
+              </span>
+              <span
+                v-else
                 v-html="otu.object_label"
               />
             </li>

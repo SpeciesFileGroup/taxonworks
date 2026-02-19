@@ -12,7 +12,9 @@
         />
         Back
       </VBtn>
-      <h3 class="ba-detail__title">Biological Association</h3>
+      <div class="ba-detail__title font-bold text-sm">
+        Biological Association - <span v-html="association.objectTag" />
+      </div>
       <div class="flex-row gap-small">
         <RadialAnnotator :global-id="association.globalId" />
         <RadialNavigator :global-id="association.globalId" />
@@ -173,12 +175,15 @@ const emit = defineEmits(['close'])
   align-items: center;
   gap: 12px;
   padding-bottom: 12px;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--border-color);
   margin-bottom: 16px;
   flex-shrink: 0;
 }
 
 .ba-detail__title {
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
   flex: 1;
   margin: 0;
 }
@@ -197,10 +202,10 @@ const emit = defineEmits(['close'])
 
 .ba-detail__party {
   flex: 1;
-  background: #f9f9f9;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  padding: 12px;
+  background: var(--bg-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-medium);
+  padding: 1rem;
 }
 
 .ba-detail__party-heading {
@@ -208,7 +213,6 @@ const emit = defineEmits(['close'])
   font-size: 0.85em;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #555;
 }
 
 .ba-detail__relationship {
@@ -233,7 +237,6 @@ const emit = defineEmits(['close'])
 
 .ba-detail__dl dt {
   font-weight: 600;
-  color: #444;
   white-space: nowrap;
 }
 
@@ -250,15 +253,10 @@ const emit = defineEmits(['close'])
   font-size: 0.85em;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #555;
 }
 
 .ba-detail__list {
   margin: 0;
   padding-left: 18px;
-}
-
-.ba-detail__pages {
-  color: #666;
 }
 </style>
