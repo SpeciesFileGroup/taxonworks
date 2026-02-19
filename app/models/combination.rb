@@ -487,7 +487,7 @@ class Combination < TaxonName
     sel = s.join(',')
 
     Combination.joins(:combination_taxon_names)
-      .left_join(:source)
+      .left_joins(:source)
       .select(sel)
       .group('taxon_names.id, sources.id, citations.pages, citations.is_original')
   end
