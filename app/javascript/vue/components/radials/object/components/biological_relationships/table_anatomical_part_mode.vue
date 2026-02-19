@@ -6,6 +6,7 @@
           <th class="subject-col">Subject</th>
           <th class="relationship-col">Relationship</th>
           <th class="related-col">Related</th>
+          <th class="inverted-col">Inverted</th>
           <th class="actions-col"></th>
         </tr>
       </thead>
@@ -44,8 +45,12 @@
           />
           <td
             class="related-col"
+            :title="item.object?.object_label || ''"
             v-html="item.object?.object_tag"
           />
+          <td class="inverted-col">
+            {{ item.biological_association_object_id === props.metadata.object_id }}
+          </td>
           <td class="actions-col">
             <div class="horizontal-right-content gap-xsmall">
               <citation-count
@@ -91,10 +96,15 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
 import CitationCount from '../shared/citationsCount.vue'
 
-defineProps({
+const props = defineProps({
   list: {
     type: Array,
     default: () => []
+  },
+
+  metadata: {
+    type: Object,
+    required: true
   }
 })
 
@@ -121,7 +131,7 @@ function uriPillTitle(item) {
 <style lang="scss" scoped>
 .vue-table {
   width: 100%;
-  table-layout: fixed;
+  table-layout: auto;
 
   tr {
     cursor: default;
@@ -136,20 +146,28 @@ function uriPillTitle(item) {
 }
 
 .subject-col {
-  width: 30%;
+  width: 18%;
 }
 
 .relationship-col {
-  width: 20%;
+  width: 24%;
   word-break: break-word;
 }
 
 .related-col {
-  width: 30%;
+  width: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.inverted-col {
+  width: 1%;
+  white-space: nowrap;
 }
 
 .actions-col {
-  width: 20%;
+  width: 1%;
+  white-space: nowrap;
 }
 
 .subject-pill {
@@ -177,8 +195,24 @@ function uriPillTitle(item) {
   white-space: nowrap;
 }
 
-.subject-uri-label {
-  font-weight: 600;
+.related-col :deep(.otu_tag),
+.related-col :deep(.taxon_name),
+.related-col :deep(.taxon_name_tag_valid),
+.related-col :deep(.taxon_name_tag),
+.related-col :deep(.otu_tag_taxon_name) {
+  max-width: 100%;
+}
+
+.related-col :deep(.otu_tag) {
+  display: inline-block;
+  overflow: hidden;
+}
+
+.related-col :deep(.otu_tag_taxon_name) {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .uri-pill {

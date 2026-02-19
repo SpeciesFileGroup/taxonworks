@@ -9,7 +9,7 @@
           v-model="supportsAnatomicalPartCreation"
           type="checkbox"
         />
-        Support anatomical parts creation
+        With anatomical parts
       </label>
     </Teleport>
 
@@ -233,6 +233,7 @@
       </h3>
       <TableAnatomicalPartMode
         :list="anatomicalPartModeList"
+        :metadata="metadata"
         @edit="editBiologicalRelationship"
         @delete="removeItem"
       />
