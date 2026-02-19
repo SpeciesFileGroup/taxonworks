@@ -19,6 +19,7 @@ module Export::Coldp::Files::Name
     :core_names,
     :combination_names,
     :original_combination_names,
+    
     :invalid_family_and_higher_names,
     :invalid_core_names,
     :invalid_original_combination_names,

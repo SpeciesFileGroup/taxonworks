@@ -18,7 +18,7 @@ module Export
   # TODO:
   #  * Resolve missing/something Refs
   #  * Resolve duplicate/extra names?!
-  #   
+  #  * AcceptedName missing for Synonyms
   #
   # * Status of Distribution  - always present in code, what's the positive assertion in 'status'
   # * Ensure all joins are Pipes

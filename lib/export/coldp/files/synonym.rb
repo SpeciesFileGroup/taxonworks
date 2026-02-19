@@ -41,8 +41,8 @@ module Export::Coldp::Files::Synonym
 
       add_invalid_family_and_higher_names(otu, csv, project_members, otu_lookup)
       add_invalid_core_names(otu, csv, project_members, otu_lookup)
-      add_original_combinations(otu, csv, project_members, otu_lookup)
-      add_invalid_original_combinations(otu, csv, project_members, otu_lookup)
+      add_original_combinations(otu, csv, project_members, otu_lookup)  # Handles reified IDs
+      add_invalid_original_combinations(otu, csv, project_members, otu_lookup)  # Handles reified IDs
       add_combinations(otu, csv, project_members, otu_lookup)
       # add_historical_combinations(otu, csv, project_members, otu_lookup)
     end
@@ -54,8 +54,15 @@ module Export::Coldp::Files::Synonym
 
     # Iterate directly over names (like name.rb does) to avoid CTE truncation issues
     names.find_each do |t|
+
+      # Names like missaplications do not point to a valid name, i.e. their id == cached_valid_taxon_.
+      #  - Add a synonym relationships to have them appear here.
+      #  - Names skipped here are treated as bare names in CoL
+      taxon_id =  otu_lookup[t.cached_valid_taxon_name_id]
+      next unless taxon_id
+
       csv << [
-        otu_lookup[t.cached_valid_taxon_name_id],                   # taxonID attached to the current valid concept
+        taxon_id,                                                   # taxonID attached to the current valid concept
         t.id,                                                       # nameID
         nil,                                                        # status  TODO: def status(taxon_name_id)
         nil,                                                        # remarks
