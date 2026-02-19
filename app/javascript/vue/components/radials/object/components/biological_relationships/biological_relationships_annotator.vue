@@ -6,7 +6,7 @@
     >
       <label class="support-ap-toggle">
         <input
-          v-model="supportsAnatomicalPartCreation"
+          v-model="withAnatomicalPartCreation"
           type="checkbox"
         />
         With anatomical parts
@@ -44,11 +44,12 @@
       @edit="setCitation"
       @delete="removeCitation"
     />
+
     <div>
       <h3 v-html="metadata.object_tag" />
 
       <AnatomicalPartToggleFieldset
-        v-if="supportsAnatomicalPartCreation"
+        v-if="withAnatomicalPartCreation"
         v-model="enableSubjectAnatomicalPart"
         label="Subject anatomical part"
         hint="Enable to create a subject anatomical part"
@@ -60,6 +61,7 @@
           @change="setSubjectAnatomicalPart"
         />
       </AnatomicalPartToggleFieldset>
+
       <h3
         v-if="biologicalRelationship"
         class="relationship-title middle"
@@ -140,7 +142,7 @@
     />
 
     <AnatomicalPartToggleFieldset
-      v-if="supportsAnatomicalPartCreation"
+      v-if="withAnatomicalPartCreation"
       v-model="enableRelatedAnatomicalPart"
       label="Related anatomical part"
       hint="Enable to create a related anatomical part"
@@ -177,51 +179,13 @@
       @delete="removeItem"
     />
 
-    <template v-if="supportsAnatomicalPartCreation">
-      <div class="anatomical-part-subject-table-block anatomical-part-summary">
-        <div class="horizontal-left-content middle gap-small">
-          <h3 class="anatomical-part-heading anatomical-part-summary-heading">
-            <span>Anatomical parts of</span>
-            <span
-              class="anatomical-part-heading-object"
-              v-html="anatomicalPartSubjectHeadingHtml"
-            />
-            <span>as subject:</span>
-          </h3>
-          <VBtn
-            color="primary"
-            @click="showAnatomicalPartTableModal = true"
-          >
-            View table ({{ anatomicalPartModeList.length }})
-          </VBtn>
-        </div>
-      </div>
-    </template>
-
-    <VModal
-      v-if="showAnatomicalPartTableModal"
-      @close="showAnatomicalPartTableModal = false"
-    >
-      <template #header>
-        <h3 class="anatomical-part-heading margin-remove">
-          <span>Anatomical parts of</span>
-          <span
-            class="anatomical-part-heading-object"
-            v-html="anatomicalPartSubjectHeadingHtml"
-          />
-          <span>as subject</span>
-        </h3>
-      </template>
-      <template #body>
-        <div class="ap-table-modal-body">
-          <TableAnatomicalPartMode
-            :list="anatomicalPartModeList"
-            :metadata="metadata"
-            @delete="removeItem"
-          />
-        </div>
-      </template>
-    </VModal>
+    <AnatomicalPartSubjectSummary
+      v-if="withAnatomicalPartCreation"
+      :list="anatomicalPartModeList"
+      :metadata="metadata"
+      :subject-heading-html="anatomicalPartSubjectHeadingHtml"
+      @delete="removeItem"
+    />
   </div>
 </template>
 
@@ -229,15 +193,14 @@
 import Biological from '@/components/Form/FormBiologicalAssociation/BiologicalAssociationRelationship.vue'
 import Related from '@/components/Form/FormBiologicalAssociation/BiologicalAssociationRelated.vue'
 import TableList from './table.vue'
-import TableAnatomicalPartMode from './table_anatomical_part_mode.vue'
 import CreateAnatomicalPart from './components/CreateAnatomicalPart.vue'
 import AnatomicalPartToggleFieldset from './components/AnatomicalPartToggleFieldset.vue'
 import RelatedAnatomicalPartPanel from './components/RelatedAnatomicalPartPanel.vue'
+import AnatomicalPartSubjectSummary from './components/AnatomicalPartSubjectSummary.vue'
 import useBiologicalAssociationAnatomicalParts from './composables/useBiologicalAssociationAnatomicalParts.js'
 import LockComponent from '@/components/ui/VLock/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
-import VModal from '@/components/ui/Modal.vue'
 import FormCitation from '@/components/Form/FormCitation.vue'
 import makeEmptyCitation from '../../helpers/makeEmptyCitation.js'
 import DisplayList from '@/components/displayList.vue'
@@ -309,7 +272,6 @@ const biologicalRelation = ref()
 const biologicalRelationship = ref()
 const citation = ref(makeEmptyCitation())
 const flip = ref(false)
-const showAnatomicalPartTableModal = ref(false)
 
 const lock = reactive({
   source: false,
@@ -325,8 +287,8 @@ const canAutoSaveOnRelatedSelection = computed(() => {
     return false
   }
 
-  // AP support mode is explicit-create only.
-  if (supportsAnatomicalPartCreation.value) {
+  // AnatomicalPart support mode is explicit-create only.
+  if (withAnatomicalPartCreation.value) {
     return false
   }
 
@@ -372,7 +334,7 @@ const anatomicalPartSubjectHeadingHtml = computed(() => {
 })
 
 const {
-  supportsAnatomicalPartCreation,
+  withAnatomicalPartCreation,
   enableSubjectAnatomicalPart,
   enableRelatedAnatomicalPart,
   relatedTaxonDeterminationOtuId,
@@ -440,7 +402,7 @@ onBeforeMount(() => {
     list.value = body
   })
 
-  if (supportsAnatomicalPartCreation.value) {
+  if (withAnatomicalPartCreation.value) {
     loadAnatomicalPartModeList()
   }
 })
@@ -501,7 +463,7 @@ async function saveAssociation() {
   saveRequest
     .then(({ body }) => {
       addToList(body)
-      if (supportsAnatomicalPartCreation.value) {
+      if (withAnatomicalPartCreation.value) {
         loadAnatomicalPartModeList()
       }
       reset()
@@ -520,7 +482,7 @@ async function saveAssociation() {
 function removeItem(item) {
   BiologicalAssociation.destroy(item.id).then(() => {
     removeFromList(item)
-    if (supportsAnatomicalPartCreation.value) {
+    if (withAnatomicalPartCreation.value) {
       loadAnatomicalPartModeList()
     }
   })

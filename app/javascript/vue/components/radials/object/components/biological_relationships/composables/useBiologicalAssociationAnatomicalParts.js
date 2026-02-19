@@ -2,8 +2,8 @@ import { computed, ref, watch } from 'vue'
 import { TaxonDetermination } from '@/routes/endpoints'
 
 const STORAGE_KEYS = {
-  supportsAnatomicalPartCreation:
-    'radialObject::biologicalRelationship::supportsAnatomicalPartCreation',
+  withAnatomicalPartCreation:
+    'radialObject::biologicalRelationship::withAnatomicalPartCreation',
   enableSubjectAnatomicalPart:
     'radialObject::biologicalRelationship::enableSubjectAnatomicalPart',
   enableRelatedAnatomicalPart:
@@ -17,7 +17,7 @@ export default function useBiologicalAssociationAnatomicalParts({
   createdBiologicalAssociation,
   loadAnatomicalPartModeList
 }) {
-  const supportsAnatomicalPartCreation = ref(false)
+  const withAnatomicalPartCreation = ref(false)
   const enableSubjectAnatomicalPart = ref(false)
   const enableRelatedAnatomicalPart = ref(false)
 
@@ -31,7 +31,7 @@ export default function useBiologicalAssociationAnatomicalParts({
 
   const usesAnatomicalPartFlow = computed(
     () =>
-      supportsAnatomicalPartCreation.value &&
+      withAnatomicalPartCreation.value &&
       (enableSubjectAnatomicalPart.value || enableRelatedAnatomicalPart.value)
   )
 
@@ -106,7 +106,7 @@ export default function useBiologicalAssociationAnatomicalParts({
 
   async function ensureRelatedTaxonDeterminationRequirements() {
     if (
-      !supportsAnatomicalPartCreation.value ||
+      !withAnatomicalPartCreation.value ||
       !enableRelatedAnatomicalPart.value ||
       !biologicalRelation.value?.id
     ) {
@@ -172,8 +172,8 @@ export default function useBiologicalAssociationAnatomicalParts({
     return mapped
   }
 
-  watch(supportsAnatomicalPartCreation, (newVal) => {
-    sessionStorage.setItem(STORAGE_KEYS.supportsAnatomicalPartCreation, newVal)
+  watch(withAnatomicalPartCreation, (newVal) => {
+    sessionStorage.setItem(STORAGE_KEYS.withAnatomicalPartCreation, newVal)
 
     if (newVal) {
       loadAnatomicalPartModeList()
@@ -214,9 +214,9 @@ export default function useBiologicalAssociationAnatomicalParts({
   })
 
   function loadAnatomicalPartSessionState() {
-    supportsAnatomicalPartCreation.value =
+    withAnatomicalPartCreation.value =
       convertType(
-        sessionStorage.getItem(STORAGE_KEYS.supportsAnatomicalPartCreation)
+        sessionStorage.getItem(STORAGE_KEYS.withAnatomicalPartCreation)
       ) === true
 
     enableSubjectAnatomicalPart.value =
@@ -229,7 +229,7 @@ export default function useBiologicalAssociationAnatomicalParts({
   }
 
   return {
-    supportsAnatomicalPartCreation,
+    withAnatomicalPartCreation,
     enableSubjectAnatomicalPart,
     enableRelatedAnatomicalPart,
     subjectAnatomicalPart,
