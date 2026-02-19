@@ -60,16 +60,7 @@
               />
               <RadialAnnotator :global-id="item.global_id" />
               <RadialObject :global-id="item.global_id" />
-              <VBtn
-                circle
-                color="primary"
-                @click="emit('edit', Object.assign({}, item))"
-              >
-                <VIcon
-                  name="pencil"
-                  x-small
-                />
-              </VBtn>
+              <RadialNavigator :global-id="item.global_id" />
 
               <VBtn
                 circle
@@ -94,6 +85,7 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import CitationCount from '../shared/citationsCount.vue'
 
 const props = defineProps({
@@ -108,7 +100,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['delete', 'edit'])
+const emit = defineEmits(['delete'])
 
 function deleteItem(item) {
   if (

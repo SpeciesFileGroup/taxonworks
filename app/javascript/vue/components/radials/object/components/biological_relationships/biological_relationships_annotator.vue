@@ -234,7 +234,6 @@
       <TableAnatomicalPartMode
         :list="anatomicalPartModeList"
         :metadata="metadata"
-        @edit="editBiologicalRelationship"
         @delete="removeItem"
       />
       </div>
@@ -400,13 +399,11 @@ const displayRelated = computed(() => {
 })
 
 const createdBiologicalAssociation = computed(() =>
-  supportsAnatomicalPartCreation.value
-    ? undefined
-    : list.value.find(
-        (item) =>
-          item.biological_relationship_id === biologicalRelationship.value?.id &&
-          item.biological_association_object_id === biologicalRelation.value?.id
-      )
+  list.value.find(
+    (item) =>
+      item.biological_relationship_id === biologicalRelationship.value?.id &&
+      item.biological_association_object_id === biologicalRelation.value?.id
+  )
 )
 
 const biologicalRelationLabel = computed(

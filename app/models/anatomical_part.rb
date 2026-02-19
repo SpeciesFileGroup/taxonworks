@@ -81,7 +81,7 @@ class AnatomicalPart < ApplicationRecord
   belongs_to :preparation_type, inverse_of: :anatomical_parts
 
   # Needed so we can build the origin chain at the same time we're using it to
-  # verify that a new AnitomicalPart has an OTU ancestor.
+  # verify that a new AnatomicalPart has an OTU ancestor.
   # Probably not needed outside of creation.
   has_one :inbound_origin_relationship,
     -> { where(new_object_type: 'AnatomicalPart') },
