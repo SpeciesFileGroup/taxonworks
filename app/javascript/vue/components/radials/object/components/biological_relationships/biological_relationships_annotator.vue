@@ -178,22 +178,50 @@
     />
 
     <template v-if="supportsAnatomicalPartCreation">
-      <div class="anatomical-part-subject-table-block">
-      <h3 class="anatomical-part-heading">
-        <span>Anatomical parts of</span>
-        <span
-          class="anatomical-part-heading-object"
-          v-html="anatomicalPartSubjectHeadingHtml"
-        />
-        <span>as subject:</span>
-      </h3>
-      <TableAnatomicalPartMode
-        :list="anatomicalPartModeList"
-        :metadata="metadata"
-        @delete="removeItem"
-      />
+      <div class="anatomical-part-subject-table-block anatomical-part-summary">
+        <div class="horizontal-left-content middle gap-small">
+          <h3 class="anatomical-part-heading anatomical-part-summary-heading">
+            <span>Anatomical parts of</span>
+            <span
+              class="anatomical-part-heading-object"
+              v-html="anatomicalPartSubjectHeadingHtml"
+            />
+            <span>as subject:</span>
+          </h3>
+          <VBtn
+            color="primary"
+            @click="showAnatomicalPartTableModal = true"
+          >
+            View table ({{ anatomicalPartModeList.length }})
+          </VBtn>
+        </div>
       </div>
     </template>
+
+    <VModal
+      v-if="showAnatomicalPartTableModal"
+      @close="showAnatomicalPartTableModal = false"
+    >
+      <template #header>
+        <h3 class="anatomical-part-heading margin-remove">
+          <span>Anatomical parts of</span>
+          <span
+            class="anatomical-part-heading-object"
+            v-html="anatomicalPartSubjectHeadingHtml"
+          />
+          <span>as subject</span>
+        </h3>
+      </template>
+      <template #body>
+        <div class="ap-table-modal-body">
+          <TableAnatomicalPartMode
+            :list="anatomicalPartModeList"
+            :metadata="metadata"
+            @delete="removeItem"
+          />
+        </div>
+      </template>
+    </VModal>
   </div>
 </template>
 
@@ -209,6 +237,7 @@ import useBiologicalAssociationAnatomicalParts from './composables/useBiological
 import LockComponent from '@/components/ui/VLock/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import VModal from '@/components/ui/Modal.vue'
 import FormCitation from '@/components/Form/FormCitation.vue'
 import makeEmptyCitation from '../../helpers/makeEmptyCitation.js'
 import DisplayList from '@/components/displayList.vue'
@@ -280,6 +309,7 @@ const biologicalRelation = ref()
 const biologicalRelationship = ref()
 const citation = ref(makeEmptyCitation())
 const flip = ref(false)
+const showAnatomicalPartTableModal = ref(false)
 
 const lock = reactive({
   source: false,
@@ -594,6 +624,16 @@ function unsetBiologicalRelationship() {
       border-top: 1px solid #d9d9d9;
     }
 
+    .anatomical-part-summary-heading {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text-muted-color);
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     .anatomical-part-heading {
       display: inline-flex;
       align-items: center;
@@ -606,6 +646,13 @@ function unsetBiologicalRelationship() {
       display: inline-flex;
       align-items: center;
       line-height: 1;
+    }
+
+    .ap-table-modal-body {
+      min-width: 960px;
+      max-width: 100%;
+      max-height: 70vh;
+      overflow: auto;
     }
   }
 }

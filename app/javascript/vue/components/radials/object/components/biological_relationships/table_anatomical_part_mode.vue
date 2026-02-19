@@ -46,8 +46,12 @@
           <td
             class="related-col"
             :title="item.object?.object_label || ''"
-            v-html="item.object?.object_tag"
-          />
+          >
+            <div
+              class="related-content"
+              v-html="item.object?.object_tag"
+            />
+          </td>
           <td class="inverted-col">
             {{ item.biological_association_object_id === props.metadata.object_id }}
           </td>
@@ -123,7 +127,7 @@ function uriPillTitle(item) {
 <style lang="scss" scoped>
 .vue-table {
   width: 100%;
-  table-layout: auto;
+  table-layout: fixed;
 
   tr {
     cursor: default;
@@ -138,27 +142,47 @@ function uriPillTitle(item) {
 }
 
 .subject-col {
-  width: 18%;
+  width: 16%;
 }
 
 .relationship-col {
   width: 24%;
   word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .related-col {
-  width: auto;
+  width: 34%;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+.related-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem 0.35rem;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+.related-col :deep(br) {
+  display: none;
+}
+
+.related-content :deep(*) {
+  vertical-align: middle;
+}
+
 .inverted-col {
-  width: 1%;
+  width: 10%;
   white-space: nowrap;
 }
 
 .actions-col {
-  width: 1%;
+  width: 16%;
   white-space: nowrap;
 }
 
@@ -198,6 +222,7 @@ function uriPillTitle(item) {
 .related-col :deep(.otu_tag) {
   display: inline-block;
   overflow: hidden;
+  vertical-align: middle;
 }
 
 .related-col :deep(.otu_tag_taxon_name) {
