@@ -984,6 +984,15 @@ duplicate_otus_task:
     - otu
   status: prototype
   description: 'A list of OTUs with whose combination of name and taxon name are found exactly/ in duplicate.'
+match_otu_by_taxon_name_task:
+  hub: true
+  name: 'Match OTU by taxon name'
+  related:
+  categories:
+    - otu
+    - nomenclature
+  status: prototype
+  description: 'Match external taxon names to TaxonWorks OTUs via taxon name matching. Supports exact and fuzzy matching, synonym resolution, and batch processing.'
 print_key_task:
   hub: false
   name: 'Print key'

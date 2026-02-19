@@ -164,22 +164,18 @@ class CachedMapItem < ApplicationRecord
     raise TaxonWorks::Error, "Missing pre-computed ids for cached maps origin '#{data_origin}'" if precomputed_ids.blank?
     raise TaxonWorks::Error, "Expected pre-computed ids for cached maps origin '#{data_origin}' to be a SQL IN list" unless precomputed_ids.is_a?(String)
 
-    sql = <<~SQL
-      SELECT gi.id
-      FROM geographic_items gi
-      CROSS JOIN (
-        SELECT geography
-        FROM geographic_items
-        WHERE id = #{geographic_item_id.to_i}
-      ) AS target
-      -- Careful with IN here if we move to other data_origins (currently ~4k ids)
-      WHERE gi.id IN (#{precomputed_ids})
-        AND ST_Intersects(gi.geography, target.geography)
+    intersects_sql = <<~SQL.squish
+      ST_Intersects(
+        geographic_items.geography,
+        (SELECT geography FROM geographic_items WHERE id = #{geographic_item_id.to_i})
+      )
     SQL
 
-    a = ActiveRecord::Base.connection.select_values(sql).map!(&:to_i)
+    base = GeographicItem
+      .where("geographic_items.id IN (#{precomputed_ids})")
+      .where(intersects_sql)
 
-    return a if buffer.nil?
+    return base.pluck(:id) if buffer.nil?
 
     # Refine the pass by smoothing using buffer/st_within
     buffer_filter = GeographicItem
@@ -196,8 +192,7 @@ class CachedMapItem < ApplicationRecord
         )
       )
 
-    return GeographicItem
-      .where(id: a)
+    return base
       .where(buffer_filter)
       .pluck(:id)
   end
@@ -330,23 +325,36 @@ class CachedMapItem < ApplicationRecord
         # TODO handle other types
         return h
       end
+
+      # 
+      # !! TODO: This is a potential n+1 query!
+      #
       geographic_item_id = context[:geographic_item_id] ||
         o.asserted_distribution_shape.default_geographic_item_id
+
+      # TODO: UGH! This shouldn't be here at all, we shouldn't be building for OTUs without taxon name_ids !!
+      taxon_name_id = context[:otu_taxon_name_id] ||
+        Otu.where(id: otu_id).pick(:taxon_name_id)
+      return h if taxon_name_id.blank?
+
     when 'Georeference'
-      geographic_item_id = context[:geographic_item_id] || o.geographic_item_id
+      geographic_item_id = o.geographic_item_id
+      # Filter to only OTUs that have a taxon_name_id — OTUs without
+      # taxon names have no hierarchy and don't contribute to cached maps.
       otu_id = context[:otu_id] ||
-        o.otus.left_joins(:taxon_determinations).where(taxon_determinations: { position: 1 }).distinct.pluck(:id)
+        o.otus.left_joins(:taxon_determinations)
+          .where(taxon_determinations: { position: 1 })
+          .where.not(taxon_name_id: nil)
+          .distinct.pluck(:id)
+
+      return h if otu_id.empty?
     end
 
-    otu = nil
-    taxon_name_id = context[:otu_taxon_name_id] ||
-      Otu.where(id: otu_id).pick(:taxon_name_id)
-    return h if otu_id.nil? || taxon_name_id.nil?
-    # otus without taxon name have no hierarchy, so don't contribute to cached
-    # maps.
-    return h if taxon_name_id.blank?
-
+    # 
+    #
     # Some AssertedDistribution don't have shapes
+    #
+    #
     if geographic_item_id
       h[:origin_geographic_item_id] = geographic_item_id
 

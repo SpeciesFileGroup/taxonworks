@@ -767,6 +767,10 @@ scope :tasks do
       get '/(:otu_id)', action: :index, as: 'browse_otus_task'
     end
 
+    scope :match_by_taxon_name, controller: 'tasks/otus/match_by_taxon_name' do
+      get '/', action: :index, as: 'match_otu_by_taxon_name_task'
+    end
+
     scope :filter, controller: 'tasks/otus/filter' do
       get '/', action: :index, as: 'filter_otus_task'
 

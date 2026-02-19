@@ -4,6 +4,8 @@
 # or operating system, you probably want to add a global ignore instead:
 #   git config --global core.excludesfile '~/.gitignore_global'
 
+.gitattributes
+
 *.dump
 
 .ctags
@@ -67,3 +69,7 @@ yarn-debug.log*
 taxonworks.code-workspace
 
 development
+_development/
+
+.claude/
+claude/
