@@ -29,6 +29,14 @@
       </div>
 
       <div
+        v-if="templatesLoaded && templates.length === 0"
+        class="template-empty-notice margin-small-top"
+      >
+        No existing parts in this project yet.
+      </div>
+
+      <div
+        v-else
         class="template-list margin-small-top"
       >
         <VBtn
@@ -81,6 +89,7 @@ const emit = defineEmits(['change'])
 
 const mode = ref(MODE_OPTIONS[1])
 const templates = ref([])
+const templatesLoaded = ref(false)
 const selectedTemplateIndex = ref(null)
 
 const form = ref({
@@ -173,12 +182,23 @@ onMounted(() => {
   AnatomicalPart.templates()
     .then(({ body }) => {
       templates.value = body
+      if (body.length === 0) {
+        mode.value = MODE_OPTIONS[0]
+      }
     })
     .catch(() => {})
+    .finally(() => {
+      templatesLoaded.value = true
+    })
 })
 </script>
 
 <style scoped>
+.template-empty-notice {
+  color: var(--text-muted-color);
+  font-size: 0.9rem;
+}
+
 .template-list {
   display: flex;
   flex-wrap: wrap;

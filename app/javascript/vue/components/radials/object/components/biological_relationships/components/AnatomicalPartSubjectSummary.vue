@@ -11,6 +11,7 @@
       </h3>
       <VBtn
         color="primary"
+        :disabled="list.length === 0"
         @click="showModal = true"
       >
         View table ({{ list.length }})
