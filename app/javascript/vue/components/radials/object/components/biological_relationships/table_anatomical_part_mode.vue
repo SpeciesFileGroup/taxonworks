@@ -19,20 +19,24 @@
           class="list-complete-item"
         >
           <td class="subject-col">
-            <span
+            <VBtn
               v-if="item.subject_anatomical_part?.name"
-              class="button normal-input tag_button button-data subject-pill name-pill"
+              medium
+              color="primary"
+              class="btn-pill-left subject-pill name-pill"
               :title="item.subject_anatomical_part.name"
             >
               <span class="subject-name">{{ item.subject_anatomical_part.name }}</span>
-            </span>
-            <span
+            </VBtn>
+            <VBtn
               v-else
-              class="button normal-input tag_button button-data subject-pill uri-pill"
+              medium
+              color="primary"
+              class="btn-pill-left subject-pill uri-pill"
               :title="uriPillTitle(item)"
             >
               <span class="subject-uri-label">{{ item.subject_anatomical_part?.uri_label }}</span>
-            </span>
+            </VBtn>
           </td>
           <td
             class="relationship-col"
@@ -124,7 +128,7 @@ function uriPillTitle(item) {
   }
 
   td {
-    vertical-align: top;
+    vertical-align: middle;
     padding-top: 0.3rem;
     padding-bottom: 0.3rem;
   }
@@ -149,14 +153,9 @@ function uriPillTitle(item) {
 }
 
 .subject-pill {
-  display: inline-flex;
-  flex-direction: column;
-  gap: 0.1rem;
-  line-height: 1.15;
   max-width: 100%;
-  padding-top: 0.2rem;
-  padding-bottom: 0.2rem;
   cursor: default;
+  margin: 0;
 }
 
 .subject-pill:hover,
@@ -165,6 +164,7 @@ function uriPillTitle(item) {
   box-shadow: none;
   filter: none;
   transform: none;
+  opacity: 1;
 }
 
 .subject-name,

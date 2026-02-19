@@ -17,6 +17,8 @@
             medium
             :class="[
               'btn-pill-left',
+              'margin-small-right',
+              'margin-small-bottom',
               disabled && 'biocuration-toggle-button__disabled'
             ]"
             @click="() => !disabled && emit('add', item)"
@@ -28,6 +30,8 @@
             medium
             :class="[
               'btn-pill-left',
+              'margin-small-right',
+              'margin-small-bottom',
               disabled && 'biocuration-toggle-button__disabled'
             ]"
             @click="() => !disabled && emit('remove', item)"
