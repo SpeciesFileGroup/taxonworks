@@ -5,7 +5,7 @@
       @selected="loadOtu"
     />
     <VSpinner
-      v-if="isLoading"
+      v-if="settingStore.isLoading"
       legend="Loading..."
       full-screen
       :logo-size="{ width: '100px', height: '100px' }"
@@ -23,28 +23,6 @@
             />
           </li>
         </ul>
-        <template v-if="otu">
-          <VAutocomplete
-            class="float_right separate-left separate-right autocomplete-search-bar"
-            url="/otus/autocomplete"
-            placeholder="Search a otu"
-            param="term"
-            clear-after
-            label="label_html"
-            @getItem="(e) => otuStore.loadOtu(e.id)"
-          />
-          <ul
-            v-if="navigate"
-            class="no_bullets"
-          >
-            <li v-for="item in navigate.next">
-              <a
-                :href="`${RouteNames.BrowseOtu}?otu_id=${item.id}`"
-                v-html="item.object_tag"
-              />
-            </li>
-          </ul>
-        </template>
       </div>
     </div>
     <template v-if="otuStore.otu && otuStore.taxonName">
@@ -75,11 +53,15 @@
         </template>
       </div>
     </template>
-    <SearchOtu
+    <div
       v-else
-      class="container"
-      @select="loadOtu"
-    />
+      class="container-2xl mx-auto"
+    >
+      <SearchOtu
+        class="margin-medium-top"
+        @select="loadOtu"
+      />
+    </div>
   </div>
 </template>
 
@@ -87,14 +69,13 @@
 import { computed, ref, onBeforeMount } from 'vue'
 import HeaderBar from './components/HeaderBar/HeaderBar.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
-
-import VAutocomplete from '@/components/ui/Autocomplete'
 import SearchOtu from './components/Navbar/NavbarSearchOtu.vue'
 import { RouteNames } from '@/routes/routes'
 import { useUserPreferences } from '@/composables'
 import { useOtuStore } from './store'
 import { PANEL_COMPONENTS, DEFAULT_PREFERENCES } from './constants'
 import ShowForThisGroup from '@/tasks/nomenclature/new_taxon_name/helpers/showForThisGroup.js'
+import { useSettingsStore } from './store'
 
 defineOptions({
   name: 'BrowseOtu'
@@ -102,11 +83,9 @@ defineOptions({
 
 const KEY_STORAGE = 'task::BrowseOtus'
 
-const otuStore = useOtuStore()
-
-const isLoading = ref(false)
-
 const { preferences, loadPreferences } = useUserPreferences()
+const otuStore = useOtuStore()
+const settingStore = useSettingsStore()
 
 loadPreferences().then(() => {
   const taskPreferences = preferences.value?.layout[KEY_STORAGE]

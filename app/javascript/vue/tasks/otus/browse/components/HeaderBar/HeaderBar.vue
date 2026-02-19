@@ -4,50 +4,65 @@
       id="browse-otu-header"
       class="container-2xl w-full mx-auto padding-medium-top"
     >
-      <ul
-        v-if="navigation"
-        class="breadcrumb_list"
-      >
-        <li
-          v-for="(item, key) in navigation.parents"
-          :key="key"
-          class="breadcrumb_item"
-        >
-          <a
-            v-if="item.length === 1"
-            :href="`${RouteNames.BrowseOtu}?otu_id=${item[0].id}`"
-          >
-            {{ key }}
-          </a>
-          <div
-            v-else
-            class="dropdown-otu"
-          >
-            <a>{{ key }}</a>
-            <ul class="panel dropdown no_bullets">
-              <li>Parents</li>
-              <li
-                v-for="parent in item"
-                :key="parent.id"
+      <div class="flex-separate align-start gap-medium">
+        <template v-if="navigation">
+          <ul class="breadcrumb_list">
+            <li
+              v-for="(item, key) in navigation.parents"
+              :key="key"
+              class="breadcrumb_item"
+            >
+              <a
+                v-if="item.length === 1"
+                :href="`${RouteNames.BrowseOtu}?otu_id=${item[0].id}`"
               >
-                <a
-                  :href="`${RouteNames.BrowseOtu}?otu_id=${parent.id}`"
-                  v-html="parent.object_tag"
-                />
-              </li>
-            </ul>
-          </div>
-        </li>
-        <li
-          class="breadcrumb_item current_breadcrumb_position"
-          v-html="navigation.current_otu.object_label"
+                {{ key }}
+              </a>
+              <div
+                v-else
+                class="dropdown-otu"
+              >
+                <a>{{ key }}</a>
+                <ul class="panel dropdown no_bullets">
+                  <li>Parents</li>
+                  <li
+                    v-for="parent in item"
+                    :key="parent.id"
+                  >
+                    <a
+                      :href="`${RouteNames.BrowseOtu}?otu_id=${parent.id}`"
+                      v-html="parent.object_tag"
+                    />
+                  </li>
+                </ul>
+              </div>
+            </li>
+            <li
+              class="breadcrumb_item current_breadcrumb_position"
+              v-html="navigation.current_otu.object_label"
+            />
+          </ul>
+          <VAutocomplete
+            class="autocomplete-search-bar"
+            url="/otus/autocomplete"
+            placeholder="Search a otu"
+            param="term"
+            clear-after
+            label="label_html"
+            @getItem="
+              (e) => {
+                otuStore.$reset()
+                otuStore.handleOtu(e.id)
+              }
+            "
+          />
+        </template>
+        <VSkeleton
+          v-else
+          variant="text"
+          :rows="1"
         />
-      </ul>
-      <VSkeleton
-        v-else
-        variant="text"
-        :rows="1"
-      />
+      </div>
       <div class="flex-separate middle">
         <div class="padding-medium-top padding-medium-bottom">
           <h3 v-html="otu.object_tag" />
@@ -116,6 +131,7 @@ import { Otu } from '@/routes/endpoints'
 import { useHotkey } from '@/composables'
 import { useOtuStore } from '../../store'
 import { PANEL_COMPONENTS } from '../../constants'
+import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import CoordinateOtus from '../CoordinateOtus.vue'
 import platformKey from '@/helpers/getPlatformKey.js'
 import ShowForThisGroup from '@/tasks/nomenclature/new_taxon_name/helpers/showForThisGroup.js'
