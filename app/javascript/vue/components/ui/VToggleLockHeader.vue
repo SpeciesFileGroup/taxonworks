@@ -1,7 +1,7 @@
 <template>
   <div
     class="flex-row gap-small cursor-pointer middle"
-    @click="() => toggle()"
+    @click="() => toggleHeader()"
   >
     <IconLock
       class="w-4"
@@ -26,26 +26,13 @@ import IconUnlock from '@/components/Icon/IconUnlock.vue'
 
 const { isLocked, toggle, unlock, lock } = useHeaderLock()
 
-const navbarLocked = ref(null)
-
-if (localStorage.headerLocked === 'true') {
-  navbarLocked.value = true
-} else {
-  navbarLocked.value = false
+function toggleHeader() {
+  toggle()
+  localStorage.headerLocked = isLocked.value
 }
 
-watch(navbarLocked, (value) => {
-  if (value) {
-    lock()
-  } else {
-    unlock()
-  }
-
-  localStorage.setItem('headerLocked', value)
-})
-
 onMounted(() => {
-  if (navbarLocked.value) {
+  if (localStorage.headerLocked === 'true') {
     lock()
   }
 })
