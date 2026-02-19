@@ -29,23 +29,19 @@
       </div>
 
       <div
-        v-if="props.requiresIsMaterialBeforeTemplate && form.is_material === null"
-        class="margin-small-top"
-      >
-        Choose <i>Is material</i> before selecting a template.
-      </div>
-
-      <div
-        v-else
         class="template-list margin-small-top"
       >
-        <button
+        <VBtn
           v-for="(item, index) in templates"
           :key="index"
-          class="button normal-input tag_button button-data template-pill"
-          type="button"
+          medium
+          :color="selectedTemplateIndex === index ? 'default' : 'primary'"
+          class="template-pill btn-pill-left"
           :title="item.type === 'uri' ? uriTemplateTitle(item) : item.name"
-          :class="{ selected: selectedTemplateIndex === index, uri: item.type === 'uri', name: item.type === 'name' }"
+          :class="{
+            selected: selectedTemplateIndex === index,
+            uri: item.type === 'uri' && selectedTemplateIndex !== index
+          }"
           @click="selectTemplate(item, index)"
         >
           <template v-if="item.type === 'name'">
@@ -54,7 +50,7 @@
           <template v-else>
             <div>{{ item.uri_label }}</div>
           </template>
-        </button>
+        </VBtn>
       </div>
     </template>
   </div>
@@ -63,6 +59,7 @@
 <script setup>
 import { AnatomicalPart } from '@/routes/endpoints'
 import VSwitch from '@/components/ui/VSwitch.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import AnatomicalPartFormFields from '@/components/radials/object/components/origin_relationship/create/anatomical_parts/components/AnatomicalPartFormFields.vue'
 import { computed, onMounted, ref, watch } from 'vue'
 
@@ -191,7 +188,7 @@ onMounted(() => {
 }
 
 .template-pill {
-  margin: 0;
+  min-width: 60px !important;
 }
 
 .template-pill.uri {
@@ -200,16 +197,10 @@ onMounted(() => {
   color: var(--anatomical-part-uri-pill-text);
 }
 
-.template-pill.name {
-  border-color: #58712f;
-}
-
 .template-pill.selected {
-  box-shadow:
-    inset 0 0 0 2px var(--anatomical-part-pill-selected-ring),
-    0 0 0 3px var(--anatomical-part-pill-selected-outer);
-  filter: brightness(0.9) saturate(1.08);
-  font-weight: 700;
+  border-color: transparent;
+  box-shadow: none;
+  filter: none;
 }
 
 </style>

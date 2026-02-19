@@ -50,6 +50,15 @@ a.btn:hover {
   }
 }
 
+.btn-pill-left {
+  min-width: 60px;
+  border: 0;
+  margin-right: 6px;
+  margin-bottom: 6px;
+  border-top-left-radius: 14px;
+  border-bottom-left-radius: 14px;
+}
+
 @each $key, $value in $tw-colors {
   .btn-#{$key} {
     background-color: var(--color-#{$key});

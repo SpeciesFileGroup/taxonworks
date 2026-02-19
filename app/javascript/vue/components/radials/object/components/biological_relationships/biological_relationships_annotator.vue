@@ -47,24 +47,36 @@
     <div>
       <h3 v-html="metadata.object_tag" />
 
-      <template v-if="supportsAnatomicalPartCreation">
-        <label>
-          <input
-            v-model="enableSubjectAnatomicalPart"
-            type="checkbox"
-          />
-          Anatomical part
-        </label>
+      <fieldset
+        v-if="supportsAnatomicalPartCreation"
+        class="ap-fieldset separate-bottom"
+        :class="{ 'ap-fieldset--inactive': !enableSubjectAnatomicalPart }"
+      >
+        <legend>
+          <label class="ap-fieldset-legend-toggle">
+            <input
+              v-model="enableSubjectAnatomicalPart"
+              type="checkbox"
+            />
+            Subject anatomical part
+          </label>
+        </legend>
+
+        <div
+          v-if="!enableSubjectAnatomicalPart"
+          class="ap-fieldset-hint"
+        >
+          Enable to create a subject anatomical part
+        </div>
 
         <CreateAnatomicalPart
-          v-if="enableSubjectAnatomicalPart"
+          v-else
           :key="`subject-${subjectPartKey}`"
           class="margin-small-top margin-small-bottom"
           :include-is-material="props.objectType === 'FieldOccurrence'"
           @change="setSubjectAnatomicalPart"
         />
-      </template>
-
+      </fieldset>
       <h3
         v-if="biologicalRelationship"
         class="relationship-title middle"
@@ -135,16 +147,6 @@
       @select="setBiologicalRelationship"
     />
 
-    <template v-if="supportsAnatomicalPartCreation">
-      <label>
-        <input
-          v-model="enableRelatedAnatomicalPart"
-          type="checkbox"
-        />
-        Anatomical part
-      </label>
-    </template>
-
     <related
       v-if="!biologicalRelation"
       ref="related"
@@ -154,28 +156,51 @@
       @select="biologicalRelation = $event"
     />
 
-    <template v-if="supportsAnatomicalPartCreation && enableRelatedAnatomicalPart && biologicalRelation">
+    <fieldset
+      v-if="supportsAnatomicalPartCreation"
+      class="ap-fieldset separate-bottom"
+      :class="{ 'ap-fieldset--inactive': !enableRelatedAnatomicalPart }"
+    >
+      <legend>
+        <label class="ap-fieldset-legend-toggle">
+          <input
+            v-model="enableRelatedAnatomicalPart"
+            type="checkbox"
+          />
+          Related anatomical part
+        </label>
+      </legend>
+
       <div
-        v-if="relatedNeedsTaxonDetermination"
-        class="margin-small-top"
+        v-if="!enableRelatedAnatomicalPart"
+        class="ap-fieldset-hint"
       >
-        The origin of an anatomical part requires a taxon determination on this {{ biologicalRelation.base_class }}.
+        Enable to create a related anatomical part
       </div>
 
-      <TaxonDeterminationOtu
-        v-if="relatedNeedsTaxonDetermination"
-        v-model="relatedTaxonDeterminationOtuId"
-      />
+      <template v-if="enableRelatedAnatomicalPart">
+        <div
+          v-if="biologicalRelation && relatedNeedsTaxonDetermination"
+          class="margin-small-top"
+        >
+          The origin of an anatomical part requires a taxon determination on this {{ biologicalRelation.base_class }}.
+        </div>
 
-      <CreateAnatomicalPart
-        v-if="!relatedNeedsTaxonDetermination || relatedTaxonDeterminationOtuId"
-        :key="`related-${relatedPartKey}`"
-        class="margin-small-top margin-small-bottom"
-        :include-is-material="biologicalRelation.base_class === 'FieldOccurrence'"
-        :requires-is-material-before-template="biologicalRelation.base_class === 'FieldOccurrence'"
-        @change="setRelatedAnatomicalPart"
-      />
-    </template>
+        <TaxonDeterminationOtu
+          v-if="biologicalRelation && relatedNeedsTaxonDetermination"
+          v-model="relatedTaxonDeterminationOtuId"
+        />
+
+        <CreateAnatomicalPart
+          v-if="!relatedNeedsTaxonDetermination || relatedTaxonDeterminationOtuId || !biologicalRelation"
+          :key="`related-${relatedPartKey}`"
+          class="margin-small-top margin-small-bottom"
+          :include-is-material="biologicalRelation?.base_class === 'FieldOccurrence'"
+          :requires-is-material-before-template="biologicalRelation?.base_class === 'FieldOccurrence'"
+          @change="setRelatedAnatomicalPart"
+        />
+      </template>
+    </fieldset>
 
     <div class="separate-top">
       <button
@@ -535,19 +560,45 @@ function relatedIsCollectionObjectOrFieldOccurrence() {
   return ['CollectionObject', 'FieldOccurrence'].includes(type)
 }
 
-function updateRelatedTaxonDeterminationState() {
+function fetchRelatedNeedsTaxonDetermination() {
   if (!biologicalRelation.value?.id || !relatedIsCollectionObjectOrFieldOccurrence()) {
-    relatedNeedsTaxonDetermination.value = false
-    return
+    return Promise.resolve(false)
   }
 
-  TaxonDetermination.where({
+  return TaxonDetermination.where({
     taxon_determination_object_id: [biologicalRelation.value.id],
     taxon_determination_object_type: biologicalRelation.value.base_class,
     per: 1
-  }).then(({ body }) => {
-    relatedNeedsTaxonDetermination.value = body.length === 0
+  }).then(({ body }) => body.length === 0)
+}
+
+function updateRelatedTaxonDeterminationState() {
+  fetchRelatedNeedsTaxonDetermination().then((needsTaxonDetermination) => {
+    relatedNeedsTaxonDetermination.value = needsTaxonDetermination
   })
+}
+
+async function ensureRelatedTaxonDeterminationRequirements() {
+  if (
+    !supportsAnatomicalPartCreation.value ||
+    !enableRelatedAnatomicalPart.value ||
+    !biologicalRelation.value?.id
+  ) {
+    return true
+  }
+
+  const needsTaxonDetermination = await fetchRelatedNeedsTaxonDetermination()
+  relatedNeedsTaxonDetermination.value = needsTaxonDetermination
+
+  if (needsTaxonDetermination && !relatedTaxonDeterminationOtuId.value) {
+    TW.workbench.alert.create(
+      'A taxon determination OTU is required for the related anatomical part.',
+      'warning'
+    )
+    return false
+  }
+
+  return true
 }
 
 function mapAnatomicalPartAttributesToAssociationSides() {
@@ -588,7 +639,11 @@ function mapAnatomicalPartAttributesToAssociationSides() {
   return mapped
 }
 
-function saveAssociation() {
+async function saveAssociation() {
+  if (!(await ensureRelatedTaxonDeterminationRequirements())) {
+    return
+  }
+
   const payload = {
     biological_association: {
       ...(flip.value
@@ -744,6 +799,30 @@ function unsetBiologicalRelationship() {
       margin-top: 1rem;
       padding-top: 0.75rem;
       border-top: 1px solid #d9d9d9;
+    }
+
+    .ap-fieldset {
+      border: 1px solid var(--border-color);
+      padding: 0.5rem 0.75rem;
+      border-radius: var(--border-radius-small);
+    }
+
+    .ap-fieldset--inactive {
+      opacity: 0.88;
+    }
+
+    .ap-fieldset-legend-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .ap-fieldset-hint {
+      color: var(--text-muted-color);
+      font-size: 0.9rem;
+      line-height: 1.3;
     }
 
     .anatomical-part-heading {
