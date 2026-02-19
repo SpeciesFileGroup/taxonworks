@@ -151,11 +151,8 @@
         :enabled="enableRelatedAnatomicalPart"
         :biological-relation="biologicalRelation"
         :related-needs-taxon-determination="relatedNeedsTaxonDetermination"
-        :related-taxon-determination-otu-id="relatedTaxonDeterminationOtuId"
+        v-model:related-taxon-determination-otu-id="relatedTaxonDeterminationOtuId"
         :related-part-key="relatedPartKey"
-        @update:related-taxon-determination-otu-id="
-          relatedTaxonDeterminationOtuId = $event
-        "
         @change="setRelatedAnatomicalPart"
       />
     </AnatomicalPartToggleFieldset>

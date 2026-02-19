@@ -9,10 +9,7 @@
 
     <TaxonDeterminationOtu
       v-if="biologicalRelation && relatedNeedsTaxonDetermination"
-      :model-value="relatedTaxonDeterminationOtuId"
-      @update:model-value="
-        emit('update:relatedTaxonDeterminationOtuId', $event)
-      "
+      v-model="relatedTaxonDeterminationOtuId"
     />
 
     <CreateAnatomicalPart
@@ -30,6 +27,11 @@
 import TaxonDeterminationOtu from '@/components/TaxonDetermination/TaxonDeterminationOtu.vue'
 import CreateAnatomicalPart from './CreateAnatomicalPart.vue'
 
+const relatedTaxonDeterminationOtuId = defineModel('relatedTaxonDeterminationOtuId', {
+  type: Number,
+  default: undefined
+})
+
 defineProps({
   enabled: {
     type: Boolean,
@@ -46,16 +48,11 @@ defineProps({
     default: false
   },
 
-  relatedTaxonDeterminationOtuId: {
-    type: Number,
-    default: undefined
-  },
-
   relatedPartKey: {
     type: Number,
     required: true
   }
 })
 
-const emit = defineEmits(['update:relatedTaxonDeterminationOtuId', 'change'])
+const emit = defineEmits(['change'])
 </script>

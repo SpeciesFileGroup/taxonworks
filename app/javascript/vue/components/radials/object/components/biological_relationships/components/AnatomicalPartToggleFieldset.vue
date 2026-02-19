@@ -4,11 +4,11 @@
     :class="{ 'ap-fieldset--inactive': !enabled }"
   >
     <legend>
-      <label class="ap-fieldset-legend-toggle">
+      <label class="ap-fieldset-legend-toggle middle gap-small cursor-pointer">
         <input
           :checked="enabled"
           type="checkbox"
-          @change="emit('update:modelValue', $event.target.checked)"
+          @change="enabled = $event.target.checked"
         />
         {{ label }}
       </label>
@@ -26,14 +26,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-
-const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false
-  },
-
+defineProps({
   label: {
     type: String,
     required: true
@@ -45,9 +38,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue'])
-
-const enabled = computed(() => props.modelValue)
+const enabled = defineModel({ type: Boolean, default: false })
 </script>
 
 <style lang="scss" scoped>
@@ -62,11 +53,7 @@ const enabled = computed(() => props.modelValue)
 }
 
 .ap-fieldset-legend-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
   font-weight: 600;
-  cursor: pointer;
 }
 
 .ap-fieldset-hint {

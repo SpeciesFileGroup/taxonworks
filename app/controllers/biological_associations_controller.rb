@@ -259,7 +259,7 @@ class BiologicalAssociationsController < ApplicationController
         object_id,
         object_type
       )
-      .order('biological_associations.id')
+      .order('biological_associations.updated_at DESC')
 
     render '/biological_associations/origin_subject_index'
   end
