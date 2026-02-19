@@ -41,7 +41,7 @@ module Export::Coldp::Files::Synonym
 
       add_invalid_family_and_higher_names(otu, csv, project_members, otu_lookup)
       add_invalid_core_names(otu, csv, project_members, otu_lookup)
-      add_original_combinations(otu, csv, project_members, otu_lookup)  # Handles reified IDs
+      add_original_combinations(otu, csv, project_members, otu_lookup)          # Handles reified IDs
       add_invalid_original_combinations(otu, csv, project_members, otu_lookup)  # Handles reified IDs
       add_combinations(otu, csv, project_members, otu_lookup)
       # add_historical_combinations(otu, csv, project_members, otu_lookup)
