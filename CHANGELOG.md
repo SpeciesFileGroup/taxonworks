@@ -27,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 
 - Removed unused BibTeX task [#1440]
+- Updated Ruby gems
 
 [#4741]: https://github.com/SpeciesFileGroup/taxonworks/issues/4741
 [#4742]: https://github.com/SpeciesFileGroup/taxonworks/issues/4742
