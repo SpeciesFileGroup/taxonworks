@@ -126,8 +126,9 @@ function uriPillTitle(item) {
 
 <style lang="scss" scoped>
 .vue-table {
-  width: 100%;
-  table-layout: fixed;
+  width: max-content;
+  min-width: 1400px;
+  table-layout: auto;
 
   tr {
     cursor: default;
@@ -135,36 +136,17 @@ function uriPillTitle(item) {
 
   td {
     vertical-align: middle;
-    padding-top: 0.3rem;
-    padding-bottom: 0.3rem;
+    padding-top: 0.1rem;
+    padding-bottom: 0.1rem;
   }
 
-}
-
-.subject-col {
-  width: 16%;
-}
-
-.relationship-col {
-  width: 24%;
-  word-break: break-word;
-  overflow-wrap: anywhere;
-}
-
-.related-col {
-  width: 34%;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .related-content {
   display: inline-flex;
   align-items: center;
   gap: 0.15rem 0.35rem;
-  max-width: 100%;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   line-height: 1.3;
 }
 
@@ -172,22 +154,18 @@ function uriPillTitle(item) {
   display: none;
 }
 
-.related-content :deep(*) {
-  vertical-align: middle;
-}
 
 .inverted-col {
-  width: 10%;
   white-space: nowrap;
 }
 
 .actions-col {
-  width: 16%;
   white-space: nowrap;
 }
 
 .subject-pill {
-  max-width: 100%;
+  display: inline-flex;
+  align-items: center;
   cursor: default;
   margin: 0;
 }
@@ -211,25 +189,15 @@ function uriPillTitle(item) {
   white-space: nowrap;
 }
 
-.related-col :deep(.otu_tag),
-.related-col :deep(.taxon_name),
-.related-col :deep(.taxon_name_tag_valid),
-.related-col :deep(.taxon_name_tag),
-.related-col :deep(.otu_tag_taxon_name) {
-  max-width: 100%;
-}
-
 .related-col :deep(.otu_tag) {
-  display: inline-block;
-  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
   vertical-align: middle;
 }
 
 .related-col :deep(.otu_tag_taxon_name) {
-  display: inline-block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.4;
 }
 
 .uri-pill {

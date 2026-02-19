@@ -608,8 +608,6 @@ function unsetBiologicalRelationship() {
     }
 
     .ap-table-modal-body {
-      min-width: 960px;
-      max-width: 100%;
       max-height: 70vh;
       overflow: auto;
     }

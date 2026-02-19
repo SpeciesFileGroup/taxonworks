@@ -77,11 +77,6 @@ const props = defineProps({
   includeIsMaterial: {
     type: Boolean,
     default: false
-  },
-
-  requiresIsMaterialBeforeTemplate: {
-    type: Boolean,
-    default: false
   }
 })
 
@@ -96,7 +91,7 @@ const form = ref({
   name: undefined,
   uri: undefined,
   uri_label: undefined,
-  is_material: props.includeIsMaterial ? null : undefined,
+  is_material: props.includeIsMaterial ? false : undefined,
   preparation_type_id: null
 })
 
@@ -109,22 +104,11 @@ const validNameOrUri = computed(() => {
   return (hasName.value && !hasUriPair) || (!hasName.value && hasUriPair)
 })
 
-const validIsMaterial = computed(() => {
-  return !props.includeIsMaterial || form.value.is_material !== null
-})
-
-const validTemplateMode = computed(() => {
-  const hasTemplate = selectedTemplateIndex.value !== null
-  if (!hasTemplate) {
-    return false
-  }
-
-  return !props.requiresIsMaterialBeforeTemplate || form.value.is_material !== null
-})
+const validTemplateMode = computed(() => selectedTemplateIndex.value !== null)
 
 const valid = computed(() => {
   if (mode.value === MODE_OPTIONS[0]) {
-    return validNameOrUri.value && validIsMaterial.value
+    return validNameOrUri.value
   }
 
   return validTemplateMode.value

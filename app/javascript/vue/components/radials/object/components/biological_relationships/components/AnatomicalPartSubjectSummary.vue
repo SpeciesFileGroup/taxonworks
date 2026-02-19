@@ -21,6 +21,7 @@
 
   <VModal
     v-if="showModal"
+    :container-style="{ width: 'fit-content', minWidth: '1400px', maxWidth: 'calc(100vw - 40px)' }"
     @close="showModal = false"
   >
     <template #header>
