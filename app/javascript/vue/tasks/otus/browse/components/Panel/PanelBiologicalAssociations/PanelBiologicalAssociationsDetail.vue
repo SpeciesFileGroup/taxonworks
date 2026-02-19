@@ -3,6 +3,7 @@
     <div class="ba-detail__header">
       <VBtn
         color="primary"
+        medium
         @click="emit('close')"
       >
         <VIcon
@@ -15,11 +16,6 @@
       <div class="flex-row gap-small">
         <RadialAnnotator :global-id="association.globalId" />
         <RadialNavigator :global-id="association.globalId" />
-        <a
-          :href="`/biological_associations/${association.id}`"
-          class="button button-default"
-          title="Edit association"
-        >Edit</a>
       </div>
     </div>
 
@@ -44,7 +40,12 @@
             <dt>Label</dt>
             <dd>
               <a
-                :href="makeBrowseUrl({ id: association.subjectId, type: association.subjectType })"
+                :href="
+                  makeBrowseUrl({
+                    id: association.subjectId,
+                    type: association.subjectType
+                  })
+                "
                 v-html="association.subjectTag"
               />
             </dd>
@@ -82,7 +83,12 @@
             <dt>Label</dt>
             <dd>
               <a
-                :href="makeBrowseUrl({ id: association.objectId, type: association.objectType })"
+                :href="
+                  makeBrowseUrl({
+                    id: association.objectId,
+                    type: association.objectType
+                  })
+                "
                 v-html="association.objectTag"
               />
             </dd>
@@ -113,7 +119,8 @@
             <span
               v-if="citation.pages"
               class="ba-detail__pages"
-            >: {{ citation.pages }}</span>
+              >: {{ citation.pages }}</span
+            >
           </li>
         </ul>
       </div>

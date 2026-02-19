@@ -6,7 +6,10 @@
     menu
     @menu="showModal = true"
   >
-    <SlidingStack>
+    <SlidingStack
+      scroll-offset-element="#browse-otu-header"
+      :scroll-offset="100"
+    >
       <template #master="{ push }">
         <div class="overflow-x-auto">
           <PanelBiologicalAssociationsTable

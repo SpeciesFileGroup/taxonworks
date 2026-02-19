@@ -58,7 +58,10 @@
       <div class="separate-top separate-bottom"></div>
 
       <div class="container-2xl mx-auto flex-col gap-medium">
-        <template v-for="element in sections">
+        <template
+          v-for="element in sections"
+          :key="element"
+        >
           <component
             v-if="showForRanks(PANEL_COMPONENTS[element])"
             class="full_width"

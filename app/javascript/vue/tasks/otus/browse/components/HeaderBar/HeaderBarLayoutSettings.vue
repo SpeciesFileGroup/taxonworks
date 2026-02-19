@@ -27,15 +27,28 @@
         </template>
       </VDraggable>
     </template>
+    <template #footer>
+      <VBtn
+        color="primary"
+        @click="
+          () => {
+            taskPreferences.sections = Object.keys(PANEL_COMPONENTS)
+            setPreference(props.storageKey, taskPreferences)
+          }
+        "
+        >Reset</VBtn
+      >
+    </template>
   </VModal>
 </template>
 
 <script setup>
 import { computed, ref } from 'vue'
 import { PANEL_COMPONENTS } from '../../constants'
+import { useUserPreferences } from '@/composables'
 import VModal from '@/components/ui/Modal.vue'
 import VDraggable from 'vuedraggable'
-import { useUserPreferences } from '@/composables'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const props = defineProps({
   preferences: {
@@ -59,7 +72,10 @@ const taskPreferences = computed(
 
 const sections = computed(() => taskPreferences.value?.sections || [])
 
-const allPanels = ref(Object.keys(PANEL_COMPONENTS))
+const allPanels = ref([
+  ...sections.value,
+  ...Object.keys(PANEL_COMPONENTS).filter((key) => !sections.value.includes(key))
+])
 
 function syncSections() {
   if (!taskPreferences.value) return

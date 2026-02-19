@@ -1,6 +1,9 @@
 <template>
   <NavBar :class="{ 'feedback-warning': isInvalid }">
-    <div class="container-2xl w-full mx-auto padding-medium-top">
+    <div
+      id="browse-otu-header"
+      class="container-2xl w-full mx-auto padding-medium-top"
+    >
       <ul
         v-if="navigation"
         class="breadcrumb_list"
