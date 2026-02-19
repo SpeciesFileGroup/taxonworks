@@ -370,7 +370,6 @@ module Export::Coldp::Files::Name
       author_year = row['cached_author_year']
       author_year = author_year.delete('()') if strip_parens_for_author_year?(row)
 
-
       # !!
       # !! Here we accomodate, somehwat crudely, that original combinations will infer the rank of
       # !! of a species protonym without specifically assining an original species relationship.
@@ -442,6 +441,16 @@ module Export::Coldp::Files::Name
 
       # By definition
       basionym_id = row['id']
+
+      # !!
+      # !! Here we accomodate, somehwat crudely, that original combinations will infer the rank of
+      # !! of a species protonym without specifically assining an original species relationship.
+      # !!
+      # !! Curators can avoid this ambiguity by assigning the full original combination.
+      # !!
+      if rank == 'genus' && row.rank == 'species'
+        rank = row.rank
+      end
 
       csv << [
         id,                                                                 # ID
