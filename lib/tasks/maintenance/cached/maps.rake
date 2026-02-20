@@ -9,18 +9,18 @@ namespace :tw do
       #
       #
       #   Now we LOOP NE states!!! (not georeferences)
-      #     We find all point Georeferences in each state 
+      #     We find all point Georeferences in each state
       #        Register translations en-masse
       #     We find all non-point Georeferences
       #       ONLY HERE SHOULD WE DO FANCY GEO MATH
       #       Register translations en-masse
       #
       #   At this point there should be _no need for any spatial calculations (until we make the map itself)_
-      # 
-      #  !! Now we sanity check and ensure that all GIs are translated, so that we never hit spatial calculations downstream. 
-      #       
-      #  Now we should be able to loop OTUs and simply register IDs... 
-      # 
+      #
+      #  !! Now we sanity check and ensure that all GIs are translated, so that we never hit spatial calculations downstream.
+      #
+      #  Now we should be able to loop OTUs and simply register IDs...
+      #
 
       # !! These tasks only build new records. They will not synchronize/refresh existing records. !!
       #
@@ -199,21 +199,18 @@ namespace :tw do
           puts "Caching #{q.count} georeferences records."
 
           cached_rebuild_processes = ENV['cached_rebuild_processes'] ? ENV['cached_rebuild_processes'].to_i : 4
-          cached_rebuild_batch_size = ENV['cached_rebuild_batch_size'] ? ENV['cached_rebuild_batch_size'].to_i : 1000
 
-          Parallel.each(q.find_in_batches(batch_size: cached_rebuild_batch_size), progress: 'build_cached_map_from_georeferences',
-            in_processes: cached_rebuild_processes ) do |batch|
-            registrations = []
+          Parallel.each(q.find_each, progress: 'build_cached_map_from_georeferences', in_processes: cached_rebuild_processes ) do |g|
             begin
-              reconnected ||= Georeference.connection.reconnect! || true # https://github.com/grosser/parallel
-              batch.each do |g|
-                g.send(:create_cached_map_items, true, skip_register: true, register_queue: registrations)
+              CachedMapItem.transaction do
+                reconnected ||= Georeference.connection.reconnect! || true # https://github.com/grosser/parallel
+                g.send(:create_cached_map_items, true)
               end
-              
+
               CachedMapRegister.insert_all(registrations) if registrations.present?
               true
             rescue => exception
-              puts " FAILED #{exception}"
+              puts " FAILED #{exception} #{g.id}"
             end
             true
           end
