@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Fuzzy match to the common_names API endpoint [#4757]
 - Report per-object duplicate predicate use [#4741]
 - Batch import BibTeX sources option to include Identifier
 - Batch Upload Asserted Distributions now supports a `gazetteer_id` column [#4739]
