@@ -308,14 +308,6 @@ const displayRelated = computed(() => {
   )
 })
 
-const createdBiologicalAssociation = computed(() =>
-  list.value.find(
-    (item) =>
-      item.biological_relationship_id === biologicalRelationship.value?.id &&
-      item.biological_association_object_id === biologicalRelation.value?.id
-  )
-)
-
 const biologicalRelationLabel = computed(
   () =>
     biologicalRelationship.value?.name ||
@@ -339,6 +331,7 @@ const {
   subjectPartKey,
   relatedPartKey,
   anatomicalPartModeList,
+  createdBiologicalAssociation,
   validateAnatomicalPartFields,
   resetAnatomicalPartState,
   setSubjectAnatomicalPart,
@@ -348,9 +341,10 @@ const {
   loadAnatomicalPartSessionState
 } = useBiologicalAssociationAnatomicalParts({
   convertType,
+  list,
+  biologicalRelationship,
   biologicalRelation,
   flip,
-  createdBiologicalAssociation,
   loadAnatomicalPartModeList
 })
 

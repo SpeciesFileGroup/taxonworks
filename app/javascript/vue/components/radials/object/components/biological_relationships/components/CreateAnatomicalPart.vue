@@ -156,6 +156,7 @@ watch(
 
     emit('change', {
       valid: valid.value,
+      mode: mode.value === MODE_OPTIONS[0] ? 'new' : 'existing',
       payload: payload()
     })
   },

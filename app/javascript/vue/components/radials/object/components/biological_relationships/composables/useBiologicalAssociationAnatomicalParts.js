@@ -12,9 +12,10 @@ const STORAGE_KEYS = {
 
 export default function useBiologicalAssociationAnatomicalParts({
   convertType,
+  list,
+  biologicalRelationship,
   biologicalRelation,
   flip,
-  createdBiologicalAssociation,
   loadAnatomicalPartModeList
 }) {
   const withAnatomicalPartCreation = ref(false)
@@ -33,6 +34,124 @@ export default function useBiologicalAssociationAnatomicalParts({
     () =>
       withAnatomicalPartCreation.value &&
       (enableSubjectAnatomicalPart.value || enableRelatedAnatomicalPart.value)
+  )
+
+  function normalizeAnatomicalPartIdentity(payload = {}) {
+    const name = payload.name?.trim()
+    const uri = payload.uri?.trim()
+    const uriLabel = payload.uri_label?.trim()
+
+    if (name && !uri && !uriLabel) {
+      return { type: 'name', name }
+    }
+
+    if (!name && uri && uriLabel) {
+      return { type: 'uri', uri, uri_label: uriLabel }
+    }
+
+    return undefined
+  }
+
+  function anatomicalPartSelectionIdentity(apState) {
+    return normalizeAnatomicalPartIdentity(apState?.payload)
+  }
+
+  function anatomicalPartMatchesIdentity(part, identity) {
+    if (!part || !identity) {
+      return false
+    }
+
+    if (identity.type === 'name') {
+      return part.name?.trim() === identity.name
+    }
+
+    return (
+      part.uri?.trim() === identity.uri &&
+      part.uri_label?.trim() === identity.uri_label
+    )
+  }
+
+  function sideValue(item, side, field) {
+    const sidePrefix =
+      side === 'subject'
+        ? 'biological_association_subject'
+        : 'biological_association_object'
+    return item[`${sidePrefix}_${field}`]
+  }
+
+  function sideAnatomicalPart(item, side) {
+    return side === 'subject'
+      ? item.subject_anatomical_part
+      : item.object_anatomical_part
+  }
+
+  function subjectAnatomicalPartSide() {
+    return flip.value ? 'object' : 'subject'
+  }
+
+  function relatedAnatomicalPartSide() {
+    return flip.value ? 'subject' : 'object'
+  }
+
+  function relatedSideMatches(item) {
+    if (
+      !withAnatomicalPartCreation.value ||
+      !enableRelatedAnatomicalPart.value
+    ) {
+      return item.biological_association_object_id === biologicalRelation.value?.id
+    }
+
+    const identity = anatomicalPartSelectionIdentity(relatedAnatomicalPart.value)
+
+    if (!identity) {
+      return false
+    }
+
+    const side = relatedAnatomicalPartSide()
+    const part = sideAnatomicalPart(item, side)
+
+    return (
+      part?.origin_object_id === biologicalRelation.value?.id &&
+      part?.origin_object_type === biologicalRelation.value?.base_class &&
+      anatomicalPartMatchesIdentity(part, identity)
+    )
+  }
+
+  function subjectSideMatches(item) {
+    if (
+      !withAnatomicalPartCreation.value ||
+      !enableSubjectAnatomicalPart.value
+    ) {
+      return true
+    }
+
+    const identity = anatomicalPartSelectionIdentity(subjectAnatomicalPart.value)
+
+    if (!identity) {
+      return false
+    }
+
+    const side = subjectAnatomicalPartSide()
+    const part = sideAnatomicalPart(item, side)
+
+    return (
+      anatomicalPartMatchesIdentity(part, identity) &&
+      sideValue(item, side, 'type') === 'AnatomicalPart'
+    )
+  }
+
+  const createdBiologicalAssociation = computed(() =>
+    ((withAnatomicalPartCreation.value && enableSubjectAnatomicalPart.value)
+      ? anatomicalPartModeList.value
+      : list.value
+    )
+      .filter(
+        (item) =>
+          item.biological_relationship_id === biologicalRelationship.value?.id &&
+          relatedSideMatches(item) &&
+          subjectSideMatches(item)
+      )
+      .sort((a, b) => a.id - b.id)[0]
   )
 
   function validateAnatomicalPartFields() {
@@ -239,6 +358,7 @@ export default function useBiologicalAssociationAnatomicalParts({
     subjectPartKey,
     relatedPartKey,
     anatomicalPartModeList,
+    createdBiologicalAssociation,
     usesAnatomicalPartFlow,
     validateAnatomicalPartFields,
     resetAnatomicalPartState,
