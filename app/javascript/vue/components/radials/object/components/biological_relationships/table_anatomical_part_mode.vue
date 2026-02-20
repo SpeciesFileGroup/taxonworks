@@ -208,9 +208,9 @@ function uriPillTitle(item) {
 }
 
 .uri-pill {
-  background-color: var(--anatomical-part-uri-pill-bg);
-  border-color: var(--anatomical-part-uri-pill-border);
-  color: var(--anatomical-part-uri-pill-text);
+  background-color: var(--color-secondary-primary);
+  border-color: var(--color-secondary-primary);
+  color: var(--color-white);
 }
 
 .list-complete-item {

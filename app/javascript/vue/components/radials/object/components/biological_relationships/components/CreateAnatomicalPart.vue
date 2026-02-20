@@ -197,9 +197,9 @@ onMounted(() => {
 }
 
 .template-pill.uri {
-  border-color: var(--anatomical-part-uri-pill-border);
-  background-color: var(--anatomical-part-uri-pill-bg);
-  color: var(--anatomical-part-uri-pill-text);
+  border-color: var(--color-secondary-primary);
+  background-color: var(--color-secondary-primary);
+  color: var(--color-white);
 }
 
 .template-pill.selected {
