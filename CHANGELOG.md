@@ -9,6 +9,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Match OTU by TaxonName task
+- DarwinCore summary task 
 - Report per-object duplicate predicate use [#4741]
 - Batch import BibTeX sources option to include Identifier
 - Batch Upload Asserted Distributions now supports a `gazetteer_id` column [#4739]
@@ -17,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Improved scoping of Catalogue of Life Exports
 - Save notice is missing in New type specimen task
 - Fix: Rails now correctly applies time zones for `user_date_start` and `user_date_end` parameters from the `X-Timezone` header [#4721]
 - Classes not being eager loaded in background jobs, causing dwc importer to fail
