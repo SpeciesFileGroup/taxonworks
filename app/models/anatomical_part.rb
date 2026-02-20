@@ -170,18 +170,15 @@ class AnatomicalPart < ApplicationRecord
 
   # @return [Array] unique name and URI templates from this project, sorted by label
   def self.templates(project_id)
-    scope = where(project_id:)
+    rows = where(project_id:).pluck(:name, :uri, :uri_label)
 
-    names = scope
-      .where.not(name: [nil, ''])
-      .pluck(:name)
+    names = rows
+      .filter_map { |name, _uri, _uri_label| name.presence }
       .uniq
       .map { |name| { type: 'name', name: } }
 
-    uris = scope
-      .where.not(uri: [nil, ''])
-      .where.not(uri_label: [nil, ''])
-      .pluck(:uri, :uri_label)
+    uris = rows
+      .filter_map { |_name, uri, uri_label| [uri, uri_label] if uri.present? && uri_label.present? }
       .uniq
       .map { |uri, uri_label| { type: 'uri', uri:, uri_label: } }
 

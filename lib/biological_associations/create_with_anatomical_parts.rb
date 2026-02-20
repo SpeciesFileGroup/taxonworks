@@ -31,6 +31,7 @@ module BiologicalAssociations
 
     private
 
+    # Symbol keys work because @params is a HashWithIndifferentAccess (set in #initialize via to_h).
     def base_attributes
       @params.except(
         :subject_anatomical_part_attributes,
