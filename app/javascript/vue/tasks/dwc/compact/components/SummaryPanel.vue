@@ -7,6 +7,10 @@
                     <td>Total rows (compacted)</td>
                     <td>{{ meta.total_rows || rows.length }}</td>
                 </tr>
+                <tr v-if="meta.rows_compacted > 0">
+                    <td>Rows compacted (merged)</td>
+                    <td>{{ meta.rows_compacted }}</td>
+                </tr>
                 <tr>
                     <td>Total individualCount</td>
                     <td>{{ totalIndividualCount }}</td>

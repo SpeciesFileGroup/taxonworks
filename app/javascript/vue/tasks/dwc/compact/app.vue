@@ -1,21 +1,5 @@
 <template>
     <div class="dwc-compact-task">
-        <div v-if="errors.length" class="dwc-compact-errors">
-            <h3>Errors / Warnings ({{ errors.length }})</h3>
-            <ul>
-                <li
-                    v-for="(error, index) in errors"
-                    :key="index"
-                    :class="{ 'dwc-compact-warning': error.type === 'warning' }"
-                >
-                    <strong>{{ error.type }}:</strong> {{ error.message }}
-                    <span v-if="error.values">
-                        — values: {{ error.values.join(", ") }}
-                    </span>
-                </li>
-            </ul>
-        </div>
-
         <template v-if="rows.length">
             <SummaryPanel :rows="rows" :all-rows="allRows" :meta="meta" />
 
@@ -30,6 +14,30 @@
                 <ChartByScientificName :rows="rows" />
             </div>
 
+            <div class="dwc-compact-charts-wide">
+                <ChartGeoGrid :rows="rows" :query-params="queryParams" />
+            </div>
+
+            <div class="dwc-compact-charts-wide">
+                <ChartSpeciesByMonth :rows="rows" />
+            </div>
+
+            <div v-if="errors.length" class="dwc-compact-errors">
+                <h3>Errors / Warnings ({{ errors.length }})</h3>
+                <ul>
+                    <li
+                        v-for="(error, index) in errors"
+                        :key="index"
+                        :class="{ 'dwc-compact-warning': error.type === 'warning' }"
+                    >
+                        <strong>{{ error.type }}:</strong> {{ error.message }}
+                        <span v-if="error.values">
+                            — values: {{ error.values.join(", ") }}
+                        </span>
+                    </li>
+                </ul>
+            </div>
+
             <CompactTable :headers="headers" :rows="rows" />
         </template>
 
@@ -39,6 +47,7 @@
 
 <script setup>
 import { ref } from "vue";
+import qs from "qs";
 import { DwcOcurrence } from "@/routes/endpoints";
 import { LinkerStorage } from "@/shared/Filter/utils";
 import VSpinner from "@/components/ui/VSpinner.vue";
@@ -48,6 +57,8 @@ import ChartLifeStageCounts from "./components/ChartLifeStageCounts.vue";
 import ChartCalendarDay from "./components/ChartCalendarDay.vue";
 import ChartByYear from "./components/ChartByYear.vue";
 import ChartByScientificName from "./components/ChartByScientificName.vue";
+import ChartGeoGrid from "./components/ChartGeoGrid.vue";
+import ChartSpeciesByMonth from "./components/ChartSpeciesByMonth.vue";
 import CompactTable from "./components/CompactTable.vue";
 
 const isLoading = ref(false);
@@ -56,16 +67,19 @@ const rows = ref([]);
 const allRows = ref([]);
 const errors = ref([]);
 const meta = ref({});
+const queryParams = ref(null);
 
-function getStoredParams() {
+function getInitialParams() {
+    const urlParams = qs.parse(window.location.search, {
+        ignoreQueryPrefix: true,
+        arrayLimit: 2000,
+    });
     const stored = LinkerStorage.getParameters();
 
-    if (stored) {
-        LinkerStorage.removeParameters();
-        return stored;
-    }
+    LinkerStorage.removeParameters();
 
-    return null;
+    const merged = { ...urlParams, ...stored };
+    return Object.keys(merged).length ? merged : null;
 }
 
 async function requestCompact(params, preview = false) {
@@ -92,9 +106,10 @@ async function requestCompact(params, preview = false) {
     }
 }
 
-const storedParams = getStoredParams();
-if (storedParams) {
-    requestCompact(storedParams, false);
+const initialParams = getInitialParams();
+if (initialParams) {
+    queryParams.value = initialParams;
+    requestCompact(initialParams, false);
 }
 </script>
 

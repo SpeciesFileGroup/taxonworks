@@ -16,6 +16,16 @@ module Utilities::DarwinCore::Compact
   SUMMED_COLUMNS = %w[individualCount].freeze
   DERIVED_COLUMNS = %w[adultMale adultFemale immatureNymph exuvia].freeze
 
+  # Columns excluded from the differing-values validation check.
+  # These are housekeeping or per-row identity fields that are
+  # expected to differ across rows sharing a catalogNumber.
+  SKIP_VALIDATION_COLUMNS = %w[
+    id
+    occurrenceID
+    dwc_occurrence_object_id
+    dwc_occurrence_object_type
+  ].freeze
+
   # Merge rows with identical catalogNumber values.
   # Rows without a catalogNumber are excluded from compaction
   # but tracked in table.skipped_rows.
@@ -67,7 +77,7 @@ module Utilities::DarwinCore::Compact
   # @param rows [Array<Hash>]
   # @return [void]
   def self.validate_group(table, catalog_number, rows)
-    operated_columns = APPENDED_COLUMNS + SUMMED_COLUMNS
+    operated_columns = APPENDED_COLUMNS + SUMMED_COLUMNS + SKIP_VALIDATION_COLUMNS
 
     (table.headers - operated_columns).each do |column|
       values = rows.map { |r| r[column] }.uniq

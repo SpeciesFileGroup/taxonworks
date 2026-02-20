@@ -1,8 +1,8 @@
 require 'rails_helper'
 
-describe 'Compact DarwinCore', type: :feature, group: :collection_objects do
+describe 'Summary DarwinCore', type: :feature, group: :collection_objects do
 
-  let(:page_title) { 'Compact DarwinCore' }
+  let(:page_title) { 'Summary DarwinCore' }
   let(:index_path) { compact_dwc_task_path }
 
   it_behaves_like 'a_login_required_and_project_selected_controller'

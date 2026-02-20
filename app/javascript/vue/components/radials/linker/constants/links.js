@@ -201,7 +201,7 @@ export const TASK_DUPLICATE_DATA_ATTRIBUTES = {
 };
 
 export const TASK_COMPACT_DWC = {
-  label: "Compact DwC",
+  label: "DwC Summary",
   link: "/tasks/dwc/compact",
   queryParam: true,
   saveQuery: true,

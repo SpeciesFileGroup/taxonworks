@@ -54,7 +54,12 @@
                 </thead>
                 <tbody>
                     <tr v-for="(row, index) in sortedRows" :key="index">
-                        <td v-for="header in headers" :key="header">
+                        <td
+                            v-for="header in headers"
+                            :key="header"
+                            class="dwc-compact-td"
+                            :title="row[header]"
+                        >
                             {{ row[header] }}
                         </td>
                     </tr>
@@ -193,5 +198,12 @@ function copyCatalogNumberColumn() {
 .sort-indicator {
     font-size: 0.7em;
     margin-left: 0.25em;
+}
+
+.dwc-compact-td {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 </style>
