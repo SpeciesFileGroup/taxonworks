@@ -53,7 +53,7 @@
             />
           </td>
           <td class="inverted-col">
-            {{ item.biological_association_object_id === props.metadata.object_id }}
+            {{ isInverted(item) }}
           </td>
           <td class="actions-col">
             <div class="horizontal-right-content gap-xsmall">
@@ -114,6 +114,13 @@ function deleteItem(item) {
   ) {
     emit('delete', item)
   }
+}
+
+function isInverted(item) {
+  return (
+    item.biological_association_object_id === props.metadata.object_id &&
+    item.biological_association_object_type === props.metadata.object_type
+  )
 }
 
 function uriPillTitle(item) {
