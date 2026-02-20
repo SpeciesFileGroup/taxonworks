@@ -376,7 +376,7 @@ module Export::Coldp::Files::Name
       # !!
       # !! Curators can avoid this ambiguity by assigning the full original combination.
       # !!
-      if rank == 'genus' && row.rank == 'species'
+      if rank == 'genus' && row.rank != 'genus'
         rank = row.rank
       end
 
@@ -448,7 +448,7 @@ module Export::Coldp::Files::Name
       # !!
       # !! Curators can avoid this ambiguity by assigning the full original combination.
       # !!
-      if rank == 'genus' && row.rank == 'species'
+      if rank == 'genus' && row.rank != 'genus'
         rank = row.rank
       end
 
