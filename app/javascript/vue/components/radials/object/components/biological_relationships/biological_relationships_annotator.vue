@@ -49,7 +49,7 @@
       <h3 v-html="metadata.object_tag" />
 
       <AnatomicalPartToggleFieldset
-        v-if="withAnatomicalPartCreation"
+        v-if="withAnatomicalPartCreation && props.objectType !== 'AnatomicalPart'"
         v-model="enableSubjectAnatomicalPart"
         label="Subject anatomical part"
         hint="Enable to create a subject anatomical part"
@@ -191,7 +191,7 @@
     />
 
     <AnatomicalPartSubjectSummary
-      v-if="withAnatomicalPartCreation"
+      v-if="withAnatomicalPartCreation && props.objectType !== 'AnatomicalPart'"
       :list="anatomicalPartModeList"
       :metadata="metadata"
       :subject-heading-html="anatomicalPartSubjectHeadingHtml"
@@ -408,6 +408,10 @@ onBeforeMount(() => {
   // The withAnatomicalPartCreation watcher fires after session state is set, loading the AP mode list if
   // needed.
   loadAnatomicalPartSessionState()
+
+  if (props.objectType === 'AnatomicalPart') {
+    enableSubjectAnatomicalPart.value = false
+  }
 })
 
 
