@@ -294,8 +294,6 @@ namespace :tw do
         task parallel_create_cached_map_item_translations_from_asserted_distributions: [:environment] do |t|
           cached_rebuild_processes = ENV['cached_rebuild_processes'] ? ENV['cached_rebuild_processes'].to_i : 4
 
-          task_start = Time.current
-
           # ids = GeographicAreasGeographicItem.where(geographic_area: GeographicArea.joins(:asserted_distributions))
           #        .where.missing(:cached_map_item_translations)
           #        .default_geographic_item_data   # This does not do what we want it do as a join
@@ -303,65 +301,49 @@ namespace :tw do
           #        .distinct
           #        .pluck(:geographic_item_id)
 
-          puts "Preparing... #{task_start}"
+          puts 'Preparing...'
 
-          ids_out = CachedMapItemTranslation.select(:geographic_item_id).distinct
-          default_gagi_sql = GeographicAreasGeographicItem.default_geographic_item_data_sql
+          ids_out = CachedMapItemTranslation.select(:geographic_item_id)
+          .distinct.pluck(:geographic_item_id).compact
 
-          ga_ids = GeographicArea.joins(:asserted_distributions).distinct
-            .joins("JOIN (#{default_gagi_sql}) default_gagi ON default_gagi.geographic_area_id = geographic_areas.id")
-            .select('DISTINCT default_gagi.geographic_item_id AS id')
+          ids_in__ga = GeographicArea.joins(:asserted_distributions).distinct
+            .map(&:default_geographic_item_id).compact
+          puts "Total GeographicArea-based asserted distributions: #{ids_in__ga.count}"
+          puts "GeographicArea-based asserted distributions already done: #{(ids_out & ids_in__ga).count}"
 
-          gz_ids = Gazetteer.joins(:asserted_distributions).distinct
-            .select('DISTINCT gazetteers.geographic_item_id AS id')
+          ids_in__gz = Gazetteer.joins(:asserted_distributions).distinct
+            .map(&:default_geographic_item_id).compact
+          puts "Total Gazetteer-based asserted distributions: #{ids_in__gz.count}"
+          puts "Gazetteer-based asserted distributions already done: #{(ids_out & ids_in__gz).count}"
 
-          ga_total = ga_ids.count
-          ga_done = ga_ids.where(id: ids_out).count
-          puts "Total GeographicArea-based asserted distributions: #{ga_total}"
-          puts "GeographicArea-based asserted distributions already done: #{ga_done}"
+          ids_in__ga = ids_in__ga - ids_out
+          ids_in__gz = ids_in__gz - ids_out
 
-          gz_total = gz_ids.count
-          gz_done = gz_ids.where(id: ids_out).count
-          puts "Total Gazetteer-based asserted distributions: #{gz_total}"
-          puts "Gazetteer-based asserted distributions already done: #{gz_done}"
-
-          ga_missing = ga_ids.where.not(id: ids_out)
-          gz_missing = gz_ids.where.not(id: ids_out)
-
-          puts "Processing #{ga_missing.count} GeographicArea-based asserted distributions"
-          puts "Processing #{gz_missing.count} Gazetteer-based asserted distributions"
+          puts "Processing #{ids_in__ga.count} GeographicArea-based asserted distributions"
+          puts "Processing #{ids_in__gz.count} Gazetteer-based asserted distributions"
 
           precomputed_data_origin_ids = {
             'ne_states' => CachedMapItem.precomputed_data_origin_ids_for('ne_states')
           }
 
-          ga_batch = 0
-          ga_missing.in_batches(of: 1000) do |batch|
-            ga_batch += 1
-            ids = batch.pluck(:id)
-            Parallel.each(ids, progress: "build_cached_map_item_translations GA (batch #{ga_batch})",
-              in_processes: cached_rebuild_processes ) do |id|
-              reconnected ||= CachedMapItemTranslation.connection.reconnect! || true
-              process_asserted_distribution_translation(id, true, precomputed_data_origin_ids:)
-            end
+          ids_in__ga.sort!
+          ids_in__gz.sort!
+
+          Parallel.each(ids_in__ga, progress: 'build_cached_map_item_translations GA', in_processes: cached_rebuild_processes ) do |id|
+            reconnected ||= CachedMapItemTranslation.connection.reconnect! || true
+            process_asserted_distribution_translation(id, true, precomputed_data_origin_ids:)
           end
 
           puts 'Geographic Area-based Asserted Distributions done.'
 
-          gz_batch = 0
-          gz_missing.in_batches(of: 1000) do |batch|
-            gz_batch += 1
-            ids = batch.pluck(:id)
-            Parallel.each(ids, progress: "build_cached_map_item_translations GZ (batch #{gz_batch})",
-              in_processes: cached_rebuild_processes ) do |id|
-              reconnected ||= CachedMapItemTranslation.connection.reconnect! || true
-              process_asserted_distribution_translation(id, false, precomputed_data_origin_ids:)
-            end
+          Parallel.each(ids_in__gz, progress: 'build_cached_map_item_translations GZ', in_processes: cached_rebuild_processes ) do |id|
+            reconnected ||= CachedMapItemTranslation.connection.reconnect! || true
+            process_asserted_distribution_translation(id, false, precomputed_data_origin_ids:)
           end
 
           puts 'Gazetteer-based Asserted Distributions done.'
 
-          puts "Done. elapsed=#{(Time.current - task_start).round(2)}s"
+          puts 'Done.'
         end
 
         def process_asserted_distribution_translation(
