@@ -436,23 +436,28 @@ async function saveAssociation() {
     return
   }
 
+  // When deduplicating to an existing BA, omit subject/object id/type: those are
+  // already set correctly on the matched record (possibly as AnatomicalPart) and
+  // re-sending the form values (OTU/CO) would overwrite them incorrectly.
+  const subjectObjectIds = createdBiologicalAssociation.value
+    ? {}
+    : flip.value
+      ? {
+          biological_association_object_id: props.objectId,
+          biological_association_object_type: props.objectType,
+          biological_association_subject_id: biologicalRelation.value.id,
+          biological_association_subject_type: biologicalRelation.value.base_class
+        }
+      : {
+          biological_association_object_id: biologicalRelation.value.id,
+          biological_association_object_type: biologicalRelation.value.base_class,
+          biological_association_subject_id: props.objectId,
+          biological_association_subject_type: props.objectType
+        }
+
   const payload = {
     biological_association: {
-      ...(flip.value
-        ? {
-            biological_association_object_id: props.objectId,
-            biological_association_object_type: props.objectType,
-            biological_association_subject_id: biologicalRelation.value.id,
-            biological_association_subject_type:
-              biologicalRelation.value.base_class
-          }
-        : {
-            biological_association_object_id: biologicalRelation.value.id,
-            biological_association_object_type:
-              biologicalRelation.value.base_class,
-            biological_association_subject_id: props.objectId,
-            biological_association_subject_type: props.objectType
-          }),
+      ...subjectObjectIds,
       biological_relationship_id: biologicalRelationship.value.id,
       citations_attributes: citation.value ? [citation.value] : undefined,
       ...mapAnatomicalPartAttributesToAssociationSides()
