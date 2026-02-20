@@ -91,6 +91,7 @@
           v-if="biologicalRelationship.inverted_name"
           color="primary"
           @click="flip = !flip"
+          class="margin-small-left"
         >
           Flip
         </VBtn>
@@ -474,7 +475,7 @@ async function saveAssociation() {
 
   saveRequest
     .then(({ body }) => {
-      addToList(body)
+      addToList(body, { prepend: true })
       if (withAnatomicalPartCreation.value) {
         loadAnatomicalPartModeList()
       }

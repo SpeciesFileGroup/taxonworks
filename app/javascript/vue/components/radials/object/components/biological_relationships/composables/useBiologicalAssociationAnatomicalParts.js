@@ -102,7 +102,10 @@ export default function useBiologicalAssociationAnatomicalParts({
       !withAnatomicalPartCreation.value ||
       !enableRelatedAnatomicalPart.value
     ) {
-      return item.biological_association_object_id === biologicalRelation.value?.id
+      const idField = flip.value
+        ? 'biological_association_subject_id'
+        : 'biological_association_object_id'
+      return item[idField] === biologicalRelation.value?.id
     }
 
     const identity = anatomicalPartSelectionIdentity(relatedAnatomicalPart.value)
