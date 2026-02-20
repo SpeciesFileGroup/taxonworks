@@ -19,10 +19,62 @@ module Export::Coldp::Files::Name
     :core_names,
     :combination_names,
     :original_combination_names,
+
     :invalid_family_and_higher_names,
     :invalid_core_names,
     :invalid_original_combination_names,
   ]
+
+  # @params otu [Otu]
+  #   the top level OTU
+  def self.generate(otu, project_members, reference_csv = nil)
+    name_total = 0
+
+    # We should not be setting this here !!
+    project_id = otu.project_id
+
+    # TODO: scope this to name_remarks, keep internal
+    if predicate_id = Predicate.find_by(
+        uri: 'https://github.com/catalogueoflife/coldp#Name.remarks',
+        project_id:)&.id
+
+      ::Export::Coldp.remarks = ::Export::Coldp.get_remarks(otu.taxon_name.self_and_descendants, predicate_id)
+    end
+
+    # genderAgreement boolean is ultimately derivable from TaxonNameClassification::Gender
+
+    output = ::CSV.generate(col_sep: "\t") do |csv|
+      csv << %w{
+        ID
+        basionymID
+        scientificName
+        authorship
+        rank
+        uninomial
+        genus
+        infragenericEpithet
+        specificEpithet
+        infraspecificEpithet
+        referenceID
+        publishedInPage
+        publishedInYear
+        code
+        status
+        etymology
+        gender
+        link
+        remarks
+        modified
+        modifiedBy
+      }
+
+      MANIFEST.each do |m|
+        send( ('add_' + m.to_s).to_sym, otu, csv, project_members, reference_csv)
+      end
+
+      true
+    end
+  end
 
   def self.code_field(rank_class)
     return 'ICZN' if rank_class =~ /Iczn/
@@ -60,6 +112,47 @@ module Export::Coldp::Files::Name
       .order('taxon_name_relationships.subject_taxon_name_id, s.cached_nomenclature_date')
 
     ApplicationRecord.connection.execute(c.to_sql).to_a
+  end
+
+  # Return, based on the gender of the genus, the element
+  # at the rank requested. Note infraspecies is a "fake" rank
+  # that is combined data here. This is in part because
+  # CoL only handles trinomials.
+  #
+  # @param rank - the element of the name requested
+  #
+  def self.align_gender(core_name, rank = :species)
+    if g = core_name.genus_gender # there is a name at this rank and we can work with the gender
+
+      case core_name.rank
+      when 'species'
+        case rank
+        when :species
+          core_name.send( (g + '_name').to_sym )
+        else
+          nil
+        end
+      when 'subspecies', 'form', 'variety' # See compression in core_names, may be an issue
+        case rank
+        when :species
+          core_name.send( "species_#{g}_name".to_sym )
+        when :infraspecies
+          core_name.send( (g + '_name').to_sym )
+        end
+      end
+    end
+  end
+
+  # @param classification_status Array
+  # @param relationship_status Array
+  def self.nomenclatural_status(taxon_name_id, classification_status = [], relationship_status = [])
+    # Always prefer  a classification, regardless of age
+    a = classification_status.bsearch{|i| i['taxon_name_id'] >= taxon_name_id}
+    return a['type'].safe_constantize::NOMEN_URI if !a.blank? && a['taxon_name_id'] == taxon_name_id # binary is first >=
+    b = relationship_status.bsearch{|i| i['subject_taxon_name_id'] >= taxon_name_id}
+    return nil if b.blank? || b['subject_taxon_name_id'] != taxon_name_id
+    return b['type'].safe_constantize::NOMEN_URI unless b.blank?
+    nil
   end
 
   # Core names are:
@@ -132,55 +225,20 @@ module Export::Coldp::Files::Name
       .select('taxon_names.*, n.genus, n.subgenus, n.species, n.infraspecies')
   end
 
-  # @params otu [Otu]
-  #   the top level OTU
-  def self.generate(otu, project_members, reference_csv = nil)
-    name_total = 0
+  # Combinations
+  #   See also self.core_names
+  #  - Potential TODO: a-typical verbatim_names (though perhaps OK)
+  #    - If not OK, then simply provide verbatim_name *without* genus, subgenus, species fields
+  #
+  def self.combination_names(otu)
+    a = otu.taxon_name.self_and_descendants.unscope(:order).select(:id)
 
-    # We should not be setting this here !!
-    project_id = otu.project_id
-
-    # TODO: scope this to name_remarks, keep internal
-    if predicate_id = Predicate.find_by(
-        uri: 'https://github.com/catalogueoflife/coldp#Name.remarks',
-        project_id:)&.id
-
-      ::Export::Coldp.remarks = ::Export::Coldp.get_remarks(otu.taxon_name.self_and_descendants, predicate_id)
-    end
-
-    # genderAgreement boolean is ultimately derivable from TaxonNameClassification::Gender
-
-    output = ::CSV.generate(col_sep: "\t") do |csv|
-      csv << %w{
-        ID
-        basionymID
-        scientificName
-        authorship
-        rank
-        uninomial
-        genus
-        infragenericEpithet
-        specificEpithet
-        infraspecificEpithet
-        referenceID
-        publishedInPage
-        publishedInYear
-        code
-        status
-        etymology
-        gender
-        link
-        remarks
-        modified
-        modifiedBy
-      }
-
-      MANIFEST.each do |m|
-        send( ('add_' + m.to_s).to_sym, otu, csv, project_members, reference_csv)
-      end
-
-      true
-    end
+    b = Combination
+      .where('taxon_names.verbatim_name is null OR taxon_names.verbatim_name = taxon_names.cached') # !! verbatim_name when present is used in cached?! if so this isn't correct!
+      .flattened
+      .with(project_scope: a)
+      .complete
+      .joins('JOIN project_scope ps on ps.id = taxon_names.cached_valid_taxon_name_id') # Combinations that point to any of "a"
   end
 
   # Higher names are:
@@ -230,7 +288,7 @@ module Export::Coldp::Files::Name
 
     b = Protonym
       .original_combination_specified
-      .original_combinations_flattened
+      .original_combinations_flattened # !! This is excluding things that are not full specified for species group names
       .with(project_scope: a)
       .where('taxon_names.cached != taxon_names.cached_original_combination') # Only reified!!
       .joins('JOIN project_scope ps on ps.id = taxon_names.id')
@@ -312,6 +370,16 @@ module Export::Coldp::Files::Name
       author_year = row['cached_author_year']
       author_year = author_year.delete('()') if strip_parens_for_author_year?(row)
 
+      # !!
+      # !! Here we accomodate, somehwat crudely, that original combinations will infer the rank of
+      # !! of a species protonym without specifically assining an original species relationship.
+      # !!
+      # !! Curators can avoid this ambiguity by assigning the full original combination.
+      # !!
+      if rank == 'genus' && row.rank != 'genus'
+        rank = row.rank
+      end
+
       csv << [
         id,                                                                 # ID
         basionym_id,                                                        # basionymID
@@ -373,6 +441,16 @@ module Export::Coldp::Files::Name
 
       # By definition
       basionym_id = row['id']
+
+      # !!
+      # !! Here we accomodate, somehwat crudely, that original combinations will infer the rank of
+      # !! of a species protonym without specifically assining an original species relationship.
+      # !!
+      # !! Curators can avoid this ambiguity by assigning the full original combination.
+      # !!
+      if rank == 'genus' && row.rank != 'genus'
+        rank = row.rank
+      end
 
       csv << [
         id,                                                                 # ID
@@ -474,22 +552,6 @@ module Export::Coldp::Files::Name
     end
   end
 
-  # Combinations
-  #   See also self.core_names
-  #  - Potential TODO: a-typical verbatim_names (though perhaps OK)
-  #    - If not OK, then simply provide verbatim_name *without* genus, subgenus, species fields
-  #
-  def self.combination_names(otu)
-    a = otu.taxon_name.self_and_descendants.unscope(:order).select(:id)
-
-    b = Combination
-      .where('taxon_names.verbatim_name is null OR taxon_names.verbatim_name = taxon_names.cached') # !! verbatim_name when present is used in cached?! if so this isn't correct!
-      .flattened
-      .with(project_scope: a)
-      .complete
-      .joins('JOIN project_scope ps on ps.id = taxon_names.cached_valid_taxon_name_id') # Combinations that point to any of "a"
-  end
-
   def self.add_combination_names(otu, csv, project_members, reference_csv)
     names = combination_names(otu)
     names.length
@@ -513,18 +575,10 @@ module Export::Coldp::Files::Name
       #      * No - include
       #
       if (row[rank + "_cached"] == row['cached'])  # it is a dupe
-
         if  row[rank + '_cached_is_valid']         # it is valid
           ::Export::Coldp.skipped_combinations << row['id']
           next
         end
-
-      # # it is not valid
-      # # it *is* referencing an inferred combination
-      #   if !row[rank + '_inferred_combination']
-      #     ::Export::Coldp.skipped_combinations << row['id']
-      #     next
-      #   end
       end
 
       scientific_name = ::Utilities::Nomenclature.unmisspell_name(row['cached'])
@@ -556,41 +610,13 @@ module Export::Coldp::Files::Name
       ]
     end
 
+    # TODO: CHECK THIS!!
     if reference_csv
       Source.with(names: names.where(citations: { is_original: true}))
         .joins('JOIN names n on n.source_id = sources.id')
         .find_each do |s|
           Export::Coldp::Files::Reference.add_reference_rows([s].compact, reference_csv, project_members)
         end
-    end
-  end
-
-  # Return, based on the gender of the genus, the element
-  # at the rank requested. Note infraspecies is a "fake" rank
-  # that is combined data here. This is in part because
-  # CoL only handles trinomials.
-  #
-  # @param rank - the element of the name requested
-  #
-  def self.align_gender(core_name, rank = :species)
-    if g = core_name.genus_gender # there is a name at this rank and we can work with the gender
-
-      case core_name.rank
-      when 'species'
-        case rank
-        when :species
-          core_name.send( (g + '_name').to_sym )
-        else
-          nil
-        end
-      when 'subspecies', 'form', 'variety' # See compression in core_names, may be an issue
-        case rank
-        when :species
-          core_name.send( "species_#{g}_name".to_sym )
-        when :infraspecies
-          core_name.send( (g + '_name').to_sym )
-        end
-      end
     end
   end
 
@@ -634,18 +660,6 @@ module Export::Coldp::Files::Name
 
       Export::Coldp::Files::Reference.add_reference_rows([origin_citation.source].compact, reference_csv, project_members) if reference_csv && origin_citation
     end
-  end
-
-  # @param classification_status Array
-  # @param relationship_status Array
-  def self.nomenclatural_status(taxon_name_id, classification_status = [], relationship_status = [])
-    # Always prefer  a classification, regardless of age
-    a = classification_status.bsearch{|i| i['taxon_name_id'] >= taxon_name_id}
-    return a['type'].safe_constantize::NOMEN_URI if !a.blank? && a['taxon_name_id'] == taxon_name_id # binary is first >=
-    b = relationship_status.bsearch{|i| i['subject_taxon_name_id'] >= taxon_name_id}
-    return nil if b.blank? || b['subject_taxon_name_id'] != taxon_name_id
-    return b['type'].safe_constantize::NOMEN_URI unless b.blank?
-    nil
   end
 
   def self.add_invalid_family_and_higher_names(otu, csv, project_members, reference_csv)
