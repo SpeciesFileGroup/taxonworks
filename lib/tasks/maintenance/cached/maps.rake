@@ -203,22 +203,18 @@ namespace :tw do
           end
 
           Parallel.each(items.each, progress: 'labelling_geographic_items', in_processes: cached_rebuild_processes ) do |o|
+            reconnected ||= CachedMapItem.connection.reconnect! || true
 
             h = CachedMapItem.cached_map_name_hierarchy(o.geographic_item_id)
 
             z = CachedMapItem.where(geographic_item_id: o.geographic_item_id)
               .where(untranslated: [nil, false])
 
-            #puts 'Size: ' + z.size.to_s
-
             z.update_all(
               level0_geographic_name: h[:country],
               level1_geographic_name: h[:state],
               level2_geographic_name: h[:county]
             )
-
-            #puts o.geographic_item_id
-            #puts h
           end
           puts "Done labelling cached map items. elapsed=#{format_elapsed(task_start)}"
         end
@@ -242,6 +238,8 @@ namespace :tw do
           puts "#{otus.count} total OTUs."
 
           Parallel.each(otus.find_each, progress: 'build_cached_map_for_otu', in_processes: cached_rebuild_processes ) do |o|
+            reconnected ||= Georeference.connection.reconnect! || true # https://github.com/grosser/parallel
+
             o.collecting_events.each do |ce|
 
               # !! All georeferences, not just one
@@ -249,7 +247,6 @@ namespace :tw do
 
                 begin
                   CachedMapItem.transaction do
-                    reconnected ||= Georeference.connection.reconnect! || true # https://github.com/grosser/parallel
                     g.send(:create_cached_map_items, true)
                   end
                   true
@@ -263,7 +260,6 @@ namespace :tw do
             o.asserted_distributions.where.missing(:cached_map_register).each do |ad|
               begin
                 CachedMapItem.transaction do
-                  reconnected ||= AssertedDistribution.connection.reconnect! || true # https://github.com/grosser/parallel
                   ad.send(:create_cached_map_items, true)
                 end
                 true
@@ -578,6 +574,8 @@ namespace :tw do
         task parallel_create_cached_map_item_translations_from_asserted_distributions: [:environment] do |t|
           cached_rebuild_processes = ENV['cached_rebuild_processes'] ? ENV['cached_rebuild_processes'].to_i : 4
 
+          task_start = Time.current
+
           # ids = GeographicAreasGeographicItem.where(geographic_area: GeographicArea.joins(:asserted_distributions))
           #        .where.missing(:cached_map_item_translations)
           #        .default_geographic_item_data   # This does not do what we want it do as a join
@@ -585,10 +583,10 @@ namespace :tw do
           #        .distinct
           #        .pluck(:geographic_item_id)
 
-          puts 'Preparing...'
+          puts "Preparing... #{task_start}"
 
-          ids_out = CachedMapItemTranslation.select(:geographic_item_id)
-          .distinct.pluck(:geographic_item_id).compact
+          ids_out = CachedMapItemTranslation.select(:geographic_item_id).distinct
+          default_gagi_sql = GeographicAreasGeographicItem.default_geographic_item_data_sql
 
           ga_gi_ids = GeographicArea.joins(:asserted_distributions)
             .merge(AssertedDistribution.without_is_absent)
@@ -631,19 +629,22 @@ namespace :tw do
             'ne_states' => CachedMapItem.precomputed_data_origin_ids_for('ne_states')
           }
 
-          ids_in__ga.sort!
-          ids_in__gz.sort!
-
-          Parallel.each(ids_in__ga, progress: 'build_cached_map_item_translations GA', in_processes: cached_rebuild_processes ) do |id|
-            reconnected ||= CachedMapItemTranslation.connection.reconnect! || true
-            process_asserted_distribution_translation(id, true, precomputed_data_origin_ids:)
+          ga_missing_gi_ids.each_slice(1000).with_index(1) do |ids, ga_batch|
+            Parallel.each(ids, progress: "build_cached_map_item_translations GA (batch #{ga_batch})",
+              in_processes: cached_rebuild_processes ) do |id|
+              reconnected ||= CachedMapItemTranslation.connection.reconnect! || true
+              process_asserted_distribution_translation(id, true, precomputed_data_origin_ids:)
+            end
           end
 
           puts 'Geographic Area-based Asserted Distributions done.'
 
-          Parallel.each(ids_in__gz, progress: 'build_cached_map_item_translations GZ', in_processes: cached_rebuild_processes ) do |id|
-            reconnected ||= CachedMapItemTranslation.connection.reconnect! || true
-            process_asserted_distribution_translation(id, false, precomputed_data_origin_ids:)
+          gz_missing_gi_ids.each_slice(1000).with_index(1) do |ids, gz_batch|
+            Parallel.each(ids, progress: "build_cached_map_item_translations GZ (batch #{gz_batch})",
+              in_processes: cached_rebuild_processes ) do |id|
+              reconnected ||= CachedMapItemTranslation.connection.reconnect! || true
+              process_asserted_distribution_translation(id, false, precomputed_data_origin_ids:)
+            end
           end
 
           puts 'Gazetteer-based Asserted Distributions done.'
@@ -658,7 +659,6 @@ namespace :tw do
           slow_translation_ms = ENV.fetch('cached_translation_slow_ms', '600000').to_f
           translation_elapsed_ms = 0.0
 
-          #  b = ( Benchmark.measure {
           begin
             translation_start = Time.current
             t = CachedMapItem.translate_geographic_item_id(
@@ -674,9 +674,6 @@ namespace :tw do
             puts " FAILED translation geographic_item_id:#{geographic_item_id} geographic_area_based:#{geographic_area_based} elapsed_ms:#{translation_elapsed_ms} total_matching_ads:#{context[:total_matching_ads]} sample_asserted_distribution_ids:#{context[:sample_ad_ids].join(',')} sample_project_ids:#{context[:sample_project_ids].join(',')} #{e.to_s.gsub(/\n/, '')}"
             t = []
           end
-
-          #  })
-          #  puts ' | ' + b.to_s
 
           t.each do |u|
             translations.push({
@@ -776,7 +773,7 @@ namespace :tw do
               end
 
             rescue => exception
-              puts " FAILED #{exception} #{g.id}"
+              puts " FAILED #{exception} #{a.id}"
             end
           end
           puts "Done. elapsed=#{format_elapsed(task_start)}"

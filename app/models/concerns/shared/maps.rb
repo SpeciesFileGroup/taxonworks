@@ -133,6 +133,7 @@ module Shared::Maps
 
         return true if stubs[:otu_id].empty?
 
+        registered = false
         name_hierarchy = {}
 
         max_retries = 3
@@ -197,13 +198,26 @@ module Shared::Maps
               end
             end
 
-            begin
-              CachedMapRegister.create!(
-                cached_map_register_object: self,
-                project_id:
-              )
-            rescue ActiveRecord::RecordInvalid => e
-              logger.debug e
+            unless skip_register
+              begin
+                CachedMapRegister.create!(
+                  cached_map_register_object: self,
+                  project_id:
+                )
+              rescue ActiveRecord::RecordInvalid => e
+                logger.debug e
+              end
+            else
+              if register_queue && !registered
+                register_queue << {
+                  cached_map_register_object_type: self.class.base_class.name,
+                  cached_map_register_object_id: id,
+                  project_id:,
+                  created_at: Time.current,
+                  updated_at: Time.current
+                }
+                registered = true
+              end
             end
           end
         rescue ActiveRecord::Deadlocked => e
