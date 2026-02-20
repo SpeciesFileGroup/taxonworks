@@ -5,27 +5,88 @@
     :name="title"
     :spinner="isLoading"
   >
-    <div
+    <SlidingStack
       v-if="types.length"
-      class="separate-top"
+      scroll-offset-element="#browse-otu-header"
+      :scroll-offset="100"
     >
-      <ul class="no_bullets">
-        <li
-          v-for="co in collectionObjects"
-          :key="co.collection_objects_id"
-        >
-          <PanelTypeSpecimensInfo
-            :types="
-              types.filter(
-                (item) => co.collection_objects_id === item.collection_object_id
-              )
-            "
-            :specimen="co"
-            :otu="otu"
+      <template #master="{ push }">
+        <ul class="no_bullets separate-top">
+          <li
+            v-for="co in collectionObjects"
+            :key="co.collection_objects_id"
+          >
+            <div class="panel margin-small-bottom padding-small">
+              <div
+                class="cursor-pointer inline"
+                @click="
+                  push({
+                    specimen: co,
+                    types: types.filter(
+                      (t) => co.collection_objects_id === t.collection_object_id
+                    ),
+                    otu
+                  })
+                "
+              >
+                <VBtn
+                  circle
+                  color="primary"
+                >
+                  <VIcon
+                    name="arrowRight"
+                    x-small
+                  />
+                </VBtn>
+                <span class="margin-small-left">
+                  [<span
+                    v-html="
+                      types
+                        .filter(
+                          (t) =>
+                            co.collection_objects_id === t.collection_object_id
+                        )
+                        .map((t) => `${t.type_type} of ${t.original_combination}`)
+                        .join('; ')
+                    "
+                  />] - <span v-html="getCeLabel(co)" />
+                </span>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </template>
+
+      <template #detail="{ payload, pop }">
+        <div class="padding-small">
+          <div class="margin-small-bottom">
+            <VBtn
+              color="primary"
+              medium
+              @click="pop"
+            >
+              <VIcon
+                name="arrowLeft"
+                x-small
+              />
+              Back
+            </VBtn>
+          </div>
+          <PanelTypeSpecimensTypeData
+            v-for="type in payload.types"
+            :key="type.id"
+            class="species-information-container"
+            :type="type"
+            :otu="payload.otu"
           />
-        </li>
-      </ul>
-    </div>
+          <PanelTypeSpecimensDetail
+            class="species-information-container"
+            :specimen="payload.specimen"
+          />
+        </div>
+      </template>
+    </SlidingStack>
+
     <div v-else>No type specimen records available</div>
   </PanelLayout>
 </template>
@@ -34,7 +95,13 @@
 import { ref, watch } from 'vue'
 import { CollectionObject, TypeMaterial, TaxonName } from '@/routes/endpoints'
 import PanelLayout from '../PanelLayout.vue'
-import PanelTypeSpecimensInfo from './PanelTypeSpecimensInfo.vue'
+import SlidingStack from '@/components/ui/SlidingStack.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import PanelTypeSpecimensTypeData from './PanelTypeSpecimensTypeData.vue'
+import PanelTypeSpecimensDetail from './PanelTypeSpecimensDetail.vue'
+
+const LEVELS = ['country', 'stateProvince', 'county']
 
 const props = defineProps({
   otu: {
@@ -66,6 +133,22 @@ const props = defineProps({
 const types = ref([])
 const collectionObjects = ref([])
 const isLoading = ref(false)
+
+function getCeLabel(co) {
+  const areas = []
+
+  LEVELS.forEach((level) => {
+    if (co[level]) {
+      areas.push(`<b>${co[level]}</b>`)
+    }
+  })
+
+  if (co.verbatimLocality) {
+    areas.push(co.verbatimLocality)
+  }
+
+  return areas.join('; ')
+}
 
 function createObject(list, position) {
   const tmp = {}

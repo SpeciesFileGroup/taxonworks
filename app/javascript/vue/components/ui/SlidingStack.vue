@@ -6,9 +6,6 @@
     <div
       class="sliding-stack__slider"
       :style="sliderStyle"
-      @pointerdown="onPointerDown"
-      @pointermove="onPointerMove"
-      @pointerup="onPointerUp"
     >
       <div
         ref="masterPanelRef"
@@ -246,40 +243,6 @@ function replace(payload) {
   if (!stack.value.length) return
 
   stack.value[stack.value.length - 1] = { id: uniqueId(), payload }
-}
-
-let pointerStartX = null
-let pointerStartY = null
-let isHorizontalSwipe = null
-
-function onPointerDown(event) {
-  if (!props.swipeEnabled) return
-  pointerStartX = event.clientX
-  pointerStartY = event.clientY
-  isHorizontalSwipe = null
-}
-
-function onPointerMove(event) {
-  if (!props.swipeEnabled || pointerStartX === null) return
-  const deltaX = event.clientX - pointerStartX
-  const deltaY = event.clientY - pointerStartY
-
-  if (isHorizontalSwipe === null) {
-    isHorizontalSwipe = Math.abs(deltaX) > Math.abs(deltaY)
-  }
-}
-
-function onPointerUp(event) {
-  if (!props.swipeEnabled || pointerStartX === null) return
-  const deltaX = event.clientX - pointerStartX
-
-  if (isHorizontalSwipe && deltaX > 50 && depth.value > 0) {
-    pop()
-  }
-
-  pointerStartX = null
-  pointerStartY = null
-  isHorizontalSwipe = null
 }
 
 defineExpose({ push, pop, popToRoot, replace })

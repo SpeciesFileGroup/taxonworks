@@ -102,12 +102,22 @@
         </div>
       </div>
 
+      <h3>Related</h3>
+      <PanelBiologicalAssociationsNetwork
+        :item-id="[association.subjectId, association.objectId]"
+        :item-type="association.subjectType"
+        :current="association"
+      />
       <!-- Citations -->
       <div
         v-if="association.citations.length"
         class="ba-detail__section"
       >
-        <h4 class="ba-detail__section-heading">Citations</h4>
+        <div
+          class="ba-detail__section-heading text-base font-bold margin-small-top margin-small-bottom"
+        >
+          Citations
+        </div>
         <ul class="ba-detail__list">
           <li
             v-for="citation in association.citations"
@@ -146,6 +156,7 @@
 </template>
 
 <script setup>
+import PanelBiologicalAssociationsNetwork from './PanelBiologicalAssociationsNetwork.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
@@ -246,13 +257,6 @@ const emit = defineEmits(['close'])
 
 .ba-detail__section {
   margin-bottom: 16px;
-}
-
-.ba-detail__section-heading {
-  margin: 0 0 6px 0;
-  font-size: 0.85em;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
 .ba-detail__list {

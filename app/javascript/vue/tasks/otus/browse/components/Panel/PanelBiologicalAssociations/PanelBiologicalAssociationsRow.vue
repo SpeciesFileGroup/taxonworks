@@ -17,13 +17,6 @@
         </VBtn>
       </div>
     </td>
-    <td class="table-cell-border-left-thick">
-      <PanelBiologicalAssociationsRelated
-        :item-id="row.subjectId"
-        :item-type="row.subjectType"
-        :current="row"
-      />
-    </td>
     <td v-html="row.subjectOrder" />
     <td v-html="row.subjectFamily" />
     <td v-html="row.subjectGenus" />
@@ -53,13 +46,6 @@
       />
     </td>
 
-    <td>
-      <PanelBiologicalAssociationsRelated
-        :item-id="row.objectId"
-        :item-type="row.objectType"
-        :current="row"
-      />
-    </td>
     <td v-html="row.objectOrder" />
     <td v-html="row.objectFamily" />
     <td v-html="row.objectGenus" />
@@ -95,7 +81,6 @@
 <script setup>
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
-import PanelBiologicalAssociationsRelated from './PanelBiologicalAssociationsRelated.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import { makeBrowseUrl } from '@/helpers'

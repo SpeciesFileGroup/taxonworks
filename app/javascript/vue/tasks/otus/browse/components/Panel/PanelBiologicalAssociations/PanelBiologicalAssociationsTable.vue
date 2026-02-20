@@ -15,7 +15,6 @@
       </tr>
       <tr class="table-header-border table-header-bold">
         <th class="w-2" />
-        <th class="table-cell-border-left-thick">Related</th>
         <th>Order</th>
         <th>Family</th>
         <th>Genus</th>
@@ -25,7 +24,6 @@
         <th class="table-cell-border-left-thick">Biological relationship</th>
 
         <th class="table-cell-border-left-thick">Biological properties</th>
-        <th>Related</th>
         <th>Order</th>
         <th>Family</th>
         <th>Genus</th>
