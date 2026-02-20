@@ -3,18 +3,18 @@ import { BiologicalAssociation, TaxonDetermination } from '@/routes/endpoints'
 
 const STORAGE_KEYS = {
   withAnatomicalPartCreation:
-    'radialObject::biologicalRelationship::withAnatomicalPartCreation',
+    'radialObject::relatedObjectship::withAnatomicalPartCreation',
   enableSubjectAnatomicalPart:
-    'radialObject::biologicalRelationship::enableSubjectAnatomicalPart',
+    'radialObject::relatedObjectship::enableSubjectAnatomicalPart',
   enableRelatedAnatomicalPart:
-    'radialObject::biologicalRelationship::enableRelatedAnatomicalPart'
+    'radialObject::relatedObjectship::enableRelatedAnatomicalPart'
 }
 
 export default function useBiologicalAssociationAnatomicalParts({
   convertType,
   list,
-  biologicalRelationship,
-  biologicalRelation,
+  relatedObjectship,
+  relatedObject,
   flip,
   metadata,
   objectId,
@@ -106,14 +106,11 @@ export default function useBiologicalAssociationAnatomicalParts({
   }
 
   function relatedSideMatches(item) {
-    if (
-      !withAnatomicalPartCreation.value ||
-      !enableRelatedAnatomicalPart.value
-    ) {
+    if (!withAnatomicalPartCreation.value || !enableRelatedAnatomicalPart.value) {
       const idField = flip.value
         ? 'biological_association_subject_id'
         : 'biological_association_object_id'
-      return item[idField] === biologicalRelation.value?.id
+      return item[idField] === relatedObject.value?.id
     }
 
     const identity = anatomicalPartSelectionIdentity(relatedAnatomicalPart.value)
@@ -126,17 +123,14 @@ export default function useBiologicalAssociationAnatomicalParts({
     const part = sideAnatomicalPart(item, side)
 
     return (
-      part?.origin_object_id === biologicalRelation.value?.id &&
-      part?.origin_object_type === biologicalRelation.value?.base_class &&
+      part?.origin_object_id === relatedObject.value?.id &&
+      part?.origin_object_type === relatedObject.value?.base_class &&
       anatomicalPartMatchesIdentity(part, identity)
     )
   }
 
   function subjectSideMatches(item) {
-    if (
-      !withAnatomicalPartCreation.value ||
-      !enableSubjectAnatomicalPart.value
-    ) {
+    if (!withAnatomicalPartCreation.value || !enableSubjectAnatomicalPart.value) {
       return true
     }
 
@@ -160,11 +154,9 @@ export default function useBiologicalAssociationAnatomicalParts({
       ? anatomicalPartModeList.value
       : list.value
     )
-      .filter(
-        (item) =>
-          item.biological_relationship_id === biologicalRelationship.value?.id &&
-          relatedSideMatches(item) &&
-          subjectSideMatches(item)
+      .filter((item) =>
+        item.biological_relationship_id === relatedObjectship.value?.id &&
+          relatedSideMatches(item) && subjectSideMatches(item)
       )
       .sort((a, b) => a.id - b.id)[0]
   )
@@ -174,9 +166,11 @@ export default function useBiologicalAssociationAnatomicalParts({
       origin_object_id: objectId,
       origin_object_type: objectType,
       extend: extendParams
-    }).then(({ body }) => {
-      anatomicalPartModeList.value = body
     })
+      .then(({ body }) => {
+        anatomicalPartModeList.value = body
+      })
+      .catch(() => {})
   }
 
   function validateAnatomicalPartFields() {
@@ -185,7 +179,10 @@ export default function useBiologicalAssociationAnatomicalParts({
     }
 
     if (enableSubjectAnatomicalPart.value) {
-      if (subjectNeedsTaxonDetermination.value && !subjectTaxonDeterminationOtuId.value) {
+      if (
+        subjectNeedsTaxonDetermination.value &&
+        !subjectTaxonDeterminationOtuId.value
+      ) {
         return false
       }
 
@@ -227,8 +224,9 @@ export default function useBiologicalAssociationAnatomicalParts({
     relatedAnatomicalPart.value = data
   }
 
-  // CollectionObjects may have no taxon determination; a TD is required before
-  // an AP can be created on them. FOs always have a TD, OTUs don't need one.
+  // CollectionObjects may have no taxon determination; a TaxonDetermination is
+  // required before an AnatomicalPart can be created on them. FieldOccurrences
+  // always have a TaxonDetermination, OTUs don't need one.
   function fetchSubjectNeedsTaxonDetermination() {
     if (objectType !== 'CollectionObject') {
       return Promise.resolve(false)
@@ -238,23 +236,27 @@ export default function useBiologicalAssociationAnatomicalParts({
       taxon_determination_object_id: [objectId],
       taxon_determination_object_type: objectType,
       per: 1
-    }).then(({ body }) => body.length === 0)
+    })
+      .then(({ body }) => body.length === 0)
+      .catch(() => {})
   }
 
   function fetchRelatedNeedsTaxonDetermination() {
-    if (!biologicalRelation.value?.id || !relatedIsCollectionObject()) {
+    if (!relatedObject.value?.id || !relatedIsCollectionObject()) {
       return Promise.resolve(false)
     }
 
     return TaxonDetermination.where({
-      taxon_determination_object_id: [biologicalRelation.value.id],
-      taxon_determination_object_type: biologicalRelation.value.base_class,
+      taxon_determination_object_id: [relatedObject.value.id],
+      taxon_determination_object_type: relatedObject.value.base_class,
       per: 1
-    }).then(({ body }) => body.length === 0)
+    })
+      .then(({ body }) => body.length === 0)
+      .catch(() => {})
   }
 
   function relatedIsCollectionObject() {
-    return biologicalRelation.value?.base_class === 'CollectionObject'
+    return relatedObject.value?.base_class === 'CollectionObject'
   }
 
   function updateSubjectTaxonDeterminationState() {
@@ -287,7 +289,7 @@ export default function useBiologicalAssociationAnatomicalParts({
       }
     }
 
-    if (enableRelatedAnatomicalPart.value && biologicalRelation.value?.id) {
+    if (enableRelatedAnatomicalPart.value && relatedObject.value?.id) {
       const relatedNeeds = await fetchRelatedNeedsTaxonDetermination()
       relatedNeedsTaxonDetermination.value = relatedNeeds
 
@@ -392,18 +394,18 @@ export default function useBiologicalAssociationAnatomicalParts({
     relatedAnatomicalPart.value = { valid: false, payload: {} }
     relatedPartKey.value += 1
 
-    if (newVal && biologicalRelation.value?.id) {
+    if (newVal && relatedObject.value?.id) {
       updateRelatedTaxonDeterminationState()
     }
   })
 
-  watch(biologicalRelation, () => {
+  watch(relatedObject, () => {
     relatedTaxonDeterminationOtuId.value = undefined
     relatedNeedsTaxonDetermination.value = false
     relatedAnatomicalPart.value = { valid: false, payload: {} }
     relatedPartKey.value += 1
 
-    if (enableRelatedAnatomicalPart.value && biologicalRelation.value?.id) {
+    if (enableRelatedAnatomicalPart.value && relatedObject.value?.id) {
       updateRelatedTaxonDeterminationState()
     }
   })

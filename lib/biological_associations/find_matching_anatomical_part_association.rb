@@ -1,10 +1,6 @@
 module BiologicalAssociations
   # Finds an existing BiologicalAssociation whose subject and/or object sides
-  # match the submitted anatomical part identity and origin.
-  #
-  # Matching is one-step only (direct origin_relationship from the AP to the
-  # submitted origin object), consistent with how CreateWithAnatomicalParts
-  # creates APs.
+  # match the submitted anatomical part identity and origin_relationship origin.
   #
   # Returns the matching BA with the lowest id, or nil if none found.
   class FindMatchingAnatomicalPartAssociation
@@ -14,56 +10,40 @@ module BiologicalAssociations
     end
 
     def find
-      return nil if subject_ap_attrs.blank? && object_ap_attrs.blank?
+      return nil if subject_anatomical_part_attributes.blank? && object_anatomical_part_attributes.blank?
 
-      subject_identity = identity_from(subject_ap_attrs) if subject_ap_attrs.present?
-      object_identity  = identity_from(object_ap_attrs)  if object_ap_attrs.present?
+      subject_identity = identity_from(subject_anatomical_part_attributes) if subject_anatomical_part_attributes.present?
+      object_identity  = identity_from(object_anatomical_part_attributes)  if object_anatomical_part_attributes.present?
 
-      return nil if subject_ap_attrs.present? && subject_identity.nil?
-      return nil if object_ap_attrs.present?  && object_identity.nil?
+      return nil if subject_anatomical_part_attributes.present? && subject_identity.nil?
+      return nil if object_anatomical_part_attributes.present?  && object_identity.nil?
 
       scope = BiologicalAssociation
         .where(project_id: @project_id)
         .where(biological_relationship_id: @params[:biological_relationship_id])
 
-      scope = apply_side(scope, :subject, subject_ap_attrs, subject_identity)
-      scope = apply_side(scope, :object,  object_ap_attrs,  object_identity)
+      scope = apply_side(scope, :subject, subject_anatomical_part_attributes, subject_identity)
+      scope = apply_side(scope, :object,  object_anatomical_part_attributes,  object_identity)
 
       scope.order(:id).first
     end
 
-    def self.ap_attributes_present?(params)
-      params[:subject_anatomical_part_attributes].present? ||
-        params[:object_anatomical_part_attributes].present? ||
-        params[:subject_taxon_determination_attributes].present? ||
-        params[:object_taxon_determination_attributes].present?
-    end
-
-    def self.deduplication_params(params)
-      params.except(
-        :subject_anatomical_part_attributes,
-        :object_anatomical_part_attributes,
-        :subject_taxon_determination_attributes,
-        :object_taxon_determination_attributes
-      )
-    end
-
     private
 
-    def subject_ap_attrs
+    def subject_anatomical_part_attributes
       @params[:subject_anatomical_part_attributes]
     end
 
-    def object_ap_attrs
+    def object_anatomical_part_attributes
       @params[:object_anatomical_part_attributes]
     end
 
-    def apply_side(scope, side, ap_attrs, identity)
-      origin_id   = @params[:"biological_association_#{side}_id"].to_i
+    def apply_side(scope, side, anatomical_part_attrs, identity)
+      origin_id = @params[:"biological_association_#{side}_id"].to_i
       origin_type = @params[:"biological_association_#{side}_type"]
 
-      if ap_attrs.present?
-        ap_alias     = "#{side}_ap"
+      if anatomical_part_attrs.present?
+        ap_alias = "#{side}_ap"
         origin_alias = "#{side}_origin"
 
         scope
@@ -81,8 +61,8 @@ module BiologicalAssociations
     end
 
     def identity_from(attributes)
-      name      = attributes[:name].to_s.strip
-      uri       = attributes[:uri].to_s.strip
+      name = attributes[:name].to_s.strip
+      uri = attributes[:uri].to_s.strip
       uri_label = attributes[:uri_label].to_s.strip
 
       if name.present? && uri.blank? && uri_label.blank?

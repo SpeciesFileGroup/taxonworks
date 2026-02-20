@@ -257,7 +257,7 @@ class BiologicalAssociationsController < ApplicationController
   end
 
   # GET /biological_associations/origin_subject_index.json?origin_object_id=1&origin_object_type=Otu
-  # Returns BAs whose subject is an AnatomicalPart originated from the base object.
+  # Returns BiologicalAssociations whose subject is an AnatomicalPart originated from the base object.
   def origin_subject_index
     object_id = params.require(:origin_object_id).to_i
     object_type = params.require(:origin_object_type).to_s
@@ -274,7 +274,7 @@ class BiologicalAssociationsController < ApplicationController
       )
       .order('biological_associations.updated_at DESC')
 
-    render '/biological_associations/origin_subject_index'
+    render '/biological_associations/index'
   end
 
   private
@@ -300,7 +300,8 @@ class BiologicalAssociationsController < ApplicationController
   end
 
   def create_with_anatomical_parts?
-    ::BiologicalAssociations::FindMatchingAnatomicalPartAssociation.ap_attributes_present?(biological_association_params)
+    p = biological_association_params
+    p[:subject_anatomical_part_attributes].present? || p[:object_anatomical_part_attributes].present?
   end
 
   def matching_anatomical_part_association
@@ -310,7 +311,11 @@ class BiologicalAssociationsController < ApplicationController
   end
 
   def anatomical_part_deduplication_update_params
-    ::BiologicalAssociations::FindMatchingAnatomicalPartAssociation
-      .deduplication_params(biological_association_params)
+    biological_association_params.except(
+      :subject_anatomical_part_attributes,
+      :object_anatomical_part_attributes,
+      :subject_taxon_determination_attributes,
+      :object_taxon_determination_attributes
+    )
   end
 end

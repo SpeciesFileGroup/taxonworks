@@ -122,31 +122,4 @@ RSpec.describe BiologicalAssociations::FindMatchingAnatomicalPartAssociation, ty
     end
   end
 
-  describe '.ap_attributes_present?' do
-    it 'returns true when subject AP attributes are present' do
-      expect(described_class.ap_attributes_present?({ subject_anatomical_part_attributes: { name: 'wing' } })).to be true
-    end
-
-    it 'returns true when object taxon determination attributes are present' do
-      expect(described_class.ap_attributes_present?({ object_taxon_determination_attributes: { otu_id: 1 } })).to be true
-    end
-
-    it 'returns false when no AP or TD attributes are present' do
-      expect(described_class.ap_attributes_present?({})).to be false
-    end
-  end
-
-  describe '.deduplication_params' do
-    it 'strips AP and TD attributes from params' do
-      params = {
-        biological_relationship_id: 1,
-        subject_anatomical_part_attributes: { name: 'wing' },
-        object_anatomical_part_attributes: { name: 'head' },
-        subject_taxon_determination_attributes: { otu_id: 2 },
-        object_taxon_determination_attributes: { otu_id: 3 }
-      }
-      result = described_class.deduplication_params(params)
-      expect(result.keys).to eq([:biological_relationship_id])
-    end
-  end
 end

@@ -1,7 +1,7 @@
 <template>
   <div v-if="enabled">
     <div
-      v-if="!biologicalRelation"
+      v-if="!relatedObject"
       class="margin-small-top ap-related-hint"
     >
       Select a related object to add an anatomical part on.
@@ -12,7 +12,7 @@
         v-if="relatedNeedsTaxonDetermination"
         class="margin-small-top"
       >
-        The origin of an anatomical part requires a taxon determination on this {{ biologicalRelation.base_class }}.
+        The origin of an anatomical part requires a taxon determination on this {{ relatedObject.base_class }}.
       </div>
 
       <TaxonDeterminationOtu
@@ -24,7 +24,7 @@
         v-if="!relatedNeedsTaxonDetermination || relatedTaxonDeterminationOtuId"
         :key="`related-${relatedPartKey}`"
         class="margin-small-top margin-small-bottom"
-        :include-is-material="biologicalRelation.base_class === 'FieldOccurrence'"
+        :include-is-material="relatedObject.base_class === 'FieldOccurrence'"
         @change="emit('change', $event)"
       />
     </template>
@@ -46,7 +46,7 @@ defineProps({
     default: false
   },
 
-  biologicalRelation: {
+  relatedObject: {
     type: Object,
     default: undefined
   },

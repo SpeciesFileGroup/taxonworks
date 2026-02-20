@@ -76,19 +76,19 @@
       </AnatomicalPartToggleFieldset>
 
       <h3
-        v-if="biologicalRelationship"
+        v-if="relatedObjectship"
         class="relationship-title middle"
       >
         <span
           v-html="
             flip
-              ? biologicalRelationship.inverted_name
-              : biologicalRelationLabel
+              ? relatedObjectship.inverted_name
+              : relatedObjectLabel
           "
         />
 
         <VBtn
-          v-if="biologicalRelationship.inverted_name"
+          v-if="relatedObjectship.inverted_name"
           color="primary"
           @click="flip = !flip"
           class="margin-small-left"
@@ -117,7 +117,7 @@
       </h3>
 
       <h3
-        v-if="biologicalRelation"
+        v-if="relatedObject"
         class="relation-title middle"
       >
         <span v-html="displayRelated" />
@@ -125,7 +125,7 @@
           class="margin-small-left"
           color="primary"
           circle
-          @click="biologicalRelation = undefined"
+          @click="relatedObject = undefined"
         >
           <VIcon
             name="undo"
@@ -141,18 +141,18 @@
       </h3>
     </div>
     <biological
-      v-if="!biologicalRelationship"
+      v-if="!relatedObjectship"
       class="separate-bottom"
       @select="setBiologicalRelationship"
     />
 
     <related
-      v-if="!biologicalRelation"
+      v-if="!relatedObject"
       ref="related"
       autofocus
       :target="BIOLOGICAL_ASSOCIATION"
       class="separate-bottom separate-top"
-      @select="biologicalRelation = $event"
+      @select="relatedObject = $event"
     />
 
     <AnatomicalPartToggleFieldset
@@ -163,7 +163,7 @@
     >
       <RelatedAnatomicalPartPanel
         :enabled="enableRelatedAnatomicalPart"
-        :biological-relation="biologicalRelation"
+        :related-object="relatedObject"
         :related-needs-taxon-determination="relatedNeedsTaxonDetermination"
         v-model:related-taxon-determination-otu-id="relatedTaxonDeterminationOtuId"
         :related-part-key="relatedPartKey"
@@ -243,8 +243,8 @@ const EXTEND_PARAMS = [
 ]
 
 const STORAGE_KEYS = {
-  lockRelationship: 'radialObject::biologicalRelationship::lock',
-  relationshipId: 'radialObject::biologicalRelationship::id'
+  lockRelationship: 'radialObject::relatedObjectship::lock',
+  relationshipId: 'radialObject::relatedObjectship::id'
 }
 
 const props = defineProps({
@@ -280,8 +280,8 @@ const { list, addToList, removeFromList } = useSlice({
 
 const relatedRef = useTemplateRef('related')
 
-const biologicalRelation = ref()
-const biologicalRelationship = ref()
+const relatedObject = ref()
+const relatedObjectship = ref()
 const citation = ref(makeEmptyCitation())
 const flip = ref(false)
 
@@ -291,11 +291,11 @@ const lock = reactive({
 })
 
 const canAutoSaveOnRelatedSelection = computed(() => {
-  if (!biologicalRelation.value?.id) {
+  if (!relatedObject.value?.id) {
     return false
   }
 
-  if (!citation.value.source_id || !biologicalRelationship.value?.id) {
+  if (!citation.value.source_id || !relatedObjectship.value?.id) {
     return false
   }
 
@@ -308,7 +308,7 @@ const canAutoSaveOnRelatedSelection = computed(() => {
 })
 
 const validateFields = computed(() => {
-  const hasBaseFields = biologicalRelationship.value && biologicalRelation.value
+  const hasBaseFields = relatedObjectship.value && relatedObject.value
 
   if (!hasBaseFields) {
     return false
@@ -319,14 +319,14 @@ const validateFields = computed(() => {
 
 const displayRelated = computed(() => {
   return (
-    biologicalRelation.value?.object_tag || biologicalRelation.value?.label_html
+    relatedObject.value?.object_tag || relatedObject.value?.label_html
   )
 })
 
-const biologicalRelationLabel = computed(
+const relatedObjectLabel = computed(
   () =>
-    biologicalRelationship.value?.name ||
-    biologicalRelationship.value?.object_label
+    relatedObjectship.value?.name ||
+    relatedObjectship.value?.object_label
 )
 
 const {
@@ -353,8 +353,8 @@ const {
 } = useBiologicalAssociationAnatomicalParts({
   convertType,
   list,
-  biologicalRelationship,
-  biologicalRelation,
+  relatedObjectship,
+  relatedObject,
   flip,
   metadata: props.metadata,
   objectId: props.objectId,
@@ -369,7 +369,7 @@ watch(
   }
 )
 
-watch(biologicalRelation, () => {
+watch(relatedObject, () => {
   if (canAutoSaveOnRelatedSelection.value) {
     saveAssociation()
   }
@@ -384,9 +384,6 @@ onBeforeMount(() => {
     lock.relationship = relationshipLock === true
   }
 
-  loadAnatomicalPartSessionState()
-  // The withAnatomicalPartCreation watcher fires after session state is set, loading the AP mode list if needed.
-
   if (lock.relationship) {
     const relationshipId = convertType(
       sessionStorage.getItem(STORAGE_KEYS.relationshipId)
@@ -394,7 +391,7 @@ onBeforeMount(() => {
 
     if (relationshipId) {
       BiologicalRelationship.find(relationshipId).then(({ body }) => {
-        biologicalRelationship.value = body
+        relatedObjectship.value = body
       })
     }
   }
@@ -408,14 +405,17 @@ onBeforeMount(() => {
     list.value = body
   })
 
+  // The withAnatomicalPartCreation watcher fires after session state is set, loading the AP mode list if
+  // needed.
+  loadAnatomicalPartSessionState()
 })
 
 
 function reset() {
   if (!lock.relationship) {
-    biologicalRelationship.value = undefined
+    relatedObjectship.value = undefined
   }
-  biologicalRelation.value = undefined
+  relatedObject.value = undefined
   flip.value = false
 
   resetAnatomicalPartState()
@@ -441,12 +441,12 @@ async function saveAssociation() {
       ? {
           biological_association_object_id: props.objectId,
           biological_association_object_type: props.objectType,
-          biological_association_subject_id: biologicalRelation.value.id,
-          biological_association_subject_type: biologicalRelation.value.base_class
+          biological_association_subject_id: relatedObject.value.id,
+          biological_association_subject_type: relatedObject.value.base_class
         }
       : {
-          biological_association_object_id: biologicalRelation.value.id,
-          biological_association_object_type: biologicalRelation.value.base_class,
+          biological_association_object_id: relatedObject.value.id,
+          biological_association_object_type: relatedObject.value.base_class,
           biological_association_subject_id: props.objectId,
           biological_association_subject_type: props.objectType
         }
@@ -454,7 +454,7 @@ async function saveAssociation() {
   const payload = {
     biological_association: {
       ...subjectObjectIds,
-      biological_relationship_id: biologicalRelationship.value.id,
+      biological_relationship_id: relatedObjectship.value.id,
       citations_attributes: citation.value ? [citation.value] : undefined,
       ...mapAnatomicalPartAttributesToAssociationSides()
     },
@@ -529,12 +529,12 @@ function removeCitation(item) {
 }
 
 function editBiologicalRelationship(bioRelation) {
-  biologicalRelationship.value = {
+  relatedObjectship.value = {
     id: bioRelation.biological_relationship_id,
     ...bioRelation.biological_relationship
   }
 
-  biologicalRelation.value = {
+  relatedObject.value = {
     id: bioRelation.biological_association_object_id,
     ...bioRelation.object
   }
@@ -542,12 +542,12 @@ function editBiologicalRelationship(bioRelation) {
 }
 
 function setBiologicalRelationship(item) {
-  biologicalRelationship.value = item
+  relatedObjectship.value = item
   sessionStorage.setItem(STORAGE_KEYS.relationshipId, item.id)
 }
 
 function unsetBiologicalRelationship() {
-  biologicalRelationship.value = undefined
+  relatedObjectship.value = undefined
   flip.value = false
 }
 </script>
