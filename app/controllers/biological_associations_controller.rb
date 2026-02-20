@@ -45,19 +45,10 @@ class BiologicalAssociationsController < ApplicationController
   # POST /biological_associations
   # POST /biological_associations.json
   def create
-    deduplicated = false
-
     if create_with_anatomical_parts?
-      @biological_association = matching_anatomical_part_association
-
-      if @biological_association
-        deduplicated = true
-        success = @biological_association.update(anatomical_part_deduplication_update_params)
-      else
-        service = ::BiologicalAssociations::CreateWithAnatomicalParts.new(biological_association_params)
-        success = service.call
-        @biological_association = service.biological_association
-      end
+      service = ::BiologicalAssociations::CreateWithAnatomicalParts.new(biological_association_params)
+      success = service.call
+      @biological_association = service.biological_association
     else
       @biological_association = BiologicalAssociation.new(biological_association_params)
       success = @biological_association.save
@@ -66,11 +57,7 @@ class BiologicalAssociationsController < ApplicationController
     respond_to do |format|
       if success
         format.html { redirect_to @biological_association, notice: 'Biological association was successfully created.' }
-        format.json do
-          render :show,
-            status: deduplicated ? :ok : :created,
-            location: @biological_association
-        end
+        format.json { render :show, status: :created, location: @biological_association }
       else
         format.html { render :new }
         errors = @biological_association&.errors&.presence || { errors: service&.errors || [] }
@@ -304,18 +291,4 @@ class BiologicalAssociationsController < ApplicationController
     p[:subject_anatomical_part_attributes].present? || p[:object_anatomical_part_attributes].present?
   end
 
-  def matching_anatomical_part_association
-    ::BiologicalAssociations::FindMatchingAnatomicalPartAssociation
-      .new(biological_association_params, project_id: sessions_current_project_id)
-      .find
-  end
-
-  def anatomical_part_deduplication_update_params
-    biological_association_params.except(
-      :subject_anatomical_part_attributes,
-      :object_anatomical_part_attributes,
-      :subject_taxon_determination_attributes,
-      :object_taxon_determination_attributes
-    )
-  end
 end
