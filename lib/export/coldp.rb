@@ -52,7 +52,6 @@ module Export
       @remarks = values
     end
 
-
     # Presently stubbed but excluded pending
     # significant use.
     #
@@ -314,9 +313,9 @@ module Export
 
     # Iterates the manifest used by Name
     # !! includes only id
-    def self.all_names(otu)
+    def self.all_names(otu, manifest = Export::Coldp::Files::Name::MANIFEST )
       names = []
-      Export::Coldp::Files::Name::MANIFEST.each do |m|
+      manifest.each do |m|
         names.push TaxonName.select(:id).from( Export::Coldp::Files::Name.send(m, otu))
       end
 

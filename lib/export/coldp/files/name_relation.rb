@@ -63,9 +63,19 @@ module Export::Coldp::Files::NameRelation
     TaxonNameRelationship::Hybrid
   }.freeze
 
+
   # TODO: This is the original set, but it doesn't quite feel right.
   def self.taxon_name_relationships(otu)
-    names = ::Export::Coldp.all_names(otu)
+
+    manifest =  [
+      :valid_higher_names,
+      :valid_family_names,
+      :core_names,
+      :invalid_family_and_higher_names,
+      :invalid_core_names,
+    ]
+
+    names = ::Export::Coldp.all_names(otu, manifest)
 
     a = TaxonNameRelationship.with(name_scope: names)
       .joins("JOIN name_scope ns on ns.id = taxon_name_relationships.object_taxon_name_id")

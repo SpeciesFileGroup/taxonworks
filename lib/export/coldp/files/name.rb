@@ -575,18 +575,10 @@ module Export::Coldp::Files::Name
       #      * No - include
       #
       if (row[rank + "_cached"] == row['cached'])  # it is a dupe
-
         if  row[rank + '_cached_is_valid']         # it is valid
           ::Export::Coldp.skipped_combinations << row['id']
           next
         end
-
-      # # it is not valid
-      # # it *is* referencing an inferred combination
-      #   if !row[rank + '_inferred_combination']
-      #     ::Export::Coldp.skipped_combinations << row['id']
-      #     next
-      #   end
       end
 
       scientific_name = ::Utilities::Nomenclature.unmisspell_name(row['cached'])
