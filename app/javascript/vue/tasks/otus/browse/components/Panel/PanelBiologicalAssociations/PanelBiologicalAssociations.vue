@@ -7,6 +7,7 @@
     @menu="showModal = true"
   >
     <SlidingStack
+      v-if="biologicalAssociations.length"
       scroll-offset-element="#browse-otu-header"
       :scroll-offset="100"
     >
@@ -64,6 +65,7 @@
         </div>
       </template>
     </VModal>
+    <div v-else>No biological associations available.</div>
   </PanelLayout>
 </template>
 
