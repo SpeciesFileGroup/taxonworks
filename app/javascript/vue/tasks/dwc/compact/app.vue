@@ -1,9 +1,8 @@
 <template>
     <div class="dwc-compact-task">
         <template v-if="rows.length">
-            <SummaryPanel :rows="rows" :all-rows="allRows" :meta="meta" />
-
             <div class="dwc-compact-charts">
+                <SummaryPanel :rows="rows" :all-rows="allRows" :meta="meta" />
                 <ChartSexCounts :rows="rows" />
                 <ChartLifeStageCounts :rows="rows" />
                 <ChartByYear :rows="allRows" />
@@ -30,7 +29,13 @@
                         :key="index"
                         :class="{ 'dwc-compact-warning': error.type === 'warning' }"
                     >
-                        <strong>{{ error.type }}:</strong> {{ error.message }}
+                        <strong>{{ error.type }}: </strong><a
+                            v-if="error.catalog_number"
+                            :href="catalogNumberFilterUrl(error.catalog_number)"
+                            target="_blank"
+                            rel="noopener"
+                        >{{ error.catalog_number }}</a>
+                        — {{ error.message }}
                         <span v-if="error.values">
                             — values: {{ error.values.join(", ") }}
                         </span>
@@ -61,6 +66,8 @@ import ChartGeoGrid from "./components/ChartGeoGrid.vue";
 import ChartSpeciesByMonth from "./components/ChartSpeciesByMonth.vue";
 import CompactTable from "./components/CompactTable.vue";
 
+const CO_FILTER_URL = "/tasks/collection_objects/filter";
+
 const isLoading = ref(false);
 const headers = ref([]);
 const rows = ref([]);
@@ -68,6 +75,14 @@ const allRows = ref([]);
 const errors = ref([]);
 const meta = ref({});
 const filterParams = ref(null);
+
+function catalogNumberFilterUrl(catalogNumber) {
+    const queryString = qs.stringify(
+        { match_identifiers: catalogNumber, match_identifiers_type: "identifier" },
+        { encode: false },
+    );
+    return `${CO_FILTER_URL}?${queryString}`;
+}
 
 function getInitialParams() {
     const urlParams = qs.parse(window.location.search, {

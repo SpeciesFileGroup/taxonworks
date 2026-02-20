@@ -19,10 +19,6 @@
                     <td>Unique scientificName values</td>
                     <td>{{ uniqueScientificNames }}</td>
                 </tr>
-                <tr>
-                    <td>Preview mode</td>
-                    <td>{{ meta.preview ? "Yes" : "No" }}</td>
-                </tr>
                 <tr v-if="meta.without_catalog_number_rows > 0">
                     <td>Rows without catalogNumber (excluded)</td>
                     <td>
@@ -77,7 +73,7 @@ const uniqueScientificNames = computed(
 
 <style scoped>
 .dwc-compact-summary {
-    margin-bottom: 1em;
+    margin-bottom: 0;
 }
 
 .dwc-compact-summary table {

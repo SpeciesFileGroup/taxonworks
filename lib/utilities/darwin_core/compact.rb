@@ -12,7 +12,7 @@ module Utilities::DarwinCore::Compact
 
   COMPACT_DELIMITER = '|'
 
-  APPENDED_COLUMNS = %w[lifeStage sex otherCatalogNumbers].freeze
+  APPENDED_COLUMNS = %w[lifeStage sex otherCatalogNumbers associatedMedia].freeze
   SUMMED_COLUMNS = %w[individualCount].freeze
   DERIVED_COLUMNS = %w[adultMale adultFemale immatureNymph exuvia].freeze
 
@@ -86,7 +86,7 @@ module Utilities::DarwinCore::Compact
           type: :error,
           catalog_number:,
           column:,
-          message: "Differing values in '#{column}' for catalogNumber '#{catalog_number}'",
+          message: "Differing values in '#{column}'",
           values:
         }
       end
@@ -102,7 +102,7 @@ module Utilities::DarwinCore::Compact
             type: :warning,
             catalog_number:,
             column: 'sex',
-            message: "Non-adult/non-standard sex '#{sex_value}' with lifeStage '#{life_stage_value}' for catalogNumber '#{catalog_number}'",
+            message: "Non-adult/non-standard sex '#{sex_value}' with lifeStage '#{life_stage_value}'",
             values: [sex_value, life_stage_value]
           }
         end
@@ -114,7 +114,7 @@ module Utilities::DarwinCore::Compact
             type: :warning,
             catalog_number:,
             column: 'lifeStage',
-            message: "Non-adult lifeStage '#{life_stage_value}' for catalogNumber '#{catalog_number}'",
+            message: "Non-adult lifeStage '#{life_stage_value}'",
             values: [life_stage_value]
           }
         end
