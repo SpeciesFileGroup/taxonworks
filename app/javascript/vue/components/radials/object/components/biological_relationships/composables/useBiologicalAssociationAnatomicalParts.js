@@ -3,17 +3,17 @@ import { BiologicalAssociation, TaxonDetermination } from '@/routes/endpoints'
 
 const STORAGE_KEYS = {
   withAnatomicalPartCreation:
-    'radialObject::relatedObjectship::withAnatomicalPartCreation',
+    'radialObject::biologicalRelationship::withAnatomicalPartCreation',
   enableSubjectAnatomicalPart:
-    'radialObject::relatedObjectship::enableSubjectAnatomicalPart',
+    'radialObject::biologicalRelationship::enableSubjectAnatomicalPart',
   enableRelatedAnatomicalPart:
-    'radialObject::relatedObjectship::enableRelatedAnatomicalPart'
+    'radialObject::biologicalRelationship::enableRelatedAnatomicalPart'
 }
 
 export default function useBiologicalAssociationAnatomicalParts({
   convertType,
   list,
-  relatedObjectship,
+  biologicalRelationship,
   relatedObject,
   flip,
   metadata,
@@ -155,7 +155,7 @@ export default function useBiologicalAssociationAnatomicalParts({
       : list.value
     )
       .filter((item) =>
-        item.biological_relationship_id === relatedObjectship.value?.id &&
+        item.biological_relationship_id === biologicalRelationship.value?.id &&
           relatedSideMatches(item) && subjectSideMatches(item)
       )
       .sort((a, b) => a.id - b.id)[0]

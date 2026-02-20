@@ -76,19 +76,19 @@
       </AnatomicalPartToggleFieldset>
 
       <h3
-        v-if="relatedObjectship"
+        v-if="biologicalRelationship"
         class="relationship-title middle"
       >
         <span
           v-html="
             flip
-              ? relatedObjectship.inverted_name
+              ? biologicalRelationship.inverted_name
               : relatedObjectLabel
           "
         />
 
         <VBtn
-          v-if="relatedObjectship.inverted_name"
+          v-if="biologicalRelationship.inverted_name"
           color="primary"
           @click="flip = !flip"
           class="margin-small-left"
@@ -141,7 +141,7 @@
       </h3>
     </div>
     <biological
-      v-if="!relatedObjectship"
+      v-if="!biologicalRelationship"
       class="separate-bottom"
       @select="setBiologicalRelationship"
     />
@@ -243,8 +243,8 @@ const EXTEND_PARAMS = [
 ]
 
 const STORAGE_KEYS = {
-  lockRelationship: 'radialObject::relatedObjectship::lock',
-  relationshipId: 'radialObject::relatedObjectship::id'
+  lockRelationship: 'radialObject::biologicalRelationship::lock',
+  relationshipId: 'radialObject::biologicalRelationship::id'
 }
 
 const props = defineProps({
@@ -281,7 +281,7 @@ const { list, addToList, removeFromList } = useSlice({
 const relatedRef = useTemplateRef('related')
 
 const relatedObject = ref()
-const relatedObjectship = ref()
+const biologicalRelationship = ref()
 const citation = ref(makeEmptyCitation())
 const flip = ref(false)
 
@@ -295,7 +295,7 @@ const canAutoSaveOnRelatedSelection = computed(() => {
     return false
   }
 
-  if (!citation.value.source_id || !relatedObjectship.value?.id) {
+  if (!citation.value.source_id || !biologicalRelationship.value?.id) {
     return false
   }
 
@@ -308,7 +308,7 @@ const canAutoSaveOnRelatedSelection = computed(() => {
 })
 
 const validateFields = computed(() => {
-  const hasBaseFields = relatedObjectship.value && relatedObject.value
+  const hasBaseFields = biologicalRelationship.value && relatedObject.value
 
   if (!hasBaseFields) {
     return false
@@ -325,8 +325,8 @@ const displayRelated = computed(() => {
 
 const relatedObjectLabel = computed(
   () =>
-    relatedObjectship.value?.name ||
-    relatedObjectship.value?.object_label
+    biologicalRelationship.value?.name ||
+    biologicalRelationship.value?.object_label
 )
 
 const {
@@ -353,7 +353,7 @@ const {
 } = useBiologicalAssociationAnatomicalParts({
   convertType,
   list,
-  relatedObjectship,
+  biologicalRelationship,
   relatedObject,
   flip,
   metadata: props.metadata,
@@ -391,7 +391,7 @@ onBeforeMount(() => {
 
     if (relationshipId) {
       BiologicalRelationship.find(relationshipId).then(({ body }) => {
-        relatedObjectship.value = body
+        biologicalRelationship.value = body
       })
     }
   }
@@ -417,7 +417,7 @@ onBeforeMount(() => {
 
 function reset() {
   if (!lock.relationship) {
-    relatedObjectship.value = undefined
+    biologicalRelationship.value = undefined
   }
   relatedObject.value = undefined
   flip.value = false
@@ -458,7 +458,7 @@ async function saveAssociation() {
   const payload = {
     biological_association: {
       ...subjectObjectIds,
-      biological_relationship_id: relatedObjectship.value.id,
+      biological_relationship_id: biologicalRelationship.value.id,
       citations_attributes: citation.value ? [citation.value] : undefined,
       ...mapAnatomicalPartAttributesToAssociationSides()
     },
@@ -533,7 +533,7 @@ function removeCitation(item) {
 }
 
 function editBiologicalRelationship(bioRelation) {
-  relatedObjectship.value = {
+  biologicalRelationship.value = {
     id: bioRelation.biological_relationship_id,
     ...bioRelation.biological_relationship
   }
@@ -546,12 +546,12 @@ function editBiologicalRelationship(bioRelation) {
 }
 
 function setBiologicalRelationship(item) {
-  relatedObjectship.value = item
+  biologicalRelationship.value = item
   sessionStorage.setItem(STORAGE_KEYS.relationshipId, item.id)
 }
 
 function unsetBiologicalRelationship() {
-  relatedObjectship.value = undefined
+  biologicalRelationship.value = undefined
   flip.value = false
 }
 </script>
