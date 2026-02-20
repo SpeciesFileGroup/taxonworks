@@ -140,27 +140,7 @@ class AnatomicalPartsController < ApplicationController
   end
 
   def templates
-    scope = AnatomicalPart.where(project_id: sessions_current_project_id)
-
-    names = scope
-      .where.not(name: [nil, ''])
-      .pluck(:name)
-      .uniq
-      .map { |name| { type: 'name', name: } }
-
-    uris = scope
-      .where.not(uri: [nil, ''])
-      .where.not(uri_label: [nil, ''])
-      .pluck(:uri, :uri_label)
-      .uniq
-      .map { |uri, uri_label| { type: 'uri', uri:, uri_label: } }
-
-    merged = (names + uris).sort_by do |item|
-      label = item[:type] == 'name' ? item[:name] : item[:uri_label]
-      [label.to_s.downcase, item[:type], item[:uri].to_s.downcase]
-    end
-
-    render json: merged
+    render json: AnatomicalPart.templates(sessions_current_project_id)
   end
 
   private

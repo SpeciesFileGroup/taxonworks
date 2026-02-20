@@ -163,6 +163,29 @@ class AnatomicalPart < ApplicationRecord
     end
   end
 
+  # @return [Array] unique name and URI templates from this project, sorted by label
+  def self.templates(project_id)
+    scope = where(project_id:)
+
+    names = scope
+      .where.not(name: [nil, ''])
+      .pluck(:name)
+      .uniq
+      .map { |name| { type: 'name', name: } }
+
+    uris = scope
+      .where.not(uri: [nil, ''])
+      .where.not(uri_label: [nil, ''])
+      .pluck(:uri, :uri_label)
+      .uniq
+      .map { |uri, uri_label| { type: 'uri', uri:, uri_label: } }
+
+    (names + uris).sort_by do |item|
+      label = item[:type] == 'name' ? item[:name] : item[:uri_label]
+      [label.to_s.downcase, item[:type], item[:uri].to_s.downcase]
+    end
+  end
+
   # @return [Hash] anatomical_parts optimized for user selection
   def self.select_optimized(user_id, project_id, target = nil)
     r = used_recently(user_id, project_id, target)
