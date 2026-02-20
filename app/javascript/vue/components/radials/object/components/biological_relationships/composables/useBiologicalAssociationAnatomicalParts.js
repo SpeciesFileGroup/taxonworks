@@ -1,5 +1,5 @@
 import { computed, ref, watch } from 'vue'
-import { TaxonDetermination } from '@/routes/endpoints'
+import { BiologicalAssociation, TaxonDetermination } from '@/routes/endpoints'
 
 const STORAGE_KEYS = {
   withAnatomicalPartCreation:
@@ -16,9 +16,10 @@ export default function useBiologicalAssociationAnatomicalParts({
   biologicalRelationship,
   biologicalRelation,
   flip,
-  loadAnatomicalPartModeList,
+  metadata,
   objectId,
-  objectType
+  objectType,
+  extendParams
 }) {
   const withAnatomicalPartCreation = ref(false)
   const enableSubjectAnatomicalPart = ref(false)
@@ -33,6 +34,13 @@ export default function useBiologicalAssociationAnatomicalParts({
   const subjectPartKey = ref(0)
   const relatedPartKey = ref(0)
   const anatomicalPartModeList = ref([])
+  const anatomicalPartSubjectHeadingHtml = computed(() => {
+    if (metadata?.object_tag) {
+      return metadata.object_tag
+    }
+
+    return metadata?.object_label || 'selected object'
+  })
 
   const usesAnatomicalPartFlow = computed(
     () =>
@@ -160,6 +168,16 @@ export default function useBiologicalAssociationAnatomicalParts({
       )
       .sort((a, b) => a.id - b.id)[0]
   )
+
+  function loadAnatomicalPartModeList() {
+    BiologicalAssociation.originSubjectIndex({
+      origin_object_id: objectId,
+      origin_object_type: objectType,
+      extend: extendParams
+    }).then(({ body }) => {
+      anatomicalPartModeList.value = body
+    })
+  }
 
   function validateAnatomicalPartFields() {
     if (!usesAnatomicalPartFlow.value) {
@@ -406,28 +424,30 @@ export default function useBiologicalAssociationAnatomicalParts({
   }
 
   return {
-    withAnatomicalPartCreation,
-    enableSubjectAnatomicalPart,
-    enableRelatedAnatomicalPart,
-    subjectAnatomicalPart,
-    relatedAnatomicalPart,
-    subjectTaxonDeterminationOtuId,
-    subjectNeedsTaxonDetermination,
-    relatedTaxonDeterminationOtuId,
-    relatedNeedsTaxonDetermination,
-    subjectPartKey,
-    relatedPartKey,
     anatomicalPartModeList,
+    anatomicalPartSubjectHeadingHtml,
     createdBiologicalAssociation,
+    enableRelatedAnatomicalPart,
+    enableSubjectAnatomicalPart,
+    ensureTaxonDeterminationRequirements,
+    loadAnatomicalPartModeList,
+    loadAnatomicalPartSessionState,
+    mapAnatomicalPartAttributesToAssociationSides,
+    relatedAnatomicalPart,
+    relatedNeedsTaxonDetermination,
+    relatedPartKey,
+    relatedTaxonDeterminationOtuId,
+    resetAnatomicalPartState,
+    setRelatedAnatomicalPart,
+    setSubjectAnatomicalPart,
+    subjectAnatomicalPart,
+    subjectNeedsTaxonDetermination,
+    subjectPartKey,
+    subjectTaxonDeterminationOtuId,
+    updateRelatedTaxonDeterminationState,
+    updateSubjectTaxonDeterminationState,
     usesAnatomicalPartFlow,
     validateAnatomicalPartFields,
-    resetAnatomicalPartState,
-    setSubjectAnatomicalPart,
-    setRelatedAnatomicalPart,
-    updateSubjectTaxonDeterminationState,
-    updateRelatedTaxonDeterminationState,
-    ensureTaxonDeterminationRequirements,
-    mapAnatomicalPartAttributesToAssociationSides,
-    loadAnatomicalPartSessionState
+    withAnatomicalPartCreation
   }
 }

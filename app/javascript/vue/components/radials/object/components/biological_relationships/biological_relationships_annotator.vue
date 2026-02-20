@@ -329,42 +329,37 @@ const biologicalRelationLabel = computed(
     biologicalRelationship.value?.object_label
 )
 
-const anatomicalPartSubjectHeadingHtml = computed(() => {
-  if (props.metadata.object_tag) {
-    return props.metadata.object_tag
-  }
-
-  return props.metadata.object_label || 'selected object'
-})
-
 const {
-  withAnatomicalPartCreation,
-  enableSubjectAnatomicalPart,
-  enableRelatedAnatomicalPart,
-  subjectTaxonDeterminationOtuId,
-  subjectNeedsTaxonDetermination,
-  relatedTaxonDeterminationOtuId,
-  relatedNeedsTaxonDetermination,
-  subjectPartKey,
-  relatedPartKey,
   anatomicalPartModeList,
+  anatomicalPartSubjectHeadingHtml,
   createdBiologicalAssociation,
+  enableRelatedAnatomicalPart,
+  enableSubjectAnatomicalPart,
+  ensureTaxonDeterminationRequirements,
+  loadAnatomicalPartModeList,
+  loadAnatomicalPartSessionState,
+  mapAnatomicalPartAttributesToAssociationSides,
+  relatedNeedsTaxonDetermination,
+  relatedPartKey,
+  relatedTaxonDeterminationOtuId,
   validateAnatomicalPartFields,
   resetAnatomicalPartState,
-  setSubjectAnatomicalPart,
   setRelatedAnatomicalPart,
-  ensureTaxonDeterminationRequirements,
-  mapAnatomicalPartAttributesToAssociationSides,
-  loadAnatomicalPartSessionState
+  setSubjectAnatomicalPart,
+  subjectNeedsTaxonDetermination,
+  subjectPartKey,
+  subjectTaxonDeterminationOtuId,
+  withAnatomicalPartCreation
 } = useBiologicalAssociationAnatomicalParts({
   convertType,
   list,
   biologicalRelationship,
   biologicalRelation,
   flip,
-  loadAnatomicalPartModeList,
+  metadata: props.metadata,
   objectId: props.objectId,
-  objectType: props.objectType
+  objectType: props.objectType,
+  extendParams: EXTEND_PARAMS
 })
 
 watch(
@@ -500,16 +495,6 @@ function removeItem(item) {
     if (withAnatomicalPartCreation.value) {
       loadAnatomicalPartModeList()
     }
-  })
-}
-
-function loadAnatomicalPartModeList() {
-  BiologicalAssociation.originSubjectIndex({
-    origin_object_id: props.objectId,
-    origin_object_type: props.objectType,
-    extend: EXTEND_PARAMS
-  }).then(({ body }) => {
-    anatomicalPartModeList.value = body
   })
 }
 
