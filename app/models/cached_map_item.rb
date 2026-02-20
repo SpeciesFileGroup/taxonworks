@@ -330,29 +330,20 @@ class CachedMapItem < ApplicationRecord
         # TODO handle other types
         return h
       end
-
-      #
-      # !! TODO: This is a potential n+1 query!
-      #
       geographic_item_id = context[:geographic_item_id] ||
         o.asserted_distribution_shape.default_geographic_item_id
+
+      taxon_name_id = context[:otu_taxon_name_id] ||
+        Otu.where(id: otu_id).pick(:taxon_name_id)
+      return h if taxon_name_id.blank?
+
     when 'Georeference'
       geographic_item_id = context[:geographic_item_id] || o.geographic_item_id
       otu_id = context[:otu_id] ||
         o.otus.left_joins(:taxon_determinations).where(taxon_determinations: { position: 1 }).distinct.pluck(:id)
     end
 
-    otu = nil
-    taxon_name_id = context[:otu_taxon_name_id] ||
-      Otu.where(id: otu_id).pick(:taxon_name_id)
-    return h if otu_id.nil? || taxon_name_id.nil?
-    # otus without taxon name have no hierarchy, so don't contribute to cached
-    # maps.
-    return h if taxon_name_id.blank?
-
     # Some AssertedDistribution don't have shapes
-    #
-    #
     if geographic_item_id
       h[:origin_geographic_item_id] = geographic_item_id
 
