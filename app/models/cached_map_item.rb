@@ -164,18 +164,22 @@ class CachedMapItem < ApplicationRecord
     raise TaxonWorks::Error, "Missing pre-computed ids for cached maps origin '#{data_origin}'" if precomputed_ids.blank?
     raise TaxonWorks::Error, "Expected pre-computed ids for cached maps origin '#{data_origin}' to be a SQL IN list" unless precomputed_ids.is_a?(String)
 
-    intersects_sql = <<~SQL.squish
-      ST_Intersects(
-        geographic_items.geography,
-        (SELECT geography FROM geographic_items WHERE id = #{geographic_item_id.to_i})
-      )
+    sql = <<~SQL
+      SELECT gi.id
+      FROM geographic_items gi
+      CROSS JOIN (
+        SELECT geography
+        FROM geographic_items
+        WHERE id = #{geographic_item_id.to_i}
+      ) AS target
+      -- Careful with IN here if we move to other data_origins (currently ~4k ids)
+      WHERE gi.id IN (#{precomputed_ids})
+        AND ST_Intersects(gi.geography, target.geography)
     SQL
 
-    base = GeographicItem
-      .where("geographic_items.id IN (#{precomputed_ids})")
-      .where(intersects_sql)
+    a = ActiveRecord::Base.connection.select_values(sql).map!(&:to_i)
 
-    return base.pluck(:id) if buffer.nil?
+    return a if buffer.nil?
 
     # Refine the pass by smoothing using buffer/st_within
     buffer_filter = GeographicItem
@@ -192,7 +196,8 @@ class CachedMapItem < ApplicationRecord
         )
       )
 
-    return base
+    return GeographicItem
+      .where(id: a)
       .where(buffer_filter)
       .pluck(:id)
   end
