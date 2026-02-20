@@ -300,82 +300,17 @@ class BiologicalAssociationsController < ApplicationController
   end
 
   def create_with_anatomical_parts?
-    p = biological_association_params
-    p[:subject_anatomical_part_attributes].present? ||
-      p[:object_anatomical_part_attributes].present? ||
-      p[:subject_taxon_determination_attributes].present? ||
-      p[:object_taxon_determination_attributes].present?
+    ::BiologicalAssociations::FindMatchingAnatomicalPartAssociation.ap_attributes_present?(biological_association_params)
   end
 
   def matching_anatomical_part_association
-    p = biological_association_params
-
-    return nil if p[:subject_anatomical_part_attributes].blank? && p[:object_anatomical_part_attributes].blank?
-
-    BiologicalAssociation
-      .where(project_id: sessions_current_project_id)
-      .where(biological_relationship_id: p[:biological_relationship_id])
-      .order(:id)
-      .detect do |biological_association|
-        matches_association_side?(biological_association, :subject, p) &&
-          matches_association_side?(biological_association, :object, p)
-      end
-  end
-
-  def matches_association_side?(biological_association, side, params)
-    side_id = params[:"biological_association_#{side}_id"].to_i
-    side_type = params[:"biological_association_#{side}_type"]
-    anatomical_part_attributes = params[:"#{side}_anatomical_part_attributes"]
-    side_object = biological_association.public_send("biological_association_#{side}")
-
-    if anatomical_part_attributes.present?
-      identity = anatomical_part_identity(anatomical_part_attributes)
-      return false if identity.nil?
-      return false unless side_object&.class&.base_class&.name == 'AnatomicalPart'
-      return false unless anatomical_part_identity_matches?(side_object, identity)
-
-      origin = side_object.inbound_origin_relationship
-      return false unless origin
-
-      return origin.old_object_id == side_id &&
-        origin.old_object_type == side_type
-    end
-
-    biological_association.public_send("biological_association_#{side}_id") == side_id &&
-      biological_association.public_send("biological_association_#{side}_type") == side_type
-  end
-
-  def anatomical_part_identity(attributes)
-    name = attributes[:name].to_s.strip
-    uri = attributes[:uri].to_s.strip
-    uri_label = attributes[:uri_label].to_s.strip
-
-    if name.present? && uri.blank? && uri_label.blank?
-      return { type: :name, name: name }
-    end
-
-    if name.blank? && uri.present? && uri_label.present?
-      return { type: :uri, uri: uri, uri_label: uri_label }
-    end
-
-    nil
-  end
-
-  def anatomical_part_identity_matches?(anatomical_part, identity)
-    if identity[:type] == :name
-      return anatomical_part.name.to_s.strip == identity[:name]
-    end
-
-    anatomical_part.uri.to_s.strip == identity[:uri] &&
-      anatomical_part.uri_label.to_s.strip == identity[:uri_label]
+    ::BiologicalAssociations::FindMatchingAnatomicalPartAssociation
+      .new(biological_association_params, project_id: sessions_current_project_id)
+      .find
   end
 
   def anatomical_part_deduplication_update_params
-    biological_association_params.except(
-      :subject_anatomical_part_attributes,
-      :object_anatomical_part_attributes,
-      :subject_taxon_determination_attributes,
-      :object_taxon_determination_attributes
-    )
+    ::BiologicalAssociations::FindMatchingAnatomicalPartAssociation
+      .deduplication_params(biological_association_params)
   end
 end
