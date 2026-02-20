@@ -16,7 +16,7 @@ const props = defineProps({
         type: Array,
         required: true,
     },
-    queryParams: {
+    filterParams: {
         type: Object,
         default: null,
     },
@@ -62,11 +62,17 @@ function binToWkt(lon, lat) {
 
 function openFilterForBin(lon, lat) {
     const wkt = binToWkt(lon, lat);
+    const base = props.filterParams || {};
+
+    // filterParams may arrive with params nested under collection_object_query (linker style)
+    // or flat (direct filter style). Flatten to match what the CO filter task expects.
+    const { collection_object_query: coQuery, collecting_event_query: ceQuery, ...rest } = base;
+    const flatBase = coQuery ? { ...rest, ...coQuery } : { ...rest };
 
     const combined = {
-        ...(props.queryParams || {}),
+        ...flatBase,
         collecting_event_query: {
-            ...((props.queryParams || {}).collecting_event_query || {}),
+            ...(ceQuery || {}),
             wkt,
         },
     };

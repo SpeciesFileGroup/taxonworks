@@ -9,6 +9,7 @@ class Tasks::Dwc::CompactController < ApplicationController
   # POST /tasks/dwc/compact/compact.json
   def compact
     q = ::Queries::DwcOccurrence::Filter.new(params)
+    filter_params = q.params
 
     scope = q.all
       .where(project_id: sessions_current_project_id)
@@ -39,6 +40,7 @@ class Tasks::Dwc::CompactController < ApplicationController
       rows: table.rows,
       all_rows:,
       errors: table.errors,
+      filter_params:,
       meta: {
         total_rows: table.rows.size,
         preview:,

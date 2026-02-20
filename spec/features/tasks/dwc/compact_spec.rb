@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Summary DarwinCore', type: :feature, group: :collection_objects do
+describe 'DarwinCore Summary', type: :feature, group: :collection_objects do
 
   let(:page_title) { 'Summary DarwinCore' }
   let(:index_path) { compact_dwc_task_path }

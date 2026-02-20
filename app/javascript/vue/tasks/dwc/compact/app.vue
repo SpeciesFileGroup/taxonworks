@@ -15,7 +15,7 @@
             </div>
 
             <div class="dwc-compact-charts-wide">
-                <ChartGeoGrid :rows="rows" :query-params="queryParams" />
+                <ChartGeoGrid :rows="rows" :filter-params="filterParams" />
             </div>
 
             <div class="dwc-compact-charts-wide">
@@ -67,7 +67,7 @@ const rows = ref([]);
 const allRows = ref([]);
 const errors = ref([]);
 const meta = ref({});
-const queryParams = ref(null);
+const filterParams = ref(null);
 
 function getInitialParams() {
     const urlParams = qs.parse(window.location.search, {
@@ -97,6 +97,7 @@ async function requestCompact(params, preview = false) {
         allRows.value = response.body.all_rows || response.body.rows;
         errors.value = response.body.errors || [];
         meta.value = response.body.meta || {};
+        filterParams.value = response.body.filter_params || null;
     } catch (e) {
         errors.value = [
             { type: "error", message: e.message || "Request failed" },
@@ -108,7 +109,6 @@ async function requestCompact(params, preview = false) {
 
 const initialParams = getInitialParams();
 if (initialParams) {
-    queryParams.value = initialParams;
     requestCompact(initialParams, false);
 }
 </script>
