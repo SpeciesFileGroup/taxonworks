@@ -3,6 +3,8 @@ module BiologicalAssociations
     attr_reader :biological_association, :errors
 
     def initialize(params)
+      # ActionController::Parameters#to_h returns a HashWithIndifferentAccess
+      # recursively, so all nested attributes are accessible by symbol key.
       @params = params.to_h
       @errors = []
       @biological_association = nil
@@ -63,37 +65,36 @@ module BiologicalAssociations
     def build_association_end(id:, type:, anatomical_part_attributes:, taxon_determination_attributes:)
       origin = type.constantize.find(id)
 
-      create_taxon_determination_if_needed(origin, taxon_determination_attributes)
-
       return origin if anatomical_part_attributes.blank?
+
+      create_taxon_determination_if_needed(origin, taxon_determination_attributes)
 
       create_anatomical_part(origin, anatomical_part_attributes)
     end
 
     def create_taxon_determination_if_needed(origin, taxon_determination_attributes)
-      return unless ['CollectionObject', 'FieldOccurrence'].include?(origin.class.base_class.name)
+      return unless ['CollectionObject'].include?(origin.class.base_class.name)
       return unless origin.taxon_determinations.empty?
       return if taxon_determination_attributes.blank?
 
       taxon_determination = TaxonDetermination.new(
         taxon_determination_object: origin,
-        otu_id: taxon_determination_attributes[:otu_id] || taxon_determination_attributes['otu_id']
+        otu_id: taxon_determination_attributes[:otu_id]
       )
 
       taxon_determination.save!
     end
 
     def create_anatomical_part(origin, anatomical_part_attributes)
-      attributes_hash = anatomical_part_attributes.to_h
       attributes = {
-        name: attributes_hash[:name] || attributes_hash['name'],
-        uri: attributes_hash[:uri] || attributes_hash['uri'],
-        uri_label: attributes_hash[:uri_label] || attributes_hash['uri_label'],
-        is_material: attributes_hash[:is_material].nil? ? attributes_hash['is_material'] : attributes_hash[:is_material],
-        preparation_type_id: attributes_hash[:preparation_type_id] || attributes_hash['preparation_type_id']
+        name: anatomical_part_attributes[:name],
+        uri: anatomical_part_attributes[:uri],
+        uri_label: anatomical_part_attributes[:uri_label],
+        is_material: anatomical_part_attributes[:is_material],
+        preparation_type_id: anatomical_part_attributes[:preparation_type_id]
       }
 
-      attributes[:is_material] = default_is_material_for(origin) if attributes[:is_material].nil?
+      attributes[:is_material] = AnatomicalPart.default_is_material_for(origin) if attributes[:is_material].nil?
 
       anatomical_part = AnatomicalPart.new(
         attributes.merge(
@@ -108,19 +109,8 @@ module BiologicalAssociations
       anatomical_part
     end
 
-    def default_is_material_for(origin)
-      case origin.class.base_class.name
-      when 'CollectionObject'
-        true
-      when 'Otu', 'FieldOccurrence'
-        false
-      else
-        false
-      end
-    end
-
     def param(key)
-      @params[key] || @params[key.to_s]
+      @params[key]
     end
   end
 end

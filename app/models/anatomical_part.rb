@@ -163,6 +163,11 @@ class AnatomicalPart < ApplicationRecord
     end
   end
 
+  # @return [Boolean] default is_material value for a new AnatomicalPart given its origin
+  def self.default_is_material_for(origin)
+    origin.class.base_class.name == 'CollectionObject'
+  end
+
   # @return [Array] unique name and URI templates from this project, sorted by label
   def self.templates(project_id)
     scope = where(project_id:)
