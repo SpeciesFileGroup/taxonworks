@@ -54,7 +54,20 @@
         label="Subject anatomical part"
         hint="Enable to create a subject anatomical part"
       >
+        <div
+          v-if="subjectNeedsTaxonDetermination"
+          class="margin-small-top"
+        >
+          The origin of an anatomical part requires a taxon determination on this {{ props.objectType }}.
+        </div>
+
+        <TaxonDeterminationOtu
+          v-if="subjectNeedsTaxonDetermination"
+          v-model="subjectTaxonDeterminationOtuId"
+        />
+
         <CreateAnatomicalPart
+          v-if="!subjectNeedsTaxonDetermination || subjectTaxonDeterminationOtuId"
           :key="`subject-${subjectPartKey}`"
           class="margin-small-top margin-small-bottom"
           :include-is-material="props.objectType === 'FieldOccurrence'"
@@ -194,6 +207,7 @@ import CreateAnatomicalPart from './components/CreateAnatomicalPart.vue'
 import AnatomicalPartToggleFieldset from './components/AnatomicalPartToggleFieldset.vue'
 import RelatedAnatomicalPartPanel from './components/RelatedAnatomicalPartPanel.vue'
 import AnatomicalPartSubjectSummary from './components/AnatomicalPartSubjectSummary.vue'
+import TaxonDeterminationOtu from '@/components/TaxonDetermination/TaxonDeterminationOtu.vue'
 import useBiologicalAssociationAnatomicalParts from './composables/useBiologicalAssociationAnatomicalParts.js'
 import LockComponent from '@/components/ui/VLock/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
@@ -326,6 +340,8 @@ const {
   withAnatomicalPartCreation,
   enableSubjectAnatomicalPart,
   enableRelatedAnatomicalPart,
+  subjectTaxonDeterminationOtuId,
+  subjectNeedsTaxonDetermination,
   relatedTaxonDeterminationOtuId,
   relatedNeedsTaxonDetermination,
   subjectPartKey,
@@ -336,7 +352,7 @@ const {
   resetAnatomicalPartState,
   setSubjectAnatomicalPart,
   setRelatedAnatomicalPart,
-  ensureRelatedTaxonDeterminationRequirements,
+  ensureTaxonDeterminationRequirements,
   mapAnatomicalPartAttributesToAssociationSides,
   loadAnatomicalPartSessionState
 } = useBiologicalAssociationAnatomicalParts({
@@ -345,7 +361,9 @@ const {
   biologicalRelationship,
   biologicalRelation,
   flip,
-  loadAnatomicalPartModeList
+  loadAnatomicalPartModeList,
+  objectId: props.objectId,
+  objectType: props.objectType
 })
 
 watch(
@@ -371,6 +389,7 @@ onBeforeMount(() => {
   }
 
   loadAnatomicalPartSessionState()
+  // The withAnatomicalPartCreation watcher fires after session state is set, loading the AP mode list if needed.
 
   if (lock.relationship) {
     const relationshipId = convertType(
@@ -393,9 +412,6 @@ onBeforeMount(() => {
     list.value = body
   })
 
-  if (withAnatomicalPartCreation.value) {
-    loadAnatomicalPartModeList()
-  }
 })
 
 
@@ -416,7 +432,7 @@ function reset() {
 }
 
 async function saveAssociation() {
-  if (!(await ensureRelatedTaxonDeterminationRequirements())) {
+  if (!(await ensureTaxonDeterminationRequirements())) {
     return
   }
 

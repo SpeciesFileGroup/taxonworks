@@ -68,8 +68,8 @@
 
               <VBtn
                 circle
-                :color="softDelete ? 'primary' : 'destroy'"
-                @click="deleteItem(item, index)"
+                color="destroy"
+                @click="deleteItem(item)"
               >
                 <VIcon
                   name="trash"

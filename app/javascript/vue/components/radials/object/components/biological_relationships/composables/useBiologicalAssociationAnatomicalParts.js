@@ -16,7 +16,9 @@ export default function useBiologicalAssociationAnatomicalParts({
   biologicalRelationship,
   biologicalRelation,
   flip,
-  loadAnatomicalPartModeList
+  loadAnatomicalPartModeList,
+  objectId,
+  objectType
 }) {
   const withAnatomicalPartCreation = ref(false)
   const enableSubjectAnatomicalPart = ref(false)
@@ -24,6 +26,8 @@ export default function useBiologicalAssociationAnatomicalParts({
 
   const subjectAnatomicalPart = ref({ valid: false, payload: {} })
   const relatedAnatomicalPart = ref({ valid: false, payload: {} })
+  const subjectTaxonDeterminationOtuId = ref(undefined)
+  const subjectNeedsTaxonDetermination = ref(false)
   const relatedTaxonDeterminationOtuId = ref(undefined)
   const relatedNeedsTaxonDetermination = ref(false)
   const subjectPartKey = ref(0)
@@ -159,11 +163,14 @@ export default function useBiologicalAssociationAnatomicalParts({
       return true
     }
 
-    if (
-      enableSubjectAnatomicalPart.value &&
-      !subjectAnatomicalPart.value.valid
-    ) {
-      return false
+    if (enableSubjectAnatomicalPart.value) {
+      if (subjectNeedsTaxonDetermination.value && !subjectTaxonDeterminationOtuId.value) {
+        return false
+      }
+
+      if (!subjectAnatomicalPart.value.valid) {
+        return false
+      }
     }
 
     if (!enableRelatedAnatomicalPart.value) {
@@ -183,6 +190,8 @@ export default function useBiologicalAssociationAnatomicalParts({
   function resetAnatomicalPartState() {
     subjectAnatomicalPart.value = { valid: false, payload: {} }
     relatedAnatomicalPart.value = { valid: false, payload: {} }
+    subjectTaxonDeterminationOtuId.value = undefined
+    subjectNeedsTaxonDetermination.value = false
     relatedTaxonDeterminationOtuId.value = undefined
     relatedNeedsTaxonDetermination.value = false
     subjectPartKey.value += 1
@@ -197,16 +206,22 @@ export default function useBiologicalAssociationAnatomicalParts({
     relatedAnatomicalPart.value = data
   }
 
-  function relatedIsCollectionObjectOrFieldOccurrence() {
-    const type = biologicalRelation.value?.base_class
-    return ['CollectionObject', 'FieldOccurrence'].includes(type)
+  // CollectionObjects may have no taxon determination; a TD is required before
+  // an AP can be created on them. FOs always have a TD, OTUs don't need one.
+  function fetchSubjectNeedsTaxonDetermination() {
+    if (objectType !== 'CollectionObject') {
+      return Promise.resolve(false)
+    }
+
+    return TaxonDetermination.where({
+      taxon_determination_object_id: [objectId],
+      taxon_determination_object_type: objectType,
+      per: 1
+    }).then(({ body }) => body.length === 0)
   }
 
   function fetchRelatedNeedsTaxonDetermination() {
-    if (
-      !biologicalRelation.value?.id ||
-      !relatedIsCollectionObjectOrFieldOccurrence()
-    ) {
+    if (!biologicalRelation.value?.id || !relatedIsCollectionObject()) {
       return Promise.resolve(false)
     }
 
@@ -217,30 +232,51 @@ export default function useBiologicalAssociationAnatomicalParts({
     }).then(({ body }) => body.length === 0)
   }
 
+  function relatedIsCollectionObject() {
+    return biologicalRelation.value?.base_class === 'CollectionObject'
+  }
+
+  function updateSubjectTaxonDeterminationState() {
+    fetchSubjectNeedsTaxonDetermination().then((needsTaxonDetermination) => {
+      subjectNeedsTaxonDetermination.value = needsTaxonDetermination
+    })
+  }
+
   function updateRelatedTaxonDeterminationState() {
     fetchRelatedNeedsTaxonDetermination().then((needsTaxonDetermination) => {
       relatedNeedsTaxonDetermination.value = needsTaxonDetermination
     })
   }
 
-  async function ensureRelatedTaxonDeterminationRequirements() {
-    if (
-      !withAnatomicalPartCreation.value ||
-      !enableRelatedAnatomicalPart.value ||
-      !biologicalRelation.value?.id
-    ) {
+  async function ensureTaxonDeterminationRequirements() {
+    if (!withAnatomicalPartCreation.value) {
       return true
     }
 
-    const needsTaxonDetermination = await fetchRelatedNeedsTaxonDetermination()
-    relatedNeedsTaxonDetermination.value = needsTaxonDetermination
+    if (enableSubjectAnatomicalPart.value) {
+      const subjectNeeds = await fetchSubjectNeedsTaxonDetermination()
+      subjectNeedsTaxonDetermination.value = subjectNeeds
 
-    if (needsTaxonDetermination && !relatedTaxonDeterminationOtuId.value) {
-      TW.workbench.alert.create(
-        'A taxon determination OTU is required for the related anatomical part.',
-        'warning'
-      )
-      return false
+      if (subjectNeeds && !subjectTaxonDeterminationOtuId.value) {
+        TW.workbench.alert.create(
+          'A taxon determination OTU is required for the subject anatomical part.',
+          'warning'
+        )
+        return false
+      }
+    }
+
+    if (enableRelatedAnatomicalPart.value && biologicalRelation.value?.id) {
+      const relatedNeeds = await fetchRelatedNeedsTaxonDetermination()
+      relatedNeedsTaxonDetermination.value = relatedNeeds
+
+      if (relatedNeeds && !relatedTaxonDeterminationOtuId.value) {
+        TW.workbench.alert.create(
+          'A taxon determination OTU is required for the related anatomical part.',
+          'warning'
+        )
+        return false
+      }
     }
 
     return true
@@ -260,6 +296,21 @@ export default function useBiologicalAssociationAnatomicalParts({
       } else {
         mapped.subject_anatomical_part_attributes =
           subjectAnatomicalPart.value.payload
+      }
+
+      if (
+        subjectNeedsTaxonDetermination.value &&
+        subjectTaxonDeterminationOtuId.value
+      ) {
+        if (flip.value) {
+          mapped.object_taxon_determination_attributes = {
+            otu_id: subjectTaxonDeterminationOtuId.value
+          }
+        } else {
+          mapped.subject_taxon_determination_attributes = {
+            otu_id: subjectTaxonDeterminationOtuId.value
+          }
+        }
       }
     }
 
@@ -304,7 +355,11 @@ export default function useBiologicalAssociationAnatomicalParts({
 
     if (!newVal) {
       subjectAnatomicalPart.value = { valid: false, payload: {} }
+      subjectTaxonDeterminationOtuId.value = undefined
+      subjectNeedsTaxonDetermination.value = false
       subjectPartKey.value += 1
+    } else {
+      updateSubjectTaxonDeterminationState()
     }
   })
 
@@ -353,6 +408,8 @@ export default function useBiologicalAssociationAnatomicalParts({
     enableRelatedAnatomicalPart,
     subjectAnatomicalPart,
     relatedAnatomicalPart,
+    subjectTaxonDeterminationOtuId,
+    subjectNeedsTaxonDetermination,
     relatedTaxonDeterminationOtuId,
     relatedNeedsTaxonDetermination,
     subjectPartKey,
@@ -364,8 +421,9 @@ export default function useBiologicalAssociationAnatomicalParts({
     resetAnatomicalPartState,
     setSubjectAnatomicalPart,
     setRelatedAnatomicalPart,
+    updateSubjectTaxonDeterminationState,
     updateRelatedTaxonDeterminationState,
-    ensureRelatedTaxonDeterminationRequirements,
+    ensureTaxonDeterminationRequirements,
     mapAnatomicalPartAttributesToAssociationSides,
     loadAnatomicalPartSessionState
   }
