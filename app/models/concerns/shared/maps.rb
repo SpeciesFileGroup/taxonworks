@@ -127,9 +127,9 @@ module Shared::Maps
     # Creates or increments a CachedMapItem and creates a CachedMapRegister for this object.
     # * !! Assumes this is the first time CachedMapItem is being indexed for this object.
     # * !! Does NOT check register.
-    def create_cached_map_items(batch = false, context: nil)
+    def create_cached_map_items(batch = false, skip_register: false, register_queue: nil)
       ::DEFAULT_CACHED_MAP_BUILD_TYPES.each do |map_type|
-        stubs = CachedMapItem.stubs(self, map_type, context: context)
+        stubs = CachedMapItem.stubs(self, map_type)
 
         return true if stubs[:otu_id].empty?
 

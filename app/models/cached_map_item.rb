@@ -164,42 +164,52 @@ class CachedMapItem < ApplicationRecord
     raise TaxonWorks::Error, "Missing pre-computed ids for cached maps origin '#{data_origin}'" if precomputed_ids.blank?
     raise TaxonWorks::Error, "Expected pre-computed ids for cached maps origin '#{data_origin}' to be a SQL IN list" unless precomputed_ids.is_a?(String)
 
-    sql = <<~SQL
+    # Step 1: Find the (few) ne_states shapes that intersect the source shape.
+    # Check the planner carefully if you combine steps 1 and 2 into a single
+    # query.
+    intersecting_ids = ActiveRecord::Base.connection.select_values(<<~SQL.squish).map!(&:to_i)
       SELECT gi.id
       FROM geographic_items gi
-      CROSS JOIN (
-        SELECT geography
-        FROM geographic_items
-        WHERE id = #{geographic_item_id.to_i}
-      ) AS target
-      -- Careful with IN here if we move to other data_origins (currently ~4k ids)
       WHERE gi.id IN (#{precomputed_ids})
-        AND ST_Intersects(gi.geography, target.geography)
+        AND ST_Intersects(
+          gi.geography,
+          (SELECT geography FROM geographic_items WHERE id = #{geographic_item_id.to_i})
+        )
     SQL
 
-    a = ActiveRecord::Base.connection.select_values(sql).map!(&:to_i)
+    return intersecting_ids if buffer.nil?
 
-    return a if buffer.nil?
-
-    # Refine the pass by smoothing using buffer/st_within
-    buffer_filter = GeographicItem
-      .st_buffer_st_within_sql(geographic_item_id, 0.0, buffer)
-      .or(
-        # The intention here is to keep ne_states shapes that failed the buffer
-        # check because the buffer reduced them to nothing, IF they're subsets
-        # of geographic_item_id. This should prevent unexpected holes.
-        GeographicItem.subset_of_sql(
-          GeographicItem.st_buffer_sql(
-            GeographicItem.select_geometry_sql(geographic_item_id),
-            100
-          )
-        )
+    # Step 2: Refine by buffer/st_within and add subset-of hole filling.
+    within_filter = GeographicItem.st_buffer_st_within_sql(geographic_item_id, 0.0, buffer)
+    subset_filter = GeographicItem.subset_of_sql(
+      GeographicItem.st_buffer_sql(
+        GeographicItem.select_geometry_sql(geographic_item_id),
+        100
       )
+    )
+    combined_filter = within_filter.or(subset_filter)
 
-    return GeographicItem
-      .where(id: a)
-      .where(buffer_filter)
-      .pluck(:id)
+    begin
+      return GeographicItem
+        .where(id: intersecting_ids)
+        .where(combined_filter)
+        .pluck(:id)
+    rescue ActiveRecord::StatementInvalid, PG::Error => e
+      # subset_of_sql (ST_CoveredBy) is known bad on
+      # PostGIS: POSTGIS="3.6.0 4c1967d" [EXTENSION] PGSQL="170" GEOS="3.10.2-CAPI-1.16.0",
+      # known good on PostGIS: POSTGIS="3.6.1 f533623" GEOS="3.14.1-CAPI-1.20.5"
+      # so try keeping the st_within refinement and skip only the
+      # subset-of augmentation.
+      # TODO: get rid of this once it's no longer needed!
+      within_ids = GeographicItem
+        .where(id: intersecting_ids)
+        .where(within_filter)
+        .pluck(:id)
+      message = " CM_TRANSLATE_SUBSET_FALLBACK geographic_item_id:#{geographic_item_id} data_origin:#{data_origin.join(',')} buffer:#{buffer} intersects_count:#{intersecting_ids.size} within_count:#{within_ids.size} error:#{e.class}: #{e.message.lines.first&.strip}"
+      Rails.logger.warn(message) if defined?(Rails) && Rails.respond_to?(:logger) && Rails.logger
+      puts message
+      return within_ids
+    end
   end
 
   def self.precomputed_data_origin_ids_for(data_origin, refresh: false)
@@ -298,10 +308,8 @@ class CachedMapItem < ApplicationRecord
     end
   end
 
-  # @param context [Hash] of cached_map_types to pre-computed data for
-  # source_object.
   # @return [Hash, nil]
-  def self.stubs(source_object, cached_map_type, context: nil)
+  def self.stubs(source_object, cached_map_type)
     # return nil unless source_object.persisted?
     o = source_object
 
@@ -315,8 +323,6 @@ class CachedMapItem < ApplicationRecord
 
     geographic_item_id = nil
     otu_id = nil
-    context = context&.symbolize_keys || {}
-
     base_class_name = o.class.base_class.name
 
     case base_class_name
@@ -325,32 +331,34 @@ class CachedMapItem < ApplicationRecord
         return h
       end
       if o.asserted_distribution_object_type == 'Otu'
-        otu_id = [context[:otu_id] || o.asserted_distribution_object_id]
+        otu_id = [o.asserted_distribution_object_id]
       else
         # TODO handle other types
         return h
       end
-      geographic_item_id = context[:geographic_item_id] ||
-        o.asserted_distribution_shape.default_geographic_item_id
-
-      taxon_name_id = context[:otu_taxon_name_id] ||
-        Otu.where(id: otu_id).pick(:taxon_name_id)
+      geographic_item_id = o.asserted_distribution_shape.default_geographic_item_id
+      taxon_name_id = Otu.where(id: otu_id).pick(:taxon_name_id)
       return h if taxon_name_id.blank?
 
     when 'Georeference'
-      geographic_item_id = context[:geographic_item_id] || o.geographic_item_id
-      otu_id = context[:otu_id] ||
-        o.otus.left_joins(:taxon_determinations).where(taxon_determinations: { position: 1 }).distinct.pluck(:id)
+      geographic_item_id = o.geographic_item_id
+      # Filter to only OTUs that have a taxon_name_id — OTUs without
+      # taxon names have no hierarchy and don't contribute to cached maps.
+      otu_id = o.otus # OTUS through CollectionObject and FieldOccurrence TaxonDeterminations
+        .joins(:taxon_determinations)
+        .where(taxon_determinations: { position: 1 })
+        .where.not(taxon_name_id: nil)
+        .distinct.pluck(:id)
+
+      return h if otu_id.empty?
     end
 
     # Some AssertedDistribution don't have shapes
     if geographic_item_id
       h[:origin_geographic_item_id] = geographic_item_id
 
-      geographic_area_based = context.key?(:geographic_area_based) ?
-        context[:geographic_area_based] :
-        base_class_name == 'AssertedDistribution' &&
-          o.asserted_distribution_shape_type == 'GeographicArea'
+      geographic_area_based = base_class_name == 'AssertedDistribution' &&
+        o.asserted_distribution_shape_type == 'GeographicArea'
       search_existing_translates = base_class_name == 'AssertedDistribution'
 
       h[:geographic_item_id] = translate_geographic_item_id(
@@ -387,9 +395,7 @@ class CachedMapItem < ApplicationRecord
     k = batch_stubs[:otu_id]
 
     j.each do |geographic_item_id|
-      k.each do |otu_id|
-        otu_id = otu_id.first
-        project_id = otu_id.second
+      k.each do |otu_id, project_id|
 
         begin
           a = CachedMapItem.find_or_initialize_by(
