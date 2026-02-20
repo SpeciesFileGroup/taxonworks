@@ -240,6 +240,7 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
       Specimen.create!(
         collecting_event:,
         total: 1,
+        no_dwc_occurrence: true
       )
     }
 
@@ -274,7 +275,9 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
 
       specify 'creates CachedMapItem with pre-computed context' do
         context = {
-          otu_id: [otu.id]
+          geographic_item_id: georeference.geographic_item_id,
+          otu_id: [otu.id],
+          otu_taxon_name_id: otu.taxon_name_id
         }
         georeference.send(:create_cached_map_items, true, context:,
           skip_register: true, register_queue: [])
@@ -282,9 +285,24 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
         expect(CachedMapItem.first.geographic_item_id).to eq(gi1.id)
       end
 
+      specify 'context with nil otu_taxon_name_id falls through to query' do
+        context = {
+          geographic_item_id: georeference.geographic_item_id,
+          otu_id: [otu.id],
+          otu_taxon_name_id: nil
+        }
+        georeference.send(:create_cached_map_items, true, context:,
+          skip_register: true, register_queue: [])
+        # nil context value falls through the || to pick from Otu, so
+        # creation still succeeds when the OTU has a taxon_name_id.
+        expect(CachedMapItem.count).to eq(1)
+      end
+
       specify 'context with empty otu_id skips creation' do
         context = {
-          otu_id: []
+          geographic_item_id: georeference.geographic_item_id,
+          otu_id: [],
+          otu_taxon_name_id: otu.taxon_name_id
         }
         georeference.send(:create_cached_map_items, true, context:,
           skip_register: true, register_queue: [])
@@ -311,6 +329,7 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
       Specimen.create!(
         collecting_event:,
         total: 1,
+        no_dwc_occurrence: true
       )
     }
 
@@ -333,7 +352,9 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
       georeference
       Delayed::Worker.new.work_off
       context = {
-        otu_id: [otu.id]
+        geographic_item_id: georeference.geographic_item_id,
+        otu_id: [otu.id],
+        otu_taxon_name_id: otu.taxon_name_id
       }
       stubs = CachedMapItem.stubs(georeference, 'CachedMapItem::WebLevel1', context:)
       expect(stubs[:otu_id]).to eq([otu.id])
@@ -345,7 +366,9 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
       georeference
       Delayed::Worker.new.work_off
       context = {
-        otu_id: [otu.id, otu2.id]
+        geographic_item_id: georeference.geographic_item_id,
+        otu_id: [otu.id, otu2.id],
+        otu_taxon_name_id: otu.taxon_name_id
       }
       stubs = CachedMapItem.stubs(georeference, 'CachedMapItem::WebLevel1', context:)
       expect(stubs[:otu_id]).to contain_exactly(otu.id, otu2.id)
