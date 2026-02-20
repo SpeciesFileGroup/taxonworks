@@ -2,7 +2,7 @@
   <NavBar :class="{ 'feedback-warning': isInvalid }">
     <div
       id="browse-otu-header"
-      class="container-2xl w-full mx-auto padding-medium-top"
+      class="container-2xl w-full mx-auto"
     >
       <div class="flex-separate align-start gap-medium">
         <template v-if="navigation">
