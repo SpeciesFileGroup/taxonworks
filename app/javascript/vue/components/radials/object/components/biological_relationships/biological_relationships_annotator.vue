@@ -475,7 +475,9 @@ async function saveAssociation() {
 
   saveRequest
     .then(({ body }) => {
-      addToList(body, { prepend: true })
+      if (!enableSubjectAnatomicalPart.value) {
+        addToList(body, { prepend: true })
+      }
       if (withAnatomicalPartCreation.value) {
         loadAnatomicalPartModeList()
       }
