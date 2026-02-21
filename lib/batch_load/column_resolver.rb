@@ -139,7 +139,7 @@ module BatchLoad::ColumnResolver
     # @param [Hash] columns
     # @param [String] data_origin
     # @return [BatchLoad::ColumnResolver::Result]
-    def geographic_area(columns, data_origin = nil)
+    def shape(columns, data_origin = nil)
       r = BatchLoad::ColumnResolver::Result.new
 
       if columns['geographic_area_id']
@@ -175,6 +175,12 @@ module BatchLoad::ColumnResolver
         # @tuckerjd - tweak as necessary
         r.error_messages << "'#{search_list}' (data_origin: #{data_origin}): Geographic area was not determinable." if r.no_matches?
         r.error_messages << "Multiple matches to '#{search_list}' (data_origin: #{data_origin}) were found." if r.multiple_matches?
+      elsif columns['gazetteer_id']
+        begin
+          r.assign(Gazetteer.find(columns['gazetteer_id']))
+        rescue ActiveRecord::RecordNotFound
+          r.error_messages << "No Gazetteer with id #{columns['gazetteer_id']} exists."
+        end
       end
 
       r

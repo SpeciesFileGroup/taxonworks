@@ -33,7 +33,7 @@ module BatchLoad
 
         o = BatchLoad::ColumnResolver.otu(row)
         s = BatchLoad::ColumnResolver.source(row)
-        g = BatchLoad::ColumnResolver.geographic_area(row, @data_origin)
+        g = BatchLoad::ColumnResolver.shape(row, @data_origin)
 
         if o.resolvable? && s.resolvable? && g.resolvable?
           rp.objects[:asserted_distributions] = [

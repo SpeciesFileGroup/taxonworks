@@ -117,6 +117,11 @@ export default defineStore('store', {
 
         this.loadValidations()
 
+        TW.workbench.alert.create(
+          'Type material was successfully saved.',
+          'notice'
+        )
+
         addToArray(this.typeMaterials, this.typeMaterial)
       } catch {
       } finally {

@@ -39,29 +39,58 @@ Object.assign(TW.workbench.keyboard, {
     this.handleEvents()
   },
 
+  // General shortcuts use a plain keydown listener instead of Mousetrap so
+  // they work even when focus is in an input, select, or textarea.
+  // platformKey() is Alt on Linux/Windows, Ctrl on Mac.
+  // See app/javascript/vue/helpers/getPlatformKey.js.
   generalShortcuts() {
-    const platformKey = navigator.platform.indexOf('Mac') > -1 ? 'ctrl' : 'alt'
+    const isMac = navigator.platform.indexOf('Mac') > -1
+    const platformKey = isMac ? 'ctrl' : 'alt'
+    const modifierProp = isMac ? 'ctrlKey' : 'altKey'
 
-    this.createShortcut(
-      `${platformKey}+h`,
-      'Go to hub',
-      'General shortcuts',
-      function () {
-        const element = document.querySelector('.hub_project_name')
-        element.click()
+    const shortcuts = [
+      {
+        key: 'h',
+        legend: `${platformKey}+h`,
+        description: 'Go to hub',
+        handler() {
+          const element = document.querySelector('.hub_project_name')
+          element.click()
+        }
       },
-      true
-    )
-    this.createShortcut(
-      `${platformKey}+?`,
-      'Show/hide help',
-      'General shortcuts',
-      function () {
-        const element = document.querySelector('.help-button')
-        element.click()
-      },
-      true
-    )
+      {
+        key: '?',
+        legend: `${platformKey}+?`,
+        description: 'Show/hide help',
+        handler() {
+          const element = document.querySelector('.help-button')
+          element.click()
+        }
+      }
+    ]
+
+    shortcuts.forEach((shortcut) => {
+      const legendElement = this.createLegendElement(
+        shortcut.legend,
+        shortcut.description,
+        'General shortcuts',
+        true
+      )
+
+      document.body.append(legendElement)
+    })
+
+    this._keydownListener = (e) => {
+      if (!e[modifierProp]) return
+
+      const match = shortcuts.find((s) => s.key === e.key)
+      if (match) {
+        e.preventDefault()
+        match.handler()
+      }
+    }
+
+    window.addEventListener('keydown', this._keydownListener)
   },
 
   createTable() {
@@ -250,4 +279,14 @@ Object.assign(TW.workbench.keyboard, {
 document.addEventListener('turbolinks:load', () => {
   TW.workbench.help.init()
   TW.workbench.keyboard.init_keyShortcuts()
+})
+
+document.addEventListener('turbolinks:before-cache', () => {
+  if (TW.workbench.keyboard._keydownListener) {
+    window.removeEventListener(
+      'keydown',
+      TW.workbench.keyboard._keydownListener
+    )
+    TW.workbench.keyboard._keydownListener = null
+  }
 })

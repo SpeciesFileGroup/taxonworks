@@ -18,4 +18,17 @@ class ApplicationController < ActionController::Base
   include PaginationHeaders
   include RequestType
   include RedirectHelper
+
+
+  around_action :set_time_zone
+
+  def set_time_zone
+    tz = request.headers['X-Timezone']
+
+    if tz.present? && ActiveSupport::TimeZone[tz]
+      Time.use_zone(tz) { yield }
+    else
+      yield
+    end
+  end
 end

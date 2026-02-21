@@ -78,6 +78,11 @@ scope :tasks do
   end
 
   scope :data_attributes do
+    scope :duplicate_data_attributes, controller: 'tasks/data_attributes/duplicate_data_attributes' do
+      get '/', action: :index, as: 'duplicate_data_attributes_task'
+      match :data, action: :data, defaults: { format: :json }, via: [:get, :post]
+    end
+
     scope :multi_update, controller: 'tasks/data_attributes/multi_update' do
       get '/', action: :index, as: 'index_multi_update_task'
     end
@@ -194,6 +199,10 @@ scope :tasks do
   end
 
   scope :namespaces do
+    scope :filter, controller: 'tasks/namespaces/filter' do
+      get '/', action: :index, as: 'filter_namespaces_task'
+    end
+
     scope :new_namespace, controller: 'tasks/namespaces/new_namespace' do
       get '/', action: :index, as: 'new_namespace_task'
     end
@@ -231,6 +240,11 @@ scope :tasks do
 
       post 'generate_download', as: 'generate_dwc_download_task', defaults: {format: :json}
       post :create_index, as: 'create_dwc_index_task', defaults: {format: :json}
+    end
+
+    scope :compact, controller: 'tasks/dwc/compact' do
+      get '/', action: :index, as: 'compact_dwc_task'
+      post :compact, defaults: {format: :json}
     end
   end
 
@@ -395,10 +409,6 @@ scope :tasks do
 
     scope :hub, controller: 'tasks/sources/hub' do
       get '/', action: :index, as: 'source_hub_task'
-    end
-
-    scope :individual_bibtex_source, controller: 'tasks/sources/individual_bibtex_source' do
-      get '/', action: :index, as: 'new_bibtex_source_task'
     end
 
     scope :verbatim_author_year_source, controller: 'tasks/sources/verbatim_author_year_source' do
@@ -760,6 +770,10 @@ scope :tasks do
 
     scope :browse, controller: 'tasks/otus/browse' do
       get '/(:otu_id)', action: :index, as: 'browse_otus_task'
+    end
+
+    scope :match_by_taxon_name, controller: 'tasks/otus/match_by_taxon_name' do
+      get '/', action: :index, as: 'match_otu_by_taxon_name_task'
     end
 
     scope :filter, controller: 'tasks/otus/filter' do

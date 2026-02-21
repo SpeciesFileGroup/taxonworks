@@ -192,3 +192,17 @@ export const TASK_FIELD_OCCURRENCE_MEDIA_EXTENSION = {
   label: "DwC media extension preview",
   link: "/tasks/field_occurrences/dwc_media_extension_preview",
 };
+
+export const TASK_DUPLICATE_DATA_ATTRIBUTES = {
+  label: "Repeated DataAttributes",
+  link: "/tasks/data_attributes/duplicate_data_attributes",
+  queryParam: true,
+  saveQuery: true,
+};
+
+export const TASK_COMPACT_DWC = {
+  label: "DwC Summary",
+  link: "/tasks/dwc/compact",
+  queryParam: true,
+  saveQuery: true,
+};

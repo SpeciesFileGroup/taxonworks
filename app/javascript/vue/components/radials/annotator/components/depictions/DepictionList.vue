@@ -14,6 +14,7 @@
       v-model="list"
       item-key="id"
       tag="tbody"
+      handle=".handle"
       @change="() => emit('sort')"
     >
       <template #item="{ element }">

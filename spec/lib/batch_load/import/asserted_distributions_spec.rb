@@ -176,4 +176,67 @@ describe BatchLoad::Import::AssertedDistributions, type: :model do
     end
   end
 
+  context 'Gazetteer id' do
+    let(:file_name) { 'spec/files/batch/asserted_distribution/gazetteer_id.tsv' }
+    let(:upload_file) { Rack::Test::UploadedFile.new(file_name) }
+    let(:import) { BatchLoad::Import::AssertedDistributions.new(
+      project_id: project.id,
+      user_id: user.id,
+      file: upload_file)
+    }
+
+    let!(:otu) { FactoryBot.create(:valid_otu, id: 100) }
+    let!(:gazetteer) { FactoryBot.create(:valid_gazetteer, id: 110) }
+    let!(:source) { FactoryBot.create(:valid_source, id: 120) }
+
+    before { import.create }
+
+    specify '#create_attempted' do
+      expect(import.create_attempted).to eq(true)
+    end
+
+    specify '#valid_objects' do
+      expect(import.valid_objects.count).to eq(1)
+    end
+
+    specify '#total_records_created' do
+      expect(import.total_records_created).to eq(1)
+    end
+
+    specify 'created asserted distribution with gazetteer shape' do
+      expect(AssertedDistribution.count).to eq(1)
+      ad = AssertedDistribution.first
+      expect(ad.asserted_distribution_shape).to eq(gazetteer)
+      expect(ad.asserted_distribution_shape_type).to eq('Gazetteer')
+    end
+  end
+
+  context 'Gazetteer id is ignored when geographic_area_id is present' do
+    let(:file_name) { 'spec/files/batch/asserted_distribution/gazetteer_id_ignored.tsv' }
+    let(:upload_file) { Rack::Test::UploadedFile.new(file_name) }
+    let(:import) { BatchLoad::Import::AssertedDistributions.new(
+      project_id: project.id,
+      user_id: user.id,
+      file: upload_file)
+    }
+
+    let!(:otu) { FactoryBot.create(:valid_otu, id: 100) }
+    let!(:ga) { FactoryBot.create(:valid_geographic_area, id: 110) }
+    let!(:gazetteer) { FactoryBot.create(:valid_gazetteer, id: 999) }
+    let!(:source) { FactoryBot.create(:valid_source, id: 120) }
+
+    before { import.create }
+
+    specify '#total_records_created' do
+      expect(import.total_records_created).to eq(1)
+    end
+
+    specify 'uses geographic_area, not gazetteer' do
+      expect(AssertedDistribution.count).to eq(1)
+      ad = AssertedDistribution.first
+      expect(ad.asserted_distribution_shape).to eq(ga)
+      expect(ad.asserted_distribution_shape_type).to eq('GeographicArea')
+    end
+  end
+
 end

@@ -127,12 +127,13 @@ module Shared::Maps
     # Creates or increments a CachedMapItem and creates a CachedMapRegister for this object.
     # * !! Assumes this is the first time CachedMapItem is being indexed for this object.
     # * !! Does NOT check register.
-    def create_cached_map_items(batch = false, context: nil)
+    def create_cached_map_items(batch = false, skip_register: false, register_queue: nil)
       ::DEFAULT_CACHED_MAP_BUILD_TYPES.each do |map_type|
-        stubs = CachedMapItem.stubs(self, map_type, context: context)
+        stubs = CachedMapItem.stubs(self, map_type)
 
         return true if stubs[:otu_id].empty?
 
+        registered = false
         name_hierarchy = {}
 
         max_retries = 3
@@ -197,13 +198,26 @@ module Shared::Maps
               end
             end
 
-            begin
-              CachedMapRegister.create!(
-                cached_map_register_object: self,
-                project_id:
-              )
-            rescue ActiveRecord::RecordInvalid => e
-              logger.debug e
+            unless skip_register
+              begin
+                CachedMapRegister.create!(
+                  cached_map_register_object: self,
+                  project_id:
+                )
+              rescue ActiveRecord::RecordInvalid => e
+                logger.debug e
+              end
+            else
+              if register_queue && !registered
+                register_queue << {
+                  cached_map_register_object_type: self.class.base_class.name,
+                  cached_map_register_object_id: id,
+                  project_id:,
+                  created_at: Time.current,
+                  updated_at: Time.current
+                }
+                registered = true
+              end
             end
           end
         rescue ActiveRecord::Deadlocked => e
