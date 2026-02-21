@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe 'DarwinCore Summary', type: :feature, group: :collection_objects do
 
-  let(:page_title) { 'Summary DarwinCore' }
+  let(:page_title) { 'DarwinCore Summary' }
   let(:index_path) { compact_dwc_task_path }
 
   it_behaves_like 'a_login_required_and_project_selected_controller'
