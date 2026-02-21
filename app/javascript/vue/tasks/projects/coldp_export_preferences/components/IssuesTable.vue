@@ -21,11 +21,53 @@
           </button>
         </div>
 
+        <div class="issue-import-controls margin-medium-bottom">
+          <VBtn
+            color="create"
+            :disabled="isImporting || checkedIssueKeys.length === 0"
+            @click="importSelectedIssues"
+          >
+            Import {{ checkedIssueKeys.length }} selected issue{{ checkedIssueKeys.length === 1 ? '' : 's' }} as tags
+          </VBtn>
+          <span class="margin-small-left margin-small-right">
+            Select:
+            <a
+              href="#"
+              @click.prevent="selectAllFiltered"
+            >all</a> ·
+            <a
+              href="#"
+              @click.prevent="selectNone"
+            >none</a> ·
+            <a
+              href="#"
+              @click.prevent="selectByLevel('error')"
+            >errors</a> ·
+            <a
+              href="#"
+              @click.prevent="selectByLevel('warning')"
+            >warnings</a>
+          </span>
+          <VSpinner
+            v-if="isImporting"
+            :logo-size="{ width: '20px', height: '20px' }"
+          />
+        </div>
+
         <table class="vue-table">
           <thead>
             <tr>
+              <th class="checkbox-col">
+                <input
+                  type="checkbox"
+                  :checked="allFilteredChecked"
+                  :indeterminate="someFilteredChecked && !allFilteredChecked"
+                  @change="toggleAllFiltered"
+                >
+              </th>
               <th>Title</th>
               <th>Count</th>
+              <th>TW Filter</th>
             </tr>
           </thead>
           <tbody>
@@ -33,6 +75,13 @@
               v-for="issue in filteredIssues"
               :key="issue.key"
             >
+              <td class="checkbox-col">
+                <input
+                  type="checkbox"
+                  :checked="checkedIssues.has(issue.key)"
+                  @change="toggleIssueCheck(issue.key)"
+                >
+              </td>
               <td>
                 <span :class="['issue-badge', `issue-level-${issue.level}`]">
                   {{ issue.title }}
@@ -50,6 +99,13 @@
                   class="count-link"
                 >{{ issue.count.toLocaleString() }}</a>
               </td>
+              <td>
+                <a
+                  v-if="twFilterLink(issue)"
+                  :href="twFilterLink(issue).url"
+                  class="tw-filter-link"
+                >{{ twFilterLink(issue).tagCount }} tagged</a>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -66,6 +122,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { ColdpExportPreference } from '@/routes/endpoints'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const CLB_ISSUE_VOCAB_URL = 'https://api.checklistbank.org/vocab/issue'
 
@@ -81,13 +138,17 @@ const props = defineProps({
 })
 
 const isLoading = ref(false)
+const isImporting = ref(false)
 const issuesData = ref({})
 const issueVocab = ref([])
 const selectedGroups = ref(new Set())
+const issueKeywords = ref([])
+const checkedIssues = ref(new Set())
 
 onMounted(() => {
   loadIssues()
   loadVocab()
+  loadIssueKeywords()
 })
 
 watch(() => props.datasetId, loadIssues)
@@ -187,6 +248,110 @@ function groupLabel(group) {
   return GROUP_LABELS[group] || group
 }
 
+// --- Checkbox logic ---
+
+const checkedIssueKeys = computed(() => [...checkedIssues.value])
+
+const allFilteredChecked = computed(() =>
+  filteredIssues.value.length > 0 &&
+  filteredIssues.value.every((i) => checkedIssues.value.has(i.key))
+)
+
+const someFilteredChecked = computed(() =>
+  filteredIssues.value.some((i) => checkedIssues.value.has(i.key))
+)
+
+function toggleIssueCheck(key) {
+  const next = new Set(checkedIssues.value)
+  if (next.has(key)) {
+    next.delete(key)
+  } else {
+    next.add(key)
+  }
+  checkedIssues.value = next
+}
+
+function toggleAllFiltered() {
+  if (allFilteredChecked.value) {
+    selectNone()
+  } else {
+    selectAllFiltered()
+  }
+}
+
+function selectAllFiltered() {
+  const next = new Set(checkedIssues.value)
+  filteredIssues.value.forEach((i) => next.add(i.key))
+  checkedIssues.value = next
+}
+
+function selectNone() {
+  checkedIssues.value = new Set()
+}
+
+function selectByLevel(level) {
+  const next = new Set()
+  sortedIssues.value
+    .filter((i) => i.level === level)
+    .forEach((i) => next.add(i.key))
+  checkedIssues.value = next
+}
+
+// --- Import ---
+
+async function importSelectedIssues() {
+  const keys = checkedIssueKeys.value
+  if (keys.length === 0) return
+
+  if (!confirm(`Import ${keys.length} issue type${keys.length === 1 ? '' : 's'} as tags? This runs as a background job.`)) return
+
+  isImporting.value = true
+  try {
+    await ColdpExportPreference.bulkLoadIssueTags(props.projectId, {
+      checklistbank_dataset_id: props.datasetId,
+      issue_keys: keys
+    })
+    TW.workbench.alert.create('Issue tag import job enqueued. TW filter links will appear after the job completes and you refresh the page.', 'notice')
+  } catch {
+    TW.workbench.alert.create('Failed to enqueue job', 'error')
+  } finally {
+    isImporting.value = false
+  }
+}
+
+// --- TW Filter links ---
+
+async function loadIssueKeywords() {
+  try {
+    const { body } = await ColdpExportPreference.coldpIssueKeywords(props.projectId)
+    issueKeywords.value = body || []
+  } catch {
+    issueKeywords.value = []
+  }
+}
+
+const GROUP_FILTER_PATHS = {
+  'name': '/tasks/taxon_names/filter',
+  'synonym': '/tasks/taxon_names/filter',
+  'name usage': '/tasks/otus/filter',
+  'distribution': '/tasks/asserted_distributions/filter',
+  'reference': '/tasks/sources/filter',
+  'species interaction': '/tasks/biological_associations/filter',
+  'vernacular': '/tasks/otus/filter'
+}
+
+function twFilterLink(issue) {
+  const keywordName = `COLDP: ${issue.title}`
+  const keyword = issueKeywords.value.find((k) => k.name === keywordName)
+  if (!keyword || keyword.tag_count === 0) return null
+
+  const path = GROUP_FILTER_PATHS[issue.group] || '/tasks/otus/filter'
+  return {
+    url: `${path}?keyword_id_or[]=${keyword.id}`,
+    tagCount: keyword.tag_count
+  }
+}
+
 function verbatimUrl(issue) {
   const base = `https://www.checklistbank.org/dataset/${props.datasetId}/verbatim?issue=${encodeURIComponent(issue.key)}`
 
@@ -276,5 +441,32 @@ function verbatimUrl(issue) {
 .count-link {
   color: #4a90d9;
   font-weight: bold;
+}
+
+.tw-filter-link {
+  color: #43a047;
+  font-weight: 500;
+  font-size: 0.9em;
+}
+
+.checkbox-col {
+  width: 2em;
+  text-align: center;
+}
+
+.issue-import-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+
+  a {
+    color: #4a90d9;
+    text-decoration: none;
+    font-size: 0.9em;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }
 </style>

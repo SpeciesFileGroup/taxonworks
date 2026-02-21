@@ -42,6 +42,29 @@
           </VBtn>
         </div>
 
+        <div
+          v-if="datasetId"
+          class="operation margin-large-top"
+        >
+          <h3>CLB issue tags</h3>
+          <p class="bulk-ops-note">Import ChecklistBank issues as keyword tags so you can filter affected records in TaxonWorks. Tags are prefixed with "COLDP:" for easy identification and bulk removal.</p>
+          <VBtn
+            color="create"
+            class="margin-small-right"
+            @click="bulkLoadIssueTags"
+            :disabled="isLoading"
+          >
+            Load issue tags from CLB
+          </VBtn>
+          <VBtn
+            color="destroy"
+            @click="cleanupIssueTags"
+            :disabled="isLoading"
+          >
+            Remove all COLDP issue tags
+          </VBtn>
+        </div>
+
         <div class="operation margin-large-top">
           <h3>Set lifezone</h3>
           <label>
@@ -98,6 +121,10 @@ const props = defineProps({
   otuId: {
     type: Number,
     default: null
+  },
+  datasetId: {
+    type: Number,
+    default: null
   }
 })
 
@@ -116,6 +143,36 @@ async function bulkSetExtinct() {
       overwrite: extinctOverwrite.value
     })
     TW.workbench.alert.create('Bulk extinct job enqueued.', 'notice')
+  } catch {
+    TW.workbench.alert.create('Failed to enqueue job', 'error')
+  } finally {
+    isLoading.value = false
+  }
+}
+
+async function bulkLoadIssueTags() {
+  if (!confirm('This will import CLB issues as keyword tags for affected records. Continue?')) return
+
+  isLoading.value = true
+  try {
+    await ColdpExportPreference.bulkLoadIssueTags(props.projectId, {
+      checklistbank_dataset_id: props.datasetId
+    })
+    TW.workbench.alert.create('Issue tag import job enqueued.', 'notice')
+  } catch {
+    TW.workbench.alert.create('Failed to enqueue job', 'error')
+  } finally {
+    isLoading.value = false
+  }
+}
+
+async function cleanupIssueTags() {
+  if (!confirm('This will remove ALL keywords prefixed with "COLDP:" and their tags. Continue?')) return
+
+  isLoading.value = true
+  try {
+    await ColdpExportPreference.cleanupIssueTags(props.projectId)
+    TW.workbench.alert.create('Issue tag cleanup job enqueued.', 'notice')
   } catch {
     TW.workbench.alert.create('Failed to enqueue job', 'error')
   } finally {

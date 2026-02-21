@@ -41,6 +41,7 @@
       <BulkOperationsPanel
         :project-id="projectId"
         :otu-id="currentProfile.otu_id"
+        :dataset-id="savedChecklistbankDatasetId"
       />
     </div>
 

@@ -47,5 +47,14 @@ export const ColdpExportPreference = {
     AjaxCall('get', `/projects/${id}/coldp_export_preferences/checklistbank_duplicates.json`, { params }),
 
   checklistbankDiff: (id, params) =>
-    AjaxCall('get', `/projects/${id}/coldp_export_preferences/checklistbank_diff.json`, { params })
+    AjaxCall('get', `/projects/${id}/coldp_export_preferences/checklistbank_diff.json`, { params }),
+
+  bulkLoadIssueTags: (id, params) =>
+    AjaxCall('post', `/projects/${id}/coldp_export_preferences/bulk_load_issue_tags.json`, params),
+
+  cleanupIssueTags: (id) =>
+    AjaxCall('post', `/projects/${id}/coldp_export_preferences/cleanup_issue_tags.json`),
+
+  coldpIssueKeywords: (id) =>
+    AjaxCall('get', `/projects/${id}/coldp_export_preferences/coldp_issue_keywords.json`)
 }

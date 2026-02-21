@@ -17,6 +17,7 @@ module Export::Coldp::Files::SpeciesInteraction
       .select(
         %w{
          biological_association_indices.id
+         biological_association_id
          subject_id
          object_label
          relationship_name
@@ -40,6 +41,7 @@ module Export::Coldp::Files::SpeciesInteraction
         modified
         modifiedBy
         remarks
+        tw_biological_association_id
       }
 
       a = biological_association_indices(otus)
@@ -53,7 +55,8 @@ module Export::Coldp::Files::SpeciesInteraction
           bai.source_id,                                                  # referenceID
           Export::Coldp.modified(bai[:updated_at]),                         # modified
           Export::Coldp.modified_by(bai[:updated_by_id], project_members), # modified_by
-          nil                                                             # remarks
+          nil,                                                            # remarks
+          bai.biological_association_id                                   # tw_biological_association_id
         ]
       end
 

@@ -95,6 +95,7 @@ module Export::Coldp::Files::NameRelation
         modified
         modifiedBy
         remarks
+        tw_taxon_name_relationship_id
       }
 
       rels = taxon_name_relationships(otu)
@@ -114,6 +115,7 @@ module Export::Coldp::Files::NameRelation
             Export::Coldp.modified(tnr[:updated_at]),                        # modified
             Export::Coldp.modified_by(tnr[:updated_by_id], project_members), # modified_by
             nil,                                                             # remarks
+            tnr.id                                                           # tw_taxon_name_relationship_id
           ]
         end
       end

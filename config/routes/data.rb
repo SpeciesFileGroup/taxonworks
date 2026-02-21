@@ -808,6 +808,9 @@ resources :projects, only: [] do
       get :missing_otus_count, defaults: {format: :json}
       post :bulk_set_extinct, defaults: {format: :json}
       post :bulk_set_lifezone, defaults: {format: :json}
+      post :bulk_load_issue_tags, defaults: {format: :json}
+      post :cleanup_issue_tags, defaults: {format: :json}
+      get :coldp_issue_keywords, defaults: {format: :json}
       get :checklistbank_citation, defaults: {format: :json}
       get :checklistbank_imports, defaults: {format: :json}
       get :checklistbank_issues, defaults: {format: :json}

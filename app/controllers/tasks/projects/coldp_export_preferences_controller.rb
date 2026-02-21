@@ -346,6 +346,39 @@ class Tasks::Projects::ColdpExportPreferencesController < ApplicationController
     render json: { status: 'Job enqueued' }
   end
 
+  def bulk_load_issue_tags
+    dataset_id = params[:checklistbank_dataset_id].to_i
+    issue_keys = params[:issue_keys].presence
+
+    BulkColdpIssueTagJob.perform_later(
+      @project.id,
+      dataset_id,
+      sessions_current_user_id,
+      issue_keys:
+    )
+
+    render json: { status: 'Job enqueued' }
+  end
+
+  def cleanup_issue_tags
+    BulkColdpIssueCleanupJob.perform_later(
+      @project.id,
+      sessions_current_user_id
+    )
+
+    render json: { status: 'Job enqueued' }
+  end
+
+  def coldp_issue_keywords
+    keywords = Keyword.where(project_id: @project.id)
+      .where('name LIKE ?', 'COLDP: %')
+      .left_joins(:tags)
+      .group('controlled_vocabulary_terms.id')
+      .select('controlled_vocabulary_terms.id, controlled_vocabulary_terms.name, COUNT(tags.id) AS tag_count')
+
+    render json: keywords.map { |k| { id: k.id, name: k.name, tag_count: k.tag_count } }
+  end
+
   private
 
   def set_project
