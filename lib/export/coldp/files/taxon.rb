@@ -84,7 +84,8 @@ module Export::Coldp::Files::Taxon
   end
 
   def self.link(link_base_url, otu)
-    link_base_url&.gsub('{id}', otu.id.to_s) unless link_base_url.nil?
+    return nil if link_base_url.nil?
+    link_base_url.gsub('{otu_id}', otu.id.to_s).gsub('{id}', otu.id.to_s)
   end
 
   def self.remarks(otu, taxon_remarks_vocab_id)
@@ -113,7 +114,7 @@ module Export::Coldp::Files::Taxon
       .map{|a| [a.id, a.send(target)]}.to_h
   end
 
-  def self.generate(otu, otus, project_members, reference_csv = nil, prefer_unlabelled_otus = true)
+  def self.generate(otu, otus, project_members, reference_csv = nil, prefer_unlabelled_otus = true, base_url: nil)
 
     # Until we have RC5 articulations we are simplifying handling the fact
     # that one taxon name can be used for many OTUs. Track to see that
@@ -138,7 +139,7 @@ module Export::Coldp::Files::Taxon
       attributes[k] = attributes(otus, k)
     end
 
-    link_base_url = attributes[:link][otu.id]
+    link_base_url = base_url || attributes[:link][otu.id]
     root_otu_id = otu.id
 
     parent_id_lookup = Otu.parent_otu_ids(otus, skip_ranks: SKIPPED_RANKS).map{|a| [a.id, a.valid_ancestor_otu_ids&.split(',')&.first&.to_i]}.to_h

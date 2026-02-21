@@ -355,6 +355,11 @@ scope :tasks do
       # See other routes in data.rb.
     end
 
+    scope :coldp_export_preferences, controller: 'tasks/projects/coldp_export_preferences' do
+      get '/', action: :index, as: 'project_coldp_export_preferences_task'
+      # See other routes in data.rb.
+    end
+
     scope :week_in_review, controller: 'tasks/projects/week_in_review' do
       get '/', action: :index, as: 'week_in_review_task'
       get :data, as: 'week_in_review_data', defaults: {format: :json}

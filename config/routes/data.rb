@@ -796,6 +796,25 @@ resources :projects, only: [] do
       post :set_predicates_and_internal_values, defaults: {format: :json}
       post :set_default_user, defaults: {format: :json}
     end
+
+    scope :coldp_export_preferences, controller: 'tasks/projects/coldp_export_preferences' do
+      get :preferences, defaults: {format: :json}
+      post :save_profile, defaults: {format: :json}
+      delete :destroy_profile, defaults: {format: :json}
+      post :validate_metadata, defaults: {format: :json}
+      get :controlled_vocabulary_status, defaults: {format: :json}
+      post :create_missing_predicates, defaults: {format: :json}
+      post :create_predicate, defaults: {format: :json}
+      get :missing_otus_count, defaults: {format: :json}
+      post :bulk_set_extinct, defaults: {format: :json}
+      post :bulk_set_lifezone, defaults: {format: :json}
+      get :checklistbank_citation, defaults: {format: :json}
+      get :checklistbank_imports, defaults: {format: :json}
+      get :checklistbank_issues, defaults: {format: :json}
+      get :fetch_clb_metadata, defaults: {format: :json}
+      get :checklistbank_duplicates, defaults: {format: :json}
+      get :checklistbank_diff, defaults: {format: :json}
+    end
   end
 
   collection do

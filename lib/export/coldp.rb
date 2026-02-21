@@ -161,9 +161,17 @@ module Export
         version = Settings.sandbox_commit_sha
       end
 
+      # Check for user-provided metadata in the COLDP profile
+      coldp_profile = project.coldp_profile_for(otu_id)
+      use_stored_metadata = coldp_profile &&
+        coldp_profile['metadata_yaml'].present? &&
+        !coldp_profile['maintain_metadata_in_checklistbank']
+
+      if use_stored_metadata
+        metadata = YAML.safe_load(coldp_profile['metadata_yaml'])
       # We lose the ability to maintain title in TW but until we can model metadata in TW,
       #   it seems desirable because there's a lot of TW vs CLB title mismatches
-      if clb_dataset_id.nil?
+      elsif clb_dataset_id.nil?
         metadata = {
           'title' => project.name,
           'issued' => DateTime.now.strftime('%Y-%m-%d'),
@@ -171,7 +179,7 @@ module Export
           'feedbackUrl' => feedback_url
         }
       else
-        metadata = Colrapi.dataset(dataset_id: clb_dataset_id) unless clb_dataset_id.nil?
+        metadata = Colrapi.dataset(dataset_id: clb_dataset_id)
 
         # remove fields maintained by ChecklistBank or TW
         exclude_fields = %w[created createdBy modified modifiedBy attempt imported lastImportAttempt lastImportState size label citation private platform]
@@ -209,7 +217,8 @@ module Export
        zipfile.get_output_stream('TypeMaterial.tsv') { |f| f.write Export::Coldp::Files::TypeMaterial.generate(otu, project_members, ref_tsv) }
 
        zipfile.get_output_stream('Synonym.tsv') { |f| f.write Export::Coldp::Files::Synonym.generate(otu, otus, project_members, ref_tsv) }
-       zipfile.get_output_stream('Taxon.tsv') { |f| f.write Export::Coldp::Files::Taxon.generate(otu, otus, project_members, ref_tsv, prefer_unlabelled_otus) }
+       profile_base_url = coldp_profile&.fetch('base_url', nil).presence
+       zipfile.get_output_stream('Taxon.tsv') { |f| f.write Export::Coldp::Files::Taxon.generate(otu, otus, project_members, ref_tsv, prefer_unlabelled_otus, base_url: profile_base_url) }
 
        (FILETYPES - %w{Name NameRelation TypeMaterial Synonym Taxon References}).each do |ft|
          puts ft

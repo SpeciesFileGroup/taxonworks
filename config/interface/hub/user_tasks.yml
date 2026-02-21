@@ -1111,6 +1111,15 @@ project_dwc_export_preferences_task:
   categories:
   status: prototype
   description: Set preferences for Darwin Core Archive complete project downloads
+project_coldp_export_preferences_task:
+  hub: true
+  name: 'ColDP export preferences'
+  related:
+    - project_dwc_export_preferences_task
+  categories:
+    - export
+  status: prototype
+  description: Configure and manage ColDP export profiles for Catalogue of Life / ChecklistBank integration
 select_ontologies_task:
   hub: false
   name: 'Select anatomical part ontologies'

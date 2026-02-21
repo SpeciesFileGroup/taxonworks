@@ -131,6 +131,42 @@ class DownloadsController < ApplicationController
     render json: { status: 'A download is being created' }, status: :unprocessable_content
   end
 
+  # GET /api/v1/downloads/coldp_complete?project_token=<>&otu_id=<>
+  def api_coldp_complete
+    project = Project.find(sessions_current_project_id)
+    otu_id = params[:otu_id]
+
+    if otu_id.blank?
+      render json: { error: 'otu_id is required' }, status: :unprocessable_content
+      return
+    end
+
+    profile = project.coldp_profile_for(otu_id.to_i)
+
+    if profile.nil? || !profile['is_public'] || !project.api_access_token
+      render json: { success: false }, status: :forbidden
+      return
+    end
+
+    begin
+      if download = Download::Coldp::Complete.process_complete_download_request(project, otu_id)
+        send_file download.file_path
+        return
+      end
+    rescue TaxonWorks::Error => e
+      render json: { status: e.to_s }, status: :unprocessable_content
+      return
+    end
+
+    by_id = Current.user_id || profile['default_user_id']
+    Download::Coldp::Complete.create!(
+      by: by_id,
+      project:,
+      request: otu_id.to_s
+    )
+    render json: { status: 'A download is being created' }, status: :unprocessable_content
+  end
+
   private
 
   def set_download

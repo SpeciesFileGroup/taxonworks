@@ -3,10 +3,13 @@ import { h, ref, watch, defineComponent, onMounted, onBeforeUnmount } from 'vue'
 import {
   Chart,
   CategoryScale,
+  LineController,
   LineElement,
   BarElement,
   BarController,
+  PointElement,
   LinearScale,
+  Filler,
   Legend,
   Title,
   Tooltip
@@ -14,10 +17,13 @@ import {
 
 Chart.register(
   CategoryScale,
+  LineController,
   LineElement,
   BarElement,
   BarController,
+  PointElement,
   LinearScale,
+  Filler,
   Legend,
   Title,
   Tooltip
