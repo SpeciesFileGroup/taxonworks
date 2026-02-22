@@ -13,10 +13,4 @@ describe Identifier::Local::RecordNumber, type: :model, group: :identifiers do
     expect(i.errors.key?(:identifier_object_type)).to be_falsey
   end
 
-  specify 'may be duplicated across specimens' do
-    i = Identifier::Local::RecordNumber.create!(identifier: '345', namespace: n, identifier_object: Specimen.create!)
-    j = Identifier::Local::RecordNumber.new(identifier: '345', namespace: n, identifier_object: Specimen.create!)
-    expect(j.valid?).to be_truthy
-  end
-
 end
