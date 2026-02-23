@@ -42,9 +42,9 @@
     "defaults"
   ],
   "devDependencies": {
-    "@rspack/cli": "^1.5.8",
-    "@rspack/core": "^1.5.8",
-    "@swc/core": "^1.15.11",
+    "@rspack/cli": "^1.7.6",
+    "@rspack/core": "^1.7.6",
+    "@swc/core": "^1.15.13",
     "@vue/compiler-sfc": "^3.5.28",
     "css-loader": "^7.1.4",
     "eslint": "^9.39.2",
@@ -54,7 +54,7 @@
     "postcss": "^8.5.6",
     "rspack-manifest-plugin": "^5.2.1",
     "sass": "^1.97.3",
-    "sass-loader": "^16.0.6",
+    "sass-loader": "^16.0.7",
     "swc-loader": "^0.2.7",
     "vue-loader": "^17.4.2"
   }
