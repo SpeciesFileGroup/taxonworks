@@ -15,7 +15,15 @@
 </template>
 
 <script setup>
-import { computed, ref, watch, onMounted } from 'vue'
+import {
+  computed,
+  ref,
+  watch,
+  onMounted,
+  onBeforeUnmount,
+  useTemplateRef,
+  nextTick
+} from 'vue'
 import { useScroll, useWindowSize } from '@/composables/index.js'
 
 const props = defineProps({
@@ -41,18 +49,22 @@ const props = defineProps({
 
   offsetReference: {
     type: [String, HTMLElement],
-    default: '.fixed_header_bar'
+    default: '#header-wrapper'
   }
 })
 
 const windowSize = useWindowSize()
 const scroll = useScroll(window)
-const navbar = ref(null)
 const width = ref(null)
 const height = ref('auto')
-const position = ref(null)
 const isFixed = ref(false)
 const resolvedOffset = ref(0)
+const referenceElement = ref()
+const root = useTemplateRef('root')
+const navbar = useTemplateRef('navbar')
+
+let resizeObserver
+let mutationObserver
 
 const barStyle = computed(() =>
   isFixed.value
@@ -72,30 +84,86 @@ const getReferenceElement = () => {
   return document.querySelector(props.offsetReference)
 }
 
+const getPosition = () => {
+  return root.value.getBoundingClientRect().top + window.scrollY
+}
+
 const updateOffset = () => {
   if (props.topOffset !== null) {
     resolvedOffset.value = props.topOffset
-  } else {
-    const element = getReferenceElement()
-    resolvedOffset.value = element ? element.offsetHeight : 0
+    return
   }
+
+  const element = getReferenceElement()
+
+  if (!element) {
+    resolvedOffset.value = 0
+    return
+  }
+
+  const isReferenceFixed = getComputedStyle(element).position === 'fixed'
+  resolvedOffset.value = isReferenceFixed ? element.offsetHeight : 0
 }
 
 const setFixeable = () => {
-  isFixed.value = scroll.y.value + resolvedOffset.value > position.value
+  const position = getPosition()
+  isFixed.value = scroll.y.value + resolvedOffset.value > position
   width.value = `${navbar.value.parentElement.clientWidth}px`
 }
 
-watch([scroll.y, windowSize.width], () => {
+const recalculate = () => {
   updateOffset()
-  props.scrollFix && setFixeable()
+  if (props.scrollFix) {
+    setFixeable()
+  }
   height.value = `${navbar.value.clientHeight}px`
-})
+}
+
+const observeReference = () => {
+  disconnectObservers()
+
+  const element = referenceElement.value
+  if (!element) return
+
+  resizeObserver = new ResizeObserver(() => {
+    recalculate()
+  })
+  resizeObserver.observe(element)
+
+  mutationObserver = new MutationObserver(() => {
+    nextTick(() => {
+      recalculate()
+    })
+  })
+  mutationObserver.observe(element, {
+    attributes: true,
+    attributeFilter: ['class', 'style']
+  })
+}
+
+const disconnectObservers = () => {
+  resizeObserver?.disconnect()
+  mutationObserver?.disconnect()
+}
+
+watch([scroll.y, windowSize.width], recalculate)
+
+watch(
+  () => props.offsetReference,
+  () => {
+    referenceElement.value = getReferenceElement()
+    observeReference()
+    recalculate()
+  }
+)
 
 onMounted(() => {
-  position.value = navbar.value.offsetTop
+  referenceElement.value = getReferenceElement()
   updateOffset()
+  observeReference()
 })
+
+onBeforeUnmount(disconnectObservers)
 </script>
 
 <style lang="scss" scoped>
