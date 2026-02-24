@@ -32,6 +32,7 @@ export async function listParser(list, { parameters }) {
     original_combination: item.original_combination,
     cached_is_valid: item.cached_is_valid ? 'Yes' : 'No',
     valid_name: item.valid_name?.cached_html,
+    cached_nomenclature_date: item.cached_nomenclature_date?.split('-').shift(),
     rank: item.rank,
     parent: item?.parent
       ? `<a title="${item.parent.object_label}" href="/tasks/nomenclature/browse?taxon_name_id=${item.parent.id}">${item.parent.object_label}</a>`

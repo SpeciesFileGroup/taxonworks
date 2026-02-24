@@ -738,29 +738,37 @@ class CollectingEvent < ApplicationRecord
   #     which are country_level, and have GIs containing the (GI and/or EGI) of this CE
   # @todo this needs more work, possibily direct AREL table manipulation.
   def name_hash(types)
-    retval  = {}
-    gi_list = containing_geographic_items
+    # Restrict to GIs of the target GA type first, then do the
+    # expensive spatial containment check against only those candidates.
+    type_scoped_geographic_items = GeographicItem
+      .joins(geographic_areas_geographic_items: {geographic_area: :geographic_area_type})
+      .where(geographic_area_types: {name: types})
 
-    # there are a few ways we can end up with no GIs
-    # unless gi_list.nil? # no references GeographicAreas or Georeferences at all, or
-    unless gi_list.empty? # no available GeographicItems to test
-      # map the resulting GIs to their corresponding GAs
-      # pieces  = GeographicItem.where(id: gi_list.flatten.map(&:id).uniq)
-      # pieces = gi_list
-      ga_list = GeographicArea.joins(:geographic_area_type, :geographic_areas_geographic_items).
-        where(geographic_area_types: {name: types},
-              geographic_areas_geographic_items: {geographic_item_id: gi_list}).distinct
-
-      # WAS: now find all of the GAs which have the same names as the ones we collected.
-
-      # map the names to an array of results
-      ga_list.each { |i|
-        retval[i.name] ||= [] # if we haven't come across this name yet, set it to point to a blank array
-        retval[i.name].push i # we now have at least a blank array, push the result into it
-      }
+    source_geographic_item_ids = if self.georeferences.any?
+      geographic_items.pluck(:id)
+    elsif self.geographic_area
+      self.geographic_area.geographic_items.pluck(:id)
+    else
+      []
     end
-    # end
-    retval
+
+    return {} if source_geographic_item_ids.empty?
+
+    # superset_of_union_of excludes source IDs, but a shape covers itself,
+    # so include source IDs to match GAs whose GI is the source itself.
+    covering_item_ids = type_scoped_geographic_items
+      .superset_of_union_of(*source_geographic_item_ids)
+      .distinct
+      .pluck(:id)
+
+    all_item_ids = (covering_item_ids + source_geographic_item_ids).uniq
+
+    GeographicArea.joins(:geographic_area_type, :geographic_areas_geographic_items)
+      .where(
+        geographic_area_types: {name: types},
+        geographic_areas_geographic_items: {geographic_item_id: all_item_ids})
+      .distinct
+      .group_by(&:name)
   end
 
   def has_cached_geographic_names?
@@ -789,7 +797,7 @@ class CollectingEvent < ApplicationRecord
 
   # @return Hash
   #  a geographic_name_classification.
-  # This prioritizes Georeferences over GeographicAreas!
+  # This (normally) prioritizes Georeferences over GeographicArea!
   def get_geographic_name_classification
     case geographic_name_classification_method
     when :preferred_georeference
@@ -827,32 +835,6 @@ class CollectingEvent < ApplicationRecord
   end
 
   # @return [Array of GeographicItems containing this target]
-  #   GeographicItems are those that contain either the georeference or, if there are none,
-  #   the geographic area
-  def containing_geographic_items
-    gi_list = []
-    if self.georeferences.any?
-      # gather all the GIs which contain this GI or EGI
-      #
-      #  Struck EGI, EGI must contain GI, therefor anything that contains EGI contains GI, threfor containing GI will always be the bigger set
-      #   !! and there was no tests broken
-      # GeographicItem.st_covers('any_poly', self.geographic_items.to_a).pluck(:id).uniq
-      gi_list = GeographicItem
-       .superset_of_union_of(*geographic_items.pluck(:id))
-       .pluck(:id)
-       .uniq
-
-    else
-      # use geographic_area only if there are no GIs or EGIs
-      unless self.geographic_area.nil?
-        # unless self.geographic_area.geographic_items.empty?
-        # we need to use the geographic_area directly
-        gi_list = GeographicItem.st_covers('any_poly', self.geographic_area.geographic_items).pluck(:id).uniq
-        # end
-      end
-    end
-    gi_list
-  end
 
   # @return [Hash]
   def countries_hash

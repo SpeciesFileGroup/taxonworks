@@ -67,7 +67,7 @@ class BiologicalRelationshipsController < ApplicationController
         format.json { render :show, status: :created, location: @biological_relationship }
       else
         format.html { render :new }
-        format.json { render json: @biological_relationship.errors, status: :unprocessable_entity }
+        format.json { render json: @biological_relationship.errors, status: :unprocessable_content }
       end
     end
   end
@@ -81,7 +81,7 @@ class BiologicalRelationshipsController < ApplicationController
         format.json { render :show, status: :ok, location: @biological_relationship }
       else
         format.html { render :edit }
-        format.json { render json: @biological_relationship.errors, status: :unprocessable_entity }
+        format.json { render json: @biological_relationship.errors, status: :unprocessable_content }
       end
     end
   end

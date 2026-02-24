@@ -248,14 +248,17 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
     expect(q.all).to contain_exactly(ad_ba)
   end
 
-  # # Source query integration
-  # specify '#source_id' do
-  #   FactoryBot.create(:valid_asserted_distribution)
-  #   o = a.source.id
-  #   q.source_id = o
+  specify '#source_id' do
+    source = FactoryBot.create(:valid_source)
+    other_source = FactoryBot.create(:valid_source)
 
-  #   expect(q.all.map(&:id)).to contain_exactly(a.id)
-  # end
+    a = FactoryBot.create(:valid_asserted_distribution, source:)
+    b = FactoryBot.create(:valid_asserted_distribution, source: other_source)
+
+    q = query.new({source_id: source.id})
+
+    expect(q.all).to contain_exactly(a)
+  end
 
   context 'data attributes' do
     let(:p1) { FactoryBot.create(:valid_predicate) }

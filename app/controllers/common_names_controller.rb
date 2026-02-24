@@ -52,7 +52,7 @@ class CommonNamesController < ApplicationController
         format.json { render :show, status: :created, location: @common_name }
       else
         format.html { render :new }
-        format.json { render json: @common_name.errors, status: :unprocessable_entity }
+        format.json { render json: @common_name.errors, status: :unprocessable_content }
       end
     end
   end
@@ -66,7 +66,7 @@ class CommonNamesController < ApplicationController
         format.json { render :show, status: :ok, location: @common_name }
       else
         format.html { render :edit }
-        format.json { render json: @common_name.errors, status: :unprocessable_entity }
+        format.json { render json: @common_name.errors, status: :unprocessable_content }
       end
     end
   end

@@ -1,6 +1,11 @@
 <template>
   <div>
     <div class="news-column">{{ title }}</div>
+    <VPagination
+      v-if="pagination?.totalPages > 1"
+      :pagination="pagination"
+      @next-page="({ page }) => emit('page', page)"
+    />
     <div class="flex-col">
       <NewsCard
         v-for="item in news"
@@ -15,6 +20,7 @@
 <script setup>
 import { inject } from 'vue'
 import NewsCard from './NewsCard.vue'
+import VPagination from '@/components/pagination.vue'
 
 const currentNew = inject('currentNew')
 
@@ -27,8 +33,15 @@ defineProps({
   title: {
     type: String,
     required: true
+  },
+
+  pagination: {
+    type: Object,
+    required: false
   }
 })
+
+const emit = defineEmits(['page'])
 </script>
 
 <style scoped>

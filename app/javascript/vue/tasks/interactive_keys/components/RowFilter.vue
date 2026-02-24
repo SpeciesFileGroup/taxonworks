@@ -47,8 +47,10 @@
           <button-image-matrix :otu-ids="otuIds" />
           <RadialMatrix
             :ids="otuIds"
+            :parameters="radialParameters"
             :disabled="!otuIds.length"
             :object-type="OTU"
+            use-new-key-slice
           />
         </div>
         <ul class="no_bullets">
@@ -96,8 +98,10 @@
           <button-image-matrix :otu-ids="otuIds" />
           <RadialMatrix
             :ids="otuIds"
+            :parameters="radialParameters"
             :disabled="!otuIds.length"
             :object-type="OTU"
+            use-new-key-slice
           />
         </div>
       </template>
@@ -158,6 +162,11 @@ export default {
 
     allSelected() {
       return Object.keys(this.selectedRows).length === this.remaining.length
+    },
+
+    radialParameters() {
+      const observationMatrixId = this.observationMatrix?.observation_matrix_id
+      return observationMatrixId ? { observation_matrix_id: observationMatrixId } : {}
     }
   },
 

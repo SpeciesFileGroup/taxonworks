@@ -15,7 +15,7 @@ class Tasks::Projects::DwcExportPreferencesController < ApplicationController
     else
       render json: {
         base: 'Failed to interpret max age!'
-      }, status: :unprocessable_entity
+      }, status: :unprocessable_content
     end
   end
 
@@ -51,7 +51,7 @@ class Tasks::Projects::DwcExportPreferencesController < ApplicationController
     if dataset.blank?
       render json: {
         errors: 'Dataset EML is required.'
-      }, status: :unprocessable_entity
+      }, status: :unprocessable_content
       return
     end
 
@@ -60,7 +60,7 @@ class Tasks::Projects::DwcExportPreferencesController < ApplicationController
 
       render json: {
         errors: ["Can't save EML with 'STUB' while download is public - either remove STUBs to save or make download private."]
-      }, status: :unprocessable_entity
+      }, status: :unprocessable_content
       return
     end
 
@@ -82,7 +82,7 @@ class Tasks::Projects::DwcExportPreferencesController < ApplicationController
       # It's probably a bug if this happens.
       render json: {
         base: ['Project save failed!']
-      }, status: :unprocessable_entity
+      }, status: :unprocessable_content
       return
     end
   end

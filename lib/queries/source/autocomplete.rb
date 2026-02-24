@@ -2,6 +2,8 @@ module Queries
   module Source
     class Autocomplete < Query::Autocomplete
 
+      SOURCE_ROLE_TYPES = ['SourceAuthor', 'SourceEditor', 'SourceSource'].freeze
+
       # Either match against all Sources (default) or just those with ProjectSource
       # @return [Boolean]
       # @param limit_to_project [String] `true` or `false`
@@ -21,6 +23,16 @@ module Queries
       end
 
       # @return [ActiveRecord::Relation]
+      def autocomplete_exact_author_alternate
+        ::Source
+          .joins(roles: {person: :alternate_values})
+          .where(roles: {type: SOURCE_ROLE_TYPES})
+          .where(alternate_values: {alternate_value_object_attribute: 'last_name'})
+          .where(alternate_values: {value: query_string})
+          .limit(20)
+      end
+
+      # @return [ActiveRecord::Relation]
       #   author matches any full word exactly
       #     !!  Not used currently
       def autocomplete_any_author
@@ -33,6 +45,16 @@ module Queries
       def autocomplete_start_of_author
         a = table[:cached_author_string].matches(query_string + '%')
         base_query.where(a.to_sql)
+      end
+
+      # @return [ActiveRecord::Relation]
+      def autocomplete_start_of_author_alternate
+        ::Source
+          .joins(roles: {person: :alternate_values})
+          .where(roles: {type: SOURCE_ROLE_TYPES})
+          .where(alternate_values: {alternate_value_object_attribute: 'last_name'})
+          .where('alternate_values.value ILIKE ?', "#{query_string}%")
+          .limit(20)
       end
 
       # @return [ActiveRecord::Relation]
@@ -66,6 +88,7 @@ module Queries
 
       # @return [ActiveRecord::Relation]
       #   author matches partial string
+      #      !! Not used currently
       def autocomplete_wildcard_pieces_and_year
         a = match_ordered_wildcard_pieces_in_cached
         b = match_year_or_stated_year
@@ -94,6 +117,23 @@ module Queries
       end
 
       # @return [ActiveRecord::Relation, nil]
+      def autocomplete_exact_author_year_letter_alternate
+        author = author_from_author_year
+        d = match_year_suffix
+        c = match_year_or_stated_year
+        return nil if [author,d,c].include?(nil)
+        z = d.and(c)
+
+        ::Source
+          .joins(roles: {person: :alternate_values})
+          .where(roles: {type: SOURCE_ROLE_TYPES})
+          .where(z.to_sql)
+          .where(alternate_values: {alternate_value_object_attribute: 'last_name'})
+          .where('alternate_values.value = ?', author)
+          .limit(20)
+      end
+
+      # @return [ActiveRecord::Relation, nil]
       def autocomplete_exact_author_year
         return nil if query_string.split(' ').count > 2
         a = match_exact_author
@@ -104,6 +144,22 @@ module Queries
       end
 
       # @return [ActiveRecord::Relation, nil]
+      def autocomplete_exact_author_year_alternate
+        return nil if query_string.split(' ').count > 2
+        author = author_from_author_year
+        d = match_year_or_stated_year
+        return nil if author.nil? || d.nil?
+
+        ::Source
+          .joins(roles: {person: :alternate_values})
+          .where(roles: {type: SOURCE_ROLE_TYPES})
+          .where(d.to_sql)
+          .where(alternate_values: {alternate_value_object_attribute: 'last_name'})
+          .where('alternate_values.value = ?', author)
+          .limit(20)
+      end
+
+    # @return [ActiveRecord::Relation, nil]
       def autocomplete_start_author_year
         return nil if query_string.split(' ').count > 2
         a = match_start_author
@@ -114,13 +170,19 @@ module Queries
       end
 
       # @return [ActiveRecord::Relation, nil]
-      def autocomplete_wildcard_author_exact_year
+      def autocomplete_start_author_year_alternate
         return nil if query_string.split(' ').count > 2
-        a = match_year_or_stated_year
-        d = match_wildcard_author
-        return nil if a.nil? || d.nil?
-        z = a.and(d)
-        base_query.where(z.to_sql)
+        author = author_from_author_year
+        d = match_year_or_stated_year
+        return nil if author.nil? || d.nil?
+
+        ::Source
+          .joins(roles: {person: :alternate_values})
+          .where(roles: {type: SOURCE_ROLE_TYPES})
+          .where(d.to_sql)
+          .where(alternate_values: {alternate_value_object_attribute: 'last_name'})
+          .where('alternate_values.value ILIKE ?', "#{author}%")
+          .limit(20)
       end
 
       # @return [ActiveRecord::Relation, nil]
@@ -207,12 +269,16 @@ module Queries
           [ autocomplete_exact_id, false],
           [ autocomplete_identifier_identifier_exact, false],
           [ autocomplete_exact_author_year_letter&.limit(20), true],
+          [ autocomplete_exact_author_year_letter_alternate&.limit(20), true],
           [ autocomplete_identifier_cached_exact, false],
           [ autocomplete_exact_author_year&.limit(20), true],
+          [ autocomplete_exact_author_year_alternate&.limit(20), true],
           [ autocomplete_start_author_year&.limit(20), true],
-          [ autocomplete_wildcard_author_exact_year&.limit(20), true],
+          [ autocomplete_start_author_year_alternate&.limit(20), true],
           [ autocomplete_exact_author&.limit(20), true],
+          [ autocomplete_exact_author_alternate&.limit(20), true],
           [ autocomplete_start_of_author&.limit(20), true],
+          [ autocomplete_start_of_author_alternate&.limit(20), true],
           #[ autocomplete_wildcard_anywhere_exact_year&.limit(10), true],
           [ autocomplete_identifier_cached_like, true],
           [ autocomplete_exact_in_cached&.limit(20), true],

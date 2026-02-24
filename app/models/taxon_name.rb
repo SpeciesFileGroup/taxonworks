@@ -104,11 +104,13 @@
 #
 # @attribute cached_primary_homonym
 #   @return [String]
-#   original genus and species name. Used to find and validate primary homonyms.
+#     The original genus and original species alone. Used to detect and validate data with respect
+# to primary homonyms and to facilitate search.
 #
 # @attribute cached_secondary_homonym_alternative_spelling
 #   @return [String]
-#   Current genus and species name in alternative spelling. Used to find and validate secondary homonyms.
+#   Current genus and species name, with species spelling aligned in gender.  Used to find and validate secondary homonyms,
+# and to facilitate search.
 #
 # @!attribute cached_primary_homonym_alternative_spelling
 #   @return [String]
@@ -116,11 +118,11 @@
 #
 # @!attribute cached_misspelling
 #   @return [Boolean]
-#   if the name is a misspelling, stores True.
+#   If the name is a misspelling, stores True.
 #
 # @!attribute cached_classified_as
 #   @return [String]
-#   if the name was classified in different group (e.g. a genus placed in wrong family).
+#   If the name was classified in different group (e.g. a genus placed in wrong family).
 #
 # @!cached_valid_taxon_name_id
 #   @return [Integer]
@@ -132,7 +134,7 @@
 #
 # @!cached_gender
 #   @return [String, nil]
-#     applicable to genus group names only!!!
+#     Applicable to genus group names only!!!
 #     one of 'masculine', 'feminine', neuter'
 #
 # @!cached_is_available
@@ -142,8 +144,6 @@
 # Tracks, for computation purposes, that status of assertions of availability.
 # !! Since Combinations do not recieve TaxonNameRelationship or Classifications
 # they are defaulted to false.
-#
-# rubocop:disable Metrics/ClassLength
 #
 # TODO: Refactor into
 #   * methods that set new state (new values
@@ -156,6 +156,7 @@
 #
 # In general there is too much interplay between the our current variables, they should not (probably) cross boundaries.
 #
+# rubocop:disable Metrics/ClassLength
 class TaxonName < ApplicationRecord
 
   # @return class
@@ -259,6 +260,7 @@ class TaxonName < ApplicationRecord
 
   after_create :create_otu, if: :also_create_otu
   before_destroy :check_for_children, prepend: true
+  before_destroy :destroy_empty_otu, prepend: true
 
   # With this @taxonomy can more or less replace full_name_hash
   #  after_save :reset_taxonomy
@@ -1264,7 +1266,7 @@ class TaxonName < ApplicationRecord
     update_column(:cached_classified_as, get_cached_classified_as)
   end
 
-  # @proceps I feel this needs to go away.  If you want to define misspelling you can not use a verbatim_name. In general
+  # @proceps I feel this needs to go away. If you want to define misspelling you can not use a verbatim_name. In general
   # verbatim_name should not have downstream factual consequences.
 
   # TODO:  Missing specs
@@ -1728,6 +1730,20 @@ class TaxonName < ApplicationRecord
       errors.add(:base, 'This taxon has children names attached, delete those first.')
       throw :abort
     end
+  end
+
+  # Destroys the single associated OTU if it has no related data.
+  # This allows deleting a TaxonName when its only blocker is an
+  # auto-created OTU with no meaningful information attached.
+  def destroy_empty_otu
+    return true unless otus.count == 1
+
+    otu = otus.first
+    return true unless otu.unused?
+
+    otu.destroy!
+    otus.reset # Clear association cache
+    true
   end
 
   def validate_parent_from_the_same_project

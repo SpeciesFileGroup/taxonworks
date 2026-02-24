@@ -413,12 +413,14 @@ class Source::Bibtex < Source
   # @return [Person, Boolean] new person, or false
   def self.bibtex_author_to_person(bibtex_author)
     return false if bibtex_author.class != BibTeX::Name
-    p = Person.new(
+    p = Person.find_or_initialize_by(
       first_name: bibtex_author.first,
       prefix: bibtex_author.prefix,
       last_name: bibtex_author.last,
       suffix: bibtex_author.suffix)
-    p.namecase_names
+    unless p.persisted?
+      p.namecase_names
+    end
     p
   end
 
@@ -452,10 +454,12 @@ class Source::Bibtex < Source
   #   b = Source::Bibtex.new_from_bibtex(a)
   #
   # @param [BibTex::Entry] bibtex_entry the BibTex::Entry to convert
+  # @param [Integer] project_id optional project to associate source with
+  # @param [Integer] namespace_id optional namespace for creating Identifier::Local::Import::Bibtex from BibTeX key
   # @return [Source::Bibtex.new] a new instance
   # TODO: Annote to project specific note?
   # TODO: Serial with alternate_value on name .count = 1 assign .first
-  def self.new_from_bibtex(bibtex_entry = nil, project_id = nil)
+  def self.new_from_bibtex(bibtex_entry = nil, project_id = nil, namespace_id = nil)
     return false if !bibtex_entry.kind_of?(::BibTeX::Entry)
     s = Source::Bibtex.new(bibtex_type: bibtex_entry.type.to_s)
 
@@ -499,12 +503,22 @@ class Source::Bibtex < Source
 
       s.serial_attributes = a
     end
+
+    # Create Identifier::Local::Import::Bibtex from BibTeX key if namespace provided
+    if namespace_id.present? && bibtex_entry.key.present?
+      s.identifiers.build(
+        type: 'Identifier::Local::Import::Bibtex',
+        namespace_id: namespace_id,
+        identifier: bibtex_entry.key.to_s
+      )
+    end
+
     s
   end
 
   # @return [Array] journal, nil or name
   def journal
-    [read_attribute(:journal), (serial.blank? ? nil : serial.name)].compact.first
+    [read_attribute(:journal), (serial.presence&.name)].compact.first
   end
 
   # @return [String]
@@ -939,7 +953,7 @@ class Source::Bibtex < Source
     begin
       Person.transaction do
         authors_to_create.each do |shs|
-          p = Person.create!(shs)
+          p = Person.find_or_create_by!(shs)
           author_roles.build(person: p)
         end
       end
@@ -975,6 +989,7 @@ class Source::Bibtex < Source
   # @return [Ignored]
   def check_has_field
     valid = false
+
     TW_REQUIRED_FIELDS.each do |i|
       if self[i].present?
         valid = true
@@ -983,8 +998,12 @@ class Source::Bibtex < Source
     end
 
     # TODO This test for auth doesn't work with a new record.
-
-    if (self.authors.count > 0 || self.editors.count > 0 || !self.serial.nil?)
+    if (
+      self.authors.count > 0 ||
+      self.editors.count > 0 ||
+      self.roles.any? { |r| r.type.in?(%w[SourceAuthor SourceEditor]) } ||
+      !self.serial.nil?
+    )
       valid = true
     end
 

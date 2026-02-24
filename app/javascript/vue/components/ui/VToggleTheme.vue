@@ -3,7 +3,6 @@
     class="toggle-theme-container"
     @click="toggleTheme"
   >
-    <span>Theme ({{ themeMode }})</span>
     <div
       class="toggle-theme-button"
       type="button"
@@ -15,7 +14,7 @@
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        class="h-5 w-5"
+        class="h-4 w-4"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -36,6 +35,7 @@
         />
       </svg>
     </div>
+    <span>Theme ({{ themeMode }})</span>
   </div>
 </template>
 
@@ -84,13 +84,13 @@ const toggleTheme = () => {
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
-  padding: 0.75rem 0;
 }
 
 .toggle-theme-button {
   display: flex;
   background-color: transparent;
   border: none;
+  text-transform: capitalize;
   padding: 0;
   svg {
     stroke: var(--text-color);

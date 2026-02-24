@@ -10,9 +10,8 @@
       v-bind="TAB[tabSelected]"
       ref="smartSelector"
       :target="target"
-      :params="{
-        ba_target: 'subject'
-      }"
+      :klass="BIOLOGICAL_ASSOCIATION"
+      :params="params"
       @selected="(item) => emit('select', item)"
     />
   </fieldset>
@@ -28,6 +27,13 @@ defineProps({
   target: {
     type: String,
     required: true
+  },
+
+  params: {
+    type: Object,
+    default: () => ({
+      ba_target: 'object'
+    })
   }
 })
 

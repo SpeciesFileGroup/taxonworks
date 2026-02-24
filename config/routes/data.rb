@@ -55,6 +55,7 @@ resources :asserted_distributions do
   collection do
     patch :batch_update
     post :batch_template_create, defaults: {format: :json}
+    post :sources, defaults: {format: :json}
     post :preview_simple_batch_load # should be get
     post :create_simple_batch_load, defaults: {format: :json}
     match :filter, to: 'asserted_distributions#index', via: [:get, :post]
@@ -450,8 +451,8 @@ resources :identifiers, except: [:show] do
   # Must be before member
   collection do
     patch :reorder, defaults: {format: :json}
-    get :identifier_types, {format: :json}
-    post :namespaces, {format: :json}
+    get :identifier_types, defaults: {format: :json}
+    post :namespaces, defaults: {format: :json}
     post :batch_by_filter_scope, defaults: {format: :json}
   end
 
@@ -518,6 +519,7 @@ end
 resources :leads do
   concerns [:data_routes]
   member do
+    post :depictions, defaults: {format: :json}
     post :add_children, defaults: {format: :json}
     post :insert_couplet, defaults: {format: :json}
     post :destroy_children, defaults: {format: :json}
@@ -529,6 +531,9 @@ resources :leads do
     patch :reorder_children, defaults: {format: :json}
     post :insert_key, defaults: {format: :json}
     post :set_observation_matrix, defaults: {format: :json}
+    get :remaining_otus, defaults: {format: :json}
+    get :eliminated_otus, defaults: {format: :json}
+    post :reset_lead_items, defaults: {format: :json}
   end
   collection do
     post :batch_create_lead_items, defaults: {format: :json}
@@ -565,15 +570,18 @@ resources :loan_items do
     post :batch_create
     post :batch_return
     post :batch_move
+    post :batch_by_filter_scope, defaults: {format: :json}
   end
 end
 
 resources :namespaces do
   collection do
+    get :attributes, defaults: {format: :json}
     get :autocomplete, defaults: {format: :json} # TODO: add JSON to all autocomplete as default, until then this line has to be above concerns
     post :preview_simple_batch_load
     post :create_simple_batch_load
     get :select_options, defaults: {format: :json}
+    match :filter, to: 'namespaces#index', via: [:get, :post]
   end
 
   concerns [:data_routes]
@@ -618,26 +626,26 @@ resources :observation_matrices do
   end
 
   collection do
-    get :otus_used_in_matrices, {format: :json}
-    get :nexus_data, {format: :json}
+    get :otus_used_in_matrices, defaults:  {format: :json}
+    get :nexus_data, defaults: {format: :json}
 
-    post :batch_create, {format: :json}
-    post :batch_add, {format: :json}
-    post :import_from_nexus, {format: :json}
+    post :batch_create, defaults: {format: :json}
+    post :batch_add, defaults: {format: :json}
+    post :import_from_nexus, defaults: {format: :json}
   end
 end
 
 resources :observation_matrix_columns, only: [:index, :show] do
   concerns [:data_routes]
   collection do
-    patch 'sort', {format: :json}
+    patch 'sort', defaults: {format: :json}
   end
 end
 
 resources :observation_matrix_rows, only: [:index, :show] do
   concerns [:data_routes]
   collection do
-    patch 'sort', {format: :json}
+    patch 'sort', defaults: {format: :json}
   end
 end
 
@@ -953,17 +961,18 @@ resources :taxon_names do
 
     post :preview_simple_batch_load # should be get
     post :create_simple_batch_load
-    get :ranks, {format: :json}
+    get :ranks, defaults: {format: :json}
 
     post :preview_nomen_batch_load
     post :create_nomen_batch_load
 
     get :parse, defaults: {format: :json}
     post :remove_authors, defaults: {format: :json}
+    post :match, defaults: {format: :json}
     get :random
 
     get :rank_table, defaults: {format: :json}
-    get :predicted_rank, {format: :json}
+    get :predicted_rank, defaults: {format: :json}
 
     patch :batch_update
 
@@ -973,7 +982,7 @@ resources :taxon_names do
 
   member do
     get :original_combination, defaults: {format: :json}
-    get :taxonomy, {format: :json}
+    get :taxonomy, defaults: {format: :json}
   end
 end
 
@@ -990,8 +999,8 @@ end
 resources :taxon_name_relationships do
   concerns [:data_routes]
   collection do
-    get :type_relationships, {format: :json}
-    get :taxon_name_relationship_types, {format: :json}
+    get :type_relationships, defaults: {format: :json}
+    get :taxon_name_relationship_types, defaults: {format: :json}
     match :filter, to: 'taxon_name_relationships#index', via: [:get, :post]
   end
 end
@@ -1009,6 +1018,6 @@ end
 resources :type_materials do
   concerns [:data_routes]
   collection do
-    get :type_types, {format: :json}
+    get :type_types, defaults: {format: :json}
   end
 end

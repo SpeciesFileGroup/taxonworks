@@ -7,23 +7,29 @@ export default defineStore('collectingEventForm:softValidations', {
   }),
 
   actions: {
-    load(globalId) {
+    async load(globalId) {
       const globalIds = [globalId].flat()
 
-      const promises = globalIds.map((globalId) =>
-        SoftValidation.find(globalId).then(({ body }) => {
-          this.softValidations = {}
+      this.softValidations = {}
 
-          if (body.soft_validations.length) {
-            this.softValidations[body.instance.klass] = {
-              list: [body],
-              title: body.instance.klass
-            }
-          }
-        })
+      const responses = await Promise.all(
+        globalIds.map((id) => SoftValidation.find(id))
       )
 
-      return Promise.all(promises)
+      responses.forEach(({ body }) => {
+        if (!body.soft_validations.length) return
+
+        const klass = body.instance.klass
+
+        if (!this.softValidations[klass]) {
+          this.softValidations[klass] = {
+            title: klass,
+            list: []
+          }
+        }
+
+        this.softValidations[klass].list.push(body)
+      })
     }
   }
 })

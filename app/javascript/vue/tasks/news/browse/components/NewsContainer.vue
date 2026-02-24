@@ -11,8 +11,10 @@
     <template v-if="newsList.news.length">
       <hr class="divisor full_width" />
       <NewsColumn
-        :news="newsList.news"
         title="All News"
+        :news="newsList.news"
+        :pagination="pagination"
+        @page="(page) => emit('page', page)"
       />
     </template>
   </div>
@@ -33,8 +35,15 @@ const props = defineProps({
     type: String,
     required: true,
     default: 'All'
+  },
+
+  pagination: {
+    type: Object,
+    required: false
   }
 })
+
+const emit = defineEmits(['page'])
 
 const currentNew = inject('currentNew')
 

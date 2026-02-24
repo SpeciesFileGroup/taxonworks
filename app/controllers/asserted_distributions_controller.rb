@@ -49,7 +49,7 @@ class AssertedDistributionsController < ApplicationController
         format.json { render :show, status: :created, location: @asserted_distribution }
       else
         format.html { render :new }
-        format.json { render json: @asserted_distribution.errors, status: :unprocessable_entity }
+        format.json { render json: @asserted_distribution.errors, status: :unprocessable_content }
       end
     end
   end
@@ -63,7 +63,7 @@ class AssertedDistributionsController < ApplicationController
         format.json { render :show, status: :ok, location: @asserted_distribution }
       else
         format.html { render :edit }
-        format.json { render json: @asserted_distribution.errors, status: :unprocessable_entity }
+        format.json { render json: @asserted_distribution.errors, status: :unprocessable_content }
       end
     end
   end
@@ -80,7 +80,7 @@ class AssertedDistributionsController < ApplicationController
         format.json { head :no_content}
       else
         format.html { destroy_redirect @asserted_distribution, notice: 'Asserted distribution was not destroyed, ' + @asserted_distribution.errors.full_messages.join('; ') }
-        format.json { render json: @asserted_distribution.errors, status: :unprocessable_entity }
+        format.json { render json: @asserted_distribution.errors, status: :unprocessable_content }
       end
     end
   end
@@ -127,8 +127,15 @@ class AssertedDistributionsController < ApplicationController
         project_id: sessions_current_project_id)
       render json: r.to_json, status: :ok
     else
-      render json: {}, status: :unprocessable_entity
+      render json: {}, status: :unprocessable_content
     end
+  end
+
+  def sources
+    render json: AssertedDistribution.sources_from_query(
+      params[:filter_query],
+      project_id: sessions_current_project_id
+    )
   end
 
   def batch_template_create
@@ -142,7 +149,7 @@ class AssertedDistributionsController < ApplicationController
     )
       render json: r.to_json, status: :ok
     else
-      render json: {}, status: :unprocessable_entity
+      render json: {}, status: :unprocessable_content
     end
   end
 
@@ -199,6 +206,8 @@ class AssertedDistributionsController < ApplicationController
       :asserted_distribution_shape_type,
       :asserted_distribution_shape_id,
       :is_absent,
+      :source_id,
+      remove_source_ids: [],
       otu_attributes: [:id, :_destroy, :name, :taxon_name_id],
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
       citations_attributes: [:id, :is_original, :_destroy, :source_id, :pages, :citation_object_id, :citation_object_type],

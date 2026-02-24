@@ -298,6 +298,28 @@ describe 'Shared::Unify', type: :model do
     expect(BiocurationClassification.all.reload.size).to eq(1)
   end
 
+  specify 'sums BiocurationClassifications when classes differ' do
+    a = FactoryBot.create(:valid_specimen)
+    b = FactoryBot.create(:valid_specimen)
+
+    c1 = FactoryBot.create(
+      :valid_biocuration_classification, biocuration_classification_object: a
+    )
+
+    c2 = FactoryBot.create(
+      :valid_biocuration_classification, biocuration_classification_object: b
+    )
+
+    a.unify(b)
+
+    expect(b.destroyed?).to be_truthy
+
+    a_classifications = a.biocuration_classifications.reload
+    expect(a_classifications.pluck(:biocuration_class_id)).to contain_exactly(
+      c1.biocuration_class_id, c2.biocuration_class_id
+    )
+  end
+
   specify 'if only used then use as "move" not unify' do
     c1 = Citation.create(citation_object: o1, source:, pages: 123)
     c2 = Citation.create(citation_object: o1, source:, pages: 456)

@@ -171,6 +171,7 @@ namespace :api, defaults: {format: :json} do
       get '/images/:otu_id/inventory', to: '/images#api_image_inventory', as: :images_inventory
       get '/images/sha/:sha', to: '/images#api_image_show_sha', as: :images_sha
       get '/images/file/sha/:sha', to: '/images#api_image_file_sha', as: :images_file_sha
+      get '/images/file/sha/:sha/scale_to_box(/:x/:y/:width/:height/:box_width/:box_height)', to: '/images#api_scale_to_box_sha', as: :images_file_sha_scale_to_box
 
       get '/tags', to: '/tags#api_index'
       get '/tags/:id', to: '/tags#api_show'

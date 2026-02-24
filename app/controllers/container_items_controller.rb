@@ -29,7 +29,7 @@ class ContainerItemsController < ApplicationController
         format.json { render json: @container_item, status: :created, location: @container_item }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container item was NOT successfully created.')}
-        format.json { render json: @container_item.errors, status: :unprocessable_entity }
+        format.json { render json: @container_item.errors, status: :unprocessable_content }
       end
     end
   end
@@ -43,7 +43,7 @@ class ContainerItemsController < ApplicationController
         format.json { render json: @container_item, status: :ok, location: @container_item }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container item was NOT successfully updated.')}
-        format.json { render json: @container_item.errors, status: :unprocessable_entity }
+        format.json { render json: @container_item.errors, status: :unprocessable_content }
       end
     end
   end
@@ -92,7 +92,7 @@ class ContainerItemsController < ApplicationController
     #   collecting_event_query: params[:collecting_event_query])
       render json: r.to_json, status: :ok
     else
-      render json: {}, status: :unprocessable_entity
+      render json: {}, status: :unprocessable_content
     end
   end
 

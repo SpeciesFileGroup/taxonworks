@@ -115,6 +115,45 @@ RSpec.describe Confidence, type: :model, group: :confidence do
     expect(Confidence.all.count).to eq(1)
   end
 
+  specify '#batch_by_filter_scope :add with venn filter' do
+    s1 = FactoryBot.create(:valid_specimen)
+    s2 = FactoryBot.create(:valid_specimen)
+    tag = FactoryBot.create(:valid_tag, tag_object: s1)
+
+    # Create venn query URL that filters for tagged specimens.
+    venn_query_params = {
+      'keyword_id_or' => [tag.keyword_id],
+      'project_id' => Project.first.id
+    }
+    venn_url = "http://localhost:3000/collection_objects/filter.json?#{venn_query_params.to_query}"
+
+    # Main query filters for both specimens, but venn restricts to tagged one.
+    q = ::Queries::CollectionObject::Filter.new(
+      collection_object_id: [s1.id, s2.id],
+      venn: venn_url,
+      venn_mode: 'ab', # intersection
+      venn_ignore_pagination: true
+    )
+
+    # Verify the reconstructed filter preserves venn params.
+    reconstructed = ::Queries::Query::Filter.instantiated_base_filter({ 'collection_object_query' => q.params })
+    expect(reconstructed.venn).to be_present
+    expect(reconstructed.venn_mode).to eq(:ab)
+    expect(reconstructed.venn_ignore_pagination).to be_truthy
+    expect(reconstructed.all.to_a).to contain_exactly(s1)
+
+    Confidence.batch_by_filter_scope(
+      filter_query: { 'collection_object_query' => q.params },
+      mode: :add,
+      params: {
+        confidence_level_id: confidence_level.id
+      }
+    )
+
+    expect(Confidence.where(confidence_object: s1).count).to eq(1)
+    expect(Confidence.where(confidence_object: s2).count).to eq(0)
+  end
+
   specify '#batch_by_filter_scope :add, async raises error when user_id is missing' do
     q = ::Queries::CollectionObject::Filter.new(collection_object_id: specimen.id)
 

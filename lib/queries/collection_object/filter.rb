@@ -58,6 +58,7 @@ module Queries
         :taxon_determination_id, # not used?!
         :taxon_determinations,
         :taxon_name_id,
+        :taxon_name_current_determination,
         :type_material,
         :type_specimen_taxon_name_id,
         :validity,
@@ -146,6 +147,13 @@ module Queries
       #   true = TaxonDetermination must be .current
       #   false = TaxonDetermination must be .historical
       attr_accessor :current_determinations
+
+      # @return [Boolean, nil]
+      #   nil = TaxonDeterminations match regardless of current or historical
+      #   true = TaxonDetermination must be .current
+      #   false = TaxonDetermination must be .historical
+      #   Used for taxon_name_id facets
+      attr_accessor :taxon_name_current_determination
 
       # @return [Boolean, nil]
       #  true - A determiner role exists
@@ -349,6 +357,7 @@ module Queries
         @collection_object_type = params[:collection_object_type].presence
         @containerized = boolean_param(params, :containerized)
         @current_determinations = boolean_param(params, :current_determinations)
+        @taxon_name_current_determination = boolean_param(params, :taxon_name_current_determination)
         @current_repository = boolean_param(params, :current_repository)
         @current_repository_id = params[:current_repository_id].presence
         @dates = boolean_param(params, :dates)
@@ -803,17 +812,19 @@ module Queries
             z = z.and(t[:cached_valid_taxon_name_id].not_eq(t[:id]))
           end
 
-          if current_determinations == true
+          if taxon_name_current_determination == true
             z = z.and(taxon_determination_table[:position].eq(1))
-          elsif current_determinations == false
+          elsif taxon_name_current_determination == false
             z = z.and(taxon_determination_table[:position].gt(1))
           end
         else
           q = ::CollectionObject.joins(taxon_determinations: [:otu])
             .where(otus: { taxon_name_id: })
 
-          if current_determinations
+          if taxon_name_current_determination == true
             q = q.where(taxon_determinations: { position: 1 })
+          elsif taxon_name_current_determination == false
+            q = q.where.not(taxon_determinations: {position: 1})
           end
 
           return q

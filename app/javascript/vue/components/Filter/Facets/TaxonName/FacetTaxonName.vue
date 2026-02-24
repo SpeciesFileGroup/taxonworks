@@ -22,6 +22,12 @@
       v-if="validity"
       v-model="params"
     />
+    <FacetCurrentDetermination
+      v-if="currentDetermination"
+      v-model="params"
+      param-name="taxon_name_current_determination"
+      header-text="Determination"
+    />
     <slot name="bottom"></slot>
   </FacetContainer>
 </template>
@@ -33,8 +39,8 @@ import IncludeSelector from './components/IncludeSelector.vue'
 import CoverageSelector from './components/ConverageSelector.vue'
 import ValiditySelector from './components/ValiditySelector.vue'
 import TaxonNameMode from './components/TaxonNameMode.vue'
-import { computed, onBeforeMount } from 'vue'
-import { URLParamsToJSON } from '@/helpers/url/parse.js'
+import FacetCurrentDetermination from '@/components/Filter/Facets/shared/FacetCurrentDetermination.vue'
+import { computed } from 'vue'
 
 const props = defineProps({
   modelValue: {
@@ -65,6 +71,11 @@ const props = defineProps({
   mode: {
     type: Boolean,
     default: false
+  },
+
+  currentDetermination: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -75,11 +86,4 @@ const params = computed({
   set: (value) => emit('update:modelValue', value)
 })
 
-onBeforeMount(() => {
-  const urlParams = URLParamsToJSON(location.href)
-
-  params.value.descendants = urlParams.descendants
-  params.value.ancestors = urlParams.ancestors
-  params.value.validity = urlParams.validity
-})
 </script>

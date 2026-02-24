@@ -14,7 +14,7 @@ class OtuPageLayoutSectionsController < ApplicationController
         format.json { render json: @otu_page_layout_section, status: :created, location: @otu_page_layout_section }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Otu page layout section was NOT successfully created.')}
-        format.json { render json: @otu_page_layout_section.errors, status: :unprocessable_entity }
+        format.json { render json: @otu_page_layout_section.errors, status: :unprocessable_content }
       end
     end
   end
@@ -28,7 +28,7 @@ class OtuPageLayoutSectionsController < ApplicationController
         format.json { render json @otu_page_layout_section, status: :ok, location: @otu_page_layout_section }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Otu page layout section was NOT successfully updated.')}
-        format.json { render json: @otu_page_layout_section.errors, status: :unprocessable_entity }
+        format.json { render json: @otu_page_layout_section.errors, status: :unprocessable_content }
       end
     end
   end

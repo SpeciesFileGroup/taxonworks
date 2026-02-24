@@ -48,7 +48,7 @@
             type="checkbox"
             v-model="prioritizeGeographicArea"
           />
-          Prioritize Geographic area when indexing
+          Use GeographicArea, not Georeference, to assign geography fields in Darwin Core
         </label>
       </div>
 

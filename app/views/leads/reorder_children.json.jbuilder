@@ -1,8 +1,12 @@
 root = @lead.root
+child_has_descendant_lead_items =
+  Lead.child_descendant_lead_item_flags(children: @leads, root:)
 
 json.leads do
   json.array! @leads do |lead|
-    json.partial! 'attributes', lead:
+    json.partial! 'attributes',
+      lead:,
+      has_descendant_lead_items: child_has_descendant_lead_items&.fetch(lead.id, false)
   end
 end
 

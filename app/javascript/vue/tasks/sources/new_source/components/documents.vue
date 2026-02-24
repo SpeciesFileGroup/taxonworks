@@ -1,7 +1,7 @@
 <template>
   <div>
     <VSpinner
-      v-if="!source.id"
+      v-if="!store.source.id"
       :show-spinner="false"
       legend="Save source first to upload documents"
     />
@@ -26,7 +26,7 @@
       </div>
 
       <component
-        :source="source"
+        :source="store.source"
         :is-public="isPublic"
         :is="documentComponents[TabSelected]"
       />
@@ -42,7 +42,7 @@
         </thead>
         <tbody>
           <tr
-            v-for="item in list"
+            v-for="item in store.documentation"
             :key="item.id"
             class="contextMenuCells"
           >
@@ -98,6 +98,8 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
+import { useSourceStore } from '../store'
 import PdfButton from '@/components/ui/Button/ButtonPdf.vue'
 import VSpinner from '@/components/ui/VSpinner'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
@@ -106,11 +108,6 @@ import PickComponent from './documents/pick'
 import DropComponent from './documents/drop.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import { ref, computed } from 'vue'
-import { useStore } from 'vuex'
-import { GetterNames } from '../store/getters/getters'
-import { MutationNames } from '../store/mutations/mutations'
-import { ActionNames } from '../store/actions/actions'
 
 const documentComponents = {
   Drop: DropComponent,
@@ -120,21 +117,14 @@ const documentComponents = {
 const TabSelected = ref('Drop')
 const isPublic = ref(false)
 
-const store = useStore()
-
-const source = computed({
-  get: () => store.getters[GetterNames.GetSource],
-  set: (value) => store.commit(MutationNames.SetSource, value)
-})
-
-const list = computed(() => store.getters[GetterNames.GetDocumentations])
+const store = useSourceStore()
 
 function changeIsPublicState(documentation) {
   const data = {
     id: documentation.document_id,
     is_public: !documentation.document.is_public
   }
-  store.dispatch(ActionNames.SaveDocumentation, data)
+  store.saveDocumentation(data)
 }
 
 function removeDocumentation(documentation) {
@@ -143,7 +133,7 @@ function removeDocumentation(documentation) {
       "You're trying to delete this record. Are you sure want to proceed?"
     )
   ) {
-    store.dispatch(ActionNames.RemoveDocumentation, documentation)
+    store.removeDocumentation(documentation)
   }
 }
 </script>

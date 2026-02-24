@@ -4,6 +4,7 @@
       <label>Verbatim author</label>
       <input
         type="text"
+        class="w-96"
         v-model="verbatimAuthor"
       />
     </div>

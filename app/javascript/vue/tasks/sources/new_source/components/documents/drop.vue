@@ -16,10 +16,8 @@
 
 <script setup>
 import { useTemplateRef } from 'vue'
-import { useStore } from 'vuex'
-import { MutationNames } from '../../store/mutations/mutations'
+import { useSourceStore } from '../../store'
 import VDropzone from '@/components/dropzone.vue'
-const store = useStore()
 
 const props = defineProps({
   isPublic: {
@@ -33,6 +31,7 @@ const props = defineProps({
   }
 })
 
+const store = useSourceStore()
 const dropzoneRef = useTemplateRef('dropzone')
 
 const DROPZONE_CONFIG = {
@@ -50,7 +49,7 @@ const DROPZONE_CONFIG = {
 }
 
 function success(file, response) {
-  store.commit(MutationNames.AddDocumentation, response)
+  store.documentation.push(response)
   TW.workbench.alert.create('Documentation was successfully created.', 'notice')
   dropzoneRef.value.removeFile(file)
 }

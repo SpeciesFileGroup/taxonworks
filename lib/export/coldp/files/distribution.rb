@@ -1,16 +1,14 @@
-# taxonID
-# areaID
-# area
-# gazetteer
-# status
-# referenceID
-# remarks
+# Feels like this is very non-standard at the moment.  Ideally we would move to DwcOccurrence vectors
+# as a way to provide
 #
 module Export::Coldp::Files::Distribution
 
   # TODO:
   #   Arbitrarily using MAX to grab one source is janky, but if CoL doesn't have
-  #   extended model perhaps it doesn't matter.
+  #   an extended model perhaps it doesn't matter.
+  #
+  # We only export Otu ADs for GeographicArea based records.
+  #
   def self.asserted_distributions(otus)
     # TODO: Include Gaz ADs.
     AssertedDistribution.with(otu_scope: otus.unscope(:order).select(:id))
@@ -74,6 +72,7 @@ module Export::Coldp::Files::Distribution
     end
   end
 
+  # TODO: change to reference DwcOccurrences
   def self.add_asserted_distributions(otus, csv, project_members)
     ads = asserted_distributions(otus)
 
@@ -113,7 +112,6 @@ module Export::Coldp::Files::Distribution
       ]
     end
 
-
     ads # return scope for reference handling
   end
 
@@ -134,6 +132,7 @@ module Export::Coldp::Files::Distribution
         nil
       ]
     end
+
     cd # return scope for reference handling
   end
 end

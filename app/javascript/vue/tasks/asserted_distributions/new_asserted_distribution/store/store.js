@@ -37,7 +37,8 @@ export const useStore = defineStore('NewAssertedDistribution', {
     shape: null,
     confidences: [],
     isLoading: false,
-    autosave: true
+    isSaving: false,
+    autosave: false
   }),
 
   getters: {
@@ -66,22 +67,28 @@ export const useStore = defineStore('NewAssertedDistribution', {
         extend
       }
 
+      this.isSaving = true
+
       const request = assertedDistribution.id
         ? AssertedDistribution.update(assertedDistribution.id, payload)
         : AssertedDistribution.create(payload)
 
       request
-        .then(({ body }) => {
+        .then(async ({ body }) => {
           addToArray(this.assertedDistributions, body, { prepend: true })
+
+          await this.saveConfidences(body)
           TW.workbench.alert.create(
             'Asserted distribution was successfully saved.',
             'notice'
           )
-          this.saveConfidences(body)
           this.reset()
           smartSelectorRefresh()
         })
         .catch(() => {})
+        .finally(() => {
+          this.isSaving = false
+        })
     },
 
     async saveAssertedDistribution() {
@@ -145,9 +152,7 @@ export const useStore = defineStore('NewAssertedDistribution', {
         .catch(() => {})
     },
 
-    saveConfidences(record) {
-      this.isLoading = true
-
+    async saveConfidences(record) {
       const unsaved = this.confidences.filter((item) => !item.id)
       const promises = unsaved.map((item) =>
         Confidence.create({
@@ -163,9 +168,7 @@ export const useStore = defineStore('NewAssertedDistribution', {
           .catch(() => {})
       )
 
-      Promise.all(promises).then(() => {
-        this.isLoading = false
-      })
+      return await Promise.all(promises)
     },
 
     reset() {

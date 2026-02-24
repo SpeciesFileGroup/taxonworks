@@ -35,10 +35,23 @@
       <h3> Go! </h3>
 
       <%= form_tag preview_bibtex_batch_load_sources_path, multipart: true do -%>
-          Select a file <%= file_field_tag :file -%>
-          <%= submit_tag 'preview' -%>
+          <div class="field">
+            Select a file <%= file_field_tag :file -%>
+          </div>
+
+          <div class="field">
+            <label for="namespace_id">Namespace for BibTeX labels (optional)</label><br>
+            <%= render partial: 'workbench/elements/forms/ajax_select',
+                       locals: { controller: 'namespaces',
+                                 object: nil,
+                                 method: 'namespace_id',
+                                 tag_id: 'namespace_id_for_bibtex_batch_load',
+                                 display: '' } %>
+            <p class="subtle">If a namespace is selected, the BibTeX label (e.g., 'mclaughlin_etal_2007') will be stored as an identifier on each source.</p>
+          </div>
+
+          <%= submit_tag 'Preview', class: 'button button-default' -%>
       <% end %>
   </div>
   </div>
 </div>
-

@@ -114,20 +114,33 @@ function removeItem(item) {
   })
 }
 
-function splitGroups() {
-  biocurationsGroups.value.forEach((item) => {
-    Tag.where({ keyword_id: item.id }).then(({ body }) => {
-      const classes = []
+async function splitGroups() {
+  const groupIds = biocurationsGroups.value.map((item) => item.id)
+  const { body } = await Tag.where({ keyword_id: groupIds })
 
-      body.forEach((item) => {
-        biocurationsType.value.forEach((itemClass) => {
-          if (itemClass.id === item.tag_object_id) {
-            classes.push(itemClass)
-          }
-        })
-      })
-      item.list = classes
-    })
+  body.forEach((item) => {
+    const group = biocurationsGroups.value.find(
+      (group) => item.keyword_id === group.id
+    )
+
+    if (group) {
+      const items = biocurationsType.value.filter(
+        (type) => type.id === item.tag_object_id
+      )
+
+      group.list = group.list ? [...group.list, ...items] : items
+    }
   })
+
+  const ungrouped = biocurationsType.value.filter((t) =>
+    body.every((item) => item.tag_object_id !== t.id)
+  )
+
+  if (ungrouped.length) {
+    biocurationsGroups.value.push({
+      name: 'Ungrouped',
+      list: ungrouped
+    })
+  }
 }
 </script>

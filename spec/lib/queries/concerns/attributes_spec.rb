@@ -108,4 +108,109 @@ describe Queries::Concerns::Attributes, type: :model, group: [:filter] do
     expect(query.all).to contain_exactly(ce2)
   end
 
+  context 'row-based attribute facet' do
+    let!(:ce3) { CollectingEvent.create(
+      verbatim_locality: 'Elsewhere',
+      print_label: 'Label 3')
+    }
+
+    specify 'exact match' do
+      query.set_attributes_params(
+        attribute_name: ['verbatim_locality'],
+        attribute_value: ['Out there'],
+        attribute_value_type: ['exact'],
+        attribute_value_negator: [false],
+        attribute_combine_logic: [nil]
+      )
+
+      expect(query.all).to contain_exactly(ce1)
+    end
+
+    specify 'wildcard match' do
+      query.set_attributes_params(
+        attribute_name: ['verbatim_locality'],
+        attribute_value: ['Out there'],
+        attribute_value_type: ['wildcard'],
+        attribute_value_negator: [false],
+        attribute_combine_logic: [nil]
+      )
+
+      expect(query.all).to contain_exactly(ce1, ce2)
+    end
+
+    specify 'negated exact excludes matching value' do
+      query.set_attributes_params(
+        attribute_name: ['verbatim_locality'],
+        attribute_value: ['Out there'],
+        attribute_value_type: ['exact'],
+        attribute_value_negator: [true],
+        attribute_combine_logic: [nil]
+      )
+
+      expect(query.all).to contain_exactly(ce2, ce3)
+    end
+
+    specify 'any/no value types (OR, different fields)' do
+      ce3.update!(verbatim_locality: nil, print_label: nil)
+
+      query.set_attributes_params(
+        attribute_name: ['print_label', 'verbatim_locality'],
+        attribute_value: ['ignored', 'ignored'],
+        attribute_value_type: ['any', 'no'],
+        attribute_value_negator: [false, false],
+        attribute_combine_logic: [true, nil] # OR
+      )
+
+      expect(query.all).to contain_exactly(ce2, ce3)
+    end
+
+    specify 'combine logic AND (left-to-right)' do
+      query.set_attributes_params(
+        attribute_name: ['verbatim_locality', 'print_label'],
+        attribute_value: ['Out there', 'ignored'],
+        attribute_value_type: ['wildcard', 'any'],
+        attribute_value_negator: [false, false],
+        attribute_combine_logic: [nil, nil] # AND
+      )
+
+      expect(query.all).to contain_exactly(ce2)
+    end
+
+    specify 'combine logic AND NOT' do
+      query.set_attributes_params(
+        attribute_name: ['verbatim_locality', 'print_label'],
+        attribute_value: ['Out there', 'ignored'],
+        attribute_value_type: ['wildcard', 'any'],
+        attribute_value_negator: [false, false],
+        attribute_combine_logic: [false, nil] # AND NOT
+      )
+
+      expect(query.all).to contain_exactly(ce1)
+    end
+
+    specify 'combine logic OR' do
+      query.set_attributes_params(
+        attribute_name: ['verbatim_locality', 'print_label'],
+        attribute_value: ['Out there', 'Label 3'],
+        attribute_value_type: ['exact', 'exact'],
+        attribute_value_negator: [false, false],
+        attribute_combine_logic: [true, nil] # OR
+      )
+
+      expect(query.all).to contain_exactly(ce1, ce3)
+    end
+
+    specify 'chained logic left-to-right (OR, then AND NOT)' do
+      query.set_attributes_params(
+        attribute_name: ['print_label', 'verbatim_locality', 'print_label'],
+        attribute_value: ['ignored', 'Out there', 'Label 3'],
+        attribute_value_type: ['any', 'exact', 'exact'],
+        attribute_value_negator: [false, false, false],
+        attribute_combine_logic: [true, false, nil] # OR, then AND NOT
+      )
+
+      expect(query.all).to contain_exactly(ce1, ce2)
+    end
+  end
+
 end

@@ -1,5 +1,5 @@
-# A BiocurationClassification classifies a CollectionObject within
-# a collection into some biologically-related category.  See BiocurationClass.
+# A BiocurationClassification classifies a CollectionObject or FieldOccurrence
+# into some biologically-related category.  See BiocurationClass.
 #
 # @!attribute biocuration_class_id
 #   @return [Integer]

@@ -43,7 +43,7 @@ class DownloadsController < ApplicationController
         format.json { head :no_content}
       else
         format.html { destroy_redirect @download, notice: 'Download was not destroyed, ' + @download.errors.full_messages.join('; ') }
-        format.json { render json: @download.errors, status: :unprocessable_entity }
+        format.json { render json: @download.errors, status: :unprocessable_content }
       end
     end
   end
@@ -57,7 +57,7 @@ class DownloadsController < ApplicationController
         format.json { render :show, location: @download.metamorphosize }
       else
         format.html { render action: 'edit' }
-        format.json { render json: @download.errors, status: :unprocessable_entity }
+        format.json { render json: @download.errors, status: :unprocessable_content }
       end
     end
   end
@@ -116,7 +116,7 @@ class DownloadsController < ApplicationController
         return
       end
     rescue TaxonWorks::Error => e
-      render json: { status: e.to_s }, status: :unprocessable_entity
+      render json: { status: e.to_s }, status: :unprocessable_content
       return
     end
 
@@ -128,7 +128,7 @@ class DownloadsController < ApplicationController
     # user.
     by_id = Current.user_id || project.complete_dwc_download_default_user_id
     Download::DwcArchive::Complete.create!(by: by_id, project:)
-    render json: { status: 'A download is being created' }, status: :unprocessable_entity
+    render json: { status: 'A download is being created' }, status: :unprocessable_content
   end
 
   private

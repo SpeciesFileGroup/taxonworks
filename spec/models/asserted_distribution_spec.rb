@@ -396,6 +396,93 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
       end
     end
 
+    context 'source replacement' do
+      let(:source_one) { FactoryBot.create(:valid_source) }
+      let(:source_two) { FactoryBot.create(:valid_source) }
+      let(:source_three) { FactoryBot.create(:valid_source) }
+
+      specify 'adds new source before deleting selected citations' do
+        ad = AssertedDistribution.create!(
+          asserted_distribution_object: otu,
+          asserted_distribution_shape: geographic_area,
+          citations_attributes: [{ source_id: source_one.id }]
+        )
+
+        r = nil
+        expect {
+          r = AssertedDistribution.batch_update(
+            asserted_distribution: {
+              source_id: source_two.id,
+              remove_source_ids: [source_one.id]
+            },
+            asserted_distribution_query: {
+              asserted_distribution_id: [ad.id]
+            }
+          )
+        }.to change { ad.citations.reload.map(&:source_id) }
+          .from([source_one.id])
+          .to([source_two.id])
+
+        expect(r.total_attempted).to eq(1)
+        expect(r.updated.count).to eq(1)
+        expect(r.not_updated.count).to eq(0)
+      end
+
+      specify 'keeps existing target source while deleting selected citations' do
+        ad = AssertedDistribution.create!(
+          asserted_distribution_object: otu,
+          asserted_distribution_shape: geographic_area,
+          citations_attributes: [
+            { source_id: source_one.id },
+            { source_id: source_two.id }
+          ]
+        )
+
+        r = AssertedDistribution.batch_update(
+          asserted_distribution: {
+            source_id: source_three.id,
+            remove_source_ids: [source_one.id, source_two.id]
+          },
+          asserted_distribution_query: {
+            asserted_distribution_id: [ad.id]
+          }
+        )
+
+        expect(ad.citations.reload.map(&:source_id)).to contain_exactly(source_three.id)
+        expect(r.total_attempted).to eq(1)
+        expect(r.updated.count).to eq(1)
+        expect(r.not_updated.count).to eq(0)
+      end
+
+      specify 'deletes only selected citations' do
+        ad = AssertedDistribution.create!(
+          asserted_distribution_object: otu,
+          asserted_distribution_shape: geographic_area,
+          citations_attributes: [
+            { source_id: source_one.id },
+            { source_id: source_two.id },
+            { source_id: source_three.id }
+          ]
+        )
+
+        r = AssertedDistribution.batch_update(
+          asserted_distribution: {
+            source_id: source_three.id,
+            remove_source_ids: [source_one.id]
+          },
+          asserted_distribution_query: {
+            asserted_distribution_id: [ad.id]
+          }
+        )
+
+        expect(ad.citations.reload.map(&:source_id).sort)
+          .to eq([source_two.id, source_three.id].sort)
+        expect(r.total_attempted).to eq(1)
+        expect(r.updated.count).to eq(1)
+        expect(r.not_updated.count).to eq(0)
+      end
+    end
+
     specify 'duplicate record' do
       ad1 = FactoryBot.create(:valid_asserted_distribution)
       ad2 = FactoryBot.build_stubbed(

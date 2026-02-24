@@ -10,13 +10,14 @@
           v-help:path="`section.sourceType.${type.label}`"
         >
           <input
-            v-model="sourceType"
+            v-model="store.source.type"
+            type="radio"
             :value="type.value"
             :disabled="
-              source.id &&
-              (!type.available || !type.available.includes(source.type))
+              store.source.id &&
+              (!type.available || !type.available.includes(store.source.type))
             "
-            type="radio"
+            @change="(e) => updateType(e.target.value)"
           />
           {{ type.label }}
         </label>
@@ -29,19 +30,15 @@
 </template>
 
 <script setup>
-import { GetterNames } from '../store/getters/getters'
-import { MutationNames } from '../store/mutations/mutations'
-import { useStore } from 'vuex'
-import { computed, watch } from 'vue'
+import { useSourceStore, useSettingStore } from '../store'
 import { SOURCE_BIBTEX, SOURCE_HUMAN, SOURCE_VERBATIM } from '@/constants'
 import VLock from '@/components/ui/VLock/index.vue'
-import makeNewSource from '../const/source.js'
 
 const TYPES = [
   {
     label: 'BibTeX',
     value: SOURCE_BIBTEX,
-    available: ['Source::Verbatim']
+    available: [SOURCE_VERBATIM]
   },
   {
     label: 'Verbatim',
@@ -53,26 +50,10 @@ const TYPES = [
   }
 ]
 
-const store = useStore()
+const store = useSourceStore()
+const settings = useSettingStore()
 
-const source = computed({
-  get: () => store.getters[GetterNames.GetSource],
-  set: (value) => store.commit(MutationNames.SetSource, value)
-})
-
-const sourceType = computed({
-  get: () => store.getters[GetterNames.GetType],
-  set: (value) => store.commit(MutationNames.SetType, value)
-})
-
-const settings = computed({
-  get: () => store.getters[GetterNames.GetSettings],
-  set: (value) => store.commit(MutationNames.SetSettings, value)
-})
-
-watch(sourceType, (newVal) => {
-  if (!source.value.id) {
-    source.value = { ...makeNewSource(), type: newVal }
-  }
-})
+function updateType(newType) {
+  store.reset({ type: newType })
+}
 </script>

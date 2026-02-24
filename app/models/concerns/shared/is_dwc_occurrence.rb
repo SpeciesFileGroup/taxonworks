@@ -79,6 +79,33 @@ module Shared::IsDwcOccurrence
     dwc_occurrence&.occurrence_identifier&.cached
   end
 
+  # @return String
+  #   the Darwin Core basisOfRecord value for this occurrence
+  # Moved here from DwcOccurrence#basis since that method is only called in
+  # before_validate, which never gets called on the dwc_occurrence_attributes
+  # path here that happens when something like adding a new BiocurationClass
+  # triggers a background job set_dwc_occurrence call to update dwc_occurrence.
+  def dwc_occurrence_basis
+    case self.class.base_class.name
+    when 'CollectionObject'
+      is_fossil? ? 'FossilSpecimen' : 'PreservedSpecimen'
+    when 'AssertedDistribution'
+      # Used to fork b/b Source::Human and Source::Bibtex:
+      case source&.type || sources.order(cached_nomenclature_date: :DESC).first&.type
+      when 'Source::Bibtex'
+        'MaterialCitation'
+      when 'Source::Human'
+        'HumanObservation'
+      else # Not recommended at this point
+        'Occurrence'
+      end
+    when 'FieldOccurrence'
+      machine_output? ? 'MachineObservation' : 'HumanObservation'
+    else
+      'Undefined'
+    end
+  end
+
   # @return Hash
   #   of field: value
   #
@@ -91,6 +118,7 @@ module Shared::IsDwcOccurrence
     end
 
     a[:occurrenceID] = dwc_occurrence_id
+    a[:basisOfRecord] = dwc_occurrence_basis
 
     if taxonworks_fields
       a[:project_id] = project_id

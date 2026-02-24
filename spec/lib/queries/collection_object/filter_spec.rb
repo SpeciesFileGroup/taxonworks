@@ -571,7 +571,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       specify 'all specimens nested in a TaxonName, valid and current' do
         query.taxon_name_id = genus1.id
         query.validity = true
-        query.current_determinations = true
+        query.taxon_name_current_determination = true
         query.descendants = true
         expect(query.all.pluck(:id)).to contain_exactly(co2.id, co3.id)
       end
@@ -579,7 +579,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       specify 'all specimens nested in a TaxonName, invalid only, current' do
         query.taxon_name_id = genus1.id
         query.validity = false
-        query.current_determinations = true
+        query.taxon_name_current_determination = true
         query.descendants = true
         expect(query.all.pluck(:id)).to contain_exactly(co1.id) # anything determined as o3, o1, and historical
       end
@@ -587,7 +587,7 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       specify 'all specimens nested in a TaxonName, invalid only, current' do
         query.taxon_name_id = genus1.id
         query.validity = false
-        query.current_determinations = false
+        query.taxon_name_current_determination = false
         query.descendants = true
         expect(query.all.pluck(:id)).to contain_exactly(co2.id) # anything determined as o2 and historical
       end

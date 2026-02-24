@@ -1,45 +1,27 @@
 <template>
   <div id="vue_type_specimens">
     <VSpinner
-      v-if="settings.loading || settings.saving"
+      v-if="settings.isLoading || settings.isSaving"
       full-screen
-      :legend="settings.loading ? 'Loading...' : 'Saving...'"
+      :legend="settings.isLoading ? 'Loading...' : 'Saving...'"
       :logo-size="{ width: '100px', height: '100px' }"
     />
-    <div class="flex-separate middle">
-      <h1>{{ isNew }} type specimen</h1>
-      <VBtn
-        circle
-        color="primary"
-        @click="reloadApp"
+
+    <div class="align-start gap-medium">
+      <div class="cleft flex-col gap-medium">
+        <PanelTaxonName v-if="!store.taxonName" />
+        <template v-else>
+          <MetadataSection />
+          <PanelCollectionObject />
+        </template>
+      </div>
+      <div
+        v-if="store.taxonName"
+        class="cright"
       >
-        <VIcon
-          name="reset"
-          x-small
-        />
-      </VBtn>
-    </div>
-    <div>
-      <div class="align-start gap-medium">
         <div class="full_width">
-          <NameSection
-            class="separate-bottom"
-            v-if="!taxon"
-          />
-          <MetadataSection
-            v-if="taxon"
-            class="separate-bottom"
-          />
-          <TypeMaterialSection class="separate-bottom" />
-        </div>
-        <div
-          v-if="taxon"
-          class="cright item"
-        >
-          <div id="cright-panel">
-            <TypeBox class="separate-bottom" />
-            <SoftValidation :validations="softValidations" />
-          </div>
+          <TypeBox class="separate-bottom" />
+          <SoftValidation :validations="validationStore.softValidations" />
         </div>
       </div>
     </div>
@@ -47,37 +29,30 @@
 </template>
 
 <script setup>
+import { setParam } from '@/helpers'
+import { useHotkey } from '@/composables'
+import { RouteNames } from '@/routes/routes'
+import { ref, onMounted, watch } from 'vue'
+import { URLParamsToJSON } from '@/helpers'
+
 import SoftValidation from '@/components/soft_validations/panel.vue'
-import NameSection from './components/nameSection.vue'
-import TypeMaterialSection from './components/typeMaterial.vue'
-import MetadataSection from './components/metadataSection.vue'
+import PanelTaxonName from './components/PanelTaxonName.vue'
+import PanelCollectionObject from './components/PanelCollectionObject.vue'
+import MetadataSection from './components/PanelMetadata.vue'
 import TypeBox from './components/typeBox.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import platformKey from '@/helpers/getPlatformKey.js'
-import setParamsId from '@/helpers/setParam.js'
-import VIcon from '@/components/ui/VIcon/index.vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
-import { useHotkey } from '@/composables'
-import ActionNames from './store/actions/actionNames'
-import { GetterNames } from './store/getters/getters'
-import { RouteNames } from '@/routes/routes'
-import { computed, ref, onMounted, watch } from 'vue'
-import { useStore } from 'vuex'
+import useSoftvalidationStore from '@/components/Form/FormCollectingEvent/store/softValidations'
+import useSettingStore from './store/settings.js'
+import useStore from './store/store.js'
 
 defineOptions({
   name: 'NewTypeMaterial'
 })
 
 const store = useStore()
-
-const taxon = computed(() => store.getters[GetterNames.GetTaxon])
-const settings = computed(() => store.getters[GetterNames.GetSettings])
-const softValidations = computed(
-  () => store.getters[GetterNames.GetSoftValidation]
-)
-const isNew = computed(() =>
-  store.getters[GetterNames.GetTypeMaterial].id ? 'Edit' : 'New'
-)
+const settings = useSettingStore()
+const validationStore = useSoftvalidationStore()
 
 const shortcuts = ref([
   {
@@ -137,120 +112,69 @@ onMounted(() => {
   )
 })
 
-watch(taxon, (newVal) => {
-  if (newVal?.id) {
-    setParamsId(RouteNames.TypeMaterial, 'taxon_name_id', newVal.id)
+watch(
+  () => store.taxonName?.id,
+  (newVal) => {
+    setParam(RouteNames.TypeMaterial, 'taxon_name_id', newVal)
   }
-})
+)
 
-function reloadApp() {
-  window.location.href = '/tasks/type_material/edit_type_material'
-}
+watch(
+  () => store.typeMaterial.id,
+  (newVal) => {
+    setParam(RouteNames.TypeMaterial, 'type_material_id', newVal)
+  }
+)
 
-function loadTaxonTypes() {
-  const params = new URLSearchParams(window.location.search)
-  const typeId = params.get('type_material_id')
-  const protonymId = params.get('protonym_id') || params.get('taxon_name_id')
+async function loadTaxonTypes() {
+  const params = URLParamsToJSON(window.location.href)
+  const typeId = params.type_material_id
+  const protonymId = params.protonym_id || params.taxon_name_id
 
   if (/^\d+$/.test(protonymId)) {
-    store.dispatch(ActionNames.LoadTaxonName, protonymId).then(() => {
-      store
-        .dispatch(ActionNames.LoadTypeMaterials, protonymId)
-        .then((response) => {
-          if (/^\d+$/.test(typeId)) {
-            loadType(response, typeId)
-          }
-        })
-    })
-  }
-}
+    settings.isLoading = true
 
-function loadType(list, typeId) {
-  const findType = list.find((type) => type.id === Number(typeId))
+    try {
+      store.loadTaxonName(protonymId)
+      await store.loadTypeMaterials(protonymId)
 
-  if (findType) {
-    store.dispatch(ActionNames.LoadTypeMaterial, findType)
+      if (typeId) {
+        const item = store.typeMaterials.find((t) => t.id == typeId)
+
+        if (item) {
+          store.setTypeMaterial(item)
+        }
+      }
+    } catch {
+    } finally {
+      settings.isLoading = false
+    }
   }
 }
 
 function switchToTask(url) {
-  if (taxon.value.id) {
-    window.open(`${url}?taxon_name_id=${taxon.value.id}`, '_self')
+  if (store.taxonName.id) {
+    window.open(`${url}?taxon_name_id=${store.taxonName.id}`, '_self')
   } else {
     window.open(url, '_self')
   }
 }
 </script>
+
 <style lang="scss">
 #vue_type_specimens {
   margin: 0 auto;
-  margin-top: 1em;
-  max-width: 1240px;
   width: 1240px;
+  max-width: 1240px;
+  margin-top: 1rem;
 
-  .cleft,
   .cright {
-    min-width: 350px;
-    max-width: 350px;
-    width: 300px;
-  }
-  #cright-panel {
-    width: 350px;
-    max-width: 350px;
-  }
-  .cright-fixed-top {
-    top: 68px;
-    width: 1240px;
-    z-index: 200;
-    position: fixed;
-  }
-  .anchor {
-    display: block;
-    height: 65px;
-    margin-top: -65px;
-    visibility: hidden;
+    width: 420px;
+    min-width: 420px;
   }
 
-  hr {
-    height: 1px;
-    color: #f5f5f5;
-    background: #f5f5f5;
-    font-size: 0;
-    margin: 15px;
-    border: 0;
-  }
-  .reload-app {
-    cursor: pointer;
-    &:hover {
-      opacity: 0.8;
-    }
-  }
-  .type-specimen-box {
-    transition: all 1s;
-
-    height: 100%;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    .header {
-      border-left: 4px solid green;
-      padding: 1em;
-      padding-left: 1.5em;
-      border-bottom: 1px solid var(--border-color);
-
-      h3 {
-        font-weight: 300;
-      }
-    }
-    .body {
-      padding: 2em;
-      padding-top: 1em;
-      padding-bottom: 1em;
-    }
-    .taxonName-input,
-    #error_explanation {
-      width: 300px;
-    }
+  .cleft {
+    width: 100%;
   }
 }
 </style>

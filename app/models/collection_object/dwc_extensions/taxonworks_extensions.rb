@@ -3,6 +3,8 @@ module CollectionObject::DwcExtensions::TaxonworksExtensions
   extend ActiveSupport::Concern
 
   included do
+    # !! Hash key order here determines DwC export header order !!
+
     # hash of api_method_name => column_name
     EXTENSION_CO_FIELDS = {
       collection_object_id: :id
@@ -25,6 +27,12 @@ module CollectionObject::DwcExtensions::TaxonworksExtensions
       otu_name: :otu_name,  # delegated to OTU
     }.freeze
 
-    EXTENSION_FIELDS = (EXTENSION_CO_FIELDS.keys + EXTENSION_CE_FIELDS.keys + EXTENSION_DWC_OCCURRENCE_FIELDS.keys + EXTENSION_COMPUTED_FIELDS.keys).freeze
+    # !! Order here determines DwC export header order for these fields !!
+    EXTENSION_FIELDS = (
+      EXTENSION_COMPUTED_FIELDS.keys +
+      EXTENSION_CE_FIELDS.keys +
+      EXTENSION_CO_FIELDS.keys +
+      EXTENSION_DWC_OCCURRENCE_FIELDS.keys
+    ).freeze
   end
 end

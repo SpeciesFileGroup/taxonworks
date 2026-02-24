@@ -32,9 +32,14 @@ end
 
 json.depiction_matrix (@key.depiction_matrix) do |d, v|
   json.object do
-    json.id v[:object].observation_object_id
-    json.type v[:object].observation_object_type
-    json.label label_for(v[:object])
+    obj = v[:object]
+
+    object_id   = obj.try(:observation_object_id) || obj.id
+    object_type = obj.try(:observation_object_type) || obj.class.base_class.name
+
+    json.id object_id
+    json.type object_type
+    json.label label_for(obj)
   end
   json.depictions (v[:depictions]) do |depiction|
     json.array! depiction do |d|

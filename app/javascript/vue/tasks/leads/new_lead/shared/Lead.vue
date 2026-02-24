@@ -5,6 +5,18 @@
   />
 
   <div class="lead_and_lead_items">
+    <div
+      v-if="showDescendantStatus"
+      class="descendant-status-wrap"
+    >
+      <div
+        class="descendant-status"
+        :class="descendantStatusClass"
+      >
+        {{ descendantStatusText }}
+      </div>
+    </div>
+
     <BlockLayout class="lead">
       <template #header>
         <div class="full_width header-left-right">
@@ -51,7 +63,7 @@
           </div>
 
           <VBtn
-            :disabled="nextButtonDisabled"
+            :disabled="nextButtonDisabled || !leadItemsDivided"
             color="update"
             medium
             @click="() => nextCouplet()"
@@ -94,7 +106,10 @@
           />
         </div>
 
-        <OtuChooser :lead="store.children[position]"/>
+        <OtuChooser
+          v-if="!showLeadItems"
+          :lead="store.children[position]"
+        />
 
         <div
           @click="() => { expandOptions = !expandOptions }"
@@ -118,6 +133,10 @@
           v-if="expandOptions"
           class="separate-top"
         >
+          <OtuChooser
+            v-if="!showLeadItems"
+            :lead="store.children[position]"
+          />
           <div class="field label-above">
             <label>External link</label>
             <fieldset>
@@ -190,6 +209,7 @@
       :position="position"
       :lead-id="store.children[position].id"
       :show-add-otu="position == 0"
+      :show-reset-otus="position == store.children.length - 1"
     />
   </div>
 </template>
@@ -276,6 +296,36 @@ const positionIsLast = computed(() => {
 const showLeadItems = computed(() => {
   return !!store.lead_item_otus.children[props.position] &&
     !store.lead_item_otus.children[props.position].fixed
+})
+
+const leadItemsDivided = computed(() => {
+  return store.expanded_lead_has_no_lead_items() ||
+    store.lead_position_has_divided_lead_items(props.position)
+})
+
+const childHasDescendantLeadItems = computed(() => {
+  return store.children[props.position]?.has_descendant_lead_items
+})
+
+const childHasLeadItems = computed(() => {
+  const childLeadItems = store.lead_item_otus.children[props.position]
+  return !!childLeadItems && !childLeadItems.fixed
+})
+
+const showDescendantStatus = computed(() => {
+  return childHasDescendantLeadItems.value != null && !childHasLeadItems.value
+})
+
+const descendantStatusText = computed(() => {
+  return childHasDescendantLeadItems.value
+    ? 'More key work below'
+    : 'Descendants key-complete'
+})
+
+const descendantStatusClass = computed(() => {
+  return childHasDescendantLeadItems.value
+    ? 'descendant-status--open'
+    : 'descendant-status--done'
 })
 
 const annotationLists = { [DEPICTION]: depictions }
@@ -408,6 +458,38 @@ function changeLeadPosition(direction) {
   max-width: 600px;
   display: flex;
   flex-direction: column;
+  position: relative;
+}
+
+.descendant-status-wrap {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, -100%);
+  z-index: 2;
+}
+
+.descendant-status {
+  align-self: center;
+  border-radius: 999px 999px 0 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 0.25em 0.75em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.descendant-status--open {
+  background: #fff3cd;
+  color: #7a5b00;
+  border: 1px solid #f0d493;
+}
+
+.descendant-status--done {
+  background: #e8f5e9;
+  color: #1b5e20;
+  border: 1px solid #b7e1b9;
 }
 
 .redirect_notice {

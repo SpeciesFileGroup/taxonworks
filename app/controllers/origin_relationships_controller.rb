@@ -49,7 +49,7 @@ class OriginRelationshipsController < ApplicationController
         format.json { render :show, status: :created, location: @origin_relationship }
       else
         format.html { render :new }
-        format.json { render json: @origin_relationship.errors, status: :unprocessable_entity }
+        format.json { render json: @origin_relationship.errors, status: :unprocessable_content }
       end
     end
   end
@@ -63,7 +63,7 @@ class OriginRelationshipsController < ApplicationController
         format.json { render :show, status: :ok, location: @origin_relationship }
       else
         format.html { render :edit }
-        format.json { render json: @origin_relationship.errors, status: :unprocessable_entity }
+        format.json { render json: @origin_relationship.errors, status: :unprocessable_content }
       end
     end
   end
@@ -79,7 +79,7 @@ class OriginRelationshipsController < ApplicationController
         format.json { head :no_content }
       else
         format.html { destroy_redirect @origin_relationship, notice: 'Origin relationship was not destroyed, ' + @origin_relationship.errors.full_messages.join('; ') }
-        format.json { render json: @origin_relationship.errors, status: :unprocessable_entity }
+        format.json { render json: @origin_relationship.errors, status: :unprocessable_content }
       end
     end
   end

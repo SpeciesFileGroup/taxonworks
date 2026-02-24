@@ -74,6 +74,15 @@
               />
             </li>
             <li>
+              <radial-matrix
+                :ids="otuIds"
+                :parameters="radialParameters"
+                :disabled="!otuIds.length"
+                :object-type="OTU"
+                use-new-key-slice
+              />
+            </li>
+            <li>
               <radial-navigation
                 type="annotations"
                 :global-id="matrix.global_id"
@@ -113,13 +122,14 @@
 
 <script>
 import MatrixForm from './components/Matrix/MatrixForm.vue'
-import TablesComponent from './components/tables/view'
+import TablesComponent from './components/tables/view.vue'
 import RowsFixed from './components/rows/fixed'
 import columnsFixed from './components/columns/fixed'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import PinComponent from '@/components/ui/Button/ButtonPin.vue'
 import SpinnerComponent from '@/components/ui/VSpinner'
 import RadialNavigation from '@/components/radials/navigation/radial'
+import RadialMatrix from '@/components/radials/matrix/radial.vue'
 
 import RowsDynamic from './components/rows/dynamic'
 import ColumnsDynamic from './components/columns/dynamic'
@@ -129,6 +139,7 @@ import { SortMatrixByNomenclature } from './request/resources'
 import { GetterNames } from './store/getters/getters'
 import { ActionNames } from './store/actions/actions'
 import { RouteNames } from '@/routes/routes'
+import { OTU } from '@/constants/index.js'
 
 export default {
   name: 'NewObservationMatrix',
@@ -143,6 +154,7 @@ export default {
     RadialAnnotator,
     PinComponent,
     SpinnerComponent,
+    RadialMatrix,
     RadialNavigation
   },
 
@@ -159,6 +171,9 @@ export default {
     settings() {
       return this.$store.getters[GetterNames.GetSettings]
     },
+    matrixRowItems() {
+      return this.$store.getters[GetterNames.GetMatrixRows]
+    },
     routeNames() {
       return RouteNames
     }
@@ -166,7 +181,9 @@ export default {
 
   data() {
     return {
-      loading: false
+      loading: false,
+      otuIds: [],
+      OTU
     }
   },
 
@@ -183,11 +200,37 @@ export default {
     }
   },
 
+  watch: {
+    matrixRowItems: {
+      immediate: true,
+      handler(rows) {
+        // TODO: This only includes OTUs from the current fixed-row page (max
+        // 500), and excludes dynamic rows.
+        const ids = new Set()
+        rows.forEach((row) => {
+          const baseClass = row?.observation_object?.base_class
+          if (baseClass === 'Otu' || row?.observation_object_type === 'Otu') {
+            const id =
+              row?.observation_object?.id || row?.observation_object_id
+            if (id) {
+              ids.add(id)
+            }
+          }
+        })
+        this.otuIds = Array.from(ids)
+      }
+    }
+  },
+
   methods: {
     sortRows(matrixId) {
       SortMatrixByNomenclature(matrixId).then((_) => {
         this.$store.dispatch(ActionNames.GetMatrixObservationRows, { per: 500 })
       })
+    },
+
+    radialParameters() {
+      return this.matrix.id ? { observation_matrix_id: this.matrix.id } : {}
     }
   }
 }

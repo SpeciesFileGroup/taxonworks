@@ -676,10 +676,12 @@ module TaxonNamesHelper
   end
 
   def taxonomic_tree_descendants(taxon_name, include_count)
-    taxon_name.children
-      .order(:name)
+    taxon_name
+      .children
       .where(type: 'Protonym')
-      .sort_by { |a| [RANKS.index(a.rank_string), a.cached, a.cached_author_year || ''] }
+      .sort_by { |a|
+        [RANKS.index(a.rank_string), a.cached, a.cached_author_year || '']
+      }
       .map { |child| taxonomic_tree_node(child, include_count) }
   end
 

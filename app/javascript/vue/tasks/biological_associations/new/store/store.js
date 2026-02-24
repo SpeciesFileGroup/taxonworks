@@ -149,6 +149,22 @@ export const useStore = defineStore('NewBiologicalAssociation', {
         extend
       }
 
+      if (!this.biologicalAssociation.id) {
+        const { body } = await BiologicalAssociation.where({
+          biological_relationship_id: this.relationship.id,
+          biological_association_subject_id: this.subject.id,
+          biological_association_subject_type: this.subject.base_class,
+          biological_association_object_id: this.object.id,
+          biological_association_object_type: this.object.base_class
+        })
+
+        if (body.length) {
+          const [existingBA] = body
+
+          this.biologicalAssociation.id = existingBA.id
+        }
+      }
+
       const request = this.biologicalAssociation.id
         ? BiologicalAssociation.update(this.biologicalAssociation.id, payload)
         : BiologicalAssociation.create(payload)

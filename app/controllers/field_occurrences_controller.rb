@@ -42,8 +42,8 @@ class FieldOccurrencesController < ApplicationController
         format.html { redirect_to field_occurrence_url(@field_occurrence), notice: 'Field occurrence was successfully created.' }
         format.json { render :show, status: :created, location: @field_occurrence }
       else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @field_occurrence.errors, status: :unprocessable_entity }
+        format.html { render :new, status: :unprocessable_content }
+        format.json { render json: @field_occurrence.errors, status: :unprocessable_content }
       end
     end
   end
@@ -55,8 +55,8 @@ class FieldOccurrencesController < ApplicationController
         format.html { redirect_to field_occurrence_url(@field_occurrence), notice: 'Field occurrence was successfully updated.' }
         format.json { render :show, status: :ok, location: @field_occurrence }
       else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @field_occurrence.errors, status: :unprocessable_entity }
+        format.html { render :edit, status: :unprocessable_content }
+        format.json { render json: @field_occurrence.errors, status: :unprocessable_content }
       end
     end
   end
@@ -71,7 +71,7 @@ class FieldOccurrencesController < ApplicationController
         format.json { head :no_content}
       else
         format.html { destroy_redirect @field_occurrence, notice: 'Field occurrence was not destroyed, ' + @field_occurrence.errors.full_messages.join('; ') }
-        format.json { render json: @field_occurrence.errors, status: :unprocessable_entity }
+        format.json { render json: @field_occurrence.errors, status: :unprocessable_content }
       end
     end
   end
@@ -119,7 +119,7 @@ class FieldOccurrencesController < ApplicationController
     if result.is_a?(Integer)
       render json: { field_occurrence_id: result }, status: :created
     else
-      render json: { error: result }, status: :unprocessable_entity
+      render json: { error: result }, status: :unprocessable_content
     end
   end
 

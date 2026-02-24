@@ -7,6 +7,7 @@
 # TODO: macro a method to explicitly set ATTRIBUTES and eliminate need for definition location dependency.
 #       This may not be worth it as various models have slight exceptions.
 module Queries::Concerns::Attributes
+  include Queries::Helpers
 
   extend ActiveSupport::Concern
 
@@ -17,11 +18,21 @@ module Queries::Concerns::Attributes
       :wildcard_attribute,
       :any_value_attribute,
       :no_value_attribute,
+      :attribute_name,
+      :attribute_value,
+      :attribute_value_type,
+      :attribute_value_negator,
+      :attribute_combine_logic,
       attribute_exact_pair: [],
       attribute_wildcard_pair: [],
       wildcard_attribute: [],
       any_value_attribute: [],
       no_value_attribute: [],
+      attribute_name: [],
+      attribute_value: [],
+      attribute_value_type: [],
+      attribute_value_negator: [],
+      attribute_combine_logic: [],
     ]
   end
 
@@ -54,6 +65,34 @@ module Queries::Concerns::Attributes
     #   repeated.
     attr_accessor :wildcard_attribute
 
+    # @param attribute_name
+    # @return Array[String]
+    #   Attribute names for row-based attribute filters.
+    attr_accessor :attribute_name
+
+    # @param attribute_value
+    # @return Array[String]
+    #   Values for row-based attribute filters.
+    attr_accessor :attribute_value
+
+    # @param attribute_value_type
+    # @return Array[String]
+    #   One of: exact, wildcard, any, no
+    attr_accessor :attribute_value_type
+
+    # @param attribute_value_negator
+    # @return Array[Boolean]
+    #   True to negate the value_type in this row.
+    attr_accessor :attribute_value_negator
+
+    # @param attribute_combine_logic
+    # @return Array[Boolean]
+    #   How to combine the results of the queries in this row and the next:
+    #     nil - AND
+    #     true - OR
+    #     false - AND NOT
+    attr_accessor :attribute_combine_logic
+
     def attribute_exact_pair
       return {} if @attribute_exact_pair.blank?
 
@@ -77,6 +116,26 @@ module Queries::Concerns::Attributes
     def any_value_attribute
       [@any_value_attribute].flatten.compact.uniq.map(&:to_sym)
     end
+
+    def attribute_name
+      [@attribute_name].flatten.compact
+    end
+
+    def attribute_value
+      [@attribute_value].flatten
+    end
+
+    def attribute_value_type
+      [@attribute_value_type].flatten.compact
+    end
+
+    def attribute_value_negator
+      [@attribute_value_negator].flatten
+    end
+
+    def attribute_combine_logic
+      [@attribute_combine_logic].flatten
+    end
   end
 
 
@@ -87,15 +146,45 @@ module Queries::Concerns::Attributes
     @any_value_attribute = params[:any_value_attribute]
     @no_value_attribute = params[:no_value_attribute]
 
+    set_attribute_row_params(params)
+
     self.class::ATTRIBUTES.each do |a|
       send("#{a}=", params[a.to_sym])
     end
+  end
+
+  def set_attribute_row_params(params)
+    row_count = [params[:attribute_name]].flatten.compact.count
+    return if (
+      row_count == 0 ||
+      [params[:attribute_value]].flatten.compact.count != row_count ||
+      [params[:attribute_value_type]].flatten.compact.count != row_count ||
+      tri_value_array(params[:attribute_value_negator]).length != row_count ||
+      tri_value_array(params[:attribute_combine_logic]).length != row_count
+    )
+
+    @attribute_name =
+      [params[:attribute_name]].flatten.compact
+    @attribute_value =
+      [params[:attribute_value]].flatten.compact
+    @attribute_value_type =
+      [params[:attribute_value_type]].flatten.compact
+    @attribute_value_negator =
+      tri_value_array(params[:attribute_value_negator])
+    @attribute_combine_logic =
+      tri_value_array(params[:attribute_combine_logic])
   end
 
   def self.and_clauses
     [
       :attribute_clauses,
       :attribute_or_clauses
+    ]
+  end
+
+  def self.merge_clauses
+    [
+      :attribute_facet
     ]
   end
 
@@ -159,6 +248,60 @@ module Queries::Concerns::Attributes
     end
 
     a
+  end
+
+  def attribute_facet
+    return nil if attribute_name.empty?
+
+    queries = []
+    attribute_value_type.map(&:to_sym).each_with_index do |value_type, i|
+      name = attribute_name[i]
+      next if name.blank?
+
+      attribute = name.to_sym
+      next unless self.class::ATTRIBUTES.include?(attribute)
+
+      value = attribute_value[i]
+      negator = attribute_value_negator[i]
+
+      q = nil
+      case value_type
+      when :exact, :wildcard
+        value_clause = if value_type == :exact
+          table[attribute].eq(value)
+        else
+          Arel::Nodes::NamedFunction.new('CAST', [table[attribute].as('TEXT')])
+            .matches("%#{value}%")
+        end
+
+        value_clause = value_clause.not if negator
+        q = referenced_klass.where(value_clause)
+      when :any, :no
+        has_attr = (value_type == :any && !negator) || (value_type == :no && negator)
+        value_clause = has_attr ? table[attribute].not_eq(nil) : table[attribute].eq(nil)
+        q = referenced_klass.where(value_clause)
+      end
+
+      queries << q if q
+    end
+
+    return nil if queries.empty?
+
+    q = queries.first
+    attribute_combine_logic.each_with_index do |c, i|
+      next_q = queries[i + 1]
+      break if next_q.nil?
+
+      if c.nil?
+        q = referenced_klass_intersection([q, next_q])
+      elsif c == true
+        q = referenced_klass_union([q, next_q])
+      else
+        q = q.where.not(id: next_q)
+      end
+    end
+
+    q
   end
 
 end

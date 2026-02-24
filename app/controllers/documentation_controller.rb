@@ -44,7 +44,7 @@ class DocumentationController < ApplicationController
         format.json { render action: 'show', status: :created, location: @documentation }
       else
         format.html { render action: 'new' }
-        format.json { render json: @documentation.errors, status: :unprocessable_entity }
+        format.json { render json: @documentation.errors, status: :unprocessable_content }
       end
     end
   end
@@ -59,7 +59,7 @@ class DocumentationController < ApplicationController
         format.json { render :show, status: :ok, location: @documentation }
       else
         format.html { render :edit }
-        format.json { render json: @documentation.errors, status: :unprocessable_entity }
+        format.json { render json: @documentation.errors, status: :unprocessable_content }
       end
     end
   end

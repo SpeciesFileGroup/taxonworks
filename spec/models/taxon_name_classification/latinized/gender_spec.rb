@@ -8,4 +8,12 @@ describe TaxonNameClassification::Latinized::Gender, type: :model, group: [:nome
     expect(g.cached_gender).to eq('feminine')
   end
 
+  specify 'is not valid for non-genus ranks' do
+    root = FactoryBot.create(:root_taxon_name)
+    family = Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: root)
+    classification = TaxonNameClassification::Latinized::Gender::Masculine.new(taxon_name: family)
+    expect(classification.valid?).to be false
+    expect(classification.errors[:taxon_name]).to include('Gender is only applicable to genus names')
+  end
+
 end

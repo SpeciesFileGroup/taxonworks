@@ -218,7 +218,7 @@ class CollectionObjectsController < ApplicationController
         format.json { render action: 'show', status: :created, location: @collection_object.metamorphosize }
       else
         format.html { render action: 'new' }
-        format.json { render json: @collection_object.errors, status: :unprocessable_entity }
+        format.json { render json: @collection_object.errors, status: :unprocessable_content }
       end
     end
   end
@@ -233,7 +233,7 @@ class CollectionObjectsController < ApplicationController
         format.json { render :show, status: :ok, location: @collection_object }
       else
         format.html { render action: 'edit' }
-        format.json { render json: @collection_object.errors, status: :unprocessable_entity }
+        format.json { render json: @collection_object.errors, status: :unprocessable_content }
       end
     end
   end
@@ -248,7 +248,7 @@ class CollectionObjectsController < ApplicationController
         format.json { head :no_content }
       else
         format.html { destroy_redirect @collection_object, notice: 'CollectionObject was not destroyed, ' + @collection_object.errors.full_messages.join('; ') }
-        format.json { render json: @collection_object.errors, status: :unprocessable_entity }
+        format.json { render json: @collection_object.errors, status: :unprocessable_content }
       end
     end
   end
@@ -407,7 +407,7 @@ class CollectionObjectsController < ApplicationController
     if c = CollectionObject.batch_update_dwc_occurrence(params)
       render json: c.to_json, status: :ok
     else
-      render json: {}, status: :unprocessable_entity
+      render json: {}, status: :unprocessable_content
     end
   end
 
@@ -422,7 +422,7 @@ class CollectionObjectsController < ApplicationController
       )
       render json: c.to_json, status: :ok
     else
-      render json: {}, status: :unprocessable_entity
+      render json: {}, status: :unprocessable_content
     end
   end
 

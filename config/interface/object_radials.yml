@@ -161,6 +161,7 @@ Image:
   tasks:
     - filter_images_task
     - unify_objects_task
+    - browse_images_task
   config:
     recent: false
   new: new_image_task
@@ -169,6 +170,7 @@ Lead:
     - show_lead_task
     - leads_hub_task
     - print_key_task
+    - dichotomous_key_task
   new: new_lead_task
   edit: new_lead_task
 Loan:
@@ -208,6 +210,7 @@ Otu:
     - browse_asserted_distributions_task
     - unify_objects_task
     - anatomical_parts_graph_task
+    - monograph_facilitator_task
   home: browse_otus_task
   config:
     recent: true

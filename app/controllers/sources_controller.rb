@@ -52,7 +52,7 @@ class SourcesController < ApplicationController
         format.json { render :show }
       else
         format.html { redirect_to edit_source_path(@source), notice: 'Clone failed.  On original original.' }
-        format.json { render json: @source.errors, status: :unprocessable_entity }
+        format.json { render json: @source.errors, status: :unprocessable_content }
       end
     end
   end
@@ -81,14 +81,14 @@ class SourcesController < ApplicationController
           format.json { render action: 'show', status: :created, location: @source.metamorphosize }
         else
           format.html { render action: 'new' }
-          format.json { render json: @source.errors, status: :unprocessable_entity }
+          format.json { render json: @source.errors, status: :unprocessable_content }
         end
       rescue ActiveRecord::InvalidForeignKey => e
         serial = Serial.find_by(id: params.dig(:source, :serial_id))
         errors = serial.nil? ? ["Serial '#{params.dig(:source, :serial_id)}' not found."] : [e.to_s]
 
         format.html { render action: 'new' }
-        format.json { render json: { errors: }, status: :unprocessable_entity }
+        format.json { render json: { errors: }, status: :unprocessable_content }
       end
     end
   end
@@ -136,7 +136,7 @@ class SourcesController < ApplicationController
         format.json { render :show, status: :ok, location: @source.metamorphosize }
       else
         format.html { render action: 'edit' }
-        format.json { render json: @source.errors, status: :unprocessable_entity }
+        format.json { render json: @source.errors, status: :unprocessable_content }
       end
     end
   end
@@ -152,7 +152,7 @@ class SourcesController < ApplicationController
     else
       respond_to do |format|
         format.html { render action: :show, notice: 'failed to destroy the source, there is likely data associated with it' }
-        format.json { render json: @source.errors, status: :unprocessable_entity }
+        format.json { render json: @source.errors, status: :unprocessable_content }
       end
     end
   end
@@ -189,26 +189,29 @@ class SourcesController < ApplicationController
       )
       render json: r.to_json, status: :ok
     else
-      render json: {}, status: :unprocessable_entity
+      render json: {}, status: :unprocessable_content
     end
   end
 
   def preview_bibtex_batch_load
     redirect_to batch_load_sources_path, notice: 'No file has been selected.' and return if params[:file].blank?
     file = params.require(:file)
+    @namespace_id = params[:namespace_id].presence
+    @namespace = Namespace.find_by(id: @namespace_id) if @namespace_id.present?
     file_ok, mimetype = Utilities::Files.recognized_batch_file_type?(file.tempfile)
     if !file_ok
       redirect_to batch_load_sources_path,
         notice: "File '#{file.original_filename}' is of type '#{mimetype}', and not processable as BibTex."
     else
-      @sources, message = Source.batch_preview(file.tempfile)
+      @sources, message = Source.batch_preview(file.tempfile, @namespace_id)
       if @sources.size > 0
         sha256 = Digest::SHA256.file(file.tempfile)
         cookies[:batch_sources_md5] = sha256.hexdigest
+        cookies[:batch_sources_namespace_id] = @namespace_id if @namespace_id.present?
         render 'sources/batch_load/bibtex/bibtex_batch_preview'
       else
-        redirect_to batch_load_sources_path,
-          notice: "Error parsing BibTeX :#{message}."
+      redirect_to batch_load_sources_path,
+        notice: "Error parsing BibTeX :#{message}."
       end
     end
   end
@@ -218,10 +221,12 @@ class SourcesController < ApplicationController
     redirect_to batch_load_sources_path, notice: 'no file has been selected' and return if file.blank?
     sha256 = Digest::SHA256.file(file.tempfile)
     if cookies[:batch_sources_md5] == sha256.hexdigest
-      if result_hash = Source.batch_create(file.tempfile, sessions_current_project_id)
+      namespace_id = cookies[:batch_sources_namespace_id].presence
+      if result_hash = Source.batch_create(file.tempfile, sessions_current_project_id, namespace_id)
         # error in results?
         @count = result_hash[:count]
         @sources = result_hash[:records]
+        cookies.delete(:batch_sources_namespace_id)
         flash[:notice] = "Successfully batch created #{@count} sources."
         render 'sources/batch_load/bibtex/bibtex_batch_create'
       else

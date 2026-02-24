@@ -1,38 +1,29 @@
 <template>
   <div>
     <h3 v-help.section.BibTeX.attributes>TW attributes</h3>
-    <div class="field">
-      <label>Verbatim contents</label><br>
+    <div class="field label-above">
+      <label>Verbatim contents</label>
       <textarea
         type="text"
-        v-model="source.verbatim_contents">
+        v-model="source.verbatim_contents"
+      >
       </textarea>
     </div>
-    <div class="field">
-      <label>Verbatim keywords</label><br>
+    <div class="field label-above">
+      <label>Verbatim keywords</label>
       <textarea
         type="text"
-        v-model="source.verbatim_keywords">
+        v-model="source.verbatim_keywords"
+        @change="() => (source.isUnsaved = true)"
+      >
       </textarea>
     </div>
   </div>
 </template>
 
-<script>
-
-import { GetterNames } from '../../store/getters/getters'
-import { MutationNames } from '../../store/mutations/mutations'
-
-export default {
-  computed: {
-    source: {
-      get () {
-        return this.$store.getters[GetterNames.GetSource]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetSource, value)
-      }
-    }
-  }
-}
+<script setup>
+const source = defineModel({
+  type: Object,
+  required: true
+})
 </script>

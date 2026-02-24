@@ -39,6 +39,10 @@ class News < ApplicationRecord
     )
   }
 
+  def self.annotates?
+    false
+  end
+
   def is_current?
     t = Time.current
     (display_start.nil? or display_start <= t) && (display_end.nil? or display_end >= t)

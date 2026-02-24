@@ -45,7 +45,7 @@ class CollectingEventsController < ApplicationController
         format.json { render action: 'show', status: :created, location: @collecting_event }
       else
         format.html { render action: 'new' }
-        format.json { render json: @collecting_event.errors, status: :unprocessable_entity }
+        format.json { render json: @collecting_event.errors, status: :unprocessable_content }
       end
     end
   end
@@ -64,7 +64,7 @@ class CollectingEventsController < ApplicationController
     rescue TaxonWorks::Error => e
       respond_to do |format|
         format.html { redirect_to new_collecting_event_task_path, notice: e.message }
-        format.json { render json: e.message, status: :unprocessable_entity }
+        format.json { render json: e.message, status: :unprocessable_content }
       end
     end
   end
@@ -78,7 +78,7 @@ class CollectingEventsController < ApplicationController
         format.json { render :show, status: :ok, location: @collecting_event }
       else
         format.html { render action: 'edit' }
-        format.json { render json: @collecting_event.errors, status: :unprocessable_entity }
+        format.json { render json: @collecting_event.errors, status: :unprocessable_content }
       end
     end
   end
@@ -93,7 +93,7 @@ class CollectingEventsController < ApplicationController
         format.json { head :no_content }
       else
         format.html { destroy_redirect @collecting_event, notice: 'CollectingEvent was not destroyed: ' + @collecting_event.errors.full_messages.join('; ') }
-        format.json { render json: @collecting_event.errors, status: :unprocessable_entity }
+        format.json { render json: @collecting_event.errors, status: :unprocessable_content }
       end
     end
   end
@@ -140,7 +140,7 @@ class CollectingEventsController < ApplicationController
         project_id: sessions_current_project_id)
       render json: r.to_json, status: :ok
     else
-      render json: {}, status: :unprocessable_entity
+      render json: {}, status: :unprocessable_content
     end
   end
 

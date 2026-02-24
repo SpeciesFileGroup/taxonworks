@@ -13,7 +13,7 @@
       <% if s.valid? %>
           <li>
             <span class='green' ><%= s.cached_string('html').html_safe -%></span>
-          <%=   link_to('Edit', edit_source_path(s.metamorphosize)) -%>
+          <%= link_to('Edit', edit_source_path(s.metamorphosize), target: '_blank') -%>
           <% if s.soft_validations.messages.count > 0 %>
               <ul>
                 <% s.soft_validations.messages.each do |e| %>
@@ -33,5 +33,3 @@
       <% end %>
   <% end %>
 </ol>
-
-

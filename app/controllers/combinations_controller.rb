@@ -35,7 +35,7 @@ class CombinationsController < ApplicationController
         format.json { render :show, status: :created, location: @combination.metamorphosize }
       else
         format.html { render :new }
-        format.json { render json: @combination.errors, status: :unprocessable_entity }
+        format.json { render json: @combination.errors, status: :unprocessable_content }
       end
     end
   end
@@ -49,7 +49,7 @@ class CombinationsController < ApplicationController
         format.json { render :show, status: :ok, location: @combination.metamorphosize }
       else
         format.html { render :edit }
-        format.json { render json: @combination.errors, status: :unprocessable_entity }
+        format.json { render json: @combination.errors, status: :unprocessable_content }
       end
     end
   end
@@ -59,8 +59,13 @@ class CombinationsController < ApplicationController
   def destroy
     @combination.destroy
     respond_to do |format|
-      format.html { redirect_to taxon_names_url }
-      format.json { head :no_content }
+      if @combination.destroyed?
+        format.html { redirect_to taxon_names_url } # may be unused
+        format.json { head :no_content }
+      else
+        format.html { destroy_redirect @combination, notice: 'Combination was not destroyed, ' + @combination.errors.full_messages.join('; ') }
+        format.json { render json: @combination.errors, status: :unprocessable_content }
+      end
     end
   end
 

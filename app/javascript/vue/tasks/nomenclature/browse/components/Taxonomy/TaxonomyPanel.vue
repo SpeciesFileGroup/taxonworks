@@ -112,6 +112,7 @@ watch(
 
 #show_taxon_name_hierarchy {
   overflow-y: auto;
+  padding-bottom: 2rem;
 }
 
 .panel-taxonomy-tree {

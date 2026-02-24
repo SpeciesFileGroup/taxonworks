@@ -1,4 +1,4 @@
-import * as dagre from '@dagrejs/dagre'
+import dagre from '@dagrejs/dagre'
 
 export function graphLayout({ nodes, edges, nodeSize }) {
   if (Object.keys(nodes).length <= 1 || Object.keys(edges).length === 0) {

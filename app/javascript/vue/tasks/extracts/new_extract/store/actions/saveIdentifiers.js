@@ -9,9 +9,13 @@ export default ({ commit, state: { extract, identifiers } }) => {
 
   newIdentifiers.forEach((identifier) => {
     promises.push(
-      Identifier.create({ identifier }).then(({ body }) => {
-        commit(MutationNames.AddIdentifier, body)
-      })
+      Identifier.create({ identifier })
+        .then(({ body }) => {
+          commit(MutationNames.AddIdentifier, body)
+        })
+        .catch(() => {})
     )
   })
+
+  return Promise.all(promises)
 }

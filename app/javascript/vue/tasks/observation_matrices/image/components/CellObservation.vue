@@ -27,7 +27,7 @@
         @add="movedDepiction"
         @choose="setObservationDragged"
       >
-        <template #item="{ element }">
+        <template #item="{ element, index }">
           <div
             title=""
             class="drag-container"
@@ -48,6 +48,17 @@
                   <ButtonCitation
                     :global-id="element.image.global_id"
                     :citations="element.image.citations"
+                    @create="
+                      (citation) =>
+                        addToArray(depictions[index].image.citations, citation)
+                    "
+                    @delete="
+                      (citation) =>
+                        removeFromArray(
+                          depictions[index].image.citations,
+                          citation
+                        )
+                    "
                   />
                   <button
                     class="button circle-button btn-delete"
@@ -83,6 +94,7 @@ import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
 import { OBSERVATION_MEDIA } from '@/constants/index'
+import { addToArray, removeFromArray } from '@/helpers'
 
 const CSRF_TOKEN = document
   .querySelector('meta[name="csrf-token"]')

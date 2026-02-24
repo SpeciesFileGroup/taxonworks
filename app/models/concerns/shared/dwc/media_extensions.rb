@@ -1,6 +1,7 @@
 # A concern on media items like images and sounds.
 module Shared::Dwc::MediaExtensions
   extend ActiveSupport::Concern
+  include Shared::Dwc::MediaIdentifier
 
   # Shared implementation amongst all media sources.
   DWC_MEDIA_SHARED_EXTENSION_MAP = {
@@ -12,14 +13,9 @@ module Shared::Dwc::MediaExtensions
     Credit: :dwc_media_credit,
     'dc:creator': :dwc_media_dc_creator,
     'dcterms:creator': :dwc_media_dcterms_creator,
-    furtherInformationURL: :dwc_media_further_information_url
   }.freeze
 
-  def dwc_media_identifier
-    # Images and sounds are unlikely to have a uuid or uri, so namespace with
-    # class name (this field is suposed to be unique).
-    "#{self.class.name.downcase}:#{uuid || uri || id}"
-  end
+  # dwc_media_identifier is now provided by Shared::Dwc::MediaIdentifier
 
   def dwc_media_provider_managed_id
     id
@@ -40,12 +36,19 @@ module Shared::Dwc::MediaExtensions
   end
 
   def dwc_media_owner
-    self.class
-      .joins(attribution: {roles: :person})
-      .where(roles: {type: 'AttributionOwner'})
-      .where(id: id)
-      .pluck('people.cached')
-      .join(CollectionObject::DWC_DELIMITER)
+    roles = AttributionOwner
+      .joins("INNER JOIN attributions ON attributions.id = roles.role_object_id AND roles.role_object_type = 'Attribution'")
+      .where(attributions: {attribution_object_id: id, attribution_object_type: self.class.base_class.name})
+      .order(:position)
+
+    # Map each role to either person.cached or organization.name.
+    roles.map do |role|
+      if role.person_id
+        Person.find(role.person_id).cached
+      elsif role.organization_id
+        Organization.find(role.organization_id).name
+      end
+    end.compact.join(Shared::IsDwcOccurrence::DWC_DELIMITER)
   end
 
   def dwc_media_credit
@@ -66,8 +69,9 @@ module Shared::Dwc::MediaExtensions
       .joins(attribution: {roles: :person})
       .where(roles: {type: 'AttributionCreator'})
       .where(id: id)
+      .order('roles.position')
       .pluck('people.cached')
-      .join(CollectionObject::DWC_DELIMITER)
+      .join(Shared::IsDwcOccurrence::DWC_DELIMITER)
   end
 
   def dwc_media_dcterms_creator
@@ -76,12 +80,9 @@ module Shared::Dwc::MediaExtensions
       .where(roles: {type: 'AttributionCreator'})
       .where(id: id)
       .where("identifiers.type = 'Identifier::Global::Orcid' OR identifiers.type = 'Identifier::Global::Wikidata'")
+      .order('roles.position')
       .pluck('identifiers.cached')
       .join(CollectionObject::DWC_DELIMITER)
-  end
-
-  def dwc_media_further_information_url
-    Shared::Api.image_metadata_link(self, raise_on_no_token: true)
   end
 
 end

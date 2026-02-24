@@ -14,7 +14,8 @@ class News::AdministrationController < NewsController
         @news = News::Administration
           .page(params[:page])
           .per(params[:per])
-          .order(:display_start, :created_at)
+          .order(created_at: :desc)
+          
      
         @news = @news.where(type: params[:type]) if params[:type].present?
       }

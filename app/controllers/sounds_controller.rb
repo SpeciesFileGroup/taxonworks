@@ -32,6 +32,10 @@ class SoundsController < ApplicationController
   def show
   end
 
+  def api_show
+    render template: '/sounds/api/v1/show'
+  end
+
   # GET /sounds/new
   def new
     @sound = Sound.new
@@ -50,8 +54,8 @@ class SoundsController < ApplicationController
         format.html { redirect_to @sound, notice: 'Sound was successfully created.' }
         format.json { render :show, status: :created, location: @sound }
       else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @sound.errors, status: :unprocessable_entity }
+        format.html { render :new, status: :unprocessable_content }
+        format.json { render json: @sound.errors, status: :unprocessable_content }
       end
     end
   end
@@ -63,8 +67,8 @@ class SoundsController < ApplicationController
         format.html { redirect_to @sound, notice: 'Sound was successfully updated.' }
         format.json { render :show, status: :ok, location: @sound }
       else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @sound.errors, status: :unprocessable_entity }
+        format.html { render :edit, status: :unprocessable_content }
+        format.json { render json: @sound.errors, status: :unprocessable_content }
       end
     end
   end
@@ -79,7 +83,7 @@ class SoundsController < ApplicationController
     else
       respond_to do |format|
         format.html { redirect_to sounds_path, notice: @sound.errors.full_messages.join('. ') }
-        format.json { head :no_content, status: :unprocessable_entity }
+        format.json { head :no_content, status: :unprocessable_content }
       end
     end
   end

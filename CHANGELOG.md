@@ -7,9 +7,201 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+\-
+
+## [0.60.0] - 2026-02-20
+
+### Added
+
+- Match OTU by TaxonName task
+- DarwinCore summary task 
+- Report per-object duplicate predicate use [#4741]
+- Batch import BibTeX sources option to include Identifier
+- Batch Upload Asserted Distributions now supports a `gazetteer_id` column [#4739]
+- Lock header bar button [#4750]
+- Filter namespaces [#4749]
+
+### Fixed
+
+- Improved scoping of Catalogue of Life Exports
+- Save notice is missing in New type specimen task
+- Fix: Rails now correctly applies time zones for `user_date_start` and `user_date_end` parameters from the `X-Timezone` header [#4721]
+- Classes not being eager loaded in background jobs, causing dwc importer to fail
+- Admin checkboxes in project members table are not visible to project administrators.
+- Add historical determination options to Taxon Name facet of Filter Collection Objects [#4742]
+- Serial author match out of order when reopened after one match selected [#4743]
+
+### Changed
+
+- Removed unused BibTeX task [#1440]
+- Updated Ruby gems
+
+[#4741]: https://github.com/SpeciesFileGroup/taxonworks/issues/4741
+[#4742]: https://github.com/SpeciesFileGroup/taxonworks/issues/4742
+[#1440]: https://github.com/SpeciesFileGroup/taxonworks/issues/1440
+[#4721]: https://github.com/SpeciesFileGroup/taxonworks/issues/4721
+[#4739]: https://github.com/SpeciesFileGroup/taxonworks/issues/4739
+[#4743]: https://github.com/SpeciesFileGroup/taxonworks/issues/4743
+[#4749]: https://github.com/SpeciesFileGroup/taxonworks/issues/4749
+[#4750]: https://github.com/SpeciesFileGroup/taxonworks/issues/4750
+
+## [0.59.0] - 2026-02-04
+
+### Added
+
+- New task - Year in review - graphs and data summarizing a calendar year
+- Clone last attribution button [#4718]
+- Browse images task [#4689][#3194]
+
+### Fixed
+
+- New asserted distribution task is not loading
+- Biological Associations always report success on delete, even when the destroy fails because the association is the object of an Asserted Distribution [#4731]
+- `New` link redirects to graph instead of new Biological Association task [#4732]
+- Improvements to key work using OTU lists and interactions with interactive keys [#4527]
+
+### Changed
+
+- Data Attribute and Object Attribute facets in all filters, to add functionality and make it clearer what is being searched for [#4634]
+- The inventory keys API endpoint has been updated to indicate when an observation matrix is a media matrix.
+- You can now delete a TaxonName if the only thing blocking the delete is an "empty" OTU [#1451]
+- Updated Ruby gems
+- Updated NPM packages
+
+[#1451]: https://github.com/SpeciesFileGroup/taxonworks/issues/1451
+[#3194]: https://github.com/SpeciesFileGroup/taxonworks/issues/3194
+[#4527]: https://github.com/SpeciesFileGroup/taxonworks/issues/4527
+[#4634]: https://github.com/SpeciesFileGroup/taxonworks/issues/4634
+[#4689]: https://github.com/SpeciesFileGroup/taxonworks/issues/4689
+[#4718]: https://github.com/SpeciesFileGroup/taxonworks/issues/4718
+[#4731]: https://github.com/SpeciesFileGroup/taxonworks/issues/4731
+[#4732]: https://github.com/SpeciesFileGroup/taxonworks/issues/4732
+
+## [0.58.0] - 2026-01-23
+
+### Added
+
+- New task: Verbatim author/year to cite taxon name
+- New task: Dichotomous key
+- Scalebar form to New simple specimen task [#4689]
+- New repository link to New type specimen task [#4692]
+- Monograph facilitator to OTU radial linker [#4690]
+- Batch create genus gender for those without one from Filter Taxon Names [#4669]
+- Source facet to Filter Asserted Distributions
+- 'Replace source' batch update to Filter Asserted Distributions [#4647]
+- Send filter results between Sounds and OTUs/TaxonNames
+- Batch upload Asserted Distributions can now match on an OTU's Taxon Name name instead of/in addition to the OTU's name
+- Batch update 'Prioritize Geographic Area when indexing' value from Filter Collecting Events [#4036]
+- Deleting a taxon name from the New Taxon Name task takes you to Browse Taxon Name for the parent of the taxon [#3155]
+
+### Fixed
+
+- Filters return incorrect results when using the right Radial Filter with 21 or more selected objects. [#4676]
+- Browse News: Old administration news is shown first instead of new news.
+- Batch operation now works on venn query results, venn query results can now be sent to other filters [#4663]
+- No error message when trying to delete a combination attached to an OTU [#4670]
+- Error notice is now returned when trying to include media extension in DwCA export without a project API token (media links embed API token)
+- Match Taxon Names task downloads have wrong valid name [#4682]
+- New source task: Title is required to create a BibTeX source [#4688]
+- Error on sending Taxon Name filter result to Asserted Distributions
+- DwCA export optimizations [#4607]
+- Inconsistent TW:otu_name selection from multiple values in DwCA exports in some cases
+- DwCA TW:data_attributes now includes all values on a given predicate (not just the last)
+- /api/v1/sounds/1
+- furtherInformationURL for sounds in DwCA media export
+- Performance regression in cached maps re-indexing via the rake task
+- `Create citation` button doesn't keep citations state once the observation is moved to another cell in Image matrix task
+- Add autosave option to New source task [#4691]
+- Completed Filter connections between Filter Biological Association and Filter Taxon Name/Filter OTU to include relations by Collection Object Taxon Determination, Field Occurrence Taxon Determination, and Anatomical Part origin OTU [#4685]
+- Alt+t on Browse Taxon Names doesn't work unless you've focused the page [#4703]
+- Selection tool not working on the Monograph Facilitator map
+- Depictions stop changing when switching between types in Edit Type Specimen task [#4702]
+- Citations with italics don't match in Batch Upload Asserted Distributions [#4268]
+- Useful error messages when batch loan operations fail in Filter Collection Objects [#4171]
+- The Biological Associations index computed an error string for Anatomical Part citations [#4712]
+- Don't calculate distribution for api/v1/taxon_names/:id/inventory/catalog (performance improvement for Taxon Pages)
+- Add more LSID validations [#3608]
+- Filter depiction doesn't return field occurrence images
+
+### Changed
+
+- Large performance improvements to Catalog of Life Data Package export; some small regressions introduced
+- Disabled autosave by default for New asserted distribution task. [#4698]
+- Filter Contents downloads are TSV (no longer CSV)
+- Updated Ruby gems
+- Updated NPM packages
+
+[#3155]: https://github.com/SpeciesFileGroup/taxonworks/issues/3155
+[#3608]: https://github.com/SpeciesFileGroup/taxonworks/issues/3608
+[#4036]: https://github.com/SpeciesFileGroup/taxonworks/issues/4036
+[#4171]: https://github.com/SpeciesFileGroup/taxonworks/issues/4171
+[#4268]: https://github.com/SpeciesFileGroup/taxonworks/issues/4268
+[#4607]: https://github.com/SpeciesFileGroup/taxonworks/issues/4607
+[#4647]: https://github.com/SpeciesFileGroup/taxonworks/issues/4647
+[#4663]: https://github.com/SpeciesFileGroup/taxonworks/issues/4663
+[#4669]: https://github.com/SpeciesFileGroup/taxonworks/issues/4669
+[#4670]: https://github.com/SpeciesFileGroup/taxonworks/issues/4670
+[#4676]: https://github.com/SpeciesFileGroup/taxonworks/issues/4676
+[#4682]: https://github.com/SpeciesFileGroup/taxonworks/issues/4682
+[#4685]: https://github.com/SpeciesFileGroup/taxonworks/issues/4685
+[#4688]: https://github.com/SpeciesFileGroup/taxonworks/issues/4688
+[#4689]: https://github.com/SpeciesFileGroup/taxonworks/issues/4689
+[#4690]: https://github.com/SpeciesFileGroup/taxonworks/issues/4690
+[#4691]: https://github.com/SpeciesFileGroup/taxonworks/issues/4691
+[#4692]: https://github.com/SpeciesFileGroup/taxonworks/issues/4692
+[#4698]: https://github.com/SpeciesFileGroup/taxonworks/issues/4698
+[#4702]: https://github.com/SpeciesFileGroup/taxonworks/issues/4702
+[#4703]: https://github.com/SpeciesFileGroup/taxonworks/issues/4703
+[#4712]: https://github.com/SpeciesFileGroup/taxonworks/issues/4712
+
+## [0.57.0] - 2026-01-06
+
+### Added
+
+- Unify button to Manage Controlled vocabulary task [#4653]
+- Source autocomplete now matches on alternate values of authors as People [#4617]
+- Available facet to Filter Taxon Names [#4667]
+- Create User form now includes adding new user to projects [#4639]
+
+### Fixed
+
+- Observation matrix dashboard: several filter options don't work [#4640]
+- New collecting event task: Biocurations panel is not working [#4646]
+- Error on batch update from left object radial in filters using 'match identifiers'
+- Browse taxon names: Sometimes when users scroll through the taxonomic tree panel, names at the bottom are not visible. [#4654]
+- Browse taxon names: Navbar overlaps radial modals [#4649]
+- CSD: The biocurations form doesn't show classes that do not belong to a group [#4658]
+- New Extract task: Minor fixes related to the identifiers form [#4626]
+- New Biological Association task: A new citation is not added when a biological association already exists, instead, it attempts to create a new one.
+- Housekeeping facet: sometimes date range is off [#4644]
+- DwCA export now correctly includes 'fossil' as `basisOfRecord`
+
+### Changed
+
+- Update to Rails 8.0; update gems
+- Add the POST method for Image matrix to handle many OTUs
+- New task: Refactor the task and add responsive design to the form [#4628]
+- Removed alternate values on Source author and editor (use Person alternate values instead)
+
+[#4617]: https://github.com/SpeciesFileGroup/taxonworks/issues/4617
+[#4626]: https://github.com/SpeciesFileGroup/taxonworks/issues/4626
+[#4628]: https://github.com/SpeciesFileGroup/taxonworks/issues/4628
+[#4639]: https://github.com/SpeciesFileGroup/taxonworks/issues/4639
+[#4640]: https://github.com/SpeciesFileGroup/taxonworks/issues/4640
+[#4644]: https://github.com/SpeciesFileGroup/taxonworks/issues/4644
+[#4646]: https://github.com/SpeciesFileGroup/taxonworks/issues/4646
+[#4649]: https://github.com/SpeciesFileGroup/taxonworks/issues/4649
+[#4653]: https://github.com/SpeciesFileGroup/taxonworks/issues/4653
+[#4654]: https://github.com/SpeciesFileGroup/taxonworks/issues/4654
+[#4658]: https://github.com/SpeciesFileGroup/taxonworks/issues/4658
+[#4667]: https://github.com/SpeciesFileGroup/taxonworks/issues/4667
+
+## [0.56.1] - 2025-12-12
+
 ### Added
 
 - subject/object type to indexed biological associations endpoint
+- Source autocomplete now matches on alternate author names [#4617]
 
 ### Fixed
 
@@ -21,7 +213,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Autocomplete list wraps the text instead of applying ellipses by default.
 
-## [0.56.0] - 2025-11-12
+[#4617]: https://github.com/SpeciesFileGroup/taxonworks/issues/4617
+
+## [0.56.0] - 2025-12-11
 
 ### Added
 
@@ -5904,7 +6098,12 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.56.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.60.0...development
+[0.60.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.59.0...v0.60.0
+[0.59.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.58.0...v0.59.0
+[0.58.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.57.0...v0.58.0
+[0.57.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.56.1...v0.57.0
+[0.56.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.56.0...v0.56.1
 [0.56.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.55.0...v0.56.0
 [0.55.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.3...v0.55.0
 [0.54.3]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.54.2...v0.54.3

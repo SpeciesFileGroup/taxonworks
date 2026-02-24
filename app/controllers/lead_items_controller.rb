@@ -24,13 +24,15 @@ class LeadItemsController < ApplicationController
   def create
     @lead_item = LeadItem.new(lead_item_params)
 
+    @lead_item.lead.sync_otu_to_lead_items_list
+
     respond_to do |format|
       if @lead_item.save
         format.html { redirect_to @lead_item, notice: 'Lead item was successfully created.' }
         format.json { render :show, status: :created, location: @lead_item }
       else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @lead_item.errors, status: :unprocessable_entity }
+        format.html { render :new, status: :unprocessable_content }
+        format.json { render json: @lead_item.errors, status: :unprocessable_content }
       end
     end
   end
@@ -42,8 +44,8 @@ class LeadItemsController < ApplicationController
         format.html { redirect_to @lead_item, notice: 'Lead item was successfully updated.' }
         format.json { render :show, status: :ok, location: @lead_item }
       else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @lead_item.errors, status: :unprocessable_entity }
+        format.html { render :edit, status: :unprocessable_content }
+        format.json { render json: @lead_item.errors, status: :unprocessable_content }
       end
     end
   end
@@ -51,6 +53,7 @@ class LeadItemsController < ApplicationController
   # DELETE /lead_items/1 or /lead_items/1.json
   def destroy
     @lead_item.destroy!
+    @lead_item.lead.sync_otu_to_lead_items_list
 
     respond_to do |format|
       format.html { redirect_to lead_items_path, status: :see_other, notice: 'Lead item was successfully destroyed.' }
@@ -59,16 +62,22 @@ class LeadItemsController < ApplicationController
   end
 
   def destroy_item_in_children
-    lead_ids = Lead.find(params[:parent_id]).children.map(&:id)
-    # Only one child should ever have the lead_item we're looking for, the
-    # following is just the most economical way of finding and destroying it.
+    children = Lead.find(params[:parent_id]).children
+    lead_ids = children.map(&:id)
+    # There may only be one lead with the item we're deleting; this is just the
+    # most economical way of finding and destroying it in general.
     begin
       LeadItem
         .where(lead_id: lead_ids, otu_id: params[:otu_id])
         .destroy_all
+
     rescue ActiveRecord::RecordNotDestroyed => e
       errors.add(:base, "Destroy lead item failed! '#{e}'")
       return false
+    end
+
+    children.each do |c|
+      c.sync_otu_to_lead_items_list
     end
   end
 
@@ -77,10 +86,14 @@ class LeadItemsController < ApplicationController
     otu_ids = params[:otu_ids]
     exclusive = params[:exclusive_otu_ids] || []
     add_new_to_first_child = params[:add_new_to_first_child] || false
-    added = LeadItem.add_items_to_lead(parent, otu_ids, exclusive, add_new_to_first_child)
+    added = LeadItem.add_items_to_lead(
+      parent, otu_ids, exclusive, add_new_to_first_child
+    )
 
-    if !added
-      render json: parent.errors, status: :unprocessable_entity
+    if added
+      render json: added
+    else
+      render json: parent.errors, status: :unprocessable_content
     end
   end
 
@@ -90,9 +103,13 @@ class LeadItemsController < ApplicationController
       @lead, params[:otu_id], params[:exclusive]
     )
     if !added
-      render json: @lead.errors, status: :unprocessable_entity
+      render json: @lead.errors, status: :unprocessable_content
       return
     end
+
+    @lead.parent.children.each { |c|
+      c.sync_otu_to_lead_items_list
+    }
 
     @lead_item_otus = @lead.parent.apportioned_lead_item_otus
     render partial: 'leads/lead_item_otus',
@@ -103,9 +120,11 @@ class LeadItemsController < ApplicationController
     @lead = Lead.find(params[:lead_id])
     removed = LeadItem.remove_otu_index_for_lead(@lead, params[:otu_id])
     if !removed
-      render json: @lead.errors, status: :unprocessable_entity
+      render json: @lead.errors, status: :unprocessable_content
       return
     end
+
+    @lead.reload.sync_otu_to_lead_items_list
 
     @lead_item_otus = @lead.parent.apportioned_lead_item_otus
     render partial: 'leads/lead_item_otus',
@@ -113,12 +132,11 @@ class LeadItemsController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
+
   def set_lead_item
     @lead_item = LeadItem.find(params[:id])
   end
 
-    # Only allow a list of trusted parameters through.
   def lead_item_params
     params.require(:lead_item).permit(:lead_id, :otu_id, :project_id, :created_by_id, :updated_by_id, :position)
   end

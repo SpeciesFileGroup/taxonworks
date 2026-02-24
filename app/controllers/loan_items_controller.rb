@@ -1,5 +1,6 @@
 class LoanItemsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
+  include DataControllerConfiguration::BatchByFilterScope
 
   before_action :set_loan_item, only: [:update, :destroy, :show, :edit]
   after_action -> { set_pagination_headers(:loan_items) }, only: [:index], if: :json_request?
@@ -49,7 +50,7 @@ class LoanItemsController < ApplicationController
         format.json { render :show, status: :created, location: @loan_item }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Loan item was NOT successfully created.')}
-        format.json { render json: @loan_item.errors, status: :unprocessable_entity }
+        format.json { render json: @loan_item.errors, status: :unprocessable_content }
       end
     end
   end
@@ -63,7 +64,7 @@ class LoanItemsController < ApplicationController
         format.json { render :show, status: :ok, location: @loan_item }
       else
         format.html { redirect_back(fallback_location: (request.referer || root_path), notice: 'Loan item was NOT successfully updated.' + @loan_item.errors.full_messages.join('; '))}
-        format.json { render json: @loan_item.errors, status: :unprocessable_entity }
+        format.json { render json: @loan_item.errors, status: :unprocessable_content }
       end
     end
   end
@@ -166,5 +167,9 @@ class LoanItemsController < ApplicationController
       :global_entity,
       :position
     )
+  end
+
+  def batch_by_filter_scope_params
+    params.require(:params).permit(:loan_id, :disposition, :date_returned)
   end
 end
