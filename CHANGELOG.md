@@ -7,14 +7,18 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Changed
+
+- Moved slide panel buttons to navigation bar [#4694]
+
+[#4694]: https://github.com/SpeciesFileGroup/taxonworks/issues/4694
 
 ## [0.60.0] - 2026-02-20
 
 ### Added
 
 - Match OTU by TaxonName task
-- DarwinCore summary task 
+- DarwinCore summary task
 - Report per-object duplicate predicate use [#4741]
 - Batch import BibTeX sources option to include Identifier
 - Batch Upload Asserted Distributions now supports a `gazetteer_id` column [#4739]

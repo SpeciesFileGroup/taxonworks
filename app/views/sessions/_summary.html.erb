@@ -28,10 +28,27 @@
 
     <div class="horizontal-right-content middle gap-medium" id="session_nav">
 
-      <div>
-        
-        
+      <div class="slide-panel-circle-icon slide-panel-circle-icon-pinboard" data-control-slide-panel="pinboard">
+        <div class="slide-panel-description">
+          Pinboard
+        </div>
       </div>
+      <div class="slide-panel-circle-icon slide-panel-circle-icon-pdf" data-control-slide-panel="pdfviewer">
+        <div class="slide-panel-description">
+          PDF Document viewer
+        </div>
+      </div>
+      <div class="slide-panel-circle-icon slide-panel-circle-icon-clipboard" data-control-slide-panel="clipboard">
+        <div class="slide-panel-description">
+          Clipboard
+        </div>
+      </div>
+      <div class="slide-panel-circle-icon help-button">
+        <div class="slide-panel-description">
+          Help
+        </div>
+      </div>
+      <span> | </span>
 
       <% if sessions_project_selected? %>
       <div id="vue-bell-notifications"></div>
