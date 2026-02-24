@@ -21,5 +21,8 @@ export const TaxonNameClassification = {
     AjaxCall(
       'get',
       '/taxon_name_classifications/taxon_name_classification_types'
-    )
+    ),
+
+  batchByFilter: (params) =>
+    AjaxCall('post', '/taxon_name_classifications/batch_by_filter_scope', params)
 }
