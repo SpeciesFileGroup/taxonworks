@@ -24,7 +24,7 @@ module Shared::Dwc::TaxonDeterminationExtensions
 
   def dwc_identified_by
     # TaxonWorks allows for groups of determiners to collaborate on a single determination if they collectively came to a conclusion.
-    target_taxon_determination&.determiners&.map(&:name)&.join(CollectionObject::DWC_DELIMITER).presence
+    target_taxon_determination&.determiners&.map(&:name)&.join(Export::Dwca::DELIMITER).presence
   end
 
   def dwc_identified_by_id
@@ -37,19 +37,19 @@ module Shared::Dwc::TaxonDeterminationExtensions
         .unscope(:order)
         .distinct
         .pluck('identifiers.cached')
-        .join(CollectionObject::DWC_DELIMITER)&.presence
+        .join(Export::Dwca::DELIMITER)&.presence
     end
   end
 
   # https://dwc.tdwg.org/list/#dwc_identificationRemarks
   def dwc_identification_remarks
-    target_taxon_determination&.notes&.collect{ |n| n.text }&.join(CollectionObject::DWC_DELIMITER).presence
+    target_taxon_determination&.notes&.collect{ |n| n.text }&.join(Export::Dwca::DELIMITER).presence
   end
 
   def dwc_previous_identifications
     a = taxon_determinations.order(:position).to_a
     a.shift
-    a.collect{|d| ApplicationController.helpers.label_for_taxon_determination(d)}.join(CollectionObject::DWC_DELIMITER).presence
+    a.collect{|d| ApplicationController.helpers.label_for_taxon_determination(d)}.join(Export::Dwca::DELIMITER).presence
   end
 
   def dwc_infraspecific_epithet

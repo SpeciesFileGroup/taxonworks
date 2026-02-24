@@ -2,8 +2,7 @@
 module Shared::IsDwcOccurrence
   extend ActiveSupport::Concern
 
-  # These probably belong in a global helper
-  DWC_DELIMITER = ' | '.freeze
+  DWC_DELIMITER = Export::Dwca::DELIMITER
 
   VIEW_EXCLUSIONS = [
     :footprintWKT

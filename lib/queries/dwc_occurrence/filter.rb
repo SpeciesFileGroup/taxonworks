@@ -26,6 +26,7 @@ module Queries
         :taxon_name_id,
         :empty_rank,
         :otu_id,
+        :otu_taxon_name_columns,
 
         empty_rank: [],
         dwc_occurrence_id: [],
@@ -46,6 +47,10 @@ module Queries
       #   of labels of ranks in DwcOccurrence
       attr_accessor :empty_rank
 
+      # @return Boolean
+      #   if true, include TaxonName columns in otu_query results
+      attr_accessor :otu_taxon_name_columns
+
       def initialize(query_params)
         super
 
@@ -56,6 +61,7 @@ module Queries
         @taxon_name_id = params[:taxon_name_id]
 
         @empty_rank = params[:empty_rank]
+        @otu_taxon_name_columns = boolean_param(params, :otu_taxon_name_columns)
 
         set_attributes_params(params)
       end
@@ -195,6 +201,29 @@ module Queries
         )
       end
 
+      def otu_query_facet
+        return nil if otu_query.nil?
+
+        queries = OCCURRENCE_SOURCES.map do |k|
+          # Pass otu_query to source filters
+          filter_params = { otu_query: otu_query.params }
+
+          source_query = "::Queries::#{k.classify}::Filter".constantize.new(filter_params).all
+
+          s = "WITH query_otu_#{k} AS (" + source_query.unscope(:select).select(:id).to_sql + ') ' +
+            ::DwcOccurrence
+            .select(:id, :dwc_occurrence_object_type, :dwc_occurrence_object_id)
+            .joins("JOIN query_otu_#{k} as query_otu_#{k}1 on dwc_occurrences.dwc_occurrence_object_id = query_otu_#{k}1.id AND dwc_occurrences.dwc_occurrence_object_type = '#{k.classify}'")
+            .to_sql
+
+          ::DwcOccurrence.from('(' + s + ') as dwc_occurrences').distinct
+        end
+
+        ::Queries.union(
+          ::DwcOccurrence, queries
+        )
+      end
+
       def asserted_distribution_query_facet
         return nil if asserted_distribution_query.nil?
         s = 'WITH query_ad_dwco AS (' + asserted_distribution_query.all.unscope(:select).select(:id).to_sql + ') ' +
@@ -246,6 +275,7 @@ module Queries
           collecting_event_query_facet,
           collection_object_query_facet,
           field_occurrence_query_facet,
+          otu_query_facet,
           otu_id_facet,
           person_id_facet,
           taxon_name_id_facet

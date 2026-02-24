@@ -4,6 +4,38 @@
 module Export::Dwca::GbifProfile
 
   class SpeciesDistribution
+    TAXON_ID = :taxonID
+    LOCALITY = :locality
+    LOCATION_ID = :locationID
+    COUNTRY_CODE = :countryCode
+    LIFE_STAGE = :lifeStage
+    OCCURRENCE_STATUS = :occurrenceStatus
+    THREAT_STATUS = :threatStatus
+    ESTABLISHMENT_MEANS = :establishmentMeans
+    APPENDIX_CITES = :appendixCITES
+    EVENT_DATE = :eventDate
+    START_DAY_OF_YEAR = :startDayOfYear
+    END_DAY_OF_YEAR = :endDayOfYear
+    SOURCE = :source
+    OCCURRENCE_REMARKS = :occurrenceRemarks
+
+    NAMESPACES = {
+      TAXON_ID => 'http://rs.tdwg.org/dwc/terms/taxonID',
+      LOCALITY => 'http://rs.tdwg.org/dwc/terms/locality',
+      LOCATION_ID => 'http://rs.tdwg.org/dwc/terms/locationID',
+      COUNTRY_CODE => 'http://rs.tdwg.org/dwc/terms/countryCode',
+      LIFE_STAGE => 'http://rs.tdwg.org/dwc/terms/lifeStage',
+      OCCURRENCE_STATUS => 'http://rs.tdwg.org/dwc/terms/occurrenceStatus',
+      THREAT_STATUS => 'http://rs.gbif.org/terms/1.0/threatStatus',
+      ESTABLISHMENT_MEANS => 'http://rs.tdwg.org/dwc/terms/establishmentMeans',
+      APPENDIX_CITES => 'http://rs.gbif.org/terms/1.0/appendixCITES',
+      EVENT_DATE => 'http://rs.tdwg.org/dwc/terms/eventDate',
+      START_DAY_OF_YEAR => 'http://rs.tdwg.org/dwc/terms/startDayOfYear',
+      END_DAY_OF_YEAR => 'http://rs.tdwg.org/dwc/terms/endDayOfYear',
+      SOURCE => 'http://purl.org/dc/terms/source',
+      OCCURRENCE_REMARKS => 'http://rs.tdwg.org/dwc/terms/occurrenceRemarks'
+    }.freeze
+
     # taxonID (http://rs.tdwg.org/dwc/terms/taxonID)
     #
     # @return [String]
@@ -11,15 +43,15 @@ module Export::Dwca::GbifProfile
     # taxon in the core data file to which this distribution record points. This
     # identifier provides the link between the core data record and the
     # extension record.
-    attr_accessor :taxonID # [USED IN SF]
+    attr_accessor TAXON_ID # [USED IN SF]
 
     # locality (http://rs.tdwg.org/dwc/terms/locality)
     #
     # @return [String]
     # The verbatim name of the area this distributon record is about.
     #
-    # Example: “Patagonia”
-    attr_accessor :locality # [USED IN SF]
+    # Example: "Patagonia"
+    attr_accessor LOCALITY # [USED IN SF]
 
     # locationID (http://rs.tdwg.org/dwc/terms/locationID)
     #
@@ -30,8 +62,8 @@ module Export::Dwca::GbifProfile
     # the code. See http://rs.gbif.org/areas/ for GBIF recommended area
     # vocabularies
     #
-    # Example: “TDWG:AGS-TF; ISO3166:AR; WOEID:564721”
-    attr_accessor :locationID # [USED IN SF]
+    # Example: "TDWG:AGS-TF; ISO3166:AR; WOEID:564721"
+    attr_accessor LOCATION_ID # [USED IN SF]
 
     # countryCode (http://rs.tdwg.org/dwc/terms/countryCode)
     #
@@ -42,7 +74,7 @@ module Export::Dwca::GbifProfile
     # necessary.
     #
     # Example: "AR" "US;CA;MX"
-    attr_accessor :countryCode
+    attr_accessor COUNTRY_CODE
 
     # lifeStage (http://rs.tdwg.org/dwc/terms/lifeStage)
     #
@@ -52,10 +84,10 @@ module Export::Dwca::GbifProfile
     # http://rs.gbif.org/vocabulary/gbif/life_stage.xml for recommended
     # values.
     #
-    # Vocabulary: http://rs.gbif.org/vocabulary/gbif/life_stage.xml 
+    # Vocabulary: http://rs.gbif.org/vocabulary/gbif/life_stage.xml
     #
-    # Example: “adult”
-    attr_accessor :lifeStage
+    # Example: "adult"
+    attr_accessor LIFE_STAGE
 
     # occurrenceStatus (http://rs.tdwg.org/dwc/terms/occurrenceStatus)
     #
@@ -67,8 +99,8 @@ module Export::Dwca::GbifProfile
     #
     # Vocabulary: http://rs.gbif.org/vocabulary/gbif/occurrence_status.xml
     #
-    # Example: “Absent” “present”
-    attr_accessor :occurrenceStatus
+    # Example: "Absent" "present"
+    attr_accessor OCCURRENCE_STATUS
 
     # threatStatus (http://rs.gbif.org/terms/1.0/threatStatus)
     #
@@ -79,7 +111,7 @@ module Export::Dwca::GbifProfile
     # Vocabulary: http://rs.gbif.org/vocabulary/iucn/threat_status.xml
     #
     # Example: "EX" "EW" "CR"
-    attr_accessor :threatStatus
+    attr_accessor THREAT_STATUS
 
     # establishmentMeans (http://rs.tdwg.org/dwc/terms/establishmentMeans)
     #
@@ -89,8 +121,8 @@ module Export::Dwca::GbifProfile
     #
     # Vocabulary: http://rs.gbif.org/vocabulary/gbif/establishment_means.xml
     #
-    # Example: “introduced”
-    attr_accessor :establishmentMeans
+    # Example: "introduced"
+    attr_accessor ESTABLISHMENT_MEANS
 
     # appendixCITES (http://rs.gbif.org/terms/1.0/appendixCITES)
     #
@@ -102,8 +134,8 @@ module Export::Dwca::GbifProfile
     #
     # Vocabulary: http://rs.gbif.org/vocabulary/un/cites_appendix.xml
     #
-    # Example: “II”
-    attr_accessor :appendixCITES
+    # Example: "II"
+    attr_accessor APPENDIX_CITES
 
     # eventDate (http://rs.tdwg.org/dwc/terms/eventDate)
     #
@@ -114,7 +146,7 @@ module Export::Dwca::GbifProfile
     # different temporal context, e.g. in 5 year intervals for invasive species.
     #
     # Example: "1930"; "1939-1945"
-    attr_accessor :eventDate
+    attr_accessor EVENT_DATE
 
     # startDayOfYear (http://rs.tdwg.org/dwc/terms/startDayOfYear)
     #
@@ -125,7 +157,7 @@ module Export::Dwca::GbifProfile
     # ends with 365 (or 366 if it is a leap year) for December 31.
     #
     # Example: "90"
-    attr_accessor :startDayOfYear
+    attr_accessor START_DAY_OF_YEAR
 
     # endDayOfYear (http://rs.tdwg.org/dwc/terms/endDayOfYear)
     #
@@ -134,7 +166,7 @@ module Export::Dwca::GbifProfile
     # ordinal day of the year on which the distribution record is valid
     #
     # Example: "120"
-    attr_accessor :endDayOfYear
+    attr_accessor END_DAY_OF_YEAR
 
     # source (http://purl.org/dc/terms/source)
     #
@@ -142,10 +174,10 @@ module Export::Dwca::GbifProfile
     # Source reference for this distribution record. Can be proper publication
     # citation, a webpage URL, etc.
     #
-    # Example: "Euro+Med Plantbase - the information resource for 
+    # Example: "Euro+Med Plantbase - the information resource for
     # Euro-Mediterranean plant diversity (2006-). Published on the Internet
     # http://ww2.bgbm.org/EuroPlusMed/ July, 2009"
-    attr_accessor :source
+    attr_accessor SOURCE
 
     # occurrenceRemarks (http://rs.tdwg.org/dwc/terms/occurrenceRemarks)
     #
@@ -153,7 +185,7 @@ module Export::Dwca::GbifProfile
     # Comments or notes about the distribution
     #
     # Example: "Excluded because of misidentification"
-    attr_accessor :occurrenceRemarks
+    attr_accessor OCCURRENCE_REMARKS
   end
-  
+
 end

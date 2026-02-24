@@ -62,6 +62,86 @@ class DwcOccurrence < ApplicationRecord
     d ? d : field
   end
 
+  # Keys are dwc_occurrence columns, values are DwC Taxon Extension columns:
+  # https://rs.gbif.org/core/dwc_taxon_2024-02-19.xml
+  # Note: taxonID is excluded here because it will be created via copy_column
+  # from occurrenceID.
+  CHECKLIST_TAXON_EXTENSION_COLUMNS = {
+    scientificName: :scientificName,
+    taxonRank: :taxonRank,
+    acceptedNameUsage: :acceptedNameUsage,
+    parentNameUsage: :parentNameUsage,
+    originalNameUsage: :originalNameUsage,
+    nameAccordingTo: :nameAccordingTo,
+    namePublishedIn: :namePublishedIn,
+    namePublishedInYear: :namePublishedInYear,
+    higherClassification: :higherClassification,
+    kingdom: :kingdom,
+    phylum: :phylum,
+    dwcClass: :class,  # Note: column is dwcClass, DwC Taxon field is 'class'
+    order: :order,
+    superfamily: :superfamily,
+    family: :family,
+    subfamily: :subfamily,
+    tribe: :tribe,
+    subtribe: :subtribe,
+    genus: :genus,
+    subgenus: :subgenus,
+    specificEpithet: :specificEpithet,
+    infraspecificEpithet: :infraspecificEpithet,
+    verbatimTaxonRank: :verbatimTaxonRank,
+    scientificNameAuthorship: :scientificNameAuthorship,
+    vernacularName: :vernacularName,
+    nomenclaturalCode: :nomenclaturalCode,
+    taxonomicStatus: :taxonomicStatus,
+    nomenclaturalStatus: :nomenclaturalStatus,
+    taxonRemarks: :taxonRemarks
+  }.freeze
+
+  # Namespace URIs for checklist taxon core fields.
+  # Maps DwC Taxon field names to their full namespace URIs.
+  CHECKLIST_TAXON_NAMESPACES = {
+    taxonID: 'http://rs.tdwg.org/dwc/terms/taxonID',
+    scientificName: 'http://rs.tdwg.org/dwc/terms/scientificName',
+    taxonRank: 'http://rs.tdwg.org/dwc/terms/taxonRank',
+    acceptedNameUsage: 'http://rs.tdwg.org/dwc/terms/acceptedNameUsage',
+    acceptedNameUsageID: 'http://rs.tdwg.org/dwc/terms/acceptedNameUsageID',
+    parentNameUsage: 'http://rs.tdwg.org/dwc/terms/parentNameUsage',
+    parentNameUsageID: 'http://rs.tdwg.org/dwc/terms/parentNameUsageID',
+    originalNameUsage: 'http://rs.tdwg.org/dwc/terms/originalNameUsage',
+    nameAccordingTo: 'http://rs.tdwg.org/dwc/terms/nameAccordingTo',
+    namePublishedIn: 'http://rs.tdwg.org/dwc/terms/namePublishedIn',
+    namePublishedInYear: 'http://rs.tdwg.org/dwc/terms/namePublishedInYear',
+    higherClassification: 'http://rs.tdwg.org/dwc/terms/higherClassification',
+    kingdom: 'http://rs.tdwg.org/dwc/terms/kingdom',
+    phylum: 'http://rs.tdwg.org/dwc/terms/phylum',
+    class: 'http://rs.tdwg.org/dwc/terms/class',
+    order: 'http://rs.tdwg.org/dwc/terms/order',
+    superfamily: 'http://rs.tdwg.org/dwc/terms/superfamily',
+    family: 'http://rs.tdwg.org/dwc/terms/family',
+    subfamily: 'http://rs.tdwg.org/dwc/terms/subfamily',
+    tribe: 'http://rs.tdwg.org/dwc/terms/tribe',
+    subtribe: 'http://rs.tdwg.org/dwc/terms/subtribe',
+    genus: 'http://rs.tdwg.org/dwc/terms/genus',
+    subgenus: 'http://rs.tdwg.org/dwc/terms/subgenus',
+    specificEpithet: 'http://rs.tdwg.org/dwc/terms/specificEpithet',
+    infraspecificEpithet: 'http://rs.tdwg.org/dwc/terms/infraspecificEpithet',
+    verbatimTaxonRank: 'http://rs.tdwg.org/dwc/terms/verbatimTaxonRank',
+    scientificNameAuthorship: 'http://rs.tdwg.org/dwc/terms/scientificNameAuthorship',
+    vernacularName: 'http://rs.tdwg.org/dwc/terms/vernacularName',
+    nomenclaturalCode: 'http://rs.tdwg.org/dwc/terms/nomenclaturalCode',
+    taxonomicStatus: 'http://rs.tdwg.org/dwc/terms/taxonomicStatus',
+    nomenclaturalStatus: 'http://rs.tdwg.org/dwc/terms/nomenclaturalStatus',
+    taxonRemarks: 'http://rs.tdwg.org/dwc/terms/taxonRemarks'
+  }.freeze
+
+  # Header converter for checklist exports (Taxon core)
+  # Converts dwc_occurrence column names to DwC Taxon extension field names
+  CSV::HeaderConverters[:checklist_headers] = lambda do |field|
+    d = DwcOccurrence::CHECKLIST_TAXON_EXTENSION_COLUMNS[field.to_sym]
+    d ? d.to_s : field
+  end
+
   # Supported ranks (fields in db)
   NOMENCLATURE_RANKS =  [
     :kingdom,
@@ -74,10 +154,19 @@ class DwcOccurrence < ApplicationRecord
     :tribe,
     :subtribe,
     :genus,
+    :subgenus,
     :specificEpithet
   ].freeze
 
   belongs_to :dwc_occurrence_object, polymorphic: true, inverse_of: :dwc_occurrence
+
+  # @return [Scope]
+  #   the columns inferred to have occurrence export data
+  scope :computed_occurrence_columns, -> { select(target_occurrence_columns) }
+
+  # @return [Scope]
+  #   the columns inferred to have checklist export data
+  scope :computed_checklist_columns, -> { select(target_checklist_columns) }
 
   before_validation :generate_uuid_if_required
   before_validation :set_metadata_attributes
@@ -175,7 +264,7 @@ class DwcOccurrence < ApplicationRecord
     a = self.object_join('CollectionObject')
       .where('dwc_occurrences.project_id = ?', project_id)
       .where(dwc_occurrence_object_id: k)
-      .select(::DwcOccurrence.target_columns) # TODO !! Will have to change when AssertedDistribution and other types merge in
+      .select(::DwcOccurrence.target_occurrence_columns) # TODO !! Will have to change when AssertedDistribution and other types merge in
     a
   end
 
@@ -191,14 +280,14 @@ class DwcOccurrence < ApplicationRecord
     and correlation is null
     and null_frac = 1;").pluck('attname').map(&:to_sym)
 
-    empty_in_all_projects #  - target_columns
+    empty_in_all_projects #  - target_occurrence_columns
   end
 
   # @return [Array]
   #   of symbols
   # !! TODO: When we come to adding AssertedDistributions, FieldOccurrnces, etc. we will have to
   # make this more flexible
-  def self.target_columns
+  def self.target_occurrence_columns
     # The final DwCA file *will* have an id column, as required for matching
     # with extensions, but its values will be copies of occurrenceID - we don't
     # want to send the ephemeral dwc_occurrence.id values to GBIF.
@@ -207,22 +296,43 @@ class DwcOccurrence < ApplicationRecord
     [:id,
      :basisOfRecord,
      :occurrenceID,
-     :dwc_occurrence_object_id,   # !! We don't want this, but need it in joins, it is removed in trim via `.excluded_columns` below
+     :dwc_occurrence_object_id,   # !! We don't want this, but need it in joins, it is removed in trim via excluded_occurrence_columns below
      :dwc_occurrence_object_type, # !! ^
     ] + CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys
   end
 
-  # @return [Array]
-  #   of symbols
-  def self.excluded_columns
-    # id is *not* excluded.
-    ::DwcOccurrence.columns.collect{|c| c.name.to_sym} - (self.target_columns - [:dwc_occurrence_object_id, :dwc_occurrence_object_type])
+  # @return [Array] of symbols
+  def self.target_checklist_columns
+    # The final DwCA file *will* have an id column, as required for matching
+    # with extensions, but values will be copies of occurrenceID - we don't want
+    # to send the ephemeral dwc_occurrence.id values to GBIF.
+    [
+     :id,
+     :dwc_occurrence_object_id, # !! We don't want this, but need it in joins, it is removed in trim via excluded_checklist_columns below
+     :dwc_occurrence_object_type, # !! ^
+    ] + CHECKLIST_TAXON_EXTENSION_COLUMNS.keys
   end
 
-  # @return [Scope]
-  #   the columns inferred to have data
-  def self.computed_columns
-    select(target_columns)
+  # @return [Array]
+  #   of symbols
+  def self.excluded_occurrence_columns
+    # id is *not* excluded, it's required for star-joining - but we get to
+    # choose to populate with UUIDs instead of db ids.
+    (::DwcOccurrence.columns.collect{ |c| c.name.to_sym } -
+      (
+        self.target_occurrence_columns -
+          [:dwc_occurrence_object_id, :dwc_occurrence_object_type]
+      )
+    )
+  end
+
+  def self.excluded_checklist_columns
+    (::DwcOccurrence.columns.collect{ |c| c.name.to_sym } -
+      (
+        CHECKLIST_TAXON_EXTENSION_COLUMNS.keys -
+          [:dwc_occurrence_object_id, :dwc_occurrence_object_type]
+      )
+    )
   end
 
   def basis
