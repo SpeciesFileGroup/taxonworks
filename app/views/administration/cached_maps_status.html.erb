@@ -34,13 +34,13 @@
 <div class="flexbox separate-bottom flex-wrap-row">
   <div class="panel content">
     <h2> Georeferences </h2>
+    <% georeferences_with_otu = Georeference.having_otu %>
     <table>
       <tr><td>Total</td><td><%= tag.strong Georeference.count %></td></tr>
-      <tr><td>Total with OTUs</td><td><%= tag.strong Georeference.joins(:otus).distinct.count %></td></tr>
-      <tr><td>Registered</td><td class="padding-large-left"><%= tag.strong Georeference.joins(:cached_map_register).distinct.count %></td></tr>
-      <tr><td>Unregistered</td><td class="padding-large-left"><%= tag.strong Georeference.joins(:otus).where.missing(:cached_map_register).distinct.count %></td></tr>
-      <tr><td>Unused (no OTUs)</td><td><%= tag.strong Georeference.where.missing(:otus).distinct.count %></td></tr>
+      <tr><td>Total with OTUs</td><td><%= tag.strong georeferences_with_otu.distinct.count %></td></tr>
+      <tr><td>Registered</td><td class="padding-large-left"><%= tag.strong georeferences_with_otu.joins(:cached_map_register).distinct.count %></td></tr>
+      <tr><td>Unregistered</td><td class="padding-large-left"><%= tag.strong georeferences_with_otu.where.missing(:cached_map_register).distinct.count %></td></tr>
+      <tr><td>Unused (no OTUs)</td><td><%= tag.strong Georeference.without_otu.distinct.count %></td></tr>
     </table>
   </div>
 </div>
-

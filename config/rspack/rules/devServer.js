@@ -1,3 +1,4 @@
+const { config: shakapackerConfig } = require('shakapacker')
 const { DefinePlugin } = require('@rspack/core')
 const openInEditor = require('launch-editor-middleware')
 
@@ -10,8 +11,22 @@ module.exports = (webpackConfig) => {
     devtool: 'source-map',
     devServer: {
       devMiddleware: {
-        writeToDisk: true
+        publicPath: shakapackerConfig.publicPath
       },
+      historyApiFallback: { disableDotRule: true },
+      static: {
+        publicPath: shakapackerConfig.outputPath,
+        watch: false
+      },
+      client: {
+        overlay: {
+          errors: true,
+          warnings: false,
+          runtimeErrors: (error) =>
+            !error.message.includes('e.location.reload is not a function')
+        }
+      },
+
       setupMiddlewares: (middlewares, devServer) => {
         if (!devServer) throw new Error('webpack-dev-server is not defined')
 

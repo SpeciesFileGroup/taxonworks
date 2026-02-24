@@ -220,6 +220,7 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
       ad_offset.send(:create_cached_map_items, true, skip_register: true, register_queue: queue)
       expect { CachedMapRegister.insert_all(queue) }.to change(CachedMapRegister, :count).by(1)
     end
+
   end
 
   context 'Georeference-based cached map items' do
@@ -264,7 +265,7 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
       expect(georeference.reload.cached_map_register).to be_present
     end
 
-    context 'batch mode with context' do
+    context 'batch mode' do
       before do
         georeference
         Delayed::Worker.new.work_off
@@ -272,21 +273,16 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
         CachedMapItem.delete_all
       end
 
-      specify 'creates CachedMapItem with pre-computed context' do
-        context = {
-          otu_id: [otu.id]
-        }
-        georeference.send(:create_cached_map_items, true, context:,
+      specify 'creates CachedMapItem' do
+        georeference.send(:create_cached_map_items, true,
           skip_register: true, register_queue: [])
         expect(CachedMapItem.count).to eq(1)
         expect(CachedMapItem.first.geographic_item_id).to eq(gi1.id)
       end
 
-      specify 'context with empty otu_id skips creation' do
-        context = {
-          otu_id: []
-        }
-        georeference.send(:create_cached_map_items, true, context:,
+      specify 'without qualifying OTUs skips creation' do
+        taxon_determination.destroy!
+        georeference.send(:create_cached_map_items, true,
           skip_register: true, register_queue: [])
         expect(CachedMapItem.count).to eq(0)
       end
@@ -329,26 +325,18 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
       expect(stubs[:geographic_item_id]).to contain_exactly(gi1.id)
     end
 
-    specify 'with pre-computed context uses provided values' do
-      georeference
-      Delayed::Worker.new.work_off
-      context = {
-        otu_id: [otu.id]
-      }
-      stubs = CachedMapItem.stubs(georeference, 'CachedMapItem::WebLevel1', context:)
-      expect(stubs[:otu_id]).to eq([otu.id])
-      expect(stubs[:geographic_item_id]).to contain_exactly(gi1.id)
-    end
-
-    specify 'with context containing multiple OTU ids' do
+    specify 'only uses OTUs from position=1 determinations' do
       otu2 = Otu.create!(taxon_name: genus)
+      taxon_determination.update!(position: 1)
+      TaxonDetermination.create!(
+        taxon_determination_object: specimen,
+        otu: otu2,
+        position: 2
+      )
       georeference
       Delayed::Worker.new.work_off
-      context = {
-        otu_id: [otu.id, otu2.id]
-      }
-      stubs = CachedMapItem.stubs(georeference, 'CachedMapItem::WebLevel1', context:)
-      expect(stubs[:otu_id]).to contain_exactly(otu.id, otu2.id)
+      stubs = CachedMapItem.stubs(georeference, 'CachedMapItem::WebLevel1')
+      expect(stubs[:otu_id]).to contain_exactly(otu.id)
     end
   end
 end

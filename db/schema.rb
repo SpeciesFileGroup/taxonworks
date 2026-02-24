@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_21_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_16_024500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -312,6 +312,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_21_000001) do
     t.index ["otu_id", "geographic_item_id"], name: "index_cached_map_items_on_otu_id_and_geographic_item_id"
     t.index ["otu_id"], name: "index_cached_map_items_on_otu_id"
     t.index ["project_id"], name: "index_cached_map_items_on_project_id"
+    t.index ["type", "otu_id", "geographic_item_id", "project_id"], name: "index_cached_map_items_on_type_otu_gi_project", unique: true
   end
 
   create_table "cached_map_registers", force: :cascade do |t|
@@ -321,6 +322,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_21_000001) do
     t.bigint "project_id"
     t.datetime "updated_at", null: false
     t.index ["cached_map_register_object_type", "cached_map_register_object_id"], name: "index_cached_map_registers_on_cached_map_register_object"
+    t.index ["cached_map_register_object_type", "cached_map_register_object_id"], name: "index_cached_map_registers_on_object_identity_unique", unique: true
     t.index ["project_id"], name: "index_cached_map_registers_on_project_id"
   end
 
