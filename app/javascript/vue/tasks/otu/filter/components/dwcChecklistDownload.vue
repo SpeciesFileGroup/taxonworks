@@ -97,6 +97,31 @@
           </div>
 
           <div class="panel content margin-medium-top">
+            <p class="margin-small-bottom"><strong>Download name and description (optional):</strong></p>
+            <p class="subtle margin-small-bottom">
+              <i>Defaults will be used if left blank.</i>
+            </p>
+            <div class="field">
+              <label>Name</label>
+              <input
+                type="text"
+                v-model="downloadName"
+                :placeholder="defaultDownloadName"
+                class="full_width"
+              />
+            </div>
+            <div class="field margin-small-top">
+              <label>Description</label>
+              <input
+                type="text"
+                v-model="downloadDescription"
+                :placeholder="defaultDownloadDescription"
+                class="full_width"
+              />
+            </div>
+          </div>
+
+          <div class="panel content margin-medium-top">
             <p class="margin-small-bottom"><strong>How to handle unaccepted names:</strong></p>
             <div
               v-for="option in acceptedNameModeOptions"
@@ -181,6 +206,10 @@ const acceptedNameModeOptions = ref([])
 const acceptedNameMode = ref('replace_with_accepted_name')
 const showTopicModal = ref(false)
 const selectedTopics = ref([])
+const downloadName = ref('')
+const downloadDescription = ref('')
+const defaultDownloadName = `DwC Checklist on ${new Date().toLocaleString()}.`
+const defaultDownloadDescription = 'A zip file containing a Darwin Core Archive checklist.'
 
 onMounted(async () => {
   try {
@@ -255,6 +284,14 @@ function download() {
   // Add description topics if description extension is selected
   if (selectedExtensions.description && selectedTopics.value.length > 0) {
     payload.description_topics = selectedTopics.value.map(t => t.id)
+  }
+
+  if (downloadName.value.trim()) {
+    payload.download_name = downloadName.value.trim()
+  }
+
+  if (downloadDescription.value.trim()) {
+    payload.download_description = downloadDescription.value.trim()
   }
 
   console.log('Sending payload:', payload)

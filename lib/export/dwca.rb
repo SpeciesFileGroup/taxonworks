@@ -37,20 +37,27 @@ module Export::Dwca
     download
   end
 
+  DEFAULT_CHECKLIST_DESCRIPTION = 'A zip file containing a Darwin Core Archive checklist.'.freeze
+
   # Create a DwC-A checklist download asynchronously
   # @param core_otu_scope_params [Hash] OTU query parameters
   # @param request_url [String] URL of the request
   # @param extensions [Array<Symbol>] Extensions to include (e.g., [:distribution, :references])
   # @param accepted_name_mode [String] How to handle unaccepted names ('replace_with_accepted_name' or 'accepted_name_usage_id')
+  # @param description_topics [Array<Integer>] Ordered list of topic IDs for description extension
+  # @param download_name [String, nil] Optional custom name for the Download record
+  # @param download_description [String, nil] Optional custom description for the Download record
   # @param project_id [Integer] Project ID
   # @return [Download::DwcArchive::Checklist] The download record
-  def self.checklist_download_async(core_otu_scope_params, request_url, extensions: [], accepted_name_mode: 'replace_with_accepted_name', description_topics: [], project_id: nil)
-    name = "dwc_checklist_#{DateTime.now}.zip"
+  def self.checklist_download_async(core_otu_scope_params, request_url, extensions: [], accepted_name_mode: 'replace_with_accepted_name', description_topics: [], download_name: nil, download_description: nil, project_id: nil)
+    filename = "dwc_checklist_#{DateTime.now}.zip"
+    display_name = download_name.presence || "DwC Checklist on #{Time.now}."
+    description = download_description.presence || DEFAULT_CHECKLIST_DESCRIPTION
 
     download = ::Download::DwcArchive::Checklist.create!(
-      name: "DwC Checklist on #{Time.now}.",
-      description: 'A zip file containing a Darwin Core Archive checklist.',
-      filename: name,
+      name: display_name,
+      description: description,
+      filename: filename,
       request: request_url,
       expires: 2.days.from_now
     )

@@ -195,6 +195,44 @@ describe Export::Dwca, type: :model, group: :darwin_core do
       expect(Download.first).to be_a(Download::DwcArchive::Checklist)
     end
 
+    specify 'uses default name when none provided' do
+      expect(checklist_download.name).to match(/\ADwC Checklist on /)
+    end
+
+    specify 'uses default description when none provided' do
+      expect(checklist_download.description).to eq(Export::Dwca::DEFAULT_CHECKLIST_DESCRIPTION)
+    end
+
+    specify 'uses provided name when given' do
+      d = ::Export::Dwca.checklist_download_async(
+        otu_params,
+        'https://example.org/checklist_url',
+        download_name: 'My Coleoptera Checklist',
+        project_id: Project.first.id
+      )
+      expect(d.name).to eq('My Coleoptera Checklist')
+    end
+
+    specify 'uses provided description when given' do
+      d = ::Export::Dwca.checklist_download_async(
+        otu_params,
+        'https://example.org/checklist_url',
+        download_description: 'Beetles from the Pacific Northwest',
+        project_id: Project.first.id
+      )
+      expect(d.description).to eq('Beetles from the Pacific Northwest')
+    end
+
+    specify 'uses default name when blank name provided' do
+      d = ::Export::Dwca.checklist_download_async(
+        otu_params,
+        'https://example.org/checklist_url',
+        download_name: '   ',
+        project_id: Project.first.id
+      )
+      expect(d.name).to match(/\ADwC Checklist on /)
+    end
+
     specify 'deleting checklist download before zip file is created raises in job' do
       checklist_download.delete
       expect { perform_enqueued_jobs }.to raise_error(ActiveRecord::RecordNotFound)

@@ -99,6 +99,8 @@ class Tasks::Dwc::DashboardController < ApplicationController
     extensions = (params[:extensions] || []).map(&:to_sym)
     accepted_name_mode = params[:accepted_name_mode] || 'replace_with_accepted_name'
     description_topics = params[:description_topics] || []
+    download_name = params[:download_name].presence
+    download_description = params[:download_description].presence
 
     @download = ::Export::Dwca.checklist_download_async(
       core_otu_scope_params,
@@ -106,6 +108,8 @@ class Tasks::Dwc::DashboardController < ApplicationController
       extensions:,
       accepted_name_mode:,
       description_topics:,
+      download_name:,
+      download_description:,
       project_id: sessions_current_project_id
     )
     render '/downloads/show'
