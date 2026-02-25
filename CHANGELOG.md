@@ -10,8 +10,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Changed
 
 - Moved slide panel buttons to navigation bar [#4694]
+- The edit link now opens the New Asserted Distribution task instead of old data editing interface when accessed via Radial Navigator [#4768]
 
 [#4694]: https://github.com/SpeciesFileGroup/taxonworks/issues/4694
+[#4768]: https://github.com/SpeciesFileGroup/taxonworks/issues/4768
 
 ## [0.60.0] - 2026-02-20
 
