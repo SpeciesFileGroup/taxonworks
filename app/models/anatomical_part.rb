@@ -81,7 +81,7 @@ class AnatomicalPart < ApplicationRecord
   belongs_to :preparation_type, inverse_of: :anatomical_parts
 
   # Needed so we can build the origin chain at the same time we're using it to
-  # verify that a new AnitomicalPart has an OTU ancestor.
+  # verify that a new AnatomicalPart has an OTU ancestor.
   # Probably not needed outside of creation.
   has_one :inbound_origin_relationship,
     -> { where(new_object_type: 'AnatomicalPart') },
@@ -160,6 +160,31 @@ class AnatomicalPart < ApplicationRecord
       AnatomicalPart.joins(:related_origin_relationships).joins("JOIN #{related} ON #{related}.id = origin_relationships.old_object_id AND origin_relationships.old_object_type = '#{related_klass}'").where(i).pluck(:id).uniq
     else
       AnatomicalPart.joins(:origin_relationships).joins("JOIN #{related} ON #{related}.id = origin_relationships.new_object_id AND origin_relationships.new_object_type = '#{related_klass}'").where(i).pluck(:id).uniq
+    end
+  end
+
+  # @return [Boolean] default is_material value for a new AnatomicalPart given its origin
+  def self.default_is_material_for(origin)
+    origin.class.base_class.name == 'CollectionObject'
+  end
+
+  # @return [Array] unique name and URI templates from this project, sorted by label
+  def self.templates(project_id)
+    rows = where(project_id:).pluck(:name, :uri, :uri_label)
+
+    names = rows
+      .filter_map { |name, _uri, _uri_label| name.presence }
+      .uniq
+      .map { |name| { type: 'name', name: } }
+
+    uris = rows
+      .filter_map { |_name, uri, uri_label| [uri, uri_label] if uri.present? && uri_label.present? }
+      .uniq
+      .map { |uri, uri_label| { type: 'uri', uri:, uri_label: } }
+
+    (names + uris).sort_by do |item|
+      label = item[:type] == 'name' ? item[:name] : item[:uri_label]
+      [label.to_s.downcase, item[:type], item[:uri].to_s.downcase]
     end
   end
 

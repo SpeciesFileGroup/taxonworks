@@ -21,7 +21,7 @@
           <td v-html="item.biological_relationship.object_tag" />
           <td v-html="getSubjectOrObject(item)" />
           <td>
-            {{ item.biological_association_object_id === metadata.object_id }}
+            {{ isInverted(item) }}
           </td>
           <td>
             <div class="horizontal-right-content gap-xsmall">
@@ -90,10 +90,15 @@ function deleteItem(item) {
   }
 }
 
+function isInverted(item) {
+  return (
+    item.biological_association_object_id === props.metadata.object_id &&
+    item.biological_association_subject_id !== props.metadata.object_id
+  )
+}
+
 function getSubjectOrObject(item) {
-  return item.biological_association_object_id === props.metadata.object_id
-    ? item.subject.object_tag
-    : item.object.object_tag
+  return isInverted(item) ? item.subject.object_tag : item.object.object_tag
 }
 </script>
 <style lang="scss" scoped>

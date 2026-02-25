@@ -4,28 +4,46 @@
     <h3>Preparation</h3>
     <div
       v-if="preparationTypes.length > 0"
-      class="horizontal-left-content align-start"
     >
-      <ul
-        v-for="(itemsGroup, index) in chunkList"
-        :key="index"
-        class="no_bullets preparation-list"
+      <div
+        v-if="display === 'radio'"
+        class="horizontal-left-content align-start"
       >
-        <li
-          v-for="type in itemsGroup"
-          :key="type.id"
+        <ul
+          v-for="(itemsGroup, index) in chunkList"
+          :key="index"
+          class="no_bullets preparation-list"
         >
-          <label>
-            <input
-              type="radio"
-              :value="type.id"
-              v-model="anatomicalPart.preparation_type_id"
-              name="anatomical-part-preparation-type"
-            />
-            {{ type.name }}
-          </label>
-        </li>
-      </ul>
+          <li
+            v-for="type in itemsGroup"
+            :key="type.id"
+          >
+            <label>
+              <input
+                type="radio"
+                :value="type.id"
+                v-model="anatomicalPart.preparation_type_id"
+                name="anatomical-part-preparation-type"
+              />
+              {{ type.name }}
+            </label>
+          </li>
+        </ul>
+      </div>
+
+      <select
+        v-else
+        v-model="anatomicalPart.preparation_type_id"
+        class="normal-input"
+      >
+        <option
+          v-for="type in preparationTypes"
+          :key="type.id"
+          :value="type.id"
+        >
+          {{ type.name }}
+        </option>
+      </select>
     </div>
 
     <div v-else>
@@ -42,6 +60,14 @@ import { computed, onMounted, ref } from 'vue'
 const anatomicalPart = defineModel({
   type: Object,
   required: true
+})
+
+defineProps({
+  display: {
+    type: String,
+    default: 'radio',
+    validator: (value) => ['radio', 'select'].includes(value)
+  }
 })
 
 const preparationTypes = ref([])

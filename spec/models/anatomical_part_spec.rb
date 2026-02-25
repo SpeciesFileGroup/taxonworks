@@ -468,4 +468,31 @@ RSpec.describe AnatomicalPart, type: :model do
     end
   end
 
+  context '.templates' do
+    let(:ancestor) do
+      s = FactoryBot.create(:valid_specimen)
+      FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s)
+      s
+    end
+
+    specify 'returns unique name and uri templates in sorted order' do
+      FactoryBot.create(:valid_anatomical_part, ancestor:, name: 'femur')
+      FactoryBot.create(:valid_anatomical_part, ancestor:, name: 'Femur')
+      FactoryBot.create(:valid_anatomical_part, ancestor:, name: nil,
+        uri: 'http://purl.obolibrary.org/obo/UBERON_0000979', uri_label: 'leg')
+      FactoryBot.create(:valid_anatomical_part, ancestor:, name: nil,
+        uri: 'http://purl.obolibrary.org/obo/UBERON_0000979', uri_label: 'leg')
+
+      result = AnatomicalPart.templates(ancestor.project_id)
+
+      names = result.select { |item| item[:type] == 'name' }.map { |item| item[:name] }
+      uris  = result.select { |item| item[:type] == 'uri' }
+
+      expect(names).to match_array(['Femur', 'femur'])
+      expect(uris).to eq([
+        { type: 'uri', uri: 'http://purl.obolibrary.org/obo/UBERON_0000979', uri_label: 'leg' }
+      ])
+    end
+  end
+
 end
