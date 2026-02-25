@@ -6,7 +6,7 @@
     <IconLock
       class="w-4"
       stroke-width="2"
-      v-if="!isLocked"
+      v-if="isLocked"
     />
     <IconUnlock
       class="w-4"
