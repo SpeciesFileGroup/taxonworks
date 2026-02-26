@@ -1,5 +1,8 @@
 <template>
-  <div id="new_taxon_name_task">
+  <div
+    id="app-new-taxon-name"
+    class="container-xl"
+  >
     <div class="flex-separate middle">
       <h1>{{ taxon.id ? 'Edit' : 'New' }} taxon name</h1>
       <div class="horizontal-right-content middle">
@@ -27,9 +30,9 @@
       </div>
     </div>
     <div>
-      <nav-header />
+      <NavHeader />
       <div class="flexbox horizontal-center-content align-start">
-        <div class="ccenter item">
+        <div class="item">
           <VSpinner
             full-screen
             :legend="isLoading ? 'Loading...' : 'Saving changes...'"
@@ -47,35 +50,11 @@
             />
           </template>
         </div>
-        <div
+        <ColumnRight
           v-if="taxon.id"
           class="cright item margin-medium-left"
-        >
-          <div
-            id="cright-panel"
-            ref="rightPanelRef"
-          >
-            <div class="panel content margin-medium-bottom">
-              <autocomplete
-                id="taxonname-autocomplete-search"
-                url="/taxon_names/autocomplete"
-                param="term"
-                :add-params="{ 'type[]': 'Protonym' }"
-                label="label_html"
-                placeholder="Search a taxon name..."
-                @get-item="loadTaxon"
-                clear-after
-              />
-            </div>
-            <check-changes />
-            <taxon-name-box class="separate-bottom" />
-            <soft-validation
-              v-if="checkSoftValidation"
-              class="separate-top"
-              :validations="validations"
-            />
-          </div>
-        </div>
+          @select-taxon="loadTaxon"
+        />
       </div>
     </div>
   </div>
@@ -84,18 +63,16 @@
 <script setup>
 import Autocomplete from '@/components/ui/Autocomplete'
 import NavHeader from './components/navHeader.vue'
-import TaxonNameBox from './components/taxonNameBox.vue'
-import CheckChanges from './components/checkChanges.vue'
-import SoftValidation from '@/components/soft_validations/panel.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import platformKey from '@/helpers/getPlatformKey'
+import ColumnRight from './components/ColumnRight.vue'
 import { useHotkey } from '@/composables'
 import { SectionComponents } from './const/components.js'
 import { convertType } from '@/helpers/types.js'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 import { ActionNames } from './store/actions/actions'
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, useTemplateRef } from 'vue'
 import { useStore } from 'vuex'
 
 defineOptions({
@@ -104,7 +81,6 @@ defineOptions({
 
 const store = useStore()
 
-const rightPanelRef = ref(null)
 const isLoading = ref()
 const shortcuts = ref([
   {
@@ -118,14 +94,7 @@ const shortcuts = ref([
 
 useHotkey(shortcuts.value)
 
-const validations = computed(() => store.getters[GetterNames.GetSoftValidation])
 const taxon = computed(() => store.getters[GetterNames.GetTaxon])
-const checkSoftValidation = computed(
-  () =>
-    validations.value.taxon_name.list.length ||
-    validations.value.taxonStatusList.list.length ||
-    validations.value.taxonRelationshipList.list.length
-)
 
 const isAutosaveActive = computed({
   get() {
@@ -151,8 +120,6 @@ onMounted(() => {
     taxonId = location.pathname.split('/')[4]
   }
 
-  window.addEventListener('scroll', scrollBox)
-
   initLoad().then(() => {
     if (/^\d+$/.test(taxonId)) {
       isLoading.value = true
@@ -173,33 +140,6 @@ onMounted(() => {
 
   addShortcutsDescription()
 })
-
-function scrollBox() {
-  const element = rightPanelRef.value
-  const softValidationContainer = document.querySelector(
-    '#new_taxon_name_task .soft-validation-box'
-  )
-  if (softValidationContainer) {
-    const innerHeight = window.innerHeight
-    const elementRect = softValidationContainer.getBoundingClientRect()
-
-    softValidationContainer.style.maxHeight = `${
-      innerHeight - elementRect.top - 20
-    }px`
-  }
-  if (element) {
-    if (
-      (window.pageYOffset ||
-        document.documentElement.scrollTop ||
-        document.body.scrollTop ||
-        0) > 154
-    ) {
-      element.classList.add('cright-fixed-top')
-    } else {
-      element.classList.remove('cright-fixed-top')
-    }
-  }
-}
 
 function addShortcutsDescription() {
   const TASK = 'New taxon name'
@@ -269,11 +209,9 @@ function focusSearch() {
 </script>
 
 <style lang="scss">
-#new_taxon_name_task {
+#app-new-taxon-name {
   flex-direction: column-reverse;
   margin: 0 auto;
-  margin-top: 1em;
-  max-width: 1240px;
 
   .autocomplete-search-bar {
     input {
@@ -286,25 +224,11 @@ function focusSearch() {
     width: 100%;
   }
 
-  .cleft,
-  .cright {
-    min-width: 350px;
-    max-width: 350px;
-    width: 300px;
-  }
-  .ccenter {
-    max-width: 1240px;
-  }
   #cright-panel {
-    width: 350px;
-    max-width: 350px;
+    width: 400px;
+    max-width: 400px;
   }
-  .cright-fixed-top {
-    top: 76px;
-    width: 1240px;
-    z-index: 200;
-    position: fixed;
-  }
+
   .anchor {
     display: block;
     height: 65px;

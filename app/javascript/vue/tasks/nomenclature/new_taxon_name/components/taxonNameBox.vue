@@ -33,7 +33,7 @@
       <div class="content">
         <div
           v-if="taxon.id"
-          class="flex-separate middle"
+          class="flex-separate middle gap-small"
         >
           <a
             :href="`/tasks/nomenclature/browse?taxon_name_id=${taxon.id}`"
@@ -153,8 +153,7 @@ function deleteTaxon() {
       let message
       isNavigating.value = true
       if (body.parent_id) {
-        window.location.href =
-          `${RouteNames.BrowseNomenclature}?taxon_name_id=${body.parent_id}`
+        window.location.href = `${RouteNames.BrowseNomenclature}?taxon_name_id=${body.parent_id}`
         message = 'Taxon name was successfully destroyed, browsing to parent.'
       } else {
         reloadPage()
