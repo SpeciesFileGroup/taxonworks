@@ -7,6 +7,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Fixed
+
+- Task bar overlays panels when header is locked in New taxon name and New source tasks
+
 ### Changed
 
 - Moved slide panel buttons to navigation bar [#4694]
