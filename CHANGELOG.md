@@ -17,12 +17,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Task bar overlays panels when header is locked in New taxon name and New source tasks
 - Basic Endemism task reports an error
 - Selecting `Object Graph` from the navigator radial of an OTU with an Asserted Distribution reports an error
+- BiologicalAssociationIndex is not updated when additional citations are added or removed, TaxonPages BiologicalAssociation panel has outdated citations information [#345]
 
 ### Changed
 
 - Moved slide panel buttons to navigation bar [#4694]
 - The edit link now opens the New Asserted Distribution task instead of old data editing interface when accessed via Radial Navigator [#4768]
 
+[#345]: https://github.com/SpeciesFileGroup/taxonpages/issues/345
 [#4694]: https://github.com/SpeciesFileGroup/taxonworks/issues/4694
 [#4700]: https://github.com/SpeciesFileGroup/taxonworks/issues/4700
 [#4745]: https://github.com/SpeciesFileGroup/taxonworks/issues/4745

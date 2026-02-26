@@ -237,6 +237,40 @@ describe Citation, type: :model, group: [:annotators, :citations] do
     expect(CitationTopic.count).to eq(1)
   end
 
+  context 'biological association index hooks' do
+    let(:ba) { FactoryBot.create(:valid_biological_association) }
+    let(:ba_source) { FactoryBot.create(:valid_source_bibtex) }
+
+    specify 'queues job when citation is created on a biological association' do
+      expect {
+        Citation.create!(citation_object: ba, source: ba_source)
+      }.to have_enqueued_job(BiologicalAssociationIndexRefreshJob)
+    end
+
+    specify 'queues job when citation on a biological association is destroyed' do
+      citation = Citation.create!(citation_object: ba, source: ba_source)
+      expect {
+        citation.destroy!
+      }.to have_enqueued_job(BiologicalAssociationIndexRefreshJob)
+    end
+
+    specify 'does not queue job when citation is on a non-BA object' do
+      expect {
+        Citation.create!(citation_object: otu, source: ba_source)
+      }.not_to have_enqueued_job(BiologicalAssociationIndexRefreshJob)
+    end
+
+    specify '#biological_association_indices returns the correct index record' do
+      citation = Citation.create!(citation_object: ba, source: ba_source)
+      expect(citation.biological_association_indices).to include(ba.biological_association_index)
+    end
+
+    specify '#biological_association_indices returns none for non-BA citations' do
+      citation = Citation.create!(citation_object: otu, source: ba_source)
+      expect(citation.biological_association_indices).to be_empty
+    end
+  end
+
   context 'concerns' do
     it_behaves_like 'is_data'
   end
