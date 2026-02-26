@@ -475,7 +475,23 @@ class OtusController < ApplicationController
 
   end
 
+
+  # GET /otus/autoselect
+  def autoselect
+    render json: ::Autoselect::Otu::Autoselect.new(
+      term: params[:term],
+      level: params[:level],
+      project_id: sessions_current_project_id,
+      user_id: sessions_current_user_id,
+      **autoselect_params
+    ).response
+  end
+
   private
+
+  def autoselect_params
+    params.permit().to_h.symbolize_keys
+  end
 
   def set_otu
     @otu = Otu.where(project_id: sessions_current_project_id).eager_load(:taxon_name).find(params[:id])

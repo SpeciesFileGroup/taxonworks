@@ -1201,3 +1201,12 @@ filter_namespaces_task:
   categories:
   status: prototype
   description: "Filter namespaces by many different facets, download or visualize results."
+
+index_autoselects_task:
+  hub: true
+  name: 'Autoselect playground'
+  related:
+  categories:
+    - debugging
+  status: prototype
+  description: 'Interactive development playground for testing Autoselect field behavior across models'

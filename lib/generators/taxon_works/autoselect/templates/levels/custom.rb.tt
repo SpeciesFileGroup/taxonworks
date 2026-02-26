@@ -1,0 +1,29 @@
+# lib/autoselect/<%= model_name %>/levels/<%= @current_level_name %>.rb
+module Autoselect
+  module <%= model_class_name %>
+    module Levels
+      class <%= @current_level_name.camelize %> < ::Autoselect::Level
+
+        def key
+          :<%= @current_level_name %>
+        end
+
+        def label
+          '<%= @current_level_name.humanize %>'
+        end
+
+        def description
+          'TODO: describe this level'
+        end
+
+        # @param term [String]
+        # @param project_id [Integer, nil]
+        # @return [Array]
+        def call(term:, operator: nil, project_id: nil, user_id: nil, **_kwargs)
+          [] # TODO: implement
+        end
+
+      end
+    end
+  end
+end

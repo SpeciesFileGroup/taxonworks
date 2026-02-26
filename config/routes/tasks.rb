@@ -1,4 +1,10 @@
 scope :tasks do
+  scope :debugging do
+    scope :autoselects, controller: 'tasks/debugging/autoselects' do
+      get :index, as: 'index_autoselects_task'
+    end
+  end
+
   scope :news do
     scope :browse, controller: 'tasks/news/browse' do
       get '/', action: :index, as: 'browse_news_task'

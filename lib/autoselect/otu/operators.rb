@@ -1,0 +1,23 @@
+# lib/autoselect/otu/operators.rb
+module Autoselect
+  module Otu
+    # Otu-specific operator overrides.
+    # Include this module in Autoselect::Otu::Autoselect to activate.
+    # Override .operator_map to add or remove operators for this model.
+    module Operators
+      def self.included(base)
+        base.extend(ClassMethods)
+      end
+
+      module ClassMethods
+        def operator_map
+          # To add an operator:
+          #   Autoselect::Operators::OPERATORS.merge(my_op: { pattern: /\A!x/, client_only: false, trigger: '!x', description: '...' })
+          # To remove an operator:
+          #   Autoselect::Operators::OPERATORS.except(:new_record)
+          ::Autoselect::Operators::OPERATORS
+        end
+      end
+    end
+  end
+end

@@ -360,7 +360,26 @@ class TaxonNamesController < ApplicationController
     end
   end
 
+
+  # GET /taxon_names/autoselect
+  def autoselect
+    render json: ::Autoselect::TaxonName::Autoselect.new(
+      term: params[:term],
+      level: params[:level],
+      project_id: sessions_current_project_id,
+      user_id: sessions_current_user_id,
+      **autoselect_params
+    ).response
+  end
+
   private
+
+  def autoselect_params
+    params.permit(
+      :valid, :exact, :no_leaves,
+      type: [], parent_id: [], nomenclature_group: []
+    ).to_h.symbolize_keys
+  end
 
   def set_taxon_name
     @taxon_name = TaxonName.with_project_id(sessions_current_project_id).includes(:creator, :updater).find(params[:id])
