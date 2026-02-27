@@ -130,46 +130,26 @@
       <button class="btn" @click="showHelp = false">Close</button>
     </div>
 
-    <!-- Extension panel: CoL alignment or new-OTU form -->
+    <!-- Extension panel: new-OTU form (inline) -->
     <div
-      v-if="pendingExtensionItem"
+      v-if="pendingExtensionItem?.extension?.mode === 'new_otu_form'"
       class="autoselect-field__extension-panel"
     >
-      <template v-if="pendingExtensionItem.extension?.mode === 'new_otu_form'">
-        <p><strong>Create new OTU</strong></p>
-        <p>Name: <em>{{ pendingExtensionItem.extension.name_prefill }}</em></p>
-        <div class="autoselect-field__extension-actions">
-          <button class="btn normal-input" @click="confirmExtension">Confirm</button>
-          <button class="btn normal-input" @click="cancelExtension">Cancel</button>
-        </div>
-      </template>
-      <template v-else-if="pendingExtensionItem.extension?.col_key">
-        <p><strong>Catalog of Life:</strong> {{ pendingExtensionItem.extension.col_name }}</p>
-        <p v-if="pendingExtensionItem.extension.col_status">
-          Status: {{ pendingExtensionItem.extension.col_status }}
-        </p>
-        <table
-          v-if="pendingExtensionItem.extension.alignment?.length"
-          class="autoselect-field__alignment-table"
-        >
-          <thead>
-            <tr><th>Rank</th><th>CoL name</th><th>TaxonWorks match</th><th>Match</th></tr>
-          </thead>
-          <tbody>
-            <tr v-for="row in pendingExtensionItem.extension.alignment" :key="row.rank">
-              <td>{{ row.rank }}</td>
-              <td>{{ row.col_name }}</td>
-              <td>{{ row.taxonworks_name ?? '—' }}</td>
-              <td>{{ row.match }}</td>
-            </tr>
-          </tbody>
-        </table>
-        <div class="autoselect-field__extension-actions">
-          <button class="btn normal-input" @click="confirmExtension">Confirm</button>
-          <button class="btn normal-input" @click="cancelExtension">Cancel</button>
-        </div>
-      </template>
+      <p><strong>Create new OTU</strong></p>
+      <p>Name: <em>{{ pendingExtensionItem.extension.name_prefill }}</em></p>
+      <div class="autoselect-field__extension-actions">
+        <button class="btn normal-input" @click="confirmExtension">Confirm</button>
+        <button class="btn normal-input" @click="cancelExtension">Cancel</button>
+      </div>
     </div>
+
+    <!-- CoL confirmation modal (teleported via Modal.vue) -->
+    <ColConfirmModal
+      v-if="pendingExtensionItem?.extension?.col_key"
+      :item="pendingExtensionItem"
+      @confirm="onColConfirm"
+      @cancel="cancelExtension"
+    />
   </div>
 </template>
 
@@ -177,6 +157,7 @@
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import AjaxCall from '@/helpers/ajaxCall'
 import { useAutoselect } from '@/components/ui/AutoselectField/useAutoselect'
+import ColConfirmModal from '@/components/ui/AutoselectField/ColConfirmModal.vue'
 
 // ── Props & emits ──────────────────────────────────────────────────────────────
 const props = defineProps({
@@ -462,6 +443,18 @@ function confirmExtension() {
 
 function cancelExtension() {
   pendingExtensionItem.value = null
+  nextTick(() => inputEl.value?.focus())
+}
+
+function onColConfirm(taxonNameId) {
+  completeSelection({
+    id:              taxonNameId,
+    label:           pendingExtensionItem.value.label,
+    label_html:      pendingExtensionItem.value.label_html,
+    info:            '',
+    response_values: { taxon_name_id: taxonNameId },
+    extension:       {}
+  })
 }
 
 // ── Keyboard navigation ────────────────────────────────────────────────────────
@@ -745,22 +738,4 @@ function clearResults() {
   margin-top: 8px;
 }
 
-.autoselect-field__alignment-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 6px 0;
-  font-size: 11px;
-}
-
-.autoselect-field__alignment-table th,
-.autoselect-field__alignment-table td {
-  border: 1px solid var(--border-color, #ccc);
-  padding: 3px 6px;
-  text-align: left;
-}
-
-.autoselect-field__alignment-table th {
-  background: var(--input-bg-color, #f5f5f5);
-  font-weight: 600;
-}
 </style>

@@ -957,6 +957,7 @@ resources :taxon_names do
 
   collection do
     get :autoselect, defaults: { format: :json }
+    post :autoselect_col_create, defaults: { format: :json }
     get :select_options, defaults: {format: :json}
     match :filter, to: 'taxon_names#index', via: [:get, :post]
 

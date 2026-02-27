@@ -372,7 +372,22 @@ class TaxonNamesController < ApplicationController
     ).response
   end
 
+  def autoselect_col_create
+    result = ::Autoselect::TaxonName::ColCreator.new(
+      rows:       autoselect_col_create_params,
+      project_id: sessions_current_project_id,
+      user_id:    sessions_current_user_id
+    ).call
+    render json: result
+  end
+
   private
+
+  def autoselect_col_create_params
+    params.permit(rows: [:col_name, :col_rank, :col_id, :taxonworks_id, :col_authorship, :col_year])
+          .fetch(:rows, [])
+          .map(&:to_h)
+  end
 
   def autoselect_params
     params.permit(

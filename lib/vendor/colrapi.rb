@@ -118,7 +118,9 @@ module Vendor
     #
     # col_result is a flat nameusage hash as returned by search (no 'usage' wrapper):
     #   { 'id' => '6MB3T', 'status' => 'accepted',
-    #     'name' => { 'scientificName' => 'Homo sapiens', 'rank' => 'species', … },
+    #     'name' => { 'scientificName' => 'Homo sapiens', 'rank' => 'species',
+    #                 'authorship' => 'Linnaeus, 1758',
+    #                 'combinationAuthorship' => { 'authors' => [...], 'year' => '1758' } },
     #     'label' => 'Homo sapiens Linnaeus, 1758', … }
     #
     # Classification entries from ancestors() have:
@@ -127,11 +129,16 @@ module Vendor
     #
     # @param col_result [Hash] a single entry from search['result']
     # @param project_id [Integer, nil]
-    # @return [Hash] extension hash with :col_key, :col_name, :col_status, :alignment
+    # @return [Hash] extension hash with :col_key, :col_name, :col_status, :col_authorship,
+    #   :col_year, :col_rank, and :alignment (Array of ancestor hashes each including :col_id)
     def self.build_extension(col_result, project_id)
-      col_key    = col_result['id']
-      col_name   = col_result.dig('name', 'scientificName') || col_result['label']
-      col_status = col_result['status']
+      col_key       = col_result['id']
+      col_name      = col_result.dig('name', 'scientificName') || col_result['label']
+      col_status    = col_result['status']
+      col_authorship = col_result.dig('name', 'authorship')
+      col_year      = col_result.dig('name', 'combinationAuthorship', 'year') ||
+                      col_result.dig('name', 'basionymOrCombinationAuthorship', 'year')
+      col_rank      = col_result.dig('name', 'rank')&.downcase
 
       ancestor_chain = col_key.present? ? ancestors(col_key) : []
 
@@ -139,6 +146,7 @@ module Vendor
         rank     = ancestor['rank']&.downcase
         # In classification entries 'name' is a plain String (the uninomial name)
         anc_name = ancestor['name'].is_a?(String) ? ancestor['name'] : ancestor.dig('name', 'scientificName')
+        col_id   = ancestor['id']
 
         scope = ::TaxonName.where(cached: anc_name)
         scope = scope.where(project_id:) if project_id.present?
@@ -146,14 +154,16 @@ module Vendor
 
         {
           rank:,
-          col_name: anc_name,
-          taxonworks_id: tw_record&.id,
+          col_name:        anc_name,
+          col_id:,
+          col_authorship:  ancestor['authorship'].presence,
+          taxonworks_id:   tw_record&.id,
           taxonworks_name: tw_record&.cached,
-          match: tw_record ? 'exact' : 'none'
+          match:           tw_record ? 'exact' : 'none'
         }
       end
 
-      { col_key:, col_name:, col_status:, alignment: }
+      { col_key:, col_name:, col_status:, col_authorship:, col_year:, col_rank:, alignment: }
     end
 
     # Extend to buffered with GNA in middle layer?
