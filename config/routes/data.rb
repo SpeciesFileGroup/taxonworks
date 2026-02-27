@@ -807,17 +807,11 @@ resources :projects, only: [] do
       post :create_missing_predicates, defaults: {format: :json}
       post :create_predicate, defaults: {format: :json}
       get :missing_otus_count, defaults: {format: :json}
-      post :bulk_set_extinct, defaults: {format: :json}
-      post :bulk_set_lifezone, defaults: {format: :json}
-      post :bulk_load_issue_tags, defaults: {format: :json}
-      post :cleanup_issue_tags, defaults: {format: :json}
-      get :coldp_issue_keywords, defaults: {format: :json}
       get :checklistbank_citation, defaults: {format: :json}
-      get :checklistbank_imports, defaults: {format: :json}
       get :checklistbank_issues, defaults: {format: :json}
       get :fetch_clb_metadata, defaults: {format: :json}
-      get :checklistbank_duplicates, defaults: {format: :json}
-      get :checklistbank_diff, defaults: {format: :json}
+      get :search_datasets, defaults: {format: :json}
+      get :issue_vocab, defaults: {format: :json}
     end
   end
 

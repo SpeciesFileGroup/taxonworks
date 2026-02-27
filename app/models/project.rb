@@ -427,7 +427,9 @@ class Project < ApplicationRecord
       'max_age' => attrs['max_age'].presence ? Float(attrs['max_age']) : nil,
       'metadata_yaml' => attrs['metadata_yaml'].to_s,
       'maintain_metadata_in_checklistbank' => attrs['maintain_metadata_in_checklistbank'] == true || attrs['maintain_metadata_in_checklistbank'] == 'true',
-      'base_url' => attrs['base_url'].to_s
+      'base_url' => attrs['base_url'].to_s,
+      'fossil_extinct' => attrs['fossil_extinct'] == true || attrs['fossil_extinct'] == 'true',
+      'default_lifezone' => attrs['default_lifezone'].presence
     }
 
     if existing_index
@@ -459,7 +461,7 @@ class Project < ApplicationRecord
   end
 
   # @param attrs [Hash]
-  #   settings attributes to merge (e.g. 'col_publication_reminder')
+  #   settings attributes to merge
   # @return [Boolean]
   def save_coldp_settings(attrs)
     prefs = preferences

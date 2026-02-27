@@ -35,13 +35,13 @@
               <td>
                 <span
                   v-if="item.exists"
-                  class="cv-installed-badge"
+                  class="cv-installed"
                 >
                   Installed
                 </span>
                 <span
                   v-else
-                  class="cv-missing-badge"
+                  class="cv-missing"
                 >
                   Missing
                 </span>
@@ -185,28 +185,20 @@ async function createMissing() {
   }
 }
 
-.cv-installed-badge {
-  display: inline-block;
-  padding: 0.2em 0.6em;
-  border-radius: 0.25em;
-  font-size: 0.85em;
+.cv-installed {
+  color: var(--color-success, #43a047);
   font-weight: 500;
-  background-color: #43a047;
-  color: white;
+  font-size: 0.85em;
 }
 
-.cv-missing-badge {
-  display: inline-block;
-  padding: 0.2em 0.6em;
-  border-radius: 0.25em;
-  font-size: 0.85em;
+.cv-missing {
+  color: var(--color-warning, #e65100);
   font-weight: 500;
-  background-color: #f9a825;
-  color: white;
+  font-size: 0.85em;
 }
 
 .cv-note {
-  color: #888;
+  opacity: 0.7;
   font-size: 0.9em;
 }
 

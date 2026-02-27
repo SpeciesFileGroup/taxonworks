@@ -17,16 +17,45 @@
       </div>
 
       <div class="field margin-medium-top">
-        <label>ChecklistBank Dataset ID</label>
-        <input
-          type="number"
-          :value="profile.checklistbank_dataset_id"
-          @input="emit('update:profile', {
-            ...profile,
-            checklistbank_dataset_id: $event.target.value ? Number($event.target.value) : null
-          })"
-          class="clb-dataset-id-input margin-small-top"
-        />
+        <label>ChecklistBank Dataset</label>
+        <div class="clb-search-wrapper margin-small-top">
+          <input
+            type="text"
+            v-model="clbSearchQuery"
+            placeholder="Search ChecklistBank datasets..."
+            class="clb-search-input"
+            @input="searchClbDatasets"
+          />
+          <ul
+            v-if="clbResults.length > 0 && clbSearchOpen"
+            class="clb-results"
+          >
+            <li
+              v-for="dataset in clbResults"
+              :key="dataset.key"
+              @click="selectClbDataset(dataset)"
+            >
+              <span class="clb-result-key">{{ dataset.key }}</span>
+              <span
+                v-if="dataset.alias"
+                class="clb-result-alias"
+              >{{ dataset.alias }}</span>
+              <span class="clb-result-title">{{ dataset.title }}</span>
+            </li>
+          </ul>
+        </div>
+        <div
+          v-if="profile.checklistbank_dataset_id"
+          class="clb-selected margin-small-top"
+        >
+          Selected: <b>{{ profile.checklistbank_dataset_id }}</b>
+          <span v-if="clbSelectedLabel"> - {{ clbSelectedLabel }}</span>
+          <a
+            href="#"
+            class="margin-small-left"
+            @click.prevent="clearClbDataset"
+          >clear</a>
+        </div>
       </div>
 
       <div class="field margin-medium-top">
@@ -58,6 +87,55 @@
           />
           Is Public
         </label>
+      </div>
+
+      <div class="field margin-medium-top">
+        <label>
+          <input
+            type="checkbox"
+            :checked="profile.fossil_extinct"
+            @change="emit('update:profile', {
+              ...profile,
+              fossil_extinct: $event.target.checked
+            })"
+          />
+          Set all fossils as extinct
+        </label>
+        <div class="help-text">
+          Automatically sets extinct on taxa whose name is classified as fossil.
+          Per-taxon data attributes (controlled vocabulary) take precedence when present.
+        </div>
+      </div>
+
+      <div class="field margin-medium-top">
+        <label>Default environment</label>
+        <select
+          :value="profile.default_lifezone || ''"
+          class="margin-small-top"
+          @change="emit('update:profile', {
+            ...profile,
+            default_lifezone: $event.target.value || null
+          })"
+        >
+          <option value="">
+            None
+          </option>
+          <option value="brackish">
+            Brackish
+          </option>
+          <option value="freshwater">
+            Freshwater
+          </option>
+          <option value="marine">
+            Marine
+          </option>
+          <option value="terrestrial">
+            Terrestrial
+          </option>
+        </select>
+        <div class="help-text">
+          Applied to all taxa in the export. Per-taxon data attributes (controlled vocabulary) take precedence when present.
+        </div>
       </div>
 
       <div class="field margin-medium-top">
@@ -122,9 +200,12 @@
 
 <script setup>
 import { computed, ref, watch, onMounted } from 'vue'
-import { Otu } from '@/routes/endpoints'
+import { getCurrentProjectId } from '@/helpers/project.js'
+import { Otu, ColdpExportPreference } from '@/routes/endpoints'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
+
+const projectId = Number(getCurrentProjectId())
 
 const props = defineProps({
   profile: {
@@ -140,6 +221,11 @@ const props = defineProps({
 const emit = defineEmits(['update:profile', 'save'])
 
 const otuLabel = ref('')
+const clbSearchQuery = ref('')
+const clbResults = ref([])
+const clbSearchOpen = ref(false)
+const clbSelectedLabel = ref('')
+let clbSearchTimeout = null
 
 const publicUrl = computed(() => {
   if (!props.projectToken || !props.profile.otu_id || !props.profile.is_public) return null
@@ -149,6 +235,9 @@ const publicUrl = computed(() => {
 onMounted(() => {
   if (props.profile.otu_id) {
     fetchOtuLabel(props.profile.otu_id)
+  }
+  if (props.profile.checklistbank_dataset_id) {
+    fetchClbDatasetLabel(props.profile.checklistbank_dataset_id)
   }
 })
 
@@ -180,6 +269,51 @@ function setOtu(otu) {
 function setDefaultUser(user) {
   emit('update:profile', { ...props.profile, default_user_id: user.id })
 }
+
+function searchClbDatasets() {
+  clearTimeout(clbSearchTimeout)
+  const query = clbSearchQuery.value.trim()
+
+  if (query.length < 2) {
+    clbResults.value = []
+    clbSearchOpen.value = false
+    return
+  }
+
+  clbSearchTimeout = setTimeout(async () => {
+    try {
+      const { body } = await ColdpExportPreference.searchDatasets(projectId, { q: query })
+      clbResults.value = body || []
+      clbSearchOpen.value = true
+    } catch {
+      clbResults.value = []
+    }
+  }, 300)
+}
+
+function selectClbDataset(dataset) {
+  clbSelectedLabel.value = [dataset.alias, dataset.title].filter(Boolean).join(' - ')
+  clbSearchQuery.value = ''
+  clbResults.value = []
+  clbSearchOpen.value = false
+  emit('update:profile', { ...props.profile, checklistbank_dataset_id: dataset.key })
+}
+
+function clearClbDataset() {
+  clbSelectedLabel.value = ''
+  emit('update:profile', { ...props.profile, checklistbank_dataset_id: null })
+}
+
+function fetchClbDatasetLabel(datasetId) {
+  ColdpExportPreference.searchDatasets(projectId, { q: String(datasetId) })
+    .then(({ body }) => {
+      const match = (body || []).find(d => d.key === datasetId)
+      if (match) {
+        clbSelectedLabel.value = [match.alias, match.title].filter(Boolean).join(' - ')
+      }
+    })
+    .catch(() => {})
+}
 </script>
 
 <style lang="scss" scoped>
@@ -187,9 +321,61 @@ function setDefaultUser(user) {
   width: 5em;
 }
 
-.clb-dataset-id-input {
+.clb-search-wrapper {
+  position: relative;
+}
+
+.clb-search-input {
   display: block;
-  width: 16em;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.clb-results {
+  position: absolute;
+  z-index: 10;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: var(--bg-color, white);
+  border: 1px solid var(--border-color, #ccc);
+  border-top: none;
+  max-height: 250px;
+  overflow-y: auto;
+  width: 100%;
+  box-sizing: border-box;
+
+  li {
+    padding: 0.4em 0.6em;
+    cursor: pointer;
+    display: flex;
+    gap: 0.5em;
+    align-items: baseline;
+
+    &:hover {
+      background-color: var(--bg-muted, #f0f0f0);
+    }
+  }
+}
+
+.clb-result-key {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.clb-result-alias {
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+.clb-result-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.clb-selected {
+  font-size: 0.9em;
 }
 
 .base-url-input {

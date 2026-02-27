@@ -10,17 +10,23 @@
   <ProfileSelector
     :profiles="profiles"
     :selected-index="selectedProfileIndex"
-    :reminder-enabled="coldpSettings.col_publication_reminder === true"
     @select="selectedProfileIndex = $event"
     @add="addProfile"
     @delete="deleteProfile"
-    @toggle-reminder="togglePublicationReminder"
   />
 
   <DatasetCitation
     v-if="savedChecklistbankDatasetId"
     :project-id="projectId"
     :dataset-id="savedChecklistbankDatasetId"
+  />
+
+  <CompleteDownloadControl
+    v-if="currentProfile"
+    :is-public="currentProfile.is_public || false"
+    :project-token="projectToken || ''"
+    :max-age="currentProfile.max_age || null"
+    :otu-id="currentProfile.otu_id"
   />
 
   <div
@@ -40,11 +46,6 @@
         :otu-id="currentProfile.otu_id"
       />
 
-      <BulkOperationsPanel
-        :project-id="projectId"
-        :otu-id="currentProfile.otu_id"
-        :dataset-id="savedChecklistbankDatasetId"
-      />
     </div>
 
     <div class="flex-col right-column">
@@ -58,50 +59,13 @@
         @save="saveCurrentProfile"
       />
 
-      <CompleteDownloadControl
-        :is-public="currentProfile.is_public || false"
-        :project-token="projectToken || ''"
-        :max-age="currentProfile.max_age || null"
-        :otu-id="currentProfile.otu_id"
-      />
-
       <DataQualityPanel
         :project-id="projectId"
         :otu-id="currentProfile.otu_id"
-      />
-
-    </div>
-  </div>
-
-  <div
-    v-if="currentProfile && savedChecklistbankDatasetId"
-    class="data-quality-section"
-  >
-    <h2>ChecklistBank Data Reports</h2>
-    <p class="data-quality-note">These reports are based on the last import of your dataset into ChecklistBank. They reflect the data as it was exported and may not reflect the current state of your project.</p>
-
-    <ImportTimeline
-      :project-id="projectId"
-      :dataset-id="savedChecklistbankDatasetId"
-      class="import-timeline-full"
-    />
-
-    <div class="clb-reports-row">
-      <IssuesTable
-        :project-id="projectId"
         :dataset-id="savedChecklistbankDatasetId"
       />
 
-      <DuplicatesPanel
-        :project-id="projectId"
-        :dataset-id="savedChecklistbankDatasetId"
-      />
     </div>
-
-    <DiffReport
-      :project-id="projectId"
-      :dataset-id="savedChecklistbankDatasetId"
-    />
   </div>
 
   <div
@@ -122,13 +86,8 @@ import ConfigurationPanel from './components/ConfigurationPanel.vue'
 import MetadataEditor from './components/MetadataEditor.vue'
 import CompleteDownloadControl from './components/CompleteDownloadControl.vue'
 import ControlledVocabularyPanel from './components/ControlledVocabularyPanel.vue'
-import BulkOperationsPanel from './components/BulkOperationsPanel.vue'
 import DataQualityPanel from './components/DataQualityPanel.vue'
-import ImportTimeline from './components/ImportTimeline.vue'
-import IssuesTable from './components/IssuesTable.vue'
-import DuplicatesPanel from './components/DuplicatesPanel.vue'
 import DatasetCitation from './components/DatasetCitation.vue'
-import DiffReport from './components/DiffReport.vue'
 
 const projectId = Number(getCurrentProjectId())
 const isLoading = ref(false)
@@ -142,7 +101,7 @@ const currentProfile = computed(() =>
 )
 
 // The dataset ID as last persisted on the server, so that
-// ImportTimeline / IssuesTable don't fire API calls on every keystroke.
+// child components don't fire API calls on every keystroke.
 const savedChecklistbankDatasetId = computed(() => {
   const p = currentProfile.value
   if (!p || !p.otu_id) return null
@@ -195,31 +154,21 @@ function saveCurrentProfile() {
 
   isLoading.value = true
 
-  // Auto-enable COL publication reminder when saving the first profile
-  const enableReminder = coldpSettings.value.col_publication_reminder == null
-  const savePromise = enableReminder
-    ? ColdpExportPreference.saveColdpSettings(projectId, { col_publication_reminder: true })
-        .then(({ body }) => { coldpSettings.value = body.coldp_settings || {} })
-        .catch(() => {})
-    : Promise.resolve()
-
-  savePromise.then(() => {
-    ColdpExportPreference.saveProfile(projectId, profile)
-      .then(({ body }) => {
-        profiles.value = body.profiles || []
-        coldpSettings.value = body.coldp_settings || {}
-        // Reselect the same profile by otu_id
-        const idx = profiles.value.findIndex(p => p.otu_id === profile.otu_id)
-        selectedProfileIndex.value = idx >= 0 ? idx : 0
-        // Track the persisted dataset ID so CLB panels only render after save
-        if (profile.otu_id) {
-          savedDatasetIds.value[profile.otu_id] = profile.checklistbank_dataset_id
-        }
-        TW.workbench.alert.create('Profile saved.', 'notice')
-      })
-      .catch(() => {})
-      .finally(() => (isLoading.value = false))
-  })
+  ColdpExportPreference.saveProfile(projectId, profile)
+    .then(({ body }) => {
+      profiles.value = body.profiles || []
+      coldpSettings.value = body.coldp_settings || {}
+      // Reselect the same profile by otu_id
+      const idx = profiles.value.findIndex(p => p.otu_id === profile.otu_id)
+      selectedProfileIndex.value = idx >= 0 ? idx : 0
+      // Track the persisted dataset ID so CLB panels only render after save
+      if (profile.otu_id) {
+        savedDatasetIds.value[profile.otu_id] = profile.checklistbank_dataset_id
+      }
+      TW.workbench.alert.create('Profile saved.', 'notice')
+    })
+    .catch(() => {})
+    .finally(() => (isLoading.value = false))
 }
 
 function deleteProfile() {
@@ -246,21 +195,6 @@ function deleteProfile() {
     .finally(() => (isLoading.value = false))
 }
 
-function togglePublicationReminder() {
-  const enabled = !coldpSettings.value.col_publication_reminder
-
-  ColdpExportPreference.saveColdpSettings(projectId, {
-    col_publication_reminder: enabled
-  })
-    .then(({ body }) => {
-      coldpSettings.value = body.coldp_settings || {}
-      TW.workbench.alert.create(
-        enabled ? 'COL publication reminder enabled.' : 'COL publication reminder disabled.',
-        'notice'
-      )
-    })
-    .catch(() => {})
-}
 </script>
 
 <style lang="scss" scoped>
@@ -278,29 +212,4 @@ function togglePublicationReminder() {
   gap: 1em;
 }
 
-.data-quality-section {
-  margin-top: 2em;
-  display: flex;
-  flex-direction: column;
-  gap: 1em;
-}
-
-.data-quality-note {
-  color: #666;
-  font-size: 0.9em;
-  margin-bottom: 1em;
-}
-
-.import-timeline-full {
-  margin-bottom: 0;
-}
-
-.clb-reports-row {
-  display: flex;
-  gap: 2em;
-
-  > * {
-    flex: 1;
-  }
-}
 </style>

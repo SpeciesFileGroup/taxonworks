@@ -11,7 +11,7 @@
           title="Copy as text"
           @click="copyAsText"
         >
-          &#x1F4CB; Text
+          Copy text
         </button>
         <button
           v-if="doi"
@@ -19,7 +19,7 @@
           title="Copy as BibTeX"
           @click="copyAsBibtex"
         >
-          &#x1F4CB; BibTeX
+          Copy BibTeX
         </button>
       </div>
     </div>
@@ -27,6 +27,9 @@
       class="citation-text"
       v-html="sanitizedCitation"
     />
+    <p class="citation-hint">
+      If this citation loads correctly then your export profile is correctly configured. If it does not load, verify the dataset ID in ChecklistBank. If the citation is wrong, update your metadata.
+    </p>
   </div>
 </template>
 
@@ -161,5 +164,11 @@ function copyAsBibtex() {
 .citation-text {
   margin: 0;
   line-height: 1.4;
+}
+
+.citation-hint {
+  font-size: 0.85em;
+  opacity: 0.7;
+  margin: 0.5em 0 0 0;
 }
 </style>

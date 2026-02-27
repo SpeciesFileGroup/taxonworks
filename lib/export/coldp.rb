@@ -219,7 +219,7 @@ module Export
 
        zipfile.get_output_stream('Synonym.tsv') { |f| f.write Export::Coldp::Files::Synonym.generate(otu, otus, project_members, ref_tsv) }
        profile_base_url = coldp_profile&.fetch('base_url', nil).presence
-       zipfile.get_output_stream('Taxon.tsv') { |f| f.write Export::Coldp::Files::Taxon.generate(otu, otus, project_members, ref_tsv, prefer_unlabelled_otus, base_url: profile_base_url) }
+       zipfile.get_output_stream('Taxon.tsv') { |f| f.write Export::Coldp::Files::Taxon.generate(otu, otus, project_members, ref_tsv, prefer_unlabelled_otus, base_url: profile_base_url, coldp_profile: coldp_profile) }
 
        (FILETYPES - %w{Name NameRelation TypeMaterial Synonym Taxon References}).each do |ft|
          puts ft

@@ -117,7 +117,7 @@ module Export::Coldp::Files::Taxon
       .map{|a| [a.id, a.send(target)]}.to_h
   end
 
-  def self.generate(otu, otus, project_members, reference_csv = nil, prefer_unlabelled_otus = true, base_url: nil)
+  def self.generate(otu, otus, project_members, reference_csv = nil, prefer_unlabelled_otus = true, base_url: nil, coldp_profile: nil)
 
     # Until we have RC5 articulations we are simplifying handling the fact
     # that one taxon name can be used for many OTUs. Track to see that
@@ -140,6 +140,21 @@ module Export::Coldp::Files::Taxon
     # Make one big lookup
     IRI_MAP.each do |k,v|
       attributes[k] = attributes(otus, k)
+    end
+
+    fossil_extinct = coldp_profile && (coldp_profile['fossil_extinct'] == true || coldp_profile['fossil_extinct'] == 'true')
+    default_lifezone = coldp_profile&.fetch('default_lifezone', nil).presence
+
+    # Build a set of taxon_name_ids classified as fossil for the fossil_extinct fallback
+    fossil_taxon_name_ids = if fossil_extinct
+      TaxonNameClassification
+        .where(taxon_name_id: otus.joins(:taxon_name).select('taxon_names.id'))
+        .with_type_contains('::Fossil')
+        .distinct
+        .pluck(:taxon_name_id)
+        .to_set
+    else
+      Set.new
     end
 
     link_base_url = base_url || attributes[:link][otu.id]
@@ -198,10 +213,10 @@ module Export::Coldp::Files::Taxon
           nil,                                                             # scrutinizerID scrutinizer_id(o)
           nil,                                                             # scrutizinerDate scrutinizer_date(o)
           o.aggregate_source_ids,                                          # referenceID
-          attributes[:extinct][o.id],                                      # extinct
+          attributes[:extinct][o.id] || (fossil_extinct && fossil_taxon_name_ids.include?(o.taxon_name_id) ? '1' : nil), # extinct
           attributes[:temporal_range_start][o.id],                         # temporalRangeStart
           attributes[:temporal_range_end][o.id],                           # temporalRangeEnd
-          attributes[:lifezone][o.id],                                     # environment (formerly named lifezone)
+          attributes[:lifezone][o.id] || default_lifezone,                 # environment (formerly named lifezone)
           link(link_base_url, o),                                          # link
           Export::Coldp.sanitize_remarks(attributes[:remarks][o.id]),      # remarks
           Export::Coldp.modified(o[:updated_at]),                          # modified
