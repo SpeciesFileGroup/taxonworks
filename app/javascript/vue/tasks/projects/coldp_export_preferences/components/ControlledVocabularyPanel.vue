@@ -16,7 +16,7 @@
           </thead>
           <tbody>
             <tr
-              v-for="item in status"
+              v-for="item in filteredStatus"
               :key="item.key"
             >
               <td>{{ item.key }}</td>
@@ -96,9 +96,6 @@ const VOCAB_DEFINITIONS = {
   temporal_range_end: { url: 'https://api.checklistbank.org/vocab/geotime', label: 'Geotime', note: 'Constrained vocabulary' },
   temporal_range_start: { url: 'https://api.checklistbank.org/vocab/geotime', label: 'Geotime', note: 'Constrained vocabulary' },
   lifezone: { url: 'https://api.checklistbank.org/vocab/environment', label: 'Environment', note: 'Constrained: Brackish, Freshwater, Marine, Terrestrial' },
-  remarks: { note: 'Free text' },
-  namePhrase: { note: 'Free text' },
-  link: { note: 'URL' },
   species_estimate_living: { url: 'https://api.checklistbank.org/vocab/estimatetype#living', label: 'Estimate type (living)', note: 'Integer — number of described living species' },
   species_estimate_extinct: { url: 'https://api.checklistbank.org/vocab/estimatetype#extinct', label: 'Estimate type (extinct)', note: 'Integer — number of described extinct species' },
   species_estimate_total: { url: 'https://api.checklistbank.org/vocab/estimatetype#estimated', label: 'Estimate type (total)', note: 'Integer — estimated total species including undescribed' }
@@ -120,7 +117,9 @@ const isCreating = ref(false)
 const creatingKeys = reactive(new Set())
 const status = ref([])
 
-const hasMissing = computed(() => status.value.some(s => !s.exists))
+const HIDDEN_KEYS = ['remarks', 'namePhrase', 'link']
+const filteredStatus = computed(() => status.value.filter(s => !HIDDEN_KEYS.includes(s.key)))
+const hasMissing = computed(() => filteredStatus.value.some(s => !s.exists))
 
 onMounted(loadStatus)
 watch(() => props.otuId, loadStatus)
