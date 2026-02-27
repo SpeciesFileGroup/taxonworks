@@ -13,6 +13,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - Task bar overlays panels when header is locked in New taxon name and New source tasks
+- Basic Endemism task reports an error
+- Selecting `Object Graph` from the navigator radial of an OTU with an Asserted Distribution reports an error
 
 ### Changed
 
