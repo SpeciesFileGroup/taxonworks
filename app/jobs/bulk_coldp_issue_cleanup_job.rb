@@ -10,6 +10,7 @@ class BulkColdpIssueCleanupJob < ApplicationJob
 
     Keyword.where(project_id: project_id)
       .where('name LIKE ?', 'COLDP: %')
+      .where(css_color: BulkColdpIssueTagJob::CLB_BRAND_COLOR)
       .destroy_all
   end
 end

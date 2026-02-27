@@ -1,5 +1,8 @@
 <template>
-  <div class="panel padding-large">
+  <div
+    class="panel padding-large"
+    :style="isLoading ? { minHeight: '300px', position: 'relative' } : {}"
+  >
     <h2>Import Timeline</h2>
     <div>
       <div class="timeline-controls">

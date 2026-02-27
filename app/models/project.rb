@@ -134,6 +134,7 @@ class Project < ApplicationRecord
   ].freeze
 
   COLDP_PREFERENCES_PATH = ['metadata', 'coldp'].freeze
+  COLDP_SETTINGS_PATH = ['metadata', 'coldp_settings'].freeze
 
   has_many :project_members, dependent: :restrict_with_error
 
@@ -452,11 +453,34 @@ class Project < ApplicationRecord
   end
 
   # @return [Hash]
+  #   the COLDP settings hash stored in preferences
+  def coldp_settings
+    preferences.dig(*COLDP_SETTINGS_PATH) || {}
+  end
+
+  # @param attrs [Hash]
+  #   settings attributes to merge (e.g. 'col_publication_reminder')
+  # @return [Boolean]
+  def save_coldp_settings(attrs)
+    prefs = preferences
+    COLDP_SETTINGS_PATH[0..-2].each do |key|
+      prefs[key] = {} if prefs[key].nil?
+      prefs = prefs[key]
+    end
+    prefs[COLDP_SETTINGS_PATH.last] = {} unless prefs[COLDP_SETTINGS_PATH.last].is_a?(Hash)
+    prefs[COLDP_SETTINGS_PATH.last].merge!(attrs)
+    save!
+  rescue
+    false
+  end
+
+  # @return [Hash]
   #   preferences formatted for the Vue front-end
   def coldp_preferences_for_vue(user)
     {
       user_is_admin: user.is_project_administrator?(self),
       profiles: coldp_profiles,
+      coldp_settings: coldp_settings,
       iri_map: ::Export::Coldp::Files::Taxon::IRI_MAP
     }
   end

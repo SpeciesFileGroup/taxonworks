@@ -10,6 +10,9 @@ export const ColdpExportPreference = {
   destroyProfile: (id, params) =>
     AjaxCall('delete', `/projects/${id}/coldp_export_preferences/destroy_profile.json`, { params }),
 
+  saveColdpSettings: (id, params) =>
+    AjaxCall('post', `/projects/${id}/coldp_export_preferences/save_coldp_settings.json`, params),
+
   validateMetadata: (id, params) =>
     AjaxCall('post', `/projects/${id}/coldp_export_preferences/validate_metadata.json`, params),
 

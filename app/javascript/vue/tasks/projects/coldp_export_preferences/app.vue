@@ -10,9 +10,11 @@
   <ProfileSelector
     :profiles="profiles"
     :selected-index="selectedProfileIndex"
+    :reminder-enabled="coldpSettings.col_publication_reminder === true"
     @select="selectedProfileIndex = $event"
     @add="addProfile"
     @delete="deleteProfile"
+    @toggle-reminder="togglePublicationReminder"
   />
 
   <DatasetCitation
@@ -133,6 +135,7 @@ const isLoading = ref(false)
 const profiles = ref([])
 const selectedProfileIndex = ref(0)
 const projectToken = ref(null)
+const coldpSettings = ref({})
 
 const currentProfile = computed(() =>
   profiles.value.length > 0 ? profiles.value[selectedProfileIndex.value] : null
@@ -158,6 +161,7 @@ onBeforeMount(() => {
   ColdpExportPreference.preferences(projectId)
     .then(({ body }) => {
       profiles.value = body.profiles || []
+      coldpSettings.value = body.coldp_settings || {}
     })
     .catch(() => {})
     .finally(() => (isLoading.value = false))
@@ -190,20 +194,32 @@ function saveCurrentProfile() {
   }
 
   isLoading.value = true
-  ColdpExportPreference.saveProfile(projectId, profile)
-    .then(({ body }) => {
-      profiles.value = body.profiles || []
-      // Reselect the same profile by otu_id
-      const idx = profiles.value.findIndex(p => p.otu_id === profile.otu_id)
-      selectedProfileIndex.value = idx >= 0 ? idx : 0
-      // Track the persisted dataset ID so CLB panels only render after save
-      if (profile.otu_id) {
-        savedDatasetIds.value[profile.otu_id] = profile.checklistbank_dataset_id
-      }
-      TW.workbench.alert.create('Profile saved.', 'notice')
-    })
-    .catch(() => {})
-    .finally(() => (isLoading.value = false))
+
+  // Auto-enable COL publication reminder when saving the first profile
+  const enableReminder = coldpSettings.value.col_publication_reminder == null
+  const savePromise = enableReminder
+    ? ColdpExportPreference.saveColdpSettings(projectId, { col_publication_reminder: true })
+        .then(({ body }) => { coldpSettings.value = body.coldp_settings || {} })
+        .catch(() => {})
+    : Promise.resolve()
+
+  savePromise.then(() => {
+    ColdpExportPreference.saveProfile(projectId, profile)
+      .then(({ body }) => {
+        profiles.value = body.profiles || []
+        coldpSettings.value = body.coldp_settings || {}
+        // Reselect the same profile by otu_id
+        const idx = profiles.value.findIndex(p => p.otu_id === profile.otu_id)
+        selectedProfileIndex.value = idx >= 0 ? idx : 0
+        // Track the persisted dataset ID so CLB panels only render after save
+        if (profile.otu_id) {
+          savedDatasetIds.value[profile.otu_id] = profile.checklistbank_dataset_id
+        }
+        TW.workbench.alert.create('Profile saved.', 'notice')
+      })
+      .catch(() => {})
+      .finally(() => (isLoading.value = false))
+  })
 }
 
 function deleteProfile() {
@@ -228,6 +244,22 @@ function deleteProfile() {
     })
     .catch(() => {})
     .finally(() => (isLoading.value = false))
+}
+
+function togglePublicationReminder() {
+  const enabled = !coldpSettings.value.col_publication_reminder
+
+  ColdpExportPreference.saveColdpSettings(projectId, {
+    col_publication_reminder: enabled
+  })
+    .then(({ body }) => {
+      coldpSettings.value = body.coldp_settings || {}
+      TW.workbench.alert.create(
+        enabled ? 'COL publication reminder enabled.' : 'COL publication reminder disabled.',
+        'notice'
+      )
+    })
+    .catch(() => {})
 }
 </script>
 

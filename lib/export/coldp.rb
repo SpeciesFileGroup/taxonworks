@@ -57,6 +57,7 @@ module Export
       Name
       NameRelation
       References
+      SpeciesEstimate
       SpeciesInteraction
       Synonym
       Taxon

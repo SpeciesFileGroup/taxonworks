@@ -4,7 +4,7 @@
     class="panel padding-medium citation-panel"
   >
     <div class="citation-header">
-      <h3>Recommended Dataset Citation</h3>
+      <h3>ChecklistBank Dataset Citation</h3>
       <div class="citation-actions">
         <button
           class="citation-copy-btn"

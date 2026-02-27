@@ -15,7 +15,10 @@ module Export::Coldp::Files::Taxon
     lifezone: 'https://api.checklistbank.org/datapackage#Taxon.lifezone',                       # from https://api.checklistbank.org/vocab/lifezone
     remarks: 'https://github.com/catalogueoflife/coldp#Taxon.remarks',
     namePhrase: 'https://github.com/catalogueoflife/coldp#Taxon.namePhrase',
-    link: 'https://api.checklistbank.org/vocab/term/col:link'
+    link: 'https://api.checklistbank.org/vocab/term/col:link',
+    species_estimate_living:  'https://api.checklistbank.org/vocab/estimatetype#species_living',
+    species_estimate_extinct: 'https://api.checklistbank.org/vocab/estimatetype#species_extinct',
+    species_estimate_total:   'https://api.checklistbank.org/vocab/estimatetype#estimated_species'
   }.freeze
 
   SKIPPED_RANKS = %w{

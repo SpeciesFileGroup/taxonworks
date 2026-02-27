@@ -41,16 +41,16 @@
                 </span>
                 <span
                   v-else
-                  class="feedback-warning padding-xsmall"
+                  class="cv-missing-badge"
                 >
-                  missing
+                  Missing
                 </span>
               </td>
               <td>
                 <VBtn
                   v-if="!item.exists"
                   color="create"
-                  x-small
+                  small
                   :disabled="creatingKeys.has(item.key)"
                   @click="createOne(item.key)"
                 >
@@ -98,7 +98,10 @@ const VOCAB_DEFINITIONS = {
   lifezone: { url: 'https://api.checklistbank.org/vocab/environment', label: 'Environment', note: 'Constrained: Brackish, Freshwater, Marine, Terrestrial' },
   remarks: { note: 'Free text' },
   namePhrase: { note: 'Free text' },
-  link: { note: 'URL' }
+  link: { note: 'URL' },
+  species_estimate_living: { url: 'https://api.checklistbank.org/vocab/estimatetype#living', label: 'Estimate type (living)', note: 'Integer — number of described living species' },
+  species_estimate_extinct: { url: 'https://api.checklistbank.org/vocab/estimatetype#extinct', label: 'Estimate type (extinct)', note: 'Integer — number of described extinct species' },
+  species_estimate_total: { url: 'https://api.checklistbank.org/vocab/estimatetype#estimated', label: 'Estimate type (total)', note: 'Integer — estimated total species including undescribed' }
 }
 
 const props = defineProps({
@@ -189,6 +192,16 @@ async function createMissing() {
   font-size: 0.85em;
   font-weight: 500;
   background-color: #43a047;
+  color: white;
+}
+
+.cv-missing-badge {
+  display: inline-block;
+  padding: 0.2em 0.6em;
+  border-radius: 0.25em;
+  font-size: 0.85em;
+  font-weight: 500;
+  background-color: #f9a825;
   color: white;
 }
 

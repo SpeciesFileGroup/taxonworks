@@ -1,5 +1,8 @@
 <template>
-  <div class="panel padding-large">
+  <div
+    class="panel padding-large"
+    :style="isLoadingImports ? { minHeight: '300px', position: 'relative' } : {}"
+  >
     <h2>Import Diff</h2>
 
     <VSpinner v-if="isLoadingImports" />
@@ -256,21 +259,30 @@ function parseUnifiedDiff(text) {
     }
 
     if (raw.startsWith('-')) {
-      result.push({ type: 'delete', text: raw.substring(1), leftLine })
+      const content = raw.substring(1)
+      if (content.trim() === '') { leftLine++; continue }
+      result.push({ type: 'delete', text: content, leftLine })
       leftLine++
     } else if (raw.startsWith('+')) {
-      result.push({ type: 'insert', text: raw.substring(1), rightLine })
+      const content = raw.substring(1)
+      if (content.trim() === '') { rightLine++; continue }
+      result.push({ type: 'insert', text: content, rightLine })
       rightLine++
     } else if (raw.startsWith(' ')) {
+      const content = raw.substring(1)
+      if (content.trim() === '') { leftLine++; rightLine++; continue }
       result.push({
         type: 'context',
-        text: raw.substring(1),
+        text: content,
         leftLine,
         rightLine
       })
       leftLine++
       rightLine++
-    } else if (raw.trim() !== '') {
+    } else if (raw.trim() === '') {
+      // Skip blank lines (avoids extra vertical spacing)
+      continue
+    } else {
       // Non-empty unrecognized lines treated as context
       result.push({
         type: 'context',
@@ -360,9 +372,9 @@ async function fetchDiff() {
   background-color: var(--bg-foreground, #ffffff);
 
   th, td {
-    padding: 0 0.3em;
-    line-height: 1.2;
-    vertical-align: top;
+    padding: 0 0.3em !important;
+    line-height: 1 !important;
+    vertical-align: middle;
   }
 
   thead th {
@@ -373,6 +385,8 @@ async function fetchDiff() {
     border-bottom: 2px solid var(--border-color, #ddd);
     text-align: left;
     font-weight: 600;
+    vertical-align: middle;
+    padding: 0.3em;
   }
 }
 
@@ -412,18 +426,22 @@ async function fetchDiff() {
 }
 
 .diff-empty {
-  background-color: var(--bg-muted, #f9f9f9);
+  background-color: #f9f9f9;
+}
+</style>
+
+<style lang="scss">
+.dark .diff-delete {
+  background-color: #3c1616;
+  color: #f5aaaa;
 }
 
-:global(.dark) {
-  .diff-delete {
-    background-color: #3c1616;
-    color: #f5aaaa;
-  }
+.dark .diff-insert {
+  background-color: #163c16;
+  color: #a8f0a8;
+}
 
-  .diff-insert {
-    background-color: #163c16;
-    color: #a8f0a8;
-  }
+.dark .diff-empty {
+  background-color: #2a2a2a;
 }
 </style>

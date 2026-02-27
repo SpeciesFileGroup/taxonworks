@@ -28,6 +28,20 @@ class Tasks::Projects::ColdpExportPreferencesController < ApplicationController
     end
   end
 
+  def save_coldp_settings
+    attrs = {
+      'col_publication_reminder' => params[:col_publication_reminder] == true || params[:col_publication_reminder] == 'true'
+    }
+
+    if @project.save_coldp_settings(attrs)
+      render json: @project.coldp_preferences_for_vue(sessions_current_user)
+    else
+      render json: {
+        base: 'Failed to save settings!'
+      }, status: :unprocessable_content
+    end
+  end
+
   def destroy_profile
     if @project.destroy_coldp_profile(params[:otu_id].to_i)
       render json: @project.coldp_preferences_for_vue(sessions_current_user)

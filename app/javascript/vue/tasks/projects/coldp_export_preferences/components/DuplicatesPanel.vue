@@ -1,5 +1,8 @@
 <template>
-  <div class="panel padding-large">
+  <div
+    class="panel padding-large"
+    :style="isLoading ? { minHeight: '300px', position: 'relative' } : {}"
+  >
     <h2>Duplicates</h2>
     <div class="margin-medium-left">
       <VSpinner v-if="isLoading" />
