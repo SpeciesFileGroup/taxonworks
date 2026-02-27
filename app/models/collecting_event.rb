@@ -648,7 +648,7 @@ class CollectingEvent < ApplicationRecord
   #   prioritize georeference over geographic_area
   def geo_json_data
     if a = preferred_georeference #  preferred_georeference_geographic_item_id # NOT RIGHT
-      return Gis::GeoJSON.quick_geo_json( a.geographic_item_id ), 'Georeference', a.id
+      return a.geographic_item.to_geo_json, 'Georeference', a.id
     elsif b = geographic_area_default_geographic_item_id
       return Gis::GeoJSON.quick_geo_json(b), 'GeographicArea', geographic_area_id
     else

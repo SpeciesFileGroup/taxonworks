@@ -71,6 +71,19 @@ class Otu < ApplicationRecord
   # TODO, move to infer BiologicalCollectionObject
   has_many :collection_objects, through: :taxon_determinations, source: :taxon_determination_object, inverse_of: :otus, source_type: 'CollectionObject'
   has_many :field_occurrences, through: :taxon_determinations, source: :taxon_determination_object, inverse_of: :otus, source_type: 'FieldOccurrence'
+  #
+  has_many :current_taxon_determinations,
+    -> { where(position: 1) },
+    class_name: 'TaxonDetermination',
+    inverse_of: :otu
+  has_many :current_collection_objects,
+    through: :current_taxon_determinations,
+    source: :taxon_determination_object,
+    source_type: 'CollectionObject'
+  has_many :current_field_occurrences,
+    through: :current_taxon_determinations,
+    source: :taxon_determination_object,
+    source_type: 'FieldOccurrence'
 
   has_many :type_materials, through: :protonym
 
@@ -386,11 +399,11 @@ class Otu < ApplicationRecord
   end
 
   def current_collection_objects
-    collection_objects.where(taxon_determinations: {position: 1})
+    association(:current_collection_objects).reader
   end
 
   def current_field_occurrences
-    field_occurrences.where(taxon_determinations: {position: 1})
+    association(:current_field_occurrences).reader
   end
 
   # @return [Boolean]
