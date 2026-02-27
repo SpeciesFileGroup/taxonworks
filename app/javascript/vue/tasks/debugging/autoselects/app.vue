@@ -3,6 +3,19 @@
     <h1>Autoselect Playground</h1>
     <p>A prototype task for testing autoselect field behavior across models.</p>
 
+    <section class="separate-bottom">
+      <label>
+        Level delay (ms):
+        <input
+          v-model.number="levelDelay"
+          type="number"
+          min="0"
+          step="50"
+          style="width: 80px"
+        />
+      </label>
+    </section>
+
     <section
       v-for="model in registeredModels"
       :key="model.url"
@@ -13,6 +26,7 @@
         :url="model.url"
         :param="model.param"
         :placeholder="`Search ${model.label}...`"
+        :level-delay="levelDelay"
         @select="onSelect(model.label, $event)"
       />
       <pre v-if="selections[model.label]">{{ JSON.stringify(selections[model.label], null, 2) }}</pre>
@@ -34,6 +48,8 @@ const registeredModels = ref([
   { url: '/taxon_names/autoselect', param: 'taxon_name_id', label: 'TaxonName' },
   { url: '/otus/autoselect', param: 'otu_id', label: 'OTU' },
 ])
+
+const levelDelay = ref(500)
 
 const selections = ref({})
 

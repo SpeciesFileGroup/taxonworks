@@ -184,13 +184,14 @@ RSpec.describe Autoselect::TaxonName::Levels::CatalogOfLife do
   end
 
   context 'when CoL returns results' do
+    # Flat nameusage structure — no 'usage' wrapper.
+    # 'name' is a hash; 'id' and 'status' are top-level.
     let(:col_result) {
       {
-        'usage' => {
-          'id' => 'abc123',
-          'name' => { 'scientificName' => 'Homo sapiens' },
-          'status' => 'accepted'
-        }
+        'id'     => 'abc123',
+        'status' => 'accepted',
+        'name'   => { 'scientificName' => 'Homo sapiens', 'rank' => 'species' },
+        'label'  => 'Homo sapiens Linnaeus, 1758'
       }
     }
 
@@ -211,6 +212,11 @@ RSpec.describe Autoselect::TaxonName::Levels::CatalogOfLife do
     it 'pseudo-records have nil id' do
       results = level.call(term: 'Homo sapiens', project_id: 1)
       expect(results.first.id).to be_nil
+    end
+
+    it 'pseudo-record cached name comes from name.scientificName' do
+      results = level.call(term: 'Homo sapiens', project_id: 1)
+      expect(results.first.cached).to eq('Homo sapiens')
     end
   end
 end

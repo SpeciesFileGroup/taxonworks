@@ -82,41 +82,63 @@ module Vendor
     end
 
 
+    # Searches the Catalog of Life by name string.
+    #
+    # The Colrapi gem takes dataset_id as a positional first argument.
+    # Response structure: { 'total' => Integer, 'result' => Array }
+    # Each result entry is a flat nameusage hash with keys:
+    #   'id', 'status', 'name' (hash with 'scientificName', 'rank', 'authorship', …),
+    #   'label', 'labelHtml', 'parentId', etc.
+    #
     # @param name_string [String]
     # @return [Hash] raw Colrapi nameusage response (keys 'total', 'result')
     def self.search(name_string)
-      ::Colrapi.nameusage(dataset_key: DATASETS[:col], q: name_string, limit: 20)
+      ::Colrapi.nameusage(DATASETS[:col], q: name_string, limit: 20)
     rescue => e
       Rails.logger.warn "Vendor::Colrapi.search error: #{e.message}"
       { 'total' => 0, 'result' => [] }
     end
 
-    # @param taxon_key [String] CoL taxon ID
-    # @return [Array] ancestor classification records from Colrapi
-    def self.ancestors(taxon_key)
-      ::Colrapi.taxon_classification(dataset_key: DATASETS[:col], taxon_id: taxon_key)
+    # Returns the ancestor classification chain for a CoL taxon.
+    #
+    # Uses Colrapi.taxon with subresource: 'classification'.
+    # Response is an Array of hashes with keys: 'id', 'name' (String, not hash),
+    # 'authorship', 'rank', 'label', 'labelHtml'.
+    #
+    # @param taxon_id [String] CoL taxon ID (e.g. '6MB3T')
+    # @return [Array<Hash>]
+    def self.ancestors(taxon_id)
+      ::Colrapi.taxon(DATASETS[:col], taxon_id: taxon_id, subresource: 'classification')
     rescue => e
       Rails.logger.warn "Vendor::Colrapi.ancestors error: #{e.message}"
       []
     end
 
-    # Builds an alignment hash comparing a CoL result against TaxonNames in the project.
+    # Builds an alignment hash comparing a CoL nameusage result against TaxonNames in the project.
     #
-    # @param col_result [Hash] a single result entry from Colrapi nameusage response
+    # col_result is a flat nameusage hash as returned by search (no 'usage' wrapper):
+    #   { 'id' => '6MB3T', 'status' => 'accepted',
+    #     'name' => { 'scientificName' => 'Homo sapiens', 'rank' => 'species', … },
+    #     'label' => 'Homo sapiens Linnaeus, 1758', … }
+    #
+    # Classification entries from ancestors() have:
+    #   { 'id' => '636X2', 'name' => 'Homo', 'rank' => 'genus', 'label' => 'Homo', … }
+    # Note: in classification entries 'name' is a plain String, not a hash.
+    #
+    # @param col_result [Hash] a single entry from search['result']
     # @param project_id [Integer, nil]
     # @return [Hash] extension hash with :col_key, :col_name, :col_status, :alignment
     def self.build_extension(col_result, project_id)
-      col_key    = col_result.dig('usage', 'id') || col_result['id']
-      col_name   = col_result.dig('usage', 'name', 'scientificName') ||
-                   col_result.dig('name', 'scientificName') ||
-                   col_result['scientificName']
-      col_status = col_result.dig('usage', 'status') || col_result['status']
+      col_key    = col_result['id']
+      col_name   = col_result.dig('name', 'scientificName') || col_result['label']
+      col_status = col_result['status']
 
       ancestor_chain = col_key.present? ? ancestors(col_key) : []
 
       alignment = ancestor_chain.map do |ancestor|
-        rank     = ancestor.dig('name', 'rank')&.downcase
-        anc_name = ancestor.dig('name', 'scientificName')
+        rank     = ancestor['rank']&.downcase
+        # In classification entries 'name' is a plain String (the uninomial name)
+        anc_name = ancestor['name'].is_a?(String) ? ancestor['name'] : ancestor.dig('name', 'scientificName')
 
         scope = ::TaxonName.where(cached: anc_name)
         scope = scope.where(project_id:) if project_id.present?

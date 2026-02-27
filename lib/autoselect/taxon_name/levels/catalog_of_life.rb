@@ -29,11 +29,10 @@ module Autoselect
           return [] if results.empty?
 
           results.map do |col_result|
-            col_name   = col_result.dig('usage', 'name', 'scientificName') ||
-                         col_result.dig('name', 'scientificName') ||
-                         col_result['scientificName']
-            col_status = col_result.dig('usage', 'status') || col_result['status']
-            col_key    = col_result.dig('usage', 'id') || col_result['id']
+            # Flat nameusage structure: 'id', 'status', 'name' hash, 'label', 'labelHtml'
+            col_name   = col_result.dig('name', 'scientificName') || col_result['label']
+            col_status = col_result['status']
+            col_key    = col_result['id']
             extension  = ::Vendor::Colrapi.build_extension(col_result, project_id)
 
             OpenStruct.new(
@@ -42,7 +41,7 @@ module Autoselect
               name: col_name,
               rank_string: nil,
               cached_valid_taxon_name_id: nil,
-              _col_extension: extension.merge(col_status:, col_key:)
+              _col_extension: extension
             )
           end
         end
