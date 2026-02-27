@@ -133,7 +133,7 @@ module Vendor
     #   :col_year, :col_rank, and :alignment (Array of ancestor hashes each including :col_id)
     def self.build_extension(col_result, project_id)
       col_key       = col_result['id']
-      col_name      = col_result.dig('name', 'scientificName') || col_result['label']
+      col_name      = uninomial_name(col_result['name'])
       col_status    = col_result['status']
       col_authorship = col_result.dig('name', 'authorship')
       col_year      = col_result.dig('name', 'combinationAuthorship', 'year') ||
@@ -164,6 +164,21 @@ module Vendor
       end
 
       { col_key:, col_name:, col_status:, col_authorship:, col_year:, col_rank:, alignment: }
+    end
+
+    # Returns the single-word name component suitable for storing as a TaxonWorks Protonym name.
+    # CoL's scientificName is the full combination (e.g. "Homo sapiens"), but TaxonWorks
+    # Protonym requires just the uninomial or epithet.
+    # Priority: specificEpithet (species) > infraspecificEpithet (infra) > uninomial (higher) > scientificName fallback.
+    #
+    # @param name_hash [Hash, nil] the 'name' sub-hash from a CoL nameusage result
+    # @return [String, nil]
+    def self.uninomial_name(name_hash)
+      return nil if name_hash.nil?
+      name_hash['infraspecificEpithet'].presence ||
+        name_hash['specificEpithet'].presence ||
+        name_hash['uninomial'].presence ||
+        name_hash['scientificName']
     end
 
     # Extend to buffered with GNA in middle layer?

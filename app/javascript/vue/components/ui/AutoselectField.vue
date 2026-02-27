@@ -143,13 +143,15 @@
       </div>
     </div>
 
-    <!-- CoL confirmation modal (teleported via Modal.vue) -->
-    <ColConfirmModal
-      v-if="pendingExtensionItem?.extension?.col_key"
-      :item="pendingExtensionItem"
-      @confirm="onColConfirm"
-      @cancel="cancelExtension"
-    />
+    <!-- CoL confirmation modal — teleported to body so it renders above all stacking contexts -->
+    <Teleport to="body">
+      <ColConfirmModal
+        v-if="pendingExtensionItem?.extension?.col_key"
+        :item="pendingExtensionItem"
+        @confirm="onColConfirm"
+        @cancel="cancelExtension"
+      />
+    </Teleport>
   </div>
 </template>
 
