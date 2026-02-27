@@ -1,10 +1,12 @@
 import { defineStore } from 'pinia'
 import { AssertedDistribution, Citation, Confidence } from '@/routes/endpoints'
 import { smartSelectorRefresh } from '@/helpers/smartSelector/index.js'
-import { addToArray, removeFromArray } from '@/helpers'
+import { addToArray, removeFromArray, setParam } from '@/helpers'
 import { makeAssertedDistributionPayload } from '../adapters'
 import { ASSERTED_DISTRIBUTION } from '@/constants'
+
 import makeCitation from '@/factory/Citation'
+import { RouteNames } from '@/routes/routes'
 
 function makeAssertedDistribution(data = {}) {
   return {
@@ -48,6 +50,54 @@ export const useStore = defineStore('NewAssertedDistribution', {
   },
 
   actions: {
+    async load(id) {
+      const promises = []
+
+      this.isLoading = true
+      this.assertedDistribution = makeAssertedDistribution()
+      this.confidences = []
+      this.autosave = false
+
+      promises.push(
+        AssertedDistribution.find(id, { extend }).then(({ body }) => {
+          const [citation] = body.citations
+
+          this.assertedDistribution.id = body.id
+          this.shape = {
+            shapeType: body.asserted_distribution_shape_type,
+            ...body.asserted_distribution_shape
+          }
+          this.object = {
+            objectType: body.asserted_distribution_object_type,
+            ...body.asserted_distribution_object
+          }
+          this.isAbsent = body.is_absent
+
+          this.citation = {
+            id: citation.id,
+            source_id: citation.source_id,
+            is_original: citation.is_original,
+            pages: citation.pages
+          }
+        })
+      )
+
+      promises.push(
+        Confidence.where({
+          confidence_object_id: id,
+          confidence_object_type: ASSERTED_DISTRIBUTION
+        }).then(({ body }) => {
+          this.confidences = body.map((c) => ({
+            ...c,
+            label: c.confidence_level.object_tag
+          }))
+        })
+      )
+
+      Promise.all(promises)
+        .catch(() => {})
+        .finally(() => (this.isLoading = false))
+    },
     async loadRecentAssertedDistributions() {
       try {
         const { body } = await AssertedDistribution.where({
@@ -130,6 +180,21 @@ export const useStore = defineStore('NewAssertedDistribution', {
       }
     },
 
+    removeConfidence(index) {
+      const confidenceId = this.confidences[index]?.id
+
+      if (
+        !confidenceId ||
+        window.confirm('Are you sure you want to delete this item?')
+      ) {
+        if (confidenceId) {
+          Confidence.destroy(confidenceId)
+        }
+
+        this.confidences.splice(index, 1)
+      }
+    },
+
     removeAssertedDistribution(item) {
       AssertedDistribution.destroy(item.id).then(() => {
         removeFromArray(this.assertedDistributions, item)
@@ -191,6 +256,8 @@ export const useStore = defineStore('NewAssertedDistribution', {
       this.confidences = this.lock.confidences
         ? this.confidences.map(({ id, ...rest }) => rest)
         : []
+
+      setParam(RouteNames.NewAssertedDistribution, 'asserted_distribution_id')
     }
   }
 })

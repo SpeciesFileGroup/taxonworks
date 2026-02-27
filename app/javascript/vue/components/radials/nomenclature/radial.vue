@@ -14,11 +14,13 @@ import RadialBatch from '@/components/radials/shared/RadialBatch.vue'
 import SliceParent from './components/ParentSlice.vue'
 import VerbatimSlice from './components/VerbatimSlice.vue'
 import GenderSlice from './components/GenderSlice.vue'
+import FossilSlice from './components/FossilSlice.vue'
 
 const SLICES = {
+  Fossil: FossilSlice,
+  Gender: GenderSlice,
   Parent: SliceParent,
-  Verbatim: VerbatimSlice,
-  Gender: GenderSlice
+  Verbatim: VerbatimSlice
 }
 
 defineOptions({

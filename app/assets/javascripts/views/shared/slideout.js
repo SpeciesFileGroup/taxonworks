@@ -45,15 +45,16 @@ Object.assign(TW.views.shared.slideout, {
 
   togglePanel(e) {
     const element = e.target
+    const attr = element.getAttribute('data-control-slide-panel')
 
-    if (element.classList.contains('slide-panel-circle-icon')) {
-      const panelElement = element.closest('.slide-panel')
-      const panelName = panelElement.getAttribute('data-panel-name')
+    if (attr) {
+      const panelElement = document.querySelector(`[data-panel-name="${attr}"]`)
       const isOpen = panelElement.classList.contains('slide-panel-show')
-      const detail = { name: panelName }
       const eventName = isOpen ? 'onSlidePanelClose' : 'onSlidePanelOpen'
+      const detail = { name: attr }
 
       panelElement.classList.toggle('slide-panel-show')
+
       document.dispatchEvent(new CustomEvent(eventName, { detail }))
 
       e.preventDefault()

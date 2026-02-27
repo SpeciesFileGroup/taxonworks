@@ -27,6 +27,7 @@ AnatomicalPart:
     - anatomical_parts_graph_task
     - filter_anatomical_parts_task
 AssertedDistribution:
+  edit: new_asserted_distribution_task
   tasks:
     - asserted_distributions_basic_endemism_task
     - new_asserted_distribution_task
