@@ -24,5 +24,5 @@ export const TaxonNameClassification = {
     ),
 
   batchByFilter: (params) =>
-    AjaxCall('post', '/taxon_name_classifications/batch_by_filter_scope', params)
+    AjaxCall('post', '/taxon_name_classifications/batch_by_filter_scope.json', params)
 }

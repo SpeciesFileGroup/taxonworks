@@ -365,6 +365,45 @@ describe TaxonNameClassification, type: :model, group: [:nomenclature] do
         ).count
       ).to eq(1)
     end
+
+    specify ':add skips a taxon name already classified as an ichnotaxon and records it in not_updated' do
+      TaxonNameClassification.create!(
+        taxon_name: iczn_name,
+        type: 'TaxonNameClassification::Iczn::Fossil::Ichnotaxon'
+      )
+      q = Queries::TaxonName::Filter.new(taxon_name_id: iczn_name.id)
+      r = TaxonNameClassification.batch_by_filter_scope(
+        filter_query: { 'taxon_name_query' => q.params },
+        mode: :add,
+        params: {}
+      )
+      expect(r[:not_updated]).to include(iczn_name.id)
+      expect(
+        TaxonNameClassification.where(
+          taxon_name: iczn_name,
+          type: 'TaxonNameClassification::Iczn::Fossil'
+        ).count
+      ).to eq(0)
+    end
+
+    specify ':remove also removes ichnotaxon classifications' do
+      TaxonNameClassification.create!(
+        taxon_name: iczn_name,
+        type: 'TaxonNameClassification::Iczn::Fossil::Ichnotaxon'
+      )
+      q = Queries::TaxonName::Filter.new(taxon_name_id: iczn_name.id)
+      TaxonNameClassification.batch_by_filter_scope(
+        filter_query: { 'taxon_name_query' => q.params },
+        mode: :remove,
+        params: {}
+      )
+      expect(
+        TaxonNameClassification.where(
+          taxon_name: iczn_name,
+          type: 'TaxonNameClassification::Iczn::Fossil::Ichnotaxon'
+        ).count
+      ).to eq(0)
+    end
   end
 
 end

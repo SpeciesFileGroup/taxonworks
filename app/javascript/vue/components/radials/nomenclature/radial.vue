@@ -17,10 +17,10 @@ import GenderSlice from './components/GenderSlice.vue'
 import FossilSlice from './components/FossilSlice.vue'
 
 const SLICES = {
-  Parent: SliceParent,
-  Verbatim: VerbatimSlice,
+  Fossil: FossilSlice,
   Gender: GenderSlice,
-  Fossil: FossilSlice
+  Parent: SliceParent,
+  Verbatim: VerbatimSlice
 }
 
 defineOptions({

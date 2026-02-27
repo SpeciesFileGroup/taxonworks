@@ -175,6 +175,7 @@ class TaxonNameClassificationsController < ApplicationController
   end
 
   def batch_by_filter_scope_params
-    params.fetch(:params, ActionController::Parameters.new).permit()
+    # Current batching only uses mode, not params.
+    ActionController::Parameters.new.permit()
   end
 end

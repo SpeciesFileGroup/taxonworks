@@ -23,7 +23,6 @@ class TaxonNameClassification < ApplicationRecord
   include Shared::IsData
   include SoftValidation
 
-  # Maps nomenclatural code symbols to the corresponding fossil classification type string.
   FOSSIL_TYPE_FOR = {
     iczn: 'TaxonNameClassification::Iczn::Fossil',
     icn:  'TaxonNameClassification::Icn::Fossil'
@@ -340,13 +339,18 @@ class TaxonNameClassification < ApplicationRecord
           user_id:
         )
       else
+        existing_fossil_classifications = TaxonNameClassification
+          .with_type_array(TAXON_NAME_CLASSIFICATIONS_FOR_FOSSILS)
+          .where(taxon_name: query)
+          .pluck(:taxon_name_id)
+          .to_set
+
         query.find_each do |taxon_name|
           fossil_type = FOSSIL_TYPE_FOR[taxon_name.rank_class&.nomenclatural_code]
-          unless fossil_type
+          if fossil_type.nil? || existing_fossil_classifications.include?(taxon_name.id)
             r.not_updated.push taxon_name.id
             next
           end
-          next if TaxonNameClassification.where(taxon_name: taxon_name, type: fossil_type).exists?
           classification = TaxonNameClassification.create(taxon_name: taxon_name, type: fossil_type)
           if classification.persisted?
             r.updated.push classification.id
@@ -368,9 +372,16 @@ class TaxonNameClassification < ApplicationRecord
         )
       else
         TaxonNameClassification
-          .with_type_array(FOSSIL_TYPE_FOR.values)
+          .with_type_array(TAXON_NAME_CLASSIFICATIONS_FOR_FOSSILS)
           .where(taxon_name: query)
-          .find_each(&:destroy)
+          .find_each do |c|
+            c.destroy # destroy is necessary for cached processing
+            if c.destroyed?
+              r.updated.push nil
+            else
+              r.not_updated.push c.taxon_name_id
+            end
+          end
       end
     end
 

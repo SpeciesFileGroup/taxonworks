@@ -7,6 +7,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
+### Added
+- Add and remove fossil status from Filter Taxon Names [#4700]
+
 ### Fixed
 
 - Task bar overlays panels when header is locked in New taxon name and New source tasks
@@ -17,6 +20,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - The edit link now opens the New Asserted Distribution task instead of old data editing interface when accessed via Radial Navigator [#4768]
 
 [#4694]: https://github.com/SpeciesFileGroup/taxonworks/issues/4694
+[#4700]: https://github.com/SpeciesFileGroup/taxonworks/issues/4700
 [#4768]: https://github.com/SpeciesFileGroup/taxonworks/issues/4768
 
 ## [0.60.0] - 2026-02-20

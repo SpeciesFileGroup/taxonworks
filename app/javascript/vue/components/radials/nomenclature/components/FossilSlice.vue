@@ -1,8 +1,10 @@
 <template>
   <div>
-    <p>
-      <i>Marks or removes fossil status for all taxon names in the current filter result.</i>
-    </p>
+    <VSpinner
+      v-if="isProcessing"
+      legend="Updating..."
+    />
+
     <fieldset>
       <legend>Action</legend>
       <ul class="no_bullets">
@@ -48,10 +50,6 @@
       :container-style="{ 'min-width': 'auto', width: '300px' }"
     />
 
-    <VSpinner
-      v-if="isProcessing"
-      legend="Updating..."
-    />
   </div>
 </template>
 
@@ -63,6 +61,7 @@ import { TaxonNameClassification } from '@/routes/endpoints'
 import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam'
 import { TAXON_NAME } from '@/constants'
 import { ref } from 'vue'
+import { capitalize } from '@/helpers/strings'
 
 const props = defineProps({
   parameters: {
@@ -78,12 +77,12 @@ const selectedMode = ref(null)
 const isProcessing = ref(false)
 
 async function openModal() {
-  const actionLabel = selectedMode.value === 'add' ? 'ADD' : 'REMOVE'
+  const actionLabel = selectedMode.value.toUpperCase()
   const ok = await confirmationModalRef.value.show({
     title: 'Fossil status',
     message: `Are you sure you want to ${selectedMode.value} fossil status for all taxon names in the filter result?`,
     confirmationWord: actionLabel,
-    okButton: actionLabel,
+    okButton: capitalize(selectedMode.value),
     cancelButton: 'Cancel',
     typeButton: 'submit'
   })
@@ -110,6 +109,7 @@ async function openModal() {
       TW.workbench.alert.create(message, 'notice')
       emit('close')
     })
+    .catch(() => {})
     .finally(() => {
       isProcessing.value = false
     })
