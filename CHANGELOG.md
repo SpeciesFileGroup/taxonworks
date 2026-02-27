@@ -8,7 +8,9 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ## [unreleased]
 
 ### Added
+
 - Add and remove fossil status from Filter Taxon Names [#4700]
+- Taxon determination to New type specimen task [#4745]
 
 ### Fixed
 
@@ -23,6 +25,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#4694]: https://github.com/SpeciesFileGroup/taxonworks/issues/4694
 [#4700]: https://github.com/SpeciesFileGroup/taxonworks/issues/4700
+[#4745]: https://github.com/SpeciesFileGroup/taxonworks/issues/4745
 [#4768]: https://github.com/SpeciesFileGroup/taxonworks/issues/4768
 
 ## [0.60.0] - 2026-02-20
