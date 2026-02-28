@@ -58,10 +58,9 @@
       <span
         v-if="isSearching"
         class="autoselect-field__input-spinner"
-        :title="isExternalLevel(currentLevel) ? 'Searching Catalog of Life...' : 'Searching...'"
+        :title="spinnerTitle"
       >
-        <CatalogueOfLifeSpinner v-if="isExternalLevel(currentLevel)" />
-        <TaxonWorksSpinner v-else />
+        <component :is="currentSpinner" />
       </span>
     </div>
 
@@ -144,6 +143,10 @@ import ColConfirmModal from '@/components/ui/AutoselectField/ColConfirmModal.vue
 import CatalogueOfLifeSpinner from '@/components/ui/AutoselectField/CatalogueOfLifeSpinner.vue'
 import TaxonWorksSpinner from '@/components/ui/AutoselectField/TaxonWorksSpinner.vue'
 
+const LEVEL_SPINNERS = {
+  catalog_of_life: CatalogueOfLifeSpinner
+}
+
 // ── Props & emits ──────────────────────────────────────────────────────────────
 const props = defineProps({
   url:         { type: String,  required: true },
@@ -213,6 +216,19 @@ const fuseSegments = computed(() =>
 const visibleOperators = computed(() =>
   getOperators().filter((op) => !op.client_only)
 )
+
+const currentSpinner = computed(() =>
+  LEVEL_SPINNERS[currentLevel.value] ?? TaxonWorksSpinner
+)
+
+const currentLevelSegment = computed(() =>
+  fuseSegments.value.find((s) => s.key === String(currentLevel.value))
+)
+
+const spinnerTitle = computed(() => {
+  const seg = currentLevelSegment.value
+  return seg?.external ? `Searching ${seg.label}...` : 'Searching...'
+})
 
 // ── Lifecycle ──────────────────────────────────────────────────────────────────
 onMounted(async () => {
