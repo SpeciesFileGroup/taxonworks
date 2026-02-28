@@ -13,16 +13,28 @@ module Autoselect
     #   taxonworks_id [Integer, nil] — existing TaxonName ID; if present, no creation occurs for this row
     #   col_authorship [String, nil] — combined author+year string from CoL (e.g. 'Linnaeus, 1758')
     #   col_year      [String, nil]  — year string extracted from CoL combinationAuthorship (target row only)
+    # @param col_code [String, nil] CoL nomenclatural code string: 'zoological', 'botanical',
+    #   'bacterial', 'viral'. When present, rank resolution uses the corresponding lookup first.
+    #   Falls back to trying all codes when nil or unrecognised.
     # @param project_id [Integer]
     # @param user_id [Integer]
     class ColCreator
 
       COL_BASE_URI = 'https://www.catalogueoflife.org/data/taxon/'.freeze
 
-      def initialize(rows:, project_id:, user_id:)
+      # Maps CoL code strings to the primary lookup constant to use for rank resolution.
+      COL_CODE_LOOKUP_MAP = {
+        'zoological' => :ICZN_LOOKUP,
+        'botanical'  => :ICN_LOOKUP,
+        'bacterial'  => :ICNP_LOOKUP,
+        'viral'      => :ICVCN_LOOKUP
+      }.freeze
+
+      def initialize(rows:, project_id:, user_id:, col_code: nil)
         @rows       = rows
         @project_id = project_id.to_i
         @user_id    = user_id.to_i
+        @col_code   = col_code.to_s.downcase.presence
       end
 
       # @return [Hash] { taxon_name_id: Integer, created_ids: Array<Integer> }
@@ -83,12 +95,32 @@ module Autoselect
       end
 
       # Maps a human-readable CoL rank string to a TaxonWorks rank_class string.
-      # Tries all nomenclatural code lookup constants in order so that any code's ranks resolve.
+      #
+      # When @col_code is recognised (e.g. 'botanical' → ICN_LOOKUP), that lookup is tried first
+      # so that plant names receive ICN rank classes rather than ICZN ones.  Falls back through
+      # all four codes in order so that any rank resolves if possible.
+      #
       # Returns nil for unknown ranks; callers should skip creation for those rows.
       def resolve_rank_class(rank_string)
         return nil if rank_string.blank?
         r = rank_string.to_s.downcase
-        ::ICZN_LOOKUP[r] || ::ICN_LOOKUP[r] || ::ICNP_LOOKUP[r] || ::ICVCN_LOOKUP[r]
+
+        primary_key = COL_CODE_LOOKUP_MAP[@col_code]
+
+        if primary_key
+          primary_lookup = Object.const_get("::#{primary_key}")
+          result = primary_lookup[r]
+          return result if result
+        end
+
+        # Fall through all codes (excluding the primary already tried)
+        fallbacks = [:ICZN_LOOKUP, :ICN_LOOKUP, :ICNP_LOOKUP, :ICVCN_LOOKUP].reject { |k| k == primary_key }
+        fallbacks.each do |key|
+          result = Object.const_get("::#{key}")[r]
+          return result if result
+        end
+
+        nil
       end
 
       # Splits a CoL authorship string into [verbatim_author, year_of_publication].

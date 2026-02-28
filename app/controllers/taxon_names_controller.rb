@@ -375,6 +375,7 @@ class TaxonNamesController < ApplicationController
   def autoselect_col_create
     result = ::Autoselect::TaxonName::ColCreator.new(
       rows:       autoselect_col_create_params,
+      col_code:   params[:col_code],
       project_id: sessions_current_project_id,
       user_id:    sessions_current_user_id
     ).call

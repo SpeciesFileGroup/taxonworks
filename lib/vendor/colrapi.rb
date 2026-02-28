@@ -139,8 +139,14 @@ module Vendor
       col_year      = col_result.dig('name', 'combinationAuthorship', 'year') ||
                       col_result.dig('name', 'basionymOrCombinationAuthorship', 'year')
       col_rank      = col_result.dig('name', 'rank')&.downcase
+      # CoL nomenclatural code: 'zoological', 'botanical', 'bacterial', 'viral'
+      col_code      = col_result.dig('name', 'code')
 
       ancestor_chain = col_key.present? ? ancestors(col_key) : []
+
+      # Drop suprakingdom ranks (e.g. 'domain') that have no equivalent in TaxonWorks
+      # nomenclatural codes.  Kingdom is the highest rank we include.
+      ancestor_chain = ancestor_chain.reject { |a| a['rank']&.downcase == 'domain' }
 
       alignment = ancestor_chain.map do |ancestor|
         rank     = ancestor['rank']&.downcase
@@ -163,7 +169,7 @@ module Vendor
         }
       end
 
-      { col_key:, col_name:, col_status:, col_authorship:, col_year:, col_rank:, alignment: }
+      { col_key:, col_name:, col_status:, col_authorship:, col_year:, col_rank:, col_code:, alignment: }
     end
 
     # Returns the single-word name component suitable for storing as a TaxonWorks Protonym name.

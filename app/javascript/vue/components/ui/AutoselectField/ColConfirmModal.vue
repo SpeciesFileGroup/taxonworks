@@ -76,7 +76,7 @@
           @click="doCreate"
           @keydown.enter.prevent="doCreate"
         >
-          {{ isCreating ? 'Creating…' : 'Confirm' }}
+          {{ isCreating ? 'Creating…' : 'Create' }}
         </button>
         <button
           class="button circle-button btn-undo button-default"
@@ -173,7 +173,8 @@ async function doCreate() {
 
   try {
     const { body } = await AjaxCall('post', '/taxon_names/autoselect_col_create', {
-      rows: [...ancestorRows, targetRow]
+      rows:     [...ancestorRows, targetRow],
+      col_code: ext.value.col_code ?? null
     })
     emit('confirm', body.taxon_name_id)
   } catch (err) {
@@ -237,5 +238,10 @@ async function doCreate() {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.col-confirm-modal__footer .button-submit {
+  padding-left: 20px;
+  padding-right: 20px;
 }
 </style>
