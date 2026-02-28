@@ -197,7 +197,7 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'select'])
 
 // ── Composable ─────────────────────────────────────────────────────────────────
-const { config, fetchConfig, getFirstLevelKey, isExternalLevel, getOperators } =
+const { config, fetchConfig, getFirstLevelKey, getOperators } =
   useAutoselect(props.url)
 
 // ── Refs ───────────────────────────────────────────────────────────────────────
@@ -455,13 +455,12 @@ function escalateToLevel(level) {
   }
 }
 
-// Clicking a fuse segment: jump directly to that level
+// Clicking a fuse segment: jump directly to that level (any direction)
 function onFuseSegmentClick(seg, idx) {
-  // Only allow jumping forward from current level (no going back)
   const currentIdx = fuseSegments.value.findIndex(
     (s) => s.key === currentLevel.value
   )
-  if (idx <= currentIdx) return
+  if (idx === currentIdx) return
   escalateToLevel(seg.key)
 }
 
