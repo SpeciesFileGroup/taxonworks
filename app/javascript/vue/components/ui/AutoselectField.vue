@@ -10,8 +10,13 @@
           seg.external
             ? 'autoselect-field__fuse-segment--external'
             : 'autoselect-field__fuse-segment--internal',
-          { 'autoselect-field__fuse-segment--ignited': ignitedSegmentIdx === idx },
-          { 'autoselect-field__fuse-segment--active': fuseSegments[idx]?.key === currentLevel }
+          {
+            'autoselect-field__fuse-segment--ignited': ignitedSegmentIdx === idx
+          },
+          {
+            'autoselect-field__fuse-segment--active':
+              fuseSegments[idx]?.key === currentLevel
+          }
         ]"
         @click="onFuseSegmentClick(seg, idx)"
         @mouseenter="hoveredSegmentIdx = idx"
@@ -30,9 +35,15 @@
           v-if="hoveredSegmentIdx === idx"
           class="autoselect-field__fuse-tooltip"
         >
-          <span class="autoselect-field__fuse-tooltip-trigger">!{{ idx + 1 }}</span>
-          <span class="autoselect-field__fuse-tooltip-label">{{ seg.label }}</span>
-          <span class="autoselect-field__fuse-tooltip-desc">{{ seg.description }}</span>
+          <span class="autoselect-field__fuse-tooltip-trigger"
+            >!{{ idx + 1 }}</span
+          >
+          <span class="autoselect-field__fuse-tooltip-label">{{
+            seg.label
+          }}</span>
+          <span class="autoselect-field__fuse-tooltip-desc">{{
+            seg.description
+          }}</span>
         </div>
       </div>
     </div>
@@ -77,14 +88,20 @@
         <template v-if="dropdownItems.length">
           <li
             v-for="(item, idx) in dropdownItems"
-            :key="item.id ?? ('item-' + idx)"
+            :key="item.id ?? 'item-' + idx"
             class="autoselect-field__dropdown-item"
-            :class="{ 'autoselect-field__dropdown-item--active': idx === current }"
+            :class="{
+              'autoselect-field__dropdown-item--active': idx === current
+            }"
             @mouseover="current = idx"
             @click.prevent="itemClicked(idx)"
           >
             <span v-html="item.label_html || item.label" />
-            <span v-if="item.info" class="autoselect-field__item-info">{{ item.info }}</span>
+            <span
+              v-if="item.info"
+              class="autoselect-field__item-info"
+              >{{ item.info }}</span
+            >
           </li>
         </template>
         <li
@@ -103,11 +120,19 @@
     >
       <h4>Available operators</h4>
       <ul>
-        <li v-for="op in visibleOperators" :key="op.trigger">
+        <li
+          v-for="op in visibleOperators"
+          :key="op.trigger"
+        >
           <code>{{ op.trigger }}</code> — {{ op.description }}
         </li>
       </ul>
-      <button class="btn" @click="showHelp = false">Close</button>
+      <button
+        class="btn"
+        @click="showHelp = false"
+      >
+        Close
+      </button>
     </div>
 
     <!-- Extension panel: new-OTU form (inline) -->
@@ -116,10 +141,22 @@
       class="autoselect-field__extension-panel"
     >
       <p><strong>Create new OTU</strong></p>
-      <p>Name: <em>{{ pendingExtensionItem.extension.name_prefill }}</em></p>
+      <p>
+        Name: <em>{{ pendingExtensionItem.extension.name_prefill }}</em>
+      </p>
       <div class="autoselect-field__extension-actions">
-        <button class="btn normal-input" @click="confirmExtension">Confirm</button>
-        <button class="btn normal-input" @click="cancelExtension">Cancel</button>
+        <button
+          class="btn normal-input"
+          @click="confirmExtension"
+        >
+          Confirm
+        </button>
+        <button
+          class="btn normal-input"
+          @click="cancelExtension"
+        >
+          Cancel
+        </button>
       </div>
     </div>
 
@@ -149,76 +186,70 @@ const LEVEL_SPINNERS = {
 
 // ── Props & emits ──────────────────────────────────────────────────────────────
 const props = defineProps({
-  url:         { type: String,  required: true },
-  modelValue:  { type: Object,  default: null },
-  param:       { type: String,  required: true },
-  placeholder: { type: String,  default: 'Search...' },
-  disabled:    { type: Boolean, default: false },
-  levelDelay:  { type: Number,  default: 500 }   // debounce ms; exposed for playground tuning
+  url: { type: String, required: true },
+  modelValue: { type: Object, default: null },
+  param: { type: String, required: true },
+  placeholder: { type: String, default: 'Search...' },
+  disabled: { type: Boolean, default: false },
+  levelDelay: { type: Number, default: 500 } // debounce ms; exposed for playground tuning
 })
 
 const emit = defineEmits(['update:modelValue', 'select'])
 
 // ── Composable ─────────────────────────────────────────────────────────────────
-const {
-  config,
-  fetchConfig,
-  getFirstLevelKey,
-  isExternalLevel,
-  getOperators
-} = useAutoselect(props.url)
+const { config, fetchConfig, getFirstLevelKey, isExternalLevel, getOperators } =
+  useAutoselect(props.url)
 
 // ── Refs ───────────────────────────────────────────────────────────────────────
-const inputEl   = ref(null)
+const inputEl = ref(null)
 const dropdownEl = ref(null)
 
 // search state — mirrors Autocomplete.vue naming closely
-const ready         = ref(false)
-const inputText     = ref('')
-const currentLevel  = ref(null)
+const ready = ref(false)
+const inputText = ref('')
+const currentLevel = ref(null)
 const dropdownItems = ref([])
-const current       = ref(-1)       // highlighted index
-const isSearching   = ref(false)
-const searchEnd     = ref(false)    // true after first search completes (gates dropdown)
-const showList      = ref(false)
+const current = ref(-1) // highlighted index
+const isSearching = ref(false)
+const searchEnd = ref(false) // true after first search completes (gates dropdown)
+const showList = ref(false)
 const dropdownStyle = ref({})
-const controller    = ref(null)     // AbortController
-let   getRequest    = 0             // debounce handle (matches Autocomplete.vue name)
+const controller = ref(null) // AbortController
+let getRequest = 0 // debounce handle (matches Autocomplete.vue name)
 
 // fuse state
-const fuseActive         = ref(false)
-const fuseRunning        = ref(false)
-const currentFuseMs      = ref(600)
-const nextLevel          = ref(null)
-const ignitedSegmentIdx  = ref(null)
-let   fuseTimer          = null
+const fuseActive = ref(false)
+const fuseRunning = ref(false)
+const currentFuseMs = ref(600)
+const nextLevel = ref(null)
+const ignitedSegmentIdx = ref(null)
+let fuseTimer = null
 
 // fuse bar hover
 const hoveredSegmentIdx = ref(null)
 
 // overlays
-const showHelp           = ref(false)
+const showHelp = ref(false)
 const pendingExtensionItem = ref(null)
-let   preventBlur        = false    // mirrors Autocomplete.vue pattern
+let preventBlur = false // mirrors Autocomplete.vue pattern
 
 // ── Computed ───────────────────────────────────────────────────────────────────
 const fuseSegments = computed(() =>
   (config.value?.levels ?? []).map((l) => ({
-    key:         String(l.key),
-    label:       l.label,
+    key: String(l.key),
+    label: l.label,
     description: l.description,
-    external:    l.external ?? false,
-    fuse_ms:     l.fuse_ms  ?? 600
+    external: l.external ?? false,
+    fuse_ms: l.fuse_ms ?? 600
   }))
 )
-
 
 const visibleOperators = computed(() =>
   getOperators().filter((op) => !op.client_only)
 )
 
-const currentSpinner = computed(() =>
-  LEVEL_SPINNERS[currentLevel.value] ?? TaxonWorksSpinner
+const currentSpinner = computed(
+  () => LEVEL_SPINNERS[currentLevel.value] ?? TaxonWorksSpinner
 )
 
 const currentLevelSegment = computed(() =>
@@ -248,7 +279,7 @@ onBeforeUnmount(() => {
 function detectLevelOperator(text) {
   const match = text.match(/^(.*?)!(\d+)\s*(.*)$/)
   if (!match) return null
-  const n    = parseInt(match[2], 10) - 1   // !1 → index 0
+  const n = parseInt(match[2], 10) - 1 // !1 → index 0
   const segs = fuseSegments.value
   if (n < 0 || n >= segs.length) return null
   const cleanTerm = (match[1] + match[3]).replace(/\s+/g, ' ').trim()
@@ -277,7 +308,7 @@ function onInput() {
   const levelOp = detectLevelOperator(text)
   if (levelOp !== null) {
     currentLevel.value = levelOp.levelKey
-    inputText.value    = levelOp.cleanTerm
+    inputText.value = levelOp.cleanTerm
     cancelFuse()
     if (getRequest) clearTimeout(getRequest)
 
@@ -339,36 +370,42 @@ function triggerSearch(term) {
 // ── Dropdown positioning (mirrors Autocomplete.vue) ───────────────────────────
 function updateDropdownPosition() {
   nextTick(() => {
-    const input    = inputEl.value
+    const input = inputEl.value
     const dropdown = dropdownEl.value
     if (!input || !dropdown) return
 
-    const rect           = input.getBoundingClientRect()
+    const rect = input.getBoundingClientRect()
     const viewportHeight = window.innerHeight
-    const viewportWidth  = window.innerWidth
-    const spaceBelow     = viewportHeight - rect.bottom
-    const spaceAbove     = rect.top
-    const showAbove      = spaceBelow < 150 && spaceAbove > spaceBelow
-    const maxWidth       = viewportWidth - rect.left - 32
-    const maxHeight      = Math.min(showAbove ? spaceAbove - 12 : spaceBelow - 12, 500)
+    const viewportWidth = window.innerWidth
+    const spaceBelow = viewportHeight - rect.bottom
+    const spaceAbove = rect.top
+    const showAbove = spaceBelow < 150 && spaceAbove > spaceBelow
+    const maxWidth = viewportWidth - rect.left - 32
+    const maxHeight = Math.min(
+      showAbove ? spaceAbove - 12 : spaceBelow - 12,
+      500
+    )
 
     dropdown.style.maxHeight = maxHeight + 'px'
-    dropdown.style.minWidth  = rect.width + 'px'
-    dropdown.style.maxWidth  = maxWidth + 'px'
+    dropdown.style.minWidth = rect.width + 'px'
+    dropdown.style.maxWidth = maxWidth + 'px'
 
-    const items        = dropdown.querySelectorAll('li')
-    const contentWidth = Array.from(items).reduce((acc, li) => Math.max(acc, li.scrollWidth), 0)
-    const finalWidth   = Math.min(contentWidth + 20, maxWidth)
-    const dropdownH    = dropdown.offsetHeight || maxHeight
-    const top  = showAbove
-      ? rect.top  + window.scrollY - dropdownH - 6
+    const items = dropdown.querySelectorAll('li')
+    const contentWidth = Array.from(items).reduce(
+      (acc, li) => Math.max(acc, li.scrollWidth),
+      0
+    )
+    const finalWidth = Math.min(contentWidth + 20, maxWidth)
+    const dropdownH = dropdown.offsetHeight || maxHeight
+    const top = showAbove
+      ? rect.top + window.scrollY - dropdownH - 6
       : rect.bottom + window.scrollY + 2
     const left = rect.left + window.scrollX
 
     dropdownStyle.value = {
-      top:      `${Math.max(top, 0)}px`,
-      left:     `${Math.max(left, 0)}px`,
-      width:    finalWidth + 'px',
+      top: `${Math.max(top, 0)}px`,
+      left: `${Math.max(left, 0)}px`,
+      width: finalWidth + 'px',
       minWidth: rect.width + 'px',
       maxWidth: maxWidth + 'px'
     }
@@ -382,15 +419,19 @@ function updateDropdownPosition() {
 function lightFuse(targetLevel) {
   if (!targetLevel) return
 
-  const currentIdx   = fuseSegments.value.findIndex((s) => s.key === String(currentLevel.value))
+  const currentIdx = fuseSegments.value.findIndex(
+    (s) => s.key === String(currentLevel.value)
+  )
   const departingSeg = fuseSegments.value[currentIdx]
 
-  nextLevel.value         = targetLevel
-  currentFuseMs.value     = departingSeg?.fuse_ms ?? 600
-  ignitedSegmentIdx.value = currentIdx   // animate the departing segment
-  fuseActive.value        = true
+  nextLevel.value = targetLevel
+  currentFuseMs.value = departingSeg?.fuse_ms ?? 600
+  ignitedSegmentIdx.value = currentIdx // animate the departing segment
+  fuseActive.value = true
 
-  nextTick(() => { fuseRunning.value = true })
+  nextTick(() => {
+    fuseRunning.value = true
+  })
 
   fuseTimer = setTimeout(() => {
     escalateToLevel(targetLevel)
@@ -399,9 +440,9 @@ function lightFuse(targetLevel) {
 
 function cancelFuse() {
   clearTimeout(fuseTimer)
-  fuseActive.value        = false
-  fuseRunning.value       = false
-  nextLevel.value         = null
+  fuseActive.value = false
+  fuseRunning.value = false
+  nextLevel.value = null
   ignitedSegmentIdx.value = null
 }
 
@@ -417,7 +458,9 @@ function escalateToLevel(level) {
 // Clicking a fuse segment: jump directly to that level
 function onFuseSegmentClick(seg, idx) {
   // Only allow jumping forward from current level (no going back)
-  const currentIdx = fuseSegments.value.findIndex((s) => s.key === currentLevel.value)
+  const currentIdx = fuseSegments.value.findIndex(
+    (s) => s.key === currentLevel.value
+  )
   if (idx <= currentIdx) return
   escalateToLevel(seg.key)
 }
@@ -455,12 +498,12 @@ function cancelExtension() {
 
 function onColConfirm(taxonNameId) {
   completeSelection({
-    id:              taxonNameId,
-    label:           pendingExtensionItem.value.label,
-    label_html:      pendingExtensionItem.value.label_html,
-    info:            '',
+    id: taxonNameId,
+    label: pendingExtensionItem.value.label,
+    label_html: pendingExtensionItem.value.label_html,
+    info: '',
     response_values: { taxon_name_id: taxonNameId },
-    extension:       {}
+    extension: {}
   })
 }
 
@@ -477,13 +520,14 @@ function scrollToActive() {
   nextTick(() => {
     const dropdown = dropdownEl.value
     if (!dropdown) return
-    const items   = dropdown.querySelectorAll('li')
+    const items = dropdown.querySelectorAll('li')
     const activeEl = items[current.value]
     if (!activeEl) return
     const dRect = dropdown.getBoundingClientRect()
     const iRect = activeEl.getBoundingClientRect()
-    if (iRect.bottom > dRect.bottom) dropdown.scrollTop += iRect.bottom - dRect.bottom
-    else if (iRect.top < dRect.top)  dropdown.scrollTop -= dRect.top  - iRect.top
+    if (iRect.bottom > dRect.bottom)
+      dropdown.scrollTop += iRect.bottom - dRect.bottom
+    else if (iRect.top < dRect.top) dropdown.scrollTop -= dRect.top - iRect.top
   })
 }
 
@@ -509,7 +553,7 @@ function onBlur() {
     return
   }
   showList.value = false
-  current.value  = -1
+  current.value = -1
 }
 
 function onDropdownMousedown() {
@@ -519,8 +563,8 @@ function onDropdownMousedown() {
 // ── Helpers ────────────────────────────────────────────────────────────────────
 function clearResults() {
   dropdownItems.value = []
-  showList.value      = false
-  searchEnd.value     = false
+  showList.value = false
+  searchEnd.value = false
 }
 </script>
 
@@ -547,7 +591,9 @@ function clearResults() {
   border-radius: 3px;
   cursor: pointer;
   overflow: visible;
-  transition: flex 0.25s ease, height 0.25s ease;
+  transition:
+    flex 0.25s ease,
+    height 0.25s ease;
 }
 
 .autoselect-field__fuse-segment:hover {
@@ -594,7 +640,7 @@ function clearResults() {
   white-space: nowrap;
   font-size: 11px;
   line-height: 1.5;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
   gap: 1px;
@@ -641,7 +687,6 @@ function clearResults() {
   user-select: none;
 }
 
-
 /* ── Dropdown (teleported to body, matches vue-autocomplete-list styling) ── */
 .autoselect-field__dropdown {
   position: absolute;
@@ -649,7 +694,7 @@ function clearResults() {
   max-height: 500px;
   overflow-y: auto;
   overflow-x: hidden;
-  z-index: 999998;
+  z-index: 9998;
   background-color: var(--panel-bg-color);
   margin: 0;
   padding: 0;
@@ -690,7 +735,6 @@ function clearResults() {
   color: var(--text-color-muted, #888);
 }
 
-
 /* ── Help overlay ── */
 .autoselect-field__help-overlay {
   position: absolute;
@@ -703,7 +747,7 @@ function clearResults() {
   padding: var(--standard-padding, 8px);
   border-radius: 3px;
   font-size: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
 .autoselect-field__help-overlay h4 {
@@ -730,5 +774,4 @@ function clearResults() {
   gap: 6px;
   margin-top: 8px;
 }
-
 </style>
