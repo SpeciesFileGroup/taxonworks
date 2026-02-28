@@ -18,6 +18,7 @@ TaxonWorks is a Biodiversity Informatics workbench.
 - Style : `app/assets/stylesheets/ARCHITECTURE.md`
 - Queries and filters `lib/queries/ARCHITECTURE.md`
 - Exports: `lib/export/ARCHITECTURE.md`
+- Autoselects: `lib/autoselect/ARCHITECTURE.md`
 
 ### Application
 - Both server-side and client-side rendering are used

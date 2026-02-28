@@ -15,7 +15,7 @@ module Autoselect::Operators
     recent_mine:   { pattern: /\A!rm/,     client_only: false, trigger: '!rm', description: 'Recent records by current user' },
     recent:        { pattern: /\A!r/,      client_only: false, trigger: '!r',  description: 'Recent records (project-wide)' },
     help:          { pattern: /\A!\?/,     client_only: false, trigger: '!?',  description: 'Show help overlay' },
-    new_record:    { pattern: /\A!n/,      client_only: false, trigger: '!n',  description: 'Create a new record' },
+    new_record:    { pattern: /\A!n/,      client_only: true,  trigger: '!n',  description: 'Create a new record' },
     level_hash:    { pattern: /\A!#/,      client_only: true,  trigger: '!#',  description: 'Jump to first level' },
     level_number:  { pattern: /\A!(\d+)/,  client_only: true,  trigger: '!N',  description: 'Jump to level N' },
   }.freeze

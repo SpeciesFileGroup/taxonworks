@@ -135,31 +135,6 @@
       </button>
     </div>
 
-    <!-- Extension panel: new-OTU form (inline) -->
-    <div
-      v-if="pendingExtensionItem?.extension?.mode === 'new_otu_form'"
-      class="autoselect-field__extension-panel"
-    >
-      <p><strong>Create new OTU</strong></p>
-      <p>
-        Name: <em>{{ pendingExtensionItem.extension.name_prefill }}</em>
-      </p>
-      <div class="autoselect-field__extension-actions">
-        <button
-          class="btn normal-input"
-          @click="confirmExtension"
-        >
-          Confirm
-        </button>
-        <button
-          class="btn normal-input"
-          @click="cancelExtension"
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
-
     <!-- CoL confirmation modal — teleported to body so it renders above all stacking contexts -->
     <Teleport to="body">
       <ColConfirmModal
@@ -167,6 +142,16 @@
         :item="pendingExtensionItem"
         @confirm="onColConfirm"
         @cancel="cancelExtension"
+      />
+    </Teleport>
+
+    <!-- OTU new-record modal — opened by the !n operator -->
+    <Teleport to="body">
+      <OtuNewModal
+        v-if="newOtuName !== null"
+        :name-prefill="newOtuName"
+        @confirm="onOtuCreated"
+        @cancel="cancelOtuNew"
       />
     </Teleport>
   </div>
@@ -177,6 +162,7 @@ import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import AjaxCall from '@/helpers/ajaxCall'
 import { useAutoselect } from '@/components/ui/AutoselectField/useAutoselect'
 import ColConfirmModal from '@/components/ui/AutoselectField/ColConfirmModal.vue'
+import OtuNewModal from '@/components/ui/AutoselectField/OtuNewModal.vue'
 import CatalogueOfLifeSpinner from '@/components/ui/AutoselectField/CatalogueOfLifeSpinner.vue'
 import TaxonWorksSpinner from '@/components/ui/AutoselectField/TaxonWorksSpinner.vue'
 
@@ -231,6 +217,7 @@ const hoveredSegmentIdx = ref(null)
 // overlays
 const showHelp = ref(false)
 const pendingExtensionItem = ref(null)
+const newOtuName = ref(null) // non-null string when the !n OTU create modal is open
 let preventBlur = false // mirrors Autocomplete.vue pattern
 
 // ── Computed ───────────────────────────────────────────────────────────────────
@@ -299,6 +286,19 @@ function onInput() {
   // !? — show help, don't search
   if (/^!\?/.test(text)) {
     showHelp.value = true
+    return
+  }
+
+  // !n — create new record; detectable anywhere in the string (e.g. "zzz !n")
+  // Strip the operator (and surrounding spaces) to get the name prefill.
+  const newRecordMatch = text.match(/^(.*?)\s*!n\s*(.*)$/i)
+  if (newRecordMatch !== null) {
+    const cleanName = (newRecordMatch[1] + ' ' + newRecordMatch[2]).replace(/\s+/g, ' ').trim()
+    inputText.value = cleanName
+    cancelFuse()
+    if (getRequest) clearTimeout(getRequest)
+    clearResults()
+    newOtuName.value = cleanName
     return
   }
 
@@ -505,6 +505,23 @@ function onColConfirm(taxonNameId) {
     response_values: { taxon_name_id: taxonNameId },
     extension: {}
   })
+}
+
+function onOtuCreated({ otuId, otuName: createdName }) {
+  newOtuName.value = null
+  completeSelection({
+    id: otuId,
+    label: createdName,
+    label_html: createdName,
+    info: '',
+    response_values: { otu_id: otuId },
+    extension: {}
+  })
+}
+
+function cancelOtuNew() {
+  newOtuName.value = null
+  nextTick(() => inputEl.value?.focus())
 }
 
 // ── Keyboard navigation ────────────────────────────────────────────────────────
@@ -760,18 +777,4 @@ function clearResults() {
   padding-left: 16px;
 }
 
-/* ── Extension panel ── */
-.autoselect-field__extension-panel {
-  border: 1px solid var(--border-color, #ccc);
-  padding: var(--standard-padding, 8px);
-  font-size: 12px;
-  background: var(--panel-bg-color, #fff);
-  margin-top: 2px;
-}
-
-.autoselect-field__extension-actions {
-  display: flex;
-  gap: 6px;
-  margin-top: 8px;
-}
 </style>
