@@ -34,6 +34,22 @@ module Queries
       matching_alternate_value_on(:name)
     end
 
+    # @return [ActiveRecord::Relation]
+    #   name matches all query terms in order, e.g. "nat hist" matches
+    #   "Natural History Museum"
+    def autocomplete_ordered_wildcard_pieces_in_name
+      base_query.where(table[:name].matches(wildcard_pieces).to_sql)
+    end
+
+    # @return [ActiveRecord::Relation, nil]
+    #   name matches all query fragments (unordered AND), e.g. "hist nat"
+    #   matches "Natural History Museum"
+    def autocomplete_wildcard_in_name
+      b = fragments
+      return nil if b.empty?
+      base_query.where(table[:name].matches_all(b).to_sql)
+    end
+
     # @return [Array]
     def autocomplete
       t = Time.now
@@ -45,6 +61,8 @@ module Queries
         [autocomplete_identifier_identifier_exact, nil],
         [autocomplete_acronym_match.limit(10), true],
         [autocomplete_named, true ],
+        [autocomplete_ordered_wildcard_pieces_in_name.limit(20), true],
+        [autocomplete_wildcard_in_name.limit(20), true],
         [autocomplete_alternate_values_acronym.limit(20), true ],
         [autocomplete_alternate_values_name.limit(20), true ]
       ]
