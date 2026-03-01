@@ -7,16 +7,15 @@
 # the effective_term.
 #
 # Order matters: more specific patterns must come before less specific ones.
-# `recent_mine` (!rm) must precede `recent` (!r) to avoid `!r` consuming `!rm`.
 #
 module Autoselect::Operators
 
   OPERATORS = {
-    recent_mine:   { pattern: /\A!rm/,     client_only: false, trigger: '!rm', description: 'Recent records by current user' },
-    recent:        { pattern: /\A!r/,      client_only: false, trigger: '!r',  description: 'Recent records (project-wide)' },
-    help:          { pattern: /\A!\?/,     client_only: false, trigger: '!?',  description: 'Show help overlay' },
+    recent_mine:   { pattern: /\A!u/,     client_only: false, trigger: '!u',  description: 'Recent records updated by you (last week)' },
+    recent:        { pattern: /\A!r/,      client_only: false, trigger: '!r',  description: 'Recent records project-wide (last week)' },
+    help:          { pattern: /\A!\?/,     client_only: true,  trigger: '!?',  description: 'Show help overlay' },
     new_record:    { pattern: /\A!n/,      client_only: true,  trigger: '!n',  description: 'Create a new record' },
-    level_hash:    { pattern: /\A!#/,      client_only: true,  trigger: '!#',  description: 'Jump to first level' },
+    external:      { pattern: /\A!e/,      client_only: true,  trigger: '!e',  description: 'Jump to leftmost external search level' },
     level_number:  { pattern: /\A!(\d+)/,  client_only: true,  trigger: '!N',  description: 'Jump to level N' },
   }.freeze
 

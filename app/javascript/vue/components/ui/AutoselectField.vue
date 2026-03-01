@@ -273,6 +273,12 @@ function detectLevelOperator(text) {
   return { levelKey: segs[n].key, cleanTerm }
 }
 
+// Returns the key of the leftmost external level, or null when none exists.
+function firstExternalLevelKey() {
+  const seg = fuseSegments.value.find((s) => s.external)
+  return seg?.key ?? null
+}
+
 // ── Input handler ──────────────────────────────────────────────────────────────
 function onInput() {
   const text = inputText.value
@@ -300,6 +306,26 @@ function onInput() {
     clearResults()
     newOtuName.value = cleanName
     return
+  }
+
+  // !e — jump to the leftmost external level; strip operator; do nothing when no external level.
+  const externalMatch = text.match(/^(.*?)\s*!e\s*(.*)$/i)
+  if (externalMatch !== null) {
+    const externalKey = firstExternalLevelKey()
+    if (externalKey !== null) {
+      const cleanTerm = (externalMatch[1] + ' ' + externalMatch[2]).replace(/\s+/g, ' ').trim()
+      inputText.value = cleanTerm
+      currentLevel.value = externalKey
+      cancelFuse()
+      if (getRequest) clearTimeout(getRequest)
+      if (cleanTerm.length === 0) {
+        clearResults()
+      } else {
+        triggerSearch(cleanTerm)
+      }
+      return
+    }
+    // No external level — fall through to normal search (operator stays in text)
   }
 
   // !1, !2 … — jump to level, strip operator

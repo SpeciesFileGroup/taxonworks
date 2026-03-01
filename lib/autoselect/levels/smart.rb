@@ -22,8 +22,11 @@ class Autoselect::Levels::Smart < Autoselect::Level
   end
 
   def description
-    'Full-text and similarity-based search using all indexed fields'
+    'Multi-query results with fuzzy and pattern matching.'
   end
+
+  RECENT_LIMIT = 10
+  RECENT_WINDOW = 1.week
 
   # @param term [String]
   # @param operator [Symbol, nil] :recent, :recent_mine, or nil
@@ -37,8 +40,6 @@ class Autoselect::Levels::Smart < Autoselect::Level
       recent_records(project_id:)
     when :recent_mine
       recent_records_by_user(project_id:, user_id:)
-    when :help
-      [] # help is UI-only; return empty so UI renders the overlay
     else
       query_class.new(term, project_id:, **kwargs).autocomplete
     end
@@ -46,20 +47,34 @@ class Autoselect::Levels::Smart < Autoselect::Level
 
   private
 
+  # Records updated in the last week by anyone in the project, most recent first.
+  # Delegates to the model Filter so project_id scoping is handled correctly
+  # for models that may not have a project_id column.
   def recent_records(project_id:)
     return [] if project_id.blank?
-    model_class.where(project_id:).order(updated_at: :desc).limit(20).to_a
+    filter_class.new(
+      project_id:,
+      updated_since: RECENT_WINDOW.ago.to_date.iso8601
+    ).all.order(updated_at: :desc).limit(RECENT_LIMIT).to_a
   end
 
+  # Records updated in the last week by the given user, most recent first.
   def recent_records_by_user(project_id:, user_id:)
     return [] if project_id.blank? || user_id.blank?
-    model_class.where(project_id:, updated_by_id: user_id).order(updated_at: :desc).limit(20).to_a
+    filter_class.new(
+      project_id:,
+      updated_since: RECENT_WINDOW.ago.to_date.iso8601,
+      user_id:,
+      user_target: 'updated'
+    ).all.order(updated_at: :desc).limit(RECENT_LIMIT).to_a
   end
 
-  # Derive the model class from the query_class namespace.
-  # e.g. Queries::TaxonName::Autocomplete -> ::TaxonName
-  def model_class
-    ('::' + query_class.name.split('::')[1]).constantize
+  # Derive the Filter class from the query_class namespace.
+  # e.g. Queries::TaxonName::Autocomplete -> Queries::TaxonName::Filter
+  def filter_class
+    parts = query_class.name.split('::')
+    parts[-1] = 'Filter'
+    parts.join('::').constantize
   end
 
 end
