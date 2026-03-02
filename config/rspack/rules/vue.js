@@ -8,6 +8,9 @@ module.exports = {
         test: /\.vue$/,
         loader: 'vue-loader',
         options: {
+          compilerOptions: {
+            isCustomElement: (tag) => tag === 'handy-scroll'
+          },
           experimentalInlineMatchResource: true
         }
       }

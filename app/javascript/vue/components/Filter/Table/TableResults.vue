@@ -1,5 +1,8 @@
 <template>
-  <HandyScroll>
+  <div
+    id="horizontally-scrollable"
+    class="overflow-x-auto"
+  >
     <table
       class="table-striped table-cell-border table-header-border full_width"
       v-resize-column
@@ -543,11 +546,15 @@
         </tr>
       </tbody>
     </table>
-  </HandyScroll>
+  </div>
+  <handy-scroll
+    ref="handyScrollRef"
+    owner="horizontally-scrollable"
+  ></handy-scroll>
 </template>
 
 <script setup>
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 import { sortArray } from '@/helpers/arrays.js'
 import { vResizeColumn } from '@/directives/resizeColumn.js'
 import { humanize } from '@/helpers/strings'
@@ -555,10 +562,10 @@ import { sanitizeHtml } from '@/helpers'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VLock from '@/components/ui/VLock/index.vue'
-import HandyScroll from 'vue-handy-scroll'
 import RadialNavigation from '@/components/radials/navigation/radial.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
+import 'handy-scroll'
 
 const props = defineProps({
   list: {
@@ -617,9 +624,9 @@ const FIXED_COLUMNS = {
 
 const freezeColumn = ref([])
 const freezeColumnLeftPosition = ref({})
-const element = ref(null)
 const ascending = ref(false)
 const lastRadialOpenedRow = ref(null)
+const handyScrollRef = useTemplateRef('handyScrollRef')
 const isLayoutConfig = computed(() => !!Object.keys(props.layout || {}).length)
 
 const filteredIds = computed(() =>
@@ -729,7 +736,9 @@ function updateSelectedIdsByFilter() {
 watch(
   () => props.list,
   (newVal, oldVal) => {
-    HandyScroll.EventBus.emit('update', { sourceElement: element.value })
+    nextTick(() => {
+      handyScrollRef.value?.update()
+    })
 
     if (oldVal && oldVal?.length === newVal?.length) {
       const ids = oldVal.map((item) => item.id)
@@ -746,19 +755,21 @@ watch(
 )
 
 watch(
-  () => props.layout,
-  () => {
-    HandyScroll.EventBus.emit('update', { sourceElement: element.value })
-  },
-  { deep: true }
-)
-
-watch(
   [() => props.layout, () => props.attributes, freezeColumn],
   () => nextTick(generateFreezeColumnLeftPosition),
   {
     deep: true
   }
+)
+
+watch(
+  () => props.layout,
+  () => {
+    nextTick(() => {
+      handyScrollRef.value?.update()
+    })
+  },
+  { deep: true }
 )
 
 defineExpose({
