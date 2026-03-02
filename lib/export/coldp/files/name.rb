@@ -202,6 +202,7 @@ module Export::Coldp::Files::Name
       .where(cached_is_valid: false)
       .where('((taxon_names.cached = taxon_names.cached_original_combination) OR (taxon_names.cached_original_combination IS NULL))')
       .and(TaxonName.where.not("taxon_names.rank_class like '%::Iczn::Family%' AND taxon_names.cached_is_valid = FALSE"))
+      .where(not_misapplication_sql)
 
     select = 'taxon_names.id,'
     select << ::NomenclaturalRank.rank_expansion_sql(ranks: %w{genus subgenus species}, nomenclatural_code: otu.taxon_name.nomenclatural_code)
@@ -311,6 +312,7 @@ module Export::Coldp::Files::Name
       .with(valid_scope: a)
       .where(cached_is_valid: false)
       .where('taxon_names.cached != taxon_names.cached_original_combination') # Only reified!!
+      .where(not_misapplication_sql)
       .joins('JOIN valid_scope on valid_scope.id = taxon_names.cached_valid_taxon_name_id')
   end
 
@@ -409,8 +411,9 @@ module Export::Coldp::Files::Name
   end
 
   def self.strip_parens_for_author_year?(row)
-    return true unless row['cached_misspelling'] || (row['genus'] && row['cached'] !~ /\A#{Regexp.escape(row['genus'])}\b/)
+    return true unless row['cached_misspelling']
     return true if row['genus'].nil?
+
     row['cached'] =~ /\A#{Regexp.escape(row['genus'])}\b/
   end
 
@@ -747,6 +750,20 @@ module Export::Coldp::Files::Name
 
       Export::Coldp::Files::Reference.add_reference_rows([origin_citation.source].compact, reference_csv, project_members) if reference_csv && origin_citation
     end
+  end
+
+  # Misapplications are not nomenclatural acts and should be excluded from the export.
+  # Returns a SQL fragment that excludes names with a Misapplication relationship.
+  def self.not_misapplication_sql
+    misapplication_types = %w[
+      TaxonNameRelationship::Iczn::Invalidating::Misapplication
+      TaxonNameRelationship::Icn::Unaccepting::Misapplication
+      TaxonNameRelationship::Icnp::Unaccepting::Misapplication
+    ]
+
+    "NOT EXISTS (SELECT 1 FROM taxon_name_relationships tnr
+      WHERE tnr.subject_taxon_name_id = taxon_names.id
+      AND tnr.type IN (#{misapplication_types.map { |t| "'#{t}'" }.join(',')}))"
   end
 
 end
