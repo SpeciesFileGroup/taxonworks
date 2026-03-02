@@ -248,6 +248,55 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
     expect(q.all).to contain_exactly(ad_ba)
   end
 
+  specify '#otu_id includes direct OTU ADs' do
+    ad1
+    ad2 # not this one
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad1)
+  end
+
+  specify '#otu_id includes ADs on BiologicalAssociations where OTU is subject' do
+    ad2 # not this one
+    ba = FactoryBot.create(
+      :valid_biological_association,
+      biological_association_subject: o1
+    )
+    ad_ba = FactoryBot.create(
+      :valid_biological_association_asserted_distribution,
+      asserted_distribution_object: ba
+    )
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad_ba)
+  end
+
+  specify '#otu_id includes ADs on BiologicalAssociations where OTU is object' do
+    ad2 # not this one
+    ba = FactoryBot.create(
+      :valid_biological_association,
+      biological_association_object: o1
+    )
+    ad_ba = FactoryBot.create(
+      :valid_biological_association_asserted_distribution,
+      asserted_distribution_object: ba
+    )
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad_ba)
+  end
+
+  specify '#otu_id includes both direct and BA ADs' do
+    ad2 # not this one
+    ba = FactoryBot.create(
+      :valid_biological_association,
+      biological_association_subject: o1
+    )
+    ad_ba = FactoryBot.create(
+      :valid_biological_association_asserted_distribution,
+      asserted_distribution_object: ba
+    )
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad1, ad_ba)
+  end
+
   specify '#source_id' do
     source = FactoryBot.create(:valid_source)
     other_source = FactoryBot.create(:valid_source)

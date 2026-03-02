@@ -347,6 +347,21 @@ module OtusHelper
       h['features'].push g
     end
 
+    ba_ids = o.all_biological_associations.map(&:id)
+    unless ba_ids.empty?
+      ::AssertedDistribution
+        .where(
+          asserted_distribution_object_type: 'BiologicalAssociation',
+          asserted_distribution_object_id: ba_ids
+        )
+        .each do |a|
+          if g = asserted_distribution_to_geo_json_feature(a)
+            g['properties']['target'] = t
+            h['features'].push g
+          end
+        end
+    end
+
     o.type_materials.includes(:protonym).each do |e|
       next unless type_material_is_primary_type(e) && o.taxon_name.cached_is_valid
 
