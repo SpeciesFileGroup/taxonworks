@@ -71,4 +71,93 @@ describe Export::Coldp, type: :model, group: :col do
       end
     end
   end
+
+  context 'authorship brackets for invalid species with changed genus' do
+    # Scenario: An invalid species originally described in genus Originalus,
+    # now placed under genus Erythroneura (via synonym relationship).
+    # The original combination row in Name.tsv should preserve the
+    # parenthesized authorship from cached_author_year.
+    #
+    # See https://github.com/catalogueoflife/testing/issues/322
+
+    let!(:species) { FactoryBot.create(:iczn_species) }
+    let(:otu) { Otu.create!(taxon_name: species) }
+
+    let!(:original_genus) {
+      Protonym.create!(
+        name: 'Originalus',
+        rank_class: Ranks.lookup(:iczn, :genus),
+        parent: species.ancestor_at_rank('subtribe'),
+        verbatim_author: 'Jones',
+        year_of_publication: 1850
+      )
+    }
+
+    let!(:moved_species) {
+      Protonym.create!(
+        name: 'transferus',
+        rank_class: Ranks.lookup(:iczn, :species),
+        parent: species.parent,
+        verbatim_author: 'Smith',
+        year_of_publication: 1900
+      )
+    }
+
+    let!(:original_genus_relationship) {
+      TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(
+        subject_taxon_name: original_genus,
+        object_taxon_name: moved_species
+      )
+    }
+
+    let!(:original_species_relationship) {
+      TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(
+        subject_taxon_name: moved_species,
+        object_taxon_name: moved_species
+      )
+    }
+
+    let!(:synonym_relationship) {
+      TaxonNameRelationship::Iczn::Invalidating.create!(
+        subject_taxon_name: moved_species,
+        object_taxon_name: species
+      )
+    }
+
+    # Recompute cached_author_year after all relationships are established.
+    # The OriginalCombination callback only updates cached_original_combination,
+    # not cached_author_year (which depends on original vs current genus).
+    before do
+      moved_species.update_column(:cached_author_year, moved_species.get_author_and_year)
+    end
+
+    let(:project_members) { Export::Coldp.project_members(otu.project_id) }
+
+    let(:name_tsv) {
+      moved_species.reload
+      Export::Coldp::Files::Name.generate(otu, project_members)
+    }
+
+    let(:name_rows) { CSV.parse(name_tsv, col_sep: "\t", headers: true) }
+
+    specify 'test data has expected cached values' do
+      moved_species.reload
+      expect(moved_species.cached_is_valid).to be false
+      expect(moved_species.cached_original_combination).to include('Originalus')
+      expect(moved_species.cached).not_to include('Originalus')
+      expect(moved_species.cached_author_year).to start_with('(')
+    end
+
+    specify 'invalid original combination row preserves parenthesized authorship in Name.tsv' do
+      original_combination_row = name_rows.find { |r|
+        r['scientificName']&.include?('Originalus') &&
+          r['scientificName']&.include?('transferus')
+      }
+
+      expect(original_combination_row).not_to be_nil,
+        "Expected a Name.tsv row for the original combination (Originalus transferus)"
+      expect(original_combination_row['authorship']).to start_with('('),
+        "Expected parenthesized authorship to be preserved for invalid species with changed genus"
+    end
+  end
 end

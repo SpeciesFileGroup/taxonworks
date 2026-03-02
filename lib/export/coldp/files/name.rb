@@ -409,9 +409,8 @@ module Export::Coldp::Files::Name
   end
 
   def self.strip_parens_for_author_year?(row)
-    return true unless row['cached_misspelling']
+    return true unless row['cached_misspelling'] || (row['genus'] && row['cached'] !~ /\A#{Regexp.escape(row['genus'])}\b/)
     return true if row['genus'].nil?
-
     row['cached'] =~ /\A#{Regexp.escape(row['genus'])}\b/
   end
 
