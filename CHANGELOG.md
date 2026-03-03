@@ -18,6 +18,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Basic Endemism task reports an error
 - Selecting `Object Graph` from the navigator radial of an OTU with an Asserted Distribution reports an error
 - BiologicalAssociationIndex is not updated when additional citations are added or removed, TaxonPages BiologicalAssociation panel has outdated citations information [#345]
+- Filter Namespaces card not included in filter favorites [#4778]
+
 
 ### Changed
 
@@ -31,6 +33,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4700]: https://github.com/SpeciesFileGroup/taxonworks/issues/4700
 [#4745]: https://github.com/SpeciesFileGroup/taxonworks/issues/4745
 [#4768]: https://github.com/SpeciesFileGroup/taxonworks/issues/4768
+[#4778]: https://github.com/SpeciesFileGroup/taxonworks/issues/4778
 
 ## [0.60.0] - 2026-02-20
 
