@@ -368,7 +368,7 @@ module Export::Coldp::Files::Name
       # placement of the properly spelled version of the name.
 
       author_year = row['cached_author_year']
-      author_year = author_year.delete('()') if strip_parens_for_author_year?(row)
+      author_year = author_year&.delete('()') if strip_parens_for_author_year?(row)
 
       # !!
       # !! Here we accomodate, somehwat crudely, that original combinations will infer the rank of

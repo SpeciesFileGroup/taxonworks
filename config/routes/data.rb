@@ -989,6 +989,7 @@ resources :taxon_name_classifications do
   concerns [:data_routes]
   collection do
     get :taxon_name_classification_types
+    post :batch_by_filter_scope, defaults: {format: :json}
   end
   member do
     get :show

@@ -7,14 +7,40 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ## [unreleased]
 
-\-
+### Added
+
+- Add and remove fossil status from Filter Taxon Names [#4700]
+- Taxon determination to New type specimen task [#4745]
+
+### Fixed
+
+- Task bar overlays panels when header is locked in New taxon name and New source tasks
+- Basic Endemism task reports an error
+- Selecting `Object Graph` from the navigator radial of an OTU with an Asserted Distribution reports an error
+- BiologicalAssociationIndex is not updated when additional citations are added or removed, TaxonPages BiologicalAssociation panel has outdated citations information [#345]
+- Filter Namespaces card not included in filter favorites [#4778]
+
+
+### Changed
+
+- Moved slide panel buttons to navigation bar [#4694]
+- The edit link now opens the New Asserted Distribution task instead of old data editing interface when accessed via Radial Navigator [#4768]
+- Filter tables: results table is now fixed to the screen while scrolling facets, with sticky column headers. [#4271]
+
+[#345]: https://github.com/SpeciesFileGroup/taxonpages/issues/345
+[#4271]: https://github.com/SpeciesFileGroup/taxonworks/issues/4271
+[#4694]: https://github.com/SpeciesFileGroup/taxonworks/issues/4694
+[#4700]: https://github.com/SpeciesFileGroup/taxonworks/issues/4700
+[#4745]: https://github.com/SpeciesFileGroup/taxonworks/issues/4745
+[#4768]: https://github.com/SpeciesFileGroup/taxonworks/issues/4768
+[#4778]: https://github.com/SpeciesFileGroup/taxonworks/issues/4778
 
 ## [0.60.0] - 2026-02-20
 
 ### Added
 
 - Match OTU by TaxonName task
-- DarwinCore summary task 
+- DarwinCore summary task
 - Report per-object duplicate predicate use [#4741]
 - Batch import BibTeX sources option to include Identifier
 - Batch Upload Asserted Distributions now supports a `gazetteer_id` column [#4739]
@@ -24,6 +50,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Fixed
 
 - Improved scoping of Catalogue of Life Exports
+- Data attribute and nil handling bugs on COLDP exports
 - Save notice is missing in New type specimen task
 - Fix: Rails now correctly applies time zones for `user_date_start` and `user_date_end` parameters from the `X-Timezone` header [#4721]
 - Classes not being eager loaded in background jobs, causing dwc importer to fail
