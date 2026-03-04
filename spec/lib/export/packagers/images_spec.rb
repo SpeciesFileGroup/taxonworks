@@ -28,7 +28,7 @@ describe Export::Packagers::Images, type: :model do
 
     preview = packager.preview(max_bytes: 10.megabytes)
 
-    expect(preview[:total_images]).to eq(2)
+    expect(preview[:images].length).to eq(2)
     expect(preview[:groups].length).to eq(1)
     expect(preview[:images].map { |i| i[:id] }).to contain_exactly(image_a.id, image_b.id)
   end
@@ -67,7 +67,7 @@ describe Export::Packagers::Images, type: :model do
     expect(image_data[:size]).to eq(image.image_file_file_size)
     expect(image_data[:width]).to eq(image.width)
     expect(image_data[:height]).to eq(image.height)
-    expect(image_data[:group_index]).to eq(1)
+    expect(image_data[:group_index]).to eq(0)
     expect(image_data[:available]).to be(true)
   end
 
@@ -81,7 +81,7 @@ describe Export::Packagers::Images, type: :model do
 
     expect(preview[:images]).to eq([])
     expect(preview[:groups]).to eq([])
-    expect(preview[:total_images]).to eq(0)
+    expect(preview[:images]).to eq([])
   end
 
   specify '#file_available? returns true when file exists' do
@@ -200,7 +200,7 @@ describe Export::Packagers::Images, type: :model do
     group = packager.groups(max_bytes: 10.megabytes).first
     zip = FakeZip.new
 
-    packager.stream(entries: group, zip_streamer: ->(&block) { block.call(zip) }, group_index: 1)
+    packager.stream(entries: group, zip_streamer: ->(&block) { block.call(zip) }, group_index: 0)
 
     manifest = zip.files['images-1.tsv']
     expect(manifest).to be_present
@@ -233,7 +233,7 @@ describe Export::Packagers::Images, type: :model do
     group = packager.groups(max_bytes: 10.megabytes).first
     zip = FakeZip.new
 
-    packager.stream(entries: group, zip_streamer: ->(&block) { block.call(zip) }, group_index: 1)
+    packager.stream(entries: group, zip_streamer: ->(&block) { block.call(zip) }, group_index: 0)
 
     manifest = zip.files['images-1.tsv']
     rows = manifest.split("\n").drop(1)

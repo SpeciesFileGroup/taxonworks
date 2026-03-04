@@ -67,7 +67,7 @@ describe Export::FileGrouper, type: :model do
   describe '#build_group_map' do
     let(:id_extractor) { ->(item) { item[:id] } }
 
-    specify 'maps item IDs to 1-based group indices' do
+    specify 'maps item IDs to 0-based group indices' do
       groups = [
         [{ id: 1 }, { id: 2 }],
         [{ id: 3 }]
@@ -75,9 +75,9 @@ describe Export::FileGrouper, type: :model do
 
       group_map = grouper.build_group_map(groups: groups, id_extractor: id_extractor)
 
-      expect(group_map[1]).to eq(1)
-      expect(group_map[2]).to eq(1)
-      expect(group_map[3]).to eq(2)
+      expect(group_map[1]).to eq(0)
+      expect(group_map[2]).to eq(0)
+      expect(group_map[3]).to eq(1)
     end
 
     specify 'returns empty hash for empty groups' do

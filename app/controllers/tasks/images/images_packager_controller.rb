@@ -2,9 +2,8 @@
 class Tasks::Images::ImagesPackagerController < ApplicationController
   include TaskControllerConfiguration
   include Tasks::PackagerController
-  include ZipTricks::RailsStreaming
 
-  before_action -> { set_query_params_for(:image_query) }, only: [:preview, :download]
+  before_action :set_query_params, only: [:preview, :download]
 
   # GET /tasks/images/images_packager
   def index
@@ -14,8 +13,7 @@ class Tasks::Images::ImagesPackagerController < ApplicationController
   def preview
     preview_packager(
       packager: packager,
-      payload_key: :images,
-      total_key: :total_images
+      payload_key: :images
     )
   end
 
@@ -30,6 +28,12 @@ class Tasks::Images::ImagesPackagerController < ApplicationController
   end
 
   private
+
+  def set_query_params
+    raw = params[:image_id]
+    ids = raw.is_a?(ActionController::Parameters) ? raw.values : Array.wrap(raw).compact
+    @query_params = ids.any? ? { image_id: ids }.with_indifferent_access : {}
+  end
 
   def packager
     @packager ||= Export::Packagers::Images.new(

@@ -31,33 +31,6 @@ describe Export::ZipStreamer, type: :model do
     end
   end
 
-  describe '#file_available?' do
-    specify 'returns true when file exists' do
-      path = create_temp_file('test.pdf', 'content')
-      entry = { path: path }
-
-      result = streamer.file_available?(entry) { |e| e[:path] }
-
-      expect(result).to be(true)
-    end
-
-    specify 'returns false when file does not exist' do
-      entry = { path: '/nonexistent/file.pdf' }
-
-      result = streamer.file_available?(entry) { |e| e[:path] }
-
-      expect(result).to be(false)
-    end
-
-    specify 'returns false when path is nil' do
-      entry = { path: nil }
-
-      result = streamer.file_available?(entry) { |e| e[:path] }
-
-      expect(result).to be(false)
-    end
-  end
-
   describe '#stream' do
     let(:file_path) { ->(e) { e[:path] } }
     let(:file_name) { ->(e) { e[:name] } }

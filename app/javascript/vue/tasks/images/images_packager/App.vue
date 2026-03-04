@@ -37,7 +37,7 @@
         :columns="tableColumns"
       >
         <template #image="{ item }">
-          <span class="images-packager__cell">
+          <span class="display-flex align-center gap-small">
             <template v-if="item.available">
               <a :href="`/images/${item.id}`" target="_blank">
                 <img
@@ -101,12 +101,6 @@ const tableColumns = [
 </script>
 
 <style scoped>
-.images-packager__cell {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
 .images-packager__thumb {
   width: 40px;
   height: 40px;

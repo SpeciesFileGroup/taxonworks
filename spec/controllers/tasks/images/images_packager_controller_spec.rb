@@ -22,7 +22,6 @@ describe Tasks::Images::ImagesPackagerController, type: :controller do
 
       expect(body['images'].length).to eq(2)
       expect(body['groups'].length).to be >= 1
-      expect(body['total_images']).to eq(2)
     end
 
     specify 'returns empty preview when no image_ids provided' do
@@ -33,7 +32,6 @@ describe Tasks::Images::ImagesPackagerController, type: :controller do
 
       expect(body['images']).to eq([])
       expect(body['groups']).to eq([])
-      expect(body['total_images']).to eq(0)
     end
   end
 
@@ -41,7 +39,7 @@ describe Tasks::Images::ImagesPackagerController, type: :controller do
     specify 'sets a zip filename in the response headers' do
       image = FactoryBot.create(:tiny_random_image)
 
-      post :download, params: { image_id: [image.id], group: 1, max_mb: 50 }
+      post :download, params: { image_id: [image.id], group: 0, max_mb: 50 }
 
       expect(response).to have_http_status(:ok)
       expect(response.headers['Content-Disposition']).to include('TaxonWorks-images_download-')

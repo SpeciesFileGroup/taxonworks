@@ -31,10 +31,10 @@ describe Tasks::Sources::DocumentsPackagerController, type: :controller do
     body = JSON.parse(response.body)
 
     expect(body['groups'].length).to eq(1)
-    expect(body['max_bytes']).to eq(10_000_000)
+    expect(body['max_bytes']).to eq(10 * 1_000_000) # max_mb param * bytes per MB
 
       first_source = body['sources'].find { |s| s['id'] == source_a.id }
-      expect(first_source['documents'].first['group_index']).to eq(1)
+      expect(first_source['documents'].first['group_index']).to eq(0)
     end
 
     specify 'returns empty preview when no source_ids provided' do
@@ -45,7 +45,7 @@ describe Tasks::Sources::DocumentsPackagerController, type: :controller do
 
       expect(body['sources']).to eq([])
       expect(body['groups']).to eq([])
-      expect(body['total_documents']).to eq(0)
+      expect(body['sources']).to eq([])
     end
   end
 
@@ -58,7 +58,7 @@ describe Tasks::Sources::DocumentsPackagerController, type: :controller do
         pages: 1
       )
 
-      post :download, params: { source_id: [source.id], group: 1, max_mb: 50 }
+      post :download, params: { source_id: [source.id], group: 0, max_mb: 50 }
 
       expect(response).to have_http_status(:ok)
       expect(response.headers['Content-Disposition']).to include('TaxonWorks-sources_download-')
@@ -87,7 +87,7 @@ describe Tasks::Sources::DocumentsPackagerController, type: :controller do
       expect(body['error']).to eq('Group not found.')
     end
 
-    specify 'returns 400 when group index is zero or negative' do
+    specify 'returns 400 when group index is negative' do
       source = FactoryBot.create(
         :source_bibtex_with_document,
         size_bytes: 1.megabyte,
@@ -95,7 +95,7 @@ describe Tasks::Sources::DocumentsPackagerController, type: :controller do
         pages: 1
       )
 
-      post :download, params: { source_id: [source.id], group: 0, max_mb: 50 }
+      post :download, params: { source_id: [source.id], group: -1, max_mb: 50 }
 
       expect(response).to have_http_status(:bad_request)
       body = JSON.parse(response.body)

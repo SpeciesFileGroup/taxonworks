@@ -4,6 +4,7 @@ import ajaxCall from '@/helpers/ajaxCall'
 import { LinkerStorage } from '@/shared/Filter/utils'
 import { randomUUID } from '@/helpers'
 import { createAndSubmitForm } from '@/helpers/forms'
+import { MAX_MAX_MB } from './utils'
 
 export function usePackager({
   previewUrl,
@@ -21,7 +22,7 @@ export function usePackager({
   const errorMessage = ref('')
   const filterParams = ref(null)
   const maxBytes = ref(0)
-  const maxMb = ref(1000)
+  const maxMb = ref(MAX_MAX_MB)
 
   function loadPreview(params) {
     isLoading.value = true
@@ -36,7 +37,11 @@ export function usePackager({
         groups.value = body.groups || []
         filterParams.value = body.filter_params || null
         maxBytes.value = body.max_bytes || 0
-        sessionStorage.setItem(sessionKey, JSON.stringify(filterParams.value || {}))
+        if (filterParams.value && Object.keys(filterParams.value).length) {
+          sessionStorage.setItem(sessionKey, JSON.stringify(filterParams.value))
+        } else {
+          sessionStorage.removeItem(sessionKey)
+        }
       })
       .catch(() => {
         errorMessage.value = loadErrorMessage
@@ -54,10 +59,7 @@ export function usePackager({
   function initializeFromParams() {
     const stored = LinkerStorage.getParameters() || {}
     const params = {
-      ...qs.parse(window.location.search, {
-        ignoreQueryPrefix: true,
-        arrayLimit: 2000
-      }),
+      ...qs.parse(window.location.search, { ignoreQueryPrefix: true, arrayLimit: 2500 }),
       ...stored
     }
 
@@ -66,8 +68,11 @@ export function usePackager({
     if (!Object.keys(params).length) {
       const cached = sessionStorage.getItem(sessionKey)
       if (cached) {
-        loadPreview(JSON.parse(cached))
-        return
+        const parsed = JSON.parse(cached)
+        if (Object.keys(parsed).length) {
+          loadPreview(parsed)
+          return
+        }
       }
 
       errorMessage.value = 'no-params'

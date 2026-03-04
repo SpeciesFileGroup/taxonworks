@@ -1,3 +1,6 @@
+export const MIN_MAX_MB = 10
+export const MAX_MAX_MB = 1000
+
 export function formatBytes(value, decimals = 1) {
   const bytes = Number(value) || 0
   if (bytes === 0) return '0 B'
@@ -10,7 +13,7 @@ export function formatBytes(value, decimals = 1) {
   return `${size.toFixed(decimals)} ${units[exponent]}`
 }
 
-export function clampMaxMb(value, min = 10, max = 1000) {
+export function clampMaxMb(value, min = MIN_MAX_MB, max = MAX_MAX_MB) {
   const parsed = Number(value)
   if (Number.isNaN(parsed)) return max
   return Math.min(max, Math.max(min, Math.round(parsed)))

@@ -28,8 +28,7 @@ module Export
 
         {
           images: serialize_images(images, group_map),
-          groups: serialize_groups(groups),
-          total_images: images.length
+          groups: serialize_groups(groups)
         }
       end
 
@@ -64,11 +63,9 @@ module Export
       private
 
       def images_for_query
-        scope = Queries::Image::Filter.new(query_params).all
-        scope = scope.where(project_id: project_id)
-
-        ids = image_ids
-        scope.where(id: ids).order(:id)
+        Image.where(project_id: project_id)
+          .where(id: image_ids)
+          .order(:id)
       end
 
       def group_entries(images, max_bytes)
@@ -82,7 +79,7 @@ module Export
       end
 
       def serialize_images(images, group_map)
-        images.map.with_index(1) do |image, index|
+        images.map.with_index(1) do |image, index| # 1-based for UI display
           {
             id: image.id,
             index: index,
@@ -100,7 +97,7 @@ module Export
       end
 
       def serialize_groups(groups)
-        groups.map.with_index(1) do |group, index|
+        groups.map.with_index do |group, index|
           available_images = group.select { |image| file_available?(image) }
           {
             index:,
@@ -130,7 +127,7 @@ module Export
       def write_manifest(zip, rows, written, group_index:)
         return if !written || rows.empty?
 
-        zip.write_deflated_file("images-#{group_index}.tsv") do |sink|
+        zip.write_deflated_file("images-#{group_index + 1}.tsv") do |sink|
           sink.write("image_id\tzip_filename\tfile_size_bytes\twidth\theight\n")
           rows.each do |row|
             sink.write("#{row.join("\t")}\n")
@@ -145,8 +142,7 @@ module Export
       def empty_preview
         {
           images: [],
-          groups: [],
-          total_images: 0
+          groups: []
         }
       end
     end

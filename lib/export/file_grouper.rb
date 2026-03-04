@@ -45,7 +45,7 @@ module Export
       groups
     end
 
-    # Builds a map from item ID to group index (1-based).
+    # Builds a map from item ID to group index (0-based).
     #
     # @param groups [Array<Array>] grouped items
     # @param id_extractor [Proc] callable that returns ID for an item
@@ -55,7 +55,7 @@ module Export
 
       groups.each_with_index do |group, index|
         group.each do |item|
-          group_map[id_extractor.call(item)] = index + 1
+          group_map[id_extractor.call(item)] = index
         end
       end
 

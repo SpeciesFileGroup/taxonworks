@@ -38,7 +38,6 @@ describe Export::Packagers::Documents, type: :model do
 
     preview = packager.preview(max_bytes: 1.megabyte)
 
-    expect(preview[:total_documents]).to eq(2)
     expect(preview[:groups].length).to eq(2)
     expect(preview[:sources].map { |s| s[:id] }).to contain_exactly(source_a.id, source_b.id)
   end
@@ -119,7 +118,6 @@ describe Export::Packagers::Documents, type: :model do
     expect(preview[:sources].all? { |s| s[:documents].length == 1 }).to be(true)
 
     # But only counted once in total and in groups.
-    expect(preview[:total_documents]).to eq(1)
     expect(preview[:groups].length).to eq(1)
     expect(preview[:groups].first[:document_ids]).to eq([document.id])
   end
@@ -266,7 +264,7 @@ describe Export::Packagers::Documents, type: :model do
     group = packager.groups(max_bytes: 10.megabytes).first
     zip = FakeZip.new
 
-    packager.stream(entries: group, zip_streamer: ->(&block) { block.call(zip) }, group_index: 1)
+    packager.stream(entries: group, zip_streamer: ->(&block) { block.call(zip) }, group_index: 0)
 
     manifest = zip.files['documents-1.tsv']
     expect(manifest).to be_present
@@ -310,7 +308,7 @@ describe Export::Packagers::Documents, type: :model do
     group = packager.groups(max_bytes: 10.megabytes).first
     zip = FakeZip.new
 
-    packager.stream(entries: group, zip_streamer: ->(&block) { block.call(zip) }, group_index: 1)
+    packager.stream(entries: group, zip_streamer: ->(&block) { block.call(zip) }, group_index: 0)
 
     manifest = zip.files['documents-1.tsv']
     expect(manifest).to be_present

@@ -1,9 +1,8 @@
 class Tasks::Sources::DocumentsPackagerController < ApplicationController
   include TaskControllerConfiguration
   include Tasks::PackagerController
-  include ZipTricks::RailsStreaming
 
-  before_action -> { set_query_params_for(:source_query) }, only: [:preview, :download]
+  before_action :set_query_params, only: [:preview, :download]
 
   # GET /tasks/sources/documents_packager
   def index
@@ -13,8 +12,7 @@ class Tasks::Sources::DocumentsPackagerController < ApplicationController
   def preview
     preview_packager(
       packager: packager,
-      payload_key: :sources,
-      total_key: :total_documents
+      payload_key: :sources
     )
   end
 
@@ -29,6 +27,12 @@ class Tasks::Sources::DocumentsPackagerController < ApplicationController
   end
 
   private
+
+  def set_query_params
+    raw = params[:source_id]
+    ids = raw.is_a?(ActionController::Parameters) ? raw.values : Array.wrap(raw).compact
+    @query_params = ids.any? ? { source_id: ids }.with_indifferent_access : {}
+  end
 
   def packager
     @packager ||= Export::Packagers::Documents.new(

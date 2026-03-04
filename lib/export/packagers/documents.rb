@@ -28,8 +28,7 @@ module Export
 
         {
           sources: serialize_sources(sources, table_documents, group_map),
-          groups: serialize_groups(groups),
-          total_documents: unique_documents.length
+          groups: serialize_groups(groups)
         }
       end
 
@@ -66,14 +65,11 @@ module Export
       private
 
       def sources_for_query
-        scope = Queries::Source::Filter.new(query_params).all
-        scope = scope.joins(:project_sources)
+        Source.joins(:project_sources)
           .where(project_sources: { project_id: project_id })
-
-        ids = source_ids
-        scope = scope.where(id: ids).order(:id)
-
-        scope.includes(:documents)
+          .where(id: source_ids)
+          .order(:id)
+          .includes(:documents)
       end
 
       def documents_for_sources(sources)
@@ -85,7 +81,7 @@ module Export
             .select { |document| document.project_id == project_id }
             .sort_by(&:id)
             .each do |document|
-              index += 1
+              index += 1 # 1-based for UI display
               documents << {
                 source:,
                 document:,
@@ -136,7 +132,7 @@ module Export
       end
 
       def serialize_groups(groups)
-        groups.map.with_index(1) do |group, index|
+        groups.map.with_index do |group, index|
           available_entries = group.select { |entry| file_available?(entry[:document]) }
           {
             index:,
@@ -174,7 +170,7 @@ module Export
       def write_manifest(zip, rows, written, group_index:)
         return if !written || rows.empty?
 
-        zip.write_deflated_file("documents-#{group_index}.tsv") do |sink|
+        zip.write_deflated_file("documents-#{group_index + 1}.tsv") do |sink|
           sink.write("source_id\tdocument_id\tzip_filename\tfile_size_bytes\n")
           rows.each do |row|
             sink.write("#{row.join("\t")}\n")
@@ -189,8 +185,7 @@ module Export
       def empty_preview
         {
           sources: [],
-          groups: [],
-          total_documents: 0
+          groups: []
         }
       end
     end

@@ -25,8 +25,8 @@
             {{
               item.available === false
                 ? '—'
-                : item.group_index
-                  ? `Zip ${item.group_index}`
+                : item.group_index != null
+                  ? `Zip ${item.group_index + 1}`
                   : '—'
             }}
           </td>

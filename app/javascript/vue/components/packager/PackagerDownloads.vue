@@ -24,13 +24,13 @@
                 color="primary"
                 @click="onDownload(group.index)"
               >
-                Zip {{ group.index }} of {{ groups.length }}
+                Zip {{ group.index + 1 }} of {{ groups.length }}
               </VBtn>
             </template>
 
             <template v-else>
               <span class="packager-downloads__disabled">
-                Zip {{ group.index }} of {{ groups.length }}
+                Zip {{ group.index + 1 }} of {{ groups.length }}
               </span>
             </template>
 
@@ -51,8 +51,8 @@
             type="number"
             class="normal-input"
             :value="maxMb"
-            min="10"
-            max="1000"
+            :min="MIN_MAX_MB"
+            :max="MAX_MAX_MB"
             @input="onMaxMbInput"
           />
         </label>
@@ -69,7 +69,7 @@
 
 <script setup>
 import VBtn from '@/components/ui/VBtn/index.vue'
-import { formatBytes, clampMaxMb } from './utils'
+import { formatBytes, clampMaxMb, MIN_MAX_MB, MAX_MAX_MB } from './utils'
 
 const props = defineProps({
   groups: {
