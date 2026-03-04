@@ -92,11 +92,11 @@ module Export
     def reserve_name(name, used_names)
       final = name
       suffix = 1
+      ext = File.extname(name)
+      stem = File.basename(name, ext)
 
       while used_names[final]
         suffix += 1
-        ext = File.extname(name)
-        stem = File.basename(name, ext)
         final = "#{stem}-#{suffix}#{ext}"
       end
 

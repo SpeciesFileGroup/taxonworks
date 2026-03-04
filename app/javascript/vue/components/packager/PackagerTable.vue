@@ -18,7 +18,7 @@
       <tbody>
         <tr
           v-for="(item, index) in items"
-          :key="itemKey(item)"
+          :key="itemKey(item, index)"
           :class="rowClass(item, index)"
         >
           <td class="packager-table__col-zip">
@@ -69,8 +69,8 @@ const props = defineProps({
   }
 })
 
-function itemKey(item) {
-  return item[props.keyField] || item.id || Math.random()
+function itemKey(item, index) {
+  return item[props.keyField] ?? item.id ?? index
 }
 
 function rowClass(item, index) {

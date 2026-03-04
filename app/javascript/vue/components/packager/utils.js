@@ -10,14 +10,6 @@ export function formatBytes(value, decimals = 1) {
   return `${size.toFixed(decimals)} ${units[exponent]}`
 }
 
-export function buildDownloadFilename(prefix, index, total) {
-  const date = new Date()
-  const formatted = `${date.getMonth() + 1}_${date.getDate()}_${String(
-    date.getFullYear()
-  ).slice(-2)}`
-  return `TaxonWorks-${prefix}-${formatted}-${index}_of_${total}.zip`
-}
-
 export function clampMaxMb(value, min = 10, max = 1000) {
   const parsed = Number(value)
   if (Number.isNaN(parsed)) return max

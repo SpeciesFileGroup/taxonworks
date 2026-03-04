@@ -24,13 +24,13 @@
                 color="primary"
                 @click="onDownload(group.index)"
               >
-                {{ buildDownloadFilename(filenamePrefix, group.index, groups.length) }}
+                Zip {{ group.index }} of {{ groups.length }}
               </VBtn>
             </template>
 
             <template v-else>
               <span class="packager-downloads__disabled">
-                {{ buildDownloadFilename(filenamePrefix, group.index, groups.length) }}
+                Zip {{ group.index }} of {{ groups.length }}
               </span>
             </template>
 
@@ -69,7 +69,7 @@
 
 <script setup>
 import VBtn from '@/components/ui/VBtn/index.vue'
-import { formatBytes, buildDownloadFilename, clampMaxMb } from './utils'
+import { formatBytes, clampMaxMb } from './utils'
 
 const props = defineProps({
   groups: {
