@@ -19,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Selecting `Object Graph` from the navigator radial of an OTU with an Asserted Distribution reports an error
 - BiologicalAssociationIndex is not updated when additional citations are added or removed, TaxonPages BiologicalAssociation panel has outdated citations information [#345]
 - Filter Namespaces card not included in filter favorites [#4778]
+- Image Matrix task was returning depictions from multiple types instead of only Observation
 
 ### Changed
 
