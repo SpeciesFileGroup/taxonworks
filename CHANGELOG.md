@@ -11,6 +11,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 - Add and remove fossil status from Filter Taxon Names [#4700]
 - Taxon determination to New type specimen task [#4745]
+- Browse OTUs: Quick forms in Biological associations table [#4782]
 
 ### Fixed
 
@@ -35,6 +36,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4745]: https://github.com/SpeciesFileGroup/taxonworks/issues/4745
 [#4768]: https://github.com/SpeciesFileGroup/taxonworks/issues/4768
 [#4778]: https://github.com/SpeciesFileGroup/taxonworks/issues/4778
+[#4782]: https://github.com/SpeciesFileGroup/taxonworks/issues/4782
 
 ## [0.60.0] - 2026-02-20
 
