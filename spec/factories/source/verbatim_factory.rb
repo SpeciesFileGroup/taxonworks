@@ -3,5 +3,6 @@ FactoryBot.define do
     factory :valid_source_verbatim do
       verbatim { Faker::Lorem.unique.words(number: 6).join(' ') }
     end
+
   end
 end

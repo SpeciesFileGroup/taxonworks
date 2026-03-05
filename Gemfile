@@ -219,4 +219,3 @@ group :production do
   # gem 'execjs', '~> 2.8.1' - from babel, no need to force here.
   gem 'passenger', '~> 6.1.0'
 end
-

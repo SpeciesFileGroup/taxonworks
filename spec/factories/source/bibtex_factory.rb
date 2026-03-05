@@ -6,6 +6,38 @@ FactoryBot.define do
       title { 'article 1 just title' }
     end
 
+    factory :source_bibtex_with_document, parent: :valid_source_bibtex do
+      transient do
+        size_bytes { 1.megabyte }
+        filename { nil }
+        pages { nil }
+      end
+
+      after(:create) do |source, evaluator|
+        filename = evaluator.filename || "doc-#{SecureRandom.hex(4)}.pdf"
+        pages = evaluator.pages || rand(1..3)
+
+        ProjectSource.create!(source_id: source.id)
+
+        document = FactoryBot.create(
+          :document,
+          document_file: Rack::Test::UploadedFile.new(
+            Spec::Support::Utilities::Files.generate_pdf(
+              pages: pages,
+              file_name: filename
+            ),
+            'application/pdf'
+          )
+        )
+        document.update_column(:document_file_file_size, evaluator.size_bytes)
+
+        Documentation.create!(
+          documentation_object: source,
+          document: document
+        )
+      end
+    end
+
     factory :soft_valid_bibtex_source_article do
       bibtex_type { 'article' }
       title { 'I am a soft valid article' }
