@@ -3,6 +3,7 @@
     <td>
       <div class="flex-row gap-small">
         <RadialAnnotator :global-id="row.globalId" />
+        <RadialObject :global-id="row.globalId" />
         <RadialNavigator :global-id="row.globalId" />
       </div>
     </td>
@@ -82,6 +83,7 @@
 </template>
 
 <script setup>
+import RadialObject from '@/components/radials/object/radial.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import BiologicalAssociationRelated from './BiologicalAssociationRelated.vue'

@@ -206,7 +206,7 @@ describe Export::Packagers::Images, type: :model do
     expect(manifest).to be_present
 
     lines = manifest.split("\n")
-    expect(lines.first).to eq("image_id\tzip_filename\tfile_size_bytes\twidth\theight")
+    expect(lines.first).to eq("image_id\tfilename\tfile_size_bytes\twidth\theight")
 
     expected_rows = group.map do |image|
       [

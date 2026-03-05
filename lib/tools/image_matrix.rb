@@ -415,7 +415,7 @@ class Tools::ImageMatrix
   # @return [Depiction scope]
   def observation_depictions_from_otu_filter
     Depiction.select('depictions.*, observations.descriptor_id, observations.observation_object_id, observations.observation_object_type, sources.id AS source_id, sources.cached_author_string, sources.year, sources.cached AS source_cached')
-      .joins('INNER JOIN observations ON observations.id = depictions.depiction_object_id')
+      .joins("INNER JOIN observations ON observations.id = depictions.depiction_object_id AND depictions.depiction_object_type = 'Observation'")
       .joins('INNER JOIN images ON depictions.image_id = images.id')
       .joins("LEFT OUTER JOIN citations ON citations.citation_object_id = images.id AND citations.citation_object_type = 'Image' AND citations.is_original IS TRUE")
       .joins('LEFT OUTER JOIN sources ON citations.source_id = sources.id')

@@ -270,7 +270,7 @@ describe Export::Packagers::Documents, type: :model do
     expect(manifest).to be_present
 
     lines = manifest.split("\n")
-    expect(lines.first).to eq("source_id\tdocument_id\tzip_filename\tfile_size_bytes")
+    expect(lines.first).to eq("source_id\tdocument_id\tfilename\tfile_size_bytes")
 
     expected_rows = group.map do |entry|
       document = entry[:document]

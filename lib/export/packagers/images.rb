@@ -128,7 +128,7 @@ module Export
         return if !written || rows.empty?
 
         zip.write_deflated_file("images-#{group_index + 1}.tsv") do |sink|
-          sink.write("image_id\tzip_filename\tfile_size_bytes\twidth\theight\n")
+          sink.write("image_id\tfilename\tfile_size_bytes\twidth\theight\n")
           rows.each do |row|
             sink.write("#{row.join("\t")}\n")
           end
