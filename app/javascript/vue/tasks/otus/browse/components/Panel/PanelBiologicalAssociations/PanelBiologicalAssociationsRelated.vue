@@ -68,7 +68,7 @@ onBeforeMount(async () => {
     [PARAM[props.itemType]]: [props.itemId],
     per: 1
   }
-  const response = await BiologicalAssociation.where(payload)
+  const response = await BiologicalAssociation.filter(payload)
 
   total.value = getPagination(response).total - 1
 })

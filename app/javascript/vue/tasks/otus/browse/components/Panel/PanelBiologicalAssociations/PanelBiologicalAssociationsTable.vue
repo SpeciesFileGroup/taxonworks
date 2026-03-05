@@ -4,10 +4,10 @@
       <tr>
         <th class="w-2" />
         <th class="table-cell-border-left-thick">Subject</th>
-        <th :colspan="5" />
+        <th :colspan="1" />
         <th class="table-cell-border-left-thick" />
         <th class="table-cell-border-left-thick">Object</th>
-        <th :colspan="5" />
+        <th :colspan="1" />
         <th
           :colspan="2"
           class="table-cell-border-left-thick"
@@ -15,18 +15,12 @@
       </tr>
       <tr class="table-header-border table-header-bold">
         <th class="w-2" />
-        <th>Order</th>
-        <th>Family</th>
-        <th>Genus</th>
         <th>Label</th>
         <th>Biological properties</th>
 
         <th class="table-cell-border-left-thick">Biological relationship</th>
 
         <th class="table-cell-border-left-thick">Biological properties</th>
-        <th>Order</th>
-        <th>Family</th>
-        <th>Genus</th>
         <th>Label</th>
         <th class="table-cell-border-left-thick">Citations</th>
         <th>Tags</th>

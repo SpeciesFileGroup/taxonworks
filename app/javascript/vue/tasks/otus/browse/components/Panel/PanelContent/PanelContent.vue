@@ -66,7 +66,7 @@ async function loadContents(otuId) {
   isLoading.value = true
 
   try {
-    const { body } = await Content.where({
+    const { body } = await Content.filter({
       otu_id: otuId,
       most_recent_updates: 100,
       extend: ['topic']

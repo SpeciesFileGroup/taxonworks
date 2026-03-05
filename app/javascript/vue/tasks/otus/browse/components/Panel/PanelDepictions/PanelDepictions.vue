@@ -55,7 +55,7 @@ async function loadDepictions(otuId) {
   isLoading.value = true
 
   try {
-    const { body } = await Depiction.where({
+    const { body } = await Depiction.filter({
       otu_id: otuId,
       otu_scope: ['all'],
       per: 500

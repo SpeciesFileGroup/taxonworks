@@ -3,6 +3,7 @@
     <td>
       <div class="flex-row gap-small">
         <RadialAnnotator :global-id="row.globalId" />
+        <RadialObject :global-id="row.globalId" />
         <RadialNavigator :global-id="row.globalId" />
         <VBtn
           circle
@@ -17,9 +18,7 @@
         </VBtn>
       </div>
     </td>
-    <td v-html="row.subjectOrder" />
-    <td v-html="row.subjectFamily" />
-    <td v-html="row.subjectGenus" />
+
     <td>
       <a
         :href="makeBrowseUrl({ id: row.subjectId, type: row.subjectType })"
@@ -46,9 +45,6 @@
       />
     </td>
 
-    <td v-html="row.objectOrder" />
-    <td v-html="row.objectFamily" />
-    <td v-html="row.objectGenus" />
     <td>
       <a
         :href="makeBrowseUrl({ id: row.objectId, type: row.objectType })"
@@ -81,6 +77,7 @@
 <script setup>
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
+import RadialObject from '@/components/radials/object/radial.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import { makeBrowseUrl } from '@/helpers'
