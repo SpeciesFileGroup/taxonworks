@@ -123,10 +123,6 @@ $default-padding: 2em;
   .slide-panel-content {
     box-shadow: 0px 1px 2px 0px var(--border-color);
   }
-
-  .slide-panel-circle-icon {
-    transform: translateX(-50%);
-  }
 }
 
 .slide-pinboard {
@@ -144,6 +140,8 @@ $default-padding: 2em;
 }
 
 .slide-clipboard {
+  box-shadow: 0px 1px 2px 0px var(--border-color);
+
   .slide-panel-header {
     background-color: #004b77;
   }

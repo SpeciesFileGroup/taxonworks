@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <h1>Filter extracts</h1>
-
+  <div class="margin-medium-top">
     <FilterLayout
       :url-request="urlRequest"
       :pagination="pagination"

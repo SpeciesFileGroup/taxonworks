@@ -17,16 +17,24 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Task bar overlays panels when header is locked in New taxon name and New source tasks
 - Basic Endemism task reports an error
 - Selecting `Object Graph` from the navigator radial of an OTU with an Asserted Distribution reports an error
+- BiologicalAssociationIndex is not updated when additional citations are added or removed, TaxonPages BiologicalAssociation panel has outdated citations information [#345]
+- Filter Namespaces card not included in filter favorites [#4778]
+- Image Matrix task was returning depictions from multiple types instead of only Observation
 
 ### Changed
 
 - Moved slide panel buttons to navigation bar [#4694]
 - The edit link now opens the New Asserted Distribution task instead of old data editing interface when accessed via Radial Navigator [#4768]
+- Filter tables: results table is now fixed to the screen while scrolling facets, with sticky column headers. [#4271]
+- DwC Importer: When the Import/Retry button is pressed for a Checklist dataset, all rows are downloaded again instead of only the selected row.
 
+[#345]: https://github.com/SpeciesFileGroup/taxonpages/issues/345
+[#4271]: https://github.com/SpeciesFileGroup/taxonworks/issues/4271
 [#4694]: https://github.com/SpeciesFileGroup/taxonworks/issues/4694
 [#4700]: https://github.com/SpeciesFileGroup/taxonworks/issues/4700
 [#4745]: https://github.com/SpeciesFileGroup/taxonworks/issues/4745
 [#4768]: https://github.com/SpeciesFileGroup/taxonworks/issues/4768
+[#4778]: https://github.com/SpeciesFileGroup/taxonworks/issues/4778
 
 ## [0.60.0] - 2026-02-20
 

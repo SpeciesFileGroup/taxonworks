@@ -1145,6 +1145,7 @@ new_news_task:
   name: "New news"
   related:
   categories:
+    - new
   status: prototype
   description: "Create and edit blog posts, notices, etc."
 browse_news_task:
@@ -1199,5 +1200,6 @@ filter_namespaces_task:
   name: "Filter namespaces"
   related:
   categories:
+    - filters
   status: prototype
   description: "Filter namespaces by many different facets, download or visualize results."
