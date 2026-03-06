@@ -132,9 +132,10 @@ import useStore from '../../../store/georeferences.js'
 import useCEStore from '../../../store/collectingEvent.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import { addToArray, randomUUID } from '@/helpers'
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { truncateDecimal } from '@/helpers/math.js'
 import {
+  GEOREFERENCE,
   GEOREFERENCE_GEOLOCATE,
   GEOREFERENCE_EXIF,
   GEOREFERENCE_POINT,
@@ -224,26 +225,40 @@ const verbatimRadiusError = computed(() => {
 })
 
 const mapGeoreferences = computed(() => {
-  const geographicArea = ceStore.geographicArea
-  const georeferences = store.georeferences
+  /*   const { geographicArea } = ceStore
+  const { georeferences } = store
+
+  const parsed = georeferences
     .filter(
       (item) =>
         (item.id || !EXCLUDE.includes(item.type)) &&
-        (item?.geographic_item_attributes?.shape || item?.geo_json)
+        (item.geographic_item_attributes?.shape || item.geo_json)
     )
     .map((item) => {
       const geojson = item.geographic_item_attributes
-        ? JSON.parse(item?.geographic_item_attributes?.shape)
-        : item.geo_json
+        ? JSON.parse(item?.geographic_item_attributes.shape)
+        : { ...item.geo_json }
 
-      geojson.properties.uuid = item.uuid
+      geojson.properties = {
+        uuid: item.uuid,
+        base: [
+          {
+            type: [GEOREFERENCE]
+          }
+        ],
+        ...(item.type === GEOREFERENCE_VERBATIM && {
+          style: { className: 'map-point-marker bg-verbatim' }
+        })
+      }
 
       return geojson
     })
 
-  return geographicArea?.has_shape
-    ? [geographicArea.shape, ...georeferences]
-    : georeferences
+  if (geographicArea?.has_shape) {
+    parsed.unshift(geographicArea.shape)
+  } */
+
+  return [ceStore.geographicArea?.shape, ...store.geojson]
 })
 
 function updateRadius(geo) {
