@@ -23,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filter Namespaces card not included in filter favorites [#4778]
 - Image Matrix task was returning depictions from multiple types instead of only Observation
 - alt+S on a new name in the New Taxon Name task saves two new names [#4777]
+- Handle errors on bad BibTeX data in New Source and return a more useful message
 
 ### Changed
 
