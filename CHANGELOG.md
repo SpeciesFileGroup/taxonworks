@@ -24,6 +24,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Image Matrix task was returning depictions from multiple types instead of only Observation
 - alt+S on a new name in the New Taxon Name task saves two new names [#4777]
 - Handle errors on bad BibTeX data in New Source and return a more useful message
+- Handle errors on negative width/height at api/v1/images/123/ocr
+- Prevent bad OCR requests from SQED image task
 
 ### Changed
 
