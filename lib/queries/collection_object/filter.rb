@@ -137,20 +137,20 @@ module Queries
       attr_accessor :deaccessioned
 
       # @return [Boolean, nil]
-      #   nil =  Match against all ancestors, valid or invalid
-      #   true = Match against only valid ancestors
+      #   nil = Match against only valid ancestors (default)
+      #   true = Match against all ancestors, valid or invalid
       #   false = Match against only invalid ancestors
       attr_accessor :validity
 
       # @return [Boolean, nil]
-      #   nil = TaxonDeterminations match regardless of current or historical
-      #   true = TaxonDetermination must be .current
+      #   nil = TaxonDetermination must be .current (default)
+      #   true = TaxonDeterminations match regardless of current or historical
       #   false = TaxonDetermination must be .historical
       attr_accessor :current_determinations
 
       # @return [Boolean, nil]
-      #   nil = TaxonDeterminations match regardless of current or historical
-      #   true = TaxonDetermination must be .current
+      #   nil = TaxonDetermination must be .current (default)
+      #   true = TaxonDeterminations match regardless of current or historical
       #   false = TaxonDetermination must be .historical
       #   Used for taxon_name_id facets
       attr_accessor :taxon_name_current_determination
@@ -773,10 +773,12 @@ module Queries
           .and(taxon_determination_table[:otu_id].in(otu_id))
           .and(taxon_determination_table[:taxon_determination_object_type].eq('CollectionObject'))
 
-        if current_determinations
-          w = w.and(taxon_determination_table[:position].eq(1))
+        if current_determinations == true
+          # current and historical - no position filter
         elsif current_determinations == false
           w = w.and(taxon_determination_table[:position].gt(1))
+        else # nil = current only (default)
+          w = w.and(taxon_determination_table[:position].eq(1))
         end
 
         ::CollectionObject.where(
@@ -807,24 +809,30 @@ module Queries
           z = h[:ancestor_id].in(taxon_name_id)
 
           if validity == true
-            z = z.and(t[:cached_valid_taxon_name_id].eq(t[:id]))
+            # both valid and invalid - no filter
           elsif validity == false
             z = z.and(t[:cached_valid_taxon_name_id].not_eq(t[:id]))
+          else # nil = valid only (default)
+            z = z.and(t[:cached_valid_taxon_name_id].eq(t[:id]))
           end
 
           if taxon_name_current_determination == true
-            z = z.and(taxon_determination_table[:position].eq(1))
+            # current and historical - no position filter
           elsif taxon_name_current_determination == false
             z = z.and(taxon_determination_table[:position].gt(1))
+          else # nil = current only (default)
+            z = z.and(taxon_determination_table[:position].eq(1))
           end
         else
           q = ::CollectionObject.joins(taxon_determinations: [:otu])
             .where(otus: { taxon_name_id: })
 
           if taxon_name_current_determination == true
-            q = q.where(taxon_determinations: { position: 1 })
+            # current and historical - no position filter
           elsif taxon_name_current_determination == false
             q = q.where.not(taxon_determinations: {position: 1})
+          else # nil = current only (default)
+            q = q.where(taxon_determinations: { position: 1 })
           end
 
           return q
