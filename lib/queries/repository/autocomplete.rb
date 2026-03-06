@@ -46,7 +46,7 @@ module Queries
     #   matches "Natural History Museum"
     def autocomplete_wildcard_in_name
       b = fragments
-      return nil if b.empty?
+      return referenced_klass.none if b.empty?
       base_query.where(table[:name].matches_all(b).to_sql)
     end
 
