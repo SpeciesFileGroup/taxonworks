@@ -26,6 +26,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Handle errors on bad BibTeX data in New Source and return a more useful message
 - Handle errors on negative width/height at api/v1/images/123/ocr
 - Prevent bad OCR requests from SQED image task
+- Valid/Invalid Taxon Name facet value wasn't being used in the Exact case
 
 ### Changed
 
@@ -34,6 +35,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Filter tables: results table is now fixed to the screen while scrolling facets, with sticky column headers. [#4271]
 - DwC Importer: When the Import/Retry button is pressed for a Checklist dataset, all rows are downloaded again instead of only the selected row.
 - Searching for Repositories now matches across multiple terms, e.g. 'dep hist' now matches '... Department ... History ...'
+- In filters, Taxon Name facets now default to 'Valid only' and 'Current only', and Taxon Determination facets now default to 'Current only'
 
 [#345]: https://github.com/SpeciesFileGroup/taxonpages/issues/345
 [#4271]: https://github.com/SpeciesFileGroup/taxonworks/issues/4271
