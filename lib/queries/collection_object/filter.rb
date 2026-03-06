@@ -823,9 +823,17 @@ module Queries
           else # nil = current only (default)
             z = z.and(taxon_determination_table[:position].eq(1))
           end
-        else
-          q = ::CollectionObject.joins(taxon_determinations: [:otu])
+        else # exact
+          q = ::CollectionObject.joins(taxon_determinations: { otu: :taxon_name })
             .where(otus: { taxon_name_id: })
+
+          if validity == true
+            # both valid and invalid - no filter
+          elsif validity == false
+            q = q.where('taxon_names.cached_valid_taxon_name_id != taxon_names.id')
+          else # nil = valid only (default)
+            q = q.where('taxon_names.cached_valid_taxon_name_id = taxon_names.id')
+          end
 
           if taxon_name_current_determination == true
             # current and historical - no position filter

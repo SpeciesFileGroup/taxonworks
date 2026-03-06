@@ -595,6 +595,22 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
         query.descendants = true
         expect(query.all.pluck(:id)).to contain_exactly(co2.id)
       end
+
+      specify 'all specimens for an exact TaxonName match, valid only (default)' do
+        query.taxon_name_id = species1.id
+        query.descendants = false
+        # validity = nil (valid only, default)
+        # taxon_name_current_determination = nil (current only, default)
+        expect(query.all.pluck(:id)).to contain_exactly(co2.id)
+      end
+
+      specify 'all specimens for an exact TaxonName match, invalid only' do
+        query.taxon_name_id = species2.id
+        query.descendants = false
+        query.validity = false
+        # taxon_name_current_determination = nil (current only, default)
+        expect(query.all.pluck(:id)).to contain_exactly(co1.id)
+      end
     end
 
     # Collecting event
