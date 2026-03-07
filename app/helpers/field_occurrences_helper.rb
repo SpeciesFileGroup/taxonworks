@@ -51,9 +51,9 @@ module FieldOccurrencesHelper
   # @return [GeoJSON feature, nil]
   # @param base [Boolean]
   #   wehther to annotate the feature properties with TW 'base' attributes
-  def field_occurrence_to_geo_json_feature(field_occurrence, base = true)
+  def field_occurrence_to_geo_json_feature(field_occurrence, base = true, skip_geometry: false)
     return nil if field_occurrence.nil?
-    if a = collecting_event_to_geo_json_feature(field_occurrence.collecting_event)
+    if a = collecting_event_to_geo_json_feature(field_occurrence.collecting_event, skip_geometry:)
       l = label_for_field_occurrence(field_occurrence)
       a['properties']['target'] = {
         'type' => 'FieldOccurrence',

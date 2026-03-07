@@ -84,13 +84,13 @@ module AssertedDistributionsHelper
   end
 
   # @return [Hash] GeoJSON feature
-  def asserted_distribution_to_geo_json_feature(asserted_distribution)
+  def asserted_distribution_to_geo_json_feature(asserted_distribution, skip_geometry: false)
     return nil if asserted_distribution.nil?
     return nil unless asserted_distribution.has_shape?
 
     return {
       'type' => 'Feature',
-      'geometry' => RGeo::GeoJSON.encode(asserted_distribution.geo_object), # TODO: optimize
+      'geometry' => skip_geometry ? nil : RGeo::GeoJSON.encode(asserted_distribution.geo_object), # TODO: optimize
       'properties' => {
         'base' => {
           'type' => 'AssertedDistribution',
