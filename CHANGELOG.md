@@ -27,6 +27,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Handle errors on negative width/height at api/v1/images/123/ocr
 - Prevent bad OCR requests from SQED image task
 - Valid/Invalid Taxon Name facet value wasn't being used in the Exact case
+- New Taxon Name task can create two associated OTUs via its OTU radials [#4790]
 
 ### Changed
 
@@ -48,6 +49,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4778]: https://github.com/SpeciesFileGroup/taxonworks/issues/4778
 [#4777]: https://github.com/SpeciesFileGroup/taxonworks/issues/4777
 [#4782]: https://github.com/SpeciesFileGroup/taxonworks/issues/4782
+[#4790]: https://github.com/SpeciesFileGroup/taxonworks/issues/4790
 
 ## [0.60.0] - 2026-02-20
 
