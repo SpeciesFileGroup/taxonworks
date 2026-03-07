@@ -28,6 +28,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Prevent bad OCR requests from SQED image task
 - Valid/Invalid Taxon Name facet value wasn't being used in the Exact case
 - New Taxon Name task can create two associated OTUs via its OTU radials [#4790]
+- Add OTU ids to Biological Associations data sent to Taxon Pages [#4783]
 
 ### Changed
 
@@ -49,6 +50,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4778]: https://github.com/SpeciesFileGroup/taxonworks/issues/4778
 [#4777]: https://github.com/SpeciesFileGroup/taxonworks/issues/4777
 [#4782]: https://github.com/SpeciesFileGroup/taxonworks/issues/4782
+[#4783]: https://github.com/SpeciesFileGroup/taxonworks/issues/4783
 [#4790]: https://github.com/SpeciesFileGroup/taxonworks/issues/4790
 
 ## [0.60.0] - 2026-02-20
