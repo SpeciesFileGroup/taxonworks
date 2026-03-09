@@ -13,6 +13,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Taxon determination to New type specimen task [#4745]
 - Browse OTUs: Quick forms in Biological associations table [#4782]
 - Bulk Image and Documents downloaders from Filter Images and Filter Sources results via linker radial [#4683]
+- Collecting event form: Preview map for verbatim coordinates, georeferences and geographic areas [#4785]
 
 ### Fixed
 
@@ -51,6 +52,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4777]: https://github.com/SpeciesFileGroup/taxonworks/issues/4777
 [#4782]: https://github.com/SpeciesFileGroup/taxonworks/issues/4782
 [#4783]: https://github.com/SpeciesFileGroup/taxonworks/issues/4783
+[#4785]: https://github.com/SpeciesFileGroup/taxonworks/issues/4785
 [#4790]: https://github.com/SpeciesFileGroup/taxonworks/issues/4790
 
 ## [0.60.0] - 2026-02-20
