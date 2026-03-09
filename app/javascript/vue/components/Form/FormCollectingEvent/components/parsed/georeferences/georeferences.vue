@@ -225,40 +225,13 @@ const verbatimRadiusError = computed(() => {
 })
 
 const mapGeoreferences = computed(() => {
-  /*   const { geographicArea } = ceStore
-  const { georeferences } = store
+  const features = [...store.geojson]
 
-  const parsed = georeferences
-    .filter(
-      (item) =>
-        (item.id || !EXCLUDE.includes(item.type)) &&
-        (item.geographic_item_attributes?.shape || item.geo_json)
-    )
-    .map((item) => {
-      const geojson = item.geographic_item_attributes
-        ? JSON.parse(item?.geographic_item_attributes.shape)
-        : { ...item.geo_json }
+  if (ceStore.geographicArea?.has_shape) {
+    features.unshift(ceStore.geographicArea.shape)
+  }
 
-      geojson.properties = {
-        uuid: item.uuid,
-        base: [
-          {
-            type: [GEOREFERENCE]
-          }
-        ],
-        ...(item.type === GEOREFERENCE_VERBATIM && {
-          style: { className: 'map-point-marker bg-verbatim' }
-        })
-      }
-
-      return geojson
-    })
-
-  if (geographicArea?.has_shape) {
-    parsed.unshift(geographicArea.shape)
-  } */
-
-  return [ceStore.geographicArea?.shape, ...store.geojson]
+  return features
 })
 
 function updateRadius(geo) {
