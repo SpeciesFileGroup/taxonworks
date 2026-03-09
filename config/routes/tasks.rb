@@ -582,6 +582,10 @@ scope :tasks do
   end
 
   scope :biological_associations do
+    scope :new_ba, controller: 'tasks/biological_associations/new_ba' do
+      get :index, as: 'index_new_ba_task'
+    end
+
     scope :new_biological_association, controller: 'tasks/biological_associations/new_biological_association' do
       get '/', action: :index, as: 'new_biological_association_task'
     end

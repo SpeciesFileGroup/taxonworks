@@ -1219,3 +1219,10 @@ filter_namespaces_task:
     - filters
   status: prototype
   description: "Filter namespaces by many different facets, download or visualize results."
+index_new_ba_task:
+  hub: true
+  name: 'New biological associations II'
+  related:
+  categories:
+  status: prototype
+  description: 'TODO: Task description'
