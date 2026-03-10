@@ -441,8 +441,8 @@ module Export::Coldp::Files::Name
       # !! We are reifieing *without* "[sic]" in the string
       id = ::Utilities::Nomenclature.reified_id(row['id'], scientific_name)
 
-      # By definition
-      basionym_id = row['id']
+      # The reified OC IS the original combination/basionym, so it points to itself
+      basionym_id = id
 
       # !!
       # !! Here we accomodate, somehwat crudely, that original combinations will infer the rank of
@@ -458,7 +458,7 @@ module Export::Coldp::Files::Name
         id,                                                                 # ID
         basionym_id,                                                        # basionymID
         scientific_name,                                                    # scientificName
-        row['cached_author_year'].gsub(/[\(\)]/, ''),                       # authorship  # TODO <- stripping author/year here
+        row['cached_author_year']&.gsub(/[\(\)]/, ''),                      # authorship  # TODO <- stripping author/year here
         rank,                                                               # rank
         uninomial,                                                          # uninomial
         elements['genus']&.last,                                            # genus
@@ -629,7 +629,18 @@ module Export::Coldp::Files::Name
     names.find_each do |t|
 
       origin_citation = t.origin_citation
-      basionym_id = t.id # by defintion
+
+      # If this name has a reified original combination (genus changed),
+      # the basionym is the OC record, not this current placement record.
+      if t.cached_original_combination.present? &&
+          !t.cached_original_combination.include?('NOT SPECIFIED') &&
+          t.cached != t.cached_original_combination
+        scientific_name = ::Utilities::Nomenclature.unmisspell_name(t.cached_original_combination)
+        basionym_id = ::Utilities::Nomenclature.reified_id(t.id, scientific_name)
+      else
+        basionym_id = t.id
+      end
+
       uninomial = t.cached if t.rank == 'genus'
 
       # Future- resolve in SQL perhaps, though not very expensive here

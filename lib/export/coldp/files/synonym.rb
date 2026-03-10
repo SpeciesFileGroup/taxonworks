@@ -36,19 +36,22 @@ module Export::Coldp::Files::Synonym
     # Maps taxon_name_id -> otu.id for all OTUs in scope
     otu_lookup = otus.pluck(:taxon_name_id, :id).to_h
 
+    # Lookup valid taxon name cached strings for autonym detection
+    valid_name_cached_lookup = TaxonName.where(id: otu_lookup.keys).pluck(:id, :cached).to_h
+
     ::CSV.generate(col_sep: "\t") do |csv|
       csv << %w{taxonID nameID status remarks referenceID modified modifiedBy}
 
       add_invalid_family_and_higher_names(otu, csv, project_members, otu_lookup)
-      add_invalid_core_names(otu, csv, project_members, otu_lookup)
-      add_original_combinations(otu, csv, project_members, otu_lookup)          # Handles reified IDs
-      add_invalid_original_combinations(otu, csv, project_members, otu_lookup)  # Handles reified IDs
-      add_combinations(otu, csv, project_members, otu_lookup)
+      add_invalid_core_names(otu, csv, project_members, otu_lookup, valid_name_cached_lookup)
+      add_original_combinations(otu, csv, project_members, otu_lookup, valid_name_cached_lookup)          # Handles reified IDs
+      add_invalid_original_combinations(otu, csv, project_members, otu_lookup, valid_name_cached_lookup)  # Handles reified IDs
+      add_combinations(otu, csv, project_members, otu_lookup, valid_name_cached_lookup)
       # add_historical_combinations(otu, csv, project_members, otu_lookup)
     end
   end
 
-  def self.add_invalid_core_names(otu, csv, project_members, otu_lookup)
+  def self.add_invalid_core_names(otu, csv, project_members, otu_lookup, valid_name_cached_lookup)
     names = ::Export::Coldp::Files::Name.invalid_core_names(otu)
     names.length # !! Required - without this the result is truncated (see name.rb comment)
 
@@ -60,6 +63,11 @@ module Export::Coldp::Files::Synonym
       #  - Names skipped here are treated as bare names in CoL
       taxon_id =  otu_lookup[t.cached_valid_taxon_name_id]
       next unless taxon_id
+
+      # Skip nominotypical autonym synonyms to avoid looped synonymy in CoL
+      # See https://github.com/CatalogueOfLife/testing/issues/322
+      accepted_cached = valid_name_cached_lookup[t.cached_valid_taxon_name_id]
+      next if autonym_synonym?(t, accepted_cached)
 
       csv << [
         taxon_id,                                                   # taxonID attached to the current valid concept
@@ -73,13 +81,18 @@ module Export::Coldp::Files::Synonym
     end
   end
 
-  def self.add_combinations(otu, csv, project_members, otu_lookup)
+  def self.add_combinations(otu, csv, project_members, otu_lookup, valid_name_cached_lookup)
     names = ::Export::Coldp::Files::Name.combination_names(otu).unscope(:select).select('taxon_names.*')
     names.length # !! Required - without this the result is truncated (see name.rb comment)
 
     # Iterate directly over names to avoid CTE truncation issues
     names.find_each do |t|
       next if ::Export::Coldp.skipped_combinations.include?(t.id)
+
+      # Skip combinations that are binomials of an autonym trinomial
+      # e.g., combination "Aus bus" as synonym of accepted "Aus bus bus"
+      accepted_cached = valid_name_cached_lookup[t.cached_valid_taxon_name_id]
+      next if accepted_cached&.include?(t.cached)
 
       csv << [
         otu_lookup[t.cached_valid_taxon_name_id],                  # taxonID attached to the current valid concept
@@ -135,12 +148,17 @@ module Export::Coldp::Files::Synonym
     end
   end
 
-  def self.add_original_combinations(otu, csv, project_members, otu_lookup)
+  def self.add_original_combinations(otu, csv, project_members, otu_lookup, valid_name_cached_lookup)
     names = ::Export::Coldp::Files::Name.original_combination_names(otu)
     names.length # !! Required - without this the result is truncated (see name.rb comment)
 
     # Iterate directly over names to avoid CTE truncation issues
     names.find_each do |t|
+      # Skip reified OCs of autonym trinomials — the OC is the binomial form
+      # which matches the accepted parent species, creating a looped synonymy
+      accepted_cached = valid_name_cached_lookup[t.cached_valid_taxon_name_id]
+      next if autonym_synonym?(t, accepted_cached)
+
       # By `original_combination_names(otu) these are all reified
       reified_id = ::Utilities::Nomenclature.reified_id(t.id, t.cached_original_combination)
 
@@ -156,13 +174,80 @@ module Export::Coldp::Files::Synonym
     end
   end
 
+  # Returns true if this synonym row should be skipped because it represents
+  # a nominotypical autonym loop in ICZN nomenclature.
+  #
+  # Under ICZN, the nominotypical subspecies (e.g., "Aus bus bus") is
+  # nomenclaturally equivalent to its parent species ("Aus bus"), but
+  # Catalogue of Life does not want these exported as synonyms of each other.
+  #
+  # Detects autonyms by checking whether the specific and infraspecific
+  # epithets match in a trinomial, which works regardless of genus changes
+  # in original combinations.
+  #
+  # Also handles subgenus autonyms, e.g. genus "Aus" vs subgenus "Aus (Aus)".
+  #
+  # See https://github.com/CatalogueOfLife/testing/issues/322
+  def self.autonym_synonym?(taxon_name, accepted_cached_name)
+    rank_class = taxon_name.rank_class.to_s
+
+    # Subgenus autonym: skip "Aus (Aus)" from being a synonym of genus "Aus"
+    if rank_class.include?('Subgenus')
+      autonym_parts = taxon_name.cached&.gsub(/[()]/, '')&.split(' ')
+      if autonym_parts&.size&.>=(2) &&
+          autonym_parts[0] == autonym_parts[1] &&
+          taxon_name.cached_original_combination == autonym_parts[0]
+        return true
+      end
+    end
+
+    epithet = taxon_name.name
+
+    # Strip subgenus parenthetical: "Aus (Bus) cus dus" → "Aus cus dus"
+    strip_subgenus = ->(name) {
+      return nil if name.nil?
+      if (m = name.match(/\A([A-Z][a-z]+) \([^)]+\) (.+)/))
+        "#{m[1]} #{m[2]}"
+      else
+        name
+      end
+    }
+
+    # Skip subspecies/form/variety autonyms
+    # e.g., prevents "Aus bus bus" (subspecies) from being a synonym of "Aus bus" (species)
+    # Detected by: the synonym name is a trinomial with matching specific and infraspecific epithets
+    if rank_class.match?(/::Subspecies$|::Form$|::Variety$/)
+      cached_parts = strip_subgenus.call(taxon_name.cached)&.split(' ')
+      if cached_parts&.size&.>=(3) && cached_parts[-1] == cached_parts[-2]
+        return true
+      end
+    end
+
+    # Skip species autonyms
+    # e.g., prevents "Aus bus" (species) from being a synonym of "Aus bus bus" (subspecies)
+    # Detected by: the accepted name is a trinomial with matching specific and infraspecific
+    # epithets, and the epithet matches the species protonym name
+    if rank_class.match?(/::Species$/)
+      accepted_parts = strip_subgenus.call(accepted_cached_name)&.split(' ')
+      if accepted_parts&.size&.>=(3) && accepted_parts[-1] == accepted_parts[-2] && accepted_parts[-1] == epithet
+        return true
+      end
+    end
+
+    false
+  end
+
   # Add synonyms for invalid names with different original combinations (reified IDs)
-  def self.add_invalid_original_combinations(otu, csv, project_members, otu_lookup)
+  def self.add_invalid_original_combinations(otu, csv, project_members, otu_lookup, valid_name_cached_lookup)
     names = ::Export::Coldp::Files::Name.invalid_original_combination_names(otu)
     names.length # !! Required - without this the result is truncated (see name.rb comment)
 
     # Iterate directly over names to avoid CTE truncation issues
     names.find_each do |t|
+      # Skip nominotypical autonym synonyms (the underlying protonym is an autonym)
+      accepted_cached = valid_name_cached_lookup[t.cached_valid_taxon_name_id]
+      next if autonym_synonym?(t, accepted_cached)
+
       # By `invalid_original_combination_names(otu) these are all reified
       reified_id = ::Utilities::Nomenclature.reified_id(t.id, t.cached_original_combination)
 
