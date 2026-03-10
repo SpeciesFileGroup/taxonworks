@@ -23,7 +23,7 @@ module Autoselect
       end
 
       def record_label(record)
-        record.cached || record.name
+        record.cached
       end
 
       def record_label_html(record)
@@ -34,6 +34,8 @@ module Autoselect
         parts = []
         if record.respond_to?(:rank_string) && record.rank_string.present?
           parts << record.rank_string.split('::').last.downcase
+        elsif record.respond_to?(:_col_extension) && record._col_extension&.dig(:col_rank).present?
+          parts << record._col_extension[:col_rank]
         end
         if record.respond_to?(:cached_valid_taxon_name_id) && record.id.present?
           parts << (record.id == record.cached_valid_taxon_name_id ? 'valid' : 'synonym')

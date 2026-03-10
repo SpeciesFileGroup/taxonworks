@@ -265,7 +265,7 @@ module Queries
 
       # Weights.  Theory (using this loosely) is that this
       # will proportionally increase the importance in the list of the corresponding element.
-      # The tradeoff is subtle, but seems to work at first try.
+      # The trade-off is subtle, but seems to work at first try.
       CACHED_NAME_WEIGHT = 8.0
       CACHED_AUTHOR_YEAR_WEIGHT = 6.0
       CACHED_WEIGHT = 4.0
@@ -281,10 +281,10 @@ module Queries
         s = 'WITH tns AS (' + a.to_sql + ') ' +
           ::TaxonName
           .select(Arel.sql("taxon_names.*, (( COALESCE(tns1.sml_n,0) * #{CACHED_NAME_WEIGHT} + \
-                                                  COALESCE(tns1.sml_cay,0) * #{CACHED_AUTHOR_YEAR_WEIGHT} + \
-                                                  COALESCE(tns1.sml_c,0) * #{CACHED_WEIGHT} + \
-                                                  COALESCE(tns1.sml_coc,0) * #{CACHED_ORIGINAL_COMBINATION_WEIGHT} \
-                                                )) sml_tn"))
+                                              COALESCE(tns1.sml_cay,0) * #{CACHED_AUTHOR_YEAR_WEIGHT} + \
+                                              COALESCE(tns1.sml_c,0) * #{CACHED_WEIGHT} + \
+                                              COALESCE(tns1.sml_coc,0) * #{CACHED_ORIGINAL_COMBINATION_WEIGHT} \
+                                            )) sml_tn"))
           .joins('JOIN tns as tns1  on tns1.id = taxon_names.id')
           .to_sql
 
@@ -413,8 +413,8 @@ module Queries
       # @return [Scope]
       # TODO: this should deprecate for gin based approaches.
       def base_query
-        ::TaxonName.select('taxon_names.*, char_length(taxon_names.cached)')
-          .includes(:ancestor_hierarchies)
+        ::TaxonName.select(:id, :parent_id, :type, :name, :cached,  :cached_html, :cached_original_combination, :cached_author_year, :cached_valid_taxon_name_id, :cached_is_valid, 'char_length(taxon_names.cached)')
+          .eager_load(:parent)
           .order(Arel.sql('char_length(taxon_names.cached), taxon_names.cached ASC'))
       end
 

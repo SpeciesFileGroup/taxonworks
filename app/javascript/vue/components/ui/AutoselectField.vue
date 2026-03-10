@@ -129,7 +129,7 @@
       </ul>
       <button
         class="btn"
-        @click="showHelp = false"
+        @click="closeHelp"
       >
         Close
       </button>
@@ -145,13 +145,14 @@
       />
     </Teleport>
 
-    <!-- OTU new-record modal — opened by the !n operator -->
+    <!-- New-record modal — opened by the !n operator; component is model-specific via prop -->
     <Teleport to="body">
-      <OtuNewModal
-        v-if="newOtuName !== null"
-        :name-prefill="newOtuName"
-        @confirm="onOtuCreated"
-        @cancel="cancelOtuNew"
+      <component
+        :is="newRecordComponent"
+        v-if="newRecordName !== null && newRecordComponent !== null"
+        :name-prefill="newRecordName"
+        @confirm="onNewRecordCreated"
+        @cancel="cancelNewRecord"
       />
     </Teleport>
   </div>
@@ -162,7 +163,6 @@ import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import AjaxCall from '@/helpers/ajaxCall'
 import { useAutoselect } from '@/components/ui/AutoselectField/useAutoselect'
 import ColConfirmModal from '@/components/ui/AutoselectField/ColConfirmModal.vue'
-import OtuNewModal from '@/components/ui/AutoselectField/OtuNewModal.vue'
 import CatalogueOfLifeSpinner from '@/components/ui/AutoselectField/CatalogueOfLifeSpinner.vue'
 import TaxonWorksSpinner from '@/components/ui/AutoselectField/TaxonWorksSpinner.vue'
 
@@ -177,7 +177,11 @@ const props = defineProps({
   param: { type: String, required: true },
   placeholder: { type: String, default: 'Search...' },
   disabled: { type: Boolean, default: false },
-  levelDelay: { type: Number, default: 500 } // debounce ms; exposed for playground tuning
+  levelDelay: { type: Number, default: 500 }, // debounce ms; exposed for playground tuning
+  // Vue component to render when the !n operator is triggered.
+  // Pass a model-specific new-record modal (e.g. OtuNewModal).
+  // When null (default), !n is silently ignored for this field.
+  newRecordComponent: { type: Object, default: null }
 })
 
 const emit = defineEmits(['update:modelValue', 'select'])
@@ -217,7 +221,7 @@ const hoveredSegmentIdx = ref(null)
 // overlays
 const showHelp = ref(false)
 const pendingExtensionItem = ref(null)
-const newOtuName = ref(null) // non-null string when the !n OTU create modal is open
+const newRecordName = ref(null) // non-null string when the !n new-record modal is open
 let preventBlur = false // mirrors Autocomplete.vue pattern
 
 // ── Computed ───────────────────────────────────────────────────────────────────
@@ -231,9 +235,7 @@ const fuseSegments = computed(() =>
   }))
 )
 
-const visibleOperators = computed(() =>
-  getOperators().filter((op) => !op.client_only)
-)
+const visibleOperators = computed(() => getOperators())
 
 const currentSpinner = computed(
   () => LEVEL_SPINNERS[currentLevel.value] ?? TaxonWorksSpinner
@@ -289,6 +291,13 @@ function onInput() {
     return
   }
 
+  // A lone '!' (or '!' followed only by whitespace) is an incomplete operator — wait.
+  if (/^!\s*$/.test(text)) {
+    cancelFuse()
+    if (getRequest) clearTimeout(getRequest)
+    return
+  }
+
   // !? — show help, don't search
   if (/^!\?/.test(text)) {
     showHelp.value = true
@@ -296,15 +305,16 @@ function onInput() {
   }
 
   // !n — create new record; detectable anywhere in the string (e.g. "zzz !n")
+  // Only active when a newRecordComponent has been provided for this field instance.
   // Strip the operator (and surrounding spaces) to get the name prefill.
   const newRecordMatch = text.match(/^(.*?)\s*!n\s*(.*)$/i)
-  if (newRecordMatch !== null) {
+  if (newRecordMatch !== null && props.newRecordComponent !== null) {
     const cleanName = (newRecordMatch[1] + ' ' + newRecordMatch[2]).replace(/\s+/g, ' ').trim()
     inputText.value = cleanName
     cancelFuse()
     if (getRequest) clearTimeout(getRequest)
     clearResults()
-    newOtuName.value = cleanName
+    newRecordName.value = cleanName
     return
   }
 
@@ -532,21 +542,26 @@ function onColConfirm(taxonNameId) {
   })
 }
 
-function onOtuCreated({ otuId, otuName: createdName }) {
-  newOtuName.value = null
-  completeSelection({
-    id: otuId,
-    label: createdName,
-    label_html: createdName,
-    info: '',
-    response_values: { otu_id: otuId },
-    extension: {}
-  })
+function onNewRecordCreated(item) {
+  newRecordName.value = null
+  completeSelection(item)
 }
 
-function cancelOtuNew() {
-  newOtuName.value = null
+function cancelNewRecord() {
+  newRecordName.value = null
   nextTick(() => inputEl.value?.focus())
+}
+
+function closeHelp() {
+  showHelp.value = false
+  nextTick(() => {
+    const el = inputEl.value
+    if (!el) return
+    el.focus()
+    // Place cursor at end of any existing text
+    const len = el.value.length
+    el.setSelectionRange(len, len)
+  })
 }
 
 // ── Keyboard navigation ────────────────────────────────────────────────────────

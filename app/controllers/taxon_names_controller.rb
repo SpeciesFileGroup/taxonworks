@@ -360,7 +360,6 @@ class TaxonNamesController < ApplicationController
     end
   end
 
-
   # GET /taxon_names/autoselect
   def autoselect
     render json: ::Autoselect::TaxonName::Autoselect.new(
@@ -372,6 +371,7 @@ class TaxonNamesController < ApplicationController
     ).response
   end
 
+  # POST
   def autoselect_col_create
     result = ::Autoselect::TaxonName::ColCreator.new(
       rows:       autoselect_col_create_params,

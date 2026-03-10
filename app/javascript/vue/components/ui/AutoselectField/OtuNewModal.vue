@@ -233,11 +233,14 @@ async function doCreate() {
     const { body } = await AjaxCall('post', '/otus', payload)
 
     if (body?.id) {
+      const label = body.name || otuName.value.trim()
       emit('confirm', {
-        otuId: body.id,
-        otuName: body.name || otuName.value.trim(),
-        taxonNameId: selectedTaxonName.value?.id ?? null,
-        taxonNameLabel: selectedTaxonName.value?.label ?? null
+        id: body.id,
+        label,
+        label_html: label,
+        info: selectedTaxonName.value?.label ?? null,
+        response_values: { otu_id: body.id },
+        extension: {}
       })
     } else {
       errorMessage.value = 'Creation failed. Please try again.'

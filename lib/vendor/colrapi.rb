@@ -81,7 +81,6 @@ module Vendor
       r
     end
 
-
     # Searches the Catalog of Life by name string.
     #
     # The Colrapi gem takes dataset_id as a positional first argument.

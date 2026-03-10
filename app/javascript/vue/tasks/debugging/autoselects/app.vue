@@ -27,6 +27,7 @@
         :param="model.param"
         :placeholder="`Search ${model.label}...`"
         :level-delay="levelDelay"
+        :new-record-component="model.newRecordComponent ?? null"
         @select="onSelect(model.label, $event)"
       />
       <pre v-if="selections[model.label]">{{ JSON.stringify(selections[model.label], null, 2) }}</pre>
@@ -41,12 +42,14 @@
 <script setup>
 import { ref } from 'vue'
 import AutoselectField from '@/components/ui/AutoselectField.vue'
+import OtuNewModal from '@/components/ui/AutoselectField/OtuNewModal.vue'
 
 // Models are registered here by the autoselect generator.
 // Each entry added by `rails generate taxon_works:autoselect <model_name>`
+// newRecordComponent: Vue component to mount when !n is typed (null = !n disabled)
 const registeredModels = ref([
-  { url: '/taxon_names/autoselect', param: 'taxon_name_id', label: 'TaxonName' },
-  { url: '/otus/autoselect', param: 'otu_id', label: 'OTU' },
+  { url: '/taxon_names/autoselect', param: 'taxon_name_id', label: 'TaxonName', newRecordComponent: null },
+  { url: '/otus/autoselect',        param: 'otu_id',        label: 'OTU',       newRecordComponent: OtuNewModal },
 ])
 
 const levelDelay = ref(500)

@@ -168,15 +168,27 @@ Client (AutoselectField.vue)
 | `app/javascript/vue/components/ui/AutoselectField.vue` | Main autocomplete input with fuse bar, dropdown, operator handling, extension panels |
 | `app/javascript/vue/components/ui/AutoselectField/useAutoselect.js` | Composable: config fetch + cache, level/operator helpers |
 | `app/javascript/vue/components/ui/AutoselectField/ColConfirmModal.vue` | CoL TaxonName creation confirmation modal |
+| `app/javascript/vue/components/ui/AutoselectField/OtuNewModal.vue` | OTU new-record modal (passed via `newRecordComponent` prop) |
 | `app/javascript/vue/components/ui/AutoselectField/TaxonWorksSpinner.vue` | 16 px spinning TaxonWorks logo (internal levels) |
 | `app/javascript/vue/components/ui/AutoselectField/CatalogueOfLifeSpinner.vue` | 16 px pulsing CoL colour squares (external levels) |
 
-The `!n` (new_record) operator is **fully client-side** (`client_only: true`).
-It is detected anywhere in the input string (e.g. `zzz !n` triggers with name
-prefill `zzz`).  The operator and surrounding whitespace are stripped; the
-remainder becomes the pre-filled OTU Name.  The modal opens immediately with
-no server round-trip.  A secondary `GET /taxon_names/autocomplete?exact=true`
-search pre-populates the TaxonName autocomplete when exactly one match is
-found, or presents a radio-button disambiguation list when multiple matches
-exist.  Selecting a TaxonName collapses the list.  On Create, a `POST /otus`
-is issued and the new OTU is selected as if chosen from the dropdown.
+### `!n` new-record modal
+
+The `!n` operator is **fully client-side** (`client_only: true`).  It is
+detected anywhere in the input string (e.g. `zzz !n` → name prefill `zzz`).
+`AutoselectField` does not import any modal directly.  Instead the caller
+passes a Vue component via the `newRecordComponent` prop.  When `null`
+(default), `!n` is silently ignored for that field.
+
+The modal contract (must be honoured by any `newRecordComponent`):
+- Prop: `namePrefill` (String) — the stripped search term to pre-fill
+- Emits: `confirm(item)` where `item` matches the selection shape
+  `{ id, label, label_html, info, response_values, extension }`
+- Emits: `cancel` — user backed out
+
+**OTU modal** (`OtuNewModal.vue`):
+- Name input (pre-filled, auto-focused)
+- TaxonName autocomplete (`/taxon_names/autocomplete`)
+- Secondary exact-name search on open: 1 hit → silent pre-populate;
+  >1 hits → radio disambiguation list
+- POSTs to `/otus` on Create; emits the selection item on success

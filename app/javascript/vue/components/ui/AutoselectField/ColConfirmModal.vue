@@ -55,7 +55,15 @@
             <td>{{ ext.col_name }}</td>
             <td>—</td>
             <td>{{ ext.col_authorship ?? '—' }}</td>
-            <td><code v-if="ext.col_key">{{ ext.col_key }}</code><template v-else>—</template></td>
+            <td>
+              <a
+                v-if="ext.col_key"
+                :href="`https://www.catalogueoflife.org/data/taxon/${ext.col_key}`"
+                target="_blank"
+                rel="noopener noreferrer"
+              >{{ ext.col_key }}</a>
+              <template v-else>—</template>
+            </td>
           </tr>
         </tbody>
       </table>
