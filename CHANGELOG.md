@@ -14,6 +14,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Browse OTUs: Quick forms in Biological associations table [#4782]
 - Bulk Image and Documents downloaders from Filter Images and Filter Sources results via linker radial [#4683]
 - Collecting event form: Preview map for verbatim coordinates, georeferences and geographic areas [#4785]
+- New collecting event: Added a toggle in the Collection Object modal to mark a repository as current [#4794]
 
 ### Fixed
 
@@ -54,6 +55,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4783]: https://github.com/SpeciesFileGroup/taxonworks/issues/4783
 [#4785]: https://github.com/SpeciesFileGroup/taxonworks/issues/4785
 [#4790]: https://github.com/SpeciesFileGroup/taxonworks/issues/4790
+[#4794]: https://github.com/SpeciesFileGroup/taxonworks/issues/4794
 
 ## [0.60.0] - 2026-02-20
 
