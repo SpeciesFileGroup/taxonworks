@@ -196,17 +196,23 @@ module CollectingEventsHelper
 
   # @return [GeoJSON::Feature]
   #   the first geographic item of the first georeference on this collecting event
-  def collecting_event_to_geo_json_feature(collecting_event)
+  def collecting_event_to_geo_json_feature(collecting_event, skip_geometry: false)
     return nil if collecting_event.nil?
 
-    a,b,c = collecting_event.geo_json_data
-    return nil if a.nil?
+    if skip_geometry
+      shape_type, shape_id = collecting_event.geo_json_shape_key
+      return nil if shape_type.nil?
+      geometry = nil
+    else
+      geometry, shape_type, shape_id = collecting_event.geo_json_data
+      return nil if geometry.nil?
+    end
 
     l = label_for_collecting_event(collecting_event)
 
     return {
       'type' => 'Feature',
-      'geometry' => a,
+      'geometry' => geometry,
       'properties' => {
         'target' => {
           'type' => 'CollectingEvent',
@@ -219,8 +225,8 @@ module CollectingEventsHelper
           'label' => l
         },
         'shape' => {
-          'type' => b,
-          'id' => c }
+          'type' => shape_type,
+          'id' => shape_id }
       }
     }
   end
