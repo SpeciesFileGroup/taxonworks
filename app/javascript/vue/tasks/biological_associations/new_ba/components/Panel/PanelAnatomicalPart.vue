@@ -48,11 +48,22 @@
             class="margin-small-bottom"
           />
 
-          <SmartSelector
-            v-if="currentTab === TAB_SEARCH"
-            model="anatomical_parts"
-            @selected="selectExistingAnatomicalPart"
-          />
+          <div v-if="currentTab === TAB_SEARCH">
+            <ul class="no_bullets">
+              <li
+                v-for="item in created"
+                :key="item.id"
+              >
+                <label @click="() => selectExistingAnatomicalPart(item)">
+                  <input
+                    type="radio"
+                    :value="item"
+                  />
+                  <span v-html="item.object_tag"></span>
+                </label>
+              </li>
+            </ul>
+          </div>
 
           <div v-else>
             <fieldset>
@@ -164,16 +175,16 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeMount, ref, watch } from 'vue'
 import { AnatomicalPart } from '@/routes/endpoints'
 import { COLLECTION_OBJECT } from '@/constants'
-import SmartSelector from '@/components/ui/SmartSelector.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VSwitch from '@/components/ui/VSwitch.vue'
 import PreparationType from '@/components/radials/object/components/origin_relationship/create/anatomical_parts/components/PreparationType.vue'
+import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams'
 
 const props = defineProps({
   parentObject: {
@@ -200,12 +211,14 @@ const parentIsAnatomicalPart = computed(
   () => props.parentObject?.base_class === 'AnatomicalPart'
 )
 
-const TAB_SEARCH = 'Search'
+const TAB_SEARCH = 'Created'
 const TAB_NEW = 'New'
 const TAB_OPTIONS = [TAB_SEARCH, TAB_NEW]
 const currentTab = ref(TAB_SEARCH)
 const ontologyPreferences = ref([])
 const selectedOntologies = ref([])
+const recent = ref([])
+const created = ref([])
 
 const formData = ref(makeAnatomicalPart())
 
@@ -275,11 +288,24 @@ watch(
 
     if (newVal) {
       formData.value.is_material = defaultIsMaterial()
+      loadCreated(newVal)
     }
   }
 )
 
-onMounted(() => {
+function loadCreated(item) {
+  AnatomicalPart.where({
+    [ID_PARAM_FOR[item.base_class]]: item.id
+  }).then(({ body }) => {
+    created.value = body
+  })
+}
+
+onBeforeMount(() => {
+  AnatomicalPart.where({ recent: true }).then(({ body }) => {
+    recent.value = body
+  })
+
   AnatomicalPart.ontologyPreferences()
     .then(({ body }) => {
       if (body.length > 0) {
