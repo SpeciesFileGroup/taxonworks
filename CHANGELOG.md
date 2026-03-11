@@ -32,6 +32,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - New Taxon Name task can create two associated OTUs via its OTU radials [#4790]
 - Add OTU ids to Biological Associations data sent to Taxon Pages [#4783]
 - Error on clicking the 'add children' button on a lead that's a redirect
+- Error on geographic_items/1.json
 
 ### Changed
 
