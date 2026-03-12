@@ -34,6 +34,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Error on clicking the 'add children' button on a lead that's a redirect
 - Error on geographic_items/1.json
 - Improved error reporting for Georeference WKT (well-known-text) errors
+- Image matrix viewing issues with transparent PNGs. [#4800]
 
 ### Changed
 
