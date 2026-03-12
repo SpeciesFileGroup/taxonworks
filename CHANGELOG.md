@@ -34,7 +34,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Error on clicking the 'add children' button on a lead that's a redirect
 - Error on geographic_items/1.json
 - Improved error reporting for Georeference WKT (well-known-text) errors
-- Image matrix viewing issues with transparent PNGs. [#4800]
+- Image matrix viewing issues with transparent PNGs [#4800]
+- API error when submitting date not of the form yyyy-mm-dd for a date range - now returns a 400 with an error message
 
 ### Changed
 

@@ -44,12 +44,20 @@ module Queries::Concerns::DateRanges
     end
 
     def set_date_params(params)
-      self.send('start_date='.to_sym, params[:start_date]) if params[:start_date].present?
-      self.send('end_date=', params[:end_date]) if params[:end_date].present?
+      self.send('start_date='.to_sym, params[:start_date]) if params[:start_date].present? && valid_date_param?(params[:start_date])
+      self.send('end_date=', params[:end_date]) if params[:end_date].present? && valid_date_param?(params[:end_date])
 
       @partial_overlap_dates = params[:partial_overlap_dates]
       @partial_overlap_dates = true if @partial_overlap_dates.nil?
     end
+  end
+
+  def valid_date_param?(value)
+    parts = value.to_s.split('-')
+    return false unless parts.length == 3
+    return false unless parts[0].length == 4
+    y, m, d = parts.map(&:to_i)
+    Date.valid_date?(y, m, d)
   end
 
   def use_date_range?
