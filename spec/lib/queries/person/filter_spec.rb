@@ -208,6 +208,92 @@ describe Queries::Person::Filter, type: :model, group: :people do
     expect(query.all.pluck(:id)).to contain_exactly(p1.id, p2.id)
   end
 
+  context '#first_name_like' do
+    let!(:john)         { Person.create!(last_name: 'Smith', first_name: 'John') }
+    let!(:jack)         { Person.create!(last_name: 'Smith', first_name: 'Jack') }
+    let!(:john_k)       { Person.create!(last_name: 'Smith', first_name: 'John K.') }
+    let!(:john_kenneth) { Person.create!(last_name: 'Smith', first_name: 'John Kenneth') }
+    let!(:j_abbr)       { Person.create!(last_name: 'Smith', first_name: 'J.') }
+    let!(:j_k_abbr)     { Person.create!(last_name: 'Smith', first_name: 'J. K.') }
+    let!(:j_kenneth)    { Person.create!(last_name: 'Smith', first_name: 'J. Kenneth') }
+    let!(:j_james)      { Person.create!(last_name: 'Smith', first_name: 'J. James') }
+
+    specify 'single initial matches all names with that first letter' do
+      query.first_name_like = 'J.'
+      expect(query.all.pluck(:id)).to contain_exactly(
+        john.id, jack.id, john_k.id, john_kenneth.id,
+        j_abbr.id, j_k_abbr.id, j_kenneth.id, j_james.id
+      )
+    end
+
+    specify 'initial without period matches same set as initial with period' do
+      query.first_name_like = 'J'
+      expect(query.all.pluck(:id)).to contain_exactly(
+        john.id, jack.id, john_k.id, john_kenneth.id,
+        j_abbr.id, j_k_abbr.id, j_kenneth.id, j_james.id
+      )
+    end
+
+    specify 'full name matches initial stored values and names with trailing parts, excludes different full name' do
+      query.first_name_like = 'John'
+      expect(query.all.pluck(:id)).to contain_exactly(
+        john.id, john_k.id, john_kenneth.id,
+        j_abbr.id, j_k_abbr.id, j_kenneth.id, j_james.id
+      )
+    end
+
+    # All of these encode the same intent — two parts, first starting with J, second with K —
+    # so they return the same set whether parts are abbreviated, full, or lack periods.
+    ['J. K.', 'J K', 'John K.', 'John Kenneth', 'J. Kenneth'].each do |input|
+      specify "multi-part '#{input}' matches names with J and K parts" do
+        query.first_name_like = input
+        expect(query.all.pluck(:id)).to contain_exactly(
+          john_k.id, john_kenneth.id, j_k_abbr.id, j_kenneth.id
+        )
+      end
+    end
+
+    specify 'matches AlternateValue' do
+      AlternateValue::Abbreviation.create!(
+        alternate_value_object: john,
+        alternate_value_object_attribute: :first_name,
+        value: 'Johann'
+      )
+      query.first_name_like = 'Johann'
+      # john matched via AlternateValue; j_abbr/j_k_abbr/j_kenneth/j_james matched because
+      # 'Johann' also generates a j\.? branch that matches stored 'J.' prefixed names
+      expect(query.all.pluck(:id)).to contain_exactly(john.id, j_abbr.id, j_k_abbr.id, j_kenneth.id, j_james.id)
+    end
+  end
+
+  context '#last_name_like' do
+    let!(:smith)       { Person.create!(last_name: 'Smith') }
+    let!(:smith_jones) { Person.create!(last_name: 'Smith Jones') }
+    let!(:blacksmith)  { Person.create!(last_name: 'Blacksmith') }
+    let!(:jones)       { Person.create!(last_name: 'Jones') }
+
+    # p1 and p2 from the outer context both have last_name 'Smith' so appear in Smith queries
+    specify 'single word matches exact and compound last names, word boundary excludes partial' do
+      query.last_name_like = 'Smith'
+      expect(query.all.pluck(:id)).to contain_exactly(p1.id, p2.id, smith.id, smith_jones.id)
+    end
+
+    specify 'multi-word: forward finds compound, backward finds each single-word stored value' do
+      query.last_name_like = 'Smith Jones'
+      expect(query.all.pluck(:id)).to contain_exactly(p1.id, p2.id, smith.id, smith_jones.id, jones.id)
+    end
+
+    specify 'matches AlternateValue' do
+      AlternateValue::Misspelling.create!(
+        alternate_value_object: smith,
+        alternate_value_object_attribute: :last_name,
+        value: 'Smythe'
+      )
+      query.last_name_like = 'Smythe'
+      expect(query.all.pluck(:id)).to contain_exactly(smith.id)
+    end
+  end
+
   specify '#identifier' do
     i = 'http://orcid.org/0000-0003-5000-0001'
     j = Identifier::Global::Orcid.create!(identifier: i, identifier_object: p1)

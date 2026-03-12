@@ -240,6 +240,8 @@ function normalizeName(name) {
   return (name || '').toLowerCase().trim().replace(/\s+/g, ' ')
 }
 
+// Used only to match parsed authors against already-loaded existing roles.
+// Server-side filtering handles the broader DB search.
 function namesMatch(parsedAuthor, person) {
   const parsedLast = normalizeName(parsedAuthor.lastName)
   const personLast = normalizeName(person.last_name)
@@ -251,13 +253,9 @@ function namesMatch(parsedAuthor, person) {
   const personFirst = normalizeName(person.first_name)
 
   if (!parsedFirst || !personFirst) return true
-
   if (parsedFirst === personFirst) return true
 
-  const parsedInitial = parsedFirst.replace(/\./g, '').charAt(0)
-  const personInitial = personFirst.charAt(0)
-
-  return parsedInitial === personInitial
+  return parsedFirst.charAt(0) === personFirst.charAt(0)
 }
 
 function findExistingRoleByName(parsedAuthor, alreadyMatchedIds) {
@@ -316,10 +314,10 @@ async function searchMatches(row) {
   row.isSearching = true
 
   try {
-    const { body } = await People.where({
-      name: row.originalString
-    })
+    const payload = { last_name_like: row.parsedLastName }
+    if (row.parsedFirstName) payload.first_name_like = row.parsedFirstName
 
+    const { body } = await People.where(payload)
     row.matches = body
   } catch {
     row.matches = []

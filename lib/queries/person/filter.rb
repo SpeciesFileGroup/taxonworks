@@ -15,7 +15,9 @@ module Queries
         :died_before_year,
         :except_project_id,
         :first_name,
+        :first_name_like,
         :last_name,
+        :last_name_like,
         :last_name_starts_with,
         :levenshtein_cuttoff,
         :name,
@@ -84,8 +86,26 @@ module Queries
       attr_accessor :first_name
 
       # @return [String, nil]
+      #   Matches first_name using initial-expansion and part-sequence comparison.
+      #   Each dot-or-space-delimited part of the input is matched positionally:
+      #   a single-character part (initial) matches any word starting with that letter;
+      #   a multi-character part matches exactly or as a bare initial.
+      #   E.g. 'J.' matches 'John'; 'John K.' matches 'J. K.' but not 'Jack K.'.
+      #   Also matches any AlternateValue.
+      attr_accessor :first_name_like
+
+      # @return [String, nil]
       #   also matches any AlternateValue
       attr_accessor :last_name
+
+      # @return [String, nil]
+      #   Matches last_name with word-level subset logic to handle maiden name variations.
+      #   Forward: every word of the input appears as a whole word in the stored value,
+      #   e.g. 'Smith' matches 'Smith Jones'.
+      #   Backward: the stored last_name appears as a whole word in the input,
+      #   e.g. input 'Smith Jones' matches stored 'Smith'.
+      #   Also matches any AlternateValue.
+      attr_accessor :last_name_like
 
       attr_accessor :last_name_starts_with
 
@@ -154,7 +174,9 @@ module Queries
         @except_project_id = params[:except_project_id]
         @except_role = params[:except_role]
         @first_name = params[:first_name]
+        @first_name_like = params[:first_name_like]
         @last_name = params[:last_name]
+        @last_name_like = params[:last_name_like]
         @last_name_starts_with = params[:last_name_starts_with]
         @levenshtein_cuttoff = params[:levenshtein_cuttoff]
         @name = params[:name]
@@ -280,6 +302,71 @@ module Queries
           table[:cached].eq(name)
         else
           table[:cached].matches('%' + name + '%')
+        end
+      end
+
+      # Builds a PostgreSQL regex pattern for positional initial-expansion matching.
+      # Each part of the input is matched in sequence:
+      #   single char  -> matches any word starting with that letter (e.g. 'j' -> 'j\w*\.?')
+      #   multiple chars -> matches exactly OR as a bare initial (e.g. 'john' -> '(?:john|j\.?)')
+      # Parts are joined by a flexible whitespace/period separator.
+      # Trailing name parts (e.g. middle names absent from input) are allowed via '(\s.*)?$'.
+      def build_first_name_like_pattern(input)
+        parts = input.downcase.gsub('.', ' ').split.reject(&:empty?)
+        return nil if parts.empty?
+
+        regex_parts = parts.map do |part|
+          if part.length == 1
+            "#{::Regexp.escape(part)}\\w*\\.?"
+          else
+            # ('?:' is for non-matching grouping)
+            "(?:#{::Regexp.escape(part)}|#{::Regexp.escape(part[0])}\\.?)"
+          end
+        end
+
+        "^#{regex_parts.join('[\\s.]+')}(\\s.*)?$"
+      end
+
+      def first_name_like_facet
+        return nil if first_name_like.blank?
+        pattern = build_first_name_like_pattern(first_name_like)
+        return nil if pattern.nil?
+
+        ::Person.left_outer_joins(:alternate_values)
+          .where(
+            "people.first_name ~* ? OR (alternate_values.alternate_value_object_attribute = 'first_name' AND alternate_values.value ~* ?)",
+            pattern, pattern
+          )
+          .distinct
+      end
+
+      def last_name_like_facet
+        return nil if last_name_like.blank?
+
+        words = last_name_like.downcase.strip.split(/\s+/).reject(&:empty?)
+        return nil if words.empty?
+
+        # Forward: every input word must appear as a whole word in the stored value.
+        # \m and \M are PostgreSQL word-boundary markers.
+        forward_clauses = words.map { "(people.last_name ~* ? OR (alternate_values.alternate_value_object_attribute = 'last_name' AND alternate_values.value ~* ?))" }
+        forward_values  = words.flat_map { |w| pat = "\\m#{::Regexp.escape(w)}\\M"; [pat, pat] }
+
+        q = ::Person.left_outer_joins(:alternate_values)
+
+        if words.length == 1
+          # Single-word input: forward direction is sufficient.
+          q.where(forward_clauses.join(' AND '), *forward_values).distinct
+        else
+          # Multi-word input: also add backward direction — the stored last_name appears
+          # as a whole word in the input string, e.g. input 'Smith Jones' finds stored 'Smith'.
+          # Skipped for single-word inputs to avoid the per-row regex construction cost.
+          backward_clause = "? ~* ('\\m' || LOWER(people.last_name) || '\\M')"
+
+          q.where(
+            "(#{forward_clauses.join(' AND ')}) OR (#{backward_clause})",
+            *forward_values,
+            last_name_like.downcase
+          ).distinct
         end
       end
 
@@ -412,6 +499,8 @@ module Queries
         [
           except_project_id_facet,
           except_role_facet,
+          first_name_like_facet,
+          last_name_like_facet,
           levenshtein_facet,
           name_part_facet(:first_name),
           name_part_facet(:last_name),
