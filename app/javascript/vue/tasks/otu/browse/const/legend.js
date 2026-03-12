@@ -30,7 +30,7 @@ export const LEGEND = {
     background: 'bg-collection-object'
   },
   [TYPE_MATERIAL]: {
-    label: 'Type material',
+    label: 'Primary type',
     background: 'bg-type-material'
   },
   [FIELD_OCCURRENCE]: {

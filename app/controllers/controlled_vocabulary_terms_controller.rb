@@ -42,7 +42,7 @@ class ControlledVocabularyTermsController < ApplicationController
         }
       else
         format.json {
-          render json: @controlled_vocabulary_term.errors, status: :unprocessable_entity
+          render json: @controlled_vocabulary_term.errors, status: :unprocessable_content
         }
       end
     end
@@ -54,7 +54,7 @@ class ControlledVocabularyTermsController < ApplicationController
       if @controlled_vocabulary_term.update(controlled_vocabulary_term_params)
         format.json { render :show, status: :ok, location: @controlled_vocabulary_term.metamorphosize }
       else
-        format.json { render json: @controlled_vocabulary_term.errors, status: :unprocessable_entity }
+        format.json { render json: @controlled_vocabulary_term.errors, status: :unprocessable_content }
       end
     end
   end
@@ -68,7 +68,7 @@ class ControlledVocabularyTermsController < ApplicationController
         format.json { head :no_content}
       else
         format.html { destroy_redirect @controlled_vocabulary_term, notice: 'OTU was not destroyed, ' + @controlled_vocabulary_term.errors.full_messages.join('; ') }
-        format.json { render json: @controlled_vocabulary_term.errors, status: :unprocessable_entity }
+        format.json { render json: @controlled_vocabulary_term.errors, status: :unprocessable_content }
       end
     end
   end
@@ -80,7 +80,7 @@ class ControlledVocabularyTermsController < ApplicationController
         klass: params[:target])
       render json: {}, status: :ok
     else
-      render json: {}, status: :unprocessable_entity
+      render json: {}, status: :unprocessable_content
     end
   end
 

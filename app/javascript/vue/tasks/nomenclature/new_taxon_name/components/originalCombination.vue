@@ -29,6 +29,7 @@
             v-if="!element.value"
           >
             <autocomplete
+              :ref="(el) => setAutocompleteRef(el, index)"
               url="/taxon_names/autocomplete"
               label="label_html"
               min="2"
@@ -154,7 +155,9 @@ export default {
       expanded: true,
       rankGroup: [],
       copyRankGroup: undefined,
-      newPosition: -1
+      newPosition: -1,
+      pendingFocusIndex: -1,
+      autocompleteRefs: {}
     }
   },
 
@@ -199,6 +202,14 @@ export default {
         id: index
       }))
       this.copyRankGroup = this.rankGroup.splice()
+
+      if (this.pendingFocusIndex >= 0) {
+        const index = this.pendingFocusIndex
+        this.pendingFocusIndex = -1
+        this.$nextTick(() => {
+          this.focusAutocompleteAtIndex(index)
+        })
+      }
     },
 
     addOriginalCombination(elementId, index) {
@@ -225,6 +236,7 @@ export default {
 
     removeCombination(value, index) {
       if (window.confirm('Are you sure you want to remove this combination?')) {
+        this.pendingFocusIndex = index
         this.$store
           .dispatch(ActionNames.RemoveOriginalCombination, value)
           .then((response) => {
@@ -232,6 +244,18 @@ export default {
             this.$emit('delete', response)
           })
       }
+    },
+
+    setAutocompleteRef(el, index) {
+      if (el) {
+        this.autocompleteRefs[index] = el
+      } else {
+        delete this.autocompleteRefs[index]
+      }
+    },
+
+    focusAutocompleteAtIndex(index) {
+      this.autocompleteRefs[index]?.setFocus()
     },
 
     onMove(evt) {

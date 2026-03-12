@@ -1,13 +1,16 @@
 import { ref } from 'vue'
 import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam'
-import { URLParamsToJSON } from '@/helpers'
+import qs from 'qs'
 import { LinkerStorage } from '@/shared/Filter/utils'
 
 export function useQueryParam() {
   const queryParam = ref(null)
   const queryValue = ref(null)
   const parameters = {
-    ...URLParamsToJSON(window.location.href),
+    ...qs.parse(window.location.search, {
+      ignoreQueryPrefix: true,
+      arrayLimit: 2000
+    }),
     ...LinkerStorage.getParameters()
   }
 
@@ -20,6 +23,7 @@ export function useQueryParam() {
   queryValue.value = parameters[queryParam.value]
 
   return {
+    parameters,
     queryParam,
     queryValue
   }

@@ -2,26 +2,26 @@
   <div>
     <div class="flex-col gap-small margin-medium-bottom">
       <BiologicalAssociationObject
-        :item="related"
-        label="Choose related..."
-        v-model:lock="relatedLock"
-        @remove="() => (related = null)"
-      />
-      <BiologicalAssociationObject
         :item="relationship"
         label="Choose relationship..."
         v-model:lock="relationshipLock"
         @remove="() => (relationship = null)"
       />
+      <BiologicalAssociationObject
+        :item="related"
+        label="Choose related..."
+        v-model:lock="relatedLock"
+        @remove="() => (related = null)"
+      />
     </div>
+    <BiologicalAssociationRelationship
+      v-if="!relationship"
+      @select="(item) => (relationship = item)"
+    />
     <BiologicalAssociationRelated
       v-if="!related"
       :target="target"
       @select="(item) => (related = item)"
-    />
-    <BiologicalAssociationRelationship
-      v-if="!relationship"
-      @select="(item) => (relationship = item)"
     />
     <FormCitation
       v-model="citation"

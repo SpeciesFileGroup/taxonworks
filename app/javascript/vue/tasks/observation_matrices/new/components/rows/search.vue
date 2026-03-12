@@ -1,7 +1,7 @@
 <template>
   <div>
     <p>Select</p>
-    <ul class="context-menu no_bullets">
+    <ul class="wrap_options no_bullets">
       <li
         v-for="item in Object.keys(autocompleteType)"
         :key="item"
@@ -38,12 +38,12 @@
 </template>
 <script>
 import Autocomplete from '@/components/ui/Autocomplete.vue'
-
+import { toSnakeCase } from '@/helpers'
 import { GetterNames } from '../../store/getters/getters'
 import { ActionNames } from '../../store/actions/actions'
 import ObservationTypes from '../../const/types.js'
 import OtuPicker from '@/components/otu/otu_picker/otu_picker'
-import { COLLECTION_OBJECT, OTU, EXTRACT, SOUND, FIELD_OCCURRENCE } from '@/constants/index.js'
+import { OBSERVATION_MATRIX_ROW_SINGLE, OTU } from '@/constants/index.js'
 
 export default {
   components: {
@@ -63,13 +63,13 @@ export default {
 
   data() {
     return {
-      autocompleteType: {
-        [OTU]: '/otus/autocomplete',
-        [COLLECTION_OBJECT]: '/collection_objects/autocomplete',
-        [FIELD_OCCURRENCE]: '/field_occurrences/autocomplete',
-        [EXTRACT]: '/extracts/autocomplete',
-        [SOUND]: '/sounds/autocomplete'
-      },
+      autocompleteType: Object.keys(ObservationTypes.Row)
+        .filter((type) => ObservationTypes.Row[type] == OBSERVATION_MATRIX_ROW_SINGLE)
+        // TODO: this breaks if model name isn't pluralized by adding 's'
+        .reduce((acc, val) => {
+          acc[val] = `/${toSnakeCase(val)}s/autocomplete`
+          return acc
+        }, {}),
       types: ObservationTypes.Row,
       type: OTU
     }
@@ -89,3 +89,19 @@ export default {
   }
 }
 </script>
+
+<style lang="css" scoped>
+.wrap_options {
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
+  align-items: center;
+}
+
+.wrap_options li {
+  padding-left: 1em;
+  padding-right: 1em;
+  margin-bottom: 1em;
+	border-right: 1px solid var(--border-color);
+}
+</style>

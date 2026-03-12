@@ -86,6 +86,8 @@ class Serial < ApplicationRecord
   #   Levenshtein calculated related records per supplied column
   def nearest_by_levenshtein(compared_string = nil, column = 'name', limit = 10)
     return Serial.none if compared_string.blank?
+    column = column.to_s
+    raise ArgumentError, "Invalid column name: #{column}" unless Serial.column_names.include?(column)
 
     # Levenshtein in postgres requires all strings be 255 or fewer
     order_str = Serial.send(

@@ -410,9 +410,11 @@ const refresh = (forceUpdate = false) => {
       options.value = Object.keys(lists.value).concat(props.addTabs)
       options.value = OrderSmart(options.value)
 
-      view.value = props.default
-        ? props.default
-        : SelectFirst(lists.value, options.value)
+      if (props.default) {
+        view.value = props.default
+      } else if (!lists.value[view.value]?.length) {
+        view.value = SelectFirst(lists.value, options.value)
+      }
     })
     .catch(() => {
       options.value = []

@@ -33,7 +33,7 @@ describe 'Task - Comprehensive digitization', type: :feature, group: :collection
           fill_in('namespace-autocomplete', with: 'INHS')
 
           # TODO: Improve this. Possibly adding more HTML to easily identify fields.
-          catalog_number = find('#namespace-autocomplete').find(:xpath, '..')
+          catalog_number = find('.vue-autocomplete-list')
           catalog_number.find('li', text: 'INHS').hover.click
           fill_in(id: 'catalog-number-identifier-field', with: '1234')
 

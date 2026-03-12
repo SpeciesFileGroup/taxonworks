@@ -1,36 +1,21 @@
 <template>
-  <div>
+  <FacetContainer>
     <h3>Combinations</h3>
     <label>
       <input
         type="checkbox"
-        v-model="combination">
+        v-model="combination"
+      />
       Includes
     </label>
-  </div>
+  </FacetContainer>
 </template>
 
-<script>
+<script setup>
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
-export default {
-  props: {
-    modelValue: {
-      type: Boolean,
-      default: undefined
-    }
-  },
-
-  emits: ['update:modelValue'],
-
-  computed: {
-    combination: {
-      get () {
-        return this.modelValue
-      },
-      set (value) {
-        this.$emit('update:modelValue', value)
-      }
-    }
-  }
-}
+const combination = defineModel({
+  type: Boolean,
+  default: undefined
+})
 </script>

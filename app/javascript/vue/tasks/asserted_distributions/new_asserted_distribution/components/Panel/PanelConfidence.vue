@@ -1,7 +1,22 @@
 <template>
   <BlockLayout>
     <template #header>
-      <h3>Confidence</h3>
+      <div class="flex-row flex-separate full_width middle">
+        <h3>Confidence</h3>
+        <div v-if="store.autosave">
+          <div class="flex-row gap-small middle">
+            <VIcon
+              name="attention"
+              color="attention"
+              small
+            />
+            <span class="text-warning-color">
+              Autosave is enabled. Complete this section first to add confidence
+              levels
+            </span>
+          </div>
+        </div>
+      </div>
     </template>
     <template #body>
       <div class="horizontal-left-content align-start">
@@ -44,7 +59,7 @@
           <thead>
             <tr>
               <th>Selected</th>
-              <th />
+              <th class="w-2" />
             </tr>
           </thead>
           <tbody>
@@ -55,9 +70,9 @@
               <td v-html="item.label" />
               <td>
                 <VBtn
-                  color="primary"
+                  :color="item.id ? 'destroy' : 'primary'"
                   circle
-                  @click="() => store.confidences.splice(index, 1)"
+                  @click="() => store.removeConfidence(index)"
                 >
                   <VIcon
                     name="trash"

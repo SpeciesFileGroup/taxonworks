@@ -67,9 +67,9 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
 
         specify 'there are types not accepted as object' do
           expect{
-            asserted_distribution.asserted_distribution_object =
-              CollectionObject.new
-          }.to raise_error(ActiveRecord::InverseOfAssociationNotFoundError)
+            FactoryBot.create(:valid_asserted_distribution,
+              asserted_distribution_object: FactoryBot.create(:valid_specimen))
+          }.to raise_error(ActiveRecord::RecordInvalid)
         end
 
         specify 'conveyance on otu is accepted as object' do
@@ -396,6 +396,93 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
       end
     end
 
+    context 'source replacement' do
+      let(:source_one) { FactoryBot.create(:valid_source) }
+      let(:source_two) { FactoryBot.create(:valid_source) }
+      let(:source_three) { FactoryBot.create(:valid_source) }
+
+      specify 'adds new source before deleting selected citations' do
+        ad = AssertedDistribution.create!(
+          asserted_distribution_object: otu,
+          asserted_distribution_shape: geographic_area,
+          citations_attributes: [{ source_id: source_one.id }]
+        )
+
+        r = nil
+        expect {
+          r = AssertedDistribution.batch_update(
+            asserted_distribution: {
+              source_id: source_two.id,
+              remove_source_ids: [source_one.id]
+            },
+            asserted_distribution_query: {
+              asserted_distribution_id: [ad.id]
+            }
+          )
+        }.to change { ad.citations.reload.map(&:source_id) }
+          .from([source_one.id])
+          .to([source_two.id])
+
+        expect(r.total_attempted).to eq(1)
+        expect(r.updated.count).to eq(1)
+        expect(r.not_updated.count).to eq(0)
+      end
+
+      specify 'keeps existing target source while deleting selected citations' do
+        ad = AssertedDistribution.create!(
+          asserted_distribution_object: otu,
+          asserted_distribution_shape: geographic_area,
+          citations_attributes: [
+            { source_id: source_one.id },
+            { source_id: source_two.id }
+          ]
+        )
+
+        r = AssertedDistribution.batch_update(
+          asserted_distribution: {
+            source_id: source_three.id,
+            remove_source_ids: [source_one.id, source_two.id]
+          },
+          asserted_distribution_query: {
+            asserted_distribution_id: [ad.id]
+          }
+        )
+
+        expect(ad.citations.reload.map(&:source_id)).to contain_exactly(source_three.id)
+        expect(r.total_attempted).to eq(1)
+        expect(r.updated.count).to eq(1)
+        expect(r.not_updated.count).to eq(0)
+      end
+
+      specify 'deletes only selected citations' do
+        ad = AssertedDistribution.create!(
+          asserted_distribution_object: otu,
+          asserted_distribution_shape: geographic_area,
+          citations_attributes: [
+            { source_id: source_one.id },
+            { source_id: source_two.id },
+            { source_id: source_three.id }
+          ]
+        )
+
+        r = AssertedDistribution.batch_update(
+          asserted_distribution: {
+            source_id: source_three.id,
+            remove_source_ids: [source_one.id]
+          },
+          asserted_distribution_query: {
+            asserted_distribution_id: [ad.id]
+          }
+        )
+
+        expect(ad.citations.reload.map(&:source_id).sort)
+          .to eq([source_two.id, source_three.id].sort)
+        expect(r.total_attempted).to eq(1)
+        expect(r.updated.count).to eq(1)
+        expect(r.not_updated.count).to eq(0)
+      end
+    end
+
     specify 'duplicate record' do
       ad1 = FactoryBot.create(:valid_asserted_distribution)
       ad2 = FactoryBot.build_stubbed(
@@ -429,7 +516,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
       _ad1 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_shape: ga.parent, is_absent: true)
       ad2 = FactoryBot.build_stubbed(:valid_asserted_distribution, asserted_distribution_object: _ad1.asserted_distribution_object, asserted_distribution_shape: ga)
       ad2.soft_validate(only_methods: :sv_conflicting_geographic_area)
-      expect(ad2.soft_validations.messages_on(:geographic_area_id).count).to eq(1)
+      expect(ad2.soft_validations.messages_on(:asserted_distribution_shape_id).count).to eq(1)
     end
 
     specify 'is_absent - True' do
@@ -437,7 +524,7 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
       _ad1 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_shape: ga)
       ad2 = FactoryBot.build_stubbed(:valid_asserted_distribution, asserted_distribution_object: _ad1.asserted_distribution_object, asserted_distribution_shape: ga, is_absent: true)
       ad2.soft_validate(only_methods: [:sv_conflicting_geographic_area])
-      expect(ad2.soft_validations.messages_on(:geographic_area_id).count).to eq(1)
+      expect(ad2.soft_validations.messages_on(:asserted_distribution_shape_id).count).to eq(1)
     end
   end
 
@@ -595,7 +682,11 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
       # Cause the async delayed job to run immediately here.
       allow_any_instance_of(ActiveSupport::Duration).to receive(:from_now).and_return(Time.now)
 
-      AssertedDistribution.batch_update(params.merge({ async_cutoff: 1 }))
+      AssertedDistribution.batch_update(params.merge({
+        async_cutoff: 1,
+        user_id: Current.user_id,
+        project_id: Current.project_id
+      }))
 
       expect(ad1.reload.asserted_distribution_shape_id).to eq(ga1.id)
 
@@ -610,6 +701,39 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
       expect(r.total_attempted).to eq(2)
       expect(r.updated.count).to eq(2)
       expect(r.not_updated.count).to eq(0)
+    end
+
+    specify 'can set no_dwc_occurrence: true on otu' do
+      ad = AssertedDistribution.create!(asserted_distribution_object: otu,
+        asserted_distribution_shape: geographic_area,
+        source:,
+        no_dwc_occurrence: true
+      )
+
+      expect(ad.no_dwc_occurrence).to be_truthy
+      expect(ad.dwc_occurrence).to be_falsey
+    end
+
+    specify 'default is no_dwc_occurrence: false on otu' do
+      ad = AssertedDistribution.create!(asserted_distribution_object: otu,
+        asserted_distribution_shape: geographic_area,
+        source:
+      )
+
+      expect(ad.no_dwc_occurrence).to be_falsey
+      expect(ad.dwc_occurrence).to be_truthy
+    end
+
+    specify 'no_dwc_occurrence is always true on non-otu' do
+      ba = FactoryBot.create(:valid_biological_association)
+      ad = AssertedDistribution.create!(asserted_distribution_object: ba,
+        asserted_distribution_shape: geographic_area,
+        source:,
+        no_dwc_occurrence: false
+      )
+
+      expect(ad.no_dwc_occurrence).to be_truthy
+      expect(ad.dwc_occurrence).to be_falsey
     end
   end
 

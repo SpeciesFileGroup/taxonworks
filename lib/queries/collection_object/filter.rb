@@ -58,6 +58,7 @@ module Queries
         :taxon_determination_id, # not used?!
         :taxon_determinations,
         :taxon_name_id,
+        :taxon_name_current_determination,
         :type_material,
         :type_specimen_taxon_name_id,
         :validity,
@@ -136,16 +137,23 @@ module Queries
       attr_accessor :deaccessioned
 
       # @return [Boolean, nil]
-      #   nil =  Match against all ancestors, valid or invalid
-      #   true = Match against only valid ancestors
+      #   nil = Match against only valid ancestors (default)
+      #   true = Match against all ancestors, valid or invalid
       #   false = Match against only invalid ancestors
       attr_accessor :validity
 
       # @return [Boolean, nil]
-      #   nil = TaxonDeterminations match regardless of current or historical
-      #   true = TaxonDetermination must be .current
+      #   nil = TaxonDetermination must be .current (default)
+      #   true = TaxonDeterminations match regardless of current or historical
       #   false = TaxonDetermination must be .historical
       attr_accessor :current_determinations
+
+      # @return [Boolean, nil]
+      #   nil = TaxonDetermination must be .current (default)
+      #   true = TaxonDeterminations match regardless of current or historical
+      #   false = TaxonDetermination must be .historical
+      #   Used for taxon_name_id facets
+      attr_accessor :taxon_name_current_determination
 
       # @return [Boolean, nil]
       #  true - A determiner role exists
@@ -349,6 +357,7 @@ module Queries
         @collection_object_type = params[:collection_object_type].presence
         @containerized = boolean_param(params, :containerized)
         @current_determinations = boolean_param(params, :current_determinations)
+        @taxon_name_current_determination = boolean_param(params, :taxon_name_current_determination)
         @current_repository = boolean_param(params, :current_repository)
         @current_repository_id = params[:current_repository_id].presence
         @dates = boolean_param(params, :dates)
@@ -764,10 +773,12 @@ module Queries
           .and(taxon_determination_table[:otu_id].in(otu_id))
           .and(taxon_determination_table[:taxon_determination_object_type].eq('CollectionObject'))
 
-        if current_determinations
-          w = w.and(taxon_determination_table[:position].eq(1))
+        if current_determinations == true
+          # current and historical - no position filter
         elsif current_determinations == false
           w = w.and(taxon_determination_table[:position].gt(1))
+        else # nil = current only (default)
+          w = w.and(taxon_determination_table[:position].eq(1))
         end
 
         ::CollectionObject.where(
@@ -798,21 +809,37 @@ module Queries
           z = h[:ancestor_id].in(taxon_name_id)
 
           if validity == true
-            z = z.and(t[:cached_valid_taxon_name_id].eq(t[:id]))
+            # both valid and invalid - no filter
           elsif validity == false
             z = z.and(t[:cached_valid_taxon_name_id].not_eq(t[:id]))
+          else # nil = valid only (default)
+            z = z.and(t[:cached_valid_taxon_name_id].eq(t[:id]))
           end
 
-          if current_determinations == true
-            z = z.and(taxon_determination_table[:position].eq(1))
-          elsif current_determinations == false
+          if taxon_name_current_determination == true
+            # current and historical - no position filter
+          elsif taxon_name_current_determination == false
             z = z.and(taxon_determination_table[:position].gt(1))
+          else # nil = current only (default)
+            z = z.and(taxon_determination_table[:position].eq(1))
           end
-        else
-          q = ::CollectionObject.joins(taxon_determinations: [:otu])
+        else # exact
+          q = ::CollectionObject.joins(taxon_determinations: { otu: :taxon_name })
             .where(otus: { taxon_name_id: })
 
-          if current_determinations
+          if validity == true
+            # both valid and invalid - no filter
+          elsif validity == false
+            q = q.where('taxon_names.cached_valid_taxon_name_id != taxon_names.id')
+          else # nil = valid only (default)
+            q = q.where('taxon_names.cached_valid_taxon_name_id = taxon_names.id')
+          end
+
+          if taxon_name_current_determination == true
+            # current and historical - no position filter
+          elsif taxon_name_current_determination == false
+            q = q.where.not(taxon_determinations: {position: 1})
+          else # nil = current only (default)
             q = q.where(taxon_determinations: { position: 1 })
           end
 
@@ -921,6 +948,14 @@ module Queries
         ::CollectionObject.from('(' + s + ') as collection_objects').distinct
       end
 
+      def anatomical_part_query_facet
+        return nil if anatomical_part_query.nil?
+
+        ::CollectionObject
+          .joins(:origin_relationships)
+          .where("origin_relationships.new_object_id IN (#{ anatomical_part_query.all.select(:id).to_sql })")
+      end
+
       def dwc_occurrence_query_facet
         return nil if dwc_occurrence_query.nil?
 
@@ -1023,16 +1058,16 @@ module Queries
 
       def merge_clauses
         [
-
           import_dataset_id_facet,
-          observation_query_facet,
           biological_association_id_facet,
+          anatomical_part_query_facet,
           base_collecting_event_query_facet,
           biological_association_query_facet,
           dwc_occurrence_query_facet,
           collecting_event_query_facet,
           extract_query_facet,
           loan_query_facet,
+          observation_query_facet,
           otu_query_facet,
           taxon_name_query_facet,
 

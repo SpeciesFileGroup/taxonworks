@@ -31,14 +31,14 @@ export default ({ commit, dispatch, state }, coId) =>
         }
 
         dispatch(ActionNames.LoadContainer, coObject.global_id)
-          .then(({ body }) => {
+          .then((container) => {
             promises.push(
               catalogNumber.load({
-                objectId: body.id,
+                objectId: container.id,
                 objectType: CONTAINER
               }),
               recordNumber.load({
-                objectId: body.id,
+                objectId: container.id,
                 objectType: CONTAINER
               })
             )

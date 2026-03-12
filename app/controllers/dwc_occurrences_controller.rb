@@ -40,11 +40,11 @@ class DwcOccurrencesController < ApplicationController
     target = params[:target] || 'country'
 
     if !['country', 'stateProvince', 'county'].include?(target) || params[:term].blank?
-      render json: {}, status: :unprocessable_entity and return
+      render json: {}, status: :unprocessable_content and return
     end
 
     names = DwcOccurrence.select(target.to_sym)
-      .where(Arel.sql("\"dwc_occurrences\".\"#{target}\" ILIKE '%#{params[:term]}%'"))
+      .where("dwc_occurrences.\"#{target}\" ILIKE ?", "%#{ActiveRecord::Base.sanitize_sql_like(params[:term])}%")
       .order(target.to_sym)
       .distinct
       .limit(20)
@@ -69,7 +69,7 @@ class DwcOccurrencesController < ApplicationController
         updated_at:  @object.dwc_occurrence&.updated_at
       }
     else
-      render json: {}, status: :unprocessable_entity
+      render json: {}, status: :unprocessable_content
     end
   end
 

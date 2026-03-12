@@ -4,7 +4,7 @@ class LeadsController < ApplicationController
     edit add_children update destroy show
     redirect_option_texts destroy_children insert_couplet delete_children
     duplicate otus destroy_subtree reorder_children insert_key
-    set_observation_matrix
+    set_observation_matrix reset_lead_items depictions
   ]
 
   # GET /leads
@@ -72,7 +72,7 @@ class LeadsController < ApplicationController
         expand_lead
         format.json { render action: :show, status: :created, location: @lead }
       else
-        format.json { render json: @lead.errors, status: :unprocessable_entity}
+        format.json { render json: @lead.errors, status: :unprocessable_content}
       end
     end
   end
@@ -84,7 +84,7 @@ class LeadsController < ApplicationController
       @lead.errors.add(:add_children,
         "request must be for 1 or 2, was '#{num_to_add}'"
       )
-      render json: @lead.errors, status: :unprocessable_entity
+      render json: @lead.errors, status: :unprocessable_content
       return
     end
 
@@ -108,7 +108,7 @@ class LeadsController < ApplicationController
         @lead.parent.apportioned_lead_item_otus :
         { parent: [], children: [] }
     rescue ActiveRecord::RecordInvalid
-      render json: @lead.errors, status: :unprocessable_entity
+      render json: @lead.errors, status: :unprocessable_content
     end
   end
 
@@ -119,7 +119,7 @@ class LeadsController < ApplicationController
       respond_to do |format|
         flash[:error] = 'Delete aborted - you can only delete on root nodes.'
         format.html { redirect_back(fallback_location: (request.referer || root_path)) }
-        format.json { head :no_content, status: :unprocessable_entity }
+        format.json { head :no_content, status: :unprocessable_content }
       end
       return
     end
@@ -135,7 +135,7 @@ class LeadsController < ApplicationController
       respond_to do |format|
         flash[:error] = 'Delete failed!'
         format.html { redirect_back(fallback_location: (request.referer || root_path)) }
-        format.json { render json: @lead.errors, status: :unprocessable_entity }
+        format.json { render json: @lead.errors, status: :unprocessable_content }
       end
     end
   end
@@ -151,7 +151,7 @@ class LeadsController < ApplicationController
       )
     rescue TaxonWorks::Error => e
       parent.errors.add(:error, e)
-      render json: parent.errors, status: :unprocessable_entity
+      render json: parent.errors, status: :unprocessable_content
       return
     end
 
@@ -168,11 +168,11 @@ class LeadsController < ApplicationController
         head :no_content
       else
         @lead.errors.add(:delete, 'failed!')
-        render json: @lead.errors, status: :unprocessable_entity
+        render json: @lead.errors, status: :unprocessable_content
       end
     else
       @lead.errors.add(:destroy, "failed - can't delete the only couplet.")
-      render json: @lead.errors, status: :unprocessable_entity
+      render json: @lead.errors, status: :unprocessable_content
     end
   end
 
@@ -186,7 +186,7 @@ class LeadsController < ApplicationController
       else
         @lead.errors.add(:delete, 'failed!')
         format.json {
-          render json: @lead.errors, status: :unprocessable_entity
+          render json: @lead.errors, status: :unprocessable_content
         }
       end
     end
@@ -214,11 +214,37 @@ class LeadsController < ApplicationController
   # POST /leads/1/insert_key.json?key_to_insert=:id
   def insert_key
     if !@lead.insert_key(params[:key_to_insert])
-      render json: @lead.errors, status: :unprocessable_entity
+      render json: @lead.errors, status: :unprocessable_content
       return
     end
 
     head :no_content
+  end
+
+  # POST /leads/:id/depictions.json
+  def depictions
+    image_ids = params.permit(image_ids: [])[:image_ids] || []
+    created = 0
+
+    render json: { success: true, created: } if image_ids.empty?
+
+    Depiction.transaction do
+      image_ids.each do |image_id|
+        depiction = Depiction.find_or_initialize_by(
+          depiction_object: @lead,
+          image_id: image_id
+        )
+        next unless depiction.new_record?
+
+        unless depiction.save
+          render json: depiction.errors, status: :unprocessable_content
+          raise ActiveRecord::Rollback
+        end
+        created += 1
+      end
+    end
+
+    render json: { success: true, created: created }
   end
 
   # PATCH /leads/1/reorder_children.json
@@ -227,7 +253,7 @@ class LeadsController < ApplicationController
       @lead.reorder_children(reorder_params[:reorder_list])
     rescue TaxonWorks::Error => e
       @lead.errors.add(:reorder_failed, e.to_s)
-      render json: @lead.errors, status: :unprocessable_entity
+      render json: @lead.errors, status: :unprocessable_content
       return
     end
 
@@ -238,6 +264,24 @@ class LeadsController < ApplicationController
   # GET /leads/1/otus.json
   def otus
     @otus = Otu.associated_with_key(@lead)
+  end
+
+  def remaining_otus
+    lead = Lead.find(params[:id])
+
+    @otus = lead.remaining_otus
+
+    render '/leads/otus'
+
+  end
+
+  def eliminated_otus
+    lead = Lead.find(params[:id])
+
+    @otus = lead.eliminated_otus
+
+    render '/leads/otus'
+
   end
 
   def autocomplete
@@ -272,7 +316,9 @@ class LeadsController < ApplicationController
 
   # Creates a new key populated with otus from params[:otu_query].
   def batch_create_lead_items
-    @lead = Lead.create!(params.require(:lead).permit(:text))
+    @lead = Lead.create!(
+      params.require(:lead).permit(:text, :observation_matrix_id)
+    )
     @lead.batch_populate_lead_items(params[:otu_query],
       sessions_current_project_id, sessions_current_user_id
     )
@@ -282,10 +328,16 @@ class LeadsController < ApplicationController
     render json: @lead
   end
 
+  def reset_lead_items
+    @lead.reset_lead_items
+
+    head :no_content
+  end
+
   def set_observation_matrix
     if params[:observation_matrix_id].nil?
       @lead.errors.add(:observation_matrix_id, 'is required.')
-      render json: @lead.errors, status: :unprocessable_entity
+      render json: @lead.errors, status: :unprocessable_content
     end
 
     @lead.update!(observation_matrix_id: params[:observation_matrix_id])

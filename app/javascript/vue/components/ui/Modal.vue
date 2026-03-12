@@ -100,8 +100,14 @@ onMounted(() => {
     atStart: true,
     stopPropagation: true
   })
+
+  document.body.style.setProperty('overflow', 'hidden')
 })
 onUnmounted(() => {
   ModalEventStack.removeListener(listenerId)
+
+  if (ModalEventStack.isEmpty()) {
+    document.body.style.removeProperty('overflow')
+  }
 })
 </script>

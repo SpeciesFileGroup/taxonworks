@@ -46,15 +46,16 @@ class AssertedDistribution < ApplicationRecord
 
   include Shared::Maps
   include Shared::QueryBatchUpdate
-  include Shared::PolymorphicAnnotator
-  polymorphic_annotates('asserted_distribution_shape')
-  polymorphic_annotates('asserted_distribution_object')
 
   originates_from 'Specimen', 'Lot', 'FieldOccurrence'
+
+  belongs_to :asserted_distribution_object, polymorphic: true
+  belongs_to :asserted_distribution_shape, polymorphic: true
 
   # @return [Hash]
   #   of known country/state/county values
   attr_accessor :geographic_names
+  attr_accessor :remove_source_ids, :source_id # used in batch update
 
   delegate :geo_object, to: :asserted_distribution_shape
 
@@ -67,11 +68,15 @@ class AssertedDistribution < ApplicationRecord
   }.freeze
 
   before_validation :unify_is_absent
+  # Used in support of queryBatchUpdate
+  before_validation :apply_source_replacement, if: :source_replacement_requested?
   before_save do
     # TODO: handle non-otu types.
-    self.no_dwc_occurrence = asserted_distribution_object_type != 'Otu'
+    self.no_dwc_occurrence = true if asserted_distribution_object_type != 'Otu'
   end
 
+  validates_presence_of :asserted_distribution_object
+  validates_presence_of :asserted_distribution_shape
   validate :records_include_citation
   validate :object_shape_absence_triple_is_unique
 
@@ -192,6 +197,8 @@ class AssertedDistribution < ApplicationRecord
       object_filter_params: params[:asserted_distribution_query],
       object_params: params[:asserted_distribution],
       preview: params[:preview],
+      user_id: params[:user_id],
+      project_id: params[:project_id]
     )
 
     a = request.filter
@@ -314,6 +321,48 @@ class AssertedDistribution < ApplicationRecord
     ad
   end
 
+  def source_replacement_requested?
+    source_id.present?
+  end
+
+  def apply_source_replacement
+    target_source_id = source_id.presence&.to_i
+    ids_to_remove = Array(remove_source_ids).map(&:to_i).reject(&:zero?)
+
+    ids_to_remove -= [target_source_id] if target_source_id
+
+    if target_source_id &&
+      citations.none? { |citation| citation.source_id == target_source_id && !citation.marked_for_destruction? }
+      citations.build(source_id: target_source_id)
+    end
+
+    return if ids_to_remove.empty?
+
+    citations.each do |citation|
+      next if citation.source_id.nil?
+      next if citation.source_id == target_source_id
+
+      citation.mark_for_destruction if ids_to_remove.include?(citation.source_id)
+    end
+  end
+
+  def self.sources_from_query(filter_query, project_id: nil)
+    return [] if filter_query.blank? || project_id.nil?
+
+    q = ::Queries::Query::Filter.instantiated_base_filter(filter_query)
+    return [] if q.nil?
+
+    scope = q.all.where(project_id:)
+
+    scope
+      .joins(citations: :source)
+      .select('sources.id, sources.cached')
+      .distinct
+      .order('sources.cached')
+      .pluck('sources.id', 'sources.cached')
+      .map { |id, cached| {id:, cached:} }
+  end
+
   def self.asserted_distributions_for_api_index(params, project_id)
     a = ::Queries::AssertedDistribution::Filter.new(params)
       .all
@@ -406,13 +455,13 @@ class AssertedDistribution < ApplicationRecord
         .without_is_absent
         .with_geographic_area_array(areas)
         .where(asserted_distribution_object:)
-      soft_validations.add(:geographic_area_id, "Taxon is reported as present in #{presence.first.asserted_distribution_shape.name}") unless presence.empty?
+      soft_validations.add(:asserted_distribution_shape_id, "Taxon is reported as present in #{presence.first.asserted_distribution_shape.name}") unless presence.empty?
     else
       presence = AssertedDistribution
         .with_is_absent
         .where(asserted_distribution_object:)
         .with_geographic_area_array(areas)
-      soft_validations.add(:geographic_area_id, "Taxon is reported as missing in #{presence.first.asserted_distribution_shape.name}") unless presence.empty?
+      soft_validations.add(:asserted_distribution_shape_id, "Taxon is reported as missing in #{presence.first.asserted_distribution_shape.name}") unless presence.empty?
     end
   end
 

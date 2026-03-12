@@ -45,7 +45,7 @@ class NotesController < ApplicationController
       else
         format.html { redirect_back(fallback_location: (request.referer || root_path),
                                     notice: 'Note was NOT successfully created.') }
-        format.json { render json: @note.errors, status: :unprocessable_entity }
+        format.json { render json: @note.errors, status: :unprocessable_content }
       end
     end
   end
@@ -61,7 +61,7 @@ class NotesController < ApplicationController
       else
         format.html { redirect_back(fallback_location: (request.referer || root_path),
                                     notice:            'Note was NOT successfully updated.') }
-        format.json { render json: @note.errors, status: :unprocessable_entity }
+        format.json { render json: @note.errors, status: :unprocessable_content }
       end
     end
   end

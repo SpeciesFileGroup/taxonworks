@@ -22,7 +22,10 @@ describe 'New taxon name', type: :feature, group: :sources do
           select 'article', from: 'type'
           fill_in 'title', with: 'Qurious'
           fill_in 'serials-autocomplete', with: 'Journal stuff and things'
-          find('li', text: 'Journal stuff and things').hover.click 
+
+          autocomplete_list = find('.vue-autocomplete-list')
+          autocomplete_list.find('li', text: 'Journal stuff and things').hover.click 
+          
           expect(page).to have_text('Journal stuff and things')
           click_button 'Save'
           expect(page).to_not have_text('New record')

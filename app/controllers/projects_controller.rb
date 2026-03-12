@@ -54,7 +54,7 @@ class ProjectsController < ApplicationController
         format.json { render action: 'show', status: :created, location: @project }
       else
         format.html { render action: 'new' }
-        format.json { render json: @project.errors, status: :unprocessable_entity }
+        format.json { render json: @project.errors, status: :unprocessable_content }
       end
     end
   end
@@ -68,7 +68,7 @@ class ProjectsController < ApplicationController
         format.json { render :show, status: :ok, location: @project }
       else
         format.html { render action: 'edit' }
-        format.json { render json: @project.errors, status: :unprocessable_entity }
+        format.json { render json: @project.errors, status: :unprocessable_content }
       end
     end
   end
@@ -150,6 +150,7 @@ class ProjectsController < ApplicationController
       :name,
       :set_new_api_access_token,
       :clear_api_access_token,
+      :data_curation_issue_tracker_url,
       Project.key_value_preferences,
       Project.array_preferences,
       Project.hash_preferences,

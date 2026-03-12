@@ -1,4 +1,5 @@
 import {
+  ANATOMICAL_PART,
   ASSERTED_DISTRIBUTION,
   BIOLOGICAL_ASSOCIATION,
   COLLECTING_EVENT,
@@ -20,6 +21,7 @@ import {
 } from '@/constants/index.js'
 
 export const QUERY_PARAM = {
+  [ANATOMICAL_PART]: 'anatomical_part_query',
   [ASSERTED_DISTRIBUTION]: 'asserted_distribution_query',
   [BIOLOGICAL_ASSOCIATION]: 'biological_association_query',
   [COLLECTING_EVENT]: 'collecting_event_query',

@@ -121,7 +121,6 @@ module Export::Dwca::Eml
   end
 
   def self.validate_fragments(dataset, additional_metadata)
-    # TODO: check that no STUB strings remain
     # Embed the fragments in eml_template so that:
     # * they get namespace definitions
     # * Nokogiri catches syntax errors (DocumentFragment generally just fixes

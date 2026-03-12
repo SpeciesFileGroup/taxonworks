@@ -59,7 +59,7 @@
         </li>
       </ul>
     </div>
-    <ByAttribute
+    <ByAttributeRowFacet
       controller="collecting_events"
       v-model="params"
     />
@@ -69,8 +69,8 @@
 <script setup>
 import { ref, computed, watch, onBeforeMount } from 'vue'
 import { CollectingEvent } from '@/routes/endpoints'
-import SmartSelector from '@/components/ui/SmartSelector'
-import ByAttribute from '../../shared/ByAttribute.vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import ByAttributeRowFacet from '@/components/Filter/Facets/shared/FacetByAttributeRow/ByAttributeRowFacet.vue'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'

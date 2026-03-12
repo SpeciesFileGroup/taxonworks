@@ -124,7 +124,6 @@
             </div>
           </div>
         </template>
-        <hr class="divisor" />
 
         <div class="flex-separate">
           <slot name="infoColumn" />
@@ -324,7 +323,7 @@ watch(isModalVisible, (newVal) => {
   justify-content: center;
   width: 100px;
   height: 100px;
-  border: 1px solid black;
+  border: 1px solid var(--border-color);
   overflow: hidden;
 }
 
@@ -334,7 +333,7 @@ watch(isModalVisible, (newVal) => {
   justify-content: center;
   max-width: 300px;
   height: 300px;
-  border: 1px solid black;
+  border: 1px solid var(--border-color);
 }
 
 .depiction-thumb-container {
@@ -354,6 +353,7 @@ watch(isModalVisible, (newVal) => {
 
   .img-thumb {
     cursor: pointer;
+    background-color: white;
   }
 
   .img-maxsize {
@@ -373,16 +373,9 @@ watch(isModalVisible, (newVal) => {
     display: flex;
     justify-content: center;
     img {
-      border: 1px solid black;
+      background-color: white;
+      border: 1px solid var(--border-color);
     }
-  }
-  hr {
-    height: 1px;
-    color: #f5f5f5;
-    background: #f5f5f5;
-    font-size: 0;
-    margin: 15px;
-    border: 0;
   }
 }
 </style>

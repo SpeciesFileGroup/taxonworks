@@ -35,6 +35,7 @@ class Otu < ApplicationRecord
   include Shared::Confidences
   include Shared::Observations
   include Shared::BiologicalAssociations
+  include Shared::BiologicalAssociationIndexHooks
   include Shared::Conveyances
   include Shared::HasPapertrail
   include Shared::OriginRelationship
@@ -53,9 +54,9 @@ class Otu < ApplicationRecord
 
   include Shared::QueryBatchUpdate
 
-  is_origin_for 'Sequence', 'Extract', 'Sound'
+  is_origin_for 'Sequence', 'Extract', 'Sound', 'AnatomicalPart'
 
-  GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes, :observation_matrices].freeze
+  GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes, :observation_matrices, :origin_relationships].freeze
 
   belongs_to :taxon_name, inverse_of: :otus
 
@@ -108,11 +109,15 @@ class Otu < ApplicationRecord
   has_many :leads, inverse_of: :otu, dependent: :restrict_with_error
   has_many :lead_items, inverse_of: :otu, dependent: :destroy
 
+  has_many :anatomical_parts, foreign_key: :cached_otu_id, inverse_of: :origin_otu, dependent: :restrict_with_error
+
   scope :with_taxon_name_id, -> (taxon_name_id) { where(taxon_name_id:) }
   scope :with_name, -> (name) { where(name:) }
   scope :associated_with_key, -> (root_lead) {
-    joins(:leads)
-      .where(leads: { id: root_lead.self_and_descendants.map(&:id) })
+    lead_ids = root_lead.self_and_descendants.select(:id)
+
+    where(id: joins(:leads).where(leads: { id: lead_ids }).select(:id))
+      .or(where(id: joins(:lead_items).where(lead_items: { lead_id: lead_ids }).select(:id)))
       .distinct
   }
 
@@ -258,6 +263,8 @@ class Otu < ApplicationRecord
       object_filter_params: params[:otu_query],
       object_params: params[:otu],
       preview: params[:preview],
+      user_id: params[:user_id],
+      project_id: params[:project_id]
     )
 
     a = request.filter
@@ -563,6 +570,22 @@ class Otu < ApplicationRecord
 
   def dwc_occurrences
     ::Queries::DwcOccurrence::Filter.new(otu_id: id).all
+  end
+
+  # @return [ActiveRecord::Relation]
+  #   BiologicalAssociationIndex records where this Otu is subject or object
+  def biological_association_indices
+    BiologicalAssociationIndex.where('subject_id = ? AND subject_type = ?', id, self.class.base_class.name)
+      .or(BiologicalAssociationIndex.where('object_id = ? AND object_type = ?', id, self.class.base_class.name))
+  end
+
+  # @return [Boolean]
+  #   true if the OTU has no meaningful related data attached.
+  def unused?
+    # Otus are AutoUUID, so ignore UUID identifiers (but not others a user may
+    # have intentionally added).
+    identifiers.where.not("type LIKE 'Identifier::Global::Uuid%'").none? &&
+      ApplicationEnumeration.no_related_data?(self, ignore: [:identifiers, :uuids])
   end
 
   protected

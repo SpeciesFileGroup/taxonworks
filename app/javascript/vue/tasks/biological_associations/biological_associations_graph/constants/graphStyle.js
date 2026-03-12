@@ -35,3 +35,9 @@ export const nodeOtuStyle = {
   type: 'circle',
   color: '#96a832'
 }
+
+export const nodeAnatomicalPartStyle = {
+  ...DEFAULT_NODE_STYLE,
+  type: 'circle',
+  color: '#ffaa00'
+}

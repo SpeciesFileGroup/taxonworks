@@ -13,7 +13,7 @@
       @get-item="loadOrganization"
     />
     <button
-      v-if="nothing"
+      v-if="showNewButton && nothing"
       type="button"
       @click="isModalVisible = true"
       class="button normal-input button-default"
@@ -181,6 +181,13 @@ import { Organization } from '@/routes/endpoints'
 import { ref, useTemplateRef, watch } from 'vue'
 
 const emit = defineEmits(['select'])
+
+const props = defineProps({
+  showNewButton: {
+    type: Boolean,
+    default: true
+  }
+})
 
 const isModalVisible = ref(false)
 const nothing = ref(false)

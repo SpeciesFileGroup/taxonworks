@@ -1,15 +1,12 @@
 <template>
   <NavBar navbar-class="panel content relative">
-    <div class="flex-separate">
+    <div class="flex-separate gap-small">
       <ul class="no_bullets context-menu">
         <template
           v-for="({ title, isAvailableFor }, index) in SectionComponents"
           :key="title"
         >
-          <li
-            class="navigation-item context-menu-option"
-            v-if="isAvailableFor(taxon)"
-          >
+          <li v-if="isAvailableFor(taxon)">
             <a
               data-turbolinks="false"
               :class="{ active: activePosition == index }"
@@ -44,7 +41,7 @@
         <CreateNewButton />
       </div>
     </div>
-    <autosave
+    <Autosave
       style="bottom: 0px; left: 0px"
       class="position-absolute full_width"
       :disabled="!taxon.id || !isAutosaveActive"
@@ -114,9 +111,6 @@ function getTitle(title) {
   font-weight: 300;
 }
 .unsaved li {
-  a {
-    font-size: 13px;
-  }
   a:first-child {
     padding-left: 0px;
   }

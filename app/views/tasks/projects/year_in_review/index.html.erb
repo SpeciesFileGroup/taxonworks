@@ -1,0 +1,397 @@
+<%= graph_javascript_tag %>
+
+<h1>Year in review</h1>
+
+<%= form_tag(@form_url, method: :get, class: 'margin-medium-bottom') do %>
+  <div class="horizontal-left-content gap-small">
+    <%= tag.label 'Year:', for: :year %>
+    <%= select_tag :year,
+        options_for_select(@available_years, @year),
+        onchange: 'this.form.submit()',
+        class: 'normal-input' %>
+  </div>
+<% end %>
+
+<div id="year-in-review-dashboard"
+     data-year="<%= @year %>"
+     data-url="<%= @data_url %>">
+
+  <div class="panel content margin-medium-bottom">
+    <h2>Loading data for <%= @year %>...</h2>
+    <div class="spinner"></div>
+  </div>
+</div>
+
+
+<div id="year-in-review-graphs" style="display: none;">
+  <div class="gap-medium margin-medium-bottom" style="display: grid; grid-template-columns: 1fr 1fr">
+    <div class="panel content">
+      <div class="horizontal-left-content middle gap-small">
+        <h2>Created and Updated Records</h2>
+        <span class="circle-button btn-download" title="Download PNG" onclick="downloadChart('graph1', 'created_updated_records')"></span>
+      </div>
+      <p>Stacked bar chart showing records created (bottom) and updated delta (top) per table. Sorted by total activity.</p>
+      <div class="chart-container chartjs-container" >
+        <canvas id="graph1"></canvas>
+      </div>
+    </div>
+
+    <div class="panel content">
+      <div class="horizontal-left-content middle gap-small">
+        <h2>Percentage Growth</h2>
+        <span class="circle-button btn-download" title="Download PNG" onclick="downloadChart('graph2', 'percentage_growth')"></span>
+      </div>
+      <p>Percentage of all-time records that were created this year. Sorted descending.</p>
+      <div class="chart-container chartjs-container">
+        <canvas id="graph2"></canvas>
+      </div>
+    </div>
+
+    <div class="panel content">
+      <div class="horizontal-left-content middle gap-small">
+        <h2>Records vs. Contributors</h2>
+        <span class="circle-button btn-download" title="Download PNG" onclick="downloadChart('graph3', 'records_vs_contributors')"></span>
+      </div>
+      <p>Scatter plot comparing normalized record activity (x-axis) to normalized unique contributor count (y-axis). Each point represents a table.</p>
+      <div class="chart-container chartjs-container" style="position: relative; height: 600px; width: 100%;">
+        <canvas id="graph3"></canvas>
+      </div>
+    </div>
+
+    <div class="panel content">
+      <div class="horizontal-left-content middle gap-small">
+        <h2>Average Update Latency</h2>
+        <span class="circle-button btn-download" title="Download PNG" onclick="downloadChart('graph4', 'update_latency')"></span>
+      </div>
+      <p>Normalized average time (in days) between record creation and first update. Sorted descending.</p>
+      <div class="chart-container chartjs-container" >
+        <canvas id="graph4"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel content">
+    <div class="horizontal-left-content middle gap-small">
+      <h2>Summary Table</h2>
+      <span class="circle-button btn-primary btn-clipboard" title="Copy to clipboard" data-clipboard-table-selector="#year-in-review-summary-table"></span>
+    </div>
+    <div id="summary-table-container"></div>
+  </div>
+</div>
+
+<script>
+
+document.addEventListener('turbolinks:load', initYearInReview);
+
+let yearInReviewCharts = {};
+
+function initYearInReview() {
+  const dashboard = document.getElementById('year-in-review-dashboard');
+  if (!dashboard) return;
+
+  const year = dashboard.dataset.year;
+  const url = dashboard.dataset.url + '?year=' + year;
+
+  fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      dashboard.style.display = 'none';
+      document.getElementById('year-in-review-graphs').style.display = 'block';
+      renderGraphs(data);
+      renderSummaryTable(data);
+    })
+    .catch(error => {
+      dashboard.innerHTML = '<div class="panel content"><h2>Error loading data</h2><p>' + error.message + '</p></div>';
+    });
+}
+
+function autoHeightForBarChart(canvasId, labelsCount, barHeight = 32, minHeight = 300) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+
+  const container = canvas.closest('.chartjs-container');
+  if (!container) return;
+
+  const height = Math.max(labelsCount * barHeight, minHeight);
+  container.style.height = height + 'px';
+}
+
+function downloadChart(canvasId, filename) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+
+  const year = document.getElementById('year-in-review-dashboard').dataset.year;
+  const link = document.createElement('a');
+  link.download = filename + '_' + year + '.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
+
+function getChartOptions(customOptions) {
+  const textColor = '#000000'
+
+  const baseOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      title: {
+        color: textColor
+      },
+      legend: {
+        labels: {
+          color: textColor
+        }
+      }
+    },
+    scales: {
+      x: {
+        ticks: { color: textColor },
+        title: { color: textColor }
+      },
+      y: {
+        ticks: { color: textColor },
+        title: { color: textColor }
+      }
+    }
+  };
+
+  return mergeDeep(baseOptions, customOptions);
+}
+
+function mergeDeep(target, source) {
+  const output = Object.assign({}, target);
+  if (isObject(target) && isObject(source)) {
+    Object.keys(source).forEach(key => {
+      if (isObject(source[key])) {
+        if (!(key in target)) {
+          Object.assign(output, { [key]: source[key] });
+        } else {
+          output[key] = mergeDeep(target[key], source[key]);
+        }
+      } else {
+        Object.assign(output, { [key]: source[key] });
+      }
+    });
+  }
+  return output;
+}
+
+function isObject(item) {
+  return (item && typeof item === 'object' && !Array.isArray(item));
+}
+
+function renderGraphs(data) {
+  renderGraph1(data.graph1);
+  renderGraph2(data.graph2);
+  renderGraph3(data.graph3);
+  renderGraph4(data.graph4);
+}
+
+function renderGraph1(graphData) {
+  const ctx = document.getElementById('graph1');
+  if (!ctx) return;
+
+  autoHeightForBarChart('graph1', graphData.labels.length);
+
+  yearInReviewCharts.graph1 = new Chart(ctx, {
+    type: 'bar',
+    data: graphData,
+    options: getChartOptions({
+      indexAxis: 'y',
+      plugins: {
+        title: {
+          display: true,
+          text: 'Created and Updated Records by Table'
+        },
+        legend: {
+          display: true,
+          position: 'top'
+        }
+      },
+      scales: {
+        x: {
+          stacked: true,
+          title: {
+            display: true,
+            text: 'Record Count'
+          }
+        },
+        y: {
+          stacked: true
+        }
+      }
+    })
+  });
+}
+
+function renderGraph2(graphData) {
+  const ctx = document.getElementById('graph2');
+  if (!ctx) return;
+
+  autoHeightForBarChart('graph2', graphData.labels.length)
+
+  yearInReviewCharts.graph2 = new Chart(ctx, {
+    type: 'bar',
+    data: graphData,
+    options: getChartOptions({
+      indexAxis: 'y',
+      plugins: {
+        title: {
+          display: true,
+          text: 'Percentage of All-Time Records Created This Year'
+        },
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        x: {
+          min: 0,
+          max: 100,
+          title: {
+            display: true,
+            text: 'Percentage (%)'
+          }
+        }
+      }
+    })
+  });
+}
+
+function renderGraph3(graphData) {
+  const ctx = document.getElementById('graph3');
+  if (!ctx) return;
+
+  yearInReviewCharts.graph3 = new Chart(ctx, {
+    type: 'scatter',
+    data: graphData,
+    options: getChartOptions({
+      plugins: {
+        title: {
+          display: true,
+          text: 'Normalized Records vs. Unique Contributors'
+        },
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const point = context.raw;
+              return point.label + ' (' + point.x.toFixed(2) + ', ' + point.y.toFixed(2) + ')';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          min: 0,
+          max: 1,
+          title: {
+            display: true,
+            text: 'Normalized Record Activity'
+          }
+        },
+        y: {
+          min: 0,
+          max: 1,
+          title: {
+            display: true,
+            text: 'Normalized Unique Contributors'
+          }
+        }
+      }
+    })
+  });
+}
+
+function renderGraph4(graphData) {
+  const ctx = document.getElementById('graph4');
+  if (!ctx) return;
+
+  autoHeightForBarChart('graph4', graphData.labels.length);
+
+  yearInReviewCharts.graph4 = new Chart(ctx, {
+    type: 'bar',
+    data: graphData,
+    options: getChartOptions({
+      indexAxis: 'y',
+      plugins: {
+        title: {
+          display: true,
+          text: 'Average Days Between Creation and Update (Normalized)'
+        },
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const rawValues = context.dataset.raw_values;
+              if (rawValues && rawValues[context.dataIndex] !== undefined) {
+                return rawValues[context.dataIndex].toFixed(1) + ' days';
+              }
+              return context.formattedValue;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          min: 0,
+          max: 1,
+          title: {
+            display: true,
+            text: 'Normalized Value'
+          }
+        }
+      }
+    })
+  });
+}
+
+function renderSummaryTable(data) {
+  const container = document.getElementById('summary-table-container');
+  if (!container || !data.tables) return;
+
+  let html = '<table id="year-in-review-summary-table" class="tablesorter">';
+  html += '<thead><tr>';
+  html += '<th>Table</th>';
+  html += '<th>Created</th>';
+  html += '<th>Updated (delta)</th>';
+  html += '<th>All Time</th>';
+  html += '<th>% New</th>';
+  html += '<th>Unique Creators</th>';
+  html += '<th>Unique Updaters</th>';
+  html += '<th>Avg Update (days)</th>';
+  html += '</tr></thead>';
+  html += '<tbody>';
+
+  data.tables.forEach(function(t) {
+    html += '<tr>';
+    html += '<td>' + t.display_name + '</td>';
+    html += '<td data-sort-value="' + t.created_count + '">' + t.created_count.toLocaleString() + '</td>';
+    html += '<td data-sort-value="' + t.updated_delta + '">' + t.updated_delta.toLocaleString() + '</td>';
+    html += '<td data-sort-value="' + t.all_time_count + '">' + t.all_time_count.toLocaleString() + '</td>';
+    html += '<td data-sort-value="' + t.percent_new + '">' + t.percent_new.toFixed(1) + '%</td>';
+    html += '<td data-sort-value="' + t.unique_created_by + '">' + t.unique_created_by + '</td>';
+    html += '<td data-sort-value="' + t.unique_updated_by + '">' + t.unique_updated_by + '</td>';
+    html += '<td data-sort-value="' + t.avg_update_delta_days + '">' + (t.avg_update_delta_days > 0 ? t.avg_update_delta_days.toFixed(1) : '-') + '</td>';
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+  container.innerHTML = html;
+
+  // Initialize tablesorter on the new table
+  if (typeof jQuery !== 'undefined' && jQuery.fn.tablesorter) {
+    jQuery('#year-in-review-summary-table').tablesorter({
+      widgets: ['zebra'],
+      textExtraction: function(node) {
+        const sortValue = node.getAttribute('data-sort-value');
+        return sortValue !== null ? sortValue : node.textContent;
+      }
+    });
+  }
+}
+</script>

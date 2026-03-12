@@ -310,8 +310,10 @@ class CollectingEvent < ApplicationRecord
   soft_validate(
     :sv_missing_georeference,
     set: :georeference,
+    fix: :sv_fix_missing_georeference,
     name: 'Missing georeference',
-    description: 'Georeference is missing')
+    description: 'Georeference is missing',
+    flagged: true)
 
   soft_validate(
     :sv_georeference_matches_verbatim,
@@ -717,6 +719,8 @@ class CollectingEvent < ApplicationRecord
   # @return [Scope]
   def nearest_by_levenshtein(compared_string = nil, column = 'verbatim_locality', limit = 10)
     return CollectingEvent.none if compared_string.nil?
+    column = column.to_s
+    raise ArgumentError, "Invalid column name: #{column}" unless CollectingEvent.column_names.include?(column)
     order_str = CollectingEvent.send(:sanitize_sql_for_conditions, ["levenshtein(collecting_events.#{column}, ?)", compared_string])
     CollectingEvent.where('id <> ?', id.to_s).
       order(Arel.sql(order_str)).
@@ -736,29 +740,37 @@ class CollectingEvent < ApplicationRecord
   #     which are country_level, and have GIs containing the (GI and/or EGI) of this CE
   # @todo this needs more work, possibily direct AREL table manipulation.
   def name_hash(types)
-    retval  = {}
-    gi_list = containing_geographic_items
+    # Restrict to GIs of the target GA type first, then do the
+    # expensive spatial containment check against only those candidates.
+    type_scoped_geographic_items = GeographicItem
+      .joins(geographic_areas_geographic_items: {geographic_area: :geographic_area_type})
+      .where(geographic_area_types: {name: types})
 
-    # there are a few ways we can end up with no GIs
-    # unless gi_list.nil? # no references GeographicAreas or Georeferences at all, or
-    unless gi_list.empty? # no available GeographicItems to test
-      # map the resulting GIs to their corresponding GAs
-      # pieces  = GeographicItem.where(id: gi_list.flatten.map(&:id).uniq)
-      # pieces = gi_list
-      ga_list = GeographicArea.joins(:geographic_area_type, :geographic_areas_geographic_items).
-        where(geographic_area_types: {name: types},
-              geographic_areas_geographic_items: {geographic_item_id: gi_list}).distinct
-
-      # WAS: now find all of the GAs which have the same names as the ones we collected.
-
-      # map the names to an array of results
-      ga_list.each { |i|
-        retval[i.name] ||= [] # if we haven't come across this name yet, set it to point to a blank array
-        retval[i.name].push i # we now have at least a blank array, push the result into it
-      }
+    source_geographic_item_ids = if self.georeferences.any?
+      geographic_items.pluck(:id)
+    elsif self.geographic_area
+      self.geographic_area.geographic_items.pluck(:id)
+    else
+      []
     end
-    # end
-    retval
+
+    return {} if source_geographic_item_ids.empty?
+
+    # superset_of_union_of excludes source IDs, but a shape covers itself,
+    # so include source IDs to match GAs whose GI is the source itself.
+    covering_item_ids = type_scoped_geographic_items
+      .superset_of_union_of(*source_geographic_item_ids)
+      .distinct
+      .pluck(:id)
+
+    all_item_ids = (covering_item_ids + source_geographic_item_ids).uniq
+
+    GeographicArea.joins(:geographic_area_type, :geographic_areas_geographic_items)
+      .where(
+        geographic_area_types: {name: types},
+        geographic_areas_geographic_items: {geographic_item_id: all_item_ids})
+      .distinct
+      .group_by(&:name)
   end
 
   def has_cached_geographic_names?
@@ -787,7 +799,7 @@ class CollectingEvent < ApplicationRecord
 
   # @return Hash
   #  a geographic_name_classification.
-  # This prioritizes Georeferences over GeographicAreas!
+  # This (normally) prioritizes Georeferences over GeographicArea!
   def get_geographic_name_classification
     case geographic_name_classification_method
     when :preferred_georeference
@@ -825,32 +837,6 @@ class CollectingEvent < ApplicationRecord
   end
 
   # @return [Array of GeographicItems containing this target]
-  #   GeographicItems are those that contain either the georeference or, if there are none,
-  #   the geographic area
-  def containing_geographic_items
-    gi_list = []
-    if self.georeferences.any?
-      # gather all the GIs which contain this GI or EGI
-      #
-      #  Struck EGI, EGI must contain GI, therefor anything that contains EGI contains GI, threfor containing GI will always be the bigger set
-      #   !! and there was no tests broken
-      # GeographicItem.st_covers('any_poly', self.geographic_items.to_a).pluck(:id).uniq
-      gi_list = GeographicItem
-       .superset_of_union_of(*geographic_items.pluck(:id))
-       .pluck(:id)
-       .uniq
-
-    else
-      # use geographic_area only if there are no GIs or EGIs
-      unless self.geographic_area.nil?
-        # unless self.geographic_area.geographic_items.empty?
-        # we need to use the geographic_area directly
-        gi_list = GeographicItem.st_covers('any_poly', self.geographic_area.geographic_items).pluck(:id).uniq
-        # end
-      end
-    end
-    gi_list
-  end
 
   # @return [Hash]
   def countries_hash
@@ -1038,7 +1024,10 @@ class CollectingEvent < ApplicationRecord
         end
 
         if incremented_identifier_id
-          add_incremented_identifier(to_object: a, incremented_identifier_id:)
+          if !add_incremented_identifier(to_object: a,
+                                         incremented_identifier_id:)
+            raise TaxonWorks::Error, 'Clone failed: Unable to increment identifier, maybe no part of it is numeric?'
+          end
         end
 
         if annotations.present? # TODO: boolean param this
@@ -1047,11 +1036,12 @@ class CollectingEvent < ApplicationRecord
 
         a.save! # TODO: confirm behaviour is OK in case of comprehensive.
 
-      rescue ActiveRecord::RecordInvalid
-        raise ActiveRecord::Rollback
+      rescue ActiveRecord::RecordInvalid => e
+        raise TaxonWorks::Error, "Clone failed: '#{e.message}'", cause: e
       end
-      a
-    end
+    end # end transaction
+
+    a
   end
 
   # @return [String, nil]
@@ -1189,7 +1179,68 @@ class CollectingEvent < ApplicationRecord
   end
 
   def sv_missing_georeference
-    soft_validations.add(:base, 'Georeference is missing') unless georeferences.any?
+    if !georeferences.any?
+      text = 'Georeference is missing'
+      if !verbatim_longitude.blank? && !verbatim_latitude.blank?
+        text = 'Georeference is missing. Verbatim latitude and longitude are available.'
+      end
+      unless geographic_area_id.nil?
+        if !verbatim_label.blank? && !Utilities::Geo.coordinates_regex_from_verbatim_label(verbatim_label.to_s).blank?
+          text = 'Georeference is missing. Label has verbatim latitude and longitude.'
+        elsif !verbatim_locality.blank?
+          with_geo = ::Georeference
+                       .joins(:collecting_event)
+                       .where(collecting_events: { project_id: project_id, verbatim_locality: verbatim_locality, geographic_area_id: geographic_area_id })
+                       .select('georeferences.*, COUNT(georeferences.geographic_item_id) AS geo_count')
+                       .group('georeferences.id').order('geo_count DESC').first
+          if with_geo
+            text = 'Georeference is missing. Georeference is available for a similar collecting event.'
+          else
+            with_geo = ::Georeference
+                         .joins(:collecting_event)
+                         .where(collecting_events: { verbatim_locality: verbatim_locality, geographic_area_id: geographic_area_id })
+                         .select('georeferences.*, COUNT(georeferences.geographic_item_id) AS geo_count')
+                         .group('georeferences.id').order('geo_count DESC').first
+            if with_geo
+              text = 'Georeference is missing. Georeference is available for a similar collecting event in different project.'
+            end
+          end
+        end
+      end
+      soft_validations.add(:base, text)
+    end
+  end
+
+  def sv_fix_missing_georeference
+    if !georeferences.any? && !geographic_area_id.nil? &&
+       verbatim_longitude.blank? && verbatim_latitude.blank? && !verbatim_locality.blank? &&
+       Utilities::Geo.coordinates_regex_from_verbatim_label(verbatim_label.to_s).blank?
+      with_geo = ::Georeference
+                   .joins(:collecting_event)
+                   .where(collecting_events: { project_id: project_id, verbatim_locality: verbatim_locality, geographic_area_id: geographic_area_id })
+                   .select('georeferences.*, COUNT(georeferences.geographic_item_id) AS geo_count')
+                   .group('georeferences.id').order('geo_count DESC').first
+      unless with_geo
+        with_geo = ::Georeference
+                     .joins(:collecting_event)
+                     .where(collecting_events: { verbatim_locality: verbatim_locality, geographic_area_id: geographic_area_id })
+                     .select('georeferences.*, COUNT(georeferences.geographic_item_id) AS geo_count')
+                     .group('georeferences.id').order('geo_count DESC').first
+      end
+      if with_geo
+        begin
+          ::Georeference.transaction do
+            gr = georeferences.create(geographic_item_id: with_geo.geographic_item_id,
+                                      collecting_event_id: id,
+                                      type: "Georeference::Point")
+            gr.data_attributes.create(type: 'ImportAttribute', import_predicate: 'georeference', value: 'Copied from another collecting event.')
+          end
+        rescue ActiveRecord::RecordInvalid
+          return false
+        end
+        return true
+      end
+    end
   end
 
   def sv_georeference_matches_verbatim

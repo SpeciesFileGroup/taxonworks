@@ -14,6 +14,7 @@
       :autocomplete-params="{ 'type[]': KEYWORD }"
       get-url="/controlled_vocabulary_terms/"
       model="keywords"
+      :filter-ids="list.map((item) => item.keyword_id)"
       buttons
       inline
       klass="Tag"

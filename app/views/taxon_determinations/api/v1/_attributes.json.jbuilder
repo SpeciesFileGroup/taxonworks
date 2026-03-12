@@ -36,3 +36,9 @@ if taxon_determination.roles.any?
     end
   end
 end
+
+if extend_response_with('notes')
+  json.notes taxon_determination.notes.each do |n|
+    json.text n.text
+  end
+end

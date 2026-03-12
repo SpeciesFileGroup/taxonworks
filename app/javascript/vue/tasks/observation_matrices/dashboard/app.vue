@@ -33,7 +33,7 @@
       :json-url="jsonUrl"
     />
     <div class="horizontal-left-content align-start">
-      <filter-component
+      <VFilter
         class="separate-right"
         v-show="activeFilter"
         :field-set="['observations']"
@@ -64,7 +64,7 @@
 </template>
 
 <script>
-import FilterComponent from './components/filter.vue'
+import VFilter from './components/filter.vue'
 import RankTable from './components/table'
 import JsonBar from './components/headerBar'
 
@@ -74,8 +74,9 @@ import { MutationNames } from './store/mutations/mutations'
 import { RouteNames } from '@/routes/routes'
 
 export default {
+  name: 'ObservationMatricesDashboard',
   components: {
-    FilterComponent,
+    VFilter,
     RankTable,
     JsonBar
   },
@@ -122,6 +123,7 @@ export default {
       this.rankTable = {}
       this.jsonUrl = undefined
       history.pushState(null, null, '/tasks/observation_matrices/dashboard')
+      this.$store.commit(MutationNames.SetTaxon, undefined)
     },
 
     loadRankTable(params) {

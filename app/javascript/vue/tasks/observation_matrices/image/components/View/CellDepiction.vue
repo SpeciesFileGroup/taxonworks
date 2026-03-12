@@ -4,7 +4,7 @@
       v-for="depiction in depictions"
       :key="depiction.id"
     >
-      <tippy
+      <Tippy
         animation="scale"
         placement="bottom"
         size="small"
@@ -14,11 +14,13 @@
         :trigger="!!depiction.source_cached ? 'mouseenter focus' : 'manual'"
         :content="depiction.source_cached"
       >
-        <image-viewer :depiction="depiction">
-          <img
-            class="img-thumb"
-            :src="depiction.image.alternatives.medium.image_file_url"
-          />
+        <ImageViewer :depiction="depiction">
+          <div class="matrix-thumb-image">
+            <img
+              class="img-thumb"
+              :src="depiction.image.alternatives.thumb.image_file_url"
+            />
+          </div>
           <template #infoColumn>
             <div class="panel content full_width margin-small-right">
               <h3>Image matrix</h3>
@@ -36,8 +38,8 @@
               </ul>
             </div>
           </template>
-        </image-viewer>
-      </tippy>
+        </ImageViewer>
+      </Tippy>
     </div>
   </div>
 </template>
@@ -74,9 +76,10 @@ export default {
 </script>
 
 <style scoped>
-@media screen and (max-width: 1200px) {
-  .depiction-thumb-container .img-thumb {
-    width: 200px;
-  }
+.img-thumb {
+  object-fit: cover;
+  width: auto;
+  height: 100%;
+  background-color: white;
 }
 </style>

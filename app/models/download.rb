@@ -45,8 +45,9 @@ class Download < ApplicationRecord
   include Housekeeping
   include Shared::IsData
 
+  scope :unexpired, -> { where(expires: Time.now..) }
   # TODO: consider removing
-  default_scope { where('expires >= ?', Time.now) }
+  default_scope { unexpired }
 
   after_save :save_file
   after_destroy :delete_file

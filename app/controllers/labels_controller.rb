@@ -49,7 +49,7 @@ class LabelsController < ApplicationController
         format.json { render :show, status: :created, location: @label.metamorphosize }
       else
         format.html { render :new }
-        format.json { render json: @label.errors, status: :unprocessable_entity }
+        format.json { render json: @label.errors, status: :unprocessable_content }
       end
     end
   end
@@ -63,7 +63,7 @@ class LabelsController < ApplicationController
         format.json { render :show, status: :ok, location: @label.metamorphosize }
       else
         format.html { render :edit }
-        format.json { render json: @label.errors, status: :unprocessable_entity }
+        format.json { render json: @label.errors, status: :unprocessable_content }
       end
     end
   end
@@ -76,6 +76,22 @@ class LabelsController < ApplicationController
       format.html { redirect_to labels_url, notice: 'Label was successfully destroyed.' }
       format.json { head :no_content }
     end
+  end
+
+  def batch_create
+    begin
+      r = Label.batch_create(
+        params[:collecting_event_query],
+        params[:label_attribute],
+        params[:total],
+        params[:preview]
+      )
+    rescue TaxonWorks::Error => e
+      render json: { errors: e.message },  status: :unprocessable_content
+      return
+    end
+
+    render json: r.to_json, status: :ok
   end
 
   private

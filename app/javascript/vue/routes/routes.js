@@ -1,4 +1,5 @@
 import {
+  ANATOMICAL_PART,
   ASSERTED_DISTRIBUTION,
   BIOLOGICAL_ASSOCIATION,
   COLLECTING_EVENT,
@@ -21,18 +22,23 @@ import {
 
 const RouteNames = {
   BiologicalRelationshipComposer: '/tasks/biological_relationships/composer',
+  EditLoan: '/tasks/loans/edit_loan',
   BrowseAssertedDistribution: '/tasks/otus/browse_asserted_distributions',
   BrowseCollectionObject: '/tasks/collection_objects/browse',
   BrowseCollectingEvent: '/tasks/collecting_events/browse',
   BrowseFieldOccurrence: '/tasks/field_occurrences/browse',
+  BrowseImage: '/tasks/images/browse',
+  BrowseNews: '/tasks/news/browse',
   BrowseNomenclature: '/tasks/nomenclature/browse',
   BrowseOtu: '/tasks/otus/browse',
   BrowseSound: '/tasks/sounds/browse',
   ContentEditor: '/tasks/content/editor',
+  DichotomousKey: '/tasks/leads/dichotomous_key',
   DigitizeTask: '/tasks/accessions/comprehensive',
   DwcDashboard: '/tasks/dwc/dashboard',
   DwcImport: '/tasks/dwca_import/index',
   FieldSynchronize: '/tasks/data_attributes/field_synchronize',
+  FilterAnatomicalPart: '/tasks/anatomical_parts/filter',
   FilterAssertedDistribition: '/tasks/asserted_distributions/filter',
   FilterBiologicalAssociations: '/tasks/biological_associations/filter',
   FilterCollectingEvents: '/tasks/collecting_events/filter',
@@ -61,7 +67,12 @@ const RouteNames = {
     '/tasks/controlled_vocabularies/biocuration/build_collection',
   ManageControlledVocabularyTask: '/tasks/controlled_vocabularies/manage',
   MatchCollectionObject: '/tasks/collection_objects/match',
+  MatchOtuByTaxonName: '/tasks/otus/match_by_taxon_name',
   MatrixRowCoder: '/tasks/observation_matrices/row_coder/index',
+  NewAssertedDistribution:
+    '/tasks/asserted_distributions/new_asserted_distribution',
+  NewBiologicalAssociations:
+    '/tasks/biological_associations/new_biological_association',
   NewBiologicalAssociationsGraph:
     '/tasks/biological_associations/biological_associations_graph',
   NewCollectingEvent: '/tasks/collecting_events/new_collecting_event',
@@ -73,6 +84,7 @@ const RouteNames = {
   NewGazetteer: '/tasks/gazetteers/new_gazetteer',
   NewLead: '/tasks/leads/new_lead',
   NewNamespace: '/tasks/namespaces/new_namespace',
+  NewNews: '/tasks/news/new',
   NewObservationMatrix: '/tasks/observation_matrices/new_matrix',
   NewSource: '/tasks/sources/new_source',
   NewTaxonName: '/tasks/nomenclature/new_taxon_name',
@@ -86,12 +98,14 @@ const RouteNames = {
   PrintLabel: '/tasks/labels/print_labels',
   ProjectVocabulary: '/tasks/metadata/vocabulary/project_vocabulary',
   ShowLead: '/tasks/leads/show',
+  SourceHub: '/tasks/sources/hub',
   TypeMaterial: '/tasks/type_material/edit_type_material',
   UnifyObjects: '/tasks/unify/objects',
   UnifyPeople: '/tasks/unify/people'
 }
 
 const FILTER_ROUTES = {
+  [ANATOMICAL_PART]: RouteNames.FilterAnatomicalPart,
   [ASSERTED_DISTRIBUTION]: RouteNames.FilterAssertedDistribition,
   [BIOLOGICAL_ASSOCIATION]: RouteNames.FilterBiologicalAssociations,
   [COLLECTING_EVENT]: RouteNames.FilterCollectingEvents,

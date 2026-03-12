@@ -7,20 +7,6 @@
     />
     <div class="flex-separate margin-small-bottom">
       <div class="horizontal-left-content">
-        <button
-          class="button normal-input button-default margin-small-right"
-          type="button"
-          @click="selectAll"
-        >
-          Select all
-        </button>
-        <button
-          class="button normal-input button-default margin-small-right"
-          type="button"
-          @click="unselect"
-        >
-          Unselect all
-        </button>
         <add-to-matrix
           class="margin-small-right"
           :otu-ids="selectedIds"
@@ -37,15 +23,6 @@
         <button-image-matrix :otu-ids="selectedIds" />
       </div>
       <ul class="no_bullets context-menu">
-        <li>
-          <label class="middle">
-            <input
-              v-model="withOtus"
-              type="checkbox"
-            />
-            Show taxon names with OTUs only
-          </label>
-        </li>
         <li class="horizontal-left-content">
           <div class="header-box middle separate-right">
             <span v-if="taxon">Scoped: {{ taxon.name }}</span>
@@ -56,7 +33,7 @@
               class="normal-input"
             >
               <option
-                v-for="(field, key) in fieldset"
+                v-for="(_, key) in fieldset"
                 :key="key"
                 :value="key"
               >
@@ -68,27 +45,35 @@
       </ul>
     </div>
     <table
-      class="full_width"
+      class="table-striped full_width"
       v-if="tableRanks"
     >
       <thead>
         <tr>
-          <th>Selected</th>
+          <th class="w-2">
+            <input
+              type="checkbox"
+              v-model="toggleSelection"
+            />
+          </th>
           <th>OTU name</th>
           <template
             v-for="header in fieldset[selectedFieldset]"
             :key="header"
           >
-            <th @click="sortBy(header)">
+            <th
+              v-if="list.column_headers.includes(header)"
+              @click="sortBy(header)"
+            >
               <span v-html="header.replace('_', '<br>')" />
             </th>
           </template>
-          <th>Code</th>
+          <th class="w-24">Code</th>
         </tr>
       </thead>
       <tbody>
         <template
-          v-for="(row, index) in renderList.data"
+          v-for="(row, index) in list.data"
           :key="row.taxon_name_id"
         >
           <tr
@@ -108,7 +93,7 @@
               v-for="header in fieldset[selectedFieldset]"
               :key="header"
             >
-              <td>
+              <td v-if="list.column_headers.includes(header)">
                 {{ row[header] }}
               </td>
             </template>
@@ -166,12 +151,8 @@ export default {
       return this.$store.getters[GetterNames.GetTaxon]
     },
 
-    renderList() {
-      const data = (
-        this.withOtus
-          ? this.tableRanks.data.filter((item) => item[4])
-          : this.tableRanks.data
-      ).map((row) =>
+    list() {
+      const data = this.tableRanks.data?.map((row) =>
         Object.fromEntries(
           row.map((value, index) => [
             this.tableRanks.column_headers[index],
@@ -181,8 +162,24 @@ export default {
       )
 
       return {
-        column_headers: this.tableRanks.column_headers,
+        column_headers: this.tableRanks.column_headers || [],
         data
+      }
+    },
+
+    toggleSelection: {
+      get() {
+        return (
+          this.selectedIds.length ===
+          this.list.data?.filter((r) => r.otu_id).length
+        )
+      },
+      set(value) {
+        if (value) {
+          this.selectAll()
+        } else {
+          this.unselect()
+        }
       }
     }
   },
@@ -204,7 +201,6 @@ export default {
       selectedFieldset: 'observations',
       ascending: false,
       sorting: false,
-      withOtus: false,
       selectedIds: []
     }
   },
@@ -282,7 +278,7 @@ export default {
     },
 
     selectAll() {
-      this.selectedIds = this.renderList.data
+      this.selectedIds = this.list.data
         .filter((column) => column.otu_id)
         .map((column) => column.otu_id)
     },

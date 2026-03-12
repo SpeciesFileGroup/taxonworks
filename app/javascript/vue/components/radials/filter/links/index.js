@@ -1,3 +1,4 @@
+export * from './AnatomicalPart'
 export * from './AssertedDistribution'
 export * from './BiologicalAssociation'
 export * from './CollectingEvent'

@@ -84,6 +84,10 @@ import { RouteNames } from '@/routes/routes'
 
 const TABS = [AssignComponent, ReviewComponent]
 
+defineOptions({
+  name: 'FreeformDigitizeApp'
+})
+
 const store = useStore()
 const imageStore = useImageStore()
 

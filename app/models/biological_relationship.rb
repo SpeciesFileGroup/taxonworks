@@ -16,6 +16,10 @@
 #   @return [Boolean]
 #     whether the relationship is reflexive, i.e. if A is_a B and is_a is_reflexive then B is_a A
 #
+# @!attribute definition
+#   @return [String]
+#     Purl url or textual description of the meaning of the relationship
+#
 # @!attribute project_id
 #   @return [Integer]
 #   the project ID
@@ -28,6 +32,7 @@ class BiologicalRelationship < ApplicationRecord
   include Shared::DataAttributes
   include Shared::Identifiers
   include Shared::IsData
+  include Shared::BiologicalAssociationIndexHooks
 
   validates_presence_of :name
   has_many :biological_relationship_types, inverse_of: :biological_relationship
@@ -40,6 +45,7 @@ class BiologicalRelationship < ApplicationRecord
   has_many :object_biological_properties, through: :object_biological_relationship_types, source: :biological_property
 
   has_many :biological_associations, inverse_of: :biological_relationship
+  has_many :biological_association_indices, inverse_of: :biological_relationship
 
   accepts_nested_attributes_for :biological_relationship_types, allow_destroy: true
 
@@ -47,7 +53,7 @@ class BiologicalRelationship < ApplicationRecord
   #    the max 10 most recently used biological relationships
   def self.used_recently(user_id, project_id)
     t = BiologicalAssociation.arel_table
-    k = BiologicalRelationship.arel_table 
+    k = BiologicalRelationship.arel_table
 
     # i is a select manager
     i = t.project(t['biological_relationship_id'], t['created_at']).from(t)
@@ -84,5 +90,11 @@ class BiologicalRelationship < ApplicationRecord
     end
 
     h
+  end
+
+  # @return [ActiveRecord::Relation]
+  #   BiologicalAssociationIndex records that reference this relationship
+  def biological_association_indices
+    BiologicalAssociationIndex.where(biological_relationship_id: id)
   end
 end

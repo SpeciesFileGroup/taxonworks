@@ -10,7 +10,7 @@ get 'soft_validations/validate' => 'soft_validations#validate', defaults: {forma
 post 'soft_validations/fix' => 'soft_validations#fix', defaults: {format: :json}
 
 # Note singular 'resource'
-resource :hub, controller: 'hub', only: [:index] do
+resource :hub, controller: 'hub', only: [] do # "only: [:index]" no longer valid, but this way still doesn't define routes other than the ones in the block below
   get '/', action: :index
   get 'order_tabs' # should be POST
   post 'update_tab_order'
@@ -40,6 +40,10 @@ end
 scope :graph, controller: :graph do
   get ':global_id/metadata', action: :metadata, defaults: {format: :json}
   get ':global_id/object', action: :object, as: :object_graph, defaults: {format: :json}
+end
+
+namespace :news do
+  resources :administration, only: [:index, :show], defaults: {format: :json}
 end
 
 resources :projects do

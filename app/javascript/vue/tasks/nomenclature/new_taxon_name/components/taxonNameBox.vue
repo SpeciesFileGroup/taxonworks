@@ -1,5 +1,11 @@
 <template>
   <div id="taxonNameBox">
+    <VSpinner
+      v-if="isNavigating"
+      full-screen
+      legend="Redirecting..."
+      :logo-size="{ width: '100px', height: '100px' }"
+    />
     <modal
       v-if="isModalVisible"
       @close="() => (isModalVisible = false)"
@@ -27,7 +33,7 @@
       <div class="content">
         <div
           v-if="taxon.id"
-          class="flex-separate middle"
+          class="flex-separate middle gap-small"
         >
           <a
             :href="`/tasks/nomenclature/browse?taxon_name_id=${taxon.id}`"
@@ -40,11 +46,17 @@
               <OtuRadial
                 :object-id="taxon.id"
                 :redirect="false"
+                :klass="otu ? OTU : TAXON_NAME"
+                :otu="otu"
+                @create:otu="(e) => (otu = e)"
               />
               <OtuRadial
                 ref="otuRadialRef"
                 :object-id="taxon.id"
+                :otu="otu"
+                :klass="otu ? OTU : TAXON_NAME"
                 :taxon-name="taxon.object_tag"
+                @create:otu="(e) => (otu = e)"
               />
               <RadialObject :global-id="taxon.global_id" />
             </div>
@@ -90,14 +102,19 @@ import Modal from '@/components/ui/Modal.vue'
 import platformKey from '@/helpers/getPlatformKey'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import { useHotkey } from '@/composables'
 import { TaxonName } from '@/routes/endpoints'
 import { GetterNames } from '../store/getters/getters'
 import { computed, ref, onBeforeMount } from 'vue'
 import { useStore } from 'vuex'
+import { RouteNames } from '@/routes/routes'
+import { OTU, TAXON_NAME } from '@/constants'
 
 const isModalVisible = ref(false)
+const isNavigating = ref(false)
 const otuRadialRef = ref(null)
+const otu = ref(null)
 const store = useStore()
 const shortcuts = ref([
   {
@@ -140,8 +157,17 @@ onBeforeMount(() => {
 
 function deleteTaxon() {
   TaxonName.destroy(taxon.value.id)
-    .then(() => {
-      reloadPage()
+    .then(({ body }) => {
+      let message
+      isNavigating.value = true
+      if (body.parent_id) {
+        window.location.href = `${RouteNames.BrowseNomenclature}?taxon_name_id=${body.parent_id}`
+        message = 'Taxon name was successfully destroyed, browsing to parent.'
+      } else {
+        reloadPage()
+        message = 'Taxon name was successfully destroyed.'
+      }
+      TW.workbench.alert.create(message, 'notice')
     })
     .catch(() => {})
 }

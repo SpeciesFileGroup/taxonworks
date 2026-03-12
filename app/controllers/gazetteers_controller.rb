@@ -60,7 +60,7 @@ class GazetteersController < ApplicationController
       shape_params['shapes'], params.require('geometry_operation_is_union')
     )
     if @gazetteer.errors.include?(:base)
-      render json: @gazetteer.errors, status: :unprocessable_entity
+      render json: @gazetteer.errors, status: :unprocessable_content
       return
     end
 
@@ -70,7 +70,7 @@ class GazetteersController < ApplicationController
 
       render :show, status: :created, location: @gazetteer
     rescue ActiveRecord::RecordInvalid => e
-      render json: { errors: e.message }, status: :unprocessable_entity
+      render json: { errors: e.message }, status: :unprocessable_content
     end
   end
 
@@ -81,7 +81,7 @@ class GazetteersController < ApplicationController
       shape_params['shapes'], params.require('geometry_operation_is_union')
     )
     if @gazetteer.errors.include?(:base)
-      render json: @gazetteer.errors, status: :unprocessable_entity
+      render json: @gazetteer.errors, status: :unprocessable_content
       return
     end
 
@@ -89,7 +89,7 @@ class GazetteersController < ApplicationController
       @gazetteer.update!(gazetteer_params)
       render :show, status: :created, location: @gazetteer
     rescue ActiveRecord::RecordInvalid => e
-      render json: { errors: e.message }, status: :unprocessable_entity
+      render json: { errors: e.message }, status: :unprocessable_content
     end
   end
 
@@ -141,7 +141,7 @@ class GazetteersController < ApplicationController
         sessions_current_project_id, sessions_current_user_id
       )
     rescue TaxonWorks::Error => e
-      render json: { errors: e.message }, status: :unprocessable_entity
+      render json: { errors: e.message }, status: :unprocessable_content
       return
     end
 
@@ -156,7 +156,7 @@ class GazetteersController < ApplicationController
         shape_params['shapes'], params.require('geometry_operation_is_union')
       )
     rescue TaxonWorks::Error => e
-      render json: { base: [e.message] }, status: :unprocessable_entity
+      render json: { base: [e.message] }, status: :unprocessable_content
       return
     end
 
@@ -172,7 +172,7 @@ class GazetteersController < ApplicationController
           params[:shp_doc_id], params[:dbf_doc_id], sessions_current_project_id
         )
     rescue TaxonWorks::Error => e
-      render json: { errors: e }, status: :unprocessable_entity
+      render json: { errors: e }, status: :unprocessable_content
       return
     end
   end
@@ -184,7 +184,7 @@ class GazetteersController < ApplicationController
         shapefile_params, sessions_current_project_id
       )
     rescue TaxonWorks::Error => e
-      render json: { errors: e }, status: :unprocessable_entity
+      render json: { errors: e }, status: :unprocessable_content
       return
     end
 

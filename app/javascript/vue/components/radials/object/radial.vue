@@ -38,7 +38,7 @@
                 v-if="currentAnnotator"
               >
                 <h2 class="capitalize view-title">
-                  {{ currentAnnotator.replace('_', ' ') }}
+                  {{ currentAnnotator.replaceAll('_', ' ') }}
                 </h2>
                 <component
                   class="radial-annotator-container"
@@ -91,7 +91,7 @@ import VIcon from '@/components/ui/VIcon/index.vue'
 import makeRequest from '@/helpers/ajaxCall'
 import Icons from './images/icons.js'
 import { useShortcuts } from '@/components/radials/composables'
-import { SLICE } from './constants/slices.js'
+import { SLICE, SLICES_BY_OBJECT_TYPE } from './constants/slices.js'
 import { Tag } from '@/routes/endpoints'
 import { ref, computed, onMounted } from 'vue'
 
@@ -159,12 +159,29 @@ const { removeListener, setShortcutsEvent } = useShortcuts({
   currentAnnotator
 })
 
+function getEndpoints() {
+  const endpoints = { ...metadata.value.endpoints }
+  const objectType = metadata.value.object_type
+
+  const slicesByType = SLICES_BY_OBJECT_TYPE[objectType] || []
+
+  slicesByType.forEach((slice) => {
+    if (!(slice in SLICE)) return
+
+    if (!(slice in endpoints)) {
+      endpoints[slice] = { total: 0 }
+    }
+  })
+
+  return endpoints
+}
+
 const menuOptions = computed(() => {
-  const { endpoints = {} } = metadata.value
+  const endpoints = getEndpoints()
 
   const slices = Object.entries(endpoints).map(([annotator, { total }]) => ({
     name: annotator,
-    label: (annotator.charAt(0).toUpperCase() + annotator.slice(1)).replace(
+    label: (annotator.charAt(0).toUpperCase() + annotator.slice(1)).replaceAll(
       '_',
       ' '
     ),

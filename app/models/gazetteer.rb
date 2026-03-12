@@ -427,6 +427,7 @@ class Gazetteer < ApplicationRecord
     end
 
     begin
+      # TODO: https://github.com/rgeo/rgeo-shapefile could use a fork and updates to dbf/rgeo
       file = RGeo::Shapefile::Reader.open(
         shpfile, factory: from_factory, allow_unsafe: true
       )

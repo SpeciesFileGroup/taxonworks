@@ -31,7 +31,7 @@ class BiocurationClassificationsController < ApplicationController
         format.json { render :show, status: :created, location: @biocuration_classification }
       else
         format.html { redirect_back(fallback_location: (request.referer || root_path), notice: 'Biocuration classification was NOT successfully created.')}
-        format.json { render json: @biocuration_classification.errors, status: :unprocessable_entity }
+        format.json { render json: @biocuration_classification.errors, status: :unprocessable_content }
       end
     end
   end
@@ -45,7 +45,7 @@ class BiocurationClassificationsController < ApplicationController
         format.json { head :no_content }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Biocuration classification was NOT successfully updated.')}
-        format.json { render json: @biocuration_classification.errors, status: :unprocessable_entity }
+        format.json { render json: @biocuration_classification.errors, status: :unprocessable_content }
       end
     end
   end

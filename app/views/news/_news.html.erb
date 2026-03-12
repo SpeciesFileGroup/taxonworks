@@ -1,0 +1,37 @@
+<div id="<%= dom_id news %>">
+  <p>
+    <strong>Type:</strong>
+    <%= News::PROJECT_TYPES[news.type.to_sym] %>
+  </p>
+
+  <p>
+    <strong>Title:</strong>
+    <%= news.title %>
+  </p>
+
+  <p>
+    <strong>Body:</strong>
+    <%= news.body %>
+  </p>
+
+  <p>
+    <strong>Display start:</strong>
+    <%= news.display_start %>
+  </p>
+
+  <p>
+    <strong>Display end:</strong>
+    <%= news.display_end %>
+  </p>
+
+  <p>
+  <strong>Created by:</strong>
+    <%= user_tag(news.creator) %>
+  </p>
+
+  <p>
+    <strong>Updated by:</strong>
+    <%= user_tag(news.updater) %>
+  </p>
+
+</div>

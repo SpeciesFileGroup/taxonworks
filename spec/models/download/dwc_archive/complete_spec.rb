@@ -104,7 +104,7 @@ RSpec.describe Download::DwcArchive::Complete, type: :model do
 
       specify 'download includes data attribute columns' do
         [co_da, ce_da]
-        project.set_complete_dwc_download_predicates({
+        project.set_complete_dwc_download_predicates_and_internal_values({
           collection_object_predicate_id: [p1.id],
           collecting_event_predicate_id: [p2.id]
         })
@@ -121,7 +121,7 @@ RSpec.describe Download::DwcArchive::Complete, type: :model do
 
       specify 'download includes data attribute values' do
         [co_da, ce_da]
-        project.set_complete_dwc_download_predicates({
+        project.set_complete_dwc_download_predicates_and_internal_values({
           collection_object_predicate_id: [p1.id],
           collecting_event_predicate_id: [p2.id]
         })
@@ -146,18 +146,33 @@ RSpec.describe Download::DwcArchive::Complete, type: :model do
       let!(:c) { Conveyance.create!(conveyance_object: co, sound: FactoryBot.create(:valid_sound)) }
 
       before(:each) {
+        project.update!(set_new_api_access_token: true)
         project.set_complete_dwc_download_extensions(['media'])
       }
 
       specify 'creates media file rows' do
         perform_enqueued_jobs # create dwc_occurrences
-
         Download::DwcArchive::Complete.create!
 
         perform_enqueued_jobs
 
         tbl = Spec::Support::Utilities::Dwca.extract_media_tsv_table(Download.first.file_path)
         expect(tbl.size).to eq(2) # doesn't include header row
+      end
+
+      specify 'fails on images if project_token is gone' do
+        # See also project_spec.rb
+        perform_enqueued_jobs # create dwc_occurrences
+        Download::DwcArchive::Complete.create!
+
+        project.update!(clear_api_access_token: true)
+
+        expect(Download::DwcArchive::Complete.count).to eq(0)
+        # TODO: there should/could be another spec here that tests what happens
+        # when the project token is cleared *while* image records are being
+        # generated - it may be a race between download deletion and the
+        # following error, I'm not sure:
+        #expect{perform_enqueued_jobs}.to raise_error(TaxonWorks::Error, /project token/)
       end
     end
 

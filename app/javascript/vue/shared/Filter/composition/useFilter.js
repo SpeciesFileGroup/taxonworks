@@ -129,7 +129,7 @@ export default function (service, { listParser, initParameters = {} } = {}) {
     const {
       [STORAGE_FILTER_QUERY_STATE_PARAMETER]: stateId,
       ...urlParameters
-    } = qs.parse(location.search, { ignoreQueryPrefix: true })
+    } = qs.parse(location.search, { ignoreQueryPrefix: true, arrayLimit: 2000 })
 
     Object.assign(urlParameters, getParametersFromSession(stateId))
 

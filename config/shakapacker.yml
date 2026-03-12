@@ -2,17 +2,52 @@
 
 default: &default
   source_path: app/javascript
+
+  # You can have a subdirectory of the source_path, like 'packs' (recommended).
+  # Alternatively, you can use '/' to use the whole source_path directory.
+  # Notice that this is a relative path to source_path
   source_entry_path: /packs
+
+  # If nested_entries is true, then we'll pick up subdirectories within the source_entry_path.
+  # You cannot set this option to true if you set source_entry_path to '/'
+  # nested_entries: true
+
+  #  While using a File-System-based automated bundle generation feature, miscellaneous warnings suggesting css order
+  #  conflicts may arise due to the mini-css-extract-plugin. For projects where css ordering has been mitigated through
+  #  consistent use of scoping or naming conventions, the css order warnings can be disabled by setting
+  #  css_extract_ignore_order_warnings to true
+  css_extract_ignore_order_warnings: false
+
+  # CSS Modules export mode
+  # Controls how CSS Module class names are exported in JavaScript
+  # Defaults to 'named' if not specified. Uncomment and change to 'default' for v8 behavior.
+  # Options:
+  #   - named (default): Use named exports with camelCase conversion (v9 default)
+  #     Example: import { button } from './styles.module.css'
+  #   - default: Use default export with both original and camelCase names (v8 behavior)
+  #     Example: import styles from './styles.module.css'
+  # For gradual migration, you can set this to default to maintain v8 behavior
+  # See https://github.com/shakacode/shakapacker/blob/main/docs/css-modules-export-mode.md
+  # css_modules_export_mode: named
+
   public_root_path: public
   public_output_path: packs
   cache_path: tmp/shakapacker
   webpack_compile_output: true
 
+  # See https://github.com/shakacode/shakapacker#deployment
+  shakapacker_precompile: true
+
   # Location for manifest.json, defaults to {public_output_path}/manifest.json if unset
   # manifest_path: public/packs/manifest.json
 
+  # Location for private server-side bundles (e.g., for SSR)
+  # These bundles are not served publicly, unlike public_output_path
+  # private_output_path: ssr-generated
+
   # Additional paths webpack should look up modules
   # ['app/assets', 'engine/foo/app/assets']
+
   additional_paths: []
 
   # Reload manifest.json on all requests so we reload latest compiled packs
@@ -23,19 +58,78 @@ default: &default
 
   assets_bundler: 'rspack'
 
-  # Set to true to enable check for matching versions of shakapacker gem and NPM package - will raise an error if there is a mismatch or wildcard versioning is used
+  # Path to the directory containing webpack/rspack config files
+  # Defaults to 'config/webpack' for webpack or 'config/rspack' for rspack
+  # Use '.' to specify the root directory of your project
+  # assets_bundler_config_path: config/webpack
+
+  # Hook to run before webpack compilation (e.g., for generating dynamic entry points)
+  # SECURITY: Only reference trusted scripts within your project. The hook command will be
+  # validated to ensure it points to a file within the project root.
+  # Example: precompile_hook: 'bin/shakapacker-precompile-hook'
+  # precompile_hook: ~
+
+  # Raises an error if there is a mismatch in the shakapacker gem and npm package being used
   ensure_consistent_versioning: true
+
+  # Select whether the compiler will use SHA digest ('digest' option) or most recent modified timestamp ('mtime') to determine freshness
+  compiler_strategy: digest
+
+  # Select whether the compiler will always use a content hash and not just in production
+  # Content hashes are recommended for production cache busting
+  useContentHash: true
+
+  # Setting the asset host here will override Rails.application.config.asset_host.
+  # Here, you can set different asset_host per environment. Note that
+  # SHAKAPACKER_ASSET_HOST will override both configurations.
+  # asset_host: custom-path
+
+  # Utilizing webpack-subresource-integrity plugin, will generate integrity hashes for all entries in manifest.json
+  # https://github.com/waysact/webpack-subresource-integrity/tree/main/webpack-subresource-integrity
+  integrity:
+    enabled: false
+    # Which cryptographic function(s) to use, for generating the integrity hash(es). Default sha-384. Other possible values sha256, sha512
+    hash_functions: ['sha384']
+    # Default "anonymous". Other possible value "use-credentials"
+    # https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity#cross-origin_resource_sharing_and_subresource_integrity
+    cross_origin: 'anonymous'
+
+  # HTTP 103 Early Hints support for faster asset loading
+  # Sends Link headers to browsers so they can preload assets while Rails is rendering
+  # See docs/early_hints_new_api.md for setup instructions and requirements
+  # https://api.rubyonrails.org/classes/ActionDispatch/Request.html#method-i-send_early_hints
+  early_hints:
+    enabled: false
+    # css: "preload" # 'preload' | 'prefetch' | 'none' - default: 'preload'
+    # js: "preload" # 'preload' | 'prefetch' | 'none' - default: 'preload'
+    # debug: false # Output early hints info as HTML comments for troubleshooting
 
 development:
   <<: *default
   compile: true
+  compiler_strategy: mtime
+
+  # Disable content hashes in development for faster builds
+  # https://webpack.js.org/guides/caching/
+  useContentHash: false
+
+  # Early hints disabled by default in development
+  # To enable: Set enabled: true AND start Puma with: bundle exec puma --early-hints
+  # See docs/early_hints_new_api.md for setup instructions
+  # early_hints:
+  #   enabled: true
+  #   css: "preload"
+  #   js: "preload"
+  #   debug: true
 
   # Reference: https://webpack.js.org/configuration/dev-server/
+  # Keys not described there are documented inline and in https://github.com/shakacode/shakapacker/
   dev_server:
     server: 'http'
     host: localhost
     port: 3035
     # Hot Module Replacement updates modules while the application is running without a full reload
+    # Used instead of the `hot` key in https://webpack.js.org/configuration/dev-server/#devserverhot
     hmr: false
     # If HMR is on, CSS will by inlined by delivering it as part of the script payload via style-loader. Be sure
     # that you add style-loader to your project dependencies.
@@ -82,3 +176,11 @@ production:
 
   # Cache manifest.json for performance
   cache_manifest: true
+
+  # Early hints disabled by default. See docs/early_hints_new_api.md before enabling.
+  # Requires proper server configuration (Puma + HTTP/2 proxy like nginx, Thruster, or Control Plane)
+  early_hints:
+    enabled: false
+    # css: "preload"
+    # js: "preload"
+    # debug: false

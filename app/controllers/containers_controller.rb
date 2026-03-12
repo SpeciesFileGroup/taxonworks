@@ -59,7 +59,7 @@ class ContainersController < ApplicationController
         format.json { render :show, status: :created, location: @container.metamorphosize }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container was NOT successfully created.')}
-        format.json { render json: @container.errors, status: :unprocessable_entity }
+        format.json { render json: @container.errors, status: :unprocessable_content }
       end
     end
   end
@@ -73,7 +73,7 @@ class ContainersController < ApplicationController
         format.json { render :show, status: :ok, location: @container.metamorphosize }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container was NOT successfully updated.')}
-        format.json { render json: @container.errors, status: :unprocessable_entity }
+        format.json { render json: @container.errors, status: :unprocessable_content }
       end
     end
   end
@@ -88,7 +88,7 @@ class ContainersController < ApplicationController
         format.json { head :no_content }
       else
         format.html { destroy_redirect @container, notice: 'Container was not destroyed, ' + @container.errors.full_messages.join('; ') }
-        format.json { render json: @container.errors, status: :unprocessable_entity }
+        format.json { render json: @container.errors, status: :unprocessable_content }
       end
     end
   end

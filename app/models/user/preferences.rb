@@ -39,7 +39,7 @@ class User
       if project_id.nil?
         write_attribute(:hub_favorites, {})
       else
-        h = read_attribute(:hub_favorites)
+        h = read_attribute(:hub_favorites) || {}
         h[project_id] = User::HUB_FAVORITES
         write_attribute(:hub_favorites, h)
       end

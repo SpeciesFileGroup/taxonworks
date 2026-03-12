@@ -11,16 +11,22 @@ class Identifier::Global::Lsid < Identifier::Global
   validate :using_lsid_class
 
   def using_lsid_class
-    unless identifier.nil?
-      lsid = identifier.split(':')
-      # this is a test of http://rubular.com/regexes/13295
-      /SID=([\s\S]*?)LSID=([\s\S]*?)Auth=([\s\S]*)/ =~ identifier
+    return if identifier.nil?
 
-      unless lsid.length.between?(5, 6)
-        unless lsid[0].upcase == 'URN' and lsid[1].upcase == 'LSID'
-          errors.add(:identifier, "'#{identifier}' is not a valid LSID.")
-        end
-      end
+    if identifier.match?(/\s/)
+      errors.add(:identifier, "'#{identifier}' is not a valid LSID, it contains whitespace.")
+      return
+    end
+
+    parts = identifier.split(':')
+
+    unless parts.length.between?(5, 6) &&
+           parts[0].casecmp('urn').zero? &&
+           parts[1].casecmp('lsid').zero? &&
+           parts[2].present? &&  # authority
+           parts[3].present? &&  # namespace
+           parts[4].present?     # object
+      errors.add(:identifier, "'#{identifier}' is not a valid LSID.")
     end
   end
 end

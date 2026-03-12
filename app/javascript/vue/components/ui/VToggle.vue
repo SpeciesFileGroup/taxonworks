@@ -1,6 +1,6 @@
 <template>
   <div :title="title">
-    <label class="toggle-switch">
+    <label class="v-toggle-switch">
       <input
         v-model="checked"
         type="checkbox"
@@ -31,7 +31,7 @@ const props = defineProps({
 
   offColor: {
     type: String,
-    default: 'var(--bg-color)'
+    default: 'var(--badge-blue-bg)'
   },
 
   title: {
@@ -51,8 +51,12 @@ const checked = computed({
   }
 })
 </script>
-<style lang="scss" scoped>
-.toggle-switch {
+
+<style lang="scss">
+.v-toggle-switch {
+  --v-toggle-on-color: v-bind('props.onColor');
+  --v-toggle-off-color: v-bind('props.offColor');
+
   height: 28px;
   display: block;
   position: relative;
@@ -79,7 +83,7 @@ const checked = computed({
         left: 0;
         width: 48px;
         height: 28px;
-        background: v-bind('props.offColor');
+        background: var(--v-toggle-off-color);
         transition: all 0.3s ease;
       }
       &:after {
@@ -109,7 +113,7 @@ const checked = computed({
     &:checked {
       & + span {
         &:before {
-          background: v-bind('props.onColor');
+          background: var(--v-toggle-on-color);
         }
         &:after {
           background: var(--panel-bg-color);

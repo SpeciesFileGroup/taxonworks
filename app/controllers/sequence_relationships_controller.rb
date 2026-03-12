@@ -41,7 +41,7 @@ class SequenceRelationshipsController < ApplicationController
         format.json { render :show, status: :created, location: @sequence_relationship }
       else
         format.html { render :new }
-        format.json { render json: @sequence_relationship.errors, status: :unprocessable_entity }
+        format.json { render json: @sequence_relationship.errors, status: :unprocessable_content }
       end
     end
   end
@@ -56,7 +56,7 @@ class SequenceRelationshipsController < ApplicationController
         format.json { render :show, status: :ok, location: @sequence_relationship }
       else
         format.html { render :edit }
-        format.json { render json: @sequence_relationship.errors, status: :unprocessable_entity }
+        format.json { render json: @sequence_relationship.errors, status: :unprocessable_content }
       end
     end
   end
@@ -71,7 +71,7 @@ class SequenceRelationshipsController < ApplicationController
         format.json { head :no_content}
       else
         format.html { destroy_redirect @sequence_relationship, notice: 'Sequence relationship was not destroyed, ' + @sequence_relationship.errors.full_messages.join('; ') }
-        format.json { render json: @sequence_relationship.errors, status: :unprocessable_entity }
+        format.json { render json: @sequence_relationship.errors, status: :unprocessable_content }
       end
     end
   end

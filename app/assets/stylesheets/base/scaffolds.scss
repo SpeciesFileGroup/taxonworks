@@ -9,7 +9,6 @@ p,
 ol,
 ul,
 td {
-  font-size: 13px;
   line-height: 18px;
 }
 
@@ -22,8 +21,7 @@ pre {
 // see navigation for a
 
 div {
-  &.field,
-  &.actions {
+  &.field {
     margin-bottom: 10px;
   }
 }

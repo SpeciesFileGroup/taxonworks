@@ -259,6 +259,8 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
           namespaces_to_replace: [n1, n2, n3v]
         },
         mode: :replace,
+        project_id: Project.first.id,
+        user_id: User.first.id,
         async_cutoff: 0
       )
 
@@ -332,6 +334,8 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
           namespaces_to_replace: [n1, n2, n3v]
         },
         mode: :replace,
+        project_id: Project.first.id,
+        user_id: User.first.id,
         async_cutoff: 0
       )
 

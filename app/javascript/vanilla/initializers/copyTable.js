@@ -4,9 +4,10 @@ async function copyTableToClipboard(e) {
   const element = e.target
   const selector = element.getAttribute('data-clipboard-table-selector')
   const offset = element.getAttribute('data-offset')
+  const end = element.getAttribute('data-end')
 
   try {
-    await navigator.clipboard.writeText(html2tsv(selector, { offset }))
+    await navigator.clipboard.writeText(html2tsv(selector, { offset, end }))
 
     TW.workbench.alert.create('Table copied to clipboard', 'notice')
   } catch (e) {}

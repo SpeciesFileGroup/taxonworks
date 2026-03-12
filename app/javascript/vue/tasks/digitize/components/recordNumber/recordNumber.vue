@@ -89,9 +89,6 @@
           <input
             type="text"
             id="record-number-identifier-field"
-            :class="{
-              'validate-identifier': store.existingIdentifiers.length
-            }"
             v-model="store.identifier.identifier"
             @input="identifierChanged"
           />
@@ -119,15 +116,6 @@
         >
           Namespace is needed.
         </span>
-        <template v-if="store.existingIdentifiers.length">
-          <span class="text-error-color">
-            Identifier already exists, and it won't be saved:
-          </span>
-          <a
-            :href="store.existingIdentifiers[0].identifier_object.object_url"
-            v-html="store.existingIdentifiers[0].identifier_object.object_tag"
-          />
-        </template>
       </div>
     </div>
   </div>
@@ -142,14 +130,10 @@ import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { IDENTIFIER_LOCAL_RECORD_NUMBER } from '@/constants/index.js'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
-import validateIdentifier from '../../validations/namespace.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VLock from '@/components/ui/VLock/index.vue'
 import WidgetNamespace from '@/components/ui/Widget/WidgetNamespace.vue'
-
-const DELAY = 1000
-let saveRequest = undefined
 
 const store = useIdentifierStore(IDENTIFIER_LOCAL_RECORD_NUMBER)()
 const coStore = useStore()
@@ -157,9 +141,6 @@ const namespace = ref(null)
 const smartSelectorRef = ref()
 const widgetNamespaceRef = ref()
 
-const coId = computed(
-  () => coStore.getters[GetterNames.GetCollectionObject]?.id
-)
 const settings = computed({
   get() {
     return coStore.getters[GetterNames.GetSettings]
@@ -167,22 +148,6 @@ const settings = computed({
   set(value) {
     coStore.commit(MutationNames.SetSettings, value)
   }
-})
-
-const checkValidation = computed(
-  () =>
-    !validateIdentifier({
-      namespace_id: store.identifier.namespaceId,
-      identifier: store.identifier.identifier
-    })
-)
-
-watch(store.existingIdentifiers, (newVal) => {
-  settings.value.saveIdentifier = !newVal.length
-})
-
-watch(coId, () => {
-  store.existingIdentifiers = []
 })
 
 watch(
@@ -199,17 +164,6 @@ watch(
 
 function identifierChanged() {
   store.identifier.isUnsaved = true
-  checkIdentifier()
-}
-
-function checkIdentifier() {
-  clearTimeout(saveRequest)
-
-  if (store.identifier.identifier) {
-    saveRequest = setTimeout(store.checkExistingIdentifiers, DELAY)
-  } else {
-    store.existingIdentifiers = []
-  }
 }
 
 function handleTabChange(tab) {
@@ -221,7 +175,6 @@ function handleTabChange(tab) {
 function setNamespace({ id }) {
   store.identifier.namespaceId = id
   store.identifier.isUnsaved = true
-  checkIdentifier()
 }
 </script>
 

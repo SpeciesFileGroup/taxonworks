@@ -54,7 +54,7 @@ class ProtocolRelationshipsController < ApplicationController
         format.json { render :show, status: :created, location: @protocol_relationship }
       else
         format.html { render :new }
-        format.json { render json: @protocol_relationship.errors, status: :unprocessable_entity }
+        format.json { render json: @protocol_relationship.errors, status: :unprocessable_content }
       end
     end
   end
@@ -68,7 +68,7 @@ class ProtocolRelationshipsController < ApplicationController
         format.json { render :show, status: :ok, location: @protocol_relationship }
       else
         format.html { render :edit }
-        format.json { render json: @protocol_relationship.errors, status: :unprocessable_entity }
+        format.json { render json: @protocol_relationship.errors, status: :unprocessable_content }
       end
     end
   end

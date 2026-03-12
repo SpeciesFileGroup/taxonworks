@@ -37,4 +37,10 @@ class Download::DwcArchive::PupalComplete < Download::DwcArchive::Complete
 
     false
   end
+
+  def self.project_api_access_token_destroyed
+    # May not be necessary if the download doesn't include media extension, but
+    # we're doing it anyway.
+    Download::DwcArchive::PupalComplete.destroy_all
+  end
 end

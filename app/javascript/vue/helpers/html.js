@@ -10,7 +10,7 @@ export function decodeBasicEntities(str) {
     .replace(/&nbsp;/g, ' ')
 }
 
-export function escapeHtml(str) {
+export function sanitizeHtml(str) {
   return DOMPurify.sanitize(str, {
     USE_PROFILES: { html: false }
   })

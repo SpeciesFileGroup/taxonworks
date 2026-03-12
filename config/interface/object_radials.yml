@@ -22,7 +22,12 @@
 #    * most commonly used 2
 #
 ---
+AnatomicalPart:
+  tasks:
+    - anatomical_parts_graph_task
+    - filter_anatomical_parts_task
 AssertedDistribution:
+  edit: new_asserted_distribution_task
   tasks:
     - asserted_distributions_basic_endemism_task
     - new_asserted_distribution_task
@@ -37,8 +42,8 @@ BiologicalAssociation:
     - browse_asserted_distributions_task
     - new_asserted_distribution_task
     - unify_objects_task
-  edit: edit_biological_associations_graph_task
-  new: edit_biological_associations_graph_task
+  edit: new_biological_association_task
+  new: new_biological_association_task
   config:
     recent: true
 BiologicalAssociationsGraph:
@@ -68,6 +73,7 @@ CollectionObject:
     - browse_collecting_events_task
     - new_taxon_name_task
     - new_extract_task
+    - anatomical_parts_graph_task
     - browse_otus_task
     - build_biocuration_groups_task
     - report_dwc_task
@@ -128,6 +134,7 @@ FieldOccurrence:
     - browse_field_occurrence_task
     - new_field_occurrence_task
     - unify_objects_task
+    - anatomical_parts_graph_task
   edit: new_field_occurrence_task
   new: new_field_occurrence_task
   config:
@@ -155,6 +162,7 @@ Image:
   tasks:
     - filter_images_task
     - unify_objects_task
+    - browse_images_task
   config:
     recent: false
   new: new_image_task
@@ -163,6 +171,7 @@ Lead:
     - show_lead_task
     - leads_hub_task
     - print_key_task
+    - dichotomous_key_task
   new: new_lead_task
   edit: new_lead_task
 Loan:
@@ -201,6 +210,8 @@ Otu:
     - cite_otus_task
     - browse_asserted_distributions_task
     - unify_objects_task
+    - anatomical_parts_graph_task
+    - monograph_facilitator_task
   home: browse_otus_task
   config:
     recent: true
@@ -246,6 +257,7 @@ TaxonName:
     - asserted_distributions_basic_endemism_task
     - paper_catalog_generator_task
     - unify_objects_task
+    - taxon_name_reclassifier_task
   edit: new_taxon_name_task
   new: new_taxon_name_task
   home: browse_nomenclature_task

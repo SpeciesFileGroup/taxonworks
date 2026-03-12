@@ -1,4 +1,4 @@
-# Methods faciliating use of `parent_id`, nomenclature ranks, ancestors and descendants
+# Methods facilitating use of `parent_id`, nomenclature ranks, ancestors and descendants
 #
 # TODO: consider use in refactoring full_name_hash
 #
@@ -32,10 +32,14 @@ module TaxonName::Hierarchy
     def taxon_name_ancestors_sql(taxon_name_scope: TaxonName.none, ranks: ['order', 'family', 'genus', 'species'])
       ranks = RANKS_BY_NAME.keys if ranks.blank?
 
+      # Validate all ranks are known
+      invalid_ranks = ranks.reject { |r| RANKS_BY_NAME.key?(r) }
+      raise ArgumentError, "Invalid rank names: #{invalid_ranks.join(', ')}" if invalid_ranks.any?
+
       target_ranks = []
 
       # Note that we need to single quote the first query in the crosstab,
-      # thuse the $$ and other quote weirdness
+      # thus the $$ and other quote weirdness
 
       # !!! scoping query *must* be distinct results, and without order
       s = "SELECT * from crosstab( 'WITH tnq AS (" + taxon_name_scope.unscope(:select, :order).select(:id).all.distinct.to_sql.gsub(/'/,"''") +

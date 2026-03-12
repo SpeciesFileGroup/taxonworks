@@ -11,6 +11,7 @@ module Queries
       include Queries::Concerns::Geo
 
       PARAMS = [
+        :anatomical_part_id,
         :biological_association_id,
         :biological_associations_graph_id,
         :biological_relationship_id,
@@ -43,6 +44,7 @@ module Queries
         :biological_association_subject_id,
         :biological_association_subject_type,
 
+        anatomical_part_id: [],
         any_global_id: [],
         biological_association_id: [],
         biological_associations_graph_id: [],
@@ -98,6 +100,12 @@ module Queries
       #   All biological relationships with FieldOccurrence (only)
       #  matching subject OR object
       attr_accessor :field_occurrence_id
+
+      # @param anatomical_part_id
+      # @return [Array]
+      #   All biological relationships with AnatomicalPart (only)
+      #  matching subject OR object
+      attr_accessor :anatomical_part_id
 
       # @param collection_object_as_subject_or_as_object
       #   Whether collection_object_query should be matched against subject or
@@ -200,6 +208,7 @@ module Queries
         @collection_object_as_subject_or_as_object = params[:collection_object_as_subject_or_as_object]
         @collection_object_id = params[:collection_object_id]
         @field_occurrence_id = params[:field_occurrence_id]
+        @anatomical_part_id = params[:anatomical_part_id]
         @descendants = boolean_param(params, :descendants)
         @exclude_taxon_name_relationship = boolean_param(params, :exclude_taxon_name_relationship)
         @geo_shape_type = params[:geo_shape_type]
@@ -272,6 +281,10 @@ module Queries
 
       def field_occurrence_id
         [@field_occurrence_id].flatten.compact
+      end
+
+      def anatomical_part_id
+        [@anatomical_part_id].flatten.compact
       end
 
       def biological_relationship_id
@@ -395,7 +408,7 @@ module Queries
         })
 
         bag_scope = bag_query.all
-        return nil if bag_query.only_project?() || bag_scope.nil?
+        return nil if bag_query.only_project_or_less?() || bag_scope.nil?
 
         ::BiologicalAssociation
           .joins(:biological_associations_graphs)
@@ -486,6 +499,22 @@ module Queries
         h
       end
 
+      def anatomical_part_params
+        h = {}
+        [ # TODO??
+          :anatomical_part_id
+          # :geo_json,
+          # :geo_mode,
+          # :geo_shape_id,
+          # :geo_shape_type,
+          # :wkt,
+        ].each do |p|
+          v = send(p)
+          h[p] = v if v.present?
+        end
+        h
+      end
+
       def otu_params
         h = {}
         [
@@ -513,6 +542,10 @@ module Queries
 
       def base_field_occurrence_query(opts)
         ::Queries::FieldOccurrence::Filter.new(opts)
+      end
+
+      def base_anatomical_part_query(opts)
+        ::Queries::AnatomicalPart::Filter.new(opts)
       end
 
       def subject_collection_object_query
@@ -657,14 +690,16 @@ module Queries
         o_params = otu_params
         co_params = collection_object_params
         fo_params = field_occurrence_params
-        return nil if o_params.empty? && co_params.empty? && fo_params.empty?
+        ap_params = anatomical_part_params
+        return nil if o_params.empty? && co_params.empty? && fo_params.empty? && ap_params.empty?
 
         a = o_params.empty? ? nil : base_otu_query(o_params).all
         b = co_params.empty? ? nil : base_collection_object_query(co_params).all
         c = fo_params.empty? ? nil : base_field_occurrence_query(fo_params).all
+        d = ap_params.empty? ? nil : base_anatomical_part_query(ap_params).all
 
-        subjects = base_queries_to_subject_object(a, b, c, 'subject')
-        objects = base_queries_to_subject_object(a, b, c, 'object')
+        subjects = base_queries_to_subject_object(a, b, c, d, 'subject')
+        objects = base_queries_to_subject_object(a, b, c, d, 'object')
 
         referenced_klass_union([subjects,objects])
       end
@@ -684,7 +719,8 @@ module Queries
       end
 
       def base_queries_to_subject_object(
-        otu_query, collection_object_query, field_occurrence_query, target
+        otu_query, collection_object_query, field_occurrence_query,
+        anatomical_part_query, target
       )
         o = otu_query.nil? ? ::BiologicalAssociation.none :
           ::BiologicalAssociation
@@ -701,7 +737,12 @@ module Queries
             .with(c: field_occurrence_query)
             .joins("JOIN c ON c.id = biological_associations.biological_association_#{target}_id AND biological_associations.biological_association_#{target}_type = 'FieldOccurrence'")
 
-        referenced_klass_union([o,co,fo])
+        ap = anatomical_part_query.nil? ? ::BiologicalAssociation.none :
+          ::BiologicalAssociation
+            .with(d: anatomical_part_query)
+            .joins("JOIN d ON d.id = biological_associations.biological_association_#{target}_id AND biological_associations.biological_association_#{target}_type = 'AnatomicalPart'")
+
+        referenced_klass_union([o,co,fo,ap])
       end
 
       def subject_object_global_id_facet
@@ -777,7 +818,39 @@ module Queries
         b = ::BiologicalAssociation
           .joins("JOIN query_otu_ba as query_otu_ba2 on biological_associations.biological_association_object_id = query_otu_ba2.id AND biological_associations.biological_association_object_type = 'Otu'")
 
-        s << referenced_klass_union([a,b]).to_sql
+        c = ::BiologicalAssociation
+          .joins("JOIN collection_objects on collection_objects.id = biological_associations.biological_association_subject_id AND biological_associations.biological_association_subject_type = 'CollectionObject'")
+          .joins("JOIN taxon_determinations on taxon_determinations.taxon_determination_object_id = collection_objects.id AND taxon_determinations.taxon_determination_object_type = 'CollectionObject'")
+          .joins('JOIN query_otu_ba as query_otu_ba3 on taxon_determinations.otu_id = query_otu_ba3.id')
+          .where('taxon_determinations.position = 1')
+
+        d = ::BiologicalAssociation
+          .joins("JOIN collection_objects on collection_objects.id = biological_associations.biological_association_object_id AND biological_associations.biological_association_object_type = 'CollectionObject'")
+          .joins("JOIN taxon_determinations on taxon_determinations.taxon_determination_object_id = collection_objects.id AND taxon_determinations.taxon_determination_object_type = 'CollectionObject'")
+          .joins('JOIN query_otu_ba as query_otu_ba4 on taxon_determinations.otu_id = query_otu_ba4.id')
+          .where('taxon_determinations.position = 1')
+
+        e = ::BiologicalAssociation
+          .joins("JOIN field_occurrences on field_occurrences.id = biological_associations.biological_association_subject_id AND biological_associations.biological_association_subject_type = 'FieldOccurrence'")
+          .joins("JOIN taxon_determinations on taxon_determinations.taxon_determination_object_id = field_occurrences.id AND taxon_determinations.taxon_determination_object_type = 'FieldOccurrence'")
+          .joins('JOIN query_otu_ba as query_otu_ba5 on taxon_determinations.otu_id = query_otu_ba5.id')
+          .where('taxon_determinations.position = 1')
+
+        f = ::BiologicalAssociation
+          .joins("JOIN field_occurrences on field_occurrences.id = biological_associations.biological_association_object_id AND biological_associations.biological_association_object_type = 'FieldOccurrence'")
+          .joins("JOIN taxon_determinations on taxon_determinations.taxon_determination_object_id = field_occurrences.id AND taxon_determinations.taxon_determination_object_type = 'FieldOccurrence'")
+          .joins('JOIN query_otu_ba as query_otu_ba6 on taxon_determinations.otu_id = query_otu_ba6.id')
+          .where('taxon_determinations.position = 1')
+
+        g = ::BiologicalAssociation
+          .joins("JOIN anatomical_parts on anatomical_parts.id = biological_associations.biological_association_subject_id AND biological_associations.biological_association_subject_type = 'AnatomicalPart'")
+          .joins('JOIN query_otu_ba as query_otu_ba7 on anatomical_parts.cached_otu_id = query_otu_ba7.id')
+
+        h = ::BiologicalAssociation
+          .joins("JOIN anatomical_parts on anatomical_parts.id = biological_associations.biological_association_object_id AND biological_associations.biological_association_object_type = 'AnatomicalPart'")
+          .joins('JOIN query_otu_ba as query_otu_ba8 on anatomical_parts.cached_otu_id = query_otu_ba8.id')
+
+        s << referenced_klass_union([a,b,c,d,e,f,g,h]).to_sql
         ::BiologicalAssociation.from('(' + s + ') as biological_associations')
       end
 
@@ -824,6 +897,21 @@ module Queries
         ::BiologicalAssociation.from('(' + s + ') as biological_associations')
       end
 
+      def anatomical_part_query_facet
+        return nil if anatomical_part_query.nil?
+        s = 'WITH query_ap_ba AS (' + anatomical_part_query.all.to_sql + ') '
+
+        a = ::BiologicalAssociation
+          .joins("JOIN query_ap_ba as query_ap_ba1 on biological_associations.biological_association_subject_id = query_ap_ba1.id AND biological_associations.biological_association_subject_type = 'AnatomicalPart'")
+
+        b = ::BiologicalAssociation
+          .joins("JOIN query_ap_ba as query_ap_ba2 on biological_associations.biological_association_object_id = query_ap_ba2.id AND biological_associations.biological_association_object_type = 'AnatomicalPart'")
+
+        s << referenced_klass_union([a,b]).to_sql
+
+        ::BiologicalAssociation.from('(' + s + ') as biological_associations')
+      end
+
       # Brute-force style
       def taxon_name_query_facet
         return nil if taxon_name_query.nil?
@@ -852,7 +940,31 @@ module Queries
           .joins('JOIN query_tn_ba as query_tn_ba4 on otus.taxon_name_id = query_tn_ba4.id')
           .where('taxon_determinations.position = 1')
 
-        s << referenced_klass_union([a,b,c,d]).to_sql
+        e = ::BiologicalAssociation
+          .joins("JOIN field_occurrences on field_occurrences.id = biological_associations.biological_association_subject_id AND biological_associations.biological_association_subject_type = 'FieldOccurrence'")
+          .joins("JOIN taxon_determinations on taxon_determinations.taxon_determination_object_id = field_occurrences.id AND taxon_determinations.taxon_determination_object_type = 'FieldOccurrence'")
+          .joins('JOIN otus on otus.id = taxon_determinations.otu_id')
+          .joins('JOIN query_tn_ba as query_tn_ba5 on otus.taxon_name_id = query_tn_ba5.id')
+          .where('taxon_determinations.position = 1')
+
+        f = ::BiologicalAssociation
+          .joins("JOIN field_occurrences on field_occurrences.id = biological_associations.biological_association_object_id AND biological_associations.biological_association_object_type = 'FieldOccurrence'")
+          .joins("JOIN taxon_determinations on taxon_determinations.taxon_determination_object_id = field_occurrences.id AND taxon_determinations.taxon_determination_object_type = 'FieldOccurrence'")
+          .joins('JOIN otus on otus.id = taxon_determinations.otu_id')
+          .joins('JOIN query_tn_ba as query_tn_ba6 on otus.taxon_name_id = query_tn_ba6.id')
+          .where('taxon_determinations.position = 1')
+
+        g = ::BiologicalAssociation
+          .joins("JOIN anatomical_parts on anatomical_parts.id = biological_associations.biological_association_subject_id AND biological_associations.biological_association_subject_type = 'AnatomicalPart'")
+          .joins('JOIN otus on otus.id = anatomical_parts.cached_otu_id')
+          .joins('JOIN query_tn_ba as query_tn_ba7 on otus.taxon_name_id = query_tn_ba7.id')
+
+        h = ::BiologicalAssociation
+          .joins("JOIN anatomical_parts on anatomical_parts.id = biological_associations.biological_association_object_id AND biological_associations.biological_association_object_type = 'AnatomicalPart'")
+          .joins('JOIN otus on otus.id = anatomical_parts.cached_otu_id')
+          .joins('JOIN query_tn_ba as query_tn_ba8 on otus.taxon_name_id = query_tn_ba8.id')
+
+        s << referenced_klass_union([a,b,c,d,e,f,g,h]).to_sql
 
         ::BiologicalAssociation.from('(' + s + ') as biological_associations')
       end
@@ -897,6 +1009,7 @@ module Queries
 
       def merge_clauses
         [
+          anatomical_part_query_facet,
           asserted_distribution_query_facet,
           collecting_event_query_facet,
           collection_object_query_facet,

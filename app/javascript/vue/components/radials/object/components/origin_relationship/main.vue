@@ -1,25 +1,29 @@
 <template>
   <div>
-    <div class="margin-medium-bottom">
-      <div>
-        <span
-          v-if="originOf"
-          v-html="originOf"
-        />
-        <span v-else>Select a origin</span>
-      </div>
+    <div class="direction margin-medium-bottom">
+      <div class="direction-wording">
+        <div>
+          <span
+            v-if="originOf"
+            v-html="originOf"
+          />
+          <span v-else>[Select an origin]</span>
+        </div>
 
-      <div class="margin-medium-left inline">
-        <span
-          >is the origin of<br />
-          <div class="margin-medium-left">
-            <span
-              v-if="originFor"
-              v-html="originFor"
-            />
-            <span v-else>[Select a origin]</span>
-          </div>
-        </span>
+        <div class="margin-medium-left inline">
+          <span
+            >is the origin of<br />
+            <div class="margin-medium-left">
+              <span
+                v-if="originFor"
+                v-html="originFor"
+              />
+              <span v-else>[Select an endpoint]</span>
+            </div>
+          </span>
+        </div>
+      </div>
+      <div class="margin-small-right">
         <VBtn
           color="primary"
           circle
@@ -31,83 +35,154 @@
           />
         </VBtn>
       </div>
-      <div class="margin-medium-left">
-        <div class="margin-xlarge-left">
-          a
-          <select v-model="type">
-            <option :value="null">Select type</option>
-            <option
-              v-for="(_, key) in typeList"
-              :key="key"
-              :value="key"
-            >
-              {{ key }}
-            </option>
-          </select>
-        </div>
-      </div>
     </div>
-    <smart-selector
-      v-if="type"
-      :model="modelSelected"
-      :target="metadata.object_type"
-      @selected="setObject"
-    />
 
     <div>
-      <button
-        type="button"
-        class="button normal-input button-submit"
-        :disabled="!objective"
-        @click="createOrigin"
-      >
-        Create
-      </button>
+      {{ originEndpoint }}:
+      <select v-model="type">
+        <option :value="null">Select type</option>
+        <option
+          v-for="(key) in Object.keys(typeList).sort()"
+          :key="key"
+          :value="key"
+        >
+          {{ key }}
+        </option>
+      </select>
     </div>
-    <table>
-      <thead>
-        <tr>
-          <th>Old object</th>
-          <th>New object</th>
 
-          <th />
-        </tr>
-      </thead>
-      <draggable
-        class="table-entrys-list"
-        tag="tbody"
-        item-key="id"
-        v-model="list"
-        @end="onSortable"
+    <div
+      v-if="type && offerCreate"
+      class="margin-large-top"
+    >
+      <VBtn
+        v-if="!showingCreate"
+        color="primary"
+        class="margin-small-right margin-medium-bottom"
+        @click="() => (showingCreate = true)"
       >
-        <template #item="{ element }">
-          <tr>
-            <td v-html="element.old_object_object_tag" />
-            <td v-html="element.new_object_object_tag" />
-            <td>
-              <span
-                class="circle-button btn-delete"
-                @click="removeOrigin(element)"
-              />
-            </td>
-          </tr>
-        </template>
-      </draggable>
-    </table>
+        Create new {{ type }} and relationship
+      </VBtn>
+    </div>
+
+    <div v-if="!offerCreate">
+      <SmartSelector
+        v-if="type"
+        :model="modelSelected"
+        :target="metadata.object_type"
+        class="margin-large-top"
+        @selected="(obj) => setObject(obj)"
+      />
+      <div class="margin-large-top margin-large-bottom">
+        <VBtn
+          color="create"
+          :disabled="!objective"
+          @click="createOrigin"
+        >
+          Create
+        </VBtn>
+      </div>
+    </div>
+
+    <fieldset
+      v-if="Object.keys(originForList).length > 0"
+      class="margin-large-bottom"
+    >
+      <legend>Endpoints</legend>
+      <VSpinner
+        v-if="loadingNewObjects"
+      />
+      <h3 class="no-flex"><span v-html="props.metadata.object_tag" />&nbsp;is the origin of:</h3>
+      <RelationshipsTable
+        v-if="newObjectsList.length > 0"
+        v-model="newObjectsList"
+        t="new"
+        @remove="(element) => removeOrigin(element, 'new')"
+        @sort="(event) => onSortable(event)"
+        class="margin-medium-top full_width"
+      />
+      <p
+        v-else
+        class="margin-xlarge-left"
+      >
+        <i>No relationships.</i>
+      </p>
+    </fieldset>
+
+    <fieldset v-if="Object.keys(originatesFromList).length > 0">
+      <legend>Origins</legend>
+      <VSpinner
+        v-if="loadingOldObjects"
+      />
+      <h3 class="no-flex"><span class="blank d-inline-block" />&nbsp;is the origin of&nbsp;<span v-html="props.metadata.object_tag" />:</h3>
+      <RelationshipsTable
+        v-if="oldObjectsList.length > 0"
+        v-model="oldObjectsList"
+        t="old"
+        @remove="(element) => removeOrigin(element, 'old')"
+        class="margin-medium-top full_width"
+      />
+      <p
+        v-else
+        class="margin-xlarge-left"
+      >
+        <i>No relationships.</i>
+      </p>
+    </fieldset>
+
+    <VModal
+      v-if="showingCreate"
+      :container-style="{
+        width: '80vw',
+        maxWidth: '1024px',
+        maxHeight: '85vh',
+        overflowY: 'auto'
+      }"
+      @close="showingCreate = false"
+    >
+      <template #header>
+        <h2 v-if="flip">
+          Create new {{ type }} origin of <span v-html="originFor" />
+        </h2>
+        <h2 v-else>
+          Create new {{ type }} endpoint of <span v-html="originOf" />
+        </h2>
+      </template>
+
+      <template #body>
+        <component
+          :is="SLICES_WITH_CREATE.origin_relationships[type].component"
+          :object-id="objectId"
+          :object-type="objectType"
+          :flip="flip"
+          :mode="CREATE_VERB"
+          @originRelationshipCreated="(relationship) => {
+            addRelationship(relationship)
+            showingCreate = false
+          }"
+        />
+      </template>
+    </VModal>
   </div>
 </template>
 
 <script setup>
 import { OriginRelationship } from '@/routes/endpoints'
 import { useSlice } from '@/components/radials/composables'
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { COLLECTION_OBJECT } from '@/constants'
+import { SLICES_WITH_CREATE } from '../../constants/slices'
 import SmartSelector from '@/components/ui/SmartSelector'
-import Draggable from 'vuedraggable'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
+import VModal from '@/components/ui/Modal'
+import RelationshipsTable from './components/relationshipsTable.vue'
+import { addToArray, removeFromArray } from '@/helpers'
+import { CREATE_VERB } from '@/constants'
 
 const controllerRoute = {
+  AnatomicalPart: 'anatomical_parts',
   AssertedDistribution: 'asserted_distributions',
   Extract: 'extracts',
   Lot: 'collection_objects',
@@ -143,8 +218,9 @@ const props = defineProps({
     required: true
   }
 })
-
-const typeList = props.metadata.endpoints.origin_relationships.origin_for
+const originForList = props.metadata.endpoints.origin_relationships.origin_for || []
+const originatesFromList = props.metadata.endpoints.origin_relationships.originates_from || []
+const typeList = computed(() => flip.value ? originatesFromList : originForList)
 
 const { list, addToList, removeFromList } = useSlice({
   radialEmit: props.radialEmit
@@ -153,7 +229,25 @@ const { list, addToList, removeFromList } = useSlice({
 const flip = ref(false)
 const type = ref(null)
 const objective = ref(null)
+const showingCreate = ref(false)
+const loadingNewObjects = ref(false)
+const loadingOldObjects = ref(false)
+const oldObjectsList = ref([])
+const newObjectsList = ref([])
 
+const offerCreate = computed(() => {
+  if (!Object.keys(SLICES_WITH_CREATE.origin_relationships).includes(type.value)) {
+    return false
+  }
+  const flipsAllowed = SLICES_WITH_CREATE.origin_relationships[type.value].flip
+  if (flipsAllowed === null || flipsAllowed === flip.value) {
+    return true
+  }
+
+  return false
+})
+
+const originEndpoint = computed(() => flip.value ? 'Origin' : 'Endpoint')
 const originOf = computed(() => {
   return !flip.value ? props.metadata.object_tag : objective.value?.object_tag
 })
@@ -163,6 +257,14 @@ const originFor = computed(() => {
 })
 
 const modelSelected = computed(() => controllerRoute[type.value])
+
+watch([oldObjectsList, newObjectsList], ([newA, newB]) => {
+  // This is not quite the way useSlice intends its list to be defined - compare
+  // the resulting 'a little hacky' comments.
+  list.value = [...newA, ...newB]
+})
+
+watch(flip, () => (type.value = null))
 
 function setObject(item) {
   objective.value =
@@ -186,34 +288,49 @@ function createOrigin() {
   }
 
   OriginRelationship.create({
-    origin_relationship: originRelationship
+    origin_relationship: originRelationship,
+    extend: ['global_ids']
   })
     .then(({ body }) => {
+      addRelationship(body)
       TW.workbench.alert.create(
         'Origin relationship was successfully created.',
         'notice'
       )
-      addToList(body)
     })
     .catch(() => {})
 }
 
-function removeOrigin(item) {
-  OriginRelationship.destroy(item.id).then(() => {
-    TW.workbench.alert.create(
-      'Origin relationship was successfully destroyed.',
-      'notice'
-    )
-    removeFromList(item)
-  })
+function addRelationship(relationship) {
+  addToList(relationship) // just to trigger useSlice emits
+  addToArray(flip.value ? oldObjectsList.value : newObjectsList.value, relationship)
+}
+
+function removeRelationship(relationship, newOrOld) {
+  removeFromList(relationship) // just to trigger useSlice emits
+  removeFromArray(newOrOld == 'new' ? newObjectsList.value : oldObjectsList.value, relationship)
+}
+
+function removeOrigin(item, t) {
+  OriginRelationship
+    .destroy(item.id).then(() => {
+      TW.workbench.alert.create(
+        'Origin relationship was successfully destroyed.',
+        'notice'
+      )
+      removeRelationship(item, t)
+    })
+    .catch(() => {})
 }
 
 function onSortable({ newIndex }) {
   const originRelationship = {
-    id: list.value[newIndex].id,
+    id: newObjectsList.value[newIndex].id,
     position: newIndex
   }
 
+  // TODO: this doesn't do what you expect when moving 0 to 1 (old 1 just
+  // moves to 2).
   OriginRelationship.update(originRelationship.id, {
     origin_relationship: originRelationship
   }).then(({ body }) => {
@@ -221,9 +338,49 @@ function onSortable({ newIndex }) {
   })
 }
 
-OriginRelationship.where({ old_object_global_id: props.globalId }).then(
-  ({ body }) => {
-    list.value = body
-  }
-)
+onMounted(() => {
+  loadingNewObjects.value = true
+  OriginRelationship.where({ old_object_global_id: props.globalId, extend: ['global_ids'] })
+    .then(
+      ({ body }) => {
+        newObjectsList.value = body
+      }
+    )
+    .catch(() => {})
+    .finally(() => loadingNewObjects.value = false)
+
+  loadingOldObjects.value = true
+  OriginRelationship.where({ new_object_global_id: props.globalId, extend: ['global_ids'] })
+    .then(
+      ({ body }) => {
+        oldObjectsList.value = body
+      }
+    )
+    .catch(() => {})
+    .finally(() => loadingOldObjects.value = false)
+})
 </script>
+
+<style lang="css" scoped>
+.direction {
+  display: flex;
+  gap: 0.5em;
+  align-items: center;
+}
+
+.direction-wording {
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  border-right: 2px solid var(--border-color);
+  border-radius: var(--border-radius-small);
+}
+
+.blank {
+  width: 5em;
+  border-bottom: 2px solid var(--text-color);
+}
+
+.panel h3.no-flex {
+  display: block;
+}
+</style>

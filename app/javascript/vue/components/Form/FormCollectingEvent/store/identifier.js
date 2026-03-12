@@ -39,13 +39,15 @@ export default defineStore('collectingEventForm:identifiers', {
         ? Identifier.update(this.identifier.id, payload)
         : Identifier.create(payload)
 
-      request.then(({ body }) => {
-        this.identifier = {
-          id: body.id,
-          identifier: body.identifier,
-          isUnsaved: true
-        }
-      })
+      request
+        .then(({ body }) => {
+          this.identifier = {
+            id: body.id,
+            identifier: body.identifier,
+            isUnsaved: true
+          }
+        })
+        .catch(() => {})
 
       return request
     },

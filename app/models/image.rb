@@ -296,10 +296,15 @@ class Image < ApplicationRecord
   def self.cropped(params)
     image = Image.find(params[:id])
     img = Magick::Image.read(image.image_file.path(:original)).first
+    x = params[:x].to_i
+    y = params[:y].to_i
+    w = params[:width].to_i
+    h = params[:height].to_i
     begin
+      raise ArgumentError, "invalid crop parameters: x=#{x}, y=#{y}, width=#{w}, height=#{h}" if w <= 0 || h <= 0 || x < 0 || y < 0
       # img.crop(x, y, width, height, true)
-      cropped = img.crop( params[:x].to_i, params[:y].to_i, params[:width].to_i, params[:height].to_i, true)
-    rescue RuntimeError
+      cropped = img.crop(x, y, w, h, true)
+    rescue ArgumentError, RuntimeError, Magick::ImageMagickError
       cropped = img.crop(0,0, 1, 1)  # return a single pixel on error ! TODO: make/return an error image
     ensure
       img.destroy!
@@ -376,6 +381,11 @@ class Image < ApplicationRecord
     self.to_blob!(cropped(params))
   end
 
+  def original_as_png
+    img = Magick::Image.read(self.image_file.path(:original)).first
+    self.class.to_blob!(img, 'png')
+  end
+
   # @param used_on [String] required, a depictable base class name like  `Otu`, `Content`, or `CollectionObject`
   # @return [Scope]
   #   the max 10 most recently used images, as `used_on`
@@ -450,9 +460,9 @@ class Image < ApplicationRecord
   # @return [String] a JPG representation of the image
   #   !! Always converts to .jpg, this may need abstraction later
   #   Returns an empty string if no image
-  def self.to_blob!(img)
+  def self.to_blob!(img, format = 'jpg')
     return '' if img.nil?
-    img.format = 'jpg'
+    img.format = format
     blob = img.to_blob
     img.destroy!
     blob

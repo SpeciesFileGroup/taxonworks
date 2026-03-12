@@ -39,7 +39,7 @@ class GeneAttributesController < ApplicationController
         format.json { render :show, status: :created, location: @gene_attribute }
       else
         format.html { render :new }
-        format.json { render json: @gene_attribute.errors, status: :unprocessable_entity }
+        format.json { render json: @gene_attribute.errors, status: :unprocessable_content }
       end
     end
   end
@@ -53,7 +53,7 @@ class GeneAttributesController < ApplicationController
         format.json { render :show, status: :ok, location: @gene_attribute }
       else
         format.html { render :edit }
-        format.json { render json: @gene_attribute.errors, status: :unprocessable_entity }
+        format.json { render json: @gene_attribute.errors, status: :unprocessable_content }
       end
     end
   end

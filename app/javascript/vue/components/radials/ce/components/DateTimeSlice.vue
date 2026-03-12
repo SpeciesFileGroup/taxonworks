@@ -139,6 +139,7 @@ import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
 import DateFields from '@/components/ui/Date/DateFields.vue'
 import DateNow from '@/components/ui/Date/DateToday.vue'
 import DateTime from '@/components/ui/Date/DateTime.vue'
+import updateMessage from '../utils/updateMessage.js'
 
 const MAX_LIMIT = 250
 
@@ -211,13 +212,5 @@ function cloneDate() {
   endDate.end_date_day = startDate.start_date_day
   endDate.end_date_month = startDate.start_date_month
   endDate.end_date_year = startDate.start_date_year
-}
-
-function updateMessage(data) {
-  const message = data.sync
-    ? `${data.updated.length} collecting events queued for updating.`
-    : `${data.updated.length} collecting events were successfully updated.`
-
-  TW.workbench.alert.create(message, 'notice')
 }
 </script>

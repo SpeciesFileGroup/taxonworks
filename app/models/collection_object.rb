@@ -83,7 +83,10 @@ class CollectionObject < ApplicationRecord
   include Shared::QueryBatchUpdate
   include SoftValidation
 
+  # At present must be before BiologicalExtensions
+  include Shared::TaxonDeterminationRequired # only when anatomical_parts exist
   include Shared::BiologicalExtensions
+  include Shared::BiologicalAssociationIndexHooks
 
   include Shared::Taxonomy # at present must be before IsDwcOccurence
 
@@ -153,6 +156,7 @@ class CollectionObject < ApplicationRecord
   validate :check_that_either_total_or_ranged_lot_category_id_is_present
   validate :check_that_both_of_category_and_total_are_not_present
   validate :collecting_event_belongs_to_project
+  validate :total_positive_when_present
 
   soft_validate(
     :sv_missing_accession_fields,
@@ -171,6 +175,12 @@ class CollectionObject < ApplicationRecord
 
   has_many :extracts, through: :origin_relationships, source: :new_object, source_type: 'Extract'
   has_many :sequences, through: :extracts
+
+  def requires_taxon_determination?
+    OriginRelationship
+      .where(old_object: self, new_object_type: 'AnatomicalPart')
+      .exists?
+  end
 
   # This is a hack, maybe related to a Rails 5.1 bug.
   # It returns the SQL that works in 5.0/4.2 that
@@ -198,6 +208,8 @@ class CollectionObject < ApplicationRecord
       object_filter_params: params[:collection_object_query],
       object_params: params[:collection_object],
       preview: params[:preview],
+      user_id: params[:user_id],
+      project_id: params[:project_id]
     )
 
     request.cap = 1000
@@ -215,9 +227,13 @@ class CollectionObject < ApplicationRecord
     c = q.all.count
 
     if c == 0 || c > 10000
+      # TODO: cap_reason is currently unused, setting errors as well for now
       r.cap_reason = 'Too many (or no) collection objects (max 10k)'
+      r.errors['Too many (or no) collection objects (max 10k)'] = 1
       return r
     end
+
+    r.total_attempted = c
 
     if c < 51
       q.each do |co|
@@ -762,6 +778,13 @@ class CollectionObject < ApplicationRecord
     errors.add(:base, 'Either total or a ranged lot category must be provided') if ranged_lot_category_id.blank? && total.blank?
   end
 
+  def total_positive_when_present
+    # Allow total: 0 when ranged_lot_category is set
+    return if ranged_lot_category_id.present? && total == 0
+
+    errors.add(:total, 'Must be positive.') if total.present? && total <= 0
+  end
+
   def assign_type_if_total_or_ranged_lot_category_id_provided
     if self.total == 1
       self.type = 'Specimen'
@@ -783,6 +806,13 @@ class CollectionObject < ApplicationRecord
     end
     # !! does not account for georeferences_attributes!
     reject
+  end
+
+  # @return [ActiveRecord::Relation]
+  #   BiologicalAssociationIndex records where this CollectionObject is subject or object
+  def biological_association_indices
+    BiologicalAssociationIndex.where('subject_id = ? AND subject_type = ?', id, self.class.base_class.name)
+      .or(BiologicalAssociationIndex.where('object_id = ? AND object_type = ?', id, self.class.base_class.name))
   end
 
 end

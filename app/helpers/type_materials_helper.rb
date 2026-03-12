@@ -21,9 +21,9 @@ full_original_taxon_name_tag(type_material.protonym)
   # @return [GeoJson feature]
   # @param base [Boolean]
   #
-  def type_material_to_geo_json_feature(type_material, base = true)
+  def type_material_to_geo_json_feature(type_material, base = true, skip_geometry: false)
     return nil if type_material.nil?
-    if a = collection_object_to_geo_json_feature(type_material.collection_object, false)
+    if a = collection_object_to_geo_json_feature(type_material.collection_object, false, skip_geometry:)
       l = label_for_type_material(type_material)
       a['properties']['target'] = {
         'type' => 'TypeMaterial',

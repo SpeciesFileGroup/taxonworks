@@ -98,7 +98,7 @@ describe 'Project Handling', type: :feature do
 
       specify 'it should show the project page' do
         expect(page).to have_content('My Project')
-        expect(page).to have_content('Project attributes')
+        expect(page).to have_content('Housekeeping')
       end
 
       specify 'it should have an Edit link' do
@@ -106,11 +106,7 @@ describe 'Project Handling', type: :feature do
       end
 
       specify 'it should have an Add project member link' do
-        expect(page).to have_link('Add project member')
-      end
-
-      specify 'it should have an Add a new user link' do
-        expect(page).to have_link('Add new user')
+        expect(page).to have_link('Add member(s)')
       end
     end
 
@@ -133,7 +129,7 @@ describe 'Project Handling', type: :feature do
       }
 
       specify 'should render the edit form' do
-        expect(page).to have_content('Editing project')
+        expect(page).to have_content('Edit project')
       end
      
       specify 'project can be udpated' do

@@ -27,6 +27,17 @@ async function getBiocurationGroupsWithClasses() {
     }
   })
 
+  const ungrouped = types.filter((t) =>
+    body.every((item) => item.tag_object_id !== t.id)
+  )
+
+  if (ungrouped.length) {
+    groups.push({
+      name: 'Ungrouped',
+      list: ungrouped
+    })
+  }
+
   return groups
 }
 

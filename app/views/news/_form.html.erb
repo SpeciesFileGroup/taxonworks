@@ -1,0 +1,42 @@
+<%= form_with(model: news.metamorphosize) do |form| %>
+  <% if news.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(news.errors.count, "error") %> prohibited this news from being saved:</h2>
+
+      <ul>
+        <% news.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :type, style: "display: block" %>
+    <%= form.select :type, options_for_select(createable_news_types(sessions_current_user), @news.type) %>
+  </div>
+
+  <div>
+    <%= form.label :title, style: "display: block" %>
+    <%= form.text_area :title %>
+  </div>
+
+  <div>
+    <%= form.label :body, style: "display: block" %>
+    <%= form.text_area :body %>
+  </div>
+
+  <div>
+    <%= form.label :display_start, style: "display: block" %>
+    <%= form.datetime_field :display_start %>
+  </div>
+
+  <div>
+    <%= form.label :display_end, style: "display: block" %>
+    <%= form.datetime_field :display_end %>
+  </div>
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>

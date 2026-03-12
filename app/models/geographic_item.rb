@@ -122,12 +122,21 @@ class GeographicItem < ApplicationRecord
     # @return [Scope] of items covering the union of geographic_item_ids;
     # does not include any of geographic_item_ids
     def superset_of_union_of(*geographic_item_ids)
-      where(
-        superset_of_sql(
-          items_as_one_geometry_sql(*geographic_item_ids)
-        )
+      geographic_item_ids.flatten!
+      shape = items_as_one_geometry_sql(*geographic_item_ids)
+
+      # Use && bounding box operator to leverage the GiST spatial index
+      # before the expensive ST_Covers check
+      shape_sql = shape.respond_to?(:to_sql) ? shape.to_sql : shape
+      bounding_box_sql = Arel::Nodes::InfixOperation.new(
+        '&&',
+        Arel.sql('geography'),
+        Arel.sql("(#{shape_sql})::geography")
       )
-      .not_ids(*geographic_item_ids)
+
+      where(bounding_box_sql)
+        .where(superset_of_sql(shape))
+        .not_ids(*geographic_item_ids)
     end
 
     def st_covered_by_sql(shape1, shape2)
@@ -930,7 +939,7 @@ class GeographicItem < ApplicationRecord
   end
 
   def geographic_name_hierarchy
-    a = quick_geographic_name_hierarchy # quick; almost never the case, UI not setup to do this
+    a = quick_geographic_name_hierarchy # quick; almost never works (georefs), UI not setup to do this
     return a if a.present?
     inferred_geographic_name_hierarchy # slow
   end

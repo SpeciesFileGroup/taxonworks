@@ -59,6 +59,7 @@ import { CollectionObject, PreparationType } from '@/routes/endpoints'
 import { chunkArray } from '@/helpers'
 import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
 import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
+import updateMessage from '../utils/updateMessage.js'
 
 const MAX_LIMIT = 250
 
@@ -99,12 +100,4 @@ PreparationType.all().then(({ body }) => {
 
   preparationTypes.value = chunkArray(types, Math.ceil(types.length / 3))
 })
-
-function updateMessage(data) {
-  const message = data.sync
-    ? `${data.updated.length} collection objects queued for updating.`
-    : `${data.updated.length} collection objects were successfully updated.`
-
-  TW.workbench.alert.create(message, 'notice')
-}
 </script>

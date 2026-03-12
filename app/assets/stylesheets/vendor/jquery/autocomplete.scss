@@ -3,7 +3,8 @@
   border: 1px solid #aed581;
 }
 
-.ui-autocomplete-input {
+.ui-autocomplete-input,
+.vue-autocomplete-input-search {
   background-image: image-url('search.svg');
   background-position: right 4px center;
   background-repeat: no-repeat;

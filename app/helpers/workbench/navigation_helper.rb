@@ -11,22 +11,27 @@ module Workbench::NavigationHelper
 
   def class_navigation_json(klass)
     k = klass
-
     b = {}
-    %w{new edit home}.each do |t|
-      if OBJECT_RADIALS[k]
+    tasks = {}
+
+    if OBJECT_RADIALS[k]
+      %w{new edit home}.each do |t|
         if c = OBJECT_RADIALS[k][t]
-          b[t] = send(OBJECT_RADIALS[k][t] + '_path')
+          b[t] = send(c + '_path')
         end
+      end
+
+      if OBJECT_RADIALS[k]['tasks']
+        tasks = OBJECT_RADIALS[k]['tasks'].inject({}) { |hsh, t| hsh[t] = send(t + '_path'); hsh }
       end
     end
 
     return {
-     klass: k,
-     id: k.tableize.singularize + '_id',
-     tasks: OBJECT_RADIALS[k]['tasks'].inject({}){|hsh, t| hsh[t] = send(t + '_path'); hsh },
-     base: b
-   }
+      klass: k,
+      id: k.tableize.singularize + '_id',
+      tasks: tasks,
+      base: b
+    }
   end
 
   # Slideout panels
@@ -280,15 +285,45 @@ module Workbench::NavigationHelper
   def a_to_z_links(targets = [])
     letters = targets.empty? ? ('A'..'Z') : ('A'..'Z').to_a & targets
     content_tag(:div, class: 'navigation-bar-left', id: 'alphabet_nav') do
-      content_tag(:ul, class: 'left_justified_navbar context-menu') do
-        letters.collect{|l| content_tag(:li, link_to("#{l}", "\##{l}")) }.join.html_safe
+      content_tag(:ul, class: 'left_justified_navbar') do
+        letters.collect{|l| content_tag(:li, link_to("#{l}", "\##{l}"), data: { turbolinks: :false }) }.join.html_safe
       end
     end
   end
 
   def title_tag
-    splash = request.path =~ /task/ ? request.path.demodulize.humanize : request.path.split('/')&.second&.humanize
-    content_tag(:title, ['TaxonWorks', splash].compact.join(' - ') )
+    splash =
+      if current_page?(root_path)
+        'Dashboard'
+      elsif request.path.include?('task')
+        request.path.demodulize.humanize
+      else
+        request.path.split('/')&.second&.humanize
+      end
+
+    project_name = sessions_current_project&.name || 'TaxonWorks'
+
+    content_tag(:title, [project_name, splash].compact.join(' - ') )
+  end
+
+
+  def header_path_tag
+    key = UserTasks::INDEXED_TASKS.keys.find do |k|
+      t = UserTasks::INDEXED_TASKS[k]
+      send(t.path) == request.path rescue false
+    end
+    task_name = UserTasks::INDEXED_TASKS[key]&.name
+    namespace      = controller.controller_path.split('/')&.first&.humanize
+    controller_label = controller.controller_name.humanize
+
+    label =
+      if namespace == controller_label
+        "/ #{namespace}"
+      else
+        "/ #{namespace} / #{task_name || controller_label}"
+      end
+
+    content_tag(:span, label)
   end
 
   def radial_navigation_tag(object, teleport = nil)

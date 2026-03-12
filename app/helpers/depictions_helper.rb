@@ -64,7 +64,7 @@ module DepictionsHelper
       thumb: short_url(depiction.image.image_file.url(:thumb)),
       medium: short_url(depiction.image.image_file.url(:medium)),
       content_type: depiction.image.image_file_content_type,
-      original_png: original_as_png_via_api(depiction.image)
+      original_png: original_as_scaled_png_via_api(depiction.image)
     }
     a
   end

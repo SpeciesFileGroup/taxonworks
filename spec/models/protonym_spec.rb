@@ -428,4 +428,59 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     }
   end
 
+  context '.batch_update' do
+    specify '(sync)' do
+      root = Protonym.where(parent_id: nil, project_id: Current.project_id).first || FactoryBot.create(:root_taxon_name)
+      order1 = Protonym.create!(name: 'Batchsyncorder', rank_class: Ranks.lookup(:iczn, :order), parent: root)
+      genus1 = Protonym.create!(name: 'Aussyncbatch', rank_class: Ranks.lookup(:iczn, :genus), parent: order1)
+      genus2 = Protonym.create!(name: 'Bussyncbatch', rank_class: Ranks.lookup(:iczn, :genus), parent: order1)
+
+      t1 = Protonym.create!(name: 'aussync', rank_class: Ranks.lookup(:iczn, :species), parent: genus1)
+      t2 = Protonym.create!(name: 'bussync', rank_class: Ranks.lookup(:iczn, :species), parent: genus1)
+
+      q = ::Queries::TaxonName::Filter.new({taxon_name_id: [t1.id, t2.id]})
+
+      params = {
+        async_cutoff: 3,
+        taxon_name: { parent_id: genus2.id }
+      }.merge(taxon_name_query: q.params)
+
+      response = Protonym.batch_update(params).to_json
+
+      expect(response[:updated]).to include(t1.id, t2.id)
+      expect(response[:not_updated]).to eq([])
+      expect(t1.reload.parent).to eq genus2
+      expect(t2.reload.parent).to eq genus2
+    end
+
+    specify '(async)' do
+      root = Protonym.where(parent_id: nil, project_id: Current.project_id).first || FactoryBot.create(:root_taxon_name)
+      order1 = Protonym.create!(name: 'Batchasyncorder', rank_class: Ranks.lookup(:iczn, :order), parent: root)
+      genus1 = Protonym.create!(name: 'Ausasyncbatch', rank_class: Ranks.lookup(:iczn, :genus), parent: order1)
+      genus2 = Protonym.create!(name: 'Busasyncbatch', rank_class: Ranks.lookup(:iczn, :genus), parent: order1)
+
+      t1 = Protonym.create!(name: 'ausasync', rank_class: Ranks.lookup(:iczn, :species), parent: genus1)
+      t2 = Protonym.create!(name: 'busasync', rank_class: Ranks.lookup(:iczn, :species), parent: genus1)
+
+      q = ::Queries::TaxonName::Filter.new({taxon_name_id: [t1.id, t2.id]})
+
+      params = {
+        async_cutoff: 1,
+        taxon_name: { parent_id: genus2.id },
+        user_id: Current.user_id,
+        project_id: Current.project_id
+      }.merge(taxon_name_query: q.params)
+
+      response = Protonym.batch_update(params).to_json
+
+      sleep(2) # jobs trigger in 1 second
+      Delayed::Worker.new.work_off
+
+      expect(response[:total_attempted]).to eq(2)
+      expect(response[:async]).to eq(true)
+      expect(t1.reload.parent).to eq genus2
+      expect(t2.reload.parent).to eq genus2
+    end
+  end
+
 end

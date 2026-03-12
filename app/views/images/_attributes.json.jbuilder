@@ -10,7 +10,8 @@ json.partial! '/shared/data/all/metadata', object: image
 json.image_file_url root_url + image.image_file.url[1..-1]
 json.image_display_url image_display_url(image)
 json.image_original_filename image.image_file.original_filename
-json.original_png original_as_png_via_api(image, api: false)
+json.original_png original_as_scaled_png_via_api(image, api: false)
+json.as_png original_as_png_via_api(image, api: false)
 
 json.alternatives do
   json.medium do

@@ -73,7 +73,7 @@ module Queries::Concerns::Identifiers
     # @param match_identifiers_caseless [Boolean]
     # @return [Boolean, nil] default true
     #   if true then LOWER(cached) is matched to values.downcased
-    # 
+    #
     # !! Requires match_identifiers_delimiter to be present
     attr_accessor :match_identifiers_caseless
 
@@ -463,7 +463,7 @@ module Queries::Concerns::Identifiers
             # caseless
 
             # TODO: optimize, this was done hastily
-            o = "array_position(ARRAY[#{ids.collect{|i| "'#{i}'"}.join(',')}], LOWER(sid.cached)) s"
+            o = "array_position(ARRAY[#{ids.collect{|i| ApplicationRecord.connection.quote(i)}.join(',')}], LOWER(sid.cached)) s"
 
             i = ::Identifier
               .from('identifiers sid')
@@ -472,13 +472,12 @@ module Queries::Concerns::Identifiers
 
             target_query = target_query.with(sid: i)
               .joins("JOIN sid on sid.identifier_object_id = #{table.name}.id AND sid.identifier_object_type = '#{referenced_klass.base_class.name}'")
-              .select("#{table.name}.*, sid.s")
               .order('sid.s')
 
           else
 
             # TODO: optimize, this was done hastily
-            o = "array_position(ARRAY[#{ids.collect{|i| "'#{i}'"}.join(',')}], sid.cached) s"
+            o = "array_position(ARRAY[#{ids.collect{|i| ApplicationRecord.connection.quote(i)}.join(',')}], sid.cached) s"
 
             i = ::Identifier
               .from('identifiers sid')
@@ -487,14 +486,13 @@ module Queries::Concerns::Identifiers
 
             target_query = target_query.with(sid: i)
               .joins("JOIN sid on sid.identifier_object_id = #{table.name}.id AND sid.identifier_object_type = '#{referenced_klass.base_class.name}'")
-              .select("#{table.name}.*, sid.s")
               .order('sid.s')
           end
         end
       end
     end
     target_query
-  end 
+  end
 
   # def substring
   #   Arel::Nodes::NamedFunction.new('SUBSTRING', [ identifier_table[:identifier], Arel::Nodes::SqlLiteral.new("'([\\d]{1,9})$'") ]).as('integer')

@@ -5,6 +5,7 @@
     v-model="params"
     coverage
     validity
+    current-determination
   />
   <FilterType v-model="params" />
   <FacetBiocurations v-model="params" />
@@ -71,7 +72,7 @@ import FacetBiocurations from '@/components/Filter/Facets/CollectionObject/Facet
 import FacetRepository from '@/components/Filter/Facets/CollectionObject/FacetRepository.vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetBuffered from './filters/FacetBuffered.vue'
-import FacetPreparationTypes from './filters/FacetPreparationTypes'
+import FacetPreparationTypes from '@/components/Filter/Facets/PreparationType/FacetPreparationTypes.vue'
 import FacetPeople from '@/components/Filter/Facets/shared/FacetPeople.vue'
 import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
 import FacetCurrentRepository from './filters/FacetCurrentRepository.vue'

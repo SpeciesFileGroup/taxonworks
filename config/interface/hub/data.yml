@@ -102,6 +102,18 @@ Core: # a Section
     categories:
       - matrix
 Supporting:
+  AnatomicalPart:
+    status: :prototype
+    related_models:
+      - CollectionObject
+      - FieldOccurrence
+      - Otu
+    categories:
+      - biology
+      - collection_object
+      - dna
+      - matrix
+      - otu
   AssertedDistribution:
     status: :prototype
     categories:
@@ -149,11 +161,11 @@ Supporting:
   Conveyance:
     status: :prototype
     related_models:
-      - Sound 
+      - Sound
     categories:
       - collection_object
       - otu
-      - observation 
+      - observation
   CommonName:
     status: :prototype
     categories:
@@ -407,3 +419,6 @@ Annotations:
     status: :prototype
     related_models:
       - ControlledVocabularyTerm
+Communication:
+  News:
+    status: :prototype

@@ -8,6 +8,7 @@ module Queries
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
       include Queries::Concerns::Notes
+      include Queries::Concerns::Sounds
       include Queries::Concerns::Tags
 
       PARAMS = [
@@ -16,6 +17,8 @@ module Queries
         :author,
         :author_exact,
         :authors,
+        :availability,
+        :cached,
         :collecting_event_id,
         :collection_object_id,
         :combinations,
@@ -51,6 +54,7 @@ module Queries
         :year_end,
         :year_start,
 
+        cached: [],
         collection_object_id: [],
         collecting_event_id: [],
         combination_taxon_name_id: [],
@@ -121,6 +125,10 @@ module Queries
       # @return Boolean
       attr_accessor :name_exact
 
+      # @param cached [String, Array]
+      # @return [Array] of TaxonNames matching cached exactly
+      attr_accessor :cached
+
       # @param author [String]
       #   Use "&" for "and". Matches against cached_author_year. See also author_exact.
       attr_accessor :author
@@ -152,6 +160,11 @@ module Queries
       # ['true' or 'false'] on initialize
       #   true if only valid, false if only invalid, nil if both
       attr_accessor :validity
+
+      # @params availability [ Boolean]
+      # ['true' or 'false'] on initialize
+      #   true if only available, false if only unavailable, nil if both
+      attr_accessor :availability
 
       # @params validify ['true', True, nil]
       # @return Boolean
@@ -345,6 +358,8 @@ module Queries
         @author = params[:author]
         @author_exact = boolean_param(params, :author_exact)
         @authors = boolean_param(params, :authors)
+        @availability = boolean_param(params, :availability)
+        @cached = params[:cached]
         @collecting_event_id = params[:collecting_event_id]
         @collection_object_id = params[:collection_object_id]
         @combination_taxon_name_id = params[:combination_taxon_name_id]
@@ -410,25 +425,16 @@ module Queries
         @year.to_s
       end
 
-      def name
-        [@name].flatten.compact
-      end
-
       def collection_object_id
         [@collection_object_id].flatten.compact
-      end
-
-      def year
-        return nil if @year.blank?
-        @year.to_s
       end
 
       def name
         [@name].flatten.compact
       end
 
-      def collection_object_id
-        [@collection_object_id].flatten.compact
+      def cached
+        [@cached].flatten.compact
       end
 
       def collecting_event_id
@@ -573,12 +579,6 @@ module Queries
       def otu_id_facet
         return nil if otu_id.empty?
         ::TaxonName.joins(:otus).where(otus: { id: otu_id })
-      end
-
-      def otus_facet
-        return nil if otus.nil?
-        subquery = ::Otu.where(::Otu.arel_table[:taxon_name_id].eq(::TaxonName.arel_table[:id])).arel.exists
-        ::TaxonName.where(otus ? subquery : subquery.not)
       end
 
       # This is not true! It includes records that are year only.
@@ -802,6 +802,11 @@ module Queries
         end
       end
 
+      def cached_facet
+        return nil if cached.empty?
+        table[:cached].in(cached)
+      end
+
       def parent_id_facet
         return nil if parent_id.empty?
         table[:parent_id].in(parent_id)
@@ -810,9 +815,9 @@ module Queries
       def author_facet
         return nil if author.blank?
         if author_exact
-          table[:cached_author_year].eq(author.strip)
+          table[:cached_author].eq(author.strip)
         else
-          table[:cached_author_year].matches('%' + author.strip.gsub(/\s/, '%') + '%')
+          table[:cached_author].matches('%' + author.strip.gsub(/\s/, '%') + '%')
         end
       end
 
@@ -836,6 +841,15 @@ module Queries
           table[:cached_is_valid].eq(true)
         else
           table[:cached_is_valid].eq(false)
+        end
+      end
+
+      def availability_facet
+        return nil if availability.nil?
+        if availability
+          table[:cached_is_available].eq(true)
+        else
+          table[:cached_is_available].eq(false)
         end
       end
 
@@ -887,12 +901,20 @@ module Queries
         ::TaxonName.from('(' + s + ') as taxon_names').distinct
       end
 
+      def sound_query_facet
+        return nil if sound_query.nil?
+        otus = otus_from_sound_query
+        return nil if otus.nil?
+
+        ::TaxonName.joins(:otus).where(otus: {id: otus.select(:id)}).distinct
+      end
+
       def asserted_distribution_query_facet
         return nil if asserted_distribution_query.nil?
         s = 'WITH query_ad_tn AS (' + asserted_distribution_query.all.to_sql + ') ' +
             ::TaxonName
-              .joins(otus: [:asserted_distributions])
-              .joins('JOIN query_ad_tn as query_ad_tn1 on query_ad_tn1.otu_id = asserted_distributions.otu_id')
+              .joins(:otus)
+              .joins("JOIN query_ad_tn ON query_ad_tn.asserted_distribution_object_id = otus.id AND query_ad_tn.asserted_distribution_object_type = 'Otu'")
               .to_sql
 
         ::TaxonName.from('(' + s + ') as taxon_names').distinct
@@ -968,11 +990,13 @@ module Queries
         [
           nomenclature_date_facet,
           author_facet,
+          cached_facet,
           name_facet,
           parent_id_facet,
           rank_facet,
           taxon_name_type_facet,
           validity_facet,
+          availability_facet,
           verbatim_name_facet,
           with_nomenclature_code,
           with_nomenclature_group,
@@ -987,6 +1011,7 @@ module Queries
           collecting_event_query_facet,
           collection_object_query_facet,
           otu_query_facet,
+          sound_query_facet,
           taxon_name_relationship_query_facet,
 
           ancestor_facet,

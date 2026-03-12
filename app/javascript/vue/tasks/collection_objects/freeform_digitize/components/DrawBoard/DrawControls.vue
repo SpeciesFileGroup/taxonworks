@@ -86,6 +86,13 @@ watch(color, (newVal) => SVGBoard.value.apiStroke(newVal))
 </script>
 
 <style scoped lang="scss">
+.dark {
+  .draw__toolbar {
+    svg {
+      filter: invert(1);
+    }
+  }
+}
 .draw__toolbar {
   button {
     background-color: transparent;

@@ -10,12 +10,18 @@ export function html2tsv(element, options = {}) {
   const thElements = [...el.querySelectorAll('th')]
   const trElements = [...el.querySelectorAll('tr')]
 
+  const end = options.end ? Number(options.end) : thElements.length - 1
+
   const columnHeaders = thElements
-    .slice(offset)
+    .slice(offset, end + 1)
     .map((el) => el.textContent)
     .join('\t')
   const rowData = trElements
-    .map((row) => getRowData(row).slice(offset).join('\t'))
+    .map((row) =>
+      getRowData(row)
+        .slice(offset, end + 1)
+        .join('\t')
+    )
     .join('\n')
 
   return [columnHeaders, rowData].join('')

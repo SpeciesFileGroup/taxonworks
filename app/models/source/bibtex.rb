@@ -360,26 +360,26 @@ class Source::Bibtex < Source
 
   before_validation :check_has_field
 
-  validates_inclusion_of :bibtex_type,
-    in: ::VALID_BIBTEX_TYPES,
-    message: '"%{value}" is not a valid source type'
+  validates :bibtex_type,
+    inclusion: { in: ::VALID_BIBTEX_TYPES,
+    message: '"%{value}" is not a valid source type' }
 
-  validates_presence_of :year,
-    if: -> { month.present? || stated_year.present? },
-    message: 'is required when month or stated_year is provided'
+  validates :year,
+    presence: { if: -> { month.present? || stated_year.present? },
+    message: 'is required when month or stated_year is provided' }
 
   validates :year, date_year: {
     min_year: 1000, max_year: Time.now.year + 2,
     message: 'must be an integer greater than 999 and no more than 2 years in the future'}
 
-  validates_presence_of :month,
-    unless: -> { day.blank? },
-    message: 'is required when day is provided'
+  validates :month,
+    presence: { unless: -> { day.blank? },
+    message: 'is required when day is provided' }
 
-  validates_inclusion_of :month,
-    in: ::VALID_BIBTEX_MONTHS,
+  validates :month,
+    inclusion: { in: ::VALID_BIBTEX_MONTHS,
     allow_blank: true,
-    message: ' month'
+    message: ' month' }
 
   validates :day, date_day: {year_sym: :year, month_sym: :month},
             unless: -> { year.blank? || month.blank? }
@@ -402,6 +402,8 @@ class Source::Bibtex < Source
       async_cutoff: params[:async_cutoff] || 50,
       cap: 50,
       preview: params[:preview],
+      user_id: params[:user_id],
+      project_id: params[:project_id]
     )
 
     query_batch_update(request)
@@ -411,27 +413,35 @@ class Source::Bibtex < Source
   # @return [Person, Boolean] new person, or false
   def self.bibtex_author_to_person(bibtex_author)
     return false if bibtex_author.class != BibTeX::Name
-    p = Person.new(
+    p = Person.find_or_initialize_by(
       first_name: bibtex_author.first,
       prefix: bibtex_author.prefix,
       last_name: bibtex_author.last,
       suffix: bibtex_author.suffix)
-    p.namecase_names
+    unless p.persisted?
+      p.namecase_names
+    end
     p
   end
 
   # @return [Source::Bibtex.new]
   #   Adds errors if parse error exists. Note these
   # errors are lost if save/valid? is called again on the object.
-  def self.new_from_bibtex_text(text = nil)
+  def self.new_from_bibtex_text(text = nil, project_id = nil)
     source = Source::Bibtex.new
     begin
       a = BibTeX::Bibliography.parse(text, filter: :latex).first
-      if a.class.name == 'BibTeX::Error'
+      if a.nil?
+        message = text.present? ?
+          "Unable to parse BibTeX entry from: '#{text.truncate(40)}'" :
+          'Unable to parse BibTeX entry: no BibTeX provided'
+        source.errors.add(:base, message)
+        return source
+      elsif a.class.name == 'BibTeX::Error'
         source.errors.add(:base, 'Unable to parse BibTeX entry. Possible error at end of: ' + a.content)
         return source
       else
-        return new_from_bibtex(a)
+        return new_from_bibtex(a, project_id)
       end
     rescue BibTeX::ParseError => e
       source.errors.add(:base, 'Unable to parse BibTeX entry: ' + e.to_s)
@@ -450,11 +460,17 @@ class Source::Bibtex < Source
   #   b = Source::Bibtex.new_from_bibtex(a)
   #
   # @param [BibTex::Entry] bibtex_entry the BibTex::Entry to convert
+  # @param [Integer] project_id optional project to associate source with
+  # @param [Integer] namespace_id optional namespace for creating Identifier::Local::Import::Bibtex from BibTeX key
   # @return [Source::Bibtex.new] a new instance
   # TODO: Annote to project specific note?
   # TODO: Serial with alternate_value on name .count = 1 assign .first
-  def self.new_from_bibtex(bibtex_entry = nil)
-    return false if !bibtex_entry.kind_of?(::BibTeX::Entry)
+  def self.new_from_bibtex(bibtex_entry = nil, project_id = nil, namespace_id = nil)
+    unless bibtex_entry.kind_of?(::BibTeX::Entry)
+      s = Source::Bibtex.new
+      s.errors.add(:base, 'Input is not a valid BibTeX entry')
+      return s
+    end
     s = Source::Bibtex.new(bibtex_type: bibtex_entry.type.to_s)
 
     import_attributes = []
@@ -478,6 +494,12 @@ class Source::Bibtex < Source
 
     s.data_attributes_attributes = import_attributes
 
+    if project_id.present?
+      s.project_sources_attributes = [
+        { project_id: project_id }
+      ]
+    end
+
     # See issn=() for code matching to existing serials that preceeds this logic
     if s.serial_id.blank? && bibtex_entry.fields[:journal].to_s.present? && bibtex_entry.fields[:issn].to_s.present?
       a = {
@@ -491,17 +513,27 @@ class Source::Bibtex < Source
 
       s.serial_attributes = a
     end
+
+    # Create Identifier::Local::Import::Bibtex from BibTeX key if namespace provided
+    if namespace_id.present? && bibtex_entry.key.present?
+      s.identifiers.build(
+        type: 'Identifier::Local::Import::Bibtex',
+        namespace_id: namespace_id,
+        identifier: bibtex_entry.key.to_s
+      )
+    end
+
     s
   end
 
   # @return [Array] journal, nil or name
   def journal
-    [read_attribute(:journal), (serial.blank? ? nil : serial.name)].compact.first
+    [read_attribute(:journal), (serial.presence&.name)].compact.first
   end
 
   # @return [String]
   def verbatim_journal
-    read_attribute(:journal)
+    self[:journal]
   end
 
   # @return [Boolean]
@@ -563,7 +595,7 @@ class Source::Bibtex < Source
     if value.class == String
       value =~ /\A(\d\d\d\d)([a-zA-Z]*)\z/
       write_attribute(:year, $1.to_i) if $1
-      write_attribute(:year_suffix, $2) if $2
+      self[:year_suffix] = $2 if $2
       write_attribute(:year, value) if self.year.blank?
     else
       write_attribute(:year, value)
@@ -659,9 +691,9 @@ class Source::Bibtex < Source
 
       # Found an Existing Serial identically named with an assigned Identical ISSN
       if !s.nil? && (s == i&.identifier_object)
-        write_attribute(:serial_id, s.id)
+        self[:serial_id] = s.id
       elsif i && s.nil? # Found a Serial with an Identifier, but not identically named, assign it anyway
-        write_attribute(:serial_id, i.identifier_object_id)
+        self[:serial_id] = i.identifier_object_id
       end
     end
   end
@@ -809,7 +841,7 @@ class Source::Bibtex < Source
     a['year-suffix'] = year_suffix if year_suffix.present?
     a['original-date'] = {'date-parts' => [[ stated_year ]]} if stated_year.present? && stated_year.to_s != year.to_s
     a['language'] = Language.find(language_id).english_name.to_s unless language_id.nil?
-    a['translated-title'] = translated_title unless translated_title.blank?
+    a['translated-title'] = translated_title if translated_title.present?
     a['note'] = note
     a.reject! { |k| k == 'note' } if note.blank?
     a
@@ -931,7 +963,7 @@ class Source::Bibtex < Source
     begin
       Person.transaction do
         authors_to_create.each do |shs|
-          p = Person.create!(shs)
+          p = Person.find_or_create_by!(shs)
           author_roles.build(person: p)
         end
       end
@@ -967,6 +999,7 @@ class Source::Bibtex < Source
   # @return [Ignored]
   def check_has_field
     valid = false
+
     TW_REQUIRED_FIELDS.each do |i|
       if self[i].present?
         valid = true
@@ -975,8 +1008,12 @@ class Source::Bibtex < Source
     end
 
     # TODO This test for auth doesn't work with a new record.
-
-    if (self.authors.count > 0 || self.editors.count > 0 || !self.serial.nil?)
+    if (
+      self.authors.count > 0 ||
+      self.editors.count > 0 ||
+      self.roles.any? { |r| r.type.in?(%w[SourceAuthor SourceEditor]) } ||
+      !self.serial.nil?
+    )
       valid = true
     end
 

@@ -1,4 +1,9 @@
 <template>
+  <VSpinner
+    v-if="isLoading"
+    full-screen
+    legend="Converting to field occurrence..."
+  />
   <div class="flexbox align-start">
     <BlockLayout :warning="!collectionObject.id">
       <template #header>
@@ -141,6 +146,7 @@ import { useHotkey } from '@/composables'
 const store = useStore()
 const recordNumber = useIdentifierStore(IDENTIFIER_LOCAL_RECORD_NUMBER)()
 const catalogNumber = useIdentifierStore(IDENTIFIER_LOCAL_CATALOG_NUMBER)()
+const isLoading = ref(false)
 
 const shortcuts = ref([
   {

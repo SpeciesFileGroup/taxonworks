@@ -41,6 +41,10 @@ export class EventStack {
     }
   }
 
+  isEmpty() {
+    return this.listenerStack.length === 0
+  }
+
   removeListener(id) {
     const index = this.listenerStack.findIndex(
       ({ listenerId }) => listenerId === id

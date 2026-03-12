@@ -13,6 +13,7 @@
       <VBtn
         color="create"
         medium
+        :disabled="isCountExceeded"
         @click="addToProject"
       >
         Add to project
@@ -21,6 +22,7 @@
       <VBtn
         color="destroy"
         medium
+        :disabled="isCountExceeded"
         @click="removeFromProject"
       >
         Remove from project
@@ -34,7 +36,7 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import { ProjectSource } from '@/routes/endpoints'
 import { computed } from 'vue'
 
-const MAX_LIMIT = 50
+const MAX_LIMIT = 1000
 
 const props = defineProps({
   parameters: {

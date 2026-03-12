@@ -34,6 +34,18 @@ export const TASK_SOURCE_CITATION_TOTALS = {
   link: "/tasks/sources/source_citation_totals/",
 };
 
+export const TASK_DOCUMENTS_PACKAGER = {
+  label: "Documents packager",
+  link: "/tasks/sources/documents_packager",
+  saveQuery: true,
+};
+
+export const TASK_IMAGES_PACKAGER = {
+  label: "Images packager",
+  link: "/tasks/images/images_packager",
+  saveQuery: true,
+};
+
 export const TASK_LOANS_DASHBOARD = {
   label: "Loan dashboard",
   link: "/tasks/loans/dashboard/",
@@ -42,6 +54,11 @@ export const TASK_LOANS_DASHBOARD = {
 export const TASK_TAXON_NAME_STATS = {
   label: "Chronology stats",
   link: "/tasks/taxon_names/stats/",
+};
+
+export const TASK_VERBATIM_AUTHOR_YEAR_SOURCE = {
+  label: "Verbatim author/year to Source",
+  link: "/tasks/sources/verbatim_author_year_source/",
 };
 
 export const TASK_CACHED_MAP_ITEM = {
@@ -57,6 +74,16 @@ export const TASK_FILTER_IMAGES = {
 export const TASK_IMAGE_MATRIX = {
   label: "Image matrix",
   link: "/tasks/observation_matrices/image_matrix",
+  saveQuery: true,
+  parseParams: ({ params }) => ({
+    otu_filter: params.otu_id?.join("|"),
+  }),
+};
+
+export const TASK_INTERACTIVE_KEY = {
+  label: "Interactive key",
+  link: "/tasks/observation_matrices/interactive_key",
+  saveQuery: true,
   parseParams: ({ params }) => ({
     otu_filter: params.otu_id?.join("|"),
   }),
@@ -158,6 +185,13 @@ export const TASK_TAXON_NAME_GENDER = {
   queryParam: true,
 };
 
+export const TASK_TAXON_NAME_RECLASSIFIER = {
+  label: "Taxon name reclassifier",
+  link: "/tasks/nomenclature/reclassifier",
+  queryParam: true,
+  saveQuery: true,
+};
+
 export const TASK_PROJECT_VOCABULARY = {
   label: "Project vocabulary",
   link: "/tasks/metadata/vocabulary/project_vocabulary",
@@ -169,4 +203,18 @@ export const TASK_PROJECT_VOCABULARY = {
 export const TASK_FIELD_OCCURRENCE_MEDIA_EXTENSION = {
   label: "DwC media extension preview",
   link: "/tasks/field_occurrences/dwc_media_extension_preview",
+};
+
+export const TASK_DUPLICATE_DATA_ATTRIBUTES = {
+  label: "Repeated DataAttributes",
+  link: "/tasks/data_attributes/duplicate_data_attributes",
+  queryParam: true,
+  saveQuery: true,
+};
+
+export const TASK_COMPACT_DWC = {
+  label: "DwC Summary",
+  link: "/tasks/dwc/compact",
+  queryParam: true,
+  saveQuery: true,
 };

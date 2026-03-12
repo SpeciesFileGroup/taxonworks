@@ -24,15 +24,29 @@ module ProjectsHelper
 
   def project_link(project)
     return nil if project.nil?
-    l = link_to(project.name, select_project_path(project))
-    project.id == sessions_current_project_id ?
-    content_tag(:mark, l) :
-    l
+    link_to(project.name, select_project_path(project))
   end
 
   def projects_list(projects)
-    projects.collect { |p| content_tag(:li, project_link(p)) }.join.html_safe
+    active_id = sessions_current_project_id
+
+    sorted = projects.sort_by do |p|
+      [
+        p.id == active_id ? 0 : 1,
+        p.name.downcase
+      ]
+    end
+
+    sorted.collect do |p|
+      classes = ['project-item']
+      classes << 'active' if p.id == active_id
+
+      content_tag(:li, project_link(p), class: classes)
+    end.join.html_safe
   end
+
+
+
 
   def project_login_link(project)
     return nil unless (!is_project_member_by_id?(sessions_current_user_id, sessions_current_project_id) && (sessions_current_project_id != project.id))
@@ -174,6 +188,17 @@ module ProjectsHelper
 
   def week_in_review_graphs(weeks)
     content_tag(:div, '', 'data-weeks-ago': weeks, 'data-weeks-review': true)
+  end
+
+
+  def project_initials(project)
+    return '' if project.nil? || project.name.blank?
+
+    project.name
+        .split(/\s+/)
+        .map { |p| p[0].upcase }
+        .first(3)
+        .join
   end
 
 end

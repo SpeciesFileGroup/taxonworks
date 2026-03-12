@@ -3,6 +3,15 @@
 module Shared::Containable
   extend ActiveSupport::Concern
 
+  # (Here instead of in an initializer so that it works with spec models too.)
+  def self.containable_types
+    ApplicationRecord
+      .descendants
+      .select { |m| m < Shared::Containable }
+      .map { |m| m.base_class.name }
+      .uniq
+  end
+
   included do
 
     # A Container that is persisted, or a container_id

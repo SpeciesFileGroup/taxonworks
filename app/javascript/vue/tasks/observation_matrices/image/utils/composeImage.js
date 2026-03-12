@@ -1,4 +1,4 @@
-export default (id, image) => {
+export default (id, { image, citations }) => {
   return {
     id: id,
     global_id: image?.global_id,
@@ -6,7 +6,7 @@ export default (id, image) => {
     width: image.width,
     height: image.height,
     content_type: image.image_file_content_type,
-    citations: image.citations,
+    citations,
     alternatives: {
       medium: {
         image_file_url: image.medium_url

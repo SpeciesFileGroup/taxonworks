@@ -5,3 +5,9 @@ if extend_response_with('sound')
     json.partial! '/sounds/api/v1/attributes', sound: conveyance.sound
   end
 end
+
+if extend_response_with('notes')
+  json.notes conveyance.notes.each do |n|
+    json.text n.text
+  end
+end

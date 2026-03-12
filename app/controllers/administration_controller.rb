@@ -7,6 +7,9 @@ class AdministrationController < ApplicationController
   def index
   end
 
+  def news
+  end
+
   def user_activity
   end
 

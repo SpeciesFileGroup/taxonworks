@@ -12,3 +12,9 @@ if extend_response_with('biological_associations_biological_associations_graphs'
     end
   end
 end
+
+if extend_response_with('notes')
+  json.notes biological_associations_graph.notes.each do |n|
+    json.text n.text
+  end
+end
