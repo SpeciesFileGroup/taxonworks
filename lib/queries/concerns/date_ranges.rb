@@ -44,8 +44,14 @@ module Queries::Concerns::DateRanges
     end
 
     def set_date_params(params)
-      self.send('start_date='.to_sym, params[:start_date]) if params[:start_date].present? && valid_date_param?(params[:start_date])
-      self.send('end_date=', params[:end_date]) if params[:end_date].present? && valid_date_param?(params[:end_date])
+      [:start_date, :end_date].each do |k|
+        next unless params[k].present?
+        if valid_date_param?(params[k])
+          self.send("#{k}=", params[k])
+        elsif api
+          raise TaxonWorks::Error::API, "#{k} '#{params[k]}' is not a valid yyyy-mm-dd date"
+        end
+      end
 
       @partial_overlap_dates = params[:partial_overlap_dates]
       @partial_overlap_dates = true if @partial_overlap_dates.nil?
