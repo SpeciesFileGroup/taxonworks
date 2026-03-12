@@ -60,6 +60,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4785]: https://github.com/SpeciesFileGroup/taxonworks/issues/4785
 [#4790]: https://github.com/SpeciesFileGroup/taxonworks/issues/4790
 [#4794]: https://github.com/SpeciesFileGroup/taxonworks/issues/4794
+[#4800]: https://github.com/SpeciesFileGroup/taxonworks/issues/4800
 
 ## [0.60.0] - 2026-02-20
 
