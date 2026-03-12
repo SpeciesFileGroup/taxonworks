@@ -247,10 +247,7 @@ function makeAnatomicalPart(data = {}) {
 }
 
 function selectExistingAnatomicalPart(item) {
-  anatomicalPart.value = makeAnatomicalPart({
-    id: item.id,
-    object_tag: item.object_tag
-  })
+  anatomicalPart.value = makeAnatomicalPart(item)
 }
 
 function setOntologyTerm(value) {

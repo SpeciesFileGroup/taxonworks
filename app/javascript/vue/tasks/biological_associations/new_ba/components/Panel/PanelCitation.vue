@@ -20,6 +20,7 @@
         v-model:lock="store.lock.citation"
         :klass="BIOLOGICAL_ASSOCIATION"
         :target="BIOLOGICAL_ASSOCIATION"
+        @source="(e) => (store.source = e)"
         @update="sendBroadcast"
         @lock="(e) => (store.lock.citation = e)"
       >

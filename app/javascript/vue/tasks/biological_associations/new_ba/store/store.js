@@ -136,12 +136,26 @@ export const useStore = defineStore('NewBiologicalAssociation', {
     assertedDistribution: null,
     subjectAnatomicalPart: null,
     objectAnatomicalPart: null,
-    isLoading: false
+    isLoading: false,
+    source: undefined
   }),
 
   getters: {
     isSaveAvailable(state) {
       return state.object && state.subject && state.relationship
+    },
+
+    shortCitation(state) {
+      if (state.citation.citation_source_body) {
+        return state.citation.citation_source_body
+      }
+
+      const { year, cached_author_string } = state.source || {}
+      const citation = [cached_author_string, year].filter(Boolean).join(', ')
+
+      return state.citation.pages
+        ? `${citation}:${state.citation.pages}`
+        : citation
     }
   },
 
@@ -364,6 +378,7 @@ export const useStore = defineStore('NewBiologicalAssociation', {
 
       if (!this.lock.citation) {
         this.citation = makeCitation()
+        this.source = undefined
       } else {
         this.citation.id = null
       }

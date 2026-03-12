@@ -97,6 +97,11 @@
         style="flex: 1"
       />
     </div>
+    <div class="grid-panels">
+      <div style="flex: 1"></div>
+      <PanelPreview class="margin-medium-bottom" />
+      <div style="flex: 1"></div>
+    </div>
     <TableResults
       :list="store.biologicalAssociations"
       @select="store.setBiologicalAssociation"
@@ -117,6 +122,7 @@ import PanelShape from './components/Panel/PanelShape.vue'
 import PanelRelationship from './components/Panel/PanelRelationship.vue'
 import PanelObject from './components/Panel/PanelObject.vue'
 import PanelCitation from './components/Panel/PanelCitation.vue'
+import PanelPreview from './components/Panel/PanelPreview.vue'
 import TableResults from './components/TableResults.vue'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import { URLParamsToJSON } from '@/helpers/index.js'
