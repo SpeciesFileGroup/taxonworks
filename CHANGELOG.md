@@ -31,6 +31,10 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Valid/Invalid Taxon Name facet value wasn't being used in the Exact case
 - New Taxon Name task can create two associated OTUs via its OTU radials [#4790]
 - Add OTU ids to Biological Associations data sent to Taxon Pages [#4783]
+- Error on clicking the 'add children' button on a lead that's a redirect
+- Error on geographic_items/1.json
+- Improved error reporting for Georeference WKT (well-known-text) errors
+- Image matrix viewing issues with transparent PNGs. [#4800]
 
 ### Changed
 
@@ -56,6 +60,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4785]: https://github.com/SpeciesFileGroup/taxonworks/issues/4785
 [#4790]: https://github.com/SpeciesFileGroup/taxonworks/issues/4790
 [#4794]: https://github.com/SpeciesFileGroup/taxonworks/issues/4794
+[#4800]: https://github.com/SpeciesFileGroup/taxonworks/issues/4800
 
 ## [0.60.0] - 2026-02-20
 
