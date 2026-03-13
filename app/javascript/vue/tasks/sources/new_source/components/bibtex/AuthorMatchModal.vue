@@ -28,7 +28,7 @@
         <tbody>
           <tr
             v-for="(row, index) in authorRows"
-            :key="index"
+            :key="row.originalString"
           >
             <td class="author-string-cell">
               {{ row.originalString }}
@@ -200,8 +200,14 @@ const allExistingMatches = computed(() => {
 onMounted(async () => {
   const parsedAuthors = parseBibtexAuthors(props.authorString)
 
-  authorRows.value = parsedAuthors.map((author, index) => {
-    const existingRole = findExistingRoleByIndex(index)
+  const matchedRoleIds = new Set()
+
+  authorRows.value = parsedAuthors.map((author) => {
+    const existingRole = findExistingRoleByName(author, matchedRoleIds)
+
+    if (existingRole) {
+      matchedRoleIds.add(existingRole.id)
+    }
 
     return {
       originalString: author.originalString,
@@ -230,22 +236,51 @@ onMounted(async () => {
   }
 })
 
-function findExistingRoleByIndex(index) {
-  const role = activeRoles.value.at(index)
+function normalizeName(name) {
+  return (name || '').toLowerCase().trim().replace(/\s+/g, ' ')
+}
 
-  if (!role) return null
+function namesMatch(parsedAuthor, person) {
+  const parsedLast = normalizeName(parsedAuthor.lastName)
+  const personLast = normalizeName(person.last_name)
 
-  const person = role.person ?? role
+  if (!parsedLast || !personLast) return false
+  if (parsedLast !== personLast) return false
 
-  return {
-    id: role.person_id ?? person.id,
-    cached:
-      role.cached ??
-      person.cached ??
-      `${person.last_name}, ${person.first_name}`.trim(),
-    first_name: person.first_name,
-    last_name: person.last_name
+  const parsedFirst = normalizeName(parsedAuthor.firstName)
+  const personFirst = normalizeName(person.first_name)
+
+  if (!parsedFirst || !personFirst) return true
+
+  if (parsedFirst === personFirst) return true
+
+  const parsedInitial = parsedFirst.replace(/\./g, '').charAt(0)
+  const personInitial = personFirst.charAt(0)
+
+  return parsedInitial === personInitial
+}
+
+function findExistingRoleByName(parsedAuthor, alreadyMatchedIds) {
+  for (const role of activeRoles.value) {
+    const person = role.person ?? role
+    const personId = role.person_id ?? person.id
+
+    if (alreadyMatchedIds.has(personId)) continue
+
+    if (namesMatch(parsedAuthor, person)) {
+      return {
+        id: personId,
+        cached:
+          role.cached ??
+          person.cached ??
+          `${person.last_name}, ${person.first_name}`.trim(),
+        first_name: person.first_name,
+        last_name: person.last_name
+      }
+    }
   }
+
+  return null
 }
 
 function parseBibtexAuthors(authorString) {

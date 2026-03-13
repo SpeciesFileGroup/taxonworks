@@ -4,7 +4,7 @@
     class="panel content separate-bottom"
     :url="urlRequest"
   />
-  <NavBar navbar-class>
+  <NavBar navbar-class="filter-navbar">
     <div class="middle grid-filter__nav">
       <div class="panel content">
         <div class="flex-separate middle gap-small">
@@ -148,7 +148,10 @@
       <slot name="facets" />
     </div>
 
-    <div class="full_width overflow-x-auto">
+    <div
+      class="full_width overflow-x-auto"
+      :style="tableWrapperStyle"
+    >
       <slot name="above-table" />
       <slot
         v-if="preferences.showTable"
@@ -159,7 +162,14 @@
 </template>
 
 <script setup>
-import { ref, computed, onBeforeUnmount, reactive } from 'vue'
+import {
+  ref,
+  computed,
+  onBeforeUnmount,
+  onMounted,
+  nextTick,
+  reactive
+} from 'vue'
 import { useHotkey } from '@/composables'
 import FilterDownload from './FilterDownload.vue'
 import FilterJsonRequestPanel from './FilterJsonRequestPanel.vue'
@@ -265,6 +275,41 @@ const preferences = reactive({
   showTable: true
 })
 
+const tableWrapperTop = ref(0)
+
+const tableWrapperStyle = computed(() => ({
+  position: 'sticky',
+  top: `${tableWrapperTop.value}px`,
+  height: `calc(100vh - ${tableWrapperTop.value}px)`
+}))
+
+let navbarObserver = null
+
+function updateTableWrapperTop() {
+  const navbar = document.querySelector('.filter-navbar')
+  tableWrapperTop.value = navbar
+    ? Math.round(
+        navbar.getBoundingClientRect().bottom +
+          parseFloat(getComputedStyle(navbar.parentElement).marginBottom)
+      )
+    : 0
+}
+
+onMounted(() => {
+  nextTick(() => {
+    updateTableWrapperTop()
+    const navbar = document.querySelector('.filter-navbar')
+    if (navbar) {
+      navbarObserver = new MutationObserver(updateTableWrapperTop)
+      navbarObserver.observe(navbar, {
+        attributes: true,
+        attributeFilter: ['style', 'class']
+      })
+    }
+  })
+  window.addEventListener('scroll', updateTableWrapperTop)
+})
+
 const emit = defineEmits([
   'reset',
   'filter',
@@ -331,6 +376,7 @@ const stop = useHotkey(hotkeys.value)
 
 onBeforeUnmount(() => {
   stop()
+  window.removeEventListener('scroll', updateTableWrapperTop)
 })
 </script>
 

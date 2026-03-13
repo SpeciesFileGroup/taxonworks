@@ -1,3 +1,17 @@
+#header-wrapper {
+  background-color: var(--bg-color);
+  z-index: 1002;
+}
+
+.fixed_header_bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  box-sizing: border-box;
+}
+
 #header_bar {
   margin: 0 auto;
   display: grid;
@@ -132,7 +146,8 @@
 
 #header_bar.header_development {
   background-color: black;
-  background-image: linear-gradient(to right, #3a3a3a 1px, transparent 1px),
+  background-image:
+    linear-gradient(to right, #3a3a3a 1px, transparent 1px),
     linear-gradient(to bottom, #3a3a3a 1px, transparent 1px);
   background-size: 12px 12px;
 }

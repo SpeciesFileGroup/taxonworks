@@ -142,7 +142,7 @@ async function loadTaxonTypes() {
         const item = store.typeMaterials.find((t) => t.id == typeId)
 
         if (item) {
-          store.setTypeMaterial(item)
+          await store.setTypeMaterial(item)
         }
       }
     } catch {

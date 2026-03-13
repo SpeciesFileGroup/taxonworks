@@ -1,6 +1,12 @@
 import { defineStore } from 'pinia'
 import { Georeference } from '@/routes/endpoints'
 import { addToArray, removeFromArray, randomUUID } from '@/helpers'
+import {
+  GEOREFERENCE,
+  GEOREFERENCE_GEOLOCATE,
+  GEOREFERENCE_WKT,
+  GEOREFERENCE_VERBATIM
+} from '@/constants'
 
 export default defineStore('collectingEventForm:georeferences', {
   state: () => ({
@@ -11,6 +17,39 @@ export default defineStore('collectingEventForm:georeferences', {
   getters: {
     hasUnsaved(state) {
       return state.georeferences.some((item) => item.isUnsaved)
+    },
+
+    geojson(state) {
+      const EXCLUDE = [GEOREFERENCE_GEOLOCATE, GEOREFERENCE_WKT]
+      const { georeferences } = state
+
+      const parsed = georeferences
+        .filter(
+          (item) =>
+            (item.id || !EXCLUDE.includes(item.type)) &&
+            (item.geographic_item_attributes?.shape || item.geo_json)
+        )
+        .map((item) => {
+          const geojson = item.geographic_item_attributes
+            ? JSON.parse(item?.geographic_item_attributes.shape)
+            : { ...item.geo_json }
+
+          geojson.properties = {
+            uuid: item.uuid,
+            base: [
+              {
+                type: [GEOREFERENCE]
+              }
+            ],
+            ...(item.type === GEOREFERENCE_VERBATIM && {
+              style: { className: 'map-point-marker bg-verbatim' }
+            })
+          }
+
+          return geojson
+        })
+
+      return [...parsed]
     }
   },
 

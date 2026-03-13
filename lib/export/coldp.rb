@@ -8,12 +8,18 @@ require 'yaml'
 #   d = ::Export::Coldp.download(o, 'foo')
 #   d.file_path
 #
+#   Current.user_id = ; Current.project_id = ;  o = Otu.find()  d = ::Export::Coldp.download(o, 'foo'); 
+#
 module Export
 
   # Exports to the Catalog of Life in the new "coldp" format.
   # http://api.col.plus/datapackage
   #
   # TODO:
+  #  * Resolve missing/something Refs
+  #  * Resolve duplicate/extra names?!
+  #  * AcceptedName missing for Synonyms
+  #
   # * Status of Distribution  - always present in code, what's the positive assertion in 'status'
   # * Ensure all joins are Pipes
   # * Review/remove/update/add tests to check for coverage
@@ -45,7 +51,6 @@ module Export
     def self.remarks=(values)
       @remarks = values
     end
-
 
     # Presently stubbed but excluded pending
     # significant use.
@@ -308,9 +313,9 @@ module Export
 
     # Iterates the manifest used by Name
     # !! includes only id
-    def self.all_names(otu)
+    def self.all_names(otu, manifest = Export::Coldp::Files::Name::MANIFEST )
       names = []
-      Export::Coldp::Files::Name::MANIFEST.each do |m|
+      manifest.each do |m|
         names.push TaxonName.select(:id).from( Export::Coldp::Files::Name.send(m, otu))
       end
 

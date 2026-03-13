@@ -5,8 +5,15 @@ TW.views.shared.slideout = TW.views.shared.slideout || {}
 
 Object.assign(TW.views.shared.slideout, {
   init() {
+    this.KEY_EVENT_MAP = {
+      F1: 'pinboard',
+      F2: 'pdfviewer',
+      F3: 'clipboard'
+    }
+
     this.emitLoadPdfViewerEvent = this.emitLoadPdfViewer.bind(this)
     this.togglePanelEvent = this.togglePanel.bind(this)
+    this.handleKeyboardEvent = this.handleKeyboard.bind(this)
 
     this.handleEvents()
     this.fillButtonTooltip()
@@ -45,17 +52,41 @@ Object.assign(TW.views.shared.slideout, {
 
   togglePanel(e) {
     const element = e.target
+    const attr = element.getAttribute('data-control-slide-panel')
 
-    if (element.classList.contains('slide-panel-circle-icon')) {
-      const panelElement = element.closest('.slide-panel')
-      const panelName = panelElement.getAttribute('data-panel-name')
+    if (attr) {
+      const panelElement = document.querySelector(`[data-panel-name="${attr}"]`)
       const isOpen = panelElement.classList.contains('slide-panel-show')
-      const detail = { name: panelName }
       const eventName = isOpen ? 'onSlidePanelClose' : 'onSlidePanelOpen'
+      const detail = { name: attr }
 
       panelElement.classList.toggle('slide-panel-show')
+
       document.dispatchEvent(new CustomEvent(eventName, { detail }))
 
+      e.preventDefault()
+    }
+  },
+
+  handleKeyboard(e) {
+    const slicePanel = this.KEY_EVENT_MAP[e.key]
+
+    if (slicePanel) {
+      const el = document.querySelector(
+        `[data-control-slide-panel="${slicePanel}"]`
+      )
+
+      Object.values(this.KEY_EVENT_MAP).forEach((panelName) => {
+        if (panelName !== slicePanel) {
+          const panelEl = document.querySelector(
+            `[data-panel-name="${panelName}"]`
+          )
+
+          panelEl.classList.remove('slide-panel-show')
+        }
+      })
+
+      el?.click()
       e.preventDefault()
     }
   },
@@ -84,12 +115,14 @@ Object.assign(TW.views.shared.slideout, {
     document.addEventListener('click', this.toggleHeaderEvent)
     document.addEventListener('click', this.togglePanelEvent)
     document.addEventListener('click', this.emitLoadPdfViewerEvent)
+    window.addEventListener('keydown', this.handleKeyboardEvent)
   },
 
   removeEvents() {
     document.removeEventListener('click', this.toggleHeaderEvent)
     document.removeEventListener('click', this.togglePanelEvent)
     document.removeEventListener('click', this.emitLoadPdfViewerEvent)
+    window.removeEventListener('keydown', this.handleKeyboardEvent)
   },
 
   closeHideSlideoutPanel: function (panel) {

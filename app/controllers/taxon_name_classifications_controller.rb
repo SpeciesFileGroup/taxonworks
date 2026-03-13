@@ -1,5 +1,6 @@
 class TaxonNameClassificationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
+  include DataControllerConfiguration::BatchByFilterScope
 
   before_action :set_taxon_name_classification, only: [:update, :destroy, :show, :api_show, :edit]
   after_action -> { set_pagination_headers(:taxon_name_classifications) }, only: [:index, :api_index], if: :json_request?
@@ -171,5 +172,10 @@ class TaxonNameClassificationsController < ApplicationController
       :taxon_name_id, :type,
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
     )
+  end
+
+  def batch_by_filter_scope_params
+    # Current batching only uses mode, not params.
+    ActionController::Parameters.new.permit()
   end
 end

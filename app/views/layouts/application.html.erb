@@ -28,11 +28,13 @@
   </head>
   
   <body <%= turbolinks_off_tag -%> >
-    <header> 
-      <% if sessions_signed_in? %>
-        <%= render partial: "news/system_news_bar", collection: system_news_bars, as: :news %>
-      <% end %>
-      <%= render(partial: 'sessions/summary') if sessions_signed_in? %>
+    <header>
+      <div id="header-wrapper">
+        <% if sessions_signed_in? %>
+          <%= render partial: "news/system_news_bar", collection: system_news_bars, as: :news %>
+        <% end %>
+        <%= render(partial: 'sessions/summary') if sessions_signed_in? %>
+      </div>
     </header>
 
     <nav>

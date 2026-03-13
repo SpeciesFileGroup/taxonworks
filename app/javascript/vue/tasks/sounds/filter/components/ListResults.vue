@@ -1,9 +1,11 @@
 <template>
-  <HandyScroll>
+  <div
+    id="horizontally-scrollable"
+    class="overflow-x-auto"
+  >
     <table
       class="full_width table-striped"
       v-resize-column
-      ref="root"
     >
       <thead>
         <tr>
@@ -56,15 +58,19 @@
         </tr>
       </tbody>
     </table>
-  </HandyScroll>
+  </div>
+  <handy-scroll
+    ref="handyScrollRef"
+    owner="horizontally-scrollable"
+  ></handy-scroll>
 </template>
 
 <script setup>
-import { computed, watch, useTemplateRef } from 'vue'
+import { computed, watch, useTemplateRef, nextTick } from 'vue'
 import { vResizeColumn } from '@/directives'
-import HandyScroll from 'vue-handy-scroll'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
+import 'handy-scroll'
 
 const props = defineProps({
   list: {
@@ -79,7 +85,7 @@ const soundIds = defineModel({
   type: Array,
   default: () => []
 })
-const element = useTemplateRef('root')
+const handyScrollRef = useTemplateRef('handyScrollRef')
 
 const selectAll = computed({
   get: () =>
@@ -91,7 +97,9 @@ const selectAll = computed({
 watch(
   () => props.list,
   () => {
-    HandyScroll.EventBus.emit('update', { sourceElement: element.value })
+    nextTick(() => {
+      handyScrollRef.value?.update()
+    })
   },
   { immediate: true }
 )

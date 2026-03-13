@@ -1,5 +1,5 @@
 <template>
-  <table class="vue-table">
+  <table class="vue-table table-striped">
     <thead>
       <tr>
         <th>Determination</th>
@@ -18,6 +18,7 @@
       class="table-entrys-list"
       tag="tbody"
       :item-key="(item) => item"
+      handle=".handle"
       v-model="determinationList"
       @end="updatePosition"
     >
@@ -42,6 +43,20 @@
                 v-if="element.global_id"
                 :global-id="element.global_id"
               />
+
+              <VBtn
+                color="primary"
+                circle
+                class="handle"
+                title="Press and hold to drag taxon determination"
+              >
+                <VIcon
+                  title="Press and hold to drag taxon determination"
+                  color="white"
+                  name="scrollV"
+                  small
+                />
+              </VBtn>
 
               <VBtn
                 circle

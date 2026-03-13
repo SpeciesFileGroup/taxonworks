@@ -5,6 +5,12 @@
 # referenceID
 # remarks
 #
+
+require 'net/http'
+require 'json'
+require 'uri'
+
+
 module Export::Coldp::Files::SpeciesInteraction
 
   def self.biological_association_indices(otus)
@@ -28,7 +34,36 @@ module Export::Coldp::Files::SpeciesInteraction
       )
   end
 
+
+  def self.checklistbank_vocab
+    url = URI.parse("https://api.checklistbank.org/vocab/speciesinteractiontype")
+    response = Net::HTTP.get_response(url)
+
+    if response.is_a?(Net::HTTPSuccess)
+      data = JSON.parse(response.body)
+    else
+      {}
+    end
+  end
+
+
+  def self.biological_relationships(otus)
+    BiologicalRelationship.where(project_id: otus.first.project_id)
+  end
+
   def self.generate(otus, project_members, reference_csv = nil )
+
+    # We could skip non-standard vocabulary using this, but for now we just let it ride.
+    # cvb = checklistbank_vocab
+
+    # TODO: Support/encourage use of  Global URI Identifiers on BiologicalRelationships
+    #
+    #   Use those identifers as a proxy for type.
+    #
+    # br = biological_relationships(otus)
+    # br_lookup = br.inject({}){|hsh, a| hsh['name'] = hsh['uri']; hsh}
+    #
+
     CSV.generate(col_sep: "\t") do |csv|
 
       csv << %w{

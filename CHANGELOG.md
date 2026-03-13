@@ -10,23 +10,95 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 ### Added
 
 - Fuzzy match to the common_names API endpoint [#4757]
-- Report per-object duplicate predicate use [#4741]
-- Batch import BibTeX sources option to include Identifier
-- Batch Upload Asserted Distributions now supports a `gazetteer_id` column [#4739]
+- Add and remove fossil status from Filter Taxon Names [#4700]
+- Taxon determination to New type specimen task [#4745]
+- Browse OTUs: Quick forms in Biological associations table [#4782]
+- Bulk Image and Documents downloaders from Filter Images and Filter Sources results via linker radial [#4683]
+- Collecting event form: Preview map for verbatim coordinates, georeferences and geographic areas [#4785]
+- New collecting event: Added a toggle in the Collection Object modal to mark a repository as current [#4794]
 
 ### Fixed
 
+- Task bar overlays panels when header is locked in New taxon name and New source tasks
+- Basic Endemism task reports an error
+- Selecting `Object Graph` from the navigator radial of an OTU with an Asserted Distribution reports an error
+- BiologicalAssociationIndex is not updated when additional citations are added or removed, TaxonPages BiologicalAssociation panel has outdated citations information [#345]
+- Filter Namespaces card not included in filter favorites [#4778]
+- Image Matrix task was returning depictions from multiple types instead of only Observation
+- alt+S on a new name in the New Taxon Name task saves two new names [#4777]
+- Handle errors on bad BibTeX data in New Source and return a more useful message
+- Handle errors on negative width/height at api/v1/images/123/ocr
+- Prevent bad OCR requests from SQED image task
+- Valid/Invalid Taxon Name facet value wasn't being used in the Exact case
+- New Taxon Name task can create two associated OTUs via its OTU radials [#4790]
+- Add OTU ids to Biological Associations data sent to Taxon Pages [#4783]
+- Error on clicking the 'add children' button on a lead that's a redirect
+- Error on geographic_items/1.json
+- Improved error reporting for Georeference WKT (well-known-text) errors
+- Image matrix viewing issues with transparent PNGs. [#4800]
+
+### Changed
+
+- Moved slide panel buttons to navigation bar [#4694]
+- The edit link now opens the New Asserted Distribution task instead of old data editing interface when accessed via Radial Navigator [#4768]
+- Filter tables: results table is now fixed to the screen while scrolling facets, with sticky column headers. [#4271]
+- DwC Importer: When the Import/Retry button is pressed for a Checklist dataset, all rows are downloaded again instead of only the selected row.
+- In filters, Taxon Name facets now default to 'Valid only' and 'Current only', and Taxon Determination facets now default to 'Current only'
+- Searching for Repositories now matches across multiple terms, e.g. 'hist dep' now matches '... Department ... History ...' [#4769]
+
+[#345]: https://github.com/SpeciesFileGroup/taxonpages/issues/345
+[#4271]: https://github.com/SpeciesFileGroup/taxonworks/issues/4271
+[#4683]: https://github.com/SpeciesFileGroup/taxonworks/issues/4683
+[#4694]: https://github.com/SpeciesFileGroup/taxonworks/issues/4694
+[#4700]: https://github.com/SpeciesFileGroup/taxonworks/issues/4700
+[#4745]: https://github.com/SpeciesFileGroup/taxonworks/issues/4745
+[#4768]: https://github.com/SpeciesFileGroup/taxonworks/issues/4768
+[#4769]: https://github.com/SpeciesFileGroup/taxonworks/issues/4769
+[#4778]: https://github.com/SpeciesFileGroup/taxonworks/issues/4778
+[#4777]: https://github.com/SpeciesFileGroup/taxonworks/issues/4777
+[#4782]: https://github.com/SpeciesFileGroup/taxonworks/issues/4782
+[#4783]: https://github.com/SpeciesFileGroup/taxonworks/issues/4783
+[#4785]: https://github.com/SpeciesFileGroup/taxonworks/issues/4785
+[#4790]: https://github.com/SpeciesFileGroup/taxonworks/issues/4790
+[#4794]: https://github.com/SpeciesFileGroup/taxonworks/issues/4794
+[#4800]: https://github.com/SpeciesFileGroup/taxonworks/issues/4800
+
+## [0.60.0] - 2026-02-20
+
+### Added
+
+- Match OTU by TaxonName task
+- DarwinCore summary task
+- Report per-object duplicate predicate use [#4741]
+- Batch import BibTeX sources option to include Identifier
+- Batch Upload Asserted Distributions now supports a `gazetteer_id` column [#4739]
+- Lock header bar button [#4750]
+- Filter namespaces [#4749]
+
+### Fixed
+
+- Improved scoping of Catalogue of Life Exports
+- Data attribute and nil handling bugs on COLDP exports
 - Save notice is missing in New type specimen task
 - Fix: Rails now correctly applies time zones for `user_date_start` and `user_date_end` parameters from the `X-Timezone` header [#4721]
+- Classes not being eager loaded in background jobs, causing dwc importer to fail
+- Admin checkboxes in project members table are not visible to project administrators.
+- Add historical determination options to Taxon Name facet of Filter Collection Objects [#4742]
+- Serial author match out of order when reopened after one match selected [#4743]
 
 ### Changed
 
 - Removed unused BibTeX task [#1440]
+- Updated Ruby gems
 
 [#4741]: https://github.com/SpeciesFileGroup/taxonworks/issues/4741
+[#4742]: https://github.com/SpeciesFileGroup/taxonworks/issues/4742
 [#1440]: https://github.com/SpeciesFileGroup/taxonworks/issues/1440
 [#4721]: https://github.com/SpeciesFileGroup/taxonworks/issues/4721
 [#4739]: https://github.com/SpeciesFileGroup/taxonworks/issues/4739
+[#4743]: https://github.com/SpeciesFileGroup/taxonworks/issues/4743
+[#4749]: https://github.com/SpeciesFileGroup/taxonworks/issues/4749
+[#4750]: https://github.com/SpeciesFileGroup/taxonworks/issues/4750
 
 ## [0.59.0] - 2026-02-04
 
@@ -6081,8 +6153,9 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.59.0...development
-[0.58.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.58.0...v0.59.0
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.60.0...development
+[0.60.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.59.0...v0.60.0
+[0.59.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.58.0...v0.59.0
 [0.58.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.57.0...v0.58.0
 [0.57.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.56.1...v0.57.0
 [0.56.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.56.0...v0.56.1

@@ -310,8 +310,10 @@ class CollectingEvent < ApplicationRecord
   soft_validate(
     :sv_missing_georeference,
     set: :georeference,
+    fix: :sv_fix_missing_georeference,
     name: 'Missing georeference',
-    description: 'Georeference is missing')
+    description: 'Georeference is missing',
+    flagged: true)
 
   soft_validate(
     :sv_georeference_matches_verbatim,
@@ -1177,7 +1179,68 @@ class CollectingEvent < ApplicationRecord
   end
 
   def sv_missing_georeference
-    soft_validations.add(:base, 'Georeference is missing') unless georeferences.any?
+    if !georeferences.any?
+      text = 'Georeference is missing'
+      if !verbatim_longitude.blank? && !verbatim_latitude.blank?
+        text = 'Georeference is missing. Verbatim latitude and longitude are available.'
+      end
+      unless geographic_area_id.nil?
+        if !verbatim_label.blank? && !Utilities::Geo.coordinates_regex_from_verbatim_label(verbatim_label.to_s).blank?
+          text = 'Georeference is missing. Label has verbatim latitude and longitude.'
+        elsif !verbatim_locality.blank?
+          with_geo = ::Georeference
+                       .joins(:collecting_event)
+                       .where(collecting_events: { project_id: project_id, verbatim_locality: verbatim_locality, geographic_area_id: geographic_area_id })
+                       .select('georeferences.*, COUNT(georeferences.geographic_item_id) AS geo_count')
+                       .group('georeferences.id').order('geo_count DESC').first
+          if with_geo
+            text = 'Georeference is missing. Georeference is available for a similar collecting event.'
+          else
+            with_geo = ::Georeference
+                         .joins(:collecting_event)
+                         .where(collecting_events: { verbatim_locality: verbatim_locality, geographic_area_id: geographic_area_id })
+                         .select('georeferences.*, COUNT(georeferences.geographic_item_id) AS geo_count')
+                         .group('georeferences.id').order('geo_count DESC').first
+            if with_geo
+              text = 'Georeference is missing. Georeference is available for a similar collecting event in different project.'
+            end
+          end
+        end
+      end
+      soft_validations.add(:base, text)
+    end
+  end
+
+  def sv_fix_missing_georeference
+    if !georeferences.any? && !geographic_area_id.nil? &&
+       verbatim_longitude.blank? && verbatim_latitude.blank? && !verbatim_locality.blank? &&
+       Utilities::Geo.coordinates_regex_from_verbatim_label(verbatim_label.to_s).blank?
+      with_geo = ::Georeference
+                   .joins(:collecting_event)
+                   .where(collecting_events: { project_id: project_id, verbatim_locality: verbatim_locality, geographic_area_id: geographic_area_id })
+                   .select('georeferences.*, COUNT(georeferences.geographic_item_id) AS geo_count')
+                   .group('georeferences.id').order('geo_count DESC').first
+      unless with_geo
+        with_geo = ::Georeference
+                     .joins(:collecting_event)
+                     .where(collecting_events: { verbatim_locality: verbatim_locality, geographic_area_id: geographic_area_id })
+                     .select('georeferences.*, COUNT(georeferences.geographic_item_id) AS geo_count')
+                     .group('georeferences.id').order('geo_count DESC').first
+      end
+      if with_geo
+        begin
+          ::Georeference.transaction do
+            gr = georeferences.create(geographic_item_id: with_geo.geographic_item_id,
+                                      collecting_event_id: id,
+                                      type: "Georeference::Point")
+            gr.data_attributes.create(type: 'ImportAttribute', import_predicate: 'georeference', value: 'Copied from another collecting event.')
+          end
+        rescue ActiveRecord::RecordInvalid
+          return false
+        end
+        return true
+      end
+    end
   end
 
   def sv_georeference_matches_verbatim

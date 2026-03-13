@@ -126,7 +126,8 @@ module Protonym::Format
 
       sel = s.join(',')
 
-      Protonym.joins(:source, :original_combination_protonyms)
+      Protonym.joins(:original_combination_protonyms)
+        .left_joins(:source)
         .select(sel)
         .group('taxon_names.id, sources.id, citations.pages')
     end

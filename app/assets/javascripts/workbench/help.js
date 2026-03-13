@@ -14,25 +14,68 @@ TW.workbench = TW.workbench || {}
 TW.workbench.help = TW.workbench.help || {}
 
 Object.assign(TW.workbench.help, {
+  _scrollHandlers: [],
+  _resizeHandlers: [],
+  _mousetrapBound: false,
+
   init() {
     const helpAttributes = document.querySelectorAll('[data-help]')
 
-    this.removeElements()
+    this.teardown()
+
     this.createElements()
+
+    this.toggleEvent = this.toggleHelp.bind(this)
+    this._backgroundClickHandler = () => {
+      this.toggleHelp()
+    }
 
     if (helpAttributes.length) {
       this.glowHelpButton()
     }
 
-    Mousetrap.bind('alt+shift+/', () => {
-      this.toggleHelp()
+    if (!this._mousetrapBound) {
+      Mousetrap.bind('alt+shift+/', () => {
+        this.toggleHelp()
+      })
+      this._mousetrapBound = true
+    }
+
+    this.handleEvents()
+    this.elementBackground.addEventListener(
+      'click',
+      this._backgroundClickHandler
+    )
+  },
+
+  teardown() {
+    this.removeEvents()
+
+    this._scrollHandlers.forEach((fn) =>
+      window.removeEventListener('scroll', fn)
+    )
+    this._resizeHandlers.forEach((fn) =>
+      window.removeEventListener('resize', fn)
+    )
+    this._scrollHandlers = []
+    this._resizeHandlers = []
+
+    if (this.elementBackground && this._backgroundClickHandler) {
+      this.elementBackground.removeEventListener(
+        'click',
+        this._backgroundClickHandler
+      )
+    }
+
+    this.removeElements()
+
+    document.querySelectorAll('[data-help]').forEach((element) => {
+      element.classList.remove('help-tip')
     })
-    this.elementButton.addEventListener('click', () => {
-      this.toggleHelp()
-    })
-    this.elementBackground.addEventListener('click', () => {
-      this.toggleHelp()
-    })
+
+    this.elementLegend = null
+    this.elementBackground = null
+    this.elementButton = null
   },
 
   getHeight(element) {
@@ -53,7 +96,10 @@ Object.assign(TW.workbench.help, {
   },
 
   glowHelpButton() {
-    document.querySelector('.help-button').classList.add('help-button-present')
+    const btn = document.querySelector('.help-button')
+    if (btn) {
+      btn.classList.add('help-button-present')
+    }
   },
 
   attachMouseEvent(bubbleElement) {
@@ -108,30 +154,20 @@ Object.assign(TW.workbench.help, {
   createElements() {
     this.elementLegend = document.createElement('div')
     this.elementBackground = document.createElement('div')
-    this.elementButton = document.createElement('div')
-    this.elementDescription = document.createElement('div')
+    this.elementButton = document.querySelector('.help-button')
 
     this.elementLegend.classList.add('help-legend')
     this.elementBackground.classList.add('help-background')
-    this.elementButton.classList.add('help-button')
-    this.elementDescription.classList.add('help-button-description')
-    this.elementDescription.textContent = 'Help'
 
-    this.elementButton.append(this.elementDescription)
-
-    document.body.append(
-      this.elementLegend,
-      this.elementBackground,
-      this.elementButton
-    )
+    document.body.append(this.elementLegend, this.elementBackground)
   },
 
   removeElements() {
     const selectors = [
       '.help-bubble-tip',
       '.help-background',
-      '.help-button',
-      '.help-legend'
+      '.help-legend',
+      '.help-button-description'
     ]
 
     selectors.forEach((selector) => {
@@ -158,6 +194,8 @@ Object.assign(TW.workbench.help, {
     const bubble = document.createElement('div')
 
     const updateBubblePosition = () => {
+      if (!document.body.contains(targetElement)) return
+
       const { left, top } = this.getOffset(targetElement)
 
       bubble.style.position = 'absolute'
@@ -167,6 +205,8 @@ Object.assign(TW.workbench.help, {
 
     window.addEventListener('scroll', updateBubblePosition)
     window.addEventListener('resize', updateBubblePosition)
+    this._scrollHandlers.push(updateBubblePosition)
+    this._resizeHandlers.push(updateBubblePosition)
 
     updateBubblePosition()
 
@@ -189,9 +229,7 @@ Object.assign(TW.workbench.help, {
   },
 
   removeAllElements(selector) {
-    const bubbleEements = document.querySelectorAll(selector)
-
-    bubbleEements.forEach((el) => {
+    document.querySelectorAll(selector).forEach((el) => {
       el.remove()
     })
   },
@@ -202,7 +240,9 @@ Object.assign(TW.workbench.help, {
     this.addBubbleTips('[data-help]')
 
     this.elementBackground.classList.add('help-background__active')
-    this.elementButton.classList.add('help-button-active')
+    if (this.elementButton) {
+      this.elementButton.classList.add('help-button-active')
+    }
     this.elementLegend.textContent = ''
 
     helpElements.forEach((element) => {
@@ -215,18 +255,32 @@ Object.assign(TW.workbench.help, {
   disableHelp() {
     const helpElements = document.querySelectorAll('[data-help]')
     this.elementBackground.classList.remove('help-background__active')
-    this.elementButton.classList.remove('help-button-active')
-    this.elementLegend.classList.remove('.help-legend__active')
+    if (this.elementButton) {
+      this.elementButton.classList.remove('help-button-active')
+    }
+    this.elementLegend.classList.remove('help-legend__active')
 
     helpElements.forEach((element) => {
       element.classList.remove('help-tip')
     })
 
+    this._scrollHandlers.forEach((fn) =>
+      window.removeEventListener('scroll', fn)
+    )
+    this._resizeHandlers.forEach((fn) =>
+      window.removeEventListener('resize', fn)
+    )
+    this._scrollHandlers = []
+    this._resizeHandlers = []
+
     this.removeAllElements('.help-bubble-tip')
   },
 
   isActive() {
-    return this.elementBackground.classList.contains('help-background__active')
+    return (
+      this.elementBackground &&
+      this.elementBackground.classList.contains('help-background__active')
+    )
   },
 
   hideAllExcept(value) {
@@ -245,6 +299,20 @@ Object.assign(TW.workbench.help, {
     bubbleElements.forEach((element) => {
       element.classList.add('help-bubble-tip__active')
     })
+  },
+
+  handleEvents() {
+    const el = document.querySelector('.help-button')
+
+    el?.addEventListener('click', this.toggleEvent)
+  },
+
+  removeEvents() {
+    if (this.toggleEvent) {
+      const el = document.querySelector('.help-button')
+
+      el.removeEventListener('click', this.toggleEvent)
+    }
   }
 })
 
@@ -252,4 +320,8 @@ document.addEventListener('turbolinks:load', function () {
   if (document.querySelectorAll('[data-help]').length) {
     TW.workbench.help.init()
   }
+})
+
+document.addEventListener('turbolinks:before-cache', function () {
+  TW.workbench.help.teardown()
 })

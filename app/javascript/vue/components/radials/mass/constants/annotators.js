@@ -9,11 +9,11 @@ import {
   FIELD_OCCURRENCE,
   IMAGE,
   LOAN,
+  NAMESPACE,
   OTU,
   PERSON,
   SOUND,
   SOURCE,
-  TAXON_NAME,
   TAXON_NAME_RELATIONSHIP
 } from '@/constants'
 import AnnotatorTag from '../components/Annotator/AnnotatorTag.vue'
@@ -220,6 +220,12 @@ export const ANNOTATORS = {
     all: buildSliceObject(DATA_ATTRIBUTE_SLICE),
 
     ids: buildSliceObject(DATA_ATTRIBUTE_SLICE, NOTE_SLICE, TAG_SLICE)
+  },
+
+  [NAMESPACE]: {
+    all: buildSliceObject(),
+
+    ids: buildSliceObject()
   },
 
   [PERSON]: {

@@ -18,17 +18,18 @@
         <% else %>
           <em> Data Curation Issue Tracker is not defined </em>
         <% end %>
-
       </div>
     </div>
 
-    <%= link_to edit_project_path(@project), class: "button btn btn-primary" do -%>
-      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
-        <path d="m15 5 4 4"/>
-      </svg>
-      Edit
-    <% end %>
+    <% if is_superuser? %>
+      <%= link_to edit_project_path(@project), class: "button btn btn-primary" do -%>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+          <path d="m15 5 4 4"/>
+        </svg>
+        Edit
+      <% end %>
+    <% end%>
   </div>
 
   <div class="content-grid">
@@ -52,7 +53,7 @@
         </div>
       </div>
 
-<div class="profile-card">
+      <div class="profile-card">
         <div class="profile-card-header">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="card-icon">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
@@ -203,7 +204,7 @@
                     <th>Last Seen</th>
                     <th>Time in Project</th>
                     <th>Member Since</th>
-                    <% if sessions_current_user.is_superuser? %>
+                    <% if is_superuser? %>
                     <th class="th-center">Admin</th>
                     <th>Email</th>
                     <% end %>
@@ -224,7 +225,7 @@
                     <td> <%= user_last_seen_in_project_tag(pm) -%> </td>
                     <td> <%= user_time_active_in_project_tag(pm) -%> </td>
                     <td> <%= format_date_ymd(pm.created_at) -%></td>
-                    <% if sessions_current_user.is_superuser? %>
+                    <% if is_superuser? %>
 
                       <td>
                       <%= form_for pm, method: :patch do |f| %>

@@ -55,12 +55,13 @@
               @getItem="setCO"
             />
           </div>
-          <div class="margin-medium-left">
+          <div class="flex-col gap-medium">
             <div class="field">
               <label>Depiction</label>
               <depictions-section />
               To add a catalog number use the radial annotator above after save.
             </div>
+            <TaxonDetermination />
           </div>
         </div>
       </template>
@@ -91,6 +92,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import FormCollectionObject from './FormCollectionObject.vue'
 import DepictionsSection from './depictions/depictions.vue'
+import TaxonDetermination from './TaxonDetermination.vue'
 import VSwitch from '@/components/ui/VSwitch.vue'
 import useStore from '../store/store.js'
 

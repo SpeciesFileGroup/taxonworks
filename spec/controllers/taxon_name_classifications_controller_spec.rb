@@ -124,4 +124,50 @@ describe TaxonNameClassificationsController, type: :controller do
   end
 
   include_examples 'DELETE #destroy', TaxonNameClassification
+
+  describe 'POST batch_by_filter_scope' do
+    let(:root) { FactoryBot.create(:root_taxon_name) }
+    let(:iczn_name) {
+      Protonym.create!(
+        parent: root,
+        name: 'Biidae',
+        rank_class: Ranks.lookup(:iczn, 'family')
+      )
+    }
+
+    context ':add' do
+      it 'returns ok and creates a fossil classification' do
+        q = Queries::TaxonName::Filter.new(taxon_name_id: iczn_name.id)
+        expect {
+          post :batch_by_filter_scope, params: {
+            filter_query: { taxon_name_query: q.params },
+            mode: 'add',
+            params: {}
+          }, session: valid_session
+        }.to change(TaxonNameClassification, :count).by(1)
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    context ':remove' do
+      before {
+        TaxonNameClassification.create!(
+          taxon_name: iczn_name,
+          type: 'TaxonNameClassification::Iczn::Fossil'
+        )
+      }
+
+      it 'returns ok and removes the fossil classification' do
+        q = Queries::TaxonName::Filter.new(taxon_name_id: iczn_name.id)
+        expect {
+          post :batch_by_filter_scope, params: {
+            filter_query: { taxon_name_query: q.params },
+            mode: 'remove',
+            params: {}
+          }, session: valid_session
+        }.to change(TaxonNameClassification, :count).by(-1)
+        expect(response).to have_http_status(:ok)
+      end
+    end
+  end
 end

@@ -1,4 +1,4 @@
-# Methods faciliating use of `parent_id`, nomenclature ranks, ancestors and descendants
+# Methods facilitating use of `parent_id`, nomenclature ranks, ancestors and descendants
 #
 # TODO: consider use in refactoring full_name_hash
 #
@@ -39,7 +39,7 @@ module TaxonName::Hierarchy
       target_ranks = []
 
       # Note that we need to single quote the first query in the crosstab,
-      # thuse the $$ and other quote weirdness
+      # thus the $$ and other quote weirdness
 
       # !!! scoping query *must* be distinct results, and without order
       s = "SELECT * from crosstab( 'WITH tnq AS (" + taxon_name_scope.unscope(:select, :order).select(:id).all.distinct.to_sql.gsub(/'/,"''") +
