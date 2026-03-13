@@ -16,6 +16,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Bulk Image and Documents downloaders from Filter Images and Filter Sources results via linker radial [#4683]
 - Collecting event form: Preview map for verbatim coordinates, georeferences and geographic areas [#4785]
 - New collecting event: Added a toggle in the Collection Object modal to mark a repository as current [#4794]
+- Ungrouped section to "Manage biocuration classes and groups" [#4813]
 
 ### Fixed
 
@@ -64,6 +65,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4794]: https://github.com/SpeciesFileGroup/taxonworks/issues/4794
 [#4800]: https://github.com/SpeciesFileGroup/taxonworks/issues/4800
 [#4811]: https://github.com/SpeciesFileGroup/taxonworks/issues/4811
+[#4813]: https://github.com/SpeciesFileGroup/taxonworks/issues/4813
 
 ## [0.60.0] - 2026-02-20
 
