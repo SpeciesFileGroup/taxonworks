@@ -57,7 +57,11 @@
                     v-model="row.selectedPersonId"
                     @change="row.createdPerson = null"
                   />
-                  <span v-html="person.cached || person.name" />
+                  <a
+                    :href="`/people/${person.id}`"
+                    target="_blank"
+                    v-html="person.cached || person.name"
+                  />
                 </label>
               </div>
             </td>
@@ -68,7 +72,10 @@
               >
                 <span class="selected-text">
                   {{ row.alreadyExists ? 'Selected:' : 'Created:' }}
-                  {{ row.createdPerson.cached }}
+                  <a
+                    :href="`/people/${row.createdPerson.id}`"
+                    target="_blank"
+                  >{{ row.createdPerson.cached }}</a>
                 </span>
               </div>
               <div
