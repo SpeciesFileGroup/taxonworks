@@ -651,9 +651,10 @@ namespace :tw do
 
         # @return [String] SQL for a subquery mapping asserted_distribution.id
         #   to otu.id for all supported asserted_distribution_object_type values.
-        #   Covers: Otu (direct), BiologicalAssociation (subject/object),
-        #   BiologicalAssociationsGraph (via BA subject/object), Conveyance,
-        #   Depiction, and Observation.
+        #   Covers: Otu (direct), BiologicalAssociation (subject/object directly,
+        #   via CollectionObject/FieldOccurrence taxon determination, or via
+        #   AnatomicalPart cached_otu_id), BiologicalAssociationsGraph (same BA
+        #   cases), Conveyance, Depiction, and Observation.
         def ad_to_otu_map_sql
           <<~SQL.squish
             SELECT ad.id AS ad_id, ad.asserted_distribution_object_id AS otu_id
@@ -680,6 +681,80 @@ namespace :tw do
 
             UNION
 
+            SELECT ad.id AS ad_id, td.otu_id AS otu_id
+            FROM asserted_distributions ad
+            JOIN biological_associations ba
+              ON ad.asserted_distribution_object_type = 'BiologicalAssociation'
+              AND ad.asserted_distribution_object_id = ba.id
+              AND ba.biological_association_subject_type = 'CollectionObject'
+            JOIN taxon_determinations td
+              ON td.taxon_determination_object_id = ba.biological_association_subject_id
+              AND td.taxon_determination_object_type = 'CollectionObject'
+              AND td.position = 1
+
+            UNION
+
+            SELECT ad.id AS ad_id, td.otu_id AS otu_id
+            FROM asserted_distributions ad
+            JOIN biological_associations ba
+              ON ad.asserted_distribution_object_type = 'BiologicalAssociation'
+              AND ad.asserted_distribution_object_id = ba.id
+              AND ba.biological_association_object_type = 'CollectionObject'
+            JOIN taxon_determinations td
+              ON td.taxon_determination_object_id = ba.biological_association_object_id
+              AND td.taxon_determination_object_type = 'CollectionObject'
+              AND td.position = 1
+
+            UNION
+
+            SELECT ad.id AS ad_id, td.otu_id AS otu_id
+            FROM asserted_distributions ad
+            JOIN biological_associations ba
+              ON ad.asserted_distribution_object_type = 'BiologicalAssociation'
+              AND ad.asserted_distribution_object_id = ba.id
+              AND ba.biological_association_subject_type = 'FieldOccurrence'
+            JOIN taxon_determinations td
+              ON td.taxon_determination_object_id = ba.biological_association_subject_id
+              AND td.taxon_determination_object_type = 'FieldOccurrence'
+              AND td.position = 1
+
+            UNION
+
+            SELECT ad.id AS ad_id, td.otu_id AS otu_id
+            FROM asserted_distributions ad
+            JOIN biological_associations ba
+              ON ad.asserted_distribution_object_type = 'BiologicalAssociation'
+              AND ad.asserted_distribution_object_id = ba.id
+              AND ba.biological_association_object_type = 'FieldOccurrence'
+            JOIN taxon_determinations td
+              ON td.taxon_determination_object_id = ba.biological_association_object_id
+              AND td.taxon_determination_object_type = 'FieldOccurrence'
+              AND td.position = 1
+
+            UNION
+
+            SELECT ad.id AS ad_id, ap.cached_otu_id AS otu_id
+            FROM asserted_distributions ad
+            JOIN biological_associations ba
+              ON ad.asserted_distribution_object_type = 'BiologicalAssociation'
+              AND ad.asserted_distribution_object_id = ba.id
+              AND ba.biological_association_subject_type = 'AnatomicalPart'
+            JOIN anatomical_parts ap
+              ON ap.id = ba.biological_association_subject_id
+
+            UNION
+
+            SELECT ad.id AS ad_id, ap.cached_otu_id AS otu_id
+            FROM asserted_distributions ad
+            JOIN biological_associations ba
+              ON ad.asserted_distribution_object_type = 'BiologicalAssociation'
+              AND ad.asserted_distribution_object_id = ba.id
+              AND ba.biological_association_object_type = 'AnatomicalPart'
+            JOIN anatomical_parts ap
+              ON ap.id = ba.biological_association_object_id
+
+            UNION
+
             SELECT ad.id AS ad_id, ba.biological_association_subject_id AS otu_id
             FROM asserted_distributions ad
             JOIN biological_associations_graphs bag
@@ -703,6 +778,104 @@ namespace :tw do
             JOIN biological_associations ba
               ON ba.id = babag.biological_association_id
               AND ba.biological_association_object_type = 'Otu'
+
+            UNION
+
+            SELECT ad.id AS ad_id, td.otu_id AS otu_id
+            FROM asserted_distributions ad
+            JOIN biological_associations_graphs bag
+              ON ad.asserted_distribution_object_type = 'BiologicalAssociationsGraph'
+              AND ad.asserted_distribution_object_id = bag.id
+            JOIN biological_associations_biological_associations_graphs babag
+              ON babag.biological_associations_graph_id = bag.id
+            JOIN biological_associations ba
+              ON ba.id = babag.biological_association_id
+              AND ba.biological_association_subject_type = 'CollectionObject'
+            JOIN taxon_determinations td
+              ON td.taxon_determination_object_id = ba.biological_association_subject_id
+              AND td.taxon_determination_object_type = 'CollectionObject'
+              AND td.position = 1
+
+            UNION
+
+            SELECT ad.id AS ad_id, td.otu_id AS otu_id
+            FROM asserted_distributions ad
+            JOIN biological_associations_graphs bag
+              ON ad.asserted_distribution_object_type = 'BiologicalAssociationsGraph'
+              AND ad.asserted_distribution_object_id = bag.id
+            JOIN biological_associations_biological_associations_graphs babag
+              ON babag.biological_associations_graph_id = bag.id
+            JOIN biological_associations ba
+              ON ba.id = babag.biological_association_id
+              AND ba.biological_association_object_type = 'CollectionObject'
+            JOIN taxon_determinations td
+              ON td.taxon_determination_object_id = ba.biological_association_object_id
+              AND td.taxon_determination_object_type = 'CollectionObject'
+              AND td.position = 1
+
+            UNION
+
+            SELECT ad.id AS ad_id, td.otu_id AS otu_id
+            FROM asserted_distributions ad
+            JOIN biological_associations_graphs bag
+              ON ad.asserted_distribution_object_type = 'BiologicalAssociationsGraph'
+              AND ad.asserted_distribution_object_id = bag.id
+            JOIN biological_associations_biological_associations_graphs babag
+              ON babag.biological_associations_graph_id = bag.id
+            JOIN biological_associations ba
+              ON ba.id = babag.biological_association_id
+              AND ba.biological_association_subject_type = 'FieldOccurrence'
+            JOIN taxon_determinations td
+              ON td.taxon_determination_object_id = ba.biological_association_subject_id
+              AND td.taxon_determination_object_type = 'FieldOccurrence'
+              AND td.position = 1
+
+            UNION
+
+            SELECT ad.id AS ad_id, td.otu_id AS otu_id
+            FROM asserted_distributions ad
+            JOIN biological_associations_graphs bag
+              ON ad.asserted_distribution_object_type = 'BiologicalAssociationsGraph'
+              AND ad.asserted_distribution_object_id = bag.id
+            JOIN biological_associations_biological_associations_graphs babag
+              ON babag.biological_associations_graph_id = bag.id
+            JOIN biological_associations ba
+              ON ba.id = babag.biological_association_id
+              AND ba.biological_association_object_type = 'FieldOccurrence'
+            JOIN taxon_determinations td
+              ON td.taxon_determination_object_id = ba.biological_association_object_id
+              AND td.taxon_determination_object_type = 'FieldOccurrence'
+              AND td.position = 1
+
+            UNION
+
+            SELECT ad.id AS ad_id, ap.cached_otu_id AS otu_id
+            FROM asserted_distributions ad
+            JOIN biological_associations_graphs bag
+              ON ad.asserted_distribution_object_type = 'BiologicalAssociationsGraph'
+              AND ad.asserted_distribution_object_id = bag.id
+            JOIN biological_associations_biological_associations_graphs babag
+              ON babag.biological_associations_graph_id = bag.id
+            JOIN biological_associations ba
+              ON ba.id = babag.biological_association_id
+              AND ba.biological_association_subject_type = 'AnatomicalPart'
+            JOIN anatomical_parts ap
+              ON ap.id = ba.biological_association_subject_id
+
+            UNION
+
+            SELECT ad.id AS ad_id, ap.cached_otu_id AS otu_id
+            FROM asserted_distributions ad
+            JOIN biological_associations_graphs bag
+              ON ad.asserted_distribution_object_type = 'BiologicalAssociationsGraph'
+              AND ad.asserted_distribution_object_id = bag.id
+            JOIN biological_associations_biological_associations_graphs babag
+              ON babag.biological_associations_graph_id = bag.id
+            JOIN biological_associations ba
+              ON ba.id = babag.biological_association_id
+              AND ba.biological_association_object_type = 'AnatomicalPart'
+            JOIN anatomical_parts ap
+              ON ap.id = ba.biological_association_object_id
 
             UNION
 

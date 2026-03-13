@@ -110,10 +110,10 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Allow creating multiple authors at a time from the New Source authors matcher [#4791]
 - Freeform digitize: In some cases, the SVG editor does not use the full available space. [#4806]
 - Not all selected character state text being returned to a standard key during standard key construction from interactive key
-- On the Browse OTU page, display Biological Associations related to an OTU by ([#2141]):
+- [#2141] On the Browse OTU page, display Biological Associations related to an OTU by:
   - Biological Association -> subject/object is a Collection Object or Field Occurrence -> the Taxon Determination of the Collection Object or Field Occurrence is the OTU in question
   - Anatomical Part has origin OTU the OTU in question
-- On the Browse OTU page, display Asserted Distributions that are related to the OTU through the Asserted Distribution's object being one of the following types ([#4764]):
+- [#4764] On the Browse OTU page, display Asserted Distributions that are related to the OTU through the Asserted Distribution's object being one of the following types:
   - a Biological Association of the type described in the previous bullet for #2141
   - a Biological Association of the type described in the previous bullet that's a member of a Biological Associations Graph
   - a Depiction, Conveyance, or Observation whose object is that OTU

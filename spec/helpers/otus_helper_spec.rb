@@ -318,6 +318,26 @@ describe OtusHelper, type: :helper do
           expect(features.count { |f| f['geometry'].nil? }).to eq(1)
         end
 
+        specify 'BiologicalAssociation AD is included when BA subject is a CO determined as the OTU' do
+          br = FactoryBot.create(:valid_biological_relationship)
+          co = FactoryBot.create(:valid_specimen)
+          FactoryBot.create(:taxon_determination, otu: otu3, taxon_determination_object: co)
+          ba = BiologicalAssociation.create!(
+            biological_association_subject: co,
+            biological_association_object:  otu3,
+            biological_relationship: br,
+            project: otu3.project
+          )
+          FactoryBot.create(:valid_biological_association_asserted_distribution,
+            asserted_distribution_object: ba,
+            asserted_distribution_shape: shared_ga2)
+
+          features = run_with_seen(otu, otu3)
+          expect(features.count).to eq(2)
+          expect(features.count { |f| f['geometry'].present? }).to eq(1)
+          expect(features.count { |f| f['geometry'].nil? }).to eq(1)
+        end
+
         specify 'Observation AD on same shape is deduplicated' do
           descriptor = Descriptor::Continuous.create!(name: 'dedup_test_descriptor', project: otu3.project)
           observation = Observation::Continuous.create!(
