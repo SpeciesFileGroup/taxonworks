@@ -360,6 +360,46 @@ module OtusHelper
             h['features'].push g
           end
         end
+
+      bag_ids = ::BiologicalAssociationsGraph
+        .joins(:biological_associations_biological_associations_graphs)
+        .where(biological_associations_biological_associations_graphs: { biological_association_id: ba_ids })
+        .select(:id)
+
+      unless bag_ids.empty?
+        ::AssertedDistribution
+          .where(
+            asserted_distribution_object_type: 'BiologicalAssociationsGraph',
+            asserted_distribution_object_id: bag_ids
+          )
+          .each do |a|
+            if g = asserted_distribution_to_geo_json_feature(a)
+              g['properties']['target'] = t
+              h['features'].push g
+            end
+          end
+      end
+    end
+
+    [
+      [o.depictions, 'Depiction', :depiction_object_id],
+      [o.conveyances, 'Conveyance', :conveyance_object_id],
+      [o.observations, 'Observation', :observation_object_id],
+    ].each do |related_records, object_type, _id_method|
+      related_ids = related_records.map(&:id)
+      next if related_ids.empty?
+
+      ::AssertedDistribution
+        .where(
+          asserted_distribution_object_type: object_type,
+          asserted_distribution_object_id: related_ids
+        )
+        .each do |a|
+          if g = asserted_distribution_to_geo_json_feature(a)
+            g['properties']['target'] = t
+            h['features'].push g
+          end
+        end
     end
 
     o.type_materials.includes(:protonym).each do |e|
