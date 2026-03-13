@@ -6,15 +6,8 @@
     <template #body>
       <div class="panel-preview">
         <template v-if="subjectAnatomicalPartLabel">
-          <i>
-            <span v-html="subjectAnatomicalPartLabel" />
-            <span
-              v-if="!store.subjectAnatomicalPart?.id"
-              class="subtle"
-            >
-              (new)</span
-            >
-          </i>
+          <i v-html="subjectAnatomicalPartLabel" />
+
           <span class="sublet">of</span>
         </template>
 
@@ -31,15 +24,8 @@
         <span v-else> [Relationship] </span>
 
         <template v-if="objectAnatomicalPartLabel">
-          <i>
-            <span v-html="objectAnatomicalPartLabel" />
-            <span
-              v-if="!store.objectAnatomicalPart?.id"
-              class="subtle"
-            >
-              (new)</span
-            >
-          </i>
+          <i v-html="objectAnatomicalPartLabel" />
+
           <span class="sublet">of</span>
         </template>
 

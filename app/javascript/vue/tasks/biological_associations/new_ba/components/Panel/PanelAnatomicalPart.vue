@@ -2,7 +2,7 @@
   <BlockLayout :warning="!anatomicalPart">
     <template #header>
       <div class="horizontal-left-content middle gap-small">
-        <h3>Anatomical part</h3>
+        <h3>Anatomical part ({{ title }})</h3>
       </div>
     </template>
     <template #body>
@@ -20,7 +20,7 @@
           class="flex-row middle flex-separate"
         >
           <span>
-            <span v-html="anatomicalPart.object_tag || displayLabel" />
+            <span v-html="anatomicalPart.cached || displayLabel" />
             <span
               v-if="!anatomicalPart.id"
               class="subtle margin-small-left"
@@ -59,7 +59,24 @@
                     type="radio"
                     :value="item"
                   />
-                  <span v-html="item.object_tag"></span>
+                  <span>{{ item.cached }}</span>
+                </label>
+              </li>
+            </ul>
+          </div>
+
+          <div v-else-if="currentTab === TAB_IN_PROJECT">
+            <ul class="no_bullets">
+              <li
+                v-for="item in recent"
+                :key="item.id"
+              >
+                <label @click="() => selectInProjectAnatomicalPart(item)">
+                  <input
+                    type="radio"
+                    :value="item"
+                  />
+                  <span>{{ item.cached }}</span>
                 </label>
               </li>
             </ul>
@@ -212,8 +229,9 @@ const parentIsAnatomicalPart = computed(
 )
 
 const TAB_SEARCH = 'Created'
+const TAB_IN_PROJECT = 'In project'
 const TAB_NEW = 'New'
-const TAB_OPTIONS = [TAB_SEARCH, TAB_NEW]
+const TAB_OPTIONS = [TAB_SEARCH, TAB_IN_PROJECT, TAB_NEW]
 const currentTab = ref(TAB_SEARCH)
 const ontologyPreferences = ref([])
 const selectedOntologies = ref([])
@@ -242,12 +260,28 @@ function makeAnatomicalPart(data = {}) {
     uri_label: data.uri_label || '',
     is_material: data.is_material ?? undefined,
     preparation_type_id: data.preparation_type_id || undefined,
-    object_tag: data.object_tag || null
+    cached: data.cached || null
   }
 }
 
 function selectExistingAnatomicalPart(item) {
   anatomicalPart.value = makeAnatomicalPart(item)
+}
+
+function selectInProjectAnatomicalPart(item) {
+  const belongsToParent = created.value.some((ap) => ap.id === item.id)
+
+  if (belongsToParent) {
+    anatomicalPart.value = makeAnatomicalPart(item)
+  } else {
+    anatomicalPart.value = makeAnatomicalPart({
+      name: item.name,
+      uri: item.uri,
+      uri_label: item.uri_label,
+      is_material: defaultIsMaterial(),
+      preparation_type_id: item.preparation_type_id
+    })
+  }
 }
 
 function setOntologyTerm(value) {

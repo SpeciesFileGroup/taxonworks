@@ -19,7 +19,7 @@ export function makeAnatomicalPart(data = {}) {
     uri_label: data.uri_label || '',
     is_material: data.is_material ?? undefined,
     preparation_type_id: data.preparation_type_id || undefined,
-    object_tag: data.object_tag || null
+    cached: data.cached || null
   }
 }
 
