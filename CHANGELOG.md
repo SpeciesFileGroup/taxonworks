@@ -9,6 +9,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Fuzzy match to the common_names API endpoint [#4757]
 - Add and remove fossil status from Filter Taxon Names [#4700]
 - Taxon determination to New type specimen task [#4745]
 - Browse OTUs: Quick forms in Biological associations table [#4782]
