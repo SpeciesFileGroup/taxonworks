@@ -48,7 +48,7 @@
             class="margin-small-bottom"
           />
 
-          <div v-if="currentTab === TAB_SEARCH">
+          <div v-if="currentTab === TABS.Created">
             <ul class="no_bullets">
               <li
                 v-for="item in created"
@@ -65,7 +65,7 @@
             </ul>
           </div>
 
-          <div v-else-if="currentTab === TAB_IN_PROJECT">
+          <div v-else-if="currentTab === TABS.InProject">
             <ul class="no_bullets">
               <li
                 v-for="item in recent"
@@ -228,11 +228,13 @@ const parentIsAnatomicalPart = computed(
   () => props.parentObject?.base_class === 'AnatomicalPart'
 )
 
-const TAB_SEARCH = 'Created'
-const TAB_IN_PROJECT = 'In project'
-const TAB_NEW = 'New'
-const TAB_OPTIONS = [TAB_SEARCH, TAB_IN_PROJECT, TAB_NEW]
-const currentTab = ref(TAB_SEARCH)
+const TABS = {
+  Created: 'Created',
+  InProject: 'In project',
+  New: 'New'
+}
+const TAB_OPTIONS = Object.values(TABS)
+const currentTab = ref(TABS.Created)
 const ontologyPreferences = ref([])
 const selectedOntologies = ref([])
 const recent = ref([])
@@ -291,7 +293,7 @@ function setOntologyTerm(value) {
 
 function setNewAnatomicalPart() {
   anatomicalPart.value = makeAnatomicalPart(formData.value)
-  currentTab.value = TAB_SEARCH
+  currentTab.value = TABS.Created
 }
 
 function unsetAnatomicalPart() {
@@ -329,6 +331,7 @@ function loadCreated(item) {
     [ID_PARAM_FOR[item.base_class]]: item.id
   }).then(({ body }) => {
     created.value = body
+    currentTab.value = body.length ? TABS.Created : TABS.New
   })
 }
 
