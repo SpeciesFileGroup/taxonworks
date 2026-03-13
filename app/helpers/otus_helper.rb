@@ -347,6 +347,70 @@ module OtusHelper
       h['features'].push g
     end
 
+    ba_ids = o.all_biological_associations.map(&:id)
+    unless ba_ids.empty?
+      ::AssertedDistribution
+        .where(
+          asserted_distribution_object_type: 'BiologicalAssociation',
+          asserted_distribution_object_id: ba_ids
+        )
+        .each do |a|
+          shape_key = seen_shapes && [a.asserted_distribution_shape_type, a.asserted_distribution_shape_id]
+          g = build_geo_json_feature_deduped(seen_shapes&.fetch(:asserted_distributions), shape_key) do |skip_geometry|
+            asserted_distribution_to_geo_json_feature(a, skip_geometry:)
+          end
+          next unless g
+          g['properties']['target'] = t
+          h['features'].push g
+        end
+
+      bag_ids = ::BiologicalAssociationsGraph
+        .joins(:biological_associations_biological_associations_graphs)
+        .where(biological_associations_biological_associations_graphs: { biological_association_id: ba_ids })
+        .select(:id)
+
+      unless bag_ids.empty?
+        ::AssertedDistribution
+          .where(
+            asserted_distribution_object_type: 'BiologicalAssociationsGraph',
+            asserted_distribution_object_id: bag_ids
+          )
+          .each do |a|
+            shape_key = seen_shapes && [a.asserted_distribution_shape_type, a.asserted_distribution_shape_id]
+            g = build_geo_json_feature_deduped(seen_shapes&.fetch(:asserted_distributions), shape_key) do |skip_geometry|
+              asserted_distribution_to_geo_json_feature(a, skip_geometry:)
+            end
+            next unless g
+            g['properties']['target'] = t
+            h['features'].push g
+          end
+      end
+    end
+
+    [
+      [o.depictions, 'Depiction', :depiction_object_id],
+      [o.conveyances, 'Conveyance', :conveyance_object_id],
+      [o.observations, 'Observation', :observation_object_id],
+    ].each do |related_records, object_type, _id_method|
+      related_ids = related_records.map(&:id)
+      next if related_ids.empty?
+
+      ::AssertedDistribution
+        .where(
+          asserted_distribution_object_type: object_type,
+          asserted_distribution_object_id: related_ids
+        )
+        .each do |a|
+          shape_key = seen_shapes && [a.asserted_distribution_shape_type, a.asserted_distribution_shape_id]
+          g = build_geo_json_feature_deduped(seen_shapes&.fetch(:asserted_distributions), shape_key) do |skip_geometry|
+            asserted_distribution_to_geo_json_feature(a, skip_geometry:)
+          end
+          next unless g
+          g['properties']['target'] = t
+          h['features'].push g
+        end
+    end
+
     o.type_materials.includes(:protonym).each do |e|
       next unless type_material_is_primary_type(e) && o.taxon_name.cached_is_valid
 
