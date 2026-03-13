@@ -83,78 +83,63 @@
           </div>
 
           <div v-else>
-            <fieldset>
-              <legend>Name or URI</legend>
-              <div class="margin-medium-bottom">
-                <input
-                  class="normal-input full_width"
-                  type="text"
-                  v-model="formData.name"
-                  placeholder="Name"
-                />
-              </div>
-
-              or
-
-              <fieldset class="margin-medium-top">
-                <legend>Search ontologies for terms</legend>
-                <div class="margin-medium-bottom margin-small-top">
-                  Ontology search sources:
+            <fieldset class="margin-medium-top">
+              <legend>Search ontologies for terms in:</legend>
+              <div>
+                <div
+                  v-for="pref in ontologyPreferences"
+                  :key="pref.oid"
+                >
+                  <label>
+                    <input
+                      type="checkbox"
+                      :value="pref.oid"
+                      v-model="selectedOntologies"
+                      class="margin-medium-left"
+                    />
+                    <span
+                      :title="pref.oid"
+                      class="padding-xsmall-left"
+                    >
+                      {{ pref.title }}
+                    </span>
+                  </label>
                 </div>
-                <div>
-                  <div
-                    v-for="pref in ontologyPreferences"
-                    :key="pref.oid"
-                  >
-                    <label>
-                      <input
-                        type="checkbox"
-                        :value="pref.oid"
-                        v-model="selectedOntologies"
-                        class="margin-medium-left"
-                      />
-                      <span
-                        :title="pref.oid"
-                        class="padding-xsmall-left"
-                      >
-                        {{ pref.title }}
-                      </span>
-                    </label>
-                  </div>
-                </div>
-                <VAutocomplete
-                  url="/anatomical_parts/ontology_autocomplete"
-                  :add-params="{ ontologies: selectedOntologies }"
-                  label="ontology_label_html"
-                  display="ontology_label"
-                  min="3"
-                  clear-after
-                  placeholder="Search for an ontology term, e.g. femur"
-                  param="term"
-                  class="margin-medium-top"
-                  @select="setOntologyTerm"
-                />
-              </fieldset>
-
-              <div class="margin-medium-top flex-row gap-medium">
-                <input
-                  class="normal-input"
-                  style="flex-grow: 1"
-                  type="text"
-                  v-model="formData.uri_label"
-                  :title="formData.uri_label"
-                  placeholder="URI label"
-                />
-                <input
-                  class="normal-input"
-                  style="flex-grow: 2"
-                  type="text"
-                  v-model="formData.uri"
-                  :title="formData.uri"
-                  placeholder="URI"
-                />
               </div>
+              <VAutocomplete
+                url="/anatomical_parts/ontology_autocomplete"
+                :add-params="{ ontologies: selectedOntologies }"
+                label="ontology_label_html"
+                display="ontology_label"
+                autofocus
+                min="3"
+                clear-after
+                placeholder="Search for an ontology term, e.g. femur"
+                param="term"
+                class="margin-medium-top"
+                @select="setOntologyTerm"
+              />
             </fieldset>
+
+            <div class="margin-medium-top flex-row gap-medium">
+              <input
+                class="normal-input"
+                style="flex-grow: 1"
+                type="text"
+                v-model="formData.uri_label"
+                :title="formData.uri_label"
+                placeholder="URI label"
+              />
+              <input
+                class="normal-input"
+                style="flex-grow: 2"
+                type="text"
+                v-model="formData.uri"
+                :title="formData.uri"
+                placeholder="URI"
+              />
+            </div>
+
             <template v-if="objectType === COLLECTION_OBJECT">
               <label class="margin-medium-top margin-medium-bottom">
                 <input
