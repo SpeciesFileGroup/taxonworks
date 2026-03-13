@@ -528,6 +528,31 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
     end
   end
 
+  context '#object_otu_ids' do
+    specify 'handles every DISTRIBUTION_ASSERTABLE_TYPE without raising' do
+      otu = FactoryBot.create(:valid_otu)
+
+      ads = [
+        FactoryBot.create(:valid_otu_asserted_distribution),
+        FactoryBot.create(:valid_biological_association_asserted_distribution),
+        FactoryBot.create(:valid_biological_associations_graph_asserted_distribution),
+        FactoryBot.create(:valid_conveyance_asserted_distribution,
+          asserted_distribution_object: FactoryBot.create(:valid_conveyance, conveyance_object: otu)),
+        FactoryBot.create(:valid_depiction_asserted_distribution,
+          asserted_distribution_object: FactoryBot.create(:valid_depiction, depiction_object: otu)),
+        FactoryBot.create(:valid_observation_asserted_distribution,
+          asserted_distribution_object: FactoryBot.create(:valid_observation, observation_object: otu)),
+      ]
+
+      expect(ads.map(&:asserted_distribution_object_type).sort).to eq(DISTRIBUTION_ASSERTABLE_TYPES.sort),
+        'factory list does not cover all DISTRIBUTION_ASSERTABLE_TYPES'
+
+      ads.each do |ad|
+        expect { ad.object_otu_ids }.not_to raise_error, "#{ad.asserted_distribution_object_type} is not handled in #object_otu_ids"
+      end
+    end
+  end
+
   context '#stub_new' do
     include_context 'stuff for complex geo tests'
 
