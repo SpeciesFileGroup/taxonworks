@@ -644,8 +644,8 @@ module Export::Coldp::Files::Name
       uninomial = t.cached if t.rank == 'genus'
 
       # Future- resolve in SQL perhaps, though not very expensive here
-      species = align_gender(t, :species)
-      infraspecies = align_gender(t, :infraspecies)
+      species = align_gender(t, :species) || t.species
+      infraspecies = align_gender(t, :infraspecies) || t.infraspecies
 
       csv << [
         t.id,                                                               # ID
