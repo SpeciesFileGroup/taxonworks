@@ -355,10 +355,13 @@ module OtusHelper
           asserted_distribution_object_id: ba_ids
         )
         .each do |a|
-          if g = asserted_distribution_to_geo_json_feature(a)
-            g['properties']['target'] = t
-            h['features'].push g
+          shape_key = seen_shapes && [a.asserted_distribution_shape_type, a.asserted_distribution_shape_id]
+          g = build_geo_json_feature_deduped(seen_shapes&.fetch(:asserted_distributions), shape_key) do |skip_geometry|
+            asserted_distribution_to_geo_json_feature(a, skip_geometry:)
           end
+          next unless g
+          g['properties']['target'] = t
+          h['features'].push g
         end
 
       bag_ids = ::BiologicalAssociationsGraph
@@ -373,10 +376,13 @@ module OtusHelper
             asserted_distribution_object_id: bag_ids
           )
           .each do |a|
-            if g = asserted_distribution_to_geo_json_feature(a)
-              g['properties']['target'] = t
-              h['features'].push g
+            shape_key = seen_shapes && [a.asserted_distribution_shape_type, a.asserted_distribution_shape_id]
+            g = build_geo_json_feature_deduped(seen_shapes&.fetch(:asserted_distributions), shape_key) do |skip_geometry|
+              asserted_distribution_to_geo_json_feature(a, skip_geometry:)
             end
+            next unless g
+            g['properties']['target'] = t
+            h['features'].push g
           end
       end
     end
@@ -395,10 +401,13 @@ module OtusHelper
           asserted_distribution_object_id: related_ids
         )
         .each do |a|
-          if g = asserted_distribution_to_geo_json_feature(a)
-            g['properties']['target'] = t
-            h['features'].push g
+          shape_key = seen_shapes && [a.asserted_distribution_shape_type, a.asserted_distribution_shape_id]
+          g = build_geo_json_feature_deduped(seen_shapes&.fetch(:asserted_distributions), shape_key) do |skip_geometry|
+            asserted_distribution_to_geo_json_feature(a, skip_geometry:)
           end
+          next unless g
+          g['properties']['target'] = t
+          h['features'].push g
         end
     end
 

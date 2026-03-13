@@ -270,6 +270,130 @@ describe OtusHelper, type: :helper do
         end
       end
 
+      describe 'non-Otu AD object types participate in deduplication' do
+        let!(:shared_ga2) { FactoryBot.create(:valid_geographic_area) }
+        let!(:otu3) { FactoryBot.create(:valid_otu) }
+
+        # otu has a direct AD on shared_ga2 — seeds the seen_shapes entry
+        let!(:ad_direct) do
+          FactoryBot.create(:valid_geographic_area_asserted_distribution,
+            asserted_distribution_object: otu,
+            asserted_distribution_shape: shared_ga2)
+        end
+
+        before do
+          FactoryBot.create(:valid_geographic_areas_geographic_item, geographic_area: shared_ga2)
+        end
+
+        def features_for_ga2(h)
+          h['features'].select { |f|
+            f.dig('properties', 'base', 'type') == 'AssertedDistribution' &&
+            f.dig('properties', 'shape', 'id') == shared_ga2.id
+          }
+        end
+
+        def run_with_seen(otu_a, otu_b)
+          h = helper.geojson_for_otu(otu_a)
+          seen = { field_occurrences: {}, collection_objects: {}, asserted_distributions: {}, type_materials: {} }
+          helper.add_distribution_geo_json(otu_a, h, seen)
+          helper.add_distribution_geo_json(otu_b, h, seen)
+          features_for_ga2(h)
+        end
+
+        specify 'BiologicalAssociation AD on same shape is deduplicated' do
+          br = FactoryBot.create(:valid_biological_relationship)
+          ba = BiologicalAssociation.create!(
+            biological_association_subject: otu3,
+            biological_association_object:  otu3,
+            biological_relationship: br,
+            project: otu3.project
+          )
+          FactoryBot.create(:valid_biological_association_asserted_distribution,
+            asserted_distribution_object: ba,
+            asserted_distribution_shape: shared_ga2)
+
+          features = run_with_seen(otu, otu3)
+          expect(features.count).to eq(2)
+          expect(features.count { |f| f['geometry'].present? }).to eq(1)
+          expect(features.count { |f| f['geometry'].nil? }).to eq(1)
+        end
+
+        specify 'BiologicalAssociationsGraph AD on same shape is deduplicated' do
+          br = FactoryBot.create(:valid_biological_relationship)
+          ba = BiologicalAssociation.create!(
+            biological_association_subject: otu3,
+            biological_association_object:  otu3,
+            biological_relationship: br,
+            project: otu3.project
+          )
+          bag = FactoryBot.create(:valid_biological_associations_graph)
+          FactoryBot.create(:valid_biological_associations_biological_associations_graph,
+            biological_associations_graph: bag,
+            biological_association: ba)
+          FactoryBot.create(:valid_biological_associations_graph_asserted_distribution,
+            asserted_distribution_object: bag,
+            asserted_distribution_shape: shared_ga2)
+
+          features = run_with_seen(otu, otu3)
+          expect(features.count).to eq(2)
+          expect(features.count { |f| f['geometry'].present? }).to eq(1)
+          expect(features.count { |f| f['geometry'].nil? }).to eq(1)
+        end
+
+        specify 'Conveyance AD on same shape is deduplicated' do
+          sound = Sound.new(project: otu3.project, name: 'dedup_test_sound')
+          sound.sound_file.attach(
+            io: File.open(Rails.root.join('spec/files/sounds/sound1.wav')),
+            filename: 'sound1.wav',
+            content_type: 'audio/wav'
+          )
+          sound.save!
+          conveyance = Conveyance.create!(conveyance_object: otu3, sound: sound, project: otu3.project)
+          FactoryBot.create(:valid_conveyance_asserted_distribution,
+            asserted_distribution_object: conveyance,
+            asserted_distribution_shape: shared_ga2)
+
+          features = run_with_seen(otu, otu3)
+          expect(features.count).to eq(2)
+          expect(features.count { |f| f['geometry'].present? }).to eq(1)
+          expect(features.count { |f| f['geometry'].nil? }).to eq(1)
+        end
+
+        specify 'Depiction AD on same shape is deduplicated' do
+          image = Image.create!(
+            project: otu3.project,
+            image_file: Rack::Test::UploadedFile.new(Rails.root.join('spec/files/images/tiny.png'), 'image/png')
+          )
+          depiction = Depiction.create!(depiction_object: otu3, image: image)
+          FactoryBot.create(:valid_depiction_asserted_distribution,
+            asserted_distribution_object: depiction,
+            asserted_distribution_shape: shared_ga2)
+
+          features = run_with_seen(otu, otu3)
+          expect(features.count).to eq(2)
+          expect(features.count { |f| f['geometry'].present? }).to eq(1)
+          expect(features.count { |f| f['geometry'].nil? }).to eq(1)
+        end
+
+        specify 'Observation AD on same shape is deduplicated' do
+          descriptor = Descriptor::Continuous.create!(name: 'dedup_test_descriptor', project: otu3.project)
+          observation = Observation::Continuous.create!(
+            descriptor: descriptor,
+            observation_object: otu3,
+            continuous_value: 1.0,
+            project: otu3.project
+          )
+          FactoryBot.create(:valid_observation_asserted_distribution,
+            asserted_distribution_object: observation,
+            asserted_distribution_shape: shared_ga2)
+
+          features = run_with_seen(otu, otu3)
+          expect(features.count).to eq(2)
+          expect(features.count { |f| f['geometry'].present? }).to eq(1)
+          expect(features.count { |f| f['geometry'].nil? }).to eq(1)
+        end
+      end
+
       # When a collecting event has no georeference and falls back to its geographic area,
       # the shape key is ['GeographicArea', geographic_area_id]. Two *different* collecting
       # events that reference the same geographic area share that key and deduplicate —
