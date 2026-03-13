@@ -92,9 +92,9 @@ export async function listAdapter(result) {
   })
 }
 
-export default async ({ state, commit, dispatch }, globalId) => {
+export default async ({ state, commit, dispatch }, otuId) => {
   const { body } = await BiologicalAssociation.all({
-    any_global_id: [globalId],
+    otu_query: { otu_id: [otuId] },
     extend
   })
 
