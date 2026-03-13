@@ -36,6 +36,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Error on geographic_items/1.json
 - Improved error reporting for Georeference WKT (well-known-text) errors
 - Image matrix viewing issues with transparent PNGs. [#4800]
+- Images in HEIC format do not load in the image viewer [#4811]
 
 ### Changed
 
@@ -62,6 +63,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4790]: https://github.com/SpeciesFileGroup/taxonworks/issues/4790
 [#4794]: https://github.com/SpeciesFileGroup/taxonworks/issues/4794
 [#4800]: https://github.com/SpeciesFileGroup/taxonworks/issues/4800
+[#4811]: https://github.com/SpeciesFileGroup/taxonworks/issues/4811
 
 ## [0.60.0] - 2026-02-20
 
