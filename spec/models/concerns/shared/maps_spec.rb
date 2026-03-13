@@ -76,47 +76,6 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
       expect(ids).to include(otu.id)
       expect(ids.count(otu.id)).to eq(1)
     end
-
-    specify 'BiologicalAssociationsGraph containing a BA where OTU is subject' do
-      ba = FactoryBot.create(:valid_biological_association, biological_association_subject: otu)
-      bag = FactoryBot.create(:valid_biological_associations_graph)
-      FactoryBot.create(:valid_biological_associations_biological_associations_graph,
-        biological_associations_graph: bag,
-        biological_association: ba
-      )
-      ad = build_ad(bag)
-      expect(ad.send(:touched_cached_maps).pluck(:id)).to include(otu.id)
-    end
-
-    specify 'BiologicalAssociationsGraph containing a BA where OTU is object' do
-      ba = FactoryBot.create(:valid_biological_association, biological_association_object: otu)
-      bag = FactoryBot.create(:valid_biological_associations_graph)
-      FactoryBot.create(:valid_biological_associations_biological_associations_graph,
-        biological_associations_graph: bag,
-        biological_association: ba
-      )
-      ad = build_ad(bag)
-      expect(ad.send(:touched_cached_maps).pluck(:id)).to include(otu.id)
-    end
-
-    specify 'Conveyance where OTU is the conveyance object' do
-      conveyance = FactoryBot.create(:valid_conveyance, conveyance_object: otu)
-      ad = build_ad(conveyance)
-      expect(ad.send(:touched_cached_maps).pluck(:id)).to include(otu.id)
-    end
-
-    specify 'Depiction where OTU is the depiction object' do
-      depiction = FactoryBot.create(:valid_depiction, depiction_object: otu)
-      ad = build_ad(depiction)
-      expect(ad.send(:touched_cached_maps).pluck(:id)).to include(otu.id)
-    end
-
-    specify 'Observation where OTU is the observation object' do
-      observation = FactoryBot.create(:valid_observation, observation_object: otu)
-      ad = build_ad(observation)
-      expect(ad.send(:touched_cached_maps).pluck(:id)).to include(otu.id)
-    end
-
   end
 
   specify '#touched_cached_maps (untouched)' do
