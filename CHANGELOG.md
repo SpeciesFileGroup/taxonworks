@@ -110,6 +110,13 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Allow creating multiple authors at a time from the New Source authors matcher [#4791]
 - Freeform digitize: In some cases, the SVG editor does not use the full available space. [#4806]
 - Not all selected character state text being returned to a standard key during standard key construction from interactive key
+- On the Browse OTU page, display Biological Associations related to an OTU by ([#2141]):
+  - Biological Association -> subject/object is a Collection Object or Field Occurrence -> the Taxon Determination of the Collection Object or Field Occurrence is the OTU in question
+  - Anatomical Part has origin OTU the OTU in question
+- On the Browse OTU page, display Asserted Distributions that are related to the OTU through the Asserted Distribution's object being one of the following types ([#4764]):
+  - a Biological Association of the type described in the previous bullet for #2141
+  - a Biological Association of the type described in the previous bullet that's a member of a Biological Associations Graph
+  - a Depiction, Conveyance, or Observation whose object is that OTU
 
 ### Changed
 
@@ -125,6 +132,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Refactor Filter annotations task [#4809]
 
 [#345]: https://github.com/SpeciesFileGroup/taxonpages/issues/345
+[#2141]: https://github.com/SpeciesFileGroup/taxonworks/issues/2141
 [#4271]: https://github.com/SpeciesFileGroup/taxonworks/issues/4271
 [#4423]: https://github.com/SpeciesFileGroup/taxonworks/issues/4423
 [#4683]: https://github.com/SpeciesFileGroup/taxonworks/issues/4683
@@ -132,6 +140,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4700]: https://github.com/SpeciesFileGroup/taxonworks/issues/4700
 [#4745]: https://github.com/SpeciesFileGroup/taxonworks/issues/4745
 [#4768]: https://github.com/SpeciesFileGroup/taxonworks/issues/4768
+[#4764]: https://github.com/SpeciesFileGroup/taxonworks/issues/4764
 [#4769]: https://github.com/SpeciesFileGroup/taxonworks/issues/4769
 [#4778]: https://github.com/SpeciesFileGroup/taxonworks/issues/4778
 [#4777]: https://github.com/SpeciesFileGroup/taxonworks/issues/4777
