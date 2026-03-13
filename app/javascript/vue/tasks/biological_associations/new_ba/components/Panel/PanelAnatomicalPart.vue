@@ -68,15 +68,15 @@
           <div v-else-if="currentTab === TABS.InProject">
             <ul class="no_bullets">
               <li
-                v-for="item in recent"
-                :key="item.id"
+                v-for="item in projectOntologies"
+                :key="item.uuid"
               >
                 <label @click="() => selectInProjectAnatomicalPart(item)">
                   <input
                     type="radio"
                     :value="item"
                   />
-                  <span>{{ item.cached }}</span>
+                  <span>{{ item.name || item.uri_label }}</span>
                 </label>
               </li>
             </ul>
@@ -188,6 +188,7 @@ import VIcon from '@/components/ui/VIcon/index.vue'
 import VSwitch from '@/components/ui/VSwitch.vue'
 import PreparationType from '@/components/radials/object/components/origin_relationship/create/anatomical_parts/components/PreparationType.vue'
 import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams'
+import { randomUUID } from '@/helpers'
 
 const props = defineProps({
   parentObject: {
@@ -223,7 +224,7 @@ const TAB_OPTIONS = Object.values(TABS)
 const currentTab = ref(TABS.Created)
 const ontologyPreferences = ref([])
 const selectedOntologies = ref([])
-const recent = ref([])
+const projectOntologies = ref([])
 const created = ref([])
 
 const formData = ref(makeAnatomicalPart())
@@ -257,10 +258,15 @@ function selectExistingAnatomicalPart(item) {
 }
 
 function selectInProjectAnatomicalPart(item) {
-  const belongsToParent = created.value.some((ap) => ap.id === item.id)
+  const existingMatch = created.value.find(
+    (ap) =>
+      ap.name === item.name &&
+      ap.uri_label === item.uri_label &&
+      ap.uri === item.uri
+  )
 
-  if (belongsToParent) {
-    anatomicalPart.value = makeAnatomicalPart(item)
+  if (existingMatch) {
+    anatomicalPart.value = makeAnatomicalPart(existingMatch)
   } else {
     anatomicalPart.value = makeAnatomicalPart({
       name: item.name,
@@ -322,8 +328,8 @@ function loadCreated(item) {
 }
 
 onBeforeMount(() => {
-  AnatomicalPart.where({ recent: true }).then(({ body }) => {
-    recent.value = body
+  AnatomicalPart.projectOntologies().then(({ body }) => {
+    projectOntologies.value = body.map((o) => ({ ...o, uuid: randomUUID() }))
   })
 
   AnatomicalPart.ontologyPreferences()

@@ -120,6 +120,18 @@ class AnatomicalPartsController < ApplicationController
     render json: ::Hookkaido.ontologies
   end
 
+  def used_ontologies
+    @anatomical_parts = AnatomicalPart
+      .where(project_id: sessions_current_project_id)
+      .group(:name, :uri_label, :uri)
+      .order(Arel.sql('MAX(created_at) DESC'))
+      .pluck(:name, :uri_label, :uri)
+
+    render json: @anatomical_parts.map { |name, uri_label, uri|
+      { name:, uri_label:, uri: }
+    }
+  end
+
   def children_of
     @origin_relationships = OriginRelationship
       .where(
