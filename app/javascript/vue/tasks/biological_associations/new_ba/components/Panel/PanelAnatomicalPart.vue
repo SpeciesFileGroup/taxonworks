@@ -2,7 +2,7 @@
   <BlockLayout :warning="!anatomicalPart">
     <template #header>
       <div class="horizontal-left-content middle gap-small">
-        <h3>Anatomical part ({{ title }})</h3>
+        <h3>Anatomical part to {{ title }}</h3>
       </div>
     </template>
     <template #body>
@@ -125,7 +125,8 @@
                 <VAutocomplete
                   url="/anatomical_parts/ontology_autocomplete"
                   :add-params="{ ontologies: selectedOntologies }"
-                  label="ontology_label"
+                  label="ontology_label_html"
+                  display="ontology_label"
                   min="3"
                   clear-after
                   placeholder="Search for an ontology term, e.g. femur"

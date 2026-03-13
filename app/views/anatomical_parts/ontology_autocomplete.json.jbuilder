@@ -38,5 +38,11 @@
 end
 
 json.array! @parts_list.map { |part|
-  part.merge(ontology_label: anatomical_part_ontology_label(part))
+  project_count = @project_uri_counts[part[:iri]] || 0
+
+  part.merge(
+    ontology_label: anatomical_part_ontology_label(part),
+    ontology_label_html: anatomical_part_ontology_autocomplete_label(part, project_count:),
+    in_project: project_count > 0
+  )
 }

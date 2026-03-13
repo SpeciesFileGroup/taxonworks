@@ -137,6 +137,9 @@ class AnatomicalPartsController < ApplicationController
     @term = params[:term]
     @parts_list = ::Hookkaido.search(@term, ontologies:)
     @parts_list = @parts_list[:results]
+
+    iris = @parts_list.map { |p| p[:iri] }.compact
+    @project_uri_counts = AnatomicalPart.where(project_id: sessions_current_project_id, uri: iris).group(:uri).count
   end
 
   private
