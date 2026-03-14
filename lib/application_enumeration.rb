@@ -100,9 +100,17 @@ module ApplicationEnumeration
   end
 
   # @return Array of AR associations
-  #   to access the related class use `.klass`
-  def self.klass_reflections(klass, relationship_type = :has_many)
-    a = klass.reflect_on_all_associations(relationship_type).sort{ |a, b| a.name <=> b.name }
+  def self.klass_reflections(klass, relationship_type = :all)
+    relationship_types = relationship_type == :all ?
+      [:belongs_to, :has_one, :has_many] : [relationship_type]
+
+    a = []
+    relationship_types.each do |t|
+      a += klass.reflect_on_all_associations(relationship_type).sort{ |a, b|
+        a.name <=> b.name
+      }
+    end
+
     a
   end
 
@@ -192,6 +200,44 @@ module ApplicationEnumeration
     end
 
     true
+  end
+
+
+  # Filter out STI subclass relations that are redundant with their parent class
+  # (e.g., `protonym` belongs_to duplicates `taxon_name` belongs_to).
+  # A subclass relation is only dropped when the parent association has no scope
+  # - an unscoped parent always covers all records the subclass relation would
+  # return.
+  #
+  # !! There's no general way to compare scoped STI relations, so this method
+  # does *not* filter out STI relations when the parent relation is scoped. !!
+  # TODO: maybe we return a separate list of those if any occur.
+  #
+  # @param klass [Class] an ActiveRecord model class
+  # @param relation_names [Array<Symbol>, nil]
+  # @return [Hash] { relation_name => reflection }
+  def self.filter_sti_relations(klass, relation_names = nil)
+    relation_names = klass_reflections(klass, :all) unless relation_names.present?
+
+    reflections =
+      relation_names.map { |name| [name, klass.reflect_on_association(name)] }.to_h
+
+    filtered_names = relation_names.reject do |relation_name|
+      reflection = reflections[relation_name]
+      next false if reflection.nil? || reflection.options[:polymorphic]
+
+      # Drop this relation if its class is a subclass of an unscoped parent relation,
+      # or if it has the same class but is scoped while the other is not.
+      reflections.any? do |other_name, other_reflection|
+        next false if relation_name == other_name
+        next false if other_reflection.nil? || other_reflection.options[:polymorphic]
+        next false unless other_reflection.scope.nil?
+        reflection.klass < other_reflection.klass ||
+          (reflection.klass == other_reflection.klass && reflection.scope.present?)
+      end
+    end
+
+    reflections.slice(*filtered_names)
   end
 
 end

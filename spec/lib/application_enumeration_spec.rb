@@ -39,6 +39,60 @@ describe 'ApplicationEnumeration' do
     expect(h[:belongs_to]).to include(:collecting_event)
     expect(h[:belongs_to]).not_to include(:user)
   end
+
+  context '.filter_sti_relations' do
+    specify 'drops STI subclass relation when parent association is unscoped' do
+      result = ae.filter_sti_relations(Otu, [:taxon_name, :protonym])
+      expect(result.keys).to include(:taxon_name)
+      expect(result.keys).not_to include(:protonym)
+    end
+
+    specify 'result is order-independent' do
+      a = ae.filter_sti_relations(Otu, [:taxon_name, :protonym]).keys
+      b = ae.filter_sti_relations(Otu, [:protonym, :taxon_name]).keys
+      expect(a).to match_array(b)
+    end
+
+    specify 'keeps scoped STI subclass when parent is also scoped' do
+      # If the parent association is scoped it cannot be guaranteed to cover all
+      # records the subclass returns, so neither should be dropped.
+      # NOTE: no real-world example of this pattern currently exists in TaxonWorks;
+      # tested here as documentation of the known limitation.
+      result = ae.filter_sti_relations(Otu, [:protonym])
+      expect(result.keys).to include(:protonym)
+    end
+
+    specify 'keeps scoped sibling STI associations when no unscoped parent is present' do
+      # subject_ and object_biological_relationship_types are both scoped and
+      # neither is a subclass of the other, so both should be retained.
+      result = ae.filter_sti_relations(
+        BiologicalRelationship,
+        [:subject_biological_relationship_types, :object_biological_relationship_types]
+      )
+      expect(result.keys).to include(:subject_biological_relationship_types, :object_biological_relationship_types)
+    end
+
+    specify 'drops scoped STI subclass associations when unscoped parent is present' do
+      # biological_relationship_types is unscoped and covers all records that the
+      # scoped subclass associations return, so the subclasses should be dropped.
+      result = ae.filter_sti_relations(
+        BiologicalRelationship,
+        [:biological_relationship_types, :subject_biological_relationship_types, :object_biological_relationship_types]
+      )
+      expect(result.keys).to include(:biological_relationship_types)
+      expect(result.keys).not_to include(:subject_biological_relationship_types, :object_biological_relationship_types)
+    end
+
+    specify 'does not raise on polymorphic associations' do
+      expect { ae.filter_sti_relations(AssertedDistribution, [:asserted_distribution_object]) }.not_to raise_error
+    end
+
+    specify 'retains polymorphic associations in result' do
+      result = ae.filter_sti_relations(AssertedDistribution, [:asserted_distribution_object])
+      expect(result.keys).to include(:asserted_distribution_object)
+    end
+  end
+
   context '.no_related_data?', type: :model do
     let(:otu) { FactoryBot.create(:valid_otu) }
 

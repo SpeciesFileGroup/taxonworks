@@ -24,8 +24,7 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
   def from_self
     coordinate_otu_ids = ::Otu.coordinate_otus(object.id).pluck(:id)
     relation_names = ApplicationEnumeration.citable_relations(Otu).values.flatten(1)
-
-    reflections = filter_sti_relations(relation_names)
+    reflections = ApplicationEnumeration.filter_sti_relations(Otu, relation_names)
 
     # Include taxon_name with nested associations to avoid N+1 queries when
     # rendering.
@@ -171,24 +170,6 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
         end
       end
     end
-  end
-
-  # Filter out STI subclass relations that are redundant with their parent class
-  # (e.g., `protonym` belongs_to duplicates `taxon_name` belongs_to)
-  # @return [Hash] { relation_name => reflection }
-  def filter_sti_relations(relation_names)
-    reflections = relation_names.map { |name| [name, Otu.reflect_on_association(name)] }.to_h
-
-    filtered_names = relation_names.reject do |relation_name|
-      reflection = reflections[relation_name]
-      # Check if this relation's class is a subclass of any other relation's class
-      reflections.any? do |other_name, other_reflection|
-        next if relation_name == other_name
-        reflection.klass < other_reflection.klass
-      end
-    end
-
-    reflections.slice(*filtered_names)
   end
 
   # Eager load citation associations and the cited object for views. (We're
