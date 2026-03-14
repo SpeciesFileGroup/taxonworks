@@ -38,6 +38,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Improved error reporting for Georeference WKT (well-known-text) errors
 - Image matrix viewing issues with transparent PNGs. [#4800]
 - Images in HEIC format do not load in the image viewer [#4811]
+- Allow creating multiple authors at a time from the New Source authors matcher [#4791]
 
 ### Changed
 
@@ -62,6 +63,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4783]: https://github.com/SpeciesFileGroup/taxonworks/issues/4783
 [#4785]: https://github.com/SpeciesFileGroup/taxonworks/issues/4785
 [#4790]: https://github.com/SpeciesFileGroup/taxonworks/issues/4790
+[#4791]: https://github.com/SpeciesFileGroup/taxonworks/issues/4791
 [#4794]: https://github.com/SpeciesFileGroup/taxonworks/issues/4794
 [#4800]: https://github.com/SpeciesFileGroup/taxonworks/issues/4800
 [#4811]: https://github.com/SpeciesFileGroup/taxonworks/issues/4811
