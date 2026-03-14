@@ -453,12 +453,11 @@ namespace :tw do
               SELECT
                 ad.id AS ad_id,
                 ad.project_id AS project_id,
-                otus.id AS otu_id,
+                ad_otu_map.otu_id AS otu_id,
                 default_gagi.geographic_item_id AS source_geographic_item_id
               FROM asserted_distributions ad
-              JOIN otus
-                ON ad.asserted_distribution_object_type = 'Otu'
-                AND ad.asserted_distribution_object_id = otus.id
+              JOIN (#{ad_to_otu_map_sql}) ad_otu_map ON ad_otu_map.ad_id = ad.id
+              JOIN otus ON otus.id = ad_otu_map.otu_id
               LEFT JOIN cached_map_registers cmr
                 ON cmr.cached_map_register_object_type = 'AssertedDistribution'
                 AND cmr.cached_map_register_object_id = ad.id
@@ -477,12 +476,11 @@ namespace :tw do
               SELECT
                 ad.id AS ad_id,
                 ad.project_id AS project_id,
-                otus.id AS otu_id,
+                ad_otu_map.otu_id AS otu_id,
                 gazetteers.geographic_item_id AS source_geographic_item_id
               FROM asserted_distributions ad
-              JOIN otus
-                ON ad.asserted_distribution_object_type = 'Otu'
-                AND ad.asserted_distribution_object_id = otus.id
+              JOIN (#{ad_to_otu_map_sql}) ad_otu_map ON ad_otu_map.ad_id = ad.id
+              JOIN otus ON otus.id = ad_otu_map.otu_id
               LEFT JOIN cached_map_registers cmr
                 ON cmr.cached_map_register_object_type = 'AssertedDistribution'
                 AND cmr.cached_map_register_object_id = ad.id
@@ -498,9 +496,8 @@ namespace :tw do
           ga_total_sql = <<~SQL.squish
             SELECT COUNT(*)
             FROM asserted_distributions ad
-            JOIN otus
-              ON ad.asserted_distribution_object_type = 'Otu'
-              AND ad.asserted_distribution_object_id = otus.id
+            JOIN (#{ad_to_otu_map_sql}) ad_otu_map ON ad_otu_map.ad_id = ad.id
+            JOIN otus ON otus.id = ad_otu_map.otu_id
             LEFT JOIN cached_map_registers cmr
               ON cmr.cached_map_register_object_type = 'AssertedDistribution'
               AND cmr.cached_map_register_object_id = ad.id
@@ -650,6 +647,90 @@ namespace :tw do
           puts 'Gazetteer-based Asserted Distributions done.'
 
           puts "Done. elapsed=#{format_elapsed(task_start)}"
+        end
+
+        # @return [String] SQL for a subquery mapping asserted_distribution.id
+        #   to otu.id for all supported asserted_distribution_object_type values.
+        #   Covers: Otu (direct), BiologicalAssociation (subject/object),
+        #   BiologicalAssociationsGraph (via BA subject/object), Conveyance,
+        #   Depiction, and Observation.
+        def ad_to_otu_map_sql
+          <<~SQL.squish
+            SELECT ad.id AS ad_id, ad.asserted_distribution_object_id AS otu_id
+            FROM asserted_distributions ad
+            WHERE ad.asserted_distribution_object_type = 'Otu'
+
+            UNION
+
+            SELECT ad.id AS ad_id, ba.biological_association_subject_id AS otu_id
+            FROM asserted_distributions ad
+            JOIN biological_associations ba
+              ON ad.asserted_distribution_object_type = 'BiologicalAssociation'
+              AND ad.asserted_distribution_object_id = ba.id
+              AND ba.biological_association_subject_type = 'Otu'
+
+            UNION
+
+            SELECT ad.id AS ad_id, ba.biological_association_object_id AS otu_id
+            FROM asserted_distributions ad
+            JOIN biological_associations ba
+              ON ad.asserted_distribution_object_type = 'BiologicalAssociation'
+              AND ad.asserted_distribution_object_id = ba.id
+              AND ba.biological_association_object_type = 'Otu'
+
+            UNION
+
+            SELECT ad.id AS ad_id, ba.biological_association_subject_id AS otu_id
+            FROM asserted_distributions ad
+            JOIN biological_associations_graphs bag
+              ON ad.asserted_distribution_object_type = 'BiologicalAssociationsGraph'
+              AND ad.asserted_distribution_object_id = bag.id
+            JOIN biological_associations_biological_associations_graphs babag
+              ON babag.biological_associations_graph_id = bag.id
+            JOIN biological_associations ba
+              ON ba.id = babag.biological_association_id
+              AND ba.biological_association_subject_type = 'Otu'
+
+            UNION
+
+            SELECT ad.id AS ad_id, ba.biological_association_object_id AS otu_id
+            FROM asserted_distributions ad
+            JOIN biological_associations_graphs bag
+              ON ad.asserted_distribution_object_type = 'BiologicalAssociationsGraph'
+              AND ad.asserted_distribution_object_id = bag.id
+            JOIN biological_associations_biological_associations_graphs babag
+              ON babag.biological_associations_graph_id = bag.id
+            JOIN biological_associations ba
+              ON ba.id = babag.biological_association_id
+              AND ba.biological_association_object_type = 'Otu'
+
+            UNION
+
+            SELECT ad.id AS ad_id, c.conveyance_object_id AS otu_id
+            FROM asserted_distributions ad
+            JOIN conveyances c
+              ON ad.asserted_distribution_object_type = 'Conveyance'
+              AND ad.asserted_distribution_object_id = c.id
+              AND c.conveyance_object_type = 'Otu'
+
+            UNION
+
+            SELECT ad.id AS ad_id, d.depiction_object_id AS otu_id
+            FROM asserted_distributions ad
+            JOIN depictions d
+              ON ad.asserted_distribution_object_type = 'Depiction'
+              AND ad.asserted_distribution_object_id = d.id
+              AND d.depiction_object_type = 'Otu'
+
+            UNION
+
+            SELECT ad.id AS ad_id, obs.observation_object_id AS otu_id
+            FROM asserted_distributions ad
+            JOIN observations obs
+              ON ad.asserted_distribution_object_type = 'Observation'
+              AND ad.asserted_distribution_object_id = obs.id
+              AND obs.observation_object_type = 'Otu'
+          SQL
         end
 
         def process_asserted_distribution_translation(

@@ -1,7 +1,12 @@
 import { toRaw } from 'vue'
 import { defineStore } from 'pinia'
 import { COLLECTION_OBJECT } from '@/constants'
-import { TypeMaterial, TaxonName, CollectionObject } from '@/routes/endpoints'
+import {
+  TypeMaterial,
+  TaxonName,
+  CollectionObject,
+  TaxonDetermination
+} from '@/routes/endpoints'
 import { removeFromArray, addToArray } from '@/helpers'
 import {
   makeCollectionObject,
@@ -18,7 +23,9 @@ export default defineStore('store', {
   state: () => ({
     taxonName: undefined,
     typeMaterials: [],
-    typeMaterial: makeTypeMaterial()
+    typeMaterial: makeTypeMaterial(),
+    selectedOtuId: undefined,
+    taxonDeterminations: []
   }),
 
   getters: {
@@ -54,14 +61,30 @@ export default defineStore('store', {
       settings.isLoading = true
 
       try {
+        const coId = typeMaterial.collectionObject.id
+        const taxonDeterminationRequest = TaxonDetermination.where({
+          taxon_determination_object_id: [coId],
+          taxon_determination_object_type: COLLECTION_OBJECT
+        })
+
         await Promise.all([
+          taxonDeterminationRequest,
           this.loadValidations(),
           depictionStore.load(typeMaterial.collectionObjectId),
           biocurationStore.load({
-            objectId: typeMaterial.collectionObject.id,
+            objectId: coId,
             objectType: COLLECTION_OBJECT
+          }),
+          TaxonDetermination.where({
+            taxon_determination_object_id: [coId],
+            taxon_determination_object_type: COLLECTION_OBJECT
           })
         ])
+
+        taxonDeterminationRequest.then(({ body }) => {
+          this.taxonDeterminations = body || []
+          this.selectedOtuId = undefined
+        })
       } catch {
       } finally {
         settings.isLoading = false
@@ -110,12 +133,28 @@ export default defineStore('store', {
 
         this.typeMaterial = makeTypeMaterial(body)
 
+        const coId = this.typeMaterial.collectionObject.id
+
         store.save({
-          objectId: this.typeMaterial.collectionObject.id,
+          objectId: coId,
           objectType: COLLECTION_OBJECT
         })
 
         this.loadValidations()
+
+        if (this.selectedOtuId) {
+          await TaxonDetermination.create({
+            taxon_determination: {
+              taxon_determination_object_id: coId,
+              taxon_determination_object_type: COLLECTION_OBJECT,
+              otu_id: this.selectedOtuId
+            }
+          }).then(({ body }) => {
+            this.taxonDeterminations = [body]
+          })
+
+          this.selectedOtuId = undefined
+        }
 
         TW.workbench.alert.create(
           'Type material was successfully saved.',
@@ -137,11 +176,15 @@ export default defineStore('store', {
       settings.isLoading = true
 
       try {
-        const { body } = await CollectionObject.find(id)
+        const { body } = await CollectionObject.find(id, {
+          extend: ['taxon_determinations']
+        })
 
         this.typeMaterial.isUnsaved = true
         this.typeMaterial.collectionObjectId = body.id
         this.typeMaterial.collectionObject = makeCollectionObject(body)
+        this.taxonDeterminations = body.taxon_determinations || []
+        this.selectedOtuId = undefined
 
         biocurationStore.reset()
         depictionStore.$reset()
@@ -159,6 +202,12 @@ export default defineStore('store', {
       }
     },
 
+    async removeTaxonDetermination(taxonDetermination) {
+      await TaxonDetermination.destroy(taxonDetermination.id)
+
+      removeFromArray(this.taxonDeterminations, taxonDetermination)
+    },
+
     setNewTypeMaterial() {
       const biocurationStore = useBiocurationStore()
       const depictionStore = useDepictionStore()
@@ -169,6 +218,8 @@ export default defineStore('store', {
       validationStore.$reset()
 
       this.typeMaterial = makeTypeMaterial()
+      this.selectedOtuId = undefined
+      this.taxonDeterminations = []
     }
   }
 })

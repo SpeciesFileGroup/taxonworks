@@ -28,7 +28,7 @@ export default {
     },
 
     download: {
-      type: [Boolean, String],
+      type: [String, Boolean],
       default: undefined
     },
 

@@ -3,8 +3,8 @@
     z-index: 2101;
     display: block;
     position: fixed;
-    top: calc(50vh + 135px);
-    right: -220px;
+    top: -60px;
+    right: 166px;
     cursor: pointer;
     font-size: $font_small;
     box-shadow: var(--panel-shadow);
@@ -12,7 +12,7 @@
     padding: $standard_padding;
     padding-right: 40px;
     border-radius: 3px;
-    transition: right 0.5s ease;
+    transition: all 0.5s ease;
   }
 
   .keyboard-table-shortcuts {
@@ -115,19 +115,18 @@
   }
 }
 
-.help-button-active + #keyShortcuts .legend {
-  right: -220px;
-  transition: right 0.5s ease;
+.help-background__active + #keyShortcuts .legend {
+  top: 10px;
+  transition: all 0.5s ease;
 }
 
 .help-button-active:hover + #keyShortcuts .legend {
-  right: 18px;
+  top: 10px;
   display: block;
-  transition: right 0.5s ease;
+  transition: all 0.5s ease;
 }
 
 #keyShortcuts .legend:hover {
-  right: 18px;
   display: block;
-  transition: right 0.5s ease;
+  transition: all 0.5s ease;
 }

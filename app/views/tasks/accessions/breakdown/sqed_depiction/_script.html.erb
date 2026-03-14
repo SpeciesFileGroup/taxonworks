@@ -297,7 +297,7 @@
 
     function ocr_selection() {
         $("#selected_text").html("Calculating ocr...");
-        var coord_string = Math.round(sourceX) + "/" + Math.round(sourceY) + "/" + Math.round(sourceWidth) + "/" + Math.round(sourceHeight);
+        var coord_string = Math.max(0, Math.round(sourceX)) + "/" + Math.max(0, Math.round(sourceY)) + "/" + Math.max(0, Math.round(sourceWidth)) + "/" + Math.max(0, Math.round(sourceHeight));
         var ocr_string = "/images/<%= @result.depiction.image.id -%>/ocr/" + coord_string;
 
         $.get(ocr_string, function (data) {

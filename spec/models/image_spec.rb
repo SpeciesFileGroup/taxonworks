@@ -176,6 +176,28 @@ describe Image, type: :model, group: [:images] do
     weird.destroy!
   end
 
+  context '.cropped' do
+    before { i.save! }
+
+    specify 'returns a cropped image with valid params' do
+      result = Image.cropped({ id: i.id, x: '0', y: '0', width: '8', height: '8' })
+      expect(result.columns).to eq(8)
+      expect(result.rows).to eq(8)
+    end
+
+    specify 'returns a 1x1 image when height is negative' do
+      result = Image.cropped({ id: i.id, x: '0', y: '0', width: '8', height: '-1' })
+      expect(result.columns).to eq(1)
+      expect(result.rows).to eq(1)
+    end
+
+    specify 'returns a 1x1 image when x is negative' do
+      result = Image.cropped({ id: i.id, x: '-1', y: '0', width: '8', height: '8' })
+      expect(result.columns).to eq(1)
+      expect(result.rows).to eq(1)
+    end
+  end
+
   context 'should manipulate the file system' do
     specify 'creating an image should add it to the filesystem' do
       expect(i.save).to be_truthy

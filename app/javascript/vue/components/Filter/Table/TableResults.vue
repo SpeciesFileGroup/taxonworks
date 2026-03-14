@@ -1,11 +1,14 @@
 <template>
-  <HandyScroll>
+  <div
+    id="horizontally-scrollable"
+    class="overflow-x-auto"
+  >
     <table
       class="table-striped table-cell-border table-header-border full_width"
       v-resize-column
       ref="element"
     >
-      <thead>
+      <thead ref="theadRef">
         <tr v-if="headerGroups.length || layout?.properties">
           <td
             class="header-empty-td"
@@ -543,11 +546,11 @@
         </tr>
       </tbody>
     </table>
-  </HandyScroll>
+  </div>
 </template>
 
 <script setup>
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { sortArray } from '@/helpers/arrays.js'
 import { vResizeColumn } from '@/directives/resizeColumn.js'
 import { humanize } from '@/helpers/strings'
@@ -555,10 +558,10 @@ import { sanitizeHtml } from '@/helpers'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VLock from '@/components/ui/VLock/index.vue'
-import HandyScroll from 'vue-handy-scroll'
 import RadialNavigation from '@/components/radials/navigation/radial.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
+import 'handy-scroll'
 
 const props = defineProps({
   list: {
@@ -617,9 +620,10 @@ const FIXED_COLUMNS = {
 
 const freezeColumn = ref([])
 const freezeColumnLeftPosition = ref({})
-const element = ref(null)
 const ascending = ref(false)
 const lastRadialOpenedRow = ref(null)
+const handyScrollRef = useTemplateRef('handyScrollRef')
+const theadRef = useTemplateRef('theadRef')
 const isLayoutConfig = computed(() => !!Object.keys(props.layout || {}).length)
 
 const filteredIds = computed(() =>
@@ -692,7 +696,7 @@ function sortTable(sortProperty) {
 }
 
 function scrollToTop() {
-  window.scrollTo(0, 0)
+  document.getElementById('horizontally-scrollable')?.scrollTo(0, 0)
 }
 
 function clearFilterValues() {
@@ -726,10 +730,26 @@ function updateSelectedIdsByFilter() {
   ids.value = ids.value.filter((id) => filteredIds.value.includes(id))
 }
 
+function computeHeaderRowTops() {
+  if (!theadRef.value) return
+  let cumulative = 0
+  ;[...theadRef.value.querySelectorAll('tr')].forEach((row, index) => {
+    theadRef.value.style.setProperty(
+      `--row-${index + 1}-top`,
+      `${cumulative}px`
+    )
+    cumulative += row.getBoundingClientRect().height
+  })
+}
+
+onMounted(() => nextTick(computeHeaderRowTops))
+
 watch(
   () => props.list,
   (newVal, oldVal) => {
-    HandyScroll.EventBus.emit('update', { sourceElement: element.value })
+    nextTick(() => {
+      handyScrollRef.value?.update()
+    })
 
     if (oldVal && oldVal?.length === newVal?.length) {
       const ids = oldVal.map((item) => item.id)
@@ -737,6 +757,7 @@ watch(
 
       if (!hasSameIds) {
         clearFilterValues()
+        scrollToTop()
       }
     } else {
       clearFilterValues()
@@ -746,19 +767,25 @@ watch(
 )
 
 watch(
-  () => props.layout,
-  () => {
-    HandyScroll.EventBus.emit('update', { sourceElement: element.value })
-  },
-  { deep: true }
-)
-
-watch(
   [() => props.layout, () => props.attributes, freezeColumn],
-  () => nextTick(generateFreezeColumnLeftPosition),
+  () =>
+    nextTick(() => {
+      generateFreezeColumnLeftPosition()
+      computeHeaderRowTops()
+    }),
   {
     deep: true
   }
+)
+
+watch(
+  () => props.layout,
+  () => {
+    nextTick(() => {
+      handyScrollRef.value?.update()
+    })
+  },
+  { deep: true }
 )
 
 defineExpose({
@@ -823,10 +850,40 @@ table {
   }
 }
 
+#horizontally-scrollable {
+  height: 100%;
+}
+
+thead th,
+thead td {
+  position: sticky;
+  background-color: var(--panel-bg-color, #fff);
+  z-index: 12;
+}
+
+thead tr:nth-child(1) th,
+thead tr:nth-child(1) td {
+  top: var(--row-1-top, 0px);
+}
+
+thead tr:nth-child(2) th,
+thead tr:nth-child(2) td {
+  top: var(--row-2-top, 0px);
+}
+
+thead tr:nth-child(3) th,
+thead tr:nth-child(3) td {
+  top: var(--row-3-top, 0px);
+}
+
 .freeze {
   left: 0;
   position: sticky;
   z-index: 10;
+}
+
+thead .freeze {
+  z-index: 15;
 }
 
 .header-empty-td {
