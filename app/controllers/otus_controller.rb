@@ -5,7 +5,8 @@ class OtusController < ApplicationController
     :show, :edit, :update, :destroy, :collection_objects, :navigation,
     :breadcrumbs, :timeline, :inventory, :coordinate, :distribution,
     :api_show, :api_taxonomy_inventory, :api_type_material_inventory,
-    :api_nomenclature_citations, :api_distribution, :api_content, :api_dwc_inventory, :api_dwc_gallery, :api_key_inventory, :api_determined_to_rank]
+    :api_nomenclature_citations, :api_citations_inventory, :api_distribution,
+    :api_content, :api_dwc_inventory, :api_dwc_gallery, :api_key_inventory, :api_determined_to_rank]
 
   after_action -> { set_pagination_headers(:otus) }, only: [:index, :api_index, :api_alphabetical_index], if: :json_request?
 
@@ -422,6 +423,12 @@ class OtusController < ApplicationController
   # GET /api/v1/otus/:id/inventory/type_material
   def api_type_material_inventory
     render '/otus/api/v1/inventory/type_material'
+  end
+
+  # GET /api/v1/otus/:id/inventory/citations
+  def api_citations_inventory
+    @catalog = Catalog::Inventory.new(targets: [@otu])
+    render '/otus/api/v1/inventory/citations'
   end
 
   # GET /api/v1/otus/:id/inventory/nomenclature_citations
