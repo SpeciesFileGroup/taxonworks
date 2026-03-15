@@ -41,7 +41,7 @@ module Export::Dwca::GbifProfile
     # taxon in the core data file to which this reference record points. This
     # identifier provides the link between the core data record and the
     # extension record.
-    attr_accessor TAXON_ID # [USED IN SF]
+    attr_accessor TAXON_ID
 
     # identifier (http://purl.org/dc/terms/identifier)
     #
@@ -61,7 +61,7 @@ module Export::Dwca::GbifProfile
     #
     # Example: "Hartge, P., Genetics of reproductive lifespan. Nature
     # Genetics 41, 637 - 638 (2009)"
-    attr_accessor BIBLIOGRAPHIC_CITATION # [USED IN SF]
+    attr_accessor BIBLIOGRAPHIC_CITATION
 
     # title (http://purl.org/dc/terms/title)
     #
@@ -70,7 +70,7 @@ module Export::Dwca::GbifProfile
     #
     # Example: "Genetics of reproductive lifespan", "Field Guide to Moths of
     # Eastern North America"
-    attr_accessor TITLE # [USED IN SF]
+    attr_accessor TITLE
 
     # creator (http://purl.org/dc/terms/creator)
     #
@@ -78,7 +78,7 @@ module Export::Dwca::GbifProfile
     # The author or authors of the referenced work
     #
     # Example: "Patricia Hartge"
-    attr_accessor CREATOR # [USED IN SF]
+    attr_accessor CREATOR
 
     # date (http://purl.org/dc/terms/date)
     #
@@ -86,7 +86,7 @@ module Export::Dwca::GbifProfile
     # Date of publication, recommended ISO format YYYY or YYYY-MM-DD
     #
     # Example: "6/1/2009"; "2009"
-    attr_accessor DATE # [USED IN SF]
+    attr_accessor DATE
 
     # source (http://purl.org/dc/terms/source)
     #
@@ -95,7 +95,7 @@ module Export::Dwca::GbifProfile
     # of articles this is the journal, for parts of books the book itself
     #
     # Example: Nature Genetics 41, 635 (2009)
-    attr_accessor SOURCE # [USED IN SF]
+    attr_accessor SOURCE
 
     # description (http://purl.org/dc/terms/description)
     #
@@ -157,7 +157,7 @@ module Export::Dwca::GbifProfile
     # Vocabulary: http://rs.gbif.org/vocabulary/gbif/reference_type.xml
     #
     # Example: "Original publication of new combination (comb nov.)"
-    attr_accessor TYPE # [USED IN SF]
+    attr_accessor TYPE
 
   end
 

@@ -43,7 +43,7 @@ module Export::Dwca::GbifProfile
     # taxon in the core data file to which this record points. This
     # identifier provides the link between the core data record and the
     # extension record.
-    attr_accessor TAXON_ID # [USED IN SF]
+    attr_accessor TAXON_ID
 
     # isMarine (http://rs.gbif.org/terms/1.0/isMarine)
     #
@@ -110,7 +110,7 @@ module Export::Dwca::GbifProfile
     # Vocabulary: http://rs.gbif.org/vocabulary/basic/boolean.xml
     #
     # Examples: TRUE
-    attr_accessor IS_EXTINCT # [USED IN SF]
+    attr_accessor IS_EXTINCT
 
     # livingPeriod (http://rs.gbif.org/terms/1.0/livingPeriod)
     #
@@ -120,7 +120,7 @@ module Export::Dwca::GbifProfile
     # http://en.wikipedia.org/wiki/Geologic_column
     #
     # Examples: Cretaceous
-    attr_accessor LIVING_PERIOD # [USED IN SF]
+    attr_accessor LIVING_PERIOD
 
     # ageInDays (http://rs.gbif.org/terms/1.0/ageInDays)
     #

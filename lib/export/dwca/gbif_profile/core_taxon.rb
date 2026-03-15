@@ -97,7 +97,7 @@ module Export::Dwca::GbifProfile
     # simple integers or more complex globally unique identifiers.
     #
     # Examples: 101; "8fa58e08-08de-4ac1-b69c-1235340b7001;
-    attr_accessor TAXON_ID # [USED IN SF]
+    attr_accessor TAXON_ID
 
     # acceptedNameUsageID (http://rs.tdwg.org/dwc/terms/acceptedNameUsageID)
     #
@@ -107,7 +107,7 @@ module Export::Dwca::GbifProfile
     # name using the taxonID of that record as the "pointer."
     #
     # Example: 8fa58e08-08de-4ac1-b69c-1235340b7001
-    attr_accessor ACCEPTED_NAME_USAGE_ID # [USED IN SF]
+    attr_accessor ACCEPTED_NAME_USAGE_ID
 
     # acceptedNameUsage (http://rs.tdwg.org/dwc/terms/acceptedNameUsage)
     #
@@ -126,7 +126,7 @@ module Export::Dwca::GbifProfile
     # as the next term).
     #
     # Example: "101" 8fa58e08-08de-4ac1-b69c-1235340b7001
-    attr_accessor PARENT_NAME_USAGE_ID # [USED IN SF]
+    attr_accessor PARENT_NAME_USAGE_ID
 
     # parentNameUsage (http://rs.tdwg.org/dwc/terms/parentNameUsage)
     #
@@ -199,7 +199,7 @@ module Export::Dwca::GbifProfile
     # nouvelles de fourmis de Madagascar, récoltées par M. Grandidier.,
     # Annales de la Societe Entomologique de de Belgique, Comptes-rendus
     # des Seances 30, 1886"
-    attr_accessor NAME_PUBLISHED_IN # [USED IN SF]
+    attr_accessor NAME_PUBLISHED_IN
 
     # namePublishedInID (http://rs.tdwg.org/dwc/terms/namePublishedInID)
     #
@@ -219,7 +219,7 @@ module Export::Dwca::GbifProfile
     # Examples: "Coleoptera" , "Vespertilionidae", "Manis" , "Ctenomys
     # sociabilis", "Ambystoma tigrinum diaboli", "Quercus agrifolia var.
     # oxyadenia (Torr.)"
-    attr_accessor SCIENTIFIC_NAME # [USED IN SF]
+    attr_accessor SCIENTIFIC_NAME
 
     # scientificNameID (http://rs.tdwg.org/dwc/terms/scientificNameID)
     #
@@ -229,7 +229,7 @@ module Export::Dwca::GbifProfile
     # taxonID to refer to taxa. Use to explicitly refer to an external
     # nomenclatural record.
     # Example: "urn:lsid:ipni.org:names:37829-1:1.3"
-    attr_accessor SCIENTIFIC_NAME_ID # [USED IN SF]
+    attr_accessor SCIENTIFIC_NAME_ID
 
     # scientificNameAuthorship (http://rs.tdwg.org/dwc/terms/scientificNameAuthorship)
     #
@@ -241,7 +241,7 @@ module Export::Dwca::GbifProfile
     #
     # Example: "(Torr.) J.T. Howell", "(Martinovsk ) Tzvelev", "(Linnaeus
     # 1768)"
-    attr_accessor SCIENTIFIC_NAME_AUTHORSHIP # [USED IN SF]
+    attr_accessor SCIENTIFIC_NAME_AUTHORSHIP
 
     # higherClassification (http://rs.tdwg.org/dwc/terms/higherClassification)
     #
@@ -341,7 +341,7 @@ module Export::Dwca::GbifProfile
     # Recommended vocabulary: http://rs.gbif.org/vocabulary/gbif/rank.xml
     #
     # Example: "subspecies", "varietas", "forma", "species", "genus"
-    attr_accessor TAXON_RANK # [USED IN SF]
+    attr_accessor TAXON_RANK
 
     # verbatimTaxonRank (http://rs.tdwg.org/dwc/terms/verbatimTaxonRank)
     #
@@ -373,7 +373,7 @@ module Export::Dwca::GbifProfile
     # Vocabulary: http://rs.gbif.org/vocabulary/gbif/nomenclatural_code.xml
     #
     # Example: ICBN; ICZN
-    attr_accessor NOMENCLATURAL_CODE # [USED IN SF (in meta.xml)]
+    attr_accessor NOMENCLATURAL_CODE
 
     # taxonomicStatus (http://rs.tdwg.org/dwc/terms/taxonomicStatus)
     #
@@ -388,7 +388,7 @@ module Export::Dwca::GbifProfile
     # Recommended vocabulary: http://rs.gbif.org/vocabulary/gbif/taxonomic_status.xml
     #
     # Example: "invalid", "misapplied", "homotypic synonym", "accepted"
-    attr_accessor TAXONOMIC_STATUS # [USED IN SF]
+    attr_accessor TAXONOMIC_STATUS
 
     # nomenclaturalStatus (http://rs.tdwg.org/dwc/terms/nomenclaturalStatus)
     #
@@ -401,7 +401,7 @@ module Export::Dwca::GbifProfile
     # Recommended vocabulary: http://rs.gbif.org/vocabulary/gbif/nomenclatural_status.xml
     #
     # Example: "nom. ambig.", "nom. illeg.", "nom. subnud."
-    attr_accessor NOMENCLATURAL_STATUS # [USED IN SF]
+    attr_accessor NOMENCLATURAL_STATUS
 
     # taxonRemarks (http://rs.tdwg.org/dwc/terms/taxonRemarks)
     #
@@ -409,7 +409,7 @@ module Export::Dwca::GbifProfile
     # Comments or notes about the taxon or name.
     #
     # Example: "Type consists of a skull and skeletal fragments".
-    attr_accessor TAXON_REMARKS # [USED IN SF]
+    attr_accessor TAXON_REMARKS
 
     # modified (http://purl.org/dc/terms/modified)
     #
@@ -417,7 +417,7 @@ module Export::Dwca::GbifProfile
     # Date when the record was last updated
     #
     # Example: "2009-08-21"
-    attr_accessor MODIFIED # [USED IN SF]
+    attr_accessor MODIFIED
 
     # language (http://purl.org/dc/terms/language)
     #

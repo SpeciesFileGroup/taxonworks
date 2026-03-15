@@ -33,11 +33,12 @@ module Export::CSV::Dwc::Extension::Checklist::Description
 
     return output_csv(tbl) if description_topics.empty?
 
-    otus = ::Queries::Otu::Filter.new(core_otu_scope).all
+    otu_scope = ::Queries::Otu::Filter.new(core_otu_scope).all
 
     # Only include published (public) contents
     contents = Content
-      .where(otu_id: otus.select(:id))
+      .joins(:otu)
+      .merge(otu_scope)
       .where(topic_id: description_topics)
       .joins(:public_content)
       .includes(:language, :topic, otu: :taxon_name)
@@ -45,10 +46,6 @@ module Export::CSV::Dwc::Extension::Checklist::Description
     # Sort by topic order as specified by user
     topic_order = description_topics.each_with_index.to_h
     contents = contents.sort_by { |c| topic_order[c.topic_id] || Float::INFINITY }
-
-    # Initialize markdown renderer
-    renderer = Redcarpet::Render::HTML.new
-    markdown = Redcarpet::Markdown.new(renderer)
 
     contents.each do |content|
       taxon_name = content.otu&.taxon_name
@@ -61,7 +58,7 @@ module Export::CSV::Dwc::Extension::Checklist::Description
 
       # Convert markdown to HTML, removing trailing newline and converting internal newlines to <br>
       html_description = if content.text.present?
-        markdown.render(content.text).chomp.gsub(/\n/, '<br>')
+        content.to_html
       else
         nil
       end

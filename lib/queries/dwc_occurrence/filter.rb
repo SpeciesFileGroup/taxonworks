@@ -26,7 +26,6 @@ module Queries
         :taxon_name_id,
         :empty_rank,
         :otu_id,
-        :otu_taxon_name_columns,
 
         empty_rank: [],
         dwc_occurrence_id: [],
@@ -47,10 +46,6 @@ module Queries
       #   of labels of ranks in DwcOccurrence
       attr_accessor :empty_rank
 
-      # @return Boolean
-      #   if true, include TaxonName columns in otu_query results
-      attr_accessor :otu_taxon_name_columns
-
       def initialize(query_params)
         super
 
@@ -61,7 +56,6 @@ module Queries
         @taxon_name_id = params[:taxon_name_id]
 
         @empty_rank = params[:empty_rank]
-        @otu_taxon_name_columns = boolean_param(params, :otu_taxon_name_columns)
 
         set_attributes_params(params)
       end

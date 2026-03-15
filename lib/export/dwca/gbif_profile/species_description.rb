@@ -37,7 +37,7 @@ module Export::Dwca::GbifProfile
     # taxon in the core data file to which this description record points. This
     # identifier provides the link between the core data record and the
     # extension record.
-    attr_accessor TAXON_ID # [USED IN SF]
+    attr_accessor TAXON_ID
 
     # type (http://purl.org/dc/terms/type)
     #
@@ -49,13 +49,13 @@ module Export::Dwca::GbifProfile
     # Vocabulary: http://rs.gbif.org/vocabulary/gbif/description_type.xml
     #
     # Example: "morphology", "distribution", "diagnostic"
-    attr_accessor TYPE # [USED IN SF]
+    attr_accessor TYPE
 
     # description (http://purl.org/dc/terms/description)
     #
     # @return [String]
     # Any descriptive free text matching the category given by the type
-    attr_accessor DESCRIPTION # [USED IN SF]
+    attr_accessor DESCRIPTION
 
     # source (http://purl.org/dc/terms/source)
     #

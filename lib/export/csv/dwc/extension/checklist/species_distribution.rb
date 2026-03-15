@@ -30,9 +30,12 @@ module Export::CSV::Dwc::Extension::Checklist::SpeciesDistribution
 
     # Build asserted_distribution_id to otu_id mapping for lookups.
     asserted_distribution_to_otu = scope
-      .where(dwc_occurrence_object_type: 'AssertedDistribution')
-      .joins("JOIN asserted_distributions ad ON ad.id = dwc_occurrences.dwc_occurrence_object_id AND ad.asserted_distribution_object_type = 'Otu'")
-      .pluck('dwc_occurrences.dwc_occurrence_object_id', 'ad.asserted_distribution_object_id')
+      .from_asserted_distributions
+      .where("asserted_distributions.asserted_distribution_object_type = 'Otu'")
+      .pluck(
+        'dwc_occurrences.dwc_occurrence_object_id',
+        'asserted_distributions.asserted_distribution_object_id'
+      )
       .to_h
 
     # Get OTU to taxon_name_id mapping.

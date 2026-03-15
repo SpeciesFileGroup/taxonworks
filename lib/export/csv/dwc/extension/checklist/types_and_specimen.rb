@@ -43,10 +43,9 @@ module Export::CSV::Dwc::Extension::Checklist::TypesAndSpecimen
 
     # Build occurrence_to_otu mapping for CollectionObjects.
     co_mapping = scope
-      .where(dwc_occurrence_object_type: 'CollectionObject')
+      .from_collection_objects
+      .joins("JOIN taxon_determinations td ON td.taxon_determination_object_id = collection_objects.id AND td.taxon_determination_object_type = 'CollectionObject' AND td.position = 1")
       .where.not(typeStatus: [nil, ''])
-      .joins('JOIN collection_objects co ON co.id = dwc_occurrences.dwc_occurrence_object_id')
-      .joins('JOIN taxon_determinations td ON td.taxon_determination_object_id = co.id AND td.taxon_determination_object_type = \'CollectionObject\' AND td.position = 1')
       .pluck('dwc_occurrences.dwc_occurrence_object_id', 'td.otu_id')
       .to_h
 

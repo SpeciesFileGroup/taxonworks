@@ -43,7 +43,7 @@ module Export::Dwca::GbifProfile
     # taxon in the core data file to which this distribution record points. This
     # identifier provides the link between the core data record and the
     # extension record.
-    attr_accessor TAXON_ID # [USED IN SF]
+    attr_accessor TAXON_ID
 
     # locality (http://rs.tdwg.org/dwc/terms/locality)
     #
@@ -51,7 +51,7 @@ module Export::Dwca::GbifProfile
     # The verbatim name of the area this distributon record is about.
     #
     # Example: "Patagonia"
-    attr_accessor LOCALITY # [USED IN SF]
+    attr_accessor LOCALITY
 
     # locationID (http://rs.tdwg.org/dwc/terms/locationID)
     #
@@ -63,7 +63,7 @@ module Export::Dwca::GbifProfile
     # vocabularies
     #
     # Example: "TDWG:AGS-TF; ISO3166:AR; WOEID:564721"
-    attr_accessor LOCATION_ID # [USED IN SF]
+    attr_accessor LOCATION_ID
 
     # countryCode (http://rs.tdwg.org/dwc/terms/countryCode)
     #

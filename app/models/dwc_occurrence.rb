@@ -94,6 +94,15 @@ class DwcOccurrence < ApplicationRecord
 
   attr_accessor :occurrence_identifier
 
+  scope :from_asserted_distributions, -> {
+    where(dwc_occurrence_object_type: 'AssertedDistribution')
+      .joins('JOIN asserted_distributions ON asserted_distributions.id = dwc_occurrences.dwc_occurrence_object_id')
+  }
+
+  scope :from_collection_objects, -> {
+    where(dwc_occurrence_object_type: 'CollectionObject')
+      .joins('JOIN collection_objects ON collection_objects.id = dwc_occurrences.dwc_occurrence_object_id')
+  }
   # Strip nils when `to_json` used
   def as_json(options = {})
     super(options.merge(except: attributes.keys.select{ |key| self[key].nil? }))

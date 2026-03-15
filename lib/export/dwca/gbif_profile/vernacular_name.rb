@@ -43,7 +43,7 @@ module Export::Dwca::GbifProfile
     # taxon in the core data file to which this vernacular name points. This
     # identifier provides the link between the core data record and the
     # extension record.
-    attr_accessor TAXON_ID # [USED IN SF]
+    attr_accessor TAXON_ID
 
     # vernacularName (http://rs.tdwg.org/dwc/terms/vernacularName)
     #
@@ -52,7 +52,7 @@ module Export::Dwca::GbifProfile
     #
     # Example: Andean Condor", "Condor Andino", "American Eagle",
     # "Gönsegeier"
-    attr_accessor VERNACULAR_NAME # [USED IN SF]
+    attr_accessor VERNACULAR_NAME
 
     # source (http://purl.org/dc/terms/source)
     #
@@ -70,7 +70,7 @@ module Export::Dwca::GbifProfile
     # ISO 639-1 language code used for the vernacular name value.
     #
     # Example: "ES", "Spanish", "Español"
-    attr_accessor LANGUAGE # [USED IN SF]
+    attr_accessor LANGUAGE
 
     # temporal (http://purl.org/dc/terms/temporal)
     #
