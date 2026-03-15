@@ -120,6 +120,7 @@ module Shared::IsDwcOccurrence
     a[:basisOfRecord] = dwc_occurrence_basis
 
     if taxonworks_fields
+      a[:otu_id] = dwc_otu_id
       a[:project_id] = project_id
 
       # TODO: semantics of these may need to be revisited, particularly updated_by_id

@@ -288,4 +288,8 @@ module CollectionObject::DwcExtensions
     preparation_type_name
   end
 
+  def dwc_otu_id
+    current_otu&.id
+  end
+
 end
