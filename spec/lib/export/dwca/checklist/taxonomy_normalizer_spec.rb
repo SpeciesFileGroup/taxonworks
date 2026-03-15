@@ -199,73 +199,58 @@ describe Export::Dwca::Checklist::TaxonomyNormalizer, type: :model, group: :darw
     end
   end
 
-  describe '#assign_sequential_taxon_ids' do
-    specify 'assigns sequential IDs starting from 1' do
-      all_taxa = {
-        100 => { 'scientificName' => 'Aus' },
-        200 => { 'scientificName' => 'Bus' }
-      }
-      taxon_name_info = {
-        100 => { rank: 'genus', parent_id: nil },
-        200 => { rank: 'genus', parent_id: nil }
-      }
+  describe '#assign_taxon_uuids' do
+    specify 'assigns UUID taxonIDs from OTU identifiers' do
+      otu = FactoryBot.create(:valid_otu)
+      otu.update!(taxon_name: FactoryBot.create(:root_taxon_name))
+      tn_id = otu.taxon_name_id
 
-      taxa_with_ids, mapping = normalizer.send(
-        :assign_sequential_taxon_ids,
-        all_taxa,
-        taxon_name_info
-      )
+      all_taxa = { tn_id => { 'scientificName' => 'Animalia' } }
+      taxon_name_info = { tn_id => { rank: 'kingdom', parent_id: nil } }
 
-      expect(mapping[100]).to eq(1)
-      expect(mapping[200]).to eq(2)
-      expect(taxa_with_ids.size).to eq(2)
+      taxa_with_ids, mapping = normalizer.send(:assign_taxon_uuids, all_taxa, taxon_name_info)
+
+      expect(Utilities::Uuid.uuid?(mapping[tn_id])).to be(true)
+      expect(taxa_with_ids.size).to eq(1)
     end
 
-    specify 'processes taxa in rank order' do
-      all_taxa = {
-        100 => { 'scientificName' => 'Noctuidae' },   # family
-        200 => { 'scientificName' => 'Insecta' },     # class
-        300 => { 'scientificName' => 'Lepidoptera' }  # order
-      }
-      taxon_name_info = {
-        100 => { rank: 'family', parent_id: 300 },
-        200 => { rank: 'class', parent_id: nil },
-        300 => { rank: 'order', parent_id: 200 }
-      }
+    specify 'skips taxa without an OTU UUID identifier' do
+      root = FactoryBot.create(:root_taxon_name)
+      tn_id = root.id  # no OTU linked to this taxon_name_id
 
-      taxa_with_ids, mapping = normalizer.send(
-        :assign_sequential_taxon_ids,
-        all_taxa,
-        taxon_name_info
-      )
+      all_taxa = { tn_id => { 'scientificName' => 'Animalia' } }
+      taxon_name_info = { tn_id => { rank: 'kingdom', parent_id: nil } }
 
-      # Class first, then order, then family
-      expect(mapping[200]).to eq(1)  # class
-      expect(mapping[300]).to eq(2)  # order
-      expect(mapping[100]).to eq(3)  # family
+      taxa_with_ids, mapping = normalizer.send(:assign_taxon_uuids, all_taxa, taxon_name_info)
+
+      expect(mapping).to be_empty
+      expect(taxa_with_ids).to be_empty
     end
 
-    specify 'sorts alphabetically within same rank' do
+    specify 'processes taxa in rank order (higher ranks first)' do
+      root = FactoryBot.create(:root_taxon_name)
+      tn_class  = Protonym.create!(name: 'Insecta',     rank_class: Ranks.lookup(:iczn, :class),  parent: root)
+      tn_order  = Protonym.create!(name: 'Lepidoptera', rank_class: Ranks.lookup(:iczn, :order),  parent: tn_class)
+      tn_family = Protonym.create!(name: 'Noctuidae',   rank_class: Ranks.lookup(:iczn, :family), parent: tn_order)
+
+      FactoryBot.create(:valid_otu, taxon_name: tn_class)
+      FactoryBot.create(:valid_otu, taxon_name: tn_order)
+      FactoryBot.create(:valid_otu, taxon_name: tn_family)
+
       all_taxa = {
-        100 => { 'scientificName' => 'Zus' },
-        200 => { 'scientificName' => 'Aus' },
-        300 => { 'scientificName' => 'Mus' }
+        tn_family.id => { 'scientificName' => 'Noctuidae' },
+        tn_class.id  => { 'scientificName' => 'Insecta' },
+        tn_order.id  => { 'scientificName' => 'Lepidoptera' }
       }
       taxon_name_info = {
-        100 => { rank: 'genus', parent_id: nil },
-        200 => { rank: 'genus', parent_id: nil },
-        300 => { rank: 'genus', parent_id: nil }
+        tn_family.id => { rank: 'family', parent_id: tn_order.id },
+        tn_class.id  => { rank: 'class',  parent_id: nil },
+        tn_order.id  => { rank: 'order',  parent_id: tn_class.id }
       }
 
-      taxa_with_ids, mapping = normalizer.send(
-        :assign_sequential_taxon_ids,
-        all_taxa,
-        taxon_name_info
-      )
+      taxa_with_ids, _mapping = normalizer.send(:assign_taxon_uuids, all_taxa, taxon_name_info)
 
-      expect(mapping[200]).to eq(1)  # Aus
-      expect(mapping[300]).to eq(2)  # Mus
-      expect(mapping[100]).to eq(3)  # Zus
+      expect(taxa_with_ids.map { |t| t[:rank] }).to eq(['class', 'order', 'family'])
     end
   end
 

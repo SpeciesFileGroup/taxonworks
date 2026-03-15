@@ -39,6 +39,14 @@ module DwcaChecklistSpecSupport
       otu2.update!(taxon_name: taxon_name2)
       otu3.update!(taxon_name: taxon_name3)
 
+      # OTUs for ancestor taxa (required for UUID-based taxonIDs in checklist export)
+      FactoryBot.create(:valid_otu, taxon_name: kingdom)
+      FactoryBot.create(:valid_otu, taxon_name: phylum)
+      FactoryBot.create(:valid_otu, taxon_name: klass)
+      FactoryBot.create(:valid_otu, taxon_name: order)
+      FactoryBot.create(:valid_otu, taxon_name: family)
+      FactoryBot.create(:valid_otu, taxon_name: genus)
+
       # Create 3 specimens + determinations + occurrences (core export drivers)
       [otu1, otu2, otu3].each do |otu|
         specimen = FactoryBot.create(:valid_specimen)

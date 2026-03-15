@@ -169,11 +169,11 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
           expect(taxa_keys.uniq.count).to eq(taxa_keys.count)
         end
 
-        specify 'taxonID values are sequential integers starting from 1' do
-          taxon_ids = csv.map { |row| row['taxonID'].to_i }
-          expect(taxon_ids.first).to eq(1)
-          expect(taxon_ids.last).to eq(csv.count)
-          expect(taxon_ids).to eq((1..csv.count).to_a)
+        specify 'taxonID values are OTU UUIDs' do
+          csv.each do |row|
+            expect(Utilities::Uuid.uuid?(row['taxonID'])).to be(true),
+              "Expected taxonID '#{row['taxonID']}' to be a UUID"
+          end
         end
 
         specify 'parentNameUsageID header is present' do
@@ -192,8 +192,8 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
           expect(species).to be_present
 
           # The parent should be the genus with matching genus name
-          parent_id = species['parentNameUsageID'].to_i
-          genus = csv.find { |row| row['taxonID'].to_i == parent_id }
+          parent_id = species['parentNameUsageID']
+          genus = csv.find { |row| row['taxonID'] == parent_id }
           expect(genus['taxonRank']).to eq('genus')
           expect(genus['scientificName']).to eq(species['genus'])
         end
@@ -218,6 +218,13 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
           genus_hex = Protonym.create!(name: 'Cercopis', rank_class: Ranks.lookup(:iczn, :genus), parent: family_hex)
           species_hex = Protonym.create!(name: 'testus', rank_class: Ranks.lookup(:iczn, :species), parent: genus_hex)
 
+          # OTUs for taxa that should appear in export (excludes subphylum/superclass intentionally)
+          FactoryBot.create(:valid_otu, taxon_name: kingdom_hex)
+          FactoryBot.create(:valid_otu, taxon_name: phylum_hex)
+          FactoryBot.create(:valid_otu, taxon_name: class_hex)
+          FactoryBot.create(:valid_otu, taxon_name: order_hex)
+          FactoryBot.create(:valid_otu, taxon_name: family_hex)
+          FactoryBot.create(:valid_otu, taxon_name: genus_hex)
           otu_hex = FactoryBot.create(:valid_otu, taxon_name: species_hex)
           specimen = FactoryBot.create(:valid_specimen)
           FactoryBot.create(:valid_taxon_determination, otu: otu_hex, taxon_determination_object: specimen)
@@ -466,7 +473,7 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
           # All id values should be present (not nil)
           dist_csv.each do |row|
             expect(row['id']).to be_present
-            expect(row['id'].to_i).to be > 0
+            expect(Utilities::Uuid.uuid?(row['id'])).to be(true)
           end
         end
 
@@ -671,7 +678,7 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
 
           refs_csv.each do |row|
             expect(row['id']).to be_present
-            expect(row['id'].to_i).to be > 0
+            expect(Utilities::Uuid.uuid?(row['id'])).to be(true)
           end
         end
 
@@ -814,7 +821,7 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
 
           types_csv.each do |row|
             expect(row['id']).to be_present
-            expect(row['id'].to_i).to be > 0
+            expect(Utilities::Uuid.uuid?(row['id'])).to be(true)
           end
         end
 
@@ -953,7 +960,7 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
 
           vn_csv.each do |row|
             expect(row['id']).to be_present
-            expect(row['id'].to_i).to be > 0
+            expect(Utilities::Uuid.uuid?(row['id'])).to be(true)
           end
         end
 
@@ -1268,7 +1275,7 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
 
           desc_csv.each do |row|
             expect(row['id']).to be_present
-            expect(row['id'].to_i).to be > 0
+            expect(Utilities::Uuid.uuid?(row['id'])).to be(true)
           end
         end
 
@@ -1392,9 +1399,12 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
       let!(:subspecies) { Protonym.create!(name: 'rubra', rank_class: Ranks.lookup(:icn, :subspecies), parent: species) }
       let!(:variety) { Protonym.create!(name: 'rubra', rank_class: Ranks.lookup(:icn, :variety), parent: species) }
 
-      let!(:otu_species) { FactoryBot.create(:valid_otu, taxon_name: species) }
+      let!(:otu_kingdom)    { FactoryBot.create(:valid_otu, taxon_name: kingdom) }
+      let!(:otu_family)     { FactoryBot.create(:valid_otu, taxon_name: family) }
+      let!(:otu_genus)      { FactoryBot.create(:valid_otu, taxon_name: genus) }
+      let!(:otu_species)    { FactoryBot.create(:valid_otu, taxon_name: species) }
       let!(:otu_subspecies) { FactoryBot.create(:valid_otu, taxon_name: subspecies) }
-      let!(:otu_variety) { FactoryBot.create(:valid_otu, taxon_name: variety) }
+      let!(:otu_variety)    { FactoryBot.create(:valid_otu, taxon_name: variety) }
 
       before do
         # Create specimens for each OTU
@@ -1487,7 +1497,13 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
       let!(:subspecies1) { Protonym.create!(name: 'amara', rank_class: Ranks.lookup(:icn, :subspecies), parent: species) }
       let!(:subspecies2) { Protonym.create!(name: 'dulcis', rank_class: Ranks.lookup(:icn, :subspecies), parent: species) }
 
-      # Create OTUs and specimens for ONLY the subspecies (not the species)
+      # Ancestor OTUs provide UUID taxonIDs even for taxa without occurrences
+      let!(:otu_kingdom)    { FactoryBot.create(:valid_otu, taxon_name: kingdom) }
+      let!(:otu_family)     { FactoryBot.create(:valid_otu, taxon_name: family) }
+      let!(:otu_genus)      { FactoryBot.create(:valid_otu, taxon_name: genus) }
+      let!(:otu_species)    { FactoryBot.create(:valid_otu, taxon_name: species) }
+
+      # Create OTUs and specimens for ONLY the subspecies (not the species occurrence)
       let!(:otu_subspecies1) { FactoryBot.create(:valid_otu, taxon_name: subspecies1) }
       let!(:otu_subspecies2) { FactoryBot.create(:valid_otu, taxon_name: subspecies2) }
 
@@ -1539,6 +1555,11 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
       let!(:kingdom) { Protonym.create!(name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom), parent: root) }
       let!(:family) { Protonym.create!(name: 'Felidae', rank_class: Ranks.lookup(:iczn, :family), parent: kingdom) }
       let!(:genus) { Protonym.create!(name: 'Felis', rank_class: Ranks.lookup(:iczn, :genus), parent: family) }
+
+      # Ancestor OTUs provide UUID taxonIDs for extracted higher taxa
+      let!(:otu_kingdom) { FactoryBot.create(:valid_otu, taxon_name: kingdom) }
+      let!(:otu_family)  { FactoryBot.create(:valid_otu, taxon_name: family) }
+      let!(:otu_genus)   { FactoryBot.create(:valid_otu, taxon_name: genus) }
 
       # Create a valid species
       let!(:valid_species) { Protonym.create!(name: 'catus', rank_class: Ranks.lookup(:iczn, :species), parent: genus) }
@@ -1721,6 +1742,7 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
 
         let!(:valid_auto_species) { Protonym.create!(name: 'autovalidus', rank_class: Ranks.lookup(:iczn, :species), parent: genus) }
         let!(:synonym_auto_species) { Protonym.create!(name: 'autosynonymus', rank_class: Ranks.lookup(:iczn, :species), parent: genus) }
+        let!(:valid_auto_otu) { FactoryBot.create(:valid_otu, taxon_name: valid_auto_species) }
         let!(:synonym_auto_otu) { FactoryBot.create(:valid_otu, taxon_name: synonym_auto_species) }
         let!(:synonym_auto_specimen) { FactoryBot.create(:valid_specimen) }
         let!(:synonym_auto_td) { FactoryBot.create(:valid_taxon_determination, taxon_determination_object: synonym_auto_specimen, otu: synonym_auto_otu) }
@@ -1793,6 +1815,18 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
       let!(:magnoliopsida) { Protonym.create!(name: 'Magnoliopsida', parent: magnoliophyta, rank_class: Ranks.lookup(:icn, :class)) }
       let!(:aus_plant) { Protonym.create!(name: 'Aus', parent: magnoliopsida, rank_class: Ranks.lookup(:icn, :genus)) }
       let!(:bus_plant) { Protonym.create!(name: 'bus', parent: aus_plant, rank_class: Ranks.lookup(:icn, :species)) }
+
+      # Ancestor OTUs for Animalia hierarchy
+      let!(:otu_animalia)    { FactoryBot.create(:valid_otu, taxon_name: animalia) }
+      let!(:otu_arthropoda)  { FactoryBot.create(:valid_otu, taxon_name: arthropoda) }
+      let!(:otu_insecta)     { FactoryBot.create(:valid_otu, taxon_name: insecta) }
+      let!(:otu_aus_animal)  { FactoryBot.create(:valid_otu, taxon_name: aus_animal) }
+
+      # Ancestor OTUs for Plantae hierarchy
+      let!(:otu_plantae)         { FactoryBot.create(:valid_otu, taxon_name: plantae) }
+      let!(:otu_magnoliophyta)   { FactoryBot.create(:valid_otu, taxon_name: magnoliophyta) }
+      let!(:otu_magnoliopsida)   { FactoryBot.create(:valid_otu, taxon_name: magnoliopsida) }
+      let!(:otu_aus_plant)       { FactoryBot.create(:valid_otu, taxon_name: aus_plant) }
 
       # Create OTUs and specimens
       let!(:animal_otu) { FactoryBot.create(:valid_otu, taxon_name: bus_animal) }

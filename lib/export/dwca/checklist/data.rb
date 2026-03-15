@@ -296,34 +296,7 @@ module Export::Dwca::Checklist
     def otu_to_taxon_name_data
       return @otu_to_taxon_name_data if @otu_to_taxon_name_data
 
-      # Get unique OTU IDs from all three occurrence types using UNION
-      all_otu_ids = ActiveRecord::Base.connection.execute(<<~SQL).values.flatten.uniq.compact
-        SELECT DISTINCT td.otu_id
-        FROM (#{core_occurrence_scope.to_sql}) dwc_occurrences
-        JOIN collection_objects co ON co.id = dwc_occurrences.dwc_occurrence_object_id
-        JOIN taxon_determinations td ON td.taxon_determination_object_id = co.id
-          AND td.taxon_determination_object_type = 'CollectionObject'
-          AND td.position = 1
-        WHERE dwc_occurrences.dwc_occurrence_object_type = 'CollectionObject'
-
-        UNION
-
-        SELECT DISTINCT td.otu_id
-        FROM (#{core_occurrence_scope.to_sql}) dwc_occurrences
-        JOIN field_occurrences fo ON fo.id = dwc_occurrences.dwc_occurrence_object_id
-        JOIN taxon_determinations td ON td.taxon_determination_object_id = fo.id
-          AND td.taxon_determination_object_type = 'FieldOccurrence'
-          AND td.position = 1
-        WHERE dwc_occurrences.dwc_occurrence_object_type = 'FieldOccurrence'
-
-        UNION
-
-        SELECT DISTINCT ad.asserted_distribution_object_id AS otu_id
-        FROM (#{core_occurrence_scope.to_sql}) dwc_occurrences
-        JOIN asserted_distributions ad ON ad.id = dwc_occurrences.dwc_occurrence_object_id
-          AND ad.asserted_distribution_object_type = 'Otu'
-        WHERE dwc_occurrences.dwc_occurrence_object_type = 'AssertedDistribution'
-      SQL
+      all_otu_ids = core_occurrence_scope.where.not(otu_id: nil).distinct.pluck(:otu_id)
 
       return {} if all_otu_ids.empty?
 

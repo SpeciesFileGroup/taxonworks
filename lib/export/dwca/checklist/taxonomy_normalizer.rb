@@ -382,7 +382,7 @@ module Export::Dwca::Checklist
     def assign_taxon_ids_and_build_hierarchy(all_taxa)
       taxon_name_info = fetch_taxon_name_info(all_taxa)
       taxa_with_ids, taxon_name_id_to_taxon_id =
-        assign_sequential_taxon_ids(all_taxa, taxon_name_info)
+        assign_taxon_uuids(all_taxa, taxon_name_info)
       processed_taxa = build_processed_taxa(
         taxa_with_ids, taxon_name_info, taxon_name_id_to_taxon_id
       )
@@ -419,12 +419,13 @@ module Export::Dwca::Checklist
       taxon_name_info
     end
 
-    # Assign sequential taxonIDs to all taxa, grouped by rank.
+    # Assign OTU UUID taxonIDs to all taxa, grouped by rank.
+    # Taxa without an OTU UUID identifier are excluded from the export.
     # @param all_taxa [Hash] taxon_name_id => taxon data
     # @param taxon_name_info [Hash] taxon_name_id => { rank:, parent_id: }
     # @return [Array] [taxa_with_ids, taxon_name_id_to_taxon_id mapping]
-    def assign_sequential_taxon_ids(all_taxa, taxon_name_info)
-      taxon_id_counter = 1
+    def assign_taxon_uuids(all_taxa, taxon_name_info)
+      uuid_map = taxon_name_id_to_otu_uuid(all_taxa.keys)
       taxon_name_id_to_taxon_id = {}
       taxa_with_ids = []
 
@@ -436,17 +437,34 @@ module Export::Dwca::Checklist
         rank_taxa.each do |tn_id, taxon|
           next if taxon_name_id_to_taxon_id[tn_id]
 
-          taxon_id = taxon_id_counter
-          taxon_id_counter += 1
-          taxon_name_id_to_taxon_id[tn_id] = taxon_id
+          uuid = uuid_map[tn_id]
+          next unless uuid
+
+          taxon_name_id_to_taxon_id[tn_id] = uuid
 
           taxa_with_ids << {
-             taxon: taxon, taxon_id: taxon_id, taxon_name_id: tn_id, rank: rank
+            taxon: taxon, taxon_id: uuid, taxon_name_id: tn_id, rank: rank
           }
         end
       end
 
       [taxa_with_ids, taxon_name_id_to_taxon_id]
+    end
+
+    # Build a mapping of taxon_name_id => OTU UUID for the given taxon_name_ids.
+    # Only includes taxa that have an OTU with a Uuid identifier.
+    # @param taxon_name_ids [Array<Integer>]
+    # @return [Hash] taxon_name_id => uuid string
+    def taxon_name_id_to_otu_uuid(taxon_name_ids)
+      return {} if taxon_name_ids.empty?
+
+      ::Otu
+        .joins("JOIN identifiers ON identifiers.identifier_object_id = otus.id
+                  AND identifiers.identifier_object_type = 'Otu'
+                  AND identifiers.type LIKE 'Identifier::Global::Uuid%'")
+        .where(taxon_name_id: taxon_name_ids)
+        .pluck('otus.taxon_name_id', 'identifiers.cached')
+        .to_h
     end
 
     # Build final processed taxa with parent/accepted relationships.
