@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <h1>Filter field occurrences</h1>
-
+  <div class="margin-medium-top">
     <FilterLayout
       :pagination="pagination"
       :url-request="urlRequest"

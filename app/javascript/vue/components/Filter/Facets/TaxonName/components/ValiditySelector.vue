@@ -38,11 +38,11 @@ const params = computed({
 const VALIDITY_OPTIONS = [
   {
     label: 'Both valid/invalid',
-    value: undefined
+    value: true
   },
   {
     label: 'Valid only',
-    value: true
+    value: undefined
   },
   {
     label: 'Invalid only',

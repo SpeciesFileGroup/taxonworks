@@ -1,29 +1,22 @@
 .help-button {
   user-select: none;
   cursor: pointer;
-  position: fixed;
-  z-index: 2102;
-  top: calc(50vh + 130px);
-  right: -55px;
-  transform: translateX(-1em);
-  width: 55px;
-  height: 55px;
+  width: 32px;
+  height: 32px;
   opacity: 0.4;
   border-radius: 50%;
   background-color: #ff8f00;
   background-image: image-url('help.svg');
   background-repeat: no-repeat;
   background-position: center;
-  background-size: 35px;
-  box-shadow: 0px 1px 2px 0px #444;
+  background-size: 16px;
   transition: all 0.3s ease;
 }
 
 .help-button:hover {
-  opacity: 1;
-  transform: translateX(-26px);
-  background-size: 40px;
   transition: all 0.3s ease;
+  opacity: 1;
+  background-size: 20px;
 
   .help-button-description {
     display: block;
@@ -35,18 +28,16 @@
 }
 
 .help-button-active {
-  opacity: 1;
-  right: -25px;
-  background-size: 35px;
+  opacity: 1 !important;
+  background-size: 20px;
   background-position: center;
   transition: all 0.5s ease;
+  z-index: 2102;
 }
 
 .help-button-active:hover {
-  background-size: 40px;
   background-position: center;
   transition: all 0.5s ease;
-  transform: translateX(-16px);
 
   .help-button-description {
     display: none;

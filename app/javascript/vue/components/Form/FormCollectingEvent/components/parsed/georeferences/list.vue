@@ -22,11 +22,12 @@
         >
           <td>{{ item.id }}</td>
           <td class="word-keep-all">
-            {{
-              isTmpWkt(item) || isTempGeolocate(item)
-                ? ''
-                : getGeoJsonType(item)
-            }}
+            <span v-if="isTmpWkt(item) || isTempGeolocate(item)">
+              Available after save
+            </span>
+            <span v-else>
+              {{ getGeoJsonType(item) }}
+            </span>
           </td>
           <td>{{ getCoordinatesByType(item) }}</td>
           <td>{{ item.has_error_polygon ? 'Yes' : 'No' }}</td>

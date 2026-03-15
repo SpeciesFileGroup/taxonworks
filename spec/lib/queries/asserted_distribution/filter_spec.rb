@@ -248,6 +248,115 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
     expect(q.all).to contain_exactly(ad_ba)
   end
 
+  specify '#otu_id includes direct OTU ADs' do
+    ad1
+    ad2 # not this one
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad1)
+  end
+
+  specify '#otu_id includes ADs on BiologicalAssociations where OTU is subject' do
+    ad2 # not this one
+    ba = FactoryBot.create(
+      :valid_biological_association,
+      biological_association_subject: o1
+    )
+    ad_ba = FactoryBot.create(
+      :valid_biological_association_asserted_distribution,
+      asserted_distribution_object: ba
+    )
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad_ba)
+  end
+
+  specify '#otu_id includes ADs on BiologicalAssociations where OTU is object' do
+    ad2 # not this one
+    ba = FactoryBot.create(
+      :valid_biological_association,
+      biological_association_object: o1
+    )
+    ad_ba = FactoryBot.create(
+      :valid_biological_association_asserted_distribution,
+      asserted_distribution_object: ba
+    )
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad_ba)
+  end
+
+  specify '#otu_id includes both direct and BA ADs' do
+    ad2 # not this one
+    ba = FactoryBot.create(
+      :valid_biological_association,
+      biological_association_subject: o1
+    )
+    ad_ba = FactoryBot.create(
+      :valid_biological_association_asserted_distribution,
+      asserted_distribution_object: ba
+    )
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad1, ad_ba)
+  end
+
+  specify '#otu_id includes ADs on BiologicalAssociationsGraphs containing a BA where OTU is subject' do
+    ad2 # not this one
+    ba = FactoryBot.create(:valid_biological_association, biological_association_subject: o1)
+    bag = FactoryBot.create(:valid_biological_associations_graph)
+    FactoryBot.create(:valid_biological_associations_biological_associations_graph,
+      biological_associations_graph: bag,
+      biological_association: ba
+    )
+    ad_bag = FactoryBot.create(:valid_biological_associations_graph_asserted_distribution,
+      asserted_distribution_object: bag
+    )
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad_bag)
+  end
+
+  specify '#otu_id includes ADs on BiologicalAssociationsGraphs containing a BA where OTU is object' do
+    ad2 # not this one
+    ba = FactoryBot.create(:valid_biological_association, biological_association_object: o1)
+    bag = FactoryBot.create(:valid_biological_associations_graph)
+    FactoryBot.create(:valid_biological_associations_biological_associations_graph,
+      biological_associations_graph: bag,
+      biological_association: ba
+    )
+    ad_bag = FactoryBot.create(:valid_biological_associations_graph_asserted_distribution,
+      asserted_distribution_object: bag
+    )
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad_bag)
+  end
+
+  specify '#otu_id includes ADs on Conveyances where OTU is the conveyance object' do
+    ad2 # not this one
+    conveyance = FactoryBot.create(:valid_conveyance, conveyance_object: o1)
+    ad_conveyance = FactoryBot.create(:valid_conveyance_asserted_distribution,
+      asserted_distribution_object: conveyance
+    )
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad_conveyance)
+  end
+
+  specify '#otu_id includes ADs on Depictions where OTU is the depiction object' do
+    ad2 # not this one
+    depiction = FactoryBot.create(:valid_depiction, depiction_object: o1)
+    ad_depiction = FactoryBot.create(:valid_depiction_asserted_distribution,
+      asserted_distribution_object: depiction
+    )
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad_depiction)
+  end
+
+  specify '#otu_id includes ADs on Observations where OTU is the observation object' do
+    ad2 # not this one
+    observation = FactoryBot.create(:valid_observation, observation_object: o1)
+    ad_observation = FactoryBot.create(:valid_observation_asserted_distribution,
+      asserted_distribution_object: observation
+    )
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad_observation)
+  end
+
   specify '#source_id' do
     source = FactoryBot.create(:valid_source)
     other_source = FactoryBot.create(:valid_source)

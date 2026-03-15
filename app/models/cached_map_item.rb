@@ -330,15 +330,16 @@ class CachedMapItem < ApplicationRecord
       if o.is_absent == true
         return h
       end
-      if o.asserted_distribution_object_type == 'Otu'
-        otu_id = [o.asserted_distribution_object_id]
-      else
-        # TODO handle other types
-        return h
-      end
+
+      otu_id = o.object_otu_ids
+
+      return h if otu_id.empty?
+
+      # Filter to OTUs with taxon names (required for hierarchy)
+      otu_id = Otu.where(id: otu_id).where.not(taxon_name_id: nil).pluck(:id)
+      return h if otu_id.empty?
+
       geographic_item_id = o.asserted_distribution_shape.default_geographic_item_id
-      taxon_name_id = Otu.where(id: otu_id).pick(:taxon_name_id)
-      return h if taxon_name_id.blank?
 
     when 'Georeference'
       geographic_item_id = o.geographic_item_id

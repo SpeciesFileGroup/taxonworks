@@ -7,6 +7,7 @@ class GeographicItemsController < ApplicationController
   # GET /geographic_items/1
   # GET /geographic_items/1.json
   # GET /geographic_items/1.wkt
+  # GET /geographic_items/1.geojson
   def show
     respond_to do |format|
       format.html {}

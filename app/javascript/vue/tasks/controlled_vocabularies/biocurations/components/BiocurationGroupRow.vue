@@ -41,7 +41,7 @@
 </template>
 
 <script setup>
-import useBiocurationGroup from '../composables/useBiocurationGroup.js'
+import { computed } from 'vue'
 import BiocurationModal from './BiocurationModal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
@@ -56,10 +56,17 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['delete'])
-const { getters } = useStore()
+const { actions, getters } = useStore()
 
-const { biologicalGroupClasses, addBiocuration, removeBiocuration } =
-  useBiocurationGroup(props.biocurationGroup.id)
+const biologicalGroupClasses = computed(() =>
+  getters.getBiocurationTagsByGroupId(props.biocurationGroup.id)
+)
+
+const addBiocuration = (classId) =>
+  actions.addBiocurationTag(props.biocurationGroup.id, classId)
+
+const removeBiocuration = (classId) =>
+  actions.removeBiocurationTag(props.biocurationGroup.id, classId)
 
 const getBiologicalClassById = (id) =>
   getters.getBiocurationClasses().find((item) => item.id === id)

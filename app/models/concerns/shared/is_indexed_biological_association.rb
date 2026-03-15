@@ -60,6 +60,7 @@ module Shared::IsIndexedBiologicalAssociation
       # Subject fields
       subject_id: biological_association_subject_id,
       subject_type: biological_association_subject_type,
+      subject_otu_id: biological_association_subject_otu_id,
       subject_uuid: biological_association_subject_uuid,
       subject_label: biological_association_subject_label,
       subject_order: biological_association_subject_taxonomy_field('order'),
@@ -75,6 +76,7 @@ module Shared::IsIndexedBiologicalAssociation
       # Object fields
       object_id: biological_association_object_id,
       object_type: biological_association_object_type,
+      object_otu_id: biological_association_object_otu_id,
       object_uuid: biological_association_object_uuid,
       object_label: biological_association_object_label,
       object_order: biological_association_object_taxonomy_field('order'),
@@ -113,6 +115,32 @@ module Shared::IsIndexedBiologicalAssociation
     case biological_association_object.class.base_class.name
     when 'Otu', 'CollectionObject', 'FieldOccurrence', 'AnatomicalPart'
       biological_association_object.uuid
+    end
+  end
+
+  def biological_association_subject_otu_id
+    case biological_association_subject.class.base_class.name
+    when 'Otu'
+      biological_association_subject.id
+    when 'CollectionObject', 'FieldOccurrence'
+      biological_association_subject.current_otu&.id
+    when 'AnatomicalPart'
+      biological_association_subject.cached_otu_id
+    else
+      raise TaxonWorks::Error, "Unhandled subject type #{biological_association_subject.class.base_class.name} in biological_association_subject_otu_id"
+    end
+  end
+
+  def biological_association_object_otu_id
+    case biological_association_object.class.base_class.name
+    when 'Otu'
+      biological_association_object.id
+    when 'CollectionObject', 'FieldOccurrence'
+      biological_association_object.current_otu&.id
+    when 'AnatomicalPart'
+      biological_association_object.cached_otu_id
+    else
+      raise TaxonWorks::Error, "Unhandled object type #{biological_association_object.class.base_class.name} in biological_association_object_otu_id"
     end
   end
 

@@ -26,6 +26,7 @@
 
 <script setup>
 import { onBeforeUnmount, onMounted, useTemplateRef } from 'vue'
+import { useStickyBelow } from '@/composables'
 import { useSourceStore } from '../store'
 import VDocuments from './documents'
 import SoftValidation from '@/components/soft_validations/panel'
@@ -37,8 +38,9 @@ const documentsRef = useTemplateRef('documents')
 const matchesRef = useTemplateRef('matches')
 const rootRef = useTemplateRef('root')
 
+useStickyBelow(rootRef, sectionRef)
+
 function scrollBox() {
-  const element = rootRef.value
   const sectionSize = sectionRef.value.getBoundingClientRect()
   const documentsSize = documentsRef.value.$el.getBoundingClientRect()
   const matchesSize = matchesRef.value.$el.getBoundingClientRect()
@@ -52,12 +54,6 @@ function scrollBox() {
     window.innerHeight - sectionSize.top < totalHeight
       ? `${window.innerHeight - sectionSize.top}px`
       : 'auto'
-
-  if (element.offsetTop < document.documentElement.scrollTop + 50) {
-    sectionRef.value.classList.add('float-box')
-  } else {
-    sectionRef.value.classList.remove('float-box')
-  }
 
   sectionRef.value.style.height = newHeight
 }
@@ -77,10 +73,5 @@ onBeforeUnmount(() => {
   position: relative;
   min-width: 400px;
   max-width: 400px;
-}
-.float-box {
-  top: 80px;
-  width: 400px;
-  position: fixed;
 }
 </style>

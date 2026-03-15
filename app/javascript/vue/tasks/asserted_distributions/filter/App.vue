@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <h1>Filter asserted distributions</h1>
-
+  <div class="margin-medium-top">
     <FilterLayout
       :pagination="pagination"
       :selected-ids="sortedSelectedIds"

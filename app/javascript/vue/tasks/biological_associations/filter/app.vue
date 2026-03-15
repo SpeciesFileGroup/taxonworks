@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <h1>Filter biological associations</h1>
-
+  <div class="margin-medium-top">
     <FilterLayout
       :pagination="pagination"
       v-model="parameters"

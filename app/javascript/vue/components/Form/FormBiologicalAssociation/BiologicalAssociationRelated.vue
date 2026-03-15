@@ -10,7 +10,6 @@
       v-bind="TAB[tabSelected]"
       ref="smartSelector"
       :target="target"
-      :klass="BIOLOGICAL_ASSOCIATION"
       :params="params"
       @selected="(item) => emit('select', item)"
     />

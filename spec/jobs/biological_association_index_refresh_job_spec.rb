@@ -186,6 +186,51 @@ RSpec.describe BiologicalAssociationIndexRefreshJob, type: :model do
     end
   end
 
+  context 'Citation data propagation' do
+    specify 'updates index when a citation is added to an existing biological association' do
+      source_year = 2001
+      source = FactoryBot.create(:valid_source_bibtex, year: source_year, author: 'Smith')
+      ba = FactoryBot.create(:valid_biological_association)
+
+      # Initially no citation, so citation_year should be blank
+      expect(ba.biological_association_index.reload.citation_year).to be_blank
+
+      Citation.create!(citation_object: ba, source: source)
+
+      # Hook should have assigned a rebuild_set
+      rebuild_set = ba.biological_association_index.reload.rebuild_set
+      expect(rebuild_set).to be_present
+
+      BiologicalAssociationIndexRefreshJob.perform_now(rebuild_set:, user_id: job_user.id)
+
+      expect(ba.biological_association_index.reload.citation_year).to include(source_year.to_s)
+    end
+
+    specify 'updates index when a citation is removed from a biological association' do
+      source_year = 2001
+      source = FactoryBot.create(:valid_source_bibtex, year: source_year, author: 'Smith')
+      ba = FactoryBot.create(:valid_biological_association)
+      citation = Citation.create!(citation_object: ba, source: source)
+
+      # Use the job to get the citation into the index
+      BiologicalAssociationIndexRefreshJob.perform_now(
+        rebuild_set: ba.biological_association_index.reload.rebuild_set,
+        user_id: job_user.id
+      )
+      expect(ba.biological_association_index.reload.citation_year).to include(source_year.to_s)
+
+      citation.destroy!
+
+      # Hook should have assigned a rebuild_set
+      rebuild_set = ba.biological_association_index.reload.rebuild_set
+      expect(rebuild_set).to be_present
+
+      BiologicalAssociationIndexRefreshJob.perform_now(rebuild_set:, user_id: job_user.id)
+
+      expect(ba.biological_association_index.reload.citation_year).to be_blank
+    end
+  end
+
   context 'Source data propagation' do
     specify 'updates index when source citation changes' do
       source_year = 1999

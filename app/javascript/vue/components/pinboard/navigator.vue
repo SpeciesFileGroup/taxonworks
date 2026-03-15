@@ -44,7 +44,8 @@ onMounted(() => {
   TW.workbench.keyboard.createLegend(
     `${platformKey()}+g`,
     'Open pinboard navigator',
-    'Pinboard'
+    'Pinboard',
+    true
   )
 })
 

@@ -524,6 +524,14 @@ filter_sources_task:
     - filters
   status: prototype
   description: "Filter and find sources then download or share bibliographies."
+documents_packager_task:
+  name: "Documents packager"
+  related:
+  categories:
+    - source
+    - filters
+  status: prototype
+  description: "Bundle Source Documents into size-limited download packages."
 gnfinder_task:
   hub: true
   name: "Gnfinder playground"
@@ -560,6 +568,14 @@ filter_images_task:
     - filters
   status: prototype
   description: "Filter images."
+images_packager_task:
+  name: "Images packager"
+  related:
+  categories:
+    - image
+    - filters
+  status: prototype
+  description: "Bundle Images into size-limited download packages."
 project_data_task:
   hub: true
   name: "Project data overview and download"
@@ -1145,6 +1161,7 @@ new_news_task:
   name: "New news"
   related:
   categories:
+    - new
   status: prototype
   description: "Create and edit blog posts, notices, etc."
 browse_news_task:
@@ -1199,5 +1216,6 @@ filter_namespaces_task:
   name: "Filter namespaces"
   related:
   categories:
+    - filters
   status: prototype
   description: "Filter namespaces by many different facets, download or visualize results."

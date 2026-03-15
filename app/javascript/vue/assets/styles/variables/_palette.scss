@@ -230,7 +230,9 @@ $tw-map-colors: (
   'type-material': #3388ff,
   'asserted-distribution': #f97316,
   'asserted-distribution-absent': #6a51a3,
-  'georeference': #ef4444
+  'georeference': #ef4444,
+  'verbatim': #8908b4,
+  'verbatim-preview': #636363
 );
 
 @each $key, $value in $tw-colors {

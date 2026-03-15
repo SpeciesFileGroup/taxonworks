@@ -77,6 +77,7 @@ import { useHotkey } from '@/composables'
 import { computed, ref, onBeforeMount, watch } from 'vue'
 import { useStore } from './store/store.js'
 import { useUserPreferences } from '@/composables'
+
 import VBtn from '@/components/ui/VBtn/index.vue'
 
 const KEY_STORAGE_AUTOSAVE = 'Task::NewAssertedDistribution::Autosave'
@@ -97,7 +98,7 @@ const shortcuts = ref([
 useHotkey(shortcuts.value)
 
 const store = useStore()
-const { preferences, loadPreferences, setPreference } = useUserPreferences()
+const { preferences, setPreference } = useUserPreferences()
 
 const currentAssertedDistribution = computed(() =>
   store.assertedDistributions.find(
@@ -120,7 +121,14 @@ watch(
 )
 
 onBeforeMount(() => {
+  const urlParams = new URLSearchParams(window.location.search)
+  const id = urlParams.get('asserted_distribution_id')
+
   store.loadRecentAssertedDistributions()
+
+  if (id) {
+    store.load(id)
+  }
 
   TW.workbench.keyboard.createLegend(
     `${platformKey()}+s`,
