@@ -197,7 +197,7 @@ module Export::Dwca::Occurrence
       create_csv_sanitize_function
 
       target_cols = ::DwcOccurrence.target_occurrence_columns
-      excluded = ::DwcOccurrence.excluded_occurrence_columns
+      excluded = self.class.excluded_occurrence_columns
 
       cols_to_export = target_cols - excluded
 
@@ -672,6 +672,17 @@ module Export::Dwca::Occurrence
 
       # This doesn't touch the db (source_file_path is an instance var).
       download.update!(source_file_path: p)
+    end
+
+    # @return [Array] of symbols
+    #   Columns to exclude from dwc_occurrences for occurrence exports.
+    def self.excluded_occurrence_columns
+      (::DwcOccurrence.columns.collect{ |c| c.name.to_sym } -
+        (
+          ::DwcOccurrence.target_occurrence_columns -
+            [:dwc_occurrence_object_id, :dwc_occurrence_object_type]
+        )
+      )
     end
 
   end

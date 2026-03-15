@@ -27,13 +27,93 @@ module Export::Dwca::Checklist
       ACCEPTED_NAME_USAGE_ID
     ].freeze
 
+    # Keys are dwc_occurrence columns, values are DwC Taxon Extension columns:
+    # https://rs.gbif.org/core/dwc_taxon_2024-02-19.xml
+    # Note: taxonID is excluded here because it will be created via copy_column
+    # from occurrenceID.
+    CHECKLIST_TAXON_EXTENSION_COLUMNS = {
+      scientificName: :scientificName,
+      taxonRank: :taxonRank,
+      acceptedNameUsage: :acceptedNameUsage,
+      parentNameUsage: :parentNameUsage,
+      originalNameUsage: :originalNameUsage,
+      nameAccordingTo: :nameAccordingTo,
+      namePublishedIn: :namePublishedIn,
+      namePublishedInYear: :namePublishedInYear,
+      higherClassification: :higherClassification,
+      kingdom: :kingdom,
+      phylum: :phylum,
+      dwcClass: :class,  # Note: column is dwcClass, DwC Taxon field is 'class'
+      order: :order,
+      superfamily: :superfamily,
+      family: :family,
+      subfamily: :subfamily,
+      tribe: :tribe,
+      subtribe: :subtribe,
+      genus: :genus,
+      subgenus: :subgenus,
+      specificEpithet: :specificEpithet,
+      infraspecificEpithet: :infraspecificEpithet,
+      verbatimTaxonRank: :verbatimTaxonRank,
+      scientificNameAuthorship: :scientificNameAuthorship,
+      vernacularName: :vernacularName,
+      nomenclaturalCode: :nomenclaturalCode,
+      taxonomicStatus: :taxonomicStatus,
+      nomenclaturalStatus: :nomenclaturalStatus,
+      taxonRemarks: :taxonRemarks
+    }.freeze
+
+    # Namespace URIs for checklist taxon core fields.
+    # Maps DwC Taxon field names to their full namespace URIs.
+    CHECKLIST_TAXON_NAMESPACES = {
+      taxonID: 'http://rs.tdwg.org/dwc/terms/taxonID',
+      scientificName: 'http://rs.tdwg.org/dwc/terms/scientificName',
+      taxonRank: 'http://rs.tdwg.org/dwc/terms/taxonRank',
+      acceptedNameUsage: 'http://rs.tdwg.org/dwc/terms/acceptedNameUsage',
+      acceptedNameUsageID: 'http://rs.tdwg.org/dwc/terms/acceptedNameUsageID',
+      parentNameUsage: 'http://rs.tdwg.org/dwc/terms/parentNameUsage',
+      parentNameUsageID: 'http://rs.tdwg.org/dwc/terms/parentNameUsageID',
+      originalNameUsage: 'http://rs.tdwg.org/dwc/terms/originalNameUsage',
+      nameAccordingTo: 'http://rs.tdwg.org/dwc/terms/nameAccordingTo',
+      namePublishedIn: 'http://rs.tdwg.org/dwc/terms/namePublishedIn',
+      namePublishedInYear: 'http://rs.tdwg.org/dwc/terms/namePublishedInYear',
+      higherClassification: 'http://rs.tdwg.org/dwc/terms/higherClassification',
+      kingdom: 'http://rs.tdwg.org/dwc/terms/kingdom',
+      phylum: 'http://rs.tdwg.org/dwc/terms/phylum',
+      class: 'http://rs.tdwg.org/dwc/terms/class',
+      order: 'http://rs.tdwg.org/dwc/terms/order',
+      superfamily: 'http://rs.tdwg.org/dwc/terms/superfamily',
+      family: 'http://rs.tdwg.org/dwc/terms/family',
+      subfamily: 'http://rs.tdwg.org/dwc/terms/subfamily',
+      tribe: 'http://rs.tdwg.org/dwc/terms/tribe',
+      subtribe: 'http://rs.tdwg.org/dwc/terms/subtribe',
+      genus: 'http://rs.tdwg.org/dwc/terms/genus',
+      subgenus: 'http://rs.tdwg.org/dwc/terms/subgenus',
+      specificEpithet: 'http://rs.tdwg.org/dwc/terms/specificEpithet',
+      infraspecificEpithet: 'http://rs.tdwg.org/dwc/terms/infraspecificEpithet',
+      verbatimTaxonRank: 'http://rs.tdwg.org/dwc/terms/verbatimTaxonRank',
+      scientificNameAuthorship: 'http://rs.tdwg.org/dwc/terms/scientificNameAuthorship',
+      vernacularName: 'http://rs.tdwg.org/dwc/terms/vernacularName',
+      nomenclaturalCode: 'http://rs.tdwg.org/dwc/terms/nomenclaturalCode',
+      taxonomicStatus: 'http://rs.tdwg.org/dwc/terms/taxonomicStatus',
+      nomenclaturalStatus: 'http://rs.tdwg.org/dwc/terms/nomenclaturalStatus',
+      taxonRemarks: 'http://rs.tdwg.org/dwc/terms/taxonRemarks'
+    }.freeze
+
+    # Header converter for checklist exports (Taxon core).
+    # Converts dwc_occurrence column names to DwC Taxon extension field names.
+    CSV::HeaderConverters[:checklist_headers] = lambda do |field|
+      d = CHECKLIST_TAXON_EXTENSION_COLUMNS[field.to_sym]
+      d ? d.to_s : field
+    end
+
     # @return [Array] of rank strings in hierarchical order (highest to lowest).
     # Includes both column-based ranks (kingdom, phylum, etc.) and all possible
     # taxonRank values that may appear for terminal taxa (species, subspecies,
     # variety, form, etc.).
     def self.ordered_ranks
       # Get rank columns available in DwcOccurrence (mapped to DwC field names).
-      dwc_rank_columns = ::DwcOccurrence::CHECKLIST_TAXON_EXTENSION_COLUMNS.keys
+      dwc_rank_columns = CHECKLIST_TAXON_EXTENSION_COLUMNS.keys
         .select { |col| [:kingdom, :phylum, :dwcClass, :order, :superfamily, :family, :subfamily, :tribe, :subtribe, :genus, :subgenus].include?(col) }
         .map { |col| col == :dwcClass ? 'class' : col.to_s }
 
@@ -177,13 +257,13 @@ module Export::Dwca::Checklist
 
       # We need dwc_occurrence_object_type/id for OTU lookups.
       # Don't exclude them initially - we'll remove them after processing.
-      excluded_columns = ::DwcOccurrence.excluded_checklist_columns - [:dwc_occurrence_object_type, :dwc_occurrence_object_id]
+      excluded_columns = excluded_checklist_columns - [:dwc_occurrence_object_type, :dwc_occurrence_object_id]
 
       # Get raw occurrence data with all taxonomy columns.
       raw_csv = ::Export::CSV.generate_csv(
-        core_occurrence_scope.computed_checklist_columns,
+        core_occurrence_scope.select(target_checklist_columns),
         exclude_columns: excluded_columns,
-        column_order: ::DwcOccurrence::CHECKLIST_TAXON_EXTENSION_COLUMNS.keys,
+        column_order: CHECKLIST_TAXON_EXTENSION_COLUMNS.keys,
         header_converters: [:checklist_headers]
       )
 
@@ -402,7 +482,7 @@ module Export::Dwca::Checklist
                 xml.field(index: i + 1, term: h)
               else
                 xml.field(index: i + 1,
-                   term: DwcOccurrence::CHECKLIST_TAXON_NAMESPACES[h.to_sym])
+                   term: CHECKLIST_TAXON_NAMESPACES[h.to_sym])
               end
             end
           }
@@ -630,5 +710,29 @@ module Export::Dwca::Checklist
 
       true
     end
+
+    private
+
+    # @return [Array] of symbols
+    #   Columns to select from dwc_occurrences for checklist exports.
+    def target_checklist_columns
+      [
+       :id,
+       :dwc_occurrence_object_id, # !! We don't want this, but need it in joins, it is removed in trim via excluded_checklist_columns below
+       :dwc_occurrence_object_type, # !! ^
+      ] + CHECKLIST_TAXON_EXTENSION_COLUMNS.keys
+    end
+
+    # @return [Array] of symbols
+    #   Columns to exclude from dwc_occurrences for checklist exports.
+    def excluded_checklist_columns
+      (::DwcOccurrence.columns.collect{ |c| c.name.to_sym } -
+        (
+          CHECKLIST_TAXON_EXTENSION_COLUMNS.keys -
+            [:dwc_occurrence_object_id, :dwc_occurrence_object_type]
+        )
+      )
+    end
+
   end
 end

@@ -9,7 +9,7 @@ describe Export::Dwca, type: :model do
     let(:csv_string) {
       ::Export::CSV.generate_csv(
         core_scope.computed_occurrence_columns,
-        exclude_columns: ::DwcOccurrence.excluded_occurrence_columns,
+        exclude_columns: Export::Dwca::Occurrence::Data.excluded_occurrence_columns,
         column_order: ::CollectionObject::DWC_OCCURRENCE_MAP.keys + ::CollectionObject::EXTENSION_FIELDS,
         trim_columns: true,
         trim_rows: false,

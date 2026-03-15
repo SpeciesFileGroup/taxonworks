@@ -581,7 +581,7 @@ module Export::Dwca::Checklist
       end
 
       # Clear all other taxon-specific fields
-      ::DwcOccurrence::CHECKLIST_TAXON_EXTENSION_COLUMNS.keys.each do |field|
+      Data::CHECKLIST_TAXON_EXTENSION_COLUMNS.keys.each do |field|
         field_str = field.to_s
         field_str = 'class' if field == :dwcClass
         taxon[field_str] = nil unless fields_to_keep.include?(field_str)
