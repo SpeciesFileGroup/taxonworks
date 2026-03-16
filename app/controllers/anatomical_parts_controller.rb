@@ -139,6 +139,10 @@ class AnatomicalPartsController < ApplicationController
     @parts_list = @parts_list[:results]
   end
 
+  def templates
+    render json: AnatomicalPart.templates(sessions_current_project_id)
+  end
+
   private
 
   def set_anatomical_part
