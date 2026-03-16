@@ -336,7 +336,6 @@ export default {
             this.nomenclature = response.body
             this.isLoading = false
           })
-          Otu.inventory(this.otu.id)
         }
       },
       immediate: true

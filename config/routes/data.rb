@@ -714,13 +714,13 @@ resources :otus do
 
   member do
     get :timeline, defaults: {format: :json}
-    get :inventory, defaults: {format: :json}
     get :navigation, defaults: {format: :json}
     get :breadcrumbs, defaults: {format: :json}
     get :coordinate, defaults: {format: :json}
 
     get 'inventory/distribution', action: :distribution, defaults: {format: :json}
     get 'inventory/taxonomy', action: :api_taxonomy_inventory, as: :taxonomy_inventory
+    get 'inventory/citations', action: :api_citations_inventory, as: :citations_inventory, defaults: {format: :json}
   end
 
 end
