@@ -34,15 +34,19 @@ module Queries
       # @return Boolean, nil
       #  true - 'pre-load' taxon name with otus
       #  false/nil - ignored
+      #
+      # Only applied pertinent to the TaxonName autocomplete
+      # Only applied pertinent to the TaxonName autocomplete
       attr_accessor :include_taxon_name
 
       # Keys are method names. Existence of method is checked
       # before requesting the query
       QUERIES = {
         # OTU
-        otu_name_exact: {priority: 1},
-        autocomplete_exact_id: {priority: 1},
-        autocomplete_identifier_cached_exact: {priority: 1},
+        autocomplete_taxon_name_hybrid: {priorty: 1},
+        otu_name_exact: {priority: 2}, # Was 1
+        autocomplete_exact_id: {priority: 2},
+        autocomplete_identifier_cached_exact: {priority: 3},
         otu_name_start_match: {priority: 200},
         otu_name_similarity: {priority: 220},
 
@@ -56,7 +60,7 @@ module Queries
 
         # CommonName
         # These should all be covered/moved to common_name_autocomplete,
-        autocomplete_common_name_exact: {priority: 100},
+        autocomplete_common_name_exact: {priority: 300},
         autocomplete_common_name_like: {priority: 1000}
         # common_name_identifier_exact: {priority: 10},
         # common_name_name_start_match: {priority: 100},
@@ -68,6 +72,7 @@ module Queries
         with_taxon_name: nil, exact: 'false', include_common_names: false,
         include_taxon_name: false
       )
+
         super(string, project_id:)
         @having_taxon_name_only = boolean_param({having_taxon_name_only:}, :having_taxon_name_only)
         @with_taxon_name = boolean_param({with_taxon_name:}, :with_taxon_name)
@@ -75,15 +80,13 @@ module Queries
         # TODO: move to mode
         @exact = boolean_param({exact:}, :exact)
 
-        @include_common_names =
-          boolean_param({include_common_names:}, :include_common_names)
-        @include_taxon_name =
-          boolean_param({include_taxon_name:}, :include_taxon_name)
+        @include_common_names = boolean_param({include_common_names:}, :include_common_names)
+        @include_taxon_name = boolean_param({include_taxon_name:}, :include_taxon_name)
       end
 
       def base_query
         q = ::Otu.all
-        q = q.where(project_id:) if project_id.any?
+        q = q.where(project_id:) if project_id.any? # TODO: this needs to be a wrapping layer check, not here
         q
       end
 
@@ -107,6 +110,19 @@ module Queries
           .where('otus.name % ?', query_string)
           .where( ApplicationRecord.sanitize_sql_array(["word_similarity('%s', otus.name) > 0.33", query_string]))
           .order('otus.name, length(otus.name)')
+      end
+
+      # For names like Tapinoma CASC_2231
+      def autocomplete_taxon_name_hybrid
+        if terms.length == 2
+          byebug
+          base_query
+          .joins(:taxon_name)
+          .where('taxon_names.cached % ? AND otus.name % ?', terms.first, terms.second)
+          .order('taxon_names.cached, otus.name, length(taxon_names.cached), length(otus.name)')
+        else
+          nil
+        end
       end
 
       # @return [Scope]
@@ -151,9 +167,8 @@ module Queries
           .joins('left join otus o2 on t1.cached_valid_taxon_name_id = o2.taxon_name_id')
           .select('distinct on (otus.id) otus.id, otus.name, otus.taxon_name_id, COALESCE(o2.id, otus.id) as otu_valid_id')
 
-        f.sort_by.with_index { |item, idx| [(otu_order.index(item.id) || 999), (idx || 999)] }
+        f.sort_by.with_index { |item, idx| [(otu_order.index(item.id) || 9999), (idx || 9999)] }
       end
-
 
       def autocomplete_taxon_name_extended
         taxon_names = Queries::TaxonName::Autocomplete.new(query_string, exact:, project_id:).autocomplete # an array, not a query
@@ -275,6 +290,7 @@ module Queries
         # We may have the same name at different priorities, strike all but the highest/first.
         r = []
         i = {}
+
         otus.each do |o|
           next if i[o.id]
           r.push o
@@ -307,6 +323,7 @@ module Queries
         end
 
         queries.compact!
+
         q = referenced_klass_union(queries).order('priority')
 
         q = include_common_names ? q.includes(:common_names) : q
