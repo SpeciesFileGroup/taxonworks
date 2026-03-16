@@ -176,18 +176,18 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
   # unfortunately tied to views since catalog is essentially a rendering tool.)
   def add_rendering_includes(citation_query, relation_klass)
     if relation_klass.name == 'BiologicalAssociation'
-        citation_query = citation_query
-          .includes(
-            :source,
-            :notes,
-            :topics,
-            {
-              citation_object: [
-                { biological_association_subject: { taxon_name: [:taxon_name_classifications, :taxon_name_relationships] } },
-                { biological_association_object: { taxon_name: [:taxon_name_classifications, :taxon_name_relationships] } }
-              ]
-            }
-          )
+      citation_query = citation_query
+        .includes(
+          :source,
+          :notes,
+          :topics,
+          {
+            citation_object: [
+              { biological_association_subject: { taxon_name: [:taxon_name_classifications, :taxon_name_relationships] } },
+              { biological_association_object: { taxon_name: [:taxon_name_classifications, :taxon_name_relationships] } }
+            ]
+          }
+        )
     else
       citation_query = citation_query
         .includes(:source, :notes, :topics, :citation_object)

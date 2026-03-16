@@ -106,7 +106,7 @@ module ApplicationEnumeration
 
     a = []
     relationship_types.each do |t|
-      a += klass.reflect_on_all_associations(relationship_type).sort{ |a, b|
+      a += klass.reflect_on_all_associations(t).sort{ |a, b|
         a.name <=> b.name
       }
     end
@@ -214,11 +214,9 @@ module ApplicationEnumeration
   # TODO: maybe we return a separate list of those if any occur.
   #
   # @param klass [Class] an ActiveRecord model class
-  # @param relation_names [Array<Symbol>, nil]
+  # @param relation_names [Array<Symbol>]
   # @return [Hash] { relation_name => reflection }
-  def self.filter_sti_relations(klass, relation_names = nil)
-    relation_names = klass_reflections(klass, :all) unless relation_names.present?
-
+  def self.filter_sti_relations(klass, relation_names)
     reflections =
       relation_names.map { |name| [name, klass.reflect_on_association(name)] }.to_h
 

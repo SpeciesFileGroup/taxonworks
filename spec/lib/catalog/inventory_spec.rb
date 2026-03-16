@@ -9,8 +9,6 @@ describe Catalog::Inventory, group: :catalogs, type: :spinup do
 
   let!(:source1) { FactoryBot.create(:valid_source_bibtex, year: 2019) }
   let!(:source2) { FactoryBot.create(:valid_source_bibtex, year: 2020) }
-  let!(:citation2) { Citation.create!(is_original: true, source: source2,
-    citation_object: )}
   let!(:ad) { AssertedDistribution.create!(asserted_distribution_object: otu, asserted_distribution_shape: FactoryBot.create(:valid_geographic_area), source: source1)} # 'citation1'
   let!(:co) { FactoryBot.create(:valid_collection_object) }
   let!(:td) { TaxonDetermination.create!(taxon_determination_object: co, otu:)}
