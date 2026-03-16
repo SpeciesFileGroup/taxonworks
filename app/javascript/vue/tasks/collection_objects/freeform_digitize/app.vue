@@ -1,40 +1,37 @@
 <template>
-  <div>
+  <div class="margin-medium-top">
     <spinner-component
       full-screen
       :legend="isSaving ? 'Saving...' : 'Loading...'"
       v-if="isLoading || isSaving"
     />
-    <div class="flex-separate middle">
-      <h1>Free form digitize</h1>
-      <div class="horizontal-left-content gap-small">
-        <VBtn
-          v-if="imageStore.image"
-          color="primary"
-          medium
-          @click="openTask"
-        >
-          Change image
-        </VBtn>
-        <RecentButton />
-      </div>
-    </div>
 
-    <template v-if="imageStore.image">
-      <NavBar>
-        <div class="full_width flex-separate middle">
-          <DrawControls v-show="view === 0" />
-          <div />
-          <div class="horizontal-right-content gap-small">
+    <NavBar>
+      <div class="full_width flex-separate middle">
+        <DrawControls
+          v-if="imageStore.image"
+          v-show="view === 0"
+        />
+        <div class="horizontal-right-content gap-small">
+          <template v-if="imageStore.image">
             <SaveButtons />
-          </div>
+            <VBtn
+              color="primary"
+              medium
+              @click="openTask"
+            >
+              Change image
+            </VBtn>
+          </template>
+          <RecentButton />
         </div>
-      </NavBar>
+      </div>
+    </NavBar>
+    <template v-if="imageStore.image">
       <div class="horizontal-left-content align-start gap-medium">
         <DrawBoard
           v-show="view === 0"
           :image="imageStore.image"
-          class="full_width full_height"
         />
         <LayerViewer v-if="view === 1" />
         <div class="right-panel">
@@ -56,10 +53,10 @@
         </div>
       </div>
     </template>
-    <upload-image
-      class="full_width margin-large-top"
+    <UploadImage
       v-else
-      @created="loadImage($event.id)"
+      class="margin-medium-top"
+      @created="(e) => loadImage(e.id)"
     />
   </div>
 </template>

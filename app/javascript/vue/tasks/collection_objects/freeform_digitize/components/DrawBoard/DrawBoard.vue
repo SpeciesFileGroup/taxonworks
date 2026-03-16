@@ -1,12 +1,12 @@
 <template>
   <div
+    class="svg-editor panel"
     ref="elementBoard"
-    class="panel"
   />
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { nextTick, onMounted, ref } from 'vue'
 import useStore from '../../store/board.js'
 
 const props = defineProps({
@@ -30,9 +30,23 @@ onMounted(() => {
     opts: {
       imageSrc: props.image.original_png,
       ...store.opts,
-      width,
-      height
+      width: width,
+      height: height
     }
+  })
+
+  nextTick(() => {
+    const svg = elementBoard.value.querySelector('svg')
+
+    svg.setAttribute('width', '100%')
+    svg.setAttribute('height', '100%')
   })
 })
 </script>
+
+<style scoped>
+.svg-editor {
+  width: 100%;
+  height: calc(100vh - 160px);
+}
+</style>

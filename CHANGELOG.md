@@ -40,6 +40,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Image matrix viewing issues with transparent PNGs. [#4800]
 - Images in HEIC format do not load in the image viewer [#4811]
 - Allow creating multiple authors at a time from the New Source authors matcher [#4791]
+- Freeform digitize: In some cases, the SVG editor does not use the full available space. [#4806]
 
 ### Changed
 
@@ -68,6 +69,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4791]: https://github.com/SpeciesFileGroup/taxonworks/issues/4791
 [#4794]: https://github.com/SpeciesFileGroup/taxonworks/issues/4794
 [#4800]: https://github.com/SpeciesFileGroup/taxonworks/issues/4800
+[#4806]: https://github.com/SpeciesFileGroup/taxonworks/issues/4806
 [#4807]: https://github.com/SpeciesFileGroup/taxonworks/issues/4807
 [#4810]: https://github.com/SpeciesFileGroup/taxonworks/issues/4810
 [#4811]: https://github.com/SpeciesFileGroup/taxonworks/issues/4811
