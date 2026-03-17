@@ -19,6 +19,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Ungrouped section to "Manage biocuration classes and groups" [#4813]
 - Freeform digitize: Stroke width input [#4807]
 - Filter image: Add facet `Metadata depiction` [#4805]
+- Matrix row coder task: Add next|back links to bottom [#4795]
 
 ### Fixed
 
@@ -69,6 +70,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4790]: https://github.com/SpeciesFileGroup/taxonworks/issues/4790
 [#4791]: https://github.com/SpeciesFileGroup/taxonworks/issues/4791
 [#4794]: https://github.com/SpeciesFileGroup/taxonworks/issues/4794
+[#4795]: https://github.com/SpeciesFileGroup/taxonworks/issues/4795
 [#4800]: https://github.com/SpeciesFileGroup/taxonworks/issues/4800
 [#4806]: https://github.com/SpeciesFileGroup/taxonworks/issues/4806
 [#4807]: https://github.com/SpeciesFileGroup/taxonworks/issues/4807
