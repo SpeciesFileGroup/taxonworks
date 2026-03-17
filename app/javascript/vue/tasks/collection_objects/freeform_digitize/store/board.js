@@ -7,7 +7,11 @@ export default defineStore('board', {
     currentLayer: null,
     SVGBoard: null,
     SVGCurrentMode: null,
-    layers: []
+    layers: [],
+    opts: {
+      stroke: '#FFA500',
+      strokeWidth: 2 * window.devicePixelRatio
+    }
   }),
 
   actions: {

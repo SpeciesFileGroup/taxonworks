@@ -23,7 +23,7 @@
         :width="data.width"
         :groups="svgClip"
         :image="{
-          url: depiction.image.image_file_url,
+          url: depiction.image.original_png,
           width: depiction.image.width,
           height: depiction.image.height
         }"

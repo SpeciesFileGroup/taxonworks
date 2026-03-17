@@ -93,6 +93,7 @@
             <repository-component
               class="margin-medium-bottom panel content"
               v-model="repositoryId"
+              v-model:current="isCurrentRepository"
             />
             <biocuration-component
               class="margin-medium-bottom panel content"
@@ -247,6 +248,7 @@ const determinations = ref([])
 const isSaving = ref(false)
 const noCreated = ref([])
 const preparationType = ref()
+const isCurrentRepository = ref(false)
 const repositoryId = ref()
 const labelType = ref()
 const tagList = ref([])
@@ -322,7 +324,6 @@ async function createCOs(index = 0) {
 
     const co = {
       total: 1,
-      repository_id: repositoryId.value,
       preparation_type_id: preparationType.value,
       collecting_event_id: props.ceId,
       tags_attributes: tagList.value.map((tag) => ({ keyword_id: tag.id })),
@@ -331,6 +332,12 @@ async function createCOs(index = 0) {
       biocuration_classifications_attributes: biocurations.value.map(
         (biocurationId) => ({ biocuration_class_id: biocurationId })
       )
+    }
+
+    if (isCurrentRepository.value) {
+      co.current_repository_id = repositoryId.value
+    } else {
+      co.repository_id = repositoryId.value
     }
 
     await CollectionObject.create({ collection_object: co, extend }).then(

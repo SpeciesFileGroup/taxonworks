@@ -75,7 +75,7 @@ class SourcesController < ApplicationController
 
     respond_to do |format|
       begin
-        if @source && @source.save
+        if @source.errors.empty? && @source.save
           format.html { redirect_to url_for(@source.metamorphosize),
                         notice: "#{@source.type} successfully created." }
           format.json { render action: 'show', status: :created, location: @source.metamorphosize }

@@ -12,7 +12,7 @@ class HotKeyManager {
         if (e.altKey || e.ctrlKey || e.shiftKey || e.metaKey) {
           this.pressedKeys.clear()
           if (e.altKey) this.pressedKeys.set('alt', false)
-          if (e.ctrlKey) this.pressedKeys.set('control', false)
+          if (e.ctrlKey) this.pressedKeys.set('ctrl', false)
           if (e.shiftKey) this.pressedKeys.set('shift', false)
           if (e.metaKey) this.pressedKeys.set('meta', false)
         }

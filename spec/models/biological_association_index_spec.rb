@@ -103,6 +103,41 @@ describe BiologicalAssociationIndex, type: :model do
     end
   end
 
+  context 'otu_id fields' do
+    let(:otu) { FactoryBot.create(:valid_otu) }
+    let(:anchor) { FactoryBot.create(:valid_otu) }
+
+    # Catches when a new biologically-relatable type is added but the otu_id
+    # methods aren't updated (see BIOLOGICALLY_RELATABLE_FACTORIES).
+    specify 'subject_otu_id is set for all biologically relatable subject types' do
+      BIOLOGICALLY_RELATABLE_FACTORIES.each_value do |factory|
+        ba = FactoryBot.create(:valid_biological_association,
+          biological_association_subject: factory.call(otu),
+          biological_association_object: anchor
+        )
+        expect(ba.biological_association_index.subject_otu_id).to eq(otu.id)
+      end
+    end
+
+    specify 'object_otu_id is set for all biologically relatable object types' do
+      BIOLOGICALLY_RELATABLE_FACTORIES.each_value do |factory|
+        ba = FactoryBot.create(:valid_biological_association,
+          biological_association_subject: anchor,
+          biological_association_object: factory.call(otu)
+        )
+        expect(ba.biological_association_index.object_otu_id).to eq(otu.id)
+      end
+    end
+
+    specify 'subject_otu_id is nil when subject is a CollectionObject without a determination' do
+      ba = FactoryBot.create(:valid_biological_association,
+        biological_association_subject: FactoryBot.create(:valid_specimen),
+        biological_association_object: anchor
+      )
+      expect(ba.biological_association_index.subject_otu_id).to be_nil
+    end
+  end
+
   context 'with taxonomy data' do
     let(:genus) { FactoryBot.create(:iczn_genus) }
     let(:family) { genus.ancestor_at_rank('family') }
@@ -204,25 +239,16 @@ describe BiologicalAssociationIndex, type: :model do
 
   context 'established_date handling for all BA subject types' do
     let(:otu) { FactoryBot.create(:valid_otu) }
-    let(:relationship) { FactoryBot.create(:valid_biological_relationship) }
 
-    # This catches when a new type is added but biological_association_established_date isn't updated
-    specify 'handles all valid subject types with Otu as object' do
-      subject_types = [
-        FactoryBot.create(:valid_otu),
-        FactoryBot.create(:valid_specimen),
-        FactoryBot.create(:valid_field_occurrence)
-      ]
-
-      subject_types.each do |subject|
+    # Catches when a new type is added but biological_association_established_date isn't updated
+    # (see BIOLOGICALLY_RELATABLE_FACTORIES).
+    specify 'handles all biologically relatable subject types with Otu as object' do
+      BIOLOGICALLY_RELATABLE_FACTORIES.each_value do |factory|
         ba = FactoryBot.create(:valid_biological_association,
-          biological_association_subject: subject,
+          biological_association_subject: factory.call(otu),
           biological_association_object: otu
         )
-
-        # Should create index without error
         expect(ba.biological_association_index).to be_present
-        # Should not set established_date to error string
         expect(ba.biological_association_index.established_date).not_to eq('BAD DATA: TYPE ERROR')
       end
     end

@@ -46,11 +46,17 @@
               <OtuRadial
                 :object-id="taxon.id"
                 :redirect="false"
+                :klass="otu ? OTU : TAXON_NAME"
+                :otu="otu"
+                @create:otu="(e) => (otu = e)"
               />
               <OtuRadial
                 ref="otuRadialRef"
                 :object-id="taxon.id"
+                :otu="otu"
+                :klass="otu ? OTU : TAXON_NAME"
                 :taxon-name="taxon.object_tag"
+                @create:otu="(e) => (otu = e)"
               />
               <RadialObject :global-id="taxon.global_id" />
             </div>
@@ -103,10 +109,12 @@ import { GetterNames } from '../store/getters/getters'
 import { computed, ref, onBeforeMount } from 'vue'
 import { useStore } from 'vuex'
 import { RouteNames } from '@/routes/routes'
+import { OTU, TAXON_NAME } from '@/constants'
 
 const isModalVisible = ref(false)
 const isNavigating = ref(false)
 const otuRadialRef = ref(null)
+const otu = ref(null)
 const store = useStore()
 const shortcuts = ref([
   {

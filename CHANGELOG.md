@@ -9,8 +9,15 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Added
 
+- Fuzzy match to the common_names API endpoint [#4757]
 - Add and remove fossil status from Filter Taxon Names [#4700]
 - Taxon determination to New type specimen task [#4745]
+- Browse OTUs: Quick forms in Biological associations table [#4782]
+- Bulk Image and Documents downloaders from Filter Images and Filter Sources results via linker radial [#4683]
+- Collecting event form: Preview map for verbatim coordinates, georeferences and geographic areas [#4785]
+- New collecting event: Added a toggle in the Collection Object modal to mark a repository as current [#4794]
+- Ungrouped section to "Manage biocuration classes and groups" [#4813]
+- Freeform digitize: Stroke width input [#4807]
 
 ### Fixed
 
@@ -18,17 +25,53 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Basic Endemism task reports an error
 - Selecting `Object Graph` from the navigator radial of an OTU with an Asserted Distribution reports an error
 - BiologicalAssociationIndex is not updated when additional citations are added or removed, TaxonPages BiologicalAssociation panel has outdated citations information [#345]
+- Filter Namespaces card not included in filter favorites [#4778]
+- Image Matrix task was returning depictions from multiple types instead of only Observation
+- alt+S on a new name in the New Taxon Name task saves two new names [#4777]
+- Handle errors on bad BibTeX data in New Source and return a more useful message
+- Handle errors on negative width/height at api/v1/images/123/ocr
+- Prevent bad OCR requests from SQED image task
+- Valid/Invalid Taxon Name facet value wasn't being used in the Exact case
+- New Taxon Name task can create two associated OTUs via its OTU radials [#4790]
+- Add OTU ids to Biological Associations data sent to Taxon Pages [#4783]
+- Error on clicking the 'add children' button on a lead that's a redirect
+- Error on geographic_items/1.json
+- Improved error reporting for Georeference WKT (well-known-text) errors
+- Image matrix viewing issues with transparent PNGs. [#4800]
+- Images in HEIC format do not load in the image viewer [#4811]
+- Allow creating multiple authors at a time from the New Source authors matcher [#4791]
 
 ### Changed
 
 - Moved slide panel buttons to navigation bar [#4694]
 - The edit link now opens the New Asserted Distribution task instead of old data editing interface when accessed via Radial Navigator [#4768]
+- Filter tables: results table is now fixed to the screen while scrolling facets, with sticky column headers. [#4271]
+- DwC Importer: When the Import/Retry button is pressed for a Checklist dataset, all rows are downloaded again instead of only the selected row.
+- In filters, Taxon Name facets now default to 'Valid only' and 'Current only', and Taxon Determination facets now default to 'Current only'
+- Searching for Repositories now matches across multiple terms, e.g. 'hist dep' now matches '... Department ... History ...' [#4769]
+- Browse Collection Object: When opened without specifying an ID, the pinned ID is loaded. If no pinned ID is available, a random one is selected instead [#4810]
 
 [#345]: https://github.com/SpeciesFileGroup/taxonpages/issues/345
+[#4271]: https://github.com/SpeciesFileGroup/taxonworks/issues/4271
+[#4683]: https://github.com/SpeciesFileGroup/taxonworks/issues/4683
 [#4694]: https://github.com/SpeciesFileGroup/taxonworks/issues/4694
 [#4700]: https://github.com/SpeciesFileGroup/taxonworks/issues/4700
 [#4745]: https://github.com/SpeciesFileGroup/taxonworks/issues/4745
 [#4768]: https://github.com/SpeciesFileGroup/taxonworks/issues/4768
+[#4769]: https://github.com/SpeciesFileGroup/taxonworks/issues/4769
+[#4778]: https://github.com/SpeciesFileGroup/taxonworks/issues/4778
+[#4777]: https://github.com/SpeciesFileGroup/taxonworks/issues/4777
+[#4782]: https://github.com/SpeciesFileGroup/taxonworks/issues/4782
+[#4783]: https://github.com/SpeciesFileGroup/taxonworks/issues/4783
+[#4785]: https://github.com/SpeciesFileGroup/taxonworks/issues/4785
+[#4790]: https://github.com/SpeciesFileGroup/taxonworks/issues/4790
+[#4791]: https://github.com/SpeciesFileGroup/taxonworks/issues/4791
+[#4794]: https://github.com/SpeciesFileGroup/taxonworks/issues/4794
+[#4800]: https://github.com/SpeciesFileGroup/taxonworks/issues/4800
+[#4807]: https://github.com/SpeciesFileGroup/taxonworks/issues/4807
+[#4810]: https://github.com/SpeciesFileGroup/taxonworks/issues/4810
+[#4811]: https://github.com/SpeciesFileGroup/taxonworks/issues/4811
+[#4813]: https://github.com/SpeciesFileGroup/taxonworks/issues/4813
 
 ## [0.60.0] - 2026-02-20
 
