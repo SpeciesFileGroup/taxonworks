@@ -187,7 +187,7 @@ class Tools::ImageMatrix
     @observation_matrix_id = observation_matrix_id
     @project_id = project_id
     @observation_matrix = find_observation_matrix
-    @observation_matrix_citation = @observation_matrix&.source
+    @observation_matrix_citation = @observation_matrix&.origin_citation
     @language_id = language_id
     @keyword_ids = keyword_ids
     @per = (per.presence || 250)

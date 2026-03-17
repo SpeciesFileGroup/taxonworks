@@ -1,7 +1,6 @@
 # Build out the json response as needed
 
 json.observation_matrix_id @key.observation_matrix_id
-json.observation_matrix_citation @key.observation_matrix_citation
 json.descriptor_available_languages @key.descriptor_available_languages
 json.language_id @key.language_id
 json.language_to_use @key.language_to_use
@@ -14,6 +13,14 @@ json.otu_id_filter_array @key.otu_id_filter_array
 json.identified_to_rank @key.identified_to_rank
 
 json.pagination @key, :pagination_page, :pagination_per_page, :pagination_total, :pagination_total_pages, :pagination_next_page, :pagination_previous_page
+
+if @key.observation_matrix_citation
+  json.observation_matrix_citation do
+    json.partial! 'citations/api/v1/attributes', citation: @key.observation_matrix_citation
+  end
+else
+  json.observation_matrix_citation nil
+end
 
 json.list_of_descriptors @key.list_of_descriptors.sort_by {|k, v| v[:index]}.map { |k, v| v }
 json.image_hash do 
