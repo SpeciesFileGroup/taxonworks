@@ -996,6 +996,7 @@ class TaxonName < ApplicationRecord
     taxon_name_classifications.with_type_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE).any?
   end
 
+  # TODO: Should be is_
   #  @return [Boolean]
   #     return true if name is unavailable OR invalid, else false, checks both classifications and relationships
   # !! Should only be referenced when building cached values, all other uses should rather be `!is_valid?`
@@ -1338,7 +1339,7 @@ class TaxonName < ApplicationRecord
 
     safe_self_and_ancestors.each do |i|
       rank = i.rank
-      gender = i.cached_gender if rank == 'genus'
+      gender = i.cached_gender if rank == 'genus' # HMM- maybe also subgenus
       method = "#{rank.gsub(/\s/, '_')}_name_elements"
       data.push([rank] + send(method, i, gender)) if self.respond_to?(method)
     end

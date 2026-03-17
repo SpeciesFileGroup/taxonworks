@@ -128,16 +128,16 @@ module Export::Coldp::Files::Name
       when 'species'
         case rank
         when :species
-          core_name.send( (g + '_name').to_sym )
+          core_name.send( (g + '_name').to_sym ) || core_name.species
         else
           nil
         end
       when 'subspecies', 'form', 'variety' # See compression in core_names, may be an issue
         case rank
         when :species
-          core_name.send( "species_#{g}_name".to_sym )
+          core_name.send( "species_#{g}_name".to_sym ) || core_name.species
         when :infraspecies
-          core_name.send( (g + '_name').to_sym )
+          core_name.send( (g + '_name').to_sym ) || core_name.infraspecies
         end
       end
     end
@@ -187,9 +187,10 @@ module Export::Coldp::Files::Name
 
     c = ::TaxonName.with(n: b)
       .joins('JOIN n on n.id = taxon_names.id')
+      .joins('JOIN taxon_names parent_name on parent_name.id = taxon_names.parent_id')
       .where(cached_is_valid: true)
       .eager_load(origin_citation: [:source])
-      .select('taxon_names.*, n.genus, n.subgenus, n.species, n.infraspecies, n.genus_gender, n.species_masculine_name, n.species_neuter_name, n.species_feminine_name')
+      .select('taxon_names.*, parent_name.name parent_name, n.genus, n.subgenus, n.species, n.infraspecies, n.genus_gender, n.species_masculine_name, n.species_neuter_name, n.species_feminine_name')
   end
 
   def self.invalid_core_names(otu)
@@ -221,9 +222,10 @@ module Export::Coldp::Files::Name
 
     c = ::TaxonName.with(n: b)
       .joins('JOIN n on n.id = taxon_names.id')
+      .joins('JOIN taxon_names parent_name on parent_name.id = taxon_names.parent_id')
       .where(cached_is_valid: false) # redundant
       .eager_load(origin_citation: [:source])
-      .select('taxon_names.*, n.genus, n.subgenus, n.species, n.infraspecies')
+      .select('taxon_names.*, parent_name.name parent_name, n.genus, n.subgenus, n.species, n.infraspecies')
   end
 
   # Combinations
@@ -239,7 +241,8 @@ module Export::Coldp::Files::Name
       .flattened
       .with(project_scope: a)
       .complete
-      .joins('JOIN project_scope ps on ps.id = taxon_names.cached_valid_taxon_name_id') # Combinations that point to any of "a"
+      .joins('JOIN project_scope ps on ps.id = taxon_names.cached_valid_taxon_name_id')           # Combinations that point to any of "a"
+      .where('NOT EXISTS( SELECT 1 from taxon_names tnc WHERE tnc.cached = taxon_names.cached )') # No Combinations identical to Protonyms
   end
 
   # Higher names are:
@@ -627,9 +630,12 @@ module Export::Coldp::Files::Name
     names.length
 
     names.find_each do |t|
-
       origin_citation = t.origin_citation
 
+      # TODO: Is this needed for invalid names?
+      #
+      # Ugh, shame we need this. Our Protonyms are not Basionyms.
+      #
       # If this name has a reified original combination (genus changed),
       # the basionym is the OC record, not this current placement record.
       if t.cached_original_combination.present? &&
@@ -643,9 +649,10 @@ module Export::Coldp::Files::Name
 
       uninomial = t.cached if t.rank == 'genus'
 
+      # TODO: Spammed the || in align_gender, may need checking
       # Future- resolve in SQL perhaps, though not very expensive here
-      species = align_gender(t, :species) || t.species
-      infraspecies = align_gender(t, :infraspecies) || t.infraspecies
+      species = align_gender(t, :species)
+      infraspecies = align_gender(t, :infraspecies)
 
       csv << [
         t.id,                                                               # ID
