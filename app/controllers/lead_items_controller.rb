@@ -91,6 +91,7 @@ class LeadItemsController < ApplicationController
     )
 
     if added
+      parent.children.each(&:sync_otu_to_lead_items_list)
       render json: added
     else
       render json: parent.errors, status: :unprocessable_content
@@ -107,9 +108,7 @@ class LeadItemsController < ApplicationController
       return
     end
 
-    @lead.parent.children.each { |c|
-      c.sync_otu_to_lead_items_list
-    }
+    @lead.parent.children.each(&:sync_otu_to_lead_items_list)
 
     @lead_item_otus = @lead.parent.apportioned_lead_item_otus
     render partial: 'leads/lead_item_otus',

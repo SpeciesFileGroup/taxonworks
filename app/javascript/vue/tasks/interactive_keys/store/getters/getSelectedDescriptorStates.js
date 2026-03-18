@@ -7,7 +7,7 @@ export default (state) => {
         selected.push({
           type: 'Qualitative',
           state: d.name,
-          value: d.states.filter((s) => s.status == 'used')[0]?.name || '',
+          value: d.states.filter((s) => s.status == 'used').map((s) => s.name),
           unused: d.states.filter((s) => s.status != 'used').map((s) => s.name)
         })
         break

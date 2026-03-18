@@ -44,6 +44,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Images in HEIC format do not load in the image viewer [#4811]
 - Allow creating multiple authors at a time from the New Source authors matcher [#4791]
 - Freeform digitize: In some cases, the SVG editor does not use the full available space. [#4806]
+- Not all selected character state text being returned to a standard key during standard key construction from interactive key
 
 ### Changed
 
