@@ -51,6 +51,10 @@ import FilterList from '@/components/Filter/Table/TableResults.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import useAnnotationFilter from './composables/useAnnotationFilter.js'
 
+defineOptions({
+  name: 'FilterAnnotations'
+})
+
 const {
   append,
   isLoading,
@@ -87,11 +91,5 @@ function handleReset() {
 function onAnnotationTypeChange(typeKey) {
   setAnnotationType(typeKey)
   parameters.value = { per: parameters.value.per }
-}
-</script>
-
-<script>
-export default {
-  name: 'BrowseAnnotations'
 }
 </script>

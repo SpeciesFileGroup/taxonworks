@@ -1,10 +1,14 @@
 <template>
   <FacetContainer>
-    <h3>Annotation type</h3>
     <VSpinner
       v-if="isLoading"
-      legend="Loading types..."
+      :show-legend="false"
+      :logo-size="{
+        width: '32px',
+        height: '32px'
+      }"
     />
+    <h3>Annotation type</h3>
     <ul class="no_bullets">
       <li
         v-for="(item, key) in typesList"
@@ -20,7 +24,8 @@
             @click="item.total == 0 ? false : selectType(key)"
           />
           <span v-html="item.label" />
-          <span class="subtle">
+          <span> - </span>
+          <span class="text-muted-color text-xs">
             <template v-if="item.total == 0">(no records)</template>
             <template v-else>{{ item.total }} records</template>
           </span>
