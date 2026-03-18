@@ -5,7 +5,8 @@ export const MAP_TILES = {
       attribution:
         '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
       maxZoom: 18,
-      className: 'map-tiles'
+      className: 'map-tiles',
+      referrerPolicy: 'no-referrer-when-downgrade'
     }
   },
 
