@@ -242,7 +242,7 @@ module Export::Coldp::Files::Name
       .with(project_scope: a)
       .complete
       .joins('JOIN project_scope ps on ps.id = taxon_names.cached_valid_taxon_name_id')           # Combinations that point to any of "a"
-      .where('NOT EXISTS( SELECT 1 from taxon_names tnc WHERE tnc.cached = taxon_names.cached )') # No Combinations identical to Protonyms
+      .where("NOT EXISTS( SELECT 1 from taxon_names tnc WHERE tnc.type = 'Protonym' AND tnc.cached = taxon_names.cached )") # No Combinations identical to Protonyms
   end
 
   # Higher names are:
