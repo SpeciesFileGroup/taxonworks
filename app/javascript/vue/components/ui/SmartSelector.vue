@@ -492,12 +492,9 @@ watch(
   { deep: true }
 )
 
-watch(
-  () => props.model,
-  () => {
-    refresh(true)
-  }
-)
+watch([() => props.model, () => props.target, () => props.klass], () => {
+  refresh(true)
+})
 
 onUnmounted(() => {
   controller.value.abort()

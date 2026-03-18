@@ -1,4 +1,5 @@
 import baseCRUD from './base'
+import AjaxCall from '@/helpers/ajaxCall'
 
 const controller = 'alternate_values'
 const permitParams = {
@@ -15,5 +16,7 @@ const permitParams = {
 }
 
 export const AlternateValue = {
-  ...baseCRUD(controller, permitParams)
+  ...baseCRUD(controller, permitParams),
+
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params)
 }
