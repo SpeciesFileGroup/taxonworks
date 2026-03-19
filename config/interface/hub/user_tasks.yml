@@ -1218,3 +1218,10 @@ filter_namespaces_task:
     - filters
   status: prototype
   description: 'Filter namespaces by many different facets, download or visualize results.'
+new_ba_task:
+  hub: true
+  name: 'New biological associations II'
+  related:
+  categories:
+  status: prototype
+  description: 'Create, edit, and cite biological associations, with support for anatomical parts and asserted distributions'

@@ -73,6 +73,7 @@ const RouteNames = {
     '/tasks/asserted_distributions/new_asserted_distribution',
   NewBiologicalAssociations:
     '/tasks/biological_associations/new_biological_association',
+  NewBiologicalAssociationsII: '/tasks/biological_associations/new_ba',
   NewBiologicalAssociationsGraph:
     '/tasks/biological_associations/biological_associations_graph',
   NewCollectingEvent: '/tasks/collecting_events/new_collecting_event',
