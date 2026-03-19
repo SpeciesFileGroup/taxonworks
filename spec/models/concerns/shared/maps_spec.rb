@@ -44,6 +44,40 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
     expect(ad_offset.send(:touched_cached_maps).pluck(:id)).to eq([ad_offset.asserted_distribution_object_id])
   end
 
+  context '#touched_cached_maps for non-Otu AD object types' do
+    let(:root) { FactoryBot.create(:root_taxon_name) }
+    let(:otu) { Otu.create!(taxon_name: FactoryBot.create(:relationship_species, parent: root)) }
+    let(:source) { FactoryBot.create(:valid_source) }
+
+    def build_ad(object)
+      AssertedDistribution.create!(
+        asserted_distribution_object: object,
+        asserted_distribution_shape: ga_offset,
+        citations_attributes: [{ source: }]
+      )
+    end
+
+    specify 'BiologicalAssociation where OTU is subject' do
+      ba = FactoryBot.create(:valid_biological_association, biological_association_subject: otu)
+      ad = build_ad(ba)
+      expect(ad.send(:touched_cached_maps).pluck(:id)).to include(otu.id)
+    end
+
+    specify 'BiologicalAssociation where OTU is object' do
+      ba = FactoryBot.create(:valid_biological_association, biological_association_object: otu)
+      ad = build_ad(ba)
+      expect(ad.send(:touched_cached_maps).pluck(:id)).to include(otu.id)
+    end
+
+    specify 'BiologicalAssociation where same OTU is both subject and object returns that OTU once' do
+      ba = FactoryBot.create(:valid_biological_association, biological_association_subject: otu, biological_association_object: otu)
+      ad = build_ad(ba)
+      ids = ad.send(:touched_cached_maps).pluck(:id)
+      expect(ids).to include(otu.id)
+      expect(ids.count(otu.id)).to eq(1)
+    end
+  end
+
   specify '#touched_cached_maps (untouched)' do
     ad_offset.save!
     p = FactoryBot.create(:valid_project)

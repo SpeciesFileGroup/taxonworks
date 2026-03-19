@@ -343,8 +343,6 @@ async function createPerson(row) {
     row.selectedPersonId = null
 
     TW.workbench.alert.create('Person created successfully', 'notice')
-
-    applySelections()
   } catch {}
 }
 

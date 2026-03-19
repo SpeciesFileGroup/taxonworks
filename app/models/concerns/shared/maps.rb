@@ -106,11 +106,10 @@ module Shared::Maps
     def touched_cached_maps
       case self.class.base_class.name
       when 'AssertedDistribution'
-        if asserted_distribution_object_type == 'Otu'
-          return ::Queries::Otu::Filter.new(otu_id: asserted_distribution_object_id, coordinatify: true, ancestrify: true, project_id: ).all
-        else
-          return Otu.none
-        end
+        otu_ids = object_otu_ids
+
+        return Otu.none if otu_ids.empty?
+        return ::Queries::Otu::Filter.new(otu_id: otu_ids, coordinatify: true, ancestrify: true, project_id:).all
       when 'Georeference'
         otu_ids = collecting_event.otus.distinct.pluck(:id)
         return ::Queries::Otu::Filter.new(otu_id: otu_ids, coordinatify: true, ancestrify: true, project_id: ).all
@@ -204,7 +203,7 @@ module Shared::Maps
                   cached_map_register_object: self,
                   project_id:
                 )
-              rescue ActiveRecord::RecordInvalid => e
+              rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique => e
                 logger.debug e
               end
             else

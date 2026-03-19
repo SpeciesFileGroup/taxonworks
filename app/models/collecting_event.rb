@@ -1233,7 +1233,7 @@ class CollectingEvent < ApplicationRecord
             gr = georeferences.create(geographic_item_id: with_geo.geographic_item_id,
                                       collecting_event_id: id,
                                       type: "Georeference::Point")
-            gr.data_attributes.create(type: 'ImportAttribute', import_predicate: 'georeference', value: 'Copied from another collecting event.')
+            gr.data_attributes.create(type: 'ImportAttribute', import_predicate: 'georeferenceProtocol', value: 'Copied from another collecting event.') unless gr.id.nil?
           end
         rescue ActiveRecord::RecordInvalid
           return false
