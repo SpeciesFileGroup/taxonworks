@@ -63,8 +63,8 @@ const payload = computed(() => ({
 }))
 
 function updateMessage(data) {
-  const message = data.sync
-    ? `${data.updated.length} biological association queued for updating.`
+  const message = data.async
+    ? 'Biological associations queued for updating.'
     : `${data.updated.length} biological associations were successfully updated.`
 
   TW.workbench.alert.create(message, 'notice')
