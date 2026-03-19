@@ -83,7 +83,17 @@
           </div>
 
           <div v-else>
-            <fieldset class="margin-medium-top">
+            <div class="margin-medium-bottom">
+              <input
+                class="normal-input full_width"
+                type="text"
+                v-model="formData.name"
+                placeholder="Name (free text, no ontology)"
+                :disabled="hasUriData"
+              />
+            </div>
+
+            <fieldset :disabled="hasNameData">
               <legend>Search ontologies for terms in:</legend>
               <div>
                 <div
@@ -129,6 +139,7 @@
                 v-model="formData.uri_label"
                 :title="formData.uri_label"
                 placeholder="URI label"
+                :disabled="hasNameData"
               />
               <input
                 class="normal-input"
@@ -137,6 +148,7 @@
                 v-model="formData.uri"
                 :title="formData.uri"
                 placeholder="URI"
+                :disabled="hasNameData"
               />
             </div>
 
@@ -231,6 +243,12 @@ const formData = ref(makeAnatomicalPart())
 
 const isFormValid = computed(
   () => formData.value.name || (formData.value.uri && formData.value.uri_label)
+)
+
+const hasNameData = computed(() => !!formData.value.name)
+
+const hasUriData = computed(
+  () => !!(formData.value.uri || formData.value.uri_label)
 )
 
 const displayLabel = computed(() => {
