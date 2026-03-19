@@ -98,9 +98,7 @@
       />
     </div>
     <div class="grid-panels">
-      <div style="flex: 1"></div>
       <PanelPreview class="margin-medium-bottom" />
-      <div style="flex: 1"></div>
     </div>
     <TableResults
       :list="store.biologicalAssociations"
@@ -183,7 +181,6 @@ onBeforeMount(() => {
 .grid-panels {
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
 }
 
 .panel {

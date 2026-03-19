@@ -12,6 +12,7 @@
           pin-section="BiologicalRelationships"
           buttons
           inline
+          :wrap="2"
           label="name"
           :custom-list="{
             all: list

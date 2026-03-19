@@ -19,7 +19,7 @@
 
         <span
           v-if="store.relationship"
-          v-html="store.relationship.object_tag"
+          v-html="store.relationship.name"
         />
         <span v-else> [Relationship] </span>
 
@@ -96,5 +96,6 @@ const citationLabel = computed(() => {
   align-items: baseline;
   gap: 0.25em;
   line-height: 1.6;
+  justify-content: center;
 }
 </style>

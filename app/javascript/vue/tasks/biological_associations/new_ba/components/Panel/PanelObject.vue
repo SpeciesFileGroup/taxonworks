@@ -41,19 +41,16 @@
 </template>
 
 <script setup>
-import { onBeforeMount, ref } from 'vue'
-import {
-  BIOLOGICAL_ASSOCIATION,
-  OTU
-} from '@/constants'
+import { onBeforeMount, ref, watch } from 'vue'
+import { BIOLOGICAL_ASSOCIATION, OTU } from '@/constants'
+import { useBroadcastChannel } from '@/composables'
+import { BiologicalAssociation } from '@/routes/endpoints'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VSwitch from '@/components/ui/VSwitch.vue'
 import VLock from '@/components/ui/VLock/index.vue'
-import { useBroadcastChannel } from '@/composables'
 import VBroadcast from '@/components/ui/VBroadcast/VBroadcast.vue'
-import { BiologicalAssociation } from '@/routes/endpoints'
 
 defineProps({
   title: {
@@ -102,5 +99,9 @@ onBeforeMount(() => {
       tabs.value = body
     })
     .catch(() => {})
+})
+
+watch(selected, (newVal) => {
+  currentTab.value = newVal?.base_class || OTU
 })
 </script>

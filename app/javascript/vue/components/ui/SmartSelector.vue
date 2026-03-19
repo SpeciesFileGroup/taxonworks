@@ -16,6 +16,7 @@
           class="capitalize"
           v-model="view"
           ref="tabselectorRef"
+          :wrap="wrap"
           :options="options"
         />
       </div>
@@ -304,6 +305,11 @@ const props = defineProps({
   placeholder: {
     type: String,
     required: false
+  },
+
+  wrap: {
+    type: Number,
+    default: undefined
   }
 })
 
