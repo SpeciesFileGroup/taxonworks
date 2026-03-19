@@ -16,7 +16,7 @@ json.set! :types do
     json.klass 'Confidence'
     json.url confidences_url
     json.select_options_url select_options_confidence_levels_url
-    json.all_select_option_url '/controlled_vocabulary_terms.json?type[]=Keyword'
+    json.all_select_option_url '/controlled_vocabulary_terms.json?type[]=ConfidenceLevel'
     json.total Confidence.where(project_id: sessions_current_project_id).count
     ar = Confidence.where(project_id: sessions_current_project_id).select(:confidence_object_type).distinct.order(:confidence_object_type).pluck(:confidence_object_type)
     json.used_on klass_and_labels(ar)
@@ -39,7 +39,6 @@ json.set! :types do
     json.url alternate_values_url
     json.total AlternateValue.where(project_id: sessions_current_project_id).count
     ar = AlternateValue.where(project_id: sessions_current_project_id).select(:alternate_value_object_type).distinct.order(:alternate_value_object_type).pluck(:alternate_value_object_type)
-    json.used_on ar
     json.used_on klass_and_labels(ar)
   end
 
