@@ -55,6 +55,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - In filters, Taxon Name facets now default to 'Valid only' and 'Current only', and Taxon Determination facets now default to 'Current only'
 - Searching for Repositories now matches across multiple terms, e.g. 'hist dep' now matches '... Department ... History ...' [#4769]
 - Browse Collection Object: When opened without specifying an ID, the pinned ID is loaded. If no pinned ID is available, a random one is selected instead [#4810]
+- Filters: keep per state after reset [#4831]
 
 [#345]: https://github.com/SpeciesFileGroup/taxonpages/issues/345
 [#4271]: https://github.com/SpeciesFileGroup/taxonworks/issues/4271
@@ -81,6 +82,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4813]: https://github.com/SpeciesFileGroup/taxonworks/issues/4813
 [#4805]: https://github.com/SpeciesFileGroup/taxonworks/issues/4805
 [#4816]: https://github.com/SpeciesFileGroup/taxonpages/issues/4816
+[#4831]: https://github.com/SpeciesFileGroup/taxonworks/issues/4831
 
 ## [0.60.0] - 2026-02-20
 

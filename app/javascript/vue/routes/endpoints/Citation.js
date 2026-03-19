@@ -32,5 +32,7 @@ export const Citation = {
   ...baseCRUD(controller, permitParams),
 
   createBatch: (params) =>
-    ajaxCall('post', `/${controller}/batch_create`, params)
+    ajaxCall('post', `/${controller}/batch_create`, params),
+
+  filter: (params) => ajaxCall('post', `/${controller}/filter.json`, params)
 }

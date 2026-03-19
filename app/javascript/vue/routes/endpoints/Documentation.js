@@ -1,5 +1,7 @@
 import baseCRUD from './base'
+import AjaxCall from '@/helpers/ajaxCall'
 
+const controller = 'documentation'
 const permitParams = {
   documentation: {
     documentation_object_id: Number,
@@ -15,5 +17,7 @@ const permitParams = {
 }
 
 export const Documentation = {
-  ...baseCRUD('documentation', permitParams)
+  ...baseCRUD(controller, permitParams),
+
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params)
 }
