@@ -56,6 +56,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Searching for Repositories now matches across multiple terms, e.g. 'hist dep' now matches '... Department ... History ...' [#4769]
 - Browse Collection Object: When opened without specifying an ID, the pinned ID is loaded. If no pinned ID is available, a random one is selected instead [#4810]
 - Filters: keep per state after reset [#4831]
+- Updated Ruby gems
 
 [#345]: https://github.com/SpeciesFileGroup/taxonpages/issues/345
 [#4271]: https://github.com/SpeciesFileGroup/taxonworks/issues/4271
