@@ -336,13 +336,21 @@ class TaxonNameRelationship < ApplicationRecord
   #   }
   # @return [BatchResponse, false]
   def self.batch_update(params)
-    return false unless TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM.include?(params.dig(:taxon_name_relationship, :type))
+    new_type = params.dig(:taxon_name_relationship, :type)
+    return false unless TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM.include?(new_type)
+
+    new_code = new_type.to_s.split('::')[1]&.downcase
 
     request = QueryBatchRequest.new(
       async_cutoff: params[:async_cutoff] || 50,
       cap: 2500,
       cap_reason: 'Synonym type batch update is limited to 2500 records at a time.',
       klass: 'TaxonNameRelationship',
+      object_filter: ->(tnr) {
+        return 'Existing relationship is not a synonym type' unless TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM.include?(tnr.type)
+        return 'Relationship type must be within the same nomenclatural code' unless tnr.type.to_s.split('::')[1]&.downcase == new_code
+        nil
+      },
       object_filter_params: params[:taxon_name_relationship_query],
       object_params: params[:taxon_name_relationship],
       preview: params[:preview],
