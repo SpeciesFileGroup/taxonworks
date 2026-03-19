@@ -121,7 +121,6 @@
                 :add-params="{ ontologies: selectedOntologies }"
                 label="ontology_label_html"
                 display="ontology_label"
-                autofocus
                 min="3"
                 clear-after
                 placeholder="Search for an ontology term, e.g. femur"
