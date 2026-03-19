@@ -2,7 +2,7 @@
 
 All (hopefully) notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+he format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 This project <em>does not yet</em> adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as the API is evolving and MINOR patches may be backwards incompatible.
 
 ## [unreleased]
@@ -23,6 +23,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 ### Fixed
 
+- Catalogue of Life Data Package export [#4816]
 - Task bar overlays panels when header is locked in New taxon name and New source tasks
 - Basic Endemism task reports an error
 - Selecting `Object Graph` from the navigator radial of an OTU with an Asserted Distribution reports an error
@@ -54,6 +55,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - In filters, Taxon Name facets now default to 'Valid only' and 'Current only', and Taxon Determination facets now default to 'Current only'
 - Searching for Repositories now matches across multiple terms, e.g. 'hist dep' now matches '... Department ... History ...' [#4769]
 - Browse Collection Object: When opened without specifying an ID, the pinned ID is loaded. If no pinned ID is available, a random one is selected instead [#4810]
+- Filters: keep per state after reset [#4831]
 
 [#345]: https://github.com/SpeciesFileGroup/taxonpages/issues/345
 [#4271]: https://github.com/SpeciesFileGroup/taxonworks/issues/4271
@@ -79,6 +81,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4811]: https://github.com/SpeciesFileGroup/taxonworks/issues/4811
 [#4813]: https://github.com/SpeciesFileGroup/taxonworks/issues/4813
 [#4805]: https://github.com/SpeciesFileGroup/taxonworks/issues/4805
+[#4816]: https://github.com/SpeciesFileGroup/taxonpages/issues/4816
+[#4831]: https://github.com/SpeciesFileGroup/taxonworks/issues/4831
 
 ## [0.60.0] - 2026-02-20
 

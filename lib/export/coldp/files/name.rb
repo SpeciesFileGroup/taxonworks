@@ -332,6 +332,7 @@ module Export::Coldp::Files::Name
     names.length
 
     names.find_each do |row|
+
       # At this point all formatting (gender) is done
       elements = Protonym.original_combination_full_name_hash_from_flat(row)
 
@@ -354,12 +355,6 @@ module Export::Coldp::Files::Name
 
       # By definition - for invalid names, the basionym points to itself (the reified original combination)
       basionym_id = id
-
-      # !! g-maculata
-      # if id == '1093903-f91ea42436b0bbf9a5115437e67afc27'
-      #   byebug
-      #   foo = 1
-      # end
 
       # A major brain-@#$@#.
       # Original combinations of misspelled names
@@ -571,6 +566,9 @@ module Export::Coldp::Files::Name
 
       rank = elements.keys.last if rank.nil?
 
+      #
+      # TODO: this shouldn't be necessary with scoping of the EXISTS 1
+      #
       # Decide whether or not to skip this Combination
       #   * Is it identical to the current placement?
       #      * Yes

@@ -260,8 +260,10 @@ scope :tasks do
     end
   end
 
-  scope :browse_annotations, controller: 'tasks/object_annotations/browse_annotations' do
-    get '/', action: :index, as: 'browse_annotations_task'
+  scope :annotations do
+    scope :filter, controller: 'tasks/annotations/filter' do
+      get '/', action: :index, as: 'annotations_filter_task'
+    end
   end
 
   scope :citations do

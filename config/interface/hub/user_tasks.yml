@@ -38,9 +38,9 @@ filter_collecting_events_task:
     - filters
   status: prototype
   description: 'Filter collecting events by shape, tag, and various other params.'
-browse_annotations_task:
+annotations_filter_task:
   hub: true
-  name: 'Browse annotations'
+  name: 'Filter annotations'
   related:
   categories:
     - collection_object
@@ -51,7 +51,6 @@ browse_annotations_task:
     - matrix
     - dna
     - filters
-    - browse
   status: stable
   description: 'Filter data by annotations (e.g. Notes, Data attributes).  Delete or create additional annotations on filtered objects.  Generate JSON request based on annotations.'
 filter_otus_task:

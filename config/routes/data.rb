@@ -19,6 +19,9 @@ end
 
 resources :alternate_values, except: [:show, :new] do
   concerns [:data_routes]
+  collection do
+    match :filter, to: 'alternate_values#index', via: [:get, :post]
+  end
 end
 match '/alternate_values/:global_id/metadata', to: 'alternate_values#metadata', via: :get, defaults: {format: :json}
 
@@ -47,6 +50,7 @@ match '/attributions/role_types', to: 'attributions#role_types', via: :get, defa
 resources :attributions, except: [:new] do
   concerns [:data_routes]
   collection do
+    match :filter, to: 'attributions#index', via: [:get, :post]
     post :batch_by_filter_scope, defaults: {format: :json}
   end
 end
@@ -120,6 +124,7 @@ resources :citation_topics, only: [:create, :update, :destroy]
 resources :citations do # except: [:show]
   concerns [:data_routes]
   collection do
+    match :filter, to: 'citations#index', via: [:get, :post]
     post :batch_create, defaults: {format: :json}
   end
 end
@@ -221,6 +226,7 @@ get 'confidences/exists', to: 'confidences#exists', defaults: {format: :json}
 resources :confidences do # , except: [:edit, :show]
   concerns [:data_routes]
   collection do
+    match :filter, to: 'confidences#index', via: [:get, :post]
     post :confidence_object_update
     post :batch_by_filter_scope, defaults: {format: :json}
   end
@@ -334,6 +340,7 @@ end
 
 resources :documentation, as: :documentation do
   collection do
+    match :filter, to: 'documentation#index', via: [:get, :post]
     get 'download'
     get 'list'
 
@@ -451,6 +458,7 @@ resources :identifiers, except: [:show] do
 
   # Must be before member
   collection do
+    match :filter, to: 'identifiers#index', via: [:get, :post]
     patch :reorder, defaults: {format: :json}
     get :identifier_types, defaults: {format: :json}
     post :namespaces, defaults: {format: :json}
@@ -596,6 +604,9 @@ end
 
 resources :notes, except: [:show] do
   concerns [:data_routes]
+  collection do
+    match :filter, to: 'notes#index', via: [:get, :post]
+  end
 end
 
 match 'observation_matrices/row/', to: 'observation_matrices#row', via: :get, method: :json
@@ -930,6 +941,7 @@ get 'tags/exists', to: 'tags#exists', defaults: {format: :json}
 resources :tags, except: [:edit, :show, :new] do
   concerns [:data_routes]
   collection do
+    match :filter, to: 'tags#index', via: [:get, :post]
     get :autocomplete
     post :tag_object_update
     post :batch_create, defaults: {format: :json}
