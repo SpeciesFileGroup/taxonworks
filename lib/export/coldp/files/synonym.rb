@@ -80,8 +80,10 @@ module Export::Coldp::Files::Synonym
     names = ::Export::Coldp::Files::Name.combination_names(otu).unscope(:select).select('taxon_names.*')
     names.length # !! Required - without this the result is truncated (see name.rb comment)
 
+
     # Iterate directly over names to avoid CTE truncation issues
     names.find_each do |t|
+
       next if ::Export::Coldp.skipped_combinations.include?(t.id)
 
       csv << [
@@ -123,7 +125,10 @@ module Export::Coldp::Files::Synonym
       next if autonym_synonym?(t)
 
       # By `original_combination_names(otu) these are all reified
-      reified_id = ::Utilities::Nomenclature.reified_id(t.id, t.cached_original_combination)
+      reified_id = ::Utilities::Nomenclature.reified_id(
+        t.id,
+        ::Utilities::Nomenclature.unmisspell_name(t.cached_original_combination)
+      )
 
       csv << [
         otu_lookup[t.cached_valid_taxon_name_id],                  # taxonID attached to the current valid concept
@@ -147,7 +152,10 @@ module Export::Coldp::Files::Synonym
       next if autonym_synonym?(t)
 
       # By `invalid_original_combination_names(otu) these are all reified
-      reified_id = ::Utilities::Nomenclature.reified_id(t.id, t.cached_original_combination)
+      reified_id = ::Utilities::Nomenclature.reified_id(
+        t.id,
+        ::Utilities::Nomenclature.unmisspell_name(t.cached_original_combination)
+      )
 
       csv << [
         otu_lookup[t.cached_valid_taxon_name_id],                   # taxonID attached to the current valid concept
