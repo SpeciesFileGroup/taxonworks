@@ -1,7 +1,18 @@
 <template>
-  <BlockLayout :warning="!store.shape">
+  <BlockLayout
+    :warning="!store.shape || (store.shape && !store.citation.source_id)"
+  >
     <template #header>
       <h3>Shape</h3>
+    </template>
+    <template #options>
+      <VIcon
+        v-if="store.shape && !store.citation.source_id"
+        name="attention"
+        color="attention"
+        small
+        title="A source is required to save an asserted distribution."
+      />
     </template>
     <template #body>
       <div class="horizontal-left-content align-start">
@@ -37,6 +48,7 @@ import { useStore } from '../../store/store'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VLock from '@/components/ui/VLock/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import ShapePicker from '@/components/ui/SmartSelector/ShapePicker.vue'
 
 const store = useStore()

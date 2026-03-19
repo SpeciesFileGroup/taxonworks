@@ -160,7 +160,8 @@ export const useStore = defineStore('NewBiologicalAssociation', {
   },
 
   actions: {
-    setBiologicalAssociation(ba) {
+    async setBiologicalAssociation(ba) {
+      this.isLoading = true
       this.biologicalAssociation = makeBiologicalAssociation(ba)
       this.subject = ba.subject
       this.object = ba.object
@@ -171,7 +172,11 @@ export const useStore = defineStore('NewBiologicalAssociation', {
       this.assertedDistribution = null
       this.shape = null
 
-      this.loadAssertedDistribution(ba.id)
+      try {
+        await this.loadAssertedDistribution(ba.id)
+      } finally {
+        this.isLoading = false
+      }
 
       setParam(
         RouteNames.NewBiologicalAssociationsII,
@@ -188,19 +193,18 @@ export const useStore = defineStore('NewBiologicalAssociation', {
       }
     },
 
-    loadBiologicalAsscoation(id) {
+    async loadBiologicalAsscoation(id) {
       this.isLoading = true
 
-      BiologicalAssociation.find(id, { extend })
-        .then(({ body }) => {
-          const ba = makeBiologicalAssociationItem(body)
+      try {
+        const { body } = await BiologicalAssociation.find(id, { extend })
+        const ba = makeBiologicalAssociationItem(body)
 
-          this.setBiologicalAssociation(ba)
-        })
-        .catch(() => {})
-        .finally(() => {
-          this.isLoading = false
-        })
+        await this.setBiologicalAssociation(ba)
+      } catch {
+      } finally {
+        this.isLoading = false
+      }
     },
 
     async loadRecentBiologicalAssociations() {
