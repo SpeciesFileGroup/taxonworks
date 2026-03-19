@@ -55,7 +55,7 @@ gem 'addressable', '~> 2.8'
 gem 'exception_notification', github: 'smartinez87/exception_notification', ref: '60e158888bbff96f7a9ae00ae97305cdd33726e9' #'~> 4.5'
 
 # Models
-gem 'bcrypt', '~> 3.1.11'
+gem 'bcrypt', '~> 3.1.22'
 gem 'closure_tree', '~> 9.0'
 
 gem 'delayed_job_active_record', '~> 4.1.3'

@@ -146,7 +146,7 @@ GEM
     barby (0.6.9)
     base64 (0.3.0)
     bcp47_spec (0.2.1)
-    bcrypt (3.1.21)
+    bcrypt (3.1.22)
     benchmark (0.5.0)
     better_errors (2.10.1)
       erubi (>= 1.0.0)
@@ -847,7 +847,7 @@ DEPENDENCIES
   amazing_print (~> 2.0)
   asciidoctor (~> 2.0)
   barby (~> 0.6.8)
-  bcrypt (~> 3.1.11)
+  bcrypt (~> 3.1.22)
   best_in_place!
   better_errors (~> 2.9)
   bibtex-ruby (~> 6.0)
