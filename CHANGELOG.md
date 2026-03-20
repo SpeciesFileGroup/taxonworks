@@ -20,6 +20,8 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Freeform digitize: Stroke width input [#4807]
 - Filter image: Add facet `Metadata depiction` [#4805]
 - Matrix row coder task: Add next|back links to bottom [#4795]
+- New task: New biological associations II [#4784]
+- Multi-update task: Sort column and fill column button [#4826]
 
 ### Fixed
 
@@ -57,6 +59,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Browse Collection Object: When opened without specifying an ID, the pinned ID is loaded. If no pinned ID is available, a random one is selected instead [#4810]
 - Filters: keep per state after reset [#4831]
 - Updated Ruby gems
+- Refactur Filter annotations task [#4809]
 
 [#345]: https://github.com/SpeciesFileGroup/taxonpages/issues/345
 [#4271]: https://github.com/SpeciesFileGroup/taxonworks/issues/4271
@@ -70,6 +73,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4777]: https://github.com/SpeciesFileGroup/taxonworks/issues/4777
 [#4782]: https://github.com/SpeciesFileGroup/taxonworks/issues/4782
 [#4783]: https://github.com/SpeciesFileGroup/taxonworks/issues/4783
+[#4784]: https://github.com/SpeciesFileGroup/taxonworks/issues/4784
 [#4785]: https://github.com/SpeciesFileGroup/taxonworks/issues/4785
 [#4790]: https://github.com/SpeciesFileGroup/taxonworks/issues/4790
 [#4791]: https://github.com/SpeciesFileGroup/taxonworks/issues/4791
@@ -78,6 +82,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4800]: https://github.com/SpeciesFileGroup/taxonworks/issues/4800
 [#4806]: https://github.com/SpeciesFileGroup/taxonworks/issues/4806
 [#4807]: https://github.com/SpeciesFileGroup/taxonworks/issues/4807
+[#4809]: https://github.com/SpeciesFileGroup/taxonworks/issues/4809
 [#4810]: https://github.com/SpeciesFileGroup/taxonworks/issues/4810
 [#4811]: https://github.com/SpeciesFileGroup/taxonworks/issues/4811
 [#4813]: https://github.com/SpeciesFileGroup/taxonworks/issues/4813
