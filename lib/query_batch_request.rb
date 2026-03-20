@@ -53,7 +53,7 @@ class QueryBatchRequest
   #   Optional per-record pre-update check. Called with each object before update! is attempted.
   #   Return nil/false to allow the update, or return an error message String to skip the record
   #   and add it to validation_errors.
-  attr_accessor :pre_update_filter
+  attr_accessor :object_filter
 
   def initialize(params)
     @async = params[:async]
@@ -61,7 +61,7 @@ class QueryBatchRequest
     @cap = params[:cap]
     @cap_reason = params[:cap_reason]
     @klass = params[:klass] # || infer_class(params)
-    @pre_update_filter = params[:pre_update_filter]
+    @object_filter = params[:object_filter]
     @object_filter_params = params[:object_filter_params]
     @object_params = params[:object_params]
     @preview = params[:preview]
