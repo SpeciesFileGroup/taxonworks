@@ -90,6 +90,12 @@
           TaxonNameRelationship::Combination,
           TaxonNameRelationship::OriginalCombination)
 
+      TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM_NOT_USAGE ||= TaxonNameRelationship.collect_descendants_and_itself_to_s(
+        TaxonNameRelationship::Iczn::Invalidating::Synonym,
+        TaxonNameRelationship::Icn::Unaccepting::Synonym,
+        TaxonNameRelationship::Icnp::Unaccepting::Synonym,
+        TaxonNameRelationship::Icvcn::Unaccepting)
+
       TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM ||= TaxonNameRelationship.collect_descendants_and_itself_to_s(
         TaxonNameRelationship::Iczn::Invalidating::Synonym,
         TaxonNameRelationship::Iczn::Invalidating::Usage,

@@ -23,5 +23,8 @@ export const TaxonNameRelationship = {
   types: () =>
     AjaxCall('get', '/taxon_name_relationships/taxon_name_relationship_types'),
 
-  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params)
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
+
+  batchUpdate: (params) =>
+    AjaxCall('patch', `/${controller}/batch_update.json`, params)
 }

@@ -44,6 +44,7 @@ module Shared::QueryBatchUpdate
         # Fail loudly now, otherwise we'll fail silently in the background.
         raise TaxonWorks::Error, "user_id or project_id not set in query_batch_update! '#{request}'" if request.user_id.nil? || request.project_id.nil?
         a.all.find_each do |o|
+          next if object_filter_rejected?(o, request.pre_update_filter, r)
           o
             .delay(run_at: 1.second.from_now, queue: :query_batch_update)
             .query_update(
@@ -53,6 +54,7 @@ module Shared::QueryBatchUpdate
       else
         self.transaction do
           a.all.find_each do |o|
+            next if object_filter_rejected?(o, request.pre_update_filter, r)
             query_update(o, request.object_params, r)
           end
           raise ActiveRecord::Rollback if request.preview
@@ -71,6 +73,16 @@ module Shared::QueryBatchUpdate
         response.not_updated.push e.record.id
         response.errors[e.message] += 1
       end
+    end
+
+    private
+
+    def object_filter_rejected?(object, pre_update_filter, response)
+      return false unless pre_update_filter
+      return false unless (error = pre_update_filter.call(object))
+      response.not_updated.push(object.id)
+      response.validation_errors[error] += 1
+      true
     end
 
   end # END CLASS METHODS
