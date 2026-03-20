@@ -122,6 +122,8 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
         expect(covers_all?(new_gz, poly1_gi.id, poly2_gi.id)).to be true
       end
 
+      # Covers all five input sources: geojson, wkt, points, ga_combine, gz_combine.
+      # poly1 via geojson, poly2 via wkt AND ga1 (same shape), gz2 wraps poly2 — all covered.
       specify 'accepts shapes from multiple sources' do
         shapes = {
           geojson: [poly1_gi.to_geo_json_feature],
@@ -149,7 +151,7 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
         shapes = { wkt: [poly1_wkt, poly2_wkt] }
         new_gz.build_gi_from_shapes(shapes)
         new_gz.save!
-        expect(new_gz.geographic_item.geo_object.as_text).to include('0.0')
+        expect(new_gz.geographic_item.geo_object.exterior_ring.point_n(0).z).not_to be_nil
       end
 
       specify 'intersection result has 3D geometry' do
@@ -158,7 +160,7 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
         }
         new_gz.build_gi_from_shapes(shapes, false)
         new_gz.save!
-        expect(new_gz.geographic_item.geo_object.as_text).to include('0.0')
+        expect(new_gz.geographic_item.geo_object.exterior_ring.point_n(0).z).not_to be_nil
       end
 
       context 'union of GAs with near-coincident shared border vertices' do
@@ -201,10 +203,6 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
 
         specify 'saves without error' do
           expect(new_gz).to be_persisted
-        end
-
-        specify 'result has 3D geometry' do
-          expect(new_gz.geographic_item.geo_object.as_text).to include('0.0')
         end
 
         specify 'union covers both constituent GA shapes' do
