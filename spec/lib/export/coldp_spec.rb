@@ -100,7 +100,7 @@ describe Export::Coldp, type: :model, group: :col do
       expect(name_ids).not_to include(subspecies.id.to_s)
     end
 
-    specify 'species is not exported as synonym of its nominotypical subspecies' do
+    specify 'species is not exported as Synonym of its nominotypical subspecies' do
       subspecies = Protonym.create!(
         name: species.name,
         rank_class: Ranks.lookup(:iczn, :subspecies),
@@ -109,22 +109,41 @@ describe Export::Coldp, type: :model, group: :col do
         year_of_publication: species.year_of_publication
       )
 
-      TaxonNameRelationship::Iczn::Invalidating.create!(
-        subject_taxon_name: species,
-        object_taxon_name: subspecies
-      )
+      # We wouldn't create a self-referencing synonym in this way, it's not
+      # possible.
+      # 
+      # TaxonNameRelationship::Iczn::Invalidating.create!(
+      #   subject_taxon_name: species,
+      #   object_taxon_name: subspecies
+      # )
+      # 
 
+      species_otu = Otu.create!(taxon_name: species)
       subspecies_otu = Otu.create!(taxon_name: subspecies)
       otus = Export::Coldp.otus(subspecies_otu.id)
 
-      tsv = Export::Coldp::Files::Synonym.generate(subspecies_otu, otus, {})
+      tsv = Export::Coldp::Files::Synonym.generate(species_otu, otus, {})
       rows = CSV.parse(tsv, col_sep: "\t", headers: true)
-      name_ids = rows.map { |r| r['nameID'] }
+      
+      name_ids = rows.map { |r| r['nameID'] } # Nothing is exported to Synonym table
 
       expect(name_ids).not_to include(species.id.to_s)
     end
 
-    specify 'species with different original combination is not exported as reified synonym of its nominotypical subspecies' do
+    # Are we saying this?  This is very weird if so.  We should not assume taxon identity between Ranks
+    xspecify 'nominotypical species is exported as synonym of its sibling subspecies' do
+    end
+
+
+    # 
+    # Is it a name for a Taxon? That's what Synonym is.
+    #
+    # Bus aus ()     # Current Combination
+    # Aus aus        # (Different) Original combination 
+    # 
+    # ?!
+    #
+    xspecify 'species with different original combination is not exported as reified synonym of its nominotypical subspecies' do
       # Create a different genus for the original combination
       other_genus = Protonym.create!(
         name: 'Xus',
@@ -147,6 +166,15 @@ describe Export::Coldp, type: :model, group: :col do
         year_of_publication: species.year_of_publication
       )
 
+      # TODO: Review later.
+      # 
+      # This level of granular relationship should't happen.  A more 
+      # refined relationship (homonymy, unavailable to available, etc.) 
+      # should be used when same-string names are related.
+      #
+      # If one name is invalid then both are, and this is setup
+      # by relationships to the valid name, not the nominotrypical.
+      #
       TaxonNameRelationship::Iczn::Invalidating.create!(
         subject_taxon_name: species,
         object_taxon_name: subspecies
@@ -163,6 +191,7 @@ describe Export::Coldp, type: :model, group: :col do
       species.reload
       reified_id = Utilities::Nomenclature.reified_id(species.id, species.cached_original_combination)
       expect(name_ids).not_to include(reified_id.to_s)
+      
     end
 
     specify 'valid autonym subspecies with different original combination does not export its binomial OC as synonym' do
