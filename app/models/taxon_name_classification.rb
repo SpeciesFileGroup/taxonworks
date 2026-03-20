@@ -328,7 +328,7 @@ class TaxonNameClassification < ApplicationRecord
     r = batch_response
 
     case mode.to_sym
-    when :add
+    when :add # fossil
       if async && !called_from_async
         BatchByFilterScopeJob.perform_later(
           klass: self.name,
@@ -360,7 +360,7 @@ class TaxonNameClassification < ApplicationRecord
         end
       end
 
-    when :remove
+    when :remove # fossil
       if async && !called_from_async
         BatchByFilterScopeJob.perform_later(
           klass: self.name,
@@ -384,7 +384,7 @@ class TaxonNameClassification < ApplicationRecord
           end
       end
 
-    when :set
+    when :set # gender
       gender_type = params[:type]
       return r unless TAXON_NAME_CLASSIFICATIONS_FOR_GENDER.include?(gender_type)
 

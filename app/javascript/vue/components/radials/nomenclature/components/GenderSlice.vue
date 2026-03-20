@@ -107,8 +107,7 @@ const canSubmit = computed(() => {
 const buttonLabel = computed(() => {
   if (selectedMode.value === 'remove_gender') return 'Remove gender'
   if (selectedMode.value === 'set' && selectedGender.value) {
-    const g = genderList.value.find((item) => item.type === selectedGender.value)
-    return g ? `Set ${g.name}` : 'Change gender'
+    return `Set ${genderList.value.find((item) => item.type === selectedGender.value).name}`
   }
   return 'Set gender'
 })
@@ -151,7 +150,7 @@ async function openModal() {
         ? `${count} taxon names queued for gender update.`
         : isRemove
           ? `Gender removed from ${count} taxon names.`
-          : `Gender updated for ${count} taxon names.`
+          : `Gender set for ${count} taxon names.`
 
       TW.workbench.alert.create(message, 'notice')
       emit('close')
