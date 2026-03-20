@@ -2,8 +2,8 @@
 
 All (hopefully) notable changes to this project will be documented in this file.
 
-he format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-This project <em>does not yet</em> adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as the API is evolving and MINOR patches may be backwards incompatible.
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+This project <em>does not yet</em> adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as the API is evolving and MINOR patches may be backwards incompatible.
 
 ## [unreleased]
 
@@ -22,6 +22,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Matrix row coder task: Add next|back links to bottom [#4795]
 - New task: New biological associations II [#4784]
 - Multi-update task: Sort column and fill column button [#4826]
+- OTU citations endpoints - results are not yet available in the UI [#4423]
 
 ### Fixed
 
@@ -63,6 +64,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 
 [#345]: https://github.com/SpeciesFileGroup/taxonpages/issues/345
 [#4271]: https://github.com/SpeciesFileGroup/taxonworks/issues/4271
+[#4423]: https://github.com/SpeciesFileGroup/taxonworks/issues/4423
 [#4683]: https://github.com/SpeciesFileGroup/taxonworks/issues/4683
 [#4694]: https://github.com/SpeciesFileGroup/taxonworks/issues/4694
 [#4700]: https://github.com/SpeciesFileGroup/taxonworks/issues/4700
