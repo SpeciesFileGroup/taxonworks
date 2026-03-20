@@ -55,7 +55,6 @@ class GazetteersController < ApplicationController
   # POST /gazetteers.json
   def create
     @gazetteer = Gazetteer.new(gazetteer_params)
-
     @gazetteer.build_gi_from_shapes(
       shape_params['shapes'], params.require('geometry_operation_is_union')
     )

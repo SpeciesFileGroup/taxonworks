@@ -35,6 +35,12 @@ class Gazetteer < ApplicationRecord
 
   GZ_DATA_ORIGIN = 'TaxonWorks Gazetteer'.freeze
 
+  # Buffer applied after union (+) and intersection (-) to absorb ~1e-14°
+  # floating-point slivers at shared borders. Applied in geometry (degree)
+  # space; 1e-7° ≈ ~11 mm at the equator.
+  # See combine_rgeo_shapes for full explanation.
+  COMBINE_BUFFER_DEGREES = 1e-7
+
   delegate :geo_object, to: :geographic_item
 
   belongs_to :geographic_item, inverse_of: :gazetteers
@@ -195,15 +201,43 @@ class Gazetteer < ApplicationRecord
     end
 
     if operation_is_union
-      # unary_union, which would be preferable here, is apparently unavailable
-      # for geographic geometries
-      # TODO use pg's ST_Union/UnaryUnion instead?
-      u = rgeo_shapes[0]
-      rgeo_shapes[1..].each { |s| u = u.union(s) }
+      # Drops Z values (ST_Buffer is 2D-only).
+      # Use PostGIS ST_UnaryUnion rather than RGeo's iterative .union().
+      # Adjacent GA shapes store their shared border vertices with slightly
+      # different coordinate values — even shapes from the same source dataset.
+      # GEOS must find where these nearly-coincident edges intersect to compute
+      # the union boundary. That intersection is numerically unstable, so the
+      # union boundary ends up at coordinates that match neither input, leaving
+      # a sliver where ST_CoveredBy(input_GA, Gaz) returns false. This causes
+      # the OTU spatial filter to silently drop asserted-distribution OTUs for
+      # any GA whose shape fails the coverage check.
+      #
+      # A post-union ST_Buffer (COMBINE_BUFFER_DEGREES) absorbs the sliver.
+      # Empirical testing across 13 country-pair/group/chain combinations found
+      # the minimum buffer needed was ~1e-11°; 1e-7° (~11 mm at the equator)
+      # gives a comfortable margin and is imperceptible for any biodiversity
+      # application.
+      # ST_MakeValid is applied after ST_Buffer as a safety net — neither
+      # GEOS nor PostGIS guarantees topologically valid output from geometric
+      # operations.
+      geom_exprs = rgeo_shapes.map { |s|
+        "ST_GeomFromText(#{ActiveRecord::Base.connection.quote(s.as_text)}, 4326)"
+      }
+      result_wkb = ActiveRecord::Base.connection.select_value(<<~SQL)
+        SELECT ST_Force3D(ST_MakeValid(ST_Buffer(ST_UnaryUnion(ST_Collect(ARRAY[#{geom_exprs.join(', ')}])), #{COMBINE_BUFFER_DEGREES})))
+      SQL
+      u = Gis::FACTORY.parse_wkb(result_wkb)
     else # Intersection
-      u = rgeo_shapes[0]
-      rgeo_shapes[1..].each { |s| u = u.intersection(s) }
-      # TODO how to check if intersection is empty?
+      # Drops Z values (ST_Buffer is 2D-only).
+      # See discussion in the union case for motivation.
+      geom_exprs = rgeo_shapes.map { |s|
+        "ST_GeomFromText(#{ActiveRecord::Base.connection.quote(s.as_text)}, 4326)"
+      }
+      intersection_expr = geom_exprs.reduce { |acc, g| "ST_Intersection(#{acc}, #{g})" }
+      result_wkb = ActiveRecord::Base.connection.select_value(<<~SQL)
+        SELECT ST_Force3D(ST_MakeValid(ST_Buffer(#{intersection_expr}, -#{COMBINE_BUFFER_DEGREES})))
+      SQL
+      u = Gis::FACTORY.parse_wkb(result_wkb)
     end
 
     if u.empty?

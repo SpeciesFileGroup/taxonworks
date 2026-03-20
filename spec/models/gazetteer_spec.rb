@@ -33,17 +33,8 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
       let(:poly2_gi) {
         FactoryBot.create(:geographic_item, geography: poly2_wkt)
       }
-      let(:poly1_union_poly2_wkt) {
-        'POLYGON((0 0, 10 0, 10 5, 15 5, 15 15, 5 15, 5 10, 0 10, 0 0))'
-      }
-      let(:poly1_union_poly2) {
-        Gis::FACTORY.parse_wkt(poly1_union_poly2_wkt)
-      }
       let(:poly1_intersect_poly2_wkt) {
         'POLYGON((5 5, 10 5, 10 10, 5 10, 5 5))'
-      }
-      let(:poly1_intersect_poly2) {
-        Gis::FACTORY.parse_wkt(poly1_intersect_poly2_wkt)
       }
       let(:p1_wkt) { 'POINT(0 0)' }
       let(:p2_wkt) { 'POINT(1 1)' }
@@ -66,54 +57,74 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
         )
       }
 
+      # Check that a saved Gazetteer spatially covers all input geographic items.
+      def covers_all?(gz, *gi_ids)
+        gz_gi_id = gz.geographic_item.id
+        gi_ids.all? do |gi_id|
+          ActiveRecord::Base.connection.select_value(<<~SQL) == true
+            SELECT ST_CoveredBy(
+              (SELECT geography::geometry FROM geographic_items WHERE id = #{gi_id}),
+              (SELECT geography::geometry FROM geographic_items WHERE id = #{gz_gi_id})
+            )
+          SQL
+        end
+      end
+
+      # Check that a saved Gazetteer is spatially covered by all input geographic items.
+      def covered_by_all?(gz, *gi_ids)
+        gz_gi_id = gz.geographic_item.id
+        gi_ids.all? do |gi_id|
+          ActiveRecord::Base.connection.select_value(<<~SQL) == true
+            SELECT ST_CoveredBy(
+              (SELECT geography::geometry FROM geographic_items WHERE id = #{gz_gi_id}),
+              (SELECT geography::geometry FROM geographic_items WHERE id = #{gi_id})
+            )
+          SQL
+        end
+      end
+
       specify 'create from geojson' do
         shapes = {
           geojson: [poly1_gi.to_geo_json_feature, poly2_gi.to_geo_json_feature]
         }
         new_gz.build_gi_from_shapes(shapes)
         new_gz.save!
-        expect(new_gz.geographic_item.geo_object)
-          .to eq(poly1_union_poly2)
+        expect(covers_all?(new_gz, poly1_gi.id, poly2_gi.id)).to be true
       end
 
       specify 'create from wkt' do
         shapes = { wkt: [poly1_wkt, poly2_wkt] }
         new_gz.build_gi_from_shapes(shapes)
         new_gz.save!
-        expect(new_gz.geographic_item.geo_object)
-          .to eq(poly1_union_poly2)
+        expect(covers_all?(new_gz, poly1_gi.id, poly2_gi.id)).to be true
       end
 
       specify 'create from points' do
-        p1_union_p2 = Gis::FACTORY.parse_wkt('MULTIPOINT(0 0, 1 1)')
-
         shapes = {
           geojson: [p1.to_geo_json_feature, p2.to_geo_json_feature]
         }
         new_gz.build_gi_from_shapes(shapes)
         new_gz.save!
-        expect(new_gz.geographic_item.geo_object).to eq(p1_union_p2)
+        expect(covers_all?(new_gz, p1.id, p2.id)).to be true
       end
 
       specify 'create from GAs' do
         shapes = { ga_combine: [ga1.id, ga2.id] }
         new_gz.build_gi_from_shapes(shapes)
         new_gz.save!
-        expect(new_gz.geographic_item.geo_object)
-          .to eq(poly1_union_poly2)
+        expect(covers_all?(new_gz, poly1_gi.id, poly2_gi.id)).to be true
       end
 
       specify 'create from GZs' do
         shapes = { gz_combine: [gz1.id, gz2.id] }
         new_gz.build_gi_from_shapes(shapes)
         new_gz.save!
-        expect(new_gz.geographic_item.geo_object)
-          .to eq(poly1_union_poly2)
+        expect(covers_all?(new_gz, poly1_gi.id, poly2_gi.id)).to be true
       end
 
+      # Covers all five input sources: geojson, wkt, points, ga_combine, gz_combine.
+      # poly1 via geojson, poly2 via wkt AND ga1 (same shape), gz2 wraps poly2 — all covered.
       specify 'accepts shapes from multiple sources' do
-        # Note several of these shapes are the same, so we're not actually
-        # testing that each factor contributes its shapes.
         shapes = {
           geojson: [poly1_gi.to_geo_json_feature],
           wkt: [poly2_wkt],
@@ -121,14 +132,9 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
           ga_combine: [ga1.id],
           gz_combine: [gz2.id]
         }
-
-        union = Gis::FACTORY.parse_wkt(
-          "GEOMETRYCOLLECTION(#{poly1_union_poly2_wkt}, #{p1_wkt})"
-        )
-
         new_gz.build_gi_from_shapes(shapes)
         new_gz.save!
-        expect(new_gz.geographic_item.geo_object).to eq(union)
+        expect(covers_all?(new_gz, poly1_gi.id, poly2_gi.id, p1.id)).to be true
       end
 
       specify 'supports intersection instead of union' do
@@ -137,8 +143,71 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
         }
         new_gz.build_gi_from_shapes(shapes, false)
         new_gz.save!
-        expect(new_gz.geographic_item.geo_object)
-          .to eq(poly1_intersect_poly2)
+        expect(covered_by_all?(new_gz, poly1_gi.id, poly2_gi.id)).to be true
+        expect(new_gz.geographic_item.geo_object).not_to be_empty
+      end
+
+      specify 'union result has 3D geometry' do
+        shapes = { wkt: [poly1_wkt, poly2_wkt] }
+        new_gz.build_gi_from_shapes(shapes)
+        new_gz.save!
+        expect(new_gz.geographic_item.geo_object.exterior_ring.point_n(0).z).not_to be_nil
+      end
+
+      specify 'intersection result has 3D geometry' do
+        shapes = {
+          geojson: [poly1_gi.to_geo_json_feature, poly2_gi.to_geo_json_feature]
+        }
+        new_gz.build_gi_from_shapes(shapes, false)
+        new_gz.save!
+        expect(new_gz.geographic_item.geo_object.exterior_ring.point_n(0).z).not_to be_nil
+      end
+
+      context 'union of GAs with near-coincident shared border vertices' do
+        # Mimics the floating-point encoding differences observed in real
+        # geographic data (e.g. SA/Namibia border: ~1e-14° difference).
+        #
+        # The shared border is a ridge: south's top goes (0,base_y)→(0.5,peak_y)→(1,base_y)
+        # and north's bottom goes (0,base_y+ε)→(0.5,peak_y-ε)→(1,base_y+ε). The ε offsets
+        # point in opposite directions at the sides vs. the apex, so the two polylines CROSS
+        # (south starts below north at x=0 but ends above at x=0.5). GEOS must compute that
+        # crossing to form the union boundary. Floating-point rounding places the crossing ε
+        # off from its true position, creating a sliver where ST_CoveredBy(south/north, union)
+        # returns false without the COMBINE_BUFFER_DEGREES fix.
+        let(:base_y)      { 10.0 }
+        let(:peak_y)      { 14.0 }
+        let(:base_y_ulp)  { base_y + base_y * Float::EPSILON * 4 }  # slightly above base
+        let(:peak_y_ulp)  { peak_y - peak_y * Float::EPSILON * 4 }  # slightly below peak
+
+        let(:south_gi) {
+          FactoryBot.create(:geographic_item,
+            geography: "POLYGON((0 0, 1 0, 1 #{base_y}, 0.5 #{peak_y}, 0 #{base_y}, 0 0))")
+        }
+        let(:north_gi) {
+          FactoryBot.create(:geographic_item,
+            geography: "POLYGON((0 #{base_y_ulp}, 0.5 #{peak_y_ulp}, 1 #{base_y_ulp}, 1 20, 0 20, 0 #{base_y_ulp}))")
+        }
+        let(:south_ga) {
+          FactoryBot.create(:valid_geographic_area,
+            geographic_areas_geographic_items_attributes: [{geographic_item: south_gi}])
+        }
+        let(:north_ga) {
+          FactoryBot.create(:valid_geographic_area,
+            geographic_areas_geographic_items_attributes: [{geographic_item: north_gi}])
+        }
+
+        before do
+          new_gz.build_gi_from_shapes({ ga_combine: [south_ga.id, north_ga.id] })
+          new_gz.save!
+        end
+
+        specify 'saves without error' do
+          expect(new_gz).to be_persisted
+        end
+
+        specify 'union covers both constituent GA shapes' do
+          expect(covers_all?(new_gz, south_gi.id, north_gi.id)).to be true
+        end
       end
 
       specify 'supports geojson circles' do
