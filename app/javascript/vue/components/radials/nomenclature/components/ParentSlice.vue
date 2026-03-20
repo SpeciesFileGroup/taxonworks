@@ -69,8 +69,8 @@ const payload = computed(() => ({
 }))
 
 function updateMessage(data) {
-  const message = data.async
-    ? 'Taxon names queued for updating.'
+  const message = data.sync
+    ? `${data.updated.length} taxon names queued for updating.`
     : `${data.updated.length} taxon names were successfully updated.`
 
   TW.workbench.alert.create(message, 'notice')

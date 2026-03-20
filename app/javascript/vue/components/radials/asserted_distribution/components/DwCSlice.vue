@@ -59,8 +59,8 @@ const updateBatchRef = ref()
 const isCountExceeded = computed(() => props.count > MAX_LIMIT)
 
 function updateMessage(data) {
-  const message = data.async
-    ? 'Collection objects queued for updating.'
+  const message = data.sync
+    ? `${data.updated.length} collection objects queued for updating.`
     : `${data.updated.length} collection objects were successfully updated.`
 
   TW.workbench.alert.create(message, 'notice')

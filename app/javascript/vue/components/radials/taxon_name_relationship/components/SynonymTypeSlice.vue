@@ -106,8 +106,8 @@ onMounted(() => {
 })
 
 function updateMessage(data) {
-  const message = data.async
-    ? 'Taxon name relationships queued for updating.'
+  const message = data.sync
+    ? `${data.updated.length} taxon name relationships queued for updating.`
     : `${data.updated.length} taxon name relationships were successfully updated.`
 
   TW.workbench.alert.create(message, 'notice')

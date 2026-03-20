@@ -88,9 +88,9 @@ const payload = computed(() => ({
 }))
 
 function updateMessage(data) {
-  const message = data.async
-    ? 'OTUs queued for updating.'
-    : `${data.updated.length} OTUs were successfully updated.`
+  const message = data.sync
+    ? `${data.updated.length} OTUs queued for updating.`
+    : `${data.updated.length} asserted distribution items were successfully updated.`
 
   TW.workbench.alert.create(message, 'notice')
 }
