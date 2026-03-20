@@ -48,7 +48,6 @@ class TaxonNameRelationship < ApplicationRecord
   include SoftValidation
   include Shared::DwcOccurrenceHooks
   include Shared::IsData
-  include Shared::QueryBatchUpdate
 
   # @return [Boolean, nil]
   #   When true, cached values are not built
@@ -328,29 +327,6 @@ class TaxonNameRelationship < ApplicationRecord
 
   def is_combination?
     !!/TaxonNameRelationship::(OriginalCombination|Combination)/.match(self.type.to_s)
-  end
-
-  # @param params [Hash]
-  #   { taxon_name_relationship_query: {},
-  #     taxon_name_relationship: { type: 'TaxonNameRelationship::...' }
-  #   }
-  # @return [BatchResponse, false]
-  def self.batch_update(params)
-    return false unless TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM.include?(params.dig(:taxon_name_relationship, :type))
-
-    request = QueryBatchRequest.new(
-      async_cutoff: params[:async_cutoff] || 50,
-      cap: 2500,
-      cap_reason: 'Synonym type batch update is limited to 2500 records at a time.',
-      klass: 'TaxonNameRelationship',
-      object_filter_params: params[:taxon_name_relationship_query],
-      object_params: params[:taxon_name_relationship],
-      preview: params[:preview],
-      user_id: params[:user_id],
-      project_id: params[:project_id]
-    )
-
-    query_batch_update(request)
   end
 
   protected

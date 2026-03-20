@@ -149,36 +149,4 @@ describe TaxonNameRelationshipsController, type: :controller do
   end
 
   include_examples 'DELETE #destroy', TaxonNameRelationship
-
-  describe 'PATCH batch_update' do
-    let!(:species) { FactoryBot.create(:relationship_species) }
-    let(:genus) { species.ancestor_at_rank('genus') }
-    let(:species2) { FactoryBot.create(:relationship_species, parent: genus, name: 'other') }
-    let!(:synonym_relationship) do
-      TaxonNameRelationship.create!(
-        subject_taxon_name: species2,
-        object_taxon_name: species,
-        type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
-      )
-    end
-
-    it 'updates synonym type and returns ok' do
-      patch :batch_update, params: {
-        taxon_name_relationship: { type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective' },
-        taxon_name_relationship_query: { taxon_name_relationship_id: [synonym_relationship.id] },
-        format: :json
-      }
-      expect(response).to have_http_status(:ok)
-      expect(synonym_relationship.reload.type).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
-    end
-
-    it 'returns unprocessable_content when target type is not a synonym type' do
-      patch :batch_update, params: {
-        taxon_name_relationship: { type: 'TaxonNameRelationship::Iczn::Validating::ConservedName' },
-        taxon_name_relationship_query: { taxon_name_relationship_id: [synonym_relationship.id] },
-        format: :json
-      }
-      expect(response).to have_http_status(:unprocessable_content)
-    end
-  end
 end

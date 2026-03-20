@@ -15,14 +15,6 @@
       @nextpage="loadPage"
       @reset="resetFilter"
     >
-      <template #nav-right>
-        <RadialTaxonNameRelationship
-          :ids="sortedSelectedIds"
-          :disabled="!sortedSelectedIds.length"
-          :count="sortedSelectedIds.length"
-          @update="() => makeFilterRequest({ ...parameters, page: 1 })"
-        />
-      </template>
       <template #facets>
         <FilterComponent v-model="parameters" />
       </template>
@@ -49,7 +41,6 @@ import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/filter.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
-import RadialTaxonNameRelationship from '@/components/radials/taxon_name_relationship/radial.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
 import { listParser } from '../utils/listParser.js'
 import { TAXON_NAME_RELATIONSHIP } from '@/constants/index.js'

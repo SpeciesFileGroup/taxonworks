@@ -1015,7 +1015,6 @@ resources :taxon_name_relationships do
     get :type_relationships, defaults: {format: :json}
     get :taxon_name_relationship_types, defaults: {format: :json}
     match :filter, to: 'taxon_name_relationships#index', via: [:get, :post]
-    patch :batch_update
   end
 end
 
