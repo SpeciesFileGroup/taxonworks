@@ -60,7 +60,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Browse Collection Object: When opened without specifying an ID, the pinned ID is loaded. If no pinned ID is available, a random one is selected instead [#4810]
 - Filters: keep per state after reset [#4831]
 - Updated Ruby gems
-- Refactur Filter annotations task [#4809]
+- Refactor Filter annotations task [#4809]
 
 [#345]: https://github.com/SpeciesFileGroup/taxonpages/issues/345
 [#4271]: https://github.com/SpeciesFileGroup/taxonworks/issues/4271
