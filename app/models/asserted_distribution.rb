@@ -196,18 +196,11 @@ class AssertedDistribution < ApplicationRecord
     when 'Otu'
       [asserted_distribution_object_id]
     when 'BiologicalAssociation'
-      ba = asserted_distribution_object
-      ids = []
-      ids << ba.biological_association_subject_id if ba.biological_association_subject_type == 'Otu'
-      ids << ba.biological_association_object_id if ba.biological_association_object_type == 'Otu'
-      ids.uniq
+      asserted_distribution_object.otu_ids
     when 'BiologicalAssociationsGraph'
-      ids = []
-      asserted_distribution_object.biological_associations.each do |ba|
-        ids << ba.biological_association_subject_id if ba.biological_association_subject_type == 'Otu'
-        ids << ba.biological_association_object_id if ba.biological_association_object_type == 'Otu'
-      end
-      ids.uniq
+      asserted_distribution_object.biological_associations
+        .flat_map(&:otu_ids)
+        .uniq
     when 'Conveyance'
       c = asserted_distribution_object
       c.conveyance_object_type == 'Otu' ? [c.conveyance_object_id] : []

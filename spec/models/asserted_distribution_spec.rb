@@ -551,6 +551,21 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
         expect { ad.object_otu_ids }.not_to raise_error, "#{ad.asserted_distribution_object_type} is not handled in #object_otu_ids"
       end
     end
+
+    specify 'BiologicalAssociation with CO subject returns OTU id via taxon determination' do
+      br  = FactoryBot.create(:valid_biological_relationship)
+      otu = FactoryBot.create(:valid_otu)
+      co  = FactoryBot.create(:valid_specimen)
+      FactoryBot.create(:taxon_determination, otu:, taxon_determination_object: co)
+      ba  = BiologicalAssociation.create!(
+        biological_association_subject: co,
+        biological_association_object:  otu,
+        biological_relationship: br,
+        project: otu.project
+      )
+      ad = FactoryBot.create(:valid_biological_association_asserted_distribution, asserted_distribution_object: ba)
+      expect(ad.object_otu_ids).to include(otu.id)
+    end
   end
 
   context '#stub_new' do

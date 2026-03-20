@@ -116,6 +116,31 @@ class BiologicalAssociation < ApplicationRecord
     biological_association_object
   end
 
+  # @return [Array of Integer]
+  #   OTU ids reachable through this BiologicalAssociation's subject and object.
+  #   Handles direct Otu subject/object, CollectionObject and FieldOccurrence
+  #   (via position=1 taxon determination), and AnatomicalPart (via cached_otu_id).
+  def otu_ids
+    ids = []
+    [:subject, :object].each do |role|
+      type = send("biological_association_#{role}_type")
+      id   = send("biological_association_#{role}_id")
+      case type
+      when 'Otu'
+        ids << id
+      when 'CollectionObject', 'FieldOccurrence'
+        otu_id = ::TaxonDetermination
+          .where(taxon_determination_object_type: type, taxon_determination_object_id: id, position: 1)
+          .pick(:otu_id)
+        ids << otu_id if otu_id
+      when 'AnatomicalPart'
+        otu_id = ::AnatomicalPart.where(id:).pick(:cached_otu_id)
+        ids << otu_id if otu_id
+      end
+    end
+    ids.uniq
+  end
+
   class << self
 
     def set_batch_cap(request)
