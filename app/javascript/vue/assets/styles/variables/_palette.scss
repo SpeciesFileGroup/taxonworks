@@ -220,7 +220,8 @@ $tw-colors: (
   'warning': #f97316,
   'white': #ffffff,
   'border': #f5f5f5,
-  'toggle-active': #cebd5d
+  'toggle-active': #cebd5d,
+  'muted': 'var(--text-muted-color)'
 );
 
 $tw-map-colors: (
@@ -230,7 +231,9 @@ $tw-map-colors: (
   'type-material': #3388ff,
   'asserted-distribution': #f97316,
   'asserted-distribution-absent': #6a51a3,
-  'georeference': #ef4444
+  'georeference': #ef4444,
+  'verbatim': #8908b4,
+  'verbatim-preview': #636363
 );
 
 @each $key, $value in $tw-colors {

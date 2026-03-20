@@ -26,5 +26,7 @@ export const Tag = {
   createBatch: (params) =>
     AjaxCall('post', `/${controller}/batch_create`, params),
 
-  exists: (params) => AjaxCall('get', `/${controller}/exists`, { params })
+  exists: (params) => AjaxCall('get', `/${controller}/exists`, { params }),
+
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params)
 }

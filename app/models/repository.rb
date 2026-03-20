@@ -61,7 +61,7 @@ class Repository < ApplicationRecord
 
   # See serial.rb
   def unify_relations
-    ApplicationEnumeration.klass_reflections(self.class).select{|a|
+    ApplicationEnumeration.klass_reflections(self.class, :has_many).select{|a|
       [
         :current_collection_objects,
       ].include?(a.name) }

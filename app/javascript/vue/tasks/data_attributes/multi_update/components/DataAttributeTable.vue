@@ -104,14 +104,28 @@
                 class="position-sticky w-2"
                 :key="attr"
               >
-                <label class="flex-row middle gap-xsmall cursor-pointer">
-                  <input
-                    type="checkbox"
-                    v-model="attributes"
-                    :value="attr"
-                  />
-                  {{ label }}
-                </label>
+                <div class="flex-separate middle gap-small">
+                  <label class="flex-row middle gap-xsmall cursor-pointer">
+                    <input
+                      type="checkbox"
+                      v-model="attributes"
+                      :value="attr"
+                    />
+                    {{ label }}
+                  </label>
+                  <VBtn
+                    color="primary"
+                    circle
+                    title="Sort column"
+                    @click="() => sortByAttribute(attr)"
+                  >
+                    <VIcon
+                      name="alphabeticalSort"
+                      x-small
+                      title="Sort alphabetically"
+                    />
+                  </VBtn>
+                </div>
               </th>
 
               <th
@@ -132,6 +146,31 @@
                     {{ predicate.label }}
                   </label>
                   <div class="horizontal-right-content middle gap-small">
+                    <VBtn
+                      color="primary"
+                      circle
+                      title="Fill column"
+                      @click="() => fillColumn(predicate)"
+                    >
+                      <VIcon
+                        name="pencil"
+                        x-small
+                      />
+                    </VBtn>
+
+                    <VBtn
+                      color="primary"
+                      circle
+                      title="Sort column"
+                      @click="() => sortByPredicate(predicate.id)"
+                    >
+                      <VIcon
+                        name="alphabeticalSort"
+                        x-small
+                        title="Sort alphabetically"
+                      />
+                    </VBtn>
+
                     <VBtn
                       color="primary"
                       circle
@@ -228,12 +267,12 @@
                       "
                       @paste="
                         (event) => {
-                          event.preventDefault(),
+                          ;(event.preventDefault(),
                             store.pasteValue({
                               text: event.clipboardData.getData('text/plain'),
                               objectId: item.id,
                               predicateId: predicate.id
-                            })
+                            }))
                         }
                       "
                     />
@@ -266,15 +305,18 @@
       </template>
     </VirtualScroller>
   </div>
+  <EditColumn ref="editColumnRef" />
 </template>
 
 <script setup>
 import { computed, ref } from 'vue'
+import { sortArray } from '@/helpers/arrays.js'
 import useStore from '../store/store.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VirtualScroller from '@/components/ui/Table/VirtualScroller.vue'
 import CopyToClipboard from './CopyToClipboard.vue'
+import EditColumn from '../../field_synchronize/components/Table/EditColumn.vue'
 
 const OBJECT_HEADER = {
   id: 'ID',
@@ -283,8 +325,74 @@ const OBJECT_HEADER = {
 
 const store = useStore()
 
+const editColumnRef = ref(null)
 const predicateIds = ref([])
 const attributes = ref([])
+
+const ascending = ref(false)
+
+function sortByAttribute(attr) {
+  store.sortObjects(
+    sortArray(store.objects, attr, ascending.value, { stripHtml: true })
+  )
+  ascending.value = !ascending.value
+}
+
+function sortByPredicate(predicateId) {
+  const sorted = store.objects.slice().sort((a, b) => {
+    const daA = store.getDataAttributesByObject({
+      objectType: a.type,
+      objectId: a.id,
+      predicateId
+    })
+    const daB = store.getDataAttributesByObject({
+      objectType: b.type,
+      objectId: b.id,
+      predicateId
+    })
+
+    const valA = daA.length ? daA[0].value : ''
+    const valB = daB.length ? daB[0].value : ''
+
+    const result = valA.localeCompare(valB, undefined, {
+      numeric: true,
+      sensitivity: 'base'
+    })
+
+    return ascending.value ? result : -result
+  })
+
+  store.sortObjects(sorted)
+  ascending.value = !ascending.value
+}
+
+async function fillColumn(predicate) {
+  try {
+    const payload = await editColumnRef.value.show({
+      title: predicate.label,
+      btnColor: 'primary'
+    })
+
+    if (payload) {
+      store.objects.forEach((obj) => {
+        const dataAttributes = store.getDataAttributesByObject({
+          objectType: obj.type,
+          objectId: obj.id,
+          predicateId: predicate.id
+        })
+
+        dataAttributes.forEach((da) => {
+          if (payload.replace || !da.value) {
+            da.value = payload.value
+            da.isUnsaved = !!da.id || !!payload.value
+          }
+        })
+      })
+    }
+  } catch {
+    /* empty */
+  }
+}
 
 const selectAllPredicates = computed({
   get: () =>

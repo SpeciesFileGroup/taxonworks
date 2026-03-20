@@ -53,13 +53,6 @@
               >
                 <b><span class="lead-item-mark">!!</span></b>
               </span>
-              <span
-                v-if="store.key_data[child]['lead_item_otus'].length == 1 && !store.key_data[child]['target_id']"
-                :style="{position: 'relative', left: leftCalc(parent)}"
-                class="gutter"
-              >
-                <b><span class="lead-item-one">!!</span></b>
-              </span>
             </template>
           </template>
 
@@ -97,11 +90,6 @@
           v-if="store.key_data[child]['lead_item_otus']?.length > 1"
         >
           <b><span class="lead-item-mark">!!</span></b>
-        </span>
-        <span
-          v-else-if="store.key_data[child]['lead_item_otus']?.length == 1 && !store.key_data[child]['target_id']"
-        >
-          <b><span class="lead-item-one">!!</span></b>
         </span>
 
         <VBtn
@@ -247,7 +235,8 @@ async function scrollToCurrentCouplet() {
 function offerCreateNewCouplet(lead) {
   return store.key_data[lead]['text'] &&
     !store.key_metadata[lead]?.['children'] &&
-    !store.key_data[lead]['target_id'] // an otu
+    !store.key_data[lead]['target_id'] && // an otu
+    !store.key_data[lead]['redirect_id'] // a redirect
 }
 
 function createNextCouplet(lead) {
@@ -269,6 +258,7 @@ function createNextCouplet(lead) {
         'notice'
       )
     })
+    .catch(() => {})
     .finally(() => {
       loading.value = false
     })

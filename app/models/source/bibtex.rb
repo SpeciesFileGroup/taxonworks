@@ -431,7 +431,13 @@ class Source::Bibtex < Source
     source = Source::Bibtex.new
     begin
       a = BibTeX::Bibliography.parse(text, filter: :latex).first
-      if a.class.name == 'BibTeX::Error'
+      if a.nil?
+        message = text.present? ?
+          "Unable to parse BibTeX entry from: '#{text.truncate(40)}'" :
+          'Unable to parse BibTeX entry: no BibTeX provided'
+        source.errors.add(:base, message)
+        return source
+      elsif a.class.name == 'BibTeX::Error'
         source.errors.add(:base, 'Unable to parse BibTeX entry. Possible error at end of: ' + a.content)
         return source
       else
@@ -460,7 +466,11 @@ class Source::Bibtex < Source
   # TODO: Annote to project specific note?
   # TODO: Serial with alternate_value on name .count = 1 assign .first
   def self.new_from_bibtex(bibtex_entry = nil, project_id = nil, namespace_id = nil)
-    return false if !bibtex_entry.kind_of?(::BibTeX::Entry)
+    unless bibtex_entry.kind_of?(::BibTeX::Entry)
+      s = Source::Bibtex.new
+      s.errors.add(:base, 'Input is not a valid BibTeX entry')
+      return s
+    end
     s = Source::Bibtex.new(bibtex_type: bibtex_entry.type.to_s)
 
     import_attributes = []

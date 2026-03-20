@@ -88,8 +88,15 @@ class GeoreferencesController < ApplicationController
   # POST /georeferences.json
   def create
     @georeference = Georeference.new(georeference_params)
+    saved = nil
+    begin
+      saved = @georeference.save
+    rescue RGeo::Error::InvalidGeometry, RGeo::Error::GeosError => e
+      @georeference.errors.add(:geometry_error, "Georeference geometry error: #{e}")
+    end
+
     respond_to do |format|
-      if @georeference.save
+      if saved
         format.html {
           redirect_to collecting_event_path(@georeference.collecting_event), notice: 'Georeference was successfully created.'
         }

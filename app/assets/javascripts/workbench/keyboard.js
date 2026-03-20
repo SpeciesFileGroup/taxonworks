@@ -47,6 +47,11 @@ Object.assign(TW.workbench.keyboard, {
     const isMac = navigator.platform.indexOf('Mac') > -1
     const platformKey = isMac ? 'ctrl' : 'alt'
     const modifierProp = isMac ? 'ctrlKey' : 'altKey'
+    const slidePanel = {
+      F1: 'Pinboard',
+      F2: 'PDF Viewer',
+      F3: 'Clipboard'
+    }
 
     const shortcuts = [
       {
@@ -70,14 +75,17 @@ Object.assign(TW.workbench.keyboard, {
     ]
 
     shortcuts.forEach((shortcut) => {
-      const legendElement = this.createLegendElement(
+      const legendElement = this.createLegend(
         shortcut.legend,
         shortcut.description,
         'General shortcuts',
         true
       )
+    })
 
-      document.body.append(legendElement)
+    Object.entries(slidePanel).forEach(([key, panel]) => {
+      const section = 'Slide Panels'
+      this.createLegend(key, `Toggle ${panel} panel`, section, true)
     })
 
     this._keydownListener = (e) => {

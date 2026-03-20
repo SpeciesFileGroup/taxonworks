@@ -187,7 +187,7 @@ class Tools::ImageMatrix
     @observation_matrix_id = observation_matrix_id
     @project_id = project_id
     @observation_matrix = find_observation_matrix
-    @observation_matrix_citation = @observation_matrix&.source
+    @observation_matrix_citation = @observation_matrix&.origin_citation
     @language_id = language_id
     @keyword_ids = keyword_ids
     @per = (per.presence || 250)
@@ -415,7 +415,7 @@ class Tools::ImageMatrix
   # @return [Depiction scope]
   def observation_depictions_from_otu_filter
     Depiction.select('depictions.*, observations.descriptor_id, observations.observation_object_id, observations.observation_object_type, sources.id AS source_id, sources.cached_author_string, sources.year, sources.cached AS source_cached')
-      .joins('INNER JOIN observations ON observations.id = depictions.depiction_object_id')
+      .joins("INNER JOIN observations ON observations.id = depictions.depiction_object_id AND depictions.depiction_object_type = 'Observation'")
       .joins('INNER JOIN images ON depictions.image_id = images.id')
       .joins("LEFT OUTER JOIN citations ON citations.citation_object_id = images.id AND citations.citation_object_type = 'Image' AND citations.is_original IS TRUE")
       .joins('LEFT OUTER JOIN sources ON citations.source_id = sources.id')
@@ -439,7 +439,7 @@ class Tools::ImageMatrix
 
   def list_of_descriptors
     return @list_of_descriptors if !@list_of_descriptors.nil?
-    language = language_id.blank? ? nil : language_id.to_i
+    language = (language_id.presence&.to_i)
     n = 0
     h = {}
     descriptors_with_filter.each do |d|
@@ -469,15 +469,53 @@ class Tools::ImageMatrix
       .joins(:source)
       .where(citation_object_type: 'Image', citation_object_id: list_of_image_ids)
 
-    h = images.transform_values { |img| { image: img, citations: [] } }
+    attributions = Attribution
+      .includes(
+        creator_roles: [:person, :organization],
+        editor_roles: [:person, :organization],
+        owner_roles: [:person, :organization],
+        copyright_holder_roles: [:person, :organization]
+      )
+      .where(attribution_object_type: 'Image', attribution_object_id: list_of_image_ids)
+      .index_by(&:attribution_object_id)
+
+    h = images.transform_values { |img| { image: img, citations: [], attribution: build_attribution_label(attributions[img.id]) } }
 
     citations.each do |c|
       if h[c.citation_object_id]
         h[c.citation_object_id][:citations] << c
       end
     end
-  
+
     h
+  end
+
+  private
+
+  def build_attribution_label(attribution)
+    return nil if attribution.nil?
+
+    parts = []
+
+    year = attribution.copyright_year
+    holders = attribution.copyright_holder_roles.map(&:agent)
+    if year || holders.any?
+      s = '©' + [year, Utilities::Strings.authorship_sentence(holders.map(&:name))].compact.join(' ')
+      parts << s
+    end
+
+    creators = attribution.creator_roles.map(&:agent)
+    parts << 'Created by ' + Utilities::Strings.authorship_sentence(creators.map(&:name)) if creators.any?
+
+    editors = attribution.editor_roles.map(&:agent)
+    parts << 'Edited by ' + Utilities::Strings.authorship_sentence(editors.map(&:name)) if editors.any?
+
+    owners = attribution.owner_roles.map(&:agent)
+    parts << 'Owned by ' + Utilities::Strings.authorship_sentence(owners.map(&:name)) if owners.any?
+
+    parts << 'License: ' + CREATIVE_COMMONS_LICENSES[attribution.license][:name] if attribution.license.present?
+
+    parts.compact.join('. ')
   end
 
 end

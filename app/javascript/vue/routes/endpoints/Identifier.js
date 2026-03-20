@@ -25,5 +25,7 @@ export const Identifier = {
   namespaces: (params) => AjaxCall('post', `/${controller}/namespaces`, params),
 
   batchByFilter: (params) =>
-    AjaxCall('post', `/${controller}/batch_by_filter_scope`, params)
+    AjaxCall('post', `/${controller}/batch_by_filter_scope`, params),
+
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params)
 }

@@ -33,7 +33,7 @@
       <div class="content">
         <div
           v-if="taxon.id"
-          class="flex-separate middle"
+          class="flex-separate middle gap-small"
         >
           <a
             :href="`/tasks/nomenclature/browse?taxon_name_id=${taxon.id}`"
@@ -46,11 +46,17 @@
               <OtuRadial
                 :object-id="taxon.id"
                 :redirect="false"
+                :klass="otu ? OTU : TAXON_NAME"
+                :otu="otu"
+                @create:otu="(e) => (otu = e)"
               />
               <OtuRadial
                 ref="otuRadialRef"
                 :object-id="taxon.id"
+                :otu="otu"
+                :klass="otu ? OTU : TAXON_NAME"
                 :taxon-name="taxon.object_tag"
+                @create:otu="(e) => (otu = e)"
               />
               <RadialObject :global-id="taxon.global_id" />
             </div>
@@ -103,10 +109,12 @@ import { GetterNames } from '../store/getters/getters'
 import { computed, ref, onBeforeMount } from 'vue'
 import { useStore } from 'vuex'
 import { RouteNames } from '@/routes/routes'
+import { OTU, TAXON_NAME } from '@/constants'
 
 const isModalVisible = ref(false)
 const isNavigating = ref(false)
 const otuRadialRef = ref(null)
+const otu = ref(null)
 const store = useStore()
 const shortcuts = ref([
   {
@@ -153,8 +161,7 @@ function deleteTaxon() {
       let message
       isNavigating.value = true
       if (body.parent_id) {
-        window.location.href =
-          `${RouteNames.BrowseNomenclature}?taxon_name_id=${body.parent_id}`
+        window.location.href = `${RouteNames.BrowseNomenclature}?taxon_name_id=${body.parent_id}`
         message = 'Taxon name was successfully destroyed, browsing to parent.'
       } else {
         reloadPage()

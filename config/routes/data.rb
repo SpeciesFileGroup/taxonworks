@@ -19,6 +19,9 @@ end
 
 resources :alternate_values, except: [:show, :new] do
   concerns [:data_routes]
+  collection do
+    match :filter, to: 'alternate_values#index', via: [:get, :post]
+  end
 end
 match '/alternate_values/:global_id/metadata', to: 'alternate_values#metadata', via: :get, defaults: {format: :json}
 
@@ -31,6 +34,7 @@ resources :anatomical_parts do
     get :ontologies, defaults: {format: :json}
     get :children_of, defaults: {format: :json}
     get :ontology_autocomplete, defaults: {format: :json}
+    get :used_ontologies, defaults: {format: :json}
 
     scope :select_ontologies, controller: 'tasks/anatomical_parts/select_ontologies' do
       # Scope these under the select_ontologies task controller for access
@@ -46,6 +50,7 @@ match '/attributions/role_types', to: 'attributions#role_types', via: :get, defa
 resources :attributions, except: [:new] do
   concerns [:data_routes]
   collection do
+    match :filter, to: 'attributions#index', via: [:get, :post]
     post :batch_by_filter_scope, defaults: {format: :json}
   end
 end
@@ -119,6 +124,7 @@ resources :citation_topics, only: [:create, :update, :destroy]
 resources :citations do # except: [:show]
   concerns [:data_routes]
   collection do
+    match :filter, to: 'citations#index', via: [:get, :post]
     post :batch_create, defaults: {format: :json}
   end
 end
@@ -220,6 +226,7 @@ get 'confidences/exists', to: 'confidences#exists', defaults: {format: :json}
 resources :confidences do # , except: [:edit, :show]
   concerns [:data_routes]
   collection do
+    match :filter, to: 'confidences#index', via: [:get, :post]
     post :confidence_object_update
     post :batch_by_filter_scope, defaults: {format: :json}
   end
@@ -333,6 +340,7 @@ end
 
 resources :documentation, as: :documentation do
   collection do
+    match :filter, to: 'documentation#index', via: [:get, :post]
     get 'download'
     get 'list'
 
@@ -450,6 +458,7 @@ resources :identifiers, except: [:show] do
 
   # Must be before member
   collection do
+    match :filter, to: 'identifiers#index', via: [:get, :post]
     patch :reorder, defaults: {format: :json}
     get :identifier_types, defaults: {format: :json}
     post :namespaces, defaults: {format: :json}
@@ -595,6 +604,9 @@ end
 
 resources :notes, except: [:show] do
   concerns [:data_routes]
+  collection do
+    match :filter, to: 'notes#index', via: [:get, :post]
+  end
 end
 
 match 'observation_matrices/row/', to: 'observation_matrices#row', via: :get, method: :json
@@ -720,6 +732,7 @@ resources :otus do
 
     get 'inventory/distribution', action: :distribution, defaults: {format: :json}
     get 'inventory/taxonomy', action: :api_taxonomy_inventory, as: :taxonomy_inventory
+    get 'inventory/citations', action: :api_citations_inventory, as: :citations_inventory, defaults: {format: :json}
   end
 
 end
@@ -929,6 +942,7 @@ get 'tags/exists', to: 'tags#exists', defaults: {format: :json}
 resources :tags, except: [:edit, :show, :new] do
   concerns [:data_routes]
   collection do
+    match :filter, to: 'tags#index', via: [:get, :post]
     get :autocomplete
     post :tag_object_update
     post :batch_create, defaults: {format: :json}
@@ -989,6 +1003,7 @@ resources :taxon_name_classifications do
   concerns [:data_routes]
   collection do
     get :taxon_name_classification_types
+    post :batch_by_filter_scope, defaults: {format: :json}
   end
   member do
     get :show

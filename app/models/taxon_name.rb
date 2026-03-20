@@ -996,6 +996,7 @@ class TaxonName < ApplicationRecord
     taxon_name_classifications.with_type_array(TAXON_NAME_CLASS_NAMES_UNAVAILABLE).any?
   end
 
+  # TODO: Should be is_
   #  @return [Boolean]
   #     return true if name is unavailable OR invalid, else false, checks both classifications and relationships
   # !! Should only be referenced when building cached values, all other uses should rather be `!is_valid?`
@@ -1338,7 +1339,7 @@ class TaxonName < ApplicationRecord
 
     safe_self_and_ancestors.each do |i|
       rank = i.rank
-      gender = i.cached_gender if rank == 'genus'
+      gender = i.cached_gender if rank == 'genus' # HMM- maybe also subgenus
       method = "#{rank.gsub(/\s/, '_')}_name_elements"
       data.push([rank] + send(method, i, gender)) if self.respond_to?(method)
     end
@@ -1606,6 +1607,9 @@ class TaxonName < ApplicationRecord
   #  - reified ids never reference gender changes because they are always in context of original combination, i.e. there is never a gender change
   # Mental note- consider combination - is_current_placement? (presently excluded in CoL code, which is the correct place to decide that.)
   # Duplicated in COLDP export code
+  #
+  # !! UNUSED and should likely be removed for `original_combination_reified_id`, which is the only way we use this.
+  #
   def reified_id
     return id.to_s if is_combination?
     return id.to_s unless has_alternate_original?

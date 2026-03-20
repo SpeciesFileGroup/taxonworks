@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 describe TaxonNameClassification, type: :model, group: [:nomenclature] do
+  include ActiveJob::TestHelper
 
   let(:taxon_name_classification) { TaxonNameClassification.new }
 
@@ -216,6 +217,283 @@ describe TaxonNameClassification, type: :model, group: [:nomenclature] do
 
   context 'concerns' do
     it_behaves_like 'is_data'
+  end
+
+  context '.batch_by_filter_scope' do
+    let(:iczn_name) { FactoryBot.create(:valid_protonym) }
+    let(:icn_name) { FactoryBot.create(:icn_genus) }
+
+    specify ':add creates ICZN fossil classification for an ICZN taxon name' do
+      q = Queries::TaxonName::Filter.new(taxon_name_id: iczn_name.id)
+      TaxonNameClassification.batch_by_filter_scope(
+        filter_query: { 'taxon_name_query' => q.params },
+        mode: :add,
+        params: {}
+      )
+      expect(
+        TaxonNameClassification.where(
+          taxon_name: iczn_name,
+          type: 'TaxonNameClassification::Iczn::Fossil'
+        ).count
+      ).to eq(1)
+    end
+
+    specify ':add creates ICN fossil classification for an ICN taxon name' do
+      q = Queries::TaxonName::Filter.new(taxon_name_id: icn_name.id)
+      TaxonNameClassification.batch_by_filter_scope(
+        filter_query: { 'taxon_name_query' => q.params },
+        mode: :add,
+        params: {}
+      )
+      expect(
+        TaxonNameClassification.where(
+          taxon_name: icn_name,
+          type: 'TaxonNameClassification::Icn::Fossil'
+        ).count
+      ).to eq(1)
+    end
+
+    specify ':add is idempotent when fossil classification already exists' do
+      TaxonNameClassification.create!(
+        taxon_name: iczn_name,
+        type: 'TaxonNameClassification::Iczn::Fossil'
+      )
+      q = Queries::TaxonName::Filter.new(taxon_name_id: iczn_name.id)
+      TaxonNameClassification.batch_by_filter_scope(
+        filter_query: { 'taxon_name_query' => q.params },
+        mode: :add,
+        params: {}
+      )
+      expect(
+        TaxonNameClassification.where(
+          taxon_name: iczn_name,
+          type: 'TaxonNameClassification::Iczn::Fossil'
+        ).count
+      ).to eq(1)
+    end
+
+    specify ':add records a taxon name in not_updated when no fossil type exists for its nomenclatural code' do
+      # NomenclaturalRank (root) returns nil from nomenclatural_code, so no fossil type maps to it
+      root = TaxonName.where(parent_id: nil, project_id: Current.project_id).first ||
+             FactoryBot.create(:root_taxon_name)
+      q = Queries::TaxonName::Filter.new(taxon_name_id: root.id)
+      r = TaxonNameClassification.batch_by_filter_scope(
+        filter_query: { 'taxon_name_query' => q.params },
+        mode: :add,
+        params: {}
+      )
+      expect(r[:not_updated]).to include(root.id)
+      expect(TaxonNameClassification.where(taxon_name: root).count).to eq(0)
+    end
+
+    specify ':remove deletes an existing fossil classification' do
+      TaxonNameClassification.create!(
+        taxon_name: iczn_name,
+        type: 'TaxonNameClassification::Iczn::Fossil'
+      )
+      q = Queries::TaxonName::Filter.new(taxon_name_id: iczn_name.id)
+      TaxonNameClassification.batch_by_filter_scope(
+        filter_query: { 'taxon_name_query' => q.params },
+        mode: :remove,
+        params: {}
+      )
+      expect(
+        TaxonNameClassification.where(
+          taxon_name: iczn_name,
+          type: 'TaxonNameClassification::Iczn::Fossil'
+        ).count
+      ).to eq(0)
+    end
+
+    specify ':remove is a no-op when no fossil classification exists' do
+      q = Queries::TaxonName::Filter.new(taxon_name_id: iczn_name.id)
+      expect {
+        TaxonNameClassification.batch_by_filter_scope(
+          filter_query: { 'taxon_name_query' => q.params },
+          mode: :remove,
+          params: {}
+        )
+      }.not_to change(TaxonNameClassification, :count)
+    end
+
+    specify ':remove deletes fossil classifications for multiple names in a query' do
+      iczn_name2 = Protonym.create!(
+        parent: iczn_name.parent,
+        name: 'Ccidae',
+        rank_class: Ranks.lookup(:iczn, 'family')
+      )
+      TaxonNameClassification.create!(
+        taxon_name: iczn_name,
+        type: 'TaxonNameClassification::Iczn::Fossil'
+      )
+      TaxonNameClassification.create!(
+        taxon_name: iczn_name2,
+        type: 'TaxonNameClassification::Iczn::Fossil'
+      )
+      q = Queries::TaxonName::Filter.new(taxon_name_id: [iczn_name.id, iczn_name2.id])
+      TaxonNameClassification.batch_by_filter_scope(
+        filter_query: { 'taxon_name_query' => q.params },
+        mode: :remove,
+        params: {}
+      )
+      expect(
+        TaxonNameClassification.with_type_contains('Fossil').count
+      ).to eq(0)
+    end
+
+    specify ':add async dispatches a job and creates the fossil classification after processing' do
+      q = Queries::TaxonName::Filter.new(taxon_name_id: iczn_name.id)
+      TaxonNameClassification.batch_by_filter_scope(
+        filter_query: { 'taxon_name_query' => q.params },
+        mode: :add,
+        params: {},
+        project_id: Project.first.id,
+        user_id: User.first.id,
+        async_cutoff: 0
+      )
+      expect(
+        TaxonNameClassification.where(
+          taxon_name: iczn_name,
+          type: 'TaxonNameClassification::Iczn::Fossil'
+        ).count
+      ).to eq(0)
+      perform_enqueued_jobs
+      expect(
+        TaxonNameClassification.where(
+          taxon_name: iczn_name,
+          type: 'TaxonNameClassification::Iczn::Fossil'
+        ).count
+      ).to eq(1)
+    end
+
+    specify ':add skips a taxon name already classified as an ichnotaxon and records it in not_updated' do
+      TaxonNameClassification.create!(
+        taxon_name: iczn_name,
+        type: 'TaxonNameClassification::Iczn::Fossil::Ichnotaxon'
+      )
+      q = Queries::TaxonName::Filter.new(taxon_name_id: iczn_name.id)
+      r = TaxonNameClassification.batch_by_filter_scope(
+        filter_query: { 'taxon_name_query' => q.params },
+        mode: :add,
+        params: {}
+      )
+      expect(r[:not_updated]).to include(iczn_name.id)
+      expect(
+        TaxonNameClassification.where(
+          taxon_name: iczn_name,
+          type: 'TaxonNameClassification::Iczn::Fossil'
+        ).count
+      ).to eq(0)
+    end
+
+    context ':set and :remove_gender' do
+      let(:genus) { FactoryBot.create(:iczn_genus) }
+      let(:masculine) { 'TaxonNameClassification::Latinized::Gender::Masculine' }
+      let(:feminine)  { 'TaxonNameClassification::Latinized::Gender::Feminine' }
+
+      specify ':set records non-genus taxon names in not_updated' do
+        species = Protonym.create!(name: 'aus', parent: genus, rank_class: Ranks.lookup(:iczn, :species))
+        q = Queries::TaxonName::Filter.new(taxon_name_id: species.id)
+        r = TaxonNameClassification.batch_by_filter_scope(
+          filter_query: { 'taxon_name_query' => q.params },
+          mode: :set,
+          params: { type: masculine }
+        )
+        expect(r[:not_updated]).to include(species.id)
+        expect(TaxonNameClassification.where(taxon_name: species).count).to eq(0)
+      end
+
+      specify ':set creates a gender classification when none exists' do
+        q = Queries::TaxonName::Filter.new(taxon_name_id: genus.id)
+        TaxonNameClassification.batch_by_filter_scope(
+          filter_query: { 'taxon_name_query' => q.params },
+          mode: :set,
+          params: { type: masculine }
+        )
+        expect(
+          TaxonNameClassification.where(taxon_name: genus, type: masculine).count
+        ).to eq(1)
+      end
+
+      specify ':set updates an existing gender classification to the new type' do
+        TaxonNameClassification.create!(taxon_name: genus, type: masculine)
+        q = Queries::TaxonName::Filter.new(taxon_name_id: genus.id)
+        TaxonNameClassification.batch_by_filter_scope(
+          filter_query: { 'taxon_name_query' => q.params },
+          mode: :set,
+          params: { type: feminine }
+        )
+        expect(TaxonNameClassification.where(taxon_name: genus, type: feminine).count).to eq(1)
+        expect(TaxonNameClassification.where(taxon_name: genus, type: masculine).count).to eq(0)
+      end
+
+      specify ':set is a no-op and returns not_updated when type is invalid' do
+        q = Queries::TaxonName::Filter.new(taxon_name_id: genus.id)
+        r = TaxonNameClassification.batch_by_filter_scope(
+          filter_query: { 'taxon_name_query' => q.params },
+          mode: :set,
+          params: { type: 'TaxonNameClassification::Iczn::Fossil' }
+        )
+        expect(TaxonNameClassification.where(taxon_name: genus).count).to eq(0)
+        expect(r[:updated]).to be_empty
+      end
+
+      specify ':remove_gender deletes an existing gender classification' do
+        TaxonNameClassification.create!(taxon_name: genus, type: masculine)
+        q = Queries::TaxonName::Filter.new(taxon_name_id: genus.id)
+        TaxonNameClassification.batch_by_filter_scope(
+          filter_query: { 'taxon_name_query' => q.params },
+          mode: :remove_gender,
+          params: {}
+        )
+        expect(TaxonNameClassification.where(taxon_name: genus, type: masculine).count).to eq(0)
+      end
+
+      specify ':remove_gender is a no-op when no gender classification exists' do
+        q = Queries::TaxonName::Filter.new(taxon_name_id: genus.id)
+        expect {
+          TaxonNameClassification.batch_by_filter_scope(
+            filter_query: { 'taxon_name_query' => q.params },
+            mode: :remove_gender,
+            params: {}
+          )
+        }.not_to change(TaxonNameClassification, :count)
+      end
+
+      specify ':set async dispatches a job and creates the gender classification after processing' do
+        q = Queries::TaxonName::Filter.new(taxon_name_id: genus.id)
+        TaxonNameClassification.batch_by_filter_scope(
+          filter_query: { 'taxon_name_query' => q.params },
+          mode: :set,
+          params: { type: masculine },
+          project_id: Project.first.id,
+          user_id: User.first.id,
+          async_cutoff: 0
+        )
+        expect(TaxonNameClassification.where(taxon_name: genus, type: masculine).count).to eq(0)
+        perform_enqueued_jobs
+        expect(TaxonNameClassification.where(taxon_name: genus, type: masculine).count).to eq(1)
+      end
+    end
+
+    specify ':remove also removes ichnotaxon classifications' do
+      TaxonNameClassification.create!(
+        taxon_name: iczn_name,
+        type: 'TaxonNameClassification::Iczn::Fossil::Ichnotaxon'
+      )
+      q = Queries::TaxonName::Filter.new(taxon_name_id: iczn_name.id)
+      TaxonNameClassification.batch_by_filter_scope(
+        filter_query: { 'taxon_name_query' => q.params },
+        mode: :remove,
+        params: {}
+      )
+      expect(
+        TaxonNameClassification.where(
+          taxon_name: iczn_name,
+          type: 'TaxonNameClassification::Iczn::Fossil::Ichnotaxon'
+        ).count
+      ).to eq(0)
+    end
   end
 
 end

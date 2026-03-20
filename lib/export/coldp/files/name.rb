@@ -128,16 +128,16 @@ module Export::Coldp::Files::Name
       when 'species'
         case rank
         when :species
-          core_name.send( (g + '_name').to_sym )
+          core_name.send( (g + '_name').to_sym ) || core_name.species
         else
           nil
         end
       when 'subspecies', 'form', 'variety' # See compression in core_names, may be an issue
         case rank
         when :species
-          core_name.send( "species_#{g}_name".to_sym )
+          core_name.send( "species_#{g}_name".to_sym ) || core_name.species
         when :infraspecies
-          core_name.send( (g + '_name').to_sym )
+          core_name.send( (g + '_name').to_sym ) || core_name.infraspecies
         end
       end
     end
@@ -187,9 +187,10 @@ module Export::Coldp::Files::Name
 
     c = ::TaxonName.with(n: b)
       .joins('JOIN n on n.id = taxon_names.id')
+      .joins('JOIN taxon_names parent_name on parent_name.id = taxon_names.parent_id')
       .where(cached_is_valid: true)
       .eager_load(origin_citation: [:source])
-      .select('taxon_names.*, n.genus, n.subgenus, n.species, n.infraspecies, n.genus_gender, n.species_masculine_name, n.species_neuter_name, n.species_feminine_name')
+      .select('taxon_names.*, parent_name.name parent_name, n.genus, n.subgenus, n.species, n.infraspecies, n.genus_gender, n.species_masculine_name, n.species_neuter_name, n.species_feminine_name')
   end
 
   def self.invalid_core_names(otu)
@@ -202,6 +203,7 @@ module Export::Coldp::Files::Name
       .where(cached_is_valid: false)
       .where('((taxon_names.cached = taxon_names.cached_original_combination) OR (taxon_names.cached_original_combination IS NULL))')
       .and(TaxonName.where.not("taxon_names.rank_class like '%::Iczn::Family%' AND taxon_names.cached_is_valid = FALSE"))
+      .where(not_misapplication_sql)
 
     select = 'taxon_names.id,'
     select << ::NomenclaturalRank.rank_expansion_sql(ranks: %w{genus subgenus species}, nomenclatural_code: otu.taxon_name.nomenclatural_code)
@@ -220,9 +222,10 @@ module Export::Coldp::Files::Name
 
     c = ::TaxonName.with(n: b)
       .joins('JOIN n on n.id = taxon_names.id')
+      .joins('JOIN taxon_names parent_name on parent_name.id = taxon_names.parent_id')
       .where(cached_is_valid: false) # redundant
       .eager_load(origin_citation: [:source])
-      .select('taxon_names.*, n.genus, n.subgenus, n.species, n.infraspecies')
+      .select('taxon_names.*, parent_name.name parent_name, n.genus, n.subgenus, n.species, n.infraspecies')
   end
 
   # Combinations
@@ -238,7 +241,8 @@ module Export::Coldp::Files::Name
       .flattened
       .with(project_scope: a)
       .complete
-      .joins('JOIN project_scope ps on ps.id = taxon_names.cached_valid_taxon_name_id') # Combinations that point to any of "a"
+      .joins('JOIN project_scope ps on ps.id = taxon_names.cached_valid_taxon_name_id')           # Combinations that point to any of "a"
+      .where("NOT EXISTS( SELECT 1 from taxon_names tnc WHERE tnc.type = 'Protonym' AND tnc.cached = taxon_names.cached )") # No Combinations identical to Protonyms
   end
 
   # Higher names are:
@@ -311,6 +315,7 @@ module Export::Coldp::Files::Name
       .with(valid_scope: a)
       .where(cached_is_valid: false)
       .where('taxon_names.cached != taxon_names.cached_original_combination') # Only reified!!
+      .where(not_misapplication_sql)
       .joins('JOIN valid_scope on valid_scope.id = taxon_names.cached_valid_taxon_name_id')
   end
 
@@ -327,6 +332,7 @@ module Export::Coldp::Files::Name
     names.length
 
     names.find_each do |row|
+
       # At this point all formatting (gender) is done
       elements = Protonym.original_combination_full_name_hash_from_flat(row)
 
@@ -350,12 +356,6 @@ module Export::Coldp::Files::Name
       # By definition - for invalid names, the basionym points to itself (the reified original combination)
       basionym_id = id
 
-      # !! g-maculata
-      # if id == '1093903-f91ea42436b0bbf9a5115437e67afc27'
-      #   byebug
-      #   foo = 1
-      # end
-
       # A major brain-@#$@#.
       # Original combinations of misspelled names
       # CAN have parenthesis in their rendering
@@ -368,7 +368,7 @@ module Export::Coldp::Files::Name
       # placement of the properly spelled version of the name.
 
       author_year = row['cached_author_year']
-      author_year = author_year.delete('()') if strip_parens_for_author_year?(row)
+      author_year = author_year&.delete('()') if strip_parens_for_author_year?(row)
 
       # !!
       # !! Here we accomodate, somehwat crudely, that original combinations will infer the rank of
@@ -439,8 +439,8 @@ module Export::Coldp::Files::Name
       # !! We are reifieing *without* "[sic]" in the string
       id = ::Utilities::Nomenclature.reified_id(row['id'], scientific_name)
 
-      # By definition
-      basionym_id = row['id']
+      # The reified OC IS the original combination/basionym, so it points to itself
+      basionym_id = id
 
       # !!
       # !! Here we accomodate, somehwat crudely, that original combinations will infer the rank of
@@ -456,7 +456,7 @@ module Export::Coldp::Files::Name
         id,                                                                 # ID
         basionym_id,                                                        # basionymID
         scientific_name,                                                    # scientificName
-        row['cached_author_year'].gsub(/[\(\)]/, ''),                       # authorship  # TODO <- stripping author/year here
+        row['cached_author_year']&.gsub(/[\(\)]/, ''),                      # authorship  # TODO <- stripping author/year here
         rank,                                                               # rank
         uninomial,                                                          # uninomial
         elements['genus']&.last,                                            # genus
@@ -566,6 +566,9 @@ module Export::Coldp::Files::Name
 
       rank = elements.keys.last if rank.nil?
 
+      #
+      # TODO: this shouldn't be necessary with scoping of the EXISTS 1
+      #
       # Decide whether or not to skip this Combination
       #   * Is it identical to the current placement?
       #      * Yes
@@ -625,11 +628,26 @@ module Export::Coldp::Files::Name
     names.length
 
     names.find_each do |t|
-
       origin_citation = t.origin_citation
-      basionym_id = t.id # by defintion
+
+      # TODO: Is this needed for invalid names?
+      #
+      # Ugh, shame we need this. Our Protonyms are not Basionyms.
+      #
+      # If this name has a reified original combination (genus changed),
+      # the basionym is the OC record, not this current placement record.
+      if t.cached_original_combination.present? &&
+          !t.cached_original_combination.include?('NOT SPECIFIED') &&
+          t.cached != t.cached_original_combination
+        scientific_name = ::Utilities::Nomenclature.unmisspell_name(t.cached_original_combination)
+        basionym_id = ::Utilities::Nomenclature.reified_id(t.id, scientific_name)
+      else
+        basionym_id = t.id
+      end
+
       uninomial = t.cached if t.rank == 'genus'
 
+      # TODO: Spammed the || in align_gender, may need checking
       # Future- resolve in SQL perhaps, though not very expensive here
       species = align_gender(t, :species)
       infraspecies = align_gender(t, :infraspecies)
@@ -748,6 +766,20 @@ module Export::Coldp::Files::Name
 
       Export::Coldp::Files::Reference.add_reference_rows([origin_citation.source].compact, reference_csv, project_members) if reference_csv && origin_citation
     end
+  end
+
+  # Misapplications are not nomenclatural acts and should be excluded from the export.
+  # Returns a SQL fragment that excludes names with a Misapplication relationship.
+  def self.not_misapplication_sql
+    misapplication_types = %w[
+      TaxonNameRelationship::Iczn::Invalidating::Misapplication
+      TaxonNameRelationship::Icn::Unaccepting::Misapplication
+      TaxonNameRelationship::Icnp::Unaccepting::Misapplication
+    ]
+
+    "NOT EXISTS (SELECT 1 FROM taxon_name_relationships tnr
+      WHERE tnr.subject_taxon_name_id = taxon_names.id
+      AND tnr.type IN (#{misapplication_types.map { |t| "'#{t}'" }.join(',')}))"
   end
 
 end
