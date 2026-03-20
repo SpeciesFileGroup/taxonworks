@@ -12,12 +12,14 @@ class BufferExistingGazetteerGeographicItems < ActiveRecord::Migration[8.1]
     # asserted-distribution OTUs for affected GAs.
     #
     # The buffer of 1e-7° (~11 mm at the equator) absorbs the sliver and is
-    # imperceptible for any biodiversity application. It is safe to apply to
-    # all Gazetteer shapes regardless of how they were originally constructed.
+    # imperceptible for any biodiversity application. ST_MakeValid is applied
+    # after to fix any degenerate rings that the original union/intersection
+    # may have produced. It is safe to apply to all Gazetteer shapes regardless
+    # of how they were originally constructed.
     # See Gazetteer::COMBINE_BUFFER_DEGREES and combine_rgeo_shapes.
     execute <<~SQL
       UPDATE geographic_items gi
-      SET geography = ST_Force3D(ST_Buffer(gi.geography::geometry, 1e-7))::geography
+      SET geography = ST_Force3D(ST_MakeValid(ST_Buffer(gi.geography::geometry, 1e-7)))::geography
       FROM gazetteers gz
       WHERE gz.geographic_item_id = gi.id
     SQL

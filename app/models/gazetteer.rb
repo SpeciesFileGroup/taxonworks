@@ -219,11 +219,14 @@ class Gazetteer < ApplicationRecord
       # the minimum buffer needed was ~1e-11°; 1e-7° (~11 mm at the equator)
       # gives a comfortable margin and is imperceptible for any biodiversity
       # application. See script/geo/gazetteer_union_precision_test.rb.
+      # ST_MakeValid is applied after ST_Buffer as a safety net — neither
+      # GEOS nor PostGIS guarantees topologically valid output from geometric
+      # operations.
       geom_exprs = rgeo_shapes.map { |s|
         "ST_GeomFromText(#{ActiveRecord::Base.connection.quote(s.as_text)}, 4326)"
       }
       result_wkb = ActiveRecord::Base.connection.select_value(<<~SQL)
-        SELECT ST_Force3D(ST_Buffer(ST_UnaryUnion(ST_Collect(ARRAY[#{geom_exprs.join(', ')}])), #{COMBINE_BUFFER_DEGREES}))
+        SELECT ST_Force3D(ST_MakeValid(ST_Buffer(ST_UnaryUnion(ST_Collect(ARRAY[#{geom_exprs.join(', ')}])), #{COMBINE_BUFFER_DEGREES})))
       SQL
       u = Gis::FACTORY.parse_wkb(result_wkb)
     else # Intersection
@@ -235,12 +238,13 @@ class Gazetteer < ApplicationRecord
       # a thin false-overlap polygon at that edge. The negative buffer removes
       # any feature thinner than ~11 mm while leaving legitimate overlap regions
       # essentially unchanged. Symmetric with the +1e-7 buffer in the union case.
+      # ST_MakeValid applied after for the same reason as the union case.
       geom_exprs = rgeo_shapes.map { |s|
         "ST_GeomFromText(#{ActiveRecord::Base.connection.quote(s.as_text)}, 4326)"
       }
       intersection_expr = geom_exprs.reduce { |acc, g| "ST_Intersection(#{acc}, #{g})" }
       result_wkb = ActiveRecord::Base.connection.select_value(<<~SQL)
-        SELECT ST_Force3D(ST_Buffer(#{intersection_expr}, -#{COMBINE_BUFFER_DEGREES}))
+        SELECT ST_Force3D(ST_MakeValid(ST_Buffer(#{intersection_expr}, -#{COMBINE_BUFFER_DEGREES})))
       SQL
       u = Gis::FACTORY.parse_wkb(result_wkb)
     end
