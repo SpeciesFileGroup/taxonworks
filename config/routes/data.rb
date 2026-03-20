@@ -732,6 +732,7 @@ resources :otus do
 
     get 'inventory/distribution', action: :distribution, defaults: {format: :json}
     get 'inventory/taxonomy', action: :api_taxonomy_inventory, as: :taxonomy_inventory
+    get 'inventory/citations', action: :api_citations_inventory, as: :citations_inventory, defaults: {format: :json}
   end
 
 end

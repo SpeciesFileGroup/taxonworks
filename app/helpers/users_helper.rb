@@ -85,7 +85,7 @@ module UsersHelper
   def user_data(user, weeks_ago: nil, target: :created, base: 10)
     data = []
 
-    r = ApplicationEnumeration.klass_reflections(User)
+    r = ApplicationEnumeration.klass_reflections(User, :has_many)
 
     case target
     when :created

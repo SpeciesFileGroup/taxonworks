@@ -69,7 +69,7 @@ module Shared::Unify
   #
   def inferred_relations
     ( unify_relations +
-     ::ApplicationEnumeration.klass_reflections(self.class) +
+     ::ApplicationEnumeration.klass_reflections(self.class, :has_many) +
      ::ApplicationEnumeration.klass_reflections(self.class, :has_one))
       .delete_if{|r| r.options[:foreign_key] =~ /cache/}
       .delete_if{|r| EXCLUDE_RELATIONS.include?(r.name.to_sym)}
