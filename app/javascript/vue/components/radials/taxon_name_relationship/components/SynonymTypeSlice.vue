@@ -57,8 +57,11 @@ import { ref, computed, onMounted } from 'vue'
 
 const SYNONYM_BASES = [
   'TaxonNameRelationship::Iczn::Invalidating::Synonym',
+  'TaxonNameRelationship::Iczn::Invalidating::Usage',
   'TaxonNameRelationship::Icn::Unaccepting::Synonym',
+  'TaxonNameRelationship::Icn::Unaccepting::Usage',
   'TaxonNameRelationship::Icnp::Unaccepting::Synonym',
+  'TaxonNameRelationship::Icnp::Unaccepting::Usage',
   'TaxonNameRelationship::Icvcn::Unaccepting'
 ]
 
