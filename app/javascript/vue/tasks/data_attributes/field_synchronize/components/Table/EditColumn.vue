@@ -44,12 +44,12 @@
     </template>
     <template #footer>
       <VBtn
-        color="create"
+        :color="buttonColor"
         medium
         :disabled="!text"
         @click="submit"
       >
-        Upload
+        Update
       </VBtn>
     </template>
   </VModal>
@@ -65,11 +65,13 @@ const rejectPromise = ref(null)
 const resolvePromise = ref(null)
 const isModalVisible = ref(false)
 const columnName = ref('')
+const buttonColor = ref('create')
 const text = ref('')
 
-function show({ title }) {
+function show({ title, btnColor = 'create' }) {
   columnName.value = title
   isModalVisible.value = true
+  buttonColor.value = btnColor
 
   return new Promise((resolve, reject) => {
     resolvePromise.value = resolve

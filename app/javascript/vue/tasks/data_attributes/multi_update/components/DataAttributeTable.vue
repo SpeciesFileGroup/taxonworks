@@ -149,6 +149,18 @@
                     <VBtn
                       color="primary"
                       circle
+                      title="Fill column"
+                      @click="() => fillColumn(predicate)"
+                    >
+                      <VIcon
+                        name="pencil"
+                        x-small
+                      />
+                    </VBtn>
+
+                    <VBtn
+                      color="primary"
+                      circle
                       title="Sort column"
                       @click="() => sortByPredicate(predicate.id)"
                     >
@@ -255,12 +267,12 @@
                       "
                       @paste="
                         (event) => {
-                          event.preventDefault(),
+                          ;(event.preventDefault(),
                             store.pasteValue({
                               text: event.clipboardData.getData('text/plain'),
                               objectId: item.id,
                               predicateId: predicate.id
-                            })
+                            }))
                         }
                       "
                     />
@@ -293,6 +305,7 @@
       </template>
     </VirtualScroller>
   </div>
+  <EditColumn ref="editColumnRef" />
 </template>
 
 <script setup>
@@ -303,6 +316,7 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VirtualScroller from '@/components/ui/Table/VirtualScroller.vue'
 import CopyToClipboard from './CopyToClipboard.vue'
+import EditColumn from '../../field_synchronize/components/Table/EditColumn.vue'
 
 const OBJECT_HEADER = {
   id: 'ID',
@@ -311,6 +325,7 @@ const OBJECT_HEADER = {
 
 const store = useStore()
 
+const editColumnRef = ref(null)
 const predicateIds = ref([])
 const attributes = ref([])
 
@@ -349,6 +364,34 @@ function sortByPredicate(predicateId) {
 
   store.sortObjects(sorted)
   ascending.value = !ascending.value
+}
+
+async function fillColumn(predicate) {
+  try {
+    const payload = await editColumnRef.value.show({
+      title: predicate.label,
+      btnColor: 'primary'
+    })
+
+    if (payload) {
+      store.objects.forEach((obj) => {
+        const dataAttributes = store.getDataAttributesByObject({
+          objectType: obj.type,
+          objectId: obj.id,
+          predicateId: predicate.id
+        })
+
+        dataAttributes.forEach((da) => {
+          if (payload.replace || !da.value) {
+            da.value = payload.value
+            da.isUnsaved = !!da.id || !!payload.value
+          }
+        })
+      })
+    }
+  } catch {
+    /* empty */
+  }
 }
 
 const selectAllPredicates = computed({
