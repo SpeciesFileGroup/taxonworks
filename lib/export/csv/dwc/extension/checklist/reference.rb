@@ -14,7 +14,7 @@ module Export::CSV::Dwc::Extension::Checklist::Reference
   # !! Only including fields that can be populated from DwcOccurrence data,
   # which only includes Asserted Distribution data on references.
   CHECKLIST_FIELDS = [
-    :id, # Required for DwC-A star joins (maps to taxonID)
+    :id, # Required for DwC-A star joins (taxonID, an OTU UUID)
     GBIF::BIBLIOGRAPHIC_CITATION
   ].freeze
 
@@ -26,7 +26,7 @@ module Export::CSV::Dwc::Extension::Checklist::Reference
 
   # Generate CSV for references extension using only DwcOccurrence data.
   # @param scope [ActiveRecord::Relation] DwcOccurrence records
-  # @param taxon_name_id_to_taxon_id [Hash] mapping of taxon_name_id => taxonID
+  # @param taxon_name_id_to_taxon_id [Hash] taxon_name_id => OTU UUID (used as dwc:taxonID in the checklist core)
   # @return [String] CSV content
   def self.csv(scope, taxon_name_id_to_taxon_id)
     tbl = []
@@ -47,20 +47,16 @@ module Export::CSV::Dwc::Extension::Checklist::Reference
       .pluck(Arel.sql('otus.id'), Arel.sql('COALESCE(taxon_names.cached_valid_taxon_name_id, taxon_names.id)'))
       .to_h
 
-    # Only process AssertedDistribution records with associatedReferences
-    # populated.
     scope
       .where(dwc_occurrence_object_type: 'AssertedDistribution')
       .where.not(associatedReferences: [nil, ''])
       .find_each do |dwc_occ|
-      # Look up taxon_name_id via OTU.
       otu_id = ad_mapping[dwc_occ.dwc_occurrence_object_id]
       next unless otu_id
 
       taxon_name_id = otu_to_taxon_name_id[otu_id]
       next unless taxon_name_id
 
-      # Look up taxonID from taxon_name_id.
       taxon_id = taxon_name_id_to_taxon_id[taxon_name_id]
       next unless taxon_id
 
@@ -78,12 +74,7 @@ module Export::CSV::Dwc::Extension::Checklist::Reference
       end
     end
 
-    output = StringIO.new
-    tbl.each do |row|
-      output.puts ::CSV.generate_line(row, col_sep: "\t", encoding: Encoding::UTF_8)
-    end
-
-    output.string
+    ::Export::Dwca.output_csv(tbl)
   end
 
 end

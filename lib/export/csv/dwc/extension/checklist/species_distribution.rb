@@ -7,7 +7,7 @@ module Export::CSV::Dwc::Extension::Checklist::SpeciesDistribution
 
   # Fields used in checklist exports (subset of full GBIF profile).
   CHECKLIST_FIELDS = [
-    :id, # Required for DwC-A star joins (maps to taxonID)
+    :id, # Required for DwC-A star joins (taxonID, an OTU UUID)
     GBIF::LOCALITY,
     GBIF::OCCURRENCE_STATUS,
     GBIF::SOURCE
@@ -22,7 +22,7 @@ module Export::CSV::Dwc::Extension::Checklist::SpeciesDistribution
   # Generate CSV for species distribution extension.
   # @param scope [ActiveRecord::Relation] DwcOccurrence records from
   #   AssertedDistribution
-  # @param taxon_name_id_to_taxon_id [Hash] mapping of taxon_name_id => taxonID
+  # @param taxon_name_id_to_taxon_id [Hash] taxon_name_id => OTU UUID (used as dwc:taxonID in the checklist core)
   # @return [String] CSV content
   def self.csv(scope, taxon_name_id_to_taxon_id)
     tbl = []
@@ -38,7 +38,6 @@ module Export::CSV::Dwc::Extension::Checklist::SpeciesDistribution
       )
       .to_h
 
-    # Get OTU to taxon_name_id mapping.
     otu_ids = asserted_distribution_to_otu.values.compact.uniq
     otu_to_taxon_name_id = ::Otu
       .where(id: otu_ids)
@@ -61,14 +60,12 @@ module Export::CSV::Dwc::Extension::Checklist::SpeciesDistribution
         locality_parts.join(', ').presence
       end
 
-      # Look up taxon_name_id via OTU
       otu_id = asserted_distribution_to_otu[dwc_occ.dwc_occurrence_object_id]
       next unless otu_id
 
       taxon_name_id = otu_to_taxon_name_id[otu_id]
       next unless taxon_name_id
 
-      # Look up taxonID from taxon_name_id
       taxon_id = taxon_name_id_to_taxon_id[taxon_name_id]
       next unless taxon_id
 
@@ -82,12 +79,7 @@ module Export::CSV::Dwc::Extension::Checklist::SpeciesDistribution
       tbl << row
     end
 
-    output = StringIO.new
-    tbl.each do |row|
-      output.puts ::CSV.generate_line(row, col_sep: "\t", encoding: Encoding::UTF_8)
-    end
-
-    output.string
+    ::Export::Dwca.output_csv(tbl)
   end
 
 end

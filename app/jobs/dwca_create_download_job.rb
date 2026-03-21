@@ -46,7 +46,7 @@ class DwcaCreateDownloadJob < ApplicationJob
         d&.cleanup
       end
     rescue => ex
-      ExceptionNotifier.notify_exception(ex, data: { download: download&.id&.to_s } )
+      ExceptionNotifier.notify_exception(ex, data: { download: download&.id&.to_s, project_id: } )
       raise
     end
 

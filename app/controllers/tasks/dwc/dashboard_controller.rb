@@ -95,9 +95,9 @@ class Tasks::Dwc::DashboardController < ApplicationController
   end
 
   def generate_checklist_download
-    core_otu_scope_params = params[:otu_query]&.to_unsafe_h || {}
+    core_otu_scope_params = Queries::Otu::Filter.new(params[:otu_query] || {}).params
     extensions = (params[:extensions] || []).map(&:to_sym)
-    accepted_name_mode = params[:accepted_name_mode] || 'replace_with_accepted_name'
+    accepted_name_mode = params[:accepted_name_mode] || ::Export::Dwca::Checklist::Data::REPLACE_WITH_ACCEPTED_NAME
     description_topics = params[:description_topics] || []
     download_name = params[:download_name].presence
     download_description = params[:download_description].presence

@@ -7,7 +7,7 @@ class DwcaCreateChecklistDownloadJob < ApplicationJob
   # @param accepted_name_mode [String] How to handle unaccepted names ('replace_with_accepted_name' or 'accepted_name_usage_id')
   # @param description_topics [Array<Integer>] Ordered list of topic IDs for description extension
   # @param project_id [Integer] Project ID
-  def perform(download_id, core_otu_scope_params: {}, extensions: [], accepted_name_mode: 'replace_with_accepted_name', description_topics: [], project_id: nil)
+  def perform(download_id, core_otu_scope_params: {}, extensions: [], accepted_name_mode: ::Export::Dwca::Checklist::Data::REPLACE_WITH_ACCEPTED_NAME, description_topics: [], project_id: nil)
     # Raise and fail without notifying if our download was deleted before we run.
     download = Download.find(download_id)
     # Filter queries will fail in unexpected ways without project_id set as expected!
@@ -22,7 +22,7 @@ class DwcaCreateChecklistDownloadJob < ApplicationJob
         d&.cleanup
       end
     rescue => ex
-      ExceptionNotifier.notify_exception(ex, data: { download: download&.id&.to_s } )
+      ExceptionNotifier.notify_exception(ex, data: { download: download&.id&.to_s, project_id: } )
       raise
     end
 

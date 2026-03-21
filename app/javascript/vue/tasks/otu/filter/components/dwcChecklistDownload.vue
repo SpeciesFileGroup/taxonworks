@@ -160,7 +160,7 @@
         <h3>Select Topic</h3>
       </template>
       <template #body>
-        <TopicList @select="addTopic" />
+        <TopicList :add-all="true" @select="addTopic" @select-all="addAllTopics" />
       </template>
     </v-modal>
     <ConfirmationModal ref="confirmationModalRef" />
@@ -335,6 +335,13 @@ function addTopic(topic) {
     TW.workbench.alert.create(`Topic "${topic.name}" is already selected`, 'notice')
   }
   // Keep modal open to allow selecting multiple topics
+}
+
+function addAllTopics(topics) {
+  const newTopics = topics.filter(t => !selectedTopics.value.find(s => s.id === t.id))
+  selectedTopics.value.push(...newTopics)
+  showTopicModal.value = false
+  TW.workbench.alert.create(`Added ${newTopics.length} topic(s)`, 'notice')
 }
 
 function removeTopic(index) {

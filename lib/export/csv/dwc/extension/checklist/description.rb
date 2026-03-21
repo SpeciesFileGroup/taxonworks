@@ -1,15 +1,14 @@
 # CSV for Description extension (for checklist archives).
 # See http://rs.gbif.org/extension/gbif/1.0/description.xml
 #
-# Note: Exports Content records (OTU text descriptions by topic).
-# Converts markdown to HTML using Redcarpet.
+# Note: Exports Content records (OTU text descriptions by topic) as html.
 module Export::CSV::Dwc::Extension::Checklist::Description
 
   GBIF = Export::Dwca::GbifProfile::SpeciesDescription
 
   # Fields used in checklist exports (subset of full GBIF profile).
   CHECKLIST_FIELDS = [
-    :id, # Required for DwC-A star joins (maps to taxonID)
+    :id, # Required for DwC-A star joins (taxonID, an OTU UUID)
     GBIF::DESCRIPTION,
     GBIF::TYPE,
     GBIF::LANGUAGE,
@@ -24,14 +23,14 @@ module Export::CSV::Dwc::Extension::Checklist::Description
 
   # Generate CSV for description extension from Content records.
   # @param core_otu_scope [Hash] OTU query params from Checklist::Data
-  # @param taxon_name_id_to_taxon_id [Hash] mapping of taxon_name_id => taxonID
+  # @param taxon_name_id_to_taxon_id [Hash] taxon_name_id => OTU UUID (used as dwc:taxonID in the checklist core)
   # @param description_topics [Array<Integer>] ordered array of topic IDs to include
   # @return [String] CSV content
   def self.csv(core_otu_scope, taxon_name_id_to_taxon_id, description_topics: [])
     tbl = []
     tbl[0] = HEADERS
 
-    return output_csv(tbl) if description_topics.empty?
+    return ::Export::Dwca.output_csv(tbl) if description_topics.empty?
 
     otu_scope = ::Queries::Otu::Filter.new(core_otu_scope).all
 
@@ -56,7 +55,6 @@ module Export::CSV::Dwc::Extension::Checklist::Description
       taxon_id = taxon_name_id_to_taxon_id[taxon_name_id]
       next unless taxon_id
 
-      # Convert markdown to HTML, removing trailing newline and converting internal newlines to <br>
       html_description = if content.text.present?
         content.to_html
       else
@@ -77,18 +75,7 @@ module Export::CSV::Dwc::Extension::Checklist::Description
       tbl << row
     end
 
-    output_csv(tbl)
-  end
-
-  # Helper to output CSV from table array
-  # @param tbl [Array<Array>] table data
-  # @return [String] CSV content
-  def self.output_csv(tbl)
-    output = StringIO.new
-    tbl.each do |row|
-      output.puts ::CSV.generate_line(row, col_sep: "\t", encoding: Encoding::UTF_8)
-    end
-    output.string
+    ::Export::Dwca.output_csv(tbl)
   end
 
 end

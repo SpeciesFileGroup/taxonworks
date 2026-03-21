@@ -250,7 +250,7 @@ module Export::Dwca::Checklist
     # @return [CSV]
     #   The data as a CSV object.
     #   For checklists, this produces a normalized taxonomy (one row per unique
-    #   taxon) with sequential taxonIDs and parentNameUsageID relationships -
+    #   taxon) with OTU UUID taxonIDs and parentNameUsageID relationships -
     #   see https://ipt.gbif.org/manual/en/ipt/latest/best-practices-checklists#normalized-classifications-parentchild
     def csv
       return "\n" if no_records?
@@ -267,16 +267,16 @@ module Export::Dwca::Checklist
         header_converters: [:checklist_headers]
       )
 
-      # Return normalized taxonomy with sequential taxonIDs.
-      normalize_taxonomy_csv(raw_csv)
+      # Return normalized taxonomy with OTU UUID taxonIDs.
+      normalize_occurrence_csv(raw_csv)
     end
 
-    # Normalize taxonomy: deduplicate, assign sequential taxonIDs, add
+    # Normalize taxonomy: deduplicate, assign OTU UUID taxonIDs, add
     # parentNameUsageID.
     # @param raw_csv [String] CSV with one row per occurrence
     # @return [String] CSV with one row per unique taxon
-    def normalize_taxonomy_csv(raw_csv)
-      normalizer = TaxonomyNormalizer.new(
+    def normalize_occurrence_csv(raw_csv)
+      normalizer = OccurrenceNormalizer.new(
         raw_csv: raw_csv,
         accepted_name_mode: accepted_name_mode,
         otu_to_taxon_name_data: otu_to_taxon_name_data,
@@ -300,8 +300,8 @@ module Export::Dwca::Checklist
 
       return {} if all_otu_ids.empty?
 
-      # Fetch TaxonName data for these OTUs in a single query
-      # Also fetch the valid taxon name's cached value for synonyms
+      # Fetch TaxonName data for these OTUs in a single query.
+      # Also fetch the valid taxon name's cached value for synonyms.
       @otu_to_taxon_name_data = ::Otu
         .where(id: all_otu_ids)
         .joins(:taxon_name)
@@ -526,7 +526,6 @@ module Export::Dwca::Checklist
       if no_records?
         content = "\n"
       else
-        # Ensure taxon_name_id_to_taxon_id mapping exists
         csv unless taxon_name_id_to_taxon_id
 
         # Build module name from extension_name (e.g., 'species_distribution' -> 'SpeciesDistribution')
@@ -572,7 +571,6 @@ module Export::Dwca::Checklist
       if no_records?
         content = "\n"
       else
-        # Ensure taxon_name_id_to_taxon_id mapping exists
         csv unless taxon_name_id_to_taxon_id
 
         content = Export::CSV::Dwc::Extension::Checklist::Description.csv(

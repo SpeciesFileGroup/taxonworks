@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Export::Dwca::Checklist::TaxonomyNormalizer, type: :model, group: :darwin_core do
+describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :darwin_core do
   let(:normalizer) do
     described_class.new(
       raw_csv: raw_csv,

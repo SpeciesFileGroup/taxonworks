@@ -10,7 +10,7 @@ module Export::CSV::Dwc::Extension::Checklist::VernacularName
   # Fields used in checklist exports (subset of full GBIF profile).
   # Only including fields that can be populated from CommonName data.
   CHECKLIST_FIELDS = [
-    :id, # Required for DwC-A star joins (maps to taxonID)
+    :id, # Required for DwC-A star joins (taxonID, an OTU UUID)
     GBIF::VERNACULAR_NAME,
     GBIF::LANGUAGE,
     GBIF::TEMPORAL
@@ -24,7 +24,7 @@ module Export::CSV::Dwc::Extension::Checklist::VernacularName
 
   # Generate CSV for vernacular name extension from CommonName records.
   # @param core_otu_scope [Hash] OTU query params from Checklist::Data
-  # @param taxon_name_id_to_taxon_id [Hash] mapping of taxon_name_id => taxonID
+  # @param taxon_name_id_to_taxon_id [Hash] taxon_name_id => OTU UUID (used as dwc:taxonID in the checklist core)
   # @return [String] CSV content
   def self.csv(core_otu_scope, taxon_name_id_to_taxon_id)
     tbl = []
@@ -45,7 +45,6 @@ module Export::CSV::Dwc::Extension::Checklist::VernacularName
       taxon_id = taxon_name_id_to_taxon_id[taxon_name_id]
       next unless taxon_id
 
-      # Build temporal string from start_year and end_year
       temporal = nil
       if cn.start_year.present? && cn.end_year.present?
         temporal = "#{cn.start_year}-#{cn.end_year}"
@@ -65,12 +64,7 @@ module Export::CSV::Dwc::Extension::Checklist::VernacularName
       tbl << row
     end
 
-    output = StringIO.new
-    tbl.each do |row|
-      output.puts ::CSV.generate_line(row, col_sep: "\t", encoding: Encoding::UTF_8)
-    end
-
-    output.string
+    ::Export::Dwca.output_csv(tbl)
   end
 
 end

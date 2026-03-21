@@ -1,8 +1,7 @@
 # CSV for Types and Specimen extension (for checklist archives).
 # See http://rs.gbif.org/extension/gbif/1.0/typesandspecimen.xml
 #
-# Note: Using only DwcOccurrence data from CollectionObject records.
-# Only includes fields that can be populated from DwcOccurrence.
+# Note: Currently nly includes fields that can be populated from DwcOccurrence.
 # Type-specific fields like typeDesignationType and typeDesignatedBy would
 # require accessing TypeMaterial objects directly.
 module Export::CSV::Dwc::Extension::Checklist::TypesAndSpecimen
@@ -13,7 +12,7 @@ module Export::CSV::Dwc::Extension::Checklist::TypesAndSpecimen
   # Only including fields that can be populated from DwcOccurrence data
   # from CollectionObject records with type materials.
   CHECKLIST_FIELDS = [
-    :id, # Required for DwC-A star joins (maps to taxonID)
+    :id, # Required for DwC-A star joins (taxonID, an OTU UUID)
     GBIF::TYPE_STATUS,
     GBIF::SCIENTIFIC_NAME,
     GBIF::TAXON_RANK,
@@ -35,7 +34,7 @@ module Export::CSV::Dwc::Extension::Checklist::TypesAndSpecimen
 
   # Generate CSV for types and specimen extension using only DwcOccurrence data.
   # @param scope [ActiveRecord::Relation] DwcOccurrence records
-  # @param taxon_name_id_to_taxon_id [Hash] mapping of taxon_name_id => taxonID
+  # @param taxon_name_id_to_taxon_id [Hash] taxon_name_id => OTU UUID (used as dwc:taxonID in the checklist core)
   # @return [String] CSV content
   def self.csv(scope, taxon_name_id_to_taxon_id)
     tbl = []
@@ -93,12 +92,7 @@ module Export::CSV::Dwc::Extension::Checklist::TypesAndSpecimen
       end
     end
 
-    output = StringIO.new
-    tbl.each do |row|
-      output.puts ::CSV.generate_line(row, col_sep: "\t", encoding: Encoding::UTF_8)
-    end
-
-    output.string
+    ::Export::Dwca.output_csv(tbl)
   end
 
 end

@@ -1,15 +1,15 @@
 module Export::Dwca::Checklist
   # Service object for normalizing taxonomy from occurrence-based CSV to
-  # deduplicated taxon-based CSV with sequential taxonIDs and parent/child
+  # deduplicated taxon-based CSV with OTU UUID taxonIDs and parent/child
   # relationships.
   #
   # Handles:
   # - Extracting unique taxa from occurrence data
   # - Building taxonomic hierarchy from rank columns
-  # - Assigning sequential taxonIDs
+  # - Assigning OTU UUID taxonIDs
   # - Creating parentNameUsageID relationships
   # - Handling synonyms in accepted_name_usage_id mode
-  class TaxonomyNormalizer
+  class OccurrenceNormalizer
     # @return [Array] of rank strings in hierarchical order (highest to lowest).
     ORDERED_RANKS = Data::ORDERED_RANKS
 
@@ -376,7 +376,7 @@ module Export::Dwca::Checklist
       all_taxa
     end
 
-    # Assign sequential taxonIDs and parentNameUsageIDs to all taxa.
+    # Assign OTU UUID taxonIDs and parentNameUsageIDs to all taxa.
     # @param all_taxa [Hash] hash of taxon_name_id => taxon data
     # @return [Array] [processed_taxa, taxon_name_id_to_taxon_id]
     def assign_taxon_ids_and_build_hierarchy(all_taxa)
