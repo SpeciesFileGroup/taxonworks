@@ -9,13 +9,14 @@ import getPagination from '@/helpers/getPagination'
 import qs from 'qs'
 
 export default function (service, { listParser, initParameters = {} } = {}) {
+  const DEFAULT_PER = 50
   const DEFAULT_PARAMETERS = {
     paginate: true
   }
   const state = reactive({
     append: false,
     parameters: {
-      per: 50
+      per: DEFAULT_PER
     },
     pagination: undefined,
     selectedIds: [],
@@ -116,7 +117,7 @@ export default function (service, { listParser, initParameters = {} } = {}) {
   }
 
   const resetFilter = () => {
-    state.parameters = { per: 50 }
+    state.parameters = { per: state.parameters.per ?? DEFAULT_PER }
     state.list = []
     state.isLoading = false
     state.urlRequest = ''

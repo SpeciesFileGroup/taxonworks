@@ -29,7 +29,9 @@ export const Otu = {
 
   navigation: (id) => AjaxCall('get', `/${controller}/${id}/navigation`),
 
-  timeline: (id) => AjaxCall('get', `/${controller}/${id}/timeline`),
+  timeline: (id) => AjaxCall('get', `/${controller}/${id}/timeline.json`),
+
+  citations: (id) => AjaxCall('get', `/${controller}/${id}/inventory/citations.json`),
 
   filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
 

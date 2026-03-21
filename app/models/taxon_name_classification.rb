@@ -312,8 +312,8 @@ class TaxonNameClassification < ApplicationRecord
   # @param batch_response [BatchResponse]
   # @param query [ActiveRecord::Relation] TaxonName scope from the filter
   # @param hash_query [Hash] serialized filter params, used to re-run the query in async jobs
-  # @param mode [Symbol, String] :add or :remove
-  # @param params [Hash] unused for fossil; present for interface consistency
+  # @param mode [Symbol, String] :add, :remove (fossil); :set, :remove_gender (gender)
+  # @param params [Hash] unused for fossil modes; :type required for :change
   # @param async [Boolean]
   # @param project_id [Integer]
   # @param user_id [Integer]
@@ -328,7 +328,7 @@ class TaxonNameClassification < ApplicationRecord
     r = batch_response
 
     case mode.to_sym
-    when :add
+    when :add # fossil
       if async && !called_from_async
         BatchByFilterScopeJob.perform_later(
           klass: self.name,
@@ -360,7 +360,7 @@ class TaxonNameClassification < ApplicationRecord
         end
       end
 
-    when :remove
+    when :remove # fossil
       if async && !called_from_async
         BatchByFilterScopeJob.perform_later(
           klass: self.name,
@@ -376,6 +376,67 @@ class TaxonNameClassification < ApplicationRecord
           .where(taxon_name: query)
           .find_each do |c|
             c.destroy # destroy is necessary for cached processing
+            if c.destroyed?
+              r.updated.push nil
+            else
+              r.not_updated.push c.taxon_name_id
+            end
+          end
+      end
+
+    when :set # gender
+      gender_type = params[:type]
+      return r unless TAXON_NAME_CLASSIFICATIONS_FOR_GENDER.include?(gender_type)
+
+      if async && !called_from_async
+        BatchByFilterScopeJob.perform_later(
+          klass: self.name,
+          hash_query:,
+          mode:,
+          params:,
+          project_id:,
+          user_id:
+        )
+      else
+        existing_by_taxon_name_id = TaxonNameClassification
+          .with_type_array(TAXON_NAME_CLASSIFICATIONS_FOR_GENDER)
+          .where(taxon_name: query)
+          .index_by(&:taxon_name_id)
+
+        query.find_each do |taxon_name|
+          if existing = existing_by_taxon_name_id[taxon_name.id]
+            if existing.update(type: gender_type)
+              r.updated.push existing.id
+            else
+              r.not_updated.push taxon_name.id
+            end
+          else
+            classification = TaxonNameClassification.create(taxon_name: taxon_name, type: gender_type)
+            if classification.persisted?
+              r.updated.push classification.id
+            else
+              r.not_updated.push taxon_name.id
+            end
+          end
+        end
+      end
+
+    when :remove_gender
+      if async && !called_from_async
+        BatchByFilterScopeJob.perform_later(
+          klass: self.name,
+          hash_query:,
+          mode:,
+          params:,
+          project_id:,
+          user_id:
+        )
+      else
+        TaxonNameClassification
+          .with_type_array(TAXON_NAME_CLASSIFICATIONS_FOR_GENDER)
+          .where(taxon_name: query)
+          .find_each do |c|
+            c.destroy # destroy is necessary to updated cached values
             if c.destroyed?
               r.updated.push nil
             else

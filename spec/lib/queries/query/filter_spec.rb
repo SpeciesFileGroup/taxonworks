@@ -39,13 +39,15 @@ describe Queries::Query::Filter, type: [:model] do
     let(:o3) { FactoryBot.create(:valid_otu) }
 
     specify '#apply_venn ab' do
-      v = "http://127.0.0.1:3000/otus/filter.json?name=#{o2.name}"
+      # Without name_exact=true, v can contain o1 and/or o3 if their Faker name happens to %-match o1's
+      v = "http://127.0.0.1:3000/otus/filter.json?name=#{o2.name}&name_exact=true"
       a = ::Queries::Otu::Filter.new(otu_id: [o1.id, o2.id, o3.id], venn: v, venn_mode: :ab)
       expect(a.all).to contain_exactly(o2)
     end
 
     specify '#apply_venn #venn_mode a' do
-      v = "http://127.0.0.1:3000/otus/filter.json?name=#{o2.name}"
+      # Without name_exact=true, v can contain o1 and/or o3 if their Faker name happens to %-match o1's
+      v = "http://127.0.0.1:3000/otus/filter.json?name=#{o2.name}&name_exact=true"
       a = ::Queries::Otu::Filter.new(otu_id: [o1.id, o2.id, o3.id], venn: v, venn_mode: :a)
       expect(a.all).to contain_exactly(o1, o3)
     end

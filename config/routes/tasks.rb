@@ -263,8 +263,10 @@ scope :tasks do
     end
   end
 
-  scope :browse_annotations, controller: 'tasks/object_annotations/browse_annotations' do
-    get '/', action: :index, as: 'browse_annotations_task'
+  scope :annotations do
+    scope :filter, controller: 'tasks/annotations/filter' do
+      get '/', action: :index, as: 'annotations_filter_task'
+    end
   end
 
   scope :citations do
@@ -585,6 +587,10 @@ scope :tasks do
   end
 
   scope :biological_associations do
+    scope :new_ba, controller: 'tasks/biological_associations/new_ba' do
+      get '/', action: :index, as: 'new_ba_task'
+    end
+
     scope :new_biological_association, controller: 'tasks/biological_associations/new_biological_association' do
       get '/', action: :index, as: 'new_biological_association_task'
     end

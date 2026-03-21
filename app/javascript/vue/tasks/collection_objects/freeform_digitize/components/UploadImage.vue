@@ -1,11 +1,10 @@
 <template>
-  <div class="panel content full-width">
+  <div class="panel content">
     <SmartSelector
       model="images"
       default="new"
       :target="COLLECTION_OBJECT"
       :autocomplete="false"
-      :search="false"
       :add-tabs="['new']"
       pin-section="Images"
       :pin-type="IMAGE"

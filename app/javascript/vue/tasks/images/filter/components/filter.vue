@@ -135,7 +135,8 @@ const WITH_PARAMS = [
   'origin_citation',
   'sled_image',
   'sqed_image',
-  'type_material_depictions'
+  'type_material_depictions',
+  'metadata_depiction'
 ]
 
 const emit = defineEmits(['update:modelValue'])

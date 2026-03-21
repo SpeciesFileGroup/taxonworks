@@ -12,7 +12,7 @@
         :shorten="100"
         label="cached"
         v-model="source"
-        @selected="setSource"
+        @selected="onSourceSelected"
       >
         <template #tabs-right>
           <FormCitationClone
@@ -63,6 +63,7 @@
             v-model="citation.pages"
             type="text"
             class="normal-input inline pages"
+            ref="pagesRef"
             placeholder="pages"
             @input="setPage"
           />
@@ -99,7 +100,7 @@
 
 <script setup>
 import { Source } from '@/routes/endpoints'
-import { computed, onBeforeMount, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeMount, ref, watch } from 'vue'
 import { convertType } from '@/helpers/types'
 import makeCitation from '@/factory/Citation'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
@@ -203,6 +204,7 @@ const isLocked = defineModel('lock', {
 })
 
 const sourceId = computed(() => props.modelValue.source_id)
+const pagesRef = ref(null)
 const source = ref(undefined)
 
 watch(sourceId, async (newId, oldId) => {
@@ -228,6 +230,11 @@ watch(isLocked, (newVal) => {
   }
   emit('lock', newVal)
 })
+
+function onSourceSelected(value) {
+  setSource(value)
+  nextTick(() => pagesRef.value?.focus())
+}
 
 function setSource(value) {
   source.value = value
