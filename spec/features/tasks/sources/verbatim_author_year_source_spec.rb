@@ -8,11 +8,18 @@ describe 'Verbatim author year to source', type: :feature, group: :sources do
     context 'when I visit the task page' do
       before { visit verbatim_author_year_source_task_path }
 
-      xspecify 'page loads without error' do
-        expect(page).to have_text('Verbatim author/year to Source')
+      specify 'page loads without error' do
+        expect(page).to have_text('TaxonName verbatim author/year without citations')
       end
 
-      context 'with taxon names having verbatim author and year' do
+      context 'with taxon names having verbatim author and year', js: true do
+        # Current must be set in the test process so that the parent_is_root factory
+        # trait can look up / create the root TaxonName via housekeeping callbacks.
+        before do
+          Current.user_id    = @user.id
+          Current.project_id = @project.id
+        end
+
         let!(:taxon_name1) {
           FactoryBot.create(:valid_protonym,
             verbatim_author: 'Smith',
@@ -37,23 +44,23 @@ describe 'Verbatim author year to source', type: :feature, group: :sources do
 
         before { visit verbatim_author_year_source_task_path }
 
-        xspecify 'displays unique author/year combinations' do
+        specify 'displays unique author/year combinations' do
           expect(page).to have_text('Smith')
           expect(page).to have_text('2020')
           expect(page).to have_text('Jones')
           expect(page).to have_text('2019')
         end
 
-        xspecify 'displays record counts' do
+        specify 'displays record counts' do
           expect(page).to have_text('2') # Smith 2020 has 2 records
           expect(page).to have_text('1') # Jones 2019 has 1 record
         end
 
-        xspecify 'provides link to new source' do
+        specify 'provides link to new source' do
           expect(page).to have_link('New Source')
         end
 
-        xspecify 'provides link to filter taxon names' do
+        specify 'provides link to filter taxon names' do
           expect(page).to have_link('Filter TaxonNames')
         end
       end
