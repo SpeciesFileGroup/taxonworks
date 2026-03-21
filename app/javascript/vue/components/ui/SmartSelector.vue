@@ -110,6 +110,7 @@
                     :value="item.id"
                     :checked="selectedItem && item.id === selectedItem.id"
                     type="radio"
+                    @click.stop
                     @keyup="changeTab"
                     @keyup.enter="sendObject(item)"
                     @keyup.space="sendObject(item)"
