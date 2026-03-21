@@ -15,6 +15,9 @@ json.array! @biological_associations do |ba|
     json.properties index.subject_properties
   end
 
+  json.subject_otu_id ba.subject_otu_id
+  json.object_otu_id ba.object_otu_id
+
   # Relationship from index
   json.relationship index.relationship_name
 
