@@ -124,17 +124,17 @@ module FieldOccurrence::DwcExtensions
 
   # https://dwc.tdwg.org/list/#dwc_georeferenceRemarks
   def dwc_occurrence_remarks
-    notes.collect{|n| n.text}&.join(FieldOccurrence::DWC_DELIMITER)
+    notes.collect{|n| n.text}&.join(Export::Dwca::DELIMITER)
   end
 
   # https://dwc.tdwg.org/list/#dwc_identificationRemarks
   def dwc_identification_remarks
-    current_taxon_determination&.notes&.collect { |n| n.text }&.join(FieldOccurrence::DWC_DELIMITER)
+    current_taxon_determination&.notes&.collect { |n| n.text }&.join(Export::Dwca::DELIMITER)
   end
 
   # https://dwc.tdwg.org/terms/#dwc:associatedMedia
   def dwc_associated_media
-    images.collect{|i| Shared::Api.api_link(i, i.image_file_fingerprint) }.join(FieldOccurrence::DWC_DELIMITER).presence
+    images.collect{|i| Shared::Api.api_link(i, i.image_file_fingerprint) }.join(Export::Dwca::DELIMITER).presence
   end
 
   # https://dwc.tdwg.org/terms/#dwc:associatedtaxa
@@ -145,13 +145,13 @@ module FieldOccurrence::DwcExtensions
   def dwc_other_catalog_numbers
     i = identifiers.where.not('type ilike ?', 'Identifier::Global::Uuid%').order(:position).to_a
     i.shift
-    i.map(&:cached).join(FieldOccurrence::DWC_DELIMITER).presence
+    i.map(&:cached).join(Export::Dwca::DELIMITER).presence
   end
 
   def dwc_previous_identifications
     a = taxon_determinations.order(:position).to_a
     a.shift
-    a.collect{|d| ApplicationController.helpers.label_for_taxon_determination(d)}.join(FieldOccurrence::DWC_DELIMITER).presence
+    a.collect{|d| ApplicationController.helpers.label_for_taxon_determination(d)}.join(Export::Dwca::DELIMITER).presence
   end
 
   # TODO: normalize
@@ -207,7 +207,7 @@ module FieldOccurrence::DwcExtensions
   def dwc_type_status
     type_materials.all.collect{|t|
       ApplicationController.helpers.label_for_type_material(t)
-    }.join(FieldOccurrence::DWC_DELIMITER).presence
+    }.join(Export::Dwca::DELIMITER).presence
   end
 
   # ISO 8601:2004(E).
@@ -220,7 +220,7 @@ module FieldOccurrence::DwcExtensions
     v.shift
     v.pop
     v.compact
-    v.join(FieldOccurrence::DWC_DELIMITER)
+    v.join(Export::Dwca::DELIMITER)
   end
 
   def dwc_kingdom

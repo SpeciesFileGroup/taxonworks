@@ -76,6 +76,41 @@ class Tasks::Dwc::DashboardController < ApplicationController
     render json: ::CollectionObject::DwcExtensions::TaxonworksExtensions::EXTENSION_FIELDS, status: :ok
   end
 
+  def checklist_extensions
+    render json: ::Export::Dwca::Checklist::Data::CHECKLIST_EXTENSION_OPTIONS, status: :ok
+  end
+
+  def accepted_name_mode_options
+    options = [
+      {
+        value: ::Export::Dwca::Checklist::Data::REPLACE_WITH_ACCEPTED_NAME,
+        label: 'Replace invalid names with valid names'
+      },
+      {
+        value: ::Export::Dwca::Checklist::Data::ACCEPTED_NAME_USAGE_ID,
+        label: 'Classify synonyms using acceptedNameUsageID'
+      }
+    ]
+    render json: options, status: :ok
+  end
+
+  def generate_checklist_download
+    core_otu_scope_params = params[:otu_query]&.to_unsafe_h || {}
+    extensions = (params[:extensions] || []).map(&:to_sym)
+    accepted_name_mode = params[:accepted_name_mode] || 'replace_with_accepted_name'
+    description_topics = params[:description_topics] || []
+
+    @download = ::Export::Dwca.checklist_download_async(
+      core_otu_scope_params,
+      request.url,
+      extensions:,
+      accepted_name_mode:,
+      description_topics:,
+      project_id: sessions_current_project_id
+    )
+    render '/downloads/show'
+  end
+
   private
 
   def predicate_extension_params

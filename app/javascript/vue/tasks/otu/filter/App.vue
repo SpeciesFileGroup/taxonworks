@@ -76,6 +76,7 @@ import { OTU } from '@/constants/index.js'
 import { Otu } from '@/routes/endpoints'
 import { computed } from 'vue'
 import csvDownload from './components/csvDownload.vue'
+import DwcChecklistDownload from './components/dwcChecklistDownload.vue'
 
 const extend = ['taxonomy']
 
@@ -99,6 +100,15 @@ const extendDownload = computed(() => [
     component: csvDownload,
     bind: {
       params: parameters.value
+    }
+  },
+  {
+    label: 'DwC Checklist',
+    component: DwcChecklistDownload,
+    bind: {
+      params: parameters.value,
+      total: pagination.value?.total,
+      selectedIds: selectedIds.value
     }
   }
 ])
