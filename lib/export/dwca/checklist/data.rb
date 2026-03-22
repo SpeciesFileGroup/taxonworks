@@ -7,7 +7,7 @@ module Export::Dwca::Checklist
     DESCRIPTION_EXTENSION = :description
     DISTRIBUTION_EXTENSION = :distribution
     REFERENCES_EXTENSION = :references
-    TYPES_AND_SPECIMEN_EXTENSION = :types_and_specimens
+    TYPES_AND_SPECIMEN_EXTENSION = :types_and_specimen
     VERNACULAR_NAME_EXTENSION = :vernacular_name
 
     CHECKLIST_EXTENSION_OPTIONS = [
@@ -619,7 +619,7 @@ module Export::Dwca::Checklist
     # @return [String]
     # the name of zipfile
     def zipfile_name
-      @zipfile_name ||= "dwc_checklist_#{DateTime.now}.zip"
+      @zipfile_name ||= "dwc_checklist_#{Time.current}.zip"
       @zipfile_name
     end
 
@@ -642,42 +642,32 @@ module Export::Dwca::Checklist
 
     # Cleanup temporary files
     def cleanup
-      zipfile.close if zipfile
-      zipfile.unlink if zipfile
+      zipfile&.close
+      zipfile&.unlink
 
-      data_file.close if data_file
-      data_file.unlink if data_file
+      data_file&.close
+      data_file&.unlink
 
-      if description_extension && @description_extension_tmp
-        @description_extension_tmp.close
-        @description_extension_tmp.unlink
-      end
+      @description_extension_tmp&.close
+      @description_extension_tmp&.unlink
 
-      if species_distribution_extension && @species_distribution_extension_tmp
-        @species_distribution_extension_tmp.close
-        @species_distribution_extension_tmp.unlink
-      end
+      @species_distribution_extension_tmp&.close
+      @species_distribution_extension_tmp&.unlink
 
-      if references_extension && @references_extension_tmp
-        @references_extension_tmp.close
-        @references_extension_tmp.unlink
-      end
+      @references_extension_tmp&.close
+      @references_extension_tmp&.unlink
 
-      if types_and_specimen_extension && @types_and_specimen_extension_tmp
-        @types_and_specimen_extension_tmp.close
-        @types_and_specimen_extension_tmp.unlink
-      end
+      @types_and_specimen_extension_tmp&.close
+      @types_and_specimen_extension_tmp&.unlink
 
-      if vernacular_name_extension && @vernacular_name_extension_tmp
-        @vernacular_name_extension_tmp.close
-        @vernacular_name_extension_tmp.unlink
-      end
+      @vernacular_name_extension_tmp&.close
+      @vernacular_name_extension_tmp&.unlink
 
-      eml.close if eml
-      eml.unlink if eml
+      eml&.close
+      eml&.unlink
 
-      meta.close if meta
-      meta.unlink if meta
+      meta&.close
+      meta&.unlink
 
       true
     end

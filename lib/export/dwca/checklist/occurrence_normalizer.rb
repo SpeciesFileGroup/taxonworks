@@ -1,7 +1,6 @@
 module Export::Dwca::Checklist
-  # Service object for normalizing taxonomy from occurrence-based CSV to
-  # deduplicated taxon-based CSV with OTU UUID taxonIDs and parent/child
-  # relationships.
+  # Service object for normalizing from occurrence-based CSV to deduplicated
+  # taxon-based CSV with OTU UUID taxonIDs and parent/child relationships.
   #
   # Handles:
   # - Extracting unique taxa from occurrence data
@@ -119,7 +118,6 @@ module Export::Dwca::Checklist
         tn_data = otu_to_taxon_name_data[occurrence_to_otu[occurrence_key]]
         next unless tn_data
 
-        # Use valid taxon_name_id in replace mode, actual id in accepted_name_usage_id mode
         if accepted_name_mode == 'replace_with_accepted_name'
           tn_data[:cached_valid_taxon_name_id] || tn_data[:id]
         else
@@ -128,9 +126,11 @@ module Export::Dwca::Checklist
       }.compact.uniq
     end
 
-    # Build a lookup hash for ancestor taxon_name_ids from terminal taxon_name_ids.
+    # Build a lookup hash for ancestor taxon_name_ids from terminal
+    # taxon_name_ids.
     # @param terminal_taxon_name_ids [Array<Integer>] IDs of terminal TaxonNames
-    # @return [Hash] "terminal_tn_id:rank" => ancestor_tn_id
+    # @return [Hash] "terminal_tn_id:rank" => ancestor_tn_id, i.e. gives the
+    #   taxon_name id of the ancestor of terminal_tn_id at rank +rank+
     def build_ancestor_lookup(terminal_taxon_name_ids)
       return {} if terminal_taxon_name_ids.empty?
 
@@ -511,7 +511,6 @@ module Export::Dwca::Checklist
         current_parent_id = taxon_name_info[current_parent_id]&.[](:parent_id)
       end
 
-      # Exclude fields
       excluded_fields = [
         'taxonID', 'id', 'acceptedNameUsageID', 'parentNameUsageID',
         'taxon_name_cached', 'taxon_name_cached_is_valid',
@@ -520,7 +519,6 @@ module Export::Dwca::Checklist
       ]
       excluded_fields << 'taxonomicStatus' if accepted_name_mode == 'accepted_name_usage_id'
 
-      # Build base fields.
       processed_taxon = {
         'id' => taxon_id,
         'taxonID' => taxon_id,
@@ -545,7 +543,9 @@ module Export::Dwca::Checklist
     # @param taxon_id [Integer] assigned taxonID
     # @param taxon_name_id_to_taxon_id [Hash] taxon_name_id => taxonID
     # @return [Array] [acceptedNameUsageID, taxonomicStatus]
-    def determine_accepted_name_usage(taxon, taxon_id, taxon_name_id_to_taxon_id)
+    def determine_accepted_name_usage(
+      taxon, taxon_id, taxon_name_id_to_taxon_id
+    )
       return [nil, nil] unless accepted_name_mode == 'accepted_name_usage_id'
 
       is_valid = taxon['taxon_name_cached_is_valid']

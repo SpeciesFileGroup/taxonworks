@@ -1,7 +1,7 @@
 # CSV for Types and Specimen extension (for checklist archives).
 # See http://rs.gbif.org/extension/gbif/1.0/typesandspecimen.xml
 #
-# Note: Currently nly includes fields that can be populated from DwcOccurrence.
+# Note: Currently only includes fields that can be populated from DwcOccurrence.
 # Type-specific fields like typeDesignationType and typeDesignatedBy would
 # require accessing TypeMaterial objects directly.
 module Export::CSV::Dwc::Extension::Checklist::TypesAndSpecimen

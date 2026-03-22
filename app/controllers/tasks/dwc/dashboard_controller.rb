@@ -118,12 +118,12 @@ class Tasks::Dwc::DashboardController < ApplicationController
   private
 
   def predicate_extension_params
-    a = params.permit(collecting_event_predicate_id: [], collection_object_predicate_id: []).to_h.symbolize_keys
+    params.permit(collecting_event_predicate_id: [], collection_object_predicate_id: []).to_h.symbolize_keys
   end
 
   def taxonworks_extension_params
     a = params.permit(taxonworks_extension_methods: []).dig(:taxonworks_extension_methods)
-    a ? a.map(&:to_sym) : {}
+    a&.map(&:to_sym) || []
   end
 
 end

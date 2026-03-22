@@ -294,16 +294,11 @@ function download() {
     payload.download_description = downloadDescription.value.trim()
   }
 
-  console.log('Sending payload:', payload)
-
   DwcChecklist.generateChecklistDownload(payload).then(({ body }) => {
-    console.log('Success response:', body)
     emit('create', body)
     openGenerateDownloadModal()
   }).catch((error) => {
-    console.error('Error generating checklist download:', error)
-    console.error('Error details:', error.response?.data)
-    alert(`Error generating download: ${error.response?.data?.error || error.message}`)
+    TW.workbench.alert.create(`Error generating download: ${error.response?.data?.error || error.message}`, 'error')
   })
 }
 
