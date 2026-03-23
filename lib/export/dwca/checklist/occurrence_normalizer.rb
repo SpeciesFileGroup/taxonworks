@@ -558,6 +558,11 @@ module Export::Dwca::Checklist
           valid_taxon_name_id = taxon['taxon_name_cached_valid_taxon_name_id']
           if valid_taxon_name_id.present?
             accepted_id = taxon_name_id_to_taxon_id[valid_taxon_name_id]
+            # NOTE: accepted_id may be nil when the valid name has no OTU UUID
+            # in this export - technicaly this is bad DwC checklist behavior:
+            # https://ipt.gbif.org/manual/en/ipt/latest/best-practices-checklists#publishing-synonymy
+            # "An dwc:acceptedNameUsageID must point to an existing record in
+            # the dataset"
             [accepted_id, 'synonym']
           else
             [nil, nil]

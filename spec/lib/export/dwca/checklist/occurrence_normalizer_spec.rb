@@ -381,6 +381,181 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
     end
   end
 
+  describe '#add_terminal_taxon' do
+    let(:all_taxa) { {} }
+    let(:ancestor_lookup) { {} }
+
+    specify 'two homonyms with the same name string but different taxon_name_ids are both stored' do
+      row1 = CSV::Row.new(['scientificName', 'taxonRank', 'family'], ['Aus', 'genus', 'Aidae'])
+      row2 = CSV::Row.new(['scientificName', 'taxonRank', 'family'], ['Aus', 'genus', 'Bidae'])
+
+      normalizer.send(:add_terminal_taxon, row1, 100, 'genus', all_taxa, ancestor_lookup)
+      normalizer.send(:add_terminal_taxon, row2, 200, 'genus', all_taxa, ancestor_lookup)
+
+      expect(all_taxa.size).to eq(2)
+      expect(all_taxa[100]['family']).to eq('Aidae')
+      expect(all_taxa[200]['family']).to eq('Bidae')
+    end
+
+    specify 'the same taxon encountered a second time is not overwritten' do
+      row1 = CSV::Row.new(['scientificName', 'taxonRank'], ['Aus bus', 'species'])
+      row2 = CSV::Row.new(['scientificName', 'taxonRank'], ['Aus bus (Smith, 1900)', 'species'])
+
+      normalizer.send(:add_terminal_taxon, row1, 100, 'species', all_taxa, ancestor_lookup)
+      normalizer.send(:add_terminal_taxon, row2, 100, 'species', all_taxa, ancestor_lookup)
+
+      expect(all_taxa.size).to eq(1)
+      expect(all_taxa[100]['scientificName']).to eq('Aus bus')
+    end
+  end
+
+  describe '#extract_parent_species_for_taxon' do
+    let(:all_taxa) { {} }
+
+    specify 'does not create a parent species when genus is absent from the row' do
+      row = CSV::Row.new(
+        ['scientificName', 'taxonRank', 'genus', 'specificEpithet', 'infraspecificEpithet'],
+        ['bus cus', 'subspecies', nil, 'bus', 'cus']
+      )
+      normalizer.send(:extract_parent_species_for_taxon, row, 'subspecies', 100, {}, all_taxa)
+      expect(all_taxa).to be_empty
+    end
+
+    specify 'does not create a parent species when specificEpithet is absent from the row' do
+      row = CSV::Row.new(
+        ['scientificName', 'taxonRank', 'genus', 'specificEpithet', 'infraspecificEpithet'],
+        ['Aus cus', 'subspecies', 'Aus', nil, 'cus']
+      )
+      normalizer.send(:extract_parent_species_for_taxon, row, 'subspecies', 100, {}, all_taxa)
+      expect(all_taxa).to be_empty
+    end
+
+    specify 'does not create a parent species when no species ancestor exists in the lookup' do
+      row = CSV::Row.new(
+        ['scientificName', 'taxonRank', 'genus', 'specificEpithet', 'infraspecificEpithet'],
+        ['Aus bus cus', 'subspecies', 'Aus', 'bus', 'cus']
+      )
+      normalizer.send(:extract_parent_species_for_taxon, row, 'subspecies', 100, {}, all_taxa)
+      expect(all_taxa).to be_empty
+    end
+
+    specify 'does not duplicate a parent species that is already in all_taxa' do
+      row = CSV::Row.new(
+        ['scientificName', 'taxonRank', 'genus', 'specificEpithet', 'infraspecificEpithet'],
+        ['Aus bus cus', 'subspecies', 'Aus', 'bus', 'cus']
+      )
+      all_taxa[50] = { 'scientificName' => 'Aus bus', 'taxon_name_id' => 50 }
+      ancestor_lookup = { '100:species' => 50 }
+
+      normalizer.send(:extract_parent_species_for_taxon, row, 'subspecies', 100, ancestor_lookup, all_taxa)
+      expect(all_taxa.size).to eq(1)
+    end
+
+    specify 'constructs parent species scientificName as bare binomial without authorship' do
+      row = CSV::Row.new(
+        ['scientificName', 'taxonRank', 'genus', 'specificEpithet',
+         'infraspecificEpithet', 'scientificNameAuthorship'],
+        ['Aus bus cus', 'subspecies', 'Aus', 'bus', 'cus', 'Smith, 1900']
+      )
+      ancestor_lookup = { '100:species' => 50 }
+
+      normalizer.send(:extract_parent_species_for_taxon, row, 'subspecies', 100, ancestor_lookup, all_taxa)
+      expect(all_taxa[50]['scientificName']).to eq('Aus bus')
+    end
+  end
+
+  describe '#extract_ancestor_taxa' do
+    let(:all_taxa) { {} }
+
+    specify 'stops walking toward the root when an ancestor is already present (early termination)' do
+      # Family already in all_taxa - loop must break there and not add kingdom or phylum.
+      all_taxa[25] = { 'scientificName' => 'Noctuidae', 'taxonRank' => 'family' }
+
+      row = CSV::Row.new(
+        ['scientificName', 'taxonRank', 'kingdom', 'phylum', 'family', 'genus'],
+        ['Aus bus', 'species', 'Animalia', 'Arthropoda', 'Noctuidae', 'Aus']
+      )
+      ancestor_lookup = {
+        '100:kingdom' => 1,
+        '100:phylum'  => 5,
+        '100:family'  => 25,
+        '100:genus'   => 50
+      }
+
+      normalizer.send(:extract_ancestor_taxa, row, 100, 'species', ancestor_lookup, all_taxa)
+
+      expect(all_taxa[50]).to be_present               # genus was added before the break
+      expect(all_taxa[25]['scientificName']).to eq('Noctuidae') # family unchanged
+      expect(all_taxa[1]).to be_nil                    # kingdom never reached
+      expect(all_taxa[5]).to be_nil                    # phylum never reached
+    end
+  end
+
+  describe '#determine_accepted_name_usage' do
+    context 'in accepted_name_usage_id mode when valid name has no UUID in the export' do
+      let(:normalizer) do
+        described_class.new(
+          raw_csv: raw_csv,
+          accepted_name_mode: 'accepted_name_usage_id',
+          otu_to_taxon_name_data: {},
+          occurrence_to_otu: {}
+        )
+      end
+
+      specify 'returns nil acceptedNameUsageID and still sets taxonomicStatus to synonym' do
+        taxon = {
+          'taxon_name_cached_is_valid' => false,
+          'taxon_name_cached_valid_taxon_name_id' => 999
+        }
+
+        result = normalizer.send(:determine_accepted_name_usage, taxon, 7, { 100 => 'some-uuid' })
+
+        expect(result).to eq([nil, 'synonym'])
+      end
+    end
+  end
+
+  describe '#ensure_valid_names_for_synonyms' do
+    specify 'does not create a duplicate when the valid name is already in all_taxa' do
+      valid_tn = FactoryBot.create(:root_taxon_name)
+
+      synonym_taxon = {
+        'scientificName' => 'Aus bus var. cus',
+        'taxonRank'      => 'variety',
+        'taxon_name_cached_is_valid'            => false,
+        'taxon_name_cached_valid_taxon_name_id' => valid_tn.id
+      }
+      existing_valid_taxon = {
+        'scientificName'             => valid_tn.cached,
+        'taxonRank'                  => 'species',
+        'taxon_name_cached_is_valid' => true
+      }
+
+      all_taxa = { 999 => synonym_taxon, valid_tn.id => existing_valid_taxon }
+      result = normalizer.send(:ensure_valid_names_for_synonyms, all_taxa, nil)
+
+      expect(result.size).to eq(2)
+      expect(result[valid_tn.id]['taxonRank']).to eq('species')  # not overwritten
+    end
+
+    specify 'creates the valid name entry when it is absent from all_taxa' do
+      valid_tn = FactoryBot.create(:root_taxon_name)
+
+      synonym_taxon = {
+        'scientificName' => 'Aus bus var. cus',
+        'taxonRank'      => 'variety',
+        'taxon_name_cached_is_valid'            => false,
+        'taxon_name_cached_valid_taxon_name_id' => valid_tn.id
+      }
+
+      all_taxa = { 999 => synonym_taxon }
+      result = normalizer.send(:ensure_valid_names_for_synonyms, all_taxa, nil)
+
+      expect(result[valid_tn.id]).to be_present
+      expect(result[valid_tn.id]['taxon_name_cached_is_valid']).to be(true)
+    end
+  end
+
   describe '.infraspecific_rank_names' do
     specify 'returns array of infraspecific ranks' do
       ranks = described_class.infraspecific_rank_names
