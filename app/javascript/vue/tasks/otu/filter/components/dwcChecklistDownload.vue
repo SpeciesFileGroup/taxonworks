@@ -160,7 +160,11 @@
         <h3>Select Topic</h3>
       </template>
       <template #body>
-        <TopicList :add-all="true" @select="addTopic" @select-all="addAllTopics" />
+        <TopicList
+          add-all
+          @select="addTopic"
+          @select-all="addAllTopics"
+        />
       </template>
     </v-modal>
     <ConfirmationModal ref="confirmationModalRef" />
@@ -215,7 +219,6 @@ onMounted(async () => {
   try {
     isLoadingExtensions.value = true
 
-    // Fetch extensions
     const { body: extensions } = await DwcChecklist.checklistExtensions()
     availableExtensions.value = extensions
       .map(cur => {
@@ -243,7 +246,6 @@ onMounted(async () => {
     const { body: modeOptions } = await DwcChecklist.acceptedNameModeOptions()
     acceptedNameModeOptions.value = modeOptions
 
-    // Set default to first option if available
     if (modeOptions.length > 0) {
       acceptedNameMode.value = modeOptions[0].value
     }
@@ -270,7 +272,6 @@ function download() {
     ? { otu_id: props.selectedIds }
     : getFilterParams(props.params)
 
-  // Get list of enabled extensions
   const extensions = Object.entries(selectedExtensions)
     .filter(([_, enabled]) => enabled)
     .map(([extension]) => extension)
@@ -281,7 +282,6 @@ function download() {
     accepted_name_mode: acceptedNameMode.value
   }
 
-  // Add description topics if description extension is selected
   if (selectedExtensions.description && selectedTopics.value.length > 0) {
     payload.description_topics = selectedTopics.value.map(t => t.id)
   }
@@ -322,7 +322,6 @@ async function openGenerateDownloadModal() {
 }
 
 function addTopic(topic) {
-  // Avoid duplicates
   if (!selectedTopics.value.find(t => t.id === topic.id)) {
     selectedTopics.value.push(topic)
     TW.workbench.alert.create(`Added topic: ${topic.name}`, 'notice')

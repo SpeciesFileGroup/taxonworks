@@ -1616,6 +1616,13 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
         expect(invalid_taxon).to be_nil, 'Invalid species name should be replaced with valid name, not appear separately'
       end
 
+      specify 'replace_with_accepted_name mode produces exactly one row for the valid name when both valid and synonym have occurrences' do
+        replace_csv = CSV.parse(replace_with_accepted_data.csv, headers: true, col_sep: "\t")
+
+        catus_rows = replace_csv.select { |row| row['scientificName']&.include?('catus') && row['taxonRank'] == 'species' }
+        expect(catus_rows.size).to eq(1), 'Valid name should appear exactly once even though two occurrences map to it'
+      end
+
       specify 'accepted_name_usage_id mode includes both taxa' do
         all_csv = CSV.parse(accepted_name_usage_id_data.csv, headers: true, col_sep: "\t")
 
