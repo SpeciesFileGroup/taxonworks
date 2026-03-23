@@ -220,6 +220,7 @@ module Export::Dwca::Checklist
       row['taxon_name_cached'] = tn_data[:cached]
       row['taxon_name_cached_is_valid'] = tn_data[:cached_is_valid]
       row['taxon_name_cached_valid_taxon_name_id'] = tn_data[:cached_valid_taxon_name_id]
+      row['taxon_name_gbif_taxonomic_status'] = tn_data[:gbif_taxonomic_status]
     end
 
     # Add terminal taxon to all_taxa if not already present.
@@ -515,6 +516,7 @@ module Export::Dwca::Checklist
         'taxonID', 'id', 'acceptedNameUsageID', 'parentNameUsageID',
         'taxon_name_cached', 'taxon_name_cached_is_valid',
         'taxon_name_cached_valid_taxon_name_id', 'taxon_name_id',
+        'taxon_name_gbif_taxonomic_status',
         'dwc_occurrence_object_type', 'dwc_occurrence_object_id'
       ]
       excluded_fields << 'taxonomicStatus' if accepted_name_mode == 'accepted_name_usage_id'
@@ -559,11 +561,12 @@ module Export::Dwca::Checklist
           if valid_taxon_name_id.present?
             accepted_id = taxon_name_id_to_taxon_id[valid_taxon_name_id]
             # NOTE: accepted_id may be nil when the valid name has no OTU UUID
-            # in this export - technicaly this is bad DwC checklist behavior:
+            # in this export - technically this is bad DwC checklist behavior:
             # https://ipt.gbif.org/manual/en/ipt/latest/best-practices-checklists#publishing-synonymy
             # "An dwc:acceptedNameUsageID must point to an existing record in
             # the dataset"
-            [accepted_id, 'synonym']
+            status = taxon['taxon_name_gbif_taxonomic_status'] || 'synonym'
+            [accepted_id, status]
           else
             [nil, nil]
           end

@@ -1926,4 +1926,36 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
       end
     end
   end
+
+  describe '.gbif_taxonomic_status_for' do
+    {
+      'TaxonNameRelationship::Iczn::Invalidating::Misapplication'               => 'misapplied',
+      'TaxonNameRelationship::Icn::Unaccepting::Misapplication'                 => 'misapplied',
+      'TaxonNameRelationship::Icnp::Unaccepting::Misapplication'                => 'misapplied',
+      'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective'           => 'homotypicSynonym',
+      'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym' => 'homotypicSynonym',
+      'TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic'             => 'homotypicSynonym',
+      'TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::Basionym'   => 'homotypicSynonym',
+      'TaxonNameRelationship::Icnp::Unaccepting::Synonym::Homotypic'            => 'homotypicSynonym',
+      'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective'          => 'heterotypicSynonym',
+      'TaxonNameRelationship::Icn::Unaccepting::Synonym::Heterotypic'           => 'heterotypicSynonym',
+      'TaxonNameRelationship::Icnp::Unaccepting::Synonym::Heterotypic'          => 'heterotypicSynonym',
+      'TaxonNameRelationship::Iczn::Invalidating::Synonym'                      => 'synonym',
+      'TaxonNameRelationship::Icn::Unaccepting::Synonym'                        => 'synonym',
+      'TaxonNameRelationship::Iczn::Invalidating'                               => 'synonym',
+      'TaxonNameRelationship::Icn::Unaccepting'                                 => 'synonym',
+    }.each do |type_string, expected_status|
+      specify "#{type_string} => '#{expected_status}'" do
+        expect(described_class.gbif_taxonomic_status_for(type_string)).to eq(expected_status)
+      end
+    end
+
+    specify 'returns nil for nil input' do
+      expect(described_class.gbif_taxonomic_status_for(nil)).to be_nil
+    end
+
+    specify 'returns nil for unrecognized relationship type' do
+      expect(described_class.gbif_taxonomic_status_for('TaxonNameRelationship::Iczn::PotentiallyValidating')).to be_nil
+    end
+  end
 end

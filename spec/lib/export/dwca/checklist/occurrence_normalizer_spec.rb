@@ -168,7 +168,7 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
         expect(result).to eq([5, 'accepted'])
       end
 
-      specify 'returns acceptedNameUsageID for synonyms' do
+      specify 'returns acceptedNameUsageID with fallback synonym status when no gbif status stored' do
         taxon = {
           'taxon_name_cached_is_valid' => false,
           'taxon_name_cached_valid_taxon_name_id' => 100
@@ -182,6 +182,40 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
         )
 
         expect(result).to eq([5, 'synonym'])
+      end
+
+      specify 'uses stored gbif_taxonomic_status when present (homotypicSynonym)' do
+        taxon = {
+          'taxon_name_cached_is_valid'          => false,
+          'taxon_name_cached_valid_taxon_name_id' => 100,
+          'taxon_name_gbif_taxonomic_status'    => 'homotypicSynonym'
+        }
+
+        result = normalizer.send(
+          :determine_accepted_name_usage,
+          taxon,
+          7,
+          taxon_name_id_to_taxon_id
+        )
+
+        expect(result).to eq([5, 'homotypicSynonym'])
+      end
+
+      specify 'uses stored gbif_taxonomic_status when present (misapplied)' do
+        taxon = {
+          'taxon_name_cached_is_valid'          => false,
+          'taxon_name_cached_valid_taxon_name_id' => 100,
+          'taxon_name_gbif_taxonomic_status'    => 'misapplied'
+        }
+
+        result = normalizer.send(
+          :determine_accepted_name_usage,
+          taxon,
+          7,
+          taxon_name_id_to_taxon_id
+        )
+
+        expect(result).to eq([5, 'misapplied'])
       end
 
       specify 'returns self-reference for extracted taxa with no validity data' do
@@ -357,6 +391,21 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
       )
     end
 
+    specify 'excludes taxon_name_gbif_taxonomic_status from output' do
+      taxon_with_status = taxon.merge('taxon_name_gbif_taxonomic_status' => 'homotypicSynonym')
+
+      result = normalizer.send(
+        :build_final_taxon,
+        taxon_with_status,
+        10,
+        100,
+        taxon_name_info,
+        taxon_name_id_to_taxon_id
+      )
+
+      expect(result.keys).not_to include('taxon_name_gbif_taxonomic_status')
+    end
+
     specify 'includes acceptedNameUsageID in accepted_name_usage_id mode' do
       normalizer_with_mode = described_class.new(
         raw_csv: raw_csv,
@@ -406,6 +455,31 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
 
       expect(all_taxa.size).to eq(1)
       expect(all_taxa[100]['scientificName']).to eq('Aus bus')
+    end
+  end
+
+  describe '#store_taxon_name_metadata' do
+    let(:row) { CSV::Row.new(['scientificName'], ['Aus bus']) }
+
+    specify 'stores gbif_taxonomic_status from tn_data into the row' do
+      tn_data = {
+        cached: 'Aus bus',
+        cached_is_valid: false,
+        cached_valid_taxon_name_id: 100,
+        gbif_taxonomic_status: 'homotypicSynonym'
+      }
+
+      normalizer.send(:store_taxon_name_metadata, row, tn_data)
+
+      expect(row['taxon_name_gbif_taxonomic_status']).to eq('homotypicSynonym')
+    end
+
+    specify 'stores nil when gbif_taxonomic_status is absent from tn_data' do
+      tn_data = { cached: 'Aus bus', cached_is_valid: true, cached_valid_taxon_name_id: nil }
+
+      normalizer.send(:store_taxon_name_metadata, row, tn_data)
+
+      expect(row['taxon_name_gbif_taxonomic_status']).to be_nil
     end
   end
 

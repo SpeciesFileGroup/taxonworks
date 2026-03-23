@@ -22,6 +22,26 @@ module Export::Dwca::Checklist
     REPLACE_WITH_ACCEPTED_NAME = 'replace_with_accepted_name'
     ACCEPTED_NAME_USAGE_ID = 'accepted_name_usage_id'
 
+    # Maps TaxonNameRelationship type strings to GBIF 2022 taxonomic status
+    # vocabulary terms. Checked in order; first match wins.
+    # https://rs.gbif.org/vocabulary/gbif/taxonomic_status_2022-02-02.xml
+    GBIF_TAXONOMIC_STATUS_FROM_RELATIONSHIP = [
+      [/Misapplication/,                             'misapplied'        ],
+      [/Synonym::Objective|Synonym::Homotypic/,      'homotypicSynonym'  ],
+      [/Synonym::Subjective|Synonym::Heterotypic/,   'heterotypicSynonym'],
+      [/Synonym|Invalidating|Unaccepting/,           'synonym'           ],
+    ].freeze
+
+    # @param relationship_type [String, nil] value of taxon_name_relationships.type
+    # @return [String, nil] GBIF 2022 taxonomic status term
+    def self.gbif_taxonomic_status_for(relationship_type)
+      return nil if relationship_type.nil?
+      GBIF_TAXONOMIC_STATUS_FROM_RELATIONSHIP.each do |pattern, status|
+        return status if relationship_type.match?(pattern)
+      end
+      nil
+    end
+
     ACCEPTED_NAME_MODE_OPTIONS = [
       REPLACE_WITH_ACCEPTED_NAME,
       ACCEPTED_NAME_USAGE_ID
@@ -323,6 +343,25 @@ module Export::Dwca::Checklist
             valid_cached: row[5]
           }
         end
+
+      # Enrich invalid names with their GBIF 2022 taxonomic status derived from
+      # the TaxonNameRelationship that makes each name a synonym/misapplication.
+      invalid_tn_ids = @otu_to_taxon_name_data.values
+        .select { |d| d[:cached_is_valid] == false }
+        .map    { |d| d[:id] }
+
+      if invalid_tn_ids.any?
+        tn_id_to_status = ::TaxonNameRelationship
+          .where(subject_taxon_name_id: invalid_tn_ids)
+          .pluck(:subject_taxon_name_id, :type)
+          .each_with_object({}) { |(tn_id, type), h|
+            h[tn_id] ||= self.class.gbif_taxonomic_status_for(type)
+          }
+
+        @otu_to_taxon_name_data.each_value do |data|
+          data[:gbif_taxonomic_status] = tn_id_to_status[data[:id]]
+        end
+      end
 
       @otu_to_taxon_name_data
     end
