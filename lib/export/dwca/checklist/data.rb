@@ -42,6 +42,15 @@ module Export::Dwca::Checklist
       nil
     end
 
+    # @param relationship_types [Array<String>] values of taxon_name_relationships.type
+    # @return [String, nil] highest-priority GBIF 2022 taxonomic status term
+    def self.gbif_taxonomic_status_from_types(relationship_types)
+      _, status = GBIF_TAXONOMIC_STATUS_FROM_RELATIONSHIP.find { |pattern, _|
+        relationship_types.any? { |t| t.match?(pattern) }
+      }
+      status
+    end
+
     ACCEPTED_NAME_MODE_OPTIONS = [
       REPLACE_WITH_ACCEPTED_NAME,
       ACCEPTED_NAME_USAGE_ID
@@ -357,15 +366,19 @@ module Export::Dwca::Checklist
       # the TaxonNameRelationship that makes each name a synonym/misapplication.
       invalid_tn_ids = @otu_to_taxon_name_data.values
         .select { |d| d[:cached_is_valid] == false }
-        .map    { |d| d[:id] }
+        .map { |d| d[:id] }
 
       if invalid_tn_ids.any?
-        tn_id_to_status = ::TaxonNameRelationship
+        tn_id_to_types = ::TaxonNameRelationship
           .where(subject_taxon_name_id: invalid_tn_ids)
           .pluck(:subject_taxon_name_id, :type)
-          .each_with_object({}) { |(tn_id, type), h|
-            h[tn_id] ||= self.class.gbif_taxonomic_status_for(type)
+          .each_with_object(Hash.new { |h, k| h[k] = [] }) { |(tn_id, type), h|
+            h[tn_id] << type
           }
+
+        tn_id_to_status = tn_id_to_types.transform_values { |types|
+          self.class.gbif_taxonomic_status_from_types(types)
+        }
 
         @otu_to_taxon_name_data.each_value do |data|
           data[:gbif_taxonomic_status] = tn_id_to_status[data[:id]]

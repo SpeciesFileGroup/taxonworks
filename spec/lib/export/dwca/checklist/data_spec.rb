@@ -1934,6 +1934,36 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
     end
   end
 
+  describe '.gbif_taxonomic_status_from_types' do
+    specify 'returns the highest-priority status when multiple types present' do
+      types = [
+        'TaxonNameRelationship::Iczn::Invalidating::Synonym',
+        'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective'
+      ]
+      expect(described_class.gbif_taxonomic_status_from_types(types)).to eq('homotypicSynonym')
+    end
+
+    specify 'misapplied takes priority over any synonym type' do
+      types = [
+        'TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective',
+        'TaxonNameRelationship::Iczn::Invalidating::Misapplication'
+      ]
+      expect(described_class.gbif_taxonomic_status_from_types(types)).to eq('misapplied')
+    end
+
+    specify 'returns nil for empty array' do
+      expect(described_class.gbif_taxonomic_status_from_types([])).to be_nil
+    end
+
+    specify 'returns nil when no types match' do
+      expect(described_class.gbif_taxonomic_status_from_types(['TaxonNameRelationship::Iczn::PotentiallyValidating'])).to be_nil
+    end
+
+    specify 'works correctly with a single type' do
+      expect(described_class.gbif_taxonomic_status_from_types(['TaxonNameRelationship::Icn::Unaccepting::Synonym::Heterotypic'])).to eq('heterotypicSynonym')
+    end
+  end
+
   describe '.gbif_taxonomic_status_for' do
     {
       'TaxonNameRelationship::Iczn::Invalidating::Misapplication'               => 'misapplied',
