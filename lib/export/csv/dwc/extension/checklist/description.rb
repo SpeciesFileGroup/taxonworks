@@ -1,7 +1,7 @@
 # CSV for Description extension (for checklist archives).
 # See http://rs.gbif.org/extension/gbif/1.0/description.xml
 #
-# Note: Exports Content records (OTU text descriptions by topic) as html.
+# Exports Content records (OTU text descriptions by topic) as html.
 module Export::CSV::Dwc::Extension::Checklist::Description
 
   GBIF = Export::Dwca::GbifProfile::SpeciesDescription
@@ -47,10 +47,7 @@ module Export::CSV::Dwc::Extension::Checklist::Description
     contents = contents.sort_by { |c| topic_order[c.topic_id] || Float::INFINITY }
 
     contents.each do |content|
-      taxon_name = content.otu&.taxon_name
-      next unless taxon_name
-
-      # Map to valid taxon (contents are associated with OTUs, which link to taxa)
+      taxon_name = content.otu.taxon_name
       taxon_name_id = taxon_name.cached_valid_taxon_name_id || taxon_name.id
       taxon_id = taxon_name_id_to_taxon_id[taxon_name_id]
       next unless taxon_id
@@ -62,12 +59,12 @@ module Export::CSV::Dwc::Extension::Checklist::Description
       end
 
       # Format created date from updated_at
-      created_date = content.updated_at&.strftime('%Y-%m-%d')
+      created_date = content.updated_at.strftime('%Y-%m-%d')
 
       row = [
         taxon_id,
         html_description,
-        content.topic&.name,
+        content.topic.name,
         content.language&.alpha_2,
         created_date
       ]

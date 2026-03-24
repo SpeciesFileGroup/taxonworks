@@ -30,17 +30,15 @@ module Export::CSV::Dwc::Extension::Checklist::VernacularName
     tbl = []
     tbl[0] = HEADERS
 
-    otus = ::Queries::Otu::Filter.new(core_otu_scope).all
+    otu_scope = ::Queries::Otu::Filter.new(core_otu_scope).all
 
     common_names = CommonName
-      .where(otu_id: otus.select(:id))
+      .joins(otu: :taxon_name)
+      .where(otu_id: otu_scope.select(:id))
       .includes(:language, otu: :taxon_name)
 
     common_names.find_each do |cn|
-      taxon_name = cn.otu&.taxon_name
-      next unless taxon_name
-
-      # Map to valid taxon (common names are associated with valid taxa, not synonyms)
+      taxon_name = cn.otu.taxon_name
       taxon_name_id = taxon_name.cached_valid_taxon_name_id || taxon_name.id
       taxon_id = taxon_name_id_to_taxon_id[taxon_name_id]
       next unless taxon_id

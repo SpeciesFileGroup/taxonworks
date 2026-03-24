@@ -329,14 +329,10 @@ module Export::Dwca::Checklist
     def otu_to_taxon_name_data
       return @otu_to_taxon_name_data if @otu_to_taxon_name_data
 
-      all_otu_ids = core_occurrence_scope.where.not(otu_id: nil).distinct.pluck(:otu_id)
-
-      return {} if all_otu_ids.empty?
-
       # Fetch TaxonName data for these OTUs in a single query.
       # Also fetch the valid taxon name's cached value for synonyms.
       @otu_to_taxon_name_data = ::Otu
-        .where(id: all_otu_ids)
+        .where(id: core_occurrence_scope.where.not(otu_id: nil).select(:otu_id))
         .joins(:taxon_name)
         .joins('LEFT JOIN taxon_names AS valid_taxon_names ON taxon_names.cached_valid_taxon_name_id = valid_taxon_names.id')
         .pluck(

@@ -80,10 +80,6 @@ class DwcOccurrence < ApplicationRecord
 
   belongs_to :dwc_occurrence_object, polymorphic: true, inverse_of: :dwc_occurrence
 
-  # @return [Scope]
-  #   the columns inferred to have occurrence export data
-  scope :computed_occurrence_columns, -> { select(target_occurrence_columns) }
-
   before_validation :generate_uuid_if_required
   before_validation :set_metadata_attributes
 
@@ -93,6 +89,10 @@ class DwcOccurrence < ApplicationRecord
   validates :dwc_occurrence_object_id, uniqueness: { scope: [:dwc_occurrence_object_type, :project_id] }
 
   attr_accessor :occurrence_identifier
+
+  # @return [Scope]
+  #   the columns inferred to have occurrence export data
+  scope :computed_occurrence_columns, -> { select(target_occurrence_columns) }
 
   scope :from_asserted_distributions, -> {
     where(dwc_occurrence_object_type: 'AssertedDistribution')
@@ -221,7 +221,7 @@ class DwcOccurrence < ApplicationRecord
     [:id,
      :basisOfRecord,
      :occurrenceID,
-     :dwc_occurrence_object_id,   # !! We don't want this, but need it in joins, it is removed in trim via Export::Dwca::Occurrence::Data.excluded_occurrence_columns below
+     :dwc_occurrence_object_id,   # !! We don't want this, but need it in joins, it is removed in trim via Export::Dwca::Occurrence::Data.excluded_occurrence_columns
      :dwc_occurrence_object_type, # !! ^
     ] + CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys
   end

@@ -28,22 +28,11 @@ module Export::CSV::Dwc::Extension::Checklist::SpeciesDistribution
     tbl = []
     tbl[0] = HEADERS
 
-    # Build asserted_distribution_id to otu_id mapping for lookups.
-    asserted_distribution_to_otu = scope
-      .from_asserted_distributions
-      .where("asserted_distributions.asserted_distribution_object_type = 'Otu'")
+    otu_to_taxon_name_id = scope
+      .joins('JOIN otus ON otus.id = dwc_occurrences.otu_id')
+      .joins('JOIN taxon_names ON taxon_names.id = otus.taxon_name_id')
       .pluck(
-        'dwc_occurrences.dwc_occurrence_object_id',
-        'asserted_distributions.asserted_distribution_object_id'
-      )
-      .to_h
-
-    otu_ids = asserted_distribution_to_otu.values.compact.uniq
-    otu_to_taxon_name_id = ::Otu
-      .where(id: otu_ids)
-      .joins(:taxon_name)
-      .pluck(
-        Arel.sql('otus.id'),
+        Arel.sql('dwc_occurrences.otu_id'),
         Arel.sql('COALESCE(taxon_names.cached_valid_taxon_name_id, taxon_names.id)')
       )
       .to_h
@@ -60,10 +49,7 @@ module Export::CSV::Dwc::Extension::Checklist::SpeciesDistribution
         locality_parts.join(', ').presence
       end
 
-      otu_id = asserted_distribution_to_otu[dwc_occ.dwc_occurrence_object_id]
-      next unless otu_id
-
-      taxon_name_id = otu_to_taxon_name_id[otu_id]
+      taxon_name_id = otu_to_taxon_name_id[dwc_occ.otu_id]
       next unless taxon_name_id
 
       taxon_id = taxon_name_id_to_taxon_id[taxon_name_id]

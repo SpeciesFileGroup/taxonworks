@@ -112,6 +112,7 @@ class Tasks::Dwc::DashboardController < ApplicationController
       download_description:,
       project_id: sessions_current_project_id
     )
+
     render '/downloads/show'
   end
 

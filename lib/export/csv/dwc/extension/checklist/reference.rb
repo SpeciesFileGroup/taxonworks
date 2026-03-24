@@ -32,29 +32,18 @@ module Export::CSV::Dwc::Extension::Checklist::Reference
     tbl = []
     tbl[0] = HEADERS
 
-    # Build occurrence_to_otu and otu_to_taxon_name_id mappings (similar to
-    # distribution extension) for AssertedDistributions.
-    ad_mapping = scope
+    ad_scope = scope
       .where(dwc_occurrence_object_type: 'AssertedDistribution')
       .where.not(associatedReferences: [nil, ''])
-      .joins("JOIN asserted_distributions ad ON ad.id = dwc_occurrences.dwc_occurrence_object_id AND ad.asserted_distribution_object_type = 'Otu'")
-      .pluck('dwc_occurrences.dwc_occurrence_object_id', 'ad.asserted_distribution_object_id')
+
+    otu_to_taxon_name_id = ad_scope
+      .joins('JOIN otus ON otus.id = dwc_occurrences.otu_id')
+      .joins('JOIN taxon_names ON taxon_names.id = otus.taxon_name_id')
+      .pluck(Arel.sql('dwc_occurrences.otu_id'), Arel.sql('COALESCE(taxon_names.cached_valid_taxon_name_id, taxon_names.id)'))
       .to_h
 
-    otu_ids = ad_mapping.values.compact.uniq
-    otu_to_taxon_name_id = ::Otu.where(id: otu_ids)
-      .joins(:taxon_name)
-      .pluck(Arel.sql('otus.id'), Arel.sql('COALESCE(taxon_names.cached_valid_taxon_name_id, taxon_names.id)'))
-      .to_h
-
-    scope
-      .where(dwc_occurrence_object_type: 'AssertedDistribution')
-      .where.not(associatedReferences: [nil, ''])
-      .find_each do |dwc_occ|
-      otu_id = ad_mapping[dwc_occ.dwc_occurrence_object_id]
-      next unless otu_id
-
-      taxon_name_id = otu_to_taxon_name_id[otu_id]
+    ad_scope.find_each do |dwc_occ|
+      taxon_name_id = otu_to_taxon_name_id[dwc_occ.otu_id]
       next unless taxon_name_id
 
       taxon_id = taxon_name_id_to_taxon_id[taxon_name_id]
