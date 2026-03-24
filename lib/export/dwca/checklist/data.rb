@@ -235,9 +235,22 @@ module Export::Dwca::Checklist
       @extensions = extensions
       @description_topics = description_topics
 
-      @core_occurrence_scope = ::Queries::DwcOccurrence::Filter.new(
-        otu_query: @core_otu_scope_params
-      ).all
+      # Strip pagination/meta params — they are not OTU filter criteria and
+      # would trigger the otu_query subquery chain unnecessarily.
+      otu_filter_criteria = @core_otu_scope_params
+        .except(:per, :page, :paginate, :extend)
+
+      # When no actual OTU filter criteria remain, skip the otu_query subquery
+      # chain entirely — it would build complex nested CTEs for "all OTUs in
+      # project" that are slow and unnecessary.
+      # An empty filter simply returns all project DwcOccurrences directly.
+      @core_occurrence_scope = if otu_filter_criteria.present?
+        ::Queries::DwcOccurrence::Filter.new(
+          otu_query: otu_filter_criteria
+        ).all
+      else
+        ::Queries::DwcOccurrence::Filter.new({}).all
+      end
 
       @description_extension = extensions.include?(DESCRIPTION_EXTENSION)
       @species_distribution_extension = extensions.include?(DISTRIBUTION_EXTENSION)
@@ -371,44 +384,11 @@ module Export::Dwca::Checklist
     def occurrence_to_otu
       return @occurrence_to_otu if @occurrence_to_otu
 
-      # Combine all three occurrence types using UNION
-      results = ActiveRecord::Base.connection.execute(<<~SQL)
-        SELECT dwc_occurrences.dwc_occurrence_object_type,
-               dwc_occurrences.dwc_occurrence_object_id,
-               td.otu_id
-        FROM (#{core_occurrence_scope.to_sql}) dwc_occurrences
-        JOIN collection_objects co ON co.id = dwc_occurrences.dwc_occurrence_object_id
-        JOIN taxon_determinations td ON td.taxon_determination_object_id = co.id
-          AND td.taxon_determination_object_type = 'CollectionObject'
-          AND td.position = 1
-        WHERE dwc_occurrences.dwc_occurrence_object_type = 'CollectionObject'
-
-        UNION ALL
-
-        SELECT dwc_occurrences.dwc_occurrence_object_type,
-               dwc_occurrences.dwc_occurrence_object_id,
-               td.otu_id
-        FROM (#{core_occurrence_scope.to_sql}) dwc_occurrences
-        JOIN field_occurrences fo ON fo.id = dwc_occurrences.dwc_occurrence_object_id
-        JOIN taxon_determinations td ON td.taxon_determination_object_id = fo.id
-          AND td.taxon_determination_object_type = 'FieldOccurrence'
-          AND td.position = 1
-        WHERE dwc_occurrences.dwc_occurrence_object_type = 'FieldOccurrence'
-
-        UNION ALL
-
-        SELECT dwc_occurrences.dwc_occurrence_object_type,
-               dwc_occurrences.dwc_occurrence_object_id,
-               ad.asserted_distribution_object_id AS otu_id
-        FROM (#{core_occurrence_scope.to_sql}) dwc_occurrences
-        JOIN asserted_distributions ad ON ad.id = dwc_occurrences.dwc_occurrence_object_id
-          AND ad.asserted_distribution_object_type = 'Otu'
-        WHERE dwc_occurrences.dwc_occurrence_object_type = 'AssertedDistribution'
-      SQL
-
-      @occurrence_to_otu = results.each_with_object({}) do |row, hash|
-        hash["#{row['dwc_occurrence_object_type']}:#{row['dwc_occurrence_object_id']}"] = row['otu_id']
-      end
+      @occurrence_to_otu = core_occurrence_scope
+        .pluck(:dwc_occurrence_object_type, :dwc_occurrence_object_id, :otu_id)
+        .each_with_object({}) { |(type, id, otu_id), h|
+          h["#{type}:#{id}"] = otu_id
+        }
     end
 
 

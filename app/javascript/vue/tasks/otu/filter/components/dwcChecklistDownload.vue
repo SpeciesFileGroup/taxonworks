@@ -257,14 +257,11 @@ onMounted(async () => {
 })
 
 const getFilterParams = (params) => {
-  const data = { ...params }
-
-  if (props.total) {
-    data.per = props.total
-    delete data.page
-  }
-
-  return data
+  // Strip pagination/meta params - otu_query should only contain actual filter
+  // criteria. Sending per/page causes the backend to build a complex OTU
+  // subquery even when no filter is applied, producing 0 records and slow queries.
+  const { per, page, paginate, extend, ...criteria } = params
+  return criteria
 }
 
 function download() {
