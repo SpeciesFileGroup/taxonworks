@@ -1846,19 +1846,34 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
             synonym_alt_species.reload
           end
 
-          specify 'auto-added valid name has genus from the valid hierarchy, not the synonym genus' do
+          def csv_for_alt
             data = ::Export::Dwca::Checklist::Data.new(
               core_otu_scope_params: { otu_id: [synonym_alt_otu.id] },
               accepted_name_mode: 'accepted_name_usage_id'
             )
+            CSV.parse(data.csv, headers: true, col_sep: "\t")
+          end
 
-            csv = CSV.parse(data.csv, headers: true, col_sep: "\t")
-
-            valid_row = csv.find { |row| row['taxonRank'] == 'species' && row['taxonomicStatus'] == 'accepted' }
+          specify 'auto-added valid name has genus from the valid hierarchy, not the synonym genus' do
+            valid_row = csv_for_alt.find { |row| row['taxonRank'] == 'species' && row['taxonomicStatus'] == 'accepted' }
             expect(valid_row).to be_present
             expect(valid_row['genus']).to eq('Panthera')
             expect(valid_row['higherClassification']).to include('Panthera')
             expect(valid_row['higherClassification']).not_to include('Felis')
+          end
+
+          specify 'synonym row has its own genus, not the valid name genus' do
+            synonym_row = csv_for_alt.find { |row| row['taxonRank'] == 'species' && row['taxonomicStatus'] != 'accepted' }
+            expect(synonym_row).to be_present
+            expect(synonym_row['genus']).to eq('Felis')
+            expect(synonym_row['higherClassification']).to include('Felis')
+            expect(synonym_row['higherClassification']).not_to include('Panthera')
+          end
+
+          specify 'synonym row has no parentNameUsageID' do
+            synonym_row = csv_for_alt.find { |row| row['taxonRank'] == 'species' && row['taxonomicStatus'] != 'accepted' }
+            expect(synonym_row).to be_present
+            expect(synonym_row['parentNameUsageID']).to be_nil.or be_empty
           end
         end
       end

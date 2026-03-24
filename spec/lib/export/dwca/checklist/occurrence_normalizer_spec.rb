@@ -541,6 +541,21 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
   describe '#extract_ancestor_taxa' do
     let(:all_taxa) { {} }
 
+    specify 'does not create ancestor rows for synonym rows' do
+      # Synonyms have parentNameUsageID=nil so ancestor rows serve no purpose;
+      # creating them from the occurrence row would also be wrong because the
+      # row carries the valid name's column values, not the synonym's.
+      row = CSV::Row.new(
+        ['scientificName', 'taxonRank', 'genus', 'family', 'taxon_name_cached_is_valid'],
+        ['Xus xus', 'species', 'Xus', 'Xidae', false]
+      )
+      ancestor_lookup = { '500:genus' => 50, '500:family' => 25 }
+
+      normalizer.send(:extract_ancestor_taxa, row, 500, 'species', ancestor_lookup, all_taxa)
+
+      expect(all_taxa).to be_empty
+    end
+
     specify 'stops walking toward the root when an ancestor is already present (early termination)' do
       # Family already in all_taxa - loop must break there and not add kingdom or phylum.
       all_taxa[25] = { 'scientificName' => 'Noctuidae', 'taxonRank' => 'family' }
@@ -606,7 +621,7 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
       }
 
       all_taxa = { 999 => synonym_taxon, valid_tn.id => existing_valid_taxon }
-      result = normalizer.send(:ensure_valid_names_for_synonyms, all_taxa, nil)
+      result = normalizer.send(:ensure_valid_names_for_synonyms, all_taxa)
 
       expect(result.size).to eq(2)
       expect(result[valid_tn.id]['taxonRank']).to eq('species')  # not overwritten
@@ -623,7 +638,7 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
       }
 
       all_taxa = { 999 => synonym_taxon }
-      result = normalizer.send(:ensure_valid_names_for_synonyms, all_taxa, nil)
+      result = normalizer.send(:ensure_valid_names_for_synonyms, all_taxa)
 
       expect(result[valid_tn.id]).to be_present
       expect(result[valid_tn.id]['taxon_name_cached_is_valid']).to be(true)
@@ -637,6 +652,158 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
       expect(ranks).to be_an(Array)
       expect(ranks).to include('subspecies', 'variety', 'form')
       expect(ranks).not_to include('species')
+    end
+
+    specify 'does not include ICZN aggregate taxa above species' do
+      ranks = described_class.infraspecific_rank_names
+      expect(ranks).not_to include('superspecies', 'supersuperspecies', 'subsuperspecies')
+    end
+  end
+
+  describe '#fix_synonym_rank_columns' do
+    let(:normalizer_accepted) do
+      described_class.new(
+        raw_csv: raw_csv,
+        accepted_name_mode: 'accepted_name_usage_id',
+        otu_to_taxon_name_data: {},
+        occurrence_to_otu: {}
+      )
+    end
+
+    context 'when a synonym is a form nested under a subspecies' do
+      # ICN hierarchy: root → genus(Aus) → species(bus) → subspecies(cus) → form(dus)
+      let!(:root)       { FactoryBot.create(:root_taxon_name) }
+      let!(:genus)      { Protonym.create!(name: 'Aus', rank_class: Ranks.lookup(:icn, :genus), parent: root) }
+      let!(:species)    { Protonym.create!(name: 'bus', rank_class: Ranks.lookup(:icn, :species), parent: genus) }
+      let!(:subspecies) { Protonym.create!(name: 'cus', rank_class: Ranks.lookup(:icn, :subspecies), parent: species) }
+      let!(:form)       { Protonym.create!(name: 'dus', rank_class: Ranks.lookup(:icn, :form), parent: subspecies) }
+
+      let(:all_taxa) do
+        {
+          form.id => {
+            'taxon_name_id'                      => form.id,
+            'scientificName'                     => 'Aus bus cus f. dus',
+            'taxon_name_cached_is_valid'         => false,
+            'taxon_name_cached_valid_taxon_name_id' => species.id,
+            # DwcOccurrence stored the valid name's hierarchy — wrong values inherited
+            'genus'               => 'Xus',
+            'family'              => 'Xidae',
+            'higherClassification' => 'Plantae|Xidae|Xus',
+            'specificEpithet'     => nil,
+            'infraspecificEpithet' => nil,
+            'taxonRank'           => 'species'
+          }
+        }
+      end
+
+      specify 'infraspecificEpithet is the form epithet, not the subspecies epithet' do
+        result = normalizer_accepted.send(:fix_synonym_rank_columns, all_taxa)
+        expect(result[form.id]['infraspecificEpithet']).to eq('dus')
+      end
+
+      specify 'infraspecificEpithet is not the subspecies epithet' do
+        result = normalizer_accepted.send(:fix_synonym_rank_columns, all_taxa)
+        expect(result[form.id]['infraspecificEpithet']).not_to eq('cus')
+      end
+
+      specify 'taxonRank is form' do
+        result = normalizer_accepted.send(:fix_synonym_rank_columns, all_taxa)
+        expect(result[form.id]['taxonRank']).to eq('form')
+      end
+
+      specify 'specificEpithet is the species epithet' do
+        result = normalizer_accepted.send(:fix_synonym_rank_columns, all_taxa)
+        expect(result[form.id]['specificEpithet']).to eq('bus')
+      end
+
+      specify 'genus is corrected from the synonym hierarchy' do
+        result = normalizer_accepted.send(:fix_synonym_rank_columns, all_taxa)
+        expect(result[form.id]['genus']).to eq('Aus')
+      end
+
+      specify 'family is corrected from the synonym hierarchy' do
+        result = normalizer_accepted.send(:fix_synonym_rank_columns, all_taxa)
+        # family comes from synonym ancestors; ICN hierarchy has no family in this fixture,
+        # so it will be nil — the point is it is NOT the valid name's placeholder 'Xidae'
+        expect(result[form.id]['family']).not_to eq('Xidae')
+      end
+
+      specify 'higherClassification reflects the synonym hierarchy' do
+        result = normalizer_accepted.send(:fix_synonym_rank_columns, all_taxa)
+        expect(result[form.id]['higherClassification']).not_to include('Xidae')
+      end
+    end
+  end
+
+  describe '#normalize in accepted_name_usage_id mode with an infraspecific synonym' do
+    # DwcOccurrence stores the *valid* name's rank and hierarchy for a synonym, so
+    # the occurrence row for a subspecies synonym with a species valid name arrives
+    # with taxonRank="species", genus from the valid name, etc. fix_synonym_rank_columns
+    # corrects the name components; per DwC checklist convention (cf. VASCAN), synonyms
+    # carry no parentNameUsageID or classification hierarchy — only their own name parts.
+    let!(:root)           { FactoryBot.create(:root_taxon_name) }
+    let!(:valid_genus)    { Protonym.create!(name: 'Xus',  rank_class: Ranks.lookup(:iczn, :genus),      parent: root) }
+    let!(:valid_species)  { Protonym.create!(name: 'xus',  rank_class: Ranks.lookup(:iczn, :species),    parent: valid_genus) }
+    let!(:syn_genus)      { Protonym.create!(name: 'Aus',  rank_class: Ranks.lookup(:iczn, :genus),      parent: root) }
+    let!(:syn_species)    { Protonym.create!(name: 'bus',  rank_class: Ranks.lookup(:iczn, :species),    parent: syn_genus) }
+    let!(:syn_subspecies) { Protonym.create!(name: 'cus',  rank_class: Ranks.lookup(:iczn, :subspecies), parent: syn_species) }
+    let!(:otu)            { FactoryBot.create(:valid_otu, taxon_name: syn_subspecies) }
+
+    # DwcOccurrence for a synonym stores the *valid* name's scientificName,
+    # taxonRank, genus, and specificEpithet.
+    let(:syn_raw_csv) do
+      CSV.generate(col_sep: "\t") do |csv|
+        csv << %w[dwc_occurrence_object_type dwc_occurrence_object_id
+                  scientificName taxonRank genus specificEpithet family]
+        csv << ['CollectionObject', '1', 'Xus xus', 'species', 'Xus', 'xus', 'Xidae']
+      end
+    end
+
+    let(:syn_occurrence_to_otu)        { { 'CollectionObject:1' => otu.id } }
+    let(:syn_otu_to_taxon_name_data) do
+      {
+        otu.id => {
+          id:                          syn_subspecies.id,
+          cached:                      'Aus bus cus',
+          cached_is_valid:             false,
+          cached_valid_taxon_name_id:  valid_species.id,
+          gbif_taxonomic_status:       'synonym'
+        }
+      }
+    end
+
+    let(:syn_normalizer) do
+      described_class.new(
+        raw_csv:                 syn_raw_csv,
+        accepted_name_mode:      'accepted_name_usage_id',
+        otu_to_taxon_name_data:  syn_otu_to_taxon_name_data,
+        occurrence_to_otu:       syn_occurrence_to_otu
+      )
+    end
+
+    let(:output_rows) do
+      csv_output, _mapping = syn_normalizer.normalize
+      CSV.parse(csv_output, headers: true, col_sep: "\t")
+    end
+
+    let(:synonym_row) { output_rows.find { |r| r['scientificName'] == 'Aus bus cus' } }
+
+    specify 'synonym itself has correct taxonRank after correction' do
+      expect(synonym_row).to be_present
+      expect(synonym_row['taxonRank']).to eq('subspecies')
+    end
+
+    specify 'synonym has correct genus from its own hierarchy' do
+      expect(synonym_row['genus']).to eq('Aus')
+    end
+
+    specify 'synonym has no parentNameUsageID' do
+      expect(synonym_row['parentNameUsageID']).to be_nil.or eq('')
+    end
+
+    specify 'synonym has no family from the valid name hierarchy' do
+      # family comes from the synonym's own ancestors, not the valid name's
+      expect(synonym_row['family']).not_to eq('Xidae')
     end
   end
 

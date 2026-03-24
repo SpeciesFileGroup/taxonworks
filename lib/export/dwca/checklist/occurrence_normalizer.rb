@@ -12,6 +12,10 @@ module Export::Dwca::Checklist
     # @return [Array] of rank strings in hierarchical order (highest to lowest).
     ORDERED_RANKS = Data::ORDERED_RANKS
 
+    # DwcOccurrence column names that hold rank-named classification values
+    # (as opposed to epithet columns like specificEpithet).
+    HIGHER_RANK_COLUMNS = %w[kingdom phylum class order superfamily family subfamily tribe subtribe genus subgenus].freeze
+
     # Fields written by store_taxon_name_metadata. Cleared for extracted parent
     # taxa (which have no occurrence data of their own) and stripped from all
     # rows during finalization.
@@ -43,6 +47,7 @@ module Export::Dwca::Checklist
 
       if @accepted_name_mode == 'accepted_name_usage_id'
         all_taxa = ensure_valid_names_for_synonyms(all_taxa)
+        all_taxa = fix_synonym_rank_columns(all_taxa)
       end
 
       # Build hierarchy and assign taxonIDs
@@ -302,6 +307,11 @@ module Export::Dwca::Checklist
     def extract_ancestor_taxa(
       row, terminal_tn_id, terminal_rank, ancestor_lookup, all_taxa
     )
+      # Synonyms have no parentNameUsageID and their hierarchy columns are
+      # corrected from their own ancestry in fix_synonym_rank_columns. Skipping
+      # here avoids creating ancestor rows with values from the valid name's row.
+      return if row['taxon_name_cached_is_valid'] == false
+
       terminal_rank_index = ORDERED_RANKS.index(terminal_rank)
       return unless terminal_rank_index && terminal_rank_index > 0
 
@@ -327,6 +337,61 @@ module Export::Dwca::Checklist
 
         all_taxa[ancestor_tn_id] = ancestor_taxon
       end
+    end
+
+    # Overwrite rank and classification columns for synonym rows using the
+    # synonym's own taxon_name_hierarchies ancestry, not the valid name's.
+    # DwcOccurrence stores the valid name's classification (via current_valid_taxon_name),
+    # so synonym rows otherwise inherit the wrong genus, family, taxonRank, etc.
+    #
+    # All hierarchy columns (genus through kingdom, higherClassification) are
+    # corrected from the synonym's own ancestry — useful for understanding the
+    # historical classification the synonym was published under. parentNameUsageID
+    # is left empty for synonyms (handled in build_final_taxon), since synonyms
+    # do not participate in tree navigation.
+    #
+    # @param all_taxa [Hash] hash of taxon_name_id => taxon data
+    # @return [Hash] updated all_taxa
+    def fix_synonym_rank_columns(all_taxa)
+      synonym_tn_ids = all_taxa.each_value.filter_map { |taxon|
+        taxon['taxon_name_id'] if taxon['taxon_name_cached_is_valid'] == false
+      }
+      return all_taxa if synonym_tn_ids.empty?
+
+      # Query ancestors including self (self gives epithet and own rank).
+      synonym_ancestors = Hash.new { |h, k| h[k] = {} }
+      TaxonNameHierarchy
+        .joins('JOIN taxon_names ON taxon_names.id = taxon_name_hierarchies.ancestor_id')
+        .where(descendant_id: synonym_tn_ids)
+        .pluck('taxon_name_hierarchies.descendant_id', 'taxon_names.rank_class', 'taxon_names.name')
+        .each do |descendant_id, rank_class, name|
+          rank = rank_class_to_name[rank_class]
+          next unless rank
+          synonym_ancestors[descendant_id][rank] = name
+        end
+
+      infraspecific_ranks = self.class.infraspecific_rank_names.to_set
+
+      all_taxa.each_value do |taxon|
+        next unless taxon['taxon_name_cached_is_valid'] == false
+        ancestors = synonym_ancestors[taxon['taxon_name_id']]
+        next if ancestors.empty?
+
+        # Overwrite all rank columns from synonym's own hierarchy.
+        HIGHER_RANK_COLUMNS.each { |col| taxon[col] = ancestors[col] }
+        taxon['specificEpithet'] = ancestors['species']
+
+        synonym_rank = (ORDERED_RANKS & ancestors.keys).last
+        taxon['taxonRank'] = synonym_rank if synonym_rank
+        taxon['infraspecificEpithet'] = infraspecific_ranks.include?(synonym_rank) ? ancestors[synonym_rank] : nil
+
+        rank_idx = ORDERED_RANKS.index(synonym_rank) || ORDERED_RANKS.length
+        parts = ORDERED_RANKS[0...rank_idx]
+          .filter_map { |r| HIGHER_RANK_COLUMNS.include?(r) ? taxon[r].presence : nil }
+        taxon['higherClassification'] = parts.empty? ? nil : parts.join(Export::Dwca::DELIMITER)
+      end
+
+      all_taxa
     end
 
     # Ensure valid names exist for all synonyms.
@@ -491,19 +556,31 @@ module Export::Dwca::Checklist
     def build_final_taxon(
       taxon, taxon_id, taxon_name_id, taxon_name_info, taxon_name_id_to_taxon_id
     )
-      # Find parent via TaxonName parent_id, walking up hierarchy if needed.
+      if accepted_name_mode == 'accepted_name_usage_id'
+        accepted_name_usage_id, taxonomic_status = determine_accepted_name_usage(
+          taxon,
+          taxon_id,
+          taxon_name_id_to_taxon_id
+        )
+      end
+
       parent_id = nil
-      current_parent_id = taxon_name_info[taxon_name_id]&.[](:parent_id)
+      # Synonyms don't participate in parent hierarchy.
+      if accepted_name_mode == 'replace_with_accepted_name' ||
+         taxonomic_status == 'accepted'
+        # Find parent via TaxonName parent_id, walking up hierarchy if needed.
+        current_parent_id = taxon_name_info[taxon_name_id]&.[](:parent_id)
 
-      while current_parent_id
-        # Check if this parent is in the export
-        if taxon_name_id_to_taxon_id[current_parent_id]
-          parent_id = taxon_name_id_to_taxon_id[current_parent_id]
-          break
+        while current_parent_id
+          # Check if this parent is in the export
+          if taxon_name_id_to_taxon_id[current_parent_id]
+            parent_id = taxon_name_id_to_taxon_id[current_parent_id]
+            break
+          end
+
+          # Parent not in export, walk up to its parent
+          current_parent_id = taxon_name_info[current_parent_id]&.[](:parent_id)
         end
-
-        # Parent not in export, walk up to its parent
-        current_parent_id = taxon_name_info[current_parent_id]&.[](:parent_id)
       end
 
       excluded_fields = [
@@ -520,11 +597,6 @@ module Export::Dwca::Checklist
       }
 
       if accepted_name_mode == 'accepted_name_usage_id'
-        accepted_name_usage_id, taxonomic_status = determine_accepted_name_usage(
-          taxon,
-          taxon_id,
-          taxon_name_id_to_taxon_id
-        )
         processed_taxon['acceptedNameUsageID'] = accepted_name_usage_id
         processed_taxon['taxonomicStatus'] = taxonomic_status
       end
@@ -615,12 +687,15 @@ module Export::Dwca::Checklist
     # Get all infraspecific rank names
     def self.infraspecific_rank_names
       @infraspecific_rank_names ||= begin
-        iczn = ::NomenclaturalRank::Iczn::SpeciesGroup.ordered_ranks.map(&:rank_name)
-        icn = ::NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup.ordered_ranks.map(&:rank_name)
-        icnp = ::NomenclaturalRank::Icnp::SpeciesGroup.ordered_ranks.map(&:rank_name)
-
-        all_species_ranks = (iczn + icn + icnp).uniq
-        all_species_ranks - ['species']
+        [
+          ::NomenclaturalRank::Iczn::SpeciesGroup,
+          ::NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup,
+          ::NomenclaturalRank::Icnp::SpeciesGroup
+        ].flat_map { |group|
+          ranks = group.ordered_ranks.map(&:rank_name)
+          species_idx = ranks.index('species')
+          species_idx ? ranks[(species_idx + 1)..] : []
+        }.uniq
       end
     end
   end
