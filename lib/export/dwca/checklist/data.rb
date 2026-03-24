@@ -395,9 +395,7 @@ module Export::Dwca::Checklist
 
       @occurrence_to_otu = core_occurrence_scope
         .pluck(:dwc_occurrence_object_type, :dwc_occurrence_object_id, :otu_id)
-        .each_with_object({}) { |(type, id, otu_id), h|
-          h["#{type}:#{id}"] = otu_id
-        }
+        .to_h { |type, id, otu_id| ["#{type}:#{id}", otu_id] }
     end
 
 

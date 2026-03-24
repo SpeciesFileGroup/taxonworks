@@ -198,19 +198,16 @@ module Queries
       def otu_query_facet
         return nil if otu_query.nil?
 
+        filter_params = { otu_query: otu_query.params }
         queries = OCCURRENCE_SOURCES.map do |k|
-          # Pass otu_query to source filters
-          filter_params = { otu_query: otu_query.params }
-
           source_query = "::Queries::#{k.classify}::Filter".constantize.new(filter_params).all
+          cte_name = "query_otu_#{k}"
 
-          s = "WITH query_otu_#{k} AS (" + source_query.unscope(:select).select(:id).to_sql + ') ' +
-            ::DwcOccurrence
+          ::DwcOccurrence
+            .with(cte_name => source_query.unscope(:select).select(:id))
             .select(:id, :dwc_occurrence_object_type, :dwc_occurrence_object_id)
-            .joins("JOIN query_otu_#{k} as query_otu_#{k}1 on dwc_occurrences.dwc_occurrence_object_id = query_otu_#{k}1.id AND dwc_occurrences.dwc_occurrence_object_type = '#{k.classify}'")
-            .to_sql
-
-          ::DwcOccurrence.from('(' + s + ') as dwc_occurrences').distinct
+            .joins("JOIN #{cte_name} AS #{cte_name}1 ON dwc_occurrences.dwc_occurrence_object_id = #{cte_name}1.id AND dwc_occurrences.dwc_occurrence_object_type = '#{k.classify}'")
+            .distinct
         end
 
         ::Queries.union(

@@ -12,6 +12,16 @@ module Export::Dwca::Checklist
     # @return [Array] of rank strings in hierarchical order (highest to lowest).
     ORDERED_RANKS = Data::ORDERED_RANKS
 
+    # Fields written by store_taxon_name_metadata. Cleared for extracted parent
+    # taxa (which have no occurrence data of their own) and stripped from all
+    # rows during finalization.
+    TAXON_NAME_METADATA_FIELDS = %w[
+      taxon_name_cached
+      taxon_name_cached_is_valid
+      taxon_name_cached_valid_taxon_name_id
+      taxon_name_gbif_taxonomic_status
+    ].freeze
+
     # @param raw_csv [String] CSV with one row per occurrence
     # @param accepted_name_mode [String] How to handle synonyms
     # @param otu_to_taxon_name_data [Hash] otu_id => { cached:, cached_is_valid:, ... }
@@ -32,7 +42,7 @@ module Export::Dwca::Checklist
       all_taxa = extract_unique_taxa(parsed)
 
       if @accepted_name_mode == 'accepted_name_usage_id'
-        all_taxa = ensure_valid_names_for_synonyms(all_taxa, parsed)
+        all_taxa = ensure_valid_names_for_synonyms(all_taxa)
       end
 
       # Build hierarchy and assign taxonIDs
@@ -277,9 +287,7 @@ module Export::Dwca::Checklist
         clear_lower_ranks(species_taxon, 'species', rank)
 
         # Clear taxon_name_ metadata since this is an extracted parent.
-        species_taxon['taxon_name_cached'] = nil
-        species_taxon['taxon_name_cached_is_valid'] = nil
-        species_taxon['taxon_name_cached_valid_taxon_name_id'] = nil
+        TAXON_NAME_METADATA_FIELDS.each { |f| species_taxon[f] = nil }
 
         all_taxa[species_tn_id] = species_taxon
       end
@@ -315,9 +323,7 @@ module Export::Dwca::Checklist
         clear_lower_ranks(ancestor_taxon, higher_rank, terminal_rank)
 
         # Clear taxon_name_ metadata for extracted ancestors.
-        ancestor_taxon['taxon_name_cached'] = nil
-        ancestor_taxon['taxon_name_cached_is_valid'] = nil
-        ancestor_taxon['taxon_name_cached_valid_taxon_name_id'] = nil
+        TAXON_NAME_METADATA_FIELDS.each { |f| ancestor_taxon[f] = nil }
 
         all_taxa[ancestor_tn_id] = ancestor_taxon
       end
@@ -325,42 +331,32 @@ module Export::Dwca::Checklist
 
     # Ensure valid names exist for all synonyms.
     # @param all_taxa [Hash] hash of taxon_name_id => taxon data
-    # @param parsed [CSV::Table] parsed occurrence data (to get TaxonName data)
     # @return [Hash] updated all_taxa with valid names added
-    def ensure_valid_names_for_synonyms(all_taxa, parsed)
-      # Track valid TaxonName IDs we need to fetch.
-      valid_taxon_name_ids = Set.new
-
-      # Find all synonyms and collect their valid_taxon_name_ids.
+    def ensure_valid_names_for_synonyms(all_taxa)
+      # Build lookup of missing valid names => a synonym template.
+      valid_id_to_synonym = {}
       all_taxa.each_value do |taxon|
-        is_valid = taxon['taxon_name_cached_is_valid']
-        next unless !is_valid.nil? && is_valid != true
-
+        next unless taxon['taxon_name_cached_is_valid'] == false
         valid_id = taxon['taxon_name_cached_valid_taxon_name_id']
-        valid_taxon_name_ids << valid_id if valid_id.present?
+        next unless valid_id.present? && !all_taxa[valid_id]
+        valid_id_to_synonym[valid_id] ||= taxon
       end
 
-      return all_taxa if valid_taxon_name_ids.empty?
+      return all_taxa if valid_id_to_synonym.empty?
 
-      # Fetch valid TaxonName records.
-      valid_taxon_names = ::TaxonName.where(id: valid_taxon_name_ids.to_a)
-
-      # Build reverse lookup: valid_taxon_name_id => synonym taxon
-      synonym_to_valid = all_taxa.each_value.each_with_object({}) do |taxon, hash|
-        valid_id = taxon['taxon_name_cached_valid_taxon_name_id']
-        hash[valid_id] ||= taxon if valid_id.present?
-      end
-
-      # Create taxa for valid names that don't exist yet
-      valid_taxon_names.each do |valid_tn|
+      ::TaxonName.where(id: valid_id_to_synonym.keys).each do |valid_tn|
         rank = valid_tn.rank&.downcase
-        next if rank.nil?
-        next if all_taxa[valid_tn.id] # already exists
+        next unless rank
 
-        # Find a synonym that points to this valid name to use as template
-        template_taxon = synonym_to_valid[valid_tn.id]
+        template_taxon = valid_id_to_synonym[valid_tn.id]
         next unless template_taxon
 
+        # The template's rank columns (genus, family, higherClassification, etc.)
+        # already reflect the valid name's classification, not the synonym's.
+        # DwcOccurrence#dwc_genus (and siblings) all delegate to
+        # current_valid_taxon_name, so the occurrence row already stores the
+        # valid hierarchy regardless of the relative ranks of synonym and valid
+        # name.
         valid_taxon = template_taxon.dup
         valid_taxon['taxon_name_id'] = valid_tn.id
         valid_taxon['scientificName'] = valid_tn.cached
@@ -368,8 +364,6 @@ module Export::Dwca::Checklist
         valid_taxon['taxon_name_cached'] = valid_tn.cached
         valid_taxon['taxon_name_cached_is_valid'] = true
         valid_taxon['taxon_name_cached_valid_taxon_name_id'] = nil
-
-        clear_lower_ranks(valid_taxon, rank, template_taxon['taxonRank']&.downcase)
 
         all_taxa[valid_tn.id] = valid_taxon
       end
@@ -514,9 +508,7 @@ module Export::Dwca::Checklist
 
       excluded_fields = [
         'taxonID', 'id', 'acceptedNameUsageID', 'parentNameUsageID',
-        'taxon_name_cached', 'taxon_name_cached_is_valid',
-        'taxon_name_cached_valid_taxon_name_id', 'taxon_name_id',
-        'taxon_name_gbif_taxonomic_status',
+        *TAXON_NAME_METADATA_FIELDS, 'taxon_name_id',
         'dwc_occurrence_object_type', 'dwc_occurrence_object_id'
       ]
       excluded_fields << 'taxonomicStatus' if accepted_name_mode == 'accepted_name_usage_id'

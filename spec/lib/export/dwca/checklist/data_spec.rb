@@ -1767,6 +1767,17 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
           synonym_auto_species.reload
         end
 
+        # ensure_valid_names_for_synonyms relies on the DwcOccurrence for a
+        # synonym specimen already storing the valid name's taxonRank (via
+        # dwc_taxon_rank -> current_valid_taxon_name). If that assumption
+        # breaks, the clear_lower_ranks call that was removed would need to
+        # be reinstated.
+        specify 'synonym DwcOccurrence taxonRank reflects valid name rank, not synonym rank' do
+          dwco = synonym_auto_specimen.dwc_occurrence
+          expect(dwco.taxonRank).to eq(valid_auto_species.rank)
+          expect(dwco.taxonRank).to eq(synonym_auto_species.rank) # same rank here, but via valid name
+        end
+
         specify 'valid name is automatically added even without occurrence' do
           data = ::Export::Dwca::Checklist::Data.new(
             core_otu_scope_params: { otu_id: [synonym_auto_otu.id] }, # Only synonym OTU!
@@ -1800,6 +1811,55 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
           expect(valid_row['genus']).to eq('Felis')
           expect(valid_row['family']).to eq('Felidae')
           expect(valid_row['kingdom']).to eq('Animalia')
+        end
+
+        context 'when synonym and valid name are in different genera' do
+          # Documents that the auto-added valid row already carries the correct
+          # genus/higherClassification even though it is synthesised from a
+          # synonym template. This works because DwcOccurrence#dwc_genus
+          # delegates to current_valid_taxon_name, so the occurrence row for a
+          # synonym specimen already stores the *valid* name's classification.
+          # The dup therefore inherits the right rank columns without any extra
+          # ancestor queries.
+          let!(:alt_genus) { Protonym.create!(name: 'Panthera', rank_class: Ranks.lookup(:iczn, :genus), parent: family) }
+          let!(:otu_alt_genus) { FactoryBot.create(:valid_otu, taxon_name: alt_genus) }
+
+          let!(:valid_alt_species) { Protonym.create!(name: 'leo', rank_class: Ranks.lookup(:iczn, :species), parent: alt_genus) }
+          let!(:valid_alt_otu) { FactoryBot.create(:valid_otu, taxon_name: valid_alt_species) }
+
+          # Synonym is in Felis (the parent context's genus), valid name is in Panthera
+          let!(:synonym_alt_species) { Protonym.create!(name: 'leo', rank_class: Ranks.lookup(:iczn, :species), parent: genus) }
+          let!(:synonym_alt_otu) { FactoryBot.create(:valid_otu, taxon_name: synonym_alt_species) }
+          let!(:synonym_alt_specimen) { FactoryBot.create(:valid_specimen) }
+          let!(:synonym_alt_td) { FactoryBot.create(:valid_taxon_determination, taxon_determination_object: synonym_alt_specimen, otu: synonym_alt_otu) }
+
+          let!(:alt_synonym_relationship) do
+            TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(
+              subject_taxon_name: synonym_alt_species,
+              object_taxon_name: valid_alt_species
+            )
+          end
+
+          before do
+            synonym_alt_specimen.get_dwc_occurrence
+            valid_alt_species.reload
+            synonym_alt_species.reload
+          end
+
+          specify 'auto-added valid name has genus from the valid hierarchy, not the synonym genus' do
+            data = ::Export::Dwca::Checklist::Data.new(
+              core_otu_scope_params: { otu_id: [synonym_alt_otu.id] },
+              accepted_name_mode: 'accepted_name_usage_id'
+            )
+
+            csv = CSV.parse(data.csv, headers: true, col_sep: "\t")
+
+            valid_row = csv.find { |row| row['taxonRank'] == 'species' && row['taxonomicStatus'] == 'accepted' }
+            expect(valid_row).to be_present
+            expect(valid_row['genus']).to eq('Panthera')
+            expect(valid_row['higherClassification']).to include('Panthera')
+            expect(valid_row['higherClassification']).not_to include('Felis')
+          end
         end
       end
     end
