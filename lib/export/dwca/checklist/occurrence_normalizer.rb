@@ -12,6 +12,13 @@ module Export::Dwca::Checklist
     # @return [Array] of rank strings in hierarchical order (highest to lowest).
     ORDERED_RANKS = Data::ORDERED_RANKS
 
+    # DwC Taxon term column names allowed in the final output row.
+    # Derived from the checklist taxon extension definition values (post-header
+    # conversion names, e.g. 'class' not 'dwcClass'); anything not listed here
+    # (internal bookkeeping, future DwcOccurrence columns, etc.) is
+    # automatically excluded at finalization.
+    PASSTHROUGH_FIELDS = Data::CHECKLIST_TAXON_EXTENSION_COLUMNS.values.map(&:to_s).freeze
+
     # DwcOccurrence column names that hold rank-named classification values
     # (as opposed to epithet columns like specificEpithet).
     HIGHER_RANK_COLUMNS = %w[kingdom phylum class order superfamily family subfamily tribe subtribe genus subgenus].freeze
@@ -89,7 +96,7 @@ module Export::Dwca::Checklist
 
       taxa.each do |taxon|
         taxon.each do |key, value|
-          next if columns_with_data.include?(key) # Short-circuit
+          next if columns_with_data.include?(key)
 
           if required_columns.include?(key) || value.present?
             columns_with_data << key
@@ -489,6 +496,7 @@ module Export::Dwca::Checklist
       taxon_name_id_to_taxon_id = {}
       taxa_with_ids = []
 
+      # Orderings here determine the final CSV row ordering.
       ORDERED_RANKS.each do |rank|
         rank_taxa = all_taxa.select { |tn_id, taxon|
           taxon_name_info[tn_id]&.[](:rank) == rank
@@ -518,14 +526,16 @@ module Export::Dwca::Checklist
     def taxon_name_id_to_otu_uuid(taxon_name_ids)
       return {} if taxon_name_ids.empty?
 
-      ::Otu
-        .joins("JOIN identifiers ON identifiers.identifier_object_id = otus.id
-                  AND identifiers.identifier_object_type = 'Otu'
-                  AND identifiers.type LIKE 'Identifier::Global::Uuid%'
-                  AND identifiers.position = 1")
-        .where(taxon_name_id: taxon_name_ids)
-        .pluck('otus.taxon_name_id', 'identifiers.cached')
-        .to_h
+      taxon_name_ids.each_slice(25_000).each_with_object({}) do |batch, result|
+        ::Otu
+          .joins("JOIN identifiers ON identifiers.identifier_object_id = otus.id
+                    AND identifiers.identifier_object_type = 'Otu'
+                    AND identifiers.type LIKE 'Identifier::Global::Uuid%'
+                    AND identifiers.position = 1")
+          .where(taxon_name_id: batch)
+          .pluck('otus.taxon_name_id', 'identifiers.cached')
+          .each { |tn_id, uuid| result[tn_id] = uuid }
+      end
     end
 
     # Build final processed taxa with parent/accepted relationships.
@@ -584,13 +594,6 @@ module Export::Dwca::Checklist
         end
       end
 
-      excluded_fields = [
-        'taxonID', 'id', 'acceptedNameUsageID', 'parentNameUsageID',
-        *TAXON_NAME_METADATA_FIELDS, 'taxon_name_id',
-        'dwc_occurrence_object_type', 'dwc_occurrence_object_id'
-      ]
-      excluded_fields << 'taxonomicStatus' if accepted_name_mode == 'accepted_name_usage_id'
-
       processed_taxon = {
         'id' => taxon_id,
         'taxonID' => taxon_id,
@@ -602,7 +605,7 @@ module Export::Dwca::Checklist
         processed_taxon['taxonomicStatus'] = taxonomic_status
       end
 
-      processed_taxon.merge!(taxon.except(*excluded_fields))
+      processed_taxon.merge(taxon.slice(*PASSTHROUGH_FIELDS)) { |_key, managed, _raw| managed }
     end
 
     # Determine acceptedNameUsageID and taxonomicStatus for a taxon.

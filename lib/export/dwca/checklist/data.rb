@@ -58,8 +58,6 @@ module Export::Dwca::Checklist
 
     # Keys are dwc_occurrence columns, values are DwC Taxon Extension columns:
     # https://rs.gbif.org/core/dwc_taxon_2024-02-19.xml
-    # Note: taxonID is excluded here because it will be created via copy_column
-    # from occurrenceID.
     CHECKLIST_TAXON_EXTENSION_COLUMNS = {
       scientificName: :scientificName,
       taxonRank: :taxonRank,
