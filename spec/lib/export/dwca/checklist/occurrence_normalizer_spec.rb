@@ -608,7 +608,7 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
         )
       end
 
-      specify 'returns nil acceptedNameUsageID and still sets taxonomicStatus to synonym' do
+      specify 'returns nil acceptedNameUsageID and synonym status before row-level filtering' do
         taxon = {
           'taxon_name_cached_is_valid' => false,
           'taxon_name_cached_valid_taxon_name_id' => 999
@@ -617,6 +617,25 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
         result = normalizer.send(:determine_accepted_name_usage, taxon, 7, { 100 => 'some-uuid' })
 
         expect(result).to eq([nil, 'synonym'])
+      end
+
+      specify 'build_final_taxon returns nil for a synonym whose accepted name is absent from the export' do
+        taxon = {
+          'scientificName' => 'Aus bus',
+          'taxon_name_cached_is_valid' => false,
+          'taxon_name_cached_valid_taxon_name_id' => 999
+        }
+
+        result = normalizer.send(
+          :build_final_taxon,
+          taxon,
+          7,
+          100,
+          { 100 => { rank: 'species', parent_id: nil } },
+          { 100 => 7 }
+        )
+
+        expect(result).to be_nil
       end
     end
   end
@@ -761,6 +780,7 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
     let!(:root)           { FactoryBot.create(:root_taxon_name) }
     let!(:valid_genus)    { Protonym.create!(name: 'Xus',  rank_class: Ranks.lookup(:iczn, :genus),      parent: root) }
     let!(:valid_species)  { Protonym.create!(name: 'xus',  rank_class: Ranks.lookup(:iczn, :species),    parent: valid_genus) }
+    let!(:valid_otu)      { FactoryBot.create(:valid_otu, taxon_name: valid_species) }
     let!(:syn_genus)      { Protonym.create!(name: 'Aus',  rank_class: Ranks.lookup(:iczn, :genus),      parent: root) }
     let!(:syn_species)    { Protonym.create!(name: 'bus',  rank_class: Ranks.lookup(:iczn, :species),    parent: syn_genus) }
     let!(:syn_subspecies) { Protonym.create!(name: 'cus',  rank_class: Ranks.lookup(:iczn, :subspecies), parent: syn_species) }

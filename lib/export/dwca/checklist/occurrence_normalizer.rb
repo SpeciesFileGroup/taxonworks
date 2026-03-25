@@ -546,7 +546,7 @@ module Export::Dwca::Checklist
     def build_processed_taxa(
       taxa_with_ids, taxon_name_info, taxon_name_id_to_taxon_id
     )
-      taxa_with_ids.map do |item|
+      taxa_with_ids.filter_map do |item|
         build_final_taxon(
           item[:taxon],
           item[:taxon_id],
@@ -573,6 +573,17 @@ module Export::Dwca::Checklist
           taxon_id,
           taxon_name_id_to_taxon_id
         )
+      end
+
+      # GBIF checklist guidance requires acceptedNameUsageID on synonym rows to
+      # point at an existing record in the dataset. If the accepted name could
+      # not be included in this export, omit the synonym row instead of
+      # emitting an invalid reference.
+      if accepted_name_mode == 'accepted_name_usage_id' &&
+         taxonomic_status.present? &&
+         taxonomic_status != 'accepted' &&
+         accepted_name_usage_id.nil?
+        return nil
       end
 
       parent_id = nil

@@ -1877,6 +1877,46 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
           end
         end
       end
+
+      context 'when synonym occurrence exists but accepted name has no exportable OTU' do
+        let!(:valid_unexportable_species) { Protonym.create!(name: 'novalidotu', rank_class: Ranks.lookup(:iczn, :species), parent: genus) }
+        let!(:synonym_unexportable_species) { Protonym.create!(name: 'nosupportedaccepted', rank_class: Ranks.lookup(:iczn, :species), parent: genus) }
+        let!(:synonym_unexportable_otu) { FactoryBot.create(:valid_otu, taxon_name: synonym_unexportable_species) }
+        let!(:synonym_unexportable_specimen) { FactoryBot.create(:valid_specimen) }
+        let!(:synonym_unexportable_td) do
+          FactoryBot.create(:valid_taxon_determination,
+            taxon_determination_object: synonym_unexportable_specimen,
+            otu: synonym_unexportable_otu)
+        end
+
+        let!(:unexportable_synonym_relationship) do
+          TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(
+            subject_taxon_name: synonym_unexportable_species,
+            object_taxon_name: valid_unexportable_species
+          )
+        end
+
+        before do
+          synonym_unexportable_specimen.get_dwc_occurrence
+          valid_unexportable_species.reload
+          synonym_unexportable_species.reload
+        end
+
+        specify 'drops the synonym row instead of emitting a blank acceptedNameUsageID' do
+          data = ::Export::Dwca::Checklist::Data.new(
+            core_otu_scope_params: { otu_id: [synonym_unexportable_otu.id] },
+            accepted_name_mode: 'accepted_name_usage_id'
+          )
+
+          csv = CSV.parse(data.csv, headers: true, col_sep: "\t")
+
+          synonym_row = csv.find { |row| row['scientificName']&.include?('nosupportedaccepted') && row['taxonRank'] == 'species' }
+          valid_row = csv.find { |row| row['scientificName']&.include?('novalidotu') && row['taxonRank'] == 'species' }
+
+          expect(valid_row).to be_nil
+          expect(synonym_row).to be_nil
+        end
+      end
     end
 
     context 'with homonyms (same scientific name in different kingdoms)' do
