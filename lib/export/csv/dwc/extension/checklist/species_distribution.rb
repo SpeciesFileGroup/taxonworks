@@ -23,8 +23,9 @@ module Export::CSV::Dwc::Extension::Checklist::SpeciesDistribution
   # @param scope [ActiveRecord::Relation] DwcOccurrence records from
   #   AssertedDistribution
   # @param taxon_name_id_to_taxon_id [Hash] taxon_name_id => OTU UUID (used as dwc:taxonID in the checklist core)
+  # @param accepted_name_mode [String] checklist synonym handling mode
   # @return [String] CSV content
-  def self.csv(scope, taxon_name_id_to_taxon_id)
+  def self.csv(scope, taxon_name_id_to_taxon_id, accepted_name_mode:)
     tbl = []
     tbl[0] = HEADERS
 
@@ -33,7 +34,13 @@ module Export::CSV::Dwc::Extension::Checklist::SpeciesDistribution
       .joins('JOIN taxon_names ON taxon_names.id = otus.taxon_name_id')
       .pluck(
         Arel.sql('dwc_occurrences.otu_id'),
-        Arel.sql('COALESCE(taxon_names.cached_valid_taxon_name_id, taxon_names.id)')
+        Arel.sql(
+          if accepted_name_mode == ::Export::Dwca::Checklist::Data::ACCEPTED_NAME_USAGE_ID
+            'taxon_names.id'
+          else
+            'COALESCE(taxon_names.cached_valid_taxon_name_id, taxon_names.id)'
+          end
+        )
       )
       .to_h
 

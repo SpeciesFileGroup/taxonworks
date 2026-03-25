@@ -555,7 +555,11 @@ module Export::Dwca::Checklist
         # Build module name from extension_name (e.g., 'species_distribution' -> 'SpeciesDistribution')
         extension_module = "Export::CSV::Dwc::Extension::Checklist::#{extension_name.classify}".constantize
 
-        content = extension_module.csv(scope, taxon_name_id_to_taxon_id)
+        content = extension_module.csv(
+          scope,
+          taxon_name_id_to_taxon_id,
+          accepted_name_mode: accepted_name_mode
+        )
       end
 
       tempfile.write(content)
@@ -600,6 +604,7 @@ module Export::Dwca::Checklist
         content = Export::CSV::Dwc::Extension::Checklist::Description.csv(
           core_otu_scope_params,
           taxon_name_id_to_taxon_id,
+          accepted_name_mode: accepted_name_mode,
           description_topics: description_topics
         )
       end

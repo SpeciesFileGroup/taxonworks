@@ -25,8 +25,9 @@ module Export::CSV::Dwc::Extension::Checklist::VernacularName
   # Generate CSV for vernacular name extension from CommonName records.
   # @param core_otu_scope [Hash] OTU query params from Checklist::Data
   # @param taxon_name_id_to_taxon_id [Hash] taxon_name_id => OTU UUID (used as dwc:taxonID in the checklist core)
+  # @param accepted_name_mode [String] checklist synonym handling mode
   # @return [String] CSV content
-  def self.csv(core_otu_scope, taxon_name_id_to_taxon_id)
+  def self.csv(core_otu_scope, taxon_name_id_to_taxon_id, accepted_name_mode:)
     tbl = []
     tbl[0] = HEADERS
 
@@ -39,7 +40,11 @@ module Export::CSV::Dwc::Extension::Checklist::VernacularName
 
     common_names.find_each do |cn|
       taxon_name = cn.otu.taxon_name
-      taxon_name_id = taxon_name.cached_valid_taxon_name_id || taxon_name.id
+      taxon_name_id = if accepted_name_mode == ::Export::Dwca::Checklist::Data::ACCEPTED_NAME_USAGE_ID
+        taxon_name.id
+      else
+        taxon_name.cached_valid_taxon_name_id || taxon_name.id
+      end
       taxon_id = taxon_name_id_to_taxon_id[taxon_name_id]
       next unless taxon_id
 

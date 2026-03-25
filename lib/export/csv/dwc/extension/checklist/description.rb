@@ -24,9 +24,10 @@ module Export::CSV::Dwc::Extension::Checklist::Description
   # Generate CSV for description extension from Content records.
   # @param core_otu_scope [Hash] OTU query params from Checklist::Data
   # @param taxon_name_id_to_taxon_id [Hash] taxon_name_id => OTU UUID (used as dwc:taxonID in the checklist core)
+  # @param accepted_name_mode [String] checklist synonym handling mode
   # @param description_topics [Array<Integer>] ordered array of topic IDs to include
   # @return [String] CSV content
-  def self.csv(core_otu_scope, taxon_name_id_to_taxon_id, description_topics: [])
+  def self.csv(core_otu_scope, taxon_name_id_to_taxon_id, accepted_name_mode:, description_topics: [])
     tbl = []
     tbl[0] = HEADERS
 
@@ -48,7 +49,11 @@ module Export::CSV::Dwc::Extension::Checklist::Description
 
     contents.each do |content|
       taxon_name = content.otu.taxon_name
-      taxon_name_id = taxon_name.cached_valid_taxon_name_id || taxon_name.id
+      taxon_name_id = if accepted_name_mode == ::Export::Dwca::Checklist::Data::ACCEPTED_NAME_USAGE_ID
+        taxon_name.id
+      else
+        taxon_name.cached_valid_taxon_name_id || taxon_name.id
+      end
       taxon_id = taxon_name_id_to_taxon_id[taxon_name_id]
       next unless taxon_id
 

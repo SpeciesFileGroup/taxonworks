@@ -1591,6 +1591,35 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
         invalid_species.reload
       end
 
+      let!(:topic_synonymy) do
+        ControlledVocabularyTerm.find_or_create_by!(name: 'Synonymy', type: 'Topic') { |t| t.definition = 'Information specific to synonym records.' }
+      end
+      let!(:language_en) do
+        Language.find_or_create_by!(alpha_2: 'en') { |l| l.assign_attributes(FactoryBot.attributes_for(:valid_language, alpha_2: 'en')) }
+      end
+      let!(:invalid_common_name) do
+        FactoryBot.create(:valid_common_name, otu: invalid_otu, name: 'House cat synonym', language: language_en)
+      end
+      let!(:invalid_content) do
+        content = FactoryBot.create(:valid_content,
+          otu: invalid_otu,
+          topic: topic_synonymy,
+          text: 'Synonym-only description.',
+          language: language_en)
+        PublicContent.create!(content: content, topic: topic_synonymy, text: content.text, otu: invalid_otu)
+        content
+      end
+      let!(:synonym_source) { FactoryBot.create(:valid_source) }
+      let!(:invalid_ad) { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: invalid_otu) }
+      let!(:invalid_type_material) do
+        FactoryBot.create(:valid_type_material, protonym: invalid_species, collection_object: invalid_specimen, type_type: 'holotype')
+      end
+
+      before do
+        FactoryBot.create(:valid_citation, citation_object: invalid_ad, source: synonym_source)
+        invalid_ad.get_dwc_occurrence
+      end
+
       let(:replace_with_accepted_data) do
         ::Export::Dwca::Checklist::Data.new(
           core_otu_scope_params: { otu_id: [valid_otu.id, invalid_otu.id] },
@@ -1665,6 +1694,61 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
 
         expect(synonym_taxon['taxonomicStatus']).to eq('synonym')
         expect(synonym_taxon['acceptedNameUsageID']).to eq(valid_taxon['taxonID'])
+      end
+
+      specify 'accepted_name_usage_id mode attaches vernacular extensions to the synonym row' do
+        data = ::Export::Dwca::Checklist::Data.new(
+          core_otu_scope_params: { otu_id: [valid_otu.id, invalid_otu.id] },
+          accepted_name_mode: 'accepted_name_usage_id',
+          extensions: [::Export::Dwca::Checklist::Data::VERNACULAR_NAME_EXTENSION]
+        )
+
+        core_csv = CSV.parse(data.csv, headers: true, col_sep: "\t")
+        ext_csv = CSV.parse(data.vernacular_name_extension_tmp.read, headers: true, col_sep: "\t")
+
+        synonym_row = core_csv.find { |row| row['scientificName']&.include?('domesticus') && row['taxonRank'] == 'species' }
+        ext_row = ext_csv.find { |row| row['vernacularName'] == 'House cat synonym' }
+
+        expect(ext_row['id']).to eq(synonym_row['taxonID'])
+      end
+
+      specify 'accepted_name_usage_id mode attaches description extensions to the synonym row' do
+        data = ::Export::Dwca::Checklist::Data.new(
+          core_otu_scope_params: { otu_id: [valid_otu.id, invalid_otu.id] },
+          accepted_name_mode: 'accepted_name_usage_id',
+          extensions: [::Export::Dwca::Checklist::Data::DESCRIPTION_EXTENSION],
+          description_topics: [topic_synonymy.id]
+        )
+
+        core_csv = CSV.parse(data.csv, headers: true, col_sep: "\t")
+        ext_csv = CSV.parse(data.description_extension_tmp.read, headers: true, col_sep: "\t")
+
+        synonym_row = core_csv.find { |row| row['scientificName']&.include?('domesticus') && row['taxonRank'] == 'species' }
+        ext_row = ext_csv.find { |row| row['description']&.include?('Synonym-only description.') }
+
+        expect(ext_row['id']).to eq(synonym_row['taxonID'])
+      end
+
+      specify 'accepted_name_usage_id mode attaches references and distributions to the synonym row' do
+        data = ::Export::Dwca::Checklist::Data.new(
+          core_otu_scope_params: { otu_id: [valid_otu.id, invalid_otu.id] },
+          accepted_name_mode: 'accepted_name_usage_id',
+          extensions: [
+            ::Export::Dwca::Checklist::Data::REFERENCES_EXTENSION,
+            ::Export::Dwca::Checklist::Data::DISTRIBUTION_EXTENSION
+          ]
+        )
+
+        core_csv = CSV.parse(data.csv, headers: true, col_sep: "\t")
+        refs_csv = CSV.parse(data.references_extension_tmp.read, headers: true, col_sep: "\t")
+        dist_csv = CSV.parse(data.species_distribution_extension_tmp.read, headers: true, col_sep: "\t")
+
+        synonym_row = core_csv.find { |row| row['scientificName']&.include?('domesticus') && row['taxonRank'] == 'species' }
+        ref_row = refs_csv.find { |row| row['bibliographicCitation']&.include?(synonym_source.cached) }
+        dist_row = dist_csv.find { |row| row['id'] == synonym_row['taxonID'] }
+
+        expect(ref_row['id']).to eq(synonym_row['taxonID'])
+        expect(dist_row).to be_present
       end
 
       specify 'extracted higher taxa have taxonomicStatus "accepted"' do
