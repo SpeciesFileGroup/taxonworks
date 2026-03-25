@@ -521,7 +521,8 @@ module Export::Dwca::Checklist
       ::Otu
         .joins("JOIN identifiers ON identifiers.identifier_object_id = otus.id
                   AND identifiers.identifier_object_type = 'Otu'
-                  AND identifiers.type LIKE 'Identifier::Global::Uuid%'")
+                  AND identifiers.type LIKE 'Identifier::Global::Uuid%'
+                  AND identifiers.position = 1")
         .where(taxon_name_id: taxon_name_ids)
         .pluck('otus.taxon_name_id', 'identifiers.cached')
         .to_h

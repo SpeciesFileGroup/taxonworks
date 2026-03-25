@@ -288,6 +288,23 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
     end
   end
 
+  describe '#taxon_name_id_to_otu_uuid' do
+    specify 'returns the lowest-position UUID when an OTU has multiple global UUID identifiers' do
+      otu = FactoryBot.create(:valid_otu, taxon_name: FactoryBot.create(:root_taxon_name))
+
+      # acts_as_list add_new_at: :top means the last created gets position 1
+      first_uuid  = "aaaaaaaa-0000-0000-0000-000000000001"
+      second_uuid = "bbbbbbbb-0000-0000-0000-000000000002"
+
+      Identifier::Global::Uuid.create!(identifier_object: otu, identifier: first_uuid)
+      Identifier::Global::Uuid.create!(identifier_object: otu, identifier: second_uuid)
+
+      # second_uuid was created last, so it has position 1 (highest priority)
+      result = normalizer.send(:taxon_name_id_to_otu_uuid, [otu.taxon_name_id])
+      expect(result[otu.taxon_name_id]).to eq(second_uuid)
+    end
+  end
+
   describe '#build_final_taxon' do
     let(:taxon) do
       {
