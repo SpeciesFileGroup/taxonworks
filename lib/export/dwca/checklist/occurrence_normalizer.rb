@@ -65,13 +65,18 @@ module Export::Dwca::Checklist
 
       processed_taxa = remove_empty_columns(processed_taxa)
 
-      output_headers = processed_taxa.first&.keys || []
+      # Collect headers from all rows so taxa with extra columns (e.g. a
+      # synonym row that gained infraspecificEpithet from its own hierarchy
+      # while the first row never had that key) are not misaligned when written.
+      output_headers = processed_taxa.each_with_object([]) do |taxon, headers|
+        taxon.each_key { |k| headers << k unless headers.include?(k) }
+      end
 
       csv_output = CSV.generate(col_sep: "\t") do |csv|
         csv << output_headers
 
         processed_taxa.each do |taxon|
-          csv << taxon.values
+          csv << output_headers.map { |h| taxon[h] }
         end
       end
 
