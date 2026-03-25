@@ -11,6 +11,10 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 - `subject_otu_id` and `object_otu_id` to biological associations `/api/v1/biological_associations/basic` endpoint
 
+### Changed
+
+- Updated Ruby gems
+
 ## [0.61.0] - 2026-02-20
 
 ### Added
