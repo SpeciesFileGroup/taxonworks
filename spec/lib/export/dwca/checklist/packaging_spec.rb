@@ -4,7 +4,10 @@ require 'export/dwca'
 describe 'checklist download packaging', type: :model, group: :darwin_core do
   include ActiveJob::TestHelper
 
-  before(:context) do
+  # Manage one cleaner scope for the shared setup in this file.
+  before(:all) do
+    DatabaseCleaner.start
+
     Current.user_id = 1
     Current.project_id = 1
 
@@ -30,8 +33,8 @@ describe 'checklist download packaging', type: :model, group: :darwin_core do
     end
   end
 
-  after(:context) do
-    DatabaseCleaner.clean_with(:truncation, except: %w(spatial_ref_sys users projects project_members people))
+  after(:all) do
+    DatabaseCleaner.clean
   end
 
   let(:otu_params) { { otu_id: Otu.all.pluck(:id) } }

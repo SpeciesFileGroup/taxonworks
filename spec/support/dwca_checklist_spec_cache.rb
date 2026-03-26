@@ -6,9 +6,9 @@
 # - One-time fixture creation (outside per-example transactions)
 # - A small cache for generated DwCA CSV strings (frozen master + per-call dup)
 #
-# NOTE: Because the suite uses DatabaseCleaner with :transaction for each example,
-# records created in before(:context) will persist across examples. We therefore
-# provide an explicit cleanup method that specs MUST call in after(:context).
+# NOTE: Specs using this support are expected to call DatabaseCleaner.start in
+# before(:all) and Fixtures.cleanup! in after(:all), so cleanup can close that
+# cleaner scope instead of truncating the database.
 module DwcaChecklistSpecSupport
   module Fixtures
     module_function
@@ -100,30 +100,7 @@ module DwcaChecklistSpecSupport
     end
 
     def cleanup!
-      # # Delete only what this support creates.
-      # # Use disable_referential_integrity so order doesn’t matter.
-      # ApplicationRecord.connection.disable_referential_integrity do
-      #   [
-      #     PublicContent,
-      #     Content,
-      #     CommonName,
-      #     Language,
-      #     TypeMaterial,
-      #     Citation,
-      #     Source,
-      #     AssertedDistribution,
-      #     DwcOccurrence,
-      #     TaxonDetermination,
-      #     CollectionObject,
-      #     Otu,
-      #     ControlledVocabularyTerm,
-      #     Identifiers
-      #   ].each(&:delete_all)
-      #   TaxonName.where('id > 1').delete_all
-      # end
-      # Truncate everything created by this support. This is faster and safer than
-      # trying to chase all dependent rows.
-      DatabaseCleaner.clean_with(:truncation, except: %w(spatial_ref_sys users projects project_members people))
+      DatabaseCleaner.clean
       DwcaChecklistSpecSupport::CsvCache.clear!
       remove_instance_variable(:@setup_done) if defined?(@setup_done)
       remove_instance_variable(:@ids) if defined?(@ids)

@@ -87,14 +87,16 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
     end
 
     context 'with some occurrence records created' do
-      # Create cached fixtures once for this entire context
-      before(:context) do
+      # Manage a single cleaner scope for the shared fixture cache.
+      before(:all) do
+        DatabaseCleaner.start
+
         Current.user_id = 1
         Current.project_id = 1
         DwcaChecklistSpecSupport::Fixtures.setup_once!
       end
 
-      after(:context) do
+      after(:all) do
         DwcaChecklistSpecSupport::Fixtures.cleanup!
       end
 
