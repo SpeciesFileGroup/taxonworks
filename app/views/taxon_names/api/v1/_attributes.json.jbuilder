@@ -85,3 +85,26 @@ if extend_response_with('object_relationships')
 		
 	end
 end
+
+if extend_response_with('subject_relationships')
+	json.subject_relationships TaxonNameRelationship.where(subject_taxon_name_id: taxon_name.id) do |r|
+		json.id r.id
+		json.type r.type
+		json.subject_id r.subject_taxon_name_id
+		json.subject_taxon TaxonName.find(r.subject_taxon_name_id)
+		json.object_id r.object_taxon_name_id
+		json.object_taxon TaxonName.find(r.object_taxon_name_id)
+		
+		json.relationship_source Citation.where(citation_object_id: r.id).take
+		
+		subjectCit = TaxonName.find(r.subject_taxon_name_id)
+		json.subject_source do
+			json.id subjectCit.origin_citation
+		end
+		
+		objectCit = TaxonName.find(r.object_taxon_name_id)
+		json.object_source do
+			json.id objectCit.origin_citation
+		end
+	end
+end
