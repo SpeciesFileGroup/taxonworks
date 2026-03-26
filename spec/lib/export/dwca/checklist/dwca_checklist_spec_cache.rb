@@ -6,6 +6,10 @@
 # - One-time fixture creation for the shared core checklist export scenario
 # - A small cache for generated DwCA CSV strings (frozen master + per-call dup)
 #
+# IMPORTANT: Treat the shared fixture graph as read-only. If an example needs to
+# update those records, build fresh local data or rebuild export output from a
+# fresh exporter instance instead of relying on CsvCache.
+#
 # NOTE: Specs using this support are expected to call DatabaseCleaner.start in
 # before(:all) and Fixtures.cleanup! in after(:all), so cleanup can close that
 # cleaner scope instead of truncating the database.

@@ -101,73 +101,75 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
         DwcaChecklistSpecSupport::Fixtures.cleanup!
       end
 
-      # Use cached fixtures for data/csv
-      let(:cached_otu_scope) { { otu_id: DwcaChecklistSpecSupport::Fixtures.scope_otu_ids } }
-      let(:data) { Export::Dwca::Checklist::Data.new(core_otu_scope_params: cached_otu_scope) }
-      let(:csv) { parsed_csv(scope: cached_otu_scope) }
+      # !! These declarations are backed by a shared cached fixture graph.
+      # Treat that graph as read-only unless a nested context explicitly
+      # rebuilds fresh export output after mutation.
+      let(:shared_cached_otu_scope) { { otu_id: DwcaChecklistSpecSupport::Fixtures.scope_otu_ids } }
+      let(:shared_cached_data) { Export::Dwca::Checklist::Data.new(core_otu_scope_params: shared_cached_otu_scope) }
+      let(:shared_cached_csv) { parsed_csv(scope: shared_cached_otu_scope) }
 
       # Helper to access cached fixtures for extension contexts that still
       # reuse the shared taxon names.
       let(:cached_ids) { DwcaChecklistSpecSupport::Fixtures.ids }
 
       specify '#total returns count of DwcOccurrences' do
-        expect(data.total).to eq(5)  # 3 specimens + 2 asserted distributions
+        expect(shared_cached_data.total).to eq(5)  # 3 specimens + 2 asserted distributions
       end
 
       specify '#no_records? returns false when records exist' do
-        expect(data.no_records?).to be_falsey
+        expect(shared_cached_data.no_records?).to be_falsey
       end
 
       specify '#csv returns normalized taxonomy (one row per unique taxon)' do
         # The normalized taxonomy deduplicates to unique taxa
-        expect(csv.count).to be > 0
+        expect(shared_cached_csv.count).to be > 0
       end
 
       context 'CSV headers and column conversions' do
         specify 'id is the first column (for DwC-A star joins)' do
-          expect(csv.headers.first).to eq('id')
+          expect(shared_cached_csv.headers.first).to eq('id')
         end
 
         specify 'taxonID is the second column' do
-          expect(csv.headers[1]).to eq('taxonID')
+          expect(shared_cached_csv.headers[1]).to eq('taxonID')
         end
 
         specify 'id and taxonID have the same values' do
-          csv.each do |row|
+          shared_cached_csv.each do |row|
             expect(row['id']).to eq(row['taxonID'])
           end
         end
 
         specify 'headers include scientificName' do
-          expect(csv.headers).to include('scientificName')
+          expect(shared_cached_csv.headers).to include('scientificName')
         end
 
         specify 'dwcClass column is converted to "class" in header' do
-          expect(csv.headers).to include('class')
-          expect(csv.headers).not_to include('dwcClass')
+          expect(shared_cached_csv.headers).to include('class')
+          expect(shared_cached_csv.headers).not_to include('dwcClass')
         end
 
         specify 'occurrenceID is excluded from headers' do
-          expect(csv.headers).not_to include('occurrenceID')
+          expect(shared_cached_csv.headers).not_to include('occurrenceID')
         end
 
         specify 'TW housekeeping columns are not present' do
-          expect(csv.headers).not_to include('project_id', 'created_by_id', 'updated_by_id',
+          expect(shared_cached_csv.headers).not_to include('project_id', 'created_by_id', 'updated_by_id',
             'dwc_occurrence_object_id', 'dwc_occurrence_object_type')
         end
 
         specify 'generated headers contain expected taxon fields' do
           # taxonID should be present, plus at least some of the taxon fields
-          expect(csv.headers).to include('taxonID', 'scientificName', 'taxonRank')
+          expect(shared_cached_csv.headers).to include('taxonID', 'scientificName', 'taxonRank')
         end
 
         specify 'empty columns are removed from output' do
-          csv.headers.each do |header|
+          shared_cached_csv.headers.each do |header|
             # Required columns are allowed to be empty
             next if ['id', 'taxonID', 'scientificName', 'taxonRank'].include?(header)
 
             # Check that this column has at least one non-empty value
-            has_value = csv.any? { |row| row[header].present? }
+            has_value = shared_cached_csv.any? { |row| row[header].present? }
             expect(has_value).to be(true),
               "Column '#{header}' is completely empty and should have been removed"
           end
@@ -177,8 +179,8 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
       context 'normalized taxonomy structure' do
         specify 'all original scientificNames are preserved in output' do
           # Get all scientificNames from the source DwcOccurrence records
-          source_names = data.core_occurrence_scope.pluck(:scientificName).uniq.compact
-          output_names = csv.map { |row| row['scientificName'] }.compact
+          source_names = shared_cached_data.core_occurrence_scope.pluck(:scientificName).uniq.compact
+          output_names = shared_cached_csv.map { |row| row['scientificName'] }.compact
 
           source_names.each do |name|
             expect(output_names).to include(name), "Expected to find '#{name}' in output but it was missing"
@@ -190,7 +192,7 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
           rank_columns = %w[kingdom phylum class order family genus]
           source_rank_values = {}
 
-          data.core_occurrence_scope.each do |dwc|
+          shared_cached_data.core_occurrence_scope.each do |dwc|
             rank_columns.each do |rank|
               col = rank == 'class' ? 'dwcClass' : rank
               value = dwc.send(col)
@@ -203,7 +205,7 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
 
           # Check that all rank values appear in output
           source_rank_values.each do |rank, values|
-            output_at_rank = csv.select { |row| row['taxonRank'] == rank }
+            output_at_rank = shared_cached_csv.select { |row| row['taxonRank'] == rank }
                                 .map { |row| row['scientificName'] }
             values.each do |value|
               expect(output_at_rank).to include(value),
@@ -214,35 +216,35 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
 
         specify 'no duplicate taxa in output' do
           # Each unique "rank:name" combination should appear exactly once
-          taxa_keys = csv.map { |row| "#{row['taxonRank']}:#{row['scientificName']}" }
+          taxa_keys = shared_cached_csv.map { |row| "#{row['taxonRank']}:#{row['scientificName']}" }
           expect(taxa_keys.uniq.count).to eq(taxa_keys.count)
         end
 
         specify 'taxonID values are OTU UUIDs' do
-          csv.each do |row|
+          shared_cached_csv.each do |row|
             expect(Utilities::Uuid.uuid?(row['taxonID'])).to be(true),
               "Expected taxonID '#{row['taxonID']}' to be a UUID"
           end
         end
 
         specify 'parentNameUsageID header is present' do
-          expect(csv.headers).to include('parentNameUsageID')
+          expect(shared_cached_csv.headers).to include('parentNameUsageID')
         end
 
         specify 'root taxon (kingdom) has no parent' do
-          kingdom = csv.find { |row| row['taxonRank'] == 'kingdom' }
+          kingdom = shared_cached_csv.find { |row| row['taxonRank'] == 'kingdom' }
           expect(kingdom).to be_present
           expect(kingdom['parentNameUsageID']).to be_nil.or be_empty
         end
 
         specify 'child taxa have parentNameUsageID linking to parent taxonID' do
           # Find a species and its genus
-          species = csv.find { |row| row['taxonRank'] == 'species' }
+          species = shared_cached_csv.find { |row| row['taxonRank'] == 'species' }
           expect(species).to be_present
 
           # The parent should be the genus with matching genus name
           parent_id = species['parentNameUsageID']
-          genus = csv.find { |row| row['taxonID'] == parent_id }
+          genus = shared_cached_csv.find { |row| row['taxonID'] == parent_id }
           expect(genus['taxonRank']).to eq('genus')
           expect(genus['scientificName']).to eq(species['genus'])
         end
@@ -307,7 +309,7 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
 
           # Find index of first occurrence of each rank
           rank_indices = rank_order.map do |rank|
-            csv.each_with_index.find { |row, idx| row['taxonRank'] == rank }&.last
+            shared_cached_csv.each_with_index.find { |row, idx| row['taxonRank'] == rank }&.last
           end.compact
 
           # Each rank should appear before the next rank (if both exist)
@@ -320,7 +322,7 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
       context 'extracted higher taxa field clearing' do
         # Add some taxon-specific data to the DwcOccurrences to test field clearing.
         before do
-          data.core_occurrence_scope.each do |dwc|
+          shared_cached_data.core_occurrence_scope.each do |dwc|
             dwc.update!(
               scientificNameAuthorship: 'Smith, 1850',
               namePublishedIn: 'Journal of Taxonomy',
@@ -335,7 +337,7 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
 
         # Override csv to generate fresh CSV after the before block modifies records
         let(:csv) do
-          fresh_data = Export::Dwca::Checklist::Data.new(core_otu_scope_params: cached_otu_scope)
+          fresh_data = Export::Dwca::Checklist::Data.new(core_otu_scope_params: shared_cached_otu_scope)
           CSV.parse(fresh_data.csv, headers: true, col_sep: "\t")
         end
 
@@ -382,7 +384,7 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
 
         specify 'terminal taxon keeps original higherClassification' do
           # Get the original higherClassification from a DwcOccurrence
-          original = data.core_occurrence_scope.first
+          original = shared_cached_data.core_occurrence_scope.first
           original_classification = original.higherClassification
 
           # Find the corresponding species in output
@@ -420,7 +422,7 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
       end
 
       specify '#meta_fields returns headers without id column' do
-        meta_fields = data.meta_fields
+        meta_fields = shared_cached_data.meta_fields
         # taxonID is the renamed id column in the CSV, but meta_fields returns
         # the pre-header-conversion names.
         expect(meta_fields).not_to include('id')
@@ -429,29 +431,29 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
 
       context 'files' do
         specify '#data_file is a tempfile' do
-          expect(data.data_file).to be_kind_of(Tempfile)
+          expect(shared_cached_data.data_file).to be_kind_of(Tempfile)
         end
 
         specify '#eml is a tempfile' do
-          expect(data.eml).to be_kind_of(Tempfile)
+          expect(shared_cached_data.eml).to be_kind_of(Tempfile)
         end
 
         specify '#meta is a tempfile' do
-          expect(data.meta).to be_kind_of(Tempfile)
+          expect(shared_cached_data.meta).to be_kind_of(Tempfile)
         end
 
         specify '#zipfile is a Tempfile' do
-          expect(data.zipfile).to be_kind_of(Tempfile)
+          expect(shared_cached_data.zipfile).to be_kind_of(Tempfile)
         end
 
         specify '#package_download packages' do
           d = FactoryBot.build(:valid_download)
-          expect(data.package_download(d)).to be_truthy
+          expect(shared_cached_data.package_download(d)).to be_truthy
         end
 
         specify '#package_download creates file at path' do
           d = FactoryBot.build(:valid_download)
-          data.package_download(d)
+          shared_cached_data.package_download(d)
           expect(File.exist?(d.file_path)).to be_truthy
         end
       end
@@ -1230,7 +1232,7 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
       end
 
       specify '#cleanup returns truthy' do
-        expect(data.cleanup).to be_truthy
+        expect(shared_cached_data.cleanup).to be_truthy
       end
     end
 
