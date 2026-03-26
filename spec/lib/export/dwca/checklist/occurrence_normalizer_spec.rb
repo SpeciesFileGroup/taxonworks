@@ -731,41 +731,35 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
           }
         }
       end
+      let(:result) { normalizer_accepted.send(:fix_synonym_rank_columns, all_taxa) }
 
       specify 'infraspecificEpithet is the form epithet, not the subspecies epithet' do
-        result = normalizer_accepted.send(:fix_synonym_rank_columns, all_taxa)
         expect(result[form.id]['infraspecificEpithet']).to eq('dus')
       end
 
       specify 'infraspecificEpithet is not the subspecies epithet' do
-        result = normalizer_accepted.send(:fix_synonym_rank_columns, all_taxa)
         expect(result[form.id]['infraspecificEpithet']).not_to eq('cus')
       end
 
       specify 'taxonRank is form' do
-        result = normalizer_accepted.send(:fix_synonym_rank_columns, all_taxa)
         expect(result[form.id]['taxonRank']).to eq('form')
       end
 
       specify 'specificEpithet is the species epithet' do
-        result = normalizer_accepted.send(:fix_synonym_rank_columns, all_taxa)
         expect(result[form.id]['specificEpithet']).to eq('bus')
       end
 
       specify 'genus is corrected from the synonym hierarchy' do
-        result = normalizer_accepted.send(:fix_synonym_rank_columns, all_taxa)
         expect(result[form.id]['genus']).to eq('Aus')
       end
 
       specify 'family is corrected from the synonym hierarchy' do
-        result = normalizer_accepted.send(:fix_synonym_rank_columns, all_taxa)
         # family comes from synonym ancestors; ICN hierarchy has no family in this fixture,
         # so it will be nil — the point is it is NOT the valid name's placeholder 'Xidae'
         expect(result[form.id]['family']).not_to eq('Xidae')
       end
 
       specify 'higherClassification reflects the synonym hierarchy' do
-        result = normalizer_accepted.send(:fix_synonym_rank_columns, all_taxa)
         expect(result[form.id]['higherClassification']).not_to include('Xidae')
       end
     end
