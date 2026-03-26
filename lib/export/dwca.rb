@@ -38,6 +38,48 @@ module Export::Dwca
     output.string
   end
 
+  # @param klass [Class] ActiveRecord class, e.g. CollectionObject
+  # @param record_scope [ActiveRecord::Relation] Scope of records to index
+  # @return [Hash] Metadata including total, start_time, and sample global ids
+  def self.build_index_async(klass, record_scope, predicate_extensions: {})
+    s = record_scope.order(:id)
+    ::DwcaCreateIndexJob.perform_later(klass.to_s, sql_scope: s.to_sql)
+    index_metadata(klass, s)
+  end
+
+  # @param klass [Class] ActiveRecord class
+  # @param record_scope [ActiveRecord::Relation] Scope of records
+  # @return [Hash{Symbol=>Integer, Time, Array}]
+  def self.index_metadata(klass, record_scope)
+    a = record_scope.first&.to_global_id&.to_s
+    b = record_scope.last&.to_global_id&.to_s
+
+    t = record_scope.size
+
+    metadata = {
+      total: t,
+      start_time: Time.zone.now,
+      sample: [a, b].compact
+    }
+
+    if b && (t > 2)
+      max = 9
+      max = t if t < 9
+
+      ids = klass
+        .select('*')
+        .from("(select id, type, ROW_NUMBER() OVER (ORDER BY id ASC) rn from (#{record_scope.to_sql}) b ) a")
+        .where("a.rn % ((SELECT COUNT(*) FROM (#{record_scope.to_sql}) c) / #{max}) = 0")
+        .limit(max)
+        .collect { |o| o.to_global_id.to_s }
+
+      metadata[:sample].insert(1, *ids)
+    end
+
+    metadata[:sample].uniq!
+    metadata
+  end
+
   # Create a DwC-A occurrence download asynchronously
   # @param core_scope [ActiveRecord::Relation] Scope of DwcOccurrence records
   # @param request_url [String] URL of the request
@@ -45,8 +87,12 @@ module Export::Dwca
   # @param taxonworks_extensions [Array] TaxonWorks extensions to include
   # @param extension_scopes [Hash] Additional extension scopes
   # @param project_id [Integer] Project ID
+  # @param user_id [Integer] User ID for housekeeping in the background job
   # @return [Download::DwcArchive] The download record
-  def self.download_async(core_scope, request_url, predicate_extensions: {}, taxonworks_extensions: [], extension_scopes: {}, project_id: nil)
+  def self.download_async(core_scope, request_url, predicate_extensions: {}, taxonworks_extensions: [], extension_scopes: {}, project_id: nil, user_id: nil)
+    raise TaxonWorks::Error, 'project_id is required in Export::Dwca::download_async!' if project_id.nil?
+    raise TaxonWorks::Error, 'user_id is required in Export::Dwca::download_async!' if user_id.nil?
+
     name = "dwc_occurrences_#{DateTime.now}.zip"
 
     download = ::Download::DwcArchive.create!(
@@ -63,7 +109,8 @@ module Export::Dwca
       extension_scopes:,
       predicate_extensions:,
       taxonworks_extensions:,
-      project_id:
+      project_id:,
+      user_id:
     )
 
     download

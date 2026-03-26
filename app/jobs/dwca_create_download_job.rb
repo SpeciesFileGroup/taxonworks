@@ -29,13 +29,17 @@ class DwcaCreateDownloadJob < ApplicationJob
   #   (e.g., [:otu_name, :elevation_precision]).
   # @param project_id [Integer]
   #   Required. The project ID for scoping queries.
+  # @param user_id [Integer]
+  #   Required. Used to set housekeeping context for persisted download updates.
   def perform(download_id, core_scope: nil, extension_scopes: {biological_associations: nil, media: nil}, predicate_extensions: {}, eml_data: {dataset: nil, additional_metadata: nil}, taxonworks_extensions: [],
-  project_id: nil)
+  project_id: nil, user_id: nil)
     # Raise and fail without notifying if our download was deleted before we run.
     download = Download.find(download_id)
     # Filter queries will fail in unexpected ways without project_id set as
     # expected!
     raise TaxonWorks::Error, "Project_id not set! #{core_scope}" if project_id.nil?
+    raise TaxonWorks::Error, "User_id not set! #{core_scope}" if user_id.nil?
+    Current.user_id = user_id
     Current.project_id = project_id
 
     begin

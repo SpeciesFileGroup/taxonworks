@@ -49,7 +49,8 @@ class Tasks::Dwc::DashboardController < ApplicationController
         biological_associations: biological_associations_query,
         media: media_query
       },
-      project_id: sessions_current_project_id
+      project_id: sessions_current_project_id,
+      user_id: sessions_current_user_id
     )
     render '/downloads/show'
   end

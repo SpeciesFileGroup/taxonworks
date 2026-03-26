@@ -47,10 +47,11 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
       scope,
       'https://example.org/dwca_url',
       predicate_extensions:,
-      project_id: Current.project_id
+      project_id: Current.project_id,
+      user_id: Current.user_id
     )
 
-    ::DwcaCreateDownloadJob.perform_now(download.id, core_scope: scope, predicate_extensions:, project_id: Current.project_id)
+    ::DwcaCreateDownloadJob.perform_now(download.id, core_scope: scope, predicate_extensions:, project_id: Current.project_id, user_id: Current.user_id)
 
     tbl = Spec::Support::Utilities::Dwca.extract_data_tsv_table(download.file_path)
 
