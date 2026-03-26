@@ -1497,10 +1497,10 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
           accepted_name_mode: 'accepted_name_usage_id'
         )
       end
+      let(:replace_csv) { CSV.parse(replace_with_accepted_data.csv, headers: true, col_sep: "\t") }
+      let(:accepted_csv) { CSV.parse(accepted_name_usage_id_data.csv, headers: true, col_sep: "\t") }
 
       specify 'replace_with_accepted_name mode replaces invalid names with valid names' do
-        replace_csv = CSV.parse(replace_with_accepted_data.csv, headers: true, col_sep: "\t")
-
         # Should include valid species
         valid_taxon = replace_csv.find { |row| row['scientificName']&.include?('catus') }
         expect(valid_taxon).to be_present, 'Valid species should be included'
@@ -1510,51 +1510,39 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
       end
 
       specify 'replace_with_accepted_name mode produces exactly one row for the valid name when both valid and synonym have occurrences' do
-        replace_csv = CSV.parse(replace_with_accepted_data.csv, headers: true, col_sep: "\t")
-
         catus_rows = replace_csv.select { |row| row['scientificName']&.include?('catus') && row['taxonRank'] == 'species' }
         expect(catus_rows.size).to eq(1), 'Valid name should appear exactly once even though two occurrences map to it'
       end
 
       specify 'accepted_name_usage_id mode includes both taxa' do
-        all_csv = CSV.parse(accepted_name_usage_id_data.csv, headers: true, col_sep: "\t")
-
         # Both should be present with their original names
-        valid_taxon = all_csv.find { |row| row['scientificName']&.include?('catus') }
-        synonym_taxon = all_csv.find { |row| row['scientificName']&.include?('domesticus') }
+        valid_taxon = accepted_csv.find { |row| row['scientificName']&.include?('catus') }
+        synonym_taxon = accepted_csv.find { |row| row['scientificName']&.include?('domesticus') }
 
         expect(valid_taxon).to be_present, 'Valid species should be included'
         expect(synonym_taxon).to be_present, 'Synonym should be included with original name'
       end
 
       specify 'replace_with_accepted_name mode does not have synonym columns' do
-        replace_csv = CSV.parse(replace_with_accepted_data.csv, headers: true, col_sep: "\t")
-
         expect(replace_csv.headers).not_to include('acceptedNameUsageID')
         expect(replace_csv.headers).not_to include('taxonomicStatus')
       end
 
       specify 'accepted_name_usage_id mode includes acceptedNameUsageID and taxonomicStatus fields' do
-        all_csv = CSV.parse(accepted_name_usage_id_data.csv, headers: true, col_sep: "\t")
-
-        expect(all_csv.headers).to include('acceptedNameUsageID')
-        expect(all_csv.headers).to include('taxonomicStatus')
+        expect(accepted_csv.headers).to include('acceptedNameUsageID')
+        expect(accepted_csv.headers).to include('taxonomicStatus')
       end
 
       specify 'accepted name has taxonomicStatus "accepted" and acceptedNameUsageID pointing to itself' do
-        all_csv = CSV.parse(accepted_name_usage_id_data.csv, headers: true, col_sep: "\t")
-
-        valid_taxon = all_csv.find { |row| row['scientificName']&.include?('catus') && row['taxonRank'] == 'species' }
+        valid_taxon = accepted_csv.find { |row| row['scientificName']&.include?('catus') && row['taxonRank'] == 'species' }
 
         expect(valid_taxon['taxonomicStatus']).to eq('accepted')
         expect(valid_taxon['acceptedNameUsageID']).to eq(valid_taxon['taxonID'])
       end
 
       specify 'synonym has taxonomicStatus "synonym" and acceptedNameUsageID pointing to valid name' do
-        all_csv = CSV.parse(accepted_name_usage_id_data.csv, headers: true, col_sep: "\t")
-
-        synonym_taxon = all_csv.find { |row| row['scientificName']&.include?('domesticus') && row['taxonRank'] == 'species' }
-        valid_taxon = all_csv.find { |row| row['scientificName']&.include?('catus') && row['taxonRank'] == 'species' }
+        synonym_taxon = accepted_csv.find { |row| row['scientificName']&.include?('domesticus') && row['taxonRank'] == 'species' }
+        valid_taxon = accepted_csv.find { |row| row['scientificName']&.include?('catus') && row['taxonRank'] == 'species' }
 
         expect(synonym_taxon['taxonomicStatus']).to eq('synonym')
         expect(synonym_taxon['acceptedNameUsageID']).to eq(valid_taxon['taxonID'])
@@ -1616,16 +1604,14 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
       end
 
       specify 'extracted higher taxa have taxonomicStatus "accepted"' do
-        all_csv = CSV.parse(accepted_name_usage_id_data.csv, headers: true, col_sep: "\t")
-
         # Find extracted higher taxa (kingdom, family, genus) - these don't have
         # terminal TaxonName data. They're extracted from rank columns and
         # should be marked as accepted because DwcOccurrence builds
         # classification from valid_taxon_name (see
         # Shared::Taxonomy#taxonomy_for_object).
-        kingdom_taxon = all_csv.find { |row| row['scientificName'] == 'Animalia' && row['taxonRank'] == 'kingdom' }
-        family_taxon = all_csv.find { |row| row['scientificName'] == 'Felidae' && row['taxonRank'] == 'family' }
-        genus_taxon = all_csv.find { |row| row['scientificName'] == 'Felis' && row['taxonRank'] == 'genus' }
+        kingdom_taxon = accepted_csv.find { |row| row['scientificName'] == 'Animalia' && row['taxonRank'] == 'kingdom' }
+        family_taxon = accepted_csv.find { |row| row['scientificName'] == 'Felidae' && row['taxonRank'] == 'family' }
+        genus_taxon = accepted_csv.find { |row| row['scientificName'] == 'Felis' && row['taxonRank'] == 'genus' }
 
         # All extracted higher taxa should be marked as accepted
         expect(kingdom_taxon['taxonomicStatus']).to eq('accepted')
