@@ -4,7 +4,10 @@ require 'export/dwca'
 describe 'checklist download packaging', type: :model, group: :darwin_core do
   include ActiveJob::TestHelper
 
-  before do
+  before(:context) do
+    Current.user_id = 1
+    Current.project_id = 1
+
     # Create taxon names with full classification
     root = FactoryBot.create(:root_taxon_name)
     kingdom = Protonym.create!(name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom), parent: root)
@@ -25,6 +28,10 @@ describe 'checklist download packaging', type: :model, group: :darwin_core do
       FactoryBot.create(:valid_taxon_determination, otu: otu, taxon_determination_object: specimen)
       specimen.get_dwc_occurrence
     end
+  end
+
+  after(:context) do
+    DatabaseCleaner.clean_with(:truncation, except: %w(spatial_ref_sys users projects project_members people))
   end
 
   let(:otu_params) { { otu_id: Otu.all.pluck(:id) } }
@@ -121,38 +128,39 @@ describe 'checklist download packaging', type: :model, group: :darwin_core do
     expect { perform_enqueued_jobs }.to raise_error(ActiveRecord::RecordNotFound)
   end
 
-  specify '#checklist_download_async creates Zip after worker' do
-    perform_enqueued_jobs
-    expect(File.exist?(checklist_download.file_path)).to be_truthy
-  end
+  context 'after the archive is built' do
+    before do
+      perform_enqueued_jobs
+    end
 
-  specify 'includes data.tsv' do
-    perform_enqueued_jobs
-    z = Zip::File.open(Download.first.file_path)
-    expect(z.find_entry('data.tsv')).to be_truthy
-  end
+    let(:archive) { Zip::File.open(Download.first.file_path) }
 
-  specify 'includes species_distribution.tsv when extension enabled' do
-    perform_enqueued_jobs
-    z = Zip::File.open(Download.first.file_path)
-    expect(z.find_entry('species_distribution.tsv')).to be_truthy
-  end
+    after do
+      archive.close if archive
+    end
 
-  specify 'includes references.tsv when extension enabled' do
-    perform_enqueued_jobs
-    z = Zip::File.open(Download.first.file_path)
-    expect(z.find_entry('references.tsv')).to be_truthy
-  end
+    specify '#checklist_download_async creates Zip after worker' do
+      expect(File.exist?(checklist_download.file_path)).to be_truthy
+    end
 
-  specify 'includes meta.xml' do
-    perform_enqueued_jobs
-    z = Zip::File.open(Download.first.file_path)
-    expect(z.find_entry('meta.xml')).to be_truthy
-  end
+    specify 'includes data.tsv' do
+      expect(archive.find_entry('data.tsv')).to be_truthy
+    end
 
-  specify 'includes eml.xml' do
-    perform_enqueued_jobs
-    z = Zip::File.open(Download.first.file_path)
-    expect(z.find_entry('eml.xml')).to be_truthy
+    specify 'includes species_distribution.tsv when extension enabled' do
+      expect(archive.find_entry('species_distribution.tsv')).to be_truthy
+    end
+
+    specify 'includes references.tsv when extension enabled' do
+      expect(archive.find_entry('references.tsv')).to be_truthy
+    end
+
+    specify 'includes meta.xml' do
+      expect(archive.find_entry('meta.xml')).to be_truthy
+    end
+
+    specify 'includes eml.xml' do
+      expect(archive.find_entry('eml.xml')).to be_truthy
+    end
   end
 end
