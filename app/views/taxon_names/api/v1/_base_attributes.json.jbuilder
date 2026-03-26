@@ -11,14 +11,3 @@ json.extract! taxon_name, :id, :name, :parent_id,
 json.year taxon_name.year_integer
 json.name_string label_for_taxon_name(taxon_name)
 json.original_combination full_original_taxon_name_label(taxon_name)
-
-
-
-
-
-
-#http://127.0.0.1:3000/api/v1/taxon_names/818346/          #Elytrurus bicolor
-#http://127.0.0.1:3000/api/v1/taxon_names/833139/
-#http://127.0.0.1:3000/api/v1/taxon_names/1181570		#Paraptochus oregonus COMBINATION
-#http://127.0.0.1:3000/api/v1/taxon_names/827503		#Paraptochus oregonus PROTONYM
-#http://127.0.0.1:3000/api/v1/taxon_names/818346/inventory/summary?extend[]=taxon_name_relationships
