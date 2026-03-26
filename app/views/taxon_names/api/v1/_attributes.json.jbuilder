@@ -54,3 +54,9 @@ if extend_response_with('type_taxon_name_relationship')
     end
   end
 end
+
+if extend_response_with('original_source')
+	json.original_source do
+		json.id taxon_name.origin_citation
+	end
+end
