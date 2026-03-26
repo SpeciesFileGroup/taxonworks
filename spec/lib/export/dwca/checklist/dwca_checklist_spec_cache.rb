@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-# Shared helpers to speed up DwCA checklist export specs.
+# Private support for checklist data specs.
 #
 # Provides:
-# - One-time fixture creation (outside per-example transactions)
+# - One-time fixture creation for the shared core checklist export scenario
 # - A small cache for generated DwCA CSV strings (frozen master + per-call dup)
 #
 # NOTE: Specs using this support are expected to call DatabaseCleaner.start in
@@ -63,20 +63,18 @@ module DwcaChecklistSpecSupport
       # References extension fixtures (sources + citations)
       source1 = FactoryBot.create(:valid_source)
       source2 = FactoryBot.create(:valid_source)
-      # Cite sources on taxon names used by the checklist
       FactoryBot.create(:valid_citation, citation_object: taxon_name1, source: source1)
       FactoryBot.create(:valid_citation, citation_object: taxon_name2, source: source2)
 
-      # Types/specimens extension fixtures (type material)
-      # Keep minimal: create a type specimen for one taxon
+      # Types/specimens extension fixtures
       type_specimen = FactoryBot.create(:valid_specimen)
       FactoryBot.create(:valid_type_material, protonym: taxon_name1, collection_object: type_specimen)
 
-      # Vernacular name extension fixtures (CommonName + Language)
+      # Vernacular name extension fixtures
       language_en = FactoryBot.create(:valid_language, alpha_2: 'en')
       FactoryBot.create(:valid_common_name, otu: otu1, name: 'Test common name', language: language_en)
 
-      # Description extension fixtures (PublicContent built from Content + Topic + Language)
+      # Description extension fixtures
       topic_morphology = FactoryBot.create(:valid_topic, name: 'Morphology')
       content = FactoryBot.create(:valid_content, otu: otu1, topic: topic_morphology, text: 'Test **markdown**.', language: language_en)
       PublicContent.create!(content: content, topic: topic_morphology, text: content.text, otu: otu1)

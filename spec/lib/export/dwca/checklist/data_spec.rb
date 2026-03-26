@@ -1,4 +1,5 @@
 require 'rails_helper'
+require_relative 'dwca_checklist_spec_cache'
 
 describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
   shared_examples 'checklist extension plumbing' do |flag_method:, tmp_method:, file_name:, row_type:|
@@ -105,7 +106,8 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
       let(:data) { Export::Dwca::Checklist::Data.new(core_otu_scope_params: cached_otu_scope) }
       let(:csv) { parsed_csv(scope: cached_otu_scope) }
 
-      # Helper to access cached fixtures (don't shadow otu1/2/3 - let extension contexts use top-level fresh OTUs)
+      # Helper to access cached fixtures for extension contexts that still
+      # reuse the shared taxon names.
       let(:cached_ids) { DwcaChecklistSpecSupport::Fixtures.ids }
 
       specify '#total returns count of DwcOccurrences' do
