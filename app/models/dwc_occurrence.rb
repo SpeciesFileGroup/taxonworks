@@ -194,21 +194,6 @@ class DwcOccurrence < ApplicationRecord
   end
 
   # @return [Array]
-  #   of column names as symbols that are blank in *ALL* projects (not just this one)
-  def self.empty_fields
-    empty_in_all_projects = ActiveRecord::Base.connection.execute("select attname
-    from pg_stats
-    where tablename = 'dwc_occurrences'
-    and most_common_vals is null
-    and most_common_freqs is null
-    and histogram_bounds is null
-    and correlation is null
-    and null_frac = 1;").pluck('attname').map(&:to_sym)
-
-    empty_in_all_projects #  - target_occurrence_columns
-  end
-
-  # @return [Array]
   #   of symbols
   # !! TODO: When we come to adding AssertedDistributions, FieldOccurrnces, etc. we will have to
   # make this more flexible

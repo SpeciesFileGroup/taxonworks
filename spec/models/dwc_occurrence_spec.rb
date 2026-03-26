@@ -338,9 +338,4 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
     end
   end
 
-  # Can't test within a transaction.
-  specify '.empty_fields' do
-    expect(::DwcOccurrence.empty_fields).to contain_exactly() # Should be ::DwcOccurrence.column_names
-  end
-
 end
