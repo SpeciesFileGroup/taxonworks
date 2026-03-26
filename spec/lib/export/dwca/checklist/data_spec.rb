@@ -1,6 +1,51 @@
 require 'rails_helper'
 
 describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
+  shared_examples 'checklist extension plumbing' do |flag_method:, tmp_method:, file_name:, row_type:|
+    specify "#{flag_method} is set when extension is requested" do
+      expect(data_with_extension.public_send(flag_method)).to be true
+      expect(data_without_extension.public_send(flag_method)).to be false
+    end
+
+    specify "#{tmp_method} returns nil when extension not requested" do
+      expect(data_without_extension.public_send(tmp_method)).to be_nil
+    end
+
+    specify "#{tmp_method} returns Tempfile when extension requested" do
+      expect(data_with_extension.public_send(tmp_method)).to be_a(Tempfile)
+    end
+
+    specify "zipfile includes #{file_name} when extension enabled" do
+      zipfile = data_with_extension.zipfile
+      Zip::File.open(zipfile.path) do |zip|
+        expect(zip.find_entry(file_name)).to be_present
+      end
+    end
+
+    specify "zipfile does not include #{file_name} when extension disabled" do
+      zipfile = data_without_extension.zipfile
+      Zip::File.open(zipfile.path) do |zip|
+        expect(zip.find_entry(file_name)).to be_nil
+      end
+    end
+
+    specify "meta.xml includes #{file_name} when enabled" do
+      meta_content = data_with_extension.meta.read
+      data_with_extension.meta.rewind
+
+      expect(meta_content).to include(file_name)
+      expect(meta_content).to include(row_type)
+    end
+
+    specify "meta.xml does not include #{file_name} when disabled" do
+      meta_content = data_without_extension.meta.read
+      data_without_extension.meta.rewind
+
+      expect(meta_content).not_to include(file_name)
+      expect(meta_content).not_to include(row_type)
+    end
+  end
+
   # Helper methods for cached CSV generation (used only in "with some occurrence records created" context)
   def cached_csv(scope:, extensions: nil, accepted_name_mode: nil)
     key = [
@@ -429,18 +474,11 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
         let(:data_with_extension) { Export::Dwca::Checklist::Data.new(core_otu_scope_params: otu_scope, extensions: [Export::Dwca::Checklist::Data::DISTRIBUTION_EXTENSION]) }
         let(:data_without_extension) { Export::Dwca::Checklist::Data.new(core_otu_scope_params: otu_scope, extensions: []) }
 
-        specify 'distribution_extension flag is set when extension is requested' do
-          expect(data_with_extension.species_distribution_extension).to be true
-          expect(data_without_extension.species_distribution_extension).to be false
-        end
-
-        specify 'distribution_extension_tmp returns nil when extension not requested' do
-          expect(data_without_extension.species_distribution_extension_tmp).to be_nil
-        end
-
-        specify 'distribution_extension_tmp returns Tempfile when extension requested' do
-          expect(data_with_extension.species_distribution_extension_tmp).to be_a(Tempfile)
-        end
+        include_examples 'checklist extension plumbing',
+          flag_method: :species_distribution_extension,
+          tmp_method: :species_distribution_extension_tmp,
+          file_name: 'species_distribution.tsv',
+          row_type: 'http://rs.gbif.org/terms/1.0/Distribution'
 
         specify 'distribution extension CSV has correct headers' do
           # Generate core CSV first to populate taxon_name_to_id mapping.
@@ -487,34 +525,6 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
           dist_csv.each do |row|
             expect(['present', 'absent']).to include(row['occurrenceStatus'])
           end
-        end
-
-        specify 'zipfile includes distribution.tsv when extension enabled' do
-          zipfile = data_with_extension.zipfile
-          Zip::File.open(zipfile.path) do |zip|
-            expect(zip.find_entry('species_distribution.tsv')).to be_present
-          end
-        end
-
-        specify 'zipfile does not include distribution.tsv when extension disabled' do
-          zipfile = data_without_extension.zipfile
-          Zip::File.open(zipfile.path) do |zip|
-            expect(zip.find_entry('species_distribution.tsv')).to be_nil
-          end
-        end
-
-        specify 'meta.xml includes distribution extension when enabled' do
-          meta_content = data_with_extension.meta.read
-
-          expect(meta_content).to include('species_distribution.tsv')
-          expect(meta_content).to include('http://rs.gbif.org/terms/1.0/Distribution')
-        end
-
-        specify 'meta.xml does not include distribution extension when disabled' do
-          meta_content = data_without_extension.meta.read
-
-          expect(meta_content).not_to include('species_distribution.tsv')
-          expect(meta_content).not_to include('http://rs.gbif.org/terms/1.0/Distribution')
         end
 
         specify 'distribution extension rows star-join to correct core taxa with matching occurrence data' do
@@ -636,18 +646,11 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
         let(:data_with_extension) { Export::Dwca::Checklist::Data.new(core_otu_scope_params: otu_scope, extensions: [Export::Dwca::Checklist::Data::REFERENCES_EXTENSION]) }
         let(:data_without_extension) { Export::Dwca::Checklist::Data.new(core_otu_scope_params: otu_scope, extensions: []) }
 
-        specify 'references_extension flag is set when extension is requested' do
-          expect(data_with_extension.references_extension).to be true
-          expect(data_without_extension.references_extension).to be false
-        end
-
-        specify 'references_extension_tmp returns nil when extension not requested' do
-          expect(data_without_extension.references_extension_tmp).to be_nil
-        end
-
-        specify 'references_extension_tmp returns Tempfile when extension requested' do
-          expect(data_with_extension.references_extension_tmp).to be_a(Tempfile)
-        end
+        include_examples 'checklist extension plumbing',
+          flag_method: :references_extension,
+          tmp_method: :references_extension_tmp,
+          file_name: 'references.tsv',
+          row_type: 'http://rs.gbif.org/terms/1.0/Reference'
 
         specify 'references extension CSV has correct headers' do
           # Generate core CSV first to populate taxon_name_to_id mapping
@@ -692,36 +695,6 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
           refs_csv.each do |row|
             expect(row['bibliographicCitation']).to be_present
           end
-        end
-
-        specify 'zipfile includes references.tsv when extension enabled' do
-          zipfile = data_with_extension.zipfile
-          Zip::File.open(zipfile.path) do |zip|
-            expect(zip.find_entry('references.tsv')).to be_present
-          end
-        end
-
-        specify 'zipfile does not include references.tsv when extension disabled' do
-          zipfile = data_without_extension.zipfile
-          Zip::File.open(zipfile.path) do |zip|
-            expect(zip.find_entry('references.tsv')).to be_nil
-          end
-        end
-
-        specify 'meta.xml includes references extension when enabled' do
-          meta_content = data_with_extension.meta.read
-          data_with_extension.meta.rewind
-
-          expect(meta_content).to include('references.tsv')
-          expect(meta_content).to include('http://rs.gbif.org/terms/1.0/Reference')
-        end
-
-        specify 'meta.xml does not include references extension when disabled' do
-          meta_content = data_without_extension.meta.read
-          data_without_extension.meta.rewind
-
-          expect(meta_content).not_to include('references.tsv')
-          expect(meta_content).not_to include('http://rs.gbif.org/terms/1.0/Reference')
         end
 
         specify 'references extension rows star-join to correct core taxa with matching citation data' do
@@ -776,18 +749,11 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
         let(:data_with_extension) { Export::Dwca::Checklist::Data.new(core_otu_scope_params: otu_scope, extensions: [Export::Dwca::Checklist::Data::TYPES_AND_SPECIMEN_EXTENSION]) }
         let(:data_without_extension) { Export::Dwca::Checklist::Data.new(core_otu_scope_params: otu_scope, extensions: []) }
 
-        specify 'types_and_specimen_extension flag is set when extension is requested' do
-          expect(data_with_extension.types_and_specimen_extension).to be true
-          expect(data_without_extension.types_and_specimen_extension).to be false
-        end
-
-        specify 'types_and_specimen_extension_tmp returns nil when extension not requested' do
-          expect(data_without_extension.types_and_specimen_extension_tmp).to be_nil
-        end
-
-        specify 'types_and_specimen_extension_tmp returns Tempfile when extension requested' do
-          expect(data_with_extension.types_and_specimen_extension_tmp).to be_a(Tempfile)
-        end
+        include_examples 'checklist extension plumbing',
+          flag_method: :types_and_specimen_extension,
+          tmp_method: :types_and_specimen_extension_tmp,
+          file_name: 'types_and_specimen.tsv',
+          row_type: 'http://rs.gbif.org/terms/1.0/TypesAndSpecimen'
 
         specify 'types and specimen extension CSV has correct headers' do
           # Generate core CSV first to populate taxon_name_to_id mapping
@@ -835,34 +801,6 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
           types_csv.each do |row|
             expect(row['typeStatus']).to be_present
           end
-        end
-
-        specify 'zipfile includes types_and_specimen.tsv when extension enabled' do
-          zipfile = data_with_extension.zipfile
-          Zip::File.open(zipfile.path) do |zip|
-            expect(zip.find_entry('types_and_specimen.tsv')).to be_present
-          end
-        end
-
-        specify 'zipfile does not include types_and_specimen.tsv when extension disabled' do
-          zipfile = data_without_extension.zipfile
-          Zip::File.open(zipfile.path) do |zip|
-            expect(zip.find_entry('types_and_specimen.tsv')).to be_nil
-          end
-        end
-
-        specify 'meta.xml includes types and specimen extension when enabled' do
-          meta_content = data_with_extension.meta.read
-
-          expect(meta_content).to include('types_and_specimen.tsv')
-          expect(meta_content).to include('http://rs.gbif.org/terms/1.0/TypesAndSpecimen')
-        end
-
-        specify 'meta.xml does not include types and specimen extension when disabled' do
-          meta_content = data_without_extension.meta.read
-
-          expect(meta_content).not_to include('types_and_specimen.tsv')
-          expect(meta_content).not_to include('http://rs.gbif.org/terms/1.0/TypesAndSpecimen')
         end
 
         specify 'types and specimen extension rows star-join to correct core taxa with matching type material data' do
@@ -918,18 +856,11 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
         let(:data_with_extension) { Export::Dwca::Checklist::Data.new(core_otu_scope_params: otu_scope, extensions: [Export::Dwca::Checklist::Data::VERNACULAR_NAME_EXTENSION]) }
         let(:data_without_extension) { Export::Dwca::Checklist::Data.new(core_otu_scope_params: otu_scope, extensions: []) }
 
-        specify 'vernacular_name_extension flag is set when extension is requested' do
-          expect(data_with_extension.vernacular_name_extension).to be true
-          expect(data_without_extension.vernacular_name_extension).to be false
-        end
-
-        specify 'vernacular_name_extension_tmp returns nil when extension not requested' do
-          expect(data_without_extension.vernacular_name_extension_tmp).to be_nil
-        end
-
-        specify 'vernacular_name_extension_tmp returns Tempfile when extension requested' do
-          expect(data_with_extension.vernacular_name_extension_tmp).to be_a(Tempfile)
-        end
+        include_examples 'checklist extension plumbing',
+          flag_method: :vernacular_name_extension,
+          tmp_method: :vernacular_name_extension_tmp,
+          file_name: 'vernacular_name.tsv',
+          row_type: 'http://rs.gbif.org/terms/1.0/VernacularName'
 
         specify 'vernacular name extension CSV has correct headers' do
           # Generate core CSV first to populate taxon_name_to_id mapping
@@ -998,36 +929,6 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
 
           butterfly_row = vn_csv.find { |row| row['vernacularName'] == 'Common Butterfly' }
           expect(butterfly_row['temporal']).to eq('2000')
-        end
-
-        specify 'zipfile includes vernacular_name.tsv when extension enabled' do
-          zipfile = data_with_extension.zipfile
-          Zip::File.open(zipfile.path) do |zip|
-            expect(zip.find_entry('vernacular_name.tsv')).to be_present
-          end
-        end
-
-        specify 'zipfile does not include vernacular_name.tsv when extension disabled' do
-          zipfile = data_without_extension.zipfile
-          Zip::File.open(zipfile.path) do |zip|
-            expect(zip.find_entry('vernacular_name.tsv')).to be_nil
-          end
-        end
-
-        specify 'meta.xml includes vernacular name extension when enabled' do
-          meta_content = data_with_extension.meta.read
-          data_with_extension.meta.rewind
-
-          expect(meta_content).to include('vernacular_name.tsv')
-          expect(meta_content).to include('http://rs.gbif.org/terms/1.0/VernacularName')
-        end
-
-        specify 'meta.xml does not include vernacular name extension when disabled' do
-          meta_content = data_without_extension.meta.read
-          data_without_extension.meta.rewind
-
-          expect(meta_content).not_to include('vernacular_name.tsv')
-          expect(meta_content).not_to include('http://rs.gbif.org/terms/1.0/VernacularName')
         end
 
         specify 'vernacular name extension rows star-join to correct core taxa with matching common name data' do
@@ -1147,18 +1048,11 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
           )
         end
 
-        specify 'description_extension flag is set when extension is requested' do
-          expect(data_with_extension.description_extension).to be true
-          expect(data_without_extension.description_extension).to be false
-        end
-
-        specify 'description_extension_tmp returns nil when extension not requested' do
-          expect(data_without_extension.description_extension_tmp).to be_nil
-        end
-
-        specify 'description_extension_tmp returns Tempfile when extension requested' do
-          expect(data_with_extension.description_extension_tmp).to be_a(Tempfile)
-        end
+        include_examples 'checklist extension plumbing',
+          flag_method: :description_extension,
+          tmp_method: :description_extension_tmp,
+          file_name: 'description.tsv',
+          row_type: 'http://rs.gbif.org/terms/1.0/Description'
 
         specify 'description extension CSV has correct headers' do
           # Generate core CSV first to populate taxon_name_to_id mapping
@@ -1277,36 +1171,6 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
             expect(row['id']).to be_present
             expect(Utilities::Uuid.uuid?(row['id'])).to be(true)
           end
-        end
-
-        specify 'zipfile includes description.tsv when extension enabled' do
-          zipfile = data_with_extension.zipfile
-          Zip::File.open(zipfile.path) do |zip|
-            expect(zip.find_entry('description.tsv')).to be_present
-          end
-        end
-
-        specify 'zipfile does not include description.tsv when extension disabled' do
-          zipfile = data_without_extension.zipfile
-          Zip::File.open(zipfile.path) do |zip|
-            expect(zip.find_entry('description.tsv')).to be_nil
-          end
-        end
-
-        specify 'meta.xml includes description extension when enabled' do
-          meta_content = data_with_extension.meta.read
-          data_with_extension.meta.rewind
-
-          expect(meta_content).to include('description.tsv')
-          expect(meta_content).to include('http://rs.gbif.org/terms/1.0/Description')
-        end
-
-        specify 'meta.xml does not include description extension when disabled' do
-          meta_content = data_without_extension.meta.read
-          data_without_extension.meta.rewind
-
-          expect(meta_content).not_to include('description.tsv')
-          expect(meta_content).not_to include('http://rs.gbif.org/terms/1.0/Description')
         end
 
         specify 'description extension rows star-join to correct core taxa' do
