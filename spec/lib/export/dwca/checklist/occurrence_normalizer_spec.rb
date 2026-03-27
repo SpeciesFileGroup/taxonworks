@@ -861,6 +861,7 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
     end
 
     let(:synonym_row) { output_rows.find { |r| r['scientificName'] == 'Aus bus cus' } }
+    let(:accepted_row) { output_rows.find { |r| r['scientificName'] == 'Xus xus' } }
 
     specify 'synonym itself has correct taxonRank after correction' do
       expect(synonym_row).to be_present
@@ -878,6 +879,14 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
     specify 'synonym has no family from the valid name hierarchy' do
       # family comes from the synonym's own ancestors, not the valid name's
       expect(synonym_row['family']).not_to eq('Xidae')
+    end
+
+    specify 'auto-added accepted row is normalized to the valid species rank' do
+      expect(accepted_row).to be_present
+      expect(accepted_row['taxonRank']).to eq('species')
+      expect(accepted_row['specificEpithet']).to eq('xus')
+      expect(accepted_row['infraspecificEpithet']).to be_nil.or eq('')
+      expect(accepted_row['higherClassification']).to eq('Xidae | Xus')
     end
   end
 

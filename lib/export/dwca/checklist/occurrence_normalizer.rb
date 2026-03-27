@@ -467,7 +467,11 @@ module Export::Dwca::Checklist
 
       return all_taxa if valid_id_to_synonym.empty?
 
-      ::TaxonName.where(id: valid_id_to_synonym.keys).each do |valid_tn|
+      valid_ids = valid_id_to_synonym.keys
+      valid_ancestor_lookup = build_ancestor_lookup(valid_ids)
+      merge_taxon_name_info!(taxon_name_info, valid_ids, valid_ancestor_lookup)
+
+      ::TaxonName.where(id: valid_ids).each do |valid_tn|
         rank = valid_tn.rank&.downcase
         next unless rank
 
@@ -494,10 +498,20 @@ module Export::Dwca::Checklist
 
         normalize_accepted_name_usage_taxon(
           valid_taxon,
+          rank,
+          template_taxon['taxonRank']&.downcase,
           taxon_name_info: taxon_name_info[valid_tn.id]
         )
 
         all_taxa[valid_tn.id] = valid_taxon
+        extract_accepted_name_usage_ancestor_taxa(
+          valid_taxon,
+          valid_tn.id,
+          rank,
+          valid_ancestor_lookup,
+          all_taxa,
+          taxon_name_info
+        )
       end
 
       all_taxa
@@ -654,6 +668,8 @@ module Export::Dwca::Checklist
 
     def populate_normalized_taxon_fields(taxon, taxon_name_info = nil)
       taxon['scientificNameAuthorship'] = taxon_name_info&.[](:scientific_name_authorship)
+      # The original higherClassification may include more ranks than the
+      # checklist does, so just always recompute it.
       taxon['higherClassification'] = recompute_higher_classification(taxon)
     end
 
@@ -714,7 +730,33 @@ module Export::Dwca::Checklist
     # @param taxon [Hash] the taxon data hash to modify
     # @param current_rank [String] the rank being extracted
     # @param original_rank [String] the original taxonRank before extraction
-    def normalize_occurrence_taxon(taxon, current_rank, original_rank = nil, taxon_name_info: nil)
+    def normalize_occurrence_taxon(
+      taxon, current_rank, original_rank = nil, taxon_name_info: nil
+    )
+      normalize_taxon_for_rank_transition(
+        taxon,
+        current_rank,
+        original_rank,
+        taxon_name_info: taxon_name_info
+      )
+    end
+
+    def normalize_accepted_name_usage_taxon(
+      taxon, current_rank = nil, original_rank = nil, taxon_name_info: nil
+    )
+      current_rank ||= taxon['taxonRank']&.downcase
+      original_rank ||= current_rank
+      normalize_taxon_for_rank_transition(
+        taxon,
+        current_rank,
+        original_rank,
+        taxon_name_info: taxon_name_info
+      )
+    end
+
+    def normalize_taxon_for_rank_transition(
+      taxon, current_rank, original_rank = nil, taxon_name_info: nil
+    )
       current_id = ORDERED_RANKS.index(current_rank)
       return unless current_id
 
@@ -751,8 +793,38 @@ module Export::Dwca::Checklist
       populate_normalized_taxon_fields(taxon, taxon_name_info)
     end
 
-    def normalize_accepted_name_usage_taxon(taxon, taxon_name_info: nil)
-      populate_normalized_taxon_fields(taxon, taxon_name_info)
+    def extract_accepted_name_usage_ancestor_taxa(
+      row, terminal_tn_id, terminal_rank, ancestor_lookup, all_taxa, taxon_name_info = {}
+    )
+      terminal_rank_index = ORDERED_RANKS.index(terminal_rank)
+      return unless terminal_rank_index && terminal_rank_index > 0
+
+      (0...terminal_rank_index).reverse_each do |i|
+        higher_rank = ORDERED_RANKS[i]
+        rank_taxon_name = row[higher_rank]
+        next if rank_taxon_name.blank?
+
+        ancestor_tn_id = ancestor_lookup["#{terminal_tn_id}:#{higher_rank}"]
+        next unless ancestor_tn_id
+
+        # All higher ancestors are in all_taxa if this one is.
+        break if all_taxa[ancestor_tn_id]
+
+        ancestor_taxon = row.to_h.dup
+        ancestor_taxon['taxon_name_id'] = ancestor_tn_id
+        ancestor_taxon['scientificName'] = rank_taxon_name
+        ancestor_taxon['taxonRank'] = higher_rank
+        normalize_accepted_name_usage_taxon(
+          ancestor_taxon,
+          higher_rank,
+          terminal_rank,
+          taxon_name_info: taxon_name_info[ancestor_tn_id]
+        )
+
+        TAXON_NAME_METADATA_FIELDS.each { |f| ancestor_taxon[f] = nil }
+
+        all_taxa[ancestor_tn_id] = ancestor_taxon
+      end
     end
 
     # Get all infraspecific rank names

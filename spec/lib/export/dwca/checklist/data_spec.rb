@@ -1800,6 +1800,15 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
             expect(valid_row['higherClassification']).not_to include('Felis')
           end
 
+          specify 'auto-added valid name links to an exported accepted parent taxon' do
+            valid_row = csv_for_alt.find { |row| row['taxonRank'] == 'species' && row['taxonomicStatus'] == 'accepted' }
+            genus_row = csv_for_alt.find { |row| row['taxonRank'] == 'genus' && row['scientificName'] == 'Panthera' }
+
+            expect(valid_row).to be_present
+            expect(genus_row).to be_present
+            expect(valid_row['parentNameUsageID']).to eq(genus_row['taxonID'])
+          end
+
           specify 'synonym row has its own genus, not the valid name genus' do
             synonym_row = csv_for_alt.find { |row| row['taxonRank'] == 'species' && row['taxonomicStatus'] != 'accepted' }
             expect(synonym_row).to be_present
