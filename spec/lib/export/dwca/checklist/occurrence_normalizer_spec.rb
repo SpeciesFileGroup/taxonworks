@@ -256,9 +256,11 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
       expect(taxa_with_ids.size).to eq(1)
     end
 
-    specify 'skips taxa without an OTU UUID identifier' do
+    specify 'skips taxa whose OTU only has non-UUID global identifiers' do
       root = FactoryBot.create(:root_taxon_name)
-      tn_id = root.id  # no OTU linked to this taxon_name_id
+      otu = FactoryBot.create(:valid_otu, taxon_name: root)
+      FactoryBot.create(:uri_identifier, identifier_object: otu, identifier: 'https://example.test/otus/1')
+      tn_id = root.id
 
       all_taxa = { tn_id => { 'scientificName' => 'Animalia' } }
       taxon_name_info = { tn_id => { rank: 'kingdom', parent_id: nil } }
@@ -508,7 +510,7 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
 
     specify 'the same taxon encountered a second time is not overwritten' do
       row1 = CSV::Row.new(['scientificName', 'taxonRank'], ['Aus bus', 'species'])
-      row2 = CSV::Row.new(['scientificName', 'taxonRank'], ['Aus bus (Smith, 1900)', 'species'])
+      row2 = CSV::Row.new(['scientificName', 'taxonRank'], ['not this one', 'species'])
 
       normalizer.send(:add_terminal_taxon, row1, 100, 'species', all_taxa, ancestor_lookup)
       normalizer.send(:add_terminal_taxon, row2, 100, 'species', all_taxa, ancestor_lookup)
@@ -780,10 +782,6 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
         expect(result[form.id]['infraspecificEpithet']).to eq('dus')
       end
 
-      specify 'infraspecificEpithet is not the subspecies epithet' do
-        expect(result[form.id]['infraspecificEpithet']).not_to eq('cus')
-      end
-
       specify 'taxonRank is form' do
         expect(result[form.id]['taxonRank']).to eq('form')
       end
@@ -809,13 +807,15 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
   end
 
   describe '#normalize in accepted_name_usage_id mode with an infraspecific synonym' do
-    # DwcOccurrence stores the *valid* name's rank and hierarchy for a synonym, so
-    # the occurrence row for a subspecies synonym with a species valid name arrives
-    # with taxonRank="species", genus from the valid name, etc. fix_synonym_rank_columns
-    # corrects the name components; per DwC checklist convention (cf. VASCAN), synonyms
-    # carry no parentNameUsageID or classification hierarchy — only their own name parts.
+    # DwcOccurrence stores the *valid* name's rank and hierarchy for a synonym,
+    # so the occurrence row for a subspecies synonym with a species valid name
+    # arrives with taxonRank="species", genus from the valid name, etc.
+    # fix_synonym_rank_columns corrects the name components: synonyms
+    # carry no parentNameUsageID or classification hierarchy — only their own
+    # name parts.
     let!(:root)           { FactoryBot.create(:root_taxon_name) }
     let!(:valid_genus)    { Protonym.create!(name: 'Xus',  rank_class: Ranks.lookup(:iczn, :genus),      parent: root) }
+    let!(:valid_genus_otu){ FactoryBot.create(:valid_otu, taxon_name: valid_genus) }
     let!(:valid_species)  { Protonym.create!(name: 'xus',  rank_class: Ranks.lookup(:iczn, :species),    parent: valid_genus) }
     let!(:valid_otu)      { FactoryBot.create(:valid_otu, taxon_name: valid_species) }
     let!(:syn_genus)      { Protonym.create!(name: 'Aus',  rank_class: Ranks.lookup(:iczn, :genus),      parent: root) }
@@ -862,6 +862,7 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
 
     let(:synonym_row) { output_rows.find { |r| r['scientificName'] == 'Aus bus cus' } }
     let(:accepted_row) { output_rows.find { |r| r['scientificName'] == 'Xus xus' } }
+    let(:accepted_genus_row) { output_rows.find { |r| r['scientificName'] == 'Xus' && r['taxonRank'] == 'genus' } }
 
     specify 'synonym itself has correct taxonRank after correction' do
       expect(synonym_row).to be_present
@@ -873,7 +874,7 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
     end
 
     specify 'synonym has no parentNameUsageID' do
-      expect(synonym_row['parentNameUsageID']).to be_nil.or eq('')
+      expect(synonym_row['parentNameUsageID']).to be_nil
     end
 
     specify 'synonym has no family from the valid name hierarchy' do
@@ -885,8 +886,13 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
       expect(accepted_row).to be_present
       expect(accepted_row['taxonRank']).to eq('species')
       expect(accepted_row['specificEpithet']).to eq('xus')
-      expect(accepted_row['infraspecificEpithet']).to be_nil.or eq('')
+      expect(accepted_row['infraspecificEpithet']).to be_nil
       expect(accepted_row['higherClassification']).to eq('Xidae | Xus')
+    end
+
+    specify 'adds the corrected accepted genus even though no genus row was input' do
+      expect(accepted_genus_row).to be_present
+      expect(accepted_genus_row['taxonomicStatus']).to eq('accepted')
     end
   end
 

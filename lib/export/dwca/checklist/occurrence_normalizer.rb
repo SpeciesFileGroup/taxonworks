@@ -688,7 +688,7 @@ module Export::Dwca::Checklist
     # @param taxon [Hash] taxon data
     # @param taxon_id [Integer] assigned taxonID
     # @param taxon_name_id_to_taxon_id [Hash] taxon_name_id => taxonID
-    # @return [Array] [acceptedNameUsageID, taxonomicStatus]
+    # @return [Array] [acceptedNameUsageID (a taxonID), taxonomicStatus]
     def determine_accepted_name_usage(
       taxon, taxon_id, taxon_name_id_to_taxon_id
     )
@@ -719,17 +719,26 @@ module Export::Dwca::Checklist
       end
     end
 
-    # Mutates an occurrence-derived taxon row in place by:
-    # - clearing rank columns below current_rank
-    # - clearing taxon-specific fields not applicable to the extracted rank
-    # - recomputing normalized fields from the taxon's own metadata
+    # Normalizes a taxon row produced during the occurrence-driven stage.
+    # This covers both terminal occurrence-backed rows and taxa extracted from
+    # those rows (for example parent species or higher ancestors).
     #
-    # It preserves all other fields as-is. In particular, it does not rewrite
-    # row identity fields such as taxonRank or scientificName; callers are
-    # expected to set those.
+    # When current_rank differs from original_rank, it:
+    # - clears rank columns below current_rank
+    # - clears taxon-specific fields not applicable to the extracted rank
+    #
+    # It always recomputes normalized fields from the taxon's own metadata and
+    # preserves all other fields as-is. In particular, it does not rewrite row
+    # identity fields such as taxonRank or scientificName; callers are expected
+    # to set those before calling this method.
     # @param taxon [Hash] the taxon data hash to modify
-    # @param current_rank [String] the rank being extracted
-    # @param original_rank [String] the original taxonRank before extraction
+    # @param current_rank [String] the rank represented by the row after
+    #   occurrence-stage extraction/normalization
+    # @param original_rank [String] the source rank before any extraction; use
+    #   the same value as current_rank for terminal rows
+    # @param taxon_name_info [Hash, nil] the row's single TaxonName metadata
+    #   entry (for example { scientific_name_authorship: ... }) used to
+    #   repopulate normalized fields such as authorship
     def normalize_occurrence_taxon(
       taxon, current_rank, original_rank = nil, taxon_name_info: nil
     )
@@ -741,6 +750,22 @@ module Export::Dwca::Checklist
       )
     end
 
+    # Normalizes a taxon row introduced or rewritten during accepted-name-usage
+    # handling. This covers both corrected synonym rows and accepted rows
+    # synthesized from those synonyms.
+    #
+    # Like occurrence-stage normalization, a rank transition clears lower-rank
+    # columns and taxon-specific fields that do not apply to the resulting rank,
+    # then recomputes the normalized fields from the row's own taxon metadata.
+    # Callers may omit the ranks to use the row's current taxonRank unchanged.
+    # @param taxon [Hash] the taxon data hash to modify
+    # @param current_rank [String, nil] the rank represented by the row after
+    #   accepted-name-usage normalization; defaults from taxon['taxonRank']
+    # @param original_rank [String, nil] the source rank before any accepted-name
+    #   rewrite; defaults to current_rank when omitted
+    # @param taxon_name_info [Hash, nil] the row's single TaxonName metadata
+    #   entry (for example { scientific_name_authorship: ... }) used to
+    #   repopulate normalized fields such as authorship
     def normalize_accepted_name_usage_taxon(
       taxon, current_rank = nil, original_rank = nil, taxon_name_info: nil
     )
