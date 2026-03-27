@@ -72,11 +72,11 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
     )
   end
 
-  # Top-level OTUs for extension contexts (will be set up when 'with some occurrence records created' context runs)
-  let!(:otu1) { FactoryBot.create(:valid_otu) }
-  let!(:otu2) { FactoryBot.create(:valid_otu) }
-  let!(:otu3) { FactoryBot.create(:valid_otu) }
-  let!(:otu4) { FactoryBot.create(:valid_otu) }
+  # Top-level OTUs for the simple scoped initializer examples.
+  let(:otu1) { FactoryBot.create(:valid_otu) }
+  let(:otu2) { FactoryBot.create(:valid_otu) }
+  let(:otu3) { FactoryBot.create(:valid_otu) }
+  let(:otu4) { FactoryBot.create(:valid_otu) }
 
   let(:otu_scope) { { otu_id: [otu1.id, otu2.id, otu3.id] } }
 
@@ -324,7 +324,6 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
         before do
           shared_cached_data.core_occurrence_scope.each do |dwc|
             dwc.update!(
-              scientificNameAuthorship: 'Smith, 1850',
               namePublishedIn: 'Journal of Taxonomy',
               namePublishedInYear: '1850',
               taxonomicStatus: 'accepted',
@@ -359,7 +358,6 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
           species = csv.find { |row| row['taxonRank'] == 'species' }
 
           # These fields should be retained for the terminal taxon.
-          expect(species['scientificNameAuthorship']).to eq('Smith, 1850')
           expect(species['namePublishedIn']).to eq('Journal of Taxonomy')
           expect(species['namePublishedInYear']).to eq('1850')
           expect(species['taxonomicStatus']).to eq('accepted')
@@ -381,18 +379,19 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
           expect(genus['higherClassification']).to eq(expected_parts.join(Export::Dwca::DELIMITER))
         end
 
-        specify 'terminal taxon keeps original higherClassification' do
-          # Get the original higherClassification from a DwcOccurrence
-          original = shared_cached_data.core_occurrence_scope.first
-          original_classification = original.higherClassification
+        specify 'terminal taxon higherClassification is normalized from exported ranks' do
+          species = csv.find { |row| row['taxonRank'] == 'species' }
 
-          # Find the corresponding species in output
-          species = csv.find { |row|
-            row['scientificName'] == original.scientificName &&
-            row['taxonRank'] == original.taxonRank&.downcase
-          }
+          expected_parts = [
+            species['kingdom'],
+            species['phylum'],
+            species['class'],
+            species['order'],
+            species['family'],
+            species['genus']
+          ].compact.reject(&:empty?)
 
-          expect(species['higherClassification']).to eq(original_classification)
+          expect(species['higherClassification']).to eq(expected_parts.join(Export::Dwca::DELIMITER))
         end
 
         specify 'extracted higher taxon clears epithet fields for non-species ranks' do
@@ -1709,8 +1708,8 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
         # ensure_valid_names_for_synonyms relies on the DwcOccurrence for a
         # synonym specimen already storing the valid name's taxonRank (via
         # dwc_taxon_rank -> current_valid_taxon_name). If that assumption
-        # breaks, the clear_lower_ranks call that was removed would need to
-        # be reinstated.
+        # breaks, the extracted-row normalization/finalization assumptions in
+        # OccurrenceNormalizer would need to be revisited.
         specify 'synonym DwcOccurrence taxonRank reflects valid name rank, not synonym rank' do
           dwco = synonym_auto_specimen.dwc_occurrence
           expect(dwco.taxonRank).to eq(valid_auto_species.rank)

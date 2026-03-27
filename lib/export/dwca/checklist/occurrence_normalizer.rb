@@ -50,16 +50,16 @@ module Export::Dwca::Checklist
       parsed = CSV.parse(@raw_csv, headers: true, col_sep: "\t")
       return ["\n", {}] if parsed.empty?
 
-      all_taxa = extract_unique_taxa(parsed)
+      all_taxa, taxon_name_info = extract_unique_taxa(parsed)
 
       if @accepted_name_mode == 'accepted_name_usage_id'
-        all_taxa = ensure_valid_names_for_synonyms(all_taxa)
-        all_taxa = fix_synonym_rank_columns(all_taxa)
+        all_taxa = ensure_valid_names_for_synonyms(all_taxa, taxon_name_info)
+        all_taxa = fix_synonym_rank_columns(all_taxa, taxon_name_info)
       end
 
       # Build hierarchy and assign taxonIDs
       processed_taxa, taxon_name_id_to_taxon_id =
-        assign_taxon_ids_and_build_hierarchy(all_taxa)
+        assign_taxon_ids_and_build_hierarchy(all_taxa, taxon_name_info)
 
       all_taxa = nil # release memory
 
@@ -118,21 +118,23 @@ module Export::Dwca::Checklist
     # Extract all unique taxa from occurrence data.
     # Uses taxon_name_id as the key to handle homonyms correctly.
     # @param parsed [CSV::Table] parsed occurrence data
-    # @return [Hash] hash of taxon_name_id => taxon data
+    # @return [Array<Hash, Hash>] all_taxa and taxon_name_info hashes
     def extract_unique_taxa(parsed)
       all_taxa = {}
+      taxon_name_info = {}
       batch_size = 25_000
 
       parsed.each_slice(batch_size) do |batch|
         terminal_ids = collect_terminal_ids_for_batch(batch)
         ancestor_lookup = build_ancestor_lookup(terminal_ids)
+        merge_taxon_name_info!(taxon_name_info, terminal_ids, ancestor_lookup)
 
         batch.each do |row|
-          process_occurrence_row(row, all_taxa, ancestor_lookup)
+          process_occurrence_row(row, all_taxa, ancestor_lookup, taxon_name_info)
         end
       end
 
-      all_taxa
+      [all_taxa, taxon_name_info]
     end
 
     # Collect unique terminal taxon_name_ids from a batch of occurrence rows.
@@ -186,6 +188,33 @@ module Export::Dwca::Checklist
       lookup
     end
 
+    # Preload TaxonName metadata needed during normalization and final assembly.
+    # @param taxon_name_info [Hash] hash to merge metadata into
+    # @param terminal_taxon_name_ids [Array<Integer>]
+    # @param ancestor_lookup [Hash]
+    def merge_taxon_name_info!(taxon_name_info, terminal_taxon_name_ids, ancestor_lookup)
+      ids = (terminal_taxon_name_ids + ancestor_lookup.values).uniq - taxon_name_info.keys
+      merge_taxon_name_info_for_ids!(taxon_name_info, ids)
+    end
+
+    def merge_taxon_name_info_for_ids!(taxon_name_info, ids)
+      ids = ids.uniq - taxon_name_info.keys
+      return if ids.empty?
+
+      ids.each_slice(25_000) do |batch|
+        ::TaxonName.where(id: batch)
+          .pluck(:id, :rank_class, :parent_id, :cached_author_year)
+          .each do |id, rank_class, parent_id, cached_author_year|
+            rank = rank_class_to_name[rank_class]&.downcase
+            taxon_name_info[id] = {
+              rank: rank,
+              parent_id: parent_id,
+              scientific_name_authorship: cached_author_year
+            }
+          end
+      end
+    end
+
     # Cached mapping of rank_class to rank_name.
     # @return [Hash] rank_class string => rank_name string
     def rank_class_to_name
@@ -212,7 +241,7 @@ module Export::Dwca::Checklist
     # @param row [CSV::Row] occurrence row
     # @param all_taxa [Hash] hash of taxon_name_id => taxon data
     # @param ancestor_lookup [Hash] precomputed ancestor lookup
-    def process_occurrence_row(row, all_taxa, ancestor_lookup)
+    def process_occurrence_row(row, all_taxa, ancestor_lookup, taxon_name_info = {})
       occurrence_key = "#{row['dwc_occurrence_object_type']}:#{row['dwc_occurrence_object_id']}"
 
       tn_data = otu_to_taxon_name_data[occurrence_to_otu[occurrence_key]]
@@ -231,10 +260,10 @@ module Export::Dwca::Checklist
       return unless terminal_rank.present? && row['scientificName'].present?
 
       add_terminal_taxon(
-        row, terminal_tn_id, terminal_rank, all_taxa, ancestor_lookup
+        row, terminal_tn_id, terminal_rank, all_taxa, ancestor_lookup, taxon_name_info
       )
       extract_ancestor_taxa(
-        row, terminal_tn_id, terminal_rank, ancestor_lookup, all_taxa
+        row, terminal_tn_id, terminal_rank, ancestor_lookup, all_taxa, taxon_name_info
       )
     end
 
@@ -257,7 +286,7 @@ module Export::Dwca::Checklist
     # @param all_taxa [Hash] hash of taxon_name_id => taxon data
     # @param ancestor_lookup [Hash] precomputed ancestor lookup
     def add_terminal_taxon(
-      row, terminal_tn_id, terminal_rank, all_taxa, ancestor_lookup
+      row, terminal_tn_id, terminal_rank, all_taxa, ancestor_lookup, taxon_name_info = {}
     )
       return if all_taxa[terminal_tn_id]
 
@@ -269,12 +298,19 @@ module Export::Dwca::Checklist
         taxon['scientificName'] = row['taxon_name_cached']
       end
 
+      normalize_occurrence_taxon(
+        taxon,
+        terminal_rank,
+        terminal_rank,
+        taxon_name_info: taxon_name_info[terminal_tn_id]
+      )
+
       all_taxa[terminal_tn_id] = taxon
 
       # Extract parent species for infraspecific taxa.
       if self.class.infraspecific_rank_names.include?(terminal_rank)
         extract_parent_species_for_taxon(
-          row, terminal_rank, terminal_tn_id, ancestor_lookup, all_taxa
+          row, terminal_rank, terminal_tn_id, ancestor_lookup, all_taxa, taxon_name_info
         )
       end
     end
@@ -286,7 +322,7 @@ module Export::Dwca::Checklist
     # @param ancestor_lookup [Hash] the ancestor lookup hash
     # @param all_taxa [Hash] hash of taxon_name_id => taxon data (modified in place)
     def extract_parent_species_for_taxon(
-      row, rank, terminal_tn_id, ancestor_lookup, all_taxa
+      row, rank, terminal_tn_id, ancestor_lookup, all_taxa, taxon_name_info = {}
     )
       genus = row['genus']
       specific_epithet = row['specificEpithet']
@@ -301,7 +337,12 @@ module Export::Dwca::Checklist
         species_taxon['taxon_name_id'] = species_tn_id
         species_taxon['scientificName'] = "#{genus} #{specific_epithet}"
         species_taxon['taxonRank'] = 'species'
-        clear_lower_ranks(species_taxon, 'species', rank)
+        normalize_occurrence_taxon(
+          species_taxon,
+          'species',
+          rank,
+          taxon_name_info: taxon_name_info[species_tn_id]
+        )
 
         # Clear taxon_name_ metadata since this is an extracted parent.
         TAXON_NAME_METADATA_FIELDS.each { |f| species_taxon[f] = nil }
@@ -317,7 +358,7 @@ module Export::Dwca::Checklist
     # @param ancestor_lookup [Hash] precomputed ancestor lookup
     # @param all_taxa [Hash] hash of taxon_name_id => taxon data
     def extract_ancestor_taxa(
-      row, terminal_tn_id, terminal_rank, ancestor_lookup, all_taxa
+      row, terminal_tn_id, terminal_rank, ancestor_lookup, all_taxa, taxon_name_info = {}
     )
       # Synonyms have no parentNameUsageID and their hierarchy columns are
       # corrected from their own ancestry in fix_synonym_rank_columns. Skipping
@@ -342,7 +383,12 @@ module Export::Dwca::Checklist
         ancestor_taxon['taxon_name_id'] = ancestor_tn_id
         ancestor_taxon['scientificName'] = rank_taxon_name
         ancestor_taxon['taxonRank'] = higher_rank
-        clear_lower_ranks(ancestor_taxon, higher_rank, terminal_rank)
+        normalize_occurrence_taxon(
+          ancestor_taxon,
+          higher_rank,
+          terminal_rank,
+          taxon_name_info: taxon_name_info[ancestor_tn_id]
+        )
 
         # Clear taxon_name_ metadata for extracted ancestors.
         TAXON_NAME_METADATA_FIELDS.each { |f| ancestor_taxon[f] = nil }
@@ -364,7 +410,7 @@ module Export::Dwca::Checklist
     #
     # @param all_taxa [Hash] hash of taxon_name_id => taxon data
     # @return [Hash] updated all_taxa
-    def fix_synonym_rank_columns(all_taxa)
+    def fix_synonym_rank_columns(all_taxa, taxon_name_info = {})
       synonym_tn_ids = all_taxa.each_value.filter_map { |taxon|
         taxon['taxon_name_id'] if taxon['taxon_name_cached_is_valid'] == false
       }
@@ -396,11 +442,10 @@ module Export::Dwca::Checklist
         synonym_rank = (ORDERED_RANKS & ancestors.keys).last
         taxon['taxonRank'] = synonym_rank if synonym_rank
         taxon['infraspecificEpithet'] = infraspecific_ranks.include?(synonym_rank) ? ancestors[synonym_rank] : nil
-
-        rank_idx = ORDERED_RANKS.index(synonym_rank) || ORDERED_RANKS.length
-        parts = ORDERED_RANKS[0...rank_idx]
-          .filter_map { |r| HIGHER_RANK_COLUMNS.include?(r) ? taxon[r].presence : nil }
-        taxon['higherClassification'] = parts.empty? ? nil : parts.join(Export::Dwca::DELIMITER)
+        normalize_accepted_name_usage_taxon(
+          taxon,
+          taxon_name_info: taxon_name_info[taxon['taxon_name_id']]
+        )
       end
 
       all_taxa
@@ -409,13 +454,14 @@ module Export::Dwca::Checklist
     # Ensure valid names exist for all synonyms.
     # @param all_taxa [Hash] hash of taxon_name_id => taxon data
     # @return [Hash] updated all_taxa with valid names added
-    def ensure_valid_names_for_synonyms(all_taxa)
+    def ensure_valid_names_for_synonyms(all_taxa, taxon_name_info = {})
       # Build lookup of missing valid names => a synonym template.
       valid_id_to_synonym = {}
       all_taxa.each_value do |taxon|
         next unless taxon['taxon_name_cached_is_valid'] == false
         valid_id = taxon['taxon_name_cached_valid_taxon_name_id']
         next unless valid_id.present? && !all_taxa[valid_id]
+        # TODO: can't multiple taxa be synonyms of the same valid tn?
         valid_id_to_synonym[valid_id] ||= taxon
       end
 
@@ -442,6 +488,17 @@ module Export::Dwca::Checklist
         valid_taxon['taxon_name_cached_is_valid'] = true
         valid_taxon['taxon_name_cached_valid_taxon_name_id'] = nil
 
+        taxon_name_info[valid_tn.id] = {
+          rank: rank,
+          parent_id: valid_tn.parent_id,
+          scientific_name_authorship: valid_tn.cached_author_year
+        }
+
+        normalize_accepted_name_usage_taxon(
+          valid_taxon,
+          taxon_name_info: taxon_name_info[valid_tn.id]
+        )
+
         all_taxa[valid_tn.id] = valid_taxon
       end
 
@@ -450,9 +507,9 @@ module Export::Dwca::Checklist
 
     # Assign OTU UUID taxonIDs and parentNameUsageIDs to all taxa.
     # @param all_taxa [Hash] hash of taxon_name_id => taxon data
+    # @param taxon_name_info [Hash] taxon_name_id => { rank:, parent_id:, scientific_name_authorship: }
     # @return [Array] [processed_taxa, taxon_name_id_to_taxon_id]
-    def assign_taxon_ids_and_build_hierarchy(all_taxa)
-      taxon_name_info = fetch_taxon_name_info(all_taxa)
+    def assign_taxon_ids_and_build_hierarchy(all_taxa, taxon_name_info)
       taxa_with_ids, taxon_name_id_to_taxon_id =
         assign_taxon_uuids(all_taxa, taxon_name_info)
       processed_taxa = build_processed_taxa(
@@ -460,39 +517,6 @@ module Export::Dwca::Checklist
       )
 
       [processed_taxa, taxon_name_id_to_taxon_id]
-    end
-
-    # Fetch rank and parent_id information for taxon_name_ids.
-    # @param all_taxa [Hash] taxon_name_id => taxon data
-    # @return [Hash] taxon_name_id => { rank:, parent_id:, scientific_name_authorship: }
-    def fetch_taxon_name_info(all_taxa)
-      taxon_name_info = {}
-
-      # Get all taxon_name_ids including self and all ancestors
-      all_ids = []
-      all_taxa.keys.each_slice(25_000) do |tn_ids|
-        ids = TaxonNameHierarchy
-          .where(descendant_id: tn_ids)
-          .pluck(:ancestor_id)
-          .uniq
-        all_ids.concat(ids)
-      end
-
-      # Fetch info for all taxa and ancestors using pluck (faster than find_each when IDs known)
-      all_ids.uniq.each_slice(25_000) do |ids|
-        ::TaxonName.where(id: ids)
-          .pluck(:id, :rank_class, :parent_id, :cached_author_year)
-          .each { |(id, rank_class, parent_id, cached_author_year)|
-            rank = rank_class_to_name[rank_class]&.downcase
-            taxon_name_info[id] = {
-              rank: rank,
-              parent_id: parent_id,
-              scientific_name_authorship: cached_author_year
-            }
-          }
-      end
-
-      taxon_name_info
     end
 
     # Assign OTU UUID taxonIDs to all taxa, grouped by rank.
@@ -628,10 +652,22 @@ module Export::Dwca::Checklist
       # keep processed_taxon value during the merge when both processed_taxon
       # and taxon have a value for a key.
       processed_taxon.merge(taxon.slice(*PASSTHROUGH_FIELDS)) { |_key, processed_taxon_value, _taxon_value| processed_taxon_value }
-      .tap do |final_taxon|
-        authorship = taxon_name_info[taxon_name_id]&.[](:scientific_name_authorship)
-        final_taxon['scientificNameAuthorship'] = authorship if authorship.present?
-      end
+    end
+
+    def populate_normalized_taxon_fields(taxon, taxon_name_info = nil)
+      taxon['scientificNameAuthorship'] = taxon_name_info&.[](:scientific_name_authorship)
+      taxon['higherClassification'] = recompute_higher_classification(taxon)
+    end
+
+    def recompute_higher_classification(taxon)
+      rank = taxon['taxonRank']&.downcase
+      rank_index = ORDERED_RANKS.index(rank)
+      return taxon['higherClassification'] unless rank_index
+
+      classification_parts = ORDERED_RANKS[0...rank_index]
+        .filter_map { |r| HIGHER_RANK_COLUMNS.include?(r) ? taxon[r].presence : nil }
+
+      classification_parts.empty? ? nil : classification_parts.join(Export::Dwca::DELIMITER)
     end
 
     # Determine acceptedNameUsageID and taxonomicStatus for a taxon.
@@ -671,10 +707,10 @@ module Export::Dwca::Checklist
       end
     end
 
-    # Mutates an extracted taxon row in place by:
+    # Mutates an occurrence-derived taxon row in place by:
     # - clearing rank columns below current_rank
     # - clearing taxon-specific fields not applicable to the extracted rank
-    # - recomputing higherClassification from the remaining higher-rank columns
+    # - recomputing normalized fields from the taxon's own metadata
     #
     # It preserves all other fields as-is. In particular, it does not rewrite
     # row identity fields such as taxonRank or scientificName; callers are
@@ -682,12 +718,14 @@ module Export::Dwca::Checklist
     # @param taxon [Hash] the taxon data hash to modify
     # @param current_rank [String] the rank being extracted
     # @param original_rank [String] the original taxonRank before extraction
-    def clear_lower_ranks(taxon, current_rank, original_rank = nil)
+    def normalize_occurrence_taxon(taxon, current_rank, original_rank = nil, taxon_name_info: nil)
       current_id = ORDERED_RANKS.index(current_rank)
       return unless current_id
 
-      # If extracting at same rank as original, keep all fields
-      return if current_rank == original_rank
+      if current_rank == original_rank
+        populate_normalized_taxon_fields(taxon, taxon_name_info)
+        return
+      end
 
       # Clear lower rank columns
       ORDERED_RANKS[(current_id + 1)..-1].each do |lower_rank|
@@ -714,11 +752,11 @@ module Export::Dwca::Checklist
         taxon[field_str] = nil unless fields_to_keep.include?(field_str)
       end
 
-      # Recompute higherClassification
-      higher_ranks = ORDERED_RANKS[0...current_id]
-      classification_parts = higher_ranks.map { |r| taxon[r] }.compact.reject(&:empty?)
-      taxon['higherClassification'] = classification_parts.empty? ?
-        nil : classification_parts.join(Export::Dwca::DELIMITER)
+      populate_normalized_taxon_fields(taxon, taxon_name_info)
+    end
+
+    def normalize_accepted_name_usage_taxon(taxon, taxon_name_info: nil)
+      populate_normalized_taxon_fields(taxon, taxon_name_info)
     end
 
     # Get all infraspecific rank names

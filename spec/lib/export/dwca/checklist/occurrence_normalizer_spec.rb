@@ -59,7 +59,9 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
     end
   end
 
-  describe '#clear_lower_ranks' do
+  describe '#normalize_occurrence_taxon' do
+    let(:taxon_name_metadata) { { scientific_name_authorship: 'Jones, 1850' } }
+
     let(:taxon) do
       {
         'kingdom' => 'Animalia',
@@ -77,24 +79,27 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
 
     specify 'clears ranks lower than the current rank' do
       taxon['taxonRank'] = 'family'
-      normalizer.send(:clear_lower_ranks, taxon, 'family')
+      normalizer.send(:normalize_occurrence_taxon, taxon, 'family', nil, taxon_name_info: taxon_name_metadata)
 
       expect(taxon['family']).to eq('Noctuidae')
       expect(taxon['genus']).to be_nil
       expect(taxon['specificEpithet']).to be_nil
     end
 
-    specify 'computes higherClassification from higher ranks' do
-      normalizer.send(:clear_lower_ranks, taxon, 'genus')
+    specify 'computes higherClassification from retained rank columns' do
+      taxon['taxonRank'] = 'genus'
+      taxon['scientificName'] = 'Aus'
+      normalizer.send(:normalize_occurrence_taxon, taxon, 'genus', nil, taxon_name_info: taxon_name_metadata)
 
-      expected = "Animalia#{Export::Dwca::DELIMITER}Arthropoda#{Export::Dwca::DELIMITER}" \
-                 "Insecta#{Export::Dwca::DELIMITER}Lepidoptera#{Export::Dwca::DELIMITER}Noctuidae"
-      expect(taxon['higherClassification']).to eq(expected)
+      expect(taxon['higherClassification']).to eq(
+        "Animalia#{Export::Dwca::DELIMITER}Arthropoda#{Export::Dwca::DELIMITER}" \
+        "Insecta#{Export::Dwca::DELIMITER}Lepidoptera#{Export::Dwca::DELIMITER}Noctuidae"
+      )
     end
 
     specify 'sets higherClassification to nil for top rank' do
       taxon['taxonRank'] = 'kingdom'
-      normalizer.send(:clear_lower_ranks, taxon, 'kingdom')
+      normalizer.send(:normalize_occurrence_taxon, taxon, 'kingdom', nil, taxon_name_info: taxon_name_metadata)
 
       expect(taxon['higherClassification']).to be_nil
     end
@@ -102,22 +107,22 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
     specify 'keeps fields for rank columns and scientificName' do
       taxon['taxonRank'] = 'genus'
       taxon['scientificName'] = 'Aus'
-      normalizer.send(:clear_lower_ranks, taxon, 'genus')
+      normalizer.send(:normalize_occurrence_taxon, taxon, 'genus', nil, taxon_name_info: taxon_name_metadata)
 
       expect(taxon['scientificName']).to eq('Aus')
       expect(taxon['taxonRank']).to eq('genus')
     end
 
-    specify 'clears authorship when input and output ranks are not the same' do
+    specify 'replaces inherited authorship with the extracted taxon authorship' do
       taxon['taxonRank'] = 'genus'
-      normalizer.send(:clear_lower_ranks, taxon, 'genus')
+      normalizer.send(:normalize_occurrence_taxon, taxon, 'genus', nil, taxon_name_info: taxon_name_metadata)
 
-      expect(taxon['scientificNameAuthorship']).to be_nil
+      expect(taxon['scientificNameAuthorship']).to eq('Jones, 1850')
     end
 
     specify 'keeps specificEpithet for species rank' do
       taxon['taxonRank'] = 'species'
-      normalizer.send(:clear_lower_ranks, taxon, 'species')
+      normalizer.send(:normalize_occurrence_taxon, taxon, 'species', nil, taxon_name_info: taxon_name_metadata)
 
       expect(taxon['specificEpithet']).to eq('bus')
     end
@@ -125,7 +130,7 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
     specify 'keeps specificEpithet and infraspecificEpithet for subspecies' do
       taxon['taxonRank'] = 'subspecies'
       taxon['infraspecificEpithet'] = 'cus'
-      normalizer.send(:clear_lower_ranks, taxon, 'subspecies')
+      normalizer.send(:normalize_occurrence_taxon, taxon, 'subspecies', nil, taxon_name_info: taxon_name_metadata)
 
       expect(taxon['specificEpithet']).to eq('bus')
       expect(taxon['infraspecificEpithet']).to eq('cus')
@@ -436,11 +441,11 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
       expect(result['taxonomicStatus']).to eq('accepted')
     end
 
-    specify 'uses the extracted taxon_name authorship when building the final row' do
+    specify 'preserves the normalized taxon authorship when building the final row' do
       extracted_genus_taxon = taxon.merge(
         'scientificName' => 'Aus',
         'taxonRank' => 'genus',
-        'scientificNameAuthorship' => nil
+        'scientificNameAuthorship' => 'Jones, 1850'
       )
 
       result = normalizer.send(
@@ -453,6 +458,35 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
       )
 
       expect(result['scientificNameAuthorship']).to eq('Jones, 1850')
+    end
+
+    specify 'preserves normalized higherClassification from exported rank columns' do
+      genus_taxon_with_extra_classification = taxon.merge(
+        'scientificName' => 'Kabakra',
+        'taxonRank' => 'genus',
+        'kingdom' => 'Animalia',
+        'phylum' => 'Arthropoda',
+        'class' => 'Insecta',
+        'order' => 'Hemiptera',
+        'superfamily' => 'Membracoidea',
+        'family' => 'Cicadellidae',
+        'subfamily' => 'Typhlocybinae',
+        'tribe' => 'Erythroneurini',
+        'higherClassification' => 'Animalia | Arthropoda | Insecta | Hemiptera | Membracoidea | Cicadellidae | Typhlocybinae | Erythroneurini'
+      )
+
+      result = normalizer.send(
+        :build_final_taxon,
+        genus_taxon_with_extra_classification,
+        50,
+        50,
+        taxon_name_info,
+        taxon_name_id_to_taxon_id
+      )
+
+      expect(result['higherClassification']).to eq(
+        'Animalia | Arthropoda | Insecta | Hemiptera | Membracoidea | Cicadellidae | Typhlocybinae | Erythroneurini'
+      )
     end
   end
 
