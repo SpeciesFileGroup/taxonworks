@@ -341,12 +341,11 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
           CSV.parse(fresh_data.csv, headers: true, col_sep: "\t")
         end
 
-        specify 'extracted higher taxon clears taxon-specific fields from terminal taxon' do
+        specify 'extracted higher taxon clears non-authorship taxon-specific fields from terminal taxon' do
           # Find an extracted genus (higher than the terminal species)
           genus = csv.find { |row| row['taxonRank'] == 'genus' }
 
           # These fields should be cleared (came from terminal species)
-          expect(genus['scientificNameAuthorship']).to be_nil.or be_empty
           expect(genus['namePublishedIn']).to be_nil.or be_empty
           expect(genus['namePublishedInYear']).to be_nil.or be_empty
           expect(genus['taxonomicStatus']).to be_nil.or be_empty

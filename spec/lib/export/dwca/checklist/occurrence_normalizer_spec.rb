@@ -320,9 +320,9 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
 
     let(:taxon_name_info) do
       {
-        100 => { rank: 'species', parent_id: 50 },
-        50 => { rank: 'genus', parent_id: 25 },
-        25 => { rank: 'family', parent_id: nil }
+        100 => { rank: 'species', parent_id: 50, scientific_name_authorship: 'Smith, 1900' },
+        50 => { rank: 'genus', parent_id: 25, scientific_name_authorship: 'Jones, 1850' },
+        25 => { rank: 'family', parent_id: nil, scientific_name_authorship: 'Brown, 1800' }
       }
     end
 
@@ -434,6 +434,25 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
 
       expect(result['acceptedNameUsageID']).to eq(10)
       expect(result['taxonomicStatus']).to eq('accepted')
+    end
+
+    specify 'uses the extracted taxon_name authorship when building the final row' do
+      extracted_genus_taxon = taxon.merge(
+        'scientificName' => 'Aus',
+        'taxonRank' => 'genus',
+        'scientificNameAuthorship' => nil
+      )
+
+      result = normalizer.send(
+        :build_final_taxon,
+        extracted_genus_taxon,
+        5,
+        50,
+        taxon_name_info,
+        taxon_name_id_to_taxon_id
+      )
+
+      expect(result['scientificNameAuthorship']).to eq('Jones, 1850')
     end
   end
 

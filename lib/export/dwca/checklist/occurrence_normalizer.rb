@@ -464,7 +464,7 @@ module Export::Dwca::Checklist
 
     # Fetch rank and parent_id information for taxon_name_ids.
     # @param all_taxa [Hash] taxon_name_id => taxon data
-    # @return [Hash] taxon_name_id => { rank:, parent_id: }
+    # @return [Hash] taxon_name_id => { rank:, parent_id:, scientific_name_authorship: }
     def fetch_taxon_name_info(all_taxa)
       taxon_name_info = {}
 
@@ -481,10 +481,14 @@ module Export::Dwca::Checklist
       # Fetch info for all taxa and ancestors using pluck (faster than find_each when IDs known)
       all_ids.uniq.each_slice(25_000) do |ids|
         ::TaxonName.where(id: ids)
-          .pluck(:id, :rank_class, :parent_id)
-          .each { |(id, rank_class, parent_id)|
+          .pluck(:id, :rank_class, :parent_id, :cached_author_year)
+          .each { |(id, rank_class, parent_id, cached_author_year)|
             rank = rank_class_to_name[rank_class]&.downcase
-            taxon_name_info[id] = { rank: rank, parent_id: parent_id }
+            taxon_name_info[id] = {
+              rank: rank,
+              parent_id: parent_id,
+              scientific_name_authorship: cached_author_year
+            }
           }
       end
 
@@ -621,7 +625,13 @@ module Export::Dwca::Checklist
         processed_taxon['taxonomicStatus'] = taxonomic_status
       end
 
-      processed_taxon.merge(taxon.slice(*PASSTHROUGH_FIELDS)) { |_key, managed, _raw| managed }
+      # keep processed_taxon value during the merge when both processed_taxon
+      # and taxon have a value for a key.
+      processed_taxon.merge(taxon.slice(*PASSTHROUGH_FIELDS)) { |_key, processed_taxon_value, _taxon_value| processed_taxon_value }
+      .tap do |final_taxon|
+        authorship = taxon_name_info[taxon_name_id]&.[](:scientific_name_authorship)
+        final_taxon['scientificNameAuthorship'] = authorship if authorship.present?
+      end
     end
 
     # Determine acceptedNameUsageID and taxonomicStatus for a taxon.
