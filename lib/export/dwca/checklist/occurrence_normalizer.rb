@@ -461,7 +461,7 @@ module Export::Dwca::Checklist
         next unless taxon['taxon_name_cached_is_valid'] == false
         valid_id = taxon['taxon_name_cached_valid_taxon_name_id']
         next unless valid_id.present? && !all_taxa[valid_id]
-        # TODO: can't multiple taxa be synonyms of the same valid tn?
+        # Yes, we're just picking out any one synonym here (cf. below):
         valid_id_to_synonym[valid_id] ||= taxon
       end
 
@@ -475,18 +475,16 @@ module Export::Dwca::Checklist
         next unless template_taxon
 
         # The template's rank columns (genus, family, higherClassification, etc.)
-        # already reflect the valid name's classification, not the synonym's.
-        # DwcOccurrence#dwc_genus (and siblings) all delegate to
-        # current_valid_taxon_name, so the occurrence row already stores the
-        # valid hierarchy regardless of the relative ranks of synonym and valid
-        # name.
+        # already reflect the valid name's classification, not the synonym's -
+        # this is why it didn't matter *which* synonym of the valid name we
+        # selected above.
         valid_taxon = template_taxon.dup
         valid_taxon['taxon_name_id'] = valid_tn.id
         valid_taxon['scientificName'] = valid_tn.cached
         valid_taxon['taxonRank'] = rank
         valid_taxon['taxon_name_cached'] = valid_tn.cached
         valid_taxon['taxon_name_cached_is_valid'] = true
-        valid_taxon['taxon_name_cached_valid_taxon_name_id'] = nil
+        valid_taxon['taxon_name_cached_valid_taxon_name_id'] = valid_tn.id
 
         taxon_name_info[valid_tn.id] = {
           rank: rank,
@@ -683,23 +681,21 @@ module Export::Dwca::Checklist
       is_valid = taxon['taxon_name_cached_is_valid']
 
       if !is_valid.nil?
-        if is_valid == true
-          [taxon_id, 'accepted']
+        return [taxon_id, 'accepted'] if is_valid == true
+
+        # This taxon is marked as invalid (synonym).
+        valid_taxon_name_id = taxon['taxon_name_cached_valid_taxon_name_id']
+        if valid_taxon_name_id.present?
+          accepted_id = taxon_name_id_to_taxon_id[valid_taxon_name_id]
+          # NOTE: accepted_id may be nil when the valid name has no OTU UUID
+          # in this export - technically this is bad DwC checklist behavior:
+          # https://ipt.gbif.org/manual/en/ipt/latest/best-practices-checklists#publishing-synonymy
+          # "An dwc:acceptedNameUsageID must point to an existing record in
+          # the dataset"
+          status = taxon['taxon_name_gbif_taxonomic_status'] || 'synonym'
+          [accepted_id, status]
         else
-          # This taxon is marked as invalid (synonym).
-          valid_taxon_name_id = taxon['taxon_name_cached_valid_taxon_name_id']
-          if valid_taxon_name_id.present?
-            accepted_id = taxon_name_id_to_taxon_id[valid_taxon_name_id]
-            # NOTE: accepted_id may be nil when the valid name has no OTU UUID
-            # in this export - technically this is bad DwC checklist behavior:
-            # https://ipt.gbif.org/manual/en/ipt/latest/best-practices-checklists#publishing-synonymy
-            # "An dwc:acceptedNameUsageID must point to an existing record in
-            # the dataset"
-            status = taxon['taxon_name_gbif_taxonomic_status'] || 'synonym'
-            [accepted_id, status]
-          else
-            [nil, nil]
-          end
+          [nil, nil]
         end
       else
         # No validity data - this is an extracted higher taxon from rank columns.
