@@ -64,6 +64,7 @@ describe Export::Dwca, type: :model, group: :darwin_core do
               field_occurrences: f.to_sql
             }
           },
+          project_id: Current.project_id,
           user_id: Current.user_id
         )
       }.to have_enqueued_job(DwcaCreateDownloadJob).with(download.id, core_scope: a.to_sql, extension_scopes: {
@@ -72,7 +73,7 @@ describe Export::Dwca, type: :model, group: :darwin_core do
           collection_objects: c.to_sql,
           field_occurrences: f.to_sql
         }
-      }, user_id: Current.user_id )
+      }, project_id: Current.project_id, user_id: Current.user_id )
     end
 
    specify 'queues the job with empty extensions' do
@@ -82,9 +83,10 @@ describe Export::Dwca, type: :model, group: :darwin_core do
           download.id,
           core_scope: a.to_sql,
           extension_scopes: { biological_associations: nil },
+          project_id: Current.project_id,
           user_id: Current.user_id
         )
-      }.to have_enqueued_job(DwcaCreateDownloadJob).with(download.id, core_scope: a.to_sql, extension_scopes: { biological_associations: nil }, user_id: Current.user_id )
+      }.to have_enqueued_job(DwcaCreateDownloadJob).with(download.id, core_scope: a.to_sql, extension_scopes: { biological_associations: nil }, project_id: Current.project_id, user_id: Current.user_id )
     end
 
     specify '#download_async creates Download' do

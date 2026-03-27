@@ -4,7 +4,7 @@
 #
 # Provides:
 # - One-time fixture creation for the shared core checklist export scenario
-# - A small cache for generated DwCA CSV strings (frozen master + per-call dup)
+# - A small cache for generated DwCA CSV strings (freeze once, dup on each fetch)
 #
 # IMPORTANT: Treat the shared fixture graph as read-only. If an example needs to
 # update those records, build fresh local data or rebuild export output from a

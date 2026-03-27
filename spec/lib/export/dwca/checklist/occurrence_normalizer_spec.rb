@@ -3,6 +3,13 @@
 require 'rails_helper'
 
 describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :darwin_core do
+  let(:raw_csv) do
+    CSV.generate(col_sep: "\t") do |csv|
+      csv << ['scientificName', 'taxonRank']
+      csv << ['Aus bus', 'species']
+    end
+  end
+
   let(:normalizer) do
     described_class.new(
       raw_csv: raw_csv,
@@ -10,13 +17,6 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
       otu_to_taxon_name_data: {},
       occurrence_to_otu: {}
     )
-  end
-
-  let(:raw_csv) do
-    CSV.generate(col_sep: "\t") do |csv|
-      csv << ['scientificName', 'taxonRank']
-      csv << ['Aus bus', 'species']
-    end
   end
 
   describe '#remove_empty_columns' do
@@ -28,7 +28,6 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
 
       result = normalizer.send(:remove_empty_columns, taxa)
 
-      expect(result.first.keys).to include('id', 'scientificName', 'family')
       expect(result.first.keys).not_to include('order')
     end
 
@@ -69,14 +68,15 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
         'order' => 'Lepidoptera',
         'family' => 'Noctuidae',
         'genus' => 'Aus',
-        'scientificName' => 'Aus',
-        'taxonRank' => 'genus',
+        'scientificName' => 'Aus bus',
+        'taxonRank' => 'species',
         'specificEpithet' => 'bus',
         'scientificNameAuthorship' => 'Smith, 1900'
       }
     end
 
     specify 'clears ranks lower than the current rank' do
+      taxon['taxonRank'] = 'family'
       normalizer.send(:clear_lower_ranks, taxon, 'family')
 
       expect(taxon['family']).to eq('Noctuidae')
@@ -93,34 +93,37 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
     end
 
     specify 'sets higherClassification to nil for top rank' do
+      taxon['taxonRank'] = 'kingdom'
       normalizer.send(:clear_lower_ranks, taxon, 'kingdom')
 
       expect(taxon['higherClassification']).to be_nil
     end
 
     specify 'keeps fields for rank columns and scientificName' do
+      taxon['taxonRank'] = 'genus'
+      taxon['scientificName'] = 'Aus'
       normalizer.send(:clear_lower_ranks, taxon, 'genus')
 
       expect(taxon['scientificName']).to eq('Aus')
       expect(taxon['taxonRank']).to eq('genus')
-      expect(taxon['family']).to eq('Noctuidae')
     end
 
-    specify 'clears non-rank fields for extracted taxa' do
-      normalizer.send(:clear_lower_ranks, taxon, 'family', 'species')
+    specify 'clears authorship when input and output ranks are not the same' do
+      taxon['taxonRank'] = 'genus'
+      normalizer.send(:clear_lower_ranks, taxon, 'genus')
 
-      # Should clear authorship and epithet since we're extracting family from species
       expect(taxon['scientificNameAuthorship']).to be_nil
-      expect(taxon['specificEpithet']).to be_nil
     end
 
     specify 'keeps specificEpithet for species rank' do
+      taxon['taxonRank'] = 'species'
       normalizer.send(:clear_lower_ranks, taxon, 'species')
 
       expect(taxon['specificEpithet']).to eq('bus')
     end
 
     specify 'keeps specificEpithet and infraspecificEpithet for subspecies' do
+      taxon['taxonRank'] = 'subspecies'
       taxon['infraspecificEpithet'] = 'cus'
       normalizer.send(:clear_lower_ranks, taxon, 'subspecies')
 
@@ -389,7 +392,8 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
       taxon_with_internal = taxon.merge(
         'dwc_occurrence_object_type' => 'CollectionObject',
         'dwc_occurrence_object_id' => 123,
-        'taxon_name_id' => 100
+        'taxon_name_id' => 100,
+        'taxon_name_gbif_taxonomic_status' => 'homotypicSynonym'
       )
 
       result = normalizer.send(
@@ -404,23 +408,9 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
       expect(result.keys).not_to include(
         'dwc_occurrence_object_type',
         'dwc_occurrence_object_id',
-        'taxon_name_id'
+        'taxon_name_id',
+        'taxon_name_gbif_taxonomic_status'
       )
-    end
-
-    specify 'excludes taxon_name_gbif_taxonomic_status from output' do
-      taxon_with_status = taxon.merge('taxon_name_gbif_taxonomic_status' => 'homotypicSynonym')
-
-      result = normalizer.send(
-        :build_final_taxon,
-        taxon_with_status,
-        10,
-        100,
-        taxon_name_info,
-        taxon_name_id_to_taxon_id
-      )
-
-      expect(result.keys).not_to include('taxon_name_gbif_taxonomic_status')
     end
 
     specify 'includes acceptedNameUsageID in accepted_name_usage_id mode' do

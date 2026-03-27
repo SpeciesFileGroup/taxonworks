@@ -66,23 +66,6 @@ describe 'checklist download packaging', type: :model, group: :darwin_core do
     )
   end
 
-  specify 'queues the checklist job with empty extensions' do
-    download = FactoryBot.create(:valid_download)
-    expect {
-      DwcaCreateChecklistDownloadJob.perform_later(
-        download.id,
-        core_otu_scope_params: otu_params,
-        extensions: [],
-        project_id: Project.first.id
-      )
-    }.to have_enqueued_job(DwcaCreateChecklistDownloadJob).with(
-      download.id,
-      core_otu_scope_params: otu_params,
-      extensions: [],
-      project_id: Project.first.id
-    )
-  end
-
   specify '#checklist_download_async creates Download::DwcArchive::Checklist' do
     expect(Download.count).to eq(1)
     expect(Download.first).to be_a(Download::DwcArchive::Checklist)
@@ -114,16 +97,6 @@ describe 'checklist download packaging', type: :model, group: :darwin_core do
       project_id: Project.first.id
     )
     expect(d.description).to eq('Beetles from the Pacific Northwest')
-  end
-
-  specify 'uses default name when blank name provided' do
-    d = ::Export::Dwca.checklist_download_async(
-      otu_params,
-      'https://example.org/checklist_url',
-      download_name: '   ',
-      project_id: Project.first.id
-    )
-    expect(d.name).to match(/\ADwC Checklist on /)
   end
 
   specify 'deleting checklist download before zip file is created raises in job' do

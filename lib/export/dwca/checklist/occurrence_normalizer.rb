@@ -661,7 +661,14 @@ module Export::Dwca::Checklist
       end
     end
 
-    # Clear columns for ranks lower than the current rank and recompute higherClassification.
+    # Mutates an extracted taxon row in place by:
+    # - clearing rank columns below current_rank
+    # - clearing taxon-specific fields not applicable to the extracted rank
+    # - recomputing higherClassification from the remaining higher-rank columns
+    #
+    # It preserves all other fields as-is. In particular, it does not rewrite
+    # row identity fields such as taxonRank or scientificName; callers are
+    # expected to set those.
     # @param taxon [Hash] the taxon data hash to modify
     # @param current_rank [String] the rank being extracted
     # @param original_rank [String] the original taxonRank before extraction
