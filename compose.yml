@@ -1,7 +1,6 @@
 #
-# docker-compose targets development only
+# docker compose targets development only
 #
-version: '2'
 services:
   app:
     build:
