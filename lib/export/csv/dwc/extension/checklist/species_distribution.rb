@@ -28,6 +28,7 @@ module Export::CSV::Dwc::Extension::Checklist::SpeciesDistribution
   def self.csv(scope, taxon_name_id_to_taxon_id, accepted_name_mode:)
     tbl = []
     tbl[0] = HEADERS
+    grouped_rows = {}
 
     otu_to_taxon_name_id = scope
       .joins('JOIN otus ON otus.id = dwc_occurrences.otu_id')
@@ -62,17 +63,37 @@ module Export::CSV::Dwc::Extension::Checklist::SpeciesDistribution
       taxon_id = taxon_name_id_to_taxon_id[taxon_name_id]
       next unless taxon_id
 
-      row = [
+      key = [taxon_id, locality, dwc_occ.occurrenceStatus]
+      source_parts = split_sources(dwc_occ.associatedReferences)
+
+      grouped_rows[key] ||= []
+      source_parts.each do |source|
+        grouped_rows[key] << source unless grouped_rows[key].include?(source)
+      end
+    end
+
+    grouped_rows.each do |(taxon_id, locality, occurrence_status), sources|
+      tbl << [
         taxon_id,
         locality,
-        dwc_occ.occurrenceStatus,
-        dwc_occ.associatedReferences
+        occurrence_status,
+        join_sources(sources)
       ]
-
-      tbl << row
     end
 
     ::Export::Dwca.output_csv(tbl)
+  end
+
+  def self.split_sources(source_string)
+    return [] if source_string.blank?
+
+    source_string.split(' | ').map(&:strip).reject(&:blank?)
+  end
+
+  def self.join_sources(sources)
+    return nil if sources.blank?
+
+    sources.join(' | ')
   end
 
 end

@@ -482,7 +482,7 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
           expect(csv.headers).to eq(['id', 'locality', 'occurrenceStatus', 'source'])
         end
 
-        specify 'distribution extension includes AssertedDistribution records' do
+        specify 'distribution extension includes rows derived from AssertedDistribution records' do
           # Generate core CSV first to populate taxon_name_to_id mapping.
           data_with_extension.csv
 
@@ -607,6 +607,63 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
 
           row = dist_csv.first
           expect(row['locality']).to eq('Custom Region XYZ')
+        end
+
+        context 'when multiple asserted distributions for the same taxon and locality overlap in sources' do
+          let!(:shared_area1) { FactoryBot.create(:valid_geographic_area) }
+          let!(:shared_area2) { FactoryBot.create(:valid_geographic_area) }
+          let!(:shared_source) { FactoryBot.create(:valid_source_bibtex) }
+          let!(:extra_source) { FactoryBot.create(:valid_source_bibtex) }
+          let!(:ad_with_shared_source_1) do
+            FactoryBot.create(
+              :valid_asserted_distribution,
+              asserted_distribution_object: otu1,
+              asserted_distribution_shape: shared_area1,
+              source: shared_source
+            )
+          end
+          let!(:ad_with_shared_source_2) do
+            FactoryBot.create(
+              :valid_asserted_distribution,
+              asserted_distribution_object: otu1,
+              asserted_distribution_shape: shared_area2,
+              source: shared_source
+            )
+          end
+
+          before do
+            FactoryBot.create(
+              :valid_citation,
+              citation_object: ad_with_shared_source_2,
+              source: extra_source
+            )
+            ad_with_shared_source_1.get_dwc_occurrence
+            ad_with_shared_source_2.get_dwc_occurrence
+            ad_with_shared_source_1.dwc_occurrence.update!(locality: 'Shared export locality')
+            ad_with_shared_source_2.dwc_occurrence.update!(locality: 'Shared export locality')
+          end
+
+          specify 'groups rows by id, locality, and occurrenceStatus and deduplicates merged sources' do
+            data = Export::Dwca::Checklist::Data.new(
+              core_otu_scope_params: { otu_id: [otu1.id] },
+              extensions: [Export::Dwca::Checklist::Data::DISTRIBUTION_EXTENSION]
+            )
+
+            data.csv
+
+            csv_content = data.species_distribution_extension_tmp.read
+            dist_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+            otu1_rows = dist_csv.select { |row| row['id'] == otu1.identifiers.first.cached }
+            matching_rows = otu1_rows.select { |row| row['locality'] == 'Shared export locality' }
+
+            expect(matching_rows.size).to eq(1)
+
+            merged_sources = matching_rows.first['source'].split(' | ')
+
+            expect(merged_sources.count(shared_source.cached)).to eq(1)
+            expect(merged_sources.count(extra_source.cached)).to eq(1)
+          end
         end
       end
 
