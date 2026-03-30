@@ -621,9 +621,11 @@ module Export::Dwca::Checklist
       taxon, taxon_id, taxon_name_id, taxon_name_info, taxon_name_id_to_taxon_id
     )
       if accepted_name_mode == 'accepted_name_usage_id'
-        accepted_name_usage_id, taxonomic_status = determine_accepted_name_usage(
+        accepted_name_usage_id, taxonomic_status, accepted_name_usage = determine_accepted_name_usage(
           taxon,
           taxon_id,
+          taxon_name_id,
+          taxon_name_info,
           taxon_name_id_to_taxon_id
         )
       end
@@ -666,6 +668,7 @@ module Export::Dwca::Checklist
 
       if accepted_name_mode == 'accepted_name_usage_id'
         processed_taxon['acceptedNameUsageID'] = accepted_name_usage_id
+        processed_taxon['acceptedNameUsage'] = accepted_name_usage
         processed_taxon['taxonomicStatus'] = taxonomic_status
       end
 
@@ -695,35 +698,38 @@ module Export::Dwca::Checklist
     # Determine acceptedNameUsageID and taxonomicStatus for a taxon.
     # @param taxon [Hash] taxon data
     # @param taxon_id [Integer] assigned taxonID
+    # @param taxon_name_id [Integer] taxon name id for this taxon
+    # @param taxon_name_info [Hash] taxon metadata keyed by taxon_name_id
     # @param taxon_name_id_to_taxon_id [Hash] taxon_name_id => taxonID
-    # @return [Array] [acceptedNameUsageID (a taxonID), taxonomicStatus]
+    # @return [Array] [acceptedNameUsageID (a taxonID), taxonomicStatus, acceptedNameUsage]
     def determine_accepted_name_usage(
-      taxon, taxon_id, taxon_name_id_to_taxon_id
+      taxon, taxon_id, taxon_name_id, taxon_name_info, taxon_name_id_to_taxon_id
     )
-      return [nil, nil] unless accepted_name_mode == 'accepted_name_usage_id'
+      return [nil, nil, nil] unless accepted_name_mode == 'accepted_name_usage_id'
 
       is_valid = taxon['taxon_name_cached_is_valid']
 
       if !is_valid.nil?
-        return [taxon_id, 'accepted'] if is_valid == true
+        return [taxon_id, 'accepted', taxon['scientificName']] if is_valid == true
 
         # This taxon is marked as invalid (synonym).
         valid_taxon_name_id = taxon['taxon_name_cached_valid_taxon_name_id']
         if valid_taxon_name_id.present?
           accepted_id = taxon_name_id_to_taxon_id[valid_taxon_name_id]
+          accepted_name = taxon_name_info[valid_taxon_name_id]&.[](:scientific_name)
           # NOTE: accepted_id may be nil when the valid name has no OTU UUID
           # in this export - technically this is bad DwC checklist behavior:
           # https://ipt.gbif.org/manual/en/ipt/latest/best-practices-checklists#publishing-synonymy
           # "An dwc:acceptedNameUsageID must point to an existing record in
           # the dataset"
           status = taxon['taxon_name_gbif_taxonomic_status'] || 'synonym'
-          [accepted_id, status]
+          [accepted_id, status, accepted_name]
         else
-          [nil, nil]
+          [nil, nil, nil]
         end
       else
         # No validity data - this is an extracted higher taxon from rank columns.
-        [taxon_id, 'accepted']
+        [taxon_id, 'accepted', taxon['scientificName']]
       end
     end
 

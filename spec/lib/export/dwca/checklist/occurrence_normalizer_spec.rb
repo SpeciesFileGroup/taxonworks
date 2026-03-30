@@ -149,6 +149,7 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
 
   describe '#determine_accepted_name_usage' do
     let(:taxon_name_id_to_taxon_id) { { 100 => 5, 200 => 10 } }
+    let(:taxon_name_info) { { 100 => { scientific_name: 'Validus Author, 1900' } } }
 
     context 'in replace_with_accepted_name mode' do
       specify 'returns nil for both values' do
@@ -156,10 +157,12 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
           :determine_accepted_name_usage,
           {},
           1,
+          1,
+          taxon_name_info,
           taxon_name_id_to_taxon_id
         )
 
-        expect(result).to eq([nil, nil])
+        expect(result).to eq([nil, nil, nil])
       end
     end
 
@@ -180,10 +183,12 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
           :determine_accepted_name_usage,
           taxon,
           5,
+          100,
+          taxon_name_info,
           taxon_name_id_to_taxon_id
         )
 
-        expect(result).to eq([5, 'accepted'])
+        expect(result).to eq([5, 'accepted', nil])
       end
 
       specify 'returns acceptedNameUsageID with fallback synonym status when no gbif status stored' do
@@ -196,10 +201,12 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
           :determine_accepted_name_usage,
           taxon,
           7,
+          200,
+          taxon_name_info,
           taxon_name_id_to_taxon_id
         )
 
-        expect(result).to eq([5, 'synonym'])
+        expect(result).to eq([5, 'synonym', 'Validus Author, 1900'])
       end
 
       specify 'uses stored gbif_taxonomic_status when present (homotypicSynonym)' do
@@ -213,10 +220,12 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
           :determine_accepted_name_usage,
           taxon,
           7,
+          200,
+          taxon_name_info,
           taxon_name_id_to_taxon_id
         )
 
-        expect(result).to eq([5, 'homotypicSynonym'])
+        expect(result).to eq([5, 'homotypicSynonym', 'Validus Author, 1900'])
       end
 
       specify 'uses stored gbif_taxonomic_status when present (misapplied)' do
@@ -230,10 +239,12 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
           :determine_accepted_name_usage,
           taxon,
           7,
+          200,
+          taxon_name_info,
           taxon_name_id_to_taxon_id
         )
 
-        expect(result).to eq([5, 'misapplied'])
+        expect(result).to eq([5, 'misapplied', 'Validus Author, 1900'])
       end
 
       specify 'returns self-reference for extracted taxa with no validity data' do
@@ -243,10 +254,12 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
           :determine_accepted_name_usage,
           taxon,
           8,
+          200,
+          taxon_name_info,
           taxon_name_id_to_taxon_id
         )
 
-        expect(result).to eq([8, 'accepted'])
+        expect(result).to eq([8, 'accepted', nil])
       end
     end
   end

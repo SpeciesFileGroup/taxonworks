@@ -1625,24 +1625,27 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
         expect(replace_csv.headers).not_to include('taxonomicStatus')
       end
 
-      specify 'accepted_name_usage_id mode includes acceptedNameUsageID and taxonomicStatus fields' do
+      specify 'accepted_name_usage_id mode includes acceptedNameUsage, acceptedNameUsageID, and taxonomicStatus fields' do
+        expect(accepted_csv.headers).to include('acceptedNameUsage')
         expect(accepted_csv.headers).to include('acceptedNameUsageID')
         expect(accepted_csv.headers).to include('taxonomicStatus')
       end
 
-      specify 'accepted name has taxonomicStatus "accepted" and acceptedNameUsageID pointing to itself' do
+      specify 'accepted name has taxonomicStatus "accepted" and acceptedNameUsage pointing to itself' do
         valid_taxon = accepted_csv.find { |row| row['scientificName']&.include?('catus') && row['taxonRank'] == 'species' }
 
         expect(valid_taxon['taxonomicStatus']).to eq('accepted')
         expect(valid_taxon['acceptedNameUsageID']).to eq(valid_taxon['taxonID'])
+        expect(valid_taxon['acceptedNameUsage']).to eq(valid_taxon['scientificName'])
       end
 
-      specify 'synonym has taxonomicStatus "synonym" and acceptedNameUsageID pointing to valid name' do
+      specify 'synonym has taxonomicStatus "synonym" and acceptedNameUsage pointing to valid name' do
         synonym_taxon = accepted_csv.find { |row| row['scientificName']&.include?('domesticus') && row['taxonRank'] == 'species' }
         valid_taxon = accepted_csv.find { |row| row['scientificName']&.include?('catus') && row['taxonRank'] == 'species' }
 
         expect(synonym_taxon['taxonomicStatus']).to eq('synonym')
         expect(synonym_taxon['acceptedNameUsageID']).to eq(valid_taxon['taxonID'])
+        expect(synonym_taxon['acceptedNameUsage']).to eq(valid_taxon['scientificName'])
       end
 
       specify 'accepted_name_usage_id mode can attach extensions to the synonym row' do
@@ -1674,12 +1677,15 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
         # All extracted higher taxa should be marked as accepted
         expect(kingdom_taxon['taxonomicStatus']).to eq('accepted')
         expect(kingdom_taxon['acceptedNameUsageID']).to eq(kingdom_taxon['taxonID'])
+        expect(kingdom_taxon['acceptedNameUsage']).to eq(kingdom_taxon['scientificName'])
 
         expect(family_taxon['taxonomicStatus']).to eq('accepted')
         expect(family_taxon['acceptedNameUsageID']).to eq(family_taxon['taxonID'])
+        expect(family_taxon['acceptedNameUsage']).to eq(family_taxon['scientificName'])
 
         expect(genus_taxon['taxonomicStatus']).to eq('accepted')
         expect(genus_taxon['acceptedNameUsageID']).to eq(genus_taxon['taxonID'])
+        expect(genus_taxon['acceptedNameUsage']).to eq(genus_taxon['scientificName'])
       end
 
       context 'with terminal higher taxon that is a synonym' do
@@ -1714,6 +1720,7 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
 
           expect(valid_genus_row['taxonomicStatus']).to eq('accepted')
           expect(valid_genus_row['acceptedNameUsageID']).to eq(valid_genus_row['taxonID'])
+          expect(valid_genus_row['acceptedNameUsage']).to eq(valid_genus_row['scientificName'])
         end
 
         specify 'terminal higher taxon that is a synonym has taxonomicStatus "synonym"' do
@@ -1724,6 +1731,7 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
 
           expect(invalid_genus_row['taxonomicStatus']).to eq('synonym')
           expect(invalid_genus_row['acceptedNameUsageID']).to eq(valid_genus_row['taxonID'])
+          expect(invalid_genus_row['acceptedNameUsage']).to eq(valid_genus_row['scientificName'])
         end
       end
 
