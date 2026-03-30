@@ -1648,6 +1648,59 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
         expect(synonym_taxon['acceptedNameUsage']).to eq(valid_taxon['scientificName'])
       end
 
+      context 'when an occurrence is tied to a non-accepted combination' do
+        let!(:combination_root) { TaxonName.find_by!(name: TaxonName::ROOT_NAME) }
+        let!(:combination_original_genus) do
+          Protonym.create!(name: 'Aus', rank_class: Ranks.lookup(:icn, :genus), parent: combination_root)
+        end
+        let!(:accepted_combination_species) do
+          Protonym.create!(name: 'combinata', rank_class: Ranks.lookup(:icn, :species), parent: combination_original_genus)
+        end
+        let!(:accepted_combination_otu) { FactoryBot.create(:valid_otu, taxon_name: accepted_combination_species) }
+        let!(:accepted_combination_specimen) { FactoryBot.create(:valid_specimen) }
+        let!(:accepted_combination_td) do
+          FactoryBot.create(:valid_taxon_determination, taxon_determination_object: accepted_combination_specimen, otu: accepted_combination_otu)
+        end
+        let!(:alternative_genus) do
+          Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:icn, :genus), parent: combination_root)
+        end
+        let!(:old_combination) do
+          Combination.create!(genus: alternative_genus, species: accepted_combination_species)
+        end
+        let!(:current_combination_relationship) do
+          TaxonNameRelationship.create!(
+            subject_taxon_name: old_combination,
+            object_taxon_name: accepted_combination_species,
+            type: 'TaxonNameRelationship::CurrentCombination'
+          )
+        end
+        let!(:old_combination_otu) { FactoryBot.create(:valid_otu, taxon_name: old_combination) }
+        let!(:old_combination_specimen) { FactoryBot.create(:valid_specimen) }
+        let!(:old_combination_td) do
+          FactoryBot.create(:valid_taxon_determination, taxon_determination_object: old_combination_specimen, otu: old_combination_otu)
+        end
+
+        before do
+          accepted_combination_specimen.get_dwc_occurrence
+          old_combination_specimen.get_dwc_occurrence
+        end
+
+        specify 'old combination occurrence resolves to the accepted name before checklist normalization' do
+          data = ::Export::Dwca::Checklist::Data.new(
+            core_otu_scope_params: { otu_id: [accepted_combination_otu.id, old_combination_otu.id] },
+            accepted_name_mode: 'accepted_name_usage_id'
+          )
+
+          csv = CSV.parse(data.csv, headers: true, col_sep: "\t")
+
+          accepted_row = csv.find { |row| row['taxonID'] == accepted_combination_otu.identifiers.first.cached }
+          combination_row = csv.find { |row| row['taxonID'] == old_combination_otu.identifiers.first.cached }
+
+          expect(accepted_row).to be_present
+          expect(combination_row).to be_nil
+        end
+      end
+
       specify 'accepted_name_usage_id mode can attach extensions to the synonym row' do
         data = ::Export::Dwca::Checklist::Data.new(
           core_otu_scope_params: { otu_id: [valid_otu.id, invalid_otu.id] },
