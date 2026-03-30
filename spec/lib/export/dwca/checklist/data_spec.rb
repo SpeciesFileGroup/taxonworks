@@ -712,6 +712,28 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
           expect(ext_row['bibliographicCitation']).to be_present
           expect(dwc_occ.associatedReferences).to include(ext_row['bibliographicCitation'])
         end
+
+        context 'when multiple asserted distributions for the same taxon share a citation' do
+          let!(:ad_with_duplicate_ref) { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: otu1) }
+
+          before do
+            FactoryBot.create(:valid_citation, citation_object: ad_with_duplicate_ref, source: source1)
+            ad_with_duplicate_ref.get_dwc_occurrence
+          end
+
+          specify 'deduplicates repeated taxonID and bibliographicCitation rows' do
+            data_with_extension.csv
+
+            csv_content = data_with_extension.references_extension_tmp.read
+            refs_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+            rows_for_otu1 = refs_csv.select { |row| row['id'] == otu1.identifiers.first.cached }
+            citations = rows_for_otu1.map { |row| row['bibliographicCitation'] }
+
+            expect(citations.count(source1.cached)).to eq(1)
+            expect(citations.count(source2.cached)).to eq(1)
+          end
+        end
       end
 
       context 'with types and specimen extension' do

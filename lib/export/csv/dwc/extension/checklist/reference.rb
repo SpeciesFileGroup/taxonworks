@@ -32,6 +32,7 @@ module Export::CSV::Dwc::Extension::Checklist::Reference
   def self.csv(scope, taxon_name_id_to_taxon_id, accepted_name_mode:)
     tbl = []
     tbl[0] = HEADERS
+    seen_rows = {}
 
     ad_scope = scope
       .where(dwc_occurrence_object_type: 'AssertedDistribution')
@@ -64,12 +65,16 @@ module Export::CSV::Dwc::Extension::Checklist::Reference
       citations = references_str.split(Export::Dwca::DELIMITER).map(&:strip).reject(&:blank?)
 
       citations.each do |citation|
+        row_key = [taxon_id, citation]
+        next if seen_rows[row_key]
+
         row = [
           taxon_id,
           citation
         ]
 
         tbl << row
+        seen_rows[row_key] = true
       end
     end
 
