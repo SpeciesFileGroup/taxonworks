@@ -104,14 +104,13 @@
               <template v-else>
                 <label
                   class="cursor-pointer"
-                  @click="sendObject(item)"
                 >
                   <input
                     :name="name"
                     :value="item.id"
                     :checked="selectedItem && item.id === selectedItem.id"
                     type="radio"
-                    @click.stop
+                    @change="sendObject(item)"
                     @keyup="changeTab"
                     @keyup.enter="sendObject(item)"
                     @keyup.space="sendObject(item)"
