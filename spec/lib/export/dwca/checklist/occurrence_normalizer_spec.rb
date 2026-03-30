@@ -209,6 +209,25 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
         expect(result).to eq([5, 'synonym', 'Validus Author, 1900'])
       end
 
+      specify 'returns self-reference as accepted when invalid name points to itself and no gbif status is stored' do
+        taxon = {
+          'taxon_name_cached_is_valid' => false,
+          'taxon_name_cached_valid_taxon_name_id' => 200,
+          'scientificName' => 'Selfus Author, 1901'
+        }
+
+        result = normalizer.send(
+          :determine_accepted_name_usage,
+          taxon,
+          10,
+          200,
+          taxon_name_info,
+          taxon_name_id_to_taxon_id
+        )
+
+        expect(result).to eq([10, 'accepted', 'Selfus Author, 1901'])
+      end
+
       specify 'uses stored gbif_taxonomic_status when present (homotypicSynonym)' do
         taxon = {
           'taxon_name_cached_is_valid'          => false,

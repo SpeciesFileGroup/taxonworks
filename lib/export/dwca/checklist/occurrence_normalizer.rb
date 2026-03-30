@@ -715,6 +715,11 @@ module Export::Dwca::Checklist
         # This taxon is marked as invalid (synonym).
         valid_taxon_name_id = taxon['taxon_name_cached_valid_taxon_name_id']
         if valid_taxon_name_id.present?
+          if valid_taxon_name_id == taxon_name_id &&
+             taxon['taxon_name_gbif_taxonomic_status'].blank?
+            return [taxon_id, 'accepted', taxon['scientificName']]
+          end
+
           accepted_id = taxon_name_id_to_taxon_id[valid_taxon_name_id]
           accepted_name = taxon_name_info[valid_taxon_name_id]&.[](:scientific_name)
           # NOTE: accepted_id may be nil when the valid name has no OTU UUID
