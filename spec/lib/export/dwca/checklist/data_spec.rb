@@ -893,8 +893,33 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
                       paratype_specimen.dwc_occurrence
                     end
 
-          expect(ext_row['typeStatus']).to eq(dwc_occ.typeStatus)
+          expected_type_statuses = dwc_occ.typeStatus.split(Export::Dwca::DELIMITER).map(&:strip).reject(&:blank?)
+
+          expect(expected_type_statuses).to include(ext_row['typeStatus'])
           expect(ext_row['scientificName']).to eq(data_row['scientificName'])
+        end
+
+        context 'when a specimen repeats the same typeStatus value' do
+          before do
+            holotype_specimen.dwc_occurrence.update!(
+              typeStatus: [
+                'holotype of Example species Author, 1900',
+                'holotype of Example species Author, 1900'
+              ].join(Export::Dwca::DELIMITER)
+            )
+          end
+
+          specify 'deduplicates repeated typeStatus rows for the same specimen' do
+            data_with_extension.csv
+
+            csv_content = data_with_extension.types_and_specimen_extension_tmp.read
+            types_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
+
+            matching_rows = types_csv.select { |row| row['occurrenceID'] == holotype_specimen.dwc_occurrence.occurrenceID }
+
+            expect(matching_rows.size).to eq(1)
+            expect(matching_rows.first['typeStatus']).to eq('holotype of Example species Author, 1900')
+          end
         end
       end
 

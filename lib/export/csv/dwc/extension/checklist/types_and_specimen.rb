@@ -69,7 +69,11 @@ module Export::CSV::Dwc::Extension::Checklist::TypesAndSpecimen
 
       type_status_str = dwc_occ.typeStatus
 
-      type_statuses = type_status_str.split(Export::Dwca::DELIMITER).map(&:strip).reject(&:blank?)
+      type_statuses = type_status_str
+        .split(Export::Dwca::DELIMITER)
+        .map(&:strip)
+        .reject(&:blank?)
+        .uniq
 
       type_statuses.each do |type_status|
         row = [
