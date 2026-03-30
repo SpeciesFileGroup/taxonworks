@@ -203,12 +203,13 @@ module Export::Dwca::Checklist
 
       ids.each_slice(25_000) do |batch|
         ::TaxonName.where(id: batch)
-          .pluck(:id, :rank_class, :parent_id, :cached_author_year)
-          .each do |id, rank_class, parent_id, cached_author_year|
+          .pluck(:id, :rank_class, :parent_id, :cached, :cached_author_year)
+          .each do |id, rank_class, parent_id, cached, cached_author_year|
             rank = rank_class_to_name[rank_class]&.downcase
             taxon_name_info[id] = {
               rank: rank,
               parent_id: parent_id,
+              scientific_name: self.class.combine_scientific_name(cached, cached_author_year),
               scientific_name_authorship: cached_author_year
             }
           end
@@ -293,9 +294,12 @@ module Export::Dwca::Checklist
       taxon = row.to_h
       taxon['taxon_name_id'] = terminal_tn_id
 
-      # In accepted_name_usage_id mode, use original name if available.
+      # In accepted_name_usage_id mode, use the original full name if available.
       if row['taxon_name_cached'].present?
-        taxon['scientificName'] = row['taxon_name_cached']
+        taxon['scientificName'] = self.class.combine_scientific_name(
+          row['taxon_name_cached'],
+          taxon_name_info.dig(terminal_tn_id, :scientific_name_authorship)
+        )
       end
 
       normalize_occurrence_taxon(
@@ -335,7 +339,8 @@ module Export::Dwca::Checklist
         # Create species taxon
         species_taxon = row.to_h.dup
         species_taxon['taxon_name_id'] = species_tn_id
-        species_taxon['scientificName'] = "#{genus} #{specific_epithet}"
+        species_taxon['scientificName'] =
+          taxon_name_info.dig(species_tn_id, :scientific_name) || "#{genus} #{specific_epithet}"
         species_taxon['taxonRank'] = 'species'
         normalize_occurrence_taxon(
           species_taxon,
@@ -381,7 +386,8 @@ module Export::Dwca::Checklist
 
         ancestor_taxon = row.to_h.dup
         ancestor_taxon['taxon_name_id'] = ancestor_tn_id
-        ancestor_taxon['scientificName'] = rank_taxon_name
+        ancestor_taxon['scientificName'] =
+          taxon_name_info.dig(ancestor_tn_id, :scientific_name) || rank_taxon_name
         ancestor_taxon['taxonRank'] = higher_rank
         normalize_occurrence_taxon(
           ancestor_taxon,
@@ -484,7 +490,8 @@ module Export::Dwca::Checklist
         # selected above.
         valid_taxon = template_taxon.dup
         valid_taxon['taxon_name_id'] = valid_tn.id
-        valid_taxon['scientificName'] = valid_tn.cached
+        valid_taxon['scientificName'] =
+          taxon_name_info.dig(valid_tn.id, :scientific_name) || valid_tn.cached
         valid_taxon['taxonRank'] = rank
         valid_taxon['taxon_name_cached'] = valid_tn.cached
         valid_taxon['taxon_name_cached_is_valid'] = true
@@ -493,6 +500,7 @@ module Export::Dwca::Checklist
         taxon_name_info[valid_tn.id] = {
           rank: rank,
           parent_id: valid_tn.parent_id,
+          scientific_name: self.class.combine_scientific_name(valid_tn.cached, valid_tn.cached_author_year),
           scientific_name_authorship: valid_tn.cached_author_year
         }
 
@@ -837,7 +845,8 @@ module Export::Dwca::Checklist
 
         ancestor_taxon = row.to_h.dup
         ancestor_taxon['taxon_name_id'] = ancestor_tn_id
-        ancestor_taxon['scientificName'] = rank_taxon_name
+        ancestor_taxon['scientificName'] =
+          taxon_name_info.dig(ancestor_tn_id, :scientific_name) || rank_taxon_name
         ancestor_taxon['taxonRank'] = higher_rank
         normalize_accepted_name_usage_taxon(
           ancestor_taxon,
@@ -865,6 +874,10 @@ module Export::Dwca::Checklist
           species_idx ? ranks[(species_idx + 1)..] : []
         }.uniq
       end
+    end
+
+    def self.combine_scientific_name(cached, cached_author_year)
+      [cached, cached_author_year].compact_blank.join(' ').presence
     end
   end
 end

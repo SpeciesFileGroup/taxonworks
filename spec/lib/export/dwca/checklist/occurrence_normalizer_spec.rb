@@ -137,6 +137,16 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
     end
   end
 
+  describe '.combine_scientific_name' do
+    specify 'combines cached name and authorship when both are present' do
+      expect(described_class.combine_scientific_name('Aus bus', 'Smith, 1900')).to eq('Aus bus Smith, 1900')
+    end
+
+    specify 'returns cached name when authorship is absent' do
+      expect(described_class.combine_scientific_name('Aus', nil)).to eq('Aus')
+    end
+  end
+
   describe '#determine_accepted_name_usage' do
     let(:taxon_name_id_to_taxon_id) { { 100 => 5, 200 => 10 } }
 
@@ -518,6 +528,27 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
       expect(all_taxa.size).to eq(1)
       expect(all_taxa[100]['scientificName']).to eq('Aus bus')
     end
+
+    specify 'uses the original full scientific name in accepted_name_usage_id mode when authorship metadata is available' do
+      accepted_normalizer = described_class.new(
+        raw_csv: raw_csv,
+        accepted_name_mode: 'accepted_name_usage_id',
+        otu_to_taxon_name_data: {},
+        occurrence_to_otu: {}
+      )
+
+      row = CSV::Row.new(
+        ['scientificName', 'taxonRank', 'taxon_name_cached'],
+        ['replacement value', 'species', 'Aus bus']
+      )
+      taxon_name_info = {
+        100 => { scientific_name_authorship: 'Smith, 1900' }
+      }
+
+      accepted_normalizer.send(:add_terminal_taxon, row, 100, 'species', all_taxa, ancestor_lookup, taxon_name_info)
+
+      expect(all_taxa[100]['scientificName']).to eq('Aus bus Smith, 1900')
+    end
   end
 
   describe '#store_taxon_name_metadata' do
@@ -587,7 +618,7 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
       expect(all_taxa.size).to eq(1)
     end
 
-    specify 'constructs parent species scientificName as bare binomial without authorship' do
+    specify 'constructs parent species scientificName as a bare binomial when taxon metadata is unavailable' do
       row = CSV::Row.new(
         ['scientificName', 'taxonRank', 'genus', 'specificEpithet',
          'infraspecificEpithet', 'scientificNameAuthorship'],
@@ -597,6 +628,24 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
 
       normalizer.send(:extract_parent_species_for_taxon, row, 'subspecies', 100, ancestor_lookup, all_taxa)
       expect(all_taxa[50]['scientificName']).to eq('Aus bus')
+    end
+
+    specify 'uses the full species name with authorship when taxon metadata is available' do
+      row = CSV::Row.new(
+        ['scientificName', 'taxonRank', 'genus', 'specificEpithet',
+         'infraspecificEpithet', 'scientificNameAuthorship'],
+        ['Aus bus cus', 'subspecies', 'Aus', 'bus', 'cus', 'Smith, 1900']
+      )
+      ancestor_lookup = { '100:species' => 50 }
+      taxon_name_info = {
+        50 => {
+          scientific_name: 'Aus bus (Smith, 1900)',
+          scientific_name_authorship: '(Smith, 1900)'
+        }
+      }
+
+      normalizer.send(:extract_parent_species_for_taxon, row, 'subspecies', 100, ancestor_lookup, all_taxa, taxon_name_info)
+      expect(all_taxa[50]['scientificName']).to eq('Aus bus (Smith, 1900)')
     end
   end
 
@@ -616,6 +665,23 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
       normalizer.send(:extract_ancestor_taxa, row, 500, 'species', ancestor_lookup, all_taxa)
 
       expect(all_taxa).to be_empty
+    end
+
+    specify 'uses the ancestor full scientific name when taxon metadata is available' do
+      row = CSV::Row.new(
+        ['scientificName', 'taxonRank', 'genus', 'family'],
+        ['Aus bus', 'species', 'Aus', 'Xidae']
+      )
+      ancestor_lookup = { '500:genus' => 50, '500:family' => 25 }
+      taxon_name_info = {
+        50 => { scientific_name: 'Aus Jones, 1850', scientific_name_authorship: 'Jones, 1850' },
+        25 => { scientific_name: 'Xidae Smith, 1800', scientific_name_authorship: 'Smith, 1800' }
+      }
+
+      normalizer.send(:extract_ancestor_taxa, row, 500, 'species', ancestor_lookup, all_taxa, taxon_name_info)
+
+      expect(all_taxa[50]['scientificName']).to eq('Aus Jones, 1850')
+      expect(all_taxa[25]['scientificName']).to eq('Xidae Smith, 1800')
     end
 
     specify 'stops walking toward the root when an ancestor is already present (early termination)' do
