@@ -19,6 +19,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ### Fixed
 
 - CSD: CE Form changes were not detected on Alt+S due to missing change event while input was focused [#4851]
+- New collecting event form: Allows to create georeferences with invalid coordinates from verbatim data
 
 [#4851]: https://github.com/SpeciesFileGroup/taxonpages/issues/4851
 [#4852]: https://github.com/SpeciesFileGroup/taxonpages/issues/4852
