@@ -10,7 +10,7 @@ ADD config/docker/nginx/gzip_max.conf /etc/nginx/conf.d/gzip_max.conf
 COPY exe/install-imagemagick7.sh /usr/local/bin
 RUN echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list && \
       curl -sL https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
-      echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_22.x nodistro main" > /etc/apt/sources.list.d/nodesource.list && \
+      echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_24.x nodistro main" > /etc/apt/sources.list.d/nodesource.list && \
       sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/ubuntu.sources && \
       apt update && apt-get install -y locales software-properties-common \
                          postgresql-client-17 \
