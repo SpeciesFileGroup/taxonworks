@@ -24,6 +24,11 @@ export default function (coord) {
 
   try {
     const parsed = parseDMS(value)
+
+    if (typeof parsed === 'number') {
+      return parsed
+    }
+
     return foundCoordinate(parsed)
   } catch {
     return undefined
