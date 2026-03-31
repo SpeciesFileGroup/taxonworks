@@ -170,6 +170,7 @@ const shortcuts = ref([
     keys: [platformKey(), 's'],
     handler() {
       if (!settings.value.loading && !settings.value.saving) {
+        document.activeElement.blur()
         saveDigitalization()
       }
     }

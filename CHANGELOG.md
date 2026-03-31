@@ -15,6 +15,12 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 - Updated Ruby gems
 
+### Fixed
+
+- CSD: CE Form changes were not detected on Alt+S due to missing change event while input was focused [#4851]
+
+[#4851]: https://github.com/SpeciesFileGroup/taxonpages/issues/4851
+
 ## [0.61.0] - 2026-02-20
 
 ### Added
