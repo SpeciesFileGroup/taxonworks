@@ -10,6 +10,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ### Added
 
 - `subject_otu_id` and `object_otu_id` to biological associations `/api/v1/biological_associations/basic` endpoint
+- Filters: Copy to clipboard button for API Url [#4852]
 
 ### Changed
 
@@ -20,6 +21,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - CSD: CE Form changes were not detected on Alt+S due to missing change event while input was focused [#4851]
 
 [#4851]: https://github.com/SpeciesFileGroup/taxonpages/issues/4851
+[#4852]: https://github.com/SpeciesFileGroup/taxonpages/issues/4852
 
 ## [0.61.0] - 2026-02-20
 
