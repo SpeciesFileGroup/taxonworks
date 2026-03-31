@@ -72,16 +72,10 @@ if extend_response_with('object_relationships')
 
 		
 		json.relationship_source Citation.where(citation_object_id: r.id).take
-		
-		subjectCit = TaxonName.find(r.subject_taxon_name_id)
-		json.subject_source do
-			json.id subjectCit.origin_citation
-		end
-		
-		objectCit = TaxonName.find(r.object_taxon_name_id)
-		json.object_source do
-			json.id objectCit.origin_citation
-		end
+		json.subject_source Citation.where(citation_object_id: r.subject_taxon_name_id).take
+		json.object_source Citation.where(citation_object_id: r.object_taxon_name_id).take
+
+
 		
 	end
 end
@@ -96,15 +90,8 @@ if extend_response_with('subject_relationships')
 		json.object_taxon TaxonName.find(r.object_taxon_name_id)
 		
 		json.relationship_source Citation.where(citation_object_id: r.id).take
-		
-		subjectCit = TaxonName.find(r.subject_taxon_name_id)
-		json.subject_source do
-			json.id subjectCit.origin_citation
-		end
-		
-		objectCit = TaxonName.find(r.object_taxon_name_id)
-		json.object_source do
-			json.id objectCit.origin_citation
-		end
+		json.subject_source Citation.where(citation_object_id: r.subject_taxon_name_id).take
+		json.object_source Citation.where(citation_object_id: r.object_taxon_name_id).take
+
 	end
 end
