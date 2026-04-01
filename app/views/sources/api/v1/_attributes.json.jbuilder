@@ -2,6 +2,8 @@
 json.partial! '/sources/base_attributes', source: source
 json.partial! '/shared/data/all/metadata', object: source, extensions: false
 
+json.serial_info source.serial
+
 json.source_in_project source_in_project?(source)
 json.project_source_id project_source_for_source(source)&.id
 
@@ -26,3 +28,10 @@ end
 if extend_response_with('bibtex') && source.is_bibtex?
   json.bibtex source.to_bibtex.to_s
 end
+
+if extend_response_with('identifiers')
+  json.identifiers do
+    json.merge! extend_identifiers(source)
+  end
+end
+

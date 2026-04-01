@@ -54,3 +54,44 @@ if extend_response_with('type_taxon_name_relationship')
     end
   end
 end
+
+if extend_response_with('original_source')
+	json.original_source do
+		json.id taxon_name.origin_citation
+	end
+end
+
+if extend_response_with('object_relationships')
+	json.object_relationships TaxonNameRelationship.where(object_taxon_name_id: taxon_name.id) do |r|
+		json.id r.id
+		json.type r.type
+		json.subject_id r.subject_taxon_name_id
+		json.subject_taxon TaxonName.find(r.subject_taxon_name_id)
+		json.object_id r.object_taxon_name_id
+		json.object_taxon TaxonName.find(r.object_taxon_name_id)
+
+		
+		json.relationship_source Citation.where(citation_object_id: r.id).take
+		json.subject_source Citation.where(citation_object_id: r.subject_taxon_name_id).take
+		json.object_source Citation.where(citation_object_id: r.object_taxon_name_id).take
+
+
+		
+	end
+end
+
+if extend_response_with('subject_relationships')
+	json.subject_relationships TaxonNameRelationship.where(subject_taxon_name_id: taxon_name.id) do |r|
+		json.id r.id
+		json.type r.type
+		json.subject_id r.subject_taxon_name_id
+		json.subject_taxon TaxonName.find(r.subject_taxon_name_id)
+		json.object_id r.object_taxon_name_id
+		json.object_taxon TaxonName.find(r.object_taxon_name_id)
+		
+		json.relationship_source Citation.where(citation_object_id: r.id).take
+		json.subject_source Citation.where(citation_object_id: r.subject_taxon_name_id).take
+		json.object_source Citation.where(citation_object_id: r.object_taxon_name_id).take
+
+	end
+end
