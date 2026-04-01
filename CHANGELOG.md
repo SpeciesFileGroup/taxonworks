@@ -15,6 +15,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ### Changed
 
 - Updated Ruby gems
+- Upgraded to Node 24 LTS
 
 ### Fixed
 
