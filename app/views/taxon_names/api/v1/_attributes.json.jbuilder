@@ -62,6 +62,13 @@ if extend_response_with('original_citation')
 	end
 end
 
+
+if extend_response_with('taxon_name_classification')
+	json.taxon_name_classification TaxonNameClassification.where(taxon_name_id: taxon_name.id) do |r|
+		json.partial! '/taxon_name_classifications/api/v1/attributes', taxon_name_classification: r, extensions: false
+	end
+end
+
 if extend_response_with('object_taxon_name_relationships')
 	json.object_taxon_name_relationships TaxonNameRelationship.where(object_taxon_name_id: taxon_name.id) do |r|
 		json.id r.id
