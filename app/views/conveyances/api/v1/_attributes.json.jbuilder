@@ -11,3 +11,14 @@ if extend_response_with('notes')
     json.text n.text
   end
 end
+
+if extend_response_with('citations') && conveyance.has_citations?
+  json.citations do
+    json.array! conveyance.citations do |citation|
+      json.partial! '/citations/api/v1/attributes', citation: citation, extensions: false
+      json.source do
+        json.partial! '/sources/api/v1/base_attributes', source: citation.source
+      end
+    end
+  end
+end
