@@ -75,9 +75,9 @@ if extend_response_with('object_taxon_name_relationships')
 			json.partial! '/taxon_names/api/v1/base_attributes', taxon_name: r.object_taxon_name, extensions: false
 		end
 		
-		json.relationship_source Citation.where(citation_object_id: r.id).take
-		json.subject_source Citation.where(citation_object_id: r.subject_taxon_name_id).take
-		json.object_source Citation.where(citation_object_id: r.object_taxon_name_id).take
+		json.relationship_citation Citation.where(citation_object_id: r.id).take
+		json.subject_citation Citation.where(citation_object_id: r.subject_taxon_name_id).take
+		json.object_citation Citation.where(citation_object_id: r.object_taxon_name_id).take
 
 
 		
@@ -97,9 +97,9 @@ if extend_response_with('subject_taxon_name_relationships')
 			json.partial! '/taxon_names/api/v1/base_attributes', taxon_name: r.object_taxon_name, extensions: false
 		end
 		
-		json.relationship_source Citation.where(citation_object_id: r.id).take
-		json.subject_source Citation.where(citation_object_id: r.subject_taxon_name_id).take
-		json.object_source Citation.where(citation_object_id: r.object_taxon_name_id).take
+		json.relationship_citation Citation.where(citation_object_id: r.id).take
+		json.subject_citation Citation.where(citation_object_id: r.subject_taxon_name_id).take
+		json.object_citation Citation.where(citation_object_id: r.object_taxon_name_id).take
 
 	end
 end
