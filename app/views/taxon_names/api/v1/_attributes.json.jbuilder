@@ -58,7 +58,13 @@ end
 
 if extend_response_with('original_citation')
 	json.original_citation do
-		json.partial! '/citations/api/v1/attributes', citation: taxon_name.origin_citation, extensions: false
+		if(taxon_name.origin_citation.nil?)
+			json.id json.null
+			json.source_id 'NA'
+			json.pages 'NA'
+		else
+			json.partial! '/citations/api/v1/attributes', citation: taxon_name.origin_citation, extensions: false
+		end
 	end
 end
 
