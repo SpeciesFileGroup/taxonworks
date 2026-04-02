@@ -69,8 +69,8 @@ if extend_response_with('original_citation')
 end
 
 
-if extend_response_with('taxon_name_classification')
-	json.taxon_name_classification TaxonNameClassification.where(taxon_name_id: taxon_name.id) do |r|
+if extend_response_with('taxon_name_classifications')
+	json.taxon_name_classifications TaxonNameClassification.where(taxon_name_id: taxon_name.id) do |r|
 		json.partial! '/taxon_name_classifications/api/v1/attributes', taxon_name_classification: r, extensions: false
 	end
 end
