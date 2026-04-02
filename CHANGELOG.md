@@ -11,6 +11,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 - `subject_otu_id` and `object_otu_id` to biological associations `/api/v1/biological_associations/basic` endpoint
 - Filters: Copy to clipboard button for API Url [#4852]
+- In the New Asserted Distribution task, add map tab to Gazetteer selection for shape [#4853]
 
 ### Changed
 
@@ -24,6 +25,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 [#4851]: https://github.com/SpeciesFileGroup/taxonpages/issues/4851
 [#4852]: https://github.com/SpeciesFileGroup/taxonpages/issues/4852
+[#4853]: https://github.com/SpeciesFileGroup/taxonpages/issues/4853
 
 ## [0.61.0] - 2026-02-20
 
