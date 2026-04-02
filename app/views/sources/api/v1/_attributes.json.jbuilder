@@ -35,6 +35,6 @@ end
 
 if extend_response_with('serial')
 	json.serial do
-	        json.partial! '/serials/attributes', serial: source.serial
+	        json.partial! '/serials/attributes', serial: source.serial, extensions: false
 	end
 end
