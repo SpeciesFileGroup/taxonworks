@@ -62,8 +62,8 @@ if extend_response_with('original_citation')
 	end
 end
 
-if extend_response_with('object_relationships')
-	json.object_relationships TaxonNameRelationship.where(object_taxon_name_id: taxon_name.id) do |r|
+if extend_response_with('object_taxon_name_relationships')
+	json.object_taxon_name_relationships TaxonNameRelationship.where(object_taxon_name_id: taxon_name.id) do |r|
 		json.id r.id
 		json.type r.type
 		json.subject_id r.subject_taxon_name_id
@@ -81,8 +81,8 @@ if extend_response_with('object_relationships')
 	end
 end
 
-if extend_response_with('subject_relationships')
-	json.subject_relationships TaxonNameRelationship.where(subject_taxon_name_id: taxon_name.id) do |r|
+if extend_response_with('subject_taxon_name_relationships')
+	json.subject_taxon_name_relationships TaxonNameRelationship.where(subject_taxon_name_id: taxon_name.id) do |r|
 		json.id r.id
 		json.type r.type
 		json.subject_id r.subject_taxon_name_id
