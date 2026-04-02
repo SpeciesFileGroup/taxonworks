@@ -66,10 +66,14 @@ if extend_response_with('object_taxon_name_relationships')
 	json.object_taxon_name_relationships TaxonNameRelationship.where(object_taxon_name_id: taxon_name.id) do |r|
 		json.id r.id
 		json.type r.type
-		json.subject_id r.subject_taxon_name_id
-		json.subject_taxon TaxonName.find(r.subject_taxon_name_id)
-		json.object_id r.object_taxon_name_id
-		json.object_taxon TaxonName.find(r.object_taxon_name_id)
+		
+		json.subject_taxon_name do
+			json.partial! '/taxon_names/api/v1/base_attributes', taxon_name: r.subject_taxon_name, extensions: false
+		end
+		
+		json.object_taxon_name do
+			json.partial! '/taxon_names/api/v1/base_attributes', taxon_name: r.object_taxon_name, extensions: false
+		end
 
 		
 		json.relationship_source Citation.where(citation_object_id: r.id).take
