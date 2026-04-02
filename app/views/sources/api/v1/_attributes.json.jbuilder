@@ -2,8 +2,6 @@
 json.partial! '/sources/base_attributes', source: source
 json.partial! '/shared/data/all/metadata', object: source, extensions: false
 
-json.serial_info source.serial
-
 json.source_in_project source_in_project?(source)
 json.project_source_id project_source_for_source(source)&.id
 
@@ -35,3 +33,8 @@ if extend_response_with('identifiers')
   end
 end
 
+if extend_response_with('serial')
+	json.serial do
+	        json.partial! '/serials/attributes', serial: source.serial
+	end
+end
