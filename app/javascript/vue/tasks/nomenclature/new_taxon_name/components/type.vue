@@ -27,6 +27,7 @@
           />
         </div>
         <QuickTaxonName
+          ref="quickTaxonName"
           v-if="
             !showForThisGroup(
               ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup'],
@@ -166,6 +167,12 @@ const TAB = {
   common: 'Common',
   showAll: 'Show all'
 }
+
+const quickTaxonName = ref(null)
+
+defineExpose({
+  focus() { quickTaxonName.value?.focus() }
+})
 
 const store = useStore()
 
