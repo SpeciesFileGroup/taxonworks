@@ -106,6 +106,10 @@ function deleteItem(item) {
   }
 }
 function getCoordinates(coordinates) {
+  if (!coordinates) {
+    return 'Available after save'
+  }
+
   const flatten = coordinates.flat(1)
 
   return typeof flatten[0] === 'number'
@@ -122,6 +126,55 @@ function getGeoJsonType(object) {
   return geojsonObject(object).geometry.type
 }
 
+function serializeGeometry(geometry) {
+  if (!geometry) {
+    return 'Available after save'
+  }
+
+  if (geometry.type === 'GeometryCollection') {
+    return JSON.stringify(
+      geometry.geometries.map((item) => ({
+        type: item.type,
+        coordinates: item.coordinates
+      }))
+    )
+  }
+
+  return geometry.coordinates
+}
+
+function formatGeometryCoordinates(geometry) {
+  if (!geometry) {
+    return 'Available after save'
+  }
+
+  if (geometry.type === 'GeometryCollection') {
+    return serializeGeometry(geometry)
+  }
+
+  return getCoordinates(geometry.coordinates)
+}
+
+function truncateText(value) {
+  const text = Array.isArray(value) ? JSON.stringify(value) : String(value)
+
+  return text.length > 100 ? `${text.slice(0, 100)}...` : text
+}
+
+function getCoordinatesByType(object) {
+  let value
+
+  if (isTmpWkt(object)) {
+    value = object.wkt
+  } else if (isTempGeolocate(object)) {
+    value = object.iframe_response
+  } else {
+    value = formatGeometryCoordinates(geojsonObject(object).geometry)
+  }
+
+  return truncateText(value)
+}
+
 function isTmpWkt(object) {
   return object.type === GEOREFERENCE_WKT && !object.id
 }
@@ -130,13 +183,4 @@ function isTempGeolocate(object) {
   return object.type === GEOREFERENCE_GEOLOCATE && !object.id
 }
 
-function getCoordinatesByType(object) {
-  if (isTmpWkt(object)) {
-    return object.wkt
-  } else if (isTempGeolocate(object)) {
-    return object.iframe_response
-  } else {
-    return getCoordinates(geojsonObject(object).geometry.coordinates)
-  }
-}
 </script>

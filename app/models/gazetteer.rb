@@ -333,8 +333,9 @@ class Gazetteer < ApplicationRecord
 
   # @params target [String] currently only `AssertedDistribution`
   # @return [Hash] gazetteers optimized for user selection
-  def self.select_optimized(user_id, project_id, target = 'AssertedDistributions')
-    r = used_recently(user_id, project_id, target)
+  def self.select_optimized(user_id, project_id, target = 'AssertedDistribution')
+    target = 'AssertedDistribution' if target.blank?
+    r = used_recently(user_id, project_id, target) || []
     h = {
       quick: [],
       pinboard: Gazetteer.pinned_by(user_id).where(pinboard_items: {project_id:}).to_a,

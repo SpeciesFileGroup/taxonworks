@@ -267,5 +267,15 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
         end
       end
     end
+
+    context '.select_optimized' do
+      specify 'returns selector buckets when target is nil' do
+        expect(described_class.select_optimized(1, @project_id, nil)).to include(
+          :quick,
+          :pinboard,
+          :recent
+        )
+      end
+    end
   end
 end
