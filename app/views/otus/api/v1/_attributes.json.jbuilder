@@ -22,7 +22,7 @@ if extend_response_with('citations') && otu.has_citations?
     json.array! otu.citations do |citation|
       json.partial! '/citations/api/v1/attributes', citation: citation, extensions: false
       json.source do
-        json.partial! '/sources/api/v1/base_attributes', source: citation.source
+        json.extract! citation.source, :id, :cached, :year
       end
     end
   end
