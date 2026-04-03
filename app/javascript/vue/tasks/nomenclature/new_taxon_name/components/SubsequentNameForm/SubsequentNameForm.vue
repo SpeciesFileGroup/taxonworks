@@ -16,6 +16,7 @@
       <div v-else>
         <div class="horizontal-left-content gap-small margin-medium-bottom">
           <input
+            ref="nameInput"
             placeholder="Type a name..."
             type="text"
             v-model="name"
@@ -87,6 +88,12 @@ import BlockLayout from '@/components/layout/BlockLayout'
 import EditTaxonName from './EditTaxonName'
 import FormCitation from '@/components/Form/FormCitation.vue'
 import VConfidence from '@/components/ui/Button/ButtonConfidence.vue'
+
+const nameInput = ref(null)
+
+defineExpose({
+  focus() { nameInput.value?.focus() }
+})
 
 const store = useStore()
 
