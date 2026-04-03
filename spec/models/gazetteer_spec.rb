@@ -282,6 +282,18 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
 
         expect(GeographicItem.where(id: gi.id).exists?).to be(true)
       end
+
+      specify 'cannot be destroyed when referenced by an asserted distribution' do
+        gazetteer = FactoryBot.create(:valid_gazetteer)
+        FactoryBot.create(
+          :valid_gazetteer_asserted_distribution,
+          asserted_distribution_shape: gazetteer
+        )
+
+        expect(gazetteer.destroy).to be(false)
+        expect(gazetteer.errors[:base]).to be_present
+        expect(Gazetteer.where(id: gazetteer.id).exists?).to be(true)
+      end
     end
 
     context '.select_optimized' do

@@ -39,7 +39,10 @@ class Gazetteer < ApplicationRecord
 
   belongs_to :geographic_item, inverse_of: :gazetteers
 
-  has_many :asserted_distributions, as: :asserted_distribution_shape, inverse_of: :asserted_distribution_shape
+  has_many :asserted_distributions,
+    as: :asserted_distribution_shape,
+    inverse_of: :asserted_distribution_shape,
+    dependent: :restrict_with_error
 
   before_validation do
     self.iso_3166_a2 = iso_3166_a2.strip.upcase if iso_3166_a2.present?
