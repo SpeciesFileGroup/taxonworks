@@ -116,6 +116,19 @@ describe 'ApplicationEnumeration' do
       lead.create_attribution!(license: 'Attribution')
       expect(ae.no_related_data?(lead)).to be false
     end
+
+    specify 'ignores cached relations by default but can include them when requested' do
+      geographic_item = FactoryBot.create(:valid_geographic_item)
+      CachedMapItem.create!(
+        otu: FactoryBot.create(:valid_otu),
+        geographic_item:,
+        type: 'CachedMapItem::WebLevel1',
+        reference_count: 1
+      )
+
+      expect(ae.no_related_data?(geographic_item)).to be true
+      expect(ae.no_related_data?(geographic_item, ignore_cached_relations: false)).to be false
+    end
   end
 
 end

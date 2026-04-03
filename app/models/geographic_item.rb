@@ -50,6 +50,11 @@ class GeographicItem < ApplicationRecord
   self.inheritance_column = nil
 
   has_many :cached_map_items, inverse_of: :geographic_item
+  has_many :cached_map_item_translations, inverse_of: :geographic_item
+  has_many :cached_map_item_translations_as_translation,
+    class_name: 'CachedMapItemTranslation',
+    foreign_key: :translated_geographic_item_id,
+    inverse_of: :translated_geographic_item
 
   has_many :geographic_areas_geographic_items, dependent: :destroy, inverse_of: :geographic_item
   has_many :geographic_areas, through: :geographic_areas_geographic_items
@@ -69,6 +74,15 @@ class GeographicItem < ApplicationRecord
   scope :include_collecting_event, -> { includes(:collecting_events_through_georeferences) }
   scope :geo_with_collecting_event, -> { joins(:collecting_events_through_georeferences) }
   scope :err_with_collecting_event, -> { joins(:georeferences_through_error_geographic_item) }
+
+  # @return [Boolean] True if this geographic_item has no references to it and
+  # can be safely destroyed.
+  def unreferenced_for_cleanup?
+    ApplicationEnumeration.no_related_data?(
+      self,
+      ignore_cached_relations: false # preserve cached_map associations
+    )
+  end
 
   # !! Think twice and _measure_ before using these, they can prevent your query
   # from using a spatial index, making them very slow. See the && query pattern

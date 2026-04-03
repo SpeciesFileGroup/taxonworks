@@ -548,8 +548,6 @@ class Gazetteer < ApplicationRecord
   end
 
   def destroy_geographic_item_if_orphaned
-    if geographic_item.gazetteers.count == 0
-      geographic_item.destroy!
-    end
+    geographic_item&.destroy! if geographic_item&.unreferenced_for_cleanup?
   end
 end

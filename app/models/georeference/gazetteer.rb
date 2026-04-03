@@ -13,7 +13,7 @@ class Georeference::Gazetteer < Georeference
       georeferenceRemarks: "Created from a shape in TaxonWorks that a user added to the system.",
       geodeticDatum: nil
     )
-    h[:georeferenceProtocol] =  "User selection from the list of the system's user-added shapes." if h[:georeferenceProtocol].blank?
+    h[:georeferenceProtocol] =  "User selection from the system's user-added shapes." if h[:georeferenceProtocol].blank?
     h
   end
 
