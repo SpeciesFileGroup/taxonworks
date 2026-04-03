@@ -1,4 +1,30 @@
 module DwcOccurrencesHelper
+  DWC_OCCURRENCE_DISPLAY_FORMATTERS = {
+    'footprintWKT' => :display_footprint_wkt
+  }.freeze
+
+  def display_footprint_wkt(value, max_length: 100)
+    return value if value.blank?
+
+    string = value.to_s
+
+    return string if string.lstrip.start_with?('POINT') || string.length <= max_length
+
+    "#{string[0, max_length]}..."
+  end
+
+  def format_dwc_occurrence_attributes_for_ui(attributes)
+    attributes = attributes.dup
+
+    attributes.each_key do |key|
+      formatter = DWC_OCCURRENCE_DISPLAY_FORMATTERS[key.to_s]
+      next if formatter.nil?
+
+      attributes[key] = public_send(formatter, attributes[key])
+    end
+
+    attributes
+  end
 
   def dwc_occurrence_health_tag(dwc_occurrence)
     a = [ ]
@@ -19,10 +45,9 @@ module DwcOccurrencesHelper
 
     r = []
     dwc_occurrence.dwc_occurrence_object.dwc_occurrence_attributes(false).each do |k, v|
-      #    CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.each do |k|
-      next if [:footprintWKT].include?(k)
+      value = k == :footprintWKT ? display_footprint_wkt(v) : v
       if !v.blank?
-        r.push tag.tr( (tag.td(k) + tag.td(v)).html_safe )
+        r.push tag.tr( (tag.td(k) + tag.td(value)).html_safe )
       end
     end
 
