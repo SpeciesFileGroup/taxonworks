@@ -11,7 +11,7 @@
         v-if="!isCurrentTaxonInCombination"
         :combination-ranks="combinationRanks"
         :manual-mode="isManualMode"
-        @on-set="(item) => (combination = item)"
+        @on-set="onSetCurrent"
       />
       <CombinationRank
         v-for="(group, groupName) in combinationRanks"
@@ -36,10 +36,12 @@
         <CombinationVerbatim v-model="currentCombination.verbatim_name" />
       </div>
       <template v-if="Object.keys(combination).length">
-        <CombinationCitation
-          :taxon="taxon"
-          v-model="citationData"
-        />
+        <div ref="citationRef">
+          <CombinationCitation
+            :taxon="taxon"
+            v-model="citationData"
+          />
+        </div>
         <hr class="divisor" />
 
         <template v-if="isBotanyCode">
@@ -96,7 +98,7 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive, watch } from 'vue'
+import { ref, computed, reactive, watch, nextTick } from 'vue'
 import { useStore } from 'vuex'
 import { GetterNames } from '../../store/getters/getters.js'
 import { ActionNames } from '../../store/actions/actions.js'
@@ -119,6 +121,11 @@ import makeCitationObject from '@/factory/Citation.js'
 import DisplayList from '@/components/displayList.vue'
 
 const store = useStore()
+const citationRef = ref(null)
+
+defineExpose({
+  focus() { citationRef.value?.querySelector('input')?.focus() }
+})
 const combination = ref({})
 const combinationList = computed(
   () => store.getters[GetterNames.GetCombinations]
@@ -159,6 +166,11 @@ const combinationRanks = computed(() =>
 const isICN = computed(
   () => store.getters[GetterNames.GetNomenclaturalCode] === 'icn'
 )
+
+const onSetCurrent = (item) => {
+  combination.value = item
+  nextTick(() => citationRef.value?.querySelector('input')?.focus())
+}
 
 const saveCombination = () => {
   const combObj = Object.assign(
