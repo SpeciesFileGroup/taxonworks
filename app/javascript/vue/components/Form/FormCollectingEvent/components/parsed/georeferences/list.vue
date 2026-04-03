@@ -80,7 +80,7 @@ import EditInPlace from '@/components/editInPlace'
 import VDate from '@/components/ui/Date/DateFields.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
-import { convertToLatLongOrder } from '@/helpers/geojson'
+import { formatGeoJsonGeometryForDisplay } from '@/helpers/geojson'
 import { GEOREFERENCE_GEOLOCATE, GEOREFERENCE_WKT } from '@/constants/index.js'
 
 const props = defineProps({
@@ -105,17 +105,6 @@ function deleteItem(item) {
     emit('delete', item)
   }
 }
-function getCoordinates(coordinates) {
-  if (!coordinates) {
-    return 'Available after save'
-  }
-
-  const flatten = coordinates.flat(1)
-
-  return typeof flatten[0] === 'number'
-    ? convertToLatLongOrder(coordinates)
-    : flatten.map((arr) => convertToLatLongOrder(arr))
-}
 function geojsonObject(object) {
   return object.geo_json
     ? object.geo_json
@@ -126,53 +115,16 @@ function getGeoJsonType(object) {
   return geojsonObject(object).geometry.type
 }
 
-function serializeGeometry(geometry) {
-  if (!geometry) {
-    return 'Available after save'
-  }
-
-  if (geometry.type === 'GeometryCollection') {
-    return JSON.stringify(
-      geometry.geometries.map((item) => ({
-        type: item.type,
-        coordinates: item.coordinates
-      }))
-    )
-  }
-
-  return geometry.coordinates
-}
-
-function formatGeometryCoordinates(geometry) {
-  if (!geometry) {
-    return 'Available after save'
-  }
-
-  if (geometry.type === 'GeometryCollection') {
-    return serializeGeometry(geometry)
-  }
-
-  return getCoordinates(geometry.coordinates)
-}
-
-function truncateText(value) {
-  const text = Array.isArray(value) ? JSON.stringify(value) : String(value)
-
-  return text.length > 100 ? `${text.slice(0, 100)}...` : text
-}
-
 function getCoordinatesByType(object) {
-  let value
-
   if (isTmpWkt(object)) {
-    value = object.wkt
-  } else if (isTempGeolocate(object)) {
-    value = object.iframe_response
-  } else {
-    value = formatGeometryCoordinates(geojsonObject(object).geometry)
+    return object.wkt
   }
 
-  return truncateText(value)
+  if (isTempGeolocate(object)) {
+    return object.iframe_response
+  }
+
+  return formatGeoJsonGeometryForDisplay(geojsonObject(object).geometry)
 }
 
 function isTmpWkt(object) {
