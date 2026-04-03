@@ -88,12 +88,6 @@ module Shared::Dwc::CollectingEventExtensions
     georeference_attributes[:dwcVerbatimSrs]
   end
 
-  # georeferenceDate
-  # technically could look at papertrail to see when geographic_area_id appeared
-  def dwc_georeferenced_date
-    collecting_event&.attribute_updated(:geographic_area_id) if collecting_event&.geographic_area_id
-  end
-
   # TODO: extend to Georeferences when we understand how to describe spatial uncertainty
   def dwc_coordinate_uncertainty_in_meters
     if georeference_attributes[:coordinateUncertaintyInMeters]
