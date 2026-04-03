@@ -5,15 +5,14 @@ class Georeference::Gazetteer < Georeference
 
   validate :gazetteer_exists, if: -> { gazetteer_id.present? }
 
-  def dwc_georeference_attributes
-    h = {}
+  def dwc_georeference_attributes(h = {})
     super(h)
     h.merge!(
       georeferenceSources: "TaxonWorks user-added Gazetteer.",
       georeferenceRemarks: "Created from a shape in TaxonWorks that a user added to the system.",
       geodeticDatum: nil
     )
-    h[:georeferenceProtocol] =  "User selection from the system's user-added shapes." if h[:georeferenceProtocol].blank?
+    h[:georeferenceProtocol] = "User selection from the system's user-added shapes." if h[:georeferenceProtocol].blank?
     h
   end
 
@@ -26,8 +25,7 @@ class Georeference::Gazetteer < Georeference
   end
 
   def gazetteer_exists
-    errors.add(:gazetteer_id, :blank) if gazetteer_id.blank?
-    errors.add(:gazetteer_id, :invalid) if gazetteer_id.present? && gazetteer.nil?
+    errors.add(:gazetteer_id, :invalid) if gazetteer.nil?
   end
 
   def set_geographic_item_from_gazetteer

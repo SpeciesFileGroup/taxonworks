@@ -43,7 +43,7 @@
           class="margin-medium-top"
           :item="gazetteer"
           label="name"
-          @unset="gazetteer = null"
+          @unset="() => { gazetteer = null }"
         />
       </template>
       <template #footer>
@@ -71,10 +71,10 @@ import { GEOREFERENCE_GAZETTEER } from '@/constants/index.js'
 import { randomUUID } from '@/helpers'
 import { ref } from 'vue'
 
-const emit = defineEmits(['create'])
-
 const isModalVisible = ref(false)
 const gazetteer = ref(null)
+
+const emit = defineEmits(['create'])
 
 function createShape() {
   emit('create', {
@@ -100,8 +100,10 @@ function setModalView(value) {
 }
 
 function setGazetteer(item) {
-  Gazetteer.find(item.id, { embed: ['shape'] }).then(({ body }) => {
-    gazetteer.value = body
-  })
+  Gazetteer.find(item.id, { embed: ['shape'] })
+    .then(({ body }) => {
+      gazetteer.value = body
+    })
+    .catch(() => {})
 }
 </script>

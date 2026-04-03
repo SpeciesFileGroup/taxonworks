@@ -369,48 +369,48 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           expect(long.to_s).to eq(long)
           expect(lat.to_f).to be_within(0.01).of(box_centroid.geo_object.y)
           expect(long.to_f).to be_within(0.01).of(box_centroid.geo_object.x)
-    end
-  end
-
-  context '#unreferenced_for_cleanup?' do
-    specify 'returns false when a cached map item references the geographic_item' do
-      geographic_item = FactoryBot.create(:valid_geographic_item)
-
-      CachedMapItem.create!(
-        otu: FactoryBot.create(:valid_otu),
-        geographic_item:,
-        type: 'CachedMapItem::WebLevel1',
-        reference_count: 1
-      )
-
-      expect(geographic_item.unreferenced_for_cleanup?).to be false
+        end
+      end
     end
 
-    specify 'returns false when a cached map item translation references the geographic_item' do
-      geographic_item = FactoryBot.create(:valid_geographic_item)
+    context '#unreferenced_for_cleanup?' do
+      specify 'returns false when a cached map item references the geographic_item' do
+        geographic_item = FactoryBot.create(:valid_geographic_item)
 
-      CachedMapItemTranslation.create!(
-        geographic_item:,
-        translated_geographic_item: FactoryBot.create(:valid_geographic_item),
-        cached_map_type: 'CachedMapItem::WebLevel1'
-      )
+        CachedMapItem.create!(
+          otu: FactoryBot.create(:valid_otu),
+          geographic_item:,
+          type: 'CachedMapItem::WebLevel1',
+          reference_count: 1
+        )
 
-      expect(geographic_item.unreferenced_for_cleanup?).to be false
+        expect(geographic_item.unreferenced_for_cleanup?).to be false
+      end
+
+      specify 'returns false when a cached map item translation references the geographic_item' do
+        geographic_item = FactoryBot.create(:valid_geographic_item)
+
+        CachedMapItemTranslation.create!(
+          geographic_item:,
+          translated_geographic_item: FactoryBot.create(:valid_geographic_item),
+          cached_map_type: 'CachedMapItem::WebLevel1'
+        )
+
+        expect(geographic_item.unreferenced_for_cleanup?).to be false
+      end
+
+      specify 'returns false when the geographic_item is the translated target of a cached map item translation' do
+        geographic_item = FactoryBot.create(:valid_geographic_item)
+
+        CachedMapItemTranslation.create!(
+          geographic_item: FactoryBot.create(:valid_geographic_item),
+          translated_geographic_item: geographic_item,
+          cached_map_type: 'CachedMapItem::WebLevel1'
+        )
+
+        expect(geographic_item.unreferenced_for_cleanup?).to be false
+      end
     end
-
-    specify 'returns false when the geographic_item is the translated target of a cached map item translation' do
-      geographic_item = FactoryBot.create(:valid_geographic_item)
-
-      CachedMapItemTranslation.create!(
-        geographic_item: FactoryBot.create(:valid_geographic_item),
-        translated_geographic_item: geographic_item,
-        cached_map_type: 'CachedMapItem::WebLevel1'
-      )
-
-      expect(geographic_item.unreferenced_for_cleanup?).to be false
-    end
-  end
-end
 
     context '#st_distance_to_geographic_item' do
       specify 'works for distance beetween points on equator' do

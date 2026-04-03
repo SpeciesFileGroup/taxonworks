@@ -69,7 +69,6 @@ describe GeoreferencesController, type: :controller do
    end
  end
 
-  # Move to individual specs
   describe 'POST create' do
     let(:gazetteer) { FactoryBot.create(:gazetteer_with_polygon) }
 
@@ -95,6 +94,7 @@ describe GeoreferencesController, type: :controller do
     end
   end
 
+  # Move to individual specs
   #describe "POST create" do
   #  describe "with valid params" do
   #    it "creates a new Georeference" do

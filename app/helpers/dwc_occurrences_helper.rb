@@ -45,7 +45,8 @@ module DwcOccurrencesHelper
 
     r = []
     dwc_occurrence.dwc_occurrence_object.dwc_occurrence_attributes(false).each do |k, v|
-      value = k == :footprintWKT ? display_footprint_wkt(v) : v
+      formatter = DWC_OCCURRENCE_DISPLAY_FORMATTERS[k.to_s]
+      value = formatter ? public_send(formatter, v) : v
       if !v.blank?
         r.push tag.tr( (tag.td(k) + tag.td(value)).html_safe )
       end
