@@ -2,6 +2,7 @@
   <div class="full_width">
     <div class="horizontal-left-content full_width gap-small">
       <VAutocomplete
+        ref="autocomplete"
         url="/sources/autocomplete"
         min="3"
         param="term"
@@ -66,7 +67,7 @@ import { ActionNames } from '../../store/actions/actions'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 import { useStore } from 'vuex'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import ButtonPinned from '@/components/ui/Button/ButtonPinned.vue'
@@ -76,6 +77,14 @@ import PdfButton from '@/components/ui/Button/ButtonPdf'
 import CitationPages from '../citationPages.vue'
 import SoftValidation from '@/components/soft_validations/objectValidation.vue'
 import FormCitationClone from '@/components/Form/FormCitation/FormCitationClone.vue'
+
+const autocomplete = ref(null)
+
+function focus() {
+  autocomplete.value?.setFocus()
+}
+
+defineExpose({ focus })
 
 let autosave = null
 

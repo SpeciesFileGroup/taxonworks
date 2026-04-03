@@ -3,6 +3,7 @@
     <div class="field label-above">
       <label>Verbatim author</label>
       <input
+        ref="verbatimAuthorInput"
         type="text"
         class="w-96"
         v-model="verbatimAuthor"
@@ -21,10 +22,18 @@
 
 <script setup>
 import { useStore } from 'vuex'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 import { vNumberOnly } from '@/directives/index.js'
+
+const verbatimAuthorInput = ref(null)
+
+function focus() {
+  verbatimAuthorInput.value?.focus()
+}
+
+defineExpose({ focus })
 
 const store = useStore()
 

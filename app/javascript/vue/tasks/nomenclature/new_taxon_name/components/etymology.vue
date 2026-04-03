@@ -52,6 +52,10 @@ export default {
     }
   },
   methods: {
+    focus() {
+      this.$refs.etymologyText?.setFocus()
+    },
+
     updateLastChange() {
       this.$store.commit(MutationNames.UpdateLastChange)
     }

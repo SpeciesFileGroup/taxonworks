@@ -14,7 +14,10 @@
         use-index
         v-model="tabIndex"
       />
-      <component :is="componentName" />
+      <component
+        :is="componentName"
+        ref="activeTab"
+      />
     </template>
   </block-layout>
 </template>
@@ -97,6 +100,10 @@ export default {
   },
 
   methods: {
+    focus() {
+      this.$refs.activeTab?.focus?.()
+    },
+
     setTabView() {
       if (this.verbatimFieldsWithData) {
         return TAB.Verbatim
