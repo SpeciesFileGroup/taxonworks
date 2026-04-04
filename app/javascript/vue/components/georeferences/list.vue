@@ -102,6 +102,8 @@ const deleteItem = (item) => {
 }
 
 function getCoordinates(geometry) {
-  return formatGeoJsonGeometryForDisplay(geometry)
+  return geometry
+    ? formatGeoJsonGeometryForDisplay(geometry)
+    : 'Available after save'
 }
 </script>

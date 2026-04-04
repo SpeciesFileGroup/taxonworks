@@ -124,7 +124,11 @@ function getCoordinatesByType(object) {
     return object.iframe_response
   }
 
-  return formatGeoJsonGeometryForDisplay(geojsonObject(object).geometry)
+  const geometry = geojsonObject(object).geometry
+
+  return geometry
+    ? formatGeoJsonGeometryForDisplay(geometry)
+    : 'Available after save'
 }
 
 function isTmpWkt(object) {

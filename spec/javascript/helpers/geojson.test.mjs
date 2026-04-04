@@ -25,6 +25,19 @@ test('formatGeoJsonGeometryForDisplay formats point coordinates in latitude/long
   )
 })
 
+test('formatGeoJsonGeometryForDisplay throws when geometry is missing', () => {
+  assert.throws(() => formatGeoJsonGeometryForDisplay(undefined), TypeError)
+})
+
+test('formatGeoJsonGeometryForDisplay throws when coordinates are invalid', () => {
+  const geometry = {
+    type: 'Point',
+    coordinates: null
+  }
+
+  assert.throws(() => formatGeoJsonGeometryForDisplay(geometry), TypeError)
+})
+
 test('formatGeoJsonGeometryForDisplay formats multipoint coordinates recursively', () => {
   const geometry = {
     type: 'MultiPoint',

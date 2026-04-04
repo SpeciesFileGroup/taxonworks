@@ -6,11 +6,11 @@ module DwcOccurrencesHelper
   def display_footprint_wkt(value, max_length: 100)
     return value if value.blank?
 
-    string = value.to_s
+    wkt = value.to_s
 
-    return string if string.lstrip.start_with?('POINT') || string.length <= max_length
+    return wkt if wkt.lstrip.start_with?('POINT') || wkt.length <= max_length
 
-    "#{string[0, max_length]}..."
+    "#{wkt[0, max_length]}..."
   end
 
   def format_dwc_occurrence_attributes_for_ui(attributes)

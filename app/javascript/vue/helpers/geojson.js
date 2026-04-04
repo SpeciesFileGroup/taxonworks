@@ -6,7 +6,7 @@ export function convertToLatLongOrder(coordinate) {
 
 function convertCoordinatesToLatLongOrder(coordinates) {
   if (!Array.isArray(coordinates)) {
-    return coordinates
+    throw new TypeError('GeoJSON coordinates must be an array')
   }
 
   if (typeof coordinates[0] === 'number') {
@@ -19,10 +19,6 @@ function convertCoordinatesToLatLongOrder(coordinates) {
 }
 
 function serializeGeoJsonGeometry(geometry) {
-  if (!geometry) {
-    return 'Available after save'
-  }
-
   if (geometry.type === 'GeometryCollection') {
     return JSON.stringify(
       geometry.geometries.map((item) => ({
