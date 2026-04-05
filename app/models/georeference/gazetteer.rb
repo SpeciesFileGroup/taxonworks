@@ -3,6 +3,7 @@ class Georeference::Gazetteer < Georeference
 
   before_validation :set_geographic_item_from_gazetteer
 
+  validates :gazetteer_id, presence: true
   validate :gazetteer_exists, if: -> { gazetteer_id.present? }
 
   def dwc_georeference_attributes(h = {})

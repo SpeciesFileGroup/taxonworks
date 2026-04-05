@@ -24,6 +24,15 @@ describe Georeference::Gazetteer, type: :model, group: :geo do
     expect(georeference.errors[:gazetteer_id]).to be_present
   end
 
+  specify 'is invalid without a gazetteer_id' do
+    georeference = described_class.new(
+      collecting_event:
+    )
+
+    expect(georeference).to be_invalid
+    expect(georeference.errors[:gazetteer_id]).to be_present
+  end
+
   context 'destroying with shared geographic items' do
     specify 'destroys a shared geographic_item only after the georeference is destroyed second' do
       gi = FactoryBot.create(:geographic_item_with_polygon)
