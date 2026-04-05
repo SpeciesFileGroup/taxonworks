@@ -31,6 +31,8 @@ class Gazetteer < ApplicationRecord
   include Shared::AlternateValues
   include Shared::IsData
 
+  attr_accessor :geographic_item_id_for_cleanup
+
   ALTERNATE_VALUES_FOR = [:name].freeze
 
   GZ_DATA_ORIGIN = 'TaxonWorks Gazetteer'.freeze
@@ -55,6 +57,7 @@ class Gazetteer < ApplicationRecord
   validate :iso_3166_a2_is_two_characters
   validate :iso_3166_a3_is_three_characters
 
+  before_destroy :capture_geographic_item_id_for_cleanup
   after_destroy :destroy_geographic_item_if_orphaned
 
   accepts_nested_attributes_for :geographic_item
@@ -551,6 +554,13 @@ class Gazetteer < ApplicationRecord
   end
 
   def destroy_geographic_item_if_orphaned
-    geographic_item&.destroy! if geographic_item&.unreferenced_for_cleanup?
+    item = GeographicItem.find_by(id: geographic_item_id_for_cleanup)
+    item&.destroy! if item&.unreferenced_for_cleanup?
+  end
+
+  def capture_geographic_item_id_for_cleanup
+    # Capture id before destroy so cleanup does not depend on association state
+    # on the destroyed record.
+    self.geographic_item_id_for_cleanup = geographic_item_id
   end
 end

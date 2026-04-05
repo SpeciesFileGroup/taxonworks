@@ -177,17 +177,16 @@ module ApplicationEnumeration
 
   # @param object [ApplicationRecord]
   # @param ignore [Array<Symbol>] additional relation names to ignore
-  # @param ignore_cached_relations [Boolean] when true, cached/computed relations are auto-excluded
   # @return [Boolean]
   #   true if object has no data in any has_many or has_one associations
   #   Excludes `through` associations and cached/computed relations.
-  def self.no_related_data?(object, ignore: [], ignore_cached_relations: true)
-    excluded = (ignore_cached_relations ? EXCLUDE_RELATIONS_FOR_RELATED_DATA : []) + ignore
+  def self.no_related_data?(object, ignore: [])
+    excluded = EXCLUDE_RELATIONS_FOR_RELATED_DATA + ignore
 
     (klass_reflections(object.class, :has_many) + klass_reflections(object.class, :has_one)).each do |relation|
       next if relation.options[:through].present?
       next if excluded.include?(relation.name)
-      next if ignore_cached_relations && relation.options[:foreign_key]&.match?(/cache/)
+      next if relation.options[:foreign_key]&.match?(/cache/)
 
       related = object.send(relation.name)
 

@@ -58,6 +58,47 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
     expect(s.dwc_occurrence.reload.decimalLatitude).to eq(g.latitude)
   end
 
+  context 'destroying geographic items' do
+    specify 'destroys the geographic_item when it becomes orphaned' do
+      georeference = FactoryBot.create(:valid_georeference)
+      geographic_item = georeference.geographic_item
+
+      georeference.destroy!
+
+      expect(GeographicItem.where(id: geographic_item.id).exists?).to be(false)
+    end
+
+    specify 'destroys the error_geographic_item when it becomes orphaned' do
+      geographic_item = FactoryBot.create(:geographic_item, geography: 'POINT(0 0 0)')
+      error_geographic_item = GeographicItem.create!(geography: 'POLYGON((-1 -1 0, 1 -1 0, 1 1 0, -1 1 0, -1 -1 0))')
+      georeference = FactoryBot.create(:valid_georeference, geographic_item:)
+      georeference.update!(error_geographic_item:)
+
+      georeference.destroy!
+
+      expect(GeographicItem.where(id: error_geographic_item.id).exists?).to be(false)
+    end
+
+    specify 'does not destroy a shared error_geographic_item until the last georeference is destroyed' do
+      error_geographic_item = GeographicItem.create!(geography: 'POLYGON((-1 -1 0, 1 -1 0, 1 1 0, -1 1 0, -1 -1 0))')
+      geographic_item1 = FactoryBot.create(:geographic_item, geography: 'POINT(0 0 0)')
+      geographic_item2 = FactoryBot.create(:geographic_item, geography: 'POINT(0 0 0)')
+      georeference1 = FactoryBot.create(:valid_georeference, geographic_item: geographic_item1, error_geographic_item:)
+      georeference2 = FactoryBot.create(
+        :valid_georeference,
+        collecting_event: FactoryBot.create(:valid_collecting_event),
+        geographic_item: geographic_item2,
+        error_geographic_item:
+      )
+
+      georeference1.destroy!
+      expect(GeographicItem.where(id: error_geographic_item.id).exists?).to be(true)
+
+      georeference2.destroy!
+      expect(GeographicItem.where(id: error_geographic_item.id).exists?).to be(false)
+    end
+  end
+
 
   context 'associations' do
     context 'belongs_to' do

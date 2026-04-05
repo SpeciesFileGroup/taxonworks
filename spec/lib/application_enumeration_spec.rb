@@ -117,7 +117,7 @@ describe 'ApplicationEnumeration' do
       expect(ae.no_related_data?(lead)).to be false
     end
 
-    specify 'ignores cached relations by default but can include them when requested' do
+    specify 'ignores cached relations by default' do
       geographic_item = FactoryBot.create(:valid_geographic_item)
       CachedMapItem.create!(
         otu: FactoryBot.create(:valid_otu),
@@ -127,7 +127,6 @@ describe 'ApplicationEnumeration' do
       )
 
       expect(ae.no_related_data?(geographic_item)).to be true
-      expect(ae.no_related_data?(geographic_item, ignore_cached_relations: false)).to be false
     end
   end
 

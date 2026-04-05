@@ -374,7 +374,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
     end
 
     context '#unreferenced_for_cleanup?' do
-      specify 'returns false when a cached map item references the geographic_item' do
+      specify 'returns true when only a cached map item references the geographic_item' do
         geographic_item = FactoryBot.create(:valid_geographic_item)
 
         CachedMapItem.create!(
@@ -384,28 +384,44 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
           reference_count: 1
         )
 
-        expect(geographic_item.unreferenced_for_cleanup?).to be false
+        expect(geographic_item.unreferenced_for_cleanup?).to be true
       end
 
-      specify 'returns false when a cached map item translation references the geographic_item' do
+      specify 'returns false when a georeference references the geographic_item' do
         geographic_item = FactoryBot.create(:valid_geographic_item)
 
-        CachedMapItemTranslation.create!(
-          geographic_item:,
-          translated_geographic_item: FactoryBot.create(:valid_geographic_item),
-          cached_map_type: 'CachedMapItem::WebLevel1'
+        FactoryBot.create(
+          :valid_georeference,
+          geographic_item:
         )
 
         expect(geographic_item.unreferenced_for_cleanup?).to be false
       end
 
-      specify 'returns false when the geographic_item is the translated target of a cached map item translation' do
+      specify 'returns false when a georeference references the geographic_item as an error shape' do
+        geographic_item = FactoryBot.create(:valid_geographic_item)
+        georeference = FactoryBot.build(:valid_georeference)
+        georeference.error_geographic_item = geographic_item
+        georeference.save!
+
+        expect(geographic_item.unreferenced_for_cleanup?).to be false
+      end
+
+      specify 'returns false when a gazetteer references the geographic_item' do
         geographic_item = FactoryBot.create(:valid_geographic_item)
 
-        CachedMapItemTranslation.create!(
-          geographic_item: FactoryBot.create(:valid_geographic_item),
-          translated_geographic_item: geographic_item,
-          cached_map_type: 'CachedMapItem::WebLevel1'
+        FactoryBot.create(:valid_gazetteer, geographic_item:)
+
+        expect(geographic_item.unreferenced_for_cleanup?).to be false
+      end
+
+      specify 'returns false when a geographic area geographic item references the geographic_item' do
+        geographic_item = FactoryBot.create(:valid_geographic_item)
+
+        FactoryBot.create(
+          :geographic_areas_geographic_item,
+          geographic_area: FactoryBot.create(:valid_geographic_area),
+          geographic_item:
         )
 
         expect(geographic_item.unreferenced_for_cleanup?).to be false
