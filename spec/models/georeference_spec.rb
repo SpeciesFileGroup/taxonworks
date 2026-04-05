@@ -79,6 +79,7 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
       expect(GeographicItem.where(id: error_geographic_item.id).exists?).to be(false)
     end
 
+    # I don't think this scenario can happen from the UI, but the model allows it.
     specify 'does not destroy a shared error_geographic_item until the last georeference is destroyed' do
       error_geographic_item = GeographicItem.create!(geography: 'POLYGON((-1 -1 0, 1 -1 0, 1 1 0, -1 1 0, -1 -1 0))')
       geographic_item1 = FactoryBot.create(:geographic_item, geography: 'POINT(0 0 0)')
@@ -97,6 +98,24 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
       georeference2.destroy!
       expect(GeographicItem.where(id: error_geographic_item.id).exists?).to be(false)
     end
+
+    # I don't think this scenario can happen from the UI, but the model allows it.
+    specify 'does not destroy a shared geographic_item until the last georeference is destroyed' do
+      geographic_item = FactoryBot.create(:valid_geographic_item)
+
+      georeference1 = FactoryBot.create(:valid_georeference, geographic_item:)
+      georeference2 = FactoryBot.create(
+        :valid_georeference,
+        collecting_event: FactoryBot.create(:valid_collecting_event),
+        geographic_item:
+      )
+
+      georeference1.destroy!
+      expect(GeographicItem.where(id: geographic_item.id).exists?).to be(true)
+
+      georeference2.destroy!
+      expect(GeographicItem.where(id: geographic_item.id).exists?).to be(false)
+    end
   end
 
 
@@ -114,6 +133,7 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
         expect(georeference.collecting_event = CollectingEvent.new).to be_truthy
       end
     end
+
   end
 
   context 'georeference role' do
