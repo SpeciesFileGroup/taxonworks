@@ -29,6 +29,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4852]: https://github.com/SpeciesFileGroup/taxonpages/issues/4852
 [#4853]: https://github.com/SpeciesFileGroup/taxonpages/issues/4853
 [#4864]: https://github.com/SpeciesFileGroup/taxonpages/issues/4864
+[#4866]: https://github.com/SpeciesFileGroup/taxonpages/issues/4866
 
 ## [0.61.0] - 2026-02-20
 
