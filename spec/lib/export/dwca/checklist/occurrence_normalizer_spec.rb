@@ -757,9 +757,16 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
           'taxon_name_cached_valid_taxon_name_id' => 999
         }
 
-        result = normalizer.send(:determine_accepted_name_usage, taxon, 7, { 100 => 'some-uuid' })
+        result = normalizer.send(
+          :determine_accepted_name_usage,
+          taxon,
+          7,
+          100,
+          {},
+          { 100 => 'some-uuid' }
+        )
 
-        expect(result).to eq([nil, 'synonym'])
+        expect(result).to eq([nil, 'synonym', nil])
       end
 
       specify 'build_final_taxon returns nil for a synonym whose accepted name is absent from the export' do
