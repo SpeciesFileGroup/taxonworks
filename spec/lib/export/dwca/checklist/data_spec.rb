@@ -654,7 +654,7 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
             csv_content = data.species_distribution_extension_tmp.read
             dist_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
 
-            otu1_rows = dist_csv.select { |row| row['id'] == otu1.identifiers.first.cached }
+            otu1_rows = dist_csv.select { |row| row['id'] == otu1.uuid }
             matching_rows = otu1_rows.select { |row| row['locality'] == 'Shared export locality' }
 
             expect(matching_rows.size).to eq(1)
@@ -784,7 +784,7 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
             csv_content = data_with_extension.references_extension_tmp.read
             refs_csv = CSV.parse(csv_content, headers: true, col_sep: "\t")
 
-            rows_for_otu1 = refs_csv.select { |row| row['id'] == otu1.identifiers.first.cached }
+            rows_for_otu1 = refs_csv.select { |row| row['id'] == otu1.uuid }
             citations = rows_for_otu1.map { |row| row['bibliographicCitation'] }
 
             expect(citations.count(source1.cached)).to eq(1)
@@ -1693,8 +1693,8 @@ describe Export::Dwca::Checklist::Data, type: :model, group: :darwin_core do
 
           csv = CSV.parse(data.csv, headers: true, col_sep: "\t")
 
-          accepted_row = csv.find { |row| row['taxonID'] == accepted_combination_otu.identifiers.first.cached }
-          combination_row = csv.find { |row| row['taxonID'] == old_combination_otu.identifiers.first.cached }
+          accepted_row = csv.find { |row| row['taxonID'] == accepted_combination_otu.uuid }
+          combination_row = csv.find { |row| row['taxonID'] == old_combination_otu.uuid }
 
           expect(accepted_row).to be_present
           expect(combination_row).to be_nil

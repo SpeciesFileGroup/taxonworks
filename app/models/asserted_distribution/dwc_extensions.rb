@@ -174,8 +174,4 @@ module AssertedDistribution::DwcExtensions
   #   h
   # end
 
-  def dwc_otu_id
-    otu&.id
-  end
-
 end

@@ -105,6 +105,19 @@ module Shared::IsDwcOccurrence
     end
   end
 
+  # @return [Integer, nil]
+  #   TaxonWorks OTU id included on the denormalized DwcOccurrence row.
+  def dwc_otu_id
+    case self.class.base_class.name
+    when 'CollectionObject', 'FieldOccurrence'
+      current_otu&.id
+    when 'AssertedDistribution'
+      otu&.id
+    else
+      raise NotImplementedError, "Unhandled dwc_otu_id for #{self.class.base_class.name}"
+    end
+  end
+
   # @return Hash
   #   of field: value
   #

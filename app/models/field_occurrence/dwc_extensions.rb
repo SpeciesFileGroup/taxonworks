@@ -303,8 +303,4 @@ module FieldOccurrence::DwcExtensions
     current_otu.try(:taxon_name).try(:nomenclatural_code)
   end
 
-  def dwc_otu_id
-    current_otu&.id
-  end
-
 end

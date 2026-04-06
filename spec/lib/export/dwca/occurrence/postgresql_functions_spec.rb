@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe Export::Dwca::Occurrence::PostgresqlFunctions, type: :model do
+  include IsDwcOccurrenceHelper
+
   # Create a minimal test class to include the module
   let(:test_class) do
     Class.new do
@@ -170,15 +172,10 @@ RSpec.describe Export::Dwca::Occurrence::PostgresqlFunctions, type: :model do
 
   describe 'dwc_occurrence model types' do
     specify 'only expected model types can be dwc_occurrence_object_type' do
-      actual_models = ApplicationRecord.descendants.select do |model|
-        model.included_modules.include?(Shared::IsDwcOccurrence) &&
-        model.base_class == model
-      end.map(&:name).sort
-
       expected_models = ['AssertedDistribution', 'CollectionObject', 'FieldOccurrence'].sort
 
-      expect(actual_models).to match_array(expected_models),
-        "Found unexpected DwcOccurrence base models: #{actual_models}. " \
+      expect(direct_is_dwc_occurrence_class_names).to match_array(expected_models),
+        "Found unexpected DwcOccurrence base models: #{direct_is_dwc_occurrence_class_names}. " \
         "If new models were added, update Export::Dwca::Occurrence::PostgresqlFunctions#create_api_link_for_model_id_function"
     end
   end

@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 describe 'IsIndexedBiologicalAssociation', type: :model do
+  include ValidFactoryHelper
+
   let(:biological_association) { FactoryBot.create(:valid_biological_association) }
 
   context 'associations' do
@@ -244,12 +246,12 @@ describe 'IsIndexedBiologicalAssociation', type: :model do
     let(:biological_relationship) { FactoryBot.create(:valid_biological_relationship) }
 
     def create_biologically_relatable(type)
-      factory_name = "valid_#{type.underscore}"
+      factory_name = valid_factory_for_type(type).name
       # CollectionObject needs no_dwc_occurrence: false to generate a UUID via dwc_occurrence_id
       if type == 'CollectionObject'
-        FactoryBot.create(factory_name.to_sym, no_dwc_occurrence: false)
+        FactoryBot.create(factory_name, no_dwc_occurrence: false)
       else
-        FactoryBot.create(factory_name.to_sym)
+        FactoryBot.create(factory_name)
       end
     end
 
