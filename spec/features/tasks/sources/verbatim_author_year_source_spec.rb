@@ -20,6 +20,8 @@ describe 'Verbatim author year to source', type: :feature, group: :sources do
           Current.project_id = @project.id
         end
 
+        after { Current.reset }
+
         let!(:taxon_name1) {
           FactoryBot.create(:valid_protonym,
             verbatim_author: 'Smith',
