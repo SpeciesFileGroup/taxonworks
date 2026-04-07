@@ -369,16 +369,16 @@ class Otu < ApplicationRecord
 
     if target && !r.empty?
       h[:recent] = (
-        q.where(id: r.first(10) ).to_a +
+        q.where(id: r.first(10) ).sort_by { |o| r.index(o.id) || r.length } +
         q.where(created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('updated_at DESC').limit(3).to_a
-      ).uniq.sort{|a,b| a.otu_name <=> b.otu_name}
+      ).uniq
       h[:quick] = (
         q.pinned_by(user_id).to_a +
         q.where(created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('updated_at DESC').limit(1).to_a +
         q.where(id: r.first(4) ).to_a
       ).uniq.sort{|a,b| a.otu_name <=> b.otu_name}
     else
-      h[:recent] = q.order(updated_at: :desc).limit(10).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
+      h[:recent] = q.order(updated_at: :desc).limit(10).to_a
 
       h[:quick] = q.pinned_by(user_id).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
     end

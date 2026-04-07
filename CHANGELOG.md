@@ -17,6 +17,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 - Updated Ruby gems
 - Upgraded to Node 24 LTS
+- OTU Smart Selector now sorts recent list by most recently used [#4865]
 
 ### Fixed
 
@@ -29,6 +30,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4852]: https://github.com/SpeciesFileGroup/taxonpages/issues/4852
 [#4853]: https://github.com/SpeciesFileGroup/taxonpages/issues/4853
 [#4864]: https://github.com/SpeciesFileGroup/taxonpages/issues/4864
+[#4865]: https://github.com/SpeciesFileGroup/taxonpages/issues/4865
 [#4866]: https://github.com/SpeciesFileGroup/taxonpages/issues/4866
 
 ## [0.61.0] - 2026-02-20
