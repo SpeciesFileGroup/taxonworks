@@ -103,7 +103,7 @@
               <template v-else>
                 <label
                   class="cursor-pointer"
-                  @click="sendObject(item)"
+                  @click.prevent="sendObject(item)"
                 >
                   <input
                     :name="name"

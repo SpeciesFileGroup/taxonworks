@@ -25,6 +25,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - New collecting event form: Allows to create georeferences with invalid coordinates from verbatim data
 - New BA: Delete a biological association redirects to the wrong page instead of refreshing the table [#4864]
 - New OTU Widget: Autocomplete list overlays create button [#4866]
+- Sometimes smart selectors trigger selected event twice
 
 [#4851]: https://github.com/SpeciesFileGroup/taxonpages/issues/4851
 [#4852]: https://github.com/SpeciesFileGroup/taxonpages/issues/4852
