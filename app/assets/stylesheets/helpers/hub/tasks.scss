@@ -7,6 +7,8 @@
 
   .task-section {
     display: flex;
+    margin-top: $standard_margin;
+    gap: $standard_margin;
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: flex-start;
@@ -60,9 +62,6 @@
     display: none;
     flex-direction: row;
     position: relative;
-    margin-left: 0px;
-    margin-top: $standard_margin;
-    margin-right: $standard_margin;
     width: 420px;
     max-height: 180px;
     min-height: 160px;
@@ -71,7 +70,9 @@
     background-color: var(--panel-bg-color);
     color: var(--text-color);
     box-shadow: rgba(36, 37, 38, 0.08) 4px 4px 15px 0px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition:
+      transform 0.3s ease,
+      box-shadow 0.3s ease;
     .task_header {
       opacity: 0.2;
       overflow: hidden;
@@ -79,12 +80,21 @@
     a {
       flex-grow: 1;
     }
+
+    .task-content {
+      height: 100%;
+      display: flex;
+    }
   }
 
   .task_card:hover {
-    transition: background-color 0.5s ease, box-shadow 0.5s ease;
+    transition:
+      background-color 0.5s ease,
+      box-shadow 0.5s ease;
     box-shadow: 0px 3px 5px 0px rgba(0, 0, 0, 0.3);
-    transition: background-color 0.5s ease, transform 0.3s ease,
+    transition:
+      background-color 0.5s ease,
+      transform 0.3s ease,
       box-shadow 0.3s ease;
     .filter_data {
       opacity: 1;
@@ -103,7 +113,7 @@
   }
 
   .task-information {
-    margin-left: 30px;
+    padding: $standard_padding;
   }
 
   .fav-link {
@@ -128,7 +138,6 @@
   .task_header {
     width: 34px;
     display: flex;
-    position: absolute;
     border-bottom: 1px solid var(--border-color);
     padding: $standard_padding * 0.5;
     padding-left: $standard_padding;
@@ -188,9 +197,6 @@
   .task_name {
     font-size: 18px;
     max-width: 330px;
-    padding: $standard_padding * 0.25;
-    padding-left: $standard_padding;
-    padding-top: $standard_padding;
     a {
       color: $color-secondary-2-4;
     }
@@ -218,7 +224,7 @@
     line-height: 20px;
     max-width: 350px;
     color: var(--text-color);
-    padding-left: $standard_padding * 1.4;
+    padding-top: $standard_padding * 0.5;
   }
 
   .navigation {
