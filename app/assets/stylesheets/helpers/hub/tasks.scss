@@ -1,4 +1,17 @@
 // Styling particular to the hub controller and views
+// NOTE: #task_carrousel is a typo for "carousel", but the ID is referenced
+// across multiple JS files and views — do not rename without updating all references.
+
+@keyframes task-card-show {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
 
 #task_carrousel {
   display: flex;
@@ -7,54 +20,24 @@
 
   .task-section {
     display: flex;
-    margin-top: $standard_margin;
-    gap: $standard_margin;
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: flex-start;
-    width: auto;
-    height: auto;
     align-content: flex-start;
-  }
-
-  @keyframes show {
-    0% {
-      opacity: 0;
-      transform: scale(0);
-    }
-    100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-
-  @keyframes hide {
-    0% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    100% {
-      opacity: 0;
-      transform: scale(0);
-    }
+    gap: $standard_margin;
+    margin-top: $standard_margin;
   }
 
   .show {
-    animation-name: show !important;
     display: flex !important;
-    animation-name: show;
+    animation-name: task-card-show;
     animation-duration: 0.2s;
     animation-timing-function: ease;
     animation-fill-mode: forwards;
   }
 
   .hide {
-    animation-name: show !important;
     display: none !important;
-    animation-name: show;
-    animation-duration: 0.2s;
-    animation-timing-function: ease;
-    animation-fill-mode: forwards;
   }
 
   .task_card {
@@ -73,10 +56,12 @@
     transition:
       transform 0.3s ease,
       box-shadow 0.3s ease;
+
     .task_header {
       opacity: 0.2;
       overflow: hidden;
     }
+
     a {
       flex-grow: 1;
     }
@@ -85,23 +70,22 @@
       height: 100%;
       display: flex;
     }
-  }
 
-  .task_card:hover {
-    transition:
-      background-color 0.5s ease,
-      box-shadow 0.5s ease;
-    box-shadow: 0px 3px 5px 0px rgba(0, 0, 0, 0.3);
-    transition:
-      background-color 0.5s ease,
-      transform 0.3s ease,
-      box-shadow 0.3s ease;
-    .filter_data {
-      opacity: 1;
-    }
-    .task_header {
-      transition: opacity 0.5s ease;
-      opacity: 1;
+    &:hover {
+      box-shadow: 0px 3px 5px 0px rgba(0, 0, 0, 0.3);
+      transition:
+        background-color 0.5s ease,
+        transform 0.3s ease,
+        box-shadow 0.3s ease;
+
+      .filter_data {
+        opacity: 1;
+      }
+
+      .task_header {
+        transition: opacity 0.5s ease;
+        opacity: 1;
+      }
     }
   }
 
@@ -109,7 +93,6 @@
     box-sizing: border-box;
     width: 100%;
     height: 100%;
-    border-radius: 0px;
   }
 
   .task-information {
@@ -118,43 +101,45 @@
 
   .fav-link {
     position: absolute;
-    right: 14px;
+    inset-inline-end: 14px;
     top: 12px;
-  }
 
-  .fav-link a {
-    padding: 8px;
-    border-radius: 100%;
-  }
+    a {
+      padding: 8px;
+      border-radius: 100%;
+    }
 
-  .fav-link .unfavorite_link:hover {
-    animation: pulse-red 2s infinite;
-  }
+    .unfavorite_link:hover {
+      animation: pulse-red 2s infinite;
+    }
 
-  .fav-link .favourite_link:hover {
-    animation: pulse-green 2s infinite;
+    .favourite_link:hover {
+      animation: pulse-green 2s infinite;
+    }
   }
 
   .task_header {
     width: 34px;
+    padding-top: 0.5rem;
+    gap: 0.25rem;
     display: flex;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     border-bottom: 1px solid var(--border-color);
-    padding: $standard_padding * 0.5;
-    padding-left: $standard_padding;
-    padding-right: $standard_padding;
 
     .status:first-letter {
       text-transform: uppercase;
     }
 
     .categories {
-      margin: 8px;
-      margin-top: 12px;
       font-size: 0px !important;
-      width: 18px;
-      height: 18px;
+      width: 20px;
+      height: 20px;
+      min-height: 20px;
       background-repeat: no-repeat;
       background-size: 14px;
+      background-position: center;
     }
 
     .source {
@@ -163,6 +148,14 @@
 
     .collecting_event {
       background-image: image-url('geo_location.svg');
+    }
+
+    .filters {
+      background-image: image-url('filter.svg');
+    }
+
+    .new {
+      background-image: image-url('pencil.svg');
     }
 
     .biology {
@@ -197,6 +190,7 @@
   .task_name {
     font-size: 18px;
     max-width: 330px;
+
     a {
       color: $color-secondary-2-4;
     }
@@ -213,6 +207,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-end;
+
     a {
       margin-left: 5px;
     }
@@ -229,25 +224,27 @@
 
   .navigation {
     display: flex;
-    background-color: var(--panel-bg-color);
     flex-direction: row;
     justify-content: center;
-    order: -1;
     align-items: center;
+    order: -1;
     min-height: 42px;
     min-width: 450px;
-    border-radius: var(--border-radius-medium);
     padding: 4px 8px;
+    background-color: var(--panel-bg-color);
+    border-radius: var(--border-radius-medium);
+
+    a {
+      display: flex;
+      cursor: pointer;
+    }
   }
 
-  .navigation a {
-    display: flex;
-    cursor: pointer;
-  }
   .navigation-arrows {
     display: flex;
     flex-direction: row;
   }
+
   .navigation-arrow {
     display: flex;
     padding: 5px;
@@ -263,6 +260,10 @@
     margin: 0.5em;
     margin-bottom: 0px;
     cursor: pointer;
+
+    @media screen and (min-height: 1000px) {
+      position: fixed;
+    }
   }
 
   .no-tasks {
@@ -271,8 +272,8 @@
 
   .task-nav-list {
     display: flex;
-    flex-wrap: wrap;
     flex-direction: row;
+    flex-wrap: wrap;
     align-items: center;
 
     .task-nav-item {
@@ -282,16 +283,10 @@
       height: 15px;
       margin: 5px;
       cursor: pointer;
-    }
-    .active {
-      background-color: $default_text;
-      width: 15px;
-      height: 15px;
-    }
-  }
-  @media screen and (min-height: 1000px) {
-    .more_tasks_nav {
-      position: fixed !important;
+
+      &.active {
+        background-color: $default_text;
+      }
     }
   }
 }

@@ -109,9 +109,11 @@
       background-color: #35c94a !important;
     }
 
-    img {
-      padding-right: 5px;
-      opacity: 0.8;
+    [data-filter-category] {
+      gap: 0.5rem;
+      img {
+        opacity: 0.8;
+      }
     }
 
     .flexbox {
@@ -219,13 +221,13 @@
       border-right: 0px;
       background-color: var(--bg-color);
     }
-  }
 
-  .status {
-    border-radius: 50%;
-    font-size: 0px;
-    width: 12px;
-    height: 12px;
+    .status {
+      border-radius: 50%;
+      font-size: 0px;
+      width: 12px;
+      height: 12px;
+    }
   }
 
   .status.unknown {
