@@ -94,6 +94,8 @@ class ObservationMatrix < ApplicationRecord
 
   # @return True if every descriptor is a media descriptor
   def is_media_matrix?
+    return false if observation_matrix_columns.empty?
+
     observation_matrix_columns.each do |c|
       return false unless c.descriptor.type == 'Descriptor::Media'
     end

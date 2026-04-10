@@ -28,6 +28,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Sometimes smart selectors trigger selected event twice
 - Filter Collecting Event can return an error from the Matching Identifiers facet when the "Internal" type is set but none of the identifiers provided are internal (i.e. numeric)
 - Unable to delete descriptor character states from the New Descriptor interface
+- Don't label 0-column matrices as image matrices in the Observation Matrix Hub
 
 [#4851]: https://github.com/SpeciesFileGroup/taxonpages/issues/4851
 [#4852]: https://github.com/SpeciesFileGroup/taxonpages/issues/4852
