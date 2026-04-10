@@ -284,6 +284,24 @@ class LeadsController < ApplicationController
 
   end
 
+  def api_remaining_otus
+    lead = Lead.find(params[:id])
+
+    @otus = lead.remaining_otus
+
+    render '/leads/api/v1/otus'
+
+  end
+
+  def api_eliminated_otus
+    lead = Lead.find(params[:id])
+
+    @otus = lead.eliminated_otus
+
+    render '/leads/api/v1/otus'
+
+  end
+
   def autocomplete
     @leads = ::Queries::Lead::Autocomplete.new(
       params.require(:term),

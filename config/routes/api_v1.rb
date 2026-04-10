@@ -181,6 +181,9 @@ namespace :api, defaults: {format: :json} do
       get '/sounds/:id', to: '/sounds#api_show'
 
       get '/leads/key/:id', to: '/leads#api_key'
+
+      get '/leads/:id/eliminated_otus', to: '/leads#api_eliminated_otus'
+      get '/leads/:id/remaining_otus', to: '/leads#api_remaining_otus'
     end
 
     # Authenticate membership at the data controller level
