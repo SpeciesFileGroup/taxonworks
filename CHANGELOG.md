@@ -27,6 +27,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - New OTU Widget: Autocomplete list overlays create button [#4866]
 - Sometimes smart selectors trigger selected event twice
 - Filter Collecting Event can return an error from the Matching Identifiers facet when the "Internal" type is set but none of the identifiers provided are internal (i.e. numeric)
+- Unable to delete descriptor character states from the New Descriptor interface
 
 [#4851]: https://github.com/SpeciesFileGroup/taxonpages/issues/4851
 [#4852]: https://github.com/SpeciesFileGroup/taxonpages/issues/4852
