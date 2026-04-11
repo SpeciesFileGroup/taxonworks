@@ -52,6 +52,38 @@ doi:10.1145/3274442
         v-model="citation"
         placeholder="DOI or citation to find..."
       />
+
+      <div
+        v-if="errorDetails"
+        class="crossref-error-details margin-large-top"
+      >
+        <p>{{ errorDetails.error }}</p>
+        <button
+          type="button"
+          class="button button-default normal-input"
+          @click="showErrorDetails = !showErrorDetails"
+        >
+          {{ showErrorDetails ? 'Hide error details' : 'Show error details' }}
+        </button>
+        <div v-if="showErrorDetails">
+          <p v-if="errorDetails.doi">
+            DOI:
+            <a
+              :href="doiUrl(errorDetails.doi)"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {{ errorDetails.doi }}
+            </a>
+          </p>
+          <div
+            v-if="errorDetails.bibtex"
+            class="crossref-error-bibtex"
+          >
+            {{ errorDetails.bibtex }}
+          </div>
+        </div>
+      </div>
     </template>
     <template #footer>
       <div class="flex-separate separate-top">
@@ -91,6 +123,8 @@ const store = useSourceStore()
 const citation = ref('')
 const found = ref(true)
 const isSearching = ref(false)
+const errorDetails = ref(null)
+const showErrorDetails = ref(false)
 
 const textareaRef = useTemplateRef('textarea')
 
@@ -103,6 +137,8 @@ onMounted(() => {
 function getSource() {
   isSearching.value = true
   store.reset()
+  errorDetails.value = null
+  showErrorDetails.value = false
 
   AjaxCall(
     'get',
@@ -134,7 +170,18 @@ function getSource() {
         )
       }
     })
-    .catch(() => {})
+    .catch((error) => {
+      found.value = false
+      const body = error?.response?.body
+
+      if (body?.bibtex) {
+        errorDetails.value = {
+          error: body.error,
+          doi: body.doi,
+          bibtex: body.bibtex.trim()
+        }
+      }
+    })
     .finally(() => {
       isSearching.value = false
     })
@@ -147,6 +194,10 @@ function setVerbatim() {
   })
   emit('close', true)
 }
+
+function doiUrl(doi) {
+  return `https://doi.org/${encodeURI(doi)}`
+}
 </script>
 
 <style scoped>
@@ -155,5 +206,11 @@ function setVerbatim() {
 }
 textarea {
   height: 100px;
+}
+
+.crossref-error-bibtex {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: monospace;
 }
 </style>

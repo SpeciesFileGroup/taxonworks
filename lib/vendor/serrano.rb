@@ -4,6 +4,16 @@ module Vendor
   module Serrano
     CUTOFF = 50.0
 
+    class CrossrefBibtexParseError < StandardError
+      attr_reader :doi, :bibtex
+
+      def initialize(doi:, bibtex:, message:)
+        super(message)
+        @doi = doi
+        @bibtex = bibtex
+      end
+    end
+
     # @return [Float]
     def self.cutoff
       CUTOFF
@@ -52,9 +62,12 @@ module Vendor
 
     # begin
 
+        doi = citation_is_valid_doi?(citation) ? citation : resolve_doi(citation)
+        return Source::Verbatim.new(verbatim: citation) if doi.nil?
+
         # check string encoding, if not UTF-8, check if compatible with UTF-8,
         # if so convert to UTF-8 and parse with latex, else use type verbatim
-        a = get_bibtex_string(citation, 'bibtex')
+        a = get_bibtex_string(doi, 'bibtex')
 
         b = ::Utilities::Strings.encode_with_utf8(a) if a
 
@@ -65,12 +78,12 @@ module Vendor
           rescue BibTeX::ParseError => e
             # Handle year not being parsable but otherwise OK
             unless e.message.include?('Failed to parse BibTeX on value "year"')
-              raise e
+              raise CrossrefBibtexParseError.new(doi: doi, bibtex: b, message: e.message)
             end
             true
           end
 
-          citeproc = get_bibtex_string(citation, 'citeproc')
+          citeproc = get_bibtex_string(doi, 'citeproc')
           bibtex_from_citproc(citeproc, bibtex)
         else
           Source::Verbatim.new(verbatim: a ? a : citation)
@@ -83,23 +96,13 @@ module Vendor
     end
 
     # @return [String, nil] ; format == 'bibtex' or 'citeproc'
-    def self.get_bibtex_string(citation, format = 'bibtex')
+    def self.get_bibtex_string(doi, format = 'bibtex')
       begin
-        # Convert citation to DOI if it isn't already
-        if !citation_is_valid_doi?(citation)
-          # First item should be the one with highest score/relevance: https://github.com/CrossRef/rest-api-doc#sort-order
-          res = ::Serrano.works(query: citation, limit: 1)&.dig("message", "items")&.first
-          # citation = Serrano.works(query: citation)&.dig("message", "items")&.max_by { |i| i["score"] }&.dig("DOI") unless citation_is_valid_doi?(citation)
-
-          score = res&.dig("score") || -1.0
-          citation = (score >= CUTOFF) ? res&.dig("DOI") : nil
-        end
-
         if format == 'bibtex'
-          bibtex = ::Serrano.content_negotiation(ids: unurize_doi(citation), format: "bibtex") unless citation.nil?
+          bibtex = ::Serrano.content_negotiation(ids: unurize_doi(doi), format: "bibtex") unless doi.nil?
           return bibtex =~ /^\s*@/ ? bibtex : nil
         elsif format == 'citeproc'
-          citeproc = ::Serrano.content_negotiation(ids: unurize_doi(citation), format: "citeproc-json") unless citation.nil?
+          citeproc = ::Serrano.content_negotiation(ids: unurize_doi(doi), format: "citeproc-json") unless doi.nil?
           return citeproc
         else
           return nil
@@ -177,6 +180,13 @@ module Vendor
       doi = Identifier::Global::Doi.new(identifier: citation)
       doi.valid?
       !doi.errors.has_key?(:identifier)
+    end
+
+    def self.resolve_doi(citation)
+      # First item should be the one with highest score/relevance: https://github.com/CrossRef/rest-api-doc#sort-order
+      res = ::Serrano.works(query: citation, limit: 1)&.dig('message', 'items')&.first
+      score = res&.dig('score') || -1.0
+      score >= CUTOFF ? res&.dig('DOI') : nil
     end
 
   end
