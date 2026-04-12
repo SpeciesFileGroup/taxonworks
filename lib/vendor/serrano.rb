@@ -92,7 +92,7 @@ module Vendor
       begin
         if format == 'bibtex'
           bibtex = ::Serrano.content_negotiation(ids: unurize_doi(doi), format: "bibtex") unless doi.nil?
-          return bibtex =~ /^\s*@/ ? bibtex : nil
+          return bibtex =~ /\A\s*@/ ? bibtex : nil
         elsif format == 'citeproc'
           citeproc = ::Serrano.content_negotiation(ids: unurize_doi(doi), format: "citeproc-json") unless doi.nil?
           return citeproc

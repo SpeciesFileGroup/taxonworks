@@ -36,6 +36,23 @@ describe Vendor::Serrano, type: :model, group: [:sources] do
         expect(s.verbatim).to eq(citation)
       end
 
+      specify 'when content negotiation returns HTML with a later @ line it is rejected as non-bibtex' do
+        doi = '10.12101/j.issn.1004-390X(n).202209026'
+        html_response = <<~HTML
+          <!DOCTYPE html>
+          <html>
+            <body>
+              <p>Example page</p>
+              @media screen { body { color: black; } }
+            </body>
+          </html>
+        HTML
+
+        allow(::Serrano).to receive(:content_negotiation).with(ids: described_class.unurize_doi(doi), format: 'bibtex').and_return(html_response)
+
+        expect(described_class.get_bibtex_string(doi, 'bibtex')).to be_nil
+      end
+
       specify 'when parsed bibtex fails it raises an error that includes the resolved DOI' do
         doi = '10.3956/2026-102.1.37'
         malformed_bibtex = '@article{Thompson_2026, Jr._Yap_2026, title={Broken}}'
