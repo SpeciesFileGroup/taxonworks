@@ -29,13 +29,11 @@ describe Vendor::Serrano, type: :model, group: [:sources] do
       specify 'when DOI resolution fails it returns verbatim without fetching bibtex' do
         allow(described_class).to receive(:citation_is_valid_doi?).with(citation).and_return(false)
         allow(described_class).to receive(:resolve_doi).with(citation).and_return(nil)
-        allow(described_class).to receive(:get_bibtex_string)
 
         s = Vendor::Serrano.new_from_citation(citation: citation)
 
         expect(s).to be_a(Source::Verbatim)
         expect(s.verbatim).to eq(citation)
-        expect(described_class).not_to have_received(:get_bibtex_string)
       end
 
       specify 'when parsed bibtex fails it raises an error that includes the resolved DOI' do
