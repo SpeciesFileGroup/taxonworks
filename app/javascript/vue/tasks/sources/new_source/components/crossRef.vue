@@ -142,7 +142,8 @@ function getSource() {
 
   AjaxCall(
     'get',
-    `/tasks/sources/new_source/crossref_preview.json?citation=${citation.value}`
+    '/tasks/sources/new_source/crossref_preview.json',
+    { params: { citation: citation.value } }
   )
     .then(({ body }) => {
       if (body.title) {
