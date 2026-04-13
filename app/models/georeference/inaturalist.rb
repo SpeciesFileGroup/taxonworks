@@ -10,10 +10,10 @@ class Georeference::Inaturalist < Georeference
     super(h)
     h.merge!(
       georeferenceSources: 'iNaturalist',
-      georeferenceRemarks: 'Created from a TaxonWorks interface that imports from iNaturalist.')
-    h[:georeferenceProtocol] =  'Extracted from iNatuarlist API based on an iNaturalist observationID' if h[:georeferenceProtocol].blank? 
+      georeferenceRemarks: 'Created from a TaxonWorks interface that imports from iNaturalist.'
+    )
+    h[:georeferenceProtocol] = 'Extracted from iNaturalist API based on an iNaturalist observationID' if h[:georeferenceProtocol].blank?
     h
   end
 
-    
 end

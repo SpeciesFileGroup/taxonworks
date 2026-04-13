@@ -106,12 +106,10 @@ module Vendor
 
       Georeference::Inaturalist.new(
         error_radius: result['positional_accuracy'],
-        geographic_item_attributes: {
-          type: 'GeographicItem::Point',
-          point: "POINT(#{c.first} #{c.second})"
-        }
+        geographic_item: GeographicItem.new(
+          geography: Gis::FACTORY.parse_wkt("POINT(#{c.first} #{c.second})")
+        )
       )
-
     end
 
     def self.stub_images(result)
