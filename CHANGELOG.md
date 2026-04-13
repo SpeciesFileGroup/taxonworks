@@ -12,7 +12,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `subject_otu_id` and `object_otu_id` to biological associations `/api/v1/biological_associations/basic` endpoint
 - Filters: Copy to clipboard button for API Url [#4852]
 - In the New Asserted Distribution task, add map tab to Gazetteer selection for shape [#4853]
-- `/leads/:id/remaining_otus`and `/leads/:id/eliminated_otus` API endpoints
+- `/leads`, `/leads/:id/remaining_otus`and `/leads/:id/eliminated_otus` API endpoints
 
 ### Changed
 

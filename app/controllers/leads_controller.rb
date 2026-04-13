@@ -31,6 +31,12 @@ class LeadsController < ApplicationController
     end
   end
 
+  def api_index
+    @leads = Lead.roots_with_data(sessions_current_project_id, true).where(is_public: true)
+
+    render '/leads/api/v1/index'
+  end
+
   def list
     @leads = Lead.
       roots_with_data(sessions_current_project_id).page(params[:page])
