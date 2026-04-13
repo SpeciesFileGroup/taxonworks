@@ -19,6 +19,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Updated Ruby gems
 - Upgraded to Node 24 LTS
 - OTU Smart Selector now sorts recent list by most recently used [#4865]
+- API endpoint for observation matrices only returns public ones instead of all
 
 ### Fixed
 
