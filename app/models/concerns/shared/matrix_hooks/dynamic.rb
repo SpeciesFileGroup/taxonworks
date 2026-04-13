@@ -18,7 +18,7 @@ module Shared
 
       included do
         before_save :dynamic_inspect_matrices
-        after_save :dynamic_syncronize_matrices, if: -> {dynamic_update_matrix_row_items? || dynamic_update_matrix_column_items?} # must happen after closure_tree updates the hierarchy
+        after_save :dynamic_synchronize_matrices, if: -> {dynamic_update_matrix_row_items? || dynamic_update_matrix_column_items?} # must happen after closure_tree updates the hierarchy
 
         attr_accessor :dynamic_row_items_in, :dynamic_row_items_out, :dynamic_row_out_map
         attr_accessor :dynamic_column_items_in, :dynamic_column_items_out, :dynamic_column_out_map
@@ -140,7 +140,7 @@ module Shared
         end
       end
 
-      def dynamic_syncronize_matrices
+      def dynamic_synchronize_matrices
         dynamic_cleanup_out_of_scope_row_items(@dynamic_row_items_out) if @dynamic_row_items_out
         dynamic_cleanup_in_scope_row_items(@dynamic_row_items_in) if @dynamic_row_items_in
 

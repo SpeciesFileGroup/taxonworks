@@ -2,8 +2,8 @@
 #
 # Does *not* imply an accessioning process.
 #
-# @TODO Validate scope to CollectionObject
-#
+# !! Can be "duplicated", see Identifier::Local uniqueness unless
+# 
 class Identifier::Local::RecordNumber < Identifier::Local
 
   include Shared::DwcOccurrenceHooks

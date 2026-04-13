@@ -2,128 +2,480 @@ require 'rails_helper'
 # require 'support/shared_contexts/shared_geo'
 
 describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :collection_objects, :otus, :shared_geo] do
-  let(:q) { Queries::AssertedDistribution::Filter.new({}) }
+  let(:query) { Queries::AssertedDistribution::Filter }
 
   let(:o1) { FactoryBot.create(:valid_otu) }
   let(:o2) { FactoryBot.create(:valid_otu) }
 
-  let(:ad1) { FactoryBot.create(:valid_asserted_distribution, otu: o1) }
-  let(:ad2) { FactoryBot.create(:valid_asserted_distribution, otu: o2) }
+  let(:ad1) { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o1) }
+  let(:ad2) { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o2) }
+  let(:ad_gz) { FactoryBot.create(:valid_gazetteer_asserted_distribution, asserted_distribution_object: o1) }
 
-  let(:small_polygon) { RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 ) }
-  let(:big_polygon) { RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 10.0, 10.0 ) }
+  let(:small_polygon) { RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10), 0, 0, 5.0, 5.0 ) }
+  let(:big_polygon) { RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10), 0, 0, 10.0, 10.0 ) }
 
   let(:small_geo_area) do
     a = FactoryBot.create(:level1_geographic_area)
-    a.geographic_items << GeographicItem.create!( polygon: small_polygon)
+    a.geographic_items << GeographicItem.create!( geography: small_polygon)
     a
   end
 
   let(:big_geo_area) do
     b = FactoryBot.create(:level1_geographic_area)
-    b.geographic_items << GeographicItem.create!( polygon: big_polygon)
+    b.geographic_items << GeographicItem.create!( geography: big_polygon)
     b
   end
 
-   specify '#taxon_name_id' do
+  let(:small_gz) {
+    FactoryBot.create(:gazetteer,
+    geographic_item:
+      FactoryBot.create(:geographic_item, geography: small_polygon),
+    name: 'small')
+  }
+
+  let(:large_gz) {
+    FactoryBot.create(:gazetteer,
+    geographic_item:
+      FactoryBot.create(:geographic_item, geography: big_polygon),
+    name: 'large')
+  }
+
+  specify '#taxon_name_id' do
     ad1
     ad2 # Not this one
-    o1.update(taxon_name_id: FactoryBot.create(:root_taxon_name).id)
-    q.taxon_name_id = o1.taxon_name_id
+    o1.update!(taxon_name_id: FactoryBot.create(:root_taxon_name).id)
+    q = query.new({taxon_name_id: o1.taxon_name_id})
     expect(q.all.map(&:id)).to contain_exactly(ad1.id)
   end
 
   specify '#geo_json' do
     ad2 # not this
-    b = AssertedDistribution.create!(otu: o1, geographic_area: small_geo_area, source: FactoryBot.create(:valid_source))
-    q.geo_json = big_geo_area.geographic_items.first.to_geo_json
+    b = AssertedDistribution.create!(asserted_distribution_object: o1, asserted_distribution_shape: small_geo_area, source: FactoryBot.create(:valid_source))
+    q = query.new({geo_json: big_geo_area.geographic_items.first.to_geo_json})
     expect(q.all).to contain_exactly(b)
   end
 
-  specify '#geographic_area_id #geographic_area_mode (descendants)' do
+  specify '#geo_shape_id #geo_mode (descendants)' do
     ad2 # not this
 
-    b = AssertedDistribution.create!(otu: o1, geographic_area: big_geo_area, source: FactoryBot.create(:valid_source))
+    b = AssertedDistribution.create!(asserted_distribution_object: o1, asserted_distribution_shape: big_geo_area, source: FactoryBot.create(:valid_source))
 
-    q.geographic_area_id = big_geo_area.parent.id
-    q.geographic_area_mode = false
+    h = {
+      geo_shape_id: big_geo_area.parent.id,
+      geo_shape_type: 'GeographicArea',
+      geo_mode: false
+    }
+    q = query.new(h)
+    expect(q.all).to contain_exactly(b)
+  end
+
+  specify '#geo_shape_id #geo_mode (exact)' do
+    ad1 # not this
+    b = AssertedDistribution.create!(asserted_distribution_object: o1, asserted_distribution_shape: big_geo_area, source: FactoryBot.create(:valid_source))
+
+    h = {
+      geo_shape_id: big_geo_area.id,
+      geo_shape_type: 'GeographicArea'
+    }
+    q = query.new(h)
 
     expect(q.all).to contain_exactly(b)
   end
 
-  specify '#geographic_area_id #geographic_area_mode (exact)' do
-    ad1 # not this
-    b = AssertedDistribution.create!(otu: o1, geographic_area: big_geo_area, source: FactoryBot.create(:valid_source))
-    q.geographic_area_id = big_geo_area.id
-    expect(q.all).to contain_exactly(b)
+  specify '#geo_shape_id #geo_mode (exact) GA and GZ' do
+    [ad1, ad_gz] # not this
+    b = AssertedDistribution.create!(asserted_distribution_object: o1, asserted_distribution_shape: big_geo_area, source: FactoryBot.create(:valid_source))
+
+    c = AssertedDistribution.create!(asserted_distribution_object: o1, asserted_distribution_shape: small_gz, source: FactoryBot.create(:valid_source))
+
+    d = AssertedDistribution.create!(asserted_distribution_object: o2, asserted_distribution_shape: small_gz, source: FactoryBot.create(:valid_source))
+
+    h = {
+      geo_shape_id: [big_geo_area.id, small_gz.id],
+      geo_shape_type: ['GeographicArea', 'Gazetteer']
+    }
+    q = query.new(h)
+
+    expect(q.all).to contain_exactly(b, c, d)
   end
 
-  specify '#geographic_area_id #geographic_area_mode (spatial) 2' do
+  specify '#geo_shape_id #geo_mode (spatial) 2' do
     ad1 # not this
 
-    a = AssertedDistribution.create!(otu: o1, geographic_area: small_geo_area, source: FactoryBot.create(:valid_source))
-    b = AssertedDistribution.create!(otu: o1, geographic_area: big_geo_area, source: FactoryBot.create(:valid_source))
+    a = AssertedDistribution.create!(asserted_distribution_object: o1, asserted_distribution_shape: small_geo_area, source: FactoryBot.create(:valid_source))
+    b = AssertedDistribution.create!(asserted_distribution_object: o1, asserted_distribution_shape: big_geo_area, source: FactoryBot.create(:valid_source))
 
-    q.geographic_area_id = big_geo_area.id
-    q.geographic_area_mode = true
+    h = {
+      geo_shape_id: big_geo_area.id,
+      geo_shape_type: 'GeographicArea',
+      geo_mode: true
+    }
+    q = query.new(h)
 
     expect(q.all).to contain_exactly(a, b)
   end
 
-  specify '#geographic_area_id #geographic_area_mode (spatial) 1' do
-    a = AssertedDistribution.create!(otu: o1, geographic_area: small_geo_area, source: FactoryBot.create(:valid_source))
-    b = AssertedDistribution.create!(otu: o1, geographic_area: big_geo_area, source: FactoryBot.create(:valid_source))
+  specify '#geo_shape_id #geo_mode (spatial) 1' do
+    a = AssertedDistribution.create!(asserted_distribution_object: o1, asserted_distribution_shape: small_geo_area, source: FactoryBot.create(:valid_source))
+    b = AssertedDistribution.create!(asserted_distribution_object: o1, asserted_distribution_shape: big_geo_area, source: FactoryBot.create(:valid_source))
 
-    q.geographic_area_id = small_geo_area.id
-    q.geographic_area_mode = true
+    h = {
+      geo_shape_id: small_geo_area.id,
+      geo_shape_type: 'GeographicArea',
+      geo_mode: true
+    }
+    q = query.new(h)
 
     expect(q.all).to contain_exactly(a)
   end
 
   specify '#wkt 1' do
-    a = AssertedDistribution.create!(otu: o1, geographic_area: small_geo_area, source: FactoryBot.create(:valid_source))
-    b = AssertedDistribution.create!(otu: o1, geographic_area: big_geo_area, source: FactoryBot.create(:valid_source))
+    a = AssertedDistribution.create!(asserted_distribution_object: o1, asserted_distribution_shape: small_geo_area, source: FactoryBot.create(:valid_source))
+    b = AssertedDistribution.create!(asserted_distribution_object: o1, asserted_distribution_shape: big_geo_area, source: FactoryBot.create(:valid_source))
 
-    q.wkt = big_polygon.to_s
+    q = query.new({wkt: big_polygon.to_s})
 
     expect(q.all).to contain_exactly(a, b)
   end
 
-  specify '#wkt 1' do
-    a = AssertedDistribution.create!(otu: o1, geographic_area: small_geo_area, source: FactoryBot.create(:valid_source))
-    b = AssertedDistribution.create!(otu: o1, geographic_area: big_geo_area, source: FactoryBot.create(:valid_source))
+  specify '#wkt 2' do
+    a = AssertedDistribution.create!(asserted_distribution_object: o1, asserted_distribution_shape: small_geo_area, source: FactoryBot.create(:valid_source))
+    b = AssertedDistribution.create!(asserted_distribution_object: o1, asserted_distribution_shape: big_geo_area, source: FactoryBot.create(:valid_source))
 
-    q.wkt = small_polygon.to_s
+    q = query.new({wkt: small_polygon.to_s})
 
     expect(q.all).to contain_exactly(a)
   end
 
-  specify '#otu_id' do
-    o = ad1.otu_id
-    q.otu_id = o
+  specify '#asserted_distribution_object an otu' do
+    o = ad1.asserted_distribution_object_id
+    q = query.new({
+      asserted_distribution_object_id: o,
+      asserted_distribution_object_type: 'Otu'
+    })
     expect(q.all.map(&:id)).to contain_exactly(ad1.id)
   end
 
-  specify '#geographic_area_id' do
-    o = ad1.geographic_area_id
-    q.geographic_area_id = o
+  specify '#geo_shape_id' do
+    o = ad1
+    h = {
+      geo_shape_id: o.asserted_distribution_shape_id,
+      geo_shape_type: 'GeographicArea'
+    }
+    q = query.new(h)
     expect(q.all.map(&:id)).to contain_exactly(ad1.id)
   end
 
   specify '#presence' do
     ad2
     ad1.update!(is_absent: true)
-    q.presence = true
+    q = query.new({presence: true})
     expect(q.all.map(&:id)).to contain_exactly(ad2.id)
   end
 
-  # # Source query integration
-  # specify '#source_id' do
-  #   FactoryBot.create(:valid_asserted_distribution)
-  #   o = a.source.id
-  #   q.source_id = o
+  specify '#geo_shape_id small gz spatial' do
+    a = AssertedDistribution.create!(asserted_distribution_object: o1, asserted_distribution_shape: small_geo_area, source: FactoryBot.create(:valid_source))
+    _b = AssertedDistribution.create!(asserted_distribution_object: o1, asserted_distribution_shape: big_geo_area, source: FactoryBot.create(:valid_source))
+    c = AssertedDistribution.create!(asserted_distribution_object: o1, asserted_distribution_shape: small_gz, source: FactoryBot.create(:valid_source))
 
-  #   expect(q.all.map(&:id)).to contain_exactly(a.id)
-  # end
+    q = query.new({
+      geo_shape_id: small_gz.id,
+      geo_shape_type: 'Gazetteer',
+      geo_mode: true})
+    expect(q.all).to contain_exactly(a, c)
+  end
+
+  specify '#geo_shape_id large gz spatial' do
+    a = AssertedDistribution.create!(asserted_distribution_object: o1, asserted_distribution_shape: small_geo_area, source: FactoryBot.create(:valid_source))
+    b = AssertedDistribution.create!(asserted_distribution_object: o1, asserted_distribution_shape: big_geo_area, source: FactoryBot.create(:valid_source))
+
+    q = query.new({
+      geo_shape_id: large_gz.id,
+      geo_shape_type: 'Gazetteer',
+      geo_mode: true})
+    expect(q.all).to contain_exactly(a, b)
+  end
+
+  specify '#geo_shape_id spatial combines GA and GZ geo_shape_ids before testing against ADs' do
+    [ad1, ad2, ad_gz]
+
+    big_polygon_neighbor = RspecGeoHelpers.make_polygon(
+      RSPEC_GEO_FACTORY.point(15, 10), 0, 0, 10.0, 10.0
+    )
+
+    big_geo_area_neighbor = FactoryBot.create(:valid_gazetteer,
+      geographic_item: GeographicItem.create!( geography: big_polygon_neighbor)
+    )
+
+    # Interior to union of big_polygon and big_polygon_neighbor, but not to either
+    # on its own:
+    i = RspecGeoHelpers.make_polygon(
+      RSPEC_GEO_FACTORY.point(12, 7), 0, 0, 10.0, 5.0
+    )
+
+    a = AssertedDistribution.create!(asserted_distribution_object: o1,
+      asserted_distribution_shape: FactoryBot.create(:valid_gazetteer,
+        geographic_item: GeographicItem.create!( geography: i)),
+        source: FactoryBot.create(:valid_source)
+    )
+
+    q = query.new({
+      geo_shape_id: [big_geo_area.id, big_geo_area_neighbor.id],
+      geo_shape_type: ['GeographicArea', 'Gazetteer'],
+      geo_mode: true})
+
+    expect(q.all).to contain_exactly(a)
+  end
+
+  specify '#asserted_distribution_shape_type GA' do
+    ad1
+    ad_gz
+    q = query.new({asserted_distribution_shape_type: 'GeographicArea'})
+    expect(q.all).to contain_exactly(ad1)
+  end
+
+  specify '#asserted_distribution_shape_type GZ' do
+    ad1
+    ad_gz
+    q = query.new({asserted_distribution_shape_type: 'Gazetteer'})
+    expect(q.all).to contain_exactly(ad_gz)
+  end
+
+  specify '#asserted_distribution_object_type' do
+    ad1
+    ad_ba = FactoryBot.create(:valid_biological_association_asserted_distribution)
+    q = query.new({asserted_distribution_object_type: 'BiologicalAssociation'})
+    expect(q.all).to contain_exactly(ad_ba)
+  end
+
+  specify '#otu_id includes direct OTU ADs' do
+    ad1
+    ad2 # not this one
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad1)
+  end
+
+  specify '#otu_id includes ADs on BiologicalAssociations where OTU is subject' do
+    ad2 # not this one
+    ba = FactoryBot.create(
+      :valid_biological_association,
+      biological_association_subject: o1
+    )
+    ad_ba = FactoryBot.create(
+      :valid_biological_association_asserted_distribution,
+      asserted_distribution_object: ba
+    )
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad_ba)
+  end
+
+  specify '#otu_id includes ADs on BiologicalAssociations where OTU is object' do
+    ad2 # not this one
+    ba = FactoryBot.create(
+      :valid_biological_association,
+      biological_association_object: o1
+    )
+    ad_ba = FactoryBot.create(
+      :valid_biological_association_asserted_distribution,
+      asserted_distribution_object: ba
+    )
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad_ba)
+  end
+
+  specify '#otu_id includes both direct and BA ADs' do
+    ad2 # not this one
+    ba = FactoryBot.create(
+      :valid_biological_association,
+      biological_association_subject: o1
+    )
+    ad_ba = FactoryBot.create(
+      :valid_biological_association_asserted_distribution,
+      asserted_distribution_object: ba
+    )
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad1, ad_ba)
+  end
+
+  specify '#otu_id includes ADs on BiologicalAssociationsGraphs containing a BA where OTU is subject' do
+    ad2 # not this one
+    ba = FactoryBot.create(:valid_biological_association, biological_association_subject: o1)
+    bag = FactoryBot.create(:valid_biological_associations_graph)
+    FactoryBot.create(:valid_biological_associations_biological_associations_graph,
+      biological_associations_graph: bag,
+      biological_association: ba
+    )
+    ad_bag = FactoryBot.create(:valid_biological_associations_graph_asserted_distribution,
+      asserted_distribution_object: bag
+    )
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad_bag)
+  end
+
+  specify '#otu_id includes ADs on BiologicalAssociationsGraphs containing a BA where OTU is object' do
+    ad2 # not this one
+    ba = FactoryBot.create(:valid_biological_association, biological_association_object: o1)
+    bag = FactoryBot.create(:valid_biological_associations_graph)
+    FactoryBot.create(:valid_biological_associations_biological_associations_graph,
+      biological_associations_graph: bag,
+      biological_association: ba
+    )
+    ad_bag = FactoryBot.create(:valid_biological_associations_graph_asserted_distribution,
+      asserted_distribution_object: bag
+    )
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad_bag)
+  end
+
+  specify '#otu_id includes ADs on Conveyances where OTU is the conveyance object' do
+    ad2 # not this one
+    conveyance = FactoryBot.create(:valid_conveyance, conveyance_object: o1)
+    ad_conveyance = FactoryBot.create(:valid_conveyance_asserted_distribution,
+      asserted_distribution_object: conveyance
+    )
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad_conveyance)
+  end
+
+  specify '#otu_id includes ADs on Depictions where OTU is the depiction object' do
+    ad2 # not this one
+    depiction = FactoryBot.create(:valid_depiction, depiction_object: o1)
+    ad_depiction = FactoryBot.create(:valid_depiction_asserted_distribution,
+      asserted_distribution_object: depiction
+    )
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad_depiction)
+  end
+
+  specify '#otu_id includes ADs on Observations where OTU is the observation object' do
+    ad2 # not this one
+    observation = FactoryBot.create(:valid_observation, observation_object: o1)
+    ad_observation = FactoryBot.create(:valid_observation_asserted_distribution,
+      asserted_distribution_object: observation
+    )
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad_observation)
+  end
+
+  specify '#source_id' do
+    source = FactoryBot.create(:valid_source)
+    other_source = FactoryBot.create(:valid_source)
+
+    a = FactoryBot.create(:valid_asserted_distribution, source:)
+    b = FactoryBot.create(:valid_asserted_distribution, source: other_source)
+
+    q = query.new({source_id: source.id})
+
+    expect(q.all).to contain_exactly(a)
+  end
+
+  context 'data attributes' do
+    let(:p1) { FactoryBot.create(:valid_predicate) }
+    let(:p2) { FactoryBot.create(:valid_predicate) }
+
+    specify '#data_attribute_exact_pair 1' do
+      d = InternalAttribute.create!(
+        predicate: p1,
+        value: '212',
+        attribute_subject: ad1
+      )
+      ad2 # not this
+
+      q = query.new(data_attribute_exact_pair: {p1.id => '212'})
+      expect(q.all).to contain_exactly(ad1)
+    end
+
+    specify '#data_attribute_exact_pair 2, multiple predicate values are ored' do
+      d1 = InternalAttribute.create!(
+        predicate: p1,
+        value: '212',
+        attribute_subject: ad1
+      )
+      d2 = InternalAttribute.create!(
+        predicate: p1,
+        value: '313',
+        attribute_subject: ad2
+      )
+
+      # Must use array form
+      q = query.new(
+        data_attribute_exact_pair: ["#{p1.id}:212", "#{p1.id}:313"]
+      )
+
+      expect(q.all).to contain_exactly(ad1, ad2)
+    end
+
+    specify '#data_attribute_wildcard_pair 1' do
+      d = InternalAttribute.create!(
+        predicate: p1,
+        value: '212',
+        attribute_subject: ad1
+      )
+      ad2 # not this
+
+      q = query.new(data_attribute_wildcard_pair: {p1.id => '2'})
+      expect(q.all).to contain_exactly(ad1)
+    end
+
+    specify '#data_attribute_wildcard_pair 2, multiple predicate values are ored' do
+      d1 = InternalAttribute.create!(
+        predicate: p1,
+        value: '212',
+        attribute_subject: ad1
+      )
+      d2 = InternalAttribute.create!(
+        predicate: p1,
+        value: '313',
+        attribute_subject: ad2
+      )
+
+      # Must use array form
+      q = query.new(
+        data_attribute_wildcard_pair: ["#{p1.id}:21", "#{p1.id}:31"]
+      )
+
+      expect(q.all).to contain_exactly(ad1, ad2)
+    end
+
+    specify '#data_attribute_wildcard_pair and #data_attribute_exact_pair are anded' do
+      d1 = InternalAttribute.create!(
+        predicate: p1,
+        value: '212',
+        attribute_subject: ad1
+      )
+      d2 = InternalAttribute.create!(
+        predicate: p1,
+        value: '313',
+        attribute_subject: ad2
+      )
+
+      # Must use array form
+      q = query.new(
+        data_attribute_wildcard_pair: ["#{p1.id}:21", "#{p1.id}:31"],
+        data_attribute_exact_pair: {p1.id => '313'}
+      )
+
+      expect(q.all).to contain_exactly(ad2)
+    end
+
+    specify 'multiple predicates with exact pairs' do
+      d1 = InternalAttribute.create!(
+        predicate: p1,
+        value: 'foo',
+        attribute_subject: ad1
+      )
+      d2 = InternalAttribute.create!(
+        predicate: p2,
+        value: 'bar',
+        attribute_subject: ad2
+      )
+
+      q = query.new(
+        data_attribute_exact_pair: ["#{p1.id}:foo", "#{p2.id}:bar"]
+      )
+
+      expect(q.all).to contain_exactly(ad1, ad2)
+    end
+  end
 
 end

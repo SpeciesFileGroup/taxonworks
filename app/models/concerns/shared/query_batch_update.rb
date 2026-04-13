@@ -10,7 +10,12 @@ module Shared::QueryBatchUpdate
   # @params params [Hash]
   #   the attributes to update
   # @params result [BatchResponse]
-  def query_update(params, response=nil)
+  def query_update(
+    params, response = nil, async_project_id = nil, async_user_id = nil
+  )
+    Current.project_id ||= async_project_id
+    Current.user_id ||= async_user_id
+
     begin
       update!( params )
       response.updated.push self.id if response
@@ -36,8 +41,14 @@ module Shared::QueryBatchUpdate
       a = request.filter
 
       if request.run_async?
+        # Fail loudly now, otherwise we'll fail silently in the background.
+        raise TaxonWorks::Error, "user_id or project_id not set in query_batch_update! '#{request}'" if request.user_id.nil? || request.project_id.nil?
         a.all.find_each do |o|
-          o.delay(run_at: Proc.new { 1.second.from_now }, queue: :query_batch_update).query_update(request.object_params)
+          o
+            .delay(run_at: 1.second.from_now, queue: :query_batch_update)
+            .query_update(
+              request.object_params, nil, request.project_id, request.user_id
+            )
         end
       else
         self.transaction do

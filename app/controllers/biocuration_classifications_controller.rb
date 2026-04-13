@@ -6,9 +6,19 @@ class BiocurationClassificationsController < ApplicationController
 
   # GET /biocuration_classifications.json
   def index
-    @biocuration_classifications = BiocurationClassification.where(filter_params).page(params[:page])
+    respond_to do |format|
+      format.html {
+        @recent_objects = BiocurationClassification.where(project_id: sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      }
+      format.json {
+        @biocuration_classifications = ::Queries::BiocurationClassification::Filter.new(params)
+          .all
+          .where(project_id: sessions_current_project_id)
+          .page(params[:page])
           .per(params[:per])
- 
+      }
+    end
   end
 
   # POST /biocuration_classifications
@@ -21,7 +31,7 @@ class BiocurationClassificationsController < ApplicationController
         format.json { render :show, status: :created, location: @biocuration_classification }
       else
         format.html { redirect_back(fallback_location: (request.referer || root_path), notice: 'Biocuration classification was NOT successfully created.')}
-        format.json { render json: @biocuration_classification.errors, status: :unprocessable_entity }
+        format.json { render json: @biocuration_classification.errors, status: :unprocessable_content }
       end
     end
   end
@@ -35,7 +45,7 @@ class BiocurationClassificationsController < ApplicationController
         format.json { head :no_content }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Biocuration classification was NOT successfully updated.')}
-        format.json { render json: @biocuration_classification.errors, status: :unprocessable_entity }
+        format.json { render json: @biocuration_classification.errors, status: :unprocessable_content }
       end
     end
   end

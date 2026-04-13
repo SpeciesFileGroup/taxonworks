@@ -1,13 +1,12 @@
 <template>
-  <div>
-    <h1>Filter DwC Occurrences</h1>
-
+  <div class="margin-medium-top">
     <FilterLayout
       :pagination="pagination"
       :url-request="urlRequest"
       :object-type="DWC_OCCURRENCE"
       :selected-ids="selectedIds"
       :list="list"
+      :button-unify="false"
       :radial-mass-annotator="false"
       :radial-navigator="false"
       v-model="parameters"

@@ -63,14 +63,15 @@ export function useIdentifierStore(type) {
         })
       },
 
-      save({ objectId, objectType }) {
-        if (
-          this.existingIdentifiers.length ||
-          !this.identifier.identifier ||
-          !this.identifier.namespaceId ||
-          !this.identifier.isUnsaved
-        )
-          return
+      save({ objectId, objectType, forceUpdate }) {
+        const isUnsaved = forceUpdate || this.identifier.isUnsaved
+        const isIdentifierValid =
+          !this.existingIdentifiers.length &&
+          this.identifier.identifier &&
+          this.identifier.namespaceId
+
+        if (!isIdentifierValid) return
+        if (!isUnsaved) return
 
         const payload = makePayload({
           ...this.identifier,
@@ -91,6 +92,10 @@ export function useIdentifierStore(type) {
         return request
       },
 
+      setIdentifier(item) {
+        this.identifier = makeIdentifier(item)
+      },
+
       load({ objectId, objectType }) {
         const request = Identifier.where({
           identifier_object_type: objectType,
@@ -109,6 +114,18 @@ export function useIdentifierStore(type) {
           .catch(() => {})
 
         return request
+      },
+
+      remove() {
+        if (
+          window.confirm(
+            `You're trying to delete this identifier. Are you sure want to proceed?`
+          )
+        ) {
+          Identifier.destroy(this.identifier.id)
+
+          this.$reset()
+        }
       },
 
       reset({ keepNamespace, increment }) {

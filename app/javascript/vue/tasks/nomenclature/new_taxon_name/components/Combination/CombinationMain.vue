@@ -1,10 +1,10 @@
 <template>
   <block-layout
     :spinner="!taxon.id"
-    anchor="subsequent-combination"
+    :anchor="isICN ? 'homotypic-synonyms' : 'subsequent-combination'"
   >
     <template #header>
-      <h3>Subsequent combination</h3>
+      <h3>{{ isICN ? 'Homotypic synonyms' : 'Subsequent combination' }}</h3>
     </template>
     <template #body>
       <CombinationCurrent
@@ -40,7 +40,7 @@
           :taxon="taxon"
           v-model="citationData"
         />
-        <hr />
+        <hr class="divisor" />
 
         <template v-if="isBotanyCode">
           <h3>Classification</h3>
@@ -85,7 +85,7 @@
           New
         </VBtn>
       </div>
-      <hr />
+      <hr class="divisor" />
       <CombinationList
         :list="combinationList"
         @edit="loadCombination"
@@ -154,6 +154,10 @@ const combinationRanks = computed(() =>
   isGenusGroup.value
     ? { genusGroup: nomenclatureRanks.value.genusGroup }
     : nomenclatureRanks.value
+)
+
+const isICN = computed(
+  () => store.getters[GetterNames.GetNomenclaturalCode] === 'icn'
 )
 
 const saveCombination = () => {
@@ -232,7 +236,7 @@ const removeCombination = (data) => {
 // Citation
 // ======================================
 
-const citationData = reactive({
+let citationData = reactive({
   origin_citation_attributes: makeCitationObject(COMBINATION),
   verbatim_author: undefined,
   year_of_publication: undefined,

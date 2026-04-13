@@ -1,15 +1,18 @@
 import {
   AssertedDistribution,
   BiologicalAssociation,
-  CollectionObject,
   CollectingEvent,
+  CollectionObject,
+  Content,
   Descriptor,
   Extract,
+  FieldOccurrence,
   Image,
   Loan,
   Observation,
   Otu,
   People,
+  Sound,
   Source,
   TaxonName
 } from '@/routes/endpoints'
@@ -18,13 +21,16 @@ import {
   BIOLOGICAL_ASSOCIATION,
   COLLECTING_EVENT,
   COLLECTION_OBJECT,
+  CONTENT,
   DESCRIPTOR,
   EXTRACT,
+  FIELD_OCCURRENCE,
   IMAGE,
   LOAN,
   OBSERVATION,
   OTU,
-  PEOPLE,
+  PERSON,
+  SOUND,
   SOURCE,
   TAXON_NAME
 } from '@/constants'
@@ -50,6 +56,12 @@ export const QUERY_PARAMETER = {
     filterUrl: FILTER_ROUTES[COLLECTING_EVENT]
   },
 
+  [QUERY_PARAM[CONTENT]]: {
+    model: CONTENT,
+    service: Content,
+    filterUrl: FILTER_ROUTES[CONTENT]
+  },
+
   [QUERY_PARAM[COLLECTION_OBJECT]]: {
     model: COLLECTION_OBJECT,
     service: CollectionObject,
@@ -66,6 +78,12 @@ export const QUERY_PARAMETER = {
     model: EXTRACT,
     service: Extract,
     filterUrl: FILTER_ROUTES[EXTRACT]
+  },
+
+  [QUERY_PARAM[FIELD_OCCURRENCE]]: {
+    model: FIELD_OCCURRENCE,
+    service: FieldOccurrence,
+    filterUrl: FILTER_ROUTES[FIELD_OCCURRENCE]
   },
 
   [QUERY_PARAM[IMAGE]]: {
@@ -92,10 +110,16 @@ export const QUERY_PARAMETER = {
     filterUrl: FILTER_ROUTES[OTU]
   },
 
-  [QUERY_PARAM[PEOPLE]]: {
-    model: PEOPLE,
+  [QUERY_PARAM[PERSON]]: {
+    model: PERSON,
     service: People,
-    filterUrl: FILTER_ROUTES[PEOPLE]
+    filterUrl: FILTER_ROUTES[PERSON]
+  },
+
+  [QUERY_PARAM[SOUND]]: {
+    model: SOUND,
+    service: Sound,
+    filterUrl: FILTER_ROUTES[SOUND]
   },
 
   [QUERY_PARAM[SOURCE]]: {

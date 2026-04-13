@@ -17,7 +17,7 @@
           v-if="navigate"
           class="no_bullets"
         >
-          <li v-for="item in navigate.previous_otus">
+          <li v-for="item in navigate.previous">
             <a
               :href="`/tasks/otus/browse?otu_id=${item.id}`"
               v-html="item.object_tag"
@@ -30,7 +30,7 @@
             url="/otus/autocomplete"
             placeholder="Search a otu"
             param="term"
-            :clear-after="true"
+            clear-after
             @getItem="loadOtu"
             label="label_html"
           />
@@ -38,7 +38,7 @@
             v-if="navigate"
             class="no_bullets"
           >
-            <li v-for="item in navigate.next_otus">
+            <li v-for="item in navigate.next">
               <a
                 :href="`/tasks/otus/browse?otu_id=${item.id}`"
                 v-html="item.object_tag"
@@ -85,12 +85,12 @@ import HeaderBar from './components/HeaderBar'
 import SpinnerComponent from '@/components/ui/VSpinner'
 import ImageGallery from './components/gallery/Main'
 import ContentComponent from './components/Content'
+import ConveyanceComponent from './components/Conveyance/PanelConveyance.vue'
 import AssertedDistribution from './components/AssertedDistribution'
 import BiologicalAssociations from './components/BiologicalAssociations'
 import AnnotationsComponent from './components/Annotations'
 import NomenclatureHistory from './components/timeline/Timeline.vue'
-import Distribution from './components/Distribution.vue'
-import CollectingEventSection from './components/collectingEvent/CollectingEventSection.vue'
+import Distribution from './components/Distribution/Distribution.vue'
 import Descendants from './components/Descendants/Descendants.vue'
 import CollectionObjects from './components/CollectionObjects'
 import TypeSpecimens from './components/specimens/Type'
@@ -98,12 +98,13 @@ import TypeSection from './components/TypeSection.vue'
 import CommonNames from './components/CommonNames'
 import DescriptionComponent from './components/Description.vue'
 import CoordinateOtus from './components/coordinate/CoordinateOtus.vue'
+import FieldOccurrences from './components/FieldOccurrence/FieldOccurrence.vue'
 import Autocomplete from '@/components/ui/Autocomplete'
 import SearchOtu from './components/SearchOtu'
 import Draggable from 'vuedraggable'
 import SelectOtu from './components/selectOtu'
 import { ActionNames } from './store/actions/actions'
-import { TaxonName, Otu, User } from '@/routes/endpoints'
+import { CollectionObject, TaxonName, Otu, User } from '@/routes/endpoints'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 import COMPONENT_NAMES from './const/componentNames'
@@ -116,12 +117,12 @@ export default {
     ImageGallery,
     SpinnerComponent,
     ContentComponent,
+    ConveyanceComponent,
     DescriptionComponent,
     AssertedDistribution,
     BiologicalAssociations,
     AnnotationsComponent,
     NomenclatureHistory,
-    CollectingEventSection,
     CollectionObjects,
     TypeSpecimens,
     CommonNames,
@@ -131,7 +132,8 @@ export default {
     SelectOtu,
     TypeSection,
     CoordinateOtus,
-    Distribution
+    Distribution,
+    FieldOccurrences
   },
   computed: {
     preferences: {
@@ -194,6 +196,8 @@ export default {
       : location.pathname.split('/')[4]
     const taxonId = urlParams.get('taxon_name_id')
 
+    const collectionObjectId = urlParams.get('collection_object_id')
+
     if (/^\d+$/.test(otuId)) {
       this.$store.dispatch(ActionNames.LoadOtus, otuId).then(() => {
         this.isLoading = false
@@ -215,6 +219,18 @@ export default {
           this.otuList = body
         } else {
           this.$store.dispatch(ActionNames.LoadOtus, body[0].id).then(() => {
+            this.isLoading = false
+          })
+        }
+      })
+    } else if (collectionObjectId) {
+      CollectionObject.find(collectionObjectId, {
+        extend: ['taxon_determinations']
+      }).then(({ body }) => {
+        const id = body.taxon_determinations?.[0]?.otu_id
+
+        if (id) {
+          this.$store.dispatch(ActionNames.LoadOtus, id).then(() => {
             this.isLoading = false
           })
         }

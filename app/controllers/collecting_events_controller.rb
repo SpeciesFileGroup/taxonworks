@@ -27,11 +27,12 @@ class CollectingEventsController < ApplicationController
 
   # GET /collecting_events/new
   def new
-    @collecting_event = CollectingEvent.new
+    redirect_to new_collecting_event_task_path, notice: 'Redirected to new interface.'
   end
 
   # GET /collecting_events/1/edit
   def edit
+    redirect_to new_collecting_event_task_path(collecting_event_id: @collecting_event.id), notice: 'Editing in new interface.'
   end
 
   # POST /collecting_events
@@ -44,25 +45,26 @@ class CollectingEventsController < ApplicationController
         format.json { render action: 'show', status: :created, location: @collecting_event }
       else
         format.html { render action: 'new' }
-        format.json { render json: @collecting_event.errors, status: :unprocessable_entity }
+        format.json { render json: @collecting_event.errors, status: :unprocessable_content }
       end
     end
   end
 
   # POST /collecting_events/1/clone.json
   def clone
-    @collecting_event = @collecting_event.clone(
-      annotations: params[:annotations],
-      incremented_identifier_id: params[:incremented_identifier_id]
-    )
-
-    respond_to do |format|
-      if @collecting_event.persisted?
+    begin
+      @collecting_event = @collecting_event.clone(
+        annotations: params[:annotations],
+        incremented_identifier_id: params[:incremented_identifier_id]
+      )
+      respond_to do |format|
         format.html { redirect_to new_collecting_event_task_path(@collecting_event), notice: 'Clone successful, editing new record.' }
         format.json { render :show }
-      else
-        format.html { redirect_to new_collecting_event_task_path(@collecting_event), notice: 'Failed to clone the collecting event..' }
-        format.json {render json: @collecting_event.errors, status: :unprocessable_entity}
+      end
+    rescue TaxonWorks::Error => e
+      respond_to do |format|
+        format.html { redirect_to new_collecting_event_task_path, notice: e.message }
+        format.json { render json: e.message, status: :unprocessable_content }
       end
     end
   end
@@ -76,7 +78,7 @@ class CollectingEventsController < ApplicationController
         format.json { render :show, status: :ok, location: @collecting_event }
       else
         format.html { render action: 'edit' }
-        format.json { render json: @collecting_event.errors, status: :unprocessable_entity }
+        format.json { render json: @collecting_event.errors, status: :unprocessable_content }
       end
     end
   end
@@ -91,7 +93,7 @@ class CollectingEventsController < ApplicationController
         format.json { head :no_content }
       else
         format.html { destroy_redirect @collecting_event, notice: 'CollectingEvent was not destroyed: ' + @collecting_event.errors.full_messages.join('; ') }
-        format.json { render json: @collecting_event.errors, status: :unprocessable_entity }
+        format.json { render json: @collecting_event.errors, status: :unprocessable_content }
       end
     end
   end
@@ -132,11 +134,13 @@ class CollectingEventsController < ApplicationController
   def batch_update
     if r = CollectingEvent.batch_update(
         preview: params[:preview],
-        collecting_event: collecting_event_params.merge(by: sessions_current_user_id),
-        collecting_event_query: params[:collecting_event_query])
+        collecting_event: collecting_event_params,
+        collecting_event_query: params[:collecting_event_query],
+        user_id: sessions_current_user_id,
+        project_id: sessions_current_project_id)
       render json: r.to_json, status: :ok
     else
-      render json: {}, status: :unprocessable_entity
+      render json: {}, status: :unprocessable_content
     end
   end
 
@@ -287,7 +291,7 @@ class CollectingEventsController < ApplicationController
     params.require(:collecting_event).permit(
       :verbatim_label, :print_label, :print_label_number_to_print, :document_label,
       :verbatim_locality, :verbatim_date, :verbatim_longitude, :verbatim_latitude,
-      :verbatim_geolocation_uncertainty, :verbatim_trip_identifier, :verbatim_collectors,
+      :verbatim_geolocation_uncertainty, :verbatim_field_number, :verbatim_collectors,
       :verbatim_method, :geographic_area_id, :minimum_elevation, :maximum_elevation,
       :elevation_precision, :time_start_hour, :time_start_minute, :time_start_second,
       :time_end_hour, :time_end_minute, :time_end_second, :start_date_day,
@@ -295,6 +299,9 @@ class CollectingEventsController < ApplicationController
       :group, :member, :formation, :lithology, :max_ma, :min_ma,
       :end_date_year, :verbatim_habitat, :field_notes, :verbatim_datum,
       :verbatim_elevation, :meta_prioritize_geographic_area,
+      georeferences_attributes: [:type, :geographic_item_id, :error_radius,
+        :error_depth, :error_geographic_item, :is_public, :api_request,
+        :year_georeferenced, :month_georeferenced, :day_georeferenced], # batch add only use right now
       roles_attributes: [:id, :_destroy, :type, :person_id, :position, :by,
                          person_attributes: [:last_name, :first_name, :suffix, :prefix, :by]],
     identifiers_attributes: [:id, :namespace_id, :identifier, :type, :_destroy],

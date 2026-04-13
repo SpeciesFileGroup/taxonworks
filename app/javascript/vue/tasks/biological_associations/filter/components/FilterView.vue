@@ -14,12 +14,19 @@
     target="BiologicalAssociation"
   />
   <FacetCollectionObject v-model="params" />
+  <FacetFieldOccurrence v-model="params" />
   <FacetCollectingEvent v-model="params" />
+  <FacetAnatomicalPart v-model="params" />
   <FacetNotes v-model="params" />
   <FacetIdentifier v-model="params" />
+  <FacetDataAttribute v-model="params" />
   <FacetTags
     v-model="params"
-    target="CollectionObject"
+    :target="BIOLOGICAL_ASSOCIATION"
+  />
+  <FacetConfidence
+    v-model="params"
+    target="BIOLOGICAL_ASSOCIATION"
   />
   <FacetUsers v-model="params" />
   <FacetWith
@@ -54,16 +61,25 @@ import FacetTaxonName from '@/components/Filter/Facets/TaxonName/FacetTaxonName.
 import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
 import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
 import FacetCollectionObject from '@/components/Filter/Facets/CollectionObject/FacetCollectionObject.vue'
+import FacetFieldOccurrence from '@/components/Filter/Facets/FieldOccurrence/FacetFieldOccurrence.vue'
 import FacetCollectingEvent from './Facet/FacetCollectingEvent.vue'
 import FacetBiologicalProperty from '@/components/Filter/Facets/BiologicalAssociation/FacetBiologicalProperty.vue'
 import FacetOtu from '@/components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
-import { OTU, COLLECTION_OBJECT } from '@/constants/index.js'
+import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.vue'
+import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute/FacetDataAttribute.vue'
+import {
+  OTU,
+  COLLECTION_OBJECT,
+  BIOLOGICAL_ASSOCIATION
+} from '@/constants/index.js'
 import { computed } from 'vue'
+import FacetAnatomicalPart from '@/components/Filter/Facets/AnatomicalParts/FacetAnatomicalPart.vue'
 
 const WITH_PARAMS = [
   'citations',
+  'confidences',
   'data_depictions',
   'depictions',
   'notes',

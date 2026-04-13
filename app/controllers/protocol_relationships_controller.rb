@@ -1,5 +1,6 @@
 class ProtocolRelationshipsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
+  include DataControllerConfiguration::BatchByFilterScope
 
   before_action :set_protocol_relationship, only: [:show, :edit, :update, :destroy]
 
@@ -53,7 +54,7 @@ class ProtocolRelationshipsController < ApplicationController
         format.json { render :show, status: :created, location: @protocol_relationship }
       else
         format.html { render :new }
-        format.json { render json: @protocol_relationship.errors, status: :unprocessable_entity }
+        format.json { render json: @protocol_relationship.errors, status: :unprocessable_content }
       end
     end
   end
@@ -67,7 +68,7 @@ class ProtocolRelationshipsController < ApplicationController
         format.json { render :show, status: :ok, location: @protocol_relationship }
       else
         format.html { render :edit }
-        format.json { render json: @protocol_relationship.errors, status: :unprocessable_entity }
+        format.json { render json: @protocol_relationship.errors, status: :unprocessable_content }
       end
     end
   end
@@ -98,5 +99,9 @@ class ProtocolRelationshipsController < ApplicationController
 
   def protocol_relationship_params
     params.require(:protocol_relationship).permit(:protocol_id, :protocol_relationship_object_id, :protocol_relationship_object_type, :annotated_global_entity)
+  end
+
+  def batch_by_filter_scope_params
+    params.require(:params).permit(:protocol_id, :replace_protocol_id)
   end
 end

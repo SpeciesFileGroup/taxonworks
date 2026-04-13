@@ -1,7 +1,7 @@
 <template>
   <div>
     <span><b>Update determinations</b></span>
-    <hr />
+    <hr class="divisor" />
     <div class="field">
       <label>Determiner</label>
       <role-picker
@@ -157,15 +157,17 @@ export default {
 
     getCollectionOjectsFromContainer(containerId) {
       return new Promise((resolve, reject) => {
-        Container.find(containerId).then(({ body }) => {
-          const containerItems = body.container_items
+        Container.find(containerId, { extend: ['container_items'] }).then(
+          ({ body }) => {
+            const containerItems = body.container_items
 
-          resolve(
-            containerItems.map(
-              (item) => item.container_item.contained_object_id
+            resolve(
+              containerItems.map(
+                (item) => item.container_item.contained_object_id
+              )
             )
-          )
-        })
+          }
+        )
       })
     }
   }

@@ -49,7 +49,7 @@
       </select>
     </div>
 
-    <div>
+    <div v-help.panel.contains>
       <label class="d-block">Contains</label>
       <input
         type="text"
@@ -58,7 +58,7 @@
       />
     </div>
 
-    <div>
+    <div v-help.panel.beginning>
       <label class="d-block">Beginning with</label>
       <input
         class="full_width"
@@ -68,14 +68,14 @@
     </div>
 
     <div class="horizontal-left-content gap-small">
-      <div>
+      <div v-help.panel.min>
         <label class="d-block">Min</label>
         <input
           type="number"
           v-model="parameters.min"
         />
       </div>
-      <div>
+      <div v-help.panel.max>
         <label class="d-block">Max</label>
         <input
           type="number"

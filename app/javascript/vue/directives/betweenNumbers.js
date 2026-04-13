@@ -5,6 +5,10 @@ export const vBetweenNumbers = {
     el.handler = () => {
       const { value } = el
 
+      if (!value) {
+        return
+      }
+
       if (value < min) {
         el.value = min
         vnode.el.dispatchEvent(new CustomEvent('input'))
@@ -14,9 +18,9 @@ export const vBetweenNumbers = {
       }
     }
 
-    el.addEventListener('input', el.handler)
+    el.addEventListener('change', el.handler)
   },
   unmounted: (el) => {
-    el.removeEventListener('input', el.handler)
+    el.removeEventListener('change', el.handler)
   }
 }

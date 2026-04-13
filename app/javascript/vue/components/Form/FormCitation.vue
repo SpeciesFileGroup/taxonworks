@@ -1,6 +1,6 @@
 <template>
-  <fieldset>
-    <legend>Source</legend>
+  <component :is="fieldset ? 'fieldset' : 'div'">
+    <legend v-if="fieldset">Source</legend>
     <div class="horizontal-left-content align-start">
       <SmartSelector
         class="full_width"
@@ -12,14 +12,21 @@
         :shorten="100"
         label="cached"
         v-model="source"
-        @selected="setSource"
-      />
+        @selected="onSourceSelected"
+      >
+        <template #tabs-right>
+          <FormCitationClone
+            v-if="!inlineClone"
+            @clone="setCloneCitation"
+          />
+          <slot name="tabs-right" />
+          <VLock
+            v-if="lockButton"
+            v-model="isLocked"
+          />
+        </template>
+      </SmartSelector>
       <slot name="smart-selector-right" />
-      <VLock
-        v-if="lockButton"
-        class="margin-small-left"
-        v-model="isLocked"
-      />
     </div>
     <div
       class="horizontal-left-content margin-medium-top gap-small"
@@ -35,17 +42,13 @@
         {{ submitButton.label }}
       </VBtn>
       <VBtn
-        v-if="citation.id"
+        v-if="newButton && citation.id"
         color="primary"
         medium
         @click="() => (citation = makeCitation())"
       >
         New
       </VBtn>
-      <FormCitationClone
-        v-if="!inlineClone"
-        @clone="(item) => Object.assign(citation, item)"
-      />
       <slot name="footer" />
     </div>
     <SmartSelectorItem
@@ -60,6 +63,7 @@
             v-model="citation.pages"
             type="text"
             class="normal-input inline pages"
+            ref="pagesRef"
             placeholder="pages"
             @input="setPage"
           />
@@ -91,12 +95,12 @@
         </li>
       </ul>
     </div>
-  </fieldset>
+  </component>
 </template>
 
 <script setup>
 import { Source } from '@/routes/endpoints'
-import { computed, ref, watch, onMounted } from 'vue'
+import { computed, nextTick, onBeforeMount, ref, watch } from 'vue'
 import { convertType } from '@/helpers/types'
 import makeCitation from '@/factory/Citation'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
@@ -149,6 +153,11 @@ const props = defineProps({
     default: undefined
   },
 
+  newButton: {
+    type: Boolean,
+    default: true
+  },
+
   klass: {
     type: String,
     default: undefined
@@ -157,6 +166,11 @@ const props = defineProps({
   target: {
     type: String,
     default: undefined
+  },
+
+  fieldset: {
+    type: Boolean,
+    default: true
   },
 
   original: {
@@ -169,13 +183,14 @@ const emit = defineEmits([
   'lock',
   'submit',
   'source',
+  'update',
   'update:modelValue',
   'update:absent'
 ])
 
-const citation = computed({
-  get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
+const citation = defineModel({
+  type: Object,
+  default: () => makeCitation()
 })
 
 const isAbsent = computed({
@@ -183,9 +198,13 @@ const isAbsent = computed({
   set: (value) => emit('update:absent', value)
 })
 
-const isLocked = ref(false)
+const isLocked = defineModel('lock', {
+  type: Boolean,
+  default: false
+})
 
 const sourceId = computed(() => props.modelValue.source_id)
+const pagesRef = ref(null)
 const source = ref(undefined)
 
 watch(sourceId, async (newId, oldId) => {
@@ -212,26 +231,47 @@ watch(isLocked, (newVal) => {
   emit('lock', newVal)
 })
 
+function onSourceSelected(value) {
+  setSource(value)
+  nextTick(() => pagesRef.value?.focus())
+}
+
 function setSource(value) {
   source.value = value
   if (props.useSession) {
     sessionStorage.setItem(STORAGE.sourceId, value.id)
   }
-  citation.value.source_id = value.id
-  citation.value.label = value.cached
+
+  setValues({
+    source_id: value.id,
+    label: value.cached
+  })
 
   emit('source', value)
 }
 
+function setValues(values) {
+  Object.assign(citation.value, values)
+  emit('update', citation.value)
+}
+
 function setPage(e) {
+  const pages = e.target.value
+
+  setValues({ pages })
+
   if (props.useSession) {
     sessionStorage.setItem(STORAGE.pages, e.target.value)
   }
 }
 
 function setIsOriginal(e) {
+  const isOriginal = convertType(e.target.value)
+
+  setValues({ is_original: isOriginal })
+
   if (props.useSession) {
-    sessionStorage.setItem(STORAGE.isOriginal, e.target.value)
+    sessionStorage.setItem(STORAGE.isOriginal, isOriginal)
   }
 }
 
@@ -241,7 +281,17 @@ function setIsAbsent(e) {
   }
 }
 
-function init() {
+function setCloneCitation(item) {
+  setValues(item)
+
+  if (isLocked.value) {
+    sessionStorage.setItem(STORAGE.sourceId, item.source_id)
+    sessionStorage.setItem(STORAGE.pages, item.pages)
+    sessionStorage.setItem(STORAGE.isOriginal, item.is_original)
+  }
+}
+
+onBeforeMount(() => {
   const lockStoreValue =
     props.useSession && convertType(sessionStorage.getItem(STORAGE.lock))
 
@@ -249,17 +299,21 @@ function init() {
     isLocked.value = lockStoreValue
   }
 
-  if (props.lockButton && lockStoreValue && props.useSession) {
-    citation.value.source_id = convertType(
-      sessionStorage.getItem(STORAGE.sourceId)
-    )
-    citation.value.is_original = convertType(
-      sessionStorage.getItem(STORAGE.isOriginal)
-    )
-    citation.value.pages = convertType(sessionStorage.getItem(STORAGE.pages))
+  if (
+    props.lockButton &&
+    lockStoreValue &&
+    props.useSession &&
+    !citation.value?.id
+  ) {
+    const cite = {
+      source_id: convertType(sessionStorage.getItem(STORAGE.sourceId)),
+      is_original: convertType(sessionStorage.getItem(STORAGE.isOriginal)),
+      pages: convertType(sessionStorage.getItem(STORAGE.pages))
+    }
+
+    setValues(cite)
+
     isAbsent.value = convertType(sessionStorage.getItem(STORAGE.isAbsent))
   }
-}
-
-onMounted(() => init())
+})
 </script>

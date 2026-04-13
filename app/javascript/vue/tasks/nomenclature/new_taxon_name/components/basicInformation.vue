@@ -53,14 +53,6 @@
           />
         </div>
       </div>
-      <div
-        v-if="!taxon.id"
-        class="margin-large-top"
-      >
-        <save-taxon-name
-          class="normal-input button button-submit create-button"
-        />
-      </div>
     </template>
     <modal-component
       v-if="showModal"
@@ -223,31 +215,17 @@ export default {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  transition: all 1s;
 
   .vue-autocomplete-input {
     width: 300px;
   }
 
   .validation-warning {
-    border-left: 4px solid #ff8c00 !important;
+    border-left: 4px solid var(--color-warning) !important;
   }
 
   .create-button {
     min-width: 100px;
-  }
-
-  .header {
-    border-left: 4px solid green;
-    padding: 1em;
-    padding-left: 1.5em;
-    border-bottom: 1px solid #f5f5f5;
-  }
-
-  .body {
-    padding: 2em;
-    padding-top: 1em;
-    padding-bottom: 1em;
   }
 
   .taxonName-input,

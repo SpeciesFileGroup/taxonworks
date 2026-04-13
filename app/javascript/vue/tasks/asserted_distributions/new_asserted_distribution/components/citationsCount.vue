@@ -11,64 +11,55 @@
         </span>
       </span>
     </div>
-    <modal-component
+    <VModal
       v-if="showCitations"
       @close="setModalView(false)"
     >
       <template #header>
-        <h3>Citations</h3>
+        <h3>Citations a</h3>
       </template>
       <template #body>
         <display-list
           :list="citations"
           :validations="true"
           :label="['citation_source_body']"
-          @delete="removeCitation"
           :edit="false"
+          @delete="(item) => emit('delete', item)"
         >
-          <template #options="slotProps">
+          <template #options="{ item }">
             <div>
               <a
-                :title="slotProps.item.source.object_tag"
+                :title="item.source.object_tag"
                 class="button-default circle-button btn-citation"
-                :href="`/tasks/nomenclature/by_source?source_id=${slotProps.item.source.id}`"
+                :href="`${RouteNames.NomenclatureBySource}?source_id=${item.source.id}`"
                 target="blank"
               />
             </div>
           </template>
         </display-list>
       </template>
-    </modal-component>
+    </VModal>
   </div>
 </template>
 
-<script>
+<script setup>
+import { RouteNames } from '@/routes/routes'
+import { ref } from 'vue'
 import DisplayList from '@/components/displayList'
-import ModalComponent from '@/components/ui/Modal'
+import VModal from '@/components/ui/Modal'
 
-export default {
-  components: {
-    DisplayList,
-    ModalComponent
-  },
-
-  props: {
-    citations: {
-      type: Array,
-      required: true
-    }
-  },
-
-  data() {
-    return {
-      showCitations: false
-    }
-  },
-
-  methods: {
-    setModalView(value) {
-      this.showCitations = value
-    }
+const props = defineProps({
+  citations: {
+    type: Array,
+    required: true
   }
+})
+
+const emit = defineEmits(['delete'])
+
+const showCitations = ref(false)
+
+function setModalView(value) {
+  showCitations.value = value
 }
 </script>

@@ -2,7 +2,7 @@
   <div>
     <h2>Relationships</h2>
     <new-relationship @create="addRelationship" />
-    <table class="full_width">
+    <table class="table-striped">
       <thead>
         <tr>
           <th>Name</th>
@@ -15,14 +15,15 @@
           :key="item.id"
           @click="$emit('selected', item)"
         >
-          <td>
+          <td class="cursor-pointer">
             <span class="display-block">{{ item.name }}</span>
-            <span
+            <div
               v-if="item.definition"
-              class="margin-small-left subtle"
+              class="subtle ellipsis definition-size"
+              :title="item.definition"
             >
               {{ item.definition }}
-            </span>
+            </div>
           </td>
           <td>{{ item.inverted_name }}</td>
         </tr>
@@ -83,3 +84,10 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.definition-size {
+  width: 300px;
+  max-width: 300px;
+}
+</style>

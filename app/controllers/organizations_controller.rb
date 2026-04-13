@@ -42,7 +42,7 @@ class OrganizationsController < ApplicationController
         format.json { render :show, status: :created, location: @organization }
       else
         format.html { render :new }
-        format.json { render json: @organization.errors, status: :unprocessable_entity }
+        format.json { render json: @organization.errors, status: :unprocessable_content }
       end
     end
   end
@@ -56,7 +56,7 @@ class OrganizationsController < ApplicationController
         format.json { render :show, status: :ok, location: @organization }
       else
         format.html { render :edit }
-        format.json { render json: @organization.errors, status: :unprocessable_entity }
+        format.json { render json: @organization.errors, status: :unprocessable_content }
       end
     end
   end
@@ -78,6 +78,11 @@ class OrganizationsController < ApplicationController
 
   def list
     @organizations = Organization.page(params[:page])
+  end
+
+  # GET /organizations/select_options
+  def select_options
+    @organizations = Organization.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:target])
   end
 
   private

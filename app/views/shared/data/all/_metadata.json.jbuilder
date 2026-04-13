@@ -27,7 +27,7 @@ if extensions
     json.partial! '/pinboard_items/pinned', object:
   end
 
-  if extend_response_with('origin_citation')
+  if extend_response_with('origin_citation') && object.has_citations?
     if object.respond_to?(:origin_citation) && object.origin_citation
       json.origin_citation do
         json.extract! object.origin_citation, :id, :pages
@@ -47,7 +47,7 @@ if extensions
     end
   end
 
-  if extend_response_with('citations')
+  if extend_response_with('citations') && object.has_citations?
     json.citations do
       json.array! object.citations, partial: '/citations/attributes', as: :citation, extensions: false
     end

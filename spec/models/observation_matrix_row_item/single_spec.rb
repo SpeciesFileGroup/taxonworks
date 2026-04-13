@@ -15,7 +15,7 @@ RSpec.describe ObservationMatrixRowItem::Single, type: :model, group: :observati
     expect(observation_matrix_row_item.errors.include?(:observation_matrix)).to be_truthy
   end
 
-  context 'with a observation_matrix_row_item saved' do
+  context 'with an observation_matrix_row_item saved' do
     before { observation_matrix_row_item.update!(
       observation_matrix: observation_matrix,
       observation_object: otu)

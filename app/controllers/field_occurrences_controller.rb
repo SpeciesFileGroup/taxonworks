@@ -1,7 +1,7 @@
 class FieldOccurrencesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_field_occurrence, only: %i[ show edit update destroy ]
+  before_action :set_field_occurrence, only: %i[ show edit update destroy api_dwc]
 
   after_action -> { set_pagination_headers(:field_occurrences) }, only: [:index, :api_index], if: :json_request?
 
@@ -42,8 +42,8 @@ class FieldOccurrencesController < ApplicationController
         format.html { redirect_to field_occurrence_url(@field_occurrence), notice: 'Field occurrence was successfully created.' }
         format.json { render :show, status: :created, location: @field_occurrence }
       else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @field_occurrence.errors, status: :unprocessable_entity }
+        format.html { render :new, status: :unprocessable_content }
+        format.json { render json: @field_occurrence.errors, status: :unprocessable_content }
       end
     end
   end
@@ -55,8 +55,8 @@ class FieldOccurrencesController < ApplicationController
         format.html { redirect_to field_occurrence_url(@field_occurrence), notice: 'Field occurrence was successfully updated.' }
         format.json { render :show, status: :ok, location: @field_occurrence }
       else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @field_occurrence.errors, status: :unprocessable_entity }
+        format.html { render :edit, status: :unprocessable_content }
+        format.json { render json: @field_occurrence.errors, status: :unprocessable_content }
       end
     end
   end
@@ -66,8 +66,13 @@ class FieldOccurrencesController < ApplicationController
     @field_occurrence.destroy
 
     respond_to do |format|
-      format.html { redirect_to field_occurrences_url, notice: 'Field occurrence was successfully destroyed.' }
-      format.json { head :no_content }
+      if @field_occurrence.destroyed?
+        format.html { destroy_redirect @field_occurrence, notice: 'Field occurrence was successfully destroyed.' }
+        format.json { head :no_content}
+      else
+        format.html { destroy_redirect @field_occurrence, notice: 'Field occurrence was not destroyed, ' + @field_occurrence.errors.full_messages.join('; ') }
+        format.json { render json: @field_occurrence.errors, status: :unprocessable_content }
+      end
     end
   end
 
@@ -92,6 +97,29 @@ class FieldOccurrencesController < ApplicationController
         alert: 'You must select an item from the list with a click or tab press before clicking show.')
     else
       redirect_to field_occurrence_path(params[:id])
+    end
+  end
+
+  # GET /api/v1/field_occurrences/123/dwc
+  def api_dwc
+    ActiveRecord::Base.connection_pool.with_connection do
+      @field_occurrence.get_dwc_occurrence
+      render json: @field_occurrence.dwc_occurrence_attributes
+    end
+  end
+
+  def select_options
+    @field_occurrences = FieldOccurrence.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:target], params['ba_target'])
+  end
+
+  # POST /field_occurrences/from_collection_object
+  def from_collection_object
+    result = FieldOccurrence.transmute_collection_object(params[:collection_object_id])
+
+    if result.is_a?(Integer)
+      render json: { field_occurrence_id: result }, status: :created
+    else
+      render json: { error: result }, status: :unprocessable_content
     end
   end
 

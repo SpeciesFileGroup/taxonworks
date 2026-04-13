@@ -45,7 +45,6 @@
 #   @return [Float, nil]
 #      used to generate scale bars on the fly
 #
-
 class Image < ApplicationRecord
   include Housekeeping
   include Shared::Identifiers
@@ -54,6 +53,7 @@ class Image < ApplicationRecord
   include Shared::ProtocolRelationships
   include Shared::Citations
   include Shared::Attributions
+  include Image::DwcMediaExtensions
   include Shared::IsData
   include SoftValidation
 
@@ -61,7 +61,7 @@ class Image < ApplicationRecord
 
   attr_accessor :rotate
 
-  # ANY non-blank? value here will attempt to also create a depiction 
+  # ANY non-blank? value here will attempt to also create a depiction
   # for the Image, linking it to a CollectionObject
   attr_accessor :filename_depicts_object
 
@@ -74,13 +74,12 @@ class Image < ApplicationRecord
     medium: { width: 300, height: 300 }
   }.freeze
 
-  has_one :sled_image, dependent: :destroy
+  has_one :sled_image, dependent: :destroy, inverse_of: :image
 
   has_many :depictions, inverse_of: :image, dependent: :restrict_with_error
 
   has_many :collection_objects, through: :depictions, source: :depiction_object, source_type: 'CollectionObject'
   has_many :otus, through: :depictions, source: :depiction_object, source_type: 'Otu'
-  has_many :taxon_names, through: :otus
 
   after_validation :stub_depiction, if: Proc.new {|n| !n.filename_depicts_object.blank?}
   before_save :extract_tw_attributes
@@ -104,6 +103,12 @@ class Image < ApplicationRecord
   accepts_nested_attributes_for :sled_image, allow_destroy: true
 
   accepts_nested_attributes_for :depictions, allow_destroy: false
+
+  scope :with_taxon_names, -> {
+    joins(:depictions)
+    .joins("JOIN otus ON depictions.depiction_object_type = 'Otu' AND depictions.depiction_object_id = otus.id")
+    .joins("JOIN taxon_names ON taxon_names.id = otus.taxon_name_id")
+  }
 
   # This is bad and you should feel bad if your digitization workflow uses it.
   def stub_depiction
@@ -168,7 +173,7 @@ class Image < ApplicationRecord
     ret_val = {} # return value
 
     unless self.new_record? # only process if record exists
-      tmp     = `identify -format "%[EXIF:*]" #{self.image_file.url}` # returns a string (exif:tag=value\n)
+      tmp     = `identify -format "%[EXIF:*]\n" #{self.image_file.path}` # returns a string (exif:tag=value\n)
       # following removes the exif, spits and recombines string as a hash
       ret_val = tmp.split("\n").collect { |b| b.gsub('exif:', '').split('=') }
         .inject({}) { |hsh, c| hsh.merge(c[0] => c[1]) }
@@ -291,10 +296,15 @@ class Image < ApplicationRecord
   def self.cropped(params)
     image = Image.find(params[:id])
     img = Magick::Image.read(image.image_file.path(:original)).first
+    x = params[:x].to_i
+    y = params[:y].to_i
+    w = params[:width].to_i
+    h = params[:height].to_i
     begin
+      raise ArgumentError, "invalid crop parameters: x=#{x}, y=#{y}, width=#{w}, height=#{h}" if w <= 0 || h <= 0 || x < 0 || y < 0
       # img.crop(x, y, width, height, true)
-      cropped = img.crop( params[:x].to_i, params[:y].to_i, params[:width].to_i, params[:height].to_i, true)
-    rescue RuntimeError
+      cropped = img.crop(x, y, w, h, true)
+    rescue ArgumentError, RuntimeError, Magick::ImageMagickError
       cropped = img.crop(0,0, 1, 1)  # return a single pixel on error ! TODO: make/return an error image
     ensure
       img.destroy!
@@ -371,6 +381,11 @@ class Image < ApplicationRecord
     self.to_blob!(cropped(params))
   end
 
+  def original_as_png
+    img = Magick::Image.read(self.image_file.path(:original)).first
+    self.class.to_blob!(img, 'png')
+  end
+
   # @param used_on [String] required, a depictable base class name like  `Otu`, `Content`, or `CollectionObject`
   # @return [Scope]
   #   the max 10 most recently used images, as `used_on`
@@ -445,9 +460,9 @@ class Image < ApplicationRecord
   # @return [String] a JPG representation of the image
   #   !! Always converts to .jpg, this may need abstraction later
   #   Returns an empty string if no image
-  def self.to_blob!(img)
+  def self.to_blob!(img, format = 'jpg')
     return '' if img.nil?
-    img.format = 'jpg'
+    img.format = format
     blob = img.to_blob
     img.destroy!
     blob

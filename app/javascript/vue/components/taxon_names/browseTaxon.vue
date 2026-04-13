@@ -1,7 +1,7 @@
 <template>
   <span
     class="circle-button button-default btn-hexagon-arrow-flip-w"
-    title="Browse nomenclature and classification"
+    title="Browse taxon names"
     @click="redirect()"
     @contextmenu.prevent="redirect(true)"
     >Otu

@@ -4,7 +4,10 @@
       v-if="collectionObject.id"
       class="flex-separate middle"
     >
-      <span v-html="collectionObject.objectTag" />
+      <div class="horizontal-left-content middle gap-small">
+        <span v-html="collectionObject.objectTag" />
+        <DwcReindexWarning />
+      </div>
       <div class="horizontal-right-content">
         <ul class="context-menu">
           <li>
@@ -60,6 +63,7 @@ import { computed } from 'vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { DEPICTION, IDENTIFIER, COLLECTION_OBJECT } from '@/constants'
+import { RouteNames } from '@/routes/routes'
 import VBtn from '@/components/ui/VBtn'
 import VIcon from '@/components/ui/VIcon'
 import NavBar from '@/components/layout/NavBar.vue'
@@ -70,7 +74,7 @@ import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import RadialFilter from '@/components/radials/linker/radial.vue'
 import RadialFilterAttribute from '@/components/radials/linker/RadialFilterAttribute.vue'
 import BrowseOTU from '@/components/otu/otu.vue'
-import { RouteNames } from '@/routes/routes'
+import DwcReindexWarning from './DwcReindexWarning.vue'
 
 const store = useStore()
 const collectionObject = computed(

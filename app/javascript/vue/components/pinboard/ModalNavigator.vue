@@ -1,5 +1,5 @@
 <template>
-  <VModal>
+  <VModal :container-style="{ width: '500px', overflow: 'hidden' }">
     <template #header>
       <h3>Pinboard navigator - Browse tasks</h3>
     </template>
@@ -19,8 +19,8 @@
             <transition
               v-if="selected && selected.klass == key"
               name="bounce"
-              @after-enter="redirect"
               appear
+              @after-enter="redirect"
             >
               <div class="horizontal-left-content cursor-pointer">
                 <div
@@ -30,7 +30,9 @@
                     ><b>{{ item.shortcut }}</b></span
                   >
                 </div>
-                <span v-html="shorten(defaultItems[key].label, 38)" />
+                <span
+                  v-html="shorten(defaultItems[key].label, MAX_STRING_LENGTH)"
+                />
               </div>
             </transition>
             <div
@@ -45,7 +47,9 @@
                   ><b>{{ item.shortcut }}</b></span
                 >
               </div>
-              <span v-html="shorten(defaultItems[key].label, 38)" />
+              <span
+                v-html="shorten(defaultItems[key].label, MAX_STRING_LENGTH)"
+              />
             </div>
           </li>
         </template>
@@ -58,9 +62,11 @@
 <script setup>
 import VModal from '@/components/ui/Modal'
 import Shortcuts from './const/shortcuts.js'
-import useHotKey from 'vue3-hotkey'
+import { useHotkey } from '@/composables'
 import { shorten } from '@/helpers/strings.js'
 import { computed, ref, onBeforeMount } from 'vue'
+
+const MAX_STRING_LENGTH = 80
 
 defineOptions({
   name: 'PinboardNavigator'
@@ -81,7 +87,7 @@ const hotkeys = computed(() => {
   return keys
 })
 
-useHotKey(hotkeys.value)
+useHotkey(hotkeys.value)
 
 function redirect() {
   const selectedKlass = selected.value.klass

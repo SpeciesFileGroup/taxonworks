@@ -33,3 +33,9 @@ if attribution.roles.load.any?
     end
   end
 end
+
+if extend_response_with('notes')
+  json.notes attribution.notes.each do |n|
+    json.text n.text
+  end
+end

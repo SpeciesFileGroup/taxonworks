@@ -7,9 +7,12 @@
 # Vaguely inspired by concepts from by svn://rubyforge.org/var/svn/softvalidations, but not as elegant.
 #
 # Soft validations are a means to tie warnings or suggestions to instances of data.
+# Soft validations should only be tested on persisted objects (ones that have an id populated).
+#
 # Soft validations do not prevent an instance from being saved.  They are not intended
-# to be bound to AR callbacks, but this may be possible ultimately. They may be used to
-# alert the user to data issues that need to be addressed, or alert the programmer
+# to be bound to AR callbacks.
+#
+# They may be used to alert the user to data issues that need to be addressed, or alert the programmer
 # who is batch parsing data as to the quality of the incoming data, etc..
 #
 # There are 2 stages to defining a soft validation. First index and provide an option general description
@@ -21,7 +24,7 @@
 # keep the intent of the logic close to the consequences of the logic.
 #
 # Devloper tips:
-# 
+#
 # - Protonym.soft_validation( ) <- all technical metadata and a gross description (the intent), optionally, goes here
 # - @protonym.sv_xyz( ) <- all human guidance (warning, outcomes) goes here, including the attribute to point to in the UI
 # - *fix* method names should not be exposed to the UI
@@ -190,7 +193,7 @@ module SoftValidation
     # @return [Array]
     #   all methods from all sets from self (not superclasses)
     def soft_validation_methods_on_self
-      a = soft_validation_sets[name]&.keys 
+      a = soft_validation_sets[name]&.keys
       return [] if a.nil?
       a.collect{|s| soft_validation_sets[name][s] }.flatten
     end
@@ -220,7 +223,7 @@ module SoftValidation
     #
     # @param except_methods [Array]
     #   Names (symbols) of soft validation methods to exclude.  Ignored if only_methods is provided.
-    #   
+    #
     # @param include_superclass [Boolean]
     #   include validations on superclasses, default is `true`
     #
@@ -275,7 +278,10 @@ module SoftValidation
       # Get rid of explicitly excluded
       methods.delete_if{|m| except_methods.include?(m) }
 
-      methods
+      # De-duplicate methods list, preferring subclass methods over base class.
+      methods.reverse!
+      methods.uniq! { |m| m.name }
+      methods.reverse!
     end
 
     private
@@ -332,7 +338,7 @@ module SoftValidation
   end
 
   # The validation set to fix is set prior to running the fix, at the first step.
-  # It can be refined/restricted there as needed, letting specific contexts (e.g. 
+  # It can be refined/restricted there as needed, letting specific contexts (e.g.
   # access in controller) defined the scope.
   def fix_soft_validations
     return false if !soft_validated?

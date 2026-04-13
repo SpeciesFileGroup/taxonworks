@@ -1,8 +1,8 @@
 <template>
   <FacetContainer>
-    <h3>Usage</h3>
+    <h3 data-help="Both field occurrences and collection objects are checked. To find records with an exact count set both values to the same number. To find records with no use set maximum to zero. ">Usage</h3>
     <div class="field label-above">
-      <label>Used more than</label>
+      <label> Minimum times</label>
       <input
         v-model="params.use_min"
         type="number"
@@ -10,7 +10,7 @@
       />
     </div>
     <div class="field label-above">
-      <label>Used less than</label>
+      <label> Maximum times </label>
       <input
         v-model="params.use_max"
         type="number"

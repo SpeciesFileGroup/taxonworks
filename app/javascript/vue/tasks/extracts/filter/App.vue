@@ -1,12 +1,10 @@
 <template>
-  <div>
-    <h1>Filter extracts</h1>
-
+  <div class="margin-medium-top">
     <FilterLayout
       :url-request="urlRequest"
       :pagination="pagination"
       :object-type="EXTRACT"
-      :selected-ids="selectedIds"
+      :selected-ids="sortedSelectedIds"
       :list="list"
       v-model="parameters"
       v-model:append="append"
@@ -20,15 +18,15 @@
           :parameters="parameters"
           :disabled="!list.length"
           :object-type="EXTRACT"
-          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
+          @update="() => makeFilterRequest({ ...parameters, extend })"
         />
       </template>
       <template #nav-right>
         <RadialMatrix
-          :ids="selectedIds"
+          :ids="sortedSelectedIds"
           :disabled="!list.length"
           :object-type="EXTRACT"
-          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
+          @update="() => makeFilterRequest({ ...parameters, extend })"
         />
       </template>
       <template #facets>
@@ -66,16 +64,17 @@ import { EXTRACT } from '@/constants/index.js'
 import { Extract } from '@/routes/endpoints'
 
 const {
+  append,
   isLoading,
   list,
-  pagination,
-  append,
-  urlRequest,
   loadPage,
-  selectedIds,
-  parameters,
   makeFilterRequest,
-  resetFilter
+  pagination,
+  parameters,
+  resetFilter,
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
 } = useFilter(Extract, { initParameters: { extend } })
 </script>
 

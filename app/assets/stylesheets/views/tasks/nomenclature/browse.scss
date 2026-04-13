@@ -16,9 +16,14 @@
     margin-bottom: 1em;
   }
 
+  .browse-nomenclature-navbar {
+    z-index: 1098;
+  }
+
   .nav-column {
     width: 400px;
-    min-width: 270px;
+    min-width: 400px;
+    bottom: 0px;
   }
 
   .citations {
@@ -30,7 +35,7 @@
   }
   .name {
     font-size: 18px;
-    color: #000;
+    color: var(--text-color);
   }
 
   .ui-autocomplete {
@@ -62,6 +67,12 @@
   .citations {
     .annotation__note {
       display: none;
+    }
+  }
+
+  #summary-panel {
+    [data-icon] {
+      filter: invert(0);
     }
   }
 

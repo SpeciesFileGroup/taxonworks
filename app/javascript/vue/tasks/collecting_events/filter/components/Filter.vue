@@ -8,15 +8,19 @@
     title="Collectors"
     klass="CollectingEvent"
     param-people="collector_id"
-    param-any="collector_id_or"
+    param-all="collector_id_all"
     :role-type="COLLECTOR_SELECTOR"
   />
   <FacetMaterial v-model="params" />
   <FacetMatchIdentifiers v-model="params" />
   <FacetProtocol v-model="params" />
   <FacetKeywords
-    target="CollectingEvent"
+    :target="COLLECTING_EVENT"
     v-model="params"
+  />
+  <FacetConfidence
+    v-model="params"
+    :target="COLLECTING_EVENT"
   />
   <FacetTotalUsed v-model="params" />
   <FacetUsers
@@ -26,6 +30,7 @@
   <FacetCollectingEventAttributes v-model="params" />
   <FacetDataAttribute v-model="params" />
   <FacetImportAttribute v-model="params" />
+  <FacetNotes v-model="params" />
   <FacetWith
     v-for="param in WITH_PARAMS"
     :key="param"
@@ -46,12 +51,14 @@ import FacetKeywords from '@/components/Filter/Facets/shared/FacetTags.vue'
 import FaceDeterminations from '@/components/Filter/Facets/CollectionObject/Determiner/FacetDetermination.vue'
 import FacetMaterial from '@/components/Filter/Facets/CollectionObject/FacetTypeMaterial.vue'
 import FacetPeople from '@/components/Filter/Facets/shared/FacetPeople.vue'
-import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute.vue'
+import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute/FacetDataAttribute.vue'
 import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetProtocol from '@/components/Filter/Facets/Extract/FacetProtocol.vue'
 import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportAttribute/FacetImportAttribute.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
+import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.vue'
+import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
 import { computed } from 'vue'
 import { COLLECTOR_SELECTOR, COLLECTING_EVENT } from '@/constants/index.js'
 
@@ -66,6 +73,7 @@ const WITH_PARAMS = [
   'citations',
   'collection_objects',
   'collectors',
+  'confidences',
   'data_attributes',
   'data_depictions',
   'depictions',

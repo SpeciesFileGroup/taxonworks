@@ -16,6 +16,17 @@ describe 'Identifiable', type: :model, group: [:identifiers] do
     expect(b.local_identifiers.first.identifier.to_f).to eq(i.identifier.to_f + 1.0)
   end
 
+  specify '#add_incremented_identifier when increment fails' do
+    a = FactoryBot.create(:valid_otu)
+    b = FactoryBot.create(:valid_otu)
+
+    i = Identifier::Local::OtuUtility.create!(identifier: 'asdf', identifier_object: a, namespace:)
+
+    expect(
+      a.add_incremented_identifier(to_object: b, incremented_identifier_id: i.id)
+    ).to be_falsey
+  end
+
   context 'associations' do
     specify 'has many identifiers' do
       expect(identifiable_instance.identifiers << Identifier.new).to be_truthy

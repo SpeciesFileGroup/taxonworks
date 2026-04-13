@@ -71,6 +71,15 @@ module Queries
       Utilities::Strings.integers(query_string)
     end
 
+    # @return [Array<Integer>]
+    #   Array of integers parsed from `query_string` that fit within the
+    #   4-byte SQL integer range (1 to 2_147_483_647)
+    def safe_integers
+      integers
+        .map(&:to_i)
+        .select { |i| i.between?(1, 2_147_483_647) }
+    end
+
     # @return [Boolean]
     def only_integers?
       Utilities::Strings.only_integers?(query_string)
@@ -145,8 +154,8 @@ module Queries
     # @return [Arel::Nodes, nil]
     #   used in or_clauses
     def with_id
-      if integers.any?
-        table[:id].in(integers)
+      if safe_integers.any?
+        table[:id].in(safe_integers)
       else
         nil
       end
@@ -232,6 +241,7 @@ module Queries
     #   default the autocomplete result to all
     #   TODO: eliminate
     def autocomplete
+      return [] if query_string.blank?
       all.to_a
     end
 
@@ -256,6 +266,15 @@ module Queries
       a = match_wildcard_in_cached
       return nil if a.nil?
       base_query.where(a.to_sql)
+    end
+
+    # @return [ActiveRecord::Relation, nil]
+    #   cached matches full query string wildcarded
+    # TODO: Used in taxon_name, source, identifier
+    def cached_facet
+      return nil if no_terms?
+      # TODO: or is redundant with terms in many cases
+      (table[:cached].matches_any(terms)).or(match_ordered_wildcard_pieces_in_cached)
     end
 
     # @return [ActiveRecord::Relation]

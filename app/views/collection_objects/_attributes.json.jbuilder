@@ -2,6 +2,24 @@ json.extract! collection_object, :id, *CollectionObject.core_attributes
 
 json.partial! '/shared/data/all/metadata', object: collection_object
 
+if extend_response_with('container_label')
+  json.container_label label_for_collection_object_container(collection_object)
+end
+
+
+if extend_response_with('container') && collection_object.container_item&.container.present?
+  json.container do
+    json.partial! '/containers/attributes', container: collection_object.container_item.container, extensions: false
+    json.identifier label_for_identifier(collection_object.container_item.container.identifiers.first)
+  end
+end
+
+if extend_response_with('container_item') && collection_object.container_item.present?
+  json.container_item do
+    json.partial! '/container_items/attributes', container_item: collection_object.container_item, extensions: false
+  end
+end
+
 if extend_response_with('dwc_occurrence')
   json.dwc_occurrence do
     json.merge!(collection_object.dwc_occurrence&.attributes&.select{|k,v| v.present?} )

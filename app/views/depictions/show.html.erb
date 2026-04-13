@@ -17,18 +17,23 @@
     <p><strong>Layout:</strong>
       <%= @depiction.sqed_depiction.layout %>
     </p>
-    
+
     <p><strong>Border:</strong>
     <%= @depiction.sqed_depiction.has_border %>
     </p>
-   
+
     <p><strong>Result boundary coordinates:</strong>
       <%= @depiction.sqed_depiction.result_boundary_coordinates %>
     </p>
 
     <%= render partial: '/shared/data/all/show/housekeeping', locals: {object: @depiction.sqed_depiction} -%>
-    
+
   <% end %>
 <% end %>
+
+<%= content_for :icon_navigation do -%>
+  <%= content_tag(:li, radial_quick_forms_tag(@depiction) )  %>
+<% end %>
+
 
 <%= render(partial: 'shared/data/project/show', locals: {object: @depiction}) -%>

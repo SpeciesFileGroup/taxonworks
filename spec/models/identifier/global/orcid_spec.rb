@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 describe Identifier::Global::Orcid, type: :model, group: :identifiers do
+  include ActiveJob::TestHelper
+
   context 'Orcid' do
     let(:id) {Identifier::Global::Orcid.new(identifier_object: FactoryBot.build(:valid_person)) }
 
@@ -10,6 +12,8 @@ describe Identifier::Global::Orcid, type: :model, group: :identifiers do
       s.collecting_event.collectors << p
 
       Identifier::Global::Orcid.create!(identifier_object: p, identifier: 'http://orcid.org/0000-0002-1825-0097' )
+      
+      perform_enqueued_jobs
 
       expect(s.dwc_occurrence.reload.recordedByID).to eq('http://orcid.org/0000-0002-1825-0097')
     end
@@ -20,6 +24,8 @@ describe Identifier::Global::Orcid, type: :model, group: :identifiers do
       t = FactoryBot.build(:valid_taxon_determination, determiners: [p], taxon_determination_object: s)
 
       Identifier::Global::Orcid.create!(identifier_object: p, identifier: 'http://orcid.org/0000-0002-1825-0097' )
+
+      perform_enqueued_jobs
 
       expect(s.dwc_occurrence.reload.identifiedByID).to eq('http://orcid.org/0000-0002-1825-0097')
     end

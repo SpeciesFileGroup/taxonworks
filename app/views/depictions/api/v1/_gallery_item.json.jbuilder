@@ -1,6 +1,6 @@
 json.extract! depiction, :id, :depiction_object_id, :depiction_object_type, :image_id,
 :caption, :figure_label, :is_metadata_depiction,
-:svg_view_box,
+:svg_view_box, :svg_clip,
 :created_at, :updated_at
 
 json.label label_for_depiction(depiction)

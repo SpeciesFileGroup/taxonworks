@@ -22,11 +22,11 @@
 
   <%= content_tag(:li, link_to( "New", new_collecting_event_path,
       data: { confirm: "Leave this record? Changes will not be saved!"})) %>
-  
+
   <%= content_tag(:li, radial_annotator(@collecting_event)) -%>
 
   </ul>
-  <br/> 
+  <br/>
 <% end %>
 
 <%= form_for(@collecting_event, html: {id: :collecting_event_form}) do |f| %>
@@ -95,9 +95,9 @@
           <%= f.text_field :verbatim_geolocation_uncertainty %>
         </div>
         <div class="field">
-          <%= f.label :verbatim_trip_identifier %>
+          <%= f.label :verbatim_field_number %>
           <br>
-          <%= f.text_field :verbatim_trip_identifier,  size: 35 %>
+          <%= f.text_field :verbatim_field_number,  size: 35 %>
         </div>
 
         <div class="field">

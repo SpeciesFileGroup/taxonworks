@@ -17,10 +17,12 @@
     <PanelDisposition />
     <PanelBiologicalAssociations />
     <PanelTypeMaterial />
+    <PanelAnatomicalParts />
   </TableGrid>
 </template>
 
 <script setup>
+import PanelAnatomicalParts from './PanelAnatomicalParts.vue'
 import PanelBuffered from './PanelBuffered/PanelBuffered.vue'
 import PanelDeterminations from './PanelDeterminations.vue'
 import PanelBiocurations from './PanelBiocurations.vue'

@@ -10,7 +10,6 @@
       :klass="objectType"
       :custom-list="{ all }"
       :lock-view="false"
-      :filter-ids="list.map((item) => item.controlled_vocabulary_term_id)"
       @selected="
         ($event) => {
           predicate = $event
@@ -18,7 +17,10 @@
       "
       v-model="predicate"
     />
-    <hr v-if="predicate" />
+    <hr
+      v-if="predicate"
+      class="divisor"
+    />
     <SmartSelectorItem
       :item="predicate"
       @unset="() => (predicate = undefined)"

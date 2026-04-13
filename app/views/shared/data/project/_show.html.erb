@@ -12,7 +12,7 @@
         </div> 
 
         <div class="navigation-controls border-bottom">
-          <div class="content">
+          <div class="content w-full">
             <%= search_form_for_model(@data_model) %>
           </div>
         </div>
@@ -26,6 +26,7 @@
     </div>
 
     <div class="item item2">
+      
       <div class="panel separate-left">
         <div class="title action-line">
           <div class="inline">
@@ -34,7 +35,7 @@
           </div>
           <div class="flex-separate">
             <ul class="context-menu">
-              <li><a data-icon="show" href="#" data-turbolinks="false" view-bottom>Development view</a></li>
+              <li><a href="#" data-turbolinks="false" view-bottom><span data-icon="show"></span> Development view</a></li>
             </ul>
             <ul class="context-menu">
               <%= yield :icon_navigation -%> 
@@ -51,26 +52,29 @@
           <%= destroy_object_link(object) %>
 
           <div id="show_tasks_dropdown" class="navigation-item menu-drop">
-            <span data-icon="task" class="small-icon">Tasks</span>
+            <span data-icon="task" class="small-icon"></span>
+            <span>Tasks</span>
             <ul class="dropdown">
               <%= yield :tasks -%>
             </ul>
           </div>
           <div id="show_add_dropdown" class="navigation-item menu-drop">
-            <span data-icon="add" class="small-icon">Add</span>
+            <span data-icon="add" class="small-icon"></span>
+            <span>Add</span>
             <ul class="dropdown">
               <%= yield :add -%>
             </ul>
           </div>     
           <div id="show_report_dropdown" class="navigation-item menu-drop">
-            <span data-icon="annotate" class="small-icon">Report</span>
+            <span data-icon="annotate" class="small-icon"></span>
+            <span>Report</span>
             <ul class="dropdown">
               <%= papertrail_link_tag(object) %>
               <%= yield :report -%>
             </ul>
           </div>    
+        </div>
 
-        </div>        
       </div>    
       <div class="flex-wrap-row"> 
         <div class="panels-container">

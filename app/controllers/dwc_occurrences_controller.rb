@@ -14,6 +14,46 @@ class DwcOccurrencesController < ApplicationController
       .per(params[:per] || 1)
   end
 
+  def api_index
+    q = Queries::DwcOccurrence::Filter.new(params.merge!(api: true)).all
+      .where(project_id: sessions_current_project_id)
+      .page(params[:page]).per(params[:per])
+
+    respond_to do |format|
+      format.json {
+        @dwc_occurrences = q
+        render '/dwc_occurrences/api/v1/index'
+      }
+      format.csv {
+        @dwc_occurrences = q.limit(100000)
+        send_data Export::CSV.generate_csv(
+          @dwc_occurrences,
+          exclude_columns: %w{updated_by_id created_by_id project_id, rebuild_set},
+        ), type: 'text', filename: "dwc_occurrences_#{DateTime.now}.tsv"
+      }
+    end
+  end
+
+  # GET /api/v1/dwc_occurrences/area_autocomplete?term=Can&target=country
+  def api_area_autocomplete
+
+    target = params[:target] || 'country'
+
+    if !['country', 'stateProvince', 'county'].include?(target) || params[:term].blank?
+      render json: {}, status: :unprocessable_content and return
+    end
+
+    names = DwcOccurrence.select(target.to_sym)
+      .where("dwc_occurrences.\"#{target}\" ILIKE ?", "%#{ActiveRecord::Base.sanitize_sql_like(params[:term])}%")
+      .order(target.to_sym)
+      .distinct
+      .limit(20)
+      .pluck(target.to_sym)
+      .sort_by{|a| a.length}
+
+    render json: names 
+  end
+
   def metadata
     @dwc_occurrences = DwcOccurrence.where(project_id: sessions_current_project_id)
   end
@@ -29,34 +69,12 @@ class DwcOccurrencesController < ApplicationController
         updated_at:  @object.dwc_occurrence&.updated_at
       }
     else
-      render json: {}, status: :unprocessable_entity
+      render json: {}, status: :unprocessable_content
     end
   end
 
   def collector_id_metadata
     render json: helpers.collector_global_id_metadata
-  end
-
-  # TODO: remove
-  def create
-    respond_to do |format|
-      format.html do
-        @object.set_dwc_occurrence # TODO: If sync is complete this is not needed.
-        redirect_to browse_collection_objects_task_path(collection_object_id: @object.id)
-      end
-      format.json {
-        render status: :found and return
-      }
-    end
-  end
-
-  # GET /api/v1/dwc_occurrences.json
-  def api_index
-    @dwc_occurrences = Queries::DwcOccurrence::Filter.new(params.merge!(api: true))
-      .all
-      .where(project_id: sessions_current_project_id)
-      .page(params[:page]).per(params[:per] || 1000)
-    render '/dwc_occurrences/api/v1/index'
   end
 
   # GET /dwc_occurence/download

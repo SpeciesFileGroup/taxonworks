@@ -99,12 +99,13 @@
         TaxonNameRelationship::Icnp::Unaccepting::Usage,
         TaxonNameRelationship::Icvcn::Unaccepting) +
        %w{ TaxonNameRelationship::Iczn::Invalidating
+       TaxonNameRelationship::Iczn::Invalidating::Unavailable
        TaxonNameRelationship::Icn::Unaccepting
        TaxonNameRelationship::Icn::Unaccepting::OriginallyInvalid
        TaxonNameRelationship::Icnp::Unaccepting
        TaxonNameRelationship::Icvcn::Unaccepting}.freeze
 
-       TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING ||= %w{
+      TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING ||= %w{
       TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling'
       TaxonNameRelationship::Icnp::Unaccepting::Usage::Misspelling
       TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling
@@ -126,7 +127,6 @@
       TaxonNameRelationship::Icnp::Unaccepting::Usage::Misspelling
       TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling}.freeze
 
-
       TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY ||= %w{
       TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling
       TaxonNameRelationship::Icnp::Unaccepting::Usage::Misspelling
@@ -138,6 +138,9 @@
       TaxonNameRelationship::Icn::Unaccepting::Misapplication
       TaxonNameRelationship::Icnp::Unaccepting::Misapplication
       TaxonNameRelationship::Iczn::Invalidating::Misapplication}.freeze
+
+      TAXON_NAME_RELATIONSHIP_UNAVAILABLE ||= TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION+ %w{
+      TaxonNameRelationship::Iczn::Invalidating::Unavailable}.freeze
 
       # TODO: check .assignable property prior to building
 
@@ -160,7 +163,8 @@
       }.freeze
 
       # { genus: 'TaxonNameRelationship::Combination::Genus, ... }
-      TAXON_NAME_RELATIONSHIP_COMBINATION_TYPES ||= TaxonNameRelationship::Combination.descendants.inject({}){|hsh, a| hsh.merge!( a.rank_name.to_sym => a.name)}.freeze
+      TAXON_NAME_RELATIONSHIP_COMBINATION_TYPES ||= TaxonNameRelationship::Combination.descendants
+      .inject({}){|hsh, a| hsh.merge!( a.rank_name.to_sym => a.name)}.freeze
 
       TAXON_NAME_RELATIONSHIPS_JSON ||= {
         iczn: {
@@ -171,7 +175,7 @@
             TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective,
             TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling,
             TaxonNameRelationship::Iczn::Invalidating::Homonym,
-            TaxonNameRelationship::Iczn::Invalidating
+            TaxonNameRelationship::Iczn::Invalidating::Unavailable
           ])
         },
 

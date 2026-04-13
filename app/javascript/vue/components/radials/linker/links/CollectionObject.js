@@ -1,62 +1,47 @@
 import {
   TASK_COLLECTION_OBJECT_MATCH,
-  TASK_COLLECTION_OBJECT_TABLE,
-  TASK_COLLECTION_OBJECT_SUMMARY,
   TASK_COLLECTION_OBJECT_OUTDATED_NAMES,
-  TASK_FIELD_SYNCHRONIZE
-} from '../constants/links'
+  TASK_COLLECTION_OBJECT_SUMMARY,
+  TASK_COLLECTION_OBJECT_TABLE,
+  TASK_COMPACT_DWC,
+  TASK_DUPLICATE_DATA_ATTRIBUTES,
+  TASK_FIELD_SYNCHRONIZE,
+  TASK_MONOGRAPH_FACILITATOR,
+  TASK_MULTI_UPDATE,
+  TASK_NEW_CONTAINER,
+  TASK_PROJECT_VOCABULARY,
+  TASK_SIMPLEMAPPR,
+  TASK_COLLECTION_OBJECT_MEDIA_EXTENSION,
+} from "../constants/links";
 
 export const CollectionObject = {
   all: [
     TASK_COLLECTION_OBJECT_MATCH,
-    TASK_COLLECTION_OBJECT_TABLE,
-    TASK_COLLECTION_OBJECT_SUMMARY,
     TASK_COLLECTION_OBJECT_OUTDATED_NAMES,
-    TASK_FIELD_SYNCHRONIZE
+    TASK_COLLECTION_OBJECT_SUMMARY,
+    TASK_COLLECTION_OBJECT_TABLE,
+    TASK_COLLECTION_OBJECT_MEDIA_EXTENSION,
+    TASK_COMPACT_DWC,
+    TASK_DUPLICATE_DATA_ATTRIBUTES,
+    TASK_FIELD_SYNCHRONIZE,
+    TASK_MONOGRAPH_FACILITATOR,
+    TASK_MULTI_UPDATE,
+    TASK_NEW_CONTAINER,
+    TASK_SIMPLEMAPPR,
   ],
   ids: [
     TASK_COLLECTION_OBJECT_MATCH,
-    TASK_COLLECTION_OBJECT_TABLE,
-    TASK_COLLECTION_OBJECT_SUMMARY,
     TASK_COLLECTION_OBJECT_OUTDATED_NAMES,
-    TASK_FIELD_SYNCHRONIZE
-  ]
-}
-
-/*   per: [
-    {
-      label: 'By collecting event',
-      link: '/tasks/collection_objects/filter',
-      params: ['collecting_event_id']
-    },
-    {
-      label: 'By verbatim locality',
-      link: '/tasks/collection_objects/filter',
-      params: ['verbatim_locality']
-    },
-    {
-      label: 'By OTU',
-      link: '/tasks/collection_objects/filter',
-      params: ['otu_id']
-    },
-    {
-      label: 'By taxon name',
-      link: '/tasks/collection_objects/filter',
-      params: ['ancestor_id']
-    },
-    {
-      label: 'Images',
-      link: '/tasks/images/filter',
-      params: ['collection_object_id']
-    },
-    {
-      label: 'Images by taxon name',
-      link: '/tasks/images/filter',
-      params: ['taxon_name_id']
-    },
-    {
-      label: 'By geographic area',
-      link: '/tasks/collection_objects/filter',
-      params: ['geographic_area_id']
-    }
-  ] */
+    TASK_COLLECTION_OBJECT_SUMMARY,
+    TASK_COLLECTION_OBJECT_TABLE,
+    TASK_COLLECTION_OBJECT_MEDIA_EXTENSION,
+    TASK_COMPACT_DWC,
+    TASK_DUPLICATE_DATA_ATTRIBUTES,
+    TASK_FIELD_SYNCHRONIZE,
+    TASK_MONOGRAPH_FACILITATOR,
+    TASK_MULTI_UPDATE,
+    TASK_NEW_CONTAINER,
+    TASK_PROJECT_VOCABULARY,
+    TASK_SIMPLEMAPPR,
+  ],
+};

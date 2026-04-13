@@ -12,7 +12,7 @@ describe Queries::CollectingEvent::Autocomplete, type: :model do
 
   let!(:ce2) { CollectingEvent.create(
     verbatim_locality: 'Out there, under the stars',
-    verbatim_trip_identifier: 'Foo manchu',
+    verbatim_field_number: 'Foo manchu',
     start_date_year: 2000,
     start_date_month: 2,
     start_date_day: 19,
@@ -68,9 +68,9 @@ describe Queries::CollectingEvent::Autocomplete, type: :model do
     expect(query.autocomplete_verbatim_locality_wildcard_end).to eq(nil)
   end
 
-  specify '#autocomplete_verbatim_trip_identifier_match (:cached)' do
+  specify '#autocomplete_verbatim_field_number_match (:cached)' do
     query.terms = 'foo manchu'
-    expect(query.autocomplete_verbatim_trip_identifier_match.map(&:id)).to contain_exactly(ce2.id)
+    expect(query.autocomplete_verbatim_field_number_match.map(&:id)).to contain_exactly(ce2.id)
   end
 
   specify '#autocomplete_identifier_cached_exact' do

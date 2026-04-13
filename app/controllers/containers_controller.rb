@@ -2,12 +2,23 @@ class ContainersController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_container, only: [:update, :destroy, :show, :edit]
+  after_action -> { set_pagination_headers(:containers) }, only: [:index, :api_index], if: :json_request?
 
   # GET /containers
   # GET /containers.json
   def index
-    @recent_objects = Container.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = Container.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @containers = ::Queries::Container::Filter.new(params)
+          .all
+          .page(params[:page])
+          .per(params[:per])
+      }
+    end
   end
 
   # GET /containers/1
@@ -26,11 +37,12 @@ class ContainersController < ApplicationController
 
   # GET /containers/new
   def new
-    @container = Container.new
+    redirect_to new_container_task_path, notice: 'Redirected to new interface.'
   end
 
   # GET /containers/1/edit
   def edit
+    redirect_to new_container_task_path(container_id: @container.id), notice: 'Redirected to new interface.'
   end
 
   def list
@@ -47,7 +59,7 @@ class ContainersController < ApplicationController
         format.json { render :show, status: :created, location: @container.metamorphosize }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container was NOT successfully created.')}
-        format.json { render json: @container.errors, status: :unprocessable_entity }
+        format.json { render json: @container.errors, status: :unprocessable_content }
       end
     end
   end
@@ -58,10 +70,10 @@ class ContainersController < ApplicationController
     respond_to do |format|
       if @container.update(container_params)
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container was successfully updated.')}
-        format.json { head :no_content }
+        format.json { render :show, status: :ok, location: @container.metamorphosize }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container was NOT successfully updated.')}
-        format.json { render json: @container.errors, status: :unprocessable_entity }
+        format.json { render json: @container.errors, status: :unprocessable_content }
       end
     end
   end
@@ -76,7 +88,7 @@ class ContainersController < ApplicationController
         format.json { head :no_content }
       else
         format.html { destroy_redirect @container, notice: 'Container was not destroyed, ' + @container.errors.full_messages.join('; ') }
-        format.json { render json: @container.errors, status: :unprocessable_entity }
+        format.json { render json: @container.errors, status: :unprocessable_content }
       end
     end
   end
@@ -91,9 +103,13 @@ class ContainersController < ApplicationController
 
   def autocomplete
     @containers = Queries::Container::Autocomplete.new(
-      params.require(:term), 
+      params.require(:term),
       project_id: sessions_current_project_id
     ).autocomplete
+  end
+
+  def container_types
+    render json: helpers.container_types
   end
 
   private
@@ -102,6 +118,6 @@ class ContainersController < ApplicationController
   end
 
   def container_params
-    params.require(:container).permit(:parent_id, :type, :name, :disposition, :size_x, :size_y, :size_z)
+    params.require(:container).permit(:type, :name, :disposition, :size_x, :size_y, :size_z, :empty_container)
   end
 end

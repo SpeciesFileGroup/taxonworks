@@ -61,6 +61,12 @@ class Combination < TaxonName
     hsh[r] = "TaxonNameRelationship::Combination::#{r.capitalize}"; hsh;
   }.freeze
 
+  INVERTED_RANKS = APPLICABLE_RANKS.dup.invert.freeze
+
+  APPLICABLE_RANK_CLASSES = INVERTED_RANKS.keys.freeze
+
+  APPLICABLE_RANK_SORT = INVERTED_RANKS.keys.inject({}){|hsh, r| hsh[r] = INVERTED_RANKS.keys.index(r) || 0 + 1; hsh}.freeze
+
   before_validation :set_parent
 
   # Before we set cached ensure we draw current data
@@ -86,7 +92,7 @@ class Combination < TaxonName
   }, class_name: 'TaxonNameRelationship',
   foreign_key: :object_taxon_name_id
 
-  has_many :combination_taxon_names, through: :combination_relationships, source: :subject_taxon_name
+  has_many :combination_taxon_names, through: :combination_relationships, source: :subject_taxon_name # Should be combination_protonyms, or just protonyms?
 
   # Create syntactic helper methods
   TaxonNameRelationship.descendants.each do |d|
@@ -163,11 +169,29 @@ class Combination < TaxonName
     where('taxon_name_relationships.type = ? and taxon_name_relationships.subject_taxon_name_id = ?', rank, protonym).
     references(:combination_relationships)}
 
+  scope :incomplete, -> { where("taxon_names.cached LIKE '%NOT SPECIFIED%'") }
+  scope :complete, -> { where("taxon_names.cached IS NOT null AND taxon_names.cached NOT LIKE '%NOT SPECIFIED%'") }
+
   validate :is_unique
   validate :does_not_exist_as_original_combination, unless: Proc.new {|a| a.errors.full_messages.include? 'Combination exists.' }
   validate :parent_is_properly_set , unless: Proc.new {|a| a.errors.full_messages.include? 'Combination exists.' }
   validate :composition, unless: Proc.new {|a| disable_combination_relationship_check == true || a.errors.full_messages.include?('Combination exists.') }
   validates :rank_class, absence: true
+
+  #
+  # validate :name, nil => true
+  #
+  # See https://github.com/SpeciesFileGroup/taxonworks/issues/4697
+  # It won't be this simple likely.  Might have to be the last validation in the chain?
+  # See soft_validation that auto-sets verbatim_name in `.becomes` (which may have to go).
+  #
+  # validate :verbatim_name_is_allowed # , if: Proc.new {|a| persisted? }
+  # def verbatim_name_is_allowed
+  #   if verbatim_name == full_name
+  #     errors.add(:verbatim_name, 'verbatim name is identical to calculate value and therefor not allowed')
+  #   end
+  # end
+  #
 
   soft_validate(
     :sv_redundant_verbatim_name,
@@ -175,6 +199,7 @@ class Combination < TaxonName
     fix: :sv_fix_redundant_verbatim_name,
     name: 'Redundant verbatim name',
     description: 'Verbatim name is present but identical to computed name')
+
 
   soft_validate(
     :sv_combination_duplicates,
@@ -308,6 +333,25 @@ class Combination < TaxonName
     a ? a : false
   end
 
+  # TODO: add higher classifcation here
+  def combination_taxonomy
+    d = full_name_hash
+    protonyms_by_rank.to_a.first[1].ancestors.each do |a| # unscope?
+      d[a.rank] = a.name
+    end
+
+    d
+  end
+
+  # This is not used.
+  def taxonomy(rebuild = false)
+    if rebuild
+      @taxonomy = combination_taxonomy
+    else
+      @taxonomy ||= combination_taxonomy
+    end
+  end
+
   # @return [Boolean]
   #   true if the finest level (typically species) currently has the same parent
   def is_current_placement?
@@ -317,25 +361,28 @@ class Combination < TaxonName
 
   def get_full_name
     return verbatim_name if verbatim_name.present?
-    full_name
+    ::Utilities::Nomenclature.full_name(full_name_hash)
   end
 
-  # Is this used before persistence of the complete Combination?!
   # Overrides {TaxonName#full_name_hash}
   # @return [Hash]
   #
   #  Benchmark.measure { 1000.times do; Combination.find_by_id(ids.sample).full_name_hash; end}
+  #
+  # TODO: Is this used before persistence of the complete Combination?!
   def full_name_hash
     gender = nil
     data = {}
 
-    protonyms_by_rank.each do |rank, i|
-      gender = i.gender_name if rank == 'genus'
+    light_protonyms_by_rank.each do |rank, i|
+      gender = i.cached_gender if rank == 'genus'
 
+      v = i.genderized_elements(gender)
       if ['genus', 'subgenus', 'species', 'subspecies'].include?(rank)
-        data[rank] = [nil, i.name_with_misspelling(gender)]
+        data[rank] = v
       else
-        data[rank] = [i.rank_class.abbreviation, i.name_with_misspelling(gender)]
+        v[0] = i.rank_class.abbreviation
+        data[rank] = v
       end
     end
 
@@ -358,38 +405,133 @@ class Combination < TaxonName
     data
   end
 
-  # TODO: add higher classifcation here
-  def combination_taxonomy
-    d = full_name_hash
-    protonyms_by_rank.to_a.first[1].ancestors.each do |a|
-      d[a.rank] = a.name
+  # @return [Hash]
+  #   Similar pattern to full_name hash
+  # !! Does not include '[sic]'
+  # !! Does not include 'NOT SPECIFIED' ranks.
+  #
+  # Intent is to chain with scopes within COLDP export.
+  #
+  # If this becomes more broadly useful consider optional `sic` includion
+  #
+  def self.full_name_hash_from_row(row)
+    gender = nil
+    data = {}
+
+    # Protonym loop
+    APPLICABLE_RANKS.each do |rank, type|
+      if rank == 'genus'
+        a = "#{rank}_gender".to_sym
+        gender = row[a]
+      end
+
+      name_target = gender.nil? ? rank.to_sym : (rank + '_' + gender).to_sym
+
+      # !! TODO: add verbatim to row
+      #
+      name = row[name_target] || row[rank.to_sym] || row[(rank + '_' + 'verbatim')]
+
+      next if name.nil?
+
+      v = [nil, name]
+
+      unless ['genus', 'subgenus', 'species', 'subspecies'].include?(rank)
+        v[0] = row[rank + ' ' + 'rank_class']
+      end
+
+      data[rank] = v
     end
 
-    d
+    data
   end
 
-  def taxonomy(rebuild = false)
-    if rebuild
-      @taxonomy = combination_taxonomy
-    else
-      @taxonomy ||= combination_taxonomy
+  # TODO: consider an 'include_cached_misspelling' Boolean to extend result to include `cached_misspelling`
+  # !! References name, not cached, so 'sic' is not possible
+  # !! TODO: limit to a subset of APPLICABLE_RANKS
+  def self.flattened
+    s = []
+    abbreviation_cutoff = 'subspecies'
+    abbreviate = false
+    APPLICABLE_RANKS.each do |rank, t|
+      s.push "MAX(combination_taxon_names_taxon_names.name) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank},
+              MAX(combination_taxon_names_taxon_names.neuter_name) FILTER (WHERE taxon_name_relationships.type  = '#{t}') AS #{rank}_neuter,
+              MAX(combination_taxon_names_taxon_names.masculine_name) FILTER (WHERE taxon_name_relationships.type =  '#{t}') AS #{rank}_masculine,
+              MAX(combination_taxon_names_taxon_names.feminine_name) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_feminine,
+              MAX(combination_taxon_names_taxon_names.cached) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_cached"
+
+      s.push "BOOL_OR(combination_taxon_names_taxon_names.cached_is_valid) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_cached_is_valid"
+
+      # Calculate a flag that helps determine if the target rank Protonym is presently an "inferred combination."
+      s.push "MAX(combination_taxon_names_taxon_names.cached_primary_homonym) FILTER (WHERE taxon_name_relationships.type = '#{t}') =
+              MAX(combination_taxon_names_taxon_names.cached_secondary_homonym) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_inferred_combination"
+
+      if abbreviate
+        s.push "MAX(combination_taxon_names_taxon_names.rank_class) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_rank_class"
+      end
+
+      # Include the rank of the genus, which is typicaly there, for reference so we can return the code of nomenclature behind this combination
+      s.push "MAX(combination_taxon_names_taxon_names.rank_class) AS reference_rank_class"
+
+      s.push "MAX(combination_taxon_names_taxon_names.rank_class) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_rank_class"
+
+      abbreviate = true if rank == abbreviation_cutoff
     end
+
+    # Get the gender designation for genus-group names
+    APPLICABLE_RANKS.select{|k,v| v  =~ /[Gg]enus/}.each do |rank, t|
+      s.push "MAX(combination_taxon_names_taxon_names.cached_gender) FILTER (WHERE taxon_name_relationships.type = '#{t}') AS #{rank}_gender"
+    end
+
+    s.push 'taxon_names.id, taxon_names.cached, taxon_names.cached_author_year, taxon_names.cached_nomenclature_date, taxon_names.updated_by_id, taxon_names.updated_at, sources.id source_id, citations.pages, citations.is_original'
+
+    sel = s.join(',')
+
+    Combination.joins(:combination_taxon_names)
+      .left_joins(:source)
+      .select(sel)
+      .group('taxon_names.id, sources.id, citations.pages, citations.is_original')
   end
 
-  # @return [Hash of {rank: Protonym}, nil]
+  # An experimental approach to return all required information to format the
+  # scientific name via a single query. Not in use.  Potentially
+  # scalable to table rendering in a performant way.
+  def protonyms_flat
+    s = []
+    TAXON_NAME_RELATIONSHIP_COMBINATION_TYPES.select{|n| !n.match('Family')}.each do |rank, t|
+      s.push "MAX(name) FILTER (WHERE rt = '#{t}') AS #{rank},
+              MAX(cached_gender) FILTER (WHERE rt = '#{t}') AS #{rank}_gender,
+              MAX(neuter_name) FILTER (WHERE rt = '#{t}') AS #{rank}_neuter,
+              MAX(masculine_name) FILTER (WHERE rt =  '#{t}') AS #{rank}_masculine,
+              MAX(feminine_name) FILTER (WHERE rt = '#{t}') AS #{rank}_feminine"
+    end
+
+    a = Protonym
+      .joins(:combination_relationships)
+      .where(taxon_name_relationships: {
+        object_taxon_name_id: id
+      }).select(
+        :id, :name, :cached_gender,
+        :neuter_name, :masculine_name, :feminine_name,
+        'taxon_name_relationships.type as rt')
+
+      Protonym.with(filtered: a).select(s.join(',')).from('filtered').unscope(:where)[0]
+  end
+
+  # @return [Hash of {rank: Protonym}, {}]
   #  the component names for this combination, sorted in order
-  #   _prior to it being saved_
+  #
   def protonyms_by_rank
-    result = {}
     if persisted?
-      # nX fewer calls to database than send()
+      ar = APPLICABLE_RANKS.values
+
       @protonyms_by_rank ||= TaxonNameRelationship::Combination
         .where(object_taxon_name: self)
         .eager_load(:subject_taxon_name)
-        .inject({}) {|hsh,n| hsh[n.rank_name] = n.subject_taxon_name; hsh}
-        .sort{|a,b| RANKS.index(a[1].rank_string) <=> RANKS.index(b[1].rank_string) }
+        .sort{|a,b| ar.index(a.type) <=> ar.index(b.type)}
+        .inject({}){|hsh,n| hsh[n.rank_name] = n.subject_taxon_name; hsh}
         .to_h
     else
+      result = {}
       APPLICABLE_RANKS.keys.each do |rank|
         if protonym = send(rank.to_sym)
           result[rank] = protonym
@@ -397,8 +539,38 @@ class Combination < TaxonName
       end
       @protonyms_by_rank = result
     end
+    @protonyms_by_rank
+  end
+
+  # This is 15s/1000 vs. 40ms/1000 of protonyms_by_rank
+  def light_protonyms_by_rank
+    if persisted?
+      @protonyms_by_rank ||=
+
+        Protonym.joins(:combinations)
+        .where(taxon_name_relationships: {object_taxon_name_id: id })
+        .select(
+          :id, :name, :type, :rank_class, :verbatim_author, :year_of_publication,
+          :verbatim_name,
+          :neuter_name, :masculine_name, :feminine_name,
+          :cached_gender, :cached_misspelling,
+          :cached_valid_taxon_name_id,
+          'taxon_name_relationships.type tnr_type')
+        .sort_by{|a| APPLICABLE_RANK_SORT[a.tnr_type]}
+        .each_with_object({}) {|n, h| h[INVERTED_RANKS[n.tnr_type]] = n }
+
+    else
+      protonyms_by_rank
+    end
 
     @protonyms_by_rank
+  end
+
+  # @return String
+  #   like 'species'
+  # Adds a lot of SQL overhead
+  def inferred_rank
+    protonyms_by_rank.to_a.last.first
   end
 
   # @return [Array of TaxonNames, nil]
@@ -473,21 +645,36 @@ class Combination < TaxonName
 
   protected
 
+  def to_node
+    ::Utilities::Hierarchy::Node.new(
+      id,
+      cached_valid_taxon_name_id, # protonyms_by_rank.to_a.last.last.id,
+      ['≡' + cached, cached_author_year, "[#{inferred_rank}]" ].compact.join(' '),
+      nil,
+      nil,
+      nil,
+      nil
+    )
+  end
+
   def reset_protonyms_by_rank
     @protonyms_by_rank = nil
   end
 
   def validate_absence_of_subject_relationships
-    if TaxonNameRelationship.where(subject_taxon_name_id: self.id).any?
+    if TaxonNameRelationship.where(subject_taxon_name_id: self.id).where("type NOT LIKE 'TaxonNameRelationship::CurrentCombination'").any?
       errors.add(:base, 'This combination could not be used as a Subject in any TaxonNameRelationships.')
     end
   end
 
   def sv_redundant_verbatim_name
     if verbatim_name == full_name
+
+      # TODO: Why is this check needed?  Shouldn't that be encapsulated in full_name logic?
       protonyms_by_rank.values.each do |t|
         return true unless t.has_latinized_classification?
       end
+
       soft_validations.add(:verbatim_name, 'Verbatim name is provided but not needed, it is the same as the computed value.')
     end
   end
@@ -516,6 +703,9 @@ class Combination < TaxonName
   def sv_combination_duplicates
     duplicate = Combination.not_self(self).where(cached:, cached_author_year:, project_id: self.project_id)
     soft_validations.add(:base, 'Combination is a duplicate') unless duplicate.empty?
+    if a = Combination.matching_protonyms(get_full_name, **protonym_ids_params)
+      soft_validations.add(:base, "Combination exists as protonym(s) with matching original combination: #{a.all.pluck(:cached).join(', ')}.") if a.any?
+    end
   end
 
   def sv_combination_linked_to_valid_name
@@ -547,13 +737,16 @@ class Combination < TaxonName
     is_cached = false if cached_author_year != get_author_and_year
     is_cached = false if cached_author != get_author
 
-    if  is_cached && (
+    n = get_full_name
+
+    if is_cached && (
         cached_is_valid.nil? ||
-        cached != get_full_name ||
-        cached_html != get_full_name_html ||
+        cached != n ||
+        cached_html != get_full_name_html(n) ||
         cached_nomenclature_date != nomenclature_date)
       is_cached = false
     end
+
     soft_validations.add(
       :base, 'Cached values should be updated',
       success_message: 'Cached values were updated',
@@ -561,7 +754,7 @@ class Combination < TaxonName
   end
 
   def sv_author_and_year_is_not_required
-    if !self.year_of_publication.nil? || !self.verbatim_author.nil?
+    if nomenclatural_code == :iczn && (!self.year_of_publication.nil? || !self.verbatim_author.nil?)
       soft_validations.add(
         :base, 'Verbatim author and year of publication are not required, they both derive from the source',
         success_message: 'Verbatim author and year were deleted',

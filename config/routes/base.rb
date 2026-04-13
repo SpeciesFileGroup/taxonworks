@@ -10,7 +10,7 @@ get 'soft_validations/validate' => 'soft_validations#validate', defaults: {forma
 post 'soft_validations/fix' => 'soft_validations#fix', defaults: {format: :json}
 
 # Note singular 'resource'
-resource :hub, controller: 'hub', only: [:index] do
+resource :hub, controller: 'hub', only: [] do # "only: [:index]" no longer valid, but this way still doesn't define routes other than the ones in the block below
   get '/', action: :index
   get 'order_tabs' # should be POST
   post 'update_tab_order'
@@ -18,7 +18,7 @@ resource :hub, controller: 'hub', only: [:index] do
 end
 
 scope :metadata, controller: 'metadata' do
-  get :vocabulary, defaults: {format: :json}
+  post :vocabulary, defaults: {format: :json}
   get :data_models, defaults: {format: :json}
   get :attributes, defaults: {format: :json}
   get :annotators, defaults: {format: :json}
@@ -33,12 +33,17 @@ end
 scope :annotations, controller: :annotations, defaults: {format: :json} do
   get ':global_id/metadata', action: :metadata
   get :types
+  post :move_one
   post :move
 end
 
 scope :graph, controller: :graph do
   get ':global_id/metadata', action: :metadata, defaults: {format: :json}
   get ':global_id/object', action: :object, as: :object_graph, defaults: {format: :json}
+end
+
+namespace :news do
+  resources :administration, only: [:index, :show], defaults: {format: :json}
 end
 
 resources :projects do
@@ -51,7 +56,6 @@ resources :projects do
   member do
     get 'select'
     get 'settings_for'
-    get 'recently_created_stats'
   end
 end
 
@@ -88,6 +92,11 @@ scope :s do
   get ':id' => 'shortener/shortened_urls#show'
 end
 
+scope :unify, controller: :unify do
+  match '/', action: :unify, via: :post
+  get :metadata, defaults: {format: :json}
+end
+
 resources :users, except: :new do
   resources :projects, only: [:index], defaults: {format: :json}, action: :user_projects
 
@@ -95,11 +104,11 @@ resources :users, except: :new do
     post 'batch_create'
     get :autocomplete, defaults: {format: :json}
   end
+
   member do
-    get 'recently_created_data'
-    get 'recently_created_stats'
     patch 'reset_preferences'
     patch 'reset_hub_favorites'
+    get 'data'
   end
 end
 

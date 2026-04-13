@@ -81,9 +81,22 @@ class TaxonNameRelationship::Iczn::Invalidating < TaxonNameRelationship::Iczn
   end
 
   def sv_not_specific_relationship
-    if self.subject_taxon_name.is_available?
-      soft_validations.add(:type, 'Please specify the reason for the name being Invalid')
+    soft_validations.add(:type, 'Please specify the reason for the name being Unavailable or Invalid',
+                         success_message: 'Unavailable or Invalid is updated to Unavailable',
+                         failure_message:  'Failed to update the Unavailable or Invalid relationship')
+  end
+
+  def sv_fix_not_specific_relationship
+    new_relationship_name = self.type_name
+    unless self.subject_taxon_name.is_available?
+      new_relationship_name = 'TaxonNameRelationship::Iczn::Invalidating::Unavailable'
     end
+    if new_relationship_name && self.type_name != new_relationship_name
+      self.type = new_relationship_name
+      self.save
+      return true
+    end
+    false
   end
 
   def sv_synonym_relationship

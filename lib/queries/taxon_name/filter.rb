@@ -4,9 +4,11 @@ module Queries
       include Queries::Helpers
 
       include Queries::Concerns::Citations
+      include Queries::Concerns::Confidences
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
       include Queries::Concerns::Notes
+      include Queries::Concerns::Sounds
       include Queries::Concerns::Tags
 
       PARAMS = [
@@ -15,6 +17,8 @@ module Queries
         :author,
         :author_exact,
         :authors,
+        :availability,
+        :cached,
         :collecting_event_id,
         :collection_object_id,
         :combinations,
@@ -23,6 +27,7 @@ module Queries
         :descendants_max_depth,
         :epithet_only,
         :etymology,
+        :latinized,
         :leaves,
         :name,
         :name_exact,
@@ -34,6 +39,9 @@ module Queries
         :otu_id,
         :otus,
         :rank,
+        :relation_to_relationship,
+        :sort,
+        :taxon_name_relationship_target,
         :synonymify,
         :taxon_name_author_id_or,
         :taxon_name_id,
@@ -46,6 +54,7 @@ module Queries
         :year_end,
         :year_start,
 
+        cached: [],
         collection_object_id: [],
         collecting_event_id: [],
         combination_taxon_name_id: [],
@@ -61,7 +70,9 @@ module Queries
           :object_taxon_name_id,
           :type,
         ],
-        taxon_name_relationship_type: [],
+        taxon_name_relationship_type_subject: [],
+        taxon_name_relationship_type_object: [],
+        taxon_name_relationship_type_either: [],
         type: [],
       ].freeze
 
@@ -114,6 +125,10 @@ module Queries
       # @return Boolean
       attr_accessor :name_exact
 
+      # @param cached [String, Array]
+      # @return [Array] of TaxonNames matching cached exactly
+      attr_accessor :cached
+
       # @param author [String]
       #   Use "&" for "and". Matches against cached_author_year. See also author_exact.
       attr_accessor :author
@@ -145,6 +160,11 @@ module Queries
       # ['true' or 'false'] on initialize
       #   true if only valid, false if only invalid, nil if both
       attr_accessor :validity
+
+      # @params availability [ Boolean]
+      # ['true' or 'false'] on initialize
+      #   true if only available, false if only unavailable, nil if both
+      attr_accessor :availability
 
       # @params validify ['true', True, nil]
       # @return Boolean
@@ -200,9 +220,23 @@ module Queries
       # Return all taxon names in a relationship of a given type and in relation to a another name. For example, return all synonyms of Aus bus.
       attr_accessor :taxon_name_relationship
 
-      # @param taxon_name_relationship [Array]
-      #   All names involved in any of these relationship
-      attr_accessor :taxon_name_relationship_type
+      # @param taxon_name_relationship_type_subject [Array]
+      #   All names involved in any of these relationships as subject
+      attr_accessor :taxon_name_relationship_type_subject
+
+      # @param taxon_name_relationship_type_object [Array]
+      #   All names involved in any of these relationships as object
+      attr_accessor :taxon_name_relationship_type_object
+
+      # @param taxon_name_relationship_type_either [Array]
+      #   All names involved in any of these relationships as either subject or
+      #   object
+      attr_accessor :taxon_name_relationship_type_either
+
+      # @return [String, nil]
+      #   &relation_to_relationship=<subject|object|either>
+      #   All names that are subject|object|either of any relationship
+      attr_accessor :relation_to_relationship
 
       # @param taxon_name_classification [Array]
       #   Class names of TaxonNameClassification, as strings.
@@ -263,6 +297,15 @@ module Queries
       #   if 'false' then return only names with descendents
       attr_accessor :leaves
 
+      # @return [Boolean, nil]
+      #   &latinized=<"true"|"false">
+      #   if 'true' then return only genus group names with gender and species
+      #     group names with part of speech
+      #   if 'false' then return only genus group names without gender and
+      #     species group names without part of speech
+      #   if nil, ignore
+      attr_accessor :latinized
+
       # @return [String, nil]
       #   &taxon_name_type=<Protonym|Combination|Hybrid>
       attr_accessor :taxon_name_type
@@ -294,6 +337,17 @@ module Queries
 
       attr_accessor :geo_json
 
+      # Applies only to taxon_name_relationship_query_facet, is only present
+      # in queries sent from Filter TaxonNameRelationship.
+      # @param taxon_name_relationship_target [Boolean]
+      # @return [Boolean]
+      #   * 'subject': only return subjects of relationships from
+      #     taxon_name_relationship_query_facet
+      #   * 'object': only return objects of relationships from
+      #     taxon_name_relationship_query_facet
+      #   * nil: return both subjects and objects
+      attr_accessor :taxon_name_relationship_target
+
       # @param params [Params]
       #   as permitted via controller
       def initialize(query_params)
@@ -304,6 +358,8 @@ module Queries
         @author = params[:author]
         @author_exact = boolean_param(params, :author_exact)
         @authors = boolean_param(params, :authors)
+        @availability = boolean_param(params, :availability)
+        @cached = params[:cached]
         @collecting_event_id = params[:collecting_event_id]
         @collection_object_id = params[:collection_object_id]
         @combination_taxon_name_id = params[:combination_taxon_name_id]
@@ -313,6 +369,7 @@ module Queries
         @descendants_max_depth = params[:descendants_max_depth]
         @etymology = boolean_param(params, :etymology)
         @epithet_only = params[:epithet_only]
+        @latinized = boolean_param(params, :latinized)
         @geo_json = params[:geo_json]
         @leaves = boolean_param(params, :leaves)
         @name = params[:name]
@@ -326,6 +383,7 @@ module Queries
         @original_combination = boolean_param(params, :original_combination)
         @parent_id = params[:parent_id]
         @rank = params[:rank]
+        @relation_to_relationship = params[:relation_to_relationship]
         @sort = params[:sort]
         @synonymify = boolean_param(params, :synonymify)
         @taxon_name_author_id = params[:taxon_name_author_id]
@@ -333,7 +391,13 @@ module Queries
         @taxon_name_classification = params[:taxon_name_classification] || []
         @taxon_name_id = params[:taxon_name_id]
         @taxon_name_relationship = params[:taxon_name_relationship] || []
-        @taxon_name_relationship_type = params[:taxon_name_relationship_type] || []
+        @taxon_name_relationship_target = params[:taxon_name_relationship_target]
+        @taxon_name_relationship_type_subject =
+          params[:taxon_name_relationship_type_subject] || []
+        @taxon_name_relationship_type_object =
+          params[:taxon_name_relationship_type_object] || []
+        @taxon_name_relationship_type_either =
+          params[:taxon_name_relationship_type_either] || []
         @taxon_name_type = params[:taxon_name_type]
         @type_metadata = boolean_param(params, :type_metadata)
         @validify = boolean_param(params, :validify)
@@ -344,6 +408,7 @@ module Queries
         @year_end = params[:year_end]
         @year_start = params[:year_start]
 
+        set_confidences_params(params)
         set_citations_params(params)
         set_depiction_params(params)
         set_notes_params(params)
@@ -360,25 +425,16 @@ module Queries
         @year.to_s
       end
 
-      def name
-        [@name].flatten.compact
-      end
-
       def collection_object_id
         [@collection_object_id].flatten.compact
-      end
-
-      def year
-        return nil if @year.blank?
-        @year.to_s
       end
 
       def name
         [@name].flatten.compact
       end
 
-      def collection_object_id
-        [@collection_object_id].flatten.compact
+      def cached
+        [@cached].flatten.compact
       end
 
       def collecting_event_id
@@ -525,12 +581,6 @@ module Queries
         ::TaxonName.joins(:otus).where(otus: { id: otu_id })
       end
 
-      def otus_facet
-        return nil if otus.nil?
-        subquery = ::Otu.where(::Otu.arel_table[:taxon_name_id].eq(::TaxonName.arel_table[:id])).arel.exists
-        ::TaxonName.where(otus ? subquery : subquery.not)
-      end
-
       # This is not true! It includes records that are year only.
       # @return Scope
       def authors_facet
@@ -550,8 +600,35 @@ module Queries
 
       # @return Scope
       def taxon_name_relationship_type_facet
-        return nil if taxon_name_relationship_type.empty?
-        ::TaxonName.with_taxon_name_relationship(taxon_name_relationship_type)
+        if taxon_name_relationship_type_subject.empty? &&
+           taxon_name_relationship_type_object.empty? &&
+           taxon_name_relationship_type_either.empty?
+          return nil
+        end
+
+        s = nil
+        o = nil
+        e = nil
+
+        if taxon_name_relationship_type_subject.present?
+          s = ::TaxonName.as_subject_with_taxon_name_relationship(
+            taxon_name_relationship_type_subject
+          ).distinct
+        end
+
+        if taxon_name_relationship_type_object.present?
+          o = ::TaxonName.as_object_with_taxon_name_relationship(
+            taxon_name_relationship_type_object
+          ).distinct
+        end
+
+        if taxon_name_relationship_type_either.present?
+          e = ::TaxonName.with_taxon_name_relationship(
+            taxon_name_relationship_type_either
+          )
+        end
+
+        referenced_klass_union([s, o, e])
       end
 
       # @return Scope
@@ -561,20 +638,70 @@ module Queries
       end
 
       # @return Scope
+      def latinized_facet
+        return nil if latinized.nil?
+
+        tnc = ::TaxonNameClassification.arel_table
+        if latinized == true
+          # Note the query here does not restrict to genus/species groups - a
+          # genus whose rank is changed to subfamily can retain its gender,
+          # e.g., and we want to include those here.
+          ::TaxonName.where(
+            ::TaxonNameClassification.where(
+              tnc[:taxon_name_id].eq(table[:id]).and(
+                tnc[:type].in(LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES)
+              )
+            ).arel.exists
+          )
+        else
+          ::TaxonName
+            .where(
+              table[:rank_class].in(GENUS_AND_SPECIES_RANK_NAMES)
+            )
+            .where.not(
+              ::TaxonNameClassification.where(
+                tnc[:taxon_name_id].eq(table[:id]).and(
+                  tnc[:type].in(LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES)
+                )
+              ).arel.exists
+            )
+        end
+      end
+
+      # @return Scope
       #   wrapped in descendant_facet!
       def taxon_name_relationship_facet(hsh)
-        param_key = hsh['subject_taxon_name_id'] ? 'subject_taxon_name_id' : 'object_taxon_name_id'
-        join_key = hsh['subject_taxon_name_id'] ? 'object_taxon_name_id' : 'subject_taxon_name_id'
+        hsh = hsh.symbolize_keys
+        param_key = hsh[:subject_taxon_name_id] ? :subject_taxon_name_id : :object_taxon_name_id
+        join_key = hsh[:subject_taxon_name_id] ? :object_taxon_name_id : :subject_taxon_name_id
 
         ::TaxonName.where(
           ::TaxonNameRelationship.where(
             ::TaxonNameRelationship.arel_table[join_key].eq(::TaxonName.arel_table[:id]).and(
               ::TaxonNameRelationship.arel_table[param_key].eq(hsh[param_key])
             ).and(
-              ::TaxonNameRelationship.arel_table[:type].eq(hsh['type'])
+              ::TaxonNameRelationship.arel_table[:type].eq(hsh[:type])
             )
           ).arel.exists
         )
+      end
+
+      # @return Scope
+      def relation_to_relationship_facet
+        return nil if relation_to_relationship.nil?
+
+        if relation_to_relationship == 'subject'
+          ::TaxonName.with_taxon_name_relationships_as_subject.distinct
+        elsif relation_to_relationship == 'object'
+          ::TaxonName.with_taxon_name_relationships_as_object.distinct
+        else
+          # 3-4x more time-performant than using
+          # :with_taxon_name_relationships.distinct
+          ::TaxonName.joins('join taxon_name_relationships ON ' \
+            'taxon_names.id = taxon_name_relationships.subject_taxon_name_id OR ' \
+            'taxon_names.id = taxon_name_relationships.object_taxon_name_id'
+          ).distinct
+        end
       end
 
       # @return Scope
@@ -675,6 +802,11 @@ module Queries
         end
       end
 
+      def cached_facet
+        return nil if cached.empty?
+        table[:cached].in(cached)
+      end
+
       def parent_id_facet
         return nil if parent_id.empty?
         table[:parent_id].in(parent_id)
@@ -683,9 +815,9 @@ module Queries
       def author_facet
         return nil if author.blank?
         if author_exact
-          table[:cached_author_year].eq(author.strip)
+          table[:cached_author].eq(author.strip)
         else
-          table[:cached_author_year].matches('%' + author.strip.gsub(/\s/, '%') + '%')
+          table[:cached_author].matches('%' + author.strip.gsub(/\s/, '%') + '%')
         end
       end
 
@@ -709,6 +841,15 @@ module Queries
           table[:cached_is_valid].eq(true)
         else
           table[:cached_is_valid].eq(false)
+        end
+      end
+
+      def availability_facet
+        return nil if availability.nil?
+        if availability
+          table[:cached_is_available].eq(true)
+        else
+          table[:cached_is_available].eq(false)
         end
       end
 
@@ -760,12 +901,20 @@ module Queries
         ::TaxonName.from('(' + s + ') as taxon_names').distinct
       end
 
+      def sound_query_facet
+        return nil if sound_query.nil?
+        otus = otus_from_sound_query
+        return nil if otus.nil?
+
+        ::TaxonName.joins(:otus).where(otus: {id: otus.select(:id)}).distinct
+      end
+
       def asserted_distribution_query_facet
         return nil if asserted_distribution_query.nil?
         s = 'WITH query_ad_tn AS (' + asserted_distribution_query.all.to_sql + ') ' +
             ::TaxonName
-              .joins(otus: [:asserted_distributions])
-              .joins('JOIN query_ad_tn as query_ad_tn1 on query_ad_tn1.otu_id = asserted_distributions.otu_id')
+              .joins(:otus)
+              .joins("JOIN query_ad_tn ON query_ad_tn.asserted_distribution_object_id = otus.id AND query_ad_tn.asserted_distribution_object_type = 'Otu'")
               .to_sql
 
         ::TaxonName.from('(' + s + ') as taxon_names').distinct
@@ -810,16 +959,44 @@ module Queries
         ::TaxonName.from('(' + s + ') as taxon_names')
       end
 
+      def taxon_name_relationship_query_facet
+        return nil if taxon_name_relationship_query.nil?
+
+        a = nil
+        b = nil
+        if taxon_name_relationship_target == 'subject' ||
+           taxon_name_relationship_target.nil?
+          a = ::TaxonName
+            .with(tnr_query: taxon_name_relationship_query.all)
+            .joins(:taxon_name_relationships)
+            .where('taxon_name_relationships.id IN (SELECT id FROM tnr_query)')
+            .distinct
+        end
+
+        if taxon_name_relationship_target == 'object' ||
+           taxon_name_relationship_target.nil?
+          b = ::TaxonName
+            .with(tnr_query: taxon_name_relationship_query.all)
+            .joins(:related_taxon_name_relationships)
+            .where('taxon_name_relationships.id IN (SELECT id FROM tnr_query)')
+            .distinct
+        end
+
+        referenced_klass_union([a,b])
+      end
+
       # @return [ActiveRecord::Relation]
       def and_clauses
         [
           nomenclature_date_facet,
           author_facet,
+          cached_facet,
           name_facet,
           parent_id_facet,
           rank_facet,
           taxon_name_type_facet,
           validity_facet,
+          availability_facet,
           verbatim_name_facet,
           with_nomenclature_code,
           with_nomenclature_group,
@@ -834,6 +1011,8 @@ module Queries
           collecting_event_query_facet,
           collection_object_query_facet,
           otu_query_facet,
+          sound_query_facet,
+          taxon_name_relationship_query_facet,
 
           ancestor_facet,
           authors_facet,
@@ -842,12 +1021,14 @@ module Queries
           combination_taxon_name_id_facet,
           combinations_facet,
           descendant_facet,
+          latinized_facet,
           leaves_facet,
           not_specified_facet,
           original_combination_facet,
           otu_id_facet,
-          taxon_name_author_id_facet,
           otus_facet,
+          relation_to_relationship_facet,
+          taxon_name_author_id_facet,
           taxon_name_classification_facet,
           taxon_name_relationship_type_facet,
           type_metadata_facet,
@@ -869,19 +1050,19 @@ module Queries
       end
 
       def validify_result(q)
-        s = 'WITH tn_result_query AS (' + q.to_sql + ') ' +
-            ::TaxonName
-              .joins('JOIN tn_result_query as tn_result_query1 on tn_result_query1.cached_valid_taxon_name_id = taxon_names.id')
-              .to_sql
+        s = ::TaxonName
+          .with(tn_q1: q)
+          .joins('JOIN tn_q1 ON tn_q1.cached_valid_taxon_name_id = taxon_names.id')
+          .to_sql
 
         ::TaxonName.from('(' + s + ') as taxon_names').distinct
       end
 
       def synonimify_result(q)
-        s = 'WITH tn_result_query AS (' + q.to_sql + ') ' +
-            ::TaxonName
-              .joins('JOIN tn_result_query as tn_result_query2 on tn_result_query2.id = taxon_names.cached_valid_taxon_name_id')
-              .to_sql
+        s = ::TaxonName
+          .with(tn_q2: q)
+          .joins('JOIN tn_q2 ON tn_q2.id = taxon_names.cached_valid_taxon_name_id')
+          .to_sql
 
         a = ::TaxonName.from('(' + s + ') as taxon_names').distinct
 
@@ -889,11 +1070,11 @@ module Queries
       end
 
       def combinationify_result(q)
-        s = 'WITH tn_result_query AS (' + q.to_sql + ') ' +
-            ::TaxonName
-              .joins('JOIN tn_result_query as tn_result_query3 on tn_result_query3.id = taxon_names.cached_valid_taxon_name_id')
-              .where("taxon_names.type = 'Combination'")
-              .to_sql
+        s = ::TaxonName
+          .with(tn_q3: q)
+          .joins('JOIN tn_q3 ON tn_q3.id = taxon_names.cached_valid_taxon_name_id')
+          .where("taxon_names.type = 'Combination'")
+          .to_sql
 
         a = ::TaxonName.from('(' + s + ') as taxon_names').distinct
 
@@ -901,12 +1082,12 @@ module Queries
       end
 
       def ancestrify_result(q)
-        s = 'WITH tn_result_query_anc AS (' + q.to_sql + ') ' +
-            ::TaxonName
-              .joins('JOIN taxon_name_hierarchies tnh on tnh.ancestor_id = taxon_names.id')
-              .joins('JOIN tn_result_query_anc as tn_result_query_anc1 on tn_result_query_anc1.id = tnh.descendant_id')
-              .distinct
-              .to_sql
+        s = ::TaxonName
+           .with(tn_q4: q)
+          .joins('JOIN taxon_name_hierarchies tnh on tnh.ancestor_id = taxon_names.id')
+          .joins('JOIN tn_q4 ON tn_q4.id = tnh.descendant_id')
+          .distinct
+          .to_sql
 
         # !! Do not use .distinct here
         ::TaxonName.from('(' + s + ') as taxon_names')
@@ -932,6 +1113,9 @@ module Queries
 
       # @return [ActiveRecord::Relation]
       def all(nil_empty = false)
+        # Everything below subqueries on q in some way, so q can't have paging
+        # enabled.
+        paging_state = disable_paging
         q = super
 
         # Order matters, use this first to go up
@@ -943,7 +1127,12 @@ module Queries
         q = synonimify_result(q) if synonymify
 
         # Then sort
-        q = order_clause(q) if sort
+        if sort
+          q = order_clause(q)
+          paging_state[:ordered] = true
+        end
+
+        q = self.class.set_paging(q, paging_state)
 
         q
       end

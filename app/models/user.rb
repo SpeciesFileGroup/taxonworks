@@ -114,11 +114,10 @@ class User < ApplicationRecord
 
   include Housekeeping::Users
   include Housekeeping::Timestamps
-  include Housekeeping::AssociationHelpers
 
   include Shared::RandomTokenFields[:password_reset]
 
-  has_secure_password
+  has_secure_password(reset_token: false) # We use our own reset token
 
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
   HUB_FAVORITES = {'data' => [], 'tasks' => []}.freeze
@@ -226,20 +225,20 @@ class User < ApplicationRecord
     user_ids = []
     users.flatten.each { |user|
       case user.class.name
-        when 'String'
-          # search by name or email
-          ut = User.arel_table
-          c1 = ut[:name].eq(user)
-                 .or(ut[:name].matches("%#{user}"))
-                 .or(ut[:name].matches("%#{user}%"))
-                 .or(ut[:email].eq(user))
-                 .or(ut[:email].matches("%#{user}"))
-                 .or(ut[:email].matches("%#{user}%")).to_sql
-          user_ids.push(User.where(c1).pluck(:id))
-        when 'User'
-          user_ids.push(user.id)
-        when 'Integer'
-          user_ids.push(user)
+      when 'String'
+        # search by name or email
+        ut = User.arel_table
+        c1 = ut[:name].eq(user)
+          .or(ut[:name].matches("%#{user}"))
+          .or(ut[:name].matches("%#{user}%"))
+          .or(ut[:email].eq(user))
+          .or(ut[:email].matches("%#{user}"))
+          .or(ut[:email].matches("%#{user}%")).to_sql
+        user_ids.push(User.where(c1).pluck(:id))
+      when 'User'
+        user_ids.push(user.id)
+      when 'Integer'
+        user_ids.push(user)
       end
     }
     user_ids.flatten.uniq
@@ -286,7 +285,9 @@ class User < ApplicationRecord
   # @return [Boolean] true if user is_project_administrator for the project passed
   def is_project_administrator?(project = nil)
     return false if project.nil?
-    project.project_members.where(user_id: id).first.is_project_administrator
+    project_member = project.project_members.where(user_id: id).first
+    return false if project_member.nil?
+    project_member.is_project_administrator
   end
 
   # @param [Project, Integer]
@@ -382,24 +383,24 @@ class User < ApplicationRecord
   # @return [Boolean] always true
   def add_recently_visited_to_footprint(recent_route, recent_object = nil)
     case recent_route
-      when /\A\/\Z/ # the root path '/'
-      when /\A\/hub/ # any path which starts with '/hub'
-      when /\/autocomplete\?/ # any path used for AJAX autocomplete
-      else
+    when /\A\/\Z/ # the root path '/'
+    when /\A\/hub/ # any path which starts with '/hub'
+    when /\/autocomplete\?/ # any path used for AJAX autocomplete
+    else
 
-        fp = footprints.dup
-        fp['recently_visited'] ||= []
+      fp = footprints.dup
+      fp['recently_visited'] ||= []
 
-        attrs = {recent_route => {}}
-        if !recent_object.nil?
-          attrs[recent_route].merge!(object_type: recent_object.class.to_s, object_id: recent_object.id)
-        end
+      attrs = {recent_route => {}}
+      if !recent_object.nil?
+        attrs[recent_route].merge!(object_type: recent_object.class.to_s, object_id: recent_object.id)
+      end
 
-        fp['recently_visited'].unshift(attrs)
-        fp['recently_visited'] = fp['recently_visited'].uniq { |a| a.keys }[0..19]
+      fp['recently_visited'].unshift(attrs)
+      fp['recently_visited'] = fp['recently_visited'].uniq { |a| a.keys }[0..19]
 
-        self.footprints_will_change! # if this isn't thrown weird caching happens !
-        self.update_column(:footprints, fp)
+      self.footprints_will_change! # if this isn't thrown weird caching happens !
+      self.update_column(:footprints, fp)
     end
 
     true

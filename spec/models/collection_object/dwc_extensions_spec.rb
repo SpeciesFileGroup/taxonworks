@@ -1,5 +1,6 @@
 require 'rails_helper'
 describe CollectionObject::DwcExtensions, type: :model, group: [:collection_objects, :darwin_core] do
+  include ActiveJob::TestHelper
 
   let(:root) { Project.find(Current.project_id).send(:create_root_taxon_name) }
 
@@ -71,9 +72,13 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
     expect(s.dwc_collection_code).to eq('ABC')
   end
 
+  # TODO: WE may remove Note paradigm
   specify '#dwc_occurrence_remarks' do
     s = Specimen.create!
     s.notes << Note.new(text: 'text')
+
+    perform_enqueued_jobs
+
     expect(s.dwc_occurrence_remarks).to eq('text')
   end
 
@@ -82,7 +87,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
 
     specify 'with no notes' do
       FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s)
-      expect(s.dwc_identification_remarks).to eq('')
+      expect(s.dwc_identification_remarks).to eq(nil)
     end
 
     specify 'with one note' do
@@ -152,13 +157,16 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
     let(:p) { Person.create!(last_name: 'Smith', first_name: 'Sue', suffix: 'Jr.') }
     let(:o) { Otu.create!(name: 'Barney') }
 
-
-
     specify '#dwc_decimal_latitude' do
       a = Georeference::Wkt.create!(collecting_event: ce, wkt: 'POINT(9.0 60)' )
 
       s.georeference_attributes(true) # force the rebuild
       expect(s.dwc_decimal_latitude).to eq(60.0) # technically not correct significant figures :(
+    end
+
+    specify 'without start Year event_date is not populated' do
+      ce.update!(start_date_year: nil, start_date_month: 2, end_date_month: 4)
+      expect(s.dwc_event_date).to eq(nil)
     end
 
     specify '#dwc_year' do
@@ -170,7 +178,12 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       expect(s.dwc_month).to eq(1)
     end
 
-    specify '#dwc_month' do
+    specify '#dwc_month is nil when range' do
+      ce.update!( start_date_month: 1, end_date_month: 2)
+      expect(s.dwc_month).to eq(nil)
+    end
+
+    specify '#dwc_day' do
       ce.update!( start_date_month: 1, start_date_day: 10)
       expect(s.dwc_day).to eq(10)
     end
@@ -212,8 +225,12 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       expect(s.dwc_occurrence).to be_truthy
     end
 
+    # TODO: duplicated in Ce
     specify 'updates after related CE save' do
       ce.update!(start_date_year: 2012)
+
+      perform_enqueued_jobs
+
       expect(s.dwc_occurrence.reload.eventDate).to match('2012')
     end
 
@@ -422,6 +439,8 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
         biocuration_classification_object: s,
         biocuration_class: a)
 
+      perform_enqueued_jobs
+
       expect(s.dwc_caste).to eq('ergatoid')
     end
 
@@ -434,6 +453,8 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
 
       s = Specimen.create!
       InternalAttribute.create!(predicate: g, attribute_subject: s, value: 'Space alien')
+
+      perform_enqueued_jobs
 
       expect(s.dwc_associated_taxa).to eq('Space alien')
       expect(s.dwc_occurrence.reload.associatedTaxa).to eq('Space alien')
@@ -596,7 +617,6 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       j = FactoryBot.create(:valid_depiction, depiction_object: s)
       a = i.image
       b = j.image
-
 
       p = 'http://127.0.0.1:3000/api/v1/images'
 

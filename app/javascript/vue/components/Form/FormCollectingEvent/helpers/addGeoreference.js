@@ -1,6 +1,9 @@
+import { randomUUID } from '@/helpers'
+
 export default (shape, type = 'Georeference::Leaflet') => ({
-  tmpId: Math.random().toString(36).substr(2, 5),
+  uuid: randomUUID(),
   geographic_item_attributes: { shape: JSON.stringify(shape) },
   error_radius: shape.properties?.radius,
-  type: type
+  type: type,
+  isUnsaved: true
 })

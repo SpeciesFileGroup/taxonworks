@@ -1,1 +1,1 @@
-render 'attributes', preparation_type: :preparation_type
+json.partial! 'attributes', preparation_type: @preparation_type

@@ -8,8 +8,8 @@ module Shared::DataAttributes
 
     has_many :data_attributes, as: :attribute_subject, validate: true, dependent: :destroy, inverse_of: :attribute_subject # should be delete
 
-    has_many :import_attributes, -> { where(data_attributes: {type: 'ImportAttribute'})} , as: :attribute_subject, class_name: 'DataAttribute'
-    has_many :internal_attributes, -> { where(data_attributes: {type: 'InternalAttribute'})}, as: :attribute_subject, class_name: 'DataAttribute'
+    has_many :import_attributes, -> { where(data_attributes: {type: 'ImportAttribute'})} , as: :attribute_subject, class_name: 'DataAttribute', inverse_of: :attribute_subject
+    has_many :internal_attributes, -> { where(data_attributes: {type: 'InternalAttribute'})}, as: :attribute_subject, class_name: 'DataAttribute', inverse_of: :attribute_subject
 
     accepts_nested_attributes_for :data_attributes, allow_destroy: true, reject_if: :reject_data_attributes
   end

@@ -1,12 +1,22 @@
-import { reactive, toRefs, onBeforeMount } from 'vue'
+import { computed, reactive, toRefs, onBeforeMount } from 'vue'
+import {
+  STORAGE_FILTER_QUERY_STATE_PARAMETER,
+  STORAGE_FILTER_QUERY_KEY
+} from '@/constants'
+import { getParametersFromSession } from '../utils'
+import { sortArrayByReference } from '@/helpers'
 import getPagination from '@/helpers/getPagination'
 import qs from 'qs'
 
-export default function (service, { listParser, initParameters } = {}) {
+export default function (service, { listParser, initParameters = {} } = {}) {
+  const DEFAULT_PER = 50
+  const DEFAULT_PARAMETERS = {
+    paginate: true
+  }
   const state = reactive({
     append: false,
     parameters: {
-      per: 50
+      per: DEFAULT_PER
     },
     pagination: undefined,
     selectedIds: [],
@@ -16,9 +26,19 @@ export default function (service, { listParser, initParameters } = {}) {
     urlRequest: ''
   })
 
+  const sortedSelectedIds = computed(() =>
+    sortArrayByReference({
+      list: state.selectedIds,
+      reference: state.list,
+      getListValue: (id) => id,
+      getReferenceValue: (item) => item.id
+    })
+  )
+
   const makeFilterRequest = (params = state.parameters) => {
     const payload = removeEmptyParameters({
-      ...params
+      ...params,
+      ...DEFAULT_PARAMETERS
     })
 
     state.isLoading = true
@@ -43,7 +63,12 @@ export default function (service, { listParser, initParameters } = {}) {
           state.list = result
         }
 
-        state.selectedIds = []
+        if (Array.isArray(state.list)) {
+          const idSet = new Set(state.list.map((item) => item.id))
+
+          state.selectedIds = state.selectedIds.filter((id) => idSet.has(id))
+        }
+
         state.pagination = getPagination(response)
         state.urlRequest = response.request.url
         setRequestUrl(response.request.responseURL, payload)
@@ -92,7 +117,7 @@ export default function (service, { listParser, initParameters } = {}) {
   }
 
   const resetFilter = () => {
-    state.parameters = { per: 50 }
+    state.parameters = { per: state.parameters.per ?? DEFAULT_PER }
     state.list = []
     state.isLoading = false
     state.urlRequest = ''
@@ -102,14 +127,25 @@ export default function (service, { listParser, initParameters } = {}) {
   }
 
   onBeforeMount(() => {
-    const urlParameters = {
-      ...qs.parse(location.search, { ignoreQueryPrefix: true }),
-      ...JSON.parse(sessionStorage.getItem('filterQuery'))
-    }
+    const {
+      [STORAGE_FILTER_QUERY_STATE_PARAMETER]: stateId,
+      ...urlParameters
+    } = qs.parse(location.search, { ignoreQueryPrefix: true, arrayLimit: 2000 })
+
+    Object.assign(urlParameters, getParametersFromSession(stateId))
+
+    const exclude = Object.keys({
+      ...state.initParameters,
+      ...DEFAULT_PARAMETERS
+    })
+
+    exclude.forEach((param) => {
+      delete urlParameters[param]
+    })
 
     Object.assign(state.parameters, urlParameters)
 
-    sessionStorage.removeItem('filterQuery')
+    localStorage.removeItem(STORAGE_FILTER_QUERY_KEY)
 
     if (Object.keys(urlParameters).length) {
       makeFilterRequest({
@@ -123,6 +159,7 @@ export default function (service, { listParser, initParameters } = {}) {
     ...toRefs(state),
     makeFilterRequest,
     loadPage,
-    resetFilter
+    resetFilter,
+    sortedSelectedIds
   }
 }

@@ -12,8 +12,12 @@ module Workbench::LayoutHelper
 
   def development_header_tag
     if Rails.env.development? 
-      content_tag(:span, 'DEVELOPMENT', class: 'subtle')
+      content_tag(:span, 'DEVELOPMENT', class: 'text-warning-color')
     end 
+  end
+
+  def current_environment
+    Rails.env
   end
 
   def taxonworks_version_tag
@@ -24,7 +28,7 @@ module Workbench::LayoutHelper
 
   def sandbox_details_tag
     if Settings.sandbox_mode? 
-      content_tag(:span, class: 'subtle') do
+      content_tag(:span) do
         [ '<span data-icon="warning"></span> SANDBOX - TEMPORARY <span data-icon="warning"></span> build',
           (Settings.sandbox_short_commit_sha ?
            link_to(Settings.sandbox_short_commit_sha, 'https://github.com/SpeciesFileGroup/taxonworks/tree/' + Settings.sandbox_commit_sha, class: [:font_subtitle]) :
@@ -39,7 +43,7 @@ module Workbench::LayoutHelper
 
   def sandbox_warning_tag
     if Settings.sandbox_mode?
-      content_tag(:i, 'All data may be deleted at any time without warning', class: 'text-white-color')
+      content_tag(:i, 'All data may be deleted at any time without warning')
     end
   end
 
@@ -49,6 +53,7 @@ module Workbench::LayoutHelper
         'Issues', 
         'https://github.com/SpeciesFileGroup/taxonworks/issues',
         target: '_blank',
+        class: 'issues-link',
         data: { 'curation-issue-tracker': sessions_current_project&.data_curation_issue_tracker_url }, rel: 'noopener'
       ),
       (content_tag('div','', id: 'curation-issue-tracker-container') if sessions_current_project&.data_curation_issue_tracker_url)

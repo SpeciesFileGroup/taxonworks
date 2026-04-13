@@ -38,20 +38,3 @@ defineProps({
   }
 })
 </script>
-
-<style scoped>
-table {
-  box-shadow: none;
-}
-
-tr {
-  border-bottom: 1px solid #eaeaea;
-}
-
-th {
-  border-bottom: 2px solid #eaeaea;
-  text-transform: uppercase;
-
-}
-
-</style>

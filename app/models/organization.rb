@@ -73,6 +73,49 @@ class Organization < ApplicationRecord
   validate :related_not_self
   validate :names_not_same
 
+  # @param role_type [String] one of the Role types
+  # @return [Scope]
+  #    the max 10 most recently used (1 week, could parameterize) organizations
+  def self.used_recently(user_id, role_type = 'AttributionOwner')
+    t = Role.arel_table
+    p = Organization.arel_table
+
+    # i is a select manager
+    i = t.project(t['organization_id'], t['type'], t['updated_at']).from(t)
+      .where(t['updated_at'].gt(1.week.ago))
+      .where(t['updated_by_id'].eq(user_id))
+      .where(t['type'].eq(role_type))
+      .order(t['updated_at'].desc)
+
+    # z is a table alias
+    z = i.as('recent_t')
+
+    Organization.joins(
+      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['organization_id'].eq(p['id'])))
+    ).pluck(:organization_id).uniq
+  end
+
+  # @params Role [String] one the available roles
+  # @return [Hash] Organizations optimized for user selection
+  def self.select_optimized(user_id, project_id, role_type = 'AttributionOwner')
+    r = used_recently(user_id, role_type)
+    h = {
+      quick: [],
+      pinboard: Organization.pinned_by(user_id).where(pinboard_items: {project_id:}).to_a,
+      recent: []
+    }
+
+    if r.empty?
+      h[:quick] = Organization.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id:}).to_a
+    else
+      h[:recent] = Organization.where('"organizations"."id" IN (?)', r.first(10) ).to_a
+      h[:quick] = (
+        Organization.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id:}).to_a +
+        Organization.where('"organizations"."id" IN (?)', r.first(4) ).to_a
+      ).uniq
+    end
+    h
+  end
 
   protected
 

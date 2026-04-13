@@ -1,7 +1,4 @@
-<%= content_for :head do -%>
-  <%= javascript_include_tag "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.js",
-    "https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"  %>
-<% end %>
+<%= graph_javascript_tag %>
 
 <%= tag.h1 'Task - Nomenclature by year', id: :top -%>
 
@@ -20,7 +17,7 @@
   <%= column_chart d2[:data], height: '600px', stacked: true, download: true, descrete: true, ytitle: 'Total', xtitle: 'Year', title: "Taxon names per cached nomenclature year - cumulative" %>
 </div>
 
-<hr>
+<hr class="divisor">
 
 <div class="flexbox flex-middle">
   <div class="item">

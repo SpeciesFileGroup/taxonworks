@@ -45,7 +45,7 @@ class TaxonNamesController < ApplicationController
         format.json { render :show, status: :created, location: @taxon_name.metamorphosize }
       else
         format.html { render action: :new }
-        format.json { render json: @taxon_name.errors, status: :unprocessable_entity }
+        format.json { render json: @taxon_name.errors, status: :unprocessable_content }
       end
     end
   end
@@ -63,7 +63,7 @@ class TaxonNamesController < ApplicationController
         format.json { render :show, status: :ok, location: @taxon_name.metamorphosize }
       else
         format.html { render action: :edit }
-        format.json { render json: @taxon_name.errors, status: :unprocessable_entity }
+        format.json { render json: @taxon_name.errors, status: :unprocessable_content }
       end
     end
   end
@@ -71,14 +71,17 @@ class TaxonNamesController < ApplicationController
   # DELETE /taxon_names/1
   # DELETE /taxon_names/1.json
   def destroy
+    parent_id = @taxon_name.parent_id
     @taxon_name.destroy
     respond_to do |format|
       if @taxon_name.destroyed?
         format.html { destroy_redirect @taxon_name, notice: 'TaxonName was successfully destroyed.' }
-        format.json { head :no_content }
+        format.json {
+          render json: { parent_id: }
+        }
       else
         format.html { destroy_redirect @taxon_name, notice: 'TaxonName was not destroyed, ' + @taxon_name.errors.full_messages.join('; ') }
-        format.json { render json: @taxon_name.errors, status: :unprocessable_entity }
+        format.json { render json: @taxon_name.errors, status: :unprocessable_content }
       end
     end
   end
@@ -146,8 +149,16 @@ class TaxonNamesController < ApplicationController
       validity: params[:validity],
       combinations: params[:combinations],
       project_id: sessions_current_project_id,
-      rank_data: params[:rank_data]
+      rank_data: params[:rank_data],
+      descriptors_scored_for_otu: params[:descriptors_scored_for_otu],
+      otu_observation_count: params[:otu_observation_count],
+      otu_observation_depictions: params[:otu_observation_depictions],
+      otus: params[:otus]
     )
+  end
+
+  def taxonomy
+    @taxon_name = TaxonName.find(params[:id])
   end
 
   # GET /taxon_names/select_options
@@ -171,8 +182,9 @@ class TaxonNamesController < ApplicationController
   end
 
   def create_simple_batch_load
+
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :simple_taxon_names_md5)
-      @result =  BatchLoad::Import::TaxonifiToTaxonworks.new(**batch_params)
+      @result = BatchLoad::Import::TaxonifiToTaxonworks.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} taxon names were created."
         render 'taxon_names/batch_load/simple/create' and return
@@ -182,6 +194,7 @@ class TaxonNamesController < ApplicationController
     else
       flash[:alert] = 'File to batch upload must be supplied.'
     end
+
     render :batch_load
   end
 
@@ -220,6 +233,26 @@ class TaxonNamesController < ApplicationController
     ).result
   end
 
+  def remove_authors
+    names = TaxonName.remove_authors(params['names'].first(5000))
+    render json: { names: }
+  end
+
+  # POST /taxon_names/match.json
+  def match
+
+    @result = Match::Otu::TaxonName.new(
+      names: match_params[:names] || [],
+      project_id: sessions_current_project_id,
+      levenshtein_distance: match_params[:levenshtein_distance] || 0,
+      taxon_name_id: match_params[:taxon_name_id],
+      resolve_synonyms: match_params[:resolve_synonyms] == 'true',
+      try_without_subgenus: match_params[:try_without_subgenus] == 'true'
+    ).call
+
+    render :match
+  end
+
   # GET /taxon_names/1/original_combination
   def original_combination
   end
@@ -227,13 +260,14 @@ class TaxonNamesController < ApplicationController
   # PATCH /taxon_names/batch_update.json?taxon_names_query=<>&taxon_name={taxon_name_id=123}}
   def batch_update
     if r = Protonym.batch_update(
-        preview: params[:preview], 
+        preview: params[:preview],
         taxon_name: taxon_name_params.merge(by: sessions_current_user_id),
         taxon_name_query: params[:taxon_name_query].merge(by: sessions_current_user_id),
-    )
+        user_id: sessions_current_user_id,
+        project_id: sessions_current_project_id)
       render json: r.to_json, status: :ok
     else
-      render json: {}, status: :unprocessable_entity
+      render json: {}, status: :unprocessable_content
     end
   end
 
@@ -271,7 +305,9 @@ class TaxonNamesController < ApplicationController
   # GET /api/v1/taxon_names/:id/inventory/catalog
   # Contains stats block
   def api_catalog
-    @data = helpers.recursive_catalog_json(taxon_name: @taxon_name, target_depth: params[:target_depth] || 0 )
+    @data = helpers.recursive_catalog_json(
+      taxon_name: @taxon_name, target_depth: params[:target_depth] || 0, include_distribution: false
+    )
     render '/taxon_names/api/v1/catalog'
   end
 
@@ -336,6 +372,16 @@ class TaxonNamesController < ApplicationController
       :valid, :exact, :no_leaves,
       type: [], parent_id: [], nomenclature_group: []
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
+  end
+
+  def match_params
+    params.permit(
+      :levenshtein_distance,
+      :taxon_name_id,
+      :resolve_synonyms,
+      :try_without_subgenus,
+      names: []
+    )
   end
 
   def taxon_name_params

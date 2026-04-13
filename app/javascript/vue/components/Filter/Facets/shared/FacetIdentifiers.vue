@@ -103,6 +103,8 @@ const params = computed({
   set: (value) => emit('update:modelValue', value)
 })
 
+const namespace = ref()
+
 watch(
   () => params.value.identifier,
   (newVal) => {
@@ -113,7 +115,14 @@ watch(
   { deep: true }
 )
 
-const namespace = ref()
+watch(
+  () => params.value.namespace_id,
+  (newVal) => {
+    if (!newVal) {
+      namespace.value = null
+    }
+  }
+)
 
 const setNamespace = (item) => {
   namespace.value = item

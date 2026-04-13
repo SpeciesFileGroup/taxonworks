@@ -13,12 +13,15 @@
           <a :href="observationMatrixHubPath">Observation matrix hub</a>
         </li>
         <li>
-          <span
+          <VBtn
+            medium
+            color="primary"
             @click="resetDescriptor"
-            data-icon="reset"
-            class="middle cursor-pointer"
-            >Reset</span
+            >New</VBtn
           >
+        </li>
+        <li>
+          <VRecent @select="setDescriptor" />
         </li>
       </ul>
     </div>
@@ -29,7 +32,7 @@
             :descriptor-id="descriptor.id"
             v-model="descriptor.type"
           />
-          <block-layout
+          <BlockLayout
             v-if="descriptor.type"
             class="margin-medium-top"
           >
@@ -90,7 +93,7 @@
                 </v-btn>
               </template>
             </template>
-          </block-layout>
+          </BlockLayout>
           <matrix-component
             class="margin-medium-top"
             v-model="matrix"
@@ -119,11 +122,12 @@ import QualitativeComponent from './components/character/character.vue'
 import UnitComponent from './components/units/units.vue'
 import PreviewComponent from './components/preview/preview.vue'
 import GeneComponent from './components/gene/gene.vue'
-import setParam from '@/helpers/setParam'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import makeDescriptor from '@/factory/Descriptor.js'
 import MatrixComponent from './components/matrix/Matrix.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
+import VRecent from './components/Recent.vue'
+import { setParam } from '@/helpers'
 import { RouteNames } from '@/routes/routes'
 import { Descriptor, ObservationMatrixColumnItem } from '@/routes/endpoints'
 import {
@@ -145,7 +149,8 @@ export default {
     Autocomplete,
     VBtn,
     BlockLayout,
-    MatrixComponent
+    MatrixComponent,
+    VRecent
   },
 
   computed: {
@@ -220,8 +225,12 @@ export default {
       this.saving = true
 
       return saveRecord
-        .then(async (response) => {
-          this.descriptor = response.body
+        .then(async ({ body }) => {
+          if (body.id !== this.descriptor.id) {
+            setParam(RouteNames.NewDescriptor, 'descriptor_id', body.id)
+          }
+
+          this.descriptor = body
 
           if (this.matrix) {
             if (!isUpdate) {
@@ -241,20 +250,22 @@ export default {
             'notice'
           )
         })
-        .finally((_) => {
+        .finally(() => {
           this.saving = false
         })
     },
 
     removeDescriptor(descriptor) {
-      Descriptor.destroy(descriptor.id).then(() => {
-        this.resetDescriptor()
-        this.setParameters()
-        TW.workbench.alert.create(
-          'Descriptor was successfully deleted.',
-          'notice'
-        )
-      })
+      Descriptor.destroy(descriptor.id)
+        .then(() => {
+          this.resetDescriptor()
+          this.setParameters()
+          TW.workbench.alert.create(
+            'Descriptor was successfully deleted.',
+            'notice'
+          )
+        })
+        .catch(() => {})
     },
 
     async addToMatrix(descriptor) {
@@ -274,11 +285,16 @@ export default {
       })
     },
 
+    setDescriptor(d) {
+      this.descriptor = d
+      setParam(RouteNames.NewDescriptor, 'descriptor_id', d.id)
+    },
+
     loadDescriptor(descriptorId) {
       this.loading = true
       Descriptor.find(descriptorId)
-        .then((response) => {
-          this.descriptor = response.body
+        .then(({ body }) => {
+          this.setDescriptor(body)
         })
         .finally(() => {
           this.loading = false

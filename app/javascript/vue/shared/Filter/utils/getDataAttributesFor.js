@@ -7,9 +7,11 @@ export function getDataAttributesFor({ data, index }, objectId) {
   const headers = makeDataAttributeObjectHeaders(index)
 
   return Object.assign(
-    {},
-    ...list.map(([, , attrId, value]) => ({
-      [headers[attrId]]: value
-    }))
+    Object.fromEntries(Object.values(headers).map((key) => [key, ''])),
+    ...list
+      .filter(([, , attrId]) => headers[attrId])
+      .map(([, , attrId, value]) => ({
+        [headers[attrId]]: value
+      }))
   )
 }

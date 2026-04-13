@@ -15,67 +15,61 @@ const permitParams = {
     link_out_text: String,
     is_public: Boolean,
     global_id: String
-  },
-  left: {
-    id: Number,
-    parent_id: Number,
-    otu_id: Number,
-    text: Text,
-    origin_label: String,
-    description: Text,
-    redirect_id: Number,
-    link_out: Text,
-    link_out_text: String,
-    is_public: Boolean,
-    global_id: String
-  },
-  right: {
-    id: Number,
-    parent_id: Number,
-    otu_id: Number,
-    text: Text,
-    origin_label: String,
-    description: Text,
-    redirect_id: Number,
-    link_out: Text,
-    link_out_text: String,
-    is_public: Boolean,
-    global_id: String
   }
 }
 
 export const Lead = {
   ...baseCRUD(controller, permitParams),
 
-  update_meta: (id, params) => AjaxCall(
-    'patch', `/${controller}/${id}/update_meta.json`, params
-  ),
+  insert_couplet: (id) =>
+    AjaxCall('post', `/${controller}/${id}/insert_couplet.json`),
 
-  insert_couplet: (id) => AjaxCall(
-    'post', `/${controller}/${id}/insert_couplet.json`
-  ),
+  edit: (id) => AjaxCall('get', `/${controller}/${id}/edit.json`),
 
-  edit: (id) => AjaxCall(
-    'get', `/${controller}/${id}/edit.json`
-  ),
+  add_children: (id, params) =>
+    AjaxCall('post', `/${controller}/${id}/add_children.json`, params),
 
-  create_for_edit: (id) => AjaxCall(
-    'post', `/${controller}/${id}/create_for_edit.json`
-  ),
+  redirect_option_texts: (id) =>
+    AjaxCall('get', `/${controller}/${id}/redirect_option_texts.json`),
 
-  all_texts: (id) => AjaxCall(
-    'get', `/${controller}/${id}/all_texts.json`
-  ),
+  destroy_children: (id) =>
+    AjaxCall('post', `/${controller}/${id}/destroy_children.json`),
 
-  destroy_couplet: (id) => AjaxCall(
-    'post', `/${controller}/${id}/destroy_couplet.json`
-  ),
+  delete_children: (id) =>
+    AjaxCall('post', `/${controller}/${id}/delete_children.json`),
 
-  delete_couplet: (id) => AjaxCall(
-    'post', `/${controller}/${id}/delete_couplet.json`
-  ),
+  otus: (id) => AjaxCall('get', `/${controller}/${id}/otus.json`),
 
-  otus: (id) => AjaxCall(
-    'get', `/${controller}/${id}/otus.json`
-  )
+  destroy_subtree: (id, params = null) =>
+    AjaxCall('post', `/${controller}/${id}/destroy_subtree.json`, params),
+
+  reorder_children: (parent_id, params) =>
+    AjaxCall(
+      'patch',
+      `/${controller}/${parent_id}/reorder_children.json`,
+      params
+    ),
+
+  insert_key: (id, params) =>
+    AjaxCall('post', `/${controller}/${id}/insert_key.json`, params),
+
+  batchCreateLeadItems: (params) =>
+    AjaxCall('post', `/${controller}/batch_create_lead_items.json`, params),
+
+  resetLeadItems: (id) => AjaxCall('post', `/${controller}/${id}/reset_lead_items.json`),
+
+  setObservationMatrix: (id, params) =>
+    AjaxCall(
+      'post',
+      `/${controller}/${id}/set_observation_matrix.json`,
+      params
+    ),
+
+  remainingOtus: (id) => AjaxCall('get', `/${controller}/${id}/remaining_otus`),
+
+  eliminatedOtus: (id) =>
+    AjaxCall('get', `/${controller}/${id}/eliminated_otus`),
+
+  depictions: (id, params) =>
+    AjaxCall('post', `/${controller}/${id}/depictions.json`, params)
 }

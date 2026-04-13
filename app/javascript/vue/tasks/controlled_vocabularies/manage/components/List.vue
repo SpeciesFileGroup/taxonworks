@@ -4,6 +4,12 @@
     <table class="full_width">
       <thead>
         <tr>
+          <th class="w-2">
+            <ButtonUnify
+              :model="CONTROLLED_VOCABULARY_TERM"
+              :ids="unifyIds"
+            />
+          </th>
           <th @click="sortTable('name')">Name</th>
           <th @click="sortTable('definition')">Definition</th>
           <th @click="sortTable('count')">Uses</th>
@@ -16,6 +22,13 @@
           v-for="(item, index) in list"
           :key="item.id"
         >
+          <td>
+            <input
+              type="checkbox"
+              :value="item.id"
+              v-model="unifyIds"
+            />
+          </td>
           <td
             class="line-nowrap"
             v-html="item.object_tag"
@@ -64,12 +77,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { sortArray } from '@/helpers'
+import { CONTROLLED_VOCABULARY_TERM } from '@/constants'
 import SpinnerComponent from '@/components/ui/VSpinner.vue'
 import PinComponent from '@/components/ui/Button/ButtonPin.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import ButtonUnify from '@/components/ui/Button/ButtonUnify.vue'
 
 const props = defineProps({
   list: {
@@ -82,6 +97,7 @@ const emit = defineEmits(['edit', 'sort', 'remove'])
 
 const isLoading = ref(false)
 const ascending = ref(false)
+const unifyIds = ref([])
 
 function editItem(index) {
   emit('edit', props.list[index])
@@ -91,4 +107,19 @@ function sortTable(sortProperty) {
   emit('sort', sortArray(props.list, sortProperty, ascending.value))
   ascending.value = !ascending.value
 }
+
+watch(unifyIds, (ids) => {
+  if (ids.length > 2) {
+    ids.shift()
+  }
+})
+
+watch(
+  () => props.list,
+  (newVal) => {
+    unifyIds.value = unifyIds.value.filter((id) =>
+      newVal.some((c) => c.id === id)
+    )
+  }
+)
 </script>

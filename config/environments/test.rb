@@ -1,6 +1,15 @@
 require 'settings'
 TaxonWorks::Application.configure do
-  # Settings specified here will take precedence over those in config/application.rb.
+  config.active_storage.service = :test
+
+  # See https://github.com/kvokka/pp_sql
+  # Necessary since we use .to_sql during the creation of many of our queries
+  # and currently pp_sql prettifies things like `)::float` to
+  # `) : : float`.
+  # Use .pp_sql in place of .to_sql where you want prettified output.
+  PpSql.rewrite_to_sql_method = false
+  # Don't prettify log/test.log
+  PpSql.add_rails_logger_formatting = false
 
   # The test environment is used exclusively to run your application's
   # test suite. You never need to work with it otherwise. Remember that
@@ -11,7 +20,7 @@ TaxonWorks::Application.configure do
   # Do not eager load code on boot. This avoids loading your whole application
   # just for the purpose of running a single test. If you are using a tool that
   # preloads Rails for running tests, you may have to set it to true.
-  # 
+  #
   config.eager_load = true
 
   # Configure static asset server for tests with Cache-Control for performance.

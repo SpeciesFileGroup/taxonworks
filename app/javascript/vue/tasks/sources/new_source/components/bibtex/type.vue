@@ -1,15 +1,16 @@
 <template>
-  <div class="field">
+  <div>
     <label v-help.section.BibTeX.type>Type</label>
     <br />
     <div class="horizontal-left-content">
       <select
         id="type"
         class="normal-input capitalize separate-right"
-        v-model="bibtexType"
+        v-model="source.bibtex_type"
+        @change="() => (source.isUnsaved = true)"
       >
         <option
-          v-for="item in list"
+          v-for="item in TYPES"
           :key="item"
           :value="item"
         >
@@ -21,54 +22,32 @@
   </div>
 </template>
 
-<script>
-import { GetterNames } from '../../store/getters/getters'
-import { MutationNames } from '../../store/mutations/mutations'
+<script setup>
+import { ref } from 'vue'
+import { useSettingStore } from '../../store'
 import LockComponent from '@/components/ui/VLock/index.vue'
 
-export default {
-  components: {
-    LockComponent
-  },
-  computed: {
-    bibtexType: {
-      get() {
-        return this.$store.getters[GetterNames.GetBibtexType]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetBibtexType, value)
-      }
-    },
-    settings: {
-      get() {
-        return this.$store.getters[GetterNames.GetSettings]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetSettings, value)
-      }
-    }
-  },
-  data() {
-    return {
-      list: [
-        'article',
-        'book',
-        'booklet',
-        'conference',
-        'inbook',
-        'incollection',
-        'inproceedings',
-        'manual',
-        'mastersthesis',
-        'misc',
-        'phdthesis',
-        'proceedings',
-        'techreport',
-        'unpublished'
-      ]
-    }
-  }
-}
-</script>
+const TYPES = ref([
+  'article',
+  'book',
+  'booklet',
+  'conference',
+  'inbook',
+  'incollection',
+  'inproceedings',
+  'manual',
+  'mastersthesis',
+  'misc',
+  'phdthesis',
+  'proceedings',
+  'techreport',
+  'unpublished'
+])
 
-<style></style>
+const source = defineModel({
+  type: Object,
+  required: true
+})
+
+const settings = useSettingStore()
+</script>

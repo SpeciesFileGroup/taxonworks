@@ -25,10 +25,6 @@
 #     if True then the the shape could not be mapped, by any translation method, to a shape allowable
 #     for this CachedMapItemType
 #
-# @!attribute is_absent
-#   @return [Boolean, nil]
-#     if True then the corresponding AssertedDistributions have is_absent true
-#
 # @!attribute level0_geographic_name
 #   @return [String, nil]
 #      the level 0 name
@@ -130,62 +126,117 @@ class CachedMapItem < ApplicationRecord
     end
   end
 
-  def self.translate_by_alternate_shape(geographic_item_id, data_origin)
-    # GeographicItem is an alternate shape to a GeographicArea that *also* has a target gazeteer type
-    if a = GeographicItem.find(geographic_item_id)
-      .geographic_areas
-      .joins(:geographic_items)
-      .where(geographic_areas: { data_origin: })
-      .order(cached_total_area: :ASC) # smallest first
-      .first
-      &.id
-      return [a]
-    else
-      []
-    end
-  end
-
-  # Given a  set of target shapes, return those that intersect with the provided shape
+  # Given a set of target shapes (via data_origin), return those that intersect
+  # with the provided geographic_item_id shape.
   #
-  # @param geographic_item_id [id]
-  #   the shape we are translating *from*
+  # @param geographic_item_id [id] the shape we are translating *from*
   #
-  # @param data_origin
-  #    defines the shapes we are translating to
+  # @param data_origin defines the shapes we are translating to
   #
-  # #param buffer [nil, Decimal] in meters
-  #    shrink, (or grow) the shape we are translating from
-  #    Typical use is to shrink, so that differences in spatial resolution
-  #    are minimized (low res shapes intersect with high res in undesireable ways)
+  # #param buffer [nil, Decimal] in meters shrink, (or grow) the shape we are
+  #    translating from Typical use is to shrink, so that differences in spatial
+  #    resolution are minimized (low res shapes intersect with high res in
+  #    undesireable ways)
+  #
+  # @param precomputed_data_origin_ids [Hash] Optional hash of data_origin =>
+  #   SQL IN list String of all geographic_item ids corresponding to Geographic
+  #   Areas of data origin data_origin (e.g. "1,2,3") [an array would be better,
+  #   but this saves 200k array joins on length-4k arrays during batch create]
   #
   # @return [Array] of GeographicItem ids
   #
-  def self.translate_by_spatial_overlap(geographic_item_id, data_origin, buffer)
+  def self.translate_by_spatial_overlap(
+    geographic_item_id, data_origin, buffer, precomputed_data_origin_ids: nil
+  )
     return [] if geographic_item_id.blank?
+    data_origin = Array(data_origin).compact
+    return [] if data_origin.empty?
 
-    # !! Assumes all GeographicArea shapes were loaded to multi_polygon
-    # (pre-adapts us to a single geometry field type), however be
-    # aware of this assumption
+    precomputed_ids = nil
+    if data_origin.length == 1
+      if precomputed_data_origin_ids.present?
+        precomputed_ids = precomputed_data_origin_ids[data_origin.first]
+      else
+        precomputed_ids = precomputed_data_origin_ids_for(data_origin.first)
+      end
+    end
 
-    # This is a fast first pass, pure intersection
-    a = GeographicItem
-      .joins(:geographic_areas_geographic_items)
-      .where(geographic_areas_geographic_items: { data_origin: })
-      .where( "ST_Intersects( multi_polygon, ( select #{ GeographicItem::GEOGRAPHY_SQL } from geographic_items where geographic_items.id = #{geographic_item_id}) )" )
-      .pluck(:id)
+    raise TaxonWorks::Error, "Missing pre-computed ids for cached maps origin '#{data_origin}'" if precomputed_ids.blank?
+    raise TaxonWorks::Error, "Expected pre-computed ids for cached maps origin '#{data_origin}' to be a SQL IN list" unless precomputed_ids.is_a?(String)
 
-    return a if buffer.nil?
+    # Step 1: Find the (few) ne_states shapes that intersect the source shape.
+    # Check the planner carefully if you combine steps 1 and 2 into a single
+    # query.
+    intersecting_ids = ActiveRecord::Base.connection.select_values(<<~SQL.squish).map!(&:to_i)
+      SELECT gi.id
+      FROM geographic_items gi
+      WHERE gi.id IN (#{precomputed_ids})
+        AND ST_Intersects(
+          gi.geography,
+          (SELECT geography FROM geographic_items WHERE id = #{geographic_item_id.to_i})
+        )
+    SQL
 
-    # Refine the pass by smoothing using buffer/st_within
-    return GeographicItem
-      .where(id: a)
-      .where( GeographicItem.st_buffer_st_within(geographic_item_id, 0.0, buffer) )
-      .pluck(:id)
+    return intersecting_ids if buffer.nil?
+
+    # Step 2: Refine by buffer/st_within and add subset-of hole filling.
+    within_filter = GeographicItem.st_buffer_st_within_sql(geographic_item_id, 0.0, buffer)
+    subset_filter = GeographicItem.subset_of_sql(
+      GeographicItem.st_buffer_sql(
+        GeographicItem.select_geometry_sql(geographic_item_id),
+        100
+      )
+    )
+    combined_filter = within_filter.or(subset_filter)
+
+    begin
+      return GeographicItem
+        .where(id: intersecting_ids)
+        .where(combined_filter)
+        .pluck(:id)
+    rescue ActiveRecord::StatementInvalid, PG::Error => e
+      # subset_of_sql (ST_CoveredBy) is known bad on
+      # PostGIS: POSTGIS="3.6.0 4c1967d" [EXTENSION] PGSQL="170" GEOS="3.10.2-CAPI-1.16.0",
+      # known good on PostGIS: POSTGIS="3.6.1 f533623" GEOS="3.14.1-CAPI-1.20.5"
+      # so try keeping the st_within refinement and skip only the
+      # subset-of augmentation.
+      # TODO: get rid of this once it's no longer needed!
+      within_ids = GeographicItem
+        .where(id: intersecting_ids)
+        .where(within_filter)
+        .pluck(:id)
+      message = " CM_TRANSLATE_SUBSET_FALLBACK geographic_item_id:#{geographic_item_id} data_origin:#{data_origin.join(',')} buffer:#{buffer} intersects_count:#{intersecting_ids.size} within_count:#{within_ids.size} error:#{e.class}: #{e.message.lines.first&.strip}"
+      Rails.logger.warn(message) if defined?(Rails) && Rails.respond_to?(:logger) && Rails.logger
+      puts message
+      return within_ids
+    end
+  end
+
+  def self.precomputed_data_origin_ids_for(data_origin, refresh: false)
+    return nil unless data_origin == 'ne_states' # currently only ne_states supported
+
+    @precomputed_data_origin_ids ||= {}
+    if refresh || @precomputed_data_origin_ids[data_origin].blank?
+      @precomputed_data_origin_ids[data_origin] = GeographicAreasGeographicItem
+        .where(data_origin:)
+        .distinct
+        .pluck(:geographic_item_id)
+        .join(',')
+        .freeze
+    end
+
+    @precomputed_data_origin_ids[data_origin]
   end
 
   # @return [Array]
-  # @param origin_type
-  #   'AssertedDistribution' or 'Georeference'
+  # @param geographic_area_based [Boolean]
+  #   true if geographic_item_id is the geographic_item id of some geographic
+  #   area (and so has a chance of already being associated with a cached map
+  #   item/translation)
+  #
+  # @param search_existing_translates [Boolean]
+  #   true if existing cached_map_item_translations should be checked for a
+  #   match.
   #
   # @param data_origin Array, String
   #   like `ne_states` or ['ne_states, 'ne_countries']
@@ -194,7 +245,15 @@ class CachedMapItem < ApplicationRecord
   #   shr,ink (or grow) the size of the target shape, in meters
   #   Typical use, do not apply for Georeferences, apply -10km for AssertedDistributions
   #
-  def self.translate_geographic_item_id(geographic_item_id, origin_type = nil, data_origin = nil, buffer = nil)
+  # @param precomputed_data_origin_ids [Hash] Optional hash of data_origin =>
+  #   SQL IN list String of all geographic_item ids corresponding to Geographic
+  #   Areas of data origin data_origin (e.g. "1,2,3")
+  #
+  def self.translate_geographic_item_id(
+    geographic_item_id, geographic_area_based,
+    search_existing_translates = true, data_origin = nil, buffer = nil,
+    precomputed_data_origin_ids: nil
+  )
     return nil if data_origin.blank?
 
     cached_map_type = types_by_data_origin(data_origin)
@@ -203,29 +262,34 @@ class CachedMapItem < ApplicationRecord
 
     b = buffer
 
+    if search_existing_translates
+      a = translate_by_geographic_item_translation(
+        geographic_item_id, cached_map_type
+      )
+      return a if a.present?
+    end
+
     # All these methods depend on "prior knowledge" (not spatial calculations)
-    if origin_type == 'AssertedDistribution'
-      a = translate_by_geographic_item_translation(geographic_item_id, cached_map_type)
-      return a if a.present?
-
+    if geographic_area_based
       a = translate_by_data_origin(geographic_item_id, data_origin)
-      return a if a.present?
-
-      a = translate_by_alternate_shape(geographic_item_id, data_origin)
       return a if a.present?
 
       a = translate_by_cached_map_usage(geographic_item_id, cached_map_type)
       return a if a.present?
 
+      # TODO should Gazetteer GIs be getting a dynamic buffer? They don't
+      # currently.
       b = dynamic_buffer(geographic_item_id) # -1000.0 # Monaco
     end
 
-    translate_by_spatial_overlap(geographic_item_id, data_origin, b)
+    translate_by_spatial_overlap(
+      geographic_item_id, data_origin, b, precomputed_data_origin_ids:
+    )
   end
 
   def self.dynamic_buffer(geographic_item_id)
     v = GeographicItem.select(:id, :cached_total_area).find(geographic_item_id).cached_total_area
-    return 0 if v.nil?
+    return 0 if v.nil? || v.to_i == 0
     case Math.log10(v).to_i
     when 0..2 # 3786
       0.0
@@ -258,27 +322,48 @@ class CachedMapItem < ApplicationRecord
     }
 
     geographic_item_id = nil
-    name_hierarchy = nil
     otu_id = nil
-
     base_class_name = o.class.base_class.name
 
     case base_class_name
     when 'AssertedDistribution'
-      geographic_item_id = o.geographic_area.default_geographic_item_id
-      otu_id = [o.otu_id]
+      if o.is_absent == true
+        return h
+      end
+
+      otu_id = o.object_otu_ids
+
+      return h if otu_id.empty?
+
+      # Filter to OTUs with taxon names (required for hierarchy)
+      otu_id = Otu.where(id: otu_id).where.not(taxon_name_id: nil).pluck(:id)
+      return h if otu_id.empty?
+
+      geographic_item_id = o.asserted_distribution_shape.default_geographic_item_id
+
     when 'Georeference'
       geographic_item_id = o.geographic_item_id
-      otu_id = o.otus.joins('LEFT JOIN taxon_determinations td on otus.id = td.otu_id').where(taxon_determinations: { position: 1 }).distinct.pluck(:id)
+      # Filter to only OTUs that have a taxon_name_id — OTUs without
+      # taxon names have no hierarchy and don't contribute to cached maps.
+      otu_id = o.otus # OTUS through CollectionObject and FieldOccurrence TaxonDeterminations
+        .joins(:taxon_determinations)
+        .where(taxon_determinations: { position: 1 })
+        .where.not(taxon_name_id: nil)
+        .distinct.pluck(:id)
+
+      return h if otu_id.empty?
     end
 
     # Some AssertedDistribution don't have shapes
     if geographic_item_id
       h[:origin_geographic_item_id] = geographic_item_id
 
+      geographic_area_based = base_class_name == 'AssertedDistribution' &&
+        o.asserted_distribution_shape_type == 'GeographicArea'
+      search_existing_translates = base_class_name == 'AssertedDistribution'
+
       h[:geographic_item_id] = translate_geographic_item_id(
-        geographic_item_id,
-        base_class_name,
+        geographic_item_id, geographic_area_based, search_existing_translates,
         cached_map_type.safe_constantize::SOURCE_GAZETEERS
       )
 
@@ -311,9 +396,7 @@ class CachedMapItem < ApplicationRecord
     k = batch_stubs[:otu_id]
 
     j.each do |geographic_item_id|
-      k.each do |otu_id|
-        otu_id = otu_id.first
-        project_id = otu_id.second
+      k.each do |otu_id, project_id|
 
         begin
           a = CachedMapItem.find_or_initialize_by(

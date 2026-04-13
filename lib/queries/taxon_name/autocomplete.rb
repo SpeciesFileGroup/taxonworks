@@ -187,6 +187,16 @@ module Queries
         base_query.where(a.to_sql).limit(20)
       end
 
+      def autocomplete_cached_wildcard_whitespace_with_space
+        a = table[:cached].matches("#{query_string.gsub('. ', ' ').gsub(/[\s\\]/, '% ')}%")
+        base_query.where(a.to_sql).limit(20)
+      end
+
+      def autocomplete_cached_original_combination_wildcard_whitespace_with_space
+        a = table[:cached_original_combination].matches("#{query_string.gsub('. ', ' ').gsub(/[\s\\]/, '% ')}%")
+        base_query.where(a.to_sql).limit(20)
+      end
+
       # @return [Scope]
       def autocomplete_cached_wildcard_whitespace
         a = table[:cached].matches("#{query_string.gsub('. ', ' ').gsub(/[\s\\]/, '%')}")
@@ -226,7 +236,7 @@ module Queries
       end
 
       #    def autocomplete_cached
-      #      base_query.where(table[:cached].eq(query_term))
+      #      base_query.where(table[:cached].eq(query_string))
       #    end
 
       # ---- gin methods
@@ -293,6 +303,8 @@ module Queries
           autocomplete_exact_name_and_year,
 
           autocomplete_cached_end_wildcard,
+          autocomplete_cached_wildcard_whitespace_with_space,
+          autocomplete_cached_original_combination_wildcard_whitespace_with_space,
           autocomplete_cached_wildcard_whitespace,
           autocomplete_name_author_year_fragment,
           autocomplete_taxon_name_author_year_matches,

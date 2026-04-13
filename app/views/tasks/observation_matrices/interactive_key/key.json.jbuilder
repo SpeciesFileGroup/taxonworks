@@ -40,3 +40,11 @@ json.eliminated (@key.eliminated) do |e|
     json.merge! e[:object].attributes
   end
 end
+
+json.eliminated_for_key (@key.eliminated_for_key) do |e|
+  json.extract! e, :errors, :error_descriptors
+  json.object do
+    json.partial! '/shared/data/all/metadata', object: e[:object]
+    json.merge! e[:object].attributes
+  end
+end

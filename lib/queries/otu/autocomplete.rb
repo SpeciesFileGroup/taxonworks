@@ -26,6 +26,16 @@ module Queries
       #   if 'true' then only #name = query_string results are returned (no fuzzy matching)
       attr_accessor :exact
 
+      # @return Boolean, nil
+      #  true - 'pre-load' common names with otus
+      #  false/nil - ignored
+      attr_accessor :include_common_names
+
+      # @return Boolean, nil
+      #  true - 'pre-load' taxon name with otus
+      #  false/nil - ignored
+      attr_accessor :include_taxon_name
+
       # Keys are method names. Existence of method is checked
       # before requesting the query
       QUERIES = {
@@ -53,13 +63,22 @@ module Queries
         # common_name_name_similarity: {priority: 200},
       }.freeze
 
-      def initialize(string, project_id: nil, having_taxon_name_only: false, with_taxon_name: nil, exact: 'false')
+      def initialize(
+        string, project_id: nil, having_taxon_name_only: false,
+        with_taxon_name: nil, exact: 'false', include_common_names: false,
+        include_taxon_name: false
+      )
         super(string, project_id:)
         @having_taxon_name_only = boolean_param({having_taxon_name_only:}, :having_taxon_name_only)
         @with_taxon_name = boolean_param({with_taxon_name:}, :with_taxon_name)
 
         # TODO: move to mode
         @exact = boolean_param({exact:}, :exact)
+
+        @include_common_names =
+          boolean_param({include_common_names:}, :include_common_names)
+        @include_taxon_name =
+          boolean_param({include_taxon_name:}, :include_taxon_name)
       end
 
       def base_query
@@ -109,6 +128,7 @@ module Queries
           .order('id_order.row_num')
       end
 
+      # DEPRECATED
       # Maintains valid_taxon_name_id needed for API.
       #
       # Considerations:
@@ -154,20 +174,42 @@ module Queries
         scale = (max - min) / ids.count.to_f
 
         # TODO: optimize *
-        otus = base_query.select("otus.*, label_target_taxon_name_id, ((#{min} + row_number() OVER ())::float * #{scale}) as priority") # small incrementing numbers for priority
-          .joins("INNER JOIN ( SELECT unnest(ARRAY[#{ids.map(&:first).join(',')}]) AS id, unnest(ARRAY[#{ids.map(&:last).join(',')}]) AS label_target_taxon_name_id, row_number() OVER () AS row_num ) AS id_order ON otus.taxon_name_id = id_order.id")
+        otus = base_query
+          .select(<<~SQL.squish)
+            otus.*,
+            label_target_taxon_name_id,
+            ((#{min} + row_number() OVER ())::float * #{scale}) AS priority
+          SQL
+          .joins(<<~SQL.squish)
+            INNER JOIN (
+              SELECT
+                unnest(ARRAY[#{ids.map(&:first).join(',')}]) AS id,
+                unnest(ARRAY[#{ids.map(&:last).join(',')}]) AS label_target_taxon_name_id,
+                row_number() OVER () AS row_num
+            ) AS id_order
+            ON otus.taxon_name_id = id_order.id
+          SQL
           .order('id_order.row_num')
 
-        otus = scope_autocomplete(otus).includes(:taxon_name)
+        otus = scope_autocomplete(otus)
+
+        # We could currently get away with using .includes here, but if we were
+        # to ever filter or group `otus` on a non-otu table like id_order then
+        # .includes would do a join on the associated table below and we could
+        # get duplicate otu.id result rows that would be de-duplicated by rails,
+        # losing vital (non-dup) id_order info. So just always do preload here
+        # instead.
+        otus = include_taxon_name ? otus.preload(:taxon_name) : otus
+        otus = include_common_names ? otus.preload(:common_names) : otus
 
         otus
       end
 
       # An autocomplete result that permits displaying the TaxonName as originally matched.
       # @return [Array] of
-      #    { otu:,  label_target:, otu_valid_id: } 
+      #    { otu:,  label_target:, otu_valid_id: }
       #
-      # Note that otu: is really only useful when displaying otus without &having_taxon_name_only=true.  We don't, for example make use 
+      # Note that otu: is really only useful when displaying otus without &having_taxon_name_only=true.  We don't, for example make use
       # of this element there.
       def api_autocomplete_extended
         otu_queries = QUERIES.dup
@@ -265,13 +307,18 @@ module Queries
         end
 
         queries.compact!
-        referenced_klass_union(queries).order('priority')
+        q = referenced_klass_union(queries).order('priority')
+
+        q = include_common_names ? q.includes(:common_names) : q
+        q = include_taxon_name ? q.includes(:taxon_name) : q
+
+        q
       end
 
       def scope_autocomplete(query)
         query = query.joins(:taxon_name) if with_taxon_name
         query = query.where.missing(:taxon_name) if with_taxon_name == false
-        query = query.joins(:taxon_name).where(otus: {name: nil}) if having_taxon_name_only
+        query = query.where(otus: {name: nil}) if having_taxon_name_only
         query
       end
 

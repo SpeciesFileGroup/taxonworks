@@ -8,8 +8,6 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
 
   validates_uniqueness_of :object_taxon_name_id, scope: :type
 
-  after_destroy :set_cached_original_combination # sets both cached/html
-
   def self.nomenclatural_priority
     :reverse
   end
@@ -68,39 +66,17 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
       elements.push subject_taxon_name.genderized_name(name_gender)
     end
 
-    elements.push('[sic]') if subject_taxon_name.cached_misspelling
+    elements.push('[sic]') if subject_taxon_name.cached_misspelling # TODO [sic] as seperated is different than FNH, and also see ()
     elements[1] = "(#{elements[1]})" if applicable_rank == :subgenus
 
     return {applicable_rank => elements}
   end
 
-# def element_gender
-#   object_taxon_name.original_genus.gender_name
-#    subject_taxon_name.gender_name
-# end
-
   protected
 
   def set_cached_names_for_taxon_names
-
-    begin
-      TaxonName.transaction do
-        t = object_taxon_name
-        t.send(:set_cached)
-        t.send(:set_cached_original_combination)
-        t.send(:set_cached_original_combination_html)
-#       t.update_columns(
-#         cached_original_combination: t.get_original_combination,
-#         cached_original_combination_html: t.get_original_combination_html,
-# #        cached_author_year: t.get_author_and_year, # is done in set_cached!!
-#         )
-      end
-    end
-    true
-  end
-
-  def set_cached_original_combination
-    self.object_taxon_name.update_cached_original_combinations
+    object_taxon_name.reload
+    object_taxon_name.update_cached_original_combinations
   end
 
   def sv_validate_priority

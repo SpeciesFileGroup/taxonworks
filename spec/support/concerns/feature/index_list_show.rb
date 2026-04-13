@@ -2,7 +2,7 @@
 
 shared_examples 'a_data_model_with_standard_index' do | no_new_link |
   specify 'has model name' do
-    expect(page).to have_content(page_title)
+     expect(page).to have_content(page_title)
    end
 
   if no_new_link

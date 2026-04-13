@@ -15,11 +15,9 @@
         <div class="horizontal-center-content">
           <radial-menu
             :options="menuOptions"
-            @click="handleClick"
+            @click="(event) => handleClick(event, { openTab: false })"
+            @contextmenu="(event) => handleClick(event, { openTab: true })"
             @mousedown="setParametersFor"
-            @contextmenu="
-              (event) => handleContextMenu(event, { openTab: true })
-            "
           />
         </div>
       </template>
@@ -29,7 +27,7 @@
       color="radial"
       :title="title"
       circle
-      :disabled="disabled || !filterLinks.length"
+      :disabled="disabled || !filterLinks.length || !hasParameters"
       @click="openRadialMenu()"
     >
       <VIcon
@@ -56,6 +54,7 @@ import qs from 'qs'
 import * as LINKER_LIST from './links/index.js'
 
 const MAX_LINK_SIZE = 2000
+const EXCLUDE_PARAMETERS = ['page', 'per', 'extend']
 
 defineOptions({
   name: 'RadialLinker'
@@ -86,6 +85,23 @@ const props = defineProps({
 const emit = defineEmits(['close'])
 const objParameters = ref(getFilterAttributes())
 const isOnlyIds = computed(() => Array.isArray(props.ids))
+
+const params = computed(() =>
+  filterEmptyParams(
+    isOnlyIds.value ? getParametersForId() : getParametersForAll()
+  )
+)
+
+const hasParameters = computed(() => {
+  const parameters = { ...params.value }
+
+  EXCLUDE_PARAMETERS.forEach((param) => {
+    delete parameters[param]
+  })
+
+  return Object.keys(parameters).length
+})
+
 const filterLinks = computed(() => {
   const objLinks = LINKER_LIST[props.objectType]
 
@@ -106,18 +122,12 @@ const menuOptions = computed(() => {
   const slices = []
 
   filterLinks.value.forEach((item) => {
-    const filteredParameters = filterEmptyParams(
-      isOnlyIds.value ? getParametersForId() : getParametersForAll(item.params)
-    )
-
-    const parameters = item.queryParam
-      ? { [QUERY_PARAM[props.objectType]]: filteredParameters }
-      : filteredParameters
+    const parameters = getLinkParameters(item)
 
     const link =
       item.link + '?' + qs.stringify(parameters, { arrayFormat: 'brackets' })
 
-    if (Object.values(filteredParameters).some(Boolean)) {
+    if (Object.values(parameters).some(Boolean)) {
       if (item.post) {
         slices.push(addSlice({ label: item.label }))
       } else if (link.length > MAX_LINK_SIZE) {
@@ -197,7 +207,11 @@ function filterEmptyParams(object) {
   for (const key in obj) {
     const value = obj[key]
 
-    if (value === '' || (Array.isArray(value) && !value.length)) {
+    if (
+      value === undefined ||
+      value === '' ||
+      (Array.isArray(value) && !value.length)
+    ) {
       delete obj[key]
     }
   }
@@ -210,14 +224,18 @@ function getItemByName(name) {
 }
 
 function getLinkParameters(item) {
-  const filteredParameters = filterEmptyParams(
-    isOnlyIds.value ? getParametersForId() : getParametersForAll()
-  )
-  const parameters = item.queryParam
-    ? { [QUERY_PARAM[props.objectType]]: filteredParameters }
-    : filteredParameters
+  const { queryParam, parseParams } = item
 
-  return parameters
+  const parameters = queryParam
+    ? { [QUERY_PARAM[props.objectType]]: params.value }
+    : params.value
+
+  const args = {
+    params: parameters,
+    objectType: props.objectType
+  }
+
+  return typeof parseParams === 'function' ? parseParams(args) : parameters
 }
 
 function setParametersFor({ name }) {
@@ -240,19 +258,6 @@ function handleClick({ name }, { openTab = false }) {
       action: item.link,
       data: parameters,
       openTab
-    })
-  }
-}
-
-function handleContextMenu({ name }) {
-  const item = getItemByName(name)
-  const parameters = getLinkParameters(item)
-
-  if (item.post) {
-    createAndSubmitForm({
-      action: item.link,
-      data: parameters,
-      openTab: true
     })
   }
 }

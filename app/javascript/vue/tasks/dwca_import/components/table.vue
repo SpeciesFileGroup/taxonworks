@@ -1,6 +1,8 @@
 <template>
   <div>
-    <virtual-pagination-component />
+    <div class="horizontal-right-content margin-medium-bottom">
+      <CheckboxIgnoreColumns />
+    </div>
     <virtual-scroller
       :items="list"
       :item-height="43"
@@ -23,17 +25,21 @@
                 :disabled="isProcessing"
                 v-model="params.status"
               />
-              <column-filter
+              <template
                 v-for="(item, index) in datasetHeaders"
-                :key="index"
-                :title="item"
-                :disabled="isProcessing"
-                :column-index="index"
-                @replace="replaceField"
-                class="position-sticky margin-medium-left"
-                v-model="params.filter[index]"
-                :field="index"
-              />
+                :key="item"
+              >
+                <column-filter
+                  v-if="settings.ignoredColumns || !isIgnored(index)"
+                  :title="item"
+                  :disabled="isProcessing"
+                  :column-index="index"
+                  :ignored="isIgnored(index)"
+                  v-model="params.filter[index]"
+                  :field="index"
+                  @replace="replaceField"
+                />
+              </template>
             </tr>
           </thead>
           <tbody>
@@ -79,8 +85,9 @@ import SpinnerComponent from '@/components/ui/VSpinner'
 import RowComponent from './row'
 import ColumnFilter from './ColumnFilter'
 import StatusFilter from './StatusFilter'
-import VirtualPaginationComponent from './VirtualPagination'
+import CheckboxIgnoreColumns from './settings/CheckboxIgnoreColumns.vue'
 import ConfirmationModal from '@/components/ConfirmationModal'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 export default {
   components: {
@@ -90,7 +97,8 @@ export default {
     ColumnFilter,
     StatusFilter,
     SpinnerComponent,
-    VirtualPaginationComponent
+    VIcon,
+    CheckboxIgnoreColumns
   },
 
   computed: {
@@ -131,7 +139,9 @@ export default {
     isProcessing() {
       return this.$store.getters[GetterNames.GetSettings].isProcessing
     },
-
+    settings() {
+      return this.$store.getters[GetterNames.GetSettings]
+    },
     currentRowIndex: {
       get() {
         return this.$store.getters[GetterNames.GetCurrentRowIndex]
@@ -172,6 +182,10 @@ export default {
       pages.forEach((page) => {
         this.$store.dispatch(ActionNames.LoadDatasetRecords, page)
       })
+    },
+
+    isIgnored(index) {
+      return !this.dataset.metadata?.core_records_mapped_fields?.includes(index)
     },
 
     getPages(indexes) {
@@ -220,7 +234,7 @@ export default {
 
 <style lang="scss">
 .dwca-vscroll {
-  height: calc(100vh - 270px);
+  height: calc(100vh - 280px);
   overflow: auto;
   overflow-anchor: none;
 }
@@ -228,6 +242,10 @@ export default {
   th {
     top: 0;
     z-index: 2101;
+    border-left: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
+    box-shadow: inset 0 -2px 0 var(--border-color);
+    border-bottom: none;
   }
 
   .show-import-process {
@@ -264,6 +282,16 @@ export default {
   .hightlight {
     outline: 2px solid var(--color-primary) !important;
     outline-offset: -2px;
+  }
+
+  .cell-ignore {
+    background-color: var(--soft-validation-bg-color);
+  }
+
+  tr:hover {
+    td.cell-ignore {
+      background-color: inherit;
+    }
   }
 }
 </style>

@@ -14,7 +14,7 @@ class SerialChronologiesController < ApplicationController
         format.json {render json: @serial_chronology, status: :created, location: @serial_chronology}
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Serial chronology was NOT successfully created.')}
-        format.json {render json: @serial_chronology.errors, status: :unprocessable_entity}
+        format.json {render json: @serial_chronology.errors, status: :unprocessable_content}
       end
     end
   end
@@ -28,7 +28,7 @@ class SerialChronologiesController < ApplicationController
         format.json {head :no_content}
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Serial chronology was NOT successfully updated.')}
-        format.json {render json: @serial_chronology.errors, status: :unprocessable_entity}
+        format.json {render json: @serial_chronology.errors, status: :unprocessable_content}
       end
     end
   end

@@ -35,6 +35,7 @@
         <FilterDocument
           v-model="parameters"
           :extension-groups="extensionGroups"
+          :filter-group-names="['nexus']"
           @filter="() => loadList(parameters)"
         />
         <div class="results">
@@ -103,7 +104,7 @@ const extensionGroups = ref([])
 
 const nexusExtensions = computed(() => {
   const nexusGroup = extensionGroups.value.find((h) => h['group'] == 'nexus')
-  return nexusGroup ? nexusGroup['extensions'] : []
+  return nexusGroup ? nexusGroup['extensions_data'].map((d) => d.extension) : []
 })
 
 const dropzoneConfig = computed(() => {
@@ -118,6 +119,8 @@ function sending(file, xhr, formData) {
 }
 
 function success(file, response) {
+  // Note: dropzone calls success once for each file dropped, even when multiple
+  // are dropped at once - here we always select the last one dropped
   nexusDoc.value = response
   isPublicDocument.value = false
   noMatchesForExtension.value = undefined

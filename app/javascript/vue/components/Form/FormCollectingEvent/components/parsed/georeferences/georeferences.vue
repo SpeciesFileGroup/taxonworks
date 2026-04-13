@@ -7,16 +7,17 @@
     >
       Georeference ({{ count }})
     </button>
-    <button
+    <VBtn
       v-if="!isVerbatimCreated"
-      type="button"
-      class="button normal-input button-submit margin-small-left"
-      :disabled="!verbatimLat && !verbatimLat"
+      class="margin-small-left"
+      color="primary"
+      medium
+      :disabled="!hasValidVerbatimCoordinates"
       @click="createVerbatimShape"
     >
       Create georeference from verbatim
-    </button>
-    <template v-if="isVerbatimCreated">
+    </VBtn>
+    <template v-if="!!isVerbatimCreated">
       <span>
         Lat: {{ verbatimCoordinates.latitude }}, Long:
         {{ verbatimCoordinates.longitude }}
@@ -25,14 +26,14 @@
         </span>
       </span>
     </template>
-    <modal-component
-      @close="isModalVisible = false"
+    <VModal
+      v-if="isModalVisible"
       :container-style="{
         width: '80vw',
         maxHeight: '80vh',
         overflowY: 'scroll'
       }"
-      v-if="isModalVisible"
+      @close="isModalVisible = false"
     >
       <template #header>
         <h3>Georeferences</h3>
@@ -40,30 +41,20 @@
       <template #body>
         <div style="overflow-y: scroll">
           <div
-            class="horizontal-left-content margin-medium-top margin-medium-bottom"
+            class="horizontal-left-content margin-medium-top margin-medium-bottom gap-small"
           >
-            <wkt-component
-              @create="addToQueue"
-              class="margin-small-right"
-            />
-            <manually-component
-              class="margin-small-right"
-              @create="addGeoreference($event, GEOREFERENCE_POINT)"
-            />
-            <geolocate-component
-              :disabled="!collectingEvent.id"
-              class="margin-small-right"
-              @create="addToQueue"
-            />
-            <button
-              type="button"
+            <VWkt @create="addToQueue" />
+            <VManually @create="addGeoreference($event, GEOREFERENCE_POINT)" />
+            <VGeolocate @create="addToQueue" />
+            <VBtn
               v-if="verbatimLat && verbatimLng"
-              :disabled="isVerbatimCreated"
+              color="primary"
+              medium
+              :disabled="!!isVerbatimCreated"
               @click="createVerbatimShape"
-              class="button normal-input button-submit"
             >
               Create georeference from verbatim
-            </button>
+            </VBtn>
           </div>
           <div
             :style="{
@@ -73,21 +64,22 @@
           >
             <VMap
               ref="leaflet"
-              v-if="show"
               :height="height"
               :width="width"
               :geojson="mapGeoreferences"
-              :zoom="zoom"
+              :zoom="2"
               fit-bounds
               resize
-              :draw-controls="true"
-              :draw-polyline="false"
-              :cut-polygon="false"
-              :removal-mode="false"
+              draw-polygon
+              draw-rectangle
+              draw-circle
+              draw-marker
+              drag-mode
+              edit-mode
               tooltips
               actions
-              @geoJsonLayersEdited="updateGeoreference($event)"
-              @geoJsonLayerCreated="addGeoreference($event)"
+              @layer:edit="({ feature }) => updateGeoreference(feature)"
+              @layer:create="({ feature }) => addGeoreference(feature)"
             />
           </div>
           <div class="margin-medium-top">
@@ -99,57 +91,51 @@
             />
           </div>
           <div
-            class="horizontal-left-content margin-medium-top margin-medium-bottom"
+            class="horizontal-left-content margin-medium-top margin-medium-bottom gap-small"
           >
-            <wkt-component
-              @create="addToQueue"
-              class="margin-small-right"
-            />
-            <manually-component
-              class="margin-small-right"
-              @create="addGeoreference($event, GEOREFERENCE_POINT)"
-            />
-            <geolocate-component
-              class="margin-small-right"
-              @create="addToQueue"
-            />
-            <button
-              type="button"
+            <VWkt @create="addToQueue" />
+            <VManually @create="addGeoreference($event, GEOREFERENCE_POINT)" />
+            <VGeolocate @create="addToQueue" />
+            <VBtn
               v-if="verbatimLat && verbatimLng"
-              :disabled="isVerbatimCreated"
+              color="primary"
+              medium
+              :disabled="!!isVerbatimCreated"
               @click="createVerbatimShape"
-              class="button normal-input button-submit"
             >
               Create georeference from verbatim
-            </button>
+            </VBtn>
           </div>
           <DisplayList
+            label="object_tag"
             :list="store.georeferences"
             @delete="removeGeoreference"
             @update="updateRadius"
             @date-changed="addToQueue"
-            label="object_tag"
           />
         </div>
       </template>
-    </modal-component>
+    </VModal>
   </div>
 </template>
 
 <script setup>
-import VMap from '@/components/georeferences/map'
+import VMap from '@/components/ui/VMap/VMap.vue'
 import DisplayList from './list'
 import convertDMS from '@/helpers/parseDMS.js'
-import ManuallyComponent from '@/components/georeferences/manuallyComponent'
-import GeolocateComponent from './geolocate'
-import ModalComponent from '@/components/ui/Modal'
-import WktComponent from './wkt'
+import VManually from '@/components/georeferences/manuallyComponent'
+import VGeolocate from './geolocate'
+import VModal from '@/components/ui/Modal'
+import VWkt from './wkt'
 import DateComponent from '@/components/ui/Date/DateFields.vue'
 import useStore from '../../../store/georeferences.js'
+import useCEStore from '../../../store/collectingEvent.js'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import { addToArray, randomUUID } from '@/helpers'
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { truncateDecimal } from '@/helpers/math.js'
 import {
+  GEOREFERENCE,
   GEOREFERENCE_GEOLOCATE,
   GEOREFERENCE_EXIF,
   GEOREFERENCE_POINT,
@@ -157,6 +143,8 @@ import {
   GEOREFERENCE_WKT,
   GEOREFERENCE_LEAFLET
 } from '@/constants/index.js'
+
+const EXCLUDE = [GEOREFERENCE_GEOLOCATE, GEOREFERENCE_WKT]
 
 const props = defineProps({
   height: {
@@ -172,28 +160,14 @@ const props = defineProps({
   geolocationUncertainty: {
     type: [String, Number],
     default: undefined
-  },
-
-  zoom: {
-    type: Number,
-    default: 1
-  },
-
-  show: {
-    type: Boolean,
-    default: true
   }
 })
 
 const collectingEvent = defineModel()
 const store = useStore()
+const ceStore = useCEStore()
 
 const isModalVisible = ref(false)
-
-const shapes = ref({
-  type: 'FeatureCollection',
-  features: []
-})
 
 const date = ref({
   year_georeferenced: undefined,
@@ -213,6 +187,13 @@ const count = computed(() => {
 })
 const verbatimLat = computed(() => collectingEvent.value.verbatim_latitude)
 const verbatimLng = computed(() => collectingEvent.value.verbatim_longitude)
+
+const hasValidVerbatimCoordinates = computed(() => {
+  const lat = convertDMS(verbatimLat.value)
+  const lng = convertDMS(verbatimLng.value)
+
+  return !isNaN(lat) && !isNaN(lng)
+})
 
 const verbatimCoordinates = computed(() => {
   const shape = isVerbatimCreated.value
@@ -250,23 +231,14 @@ const verbatimRadiusError = computed(() => {
   return undefined
 })
 
-const mapGeoreferences = computed(() =>
-  store.georeferences
-    .filter(
-      (item) =>
-        item.type !== GEOREFERENCE_WKT &&
-        item.type !== GEOREFERENCE_GEOLOCATE &&
-        (item?.geographic_item_attributes?.shape || item?.geo_json)
-    )
-    .map((item) =>
-      item.geo_json
-        ? item.geo_json
-        : JSON.parse(item?.geographic_item_attributes?.shape)
-    )
-)
+const mapGeoreferences = computed(() => {
+  const features = [...store.geojson]
 
-watch([() => store.georeferences, () => store.geographicArea], populateShapes, {
-  deep: true
+  if (ceStore.geographicArea?.has_shape) {
+    features.unshift(ceStore.geographicArea.shape)
+  }
+
+  return features
 })
 
 function updateRadius(geo) {
@@ -276,7 +248,8 @@ function updateRadius(geo) {
 
   Object.assign(georeference, {
     error_geographic_item_id: geo.geographic_item_id,
-    error_radius: geo.error_radius
+    error_radius: geo.error_radius,
+    isUnsaved: true
   })
 }
 
@@ -290,32 +263,20 @@ function addGeoreference(shape, type = GEOREFERENCE_LEAFLET) {
   })
 }
 
-function updateGeoreference(shape, type = GEOREFERENCE_LEAFLET) {
-  addToQueue({
-    id: shape.properties.georeference.id,
-    error_radius: shape.properties?.radius,
-    geographic_item_attributes: { shape: JSON.stringify(shape) },
-    collecting_event_id: collectingEvent.value.id,
-    type
-  })
-}
+function updateGeoreference(feature, type = GEOREFERENCE_LEAFLET) {
+  const georeference = store.georeferences.find(
+    (item) => item.uuid === feature.properties.uuid
+  )
 
-function populateShapes() {
-  shapes.value.features = []
-  if (store.geographicArea) {
-    shapes.value.features.unshift(store.geographicArea)
-  }
-  store.georeferences.forEach((geo) => {
-    if (geo.error_radius != null) {
-      geo.geo_json.properties.radius = geo.error_radius
-    }
-    shapes.value.features.push(geo.geo_json)
+  Object.assign(georeference, {
+    error_radius: feature.properties?.radius,
+    geographic_item_attributes: { shape: JSON.stringify(feature) },
+    isUnsaved: true
   })
 }
 
 function removeGeoreference(geo) {
   store.remove(geo)
-  populateShapes()
 }
 
 function createVerbatimShape() {

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24" height="24" inkscape:version="1.4.2 (ebf0e940d0, 2025-05-08)" sodipodi:docname="checkbox_like_add.svg" version="1.1" viewBox="0 0 6.35 6.35" xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd">
+ <sodipodi:namedview bordercolor="#000000" borderopacity="0.25" inkscape:current-layer="layer1" inkscape:cx="10.494176" inkscape:cy="13.833232" inkscape:deskcolor="#d1d1d1" inkscape:document-units="px" inkscape:pagecheckerboard="0" inkscape:pageopacity="0.0" inkscape:showpageshadow="2" inkscape:window-height="1043" inkscape:window-maximized="1" inkscape:window-width="1920" inkscape:window-x="0" inkscape:window-y="0" inkscape:zoom="33.542416" pagecolor="#cecece" showguides="true">
+  <sodipodi:guide inkscape:locked="false" orientation="1,0" position="2.11399,6.5708646"/>
+  <sodipodi:guide inkscape:locked="false" orientation="1,0" position="4.2287812,6.497315"/>
+  <sodipodi:guide inkscape:locked="false" orientation="0,-1" position="-0.52375237,2.1165352"/>
+  <sodipodi:guide inkscape:locked="false" orientation="0,-1" position="-0.65763306,4.2315113"/>
+ </sodipodi:namedview>
+ <g fill="none" stroke="#fff" stroke-width=".21892" inkscape:groupmode="layer" inkscape:label="Layer 1">
+  <rect x="1.697" y="1.697" width="2.9561" height="2.9561"/>
+  <path d="m2.1601 3.1456 0.72445 0.92025 1.2988-1.9188" sodipodi:nodetypes="ccc"/>
+ </g>
+</svg>

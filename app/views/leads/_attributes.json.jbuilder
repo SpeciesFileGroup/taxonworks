@@ -4,14 +4,14 @@ else
   json.extract! lead, :id, :parent_id, :otu_id, :text, :origin_label,
     :description, :redirect_id, :link_out, :link_out_text, :position,
     :is_public, :project_id, :created_by_id, :updated_by_id, :created_at,
-    :updated_at
+    :updated_at, :observation_matrix_id
 
   if lead[:otus_count]
     json.otus_count lead[:otus_count]
   end
 
-  if lead[:couplet_count]
-    json.couplet_count lead[:couplet_count]
+  if lead[:couplets_count]
+    json.couplets_count lead[:couplets_count]
   end
 
   if lead[:key_updated_at]
@@ -27,6 +27,10 @@ else
     json.key_updated_by lead[:key_updated_by]
   end
 
+  if !local_assigns[:has_descendant_lead_items].nil?
+    json.has_descendant_lead_items has_descendant_lead_items
+  end
+
   json.partial! '/shared/data/all/metadata', object: lead
 
   if extend_response_with('otu')
@@ -37,10 +41,6 @@ else
         json.partial! '/otus/attributes', otu: lead.otu, extensions: false
       end
     end
-  end
-
-  if extend_response_with('couplet_count')
-    json.couplet_count (lead.self_and_descendants.count - 1) / 2
   end
 
   if extend_response_with('updater')

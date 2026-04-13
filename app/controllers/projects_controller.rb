@@ -54,7 +54,7 @@ class ProjectsController < ApplicationController
         format.json { render action: 'show', status: :created, location: @project }
       else
         format.html { render action: 'new' }
-        format.json { render json: @project.errors, status: :unprocessable_entity }
+        format.json { render json: @project.errors, status: :unprocessable_content }
       end
     end
   end
@@ -68,7 +68,7 @@ class ProjectsController < ApplicationController
         format.json { render :show, status: :ok, location: @project }
       else
         format.html { render action: 'edit' }
-        format.json { render json: @project.errors, status: :unprocessable_entity }
+        format.json { render json: @project.errors, status: :unprocessable_content }
       end
     end
   end
@@ -133,6 +133,11 @@ class ProjectsController < ApplicationController
     render json: @project.data_breakdown_for_chartkick_recent
   end
 
+  def api_access_token
+    # Project token is always public.
+    render json: { api_access_token: sessions_current_project&.api_access_token }
+  end
+
   private
 
   def set_project
@@ -142,7 +147,15 @@ class ProjectsController < ApplicationController
 
   def project_params
     params.require(:project).permit(
-      :name, :set_new_api_access_token, :clear_api_access_token, :data_curation_issue_tracker_url, Project.key_value_preferences, Project.array_preferences, Project.hash_preferences)
+      :name,
+      :set_new_api_access_token,
+      :clear_api_access_token,
+      :data_curation_issue_tracker_url,
+      Project.key_value_preferences,
+      Project.array_preferences,
+      Project.hash_preferences,
+      project_members_attributes: [:user_id, :destroy]
+    )
   end
 
   def go_to

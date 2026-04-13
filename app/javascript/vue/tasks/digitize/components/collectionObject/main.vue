@@ -1,4 +1,9 @@
 <template>
+  <VSpinner
+    v-if="isLoading"
+    full-screen
+    legend="Converting to field occurrence..."
+  />
   <div class="flexbox align-start">
     <BlockLayout :warning="!collectionObject.id">
       <template #header>
@@ -9,7 +14,11 @@
           v-if="collectionObject.id"
           class="horizontal-left-content gap-small"
         >
-          <RadialAnnotator :global-id="collectionObject.global_id" />
+          <RadialAnnotator
+            :global-id="collectionObject.global_id"
+            @delete="handleRadialDestroy"
+            @create="handleRadialCreate"
+          />
           <ButtonTag :global-id="collectionObject.global_id" />
           <RadialObject :global-id="collectionObject.global_id" />
           <RadialNavigation :global-id="collectionObject.global_id" />
@@ -76,7 +85,6 @@
                 v-if="!collectionObject.id"
                 :show-spinner="false"
                 :legend-style="{
-                  color: '#444',
                   textAlign: 'center'
                 }"
                 legend="Locked until first save"
@@ -96,7 +104,11 @@ import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions'
 import { Depiction } from '@/routes/endpoints'
-import { COLLECTION_OBJECT } from '@/constants/index.js'
+import {
+  COLLECTION_OBJECT,
+  IDENTIFIER_LOCAL_CATALOG_NUMBER,
+  IDENTIFIER_LOCAL_RECORD_NUMBER
+} from '@/constants/index.js'
 import {
   COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_CITATIONS,
   COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_ATTRIBUTES,
@@ -110,6 +122,7 @@ import {
 } from '@/tasks/digitize/const/layout'
 import { computed, ref, watch } from 'vue'
 import { useStore } from 'vuex'
+import { useIdentifierStore } from '../../store/pinia'
 
 import VSpinner from '@/components/ui/VSpinner'
 import ContainerItems from './containerItems.vue'
@@ -128,9 +141,12 @@ import ButtonTag from '@/components/ui/Button/ButtonTag.vue'
 import platformKey from '@/helpers/getPlatformKey'
 import SoftValidations from '@/components/soft_validations/panel.vue'
 import RecordNumber from '../recordNumber/recordNumber.vue'
-import useHotkey from 'vue3-hotkey'
+import { useHotkey } from '@/composables'
 
 const store = useStore()
+const recordNumber = useIdentifierStore(IDENTIFIER_LOCAL_RECORD_NUMBER)()
+const catalogNumber = useIdentifierStore(IDENTIFIER_LOCAL_CATALOG_NUMBER)()
+const isLoading = ref(false)
 
 const shortcuts = ref([
   {
@@ -237,6 +253,26 @@ function openBrowse() {
       `/tasks/collection_objects/browse?collection_object_id=${collectionObject.value.id}`,
       '_self'
     )
+  }
+}
+
+function handleRadialDestroy({ slice, item }) {
+  if (slice === 'identifiers') {
+    if (item.type === IDENTIFIER_LOCAL_CATALOG_NUMBER) {
+      catalogNumber.reset({})
+    } else if (item.type === IDENTIFIER_LOCAL_RECORD_NUMBER) {
+      recordNumber.reset({})
+    }
+  }
+}
+
+function handleRadialCreate({ slice, item }) {
+  if (slice === 'identifiers') {
+    if (item.type === IDENTIFIER_LOCAL_CATALOG_NUMBER) {
+      catalogNumber.setIdentifier(item)
+    } else if (item.type === IDENTIFIER_LOCAL_RECORD_NUMBER) {
+      recordNumber.setIdentifier(item)
+    }
   }
 }
 </script>

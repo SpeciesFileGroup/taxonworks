@@ -6,7 +6,7 @@ RSpec.describe ObservationMatrixRowItem::Dynamic::Tag, type: :model, group: :obs
   context 'validation' do
     before { observation_matrix_row_item.valid? }
 
-    context 'with a observation_matrix_row_item saved' do
+    context 'with an observation_matrix_row_item saved' do
       let(:observation_matrix) { FactoryBot.create(:valid_observation_matrix) }
       let(:keyword) { FactoryBot.create(:valid_keyword) }
 
@@ -122,7 +122,7 @@ RSpec.describe ObservationMatrixRowItem::Dynamic::Tag, type: :model, group: :obs
         end
       end
 
-      specify 'keyword/controlled_vocabulary_term can only be added once to a observation_matrix_row_item' do
+      specify 'keyword/controlled_vocabulary_term can only be added once to an observation_matrix_row_item' do
         expect(ObservationMatrixRowItem::Dynamic::Tag.new(observation_matrix: observation_matrix, observation_object: keyword).valid?).to be_falsey
       end
     end

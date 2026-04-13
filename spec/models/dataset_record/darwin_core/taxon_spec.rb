@@ -61,10 +61,9 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       end
 
       it 'should have the correct row metadata' do
-        pending 'need to convert from json string to ruby hash'
-        expect(import_attribute.value['scientificName']).to eq 'Formicidae'
-        expect(import_attribute.value['scientificNameAuthorship']).to eq 'Latreille, 1809'
-        expect(import_attribute.value['taxonRank']).to eq 'genus'
+        expect(import_attribute.value_to_h['scientificName']).to eq 'Formicidae'
+        expect(import_attribute.value_to_h['scientificNameAuthorship']).to eq 'Latreille, 1809'
+        expect(import_attribute.value_to_h['taxonRank']).to eq 'Family'
       end
 
     end
@@ -623,7 +622,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       DatabaseCleaner.clean
     end
 
-    let(:kraussei_krausse) { TaxonName.find_by(name: 'kraussei', cached_author_year: 'Krausse, 1912') }
+    let(:kraussei_krausse) { TaxonName.find_by(name: 'kraussei', cached_author_year: '(Krausse, 1912)') } # Has an original_genus that now differs!
     let(:kraussei_emery) { TaxonName.find_by(name: 'kraussei', cached_author_year: '(Emery, 1916)') }
 
     # Root, Myrmica, Leptothorax, Temnothorax, angustulus, "kraussei Emery, 1916", "kraussei Krausse, 1912", mediterraneus

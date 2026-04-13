@@ -27,7 +27,7 @@
       justify-content: space-between;
       padding: $standard_padding;
       margin: 0px;
-      border-bottom: 1px solid $navigation_border;
+      border-bottom: 1px solid var(--border-color);
     }
     input {
       width: 50px;

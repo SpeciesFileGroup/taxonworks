@@ -18,6 +18,10 @@ export default async (
 
   Depiction.update(depiction.id, { depiction })
     .then(({ body }) => {
+      const citations = depictionMoved.image.citations || []
+
+      body.image.citations = citations
+
       commit(MutationNames.AddDepiction, {
         rowIndex,
         columnIndex,

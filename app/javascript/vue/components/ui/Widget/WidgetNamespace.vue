@@ -50,7 +50,7 @@ defineProps({
   }
 })
 
-const emit = defineEmits(['create'])
+const emit = defineEmits(['create', 'close'])
 
 const namespace = ref(null)
 const isModalVisible = ref(false)
@@ -63,6 +63,7 @@ function open() {
 
 function close() {
   isModalVisible.value = false
+  emit('close')
 }
 
 function createNamespace() {
@@ -70,7 +71,7 @@ function createNamespace() {
   Namespace.create({ namespace: namespace.value })
     .then(({ body }) => {
       emit('create', body)
-      isModalVisible.value = false
+      close()
       TW.workbench.alert.create('Namespace was successfully created.', 'notice')
     })
     .catch(() => {})

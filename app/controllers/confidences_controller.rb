@@ -1,5 +1,19 @@
+
+=begin
+query_scope: taxon_name_query:
+
+mode:
+ :add
+ :replace
+ :remove
+
+keyword_id
+confidence_level_id
+=end
+
 class ConfidencesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
+  include DataControllerConfiguration::BatchByFilterScope
 
   before_action :set_confidence, only: [:edit, :update, :destroy]
   after_action -> { set_pagination_headers(:confidences) }, only: [:index, :api_index ], if: :json_request?
@@ -45,7 +59,7 @@ class ConfidencesController < ApplicationController
         format.html {
           redirect_back(fallback_location: (request.referer || root_path), notice: 'Confidence was NOT successfully created.')
         }
-        format.json { render json: @confidence.errors, status: :unprocessable_entity }
+        format.json { render json: @confidence.errors, status: :unprocessable_content }
       end
     end
   end
@@ -59,7 +73,7 @@ class ConfidencesController < ApplicationController
         format.json { render :show, status: :ok, location: @confidence }
       else
         format.html { render :edit }
-        format.json { render json: @confidence.errors, status: :unprocessable_entity }
+        format.json { render json: @confidence.errors, status: :unprocessable_content }
       end
     end
   end
@@ -136,6 +150,12 @@ class ConfidencesController < ApplicationController
       :annotated_global_entity,
       :confidence_level_id,
       confidence_level_attributes: [:_destroy, :id, :name, :definition, :uri, :uri_relation]
+    )
+  end
+
+  def batch_by_filter_scope_params
+    params.require(:params).permit(
+      :confidence_level_id, :replace_confidence_level_id
     )
   end
 

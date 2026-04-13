@@ -35,11 +35,11 @@
       </tr>
       <tr>
         <td>Updated</td>
-        <td>{{ data.updated.length }}</td>
+        <td>{{ data.async ? 'Not determined' : data.updated.length }}</td>
       </tr>
       <tr>
         <td>Not updated</td>
-        <td>{{ data.not_updated.length }}</td>
+        <td>{{ data.async ? 'Not determined' : data.not_updated.length }}</td>
       </tr>
       <tr>
         <td>Total attempted</td>
@@ -67,6 +67,26 @@
       </tr>
     </tbody>
   </table>
+  <table
+    v-if="validationErrors.length"
+    class="table-striped full_width margin-medium-top"
+  >
+    <thead>
+      <tr>
+        <th>Reason not updated</th>
+        <th>Count</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr
+        v-for="item in validationErrors"
+        :key="item.label"
+      >
+        <td>{{ item.label }}</td>
+        <td>{{ item.total }}</td>
+      </tr>
+    </tbody>
+  </table>
 </template>
 
 <script setup>
@@ -85,5 +105,14 @@ const previewErrors = computed(() => {
     label,
     total
   }))
+})
+
+const validationErrors = computed(() => {
+  return Object.entries(props.data?.validation_errors || {}).map(
+    ([label, total]) => ({
+      label,
+      total
+    })
+  )
 })
 </script>

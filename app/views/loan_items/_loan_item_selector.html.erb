@@ -28,7 +28,7 @@
                                'loan-item-index' => loan_item_fields.index}) do -%>
 
            <%= content_tag(:td, object_tag(loan_item_fields.object.loan_item_object)) -%> 
-           <%= content_tag(:td, loan_item_fields.text_field(:date_returned_jquery, class: :datepicker_recurring_start, size: 9)) -%> 
+           <%= content_tag(:td, loan_item_fields.date_field(:date_returned, class: :datepicker_recurring_start)) -%> 
            <%= content_tag(:td, loan_item_fields.select(:disposition, options_for_select(LoanItem::STATUS, selected: loan_item_fields.object.disposition), include_blank: true)) -%> 
            <%= content_tag(:td, (loan_item_fields.object.loan_item_object_type == 'Otu' ? (loan_item_fields.text_field :total, size: 4) : nil))  -%> 
            <%= content_tag(:td, loan_item_fields.object.loan_item_object_type) %>

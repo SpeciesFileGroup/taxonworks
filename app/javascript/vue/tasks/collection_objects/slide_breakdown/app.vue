@@ -376,7 +376,7 @@ export default {
           this.isSaving = false
           if (load) {
             SetParam(
-              '/tasks/collection_objects/grid_digitize/index',
+              '/tasks/collection_objects/grid_digitize',
               'sled_image_id',
               id
             )
@@ -401,7 +401,7 @@ export default {
         GetSledImage(sledId).then(
           (response) => {
             SetParam(
-              '/tasks/collection_objects/grid_digitize/index',
+              '/tasks/collection_objects/grid_digitize',
               'sled_image_id',
               sledId
             )

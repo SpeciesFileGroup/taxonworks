@@ -11,7 +11,7 @@
       />
       <ul class="no_bullets table-entrys-list">
         <li
-          class="middle flex-separate list-complete-item"
+          class="middle flex-separate list-complete-item gap-small"
           v-for="(ce, index) in collectingEvents"
           :key="ce.id"
         >

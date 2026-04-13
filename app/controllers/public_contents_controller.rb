@@ -14,7 +14,7 @@ class PublicContentsController < ApplicationController
         format.json { render json: @public_content, status: :created, location: @public_content }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Public content was NOT successfully created.')}
-        format.json { render json: @public_content.errors, status: :unprocessable_entity }
+        format.json { render json: @public_content.errors, status: :unprocessable_content }
       end
     end
   end
@@ -28,7 +28,7 @@ class PublicContentsController < ApplicationController
         format.json { render @public_content, status: :ok, location: @public_content }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Public content was NOT successfully updated.')}
-        format.json { render json: @public_content.errors, status: :unprocessable_entity }
+        format.json { render json: @public_content.errors, status: :unprocessable_content }
       end
     end
   end
@@ -43,15 +43,23 @@ class PublicContentsController < ApplicationController
     end
   end
 
+  def exists
+    if @public_content = PublicContent.exists?(content_id: params.require(:content_id), project_id: sessions_current_project_id)
+      render json: true
+    else
+      render json: false
+    end
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
-    def set_public_content
-      @public_content = PublicContent.with_project_id(sessions_current_project_id).find(params[:id])
-      @recent_object = @public_content 
-    end
+  def set_public_content
+    @public_content = PublicContent.with_project_id(sessions_current_project_id).find(params[:id])
+    @recent_object = @public_content 
+  end
 
     # Never trust parameters from the scary internet, only allow the white list through.
-    def public_content_params
-      params.require(:public_content).permit(:otu_id, :topic_id, :content_id, :text)
-    end
+  def public_content_params
+    params.require(:public_content).permit(:otu_id, :topic_id, :content_id, :text)
+  end
 end

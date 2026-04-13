@@ -77,7 +77,7 @@ module CollectingEventsHelper
     ) if collecting_event.collectors.any?
 
     a << '&nbsp;'.html_safe + content_tag(:span,  collecting_event.verbatim_collectors, class: [:feedback, 'feedback-thin','feedback-secondary']) if collecting_event.verbatim_collectors
-    a
+    a.html_safe
   end
 
   # Slow, but accurate
@@ -168,7 +168,7 @@ module CollectingEventsHelper
     return nil if collecting_event.nil?
     o = collecting_event.previous_by_identifier
     return content_tag(:div, 'None', 'class' => 'navigation-item disable') if o.nil?
-    link_text = content_tag(:span, 'Previous by id', 'class' => 'small-icon icon-left', 'data-icon' => 'arrow-left')
+    link_text = safe_join([content_tag(:span, '', class: 'small-icon', data: { icon: 'arrow-left' }), 'Previous by id'], '')
     link_to(
       link_text, browse_collecting_events_task_path(collecting_event_id: o.id),
       data: {
@@ -184,7 +184,7 @@ module CollectingEventsHelper
     return nil if collecting_event.nil?
     o = collecting_event.next_by_identifier
     return content_tag(:div, 'None', 'class' => 'navigation-item disable') if o.nil?
-    link_text = content_tag(:span, 'Next by id', 'class' => 'small-icon icon-right', 'data-icon' => 'arrow-right')
+    link_text = safe_join(['Next by id', content_tag(:span, '', class: 'small-icon margin-small-left', data: { icon: 'arrow-right' })], '')
     link_to(
       link_text, browse_collecting_events_task_path(collecting_event_id: o.id),
       data: {
@@ -196,17 +196,23 @@ module CollectingEventsHelper
 
   # @return [GeoJSON::Feature]
   #   the first geographic item of the first georeference on this collecting event
-  def collecting_event_to_geo_json_feature(collecting_event)
+  def collecting_event_to_geo_json_feature(collecting_event, skip_geometry: false)
     return nil if collecting_event.nil?
 
-    a,b,c = collecting_event.geo_json_data
-    return nil if a.nil?
+    if skip_geometry
+      shape_type, shape_id = collecting_event.geo_json_shape_key
+      return nil if shape_type.nil?
+      geometry = nil
+    else
+      geometry, shape_type, shape_id = collecting_event.geo_json_data
+      return nil if geometry.nil?
+    end
 
     l = label_for_collecting_event(collecting_event)
 
     return {
       'type' => 'Feature',
-      'geometry' => a,
+      'geometry' => geometry,
       'properties' => {
         'target' => {
           'type' => 'CollectingEvent',
@@ -219,8 +225,8 @@ module CollectingEventsHelper
           'label' => l
         },
         'shape' => {
-          'type' => b,
-          'id' => c }
+          'type' => shape_type,
+          'id' => shape_id }
       }
     }
   end
@@ -241,8 +247,7 @@ module CollectingEventsHelper
 
     if collecting_event.geographic_items.any?
       geo_item_id = collecting_event.geographic_items.select(:id).first.id
-      query = "ST_AsGeoJSON(#{GeographicItem::GEOMETRY_SQL.to_sql}::geometry) geo_json"
-      base['geometry'] = JSON.parse(GeographicItem.select(query).find(geo_item_id).geo_json)
+      base['geometry'] = GeographicItem.find(geo_item_id).to_geo_json
     end
     base
   end

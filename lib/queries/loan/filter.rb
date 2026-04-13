@@ -19,6 +19,7 @@ module Queries
         :end_date_sent,
         :loan_id,
         :loan_item_disposition,
+        :otu_id,
         :overdue,
         :person_id,
         :role,
@@ -33,13 +34,18 @@ module Queries
         :with_date_requested,
         :with_date_return_expected,
         :with_date_sent,
+        :gift,
 
         loan_id: [],
         loan_item_disposition: [],
+        otu_id: [],
         person_id: [],
         role: [],
         taxon_name_id: [],
       ].freeze
+
+      # @return [Boolean, nil]
+      attr_accessor :gift
 
       # @return [Boolean, nil]
       attr_accessor :with_date_requested
@@ -87,6 +93,11 @@ module Queries
       attr_accessor :person_id
 
       # @return [Array]
+      #   one per of Otu#id
+      # See also role
+      attr_accessor :otu_id
+
+      # @return [Array]
       # @param loan_item_disposition [Array, String]
       #  Match all loans with loan items that have that disposition
       attr_accessor :loan_item_disposition
@@ -119,6 +130,7 @@ module Queries
         @end_date_sent = params[:end_date_sent]
         @loan_id = params[:loan_id]
         @loan_item_disposition = params[:loan_item_disposition]
+        @otu_id = params[:otu_id]
         @overdue = boolean_param(params, :overdue)
         @person_id = params[:person_id]
         @role = params[:role]
@@ -134,11 +146,11 @@ module Queries
         @with_date_requested = boolean_param(params, :with_date_requested)
         @with_date_return_expected = boolean_param(params, :with_date_return_expected)
         @with_date_sent = boolean_param(params, :with_date_sent)
+        @gift = boolean_param(params, :gift)
 
         set_attributes_params(params)
         set_notes_params(params)
         set_tags_params(params)
-
       end
 
       def role
@@ -271,12 +283,21 @@ module Queries
         end
       end
 
-      def  with_date_sent_facet
+      def with_date_sent_facet
         return nil if with_date_sent.nil?
         if with_date_sent
           table[:date_sent].not_eq(nil)
         else
           table[:date_sent].eq(nil)
+        end
+      end
+
+       def gift_facet
+        return nil if gift.nil?
+        if gift
+          table[:is_gift].eq(true)
+        else
+          table[:is_gift].eq(nil)
         end
       end
 
@@ -305,6 +326,11 @@ module Queries
         else
           table[:date_closed].eq(nil)
         end
+      end
+
+      def otu_id_facet
+        return nil if otu_id.empty?
+        ::Queries::Loan::Filter.new(otu_query: {otu_id:}).all
       end
 
       def otu_query_facet
@@ -337,11 +363,12 @@ module Queries
 
       def and_clauses
         [
+          gift_facet,
           with_date_closed_facet,
           with_date_received_facet,
           with_date_requested_facet,
           with_date_return_expected_facet,
-          with_date_sent_facet,
+          with_date_sent_facet
         ]
       end
 
@@ -355,6 +382,7 @@ module Queries
           date_sent_range_facet,
           documentation_facet,
           loan_item_disposition_facet,
+          otu_id_facet,
           otu_query_facet,
           overdue_facet,
           person_role_facet,

@@ -23,16 +23,22 @@ class Extract < ApplicationRecord
   include Shared::ProtocolRelationships
   include Shared::OriginRelationship
   include Shared::Containable
+  include Shared::Confidences
   include Shared::Citations
   include Shared::DataAttributes
   include Shared::Observations
   include Shared::Tags
   include SoftValidation
   include Shared::IsData
+  include Shared::AutoUuid
+
   # TODO: make loanable
+  # TODO: auto-UUID
 
   is_origin_for 'Extract', 'Sequence'
-  originates_from 'Extract', 'Specimen', 'Lot', 'RangedLot', 'Otu', 'CollectionObject', 'FieldOccurrence'
+  originates_from 'Extract', 'Specimen', 'Lot', 'RangedLot', 'Otu', 'CollectionObject', 'FieldOccurrence', 'AnatomicalPart'
+
+  GRAPH_ENTRY_POINTS = [:origin_relationships]
 
   belongs_to :repository, inverse_of: :extracts
 
@@ -42,12 +48,21 @@ class Extract < ApplicationRecord
   # Upstream - aliases of `origin_otus` and `origin_collection_objects` TODO remove
   has_many :otus, through: :related_origin_relationships, source: :old_object, source_type: 'Otu'
   has_many :collection_objects, through: :related_origin_relationships, source: :old_object, source_type: 'CollectionObject'
+  has_many :anatomical_parts, through: :related_origin_relationships, source: :old_object, source_type: 'AnatomicalPart'
 
   # Downstresm - aliases of `derived_*`, TODO: remove
   has_many :sequences, through: :origin_relationships, source: :new_object, source_type: 'Sequence'
   has_many :extracts, through: :related_origin_relationships, source: :old_object, source_type: 'Extract'
 
   attr_accessor :is_made_now
+
+  # TODO: Unify in concern, with CO too
+  # Identifier delegations
+  # .catalog_number_cached
+  delegate :cached, to: :preferred_catalog_number, prefix: :catalog_number, allow_nil: true
+  # .catalog_number_namespace
+  delegate :namespace, to: :preferred_catalog_number, prefix: :catalog_number, allow_nil: true
+
   before_validation :set_made, if: -> {is_made_now}
 
   validates :year_made, date_year: { min_year: 1757, max_year: -> {Time.now.year} }
@@ -59,8 +74,29 @@ class Extract < ApplicationRecord
   def referenced_otus
     [
       [otus],
-      [collection_objects.collect{|o| o.current_otu} ]
+      [collection_objects.collect{ |o| o.current_otu } ],
+      [anatomical_parts.collect{ |ap| ap.origin_otu }]
     ].flatten.compact.uniq
+  end
+
+  # TODO: Unify with CollectionObject in concern
+  # @return [Identifier::Local::CatalogNumber, nil]
+  #   the first (position) catalog number for this collection object, either on specimen, or container
+  def preferred_catalog_number
+    if i = Identifier::Local::CatalogNumber.where(identifier_object: self).order(:position).first
+      i
+    else
+      if container
+        container.identifiers.where(identifiers: {type: 'Identifier::Local::CatalogNumber'}).order(:position).first
+      else
+        nil
+      end
+    end
+  end
+
+  # In anticipation of DwC handling
+  def dwc_catalog_number
+    catalog_number_cached
   end
 
   protected
@@ -75,6 +111,8 @@ class Extract < ApplicationRecord
   # @return [Scope]
   #    the max 10 most recently used collection_objects, as `used_on`
   def self.used_recently(user_id, project_id, used_on = '')
+    # TODO: write this for Extract (not CollectionObject).
+    return []
     return [] if used_on != 'TaxonDetermination' && used_on != 'BiologicalAssociation'
     t = case used_on
         when 'TaxonDetermination'

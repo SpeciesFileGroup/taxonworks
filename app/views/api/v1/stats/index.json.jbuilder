@@ -38,6 +38,7 @@ json.metadata do
     json.set!("Past week: New observations", Observation.where(created_at: 1.week.ago..).count)
     json.set!("Past week: New citations", Citation.where(created_at: 1.week.ago..).count)
     json.set!("Past week: New images", Image.where(created_at: 1.week.ago..).count)
+    json.set!("Past week: New sounds", Sound.where(created_at: 1.week.ago..).count)
     json.set!("Past week: New roles", Role.where(created_at: 1.week.ago..).count)
   else
     json.set!("Past week: New project sources", ProjectSource.where(created_at: 1.week.ago.., project_id: @project_id).count)

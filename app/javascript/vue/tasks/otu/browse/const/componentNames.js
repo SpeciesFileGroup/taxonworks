@@ -15,6 +15,10 @@ export default {
     title: 'Images',
     status: 'prototype'
   },
+  ConveyanceComponent: {
+    title: 'Sounds',
+    status: 'prototype'
+  },
   CommonNames: {
     title: 'Common names',
     status: 'prototype'
@@ -31,6 +35,12 @@ export default {
   },
   CollectionObjects: {
     title: 'Specimen records',
+    status: 'prototype',
+    otu: true,
+    rankGroup: ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup']
+  },
+  FieldOccurrences: {
+    title: 'Field occurrences',
     status: 'prototype',
     otu: true,
     rankGroup: ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup']
@@ -54,11 +64,6 @@ export default {
   AnnotationsComponent: {
     title: 'Annotations',
     status: 'prototype'
-  },
-  CollectingEventSection: {
-    title: 'Collecting events',
-    status: 'prototype',
-    rankGroup: ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup']
   },
   Distribution: {
     title: 'Distribution',

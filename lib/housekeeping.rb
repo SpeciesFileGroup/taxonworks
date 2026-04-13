@@ -6,9 +6,9 @@ module Housekeeping
     include Projects
     include Timestamps
     include CombinedScopes
-    include AssociationHelpers
   end
 
+  # TODO: method belongs in ApplicationEnumeration
   # @return [Boolean]
   def has_polymorphic_relationship?
     self.class.reflect_on_all_associations(:belongs_to).select { |a| a.polymorphic? }.count > 0

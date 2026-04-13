@@ -31,7 +31,7 @@
     >
       <template #footer>
         <VBtn
-          class="margin-small-left"
+          v-if="!citation.id"
           color="primary"
           medium
           @click="() => (citation = newCitation())"
@@ -43,7 +43,8 @@
     <div v-if="!citation.id">
       <TableList
         :list="list"
-        @edit="citation = $event"
+        @move="removeFromList"
+        @edit="(c) => (citation = { ...c })"
         @delete="removeItem"
       />
     </div>
@@ -51,7 +52,6 @@
       <CitationTopicForm
         v-if="!DISABLED_FOR.includes(objectType)"
         :object-type="objectType"
-        :global-id="globalId"
         :citation="citation"
         @create="saveCitation"
       />
@@ -98,7 +98,7 @@
       v-if="isModalVisible"
       :citation="citation"
       :original-citation="originalCitation"
-      @save="(item) => add(item)"
+      @save="(item) => addToList(item)"
       @create="setCitation"
       @close="isModalVisible = false"
     />
@@ -145,8 +145,8 @@ const isModalVisible = ref(false)
 
 const originalCitation = computed(() => list.value.find((c) => c.is_original))
 
-function setCitation(citation) {
-  citation.value = citation
+function setCitation(item) {
+  citation.value = { ...item }
 }
 
 function newCitation() {
@@ -196,7 +196,7 @@ function saveCitation(item) {
   if (
     item.is_original &&
     originalCitation.value &&
-    originalCitation.value.id !== item.id
+    originalCitation.value?.id !== item.id
   ) {
     isModalVisible.value = true
 
@@ -210,16 +210,18 @@ function saveCitation(item) {
   request
     .then(({ body }) => {
       addToList(body)
-      citation.value = body
+      setCitation(body)
       TW.workbench.alert.create('Citation was successfully saved.', 'notice')
     })
     .catch(() => {})
 }
 
 function removeItem(item) {
-  Citation.destroy(item.id).then((_) => {
-    removeFromList(item)
-  })
+  Citation.destroy(item.id)
+    .then((_) => {
+      removeFromList(item)
+    })
+    .catch(() => {})
 }
 
 Citation.all({

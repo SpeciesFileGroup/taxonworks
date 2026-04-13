@@ -1,5 +1,6 @@
 const ActionNames = {
   CreateExtract: 'createExtract',
+  LoadConfidence: 'loadConfidence',
   LoadExtract: 'loadExtract',
   LoadIdentifiers: 'loadIdentifiers',
   LoadRecents: 'loadRecents',
@@ -7,6 +8,8 @@ const ActionNames = {
   LoadProtocols: 'loadProtocols',
   LoadUserPreferences: 'loadUserPreferences',
   LoadOriginRelationship: 'loadOriginRelationship',
+  RemoveConfidence: 'removeConfidence',
+  SaveConfidences: 'saveConfidences',
   SaveExtract: 'saveExtract',
   SaveIdentifiers: 'saveIdentifiers',
   SaveOriginRelationship: 'saveOriginRelationship',

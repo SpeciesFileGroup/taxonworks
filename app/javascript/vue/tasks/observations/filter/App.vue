@@ -1,13 +1,11 @@
 <template>
-  <div>
-    <h1>Filter observations</h1>
-
+  <div class="margin-medium-top">
     <FilterLayout
       :pagination="pagination"
       :url-request="urlRequest"
       v-model="parameters"
       :object-type="OBSERVATION"
-      :selected-ids="selectedIds"
+      :selected-ids="sortedSelectedIds"
       :list="list"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
@@ -20,15 +18,15 @@
           :parameters="parameters"
           :disabled="!list.length"
           :object-type="OBSERVATION"
-          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
+          @update="() => makeFilterRequest({ ...parameters, extend })"
         />
       </template>
       <template #nav-right>
         <RadialMatrix
-          :ids="selectedIds"
+          :ids="sortedSelectedIds"
           :disabled="!list.length"
           :object-type="OBSERVATION"
-          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
+          @update="() => makeFilterRequest({ ...parameters, extend })"
         />
       </template>
       <template #facets>
@@ -39,6 +37,7 @@
           v-model="selectedIds"
           :attributes="ATTRIBUTES"
           :list="list"
+          radial-object
           @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"
         />
@@ -68,16 +67,17 @@ import { OBSERVATION } from '@/constants/index.js'
 const extend = ['observation_object']
 
 const {
+  append,
   isLoading,
   list,
-  pagination,
-  append,
-  urlRequest,
   loadPage,
-  selectedIds,
-  parameters,
   makeFilterRequest,
-  resetFilter
+  pagination,
+  parameters,
+  resetFilter,
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
 } = useFilter(Observation, { listParser, initParameters: { extend } })
 </script>
 

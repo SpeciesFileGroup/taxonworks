@@ -1,4 +1,5 @@
-# A container localizes the proximity of one ore more physical things, at this point in TW this is restricted to a number of collection objects.
+# A container localizes the proximity of one ore more physical things, at this point in the TW UI this is restricted to a number of collection objects.
+#
 # Objects are placed in containers by reference to a ContainerItem.
 #
 # @!attribute type
@@ -16,29 +17,36 @@
 #   @return [String]
 #     a free text description of the position of this container
 #
-# @!attribute size_x 
+# @!attribute size_x
 #   @return [Int]
-#     the number of slots in the x dimension 
+#     the number of slots in the x dimension
 #
-# @!attribute size_y 
+# @!attribute size_y
 #   @return [Int]
-#     the number of slots in the y dimension 
+#     the number of slots in the y dimension
 #
-# @!attribute size_z 
+# @!attribute size_z
 #   @return [Int]
-#     the number of slots in the z dimension 
+#     the number of slots in the z dimension
 #
-# @!attribute print_label 
+# @!attribute print_label
 #   @return [String]
-#     text of a label to print for this container 
+#     text of a label to print for this container
 #
 class Container < ApplicationRecord
 
+  attr_accessor :empty_container
+
   include Housekeeping
+
+  # !! Must come before Shared::Containable
+  before_destroy :empty_contents, if: -> { empty_container }
+  before_destroy :check_for_contents
+
   include Shared::Containable
   include Shared::Depictions
   include Shared::Identifiers
-  include Shared::Labels 
+  include Shared::Labels
   include Shared::Loanable
   include Shared::Tags
   include Shared::IsData
@@ -49,13 +57,12 @@ class Container < ApplicationRecord
   validates :type, presence: true
   validate :type_is_valid
 
-  before_destroy :check_for_contents
-
   # @return [ContainerItem Scope]
   #    return all ContainerItems contained in this container (non recursive)
   # TODO: fix Please call `reload_container_item` instead. (called from container_items at /Users/jrflood/src/taxonworks/app/models/container.rb:43)
+  #
   def container_items
-    reload_container_item.try(:children) || ContainerItem.none
+    container_item&.children || ContainerItem.none
   end
 
   # @return [ContainerItem Scope]
@@ -116,7 +123,7 @@ class Container < ApplicationRecord
   #   the free space in this container (non-recursive)
   def available_space
     in_container = container_items.count
-    if size 
+    if size
       size - in_container
     else
       nil
@@ -124,7 +131,7 @@ class Container < ApplicationRecord
   end
 
   # @return [Integer, nil]
-  #   the total number of "slots" or "spaces" this container has, it's size 
+  #   the total number of "slots" or "spaces" this container has, it's size
   # TODO: reserved word?
   def size
     return nil if size_x.blank? && size_y.blank? && size_z.blank?
@@ -151,6 +158,10 @@ class Container < ApplicationRecord
   #   valid containers class names that this container can fit in, by default none
   def self.valid_parents
     []
+  end
+
+  def self.dimensions
+    {}
   end
 
   # @return [Container]
@@ -180,7 +191,7 @@ class Container < ApplicationRecord
   end
 
   # @return [Boolean]
-  #    add the objects to this container
+  # add the objects to this container
   def add_container_items(objects)
     return false if new_record?
 
@@ -209,17 +220,20 @@ class Container < ApplicationRecord
 
   protected
 
+  def empty_contents
+    container_items.delete_all
+  end
+
   def type_is_valid
     raise ActiveRecord::SubclassNotFound, 'Invalid subclass' if type && !CONTAINER_TYPES.include?(type)
   end
 
   def check_for_contents
-    if container_items.any?
+    if !is_empty?
       errors.add(:base, 'is not empty, empty it before destroying it')
-      # return false
       throw :abort
     end
   end
+
 end
 
-Dir[Rails.root.to_s + '/app/models/container/**/*.rb'].each { |file| require_dependency file }

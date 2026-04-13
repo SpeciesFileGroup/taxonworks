@@ -48,7 +48,7 @@ class TypeMaterialsController < ApplicationController
         format.json { render :show, status: :created, location: @type_material }
       else
         format.html { render :new }
-        format.json { render json: @type_material.errors, status: :unprocessable_entity }
+        format.json { render json: @type_material.errors, status: :unprocessable_content }
       end
     end
   end
@@ -62,7 +62,7 @@ class TypeMaterialsController < ApplicationController
         format.json { render :show, status: :ok, location: @type_material }
       else
         format.html { render :edit }
-        format.json { render json: @type_material.errors, status: :unprocessable_entity }
+        format.json { render json: @type_material.errors, status: :unprocessable_content }
       end
     end
   end
@@ -94,12 +94,13 @@ class TypeMaterialsController < ApplicationController
     @type_materials = Queries::TypeMaterial::Autocomplete.new(params[:term], project_id: sessions_current_project_id).all
 
     data = @type_materials.collect do |t|
+      v = ApplicationController.helpers.type_material_tag(t)
       {id: t.id,
-       label: ApplicationController.helpers.type_material_tag(t),
+       label: v ,
        response_values: {
          params[:method] => t.id
        },
-       label_html: ApplicationController.helpers.type_material_tag(t)
+       label_html: v 
       }
     end
 

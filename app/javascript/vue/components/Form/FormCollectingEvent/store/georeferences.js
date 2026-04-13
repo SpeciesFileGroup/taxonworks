@@ -1,31 +1,71 @@
 import { defineStore } from 'pinia'
 import { Georeference } from '@/routes/endpoints'
 import { addToArray, removeFromArray, randomUUID } from '@/helpers'
+import {
+  GEOREFERENCE,
+  GEOREFERENCE_GEOLOCATE,
+  GEOREFERENCE_WKT,
+  GEOREFERENCE_VERBATIM
+} from '@/constants'
 
-export default defineStore('georeferences', {
+export default defineStore('collectingEventForm:georeferences', {
   state: () => ({
-    georeferences: []
+    georeferences: [],
+    exifGeoreferences: []
   }),
 
   getters: {
     hasUnsaved(state) {
       return state.georeferences.some((item) => item.isUnsaved)
+    },
+
+    geojson(state) {
+      const EXCLUDE = [GEOREFERENCE_GEOLOCATE, GEOREFERENCE_WKT]
+      const { georeferences } = state
+
+      const parsed = georeferences
+        .filter(
+          (item) =>
+            (item.id || !EXCLUDE.includes(item.type)) &&
+            (item.geographic_item_attributes?.shape || item.geo_json)
+        )
+        .map((item) => {
+          const geojson = item.geographic_item_attributes
+            ? JSON.parse(item?.geographic_item_attributes.shape)
+            : { ...item.geo_json }
+
+          geojson.properties = {
+            uuid: item.uuid,
+            base: [
+              {
+                type: [GEOREFERENCE]
+              }
+            ],
+            ...(item.type === GEOREFERENCE_VERBATIM && {
+              style: { className: 'map-point-marker bg-verbatim' }
+            })
+          }
+
+          return geojson
+        })
+
+      return [...parsed]
     }
   },
 
   actions: {
     async load(ceId) {
-      try {
-        const { body } = await Georeference.where({ collecting_event_id: ceId })
+      const request = Georeference.where({ collecting_event_id: ceId })
 
+      request.then(({ body }) => {
         this.georeferences = body.map((item) => ({
           ...item,
           uuid: randomUUID(),
           isUnsaved: false
         }))
+      })
 
-        return body
-      } catch (e) {}
+      return request
     },
 
     async remove(georeference) {
@@ -36,7 +76,7 @@ export default defineStore('georeferences', {
       removeFromArray(this.georeferences, georeference, { property: 'uuid' })
     },
 
-    async processGeoreferenceQueue(ceId) {
+    async save(ceId) {
       if (!ceId) return
 
       const unsaved = this.georeferences.filter((item) => item.isUnsaved)
@@ -69,7 +109,7 @@ export default defineStore('georeferences', {
         return request
       })
 
-      return Promise.allSettled(requests)
+      return Promise.all(requests)
     }
   }
 })

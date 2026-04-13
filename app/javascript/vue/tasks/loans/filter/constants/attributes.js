@@ -1,4 +1,5 @@
 export const ATTRIBUTES = {
+  identifiers: 'Identifiers',
   lender_address: 'Lender address',
   date_requested: 'Date requested',
   request_method: 'Request method',
@@ -6,12 +7,16 @@ export const ATTRIBUTES = {
   date_received: 'Date received',
   date_return_expected: 'Date return expected',
   is_gift: 'Is gift',
+  recipient_name: 'Recipient name',
   recipient_address: 'Recipient address',
   recipient_email: 'Recipient email',
   recipient_phone: 'Recipient phone',
   recipient_country: 'Recipient country',
+  supervisor_name: 'Supervisor name',
   supervisor_email: 'Supervisor email',
   supervisor_phone: 'Supervisor phone',
   date_closed: 'Date closed',
-  recipient_honorific: 'Recipient honorific'
+  recipient_honorific: 'Recipient honorific',
+  created_by: 'Created by',
+  updated_by: 'Updated by'
 }

@@ -1,15 +1,23 @@
-# An AssertedDistribution is the Source-backed assertion that a taxon (OTU) is present in some *spatial area*. It requires a Citation indicating where/who made the assertion.
-# In TaxonWorks the areas are drawn from GeographicAreas.
+# An AssertedDistribution is the Source-backed assertion that a record (e.g. Otu, BiologicalAssociation, etc.) is present in some *spatial area*. It requires a Citation indicating where/who made the assertion.
+# In TaxonWorks the areas are drawn from GeographicAreas and Gazetteers.
 #
 # AssertedDistributions can be asserts that the source indicates that a taxon is NOT present in an area.  This is a "positive negative" in , i.e. the Source can be thought of recording evidence that a taxon is not present. TaxonWorks does not differentiate between types of negative evidence.
 #
-# @!attribute otu_id
-#   @return [Integer]
-#   the OTU ID
+# @!attribute asserted_distribution_object_type
+#   @return [String]
+#   polymorphic object type
 #
-# @!attribute geographic_area_id
+# @!attribute asserted_distribution_object_id
 #   @return [Integer]
-#   the geographic area ID
+#   polymorphic object ID
+#
+# @!attribute asserted_distribution_shape_type
+#   @return [String]
+#   polymorphic spatial shape type
+#
+# @!attribute asserted_distribution_shape_id
+#   @return [Integer]
+#   polymorphic spatial shape ID
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -31,8 +39,8 @@ class AssertedDistribution < ApplicationRecord
   include Shared::OriginRelationship
   include Shared::Identifiers
   include Shared::HasPapertrail
-  include Shared::Taxonomy # at present must preceed IsDwcOccurence
-  include Shared::IsDwcOccurrence
+  include Shared::Taxonomy # at present must preceed DwcExtensions
+
   include AssertedDistribution::DwcExtensions
   include Shared::IsData
 
@@ -41,49 +49,111 @@ class AssertedDistribution < ApplicationRecord
 
   originates_from 'Specimen', 'Lot', 'FieldOccurrence'
 
+  belongs_to :asserted_distribution_object, polymorphic: true
+  belongs_to :asserted_distribution_shape, polymorphic: true
+
   # @return [Hash]
   #   of known country/state/county values
   attr_accessor :geographic_names
+  attr_accessor :remove_source_ids, :source_id # used in batch update
 
-  belongs_to :otu, inverse_of: :asserted_distributions
-  has_one :taxon_name, through: :otu
-  belongs_to :geographic_area, inverse_of: :asserted_distributions
+  delegate :geo_object, to: :asserted_distribution_shape
 
-  has_one :geographic_item, through: :geographic_area, source: :default_geographic_item
-  has_many :geographic_items, through: :geographic_area
+  # This only asserts when the asserted distribution object is polymorphic and
+  # has a restriction on its type in order to be an AD.
+  ASSERTED_DISTRIBUTION_OBJECT_RELATED_TYPES = {
+    'Conveyance' => ['Otu'],
+    'Depiction' => ['Otu'],
+    'Observation' => ['Otu']
+  }.freeze
 
-  validates_presence_of :geographic_area_id, message: 'geographic area is not selected'
-  validates :geographic_area, presence: true
-  validates :otu, presence: true
-  validates_uniqueness_of :geographic_area_id, scope: [:project_id, :otu_id, :is_absent], message: 'this geographic_area, OTU and present/absent combination already exists'
-  validate :new_records_include_citation
+  before_validation :unify_is_absent
+  # Used in support of queryBatchUpdate
+  before_validation :apply_source_replacement, if: :source_replacement_requested?
+  before_save do
+    # TODO: handle non-otu types.
+    self.no_dwc_occurrence = true if asserted_distribution_object_type != 'Otu'
+  end
 
-  # TODO: deprecate scopes referencing single wheres
-  scope :with_otu_id, -> (otu_id) { where(otu_id:) }
+  validates_presence_of :asserted_distribution_object
+  validates_presence_of :asserted_distribution_shape
+  validate :records_include_citation
+  validate :object_shape_absence_triple_is_unique
+
+  validate :asserted_distribution_object_has_allowed_type
+
+  # TODO: deprecate scopes referencing single parameter where()
   scope :with_is_absent, -> { where('is_absent = true') }
-  scope :with_geographic_area_array, -> (geographic_area_array) { where('geographic_area_id IN (?)', geographic_area_array) }
   scope :without_is_absent, -> { where('is_absent = false OR is_absent is Null') }
+  scope :with_geographic_area_array, -> (geographic_area_array) { where("asserted_distribution_shape_type = 'GeographicArea' AND asserted_distribution_shape_id IN (?)", geographic_area_array) }
+  # Includes a `geographic_item_id` column, so !! may return more results than
+  # there are ADs !!.
+  scope :associated_with_geographic_items, -> {
+    a = AssertedDistribution
+      .where(asserted_distribution_shape_type: 'GeographicArea')
+      .joins('JOIN geographic_areas ON asserted_distribution_shape_id = geographic_areas.id')
+      .joins('JOIN geographic_areas_geographic_items on geographic_areas.id = geographic_areas_geographic_items.geographic_area_id')
+      .joins('JOIN geographic_items on geographic_items.id = geographic_areas_geographic_items.geographic_item_id')
+      .select('asserted_distributions.*, geographic_items.id geographic_item_id')
 
-  accepts_nested_attributes_for :otu, allow_destroy: false, reject_if: proc { |attributes| attributes['name'].blank? && attributes['taxon_name_id'].blank? }
+    b = AssertedDistribution
+      .where(asserted_distribution_shape_type: 'Gazetteer')
+      .joins('JOIN gazetteers ON asserted_distribution_shape_id = gazetteers.id')
+      .joins('JOIN geographic_items on gazetteers.geographic_item_id = geographic_items.id')
+      .select('asserted_distributions.*, geographic_items.id geographic_item_id')
+
+    ::Queries.union(AssertedDistribution, [a, b])
+  }
+  scope :contributing_to_cached_maps, -> {
+    # TODO: eventually include non-otu object types
+    ad_ga_with_shape = AssertedDistribution
+      .with_otus
+      .joins("JOIN geographic_areas ON asserted_distributions.asserted_distribution_shape_type = 'GeographicArea' AND asserted_distributions.asserted_distribution_shape_id = geographic_areas.id")
+      .joins('JOIN geographic_areas_geographic_items on geographic_areas.id = geographic_areas_geographic_items.geographic_area_id')
+
+    ad_gaz = AssertedDistribution
+      .with_otus
+      .where(asserted_distribution_shape_type: 'Gazetteer')
+
+    ::Queries.union(AssertedDistribution, [ad_ga_with_shape, ad_gaz])
+      .without_is_absent
+  }
+  scope :with_otus, -> {
+    joins("JOIN otus ON otus.id = asserted_distributions.asserted_distribution_object_id AND asserted_distributions.asserted_distribution_object_type = 'Otu'")
+  }
+  scope :with_taxon_names, -> {
+    joins("JOIN otus ON otus.id = asserted_distributions.asserted_distribution_object_id AND asserted_distributions.asserted_distribution_object_type = 'Otu'
+    JOIN taxon_names ON taxon_names.id = otus.taxon_name_id")
+  }
+  scope :with_biological_associations, -> {
+    joins("JOIN biological_associations ON biological_associations.id = asserted_distributions.asserted_distribution_object_id AND asserted_distributions.asserted_distribution_object_type = 'BiologicalAssociation'")
+  }
+  scope :with_biological_associations_graphs, -> {
+    joins("JOIN biological_associations_graphs ON biological_associations_graphs.id = asserted_distributions.asserted_distribution_object_id AND asserted_distributions.asserted_distribution_object_type = 'BiologicalAssociationsGraph'")
+  }
+  scope :with_otu_conveyances, -> {
+    joins("JOIN conveyances ON conveyances.id = asserted_distributions.asserted_distribution_object_id AND asserted_distributions.asserted_distribution_object_type = 'Conveyance'
+    AND conveyances.conveyance_object_type = 'Otu'")
+  }
+  scope :with_otu_depictions, -> {
+    joins("JOIN depictions ON depictions.id = asserted_distributions.asserted_distribution_object_id AND asserted_distributions.asserted_distribution_object_type = 'Depiction'
+    AND depictions.depiction_object_type = 'Otu'")
+  }
+  scope :with_otu_observations, -> {
+    joins("JOIN observations ON observations.id = asserted_distributions.asserted_distribution_object_id AND asserted_distributions.asserted_distribution_object_type = 'Observation'
+    AND observations.observation_object_type = 'Otu'")
+  }
 
   soft_validate(:sv_conflicting_geographic_area, set: :conflicting_geographic_area, name: 'conflicting geographic area', description: 'conflicting geographic area')
 
   # getter for attr :geographic_names
   def geographic_names
     return @geographic_names if !@geographic_names.nil?
-    @geographic_names ||= geographic_area.geographic_name_classification.delete_if{|k,v| v.nil?}
+    # TODO: Possibly provide a2/a3 info from gazetteers??
+    @geographic_names ||=
+      asserted_distribution_shape.geographic_name_classification
+        .delete_if{|k,v| v.nil?}
     @geographic_names ||= {}
-  end
-
-  # @param [Hash] defaults
-  # @return [AssertedDistribution]
-  #   used to also stub an #origin_citation, as required
-  def self.stub(defaults: {})
-    a = AssertedDistribution.new(
-      otu_id: defaults[:otu_id],
-      origin_citation_attributes: {source_id: defaults[:source_id]})
-    a.origin_citation = Citation.new if defaults[:source_id].blank?
-    a
   end
 
   # rubocop:disable Style/StringHashKeys
@@ -92,7 +162,7 @@ class AssertedDistribution < ApplicationRecord
   def to_geo_json_feature
     retval = {
       'type' => 'Feature',
-      'geometry' => RGeo::GeoJSON.encode(self.geographic_area.geographic_items.first.geo_object),
+      'geometry' => RGeo::GeoJSON.encode(geo_object),
       'properties' => {'asserted_distribution' => {'id' => self.id}}
     }
     retval
@@ -107,11 +177,52 @@ class AssertedDistribution < ApplicationRecord
   end
 
   def geographic_item
-    geographic_area.default_geographic_item
+    asserted_distribution_shape.default_geographic_item
+  end
+
+  def otu
+    return nil if asserted_distribution_object_type != 'Otu'
+
+    asserted_distribution_object
+  end
+
+  # @return [Array of Integer] OTU ids reachable through the AD's polymorphic object.
+  #   Handles all supported asserted_distribution_object_type values.
+  #   Returns an empty array when no OTUs are reachable through the object.
+  #   Raises if the object type is not explicitly handled — see spec vs. DISTRIBUTION_ASSERTABLE_TYPES.
+  def object_otu_ids
+    case asserted_distribution_object_type
+    when 'Otu'
+      [asserted_distribution_object_id]
+    when 'BiologicalAssociation'
+      ba = asserted_distribution_object
+      ids = []
+      ids << ba.biological_association_subject_id if ba.biological_association_subject_type == 'Otu'
+      ids << ba.biological_association_object_id if ba.biological_association_object_type == 'Otu'
+      ids.uniq
+    when 'BiologicalAssociationsGraph'
+      asserted_distribution_object.biological_associations.flat_map do |ba|
+        ids = []
+        ids << ba.biological_association_subject_id if ba.biological_association_subject_type == 'Otu'
+        ids << ba.biological_association_object_id if ba.biological_association_object_type == 'Otu'
+        ids.uniq
+      end.uniq
+    when 'Conveyance'
+      c = asserted_distribution_object
+      c.conveyance_object_type == 'Otu' ? [c.conveyance_object_id] : []
+    when 'Depiction'
+      d = asserted_distribution_object
+      d.depiction_object_type == 'Otu' ? [d.depiction_object_id] : []
+    when 'Observation'
+      obs = asserted_distribution_object
+      obs.observation_object_type == 'Otu' ? [obs.observation_object_id] : []
+    else
+      raise TaxonWorks::Error, "#{asserted_distribution_object_type} is not handled in #object_otu_ids"
+    end
   end
 
   def has_shape?
-    geographic_area.geographic_items.any?
+    asserted_distribution_shape.geographic_items.any?
   end
 
   def self.batch_update(params)
@@ -121,21 +232,25 @@ class AssertedDistribution < ApplicationRecord
       object_filter_params: params[:asserted_distribution_query],
       object_params: params[:asserted_distribution],
       preview: params[:preview],
+      user_id: params[:user_id],
+      project_id: params[:project_id]
     )
 
     a = request.filter
 
-    v1 = a.all.distinct.limit(2).pluck(:geographic_area_id).uniq.count
-    v2 = a.all.distinct.limit(2).pluck(:otu_id).uniq.count
+    v1 = a.all.distinct.limit(2)
+      .pluck(:asserted_distribution_shape_id, :asserted_distribution_shape_type)
+      .uniq.count
+    v2 = a.all.distinct.limit(2).pluck(:asserted_distribution_object_id).uniq.count
 
     cap = 0
 
-    if v1 > 1 && v2 > 1 # many otus, many geographic areas
+    if v1 > 1 && v2 > 1 # many objects, many geographic areas
       cap = 0
-      request.cap_reason = 'Records include multiple OTUs *and* multiple geographic areas.'
+      request.cap_reason = 'Records include multiple asserted distribution objects *and* multiple asserted distribution shapes.'
     elsif v1 > 1
       cap = 0
-      request.cap_reason = 'May not update multiple geographic areas to one.' # TODO: revist constraint
+      request.cap_reason = 'May not update multiple shapes to one.' # TODO: revist constraint
     else
       cap = 2000
     end
@@ -145,36 +260,263 @@ class AssertedDistribution < ApplicationRecord
     query_batch_update(request)
   end
 
+  def self.batch_template_create(params)
+    async_cutoff = params[:async_cutoff] || 26
+    klass = params[:object_type]
+    a = "Queries::#{klass}::Filter".constantize.new(params[:object_query])
+
+    r = BatchResponse.new({
+      async: a.all.count > async_cutoff,
+      preview: params[:preview],
+      total_attempted: a.all.count,
+      method: 'batch_template_create'
+    })
+
+    max_allowed = 250
+    if r.total_attempted > max_allowed
+      r.errors["Max #{max_allowed} query records allowed"] = 1
+      return r
+    end
+
+    return r if r.async && r.preview
+
+    if r.async
+      object_ids = a.all.pluck(:id)
+      user_id = params[:user_id]
+      project_id = params[:project_id]
+      AssertedDistribution
+        .delay(run_at: 1.second.from_now, queue: :query_batch_update)
+        .batch_create_from_params(
+          params[:template_asserted_distribution], object_ids, klass,
+          user_id, project_id
+        )
+    else
+      self.transaction do
+        template_params = params[:template_asserted_distribution]
+        a.all.select(:id).find_each do |o|
+          begin
+            ad = update_or_create_by_template(template_params, o.id, klass)
+            r.updated.push ad.id
+          rescue ActiveRecord::RecordInvalid => e
+            r.not_updated.push e.record.id
+
+            r.errors[e.message] = 0 unless r.errors[e.message]
+
+            r.errors[e.message] += 1
+          end
+        end
+        raise ActiveRecord::Rollback if r.preview
+      end
+    end
+
+    r
+  end
+
+  # Intended to be run in a background job.
+  def self.batch_create_from_params(
+    params, object_ids, object_type, user_id, project_id
+  )
+    Current.user_id = user_id
+    Current.project_id = project_id
+
+    object_ids.each do |object_id|
+      begin
+        update_or_create_by_template(params, object_id, object_type)
+      rescue ActiveRecord::RecordInvalid => e
+        # Just continue
+      end
+    end
+  end
+
+  # Raises on error.
+  def self.update_or_create_by_template(template_params, object_id, object_type)
+    ad = ::AssertedDistribution.find_by(
+      asserted_distribution_object_id: object_id,
+      asserted_distribution_object_type: object_type,
+      asserted_distribution_shape_id:
+        template_params[:asserted_distribution_shape_id],
+      asserted_distribution_shape_type:
+        template_params[:asserted_distribution_shape_type],
+      is_absent: template_params[:is_absent]
+    )
+
+    if ad
+      # Create/add the citation.
+      # TODO: this can create a duplicate citation.
+      ad.update!(template_params)
+    else
+      ad = ::AssertedDistribution.create!(
+        template_params.merge({
+          asserted_distribution_object_id: object_id,
+          asserted_distribution_object_type: object_type
+        })
+      )
+    end
+
+    ad
+  end
+
+  def source_replacement_requested?
+    source_id.present?
+  end
+
+  def apply_source_replacement
+    target_source_id = source_id.presence&.to_i
+    ids_to_remove = Array(remove_source_ids).map(&:to_i).reject(&:zero?)
+
+    ids_to_remove -= [target_source_id] if target_source_id
+
+    if target_source_id &&
+      citations.none? { |citation| citation.source_id == target_source_id && !citation.marked_for_destruction? }
+      citations.build(source_id: target_source_id)
+    end
+
+    return if ids_to_remove.empty?
+
+    citations.each do |citation|
+      next if citation.source_id.nil?
+      next if citation.source_id == target_source_id
+
+      citation.mark_for_destruction if ids_to_remove.include?(citation.source_id)
+    end
+  end
+
+  def self.sources_from_query(filter_query, project_id: nil)
+    return [] if filter_query.blank? || project_id.nil?
+
+    q = ::Queries::Query::Filter.instantiated_base_filter(filter_query)
+    return [] if q.nil?
+
+    scope = q.all.where(project_id:)
+
+    scope
+      .joins(citations: :source)
+      .select('sources.id, sources.cached')
+      .distinct
+      .order('sources.cached')
+      .pluck('sources.id', 'sources.cached')
+      .map { |id, cached| {id:, cached:} }
+  end
+
+  def self.asserted_distributions_for_api_index(params, project_id)
+    a = ::Queries::AssertedDistribution::Filter.new(params)
+      .all
+      .where(project_id: project_id)
+      .includes(:citations, origin_citation: [:source])
+      .includes(asserted_distribution_shape: :parent)
+      .includes(:asserted_distribution_object)
+      .order('asserted_distributions.id')
+      .page(params[:page])
+      .per(params[:per])
+
+    if a.all.count > 50
+      params['extend']&.delete('geo_json')
+    end
+
+    a
+  end
+
   protected
 
-  # @return [Boolean]
-  def new_records_include_citation
-    if new_record? && source.blank? && origin_citation.blank? && !citations.any?
+  # Never record "false" in the datase, only true
+  def unify_is_absent
+    self.is_absent = nil if self.is_absent != true
+  end
+
+  def records_include_citation
+    # !! Be careful making changes here: remember that conditions on one
+    # association may/not affect other associations when the actual save
+    # happens.
+    # Maintain with FieldOccurrence#records_include_taxon_determination
+
+    # Watch out, origin_citation and citations *do not* necessarily share the
+    # same marked_for_destruction? info, even when origin_citation is a member
+    # of citations.
+    origin_citation_is_marked_for_destruction_on_citations =
+      origin_citation.present? && citations.present? &&
+      citations.count == 1 && !citations.first.id.nil? &&
+      origin_citation.id == citations.first.id &&
+      citations.first.marked_for_destruction?
+
+    the_one_citation_is_marked_for_destruction_on_origin_citation =
+      origin_citation.present? && citations.present? &&
+      citations.count == 1 && !citations.first.id.nil? &&
+      origin_citation&.id == citations.first.id &&
+      origin_citation.marked_for_destruction?
+
+    has_valid_source =
+      source.present? &&
+      !source.marked_for_destruction? && (
+        !origin_citation.present? ||
+        (!origin_citation.marked_for_destruction? &&
+         !origin_citation_is_marked_for_destruction_on_citations)
+      )
+
+    has_valid_origin_citation =
+      origin_citation.present? &&
+      !origin_citation.marked_for_destruction? &&
+      !origin_citation_is_marked_for_destruction_on_citations
+
+    has_valid_citation =
+      citations.count(&:marked_for_destruction?) < citations.size &&
+       !the_one_citation_is_marked_for_destruction_on_origin_citation
+
+    if !has_valid_source && !has_valid_origin_citation && !has_valid_citation
       errors.add(:base, 'required citation is not provided')
+      return
+    end
+
+    # We loaded the citations association above. If it was empty, Rails caches
+    # that value and *will not* add a citation created during save from source
+    # or origin_citation unless we reset the citations association.
+    if (source.present? || origin_citation.present?) && citations.size == 0
+      association(:citations).reset
+    end
+
+    if source.present? && origin_citation.nil?
+      association(:origin_citation).reset
     end
   end
 
   # @return [Boolean]
   def sv_conflicting_geographic_area
-    unless geographic_area.nil?
-      areas = [geographic_area.level0_id, geographic_area.level1_id, geographic_area.level2_id].compact
-      if is_absent # this returns an array, not a single GA so test below is not right
-        presence = AssertedDistribution
-          .without_is_absent
-          .with_geographic_area_array(areas)
-          .where(otu_id:)
-        soft_validations.add(:geographic_area_id, "Taxon is reported as present in #{presence.first.geographic_area.name}") unless presence.empty?
-      else
-        presence = AssertedDistribution
-          .with_is_absent
-          .where(otu_id:)
-          .with_geographic_area_array(areas)
-        soft_validations.add(:geographic_area_id, "Taxon is reported as missing in #{presence.first.geographic_area.name}") unless presence.empty?
-      end
+    # TODO: more expensive for gazetteers, which would require a spatial check.
+    geographic_area = asserted_distribution_shape if asserted_distribution_shape_type == 'GeographicArea'
+    return if geographic_area.nil?
+
+    areas = [geographic_area.level0_id, geographic_area.level1_id, geographic_area.level2_id].compact
+    if is_absent # this returns an array, not a single GA so test below is not right
+      presence = AssertedDistribution
+        .without_is_absent
+        .with_geographic_area_array(areas)
+        .where(asserted_distribution_object:)
+      soft_validations.add(:asserted_distribution_shape_id, "Taxon is reported as present in #{presence.first.asserted_distribution_shape.name}") unless presence.empty?
+    else
+      presence = AssertedDistribution
+        .with_is_absent
+        .where(asserted_distribution_object:)
+        .with_geographic_area_array(areas)
+      soft_validations.add(:asserted_distribution_shape_id, "Taxon is reported as missing in #{presence.first.asserted_distribution_shape.name}") unless presence.empty?
     end
   end
 
-  # @param [Hash] options of e.g., {otu_id: 5, source_id: 5, geographic_areas: Array of {GeographicArea}}
+  # DEPRECATED, unused (maybe)
+  # @param [Hash] defaults
+  # @return [AssertedDistribution]
+  #   used to also stub an #origin_citation, as required
+  def self.stub(defaults: {})
+    a = AssertedDistribution.new(
+      asserted_distribution_object_id:
+        defaults[:asserted_distribution_object_id],
+      asserted_distribution_object_type:
+        defaults[:asserted_distribution_object_type],
+      origin_citation_attributes: {source_id: defaults[:source_id]})
+    a.origin_citation = Citation.new if defaults[:source_id].blank?
+    a
+  end
+
+  # Currently only used in specs
+  # @param [Hash] options of e.g., {asserted_distribution_object_id: 5, asserted_distribution_object_type: 'Otu' source_id: 5, geographic_areas: Array of {GeographicArea}}
   # @return [Array] an array of AssertedDistributions
   def self.stub_new(options = {})
     options.symbolize_keys!
@@ -182,11 +524,47 @@ class AssertedDistribution < ApplicationRecord
     options[:geographic_areas].each do |ga|
       result.push(
         AssertedDistribution.new(
-          otu_id: options[:otu_id],
-          geographic_area: ga,
+          asserted_distribution_object_id: options[:otu_id],
+          asserted_distribution_object_type: 'Otu',
+          asserted_distribution_shape: ga,
           origin_citation_attributes: {source_id: options[:source_id]})
       )
     end
     result
+  end
+
+  def object_shape_absence_triple_is_unique
+    if AssertedDistribution
+        .where(
+          asserted_distribution_object_type:, asserted_distribution_object_id:,
+          asserted_distribution_shape_type:, asserted_distribution_shape_id:,
+          is_absent:
+        )
+        .where.not(id:)
+        .exists?
+
+      # Put the error on asserted_distribution_object so that unify can handle
+      # duplicates.
+      errors.add(:asserted_distribution_object,
+        'this shape, object, and present/absent combination already exists'
+      )
+    end
+  end
+
+  def asserted_distribution_object_has_allowed_type
+    t = asserted_distribution_object_type&.to_s # STRING (not symbol)
+
+    if !DISTRIBUTION_ASSERTABLE_TYPES.include?(t)
+      errors.add(t || :base, " - the type of this asserted distribution's object can only be one of #{DISTRIBUTION_ASSERTABLE_TYPES}, not '#{t}'")
+      return
+    end
+
+    if (
+      (a = ASSERTED_DISTRIBUTION_OBJECT_RELATED_TYPES[t]) &&
+      !a.include?(asserted_distribution_object&.send("#{t.underscore}_object_type"))
+    )
+     errors.add(t || :base,
+       " - the target of this asserted distribution's object can only be in #{a}")
+    end
   end
 end

@@ -1,7 +1,8 @@
 class DepictionsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_depiction, only: [:show, :edit, :update, :destroy, :api_show]
+  before_action :set_depiction, only: [:show, :edit, :update, :destroy,
+    :api_show, :navigation]
   after_action -> { set_pagination_headers(:depictions) }, only: [:index, :api_index, :api_gallery], if: :json_request?
 
   # GET /depictions
@@ -23,7 +24,6 @@ class DepictionsController < ApplicationController
     end
   end
 
-
   def list
     @depictions = Depiction.where(project_id: sessions_current_project_id).page(params[:page])
   end
@@ -42,7 +42,7 @@ class DepictionsController < ApplicationController
   def api_index
     @depictions = Queries::Depiction::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
-      .order('depictions.id')
+      .order('depictions.depiction_object_type, depictions.depiction_object_id, depictions.position')
       .page(params[:page])
       .per(params[:per])
     render '/depictions/api/v1/index'
@@ -51,7 +51,7 @@ class DepictionsController < ApplicationController
   def api_gallery
     @depictions = Queries::Depiction::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
-      .order('depictions.id')
+      .order('depictions.depiction_object_type, depictions.depiction_object_id, depictions.position')
       .page(params[:page])
       .per(params[:per])
     render '/depictions/api/v1/gallery'
@@ -76,7 +76,7 @@ class DepictionsController < ApplicationController
         format.json { render :show, status: :created, location: @depiction }
       else
         format.html { render :new }
-        format.json { render json: @depiction.errors, status: :unprocessable_entity }
+        format.json { render json: @depiction.errors, status: :unprocessable_content }
       end
     end
   end
@@ -90,7 +90,7 @@ class DepictionsController < ApplicationController
         format.json { render :show, status: :ok, location: @depiction }
       else
         format.html { render :edit }
-        format.json { render json: @depiction.errors, status: :unprocessable_entity }
+        format.json { render json: @depiction.errors, status: :unprocessable_content }
       end
     end
   end
@@ -113,9 +113,9 @@ class DepictionsController < ApplicationController
           Depiction.find(d).update_column(:position, i + 1)
         end
       rescue ActionController::ParameterMissing
-        format.json { render json: {success: false}, status: :unprocessable_entity and return }
+        format.json { render json: {success: false}, status: :unprocessable_content and return }
       rescue ActiveRecord::RecordInvalid
-        format.json { render json: {success: false}, status: :unprocessable_entity and return }
+        format.json { render json: {success: false}, status: :unprocessable_content and return }
       end
 
       format.json { render json: {success: true}, status: :ok and return }
@@ -126,6 +126,20 @@ class DepictionsController < ApplicationController
   def download
     send_data Export::CSV.generate_csv(
       Depiction.where(project_id: sessions_current_project_id)), type: 'text', filename: "depictions_#{DateTime.now}.tsv"
+  end
+
+  def autocomplete
+    @depictions = Queries::Depiction::Autocomplete.new(
+      params[:term], project_id: sessions_current_project_id,
+      polymorphic_types: params[:polymorphic_types_allowed]
+    ).autocomplete
+  end
+
+  def navigation
+  end
+
+  def select_options
+    @depictions = Depiction.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
   end
 
   private
@@ -143,6 +157,7 @@ class DepictionsController < ApplicationController
       :figure_label,
       image_attributes: [
         :image_file,
+        :pixels_to_centimeter,
         tags_attributes: [:id, :keyword_id, :_destroy],
         identifiers_attributes: [:id, :namespace_id, :identifier, :type, :_destroy]
       ],

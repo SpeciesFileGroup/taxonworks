@@ -124,6 +124,16 @@ describe Queries::Loan::Filter, type: :model, group: [:geo, :collection_objects,
     expect(q.all).to contain_exactly(l1)
   end
 
+  specify '#otu_id' do
+    l1 = FactoryBot.create(:valid_loan, recipient_address: 'Mars, home of chocolate bars.')
+    l2 = FactoryBot.create(:valid_loan)
+    o =  Otu.create(name: 'foo')
+    l1.loan_items << FactoryBot.create(:valid_loan_item, loan_item_object: o)
+
+    q.otu_id = o.id
+    expect(q.all).to contain_exactly(l1)
+  end
+
   specify '#date_id' do
     l1 = FactoryBot.create(:valid_loan, recipient_address: 'Mars, home of chocolate bars.')
     l2 = FactoryBot.create(:valid_loan)

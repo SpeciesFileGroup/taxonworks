@@ -57,7 +57,7 @@ describe 'Shared::PolymorphicAnnotator', type: :model do
 end
 
 class Otu
-  has_many :test_polymorphic_annotators
+  has_many :test_polymorphic_annotators, foreign_key: :sti_id
 end
 
 class TestPolymorphicAnnotator < ApplicationRecord

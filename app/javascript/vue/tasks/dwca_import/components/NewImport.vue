@@ -151,14 +151,14 @@ function addedFile(file) {
       .show(defaultValues)
       .then((payload) => {
         delimiterParams.value = payload
-        dwcDropzone.value.dropzone.processQueue()
+        dwcDropzone.value.processQueue()
       })
       .catch(() => {
-        dwcDropzone.value.dropzone.removeAllFiles()
+        dwcDropzone.value.removeAllFiles()
       })
   } else {
     nextTick(() => {
-      dwcDropzone.value.dropzone.processQueue()
+      dwcDropzone.value.processQueue()
     })
   }
 }
@@ -166,7 +166,7 @@ function addedFile(file) {
 function error(file, error, xhr) {
   if (typeof error === 'string') {
     TW.workbench.alert.create(
-      `<span data-icon="warning">${error}</span>`,
+      `<span><span data-icon="warning"></span>${error}</span>`,
       'error'
     )
   } else {
@@ -174,7 +174,7 @@ function error(file, error, xhr) {
       Object.keys(error)
         .map(
           (key) => `
-        <span data-icon="warning">${key}:</span>
+        <span><span data-icon="warning"></span>${key}</span>
         <ul>
           <li>${
             Array.isArray(error[key])
@@ -189,6 +189,6 @@ function error(file, error, xhr) {
     )
   }
   isUploading.value = false
-  dwcDropzone.value.dropzone.removeFile(file)
+  dwcDropzone.value.removeFile(file)
 }
 </script>

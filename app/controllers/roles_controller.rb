@@ -27,7 +27,7 @@ class RolesController < ApplicationController
     if @role.save
       render action: :show, status: :created, location: @role.metamorphosize
     else
-      render json: @role.errors, status: :unprocessable_entity
+      render json: @role.errors, status: :unprocessable_content
     end
   end
 
@@ -36,7 +36,7 @@ class RolesController < ApplicationController
     if @role.update(role_params)
       render action: 'show', status: :created, location: @role.metamorphosize
     else
-      render json: @role.errors, status: :unprocessable_entity
+      render json: @role.errors, status: :unprocessable_content
     end
   end
 
@@ -46,7 +46,7 @@ class RolesController < ApplicationController
     if @role.destroyed?
       head :no_content
     else
-      render json: @role.errors, status: :unprocessable_entity
+      render json: @role.errors, status: :unprocessable_content
     end
   end
 

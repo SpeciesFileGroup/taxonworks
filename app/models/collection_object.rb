@@ -67,6 +67,7 @@ class CollectionObject < ApplicationRecord
 
   include Shared::Citations
   include Shared::Containable
+  include Shared::Conveyances
   include Shared::DataAttributes
   include Shared::Loanable
   include Shared::Identifiers
@@ -82,10 +83,13 @@ class CollectionObject < ApplicationRecord
   include Shared::QueryBatchUpdate
   include SoftValidation
 
+  # At present must be before BiologicalExtensions
+  include Shared::TaxonDeterminationRequired # only when anatomical_parts exist
   include Shared::BiologicalExtensions
+  include Shared::BiologicalAssociationIndexHooks
 
   include Shared::Taxonomy # at present must be before IsDwcOccurence
-  include Shared::IsDwcOccurrence
+
   include CollectionObject::DwcExtensions
 
   ignore_whitespace_on(:buffered_collecting_event, :buffered_determinations, :buffered_other_labels)
@@ -115,6 +119,7 @@ class CollectionObject < ApplicationRecord
   # Repository delegations
   delegate :acronym, to: :repository, prefix: :repository, allow_nil: true
   delegate :url, to: :repository, prefix: :repository, allow_nil: true
+  delegate :institutional_LSID, to: :repository, prefix: :repository, allow_nil: true
 
   # Preparation delegations
   delegate :name, to: :preparation_type, prefix: :preparation_type, allow_nil: true
@@ -141,6 +146,8 @@ class CollectionObject < ApplicationRecord
 
   has_many :collectors, through: :collecting_event
 
+  has_many :type_materials, inverse_of: :collection_object, dependent: :restrict_with_error
+
   accepts_nested_attributes_for :collecting_event, allow_destroy: true, reject_if: :reject_collecting_event
 
   before_validation :assign_type_if_total_or_ranged_lot_category_id_provided
@@ -149,6 +156,7 @@ class CollectionObject < ApplicationRecord
   validate :check_that_either_total_or_ranged_lot_category_id_is_present
   validate :check_that_both_of_category_and_total_are_not_present
   validate :collecting_event_belongs_to_project
+  validate :total_positive_when_present
 
   soft_validate(
     :sv_missing_accession_fields,
@@ -167,6 +175,12 @@ class CollectionObject < ApplicationRecord
 
   has_many :extracts, through: :origin_relationships, source: :new_object, source_type: 'Extract'
   has_many :sequences, through: :extracts
+
+  def requires_taxon_determination?
+    OriginRelationship
+      .where(old_object: self, new_object_type: 'AnatomicalPart')
+      .exists?
+  end
 
   # This is a hack, maybe related to a Rails 5.1 bug.
   # It returns the SQL that works in 5.0/4.2 that
@@ -194,6 +208,8 @@ class CollectionObject < ApplicationRecord
       object_filter_params: params[:collection_object_query],
       object_params: params[:collection_object],
       preview: params[:preview],
+      user_id: params[:user_id],
+      project_id: params[:project_id]
     )
 
     request.cap = 1000
@@ -211,9 +227,13 @@ class CollectionObject < ApplicationRecord
     c = q.all.count
 
     if c == 0 || c > 10000
+      # TODO: cap_reason is currently unused, setting errors as well for now
       r.cap_reason = 'Too many (or no) collection objects (max 10k)'
+      r.errors['Too many (or no) collection objects (max 10k)'] = 1
       return r
     end
+
+    r.total_attempted = c
 
     if c < 51
       q.each do |co|
@@ -337,7 +357,7 @@ class CollectionObject < ApplicationRecord
     if steps
       gi = GeographicItem.find(geographic_item_id)
       # find the geographic_items inside gi
-      step_1 = GeographicItem.is_contained_by('any', gi) # .pluck(:id)
+      step_1 = GeographicItem.st_covered_by('any', gi) # .pluck(:id)
       # find the georeferences from the geographic_items
       step_2 = step_1.map(&:georeferences).uniq.flatten
       # find the collecting events connected to the georeferences
@@ -347,7 +367,7 @@ class CollectionObject < ApplicationRecord
       retval = CollectionObject.where(id: step_4.sort)
     else
       retval = CollectionObject.joins(:geographic_items)
-        .where(GeographicItem.contained_by_where_sql(geographic_item.id))
+        .where(GeographicItem.subset_of_union_of_sql(geographic_item.id))
         .limit(limit)
         .includes(:data_attributes, :collecting_event)
     end
@@ -557,10 +577,10 @@ class CollectionObject < ApplicationRecord
     joins(:collecting_event).where(q.between_date_range_facet.to_sql)
   end
 
-  # @param used_on [String] required, one of `TaxonDetermination`, `BiologicalAssociation`
+  # @param used_on [String]
   # @return [Scope]
   #    the max 10 most recently used collection_objects, as `used_on`
-  def self.used_recently(user_id, project_id, used_on = '')
+  def self.used_recently(user_id, project_id, used_on = '', ba_target = 'object')
     return [] if used_on != 'TaxonDetermination' && used_on != 'BiologicalAssociation'
     t = case used_on
         when 'TaxonDetermination'
@@ -568,24 +588,29 @@ class CollectionObject < ApplicationRecord
         when 'BiologicalAssociation'
           BiologicalAssociation.arel_table
         end
+    if ba_target == 'subject'
+      target_type = 'biological_association_subject_type'
+      target_id = 'biological_association_subject_id'
+    else
+      target_type = 'biological_association_object_type'
+      target_id = 'biological_association_object_id'
+    end
 
     p = CollectionObject.arel_table
 
     # i is a select manager
     i = case used_on
         when 'BiologicalAssociation'
-          t.project(t['biological_association_subject_id'], t['updated_at']).from(t)
-            .where(
-              t['updated_at'].gt(1.week.ago).and(
-                t['biological_association_subject_type'].eq('CollectionObject')
-              )
-            )
-              .where(t['updated_by_id'].eq(user_id))
-              .where(t['project_id'].eq(project_id))
-              .order(t['updated_at'].desc)
+          t.project(t[target_id], t['updated_at']).from(t)
+            .where(t[target_type].eq('CollectionObject'))
+            .where(t['updated_at'].gt(1.week.ago))
+            .where(t['updated_by_id'].eq(user_id))
+            .where(t['project_id'].eq(project_id))
+            .order(t['updated_at'].desc)
         else
           # TODO: update to reference new TaxonDetermination
           t.project(t['taxon_determination_object_id'], t['taxon_determination_object_type'], t['updated_at']).from(t)
+            .where(t['taxon_determination_object_type'].eq('CollectionObject'))
             .where(t['updated_at'].gt( 1.week.ago ))
             .where(t['updated_by_id'].eq(user_id))
             .where(t['project_id'].eq(project_id))
@@ -598,10 +623,9 @@ class CollectionObject < ApplicationRecord
     j = case used_on
         when 'BiologicalAssociation'
           Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(
-            z['biological_association_subject_id'].eq(p['id'])
+            z[target_id].eq(p['id'])
           ))
         else
-          # TODO: needs to be fixed to scope the taxon_determination_object_type
           Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['taxon_determination_object_id'].eq(p['id'])))
         end
 
@@ -610,8 +634,8 @@ class CollectionObject < ApplicationRecord
 
   # @params target [String] one of `TaxonDetermination`, `BiologicalAssociation` , nil
   # @return [Hash] otus optimized for user selection
-  def self.select_optimized(user_id, project_id, target = nil)
-    r = used_recently(user_id, project_id, target)
+  def self.select_optimized(user_id, project_id, target = nil, ba_target = 'object')
+    r = used_recently(user_id, project_id, target, ba_target)
     h = {
       quick: [],
       pinboard: CollectionObject.pinned_by(user_id).where(project_id:).to_a,
@@ -631,6 +655,7 @@ class CollectionObject < ApplicationRecord
     h
   end
 
+  # TODO: Unify with Extract in concern
   # @return [Identifier::Local::CatalogNumber, nil]
   #   the first (position) catalog number for this collection object, either on specimen, or container
   def preferred_catalog_number
@@ -753,6 +778,13 @@ class CollectionObject < ApplicationRecord
     errors.add(:base, 'Either total or a ranged lot category must be provided') if ranged_lot_category_id.blank? && total.blank?
   end
 
+  def total_positive_when_present
+    # Allow total: 0 when ranged_lot_category is set
+    return if ranged_lot_category_id.present? && total == 0
+
+    errors.add(:total, 'Must be positive.') if total.present? && total <= 0
+  end
+
   def assign_type_if_total_or_ranged_lot_category_id_provided
     if self.total == 1
       self.type = 'Specimen'
@@ -774,6 +806,13 @@ class CollectionObject < ApplicationRecord
     end
     # !! does not account for georeferences_attributes!
     reject
+  end
+
+  # @return [ActiveRecord::Relation]
+  #   BiologicalAssociationIndex records where this CollectionObject is subject or object
+  def biological_association_indices
+    BiologicalAssociationIndex.where('subject_id = ? AND subject_type = ?', id, self.class.base_class.name)
+      .or(BiologicalAssociationIndex.where('object_id = ? AND object_type = ?', id, self.class.base_class.name))
   end
 
 end

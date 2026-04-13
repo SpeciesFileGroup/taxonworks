@@ -1,9 +1,12 @@
 <template>
-  <form-citation
-    v-model="typeMaterial.originCitation"
-    :klass="TYPE_MATERIAL"
-    original
-  />
+  <div class="overflow-x-auto">
+    <FormCitation
+      v-model="typeMaterial.citation"
+      :klass="TYPE_MATERIAL"
+      :original="false"
+      @update="() => (typeMaterial.citation.isUnsaved = true)"
+    />
+  </div>
 </template>
 
 <script setup>

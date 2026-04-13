@@ -1,15 +1,25 @@
 <template>
-  <ModalNavigator
-    v-if="isModalVisible"
-    @close="() => (isModalVisible = false)"
-  />
+  <div class="dropdown-content-item">
+    <div
+      class="cursor-pointer"
+      @click="openModal"
+    >
+      Pinboard navigator
+    </div>
+    <teleport to="body">
+      <ModalNavigator
+        v-if="isModalVisible"
+        @close="() => (isModalVisible = false)"
+      />
+    </teleport>
+  </div>
 </template>
 
 <script setup>
-import platformKey from '@/helpers/getPlatformKey.js'
-import useHotKey from 'vue3-hotkey'
-import ModalNavigator from './ModalNavigator.vue'
 import { ref, onMounted } from 'vue'
+import { useHotkey } from '@/composables'
+import platformKey from '@/helpers/getPlatformKey.js'
+import ModalNavigator from './ModalNavigator.vue'
 
 defineOptions({
   name: 'PinboardNavigator'
@@ -19,13 +29,13 @@ const hotkeys = ref([
   {
     keys: [platformKey(), 'g'],
     preventDefault: true,
-    handler() {
+    handler: () => {
       openModal()
     }
   }
 ])
 
-useHotKey(hotkeys.value)
+useHotkey(hotkeys.value)
 const isModalVisible = ref()
 const defaultItems = ref({})
 const selected = ref()
@@ -34,7 +44,8 @@ onMounted(() => {
   TW.workbench.keyboard.createLegend(
     `${platformKey()}+g`,
     'Open pinboard navigator',
-    'Pinboard'
+    'Pinboard',
+    true
   )
 })
 
@@ -55,22 +66,3 @@ function openModal() {
   isModalVisible.value = true
 }
 </script>
-<style scoped>
-.bounce-enter-active {
-  animation: bounce-in 1s;
-}
-.bounce-leave-active {
-  animation: bounce-in 1s reverse;
-}
-@keyframes bounce-in {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.5) translateX(25%);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-</style>

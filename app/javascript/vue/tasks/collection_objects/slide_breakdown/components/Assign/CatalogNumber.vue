@@ -46,7 +46,7 @@
         <input
           class="full_width"
           v-model="identifier.identifier"
-          type="number"
+          type="string"
         />
       </div>
       <div class="margin-small-top margin-small-left full_width">
@@ -55,7 +55,7 @@
           class="full_width"
           :value="incremented"
           disabled="true"
-          type="number"
+          type="string"
         />
       </div>
     </div>
@@ -68,6 +68,7 @@ import WidgetNamespace from '@/components/ui/Widget/WidgetNamespace.vue'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 import SharedComponent from '../shared/lock.js'
+import incrementIdentifier from '@/tasks/digitize/helpers/incrementIdentifier.js'
 
 export default {
   mixins: [SharedComponent],
@@ -102,7 +103,10 @@ export default {
           inc++
         }
       })
-      return Number(this.identifier.identifier) + inc + (inc == 0 ? 0 : -1)
+      return incrementIdentifier(
+        this.identifier.identifier,
+        inc + (inc == 0 ? 0 : -1)
+      )
     }
   },
   data() {

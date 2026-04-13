@@ -1,13 +1,18 @@
 <template>
   <div class="panel margin-small-bottom padding-small">
     <div
-      @click="expand = !expand"
+      @click="isExpanded = !isExpanded"
       class="cursor-pointer inline"
     >
-      <div
-        :data-icon="expand ? 'w-arrow-down' : 'w-arrow-right'"
-        class="expand-box circle-button button-default"
-      />
+      <VBtn
+        circle
+        color="primary"
+      >
+        <VIcon
+          :name="isExpanded ? 'arrowDown' : 'arrowRight'"
+          x-small
+        />
+      </VBtn>
       <span class="margin-small-left">
         [<span
           v-html="
@@ -20,15 +25,15 @@
         />] - <span v-html="ceLabel" />
       </span>
     </div>
-    <template v-if="expand">
-      <type-data
-        class="species-information-container"
+    <template v-if="isExpanded">
+      <TypeData
         v-for="type in types"
         :key="type.id"
+        class="species-information-container"
         :type="type"
       />
-      <specimen-information
-        v-if="expand"
+      <SpecimenInformation
+        v-if="isExpanded"
         class="species-information-container"
         :specimen="specimen"
       />
@@ -36,56 +41,47 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import SpecimenInformation from './SpecimenInformation'
 import TypeData from './TypeData'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import { computed, ref } from 'vue'
 
-export default {
-  components: {
-    SpecimenInformation,
-    TypeData
+const LEVELS = ['country', 'stateProvince', 'county']
+
+const props = defineProps({
+  specimen: {
+    type: Object,
+    required: true
   },
 
-  props: {
-    specimen: {
-      type: Object,
-      required: true
-    },
-
-    types: {
-      type: Array,
-      default: () => []
-    }
-  },
-
-  computed: {
-    ceLabel() {
-      const tmp = []
-      const levels = ['Country', 'State/Province', 'County']
-      const verbatimLabel = this.specimen.verbatimLocality
-
-      levels.forEach((level) => {
-        const levelData = this.specimen[level]
-
-        if (levelData) {
-          tmp.push(`<b>${levelData}</b>`)
-        }
-      })
-
-      if (verbatimLabel) {
-        tmp.push(verbatimLabel)
-      }
-
-      return tmp.join('; ')
-    }
-  },
-
-  data() {
-    return {
-      expand: false
-    }
+  types: {
+    type: Array,
+    default: () => []
   }
-}
+})
+
+const ceLabel = computed(() => {
+  const areas = []
+  const verbatimLabel = props.specimen.verbatimLocality
+
+  LEVELS.forEach((level) => {
+    const levelData = props.specimen[level]
+
+    if (levelData) {
+      areas.push(`<b>${levelData}</b>`)
+    }
+  })
+
+  if (verbatimLabel) {
+    areas.push(verbatimLabel)
+  }
+
+  return areas.join('; ')
+})
+
+const isExpanded = ref(false)
 </script>
 
 <style scoped>

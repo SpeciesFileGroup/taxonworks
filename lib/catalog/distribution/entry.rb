@@ -26,7 +26,10 @@ class Catalog::Distribution::Entry< ::Catalog::Entry
     a = object # an Array of Otus, predetermined at this point
 
     current_collection_objects = CollectionObject.joins(:taxon_determinations).where(taxon_determinations: {position: 1, otu: a})
-    asserted_distributions = AssertedDistribution.where(otu: a)
+    # TODO: eventually include other (all?) AD object types here
+    asserted_distributions = AssertedDistribution
+      .where(asserted_distribution_object_type: 'Otu')
+      .where(asserted_distribution_object_id: a)
     type_materials = TypeMaterial.joins(protonym: [:otus]).where('otus.id' => a)
 
     [current_collection_objects, asserted_distributions, type_materials].flatten.each do |c|
@@ -91,6 +94,7 @@ class Catalog::Distribution::Entry< ::Catalog::Entry
     d
   end
 
+  # @return String
   # Includes County records
   def to_s_verbose
     d = data
@@ -126,10 +130,11 @@ class Catalog::Distribution::Entry< ::Catalog::Entry
 
     str.gsub!(/,\sUNPARSED\.$/, '.')
 
-    return nil if str == '.'
+    return '' if str == '.'
     str
   end
 
+  # @return String
   def to_s
     d = data
     str = ''
@@ -148,7 +153,7 @@ class Catalog::Distribution::Entry< ::Catalog::Entry
 
     str.gsub!(/,\sUNPARSED\.$/, '.')
 
-    return nil if str == '.'
+    return '' if str == '.'
     str
   end
 

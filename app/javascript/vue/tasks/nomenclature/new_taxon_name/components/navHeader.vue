@@ -1,40 +1,34 @@
 <template>
   <NavBar navbar-class="panel content relative">
-    <div class="flex-separate">
+    <div class="flex-separate gap-small">
       <ul class="no_bullets context-menu">
         <template
           v-for="({ title, isAvailableFor }, index) in SectionComponents"
           :key="title"
         >
-          <li
-            class="navigation-item context-menu-option"
-            v-if="isAvailableFor(taxon)"
-          >
+          <li v-if="isAvailableFor(taxon)">
             <a
               data-turbolinks="false"
               :class="{ active: activePosition == index }"
-              :href="'#' + title.toLowerCase().replace(' ', '-')"
+              :href="'#' + getTitle(title).toLowerCase().replace(' ', '-')"
               @click="activePosition = index"
-              >{{ title }}
+              >{{ getTitle(title) }}
             </a>
           </li>
         </template>
       </ul>
-      <div class="horizontal-center-content margin-medium-left">
+      <div class="horizontal-center-content gap-small">
         <SaveTaxonName
-          class="normal-input button button-submit separate-right"
+          class="normal-input button button-submit navbar-button"
         />
-        <CloneTaxonName
-          v-help.section.navbar.clone
-          class="separate-right"
-        />
+        <CloneTaxonName v-help.section.navbar.clone />
         <button
           type="button"
           title="Create a child of this taxon name"
           v-help.section.navbar.sisterIcon
           @click="createNew(taxon.id)"
           :disabled="!taxon.id"
-          class="button normal-input button-default btn-create-child button-new-icon margin-small-right"
+          class="button normal-input button-default btn-create-child button-new-icon"
         />
         <button
           type="button"
@@ -42,12 +36,12 @@
           :disabled="!parentId"
           title="Create a new taxon name with the same parent"
           v-help.section.navbar.childIcon
-          class="button normal-input button-default btn-create-sister button-new-icon margin-small-right"
+          class="button normal-input button-default btn-create-sister button-new-icon"
         />
         <CreateNewButton />
       </div>
     </div>
-    <autosave
+    <Autosave
       style="bottom: 0px; left: 0px"
       class="position-absolute full_width"
       :disabled="!taxon.id || !isAutosaveActive"
@@ -97,14 +91,15 @@ function createNew(id) {
     window.open(url, '_self')
   }
 }
+
+function getTitle(title) {
+  return typeof title === 'function'
+    ? title({ code: store.getters[GetterNames.GetNomenclaturalCode] })
+    : title
+}
 </script>
 
 <style lang="scss" scoped>
-:deep(button) {
-  min-width: 80px;
-  width: 100%;
-}
-
 .button-new-icon {
   min-width: 28px;
   max-width: 28px;
@@ -116,9 +111,6 @@ function createNew(id) {
   font-weight: 300;
 }
 .unsaved li {
-  a {
-    font-size: 13px;
-  }
   a:first-child {
     padding-left: 0px;
   }

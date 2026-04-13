@@ -1,4 +1,4 @@
-# Each ObservationMatrixRowItem is set of Otus or Collection Objects (1 or more)
+# Each ObservationMatrixRowItem determines a set of ObservationMatrixRows (1 if type is Single, 0 or more if type is Dynamic). Thus ObservationMatrixRowItems generate ObservationMatrixRows (not the other way around).
 #
 # @!attribute observation_matrix_id
 #   @return [Integer] id of the matrix
@@ -9,8 +9,17 @@
 # @!attribute observation_object_type
 #   @return type of the object being observed
 #
+# @!attribute type
+#   @return rails STI type
+#
+# @!attribute controlled_vocabulary_term_id
+#   @return tag id if this row item is a ObservationMatrixRowItem::Dynamic::Tag
+#
+# @!attribute taxon_name_id
+#   @return taxon name id if this row item is a ObservationMatrixRowItem::Dynamic::TaxonName
+#
 # @!attribute position
-#   @return [Integer] a sort order
+#   @return [Integer] a sort order; determines   the order in which the ObservationMatrixRows of ObservationMatrixRowItems are listed in the matrix
 
 class ObservationMatrixRowItem < ApplicationRecord
   include Housekeeping
@@ -25,7 +34,7 @@ class ObservationMatrixRowItem < ApplicationRecord
   acts_as_list scope: [:observation_matrix_id, :project_id]
 
   belongs_to :observation_matrix, inverse_of: :observation_matrix_row_items
-  belongs_to :observation_object, polymorphic: true
+  belongs_to :observation_object, polymorphic: true, inverse_of: :observation_matrix_row_items
 
   validates_presence_of :observation_matrix, :observation_object
 
@@ -94,6 +103,7 @@ class ObservationMatrixRowItem < ApplicationRecord
 
 
   # @return [Array] of ObservationMatrixRowItems
+  # @raise [TaxonWorks::Error]
   def self.batch_create(params)
     case params[:batch_type]
     when 'tags'
@@ -104,7 +114,8 @@ class ObservationMatrixRowItem < ApplicationRecord
   end
 
   # @params klass [String] the class name like `Otu` or `CollectionObject`
-  # @return [Array, false]
+  # @return [Array]
+  # @raise [TaxonWorks::Error]
   def self.batch_create_from_tags(keyword_id, klass, observation_matrix_id)
     created = []
     ObservationMatrixRowItem.transaction do
@@ -120,16 +131,20 @@ class ObservationMatrixRowItem < ApplicationRecord
           )
         end
       rescue ActiveRecord::RecordInvalid => e
-        return false
+        raise TaxonWorks::Error, e.to_s, e.backtrace
       end
     end
     return created
   end
 
   # @params klass [String] the class name like `Otu` or `CollectionObject`
-  # @return [Array, false]
+  # @return [Array]
+  # @raise [TaxonWorks::Error]
   def self.batch_create_from_pinboard(observation_matrix_id, project_id, user_id, klass)
-    return false if observation_matrix_id.blank? || project_id.blank? || user_id.blank?
+    if observation_matrix_id.blank? || project_id.blank? || user_id.blank?
+      raise TaxonWorks::Error, 'Internal error, missing required batch create data'
+    end
+
     created = []
     ObservationMatrixRow.transaction do
       begin
@@ -144,7 +159,7 @@ class ObservationMatrixRowItem < ApplicationRecord
           )
         end
       rescue ActiveRecord::RecordInvalid => e
-        raise
+        raise TaxonWorks::Error, e.to_s, e.backtrace
       end
     end
     return created

@@ -42,15 +42,25 @@
 #   @return [Integer]
 #      Not null if sled_image_is present.  The row (top left 0,0) derived from
 #
+# @!attribute figure_label
+#   @return [String, nil]
+#     Figure label, as in '<figure_label>. Dorsal habitus.'
+#
+# @!attribute caption
+#   @return [String, nil]
+#     Figure description, as in 'Figure 1. <caption>'
+#
 class Depiction < ApplicationRecord
   include Housekeeping
   include Shared::Tags
   include Shared::DataAttributes
+  include Shared::AssertedDistributions
+  include Shared::DwcOccurrenceHooks
   include Shared::IsData
   include Shared::PolymorphicAnnotator
   polymorphic_annotates(:depiction_object)
 
-  include Shared::DwcOccurrenceHooks
+  GRAPH_ENTRY_POINTS = [:asserted_distributions].freeze
 
   acts_as_list scope: [:project_id, :depiction_object_type, :depiction_object_id]
 
@@ -58,25 +68,21 @@ class Depiction < ApplicationRecord
   belongs_to :sled_image, inverse_of: :depictions
   has_one :sqed_depiction, dependent: :destroy
 
-  # handle duplicate images here!!
-
   accepts_nested_attributes_for :image
   accepts_nested_attributes_for :sqed_depiction, allow_destroy: true
 
   validates_presence_of :depiction_object
   validates_uniqueness_of :sled_image_id, scope: [:project_id, :sled_image_x_position, :sled_image_y_position], allow_nil: true, if: Proc.new {|n| !n.sled_image_id.nil?}
+  validates_uniqueness_of :image_id, scope: [:depiction_object_type, :depiction_object_id] #, allow_nil: true, if: Proc.new {|n| !n.sled_image_id.nil?}
 
   before_validation :normalize_image
 
+  # Deprecated for unify() functionality
   after_update :remove_media_observation2, if: Proc.new {|d| d.depiction_object_type_previously_was == 'Observation' && d.depiction_object.respond_to?(:type_was) && d.depiction_object.type_was == 'Observation::Media' }
   after_destroy :remove_media_observation, if: Proc.new {|d| d.depiction_object_type == 'Observation' && d.depiction_object.type == 'Observation::Media' }
 
+  # TODO: almost certainly deprecate
   after_update :destroy_image_stub_collection_object, if: Proc.new {|d| d.depiction_object_type_previously_was == 'CollectionObject' && d.depiction_object_type == 'CollectionObject' }
-
-  # !? This is purposefully redundant with Shared::DwcOccurrencHooks without
-  # constraints because that version doesn't catch `saved_changes?` in specs.
-  # Maybe because specs pass objects. Maybe because other hooks?
-  after_save_commit :update_dwc_occurrence, unless: :no_dwc_occurrence
 
   def normalize_image
     if o = Image.where(project_id: Current.project_id, image_file_fingerprint: image.image_file_fingerprint).first
@@ -109,15 +115,76 @@ class Depiction < ApplicationRecord
   end
 
   def dwc_occurrences
-    # From CollectionObjects
-    DwcOccurrence
+    co = DwcOccurrence
       .joins("JOIN depictions d on d.depiction_object_id = dwc_occurrence_object_id AND d.depiction_object_type = 'CollectionObject'")
       .where(d: {id:}, dwc_occurrences: {dwc_occurrence_object_type: 'CollectionObject'})
       .distinct
+
+    fo = DwcOccurrence
+      .joins("JOIN depictions d on d.depiction_object_id = dwc_occurrence_object_id AND d.depiction_object_type = 'FieldOccurrence'")
+      .where(d: {id:}, dwc_occurrences: {dwc_occurrence_object_type: 'FieldOccurrence'})
+      .distinct
+
+    ::Queries.union(DwcOccurrence, [co, fo])
+  end
+
+  # @return [Scope]
+  #    the max 10 most recently used
+  def self.used_recently(user_id, project_id, used_on)
+    t = case used_on
+        when 'AssertedDistribution'
+          AssertedDistribution.arel_table
+        else
+          return Depiction.none
+        end
+
+    # i is a select manager
+    i = case used_on
+        when 'AssertedDistribution'
+          t.project(t['asserted_distribution_object_id'], t['updated_at']).from(t)
+            .where(
+              t['updated_at'].gt(1.week.ago).and(
+                t['asserted_distribution_object_type'].eq('Depiction')
+              )
+            )
+            .where(t['updated_by_id'].eq(user_id))
+            .where(t['project_id'].eq(project_id))
+            .order(t['updated_at'].desc)
+        end
+
+    z = i.as('recent_t')
+    p = Depiction.arel_table
+
+    case used_on
+    when 'AssertedDistribution'
+      Depiction.joins(
+        Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['asserted_distribution_object_id'].eq(p['id'])))
+      ).pluck(:id).uniq
+    end
+  end
+
+  def self.select_optimized(user_id, project_id, klass)
+    r = used_recently(user_id, project_id, klass)
+    h = {
+      quick: [],
+      pinboard: Conveyance.pinned_by(user_id).where(project_id: project_id).to_a,
+      recent: []
+    }
+
+    if r.empty?
+      h[:quick] = Conveyance.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a
+    else
+      h[:recent] = Conveyance.where('"conveyances"."id" IN (?)', r.first(10) ).order(updated_at: :desc).to_a
+      h[:quick] = (Conveyance.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
+                   Conveyance.where('"conveyances"."id" IN (?)', r.first(4) ).order(updated_at: :desc).to_a).uniq
+    end
+
+    h
   end
 
   private
 
+  #  Deprecate for calls to unify() ?!
   def remove_media_observation2
     if v = depiction_object_id_previously_was
       o = Observation::Media.find(v)

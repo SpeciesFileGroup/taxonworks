@@ -20,7 +20,7 @@
               Name
             </th>
             <th
-              @click="() => sortTable('couplet_count')"
+              @click="() => sortTable('couplets_count')"
               class="width_shrink"
             >
               # Couplets
@@ -49,18 +49,19 @@
               class="meta_row"
               :class="{ even: (index % 2 == 0)}"
             >
-              <td>
-                <b>
-                  <a
-                    :href="RouteNames.ShowLead + '?lead_id=' + key.id"
-                    target="_blank"
-                  >
-                    {{ key.text }}
-                  </a>
-                </b>
+              <td class="horizontal-left-content middle gap-small">
+                <b>{{ key.text }}</b>
+                <VBtn
+                  color="primary"
+                  @click="navigateTo(`${RouteNames.NewLead}?lead_id=${key.id}`)"
+                >Edit</VBtn>
+                <VBtn
+                  color="primary"
+                  @click="navigateTo(`${RouteNames.ShowLead}?lead_id=${key.id}`)"
+                >Use</VBtn>
               </td>
 
-              <td>{{ key.couplet_count }}</td>
+              <td>{{ key.couplets_count }}</td>
 
               <td>{{ key.key_updated_at_in_words }}</td>
 
@@ -109,7 +110,7 @@
           :href="RouteNames.NewLead"
           data-turbolinks="false"
         >
-          New dichotomous key
+          New key
         </a>
         task to create one.
       </div>
@@ -128,6 +129,7 @@ import KeyCitations from './KeyCitations.vue'
 import KeyOtus from './KeyOtus.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
 const keys = ref([])
@@ -183,13 +185,13 @@ function changeIsPublicState(key) {
     extend: ['updater', 'updated_at_in_words']
   }
 
-  Lead.update_meta(key.id, payload)
+  Lead.update(key.id, payload)
     .then(({ body }) => {
       const updatedKey = {
         ...body.lead,
         otu: key.otu,
         otus_count: key.otus_count,
-        couplet_count: key.couplet_count,
+        couplets_count: key.couplets_count,
         citations: key.citations,
         child_otus: key.child_otus,
         key_updated_at: body.lead.updated_at,
@@ -203,13 +205,17 @@ function changeIsPublicState(key) {
     .catch(() => {})
 }
 
+function navigateTo(url) {
+  window.open(url, '_blank')
+}
+
 function loadOtusForKey(key) {
   Lead.otus(key.id)
     .then(({ body }) => {
       let otus = body
       if (key.otu) {
         // Remove the root otu, which is already displayed.
-        const i = otus.find((otu) => (otu.id == key.otu_id))
+        const i = otus.findIndex((otu) => (otu.id == key.otu_id))
         if (i != -1) {
           otus.splice(i, 1)
         }

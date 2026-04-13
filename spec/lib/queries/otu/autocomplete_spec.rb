@@ -74,6 +74,22 @@ describe Queries::Otu::Autocomplete, type: :model do
         expect(r.last[:label_target].id).to eq(c.id)
         expect(r.last[:label_target].class.name).to eq('Combination')
       end
+
+      specify "combination doesn't displace its valid name" do
+        c = Combination.create!(genus: genus, species:)
+
+        q = Queries::Otu::Autocomplete.new(
+          'Erasmoneura vulnerata',
+          having_taxon_name_only: true,
+          project_id: project_id
+        )
+
+        r = q.api_autocomplete_extended
+
+        expect(r.count).to eq(2)
+        expect([r.first[:label_target].id, r.second[:label_target].id])
+          .to contain_exactly(c.id, species.id)
+      end
     end
 
     context 'DEPRECATED(?)' do

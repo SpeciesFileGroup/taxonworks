@@ -3,6 +3,15 @@
 module Shared::Containable
   extend ActiveSupport::Concern
 
+  # (Here instead of in an initializer so that it works with spec models too.)
+  def self.containable_types
+    ApplicationRecord
+      .descendants
+      .select { |m| m < Shared::Containable }
+      .map { |m| m.base_class.name }
+      .uniq
+  end
+
   included do
 
     # A Container that is persisted, or a container_id
@@ -10,9 +19,10 @@ module Shared::Containable
 
     after_save :contain, unless: -> {contained_in.blank?}
 
-    has_one :container_item, as: :contained_object, dependent: :destroy
+    has_one :container_item, as: :contained_object, dependent: :destroy, inverse_of: :contained_object
     has_one :parent_container_item, through: :container_item, source: :parent, class_name: 'ContainerItem'
     has_one :container, through: :parent_container_item, source: :contained_object, source_type: 'Container'
+
   end
 
   # What has been put in contained_in might be a container, or the id of a container:

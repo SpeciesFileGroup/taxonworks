@@ -3,13 +3,13 @@
 
 <div class="otu_picker" id="XXX_otu_picker" data-object-name="<%= f.object_name -%>">
   <%= f.label field_name, 'OTU' %><br>
-  <div class="field inline_otu_picker">  
-    <%= f.text_field field_name, value: otu_autocomplete_selected_tag(f.object.send(object_method)), 
-      id: 'XXX_otu_picker_autocomplete', 
-      class: 'otu_picker_autocomplete expandable', 
-      placeholder: 'Select or create an OTU' 
+  <div class="field inline_otu_picker">
+    <%= f.text_field field_name, value: otu_autocomplete_selected_tag(f.object.send(object_method)),
+      id: 'XXX_otu_picker_autocomplete',
+      class: 'otu_picker_autocomplete expandable',
+      placeholder: 'Select or create an OTU'
     %>
-    <%= link_to 'Add new', '#', id: :otu_picker_add_new, data: { turbolinks: false }, class: 'new_plus', hidden: true %> 
+    <%= link_to 'Add new', '#', id: :otu_picker_add_new, data: { turbolinks: false }, class: 'new_plus', hidden: true %>
   </div>
 
   <div id="new_otu" class="add_new" hidden >
@@ -17,7 +17,7 @@
 
     <%= f.fields_for :otu_attributes, Otu.new do |o| %>
       <div class="flex-separate inline_fields">
-        <div class="fields"> 
+        <div class="fields">
           <div class="field">
             <%= o.label :name %>
             <%= o.text_field :name, id: 'XXX_otu_name_field' %>

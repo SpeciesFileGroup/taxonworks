@@ -40,7 +40,7 @@ import { computed, ref, watch, nextTick } from 'vue'
 import { useStore } from 'vuex'
 import Modal from '@/components/ui/Modal.vue'
 import PlatformKey from '@/helpers/getPlatformKey'
-import useHotkey from 'vue3-hotkey'
+import { useHotkey } from '@/composables'
 
 const store = useStore()
 

@@ -15,7 +15,7 @@
   <% @leads.each do |lead| %>
       <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= lead.text %></td>
-          <td><%= lead.all_children.size / 2 %></td>
+          <td><%= couplets_count(lead) %></td>
           <td><%= lead.is_public %></td>
           <%= content_tag(:td, lead[:key_updated_by]) +
               content_tag(:td, time_ago_in_words(lead[:key_updated_at])) +

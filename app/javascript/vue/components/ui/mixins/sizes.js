@@ -2,6 +2,11 @@ import { convertToUnit } from '@/helpers/style'
 
 export default {
   props: {
+    xxSmall: {
+      type: Boolean,
+      default: false
+    },
+
     xSmall: {
       type: Boolean,
       default: false
@@ -36,6 +41,7 @@ export default {
   data() {
     return {
       SIZE_MAP: {
+        xxSmall: '8px',
         xSmall: '12px',
         small: '16px',
         default: '24px',
@@ -49,6 +55,7 @@ export default {
   computed: {
     explicitSize() {
       const sizes = {
+        xxSmall: this.xxSmall,
         xSmall: this.xSmall,
         small: this.small,
         medium: this.medium,

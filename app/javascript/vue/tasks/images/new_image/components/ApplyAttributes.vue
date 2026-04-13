@@ -327,6 +327,6 @@ export default {
 .input-apply {
   width: 100%;
   font-size: 110%;
-  color: #000000;
+  color: var(--text-color);
 }
 </style>

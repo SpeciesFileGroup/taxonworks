@@ -32,15 +32,15 @@
   margin: -1em 0 0 -5em;
   line-height: 2em;
   text-align: center;
-  background: #FFF;
-  box-shadow: 0 0 10px #888;
+  background: var(--panel-bg-color);
+  box-shadow: 0 0 10px var(--panel-shadow);
 }
 
 .easyzoom-flyout {
   position: absolute;
   z-index: 100;
   overflow: hidden;
-  background: #FFF;
+  background: var(--panel-bg-color);
 }
 
 /**

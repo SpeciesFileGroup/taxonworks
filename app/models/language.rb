@@ -28,12 +28,14 @@ class Language < ApplicationRecord
   has_many :sources, inverse_of: :source_language, class_name: 'Source::Bibtex'
   has_many :alternate_value_translations, class_name: 'AlternateValue::Translation'
 
+  has_many :common_names, inverse_of: :language
+
   scope :used_recently_on_sources, -> { joins(sources: [:project_sources]).includes(sources: [:project_sources]).where(sources: { updated_at: 10.weeks.ago..Time.now } ).order('"sources"."updated_at" DESC') }
 
 
   # TODO: dry
   scope :used_recently_on_serials, -> { joins(:serials).includes(:serials).where(serials: { updated_at: 10.weeks.ago..Time.now } ).order('"serials"."updated_at" DESC') }
-  scope :used_recently_on_common_names, -> { joins(:common_names).includes(:common_names).where(common_names: { updated_at: 10.weeks.ago..Time.now } ).order('"serials"."updated_at" DESC') }
+  scope :used_recently_on_common_names, -> { joins(:common_names).includes(:common_names).where(common_names: { updated_at: 10.weeks.ago..Time.now } ).order('"common_names"."updated_at" DESC') }
   scope :used_recently_on_alternate_values, -> { joins(:alternate_value_translations).includes(:alternate_value_translations).where(alternate_values: { updated_at: 10.weeks.ago..Time.now } ).order('"alternate_values"."updated_at" DESC') }
 
   scope :with_english_name_containing, ->(name) {where('english_name ILIKE ?', "%#{name}%")}  # non-case sensitive comparison
@@ -64,8 +66,8 @@ class Language < ApplicationRecord
                      Language.used_recently_on_serials.where('serials.updated_by_id = ?', user_id).pluck(:id).uniq
                    when 'AlternateValue'
                      Language.used_recently_on_alternate_values.where('alternate_values.updated_by_id = ?', user_id).pluck(:id).uniq
-                   when 'CommonNames'
-                     Language.used_recently_on_alternate_values.where('alternate_values.updated_by_id = ?', user_id).pluck(:id).uniq
+                   when 'CommonName'
+                     Language.used_recently_on_common_names.where('common_names.updated_by_id = ?', user_id).pluck(:id).uniq
                    end
 
     h = {

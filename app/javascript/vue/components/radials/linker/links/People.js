@@ -1,9 +1,0 @@
-import {
-  TASK_PEOPLE_METADATA,
-  TASK_FIELD_SYNCHRONIZE
-} from '../constants/links'
-
-export const People = {
-  all: [TASK_PEOPLE_METADATA, TASK_FIELD_SYNCHRONIZE],
-  ids: [TASK_PEOPLE_METADATA, TASK_FIELD_SYNCHRONIZE]
-}

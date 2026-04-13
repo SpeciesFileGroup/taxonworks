@@ -23,7 +23,9 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
 
     params = {
       async_cutoff: 1,
-      collection_object: {taxon_determinations_attributes: [{otu_id: o.id} ] }
+      collection_object: {taxon_determinations_attributes: [{otu_id: o.id} ]},
+      user_id: Current.user_id,
+      project_id: Current.project_id
     }.merge( collection_object_query: q.params )
 
     CollectionObject.batch_update(params)
@@ -674,7 +676,7 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
       end
 
       specify ".used_recently('BiologicalAssociation')" do
-        expect(CollectionObject.used_recently(otu.created_by_id, otu.project_id,'BiologicalAssociation').to_a)
+        expect(CollectionObject.used_recently(otu.created_by_id, otu.project_id,'BiologicalAssociation', 'subject').to_a)
           .to include(collection_object.becomes!(Specimen).id)
       end
 

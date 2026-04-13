@@ -3,14 +3,16 @@
     <div
       class="tag_list"
       v-for="(object, key) in list.totals"
-      v-if="object">
-      <div class="capitalize tag_label">{{ key }}</div>
-      <div class="tag_total">{{ object }}</div>
-      <button
-        class="button normal-input button-submit"
-        type="button"
-        @click="batchLoad(key, matrixId)">Create
-      </button>
+    >
+      <template v-if="object">
+        <div class="capitalize tag_label">{{ key }}</div>
+        <div class="tag_total">{{ object }}</div>
+        <button
+          class="button normal-input button-submit"
+          type="button"
+          @click="batchLoad(key, matrixId)">Create
+        </button>
+      </template>
     </div>
   </div>
 </template>
@@ -39,14 +41,19 @@
     },
     methods: {
       batchLoad(classType, matrixId) {
-        let object = {
+        const object = {
           observation_matrix_id: matrixId,
           batch_type: this.batchType,
           klass: classType
         }
-        CreateRowBatchLoad(object).then((response) => {
-          this.$store.dispatch(ActionNames.GetMatrixObservationRows, { per: 500 })
-        })
+        CreateRowBatchLoad(object)
+          .then((response) => {
+              this.$store.dispatch(
+                ActionNames.GetMatrixObservationRows, { per: 500 }
+              )
+            }
+          )
+          .catch(() => {})
       }
     }
   }

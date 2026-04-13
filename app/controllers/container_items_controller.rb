@@ -29,7 +29,7 @@ class ContainerItemsController < ApplicationController
         format.json { render json: @container_item, status: :created, location: @container_item }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container item was NOT successfully created.')}
-        format.json { render json: @container_item.errors, status: :unprocessable_entity }
+        format.json { render json: @container_item.errors, status: :unprocessable_content }
       end
     end
   end
@@ -43,7 +43,7 @@ class ContainerItemsController < ApplicationController
         format.json { render json: @container_item, status: :ok, location: @container_item }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Container item was NOT successfully updated.')}
-        format.json { render json: @container_item.errors, status: :unprocessable_entity }
+        format.json { render json: @container_item.errors, status: :unprocessable_content }
       end
     end
   end
@@ -84,6 +84,18 @@ class ContainerItemsController < ApplicationController
     render json: data
   end
 
+  # POST container_items/batch_add
+  def batch_add
+    if r = ContainerItem.batch_add(params)
+    #   preview: params[:preview],
+    #   collecting_event: collecting_event_params.merge(by: sessions_current_user_id),
+    #   collecting_event_query: params[:collecting_event_query])
+      render json: r.to_json, status: :ok
+    else
+      render json: {}, status: :unprocessable_content
+    end
+  end
+
   private
     def set_container_item
       @container_item = ContainerItem.with_project_id(sessions_current_project_id).find(params[:id])
@@ -97,6 +109,9 @@ class ContainerItemsController < ApplicationController
         :container_id,
         :position,
         :parent_id, 
-        :disposition)
+        :disposition,
+        :disposition_x,
+        :disposition_y,
+        :disposition_z)
     end
 end

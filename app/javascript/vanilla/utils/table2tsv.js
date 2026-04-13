@@ -1,4 +1,4 @@
-export function html2tsv(element) {
+export function html2tsv(element, options = {}) {
   const el =
     typeof element === 'string' ? document.querySelector(element) : element
 
@@ -6,11 +6,23 @@ export function html2tsv(element) {
     throw new Error("Element doesn't exist")
   }
 
+  const { offset } = options
   const thElements = [...el.querySelectorAll('th')]
   const trElements = [...el.querySelectorAll('tr')]
 
-  const columnHeaders = thElements.map((el) => el.textContent).join('\t')
-  const rowData = trElements.map((row) => getRowData(row).join('\t')).join('\n')
+  const end = options.end ? Number(options.end) : thElements.length - 1
+
+  const columnHeaders = thElements
+    .slice(offset, end + 1)
+    .map((el) => el.textContent)
+    .join('\t')
+  const rowData = trElements
+    .map((row) =>
+      getRowData(row)
+        .slice(offset, end + 1)
+        .join('\t')
+    )
+    .join('\n')
 
   return [columnHeaders, rowData].join('')
 }

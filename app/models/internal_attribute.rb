@@ -11,14 +11,16 @@ class InternalAttribute < DataAttribute
 
   include Shared::DwcOccurrenceHooks
 
-  validates_presence_of :predicate
-  validates_uniqueness_of :value, scope: [:attribute_subject_id, :attribute_subject_type, :type, :controlled_vocabulary_term_id, :project_id]
+  validates :predicate, presence: true
+
+  validates_uniqueness_of :value, scope: [:attribute_subject_id, :attribute_subject_type, :controlled_vocabulary_term_id, :project_id]
 
   def dwc_occurrences
     if DWC_ATTRIBUTE_URIS.values.flatten.include?(predicate&.uri)
       # TODO: probably use some generic interface here
       case attribute_subject_type
       when 'CollectingEvent'
+        # TODO - validate empty is not happening here.
         ::Queries::DwcOccurrence::Filter.new(
           collecting_event_query: {
             collecting_event_id: attribute_subject_id }
@@ -104,7 +106,16 @@ class InternalAttribute < DataAttribute
 
     s = b.all.count
 
-    return false if b.params.empty? || s > 1000 || s == 0
+    error = nil
+    max = 1_000
+    if b.params.empty?
+      error = 'One or more facets must be selected.'
+    elsif s > max
+      error = "Too many records, max is #{max}"
+    elsif s == 0
+      error = 'No records to operate on.'
+    end
+    return error if error.present?
 
     transaction do
       update_value(b, params[:predicate_id], params[:value_from], params[:value_to])

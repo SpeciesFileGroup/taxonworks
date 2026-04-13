@@ -1,0 +1,7 @@
+var TW = TW || {}
+TW.constants = TW.constants || {}
+
+Object.assign(TW.constants, {
+  DWC_CHECKLIST_MINIMUN_FIELD_SET: <%= ImportDataset::DarwinCore::Checklist::MINIMUM_FIELD_SET %>,
+  DWC_OCCURRENCES_MINIMUN_FIELD_SET: <%= ImportDataset::DarwinCore::Occurrences::MINIMUM_FIELD_SET %>,
+})

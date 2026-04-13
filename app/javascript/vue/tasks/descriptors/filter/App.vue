@@ -7,7 +7,7 @@
       :url-request="urlRequest"
       v-model="parameters"
       :object-type="DESCRIPTOR"
-      :selected-ids="selectedIds"
+      :selected-ids="sortedSelectedIds"
       :list="list"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, page: 1 })"
@@ -19,15 +19,15 @@
           :disabled="!list.length"
           :parameters="parameters"
           :object-type="DESCRIPTOR"
-          @update="() => makeFilterRequest({ ...parameters, page: 1 })"
+          @update="() => makeFilterRequest({ ...parameters })"
         />
       </template>
       <template #nav-right>
         <RadialMatrix
-          :ids="selectedIds"
+          :ids="sortedSelectedIds"
           :disabled="!list.length"
           :object-type="DESCRIPTOR"
-          @update="() => makeFilterRequest({ ...parameters, page: 1 })"
+          @update="() => makeFilterRequest({ ...parameters })"
         />
       </template>
       <template #facets>
@@ -65,16 +65,17 @@ import { Descriptor } from '@/routes/endpoints'
 import { DESCRIPTOR } from '@/constants/index.js'
 
 const {
+  append,
   isLoading,
   list,
-  pagination,
-  append,
-  urlRequest,
   loadPage,
-  selectedIds,
-  parameters,
   makeFilterRequest,
-  resetFilter
+  pagination,
+  parameters,
+  resetFilter,
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
 } = useFilter(Descriptor, { listParser })
 </script>
 

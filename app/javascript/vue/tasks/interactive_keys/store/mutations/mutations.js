@@ -4,6 +4,7 @@ import setSettings from './setSettings'
 import setDescriptorsFilter from './setDescriptorsFilter'
 import setParamsFilter from './setParamsFilter'
 import setRowFilter from './setRowFilter'
+import setLeadId from './setLeadId'
 
 const MutationNames = {
   SetDescriptorsFilter: 'setDescriptorsFilter',
@@ -11,7 +12,8 @@ const MutationNames = {
   SetObservationMatrixDescriptors: 'setObservationMatrixDescriptors',
   SetSettings: 'setSettings',
   SetParamsFilter: 'setParamsFilter',
-  SetRowFilter: 'setRowFilter'
+  SetRowFilter: 'setRowFilter',
+  SetLeadId: 'setLeadId'
 }
 
 const MutationFunctions = {
@@ -20,7 +22,8 @@ const MutationFunctions = {
   [MutationNames.SetObservationMatrixDescriptors]: setObservationMatrixDescriptors,
   [MutationNames.SetSettings]: setSettings,
   [MutationNames.SetParamsFilter]: setParamsFilter,
-  [MutationNames.SetRowFilter]: setRowFilter
+  [MutationNames.SetRowFilter]: setRowFilter,
+  [MutationNames.SetLeadId]: setLeadId
 }
 
 export {

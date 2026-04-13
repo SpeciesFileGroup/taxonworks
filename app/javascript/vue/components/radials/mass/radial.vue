@@ -8,7 +8,7 @@
       >
         <template #header>
           <h3 class="flex-separate">
-            <span>Radial mass annotator</span>
+            <span>Radial batch annotator</span>
             <span class="separate-right">
               {{ objectType }}
             </span>
@@ -50,15 +50,19 @@
       </VModal>
       <VBtn
         class="circle-button"
-        title="Radial mass annoator"
         circle
         color="radial"
-        :disabled="disabled || (!ids.length && !Object.keys(params).length)"
+        :title="title"
+        :disabled="
+          disabled ||
+          !menuOptions.slices.length ||
+          (!ids.length && !Object.keys(params).length)
+        "
         @click="openRadialBatch"
       >
         <VIcon
           name="radialMassAnnotator"
-          title="Radial mass annoator"
+          :title="title"
           x-small
         />
       </VBtn>
@@ -76,12 +80,12 @@ import { useRadialBatch } from '@/components/radials/shared/useRadialBatch'
 import { RadialAnnotatorEventEmitter } from '@/utils/index.js'
 import { ANNOTATORS } from './constants/annotators.js'
 import { Metadata } from '@/routes/endpoints'
-import { ref, onBeforeMount } from 'vue'
+import { computed, ref, onBeforeMount } from 'vue'
 
 const EXCLUDE_PARAMETERS = ['per', 'page', 'extend']
 
 defineOptions({
-  name: 'RadialMassAnnotator'
+  name: 'RadialBatchAnnotator'
 })
 
 const props = defineProps({
@@ -111,6 +115,8 @@ const props = defineProps({
   }
 })
 
+const annotatorComponents = ANNOTATORS[props.objectType] || ANNOTATORS.DEFAULT
+
 const {
   closeRadialBatch,
   currentSlice,
@@ -123,8 +129,12 @@ const {
 } = useRadialBatch({
   excludeParameters: EXCLUDE_PARAMETERS,
   props,
-  slices: props.nestedQuery ? ANNOTATORS.all : ANNOTATORS.ids
+  slices: props.nestedQuery ? annotatorComponents.all : annotatorComponents.ids
 })
+
+const title = menuOptions.value.slices.length
+  ? 'Radial batch annotator'
+  : 'Radial batch annotator (No annotators available)'
 
 const annotatorTypes = ref({})
 

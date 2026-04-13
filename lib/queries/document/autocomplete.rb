@@ -28,7 +28,11 @@ module Queries
 
       # @return [Scope]
       def all
-        ::Document.where(where_sql).limit(50).order(:id)
+        ::Document
+          .with_project_id(project_id)
+          .where(where_sql)
+          .limit(50)
+          .order(:id)
       end
 
     end

@@ -1,7 +1,9 @@
 <template>
   <div class="full_width">
-    <div class="horizontal-left-content full_width margin-medium-bottom">
-      <autocomplete
+    <div
+      class="horizontal-left-content full_width margin-medium-bottom gap-small"
+    >
+      <VAutocomplete
         class="full_width"
         url="/sources/autocomplete"
         min="3"
@@ -10,14 +12,17 @@
         placeholder="Search a source..."
         display="label"
         clear-after
-        @getItem="setSource($event.id)"
+        @get-item="setSource"
       />
-      <default-element
+      <VPin
         class="margin-small-left"
         label="source"
         type="Source"
         section="Sources"
-        @getId="setSource"
+        @get-item="setSource"
+      />
+      <FormCitationClone
+        @clone="(c) => setSource({ id: c.source_id, pages: c.pages })"
       />
     </div>
 
@@ -28,20 +33,20 @@
             target="_blank"
             v-html="source.cached"
           />
-          <soft-validation
+          <SoftValidation
             v-if="combination.origin_citation_attributes.id"
             :validate-object="combination.origin_citation_attributes"
             :global-id="combination.origin_citation_attributes.global_id"
           />
         </span>
-        <div class="horizontal-left-content">
+        <div class="horizontal-left-content gap-small">
           <input
-            class="pages"
+            class="w-20"
             type="text"
             placeholder="Pages"
             v-model="combination.origin_citation_attributes.pages"
           />
-          <pdf-button
+          <PdfButton
             v-if="
               combination.origin_citation_attributes.hasOwnProperty(
                 'target_document'
@@ -49,40 +54,42 @@
             "
             :pdf="combination.origin_citation_attributes.target_document"
           />
-          <radial-object
+          <RadialObject
             v-if="source"
             :global-id="source.global_id"
           />
-          <radial-annotator
+          <RadialAnnotator
             v-if="source"
             type="annotations"
             :global-id="source.global_id"
           />
-          <v-btn
+          <VBtn
             class="circle-button"
             circle
             color="destroy"
             @click="removeSource(combination.origin_citation_attributes.id)"
           >
-            <v-icon
+            <VIcon
               x-small
               name="trash"
             />
-          </v-btn>
+          </VBtn>
         </div>
       </div>
     </template>
   </div>
 </template>
+
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { Source, Citation } from '@/routes/endpoints'
-import Autocomplete from '@/components/ui/Autocomplete.vue'
-import DefaultElement from '@/components/ui/Button/ButtonPinned.vue'
+import VAutocomplete from '@/components/ui/Autocomplete.vue'
+import VPin from '@/components/ui/Button/ButtonPinned.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/navigation/radial'
 import PdfButton from '@/components/ui/Button/ButtonPdf'
 import SoftValidation from '@/components/soft_validations/objectValidation.vue'
+import FormCitationClone from '@/components/Form/FormCitation/FormCitationClone.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 
@@ -110,8 +117,9 @@ watch(
   { immediate: true }
 )
 
-const setSource = (sourceId) => {
-  combination.value.origin_citation_attributes.source_id = sourceId
+const setSource = ({ id, pages }) => {
+  combination.value.origin_citation_attributes.source_id = id
+  combination.value.origin_citation_attributes.pages = pages
 }
 
 const removeSource = () => {
@@ -127,7 +135,7 @@ const removeSource = () => {
     }
 
     combination.value.origin_citation_attributes.id = undefined
-    setSource()
+    setSource({})
   }
 }
 </script>

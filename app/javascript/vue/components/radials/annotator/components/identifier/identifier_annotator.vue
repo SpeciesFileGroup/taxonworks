@@ -96,7 +96,7 @@ function saveIdentifier(params) {
 
   Identifier.create({ identifier })
     .then(({ body }) => {
-      addToList(body)
+      addToList(body, { prepend: true })
       listSelected.value = undefined
     })
     .catch(() => {})

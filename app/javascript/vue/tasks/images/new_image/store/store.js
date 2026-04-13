@@ -54,6 +54,7 @@ function makeInitialState() {
     pixelsToCentimeter: undefined,
     repository: undefined,
     source: undefined,
+    isOriginal: undefined,
     tags: [],
     tagsForImage: [],
     taxonDetermination: makeTaxonDetermination(),

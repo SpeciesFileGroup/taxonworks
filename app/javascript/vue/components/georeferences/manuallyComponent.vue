@@ -1,6 +1,7 @@
 <template>
   <div>
     <button
+      :disabled="disabled"
       class="button normal-input button-default"
       @click="isModalVisible = true"
     >
@@ -11,7 +12,7 @@
       @close="isModalVisible = false"
     >
       <template #header>
-        <h3>Create georeference</h3>
+        <h3>{{ title }}</h3>
       </template>
       <template #body>
         <div class="field label-above">
@@ -19,6 +20,7 @@
           <input
             type="text"
             v-model="shape.lat"
+            ref="inputText"
           />
         </div>
         <div class="field label-above">
@@ -28,7 +30,10 @@
             v-model="shape.long"
           />
         </div>
-        <div class="field label-above">
+        <div
+          v-if="includeRange"
+          class="field label-above"
+        >
           <label>Range distance</label>
           <label
             v-for="range in RANGES"
@@ -61,11 +66,28 @@
 <script setup>
 import ModalComponent from '@/components/ui/Modal'
 import convertDMS from '@/helpers/parseDMS.js'
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 
 const RANGES = [0, 10, 100, 1000, 10000]
 
+const props = defineProps({
+  title: {
+    type: String,
+    default: 'Create georeference'
+  },
+  includeRange: {
+    type: Boolean,
+    default: true
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  }
+})
+
 const emit = defineEmits(['create'])
+
+const inputText = ref(null)
 
 const validateFields = computed(
   () => convertDMS(shape.value.lat) && convertDMS(shape.value.long)
@@ -73,7 +95,7 @@ const validateFields = computed(
 const isModalVisible = ref(false)
 const shape = ref({})
 
-const createShape = () => {
+function createShape() {
   const geoJson = {
     type: 'Feature',
     properties: { radius: shape.value.range || null },
@@ -94,6 +116,10 @@ watch(isModalVisible, (newVal) => {
       long: undefined,
       range: 0
     }
+
+    nextTick(() => {
+      inputText.value.focus()
+    })
   }
 })
 </script>

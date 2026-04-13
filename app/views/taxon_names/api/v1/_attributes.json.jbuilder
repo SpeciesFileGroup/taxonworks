@@ -54,3 +54,9 @@ if extend_response_with('type_taxon_name_relationship')
     end
   end
 end
+
+if extend_response_with('notes')
+  json.notes taxon_name.notes.each do |n|
+    json.text n.text
+  end
+end

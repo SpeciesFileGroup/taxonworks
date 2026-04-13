@@ -1,18 +1,15 @@
 <template>
   <div class="depiction-thumb-container">
-    <v-modal
+    <VModal
       v-if="isModalVisible"
+      class="depiction-modal-container"
       @close="isModalVisible = false"
-      :container-style="{
-        width: `${imageObject.width}px`,
-        minWidth: '700px'
-      }"
     >
       <template #header>
         <h3>View</h3>
       </template>
       <template #body>
-        <div class="image-container">
+        <div class="image-container margin-medium-bottom">
           <SvgViewer
             v-if="svgClip"
             class="img-maxsize full_width"
@@ -106,7 +103,7 @@
               </div>
 
               <div
-                v-if="depiction"
+                v-if="depiction?.global_id"
                 class="horizontal-left-content margin-large-left"
               >
                 <span class="margin-small-right">Depiction</span>
@@ -127,7 +124,6 @@
             </div>
           </div>
         </template>
-        <hr />
 
         <div class="flex-separate">
           <slot name="infoColumn" />
@@ -152,7 +148,7 @@
           <ImageViewerCitations :citations="state.citations" />
         </div>
       </template>
-    </v-modal>
+    </VModal>
     <div>
       <div
         class="cursor-pointer"
@@ -187,7 +183,7 @@ import { imageSVGViewBox, imageScale } from '@/helpers/images'
 import { computed, reactive, ref, watch } from 'vue'
 import { IMAGE } from '@/constants'
 
-const CONVERT_IMAGE_TYPES = ['image/tiff']
+const CONVERT_IMAGE_TYPES = ['image/tiff', 'image/heic']
 const IMG_MAX_SIZES = {
   thumb: 100,
   medium: 300
@@ -327,7 +323,7 @@ watch(isModalVisible, (newVal) => {
   justify-content: center;
   width: 100px;
   height: 100px;
-  border: 1px solid black;
+  border: 1px solid var(--border-color);
   overflow: hidden;
 }
 
@@ -337,20 +333,27 @@ watch(isModalVisible, (newVal) => {
   justify-content: center;
   max-width: 300px;
   height: 300px;
-  border: 1px solid black;
+  border: 1px solid var(--border-color);
 }
 
 .depiction-thumb-container {
   margin: 4px;
 
-  .modal-container {
-    max-width: 90vw;
-    max-height: 90vh;
-    overflow: auto;
+  .depiction-modal-container {
+    .modal-container {
+      width: fit-content;
+      max-width: 90vw;
+      max-height: 90vh;
+      min-width: 700px;
+      max-width: 100vw;
+      overflow: auto;
+      box-sizing: border-box;
+    }
   }
 
   .img-thumb {
     cursor: pointer;
+    background-color: white;
   }
 
   .img-maxsize {
@@ -370,16 +373,9 @@ watch(isModalVisible, (newVal) => {
     display: flex;
     justify-content: center;
     img {
-      border: 1px solid black;
+      background-color: white;
+      border: 1px solid var(--border-color);
     }
-  }
-  hr {
-    height: 1px;
-    color: #f5f5f5;
-    background: #f5f5f5;
-    font-size: 0;
-    margin: 15px;
-    border: 0;
   }
 }
 </style>

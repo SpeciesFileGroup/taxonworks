@@ -13,6 +13,7 @@
         class="edit-content"
         v-model="etymology"
         :configs="config"
+        strip-newlines-on-paste
         ref="etymologyText"
       />
     </template>

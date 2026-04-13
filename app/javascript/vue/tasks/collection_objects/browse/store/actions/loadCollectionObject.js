@@ -7,8 +7,7 @@ import {
   BiologicalAssociation,
   TypeMaterial,
   GeographicArea,
-  Repository,
-  Depiction
+  Repository
 } from '@/routes/endpoints'
 import { sortArray } from '@/helpers'
 import { makeCollectionObject } from '@/adapters/index.js'
@@ -29,7 +28,7 @@ export default ({ state, dispatch }, coId) => {
       state.biologicalAssociations = body
     })
 
-    Container.for(co.globalId)
+    Container.for({ global_id: co.globalId, extend: ['container_items'] })
       .then(({ body }) => {
         state.container = body
       })
@@ -48,6 +47,7 @@ export default ({ state, dispatch }, coId) => {
     }
   })
 
+  dispatch(ActionNames.LoadAnatomicalParts, coId)
   dispatch(ActionNames.LoadBiocurations, coId)
   dispatch(ActionNames.LoadDwc, coId)
   dispatch(ActionNames.LoadTimeline, coId)
@@ -57,6 +57,7 @@ export default ({ state, dispatch }, coId) => {
   })
 
   dispatch(ActionNames.LoadDepictions, { id: coId, page: 1 })
+  dispatch(ActionNames.LoadConveyances, coId)
 
   TaxonDetermination.where({
     taxon_determination_object_id: [coId],

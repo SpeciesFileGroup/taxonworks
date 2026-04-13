@@ -1,5 +1,5 @@
-# A BiocurationClassification classifies a CollectionObject within
-# a collection into some biologically-related category.  See BiocurationClass.
+# A BiocurationClassification classifies a CollectionObject or FieldOccurrence
+# into some biologically-related category.  See BiocurationClass.
 #
 # @!attribute biocuration_class_id
 #   @return [Integer]
@@ -23,8 +23,8 @@
 #
 class BiocurationClassification < ApplicationRecord
   include Housekeeping
-  include Shared::IsData
   include Shared::DwcOccurrenceHooks
+  include Shared::IsData
 
   acts_as_list scope: [:biocuration_classification_object_id, :biocuration_classification_object_type, :project_id]
 

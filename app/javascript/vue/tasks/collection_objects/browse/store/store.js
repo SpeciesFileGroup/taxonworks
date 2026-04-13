@@ -5,12 +5,14 @@ import { MutationFunctions } from './mutations/mutations'
 
 const makeInitialState = () => {
   return {
+    anatomicalParts: [],
     biocurations: {},
     biologicalAssociations: [],
     collectingEvent: {},
     collectionObject: {},
     container: {},
     currentRepository: {},
+    conveyances: [],
     depictions: {
       list: [],
       pagination: {}

@@ -1,0 +1,29 @@
+<p>
+  <strong>Name:</strong>
+  <%= @anatomical_part.name %>
+</p>
+
+<p>
+  <strong>Uri:</strong>
+  <%= link_to(@anatomical_part.uri, @anatomical_part.uri, data: {icon: 'link'}, class: 'margin-xsmall-left') %>
+</p>
+
+<p>
+  <strong>Uri label:</strong>
+  <%= @anatomical_part.uri_label %>
+</p>
+
+<p>
+  <strong>Is material:</strong>
+  <%= @anatomical_part.is_material %>
+</p>
+
+<p>
+  <strong>Origin OTU:</strong>
+  <%= otu_link(@anatomical_part.origin_otu) %>
+</p>
+
+<p>
+  <strong>Prepartion type:</strong>
+  <%= @anatomical_part.preparation_type&.name %>
+</p>

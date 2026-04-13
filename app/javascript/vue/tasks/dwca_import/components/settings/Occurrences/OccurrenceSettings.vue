@@ -36,7 +36,7 @@ const OCCURRENCE_CHECKBOX_SETTINGS = {
   require_type_material_success:
     'Error records with unprocessable typeStatus information',
   require_tripcode_match_verbatim:
-    'Error records when computed Trip code will not match fieldNumber',
+    'Error records when computed verbatim Field number will not match fieldNumber',
   require_catalog_number_match_verbatim:
     'Error records when computed identifier will not match catalogNumber',
   enable_organization_determiners:

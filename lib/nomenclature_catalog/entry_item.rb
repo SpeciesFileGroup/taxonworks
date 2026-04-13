@@ -60,7 +60,6 @@ module NomenclatureCatalog
       object_class =~ /^TaxonNameRelationship/
     end
 
-
     # @return [Boolean]
     def is_subsequent?
  #     object == taxon_name && !citation.try(:is_original?)
@@ -71,6 +70,19 @@ module NomenclatureCatalog
     def other_name
       if from_relationship?
         ([object.subject_taxon_name, object.object_taxon_name] - [taxon_name]).first
+      end
+    end
+
+    def protonym_ids
+      case object_class
+      when 'Protonym'
+        [object.id]
+      when 'Hybrid'
+        [object.id]
+      when 'Combination'
+        object.combination_relationships.pluck(:subject_taxon_name_id)
+      when /TaxonNameRelationship/
+        [object.subject_taxon_name_id, object.object_taxon_name_id]
       end
     end
 

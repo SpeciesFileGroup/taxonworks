@@ -37,7 +37,7 @@ module Shared::Identifiers
     def add_incremented_identifier(to_object: nil, incremented_identifier_id: nil)
       if to_object.respond_to?(:identifiers)
         i = Identifier.find(incremented_identifier_id).dup
-        i.increment_identifier
+        return false if !i.increment_identifier
         i.identifier_object = to_object
         i.save!
       else

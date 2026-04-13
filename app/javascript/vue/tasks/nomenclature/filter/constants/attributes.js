@@ -1,6 +1,7 @@
 export const ATTRIBUTES = {
   cached_html: 'Name',
   cached_author_year: 'Author and year',
+  cached_nomenclature_date: 'Year',
   original_combination: 'Original combination',
   cached_is_valid: 'Valid?',
   valid_name: 'Valid name',

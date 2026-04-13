@@ -12,7 +12,7 @@
         >
           <a
             v-if="item.length === 1"
-            :href="`/tasks/otus/browse/${item[0].id}`"
+            :href="`${RouteNames.BrowseOtu}?otu_id=${item[0].id}`"
           >
             {{ key }}
           </a>
@@ -27,9 +27,11 @@
                 v-for="parent in item"
                 :key="parent.id"
               >
-                <a :href="`/tasks/otus/browse/${parent.id}`">{{
-                  parent.object_label
-                }}</a>
+                <a
+                  :href="`${RouteNames.BrowseOtu}?otu_id=${parent.id}`"
+                  v-html="parent.object_tag"
+                >
+                </a>
               </li>
             </ul>
           </div>
@@ -91,7 +93,7 @@ import platformKey from '@/helpers/getPlatformKey.js'
 import ShowForThisGroup from '@/tasks/nomenclature/new_taxon_name/helpers/showForThisGroup.js'
 import componentNames from '../const/componentNames.js'
 import NavBar from '@/components/layout/NavBar.vue'
-import useHotkey from 'vue3-hotkey'
+import { useHotkey } from '@/composables'
 import { GetterNames } from '../store/getters/getters'
 import { RouteNames } from '@/routes/routes'
 import { Otu } from '@/routes/endpoints'
@@ -176,7 +178,7 @@ onBeforeMount(() => {
   )
   TW.workbench.keyboard.createLegend(
     `${platformKey()}+b`,
-    'Go to browse nomenclature',
+    'Go to browse taxon names',
     'Browse OTU'
   )
 })
@@ -240,6 +242,7 @@ function openValid() {
   display: none;
   position: absolute;
   padding: 12px;
+  z-index: 200;
 }
 
 .dropdown-otu:hover {

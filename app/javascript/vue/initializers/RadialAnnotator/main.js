@@ -1,5 +1,5 @@
 import { createApp } from 'vue'
-import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import App from './App.vue'
 
 function init(element) {
   const id = `radial-annotator-${Math.random().toString(36).substr(2, 5)}`
@@ -12,7 +12,7 @@ function init(element) {
     showCount: showCount === 'true',
     pulse: pulse === 'true'
   }
-  const app = createApp(RadialAnnotator, props)
+  const app = createApp(App, props)
 
   app.mount(element)
 }

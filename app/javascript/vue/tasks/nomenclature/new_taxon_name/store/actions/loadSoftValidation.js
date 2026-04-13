@@ -15,14 +15,18 @@ export default function ({ commit, state }, type) {
 
   validations.forEach(function (element) {
     promises.push(
-      SoftValidation.find(element.global_id).then((response) => {
-        return Object.assign(response.body, { global_id: element.global_id })
-      })
+      SoftValidation.find(element.global_id)
+        .then((response) => {
+          return Object.assign(response.body, { global_id: element.global_id })
+        })
+        .catch(() => {})
     )
   })
 
   Promise.all(promises).then((response) => {
-    const validations = response.filter((item) => item.soft_validations.length)
+    const validations = response.filter(
+      (item) => item?.soft_validations?.length
+    )
     const data = {
       list: validations,
       type: type
