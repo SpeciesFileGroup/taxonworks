@@ -181,7 +181,8 @@ scope :tasks do
 
   scope :field_occurrences do
     scope :inaturalist_import, controller: 'tasks/field_occurrences/inaturalist_import' do
-      get '/', as: 'inaturalist_import_task', action: :index
+      get  '/',      as: 'inaturalist_import_task',        action: :index
+      post 'submit', as: 'submit_inaturalist_import_task', action: :submit
     end
 
     scope :filter, controller: 'tasks/field_occurrences/filter' do

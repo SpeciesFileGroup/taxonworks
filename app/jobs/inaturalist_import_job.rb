@@ -1,0 +1,80 @@
+class InaturalistImportJob < ApplicationJob
+  queue_as :default
+
+  # @param observation_ids [Array<String>]
+  # @param project_id [Integer]
+  # @param user_id [Integer]
+  # @param match_otu_by_name [Boolean]
+  # @param import_images [Boolean]
+  def perform(observation_ids:, project_id:, user_id:, match_otu_by_name: false, import_images: false)
+    Current.project_id = project_id
+    Current.user_id = user_id
+
+    observation_ids.each do |observation_id|
+      import_observation(observation_id, project_id:, match_otu_by_name:, import_images:)
+    end
+  end
+
+  private
+
+  def import_observation(observation_id, project_id:, match_otu_by_name:, import_images:)
+    result = ::Vendor::Nasturtium.by_observation_id(observation_id)
+    return if result.blank?
+
+    ApplicationRecord.transaction do
+      # Save the OTU first so otu.id is available for the TaxonDetermination nested
+      # attributes — reject_taxon_determinations rejects entries with a blank otu_id
+      # and a blank otu.id, which is the case for any new (unsaved) OTU object.
+      otu = ::Vendor::Nasturtium.stub_otu(result, project_id:, match_by_name: match_otu_by_name)
+      raise ActiveRecord::RecordInvalid, otu unless otu
+      otu.save! if otu.new_record?
+
+      # Save the CE (and its nested georeference) before the FO so that
+      # collecting_event_id is set when the FO is created.
+      ce = ::Vendor::Nasturtium.stub_collecting_event(result)
+      ce.save!
+
+      fo = FieldOccurrence.new(
+        total: 1,
+        collecting_event: ce,
+        taxon_determinations_attributes: [{ otu_id: otu.id }],
+        identifiers: [::Vendor::Nasturtium.stub_identifier(result)].compact,
+      )
+      fo.save!
+
+      if result['description'].present?
+        Note.create!(note_object: fo, text: result['description'])
+      end
+
+      import_photos(result, fo:) if import_images
+    end
+  rescue => e
+    # Failures are logged but do not interrupt the remaining imports
+    Rails.logger.error(
+      "InaturalistImportJob: failed to import observation #{observation_id}: " \
+      "#{e.class}: #{e.message}\n#{e.backtrace&.first(5)&.join("\n")}"
+    )
+  end
+
+  # For each CC/PD-licensed photo on the observation, create an Image with full
+  # licensing metadata and attach it as a Depiction on the FO.
+  # Each photo runs in its own savepoint so a single failure doesn't roll back
+  # the FO or other photos.
+  def import_photos(result, fo:)
+    observed_year = result.dig('observed_on_details', 'year')
+
+    ::Vendor::Nasturtium.permitted_photos(result).each do |photo|
+      ApplicationRecord.transaction(requires_new: true) do
+        image = ::Vendor::Nasturtium.build_image!(photo, result:, observed_year:)
+        Depiction.create!(image:, depiction_object: fo)
+      end
+    rescue => e
+      Rails.logger.error(
+        "InaturalistImportJob: failed to import photo #{photo['uuid']} " \
+        "for observation #{result['uuid']}: #{e.class}: #{e.message}\n" \
+        "#{e.backtrace&.first(5)&.join("\n")}"
+      )
+    end
+  end
+
+end
