@@ -34,7 +34,10 @@ if extend_response_with('identifiers')
 end
 
 if extend_response_with('serial')
-	json.serial do
-	        json.partial! '/serials/attributes', serial: source.serial, extensions: false
+	if(source.serial.nil?)
+	else
+		json.serial do
+			json.partial! '/serials/attributes', serial: source.serial, extensions: false
+		end
 	end
 end
