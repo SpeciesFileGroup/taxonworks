@@ -114,6 +114,25 @@ module Vendor
     # @param result [Hash] a Nasturtium result
     # @return [Person, nil]
     def self.stub_collector(result)
+      person_by_orcid(result)
+    end
+
+    # Find or build the observer as a Person for use as a TaxonDetermination determiner.
+    # Strategy: ORCID match first, then Person::Unvetted from user.name or user.login.
+    #
+    # @param result [Hash] a Nasturtium result
+    # @return [Person]
+    def self.stub_determiner(result)
+      person_by_orcid(result) ||
+        Person::Unvetted.new(last_name: result.dig('user', 'name').presence || result.dig('user', 'login'))
+    end
+
+    # Attempt to find a Person in TW by the observer's ORCID.
+    # Returns nil if iNat provides no ORCID or no matching Person exists.
+    #
+    # @param result [Hash] a Nasturtium result
+    # @return [Person, nil]
+    def self.person_by_orcid(result)
       orcid = result.dig('user', 'orcid')
       return nil if orcid.blank?
 
@@ -158,9 +177,17 @@ module Vendor
     # @param project_id [Integer]
     # @param match_by_name [Boolean]
     #   if true, look for an existing OTU with matching name in the project first
+    # @param use_community_taxon [Boolean]
+    #   if true, use the community consensus taxon (community_taxon, falling back to
+    #   taxon); if false, use the observation taxon (taxon), which is the observer's
+    #   own most recent ID when no community consensus exists
     # @return [Otu, nil]
-    def self.stub_otu(result, project_id:, match_by_name: false)
-      taxon_name = result.dig('taxon', 'name')
+    def self.stub_otu(result, project_id:, match_by_name: false, use_community_taxon: true)
+      taxon_name = if use_community_taxon
+        result.dig('community_taxon', 'name').presence || result.dig('taxon', 'name')
+      else
+        result.dig('taxon', 'name')
+      end
       return nil if taxon_name.blank?
 
       if match_by_name
@@ -197,16 +224,9 @@ module Vendor
     # @param photo [Hash] the photo hash (used for attribution string fallback)
     # @return [Person]
     def self.stub_copyright_person(result, photo:)
-      # 1. Try ORCID — same logic as stub_collector
-      orcid = result.dig('user', 'orcid')
-      if orcid.present?
-        orcid_url = orcid.start_with?('http') ? orcid : "https://orcid.org/#{orcid}"
-        matched = Person
-          .joins(:identifiers)
-          .where(identifiers: { type: 'Identifier::Global::Orcid', cached: orcid_url })
-          .first
-        return matched if matched
-      end
+      # 1. Try ORCID
+      matched = person_by_orcid(result)
+      return matched if matched
 
       # 2. Name fallback from attribution string, e.g.
       #    "(c) username, some rights reserved (CC BY-NC)" → "username"

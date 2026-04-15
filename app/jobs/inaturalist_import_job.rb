@@ -5,19 +5,20 @@ class InaturalistImportJob < ApplicationJob
   # @param project_id [Integer]
   # @param user_id [Integer]
   # @param match_otu_by_name [Boolean]
+  # @param use_community_taxon [Boolean]
   # @param import_images [Boolean]
-  def perform(observation_ids:, project_id:, user_id:, match_otu_by_name: false, import_images: false)
+  def perform(observation_ids:, project_id:, user_id:, match_otu_by_name: false, use_community_taxon: true, import_images: false)
     Current.project_id = project_id
     Current.user_id = user_id
 
     observation_ids.each do |observation_id|
-      import_observation(observation_id, project_id:, match_otu_by_name:, import_images:)
+      import_observation(observation_id, project_id:, match_otu_by_name:, use_community_taxon:, import_images:)
     end
   end
 
   private
 
-  def import_observation(observation_id, project_id:, match_otu_by_name:, import_images:)
+  def import_observation(observation_id, project_id:, match_otu_by_name:, use_community_taxon:, import_images:)
     result = ::Vendor::Nasturtium.by_observation_id(observation_id)
     return if result.blank?
 
@@ -25,7 +26,7 @@ class InaturalistImportJob < ApplicationJob
       # Save the OTU first so otu.id is available for the TaxonDetermination nested
       # attributes — reject_taxon_determinations rejects entries with a blank otu_id
       # and a blank otu.id, which is the case for any new (unsaved) OTU object.
-      otu = ::Vendor::Nasturtium.stub_otu(result, project_id:, match_by_name: match_otu_by_name)
+      otu = ::Vendor::Nasturtium.stub_otu(result, project_id:, match_by_name: match_otu_by_name, use_community_taxon:)
       raise ActiveRecord::RecordInvalid, otu unless otu
       otu.save! if otu.new_record?
 
@@ -34,13 +35,25 @@ class InaturalistImportJob < ApplicationJob
       ce = ::Vendor::Nasturtium.stub_collecting_event(result)
       ce.save!
 
+      d = result['observed_on_details']
       fo = FieldOccurrence.new(
         total: 1,
         collecting_event: ce,
-        taxon_determinations_attributes: [{ otu_id: otu.id }],
+        taxon_determinations_attributes: [{
+          otu_id:      otu.id,
+          year_made:   d['year'],
+          month_made:  d['month'],
+          day_made:    d['day'],
+        }],
         identifiers: [::Vendor::Nasturtium.stub_identifier(result)].compact,
       )
       fo.save!
+
+      unless use_community_taxon
+        determiner = ::Vendor::Nasturtium.stub_determiner(result)
+        determiner.save! if determiner.new_record?
+        fo.taxon_determinations.first.determiner_roles.create!(person: determiner)
+      end
 
       if result['description'].present?
         Note.create!(note_object: fo, text: result['description'])

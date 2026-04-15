@@ -11,6 +11,11 @@
     </div>
 
     <div class="separate-bottom">
+      <%= f.check_box :use_community_taxon, { checked: true }, '1', '0' %>
+      <%= f.label :use_community_taxon, "Use community taxon (uncheck to use observer's own identification instead)" %>
+    </div>
+
+    <div class="separate-bottom">
       <%= f.check_box :match_otu_by_name, { checked: false }, '1', '0' %>
       <%= f.label :match_otu_by_name, 'Match OTU by taxon name (tries existing OTU in project first; creates name-only OTU if none found)' %>
     </div>

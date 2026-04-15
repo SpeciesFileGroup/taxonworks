@@ -12,6 +12,7 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
   def submit
     raw_input = params[:observation_ids]
     match_otu_by_name = params[:match_otu_by_name] == '1'
+    use_community_taxon = params[:use_community_taxon] != '0'
     import_images = params[:import_images] == '1'
 
     observation_ids = ::Vendor::Nasturtium.parse_observation_ids(raw_input)
@@ -26,6 +27,7 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
       project_id: sessions_current_project_id,
       user_id: sessions_current_user_id,
       match_otu_by_name:,
+      use_community_taxon:,
       import_images:
     )
 
