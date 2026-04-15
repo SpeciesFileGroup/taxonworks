@@ -16,8 +16,20 @@ describe 'Task - iNaturalist import', type: :feature, group: :field_occurrences 
         expect(page).to have_field('observation_ids')
       end
 
+      specify 'shows the community taxon checkbox checked by default' do
+        expect(page).to have_checked_field('use_community_taxon')
+      end
+
       specify 'shows the OTU matching checkbox' do
         expect(page).to have_field('match_otu_by_name')
+      end
+
+      specify 'shows the import images checkbox' do
+        expect(page).to have_field('import_images')
+      end
+
+      specify 'shows the import sounds checkbox' do
+        expect(page).to have_field('import_sounds')
       end
     end
   end
