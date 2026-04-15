@@ -199,7 +199,11 @@ module Vendor
       return nil if taxon_name.blank?
 
       if match_by_name
-        existing = Otu.where(project_id:, name: taxon_name).first
+        existing = Otu.where(project_id:)
+          .left_joins(:taxon_name)
+          .where('otus.name = ? OR taxon_names.cached = ?', taxon_name, taxon_name)
+          .order(Arel.sql('taxon_names.id IS NULL ASC'))
+          .first
         return existing if existing
       end
 
