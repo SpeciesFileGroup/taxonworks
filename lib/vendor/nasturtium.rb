@@ -37,6 +37,10 @@ module Vendor
       .each_with_object({}) { |(k, v), h| h[v[:inat_code]] = k if v[:inat_code] }
       .freeze
 
+    # Derived from INAT_ANNOTATION_LABEL_TO_DWC_URI: inverted to URI -> label for
+    # looking up BiocurationGroup by URI and matching BiocurationClass by name.
+    DWC_URI_TO_INAT_ANNOTATION_LABEL = INAT_ANNOTATION_LABEL_TO_DWC_URI.invert.freeze
+
     # Parse a block of text (one entry per line) into an array of iNaturalist observation IDs.
     # Each line may be a bare integer ID or a full iNaturalist URL.
     #
@@ -196,6 +200,33 @@ module Vendor
       end
 
       Otu.new(name: taxon_name)
+    end
+
+    # Find BiocurationClass records in the project that match iNat annotations on
+    # the observation, via INAT_ANNOTATION_LABEL_TO_DWC_URI → BiocurationGroup URI.
+    # Only annotations with a DwC mapping are considered; unmatched annotations are skipped.
+    #
+    # @param result [Hash] a Nasturtium result
+    # @param project_id [Integer]
+    # @return [Array<BiocurationClass>]
+    def self.stub_biocuration_classes(result, project_id:)
+      (result['annotations'] || []).filter_map do |annotation|
+        term_label  = annotation.dig('controlled_attribute', 'label')
+        value_label = annotation.dig('controlled_value', 'label')
+        next if term_label.blank? || value_label.blank?
+
+        dwc_uri = INAT_ANNOTATION_LABEL_TO_DWC_URI[term_label]
+        next unless dwc_uri
+
+        group_ids = BiocurationGroup.where(project_id:, uri: dwc_uri).pluck(:id)
+        next if group_ids.empty?
+
+        BiocurationClass
+          .where(project_id:)
+          .joins(:tags)
+          .where(tags: { keyword_id: group_ids })
+          .find_by('lower(controlled_vocabulary_terms.name) = lower(?)', value_label)
+      end.compact
     end
 
     # Returns the iNat observation_photos that carry a CC or PD license importable into TW.

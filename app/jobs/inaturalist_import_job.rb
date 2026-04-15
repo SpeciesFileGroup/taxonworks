@@ -49,6 +49,10 @@ class InaturalistImportJob < ApplicationJob
       )
       fo.save!
 
+      ::Vendor::Nasturtium.stub_biocuration_classes(result, project_id:).each do |biocuration_class|
+        BiocurationClassification.create!(biocuration_class:, biocuration_classification_object: fo)
+      end
+
       unless use_community_taxon
         determiner = ::Vendor::Nasturtium.stub_determiner(result)
         determiner.save! if determiner.new_record?
