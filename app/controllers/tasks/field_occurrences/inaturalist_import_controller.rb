@@ -14,6 +14,7 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
     match_otu_by_name = params[:match_otu_by_name] == '1'
     use_community_taxon = params[:use_community_taxon] != '0'
     import_images = params[:import_images] == '1'
+    import_sounds = params[:import_sounds] == '1'
 
     observation_ids = ::Vendor::Nasturtium.parse_observation_ids(raw_input)
 
@@ -28,7 +29,8 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
       user_id: sessions_current_user_id,
       match_otu_by_name:,
       use_community_taxon:,
-      import_images:
+      import_images:,
+      import_sounds:
     )
 
     flash[:notice] = "Queued import of #{observation_ids.size} observation(s). Refresh the page to see results."
@@ -46,7 +48,7 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
       )
       .order(created_at: :desc)
       .limit(10)
-      .includes(:collecting_event, taxon_determinations: :otu)
+      .includes(:collecting_event, :identifiers, taxon_determinations: :otu)
   end
 
 end

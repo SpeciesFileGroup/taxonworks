@@ -249,6 +249,63 @@ module Vendor
       end
     end
 
+    # Returns the iNat observation_sounds that carry a CC or PD license importable into TW.
+    #
+    # @param result [Hash] a Nasturtium result
+    # @return [Array<Hash>] observation_sound hashes (the outer object, which carries uuid)
+    def self.permitted_sounds(result)
+      return [] if result.blank?
+
+      (result['observation_sounds'] || []).filter_map do |obs_sound|
+        sound = obs_sound['sound']
+        next if sound.blank?
+        next unless INAT_LICENSE_CODE_TO_TW_LICENSE.key?(sound['license_code'])
+
+        obs_sound
+      end
+    end
+
+    # Build and save a Sound (with Attribution, copyright holder Person, and iNat identifier)
+    # from an iNat observation_sound hash. Raises on failure so the caller's savepoint can roll back.
+    #
+    # @param obs_sound [Hash] the outer observation_sound object (carries uuid)
+    # @param result [Hash] the full Nasturtium observation result (for ORCID matching)
+    # @param observed_year [Integer, nil] year of observation, used as copyright year
+    # @return [Sound]
+    def self.build_sound!(obs_sound, result:, observed_year: nil)
+      sound_data  = obs_sound['sound']
+      license_key = INAT_LICENSE_CODE_TO_TW_LICENSE[sound_data['license_code']]
+
+      copyright_person = stub_copyright_person(result, photo: sound_data)
+      copyright_person.save! if copyright_person.new_record?
+
+      attribution = Attribution.new(
+        license: license_key,
+        copyright_year: observed_year,
+        copyright_holder_roles: [
+          AttributionCopyrightHolder.new(person: copyright_person)
+        ]
+      )
+
+      tempfile = download_to_tempfile(sound_data['file_url'])
+
+      sound = Sound.new(name: sound_data['original_filename'].presence || obs_sound['uuid'])
+      sound.sound_file.attach(
+        io: File.open(tempfile.path),
+        filename: tempfile.original_filename,
+        content_type: sound_data['file_content_type'],
+      )
+      sound.attribution = attribution
+      if obs_sound['uuid'].present?
+        sound.identifiers << Identifier::Global::Uuid::InaturalistObservationSound.new(
+          identifier: obs_sound['uuid']
+        )
+      end
+      sound.save!
+
+      sound
+    end
+
     # Find or build the copyright holder Person for a photo.
     #
     # Strategy (in order):
@@ -283,7 +340,6 @@ module Vendor
     # @return [Image]
     def self.build_image!(photo, result:, observed_year: nil)
       license_key = INAT_LICENSE_CODE_TO_TW_LICENSE[photo['license_code']]
-      raise ArgumentError, "No TW license key for iNat license_code '#{photo['license_code']}'" if license_key.blank?
 
       copyright_person = stub_copyright_person(result, photo:)
       copyright_person.save! if copyright_person.new_record?

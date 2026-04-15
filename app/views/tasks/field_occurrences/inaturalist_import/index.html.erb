@@ -25,6 +25,11 @@
       <%= f.label :import_images, 'Import images (CC license only — also creates licensing metadata and copyright holder)' %>
     </div>
 
+    <div class="separate-bottom">
+      <%= f.check_box :import_sounds, { checked: false }, '1', '0' %>
+      <%= f.label :import_sounds, 'Import sounds (CC license only — also creates licensing metadata and copyright holder)' %>
+    </div>
+
     <%= button_tag 'Queue import', type: :submit, class: 'button btn-primary btn btn-default-size' %>
   <% end %>
 </div>
@@ -46,16 +51,19 @@
           <th>Collecting event</th>
           <th>Created</th>
           <th></th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
         <% @recent_field_occurrences.each do |fo| %>
+          <% inat_identifier = fo.identifiers.find { |i| i.is_a?(Identifier::Global::Uuid::InaturalistObservation) } %>
           <tr>
             <td><%= fo.id %></td>
             <td><%= fo.taxon_determinations.first&.otu&.name %></td>
             <td><%= fo.collecting_event&.verbatim_locality %></td>
             <td><%= fo.created_at&.strftime('%Y-%m-%d %H:%M') %></td>
-            <td><%= link_to 'Browse', browse_field_occurrence_task_path(field_occurrence_id: fo.id) %></td>
+            <td><%= link_to 'Browse', browse_field_occurrence_task_path(field_occurrence_id: fo.id), target: '_blank' %></td>
+            <td><%= link_to 'iNaturalist', inat_identifier.url, target: '_blank' if inat_identifier %></td>
           </tr>
         <% end %>
       </tbody>

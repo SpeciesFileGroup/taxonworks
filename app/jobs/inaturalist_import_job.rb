@@ -7,18 +7,19 @@ class InaturalistImportJob < ApplicationJob
   # @param match_otu_by_name [Boolean]
   # @param use_community_taxon [Boolean]
   # @param import_images [Boolean]
-  def perform(observation_ids:, project_id:, user_id:, match_otu_by_name: false, use_community_taxon: true, import_images: false)
+  # @param import_sounds [Boolean]
+  def perform(observation_ids:, project_id:, user_id:, match_otu_by_name: false, use_community_taxon: true, import_images: false, import_sounds: false)
     Current.project_id = project_id
     Current.user_id = user_id
 
     observation_ids.each do |observation_id|
-      import_observation(observation_id, project_id:, match_otu_by_name:, use_community_taxon:, import_images:)
+      import_observation(observation_id, project_id:, match_otu_by_name:, use_community_taxon:, import_images:, import_sounds:)
     end
   end
 
   private
 
-  def import_observation(observation_id, project_id:, match_otu_by_name:, use_community_taxon:, import_images:)
+  def import_observation(observation_id, project_id:, match_otu_by_name:, use_community_taxon:, import_images:, import_sounds:)
     result = ::Vendor::Nasturtium.by_observation_id(observation_id)
     return if result.blank?
 
@@ -64,6 +65,7 @@ class InaturalistImportJob < ApplicationJob
       end
 
       import_photos(result, fo:) if import_images
+      import_sounds(result, fo:) if import_sounds
     end
   rescue => e
     # Failures are logged but do not interrupt the remaining imports
@@ -77,6 +79,23 @@ class InaturalistImportJob < ApplicationJob
   # licensing metadata and attach it as a Depiction on the FO.
   # Each photo runs in its own savepoint so a single failure doesn't roll back
   # the FO or other photos.
+  def import_sounds(result, fo:)
+    observed_year = result.dig('observed_on_details', 'year')
+
+    ::Vendor::Nasturtium.permitted_sounds(result).each do |obs_sound|
+      ApplicationRecord.transaction(requires_new: true) do
+        sound = ::Vendor::Nasturtium.build_sound!(obs_sound, result:, observed_year:)
+        Conveyance.create!(sound:, conveyance_object: fo)
+      end
+    rescue => e
+      Rails.logger.error(
+        "InaturalistImportJob: failed to import sound #{obs_sound['uuid']} " \
+        "for observation #{result['uuid']}: #{e.class}: #{e.message}\n" \
+        "#{e.backtrace&.first(5)&.join("\n")}"
+      )
+    end
+  end
+
   def import_photos(result, fo:)
     observed_year = result.dig('observed_on_details', 'year')
 
