@@ -152,6 +152,10 @@ module Vendor
     def self.stub_georeference(result)
       return nil if result.blank?
 
+      # Skip georeference for obscured observations — iNat jitters coordinates
+      # within a ~22km bounding box, exceeding TW's 10km error_radius maximum.
+      return nil if result['obscured']
+
       c = result.dig('geojson', 'coordinates')
 
       return nil if c.blank?
