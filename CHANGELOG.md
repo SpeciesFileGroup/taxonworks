@@ -33,6 +33,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Don't label 0-column matrices as image matrices in the Observation Matrix Hub
 - Handle bad BibTeX and html returned during New Source's CrossRef lookup
 - Handle `%` in New Source's CrossRef lookup
+- DwC importer failing when importing unparsable people
 
 [#4851]: https://github.com/SpeciesFileGroup/taxonpages/issues/4851
 [#4852]: https://github.com/SpeciesFileGroup/taxonpages/issues/4852
