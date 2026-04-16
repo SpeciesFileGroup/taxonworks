@@ -5,133 +5,69 @@
     menu
     @menu="() => (isModalVisible = true)"
   >
-    <div
-      v-if="!isLoading"
-      class="switch-radio separate-top separate-bottom"
-    >
-      <template
-        v-for="(item, index) in filterTabs"
-        :key="index"
-      >
-        <input
-          v-model="tabSelected"
-          :id="`switch-filter-nomenclature-${index}`"
-          name="switch-filter-nomenclature-options"
-          type="radio"
-          class="normal-input button-active"
-          :value="item"
-        />
-        <label :for="`switch-filter-nomenclature-${index}`">{{
-          item.label
-        }}</label>
-      </template>
-    </div>
-    <template v-if="filteredList?.length">
-      <div
-        v-if="nomenclature"
-        :class="
-          Object.assign(
-            {},
-            ...preferences.filterSections.show
-              .concat(preferences.filterSections.topic)
-              .map((item) => ({ [item.key]: !item.value }))
-          )
-        "
-      >
-        <timeline-citations :citations="filteredList" />
-        <div class="text-base font-bold">References</div>
-        <ul
-          v-if="nomenclature"
-          class="no_bullets"
-        >
-          <template v-if="selectedReferences.length">
-            <template
-              v-for="item in references"
-              :key="item"
-            >
-              <li
-                v-show="filterSource(nomenclature.sources.list[item])"
-                class="horizontal-left-content gap-small padding-small-bottom padding-small-top"
-              >
-                <RadialAnnotator :global-id="item" />
-                <RadialNavigation :global-id="item" />
-                <label>
-                  <input
-                    v-model="references"
-                    :value="item"
-                    class="margin-small-right"
-                    type="checkbox"
-                  />
-                  <span v-html="nomenclature.sources.list[item].cached" />
-                </label>
-              </li>
-            </template>
-          </template>
-          <template v-else>
-            <template
-              v-for="(item, key) in nomenclature.sources.list"
-              :key="key"
-            >
-              <li
-                v-show="filterSource(item)"
-                class="horizontal-left-content gap-small padding-small-bottom padding-small-top"
-              >
-                <RadialAnnotator :global-id="key" />
-                <RadialNavigation :global-id="key" />
-                <label>
-                  <input
-                    v-model="references"
-                    :value="key"
-                    class="margin-small-right"
-                    type="checkbox"
-                  />
-                  <span v-html="item.cached" />
-                </label>
-                <template v-if="showReferencesTopic">
-                  <span
-                    v-for="(topic, index) in getSourceTopics(item).map(
-                      (key) => nomenclature.topics.list[key]
-                    )"
-                    class="pill topic references_topics"
-                    :key="index"
-                    :style="{ 'background-color': topic.css_color }"
-                    v-html="topic.name"
-                  />
-                </template>
-              </li>
-            </template>
-          </template>
-        </ul>
-      </div>
-    </template>
-    <div v-else>No citations available.</div>
+    <template v-if="!isLoading">
+      <PanelTimelineTabs
+        v-model="tab"
+        :tabs="TIMELINE_TABS"
+      />
 
-    <soft-validation-modal />
+      <PanelTimelineBiology
+        v-if="isBiologyTab"
+        :otu="otu"
+      />
+
+      <template v-else-if="filteredItems.length">
+        <div
+          v-if="timeline"
+          :class="hideClasses"
+        >
+          <TimelineCitations :citations="filteredItems" />
+          <PanelTimelineReferences
+            v-model="selectedReferenceIds"
+            :sources="timeline.sources.list"
+            :topics-list="timeline.topics.list"
+            :filtered-items="filteredItems"
+            :show-topics="showReferencesTopic"
+          />
+        </div>
+      </template>
+
+      <div v-else>No citations available.</div>
+    </template>
+
     <PanelTimelineSettings
-      v-if="isModalVisible"
-      :nomenclature="nomenclature"
+      v-if="isModalVisible && timeline"
+      v-model:topics-selected="selectedTopics"
+      v-model:show-references-topic="showReferencesTopic"
       :preferences="preferences"
-      v-model:topic="topicsSelected"
+      :nomenclature="timeline"
       @close="() => (isModalVisible = false)"
     />
   </PanelLayout>
 </template>
 
 <script setup>
-import { Otu } from '@/routes/endpoints'
 import { useUserPreferences } from '@/composables'
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
+import { TIMELINE_TABS, TIMELINE_TAB_BIOLOGY, DEFAULT_TIMELINE_TAB } from './constants/tabs'
+import { matchItem } from './utils/timelineFilters'
+import useOtuTimeline from './composables/useOtuTimeline'
 import PanelLayout from '../PanelLayout.vue'
-//import SoftValidationModal from '../softValidationModal'
-import TimelineCitations from './PanelTimelineCitations.vue'
+import PanelTimelineTabs from './PanelTimelineTabs.vue'
+import PanelTimelineBiology from './PanelTimelineBiology.vue'
+import PanelTimelineReferences from './PanelTimelineReferences.vue'
 import PanelTimelineSettings from './PanelTimelineSettings.vue'
-import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
-import RadialNavigation from '@/components/radials/navigation/radial.vue'
+import TimelineCitations from './PanelTimelineCitations.vue'
 
 const props = defineProps({
   otu: {
     type: Object,
     required: true
+  },
+
+  title: {
+    type: String,
+    default: 'Timeline'
   }
 })
 
@@ -143,133 +79,58 @@ const preferences = computed(
   () => userPref.preferences.value.layout?.[KEY_STORAGE]
 )
 
-const filterTabs = [
-  {
-    label: 'All',
-    key: '',
-    value: '',
-    equal: true
-  },
-  {
-    label: 'Nomenclature',
-    key: 'history-origin',
-    value: 'otu',
-    equal: false
-  },
-  {
-    label: 'Protonym',
-    key: 'history-origin',
-    value: 'protonym',
-    equal: true
-  },
-  {
-    label: 'OTU (biology)',
-    key: 'history-origin',
-    value: 'otu',
-    equal: true
-  }
-]
+const otuRef = computed(() => props.otu)
+const {
+  isLoading,
+  timeline,
+  selectedReferenceIds,
+  selectedTopics,
+  tab
+} = useOtuTimeline(otuRef, { defaultTab: DEFAULT_TIMELINE_TAB })
 
-const selectedReferences = computed(() =>
-  references.value.map((item) => nomenclature.value.sources.list[item])
-)
-
-const itemsList = computed(() =>
-  references.value.length
-    ? nomenclature.value.items.filter((item) =>
-        selectedReferences.value.find((ref) =>
-          ref.objects.includes(item.data_attributes['history-object-id'])
-        )
-      )
-    : nomenclature.value.items
-)
-const filteredList = computed(() =>
-  Array.isArray(itemsList.value) ? itemsList.value.filter(checkFilter) : []
-)
-
-const isLoading = ref(false)
 const showReferencesTopic = ref(false)
-const references = ref([])
-const topicsSelected = ref([])
 const isModalVisible = ref(false)
-const nomenclature = ref()
-const tabSelected = ref({
-  label: 'All',
-  key: '',
-  value: ''
-})
 
-watch(
-  () => props.otu,
-  (newVal) => {
-    if (newVal) {
-      isLoading.value = true
+const isBiologyTab = computed(() => tab.value?.kind === TIMELINE_TAB_BIOLOGY)
 
-      Otu.timeline(props.otu.id)
-        .then(({ body }) => {
-          nomenclature.value = body
-        })
-        .finally(() => {
-          isLoading.value = false
-        })
-    }
-  },
-  { immediate: true }
-)
+const itemsForSelectedRefs = computed(() => {
+  if (!timeline.value) return []
+  if (!selectedReferenceIds.value.length) return timeline.value.items
 
-function checkFilter(item) {
-  const { and, or } = preferences.value.filterSections
-  const { label, value, equal, key } = tabSelected.value
-  const attrs = item.data_attributes
-
-  const matchesTab =
-    label === 'All' || (equal ? attrs[key] === value : attrs[key] !== value)
-
-  const matchFilter = (filter) =>
-    filter.value === undefined ||
-    (filter.equal
-      ? attrs[filter.key] === filter.value
-      : attrs[filter.key] !== filter.value)
-
-  const matchAndSections = Object.values(and).every((group) => {
-    if (group.every((f) => f.value === false)) return true
-
-    return group.every(matchFilter)
-  })
-
-  const matchOrSections = Object.values(or).every((group) =>
-    group.some(matchFilter)
+  const objectIds = new Set(
+    selectedReferenceIds.value.flatMap(
+      (id) => timeline.value.sources.list[id]?.objects ?? []
+    )
   )
 
-  const matchTopics =
-    !topicsSelected.value.length ||
-    item.topics.some((t) => topicsSelected.value.includes(t))
+  return timeline.value.items.filter((item) =>
+    objectIds.has(item.data_attributes['history-object-id'])
+  )
+})
 
-  return matchesTab && matchAndSections && matchOrSections && matchTopics
-}
+const filteredItems = computed(() => {
+  if (!preferences.value || !timeline.value) return []
 
-function filterSource(source) {
-  const globalIds = source.objects
+  return itemsForSelectedRefs.value.filter((item) =>
+    matchItem(item, {
+      tab: tab.value,
+      filterSections: preferences.value.filterSections,
+      selectedTopics: selectedTopics.value
+    })
+  )
+})
 
-  return itemsList.value
-    .filter(checkFilter)
-    .find((item) =>
-      globalIds.includes(item.data_attributes['history-object-id'])
-    )
-}
+const hideClasses = computed(() => {
+  if (!preferences.value) return {}
 
-function getSourceTopics(source) {
-  const globalIds = source.objects
-  const topics = itemsList.value
-    .filter(checkFilter)
-    .filter((item) =>
-      globalIds.includes(item.data_attributes['history-object-id'])
-    )
-    .map((item) => item.topics)
+  const { show, topic } = preferences.value.filterSections
 
-  return [...new Set([].concat(...topics))]
-}
+  return Object.fromEntries(
+    [...show, ...topic].map((item) => [item.key, !item.value])
+  )
+})
 </script>
+
 <style lang="scss" scoped>
 .hidden {
   display: none;

@@ -45,7 +45,10 @@
               </label>
             </li>
           </ul>
-          <template v-for="section in preferences.filterSections.or">
+          <template
+            v-for="(section, sectionKey) in preferences.filterSections.or"
+            :key="sectionKey"
+          >
             <ul class="no_bullets">
               <li
                 v-for="(item, key) in section"
@@ -132,20 +135,25 @@
 import VModal from '@/components/ui/Modal.vue'
 import YearPicker from './PanelTimelineYearPicker.vue'
 
-const topcsSelected = defineModel('topic', {
-  type: Array,
-  default: () => []
-})
+defineProps({
+  preferences: {
+    type: Object,
+    required: true
+  },
 
-const preferences = defineModel('preferences', {
-  type: Object,
-  required: true
-})
-
-const props = defineProps({
   nomenclature: {
     type: Object,
     required: true
   }
+})
+
+const topicsSelected = defineModel('topicsSelected', {
+  type: Array,
+  default: () => []
+})
+
+const showReferencesTopic = defineModel('showReferencesTopic', {
+  type: Boolean,
+  default: false
 })
 </script>
