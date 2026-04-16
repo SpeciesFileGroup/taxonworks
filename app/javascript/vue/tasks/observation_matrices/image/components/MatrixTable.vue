@@ -199,7 +199,7 @@ export default {
     align-items: stretch;
     justify-content: center;
     flex-direction: column;
-    background-color: white;
+    background-color: var(--bg-foreground);
     box-sizing: border-box;
   }
 
@@ -207,7 +207,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: left;
-    background-color: white;
+    background-color: var(--bg-foreground);
   }
 
   .header-label {

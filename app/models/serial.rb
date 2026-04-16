@@ -70,7 +70,7 @@ class Serial < ApplicationRecord
   # These would otherwise all be excluded because they reference 'class_name',
   # which triggers their elimination in the unify code base
   def unify_relations
-    ApplicationEnumeration.klass_reflections(self.class).select{|a|
+    ApplicationEnumeration.klass_reflections(self.class, :has_many).select{|a|
       [
         :translations,
         :sources,

@@ -149,7 +149,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
       end
 
       specify 'etymology is missing' do
-        @species.soft_validate(only_sets: :missing_fields)
+        @species.soft_validate(only_sets: :missing_fields, include_flagged: true)
         expect(@species.soft_validations.messages_on(:etymology).empty?).to be_falsey
         @species.etymology = 'Test'
         @species.soft_validate(only_sets: :missing_fields)

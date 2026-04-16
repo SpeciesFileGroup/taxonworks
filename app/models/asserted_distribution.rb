@@ -186,6 +186,41 @@ class AssertedDistribution < ApplicationRecord
     asserted_distribution_object
   end
 
+  # @return [Array of Integer] OTU ids reachable through the AD's polymorphic object.
+  #   Handles all supported asserted_distribution_object_type values.
+  #   Returns an empty array when no OTUs are reachable through the object.
+  #   Raises if the object type is not explicitly handled — see spec vs. DISTRIBUTION_ASSERTABLE_TYPES.
+  def object_otu_ids
+    case asserted_distribution_object_type
+    when 'Otu'
+      [asserted_distribution_object_id]
+    when 'BiologicalAssociation'
+      ba = asserted_distribution_object
+      ids = []
+      ids << ba.biological_association_subject_id if ba.biological_association_subject_type == 'Otu'
+      ids << ba.biological_association_object_id if ba.biological_association_object_type == 'Otu'
+      ids.uniq
+    when 'BiologicalAssociationsGraph'
+      asserted_distribution_object.biological_associations.flat_map do |ba|
+        ids = []
+        ids << ba.biological_association_subject_id if ba.biological_association_subject_type == 'Otu'
+        ids << ba.biological_association_object_id if ba.biological_association_object_type == 'Otu'
+        ids.uniq
+      end.uniq
+    when 'Conveyance'
+      c = asserted_distribution_object
+      c.conveyance_object_type == 'Otu' ? [c.conveyance_object_id] : []
+    when 'Depiction'
+      d = asserted_distribution_object
+      d.depiction_object_type == 'Otu' ? [d.depiction_object_id] : []
+    when 'Observation'
+      obs = asserted_distribution_object
+      obs.observation_object_type == 'Otu' ? [obs.observation_object_id] : []
+    else
+      raise TaxonWorks::Error, "#{asserted_distribution_object_type} is not handled in #object_otu_ids"
+    end
+  end
+
   def has_shape?
     asserted_distribution_shape.geographic_items.any?
   end

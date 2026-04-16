@@ -64,6 +64,7 @@ namespace :api, defaults: {format: :json} do
       get '/otus/:id/inventory/dwc_gallery', to: '/otus#api_dwc_gallery', as: :dwc_inventory_gallery
       get '/otus/:id/inventory/dwc', to: '/otus#api_dwc_inventory', as: :dwc_inventory
       get '/otus/:id/inventory/type_material', to: '/otus#api_type_material_inventory', as: :type_material_inventory
+      get '/otus/:id/inventory/citations', to: '/otus#api_citations_inventory', as: :citations_inventory
       get '/otus/:id/inventory/nomenclature_citations', to: '/otus#api_nomenclature_citations', as: :nomenclature_citations_inventory
 
       get '/otus/:id/inventory/determined_to_rank', to: '/otus#api_determined_to_rank', as: :determined_to_inventory
@@ -179,7 +180,11 @@ namespace :api, defaults: {format: :json} do
       get '/sounds', to: '/sounds#api_index'
       get '/sounds/:id', to: '/sounds#api_show'
 
+      get '/leads', to: '/leads#api_index'
       get '/leads/key/:id', to: '/leads#api_key'
+
+      get '/leads/:id/eliminated_otus', to: '/leads#api_eliminated_otus'
+      get '/leads/:id/remaining_otus', to: '/leads#api_remaining_otus'
     end
 
     # Authenticate membership at the data controller level

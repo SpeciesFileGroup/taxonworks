@@ -32,7 +32,7 @@
     <div>
       <NavHeader />
       <div class="flexbox horizontal-center-content align-start">
-        <div class="item">
+        <div class="item full_width">
           <VSpinner
             full-screen
             :legend="isLoading ? 'Loading...' : 'Saving changes...'"

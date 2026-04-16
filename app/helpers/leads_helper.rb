@@ -170,6 +170,11 @@ module LeadsHelper
         if back_couplets && (b = metadata.dig(l.parent_id, :couplet_number))
           data[:back_couplets][couplet_number] = b
         end
+      elsif l.redirect_id
+        d.merge!(
+          target_type: :redirect,
+          redirect_id: l.redirect_id,
+        )
       elsif l.otu
         d.merge!(
           target_label: ( l.otu ? label_for_otu(l.otu) : nil ),

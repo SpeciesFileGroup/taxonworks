@@ -5,9 +5,9 @@
         <%= content_tag(:div, '', id: :taxonworks_logo, title: 'Click: Go to Hub — Double-click: Go to Dashboard', class: 'cursor-pointer') -%> 
 
         <% if request.path == root_path -%>
-          <%= content_tag(:h3, "Dashboard for " + user_tag(sessions_current_user), class: :hub_project_name, data: {current_project_id: sessions_current_project_id}) -%>
+          <%= content_tag(:h3, "Dashboard for " + user_tag(sessions_current_user), class: :hub_project_name, data: { current_project_id: sessions_current_project_id }) -%>
         <% else %>
-          <h3><%= link_to(sessions_current_project.name, hub_path, class: :hub_project_name, data: { current_project_id: sessions_current_project_id }, title: :Hub) if sessions_current_project -%></h3>
+          <h3><%= link_to(sessions_current_project.name, hub_path, class: :hub_project_name, data: { current_project_id: sessions_current_project_id, current_project_token: sessions_current_project.api_access_token }, title: :Hub) if sessions_current_project -%></h3>
           <h3><%= header_path_tag -%></h3>
         <% end %>
 
