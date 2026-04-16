@@ -48,25 +48,29 @@
       class="margin-large-top"
       color="create"
       medium
-      :disabled="!date || !status || !loan"
+      :disabled="!date || !status || !loan || isLoading"
       @click="updateLoanItems"
     >
       Update
     </VBtn>
 
+    <VSpinner
+      v-if="isLoading"
+      legend="Moving items..."
+    />
+
     <div
-      v-if="moved.length"
+      v-if="response"
       class="margin-large-top"
     >
-      <h3>Moved</h3>
-      <ul>
-        <li
-          v-for="item in moved"
-          :key="item.id"
-          v-html="item.object_tag"
-        />
-      </ul>
-      <a :href="`/tasks/loans/edit_loan/${loan.id}`">Edit loan items</a>
+      <PreviewTable :data="response" />
+      <a
+        v-if="response.updated?.length"
+        class="margin-medium-top"
+        :href="`${RouteNames.EditLoan}/${loan.id}`"
+      >
+        Edit loan items
+      </a>
     </div>
   </div>
 </template>
@@ -75,8 +79,11 @@
 import { ref } from 'vue'
 import { LoanItem } from '@/routes/endpoints'
 import { LOAN_STATUS_LIST } from '@/constants/index.js'
+import { RouteNames } from '@/routes/routes'
 import VDateNow from '@/components/ui/Date/DateNow.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
+import PreviewTable from '@/components/radials/shared/PreviewTable.vue'
 import SmartSelector from '@/components/ui/SmartSelector'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem'
 
@@ -87,26 +94,60 @@ const props = defineProps({
   }
 })
 
-const moved = ref([])
 const date = ref(null)
 const status = ref(null)
 const loan = ref(null)
+const response = ref(null)
+const isLoading = ref(false)
 
 function updateLoanItems() {
   const payload = {
-    batch_type: 'collection_object_filter',
-    collection_object_query: props.parameters,
-    disposition: status.value,
-    date_returned: date.value,
-    loan_id: loan.value.id
+    filter_query: {
+      collection_object_query: props.parameters
+    },
+    mode: 'move',
+    params: {
+      disposition: status.value,
+      date_returned: date.value,
+      loan_id: loan.value.id
+    }
   }
 
-  LoanItem.moveBatch(payload).then(({ body }) => {
-    moved.value = body
-    TW.workbench.alert.create(
-      `${body.length} Loan items were successfully updated.`,
-      'notice'
-    )
-  })
+  isLoading.value = true
+  response.value = null
+
+  LoanItem.batchByFilter(payload)
+    .then(({ body }) => {
+      response.value = body
+
+      const updatedCount = body.updated?.length || 0
+      const notUpdatedCount = body.not_updated?.length || 0
+
+      if (updatedCount > 0 && notUpdatedCount === 0) {
+        TW.workbench.alert.create(
+          `${updatedCount} loan item(s) successfully moved.`,
+          'notice'
+        )
+      } else if (updatedCount > 0 && notUpdatedCount > 0) {
+        TW.workbench.alert.create(
+          `${updatedCount} loan item(s) moved, ${notUpdatedCount} not on loan.`,
+          'notice'
+        )
+      } else if (notUpdatedCount > 0) {
+        TW.workbench.alert.create(
+          `No loan items moved. ${notUpdatedCount} not currently on loan.`,
+          'error'
+        )
+      } else {
+        TW.workbench.alert.create(
+          'No collection objects matched the filter.',
+          'notice'
+        )
+      }
+    })
+    .catch(() => {})
+    .finally(() => {
+      isLoading.value = false
+    })
 }
 </script>

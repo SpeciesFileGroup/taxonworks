@@ -1,6 +1,6 @@
 ![TaxonWorks](https://sfg.taxonworks.org/s/o3exin "https://taxonworks.org")
 
-[![build](https://github.com/SpeciesFileGroup/taxonworks/workflows/build/badge.svg?branch=development)](https://github.com/SpeciesFileGroup/taxonworks/actions?query=workflow%3Abuild)
+[![build](https://github.com/SpeciesFileGroup/taxonworks/actions/workflows/build.yml/badge.svg?branch=development)](https://github.com/SpeciesFileGroup/taxonworks/actions?query=workflow%3Abuild)
 [![Coverage Status][3]][4]
 [![Chat on Matrix](https://img.shields.io/matrix/TaxonWorks:gitter.im?label=chat&server_fqdn=matrix.org)](https://app.gitter.im/#/room/#SpeciesFileGroup_taxonworks:gitter.im)
 [![Link to documentation](https://img.shields.io/badge/documentation-yes-green)](https://docs.taxonworks.org)
@@ -13,7 +13,7 @@ To get more information on the project, its vision, and scope see [taxonworks.or
 
 ## License
 
-TaxonWorks is open source and is presently available under the [University of Illinois/NCSA Open Source License](https://taxonworks.org), read [more here](https://en.wikipedia.org/wiki/University_of_Illinois/NCSA_Open_Source_License).
+TaxonWorks is open source and is presently available under the [MIT](https://opensource.org/license/mit) Open Source License.
 
 ## Funding
 

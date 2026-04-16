@@ -44,7 +44,7 @@ module Queries::Concerns::Citations
     @origin_citation = boolean_param(params, :origin_citation)
 
     # All params are Hash here
-    @source_query = ::Queries::Source::Filter.new(params[:source_query]) if params[:source_query]
+   @source_query = ::Queries::Source::Filter.new(params[:source_query]) if params[:source_query]
   end
 
   # @return [Arel::Table]
@@ -55,7 +55,7 @@ module Queries::Concerns::Citations
   def citation_documents_facet
     return nil if citation_documents.nil?
     if citation_documents
-      referenced_klass.joins(citations: [:documents])
+      referenced_klass.joins(citations: [:documents]).distinct
     else
       referenced_klass.left_joins(citations: [source: [:documents]]).where('sources.id IS NOT null and documents.id is NULL')
     end
@@ -65,7 +65,7 @@ module Queries::Concerns::Citations
     return nil if citations.nil?
 
     if citations
-      referenced_klass.joins(:citations)
+      referenced_klass.joins(:citations).distinct
     else
       referenced_klass.where.missing(:citations)
     end
@@ -88,6 +88,7 @@ module Queries::Concerns::Citations
     s << ' ' + referenced_klass
     .joins(:citations)
     .joins('JOIN query_sources as query_sources1 on citations.source_id = query_sources1.id')
+    .distinct
     .to_sql
 
     referenced_klass.from('(' + s + ') as ' + referenced_klass.name.tableize)

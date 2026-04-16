@@ -1,0 +1,30 @@
+#project-members-new {
+  width: 1280px;
+  margin: 0 auto;
+  margin-top: 2rem;
+
+  .members-list {
+    max-height: 65vh;
+    overflow-y: auto;
+
+    th {
+      background-color: var(--bg-muted);
+    }
+  }
+
+  .sticky-col {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  #alphabet_nav {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .v-toggle-switch {
+    --v-toggle-on-color: var(--color-update);
+    --v-toggle-off-color: var(--badge-blue-bg);
+  }
+}

@@ -14,6 +14,7 @@
       :autocomplete-params="{ 'type[]': KEYWORD }"
       get-url="/controlled_vocabulary_terms/"
       model="keywords"
+      :filter-ids="list.map((item) => item.keyword_id)"
       buttons
       inline
       klass="Tag"
@@ -72,10 +73,12 @@ function createWithId({ id }) {
     tag_object_type: props.objectType
   }
 
-  Tag.create({ tag }).then(({ body }) => {
-    addToList(body)
-    TW.workbench.alert.create('Tag was successfully created.', 'notice')
-  })
+  Tag.create({ tag })
+    .then(({ body }) => {
+      addToList(body)
+      TW.workbench.alert.create('Tag was successfully created.', 'notice')
+    })
+    .catch(() => {})
 }
 
 function removeItem(item) {

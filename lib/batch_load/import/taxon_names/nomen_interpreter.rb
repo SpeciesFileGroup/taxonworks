@@ -17,7 +17,7 @@ module BatchLoad
     # Required to handle some defaults
     attr_accessor :project_id
 
-    SAVE_ORDER = [:original_taxon_name, :taxon_name, :taxon_name_relationship, :otu]
+    SAVE_ORDER = [:taxon_name, :taxon_name_relationship, :otu] # :original_taxon_name,
 
     # @param [Hash] args
     def initialize(nomenclature_code: nil, parent_taxon_name_id: nil, also_create_otu: false, **args)
@@ -30,6 +30,10 @@ module BatchLoad
 
     def parent_taxon_name_id
       @parent_taxon_name_id || root_taxon_name.id
+    end
+
+    def parent_taxon_name
+      TaxonName.find(parent_taxon_name_id)
     end
 
     def also_create_otu
@@ -57,7 +61,7 @@ module BatchLoad
         parse_result = BatchLoad::RowParse.new
         parse_result.row_number = i # check vs. header etc.
 
-        parse_result.objects[:original_taxon_name] = []
+        # parse_result.objects[:original_taxon_name] = [] # not used
         parse_result.objects[:taxon_name] = []
         parse_result.objects[:taxon_name_relationship] = []
         parse_result.objects[:otu] = []
@@ -122,7 +126,7 @@ module BatchLoad
           taxon_names[taxon_name_id] = p
 
           if parent_id.blank?
-            p.parent_id = parent_taxon_name_id
+            p.parent = parent_taxon_name
           else
             if taxon_names[parent_id]
               p.parent = taxon_names[parent_id]

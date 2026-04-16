@@ -34,6 +34,22 @@ module Queries
       matching_alternate_value_on(:name)
     end
 
+    # @return [ActiveRecord::Relation]
+    #   name matches all query terms in order, e.g. "nat hist" matches
+    #   "Natural History Museum"
+    def autocomplete_ordered_wildcard_pieces_in_name
+      base_query.where(table[:name].matches(wildcard_pieces).to_sql)
+    end
+
+    # @return [ActiveRecord::Relation, nil]
+    #   name matches all query fragments (unordered AND), e.g. "hist nat"
+    #   matches "Natural History Museum"
+    def autocomplete_wildcard_in_name
+      b = fragments
+      return referenced_klass.none if b.empty?
+      base_query.where(table[:name].matches_all(b).to_sql)
+    end
+
     # @return [Array]
     def autocomplete
       t = Time.now
@@ -45,6 +61,8 @@ module Queries
         [autocomplete_identifier_identifier_exact, nil],
         [autocomplete_acronym_match.limit(10), true],
         [autocomplete_named, true ],
+        [autocomplete_ordered_wildcard_pieces_in_name.limit(20), true],
+        [autocomplete_wildcard_in_name.limit(20), true],
         [autocomplete_alternate_values_acronym.limit(20), true ],
         [autocomplete_alternate_values_name.limit(20), true ]
       ]
@@ -58,9 +76,9 @@ module Queries
         a = q
         if project_id && scope && query_string.length > 2
           a = a.select("repositories.*, COUNT(collection_objects.id) AS use_count, CASE WHEN collection_objects.project_id IN (#{pr_id}) THEN collection_objects.project_id ELSE NULL END AS in_project")
-             .joins('LEFT OUTER JOIN collection_objects ON (repositories.id = collection_objects.repository_id OR repositories.id = collection_objects.current_repository_id)')
-             .group('repositories.id, collection_objects.project_id')
-             .order('in_project, use_count DESC')
+                .joins('LEFT OUTER JOIN collection_objects ON (repositories.id = collection_objects.repository_id OR repositories.id = collection_objects.current_repository_id)')
+                .group('repositories.id, collection_objects.project_id')
+                .order('in_project, use_count DESC')
         end
         a ||= q
 

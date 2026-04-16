@@ -5,7 +5,7 @@
     :disabled="disabled"
     @click="openModal"
   >
-    Update
+    {{ buttonLabel }}
   </VBtn>
   <VModal
     v-if="isModalVisible"
@@ -16,18 +16,10 @@
     </template>
     <template #body>
       <VSpinner v-if="isLoading" />
-      <PreviewTable :data="data" />
-    </template>
-    <template #footer>
-      <div class="horizontal-right-content">
-        <VBtn
-          color="primary"
-          medium
-          @click="closeModal"
-        >
-          Close
-        </VBtn>
-      </div>
+      <PreviewTable
+        v-if="data"
+        :data="data"
+      />
     </template>
   </VModal>
   <ConfirmationModal ref="confirmationModalRef" />
@@ -52,9 +44,24 @@ const props = defineProps({
     required: true
   },
 
+  confirmationWord: {
+    type: String,
+    default: 'CHANGE'
+  },
+
   disabled: {
     type: Boolean,
     default: false
+  },
+
+  buttonLabel: {
+    type: String,
+    default: 'Update'
+  },
+
+  confirmationButton: {
+    type: String,
+    default: ''
   }
 })
 
@@ -73,6 +80,9 @@ function makeBatchloadRequest() {
       emit('update', body)
       data.value = body
     })
+    .catch(() => {
+      isModalVisible.value = false
+    })
     .finally(() => {
       isLoading.value = false
     })
@@ -90,14 +100,16 @@ function closeModal() {
 }
 
 async function handleUpdate() {
-  const ok = await confirmationModalRef.value.show({
-    title: 'Batch update',
-    message: 'Are you sure you want to proceed?',
-    confirmationWord: 'CHANGE',
-    okButton: 'Update',
-    cancelButton: 'Cancel',
-    typeButton: 'submit'
-  })
+  const ok =
+    !props.confirmationWord ||
+    (await confirmationModalRef.value.show({
+      title: 'Batch update',
+      message: 'Are you sure you want to proceed?',
+      confirmationWord: props.confirmationWord,
+      okButton: props.confirmationButton || props.buttonLabel,
+      cancelButton: 'Cancel',
+      typeButton: 'submit'
+    }))
 
   if (ok) {
     makeBatchloadRequest()

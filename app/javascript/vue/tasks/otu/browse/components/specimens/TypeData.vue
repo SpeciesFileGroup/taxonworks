@@ -27,6 +27,12 @@ export default {
   },
   computed: {
     citationsLabel() {
+      return this.type.citations.length
+        ? this.type.citations
+            .sort((a, b) => (b.is_original === true) - (a.is_original === true))
+            .map((item) => item.citation_source_body)
+            .join('; ')
+        : 'not specified'
       return this.type.origin_citation
         ? this.type.origin_citation.source.cached
         : 'not specified'

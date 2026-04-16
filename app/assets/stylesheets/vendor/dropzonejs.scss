@@ -1,16 +1,18 @@
-#basic-images.dropzone, .vue-dropzone {
-  border: 1px dashed $color-secondary-2-4 !important;
-  padding: $standard_padding*4 !important;
+#basic-images.dropzone,
+.vue-dropzone {
+  border: 1px dashed var(--color-primary) !important;
+  padding: $standard_padding * 4 !important;
   width: 100%;
-  background-color: $soft_background !important;
+  color: var(--text-color);
+  background-color: var(--input-bg-color) !important;
   border-radius: 5px !important;
-  .dz-details, span {
+  .dz-details,
+  span {
     cursor: pointer !important;
   }
 }
 
 .dz-default {
-  font-size: $font_title*1.5 !important;
+  font-size: $font_title * 1.5 !important;
   font-weight: 300 !important;
-  color: #555 !important;
 }

@@ -19,6 +19,7 @@
         :list="tags"
         :header="['Tags', 'Remove']"
         :delete-warning="false"
+        soft-delete
         :annotator="false"
         :attributes="['object_tag']"
         @delete="(tag) => removeFromArray(tags, tag)"

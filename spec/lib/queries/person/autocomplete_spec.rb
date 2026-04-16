@@ -90,6 +90,33 @@ describe Queries::Person::Autocomplete, type: :model, group: :people do
     expect(query.autocomplete_cached.pluck(:id)).to contain_exactly(p1.id, p2.id)
   end
 
+  specify 'autocomplete_identifier_cached_suffix_exact orcid' do
+    Identifier::Global::Orcid.create!(
+      identifier: 'http://orcid.org/0000-0002-1825-0097',
+      identifier_object: p1
+    )
+
+    Identifier::Global::Orcid.create!(
+      identifier: 'https://orcid.org/0000-0002-1825-0097',
+      identifier_object: p2
+    )
+
+    query.terms = '0000-0002-1825-0097'
+    expect(query.autocomplete_identifier_cached_suffix_exact.pluck(:id))
+      .to contain_exactly(p1.id, p2.id)
+  end
+
+  specify 'autocomplete_identifier_cached_suffix_exact wikidata Q' do
+    Identifier::Global::Wikidata.create!(
+      identifier: 'Q123456',
+      identifier_object: p1
+    )
+
+    query.terms = '123456'
+    expect(query.autocomplete_identifier_cached_suffix_exact.pluck(:id))
+      .to contain_exactly(p1.id)
+  end
+
   context 'roles' do
     let!(:collecting_event) { CollectingEvent.create(verbatim_locality: 'Neverland', collectors: [p2]) }
 

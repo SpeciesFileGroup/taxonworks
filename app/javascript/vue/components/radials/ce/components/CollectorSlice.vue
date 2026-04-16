@@ -79,6 +79,8 @@ import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
 import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
 import RolePicker from '@/components/role_picker.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
+import { getCurrentUserId } from '@/helpers'
+import updateMessage from '../utils/updateMessage.js'
 
 const MAX_LIMIT = 250
 
@@ -105,21 +107,20 @@ const payload = computed(() => ({
   collecting_event: {
     roles_attributes:
       // remove position so roles are appended to end of list
-      collectingEvent.value.roles_attributes.map(
-        ({ position, ...rest }) => rest
-      )
+      collectingEvent.value.roles_attributes.map(({ position, ...rest }) => ({
+        ...rest,
+        by: getCurrentUserId()
+      }))
   }
 }))
 
 function addRole(role) {
   rolepicker.value.addPerson(role)
 }
-
-function updateMessage(data) {
-  const message = data.sync
-    ? `${data.updated.length} collecting events queued for updating.`
-    : `${data.updated.length} collecting events were successfully updated.`
-
-  TW.workbench.alert.create(message, 'notice')
-}
 </script>
+
+<style scoped>
+:deep(.vue-autocomplete-list) {
+  min-width: 700px;
+}
+</style>

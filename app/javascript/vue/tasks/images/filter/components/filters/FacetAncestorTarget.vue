@@ -24,7 +24,8 @@ import { computed, onBeforeMount } from 'vue'
 const OPTIONS = {
   All: undefined,
   OTU: 'Otu',
-  'Collection object': 'CollectionObject'
+  'Collection object': 'CollectionObject',
+  'Field occurrence': 'FieldOccurrence'
 }
 
 const props = defineProps({

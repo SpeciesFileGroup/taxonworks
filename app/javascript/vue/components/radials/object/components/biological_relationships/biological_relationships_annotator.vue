@@ -19,7 +19,7 @@
       :klass="BIOLOGICAL_ASSOCIATION"
       lock-button
       use-session
-      @lock="lockSource = $event"
+      @lock="lock.source = $event"
     />
 
     <DisplayList
@@ -64,7 +64,7 @@
             small
           />
         </VBtn>
-        <LockComponent v-model="lockRelationship" />
+        <LockComponent v-model="lock.relationship" />
       </h3>
       <h3
         class="subtle relationship-title"
@@ -104,6 +104,9 @@
     />
     <related
       v-if="!biologicalRelation"
+      ref="related"
+      autofocus
+      :target="BIOLOGICAL_ASSOCIATION"
       class="separate-bottom separate-top"
       @select="biologicalRelation = $event"
     />
@@ -130,8 +133,8 @@
 </template>
 
 <script setup>
-import Biological from './biological.vue'
-import Related from './related.vue'
+import Biological from '@/components/Form/FormBiologicalAssociation/BiologicalAssociationRelationship.vue'
+import Related from '@/components/Form/FormBiologicalAssociation/BiologicalAssociationRelated.vue'
 import TableList from './table.vue'
 import LockComponent from '@/components/ui/VLock/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
@@ -145,7 +148,15 @@ import {
   BiologicalRelationship
 } from '@/routes/endpoints'
 import { BIOLOGICAL_ASSOCIATION } from '@/constants/index.js'
-import { ref, computed, watch, onBeforeMount, reactive } from 'vue'
+import {
+  ref,
+  computed,
+  watch,
+  onBeforeMount,
+  reactive,
+  useTemplateRef,
+  nextTick
+} from 'vue'
 import { useSlice } from '@/components/radials/composables'
 
 const EXTEND_PARAMS = [
@@ -183,6 +194,8 @@ const { list, addToList, removeFromList } = useSlice({
   radialEmit: props.radialEmit
 })
 
+const relatedRef = useTemplateRef('related')
+
 const validateFields = computed(
   () => biologicalRelationship.value && biologicalRelation.value
 )
@@ -203,7 +216,8 @@ const createdBiologicalAssociation = computed(() =>
 
 const biologicalRelationLabel = computed(
   () =>
-    biologicalRelationship.value?.label || biologicalRelationship.value?.name
+    biologicalRelationship.value?.name ||
+    biologicalRelationship.value?.object_label
 )
 
 const biologicalRelation = ref()
@@ -256,7 +270,8 @@ onBeforeMount(() => {
   BiologicalAssociation.where({
     biological_association_subject_id: props.objectId,
     biological_association_subject_type: props.objectType,
-    extend: EXTEND_PARAMS
+    extend: EXTEND_PARAMS,
+    recent: true
   }).then(({ body }) => {
     list.value = body
   })
@@ -268,10 +283,11 @@ function reset() {
   }
   biologicalRelation.value = undefined
   flip.value = false
-  citation.value = {
-    ...makeEmptyCitation(),
-    source_id: lock.source ? citation.value.source_id : undefined,
-    pages: lock.source ? citation.value.pages : undefined
+
+  if (lock.source) {
+    citation.value.id = undefined
+  } else {
+    citation.value = makeEmptyCitation()
   }
 }
 
@@ -305,14 +321,20 @@ function saveAssociation() {
       )
     : BiologicalAssociation.create(payload)
 
-  saveRequest.then(({ body }) => {
-    addToList(body)
-    reset()
-    TW.workbench.alert.create(
-      'Biological association was successfully saved.',
-      'notice'
-    )
-  })
+  saveRequest
+    .then(({ body }) => {
+      addToList(body)
+      reset()
+      TW.workbench.alert.create(
+        'Biological association was successfully saved.',
+        'notice'
+      )
+
+      nextTick(() => {
+        relatedRef.value.setFocus()
+      })
+    })
+    .catch(() => {})
 }
 
 function removeItem(item) {

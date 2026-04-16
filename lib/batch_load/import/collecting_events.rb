@@ -38,29 +38,31 @@ module BatchLoad
         # find a namespace (ns1) with a short_name of row[headers[0]] (id1)
         # find a collection_object which has an identifier which has a namespace (ns1), and a cached of
         # (ns1.short_name + ' ' + identifier.identifier)
-        # ns1    = Namespace.where(short_name: id1).first
-        long         = row['longitude'] # longitude
-        lat          = row['latitude'] # latitude
-        method       = row['method']
-        error        = (row['error'].to_s + ' ' + row['georeference_error_units'].to_s).strip
+        # ns1 = Namespace.where(short_name: id1).first
+        long = row['longitude'] # longitude
+        lat = row['latitude'] # latitude
+        method = row['method']
+        error = (row['error'].to_s + ' ' + row['georeference_error_units'].to_s).strip
         ce_namespace = row[header5]
-        co           = CollectionObject.joins(:identifiers).where(identifiers: {cached: "#{co_namespace} #{co_id}"}).first
-        otu          = Otu.find_or_create_by!(name: row['otu'])
-        td           = TaxonDetermination.find_or_create_by!(otu:                          otu,
-                                                             biological_collection_object: co)
-        ce           = CollectingEvent.find_or_create_by!(verbatim_locality:                row['verbatim_location'],
-                                                          verbatim_geolocation_uncertainty: error,
-                                                          verbatim_date:                    row['verbatim_date'],
-                                                          start_date_day:                   row['start_date_day'],
-                                                          start_date_month:                 row['start_date_month'],
-                                                          start_date_year:                  row['start_date_year'],
-                                                          end_date_day:                     row['end_date_day'],
-                                                          end_date_month:                   row['end_date_month'],
-                                                          end_date_year:                    row['end_date_year'],
-                                                          verbatim_longitude:               long,
-                                                          verbatim_latitude:                lat,
-                                                          verbatim_method:                  method,
-                                                          verbatim_label:                   row['verbatim_label'])
+        co = CollectionObject.joins(:identifiers).where(identifiers: {cached: "#{co_namespace} #{co_id}"}).first
+        otu = Otu.find_or_create_by!(name: row['otu'])
+        td = TaxonDetermination.find_or_create_by!(
+          otu:,
+          taxon_determination_object: co)
+        ce = CollectingEvent.find_or_create_by!(
+          verbatim_locality: row['verbatim_location'],
+          verbatim_geolocation_uncertainty: error,
+          verbatim_date:                    row['verbatim_date'],
+          start_date_day:                   row['start_date_day'],
+          start_date_month:                 row['start_date_month'],
+          start_date_year:                  row['start_date_year'],
+          end_date_day:                     row['end_date_day'],
+          end_date_month:                   row['end_date_month'],
+          end_date_year:                    row['end_date_year'],
+          verbatim_longitude:               long,
+          verbatim_latitude:                lat,
+          verbatim_method:                  method,
+          verbatim_label:                   row['verbatim_label'])
         ce.save!
         case method.downcase
           when 'geolocate'
@@ -97,4 +99,3 @@ module BatchLoad
     end
   end
 end
-

@@ -196,14 +196,14 @@ module Settings
   # @param [Hash] settings
   # @return [Hash]
   def self.load_selenium_config(settings)
-    invalid = settings.keys - [:browser, :marionette, :firefox_binary_path, :chromedriver_path, :headless]
+    invalid = settings.keys - [:browser, :firefox_binary_path, :driver_path, :headless]
 
     raise Error, "#{invalid} are not valid settings for test:selenium." unless invalid.empty?
-    raise Error, "Can not find Firefox browser binary #{settings[:firefox_binary_path]}." if settings[:browser] == :firefox && !settings[:firefox_binary_path].blank? && !File.exist?(settings[:firefox_binary_path])
-    raise Error, "Can not find chromedriver #{ settings[:chromedriver_path] }." if settings[:browser] == :chrome && !settings[:chromedriver_path].blank? && !File.exist?(settings[:chromedriver_path])
+    raise Error, "Can not find Firefox browser binary #{settings[:firefox_binary_path]}." if settings[:browser] == :firefox && settings[:firefox_binary_path].present? && !File.exist?(settings[:firefox_binary_path])
+    raise Error, "Can not find driver path #{ settings[:driver_path] }." if settings[:driver_path].present? && !File.exist?(settings[:driver_path])
 
     settings.each do |k,v|
-      @@selenium_settings[k] = v if !v.blank?
+      @@selenium_settings[k] = v if v.present?
     end
   end
 
@@ -212,8 +212,16 @@ module Settings
   # @return [Hash]
   def self.load_action_mailer_smtp_settings(config, settings)
     if settings
+      auth = {}
+      user = ENV['TW_ACTION_MAILER_SMTP_SETTINGS_USER_NAME']
+      pass = ENV['TW_ACTION_MAILER_SMTP_SETTINGS_PASSWORD']
+      auth[:user_name] = user if user.present?
+      auth[:password] = pass if pass.present?
+
       config.action_mailer.delivery_method = :smtp
-      config.action_mailer.smtp_settings = {openssl_verify_mode: 'none'}.merge!(settings)
+      config.action_mailer.smtp_settings = {
+        openssl_verify_mode: 'none',
+      }.merge(auth).merge(settings)
     end
   end
 
@@ -222,7 +230,7 @@ module Settings
   # @return [Boolean]
   def self.load_action_mailer_url_host(config, url_host)
     if url_host
-      config.action_mailer.default_url_options = { host: url_host }
+      (config.action_mailer.default_url_options ||= {}).merge!({host: url_host})
     end
   end
 
@@ -245,9 +253,8 @@ module Settings
       mail_domain: 'example.com',
       selenium: {
         browser: 'firefox',
-        marionette: false,
         firefox_binary_path: nil,
-        chromedriver_path: nil
+        driver_path: nil
       }
     })
   end

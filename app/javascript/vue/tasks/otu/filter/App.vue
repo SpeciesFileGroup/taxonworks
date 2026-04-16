@@ -1,13 +1,13 @@
 <template>
-  <div>
-    <h1>Filter OTUs</h1>
-
+  <div class="margin-medium-top">
     <FilterLayout
       :pagination="pagination"
       :url-request="urlRequest"
       :object-type="OTU"
-      :selected-ids="selectedIds"
+      :selected-ids="sortedSelectedIds"
+      :extend-download="extendDownload"
       :list="list"
+      only-extend-download
       v-model="parameters"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
@@ -20,21 +20,23 @@
           :parameters="parameters"
           :disabled="!list.length"
           :object-type="OTU"
-          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
+          use-new-key-slice
+          @update="() => makeFilterRequest({ ...parameters, extend })"
         />
       </template>
       <template #nav-right>
+        <RadialOtu
+          :disabled="!list.length"
+          :ids="sortedSelectedIds"
+          :count="sortedSelectedIds.length"
+          @update="() => makeFilterRequest({ ...parameters, extend })"
+        />
         <RadialMatrix
           :object-type="OTU"
           :disabled="!list.length"
-          :ids="selectedIds"
-          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
-        />
-        <RadialOtu
-          :disabled="!list.length"
-          :ids="selectedIds"
-          :count="selectedIds.length"
-          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
+          :ids="sortedSelectedIds"
+          use-new-key-slice
+          @update="() => makeFilterRequest({ ...parameters, extend })"
         />
       </template>
       <template #facets>
@@ -72,21 +74,34 @@ import { ATTRIBUTES } from './constants/attributes'
 import { listParser } from './utils/listParser'
 import { OTU } from '@/constants/index.js'
 import { Otu } from '@/routes/endpoints'
+import { computed } from 'vue'
+import csvDownload from './components/csvDownload.vue'
 
 const extend = ['taxonomy']
 
 const {
+  append,
   isLoading,
   list,
-  pagination,
-  append,
-  urlRequest,
   loadPage,
-  parameters,
-  selectedIds,
   makeFilterRequest,
-  resetFilter
+  pagination,
+  parameters,
+  resetFilter,
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
 } = useFilter(Otu, { listParser, initParameters: { extend } })
+
+const extendDownload = computed(() => [
+  {
+    label: 'TSV',
+    component: csvDownload,
+    bind: {
+      params: parameters.value
+    }
+  }
+])
 </script>
 
 <script>

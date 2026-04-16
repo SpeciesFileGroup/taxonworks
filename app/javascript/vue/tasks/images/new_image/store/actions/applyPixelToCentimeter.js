@@ -8,13 +8,14 @@ export default ({ state }) => {
       Image.update(image.id, {
         image: {
           id: image.id,
-          pixels_to_centimeter: state.pixels_to_centimeter
+          pixels_to_centimeter: state.pixelsToCentimeter
         }
       })
     )
   })
 
   Promise.all(promises).then(() => {
+    state.settings.applied.pixel = true
     TW.workbench.alert.create('Image(s) was successfully updated.', 'notice')
   })
 }

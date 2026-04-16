@@ -1,6 +1,8 @@
+import getAnatomicalParts from './getAnatomicalParts'
 import getCollectingEvent from './getCollectingEvent'
 import getCollectionObject from './getCollectionObject'
 import getContainer from './getContainer'
+import getConveyances from './getConveyances'
 import getDepictions from './getDepictions'
 import getDwc from './getDwc'
 import getGeoreferences from './getGeoreferences'
@@ -17,9 +19,11 @@ import getRepository from './getRepository'
 import getCurrentRepository from './getCurrentRepository'
 
 const GetterNames = {
+  GetAnatomicalParts: 'getAnatomicalParts',
   GetCollectingEvent: 'getCollectingEvent',
   GetCollectionObject: 'getCollectionObject',
   GetContainer: 'getContainer',
+  GetConveyances: 'getConveyances',
   GetDepictions: 'getDepictions',
   GetDwc: 'getDwc',
   GetGeographicArea: 'getGeographicArea',
@@ -37,9 +41,11 @@ const GetterNames = {
 }
 
 const GetterFunctions = {
+  [GetterNames.GetAnatomicalParts]: getAnatomicalParts,
   [GetterNames.GetCollectingEvent]: getCollectingEvent,
   [GetterNames.GetCollectionObject]: getCollectionObject,
   [GetterNames.GetContainer]: getContainer,
+  [GetterNames.GetConveyances]: getConveyances,
   [GetterNames.GetDepictions]: getDepictions,
   [GetterNames.GetDwc]: getDwc,
   [GetterNames.GetGeoreferences]: getGeoreferences,
@@ -56,7 +62,4 @@ const GetterFunctions = {
   [GetterNames.GetCurrentRepository]: getCurrentRepository
 }
 
-export {
-  GetterNames,
-  GetterFunctions
-}
+export { GetterNames, GetterFunctions }

@@ -51,7 +51,10 @@
   </div>
 </template>
 
-<style src="./SummaryView.styl" lang="stylus"></style>
+<style
+  src="../../../matrix_row_coder/MatrixRowCoder/SummaryView/SummaryView.scss"
+  lang="scss"
+></style>
 
 <script>
 import { GetterNames } from '../../store/getters/getters'

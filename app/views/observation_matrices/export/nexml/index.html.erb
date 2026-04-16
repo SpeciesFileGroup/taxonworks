@@ -1,5 +1,8 @@
 <%= link_to 'Back', observation_matrix_view_task_path(observation_matrix_id: @observation_matrix.id) -%>
 
-<div class="nexus">
-<%= render 'observation_matrices/export/nexml/nexml.rdf.builder', locals: { as_file: true } %> 
-</div>
+<br>
+<br>
+
+<%= REXML::Document.new(
+  controller.render_to_string(partial: '/observation_matrices/export/nexml/nexml', layout: false, formats: [:rdf])
+).write(indent: 2).join  %>

@@ -2,7 +2,7 @@ module Support
   module Database
     # Extracts DB settings to be used for pg_dump, pg_restore and psql.
     def self.pg_env_args(database_arg = '-d')
-      config = ActiveRecord::Base.connection_config
+      config = ActiveRecord::Base.connection_db_config.configuration_hash
 
       {
         env: {

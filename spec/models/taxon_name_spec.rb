@@ -6,14 +6,43 @@ describe TaxonName, type: :model, group: [:nomenclature] do
   let(:taxon_name) { TaxonName.new }
 
   context 'using before :all' do
+    let(:subspecies) { FactoryBot.create(:iczn_subspecies) }
+    let(:species) { subspecies.ancestor_at_rank('species') }
+    let(:subgenus) { subspecies.ancestor_at_rank('subgenus') }
+    let(:genus) { subspecies.ancestor_at_rank('genus') }
+    let(:tribe) { subspecies.ancestor_at_rank('tribe') }
+    let(:family) { subspecies.ancestor_at_rank('family') }
+    let(:root) { subspecies.root }
 
-    let(:subspecies) { FactoryBot.create(:iczn_subspecies) } 
-    let(:species) { subspecies.ancestor_at_rank('species') } 
-    let(:subgenus) { subspecies.ancestor_at_rank('subgenus') } 
-    let(:genus) { subspecies.ancestor_at_rank('genus') } 
-    let(:tribe) { subspecies.ancestor_at_rank('tribe') } 
-    let(:family) { subspecies.ancestor_at_rank('family') } 
-    let(:root) { subspecies.root } 
+    specify '#related_relationships' do
+      expect(species.related_relationships).to eq([])
+    end
+
+    specify '#related_relationships 2' do
+      species.related_relationships = nil
+      expect(species.related_relationships).to eq([])
+    end
+
+    specify '#related_relationships 3' do
+      species.original_genus = genus
+      expect(species.related_relationships).to contain_exactly(species.original_genus_relationship)
+    end
+
+    specify '#related_relationships 4' do
+      species.original_genus = genus
+      species.related_relationships = nil
+      expect(species.related_relationships).to contain_exactly(species.original_genus_relationship)
+    end
+
+    specify '#related_relationships are reset to nil on reload' do
+      species.original_genus = genus
+      species.related_relationships # setter hit
+
+      species.original_genus_relationship.destroy! # relationship hit
+
+      # This reload tests the reload(*) extension.
+      expect(species.reload.related_relationships).to eq([])
+    end
 
     specify '#name without space' do
       s1 = FactoryBot.build(:relationship_species, name: 'with space', parent: genus)
@@ -46,13 +75,12 @@ describe TaxonName, type: :model, group: [:nomenclature] do
         expect(taxon_name.errors[:year_of_publication]).to be_empty
       end
 
-      specify 'format 4' do
+      specify 'format 5' do
         taxon_name.year_of_publication = 2999
         taxon_name.valid?
         expect(taxon_name.errors[:year_of_publication]).to_not be_empty
       end
     end
-
 
     # TODO: this all needs to go
     context 'lint checking FactoryBot' do
@@ -76,9 +104,9 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
         expect(variety.root.id).to eq(species.root.id)
         expect(variety.cached_author_year).to eq('McAtee')
-        expect(variety.cached_html).to eq('<i>Aus</i> (<i>Aus</i>) <i>aaa bbb</i> var. <i>ccc</i>')
+        expect(variety.cached_html).to eq('<i>Aus</i> (<i>Aus</i>) <i>aaa</i> subsp. <i>bbb</i> var. <i>ccc</i>')
 
-        basionym = FactoryBot.create(:icn_variety, name: 'basionym', parent_id: variety.ancestor_at_rank('species').id,  verbatim_author: 'Linnaeus') # source_id: nil,
+        basionym = FactoryBot.create(:icn_variety, name: 'basionym', parent_id: variety.ancestor_at_rank('species').id,  verbatim_author: 'Linnaeus')
         r = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: basionym, object_taxon_name: variety, type: 'TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::Basionym')
         variety.reload
         expect(variety.save).to be_truthy
@@ -95,13 +123,11 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       expect(TaxonName.descendants_of(genus).to_a).to contain_exactly(subgenus, species, subspecies)
     end
 
-    context '#ancestors_and_descendants_of' do
-      specify 'returns an unordered list' do
-        expect(TaxonName.ancestors_and_descendants_of(genus).to_a.map(&:name)).to contain_exactly(
-          'Animalia', 'Arthropoda', 'Cicadellidae', 'Erythroneura', 'Erythroneura', 'Erythroneurina',
-          'Erythroneurini', 'Hemiptera', 'Insecta', 'Root', 'Typhlocybinae', 'vitata', 'vitis'
-        )
-      end
+    specify '#ancestors_and_descendants_of' do
+      expect(TaxonName.ancestors_and_descendants_of(genus).to_a.map(&:name)).to contain_exactly(
+        'Animalia', 'Arthropoda', 'Cicadellidae', 'Erythroneura', 'Erythroneura', 'Erythroneurina',
+        'Erythroneurini', 'Hemiptera', 'Insecta', 'Root', 'Typhlocybinae', 'vitata', 'vitis'
+      )
     end
 
     context 'hierarchy' do
@@ -157,8 +183,8 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             expect(subspecies.cached_html).to eq('<i>Erythroneura</i> (<i>Erythroneura</i>) <i>vitis vitata</i>')
           end
 
-          specify 'ICZN species misspelling' do
-            sp  = FactoryBot.create(:iczn_species, verbatim_author: 'Smith', year_of_publication: 2000, parent: genus)
+          specify 'ICZN species misapplication' do
+            sp = Protonym.create(rank_class: Ranks.lookup(:iczn, :species), name: 'vitata', verbatim_author: 'Smith', year_of_publication: 2000, parent: genus)
             sp.iczn_set_as_misapplication_of = species
             expect(sp.save).to be_truthy
             expect(sp.cached_author_year).to eq('Smith, 2000 non McAtee, 1830')
@@ -181,6 +207,27 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             s.reload
             c1 = Combination.create!(genus: g1, species: s)
             expect(c1.cached_author_year).to eq('(McAtee, 1900)')
+          end
+
+          specify 'ICZN misspelling' do
+            g1 = FactoryBot.create(:relationship_genus, parent: family, name: 'Aus')
+            g2 = FactoryBot.create(:relationship_genus, parent: family, name: 'Bus')
+            s = FactoryBot.create(:relationship_species, parent: g1, name: 'aus', year_of_publication: 1900, verbatim_author: 'McAtee')
+            s2 = FactoryBot.create(:relationship_species, parent: g1, name: 'ausus', year_of_publication: 1905, verbatim_author: 'Author')
+            s.original_genus = g1
+            s.original_species = s
+            s2.original_genus = g2
+            s2.original_species = s
+            s.save!
+            s.reload
+            s2.save!
+            s2.reload
+            expect(s2.cached_author_year).to eq('(Author, 1905)')
+            expect(s2.original_author_year).to eq('Author, 1905')
+            TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create!(subject_taxon_name: s2, object_taxon_name: s)
+            s2.reload
+            expect(s2.cached_author_year).to eq('(McAtee, 1900)')
+            expect(s2.original_author_year).to eq('(McAtee, 1900)')
           end
 
           context 'ICZN family (behaviour for names above genus group)' do
@@ -216,14 +263,14 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             expect(c.get_author_and_year).to eq('Dmitriev, 2000')
           end
 
-          specify 'no original combination relationships' do
-            ssp = FactoryBot.build(:iczn_subspecies, parent: species)
+          specify 'no OriginalCombination relationships' do
+            ssp = Protonym.create(rank_class: Ranks.lookup(:iczn, :subspecies), name: 'vitata', parent: species)
             expect(ssp.get_genus_species(:original, :self).nil?).to be_truthy
             expect(ssp.get_genus_species(:original, :alternative).nil?).to be_truthy
             #            expect(ssp.get_genus_species(:current, :self).nil?).to be_falsey
             #            expect(ssp.get_genus_species(:current, :alternative).nil?).to be_falsey
             ssp.save
-            # expect(ssp.cached_original_combination.nil?).to be_truthy
+            expect(ssp.cached_original_combination.nil?).to be_truthy
             expect(ssp.cached_primary_homonym.nil?).to be_truthy
             expect(ssp.cached_primary_homonym_alternative_spelling.nil?).to be_truthy
             expect(ssp.cached_secondary_homonym).to eq('Erythroneura vitata')
@@ -237,9 +284,12 @@ describe TaxonName, type: :model, group: [:nomenclature] do
             expect(g.save).to be_truthy
 
             subspecies.original_genus = g # ! not saved originally !!
+            subspecies.save!
             subspecies.reload
 
-            expect(g.reload.get_full_name_html).to eq('<i>Errorneura</i> [sic]')
+            g.reload
+
+            expect(g.get_full_name_html(g.get_full_name)).to eq('<i>Errorneura</i> [sic]')
 
             expect(subspecies.get_original_combination).to eq('Errorneura [sic] [SPECIES NOT SPECIFIED] vitata')
             expect(subspecies.get_original_combination_html).to eq('<i>Errorneura</i> [sic] [SPECIES NOT SPECIFIED] <i>vitata</i>')
@@ -248,8 +298,8 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
           # What code is this supposed to catch?
           specify 'moving nominotypical taxon' do
-            sp = FactoryBot.create(:iczn_species, name: 'aaa', parent: genus)
-            subsp = FactoryBot.create(:iczn_subspecies, name: 'aaa', parent: sp)
+            sp = Protonym.create(rank_class: Ranks.lookup(:iczn, :species), name: 'aaa', parent: genus)
+            subsp = Protonym.create(rank_class: Ranks.lookup(:iczn, :subspecies), name: 'aaa', parent: sp)
             subsp.parent = species
             subsp.valid?
             expect(subsp.errors.include?(:parent_id)).to be_truthy
@@ -257,9 +307,9 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
           context 'cached homonyms' do
             let!(:g1) { FactoryBot.create(:relationship_genus, name: 'Aus', parent: tribe, year_of_publication: 1999) }
-            let!(:g2) { FactoryBot.create(:relationship_genus, name: 'Bus', parent: tribe, year_of_publication: 2000) } 
-            let!(:s1) { FactoryBot.create(:relationship_species, name: 'vitatus', parent: g1, year_of_publication: 1999) } 
-            let!(:s2) { FactoryBot.create(:relationship_species, name: 'vitatta', parent: g2, year_of_publication: 2000) } 
+            let!(:g2) { FactoryBot.create(:relationship_genus, name: 'Bus', parent: tribe, year_of_publication: 2000) }
+            let!(:s1) { FactoryBot.create(:relationship_species, name: 'vitatus', parent: g1, year_of_publication: 1999) }
+            let!(:s2) { FactoryBot.create(:relationship_species, name: 'vitatta', parent: g2, year_of_publication: 2000) }
 
             specify 'validity' do
               expect(family.valid?).to be_truthy
@@ -312,7 +362,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
           context 'mismatching cached values' do
             let(:g) { FactoryBot.create(:relationship_genus, name: 'Cus', parent: family) }
-            let(:s) { FactoryBot.build(:relationship_species, name: 'dus', parent: g) } 
+            let(:s) { FactoryBot.build(:relationship_species, name: 'dus', parent: g) }
 
             specify 'missing cached values' do
               s.save
@@ -506,8 +556,8 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
       context 'relationships' do
         specify 'invalid parent' do
-          g  = FactoryBot.create(:iczn_genus, parent: family)
-          s  = FactoryBot.create(:iczn_species, parent: g)
+          g = Protonym.create(rank_class: Ranks.lookup(:iczn, :genus), name: 'Aus', parent: family)
+          s = Protonym.create(rank_class: Ranks.lookup(:iczn, :species), name: 'vitata', parent: g)
 
           r1 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: genus, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
           c1 = FactoryBot.create(:taxon_name_classification, taxon_name: g, type: 'TaxonNameClassification::Iczn::Unavailable::NomenNudum')
@@ -515,7 +565,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           g.soft_validate(only_sets: :parent_is_valid_name)
           expect(s.soft_validations.messages_on(:parent_id).count).to eq(1)
 
-          # !!
           expect(g.soft_validations.messages_on(:base).count).to eq(1)
 
           s.fix_soft_validations
@@ -781,7 +830,7 @@ describe TaxonName, type: :model, group: [:nomenclature] do
 
         # TaxonNames related by all_taxon_name_relationships
         specify '#related_taxon_names' do
-          expect(species.related_taxon_names.sort).to eq([type_of_genus, original_genus].sort)
+          expect(species.related_taxon_names.pluck(:id)).to contain_exactly(type_of_genus.id, original_genus.id)
         end
 
         context '#unavilable_or_invalid' do
@@ -833,8 +882,8 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     end
 
     context '#gbif_status_array' do
-      let(:t1) { FactoryBot.create(:iczn_species, name: 'aus', parent: root1) }
-      let(:t2) { FactoryBot.create(:iczn_species, name: 'bus', parent: root1) }
+      let(:t1) { Protonym.create(rank_class: Ranks.lookup(:iczn, :species), name: 'aus', parent: root1) }
+      let(:t2) { Protonym.create(rank_class: Ranks.lookup(:iczn, :species), name: 'bus', parent: root1) }
       let!(:r2) { FactoryBot.create(:taxon_name_relationship, subject_taxon_name: t2, object_taxon_name: t1, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective') }
 
       specify 'valid species' do
@@ -873,44 +922,8 @@ describe TaxonName, type: :model, group: [:nomenclature] do
       end
     end
 
-    context 'methods from awesome_nested_set' do
-      context 'root names' do
-
-        let(:p) { Project.create(name: 'Taxon-name root test.', without_root_taxon_name: true) }
-        let(:root2) { FactoryBot.build(:root_taxon_name) }
-
-        specify 'a second root (parent is nul) in a given project is not allowed' do
-          expect(root1.parent).to be_nil
-          expect(root2.parent).to be_nil
-          expect(root1.project_id).to eq(1)
-          expect(root2.project_id).to eq(1)
-          expect(root2.valid?).to be_falsey
-          expect(root2.errors.include?(:parent_id)).to be_truthy
-        end
-
-        specify 'permit multiple roots in different projects' do
-          root2.project_id = p.id
-          expect(root2.parent).to be_nil
-          expect(root2.valid?).to be_truthy
-        end
-
-        specify 'roots can be saved without raising 1' do
-          root2.project_id = p.id
-          expect(root2.save).to be_truthy
-        end
-
-        specify 'roots can be saved without raising 2' do
-          expect(root1.save).to be_truthy
-        end
-
-        specify 'scope project_root' do
-          root1
-          expect(TaxonName.project_root(1).first).to eq(root1)
-        end
-      end
-
-      # run through the awesome_nested_set methods: https://github.com/collectiveidea/awesome_nested_set/wiki/_pages
-      context 'handle a simple hierarchy with awesome_nested_set' do
+    context 'methods from closure_tree' do
+      context 'handle a simple hierarchy with closure_tree' do
         let!(:new_root) { FactoryBot.create(:root_taxon_name, project: p) }
         let!(:family1) { Protonym.create!(rank_class: Ranks.lookup(:iczn, 'family'), name: 'Aidae', parent: new_root, project: p) }
         let!(:genus1) { Protonym.create!(rank_class: Ranks.lookup(:iczn, 'genus'), name: 'Aus', parent: family1, project: p) }
@@ -938,20 +951,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
           new_root.reload
           expect(new_root.leaves.to_a).to contain_exactly(species1, species2) # doesn't test order
         end
-
-        context 'housekeeping with ancestors and descendants' do
-          # xspecify 'updated_on is not touched for ancestors when a child moves' do
-          #   g1_updated = genus1.updated_at
-          #   g1_created = genus1.created_at
-          #   g2_updated = genus2.updated_at
-          #   g2_created = genus2.created_at
-          #   species1.move_to_child_of(genus2)
-          #   expect(genus1.updated_at).to eq(g1_updated)
-          #   expect(genus1.created_at).to eq(g1_created)
-          #   expect(genus2.updated_at).to eq(g2_updated)
-          #   expect(genus2.created_at).to eq(g2_created)
-          # end
-        end
       end
     end
 
@@ -973,7 +972,6 @@ describe TaxonName, type: :model, group: [:nomenclature] do
     let(:genus2) { Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: family) }
     let(:subgenus) { Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :subgenus), parent: genus2) }
     let(:species) { Protonym.create!(name: 'cus', rank_class: Ranks.lookup(:iczn, :species), parent: genus1) }
-
 
     # Same as current classification
     let(:c1) { Combination.create!(genus: genus1, species: species) }
@@ -1066,13 +1064,380 @@ describe TaxonName, type: :model, group: [:nomenclature] do
   end
 
   specify '#ancestors_through_parents (unsaved, recursion check)' do
-
     a = Protonym.new(name: 'foo')
     b = Protonym.new(name: 'bar', parent: a)
     c = Protonym.new(name: 'bar', parent: b)
     a.parent = c
 
     expect{b.ancestors_through_parents}.to raise_error TaxonWorks::Error
+  end
+
+  specify 'no exception when destroying taxon name with taxon name classification' do
+    tn = FactoryBot.create(:valid_taxon_name)
+    tnc = TaxonNameClassification::Iczn::Unavailable::NomenNudum.create!(taxon_name: tn)
+
+    expect(tn.destroy).to be_truthy
+  end
+
+  context '.remove_authors' do
+    specify 'preserves names without authors' do
+      names = [' Aus', 'Aus bus ']
+      rv = TaxonName.remove_authors(names)
+      expect(rv).to contain_exactly('Aus', 'Aus bus')
+    end
+
+    specify 'removes authors' do
+      names = ['Aus Double', 'Aus (Trouble 1984)']
+      rv = TaxonName.remove_authors(names)
+      expect(rv).to contain_exactly('Aus', 'Aus')
+    end
+
+    specify 'preserves "lines"' do
+      names = [' ', 'Aus Fudge', '', 'Aus cicle']
+      rv = TaxonName.remove_authors(names)
+      expect(rv).to contain_exactly('', 'Aus', '', 'Aus cicle')
+    end
+
+    context 'subgenus' do
+      specify 'uninomial' do
+        rv = TaxonName.remove_authors(['Aus (Aus) Ketchup'])
+        expect(rv).to eq (['Aus (Aus)'])
+      end
+
+      specify 'binonmial' do
+        rv = TaxonName.remove_authors(['Conocephalus (Xenocerculus) tuyu Rubio & Braun, 2024'])
+        expect(rv).to eq (['Conocephalus (Xenocerculus) tuyu'])
+      end
+
+      specify 'with subspecies' do
+        rv = TaxonName.remove_authors(['Aus (Aus) aus subsp. aus Mustard 2025'])
+        expect(rv).to eq (['Aus (Aus) aus subsp. aus'])
+      end
+    end
+  end
+
+  context '#destroy with OTU' do
+    let(:root) { FactoryBot.create(:root_taxon_name) }
+    let(:family) { Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: root) }
+
+    context 'when TaxonName has one OTU with no related data' do
+      let!(:otu) { Otu.create!(taxon_name: family) }
+
+      specify 'destroys both the OTU and TaxonName' do
+        expect {
+          family.destroy
+        }.to change(TaxonName, :count).by(-1).and change(Otu, :count).by(-1)
+      end
+
+      specify 'returns truthy' do
+        expect(family.destroy).to be_truthy
+      end
+    end
+
+    context 'when TaxonName has one OTU with related data (citation)' do
+      let!(:otu) { Otu.create!(taxon_name: family) }
+      let!(:citation) { otu.citations.create!(source: FactoryBot.create(:valid_source)) }
+
+      specify 'does not destroy the TaxonName' do
+        expect {
+          family.destroy
+        }.not_to change(TaxonName, :count)
+      end
+
+      specify 'does not destroy the OTU' do
+        expect {
+          family.destroy
+        }.not_to change(Otu, :count)
+      end
+
+      specify 'returns falsey with error about otus' do
+        expect(family.destroy).to be_falsey
+        expect(family.errors.full_messages.join).to include('otus')
+      end
+    end
+
+    context 'when OTU is in frequently-used associations' do
+      let!(:otu) { Otu.create!(taxon_name: family) }
+
+      context 'OTU in BiologicalAssociation' do
+        let!(:ba) { FactoryBot.create(:valid_biological_association, biological_association_subject: otu) }
+
+        specify 'does not destroy OTU' do
+          expect {
+            family.destroy
+          }.not_to change(Otu, :count)
+        end
+
+        specify 'does not destroy TaxonName' do
+          expect {
+            family.destroy
+          }.not_to change(TaxonName, :count)
+        end
+      end
+
+      context 'OTU in TaxonDetermination' do
+        let!(:td) { FactoryBot.create(:valid_taxon_determination, otu: otu) }
+
+        specify 'does not destroy OTU' do
+          expect {
+            family.destroy
+          }.not_to change(Otu, :count)
+        end
+
+        specify 'does not destroy TaxonName' do
+          expect {
+            family.destroy
+          }.not_to change(TaxonName, :count)
+        end
+      end
+
+      context 'OTU in AssertedDistribution' do
+        let!(:ad) { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: otu) }
+
+        specify 'does not destroy OTU' do
+          expect {
+            family.destroy
+          }.not_to change(Otu, :count)
+        end
+
+        specify 'does not destroy TaxonName' do
+          expect {
+            family.destroy
+          }.not_to change(TaxonName, :count)
+        end
+      end
+
+      context 'OTU in LoanItem' do
+        let!(:loan_item) { FactoryBot.create(:valid_loan_item, loan_item_object: otu) }
+
+        specify 'does not destroy OTU' do
+          expect {
+            family.destroy
+          }.not_to change(Otu, :count)
+        end
+
+        specify 'does not destroy TaxonName' do
+          expect {
+            family.destroy
+          }.not_to change(TaxonName, :count)
+        end
+      end
+
+      context 'OTU in CommonName' do
+        let!(:common_name) { FactoryBot.create(:valid_common_name, otu: otu) }
+
+        specify 'does not destroy OTU' do
+          expect {
+            family.destroy
+          }.not_to change(Otu, :count)
+        end
+
+        specify 'does not destroy TaxonName' do
+          expect {
+            family.destroy
+          }.not_to change(TaxonName, :count)
+        end
+      end
+
+      context 'OTU in Content' do
+        let!(:content) { FactoryBot.create(:valid_content, otu: otu) }
+
+        specify 'does not destroy OTU' do
+          expect {
+            family.destroy
+          }.not_to change(Otu, :count)
+        end
+
+        specify 'does not destroy TaxonName' do
+          expect {
+            family.destroy
+          }.not_to change(TaxonName, :count)
+        end
+      end
+
+      context 'OTU in Lead' do
+        let!(:lead) { FactoryBot.create(:valid_lead, otu: otu) }
+
+        specify 'does not destroy OTU' do
+          expect {
+            family.destroy
+          }.not_to change(Otu, :count)
+        end
+
+        specify 'does not destroy TaxonName' do
+          expect {
+            family.destroy
+          }.not_to change(TaxonName, :count)
+        end
+      end
+
+      context 'OTU in LeadItem' do
+        let!(:lead_item) { FactoryBot.create(:valid_lead_item, otu: otu) }
+
+        specify 'does not destroy OTU' do
+          expect {
+            family.destroy
+          }.not_to change(Otu, :count)
+        end
+
+        specify 'does not destroy TaxonName' do
+          expect {
+            family.destroy
+          }.not_to change(TaxonName, :count)
+        end
+      end
+
+      context 'OTU in AnatomicalPart' do
+        let!(:anatomical_part) { FactoryBot.create(:valid_anatomical_part, ancestor: otu) }
+
+        specify 'does not destroy OTU' do
+          expect {
+            family.destroy
+          }.not_to change(Otu, :count)
+        end
+
+        specify 'does not destroy TaxonName' do
+          expect {
+            family.destroy
+          }.not_to change(TaxonName, :count)
+        end
+      end
+
+      context 'OTU in DataAttribute' do
+        let!(:data_attribute) { FactoryBot.create(:valid_data_attribute, attribute_subject: otu) }
+
+        specify 'does not destroy OTU' do
+          expect {
+            family.destroy
+          }.not_to change(Otu, :count)
+        end
+
+        specify 'does not destroy TaxonName' do
+          expect {
+            family.destroy
+          }.not_to change(TaxonName, :count)
+        end
+      end
+
+      context 'OTU in Depiction' do
+        let!(:depiction) { FactoryBot.create(:valid_depiction, depiction_object: otu) }
+
+        specify 'does not destroy OTU' do
+          expect {
+            family.destroy
+          }.not_to change(Otu, :count)
+        end
+
+        specify 'does not destroy TaxonName' do
+          expect {
+            family.destroy
+          }.not_to change(TaxonName, :count)
+        end
+      end
+
+      context 'OTU in Observation' do
+        let!(:observation) { FactoryBot.create(:valid_observation, observation_object: otu) }
+
+        specify 'does not destroy OTU' do
+          expect {
+            family.destroy
+          }.not_to change(Otu, :count)
+        end
+
+        specify 'does not destroy TaxonName' do
+          expect {
+            family.destroy
+          }.not_to change(TaxonName, :count)
+        end
+      end
+
+      context 'OTU in Conveyance' do
+        let!(:conveyance) { FactoryBot.create(:valid_conveyance, conveyance_object: otu) }
+
+        specify 'does not destroy OTU' do
+          expect {
+            family.destroy
+          }.not_to change(Otu, :count)
+        end
+
+        specify 'does not destroy TaxonName' do
+          expect {
+            family.destroy
+          }.not_to change(TaxonName, :count)
+        end
+      end
+
+      context 'OTU in Role' do
+        let!(:role) { FactoryBot.create(:valid_role, type: 'AttributionCreator', role_object: otu) }
+
+        specify 'does not destroy OTU' do
+          expect {
+            family.destroy
+          }.not_to change(Otu, :count)
+        end
+
+        specify 'does not destroy TaxonName' do
+          expect {
+            family.destroy
+          }.not_to change(TaxonName, :count)
+        end
+      end
+    end
+
+    context 'when TaxonName has multiple OTUs' do
+      let!(:otu1) { Otu.create!(taxon_name: family) }
+      let!(:otu2) { Otu.create!(taxon_name: family) }
+
+      specify 'does not destroy the TaxonName' do
+        expect {
+          family.destroy
+        }.not_to change(TaxonName, :count)
+      end
+
+      specify 'does not destroy any OTUs' do
+        expect {
+          family.destroy
+        }.not_to change(Otu, :count)
+      end
+    end
+
+    context 'when OTU is empty but TaxonName has another blocker (relationship)' do
+      let(:genus) { Protonym.create!(name: 'Aus', rank_class: Ranks.lookup(:iczn, :genus), parent: family) }
+      let(:species) { Protonym.create!(name: 'bus', rank_class: Ranks.lookup(:iczn, :species), parent: genus) }
+      let(:other_species) { Protonym.create!(name: 'cus', rank_class: Ranks.lookup(:iczn, :species), parent: genus) }
+      let!(:otu) { Otu.create!(taxon_name: species) }
+      let!(:relationship) {
+        TaxonNameRelationship::Iczn::Invalidating.create!(
+          subject_taxon_name: other_species,
+          object_taxon_name: species
+        )
+      }
+
+      specify 'does not destroy the TaxonName' do
+        expect {
+          species.destroy
+        }.not_to change(TaxonName, :count)
+      end
+
+      specify 'OTU is destroyed then restored when transaction rolls back' do
+        destroyed_otu_ids = []
+        allow_any_instance_of(Otu).to receive(:destroy!).and_wrap_original do |method, *args|
+          destroyed_otu_ids << method.receiver.id
+          method.call(*args)
+        end
+
+        species.destroy
+
+        expect(destroyed_otu_ids).to include(otu.id) # OTU destroy! was called
+        expect(Otu.exists?(otu.id)).to be true       # but rolled back
+      end
+
+      specify 'returns error about relationships, not otus' do
+        species.destroy
+        expect(species.errors.full_messages.join).to include('relationships')
+        expect(species.errors.full_messages.join).not_to include('otus')
+      end
+    end
   end
 
   context 'concerns' do

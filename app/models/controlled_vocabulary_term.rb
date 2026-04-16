@@ -27,6 +27,7 @@
 class ControlledVocabularyTerm < ApplicationRecord
   # ControlledVocabularyTerms are NOT Taggable (with 'Tag')
   include Housekeeping
+  include Shared::Uri
   include Shared::AlternateValues
   include Shared::HasPapertrail
   include Shared::IsData
@@ -45,7 +46,8 @@ class ControlledVocabularyTerm < ApplicationRecord
   validates_uniqueness_of :uri, scope: [:project_id, :uri_relation], allow_blank: true
   validates_presence_of :uri, unless: -> {uri_relation.blank?}, message: 'must be provided if uri_relation is provided'
 
-  validate :uri_relation_is_a_skos_relation, unless: -> {uri_relation.blank?}
+  # TODO: DRY with Identifier::Global::Uri
+  validate :uri_relation_is_a_skos_relation
 
   has_many :observation_matrix_row_items, as: :observation_object, inverse_of: :observation_object,  class_name: 'ObservationMatrixRowItem::Dynamic::Tag', dependent: :destroy
   has_many :observation_matrix_column_items, inverse_of: :controlled_vocabulary_term, class_name: 'ObservationMatrixColumnItem::Dynamic::Tag', dependent: :destroy
@@ -56,11 +58,6 @@ class ControlledVocabularyTerm < ApplicationRecord
   scope :of_type, -> (type) { where(type: type.to_s.capitalize) } # TODO, capitalize is not the right method for things like `:foo_bar`
 
   protected
-
-  # @return [Object]
-  def uri_relation_is_a_skos_relation
-    errors.add(:uri_relation, 'is not a valid uri relation') if !SKOS_RELATIONS.keys.include?(uri_relation)
-  end
 
   def self.clone_from_project(from_id: nil, to_id: nil, klass: nil)
     return false if from_id.blank? or to_id.blank? or klass.blank?
@@ -77,11 +74,18 @@ class ControlledVocabularyTerm < ApplicationRecord
     true
   end
 
+  # @return [Object]
+  def uri_relation_is_a_skos_relation
+    if uri.present? && uri_relation.present?
+      errors.add(:uri_relation, 'is not a valid uri relation') if !SKOS_RELATIONS.keys.include?(uri_relation)
+    end
+  end
+
 end
 
-require_dependency 'biocuration_class'
-require_dependency 'biological_property'
-require_dependency 'keyword'
-require_dependency 'predicate'
-require_dependency 'topic'
-require_dependency 'confidence_level'
+# require_dependency 'biocuration_class'
+# require_dependency 'biological_property'
+# require_dependency 'keyword'
+# require_dependency 'predicate'
+# require_dependency 'topic'
+# require_dependency 'confidence_level'

@@ -1,57 +1,51 @@
 <template>
-  <button
-    type="button"
-    class="button normal-input button-submit button-size"
-    :disabled="!source.id"
-    v-hotkey="shortcuts"
+  <VBtn
+    class="button-size"
+    color="primary"
+    medium
+    :disabled="!store.source.id"
     @click="cloneSource"
   >
     Clone
-  </button>
-  <ConfirmationModal ref="confirmationModal" />
+  </VBtn>
+  <ConfirmationModal ref="confirmationModalRef" />
 </template>
 
-<script>
-import { GetterNames } from '../store/getters/getters'
-import { ActionNames } from '../store/actions/actions'
+<script setup>
+import { ref } from 'vue'
+import { useSourceStore } from '../store'
+import { useHotkey } from '@/composables'
 import platformKey from '@/helpers/getPlatformKey'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
-export default {
-  components: {
-    ConfirmationModal
-  },
+const store = useSourceStore()
 
-  computed: {
-    source() {
-      return this.$store.getters[GetterNames.GetSource]
-    },
-
-    shortcuts() {
-      const keys = {}
-
-      keys[`${platformKey()}+c`] = this.cloneSource
-
-      return keys
+const confirmationModalRef = ref(null)
+const shortcuts = ref([
+  {
+    keys: [platformKey(), 'c'],
+    handler() {
+      cloneSource()
     }
-  },
+  }
+])
 
-  methods: {
-    async cloneSource() {
-      const ok = await this.$refs.confirmationModal.show({
-        title: 'Clone source',
-        message:
-          'This will clone the current source. Are you sure you want to proceed?',
-        confirmationWord: 'CLONE',
-        okButton: 'Clone',
-        cancelButton: 'Cancel',
-        typeButton: 'submit'
-      })
+useHotkey(shortcuts.value)
 
-      if (ok) {
-        this.$store.dispatch(ActionNames.CloneSource)
-      }
-    }
+async function cloneSource() {
+  const ok = await confirmationModalRef.value.show({
+    title: 'Clone source',
+    message:
+      'This will clone the current source. Are you sure you want to proceed?',
+    confirmationWord: 'CLONE',
+    okButton: 'Clone',
+    cancelButton: 'Cancel',
+    typeButton: 'submit'
+  })
+
+  if (ok) {
+    store.cloneSource()
   }
 }
 </script>

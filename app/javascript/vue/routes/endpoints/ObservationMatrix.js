@@ -5,7 +5,8 @@ const controller = 'observation_matrices'
 const permitParams = {
   observation_matrix: {
     name: String,
-    otu_id: Array
+    otu_id: Number,
+    is_public: Boolean
   }
 }
 
@@ -36,5 +37,11 @@ export const ObservationMatrix = {
   addBatch: (params) => AjaxCall('post', `/${controller}/batch_add`, params),
 
   createBatch: (params) =>
-    AjaxCall('post', `/${controller}/batch_create`, params)
+    AjaxCall('post', `/${controller}/batch_create`, params),
+
+  previewNexus: (params) =>
+    AjaxCall('get', `/${controller}/nexus_data.json`, { params }),
+
+  initiateImportFromNexus: (params) =>
+    AjaxCall('post', `/${controller}/import_from_nexus.json`, params)
 }

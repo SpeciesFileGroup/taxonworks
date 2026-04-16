@@ -21,7 +21,7 @@ describe Source::Bibtex, type: :model, group: :sources do
     BibTeX.open(Rails.root + 'spec/files/bibtex/Taenionema.bib')
   }
 
-  specify '.batch_update' do
+  specify '.batch_update (sync)' do
     s1 = FactoryBot.create(:valid_serial)
     s2 = FactoryBot.create(:valid_serial)
 
@@ -37,6 +37,31 @@ describe Source::Bibtex, type: :model, group: :sources do
     expect(response[:updated]).to include(sb.id)
     expect(response[:not_updated]).to eq([])
     expect(sb.reload.serial).to eq s2
+  end
+
+  specify '.batch_update (async)' do
+    s1 = FactoryBot.create(:valid_serial)
+    s2 = FactoryBot.create(:valid_serial)
+
+    sb1 = FactoryBot.create(:valid_source_bibtex, serial: s1)
+    sb2 = FactoryBot.create(:valid_source_bibtex, serial: s1)
+
+    params = {
+      async_cutoff: 1,
+      source: { serial_id: s2.id },
+      user_id: Current.user_id,
+      project_id: Current.project_id
+    }.merge(source_query: {source_id: [sb1.id, sb2.id]})
+
+    response = Source::Bibtex.batch_update(params).to_json
+
+    sleep(2) # jobs trigger in 1 second
+    Delayed::Worker.new.work_off
+
+    expect(response[:total_attempted]).to eq(2)
+    expect(response[:async]).to eq(true)
+    expect(sb1.reload.serial).to eq s2
+    expect(sb2.reload.serial).to eq s2
   end
 
   specify '#project_sources_attributes 3' do
@@ -153,6 +178,99 @@ describe Source::Bibtex, type: :model, group: :sources do
     src = Source::Bibtex.new_from_bibtex_text(citation_string)
     src.save!
     expect(src.serial_id).to eq(s.id)
+  end
+
+  specify '.new_from_bibtex without create project source' do
+    citation_string =  %q{@Article{Park2021a,
+        author = {Kyu-Tek Park AND J. B. Heppner},
+        title = {Notes on Vietnam moths, 21. Athymoris in Vietnam, with two new species (Lepidoptera: Lecithoceridae: Torodorinae)},
+        journal = {Lepidoptera Novae},
+        year = {2021},
+        volume = {13},
+        number = {1-2},
+        pages = {23--26},
+        issn = {1941-1014},
+        abstract = {– Two new species of the genus Athymoris Meyrick, 1935, are described from Vietnam: Athymoris gilvimaculata Park & Heppner, sp. nov.,
+        and A. clinozonalis Park & Heppner, sp. nov.},
+        file = {:VN-Athymoris.pdf:PDF},
+        }}
+
+    src = Source::Bibtex.new_from_bibtex_text(citation_string)
+    src.save!
+
+    project_source = ProjectSource.find_by(source_id: src.id, project_id: Current.project_id)
+    expect(project_source).to be_nil
+  end
+
+  specify '.new_from_bibtex create project source' do
+    citation_string =  %q{@Article{Park2021a,
+        author = {Kyu-Tek Park AND J. B. Heppner},
+        title = {Notes on Vietnam moths, 21. Athymoris in Vietnam, with two new species (Lepidoptera: Lecithoceridae: Torodorinae)},
+        journal = {Lepidoptera Novae},
+        year = {2021},
+        volume = {13},
+        number = {1-2},
+        pages = {23--26},
+        issn = {1941-1014},
+        abstract = {– Two new species of the genus Athymoris Meyrick, 1935, are described from Vietnam: Athymoris gilvimaculata Park & Heppner, sp. nov.,
+        and A. clinozonalis Park & Heppner, sp. nov.},
+        file = {:VN-Athymoris.pdf:PDF},
+        }}
+
+    src = Source::Bibtex.new_from_bibtex_text(citation_string, Current.project_id)
+    src.save!
+
+    project_source = ProjectSource.find_by(source_id: src.id, project_id: Current.project_id)
+    expect(project_source).to be_a(ProjectSource)
+  end
+
+  context '.new_from_bibtex with namespace_id for BibTeX label identifier' do
+    let(:namespace) { FactoryBot.create(:valid_namespace) }
+    let(:citation_string) do
+      %q{@Article{Smith2021a,
+          author = {Smith, John},
+          title = {A test article},
+          journal = {Test Journal},
+          year = {2021}
+          }}
+    end
+
+    specify 'creates Identifier::Local::Import::Bibtex when namespace_id is provided' do
+      bibtex_entry = BibTeX::Bibliography.parse(citation_string, filter: :latex).first
+      src = Source::Bibtex.new_from_bibtex(bibtex_entry, nil, namespace.id)
+      src.save!
+
+      expect(src.identifiers.count).to eq(1)
+      expect(src.identifiers.first).to be_a(Identifier::Local::Import::Bibtex)
+      expect(src.identifiers.first.identifier).to eq('Smith2021a')
+      expect(src.identifiers.first.namespace_id).to eq(namespace.id)
+    end
+
+    specify 'does not create identifier when namespace_id is nil' do
+      bibtex_entry = BibTeX::Bibliography.parse(citation_string, filter: :latex).first
+      src = Source::Bibtex.new_from_bibtex(bibtex_entry, nil, nil)
+      src.save!
+
+      expect(src.identifiers.where(type: 'Identifier::Local::Import::Bibtex').count).to eq(0)
+    end
+
+    specify 'does not create identifier when namespace_id is blank string' do
+      bibtex_entry = BibTeX::Bibliography.parse(citation_string, filter: :latex).first
+      src = Source::Bibtex.new_from_bibtex(bibtex_entry, nil, '')
+      src.save!
+
+      expect(src.identifiers.where(type: 'Identifier::Local::Import::Bibtex').count).to eq(0)
+    end
+
+    specify 'creates both project_source and identifier when both parameters provided' do
+      bibtex_entry = BibTeX::Bibliography.parse(citation_string, filter: :latex).first
+      src = Source::Bibtex.new_from_bibtex(bibtex_entry, Current.project_id, namespace.id)
+      src.save!
+
+      expect(src.identifiers.where(type: 'Identifier::Local::Import::Bibtex').count).to eq(1)
+      project_source = ProjectSource.find_by(source_id: src.id, project_id: Current.project_id)
+      expect(project_source).to be_a(ProjectSource)
+    end
   end
 
   specify '#year_with_suffix' do

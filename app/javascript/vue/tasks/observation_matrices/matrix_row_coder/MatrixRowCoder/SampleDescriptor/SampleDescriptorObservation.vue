@@ -87,7 +87,7 @@
   </div>
 </template>
 
-<style src="./SampleDescriptor.styl" lang="stylus"></style>
+<style src="./SampleDescriptor.scss" lang="scss"></style>
 
 <script>
 import { MutationNames } from '../../store/mutations/mutations'

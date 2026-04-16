@@ -1,15 +1,14 @@
 <template>
-  <div>
-    <h1>Filter sources</h1>
-
+  <div class="margin-medium-top">
     <FilterLayout
       :pagination="pagination"
       :url-request="urlRequest"
       v-model="parameters"
       :object-type="SOURCE"
-      :selected-ids="selectedIds"
+      :selected-ids="sortedSelectedIds"
       :list="list"
       :extend-download="extendDownload"
+      :csv-options="csvOptions"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
       @per="makeFilterRequest({ ...parameters, extend, page: 1 })"
@@ -21,15 +20,15 @@
           :disabled="!list.length"
           :parameters="parameters"
           :count="pagination?.total || 0"
-          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
+          @update="() => makeFilterRequest({ ...parameters, extend })"
         />
       </template>
       <template #nav-right>
         <RadialSource
           :disabled="!list.length"
-          :ids="selectedIds"
-          :count="selectedIds.length"
-          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
+          :ids="sortedSelectedIds"
+          :count="sortedSelectedIds.length"
+          @update="() => makeFilterRequest({ ...parameters, extend })"
         />
       </template>
       <template #facets>
@@ -56,15 +55,13 @@
             />
           </template>
           <template #documents="{ value }">
-            <td>
-              <div class="flex-wrap-row gap-xsmall">
-                <PdfButton
-                  v-for="pdf in value"
-                  :key="pdf.id"
-                  :pdf="pdf"
-                />
-              </div>
-            </td>
+            <div class="flex-wrap-row gap-xsmall">
+              <PdfButton
+                v-for="pdf in value"
+                :key="pdf.id"
+                :pdf="pdf"
+              />
+            </div>
           </template>
         </FilterList>
       </template>
@@ -97,20 +94,41 @@ import { SOURCE } from '@/constants/index.js'
 import { ATTRIBUTES } from './constants/attributes.js'
 import { computed } from 'vue'
 
-const extend = ['documents']
+const extend = ['documents', 'serial']
+
+defineOptions({
+  name: 'FilterSources'
+})
 
 const {
+  append,
   isLoading,
   list,
-  pagination,
-  append,
-  urlRequest,
   loadPage,
-  parameters,
-  selectedIds,
   makeFilterRequest,
-  resetFilter
+  pagination,
+  parameters,
+  resetFilter,
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
 } = useFilter(Source, { initParameters: { extend } })
+
+const csvOptions = {
+  fields: [
+    'id',
+    {
+      label: 'serial',
+      value: 'serial_name'
+    },
+    'author',
+    'year',
+    'title',
+    'volume',
+    'number',
+    'cached'
+  ]
+}
 
 const extendDownload = computed(() => [
   {
@@ -132,10 +150,4 @@ const extendDownload = computed(() => [
     }
   }
 ])
-</script>
-
-<script>
-export default {
-  name: 'FilterSources'
-}
 </script>

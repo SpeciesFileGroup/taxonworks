@@ -55,9 +55,9 @@ module Queries
       end
 
       def ignores_project?
-        ::AlternateValue::ALWAYS_COMMUNITY.include?( polymorphic_type )
+        ::AlternateValue::ALWAYS_COMMUNITY.include?( polymorphic_type ) ||
+          (alternate_value_object_type.size == 1 && ::AlternateValue::ALWAYS_COMMUNITY.include?( alternate_value_object_type.first ))
       end
-
       
       def alternate_value_object_type_facet
         return nil if alternate_value_object_type.empty?

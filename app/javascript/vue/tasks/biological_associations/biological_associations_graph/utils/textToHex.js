@@ -21,6 +21,6 @@ function colorFromHash(hash) {
   return '#' + hash.substring(substr, substr + 6)
 }
 
-export async function getHexColorFromString(text) {
+export function getHexColorFromString(text) {
   return colorFromHash(generateHash(text))
 }

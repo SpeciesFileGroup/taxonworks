@@ -1,5 +1,6 @@
 import { OTU } from '@/constants/index.js'
 import { RouteNames } from '@/routes/routes'
+import { makeBrowseUrl } from '@/helpers'
 
 function getBiologicalProperty(biologicalRelationshipTypes, type) {
   return biologicalRelationshipTypes.find((r) => r.target === type)
@@ -11,11 +12,7 @@ function parseRank(rank) {
 }
 
 function makeLink({ id, type, label }) {
-  const param = type === OTU ? 'otu_id' : 'collection_object_id'
-  const url =
-    type === OTU ? RouteNames.BrowseOtu : RouteNames.BrowseCollectionObject
-
-  return `<a href="${url}?${param}=${id}">${label}</a>`
+  return `<a href="${makeBrowseUrl({ id, type })}">${label}</a>`
 }
 
 export function listParser(result) {

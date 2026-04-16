@@ -69,7 +69,7 @@ class TaxonNameRelationship::Iczn::Invalidating < TaxonNameRelationship::Iczn
     a = subject_taxon_name
     b = object_taxon_name
     if a.is_species_rank? && a.cached_secondary_homonym_alternative_spelling.nil? && a.cached_valid_taxon_name_id == b.cached_valid_taxon_name_id
-      return true if a.name == b.name
+      return true if a.name == b.name || a.name == b.masculine_name || a.name == b.feminine_name || a.name == b.neuter_name
     elsif a.is_species_rank?
       return true if a.cached_secondary_homonym_alternative_spelling && (a.cached_secondary_homonym_alternative_spelling == b.cached_secondary_homonym_alternative_spelling)
     elsif a.is_genus_rank?
@@ -81,9 +81,22 @@ class TaxonNameRelationship::Iczn::Invalidating < TaxonNameRelationship::Iczn
   end
 
   def sv_not_specific_relationship
-    if self.subject_taxon_name.is_available?
-      soft_validations.add(:type, 'Please specify the reason for the name being Invalid')
+    soft_validations.add(:type, 'Please specify the reason for the name being Unavailable or Invalid',
+                         success_message: 'Unavailable or Invalid is updated to Unavailable',
+                         failure_message:  'Failed to update the Unavailable or Invalid relationship')
+  end
+
+  def sv_fix_not_specific_relationship
+    new_relationship_name = self.type_name
+    unless self.subject_taxon_name.is_available?
+      new_relationship_name = 'TaxonNameRelationship::Iczn::Invalidating::Unavailable'
     end
+    if new_relationship_name && self.type_name != new_relationship_name
+      self.type = new_relationship_name
+      self.save
+      return true
+    end
+    false
   end
 
   def sv_synonym_relationship

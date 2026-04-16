@@ -22,6 +22,7 @@
         label="object_tag"
         :warning-message="false"
         :delete-warning="false"
+        soft-delete
         @delete="removeBiologicalRelationship"
       />
     </div>

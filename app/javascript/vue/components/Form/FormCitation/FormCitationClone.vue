@@ -4,7 +4,7 @@
     medium
     @click="setLastCitation"
   >
-    Clone my last citation
+    {{ label }}
   </VBtn>
 </template>
 
@@ -12,6 +12,13 @@
 import { Citation } from '@/routes/endpoints'
 import { getCurrentUserId } from '@/helpers/user'
 import VBtn from '@/components/ui/VBtn/index.vue'
+
+defineProps({
+  label: {
+    type: String,
+    default: 'Clone last citation'
+  }
+})
 
 const emit = defineEmits(['clone'])
 

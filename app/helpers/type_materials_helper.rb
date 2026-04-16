@@ -2,7 +2,10 @@ module TypeMaterialsHelper
 
   def type_material_tag(type_material)
     return nil if type_material.nil?
-    [type_material.type_type, full_original_taxon_name_tag(type_material.protonym)].compact.join(' of ')
+    [
+      type_material.type_type,
+full_original_taxon_name_tag(type_material.protonym)
+      ].compact.join(' of ')
   end
 
   def type_material_link(type_material)
@@ -18,9 +21,9 @@ module TypeMaterialsHelper
   # @return [GeoJson feature]
   # @param base [Boolean]
   #
-  def type_material_to_geo_json_feature(type_material, base = true)
+  def type_material_to_geo_json_feature(type_material, base = true, skip_geometry: false)
     return nil if type_material.nil?
-    if a = collection_object_to_geo_json_feature(type_material.collection_object, false)
+    if a = collection_object_to_geo_json_feature(type_material.collection_object, false, skip_geometry:)
       l = label_for_type_material(type_material)
       a['properties']['target'] = {
         'type' => 'TypeMaterial',
@@ -46,6 +49,16 @@ module TypeMaterialsHelper
 
   def options_for_type_type_select
     options_for_select((TypeMaterial::ICZN_TYPES.keys + TypeMaterial::ICN_TYPES.keys).uniq.sort, selected: 'holotype')
+  end
+
+  # !! Only (currently) meaningful for ICN and ICZN - returns true for all other
+  # codes !!
+  def type_material_is_primary_type(type_material)
+    (type_material.protonym.nomenclatural_code == :iczn &&
+      ::ICZN_PRIMARY_TYPES.include?(type_material.type_type)) ||
+    (type_material.protonym.nomenclatural_code == :icn &&
+      ::ICN_PRIMARY_TYPES.include?(type_material.type_type)) ||
+    ![:icn, :iczn].include?(type_material.protonym.nomenclatural_code)
   end
 
 end

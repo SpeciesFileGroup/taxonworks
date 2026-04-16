@@ -1,267 +1,180 @@
 <template>
   <div id="vue_type_specimens">
     <VSpinner
-      v-if="settings.loading || settings.saving"
-      :full-screen="true"
-      :legend="settings.loading ? 'Loading...' : 'Saving...'"
+      v-if="settings.isLoading || settings.isSaving"
+      full-screen
+      :legend="settings.isLoading ? 'Loading...' : 'Saving...'"
       :logo-size="{ width: '100px', height: '100px' }"
     />
-    <div class="flex-separate middle">
-      <h1>{{ isNew }} type specimen</h1>
-      <VBtn
-        circle
-        color="primary"
-        @click="reloadApp"
-      >
-        <VIcon
-          name="reset"
-          x-small
-        />
-      </VBtn>
-    </div>
-    <div>
+
+    <div class="align-start gap-medium">
+      <div class="cleft flex-col gap-medium">
+        <PanelTaxonName v-if="!store.taxonName" />
+        <template v-else>
+          <MetadataSection />
+          <PanelCollectionObject />
+        </template>
+      </div>
       <div
-        v-hotkey="shortcuts"
-        class="align-start gap-medium"
+        v-if="store.taxonName"
+        class="cright"
       >
         <div class="full_width">
-          <name-section
-            class="separate-bottom"
-            v-if="!taxon"
-          />
-          <metadata-section
-            v-if="taxon"
-            class="separate-bottom"
-          />
-          <type-material-section class="separate-bottom" />
-        </div>
-        <div
-          v-if="taxon"
-          class="cright item"
-        >
-          <div id="cright-panel">
-            <type-box class="separate-bottom" />
-            <soft-validation :validations="softValidations" />
-          </div>
+          <TypeBox class="separate-bottom" />
+          <SoftValidation :validations="validationStore.softValidations" />
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
+import { setParam } from '@/helpers'
+import { useHotkey } from '@/composables'
+import { RouteNames } from '@/routes/routes'
+import { ref, onMounted, watch } from 'vue'
+import { URLParamsToJSON } from '@/helpers'
+
 import SoftValidation from '@/components/soft_validations/panel.vue'
-import nameSection from './components/nameSection.vue'
-import typeMaterialSection from './components/typeMaterial.vue'
-import metadataSection from './components/metadataSection.vue'
-import typeBox from './components/typeBox.vue'
+import PanelTaxonName from './components/PanelTaxonName.vue'
+import PanelCollectionObject from './components/PanelCollectionObject.vue'
+import MetadataSection from './components/PanelMetadata.vue'
+import TypeBox from './components/typeBox.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import platformKey from '@/helpers/getPlatformKey.js'
-import setParamsId from '@/helpers/setParam.js'
-import VIcon from '@/components/ui/VIcon/index.vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
+import useSoftvalidationStore from '@/components/Form/FormCollectingEvent/store/softValidations'
+import useSettingStore from './store/settings.js'
+import useStore from './store/store.js'
 
-import ActionNames from './store/actions/actionNames'
-import { GetterNames } from './store/getters/getters'
-import { RouteNames } from '@/routes/routes'
+defineOptions({
+  name: 'NewTypeMaterial'
+})
 
-export default {
-  name: 'NewTypeMaterial',
+const store = useStore()
+const settings = useSettingStore()
+const validationStore = useSoftvalidationStore()
 
-  components: {
-    SoftValidation,
-    nameSection,
-    typeBox,
-    typeMaterialSection,
-    metadataSection,
-    VSpinner,
-    VIcon,
-    VBtn
-  },
-
-  computed: {
-    taxonMaterial() {
-      return this.$store.getters[GetterNames.GetTaxon]
-    },
-
-    taxon() {
-      return this.$store.getters[GetterNames.GetTaxon]
-    },
-
-    settings() {
-      return this.$store.getters[GetterNames.GetSettings]
-    },
-
-    isNew() {
-      return this.$store.getters[GetterNames.GetTypeMaterial].id
-        ? 'Edit'
-        : 'New'
-    },
-
-    shortcuts() {
-      const keys = {}
-
-      keys[`${platformKey()}+t`] = this.switchTaxonNameTask
-
-      return keys
-    },
-
-    softValidations() {
-      return this.$store.getters[GetterNames.GetSoftValidation]
+const shortcuts = ref([
+  {
+    keys: [platformKey(), 't'],
+    preventDefault: true,
+    handler() {
+      switchToTask(RouteNames.NewTaxonName)
     }
   },
-
-  mounted() {
-    this.loadTaxonTypes()
-    TW.workbench.keyboard.createLegend(
-      `${platformKey()}+t`,
-      'Go to new taxon name task',
-      'New type material'
-    )
-    TW.workbench.keyboard.createLegend(
-      `${platformKey()}+o`,
-      'Go to browse OTU',
-      'New type material'
-    )
-    TW.workbench.keyboard.createLegend(
-      `${platformKey()}+e`,
-      'Go to comprehensive specimen digitization',
-      'New type material'
-    )
-    TW.workbench.keyboard.createLegend(
-      `${platformKey()}+b`,
-      'Go to browse nomenclature',
-      'New type material'
-    )
-  },
-
-  watch: {
-    taxon(newVal) {
-      if (newVal?.id) {
-        setParamsId(RouteNames.TypeMaterial, 'taxon_name_id', newVal.id)
-      }
+  {
+    keys: [platformKey(), 'o'],
+    preventDefault: true,
+    handler() {
+      switchToTask(RouteNames.BrowseOtu)
     }
   },
+  {
+    keys: [platformKey(), 'e'],
+    preventDefault: true,
+    handler() {
+      switchToTask(RouteNames.DigitizeTask)
+    }
+  },
+  {
+    keys: [platformKey(), 'b'],
+    preventDefault: true,
+    handler() {
+      switchToTask(RouteNames.BrowseNomenclature)
+    }
+  }
+])
 
-  methods: {
-    reloadApp() {
-      window.location.href = '/tasks/type_material/edit_type_material'
-    },
+useHotkey(shortcuts.value)
 
-    loadTaxonTypes() {
-      const urlParams = new URLSearchParams(window.location.search)
-      const protonymId =
-        urlParams.get('protonym_id') || urlParams.get('taxon_name_id')
-      const typeId = urlParams.get('type_material_id')
+onMounted(() => {
+  const TASK = 'New type material'
+  loadTaxonTypes()
+  TW.workbench.keyboard.createLegend(
+    `${platformKey()}+t`,
+    'Go to new taxon name task',
+    TASK
+  )
+  TW.workbench.keyboard.createLegend(
+    `${platformKey()}+o`,
+    'Go to browse OTU',
+    TASK
+  )
+  TW.workbench.keyboard.createLegend(
+    `${platformKey()}+e`,
+    'Go to comprehensive specimen digitization',
+    TASK
+  )
+  TW.workbench.keyboard.createLegend(
+    `${platformKey()}+b`,
+    'Go to browse taxon names',
+    TASK
+  )
+})
 
-      if (/^\d+$/.test(protonymId)) {
-        this.$store
-          .dispatch(ActionNames.LoadTaxonName, protonymId)
-          .then((_) => {
-            this.$store
-              .dispatch(ActionNames.LoadTypeMaterials, protonymId)
-              .then((response) => {
-                if (/^\d+$/.test(typeId)) {
-                  this.loadType(response, typeId)
-                }
-              })
-          })
+watch(
+  () => store.taxonName?.id,
+  (newVal) => {
+    setParam(RouteNames.TypeMaterial, 'taxon_name_id', newVal)
+  }
+)
+
+watch(
+  () => store.typeMaterial.id,
+  (newVal) => {
+    setParam(RouteNames.TypeMaterial, 'type_material_id', newVal)
+  }
+)
+
+async function loadTaxonTypes() {
+  const params = URLParamsToJSON(window.location.href)
+  const typeId = params.type_material_id
+  const protonymId = params.protonym_id || params.taxon_name_id
+
+  if (/^\d+$/.test(protonymId)) {
+    settings.isLoading = true
+
+    try {
+      store.loadTaxonName(protonymId)
+      await store.loadTypeMaterials(protonymId)
+
+      if (typeId) {
+        const item = store.typeMaterials.find((t) => t.id == typeId)
+
+        if (item) {
+          await store.setTypeMaterial(item)
+        }
       }
-    },
-
-    loadType(list, typeId) {
-      const findType = list.find((type) => type.id === Number(typeId))
-
-      if (findType) {
-        this.$store.dispatch(ActionNames.LoadTypeMaterial, findType)
-      }
-    },
-
-    switchTaxonNameTask() {
-      const urlParams = new URLSearchParams(window.location.search)
-      const taxonId = urlParams.get('taxon_name_id')
-
-      if (taxonId) {
-        window.open(
-          `/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxonId}`,
-          '_self'
-        )
-      } else {
-        window.open('/tasks/nomenclature/new_taxon_name', '_self')
-      }
+    } catch {
+    } finally {
+      settings.isLoading = false
     }
   }
 }
+
+function switchToTask(url) {
+  if (store.taxonName.id) {
+    window.open(`${url}?taxon_name_id=${store.taxonName.id}`, '_self')
+  } else {
+    window.open(url, '_self')
+  }
+}
 </script>
+
 <style lang="scss">
 #vue_type_specimens {
   margin: 0 auto;
-  margin-top: 1em;
-  max-width: 1240px;
   width: 1240px;
+  max-width: 1240px;
+  margin-top: 1rem;
 
-  .cleft,
   .cright {
-    min-width: 350px;
-    max-width: 350px;
-    width: 300px;
-  }
-  #cright-panel {
-    width: 350px;
-    max-width: 350px;
-  }
-  .cright-fixed-top {
-    top: 68px;
-    width: 1240px;
-    z-index: 200;
-    position: fixed;
-  }
-  .anchor {
-    display: block;
-    height: 65px;
-    margin-top: -65px;
-    visibility: hidden;
+    width: 420px;
+    min-width: 420px;
   }
 
-  hr {
-    height: 1px;
-    color: #f5f5f5;
-    background: #f5f5f5;
-    font-size: 0;
-    margin: 15px;
-    border: 0;
-  }
-  .reload-app {
-    cursor: pointer;
-    &:hover {
-      opacity: 0.8;
-    }
-  }
-  .type-specimen-box {
-    transition: all 1s;
-
-    height: 100%;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    .header {
-      border-left: 4px solid green;
-      h3 {
-        font-weight: 300;
-      }
-      padding: 1em;
-      padding-left: 1.5em;
-      border-bottom: 1px solid #f5f5f5;
-    }
-    .body {
-      padding: 2em;
-      padding-top: 1em;
-      padding-bottom: 1em;
-    }
-    .taxonName-input,
-    #error_explanation {
-      width: 300px;
-    }
+  .cleft {
+    width: 100%;
   }
 }
 </style>

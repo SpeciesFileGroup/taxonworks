@@ -1,11 +1,41 @@
 import { createApp } from 'vue'
-import NomenclatureSearch from '@/tasks/nomenclature/browse/components/search'
-import SoftValidation from '@/tasks/nomenclature/browse/components/validations'
+import NomenclatureSearch from '@/tasks/nomenclature/browse/components/search.vue'
+import SoftValidation from '@/tasks/nomenclature/browse/components/validations.vue'
+import ValidationModal from '@/tasks/nomenclature/browse/components/ValidationModal.vue'
+import ButtonFocus from '@/tasks/nomenclature/browse/components/ButtonFocus.vue'
+import './taxonomy.js'
 
-function initSearch() {
+function initFocusButtons() {
+  const elements = [
+    ...document.querySelectorAll('[data-history-origin="protonym"]')
+  ]
+
+  elements.forEach((el) => {
+    const container =
+      el.querySelector('[data-focus-button]') || document.createElement('div')
+    const objectId = el.getAttribute('data-history-protonym-id')
+    const app = createApp(ButtonFocus, {
+      objectId: objectId.split(',')
+    })
+
+    container.setAttribute('data-focus-button', true)
+
+    el.appendChild(container)
+
+    app.mount(container)
+  })
+}
+
+function initSearch(el) {
   const app = createApp(NomenclatureSearch)
 
-  app.mount('#vue-browse-nomenclature-search')
+  app.mount(el)
+}
+
+function initValidationModal(el) {
+  const app = createApp(ValidationModal)
+
+  app.mount(el)
 }
 
 function getGlobalIdsFromSelector(selector) {
@@ -41,15 +71,30 @@ function initValidations(element) {
 }
 
 document.addEventListener('turbolinks:load', () => {
+  const isBrowseNomenclature = !!document.querySelector('#browse-nomenclature')
+
   const searchElement = document.querySelector(
     '#vue-browse-nomenclature-search'
   )
   const validationElement = document.querySelector(
     '#vue-browse-validation-panel'
   )
+  const validationModalElement = document.querySelector(
+    '#vue-browse-nomenclature-validation-modal'
+  )
+
+  if (isBrowseNomenclature) {
+    initFocusButtons()
+  }
+
+  if (validationModalElement) {
+    initValidationModal(validationModalElement)
+  }
+
   if (searchElement) {
     initSearch(searchElement)
   }
+
   if (validationElement) {
     initValidations(validationElement)
   }

@@ -55,7 +55,8 @@
       <div>
         <p>
           <i
-            >Biological relationships containing related CollectionObjects/OTUS
+            >Biological relationships containing related
+            CollectionObjects/FieldOccurrences/OTUs/AnatomicalParts
           </i>
         </p>
         <VBtn
@@ -133,9 +134,9 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import { ref, onBeforeMount, computed } from 'vue'
 import {
   BiologicalAssociation,
-  BiologicalAssociationGraph
+  BiologicalAssociationsGraph
 } from '@/routes/endpoints'
-import { OTU } from '@/constants/index.js'
+import { ANATOMICAL_PART, COLLECTION_OBJECT, FIELD_OCCURRENCE, OTU } from '@/constants/index.js'
 
 const props = defineProps({
   relations: {
@@ -164,26 +165,38 @@ const toggleSelection = computed({
   }
 })
 
-function makeObjectIdPayload() {
+function makeObjectIdPayload(relations) {
   const otuIds = []
   const coIds = []
-  const objects = props.relations
+  const foIds = []
+  const apIds = []
 
-  objects.forEach(({ objectType, id }) => {
-    if (objectType === OTU) {
-      otuIds.push(id)
-    } else {
-      coIds.push(id)
+  relations.forEach(({ objectType, id }) => {
+    switch (objectType) {
+      case OTU:
+        otuIds.push(id)
+        break
+      case COLLECTION_OBJECT:
+        coIds.push(id)
+        break
+      case FIELD_OCCURRENCE:
+        foIds.push(id)
+        break
+      case ANATOMICAL_PART:
+        apIds.push(id)
+        break
     }
   })
 
   return {
     otu_id: [...new Set(otuIds)],
-    collection_object_id: [...new Set(coIds)]
+    collection_object_id: [...new Set(coIds)],
+    field_occurrence_id: [...new Set(foIds)],
+    anatomical_part_id: [...new Set(apIds)]
   }
 }
 
-function loadRelatedAssociations() {
+async function loadRelatedAssociations() {
   const payload = {
     extend: [
       'biological_relationship_types',
@@ -191,7 +204,7 @@ function loadRelatedAssociations() {
       'subject',
       'object'
     ],
-    ...makeObjectIdPayload()
+    ...makeObjectIdPayload(props.relations)
   }
 
   return BiologicalAssociation.filter(payload).then(({ body }) => {
@@ -210,7 +223,7 @@ function loadGraphs() {
     biological_association_id: baIds
   }
 
-  return BiologicalAssociationGraph.where(payload).then(({ body }) => {
+  return BiologicalAssociationsGraph.where(payload).then(({ body }) => {
     graphs.value = body.filter((graph) => graph.id !== props.currentGraph.id)
   })
 }

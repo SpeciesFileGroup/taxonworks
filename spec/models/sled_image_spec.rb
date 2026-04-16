@@ -200,19 +200,19 @@ RSpec.describe SledImage, type: :model, group: :image do
 
     specify 'by row' do
       sled_image.step_identifier_on = 'row'
-      expect(sled_image.send(:_identifier_matrix)).to contain_exactly([0,1,2], [3,4,5], [6,7,8])
+      expect(sled_image.send(:_identifier_matrix)).to contain_exactly(['0','1','2'], ['3','4','5'], ['6','7','8'])
     end
 
     specify 'by column' do
       sled_image.step_identifier_on = 'column'
-      expect(sled_image.send(:_identifier_matrix)).to contain_exactly([0,3,6], [1,4,7], [2,5,8])
+      expect(sled_image.send(:_identifier_matrix)).to contain_exactly(['0','3','6'], ['1','4','7'], ['2','5','8'])
     end
 
     specify 'by column, gaps 1' do
       sled_image.step_identifier_on = 'column'
       sled_image.metadata[0]['metadata'] = 'foo'
       sled_image.metadata[8]['metadata'] = 'foo'
-      expect(sled_image.send(:_identifier_matrix)).to contain_exactly([nil,2,5], [0,3,6], [1,4, nil])
+      expect(sled_image.send(:_identifier_matrix)).to contain_exactly([nil,'2','5'], ['0','3','6'], ['1','4', nil])
     end
 
     specify 'by column, gaps 2' do
@@ -220,30 +220,30 @@ RSpec.describe SledImage, type: :model, group: :image do
       sled_image.metadata[1]['metadata'] = 'foo'
       sled_image.metadata[4]['metadata'] = 'foo'
 
-      expect(sled_image.send(:_identifier_matrix)).to contain_exactly([0,nil,4], [1,nil,5], [2,3,6])
+      expect(sled_image.send(:_identifier_matrix)).to contain_exactly(['0',nil,'4'], ['1',nil,'5'], ['2','3','6'])
     end
 
     specify 'by row, gaps 2' do
       sled_image.step_identifier_on = 'row'
       sled_image.metadata[3]['metadata'] = 'foo'
       sled_image.metadata[4]['metadata'] = 'foo'
-      expect(sled_image.send(:_identifier_matrix)).to contain_exactly([0,1,2], [nil,nil, 3], [4,5,6])
+      expect(sled_image.send(:_identifier_matrix)).to contain_exactly(['0','1','2'], [nil,nil, '3'], ['4','5','6'])
     end
 
     specify '#identifier_for 1' do
       sled_image.step_identifier_on = 'column'
-      expect(sled_image.send(:identifier_for, sled_image.metadata[0] )).to eq(0)
+      expect(sled_image.send(:identifier_for, sled_image.metadata[0] )).to eq('0')
     end
 
     specify '#identifier_for 2' do
       sled_image.step_identifier_on = 'column'
-      expect(sled_image.send(:identifier_for, sled_image.metadata[2]) ).to eq(6)
+      expect(sled_image.send(:identifier_for, sled_image.metadata[2]) ).to eq('6')
     end
 
     specify 'starting from non 0' do
       sled_image.step_identifier_on = 'row'
-      sled_image.collection_object_params[:identifiers_attributes][0][:identifier] = 997
-      expect(sled_image.send(:_identifier_matrix)).to contain_exactly([997,998,999], [1000,1001,1002], [1003,1004,1005])
+      sled_image.collection_object_params[:identifiers_attributes][0][:identifier] = '997'
+      expect(sled_image.send(:_identifier_matrix)).to contain_exactly(['997','998','999'], ['1000','1001','1002'], ['1003','1004','1005'])
     end
   end
 
@@ -308,11 +308,11 @@ RSpec.describe SledImage, type: :model, group: :image do
     end
 
     specify '#total("rows")' do
-      expect(sled_image.total("row")).to eq(2)
+      expect(sled_image.total('row')).to eq(2)
     end
 
     specify '#total("columns")' do
-      expect(sled_image.total("column")).to eq(2)
+      expect(sled_image.total('column')).to eq(2)
     end
   end
 

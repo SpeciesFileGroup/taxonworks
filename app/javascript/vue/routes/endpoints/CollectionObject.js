@@ -26,6 +26,11 @@ const permitParams = {
       type: String,
       value: String
     },
+    biocuration_classifications_attributes: {
+      id: Number,
+      biocuration_class_id: Number,
+      _destroy: Boolean
+    },
     taxon_determinations_attributes: {
       otu_id: Number,
       year_made: Number,
@@ -82,6 +87,9 @@ export const CollectionObject = {
 
   dwcVerbose: (id, params = { rebuild: true }) =>
     AjaxCall('get', `/${controller}/${id}/dwc_verbose`, { params }),
+
+  dwcCompact: (id, params = { rebuild: true }) =>
+    AjaxCall('get', `/${controller}/${id}/dwc_compact`, { params }),
 
   reportDwc: (params) =>
     AjaxCall('get', '/tasks/accessions/report/dwc.json', { params }),

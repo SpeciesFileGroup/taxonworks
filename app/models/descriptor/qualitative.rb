@@ -1,11 +1,19 @@
 # A descriptor that has qualitative states. For example a phylogenetic character. Also used for descriptive matrices.
 # Note that presence/absence descriptors have their own subclass and should be represented there to maximize utility.
 #
-class Descriptor::Qualitative < Descriptor 
+class Descriptor::Qualitative < Descriptor
 
   has_many :character_states, foreign_key: :descriptor_id, inverse_of: :descriptor, dependent: :destroy
 
   accepts_nested_attributes_for :character_states, allow_destroy: true, reject_if: :reject_character_states
+
+  def has_gap_state?
+    character_states.each do |c|
+      return true if c.is_gap?
+    end
+
+    false
+  end
 
   protected
 

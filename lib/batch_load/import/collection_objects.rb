@@ -71,8 +71,8 @@ module BatchLoad
         end
 
         begin # processing the TaxonDetermination
-          td_attributes = {otu:                          otu,
-                           biological_collection_object: co}
+          td_attributes = {otu:,
+          taxon_determination_object: co}
           # td_match      = Digest::SHA256.digest(td_attributes.to_s)
           # td            = build_objects[td_match]
           # td            = TaxonDetermination.find_by(td_attributes) if td.nil?
@@ -123,7 +123,7 @@ module BatchLoad
                            time_end_minute:                  nil,
                            time_end_second:                  nil,
                            verbatim_date:                    row['verbatim_date'],
-                           verbatim_trip_identifier:         nil,
+                           verbatim_field_number:         nil,
                            verbatim_collectors:              nil,
                            verbatim_label:                   nil,
                            document_label:                   nil,
@@ -257,8 +257,9 @@ module BatchLoad
         parse_result.parse_errors.push["No available namespace '#{ce_namespace}'."] if ns_ce.nil?
 
         begin # processing the TaxonDetermination
-          td_attributes = {otu:                          otu,
-                           biological_collection_object: co}
+          td_attributes = {
+            otu:,
+            taxon_determination_object: co}
           td_match      = Digest::SHA256.digest(td_attributes.to_s)
           td            = build_objects[td_match]
           td            = TaxonDetermination.find_by(td_attributes) if td.nil?
@@ -297,4 +298,3 @@ module BatchLoad
     end
   end
 end
-

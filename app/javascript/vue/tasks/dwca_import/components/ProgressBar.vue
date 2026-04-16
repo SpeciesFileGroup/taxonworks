@@ -1,46 +1,48 @@
 <template>
-  <div
-    class="progress-bar horizontal-left-content"
-    :style="{
-      backgroundColor: 'gray',
-      height: '10px'
-    }">
+  <div class="progress-bar horizontal-left-content">
     <div
-      v-for="(value, key) in colors"
+      v-for="(value, key) in ImportColors"
       :key="key"
       :style="{
-        backgroundColor: value,
-        height: '10px',
+        backgroundColor: `var(${value})`,
         width: `${getPorcent(key)}%`
-      }"/>
+      }"
+    />
   </div>
 </template>
 
-<script>
-
+<script setup>
+import { computed } from 'vue'
 import ImportColors from '../const/importColors'
 
-export default {
-  props: {
-    progress: {
-      type: Object,
-      default: () => { return {} }
-    }
-  },
-  computed: {
-    totalCount () {
-      return Object.values(this.progress).reduce((accumulator, currentValue) => accumulator + currentValue)
-    }
-  },
-  data () {
-    return {
-      colors: ImportColors
-    }
-  },
-  methods: {
-    getPorcent (key) {
-      return this.progress[key] ? this.progress[key] * 100 / this.totalCount : 0
-    }
+const props = defineProps({
+  progress: {
+    type: Object,
+    default: () => ({})
   }
+})
+
+const totalCount = computed(() =>
+  Object.values(props.progress).reduce(
+    (accumulator, currentValue) => accumulator + currentValue
+  )
+)
+
+function getPorcent(key) {
+  return props.progress[key]
+    ? (props.progress[key] * 100) / totalCount.value
+    : 0
 }
 </script>
+
+<style scoped>
+.progress-bar {
+  background-color: gray;
+  height: 12px;
+  overflow: hidden;
+  border-radius: 6px;
+  div {
+    height: 12px;
+  }
+}
+</style>

@@ -1,6 +1,9 @@
 # Facilitate Batch updates using the pattern of
 #   filter_query -> objects to update
 #   stub object -> attributes/params to update
+#
+# !! Should say nothing about *how* to update the objects.
+#
 class QueryBatchRequest
 
   # @param object_params [Hash]
@@ -42,15 +45,28 @@ class QueryBatchRequest
   #   Not used in async
   attr_accessor :total_attempted
 
+  attr_accessor :project_id
+
+  attr_accessor :user_id
+
   def initialize(params)
     @async = params[:async]
     @async_cutoff = params[:async_cutoff]
     @cap = params[:cap]
     @cap_reason = params[:cap_reason]
-    @klass = params[:klass]
+    @klass = params[:klass] # || infer_class(params)
     @object_filter_params = params[:object_filter_params]
     @object_params = params[:object_params]
     @preview = params[:preview]
+    @project_id = params[:project_id]
+    @user_id = params[:user_id]
+
+    @mode = params[:mode]
+  end
+
+  def infer_class(params)
+    f = Queries::Query::Filter.base_filter(params)
+    @klass = f.referenced_class.name.to_s
   end
 
   def object_filter_params
@@ -99,7 +115,7 @@ class QueryBatchRequest
   end
 
   def run_async?
-    if async_cutoff 
+    if async_cutoff
       return total_attempted > async_cutoff
     end
   end

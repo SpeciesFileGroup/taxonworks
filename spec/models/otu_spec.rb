@@ -10,35 +10,70 @@ describe Otu, type: :model, group: :otu do
   end
 
   context 'parent otu' do
+    specify '#parent_otu_id 1, skip_ranks' do
+      t0 = Protonym.create!(name: 'Ayo', rank_class: Ranks.lookup(:iczn, :order), parent: FactoryBot.create(:root_taxon_name))
+      t = Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: t0)
+      t1 = Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: t)
+
+      o0 = Otu.create!(taxon_name: t0)
+      o1 = Otu.create!(taxon_name: t)
+      o2 = Otu.create!(taxon_name: t1)
+      expect(o2.parent_otu_id(skip_ranks: [t.rank_class.name])).to eq(o0.id)
+    end
 
     specify '#parent_otu_id 1' do
       t0 = Protonym.create!(name: 'Ayo', rank_class: Ranks.lookup(:iczn, :order), parent: FactoryBot.create(:root_taxon_name))
       t = Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: t0)
       t1 = Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: t)
 
-      o0 = Otu.create(taxon_name:t0)
-      o1 = Otu.create(taxon_name:t)
-      o2 = Otu.create(taxon_name:t1)
-      expect(o2.parent_otu_id).to eq(o1.id)
+      o0 = Otu.create!(taxon_name: t0)
+      o1 = Otu.create!(taxon_name: t)
+      o2 = Otu.create!(taxon_name: t1)
+      expect(o2.parent_otu_id).to eq(o1.id) # test is good
     end
 
-    specify '#parent_otu_id 2' do
+    specify '.parent_otu_ids 1' do
       t0 = Protonym.create!(name: 'Ayo', rank_class: Ranks.lookup(:iczn, :order), parent: FactoryBot.create(:root_taxon_name))
       t = Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: t0)
       t1 = Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: t)
 
-      o0 = Otu.create(taxon_name: t)
-      o1 = Otu.create(taxon_name: t)
-      o2 = Otu.create(taxon_name: t1)
+      o0 = Otu.create!(taxon_name: t0)
+      o1 = Otu.create!(taxon_name: t)
+      o2 = Otu.create!(taxon_name: t1)
+
+      expect(Otu.parent_otu_ids(Otu.where(id: o2.id)).first.valid_ancestor_otu_ids).to eq( "#{o1.id},#{o0.id}")
+    end
+
+    specify '#parent_otu_id 2 (arbitrary split)' do
+      t0 = Protonym.create!(name: 'Ayo', rank_class: Ranks.lookup(:iczn, :order), parent: FactoryBot.create(:root_taxon_name))
+      t = Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: t0)
+      t1 = Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: t)
+
+      o0 = Otu.create!(taxon_name: t)
+      o1 = Otu.create!(taxon_name: t)
+      o2 = Otu.create!(taxon_name: t1)
+
       expect(o2.parent_otu_id).to eq(o0.id)
     end
 
-    specify '#parent_otu_id 3' do
+    specify '.parent_otu_ids' do
       t0 = Protonym.create!(name: 'Ayo', rank_class: Ranks.lookup(:iczn, :order), parent: FactoryBot.create(:root_taxon_name))
       t = Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: t0)
       t1 = Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: t)
 
-      o2 = Otu.create(taxon_name:t1)
+      o0 = Otu.create!(taxon_name: t)
+      o1 = Otu.create!(taxon_name: t)
+      o2 = Otu.create!(taxon_name: t1)
+
+      expect(Otu.parent_otu_ids(Otu.where(id: o2.id)).first.valid_ancestor_otu_ids).to eq( "#{o0.id},#{o1.id}")
+    end
+
+    specify '#parent_otu_id 3 (no OTU in parent chain)' do
+      t0 = Protonym.create!(name: 'Ayo', rank_class: Ranks.lookup(:iczn, :order), parent: FactoryBot.create(:root_taxon_name))
+      t = Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: t0)
+      t1 = Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: t)
+
+      o2 = Otu.create!(taxon_name:t1)
       expect(o2.parent_otu_id).to eq(nil)
     end
   end
@@ -150,8 +185,8 @@ describe Otu, type: :model, group: :otu do
       let(:a_d1) { FactoryBot.create(:valid_asserted_distribution) }
       let(:a_d2) { FactoryBot.create(:valid_asserted_distribution) }
       let(:a_d3) { FactoryBot.create(:valid_asserted_distribution) }
-      let(:otu1) { a_d1.otu }
-      let(:otu2) { a_d2.otu }
+      let(:otu1) { a_d1.asserted_distribution_object }
+      let(:otu2) { a_d2.asserted_distribution_object }
       let(:c_e1) { FactoryBot.create(:valid_collecting_event) }
       let(:c_e2) { FactoryBot.create(:valid_collecting_event) }
       let(:c_e3) { FactoryBot.create(:valid_collecting_event) }
@@ -159,13 +194,13 @@ describe Otu, type: :model, group: :otu do
       let(:c_o2) { FactoryBot.create(:valid_collection_object, {collecting_event: c_e2}) }
       let(:c_o3) { FactoryBot.create(:valid_collection_object, {collecting_event: c_e3}) }
 
-      let(:t_d1) { FactoryBot.create(:valid_taxon_determination, {otu: otu1, biological_collection_object: c_o1}) }
+      let(:t_d1) { FactoryBot.create(:valid_taxon_determination, {otu: otu1, taxon_determination_object: c_o1}) }
 
-      let(:t_d2) { FactoryBot.create(:valid_taxon_determination, {otu: otu2, biological_collection_object: c_o2}) }
-      let(:t_d3) { FactoryBot.create(:valid_taxon_determination, {otu: otu1, biological_collection_object: c_o3}) }
+      let(:t_d2) { FactoryBot.create(:valid_taxon_determination, {otu: otu2, taxon_determination_object: c_o2}) }
+      let(:t_d3) { FactoryBot.create(:valid_taxon_determination, {otu: otu1, taxon_determination_object: c_o3}) }
 
       before(:each) {
-        a_d3.otu = otu1
+        a_d3.asserted_distribution_object = otu1
         [a_d1, a_d2, a_d3,
          otu1, otu2,
          c_e1, c_e2, c_e3,
@@ -233,7 +268,7 @@ describe Otu, type: :model, group: :otu do
     let!(:content) { FactoryBot.create(:valid_content, otu:) }
     let!(:biological_association) { FactoryBot.create(:valid_biological_association, biological_association_subject: o2, biological_association_object: otu) }
 
-    let!(:asserted_distribution) { FactoryBot.create(:valid_asserted_distribution, otu:) }
+    let!(:asserted_distribution) { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: otu) }
 
     specify ".used_recently('Content')" do
       expect(Otu.used_recently(otu.created_by_id, otu.project_id,'Content').to_a).to include(otu.id)
@@ -287,10 +322,13 @@ describe Otu, type: :model, group: :otu do
       q = ::Queries::Otu::Filter.new({otu_id: [o0.id, o1.id]})
 
       params = {
+        async_cutoff: 1,
         otu: { taxon_name_id: t.id },
+        user_id: Current.user_id,
+        project_id: Current.project_id
       }.merge(otu_query: q.params)
 
-      response = Otu.batch_update(params.merge(async_cutoff: 1)).to_json
+      response = Otu.batch_update(params).to_json
 
       sleep(2) # jobs trigger in 2 seconds
       Delayed::Worker.new.work_off
@@ -302,6 +340,49 @@ describe Otu, type: :model, group: :otu do
       expect(o1.reload.taxon_name).to eq t
     end
 
+  end
+
+  context '#unused?' do
+    let(:otu) { FactoryBot.create(:valid_otu) }
+
+    specify 'true when OTU has no related data' do
+      expect(otu.unused?).to be true
+    end
+
+    specify 'false when OTU has citations' do
+      otu.citations.create!(source: FactoryBot.create(:valid_source))
+      expect(otu.unused?).to be false
+    end
+
+    specify 'false when OTU has non-UUID identifiers' do
+      otu.identifiers.create!(type: 'Identifier::Local::OtuUtility', namespace: FactoryBot.create(:valid_namespace), identifier: '123')
+      expect(otu.unused?).to be false
+    end
+  end
+
+  context '::associated_with_key' do
+    let(:root_lead) { FactoryBot.create(:valid_lead) }
+    let(:child_lead) { root_lead.children.create!(text: 'child') }
+
+    specify 'finds otus from both lead.otu_id and lead_items' do
+      otu_on_lead = FactoryBot.create(:valid_otu)
+      otu_on_lead_item = FactoryBot.create(:valid_otu)
+
+      root_lead.update!(otu: otu_on_lead)
+      child_lead.update!(otu: otu_on_lead_item)
+      FactoryBot.create(:valid_lead_item, lead: child_lead, otu: otu_on_lead_item)
+
+      expect(Otu.associated_with_key(root_lead))
+        .to contain_exactly(otu_on_lead, otu_on_lead_item)
+    end
+
+    specify 'does not include otus from unrelated leads' do
+      other_lead = FactoryBot.create(:valid_lead)
+      otu = FactoryBot.create(:valid_otu)
+      other_lead.update!(otu: otu)
+
+      expect(Otu.associated_with_key(root_lead)).to be_empty
+    end
   end
 
   context 'concerns' do

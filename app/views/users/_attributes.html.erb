@@ -15,12 +15,12 @@
 
 <p>
   <strong>ORCiD:</strong>
-  <%= @user.orcid ? @user.orcid : content_tag(:span, 'NONE (add to person)', class: %w{feedback feedback-thin feedback-danger})  %>
+  <%= @user.orcid ? @user.orcid : content_tag(:span, 'NONE (add to Person)', class: %w{feedback feedback-thin feedback-danger})  %>
 </p>
 
 <p>
   <strong>Wikidata ID:</strong>
-  <%= @user.wikidata_id ? @user.wikidata_id : content_tag(:span, 'NONE (add to person)', class: %w{feedback feedback-thin feedback-warning})  %>
+  <%= @user.wikidata_id ? @user.wikidata_id : content_tag(:span, 'NONE (add to Person)', class: %w{feedback feedback-thin feedback-warning})  %>
 </p>
 
 <p>
@@ -30,7 +30,7 @@
 
 <p>
   <strong>Time active:</strong>
-  <%= (@user.time_active.to_f / 3600.to_f || 0.0).round(1) %> hours
+  <%= (@user.time_active.to_f / 3600.to_f || 0.0).round(2) %> hours
 </p>
 
 <p>
@@ -60,4 +60,7 @@
   </p>
 <% end %>
 
-
+<p>
+  <strong>Created by:</strong>
+  <%= user_tag(@user.creator) %>
+</p>

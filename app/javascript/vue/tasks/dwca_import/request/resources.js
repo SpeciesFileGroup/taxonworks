@@ -4,7 +4,8 @@ const DestroyDataset = (id) => AjaxCall('delete', `/import_datasets/${id}.json`)
 
 const GetDataset = (id) => AjaxCall('get', `/import_datasets/${id}.json`)
 
-const GetImports = () => AjaxCall('get', '/tasks/dwca_import/index.json')
+const GetImports = (params) =>
+  AjaxCall('get', '/tasks/dwca_import/index.json', { params })
 
 const GetDatasetRecords = (id, params) =>
   AjaxCall('get', `/import_datasets/${id}/dataset_records.json`, params)

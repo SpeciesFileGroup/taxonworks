@@ -5,7 +5,7 @@ export function useSlice({ radialEmit }) {
   const list = ref([])
 
   function removeFromList(item, property = 'id') {
-    removeFromArray(list.value, item, property)
+    removeFromArray(list.value, item, { property })
     radialEmit.count(list.value.length)
     radialEmit.delete(item)
     radialEmit.change(item)

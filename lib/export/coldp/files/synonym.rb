@@ -1,8 +1,20 @@
-# The synonym table is simply a list of all the Names that have been used for valid OTUs (Taxa) in the current classification
-# regardless of whether they are valid or invalid names.  Only TaxonIds for valid OTUs should be here, though the format
+# The synonym table is a list of all the Names (valid and invalid)
+# that have been used for valid OTUs (Taxa) in the current classification.
+#
+# Only TaxonIds for valid OTUs {with valid taxon names} should be here, though the CoL parser format
 # will apparently handle taxon ids that are not in the taxon table.
-
+#
 # Bigger picture: understand how this maps to core name usage table in CoL
+#
+# We assume that the names exporting in Names are those that must be tied to Taxa,
+# so we re-use that scoping.
+#
+# !! TODO: While the scoping of names to be considered is likely correct,
+# invalid names are not likely pointing to valid OTUs, but rather invalid OTUs.
+#
+# !? To resolve this create a single lookup of all possibile name_ids to their valid otu_id
+# !! TODO: If a lookup is in place, then we can do this all in parallel with Name.tsv, i.e.
+# completely removing a redundant pass
 #
 module Export::Coldp::Files::Synonym
 
@@ -17,92 +29,149 @@ module Export::Coldp::Files::Synonym
     'synonym'
   end
 
-  def self.remarks_field
-    nil
-  end
+  # @params otu [Otu]
+  #   the top level OTU
+  def self.generate(otu, otus, project_members, reference_csv = nil)
 
-  def self.reference_id_field(otu)
-    nil
-  end
+    # Build OTU lookup hash once to avoid N+1 queries
+    # Maps taxon_name_id -> otu.id for all OTUs in scope
+    otu_lookup = otus.pluck(:taxon_name_id, :id).to_h
 
-  # This is currently factored to use *no* ActiveRecord instances
-  def self.generate(otus, project_members, reference_csv = nil)
     ::CSV.generate(col_sep: "\t") do |csv|
-
       csv << %w{taxonID nameID status remarks referenceID modified modifiedBy}
 
-      # Only valid otus with taxon names, see lib/export/coldp.rb#otus
-      otus.select('otus.id id, taxon_names.cached cached, otus.taxon_name_id taxon_name_id')
-        .pluck(:id, :cached, :taxon_name_id)
-        .each do |o|
-
-          # TODO: Confirm resolved: original combinations of invalid names are not being handled correclty in reified
-
-          # Here we grab the hierarchy again, and filter it by
-          #   1) allow only invalid names OR names with differing original combinations
-          #   2) of 1) eliminate Combinations with identical names to current placement
-          #
-          a = TaxonName.that_is_invalid
-            .where(cached_valid_taxon_name_id: o[2])
-            .where.not("(taxon_names.type = 'Combination' AND taxon_names.cached = ?)", o[1])
-
-          b = TaxonName.where(cached_valid_taxon_name_id: o[2])
-            .where("(taxon_names.cached_original_combination != taxon_names.cached)")
-            .where.not("(taxon_names.type = 'Combination' AND taxon_names.cached = ?)", o[1])
-
-          c = TaxonName.from("((#{a.to_sql}) UNION (#{b.to_sql})) as taxon_names")
-
-          # Hernán notes:
-          # TaxonName.where(cached_valid_taxon_name_id: 42).merge(TaxonName.where.not(type: 'Combination').or(TaxonName.where.not(cached: 'Forty two'))).to_sql
-
-          # Original concept
-          # TaxonName
-          #   .where(cached_valid_taxon_name_id: o[2]) # == .historical_taxon_names
-          #   .where("( ((taxon_names.id != taxon_names.cached_valid_taxon_name_id) OR ((taxon_names.cached_original_combination != taxon_names.cached))) AND NOT (taxon_names.type = 'Combination' AND taxon_names.cached = ?))", o[1]) # see name.rb
-
-          c.pluck(:id, :cached, :cached_original_combination, :type, :rank_class, :cached_secondary_homonym, :updated_at, :updated_by_id)
-            .each do |t|
-              reified_id = ::Export::Coldp.reified_id(t[0], t[1], t[2])
-
-              # skips including parent binomial as a synonym of autonym trinomial
-              unless t[5].nil?
-                if !t[1].nil? and t[1].include? t[5] and (t[4].match(/::Subspecies$/) or t[4].match(/::Form$/) or t[4].match(/::Variety$/))
-                  next
-                end
-
-                if !t[2].nil? and t[2].include? t[5] and o[1].include? t[5] and t[4].match(/::Species$/)
-                  next
-                end
-              end
-
-              # TODO: This code block is erroneously removing basionyms from the synonyms section but we may need an improved form of it to remove duplicate synonyms (https://github.com/SpeciesFileGroup/taxonworks/issues/3482)
-              # matches = t[1].match(/([A-Z][a-z]+) \(.+\) ([a-z]+)/)
-              # 
-              # if matches&.size == 3        # cached_original_combination != cached_secondary_homonym
-              #   if t[5] == "#{matches[1]} #{matches[2]}" and t[2] != t[5]
-              #     next
-              #   end
-              # end
-
-              # skips combinations including parent binomial as a synonym of autonym trinomial
-              if t[3] == 'Combination' and o[1].include? t[1]
-                next
-              end
-
-              csv << [
-                o[0],                                             # taxonID attached to the current valid concept
-                reified_id,                                       # nameID
-                nil,                                              # status  TODO: def status(taxon_name_id)
-                Export::Coldp.sanitize_remarks(remarks_field),    # remarks
-                nil,                                              # referenceID   Unclear what this means in TW
-                Export::Coldp.modified(t[6]),                     # modified
-                Export::Coldp.modified_by(t[7], project_members)  # modifiedBy
-              ]
-            end
-        end
+      add_invalid_family_and_higher_names(otu, csv, project_members, otu_lookup)
+      add_invalid_core_names(otu, csv, project_members, otu_lookup)
+      add_original_combinations(otu, csv, project_members, otu_lookup)          # Handles reified IDs
+      add_invalid_original_combinations(otu, csv, project_members, otu_lookup)  # Handles reified IDs
+      add_combinations(otu, csv, project_members, otu_lookup)
     end
   end
 
-  # It is unclear what the relationship beyond "used" means. We likely need a sensu style model to record these assertions
-  # Export::Coldp::Files::Reference.add_reference_rows([], reference_csv, project_members) if reference_csv
+  def self.add_invalid_core_names(otu, csv, project_members, otu_lookup)
+    names = ::Export::Coldp::Files::Name.invalid_core_names(otu)
+    names.length # !! Required - without this the result is truncated (see name.rb comment)
+
+    # Iterate directly over names (like name.rb does) to avoid CTE truncation issues
+    names.find_each do |t|
+
+      # Names like missaplications do not point to a valid name, i.e. their id == cached_valid_taxon_.
+      #  - Add a synonym relationships to have them appear here.
+      #  - Names skipped here are treated as bare names in CoL
+      taxon_id =  otu_lookup[t.cached_valid_taxon_name_id]
+      next unless taxon_id
+
+      next if autonym_synonym?(t)
+
+      csv << [
+        taxon_id,                                                   # taxonID attached to the current valid concept
+        t.id,                                                       # nameID
+        nil,                                                        # status  TODO: def status(taxon_name_id)
+        nil,                                                        # remarks
+        nil,                                                        # referenceID  Unclear what this means in TW
+        Export::Coldp.modified(t.updated_at),                       # modified
+        Export::Coldp.modified_by(t.updated_by_id, project_members) # modifiedBy
+      ]
+    end
+  end
+
+  # TODO: This has no autonym detection now, is it an issue?
+  def self.add_combinations(otu, csv, project_members, otu_lookup)
+    names = ::Export::Coldp::Files::Name.combination_names(otu).unscope(:select).select('taxon_names.*')
+    names.length # !! Required - without this the result is truncated (see name.rb comment)
+
+
+    # Iterate directly over names to avoid CTE truncation issues
+    names.find_each do |t|
+
+      next if ::Export::Coldp.skipped_combinations.include?(t.id)
+
+      csv << [
+        otu_lookup[t.cached_valid_taxon_name_id],                  # taxonID attached to the current valid concept
+        t.id,                                                      # nameID
+        nil,                                                       # status  TODO: def status(taxon_name_id)
+        nil,                                                       # remarks
+        nil,                                                       # referenceID  Unclear what this means in TW
+        Export::Coldp.modified(t.updated_at),                      # modified
+        Export::Coldp.modified_by(t.updated_by_id, project_members) # modifiedBy
+      ]
+    end
+  end
+
+  def self.add_invalid_family_and_higher_names(otu, csv, project_members, otu_lookup)
+    names = ::Export::Coldp::Files::Name.invalid_family_and_higher_names(otu)
+    names.length # !! Required - without this the result is truncated (see name.rb comment)
+
+    # Iterate directly over names to avoid CTE truncation issues
+    names.find_each do |t|
+      csv << [
+        otu_lookup[t.cached_valid_taxon_name_id],                   # taxonID attached to the current valid concept
+        t.id,                                                       # nameID
+        nil,                                                        # status  TODO: def status(taxon_name_id)
+        nil,                                                        # remarks
+        nil,                                                        # referenceID  Unclear what this means in TW
+        Export::Coldp.modified(t.updated_at),                       # modified
+        Export::Coldp.modified_by(t.updated_by_id, project_members) # modifiedBy
+      ]
+    end
+  end
+
+  def self.add_original_combinations(otu, csv, project_members, otu_lookup)
+    names = ::Export::Coldp::Files::Name.original_combination_names(otu)
+    names.length # !! Required - without this the result is truncated (see name.rb comment)
+
+    # Iterate directly over names to avoid CTE truncation issues
+    names.find_each do |t|
+      next if autonym_synonym?(t)
+
+      # By `original_combination_names(otu) these are all reified
+      reified_id = ::Utilities::Nomenclature.reified_id(
+        t.id,
+        ::Utilities::Nomenclature.unmisspell_name(t.cached_original_combination)
+      )
+
+      csv << [
+        otu_lookup[t.cached_valid_taxon_name_id],                  # taxonID attached to the current valid concept
+        reified_id,                                                # nameID
+        nil,                                                       # status  TODO: def status(taxon_name_id)
+        nil,                                                       # remarks
+        nil,                                                       # referenceID  Unclear what this means in TW
+        Export::Coldp.modified(t.updated_at),                      # modified
+        Export::Coldp.modified_by(t.updated_by_id, project_members) # modifiedBy
+      ]
+    end
+  end
+
+  # Add synonyms for invalid names with different original combinations (reified IDs)
+  def self.add_invalid_original_combinations(otu, csv, project_members, otu_lookup)
+    names = ::Export::Coldp::Files::Name.invalid_original_combination_names(otu)
+    names.length # !! Required - without this the result is truncated (see name.rb comment)
+
+    # Iterate directly over names to avoid CTE truncation issues
+    names.find_each do |t|
+      next if autonym_synonym?(t)
+
+      # By `invalid_original_combination_names(otu) these are all reified
+      reified_id = ::Utilities::Nomenclature.reified_id(
+        t.id,
+        ::Utilities::Nomenclature.unmisspell_name(t.cached_original_combination)
+      )
+
+      csv << [
+        otu_lookup[t.cached_valid_taxon_name_id],                   # taxonID attached to the current valid concept
+        reified_id,                                                 # nameID
+        nil,                                                        # status  TODO: def status(taxon_name_id)
+        nil,                                                        # remarks
+        nil,                                                        # referenceID  Unclear what this means in TW
+        Export::Coldp.modified(t.updated_at),                       # modified
+        Export::Coldp.modified_by(t.updated_by_id, project_members) # modifiedBy
+      ]
+    end
+  end
+
+  def self.autonym_synonym?(name)
+    return true if name.parent_name == name.name
+    return name.cached.scan(name.name).count == 2
+  end
+
 end

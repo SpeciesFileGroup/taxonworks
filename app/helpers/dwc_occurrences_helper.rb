@@ -19,7 +19,7 @@ module DwcOccurrencesHelper
 
     r = []
     dwc_occurrence.dwc_occurrence_object.dwc_occurrence_attributes(false).each do |k, v|
-#    CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.each do |k|
+      #    CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.each do |k|
       next if [:footprintWKT].include?(k)
       if !v.blank?
         r.push tag.tr( (tag.td(k) + tag.td(v)).html_safe )
@@ -87,9 +87,10 @@ module DwcOccurrencesHelper
 
     a = ::Person
       .left_joins(:identifiers)
-      .joins(:dwc_occurrences)
+      .joins(collecting_events: [:collection_objects])
+      .joins("JOIN dwc_occurrences dwo on dwo.dwc_occurrence_object_id = collection_objects.id AND dwo.dwc_occurrence_object_type = 'CollectionObject'")
+      .where(dwo: {project_id: project_id})
       .order(:cached)
-      .merge(records)
 
     with_global_id = a.where("identifiers.type ILIKE 'Identifier::Global%'").distinct.pluck(:id, :cached)
     without_global_id =  a.where("(identifiers.id is null) OR identifiers.type not ILIKE 'Identifier::Global%'").distinct.pluck(:id, :cached)
@@ -100,5 +101,98 @@ module DwcOccurrencesHelper
     }
   end
 
+  # @return String html table or empty
+  def is_stale_metadata_tag(dwc_occurrence)
+    d = dwc_occurrence.is_stale_metadata
+    u = dwc_occurrence.updated_at
+    return '' if d.empty?
+
+    tag.table(
+      d.collect{|k,v|
+        tag.tr(
+          ( tag.td(k.to_s.humanize) + tag.td( (u < v) ? tag.span(v, class: [:feedback, 'feedback-thin', 'feedback-danger']) : distance_of_time_in_words(u, v) ) ).html_safe
+        )
+      }.join.html_safe
+    )
+  end
+
+  # @return Hash
+  #   a rank -> number of determinations to that rank (and not finer) result
+  # !! Rescopes to valid TaxonName
+  def dwc_determined_to_rank(otu, project_id)
+    # the target levels
+    d = [
+      :dwcClass,
+      :order,
+      :family,
+      :genus,
+      :specificEpithet
+    ]
+
+    return {} if otu.taxon_name.nil?
+
+    tn = otu.taxon_name.valid_taxon_name
+
+    pid = otu.project_id
+
+    # Around a 3x speedup from filter-based derivations
+    s = "select sum(\"individualCount\") from dwc_occurrences dwc
+           join taxon_determinations td on dwc.dwc_occurrence_object_id = td.taxon_determination_object_id AND td.taxon_determination_object_type = 'CollectionObject' AND td.project_id = #{pid}
+           join otus o on td.otu_id = o.id AND o.project_id = #{pid}
+           join taxon_names tn on o.taxon_name_id = tn.id AND tn.project_id = #{pid}
+           join taxon_name_hierarchies tnh on tnh.descendant_id = tn.id AND tnh.ancestor_id = #{tn.id}
+           where dwc.project_id = #{pid}"
+
+    r = tn.rank_name.to_sym
+    r = :dwcClass if r == :class
+
+    t = {
+      specificEpithet: 0
+    }
+
+    # Select counts for only relevant ranks
+    i = false
+    d.each do |rank|
+      if i
+        t[rank] = 0
+      elsif rank == r
+        i = true
+        t[rank] = 0
+      end
+    end
+
+    # So we can use empty_rank facet
+    q = ::Queries::DwcOccurrence::Filter.new( project_id: )
+
+    k = t.keys.sort{|a,b| d.index(a) <=> d.index(b)}
+
+    # We must make ranks we don't reference null to, so
+    # use this master list
+    a = DwcOccurrence::NOMENCLATURE_RANKS
+
+    k.each do |r|
+      p = s.dup
+      # puts "--- #{r} present"
+      p << " AND dwc.\"#{r}\" IS NOT NULL"
+      absent = a[a.index(r)+1..a.length] # find all empty ranks below this rank
+      # puts absent
+
+      q.empty_rank = absent
+      if i = q.empty_rank_facet&.to_sql&.gsub(/dwc_occurrences/, 'dwc')
+        p << ' AND ' + i
+      end
+
+      t[r] = DwcOccurrence.find_by_sql(p).first.sum
+    end
+
+    # Cleanup for human readability
+    t[:class] = t[:dwcClass] if t[:dwcClass]
+    t[:species] = t[:specificEpithet] # always
+
+    t.delete(:dwcClass)
+    t.delete(:specificEpithet)
+
+    t.sort{|a,b| d.index(b) <=> d.index(a) }.to_h
+  end
 
 end

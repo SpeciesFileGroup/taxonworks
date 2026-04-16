@@ -35,16 +35,14 @@
   <VBtn
     class="middle"
     color="primary"
-    medium
+    circle
     :disabled="isEmpty"
     @click="isModalVisible = true"
   >
     <VIcon
       x-small
-      :color="isEmpty ? 'currentColor' : 'warning'"
-      name="attention"
+      name="arrowLeft"
     />
-    <span class="margin-xsmall-left">History</span>
   </VBtn>
 </template>
 

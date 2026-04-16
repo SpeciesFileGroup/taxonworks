@@ -196,14 +196,16 @@ class Source < ApplicationRecord
   include Shared::SharedAcrossProjects
   include Shared::Tags
   include Shared::HasPapertrail
+  include Shared::BiologicalAssociationIndexHooks
   include SoftValidation
   include Shared::IsData
+  # !! Must not have Shared::Depictions
 
   ignore_whitespace_on(:verbatim_contents)
 
   ALTERNATE_VALUES_FOR = [
-    :address, :annote, :booktitle, :edition, :editor, :institution, :journal, :note, :organization,
-    :publisher, :school, :title, :doi, :abstract, :language, :translator, :author, :url].freeze
+    :address, :annote, :booktitle, :edition, :institution, :journal, :note, :organization,
+    :publisher, :school, :title, :doi, :abstract, :language, :translator, :url].freeze
 
   # @return [Boolean, nil]
   #   When true, cached values are not built
@@ -215,15 +217,12 @@ class Source < ApplicationRecord
   has_many :citation_topics, through: :citations, inverse_of: :source
   has_many :topics, through: :citation_topics, inverse_of: :sources
 
-  # !! must be below has_many :citations
-  # has_many :asserted_distributions, through: :citations, source: :citation_object, source_type: 'AssertedDistribution'
-
-  has_many :project_sources, dependent: :destroy
-  has_many :projects, through: :project_sources
+  has_many :project_sources, inverse_of: :source, dependent: :destroy
+  has_many :projects, inverse_of: :sources, through: :project_sources
 
   after_save :set_cached
 
-  validates_presence_of :type
+  validates :type, presence: true
   validates :type, inclusion: {in: ['Source::Bibtex', 'Source::Human', 'Source::Verbatim']} # TODO: not needed
 
   accepts_nested_attributes_for :project_sources, reject_if: :reject_project_sources
@@ -250,14 +249,15 @@ class Source < ApplicationRecord
 
     # Redirect type here
   # @param [String] file
+  # @param [Integer] namespace_id optional namespace for creating Identifier::Local::Import::Bibtex from BibTeX key
   # @return [[Array, message]]
   #   TODO: return a more informative response?
-  def self.batch_preview(file)
+  def self.batch_preview(file, namespace_id = nil)
     begin
       bibliography = BibTeX::Bibliography.parse(file.read.force_encoding('UTF-8'), filter: :latex)
       sources = []
       bibliography.each do |record|
-        a = Source::Bibtex.new_from_bibtex(record)
+        a = Source::Bibtex.new_from_bibtex(record, nil, namespace_id)
         sources.push(a)
       end
       return sources, nil
@@ -276,8 +276,10 @@ class Source < ApplicationRecord
   end
 
     # @param [String] file
+  # @param [Integer] project_id optional project to associate sources with
+  # @param [Integer] namespace_id optional namespace for creating Identifier::Local::Import::Bibtex from BibTeX key
   # @return [Array, Boolean]
-  def self.batch_create(file)
+  def self.batch_create(file, project_id = nil, namespace_id = nil)
     sources = []
     valid = 0
     begin
@@ -285,7 +287,8 @@ class Source < ApplicationRecord
       Source.transaction do
         bibliography = BibTeX::Bibliography.parse(file.read.force_encoding('UTF-8'), filter: :latex)
         bibliography.each do |record|
-          a = Source::Bibtex.new_from_bibtex(record)
+          a = Source::Bibtex.new_from_bibtex(record, project_id, namespace_id)
+
           if a.valid?
             if a.save
               valid += 1
@@ -329,13 +332,13 @@ class Source < ApplicationRecord
     if r.empty?
       h[:recent] = Source.where(created_by_id: user_id, updated_at: 2.hours.ago..Time.now )
         .order('created_at DESC')
-        .limit(5).order(:cached).to_a
+        .limit(5).to_a
       h[:quick] = Source.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id:}).to_a
     else
       h[:recent] =
         (Source.where(created_by_id: user_id, updated_at: 2.hours.ago..Time.now )
         .order('created_at DESC')
-        .limit(5).order(:cached).to_a +
+        .limit(5).to_a +
       Source.where('"sources"."id" IN (?)', r.first(6) ).to_a).uniq
       h[:quick] = ( Source.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id:}).to_a +
                    Source.where('"sources"."id" IN (?)', r.first(4) ).to_a).uniq
@@ -446,5 +449,14 @@ class Source < ApplicationRecord
       str = title.squish.gsub(/\<i>[^<>]*?<\/i>/, '')
       soft_validations.add(:title, 'The title contains unmatched html tags') if str.include?('<i>') || str.include?('</i>')
     end
-end
+  end
+
+  # @return [ActiveRecord::Relation]
+  #   BiologicalAssociationIndex records for associations that cite this source
+  def biological_association_indices
+    BiologicalAssociationIndex
+      .joins('INNER JOIN biological_associations ba ON biological_association_indices.biological_association_id = ba.id')
+      .joins("INNER JOIN citations c ON c.citation_object_id = ba.id AND c.citation_object_type = 'BiologicalAssociation'")
+      .where('c.source_id = ?', id)
+  end
 end

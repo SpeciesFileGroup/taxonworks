@@ -1,8 +1,9 @@
 class ObservationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_observation, only: [:show, :edit, :update, :destroy, :annotations]
-  after_action -> { set_pagination_headers(:observations) }, only: [:index, :api_index], if: :json_request? 
+  before_action :set_observation, only: [:show, :edit, :update, :destroy,
+    :annotations, :navigation]
+  after_action -> { set_pagination_headers(:observations) }, only: [:index, :api_index], if: :json_request?
 
   # GET /observations
   # GET /observations.json
@@ -67,7 +68,7 @@ class ObservationsController < ApplicationController
         format.json { render :show, status: :created, location: @observation.metamorphosize }
       else
         format.html { render :new }
-        format.json { render json: @observation.metamorphosize.errors, status: :unprocessable_entity }
+        format.json { render json: @observation.metamorphosize.errors, status: :unprocessable_content }
       end
     end
   end
@@ -82,7 +83,7 @@ class ObservationsController < ApplicationController
         format.json { render :show, status: :ok, location: @observation.metamorphosize }
       else
         format.html { render :edit }
-        format.json { render json: @observation.metamorphosize.errors, status: :unprocessable_entity }
+        format.json { render json: @observation.metamorphosize.errors, status: :unprocessable_content }
       end
     end
   end
@@ -97,7 +98,7 @@ class ObservationsController < ApplicationController
         format.json { head :no_content}
       else
         format.html { destroy_redirect @observation, notice: 'Observation was not destroyed, ' + @observation.errors.full_messages.join('; ') }
-        format.json { render json: @observation.errors, status: :unprocessable_entity }
+        format.json { render json: @observation.errors, status: :unprocessable_content }
       end
     end
   end
@@ -133,6 +134,20 @@ class ObservationsController < ApplicationController
   def annotations
     @object = @observation
     render '/shared/data/all/annotations'
+  end
+
+  def autocomplete
+    @observations = Queries::Observation::Autocomplete.new(
+      params[:term], project_id: sessions_current_project_id,
+      polymorphic_types: params[:polymorphic_types_allowed]
+    ).autocomplete
+  end
+
+  def navigation
+  end
+
+  def select_options
+    @observations = Observation.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
   end
 
   private

@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 describe DwcOccurrence, type: :model, group: [:darwin_core] do
+  include ActiveJob::TestHelper
 
   # This now creates a dwc_occurrence by default
   let(:collection_object) { FactoryBot.create(:valid_specimen, no_dwc_occurrence: false) }
@@ -18,19 +19,6 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
 
   specify 'extending predicates' do
     include ActiveJob::TestHelper
-
-    def extract_data_csv_table(zip_path)
-      content = ''
-      Zip::File.open(zip_path) do |zip_file|
-        zip_file.each do |entry|
-          if entry.name == 'data.tsv' && entry.file?
-            content = entry.get_input_stream.read
-          end
-        end
-      end
-
-      CSV.parse(content, col_sep: "\t", headers: true)
-    end
 
     s1 = Specimen.create!(collecting_event:)
     s2 = Specimen.create!(collecting_event:)
@@ -57,12 +45,13 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
 
     download = Export::Dwca.download_async(
       scope,
-      predicate_extensions:
+      predicate_extensions:,
+      project_id: Current.project_id
     )
 
-    ::DwcaCreateDownloadJob.perform_now(download, core_scope: scope, predicate_extensions:)
+    ::DwcaCreateDownloadJob.perform_now(download.id, core_scope: scope, predicate_extensions:, project_id: Current.project_id)
 
-    tbl = extract_data_csv_table(download.file_path)
+    tbl = Spec::Support::Utilities::Dwca.extract_data_tsv_table(download.file_path)
 
     expect(tbl.headers).to include(p1_header)
     expect(tbl.headers).not_to include(p2_header)   # header shouldn't be included if no predicate values are present
@@ -81,7 +70,23 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
     expect(tbl[2][p3_header]).to be_nil
   end
 
-  specify '#dwc_occurrence_id post .set_dwc_occurrence' do
+  specify '.set_dwc_occurrence update is set' do
+    s = Specimen.create!
+    t = s.dwc_occurrence.updated_at
+    s.dwc_occurrence.update!(rebuild_set: '123')
+    s.set_dwc_occurrence
+    expect(s.dwc_occurrence.updated_at > t).to be_truthy
+  end
+
+  specify '.set_dwc_occurrence stale is cleared' do
+    s = Specimen.create!
+    expect(s.dwc_occurrence.rebuild_set).to eq(nil)
+    s.dwc_occurrence.update!(rebuild_set: '123')
+    s.set_dwc_occurrence
+    expect(s.dwc_occurrence.rebuild_set).to eq(nil)
+  end
+
+  specify '#dwc_occurrence_id is created on .set_dwc_occurrence' do
     s = Specimen.create!(no_dwc_occurrence: true)
     expect(s.dwc_occurrence_id).to eq(nil)
     s.set_dwc_occurrence
@@ -125,7 +130,7 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
 
     # A merge with two different from: targets fails no
     #   if we come back to this see `.and()`
-    b = DwcOccurrence.collection_objects_join.merge(a)
+    b = DwcOccurrence.object_join('CollectionObject').merge(a)
 
     expect(b.all.count).to eq(1)
   end
@@ -182,11 +187,50 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
     context 'when collection object is provided' do
       before do
         dwc_occurrence.dwc_occurrence_object = collection_object
-        dwc_occurrence.valid?
+        dwc_occurrence.valid? # triggers before_validate callbacks
       end
 
       specify 'is automatically set' do
         expect(dwc_occurrence.basisOfRecord).to eq('PreservedSpecimen')
+      end
+    end
+
+    context 'when collection object has fossil biocuration class' do
+      specify 'DwcOccurrence#basis detects fossil' do
+        specimen = FactoryBot.create(:valid_specimen, no_dwc_occurrence: false)
+        fossil_biocuration_class = FactoryBot.create(:valid_biocuration_class, uri: DWC_FOSSIL_URI)
+        specimen.biocuration_classes << fossil_biocuration_class
+
+        expect(specimen.dwc_occurrence.basis).to eq('FossilSpecimen')
+      end
+
+      specify 'basisOfRecord changes to FossilSpecimen when fossil biocuration class is added' do
+        specimen = FactoryBot.create(:valid_specimen, no_dwc_occurrence: false)
+        expect(specimen.dwc_occurrence.basisOfRecord).to eq('PreservedSpecimen')
+
+        fossil_biocuration_class = FactoryBot.create(:valid_biocuration_class, uri: DWC_FOSSIL_URI)
+        specimen.biocuration_classes << fossil_biocuration_class
+
+        perform_enqueued_jobs
+
+        expect(specimen.dwc_occurrence.reload.basisOfRecord).to eq('FossilSpecimen')
+      end
+
+      specify 'basisOfRecord changes back to PreservedSpecimen when fossil biocuration class is removed' do
+        specimen = FactoryBot.create(:valid_specimen, no_dwc_occurrence: false)
+        fossil_biocuration_class = FactoryBot.create(:valid_biocuration_class, uri: DWC_FOSSIL_URI)
+        specimen.biocuration_classes << fossil_biocuration_class
+
+        perform_enqueued_jobs
+
+        expect(specimen.dwc_occurrence.reload.basisOfRecord).to eq('FossilSpecimen')
+
+        # Destroy the BiocurationClassification to trigger callbacks
+        specimen.biocuration_classifications.where(biocuration_class: fossil_biocuration_class).destroy_all
+
+        perform_enqueued_jobs
+
+        expect(specimen.dwc_occurrence.reload.basisOfRecord).to eq('PreservedSpecimen')
       end
     end
 

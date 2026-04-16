@@ -16,30 +16,24 @@
     </template>
     <template #body>
       <VSpinner v-if="isLoading" />
-      <PreviewTable :data="data" />
+      <PreviewTable
+        v-if="data"
+        :data="data"
+      />
     </template>
     <template #footer>
-      <div class="flex-separate middle">
-        <VBtn
-          color="create"
-          medium
-          @click="
-            () => {
-              emit('finalize')
-              closeModal()
-            }
-          "
-        >
-          Finalize
-        </VBtn>
-        <VBtn
-          color="primary"
-          medium
-          @click="closeModal"
-        >
-          Close
-        </VBtn>
-      </div>
+      <VBtn
+        color="create"
+        medium
+        @click="
+          () => {
+            emit('finalize')
+            closeModal()
+          }
+        "
+      >
+        Finalize
+      </VBtn>
     </template>
   </VModal>
 </template>
@@ -80,6 +74,9 @@ function makeBatchloadRequest() {
     .batchService({ ...props.payload, preview: true })
     .then(({ body }) => {
       data.value = body
+    })
+    .catch(() => {
+      isModalVisible.value = false
     })
     .finally(() => {
       isLoading.value = false

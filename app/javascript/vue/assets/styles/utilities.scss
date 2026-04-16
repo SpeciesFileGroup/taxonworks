@@ -6,6 +6,18 @@
   opacity: 1;
 }
 
+.opacity-75 {
+  opacity: 0.75;
+}
+
+.opacity-50 {
+  opacity: 0.5;
+}
+
+.opacity-25 {
+  opacity: 0.25;
+}
+
 .opacity-0 {
   opacity: 0;
 }
@@ -16,6 +28,16 @@
 
 .shadow-none {
   box-shadow: none;
+}
+
+.ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sentence-case::first-letter {
+  text-transform: uppercase;
 }
 
 @for $i from 1 through 3 {

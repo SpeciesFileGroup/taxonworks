@@ -21,7 +21,6 @@
 class Project < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
-  include Housekeeping::AssociationHelpers
   include Project::Preferences
 
   attr_accessor :without_root_taxon_name
@@ -35,30 +34,34 @@ class Project < ApplicationRecord
   # The intent is to use  `delete_all` for speed. This means
   # that callbacks are *not* fired (associated destroys).
   MANIFEST = %w{
+     News
      Observation
      CitationTopic
      Citation
      Note
      CharacterState
-     Protocol
      AlternateValue
      DataAttribute
      TaggedSectionKeyword
      Tag
      Confidence
      Role
-     SledImage
      Label
      Attribution
      DwcOccurrence
+     BiologicalAssociationIndex
      ProtocolRelationship
+     Protocol
      SqedDepiction
      Depiction
+     Conveyance
+     SledImage
      Documentation
      Document
      CollectionObjectObservation
      DerivedCollectionObject
      PinboardItem
+     AnatomicalPart
      AssertedDistribution
      BiocurationClassification
      BiologicalRelationshipType
@@ -71,8 +74,12 @@ class Project < ApplicationRecord
      Container
      PublicContent
      Content
+     Gazetteer
+     GazetteerImport
      Georeference
      Identifier
+     Lead
+     LeadItem
      LoanItem
      Loan
      OtuPageLayoutSection
@@ -80,12 +87,11 @@ class Project < ApplicationRecord
      ProjectSource
      TaxonDetermination
      TypeMaterial
-     RangedLotCategory
      Image
+     Sound
      CommonName
      TaxonNameClassification
      TaxonNameRelationship
-     ControlledVocabularyTerm
      OriginRelationship
      Sequence
      SequenceRelationship
@@ -96,10 +102,12 @@ class Project < ApplicationRecord
      ObservationMatrixRow
      ObservationMatrixRowItem
      ObservationMatrix
+     FieldOccurrence
      CollectionObject
+     RangedLotCategory
      CollectingEvent
-     Otu
      OtuRelationship
+     Otu
      TaxonName
      Descriptor
      ProjectMember
@@ -107,16 +115,30 @@ class Project < ApplicationRecord
      DatasetRecordField
      DatasetRecord
      ImportDataset
+     ControlledVocabularyTerm
      CachedMapItem
      CachedMapRegister
      CachedMap
   }.freeze
 
+  PROJECT_DOWNLOAD_PREFERENCES_PATH = [
+    'metadata', 'dwc', 'gbif', 'institutional_collection'
+  ].freeze
+
+  EML_PREFERENCES_PATH = [
+    *PROJECT_DOWNLOAD_PREFERENCES_PATH, 'eml'
+  ].freeze
+
+  ANATOMICAL_PARTS_ONTOLOGIES_PATH = [
+    'anatomical_parts', 'ontologies'
+  ].freeze
+
   has_many :project_members, dependent: :restrict_with_error
 
   has_many :users, through: :project_members
-  has_many :project_sources, dependent: :restrict_with_error
-  has_many :sources, through: :project_sources
+
+  has_many :project_sources, inverse_of: :projects, dependent: :restrict_with_error
+  has_many :sources, inverse_of: :projects, through: :project_sources
 
   before_save :generate_api_access_token, if: :set_new_api_access_token
   before_save :destroy_api_access_token, if: -> { self.clear_api_access_token}
@@ -124,6 +146,8 @@ class Project < ApplicationRecord
 
   validates_presence_of :name
   validates_uniqueness_of :name
+
+  accepts_nested_attributes_for :project_members, allow_destroy: true
 
   def project_administrators
     users.joins(:project_members).where(project_members: {is_project_administrator: true})
@@ -154,8 +178,6 @@ class Project < ApplicationRecord
         klass = o.safe_constantize
 
       end
-
-
 
       true
     rescue => e
@@ -208,6 +230,169 @@ class Project < ApplicationRecord
     where('name LIKE ?', "#{params[:term]}%")
   end
 
+  def dwc_complete_download_preferences(user)
+    dataset, additional_metadata = complete_dwc_eml_preferences
+    {
+      user_is_admin: user.is_project_administrator?(self),
+      default_user_id: complete_dwc_download_default_user_id,
+      max_age: complete_dwc_download_max_age,
+      is_public: complete_dwc_download_is_public?,
+      extensions: complete_dwc_download_extensions,
+      predicates_and_internal_values: complete_dwc_download_predicates_and_internal_values,
+      eml_preferences: {
+        dataset:,
+        additional_metadata:
+      },
+      auto_filled: {
+        eml: ::Export::Dwca::Eml::EML_PARAMETERS,
+        dataset: ::Export::Dwca::Eml::DATASET_PARAMETERS,
+        additional_metadata: ::Export::Dwca::Eml::ADDITIONAL_METADATA_PARAMETERS
+      }
+    }
+  end
+
+  def complete_dwc_eml_preferences
+    prefs = preferences.dig(*EML_PREFERENCES_PATH)
+    if prefs
+      [prefs['dataset'], prefs['additional_metadata']]
+    else
+      [
+        ::Export::Dwca::Eml.dataset_stub,
+        ::Export::Dwca::Eml.additional_metadata_stub
+      ]
+    end
+  end
+
+  def set_complete_dwc_eml_preferences(dataset, additional_metadata)
+    prefs = preferences_for(EML_PREFERENCES_PATH)
+
+    prefs['dataset'] = dataset
+    prefs['additional_metadata'] = additional_metadata
+
+    save!
+  end
+
+  def set_complete_dwc_download_max_age(max_age)
+    prefs = preferences_for(PROJECT_DOWNLOAD_PREFERENCES_PATH)
+    is_decimal = true if Float(max_age) rescue false
+    if !is_decimal
+      return false
+    end
+
+    prefs['max_age'] = Float(max_age)
+    save!
+
+    true
+  end
+
+  def complete_dwc_download_max_age
+    prefs = preferences_for(PROJECT_DOWNLOAD_PREFERENCES_PATH)
+    if prefs
+      prefs['max_age']
+    else
+      nil
+    end
+  end
+
+  def complete_dwc_download_is_public?
+    prefs = preferences_for(PROJECT_DOWNLOAD_PREFERENCES_PATH)
+    if prefs
+      prefs['is_public'] == true || prefs['is_public'] == 'true'
+    else
+      false
+    end
+  end
+
+  def set_complete_dwc_download_is_public(is_public)
+    prefs = preferences_for(PROJECT_DOWNLOAD_PREFERENCES_PATH)
+    prefs['is_public'] = is_public == true || is_public == 'true'
+
+    save!
+  end
+
+  def set_complete_dwc_download_default_user_id(default_user_id)
+    prefs = preferences_for(PROJECT_DOWNLOAD_PREFERENCES_PATH)
+    prefs['default_user_id'] = default_user_id
+
+    save!
+  end
+
+  def complete_dwc_download_default_user_id
+    prefs = preferences_for(PROJECT_DOWNLOAD_PREFERENCES_PATH)
+    if prefs
+      prefs['default_user_id']
+    else
+      nil
+    end
+  end
+
+  def complete_dwc_download_extensions
+    prefs = preferences_for(PROJECT_DOWNLOAD_PREFERENCES_PATH)
+    if prefs
+      prefs['extensions'] || []
+    else
+      []
+    end
+  end
+
+  # @param extensions [Array[String]] list of extensions that should be included
+  # in complete downloads: ['media', 'resource_relationships', ...]
+  def set_complete_dwc_download_extensions(extensions)
+    prefs = preferences_for(PROJECT_DOWNLOAD_PREFERENCES_PATH)
+    prefs['extensions'] = extensions
+
+    save!
+  end
+
+  def complete_dwc_download_predicates_and_internal_values
+    prefs = preferences_for(PROJECT_DOWNLOAD_PREFERENCES_PATH)
+    if prefs
+      prefs['predicates'] || {}
+    else
+      {}
+    end
+  end
+
+  def set_complete_dwc_download_predicates_and_internal_values(predicates_and_internal_values)
+    prefs = preferences_for(PROJECT_DOWNLOAD_PREFERENCES_PATH)
+    # (Historical oversight that this pref wasn't named
+    # 'predicates_and_internal_values')
+    prefs['predicates'] = predicates_and_internal_values
+
+    save!
+  end
+
+  def complete_dwc_download_predicates
+    prefs = complete_dwc_download_predicates_and_internal_values.dup
+    return {} unless prefs.present?
+
+    prefs.delete('taxonworks_extension_methods')
+    prefs
+  end
+
+  def complete_dwc_download_internal_values
+    prefs = complete_dwc_download_predicates_and_internal_values
+    return [] unless prefs.present?
+
+    prefs['taxonworks_extension_methods'] || []
+  end
+
+  def set_anatomical_parts_ontologies(ontologies)
+    prefs = preferences_for(ANATOMICAL_PARTS_ONTOLOGIES_PATH)
+    prefs['ontologies'] = ontologies
+
+    save!
+  end
+
+  def anatomical_parts_ontology_preferences
+    prefs = preferences_for(ANATOMICAL_PARTS_ONTOLOGIES_PATH)
+    if prefs
+      prefs['ontologies'] || []
+    else
+      []
+    end
+  end
+
   protected
 
   def create_root_taxon_name
@@ -223,6 +408,30 @@ class Project < ApplicationRecord
 
   def destroy_api_access_token
     self.api_access_token = nil
+    self.class.api_access_token_destroyed
+  end
+
+  def self.api_access_token_destroyed
+    # TODO: call watchers instead(?)
+    Download.descendants.each do |subclass|
+      subclass.project_api_access_token_destroyed if subclass.respond_to?(:project_api_access_token_destroyed)
+    end
+  end
+
+  # @param path [Array] like EML_PREFERENCES_PATH.
+  def preferences_for(path)
+    prefs = preferences.dig(*path)
+    if !prefs
+      prefs = preferences
+      path.each do |p|
+        if prefs[p].nil?
+          prefs[p] = {}
+        end
+        prefs = prefs[p]
+      end
+    end
+
+    prefs
   end
 
 end

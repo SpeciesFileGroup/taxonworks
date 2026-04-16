@@ -5,6 +5,7 @@ import CustomAttributes from '../components/CustomAttributes'
 import ProtocolsComponent from '../components/Protocols'
 import RepositoryComponent from '../components/Repository'
 import ByComponent from '../components/Role'
+import VConfidence from '../components/Confidence.vue'
 
 const VueComponent = {
   ByComponent,
@@ -13,9 +14,8 @@ const VueComponent = {
   IdentifierComponent,
   OriginComponent,
   RepositoryComponent,
+  VConfidence,
   CustomAttributes
 }
 
-export {
-  VueComponent
-}
+export { VueComponent }

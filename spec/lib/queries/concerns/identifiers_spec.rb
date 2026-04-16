@@ -12,7 +12,6 @@ describe Queries::Concerns::Identifiers, type: :model, group: [:identifiers, :fi
   let!(:i1) { Identifier::Local::CatalogNumber.create!(namespace: n1, identifier: '123', identifier_object: co1) }
   let!(:i2) { Identifier::Local::CatalogNumber.create!(namespace: n2, identifier: '453', identifier_object: co2) }
 
-
   specify '#local_identifiers_container_match' do
     c = FactoryBot.create(:valid_container)
     e = FactoryBot.create(:valid_specimen, contained_in: c)
@@ -79,6 +78,13 @@ describe Queries::Concerns::Identifiers, type: :model, group: [:identifiers, :fi
     expect(query.all.pluck(:id)).to contain_exactly(co1.id)
   end
 
+  specify '#match_identifiers 2 #match_identifiers_caseless' do
+    query.match_identifiers = "a,b,  #{n1.short_name.downcase} 123 \n\n,  c, #{co1.id}, 99"
+    query.match_identifiers_type = 'identifier'
+    query.match_identifiers_caseless = true
+    expect(query.all.pluck(:id)).to contain_exactly(co1.id)
+  end
+
   specify '#identifiers' do
     s = FactoryBot.create(:valid_specimen)
     d = FactoryBot.create(:valid_identifier, identifier_object: s)
@@ -130,6 +136,15 @@ describe Queries::Concerns::Identifiers, type: :model, group: [:identifiers, :fi
     query.identifier_start = '120'
     query.identifier_end = '457'
     expect(query.all.pluck(:id)).to contain_exactly()
+  end
+
+  specify 'range 6 virtual namespace' do
+    co3 = Specimen.create!
+    n3 = Namespace.create!(name: 'Fifth', short_name: 'sixth', is_virtual: true)
+    Identifier::Local::CatalogNumber.create!(namespace: n3, identifier: 'superZekret234', identifier_object: co3)
+    query.identifier_start = '200'
+    query.identifier_end = '457'
+    expect(query.all.pluck(:id)).to contain_exactly(co2.id, co3.id)
   end
 
   specify '#identifier_exact 1' do

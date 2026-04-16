@@ -50,7 +50,7 @@ class SerialsController < ApplicationController
         format.json { render action: 'show', status: :created, location: @serial }
       else
         format.html { render action: 'new' }
-        format.json { render json: @serial.errors, status: :unprocessable_entity }
+        format.json { render json: @serial.errors, status: :unprocessable_content }
       end
     end
   end
@@ -64,7 +64,7 @@ class SerialsController < ApplicationController
         format.json { head :no_content }
       else
         format.html { render action: 'edit' }
-        format.json { render json: @serial.errors, status: :unprocessable_entity }
+        format.json { render json: @serial.errors, status: :unprocessable_content }
       end
     end
   end
@@ -79,7 +79,7 @@ class SerialsController < ApplicationController
         format.json { head :no_content }
       else
         format.html { destroy_redirect @serial, notice: 'Serial was not destroyed, ' + @serial.errors.full_messages.join('; ') }
-        format.json { render json: @serial.errors, status: :unprocessable_entity }
+        format.json { render json: @serial.errors, status: :unprocessable_content }
       end
     end
   end

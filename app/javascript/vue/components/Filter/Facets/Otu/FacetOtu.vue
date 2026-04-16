@@ -1,6 +1,6 @@
 <template>
   <FacetContainer>
-    <h3>Otu</h3>
+    <h3>{{ title }}</h3>
     <div class="field">
       <SmartSelector
         model="otus"
@@ -14,11 +14,13 @@
       :list="otusStore"
       label="object_tag"
       :delete-warning="false"
+      soft-delete
       @delete="removeFromArray(otusStore, $event)"
     />
     <OtuCoordinate v-if="coordinate" />
     <VIncludes
-      v-if="includes"
+      v-if="includes.length"
+      :includes="includes"
       v-model="params"
     />
   </FacetContainer>
@@ -26,7 +28,6 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue'
-import { URLParamsToJSON } from '@/helpers/url/parse.js'
 import { Otu } from '@/routes/endpoints'
 import { addToArray, removeFromArray } from '@/helpers/arrays'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
@@ -47,13 +48,18 @@ const props = defineProps({
   },
 
   includes: {
-    type: Boolean,
-    default: false
+    type: Array,
+    default: () => []
   },
 
   coordinate: {
     type: Boolean,
     default: false
+  },
+
+  title: {
+    type: String,
+    default: 'Otu'
   }
 })
 

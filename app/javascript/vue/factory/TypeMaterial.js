@@ -1,12 +1,13 @@
-export default () => ({
-  id: undefined,
-  global_id: undefined,
-  protonym_id: undefined,
+import { randomUUID } from '@/helpers'
+
+export default (typeData = {}) => ({
+  id: typeData.id,
+  uuid: typeData.uuid || randomUUID(),
+  type: typeData.type_type,
+  protonymId: typeData.protonym_id,
+  label: typeData.object_tag,
+  collectionObjectId: typeData.collection_object_id,
+  globalId: typeData.global_id,
   taxon: undefined,
-  collection_object_id: undefined,
-  type_type: undefined,
-  roles_attributes: [],
-  collection_object: undefined,
-  origin_citation_attributes: undefined,
-  type_designator_roles: []
+  isUnsaved: false
 })

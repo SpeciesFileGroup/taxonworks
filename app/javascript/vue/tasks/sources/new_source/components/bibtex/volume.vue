@@ -1,41 +1,25 @@
 <template>
-  <div class="horizontal-left-content">
-    <div class="field separate-right label-above">
-      <label>Volume</label>
+  <div class="horizontal-left-content gap-small">
+    <div
+      v-for="field in VOLUME_FIELDS"
+      :key="field"
+      class="label-above"
+    >
+      <label class="capitalize">{{ field }}</label>
       <input
         type="text"
-        v-model="source.volume">
-    </div>
-    <div class="field separate-right label-above">
-      <label>Number</label>
-      <input
-        type="text"
-        v-model="source.number">
-    </div>
-    <div class="field separate-right label-above">
-      <label>Pages</label>
-      <input
-        type="text"
-        v-model="source.pages">
+        v-model="source[field]"
+        @change="() => (source.isUnsaved = true)"
+      />
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
+const VOLUME_FIELDS = ['volume', 'number', 'pages']
 
-import { GetterNames } from '../../store/getters/getters'
-import { MutationNames } from '../../store/mutations/mutations'
-
-export default {
-  computed: {
-    source: {
-      get () {
-        return this.$store.getters[GetterNames.GetSource]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetSource, value)
-      }
-    }
-  }
-}
+const source = defineModel({
+  type: Object,
+  required: true
+})
 </script>

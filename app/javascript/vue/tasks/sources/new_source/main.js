@@ -1,20 +1,19 @@
 import { createApp } from 'vue'
-import { newStore } from './store/store.js'
+import { createPinia } from 'pinia'
 import App from './app.vue'
 import HelpSystem from '@/plugins/help/help'
-import hotkey from '@/plugins/v-hotkey'
 import en from './lang/help/en'
 
 function init() {
   const app = createApp(App)
 
-  app.directive('hotkey', hotkey)
   app.use(HelpSystem, {
     languages: {
       en: en
     }
   })
-  app.use(newStore())
+
+  app.use(createPinia())
   app.mount('#vue-task-new-source')
 }
 

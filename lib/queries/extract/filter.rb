@@ -4,6 +4,7 @@ module Queries
     class Filter < Query::Filter
       include Queries::Concerns::Citations
       include Queries::Concerns::Containable
+      include Queries::Concerns::Confidences
       include Queries::Concerns::DateRanges
       include Queries::Concerns::Protocols
       include Queries::Concerns::Tags
@@ -95,6 +96,7 @@ module Queries
         @taxon_name_id = params[:taxon_name_id]
         @verbatim_anatomical_origin = params[:verbatim_anatomical_origin]
 
+        set_confidences_params(params)
         set_containable_params(params)
         set_citations_params(params)
         set_date_params(params)
@@ -259,6 +261,14 @@ module Queries
         ::Extract.from('(' + s + ') as extracts').distinct
       end
 
+      def anatomical_part_query_facet
+        return nil if anatomical_part_query.nil?
+
+        ::Extract
+          .joins(:related_origin_relationships)
+          .where("origin_relationships.old_object_id IN (#{ anatomical_part_query.all.select(:id).to_sql })")
+      end
+
       # @return [Array]
       def and_clauses
         [
@@ -271,6 +281,7 @@ module Queries
 
       def merge_clauses
         [
+          anatomical_part_query_facet,
           observation_query_facet,
           collection_object_query_facet,
           otu_query_facet,

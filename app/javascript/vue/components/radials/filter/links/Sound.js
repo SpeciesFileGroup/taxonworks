@@ -1,0 +1,13 @@
+import {
+  FILTER_ANATOMICAL_PART,
+  FILTER_OBSERVATION,
+  FILTER_OTU,
+  FILTER_TAXON_NAME
+} from '../constants/filterLinks'
+
+export const Sound = [
+  FILTER_ANATOMICAL_PART,
+  FILTER_OBSERVATION,
+  FILTER_OTU,
+  FILTER_TAXON_NAME
+]

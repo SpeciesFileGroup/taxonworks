@@ -1,7 +1,10 @@
 class IdentifiersController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
+  include DataControllerConfiguration::BatchByFilterScope
 
   before_action :set_identifier, only: [:update, :destroy, :show]
+
+  after_action -> { set_pagination_headers(:identifiers) }, only: [:index, :api_index], if: :json_request?
 
   # GET /identifiers
   # GET /identifiers.json
@@ -14,6 +17,7 @@ class IdentifiersController < ApplicationController
       format.json {
         # project_id handling logic is in filter, it must be handled there. This contrasts pattern used elsewhere, but see alternate_values_controller.rb
         @identifiers = Queries::Identifier::Filter.new(params.merge(project_id: sessions_current_project_id)).all
+         .order(:identifier_object_type, :identifier_object_id, :position)
          .page(params[:page])
          .per(params[:per])
       }
@@ -45,7 +49,7 @@ class IdentifiersController < ApplicationController
         format.json { render action: 'show', status: :created, location: @identifier.becomes(Identifier) }
       else
         format.html { render 'new', notice: 'Identifier was NOT successfully created.' }
-        format.json { render json: @identifier.errors, status: :unprocessable_entity }
+        format.json { render json: @identifier.errors, status: :unprocessable_content }
       end
     end
   end
@@ -60,9 +64,17 @@ class IdentifiersController < ApplicationController
         format.json { render :show, status: :ok, location: @identifier.becomes(Identifier) }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Identifier was NOT successfully created.')}
-        format.json { render json: @identifier.errors, status: :unprocessable_entity }
+        format.json { render json: @identifier.errors, status: :unprocessable_content }
       end
     end
+  end
+
+  # PATCH /identifiers/reorder?id[]=1
+  def reorder
+    params[:id].reverse.each do |identifier_id|
+      Identifier.find(identifier_id).move_to_top
+    end
+    render json: true
   end
 
   # DELETE /identifiers/1
@@ -96,12 +108,23 @@ class IdentifiersController < ApplicationController
 
   # GET /api/v1/identifiers
   def api_index
-    @identifiers = Queries::Identifier::Filter.new(params.merge!(api: true)).all
-      .where(project_id: sessions_current_project_id)
+    @identifiers = api_identifiers
       .order('identifiers.id')
       .page(params[:page])
       .per(params[:per])
     render '/identifiers/api/v1/index'
+  end
+
+  def api_identifiers
+    q = Queries::Identifier::Filter.new(params)
+    q.api = true
+    a = q.all.where(project_id: sessions_current_project_id)
+
+    q.api = false
+    q.project_id = nil
+    b = q.all.where(identifier_object_type: ApplicationEnumeration.community_models.map(&:to_s))
+
+    ::Queries.union(Identifier, [a,b])
   end
 
   # GET /api/v1/identifiers/:id
@@ -116,7 +139,6 @@ class IdentifiersController < ApplicationController
     render '/identifiers/api/v1/autocomplete'
   end
 
-
   # GET /identifiers/download
   def download
     send_data Export::CSV.generate_csv(Identifier.where(project_id: sessions_current_project_id)), type: 'text', filename: "identifiers_#{DateTime.now}.tsv"
@@ -125,6 +147,15 @@ class IdentifiersController < ApplicationController
   # GET /identifiers/identifier_types
   def identifier_types
     render json: IDENTIFIERS_JSON
+  end
+
+  # POST /identifiers/namespaces.json
+  def namespaces
+    @namespaces = Identifier.namespaces_for_types_from_query(
+      params[:identifier_types], params[:filter_query]
+    )
+
+    render json: @namespaces
   end
 
   private
@@ -149,6 +180,11 @@ class IdentifiersController < ApplicationController
 
   def autocomplete_params
     params.permit(identifier_object_type: []).to_h.symbolize_keys.merge(project_id: sessions_current_project_id) # :exact
+  end
+
+  def batch_by_filter_scope_params
+    params.require(:params).permit(:namespace_id, :virtual_namespace_prefix,
+      namespaces_to_replace: [], identifier_types: [])
   end
 
 end

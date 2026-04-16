@@ -18,8 +18,27 @@
       <RadialAnnotator :global-id="depiction.image.global_id" />
     </td>
     <td>
-      <div class="flex-wrap-column gap-small">
+      <div
+        class="flex-wrap-column gap-small padding-small-top padding-small-bottom"
+      >
         <RadialAnnotator :global-id="depiction.global_id" />
+        <MoveAnnotation
+          :annotation="depiction"
+          @move="(item) => emit('move', item)"
+        />
+        <VBtn
+          color="primary"
+          circle
+          class="cursor-grab handle"
+          title="Press and hold to drag depiction"
+        >
+          <VIcon
+            title="Press and hold to drag depiction"
+            color="white"
+            name="scrollV"
+            small
+          />
+        </VBtn>
         <VBtn
           class="circle-button"
           color="primary"
@@ -31,6 +50,7 @@
             x-small
           />
         </VBtn>
+
         <VBtn
           class="circle-button"
           color="destroy"
@@ -52,6 +72,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import EditInPlace from '@/components/editInPlace.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import MoveAnnotation from '../shared/MoveAnnotation/MoveAnnotation.vue'
 import { watch, ref } from 'vue'
 
 const props = defineProps({
@@ -63,6 +84,7 @@ const props = defineProps({
 
 const emit = defineEmits([
   'selected',
+  'move',
   'delete',
   'update:label',
   'update:caption'

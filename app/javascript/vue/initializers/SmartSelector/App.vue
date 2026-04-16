@@ -9,7 +9,10 @@
       :label="label"
       @selected="(item) => (selectedItem = item)"
     />
-    <hr v-if="selectedItem" />
+    <hr
+      v-if="selectedItem"
+      class="divisor"
+    />
     <SmartSelectorItem
       :item="selectedItem"
       :label="label"

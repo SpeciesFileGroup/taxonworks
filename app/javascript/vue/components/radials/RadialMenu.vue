@@ -2,6 +2,10 @@
   <div ref="radialContainer" />
 </template>
 
+<script>
+const EVENTS = ['click', 'contextmenu', 'mousedown', 'mouseup', 'dblclick']
+</script>
+
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import RadialMenu from '@sfgrp/svg-radial-menu'
@@ -13,7 +17,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['onClick'])
+const emit = defineEmits(EVENTS)
 
 const radialContainer = ref(null)
 let radialInstance = null
@@ -37,6 +41,8 @@ function initRadialMenu() {
 }
 
 function handleEvents() {
-  radialInstance.on('click', (event) => emit('onClick', event))
+  EVENTS.forEach((eventName) => {
+    radialInstance.on(eventName, (event) => emit(eventName, event))
+  })
 }
 </script>

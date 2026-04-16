@@ -15,14 +15,20 @@ import SliceTaxonDetermination from './components/SliceTaxonDetermination.vue'
 import SliceBiocurations from './components/SliceBiocurations/SliceBiocurations.vue'
 import SliceRepository from './components/SliceRepository.vue'
 import SliceCollectingEvent from './components/SliceCollectingEvent.vue'
+import SlicePreparationType from './components/SlicePreparationType.vue'
+import SliceContainerItems from './components/SliceContainerItems.vue'
 import DwcSlice from './components/DwCSlice.vue'
+import SliceAccessions from './components/SliceAccessions.vue'
 
 const SLICES = {
   'Add biocurations': SliceBiocurations,
+  'Accessions / Deaccession': SliceAccessions,
   'Collecting event': SliceCollectingEvent,
+  'Container items': SliceContainerItems,
   'Taxon determinations': SliceTaxonDetermination,
   Repository: SliceRepository,
-  'Regenerate DwC': DwcSlice
+  'Regenerate DwC': DwcSlice,
+  'Preparation type': SlicePreparationType
 }
 
 defineOptions({

@@ -1,7 +1,8 @@
 class TaxonDeterminationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_taxon_determination, only: [:show, :edit, :update, :destroy]
+  before_action :set_taxon_determination, only: [:show, :edit, :update, :destroy, :api_show]
+  after_action -> { set_pagination_headers(:taxon_determinations) }, only: [:index, :api_index], if: :json_request?
 
   # GET /taxon_determinations
   # GET /taxon_determinations.json
@@ -17,6 +18,25 @@ class TaxonDeterminationsController < ApplicationController
         .per(params[:per])
       }
     end
+  end
+
+  # GET /api/v1/taxon_determinations
+  def api_index
+    q = ::Queries::TaxonDetermination::Filter.new(params.merge!(api: true)).all
+      .where(project_id: sessions_current_project_id)
+      .order('taxon_determinations.id')
+
+    respond_to do |format|
+      format.json {
+        @taxon_determinations = q.page(params[:page]).per(params[:per])
+        render '/taxon_determinations/api/v1/index'
+      }
+    end
+  end
+
+  # GET /api/v1/taxon_determinations/:id
+  def api_show
+    render '/taxon_determinations/api/v1/show'
   end
 
   def list
@@ -48,7 +68,7 @@ class TaxonDeterminationsController < ApplicationController
         format.json { render action: 'show', status: :created, location: @taxon_determination }
       else
         format.html { render action: 'new' }
-        format.json { render json: @taxon_determination.errors, status: :unprocessable_entity }
+        format.json { render json: @taxon_determination.errors, status: :unprocessable_content }
       end
     end
   end
@@ -62,7 +82,7 @@ class TaxonDeterminationsController < ApplicationController
         format.json { render action: 'show', status: :created, location: @taxon_determination }
       else
         format.html { render action: 'edit' }
-        format.json { render json: @taxon_determination.errors, status: :unprocessable_entity }
+        format.json { render json: @taxon_determination.errors, status: :unprocessable_content }
       end
     end
   end
@@ -72,8 +92,13 @@ class TaxonDeterminationsController < ApplicationController
   def destroy
     @taxon_determination.destroy
     respond_to do |format|
-      format.html { redirect_to taxon_determinations_url }
-      format.json { head :no_content }
+      if @taxon_determination.destroyed?
+        format.html { destroy_redirect @taxon_determination, notice: 'Taxon determination was successfully destroyed.' }
+        format.json { head :no_content }
+      else
+        format.html { destroy_redirect @taxon_determination, notice: 'Taxon determination was not destroyed, ' + @taxon_determination.errors.full_messages.join('; ') }
+        format.json { render json: @taxon_determination.errors, status: :unprocessable_content }
+      end
     end
   end
 
@@ -95,14 +120,17 @@ class TaxonDeterminationsController < ApplicationController
   end
 
   def autocomplete
-    @taxon_determinations = taxon_determination.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+    @taxon_determinations = TaxonDetermination.find_for_autocomplete(params)
+      .where(project_id: sessions_current_project_id)
+      .limit(40)
+      .distinct
     data = @taxon_determinations.collect do |t|
       {id: t.id,
-       label: TaxonDeterminationsHelper.taxon_determination_tag(t),
+       label: helpers.taxon_determination_tag(t),
        response_values: {
-           params[:method] => t.id
+         params[:method] => t.id
        },
-       label_html: TaxonDeterminationsHelper.taxon_determination_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html: helpers.taxon_determination_tag(t) 
       }
     end
 
@@ -135,7 +163,8 @@ class TaxonDeterminationsController < ApplicationController
 
   def taxon_determination_params
     params.require(:taxon_determination).permit(
-      :biological_collection_object_id, :otu_id, :year_made, :month_made, :day_made, :position,
+      :taxon_determination_object_id, :taxon_determination_object_type,
+      :otu_id, :year_made, :month_made, :day_made, :position,
       roles_attributes: [:id, :_destroy, :type, :organization_id, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
       otu_attributes: [:id, :_destroy, :name, :taxon_name_id]
     )

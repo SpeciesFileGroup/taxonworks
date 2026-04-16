@@ -60,7 +60,7 @@ module Workbench::SessionsHelper
         format.json { render(json: {success: false}, status: :bad_request) && return } # was unauthorized
       end
     else
-      self.sessions_current_project_id = params[:project_id]
+      self.sessions_current_project_id = params[:project_id] if ProjectMember.exists?(project_id: params[:project_id], user_id: sessions_current_user_id)
     end
   end
 
@@ -89,7 +89,7 @@ module Workbench::SessionsHelper
     return nil unless sessions_current_project_id
 
     if @sessions_current_project.nil? || @sessions_current_project.id != sessions_current_project_id
-      @sessions_current_project = Project.find(sessions_current_project_id)
+      @sessions_current_project = Project.find_by(id: sessions_current_project_id)
     end
       @sessions_current_project
   end
@@ -115,7 +115,7 @@ module Workbench::SessionsHelper
   # Can be optimized to just look at ProjectMembers likely
   def is_project_administrator?
     sessions_signed_in? && sessions_project_selected? &&
-    sessions_current_project.project_members.exists?(is_project_administrator: true, user_id: sessions_current_user_id)
+    sessions_current_project&.project_members&.exists?(is_project_administrator: true, user_id: sessions_current_user_id)
   end
 
   def administers_projects?
@@ -131,7 +131,7 @@ module Workbench::SessionsHelper
     project.project_members.include?(user) # TODO - change to ID
   end
 
-  def is_project_member_by_id(user_id, project_id)
+  def is_project_member_by_id?(user_id, project_id)
     ProjectMember.where(user_id:, project_id:).any?
   end
 
@@ -177,8 +177,15 @@ module Workbench::SessionsHelper
   # TODO: make this a non-controller method
   def session_header_links
     [
+      link_to('Dashboard', root_path),
+      content_tag(:div, '', id: 'vue-pinboard-navigator'),
       project_settings_link,
-      administration_link,
+      issue_tracker_tag
+    ]
+  end
+
+  def session_user_header_links
+    [
       link_to('Account', sessions_current_user, data: {
         current_user_id: sessions_current_user.id.to_s,
         current_user_is_administrator: sessions_current_user.is_administrator,

@@ -43,7 +43,7 @@ class ContentsController < ApplicationController
         format.json { render :show, status: :created, location: @content }
       else
         format.html { render :new }
-        format.json { render json: @content.errors, status: :unprocessable_entity }
+        format.json { render json: @content.errors, status: :unprocessable_content }
       end
     end
   end
@@ -57,7 +57,7 @@ class ContentsController < ApplicationController
         format.json { render :show, status: :ok, location: @content }
       else
         format.html { render :edit }
-        format.json { render json: @content.errors, status: :unprocessable_entity }
+        format.json { render json: @content.errors, status: :unprocessable_content }
       end
     end
   end
@@ -72,7 +72,7 @@ class ContentsController < ApplicationController
         format.json { head :no_content}
       else
         format.html { destroy_redirect @content, notice: 'Content was not destroyed, ' + @content.errors.full_messages.join('; ') }
-        format.json { render json: @content.errors, status: :unprocessable_entity }
+        format.json { render json: @content.errors, status: :unprocessable_content }
       end
     end
   end
@@ -95,7 +95,7 @@ class ContentsController < ApplicationController
   end
 
   def autocomplete
-    @contents = ::Content.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+    @contents = ::Content.find_for_autocomplete(params).where(project_id: sessions_current_project_id)
     data = @contents.collect do |t|
       {id: t.id,
        label: ApplicationController.helpers.taxon_works_content_tag(t),

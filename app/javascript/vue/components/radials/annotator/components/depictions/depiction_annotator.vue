@@ -38,55 +38,7 @@
         />
         Is data depiction
       </label>
-      <div class="separate-top separate-bottom">
-        <h4>Move to</h4>
-        <ul class="no_bullets">
-          <li
-            v-for="type in OBJECT_TYPES"
-            :key="type.value"
-          >
-            <label>
-              <input
-                type="radio"
-                name="depiction-type"
-                v-model="selectedType"
-                :value="type"
-              />
-              {{ type.label }}
-            </label>
-          </li>
-        </ul>
-        <div
-          v-if="selectedType && !selectedObject"
-          class="separate-top"
-        >
-          <autocomplete
-            v-if="selectedType.value != 'Otu'"
-            :disabled="!selectedType"
-            :url="selectedType.url"
-            label="label_html"
-            :placeholder="`Select a ${selectedType.label.toLowerCase()}`"
-            :clear-after="true"
-            @get-item="(item) => (selectedObject = item)"
-            param="term"
-          />
-          <otu-picker
-            v-else
-            :clear-after="true"
-            @get-item="(otu) => (selectedObject = otu)"
-          />
-        </div>
-        <div
-          v-if="selectedObject"
-          class="horizontal-left-content"
-        >
-          <span v-html="selectedObject.label_html" />
-          <span
-            class="circle-button button-default btn-undo"
-            @click="selectedObject = undefined"
-          />
-        </div>
-      </div>
+      <MoveTo v-model="selectedObject" />
 
       <div>
         <button
@@ -161,13 +113,28 @@
         />
         Is data depiction
       </label>
-      <DepictionList
+      <VPagination
         class="margin-large-top"
-        :list="list"
+        :pagination="pagination"
+        @next-page="({ page }) => loadDepictions(page)"
+      />
+      <DepictionList
+        v-model="list"
+        @move="removeFromList"
         @delete="removeItem"
         @selected="(item) => (depiction = item)"
         @update:caption="updateDepiction"
         @update:label="updateDepiction"
+        @sort="
+          () =>
+            Depiction.sort({
+              depiction_ids: list.map((d) => d.id)
+            })
+        "
+      />
+      <VPagination
+        :pagination="pagination"
+        @next-page="({ page }) => loadDepictions(page)"
       />
     </div>
   </div>
@@ -175,16 +142,17 @@
 
 <script setup>
 import Dropzone from '@/components/dropzone.vue'
-import Autocomplete from '@/components/ui/Autocomplete'
-import OtuPicker from '@/components/otu/otu_picker/otu_picker'
 import FilterImage from '@/tasks/images/filter/components/filter'
 import SmartSelector from '@/components/ui/SmartSelector'
 import DepictionList from './DepictionList.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import VPagination from '@/components/pagination.vue'
+import MoveTo from './MoveTo.vue'
+import { getPagination } from '@/helpers'
 import { useSlice } from '@/components/radials/composables'
 import { Depiction, Image } from '@/routes/endpoints'
-import { computed, ref } from 'vue'
+import { computed, ref, onBeforeMount } from 'vue'
 
 const DROPZONE_CONFIG = {
   paramName: 'depiction[image_attributes][image_file]',
@@ -197,34 +165,6 @@ const DROPZONE_CONFIG = {
   dictDefaultMessage: 'Drop images here to add figures',
   acceptedFiles: 'image/*,.heic'
 }
-
-const OBJECT_TYPES = [
-  {
-    value: 'Otu',
-    label: 'Otu',
-    url: '/otus/autocomplete'
-  },
-  {
-    value: 'CollectingEvent',
-    label: 'Collecting event',
-    url: '/collecting_events/autocomplete'
-  },
-  {
-    value: 'CollectionObject',
-    label: 'Collection object',
-    url: '/collection_objects/autocomplete'
-  },
-  {
-    value: 'TaxonName',
-    label: 'Taxon name',
-    url: '/taxon_names/autocomplete'
-  },
-  {
-    value: 'Person',
-    label: 'Person',
-    url: '/people/autocomplete'
-  }
-]
 
 const props = defineProps({
   globalId: {
@@ -250,8 +190,8 @@ const props = defineProps({
 
 const parameters = ref({})
 const depiction = ref()
+const pagination = ref({})
 const isDataDepiction = ref(false)
-const selectedType = ref()
 const selectedObject = ref()
 const filterList = ref([])
 const figureRef = ref(null)
@@ -260,9 +200,7 @@ const { list, addToList, removeFromList } = useSlice({
   radialEmit: props.radialEmit
 })
 
-const updateObjectType = computed(
-  () => selectedObject.value && selectedType.value
-)
+const updateObjectType = computed(() => selectedObject.value)
 
 function success(file, response) {
   addToList(response)
@@ -279,7 +217,7 @@ function sending(file, xhr, formData) {
 
 function updateFigure() {
   if (updateObjectType.value) {
-    depiction.value.depiction_object_type = selectedType.value.value
+    depiction.value.depiction_object_type = selectedObject.value.type
     depiction.value.depiction_object_id = selectedObject.value.id
   }
 
@@ -330,17 +268,24 @@ function loadList(params) {
 }
 
 function removeItem(item) {
-  Depiction.destroy(item.id).then((_) => {
+  Depiction.destroy(item.id).then(() => {
     removeFromList(item)
   })
 }
 
-Depiction.where({
-  depiction_object_id: props.objectId,
-  depiction_object_type: props.objectType
-}).then(({ body }) => {
-  list.value = body
-})
+function loadDepictions(page = 1) {
+  Depiction.where({
+    depiction_object_id: props.objectId,
+    depiction_object_type: props.objectType,
+    per: 50,
+    page
+  }).then((response) => {
+    list.value = response.body.toSorted((a, b) => a.position - b.position)
+    pagination.value = getPagination(response)
+  })
+}
+
+onBeforeMount(() => loadDepictions())
 </script>
 
 <style scoped>

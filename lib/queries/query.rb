@@ -54,16 +54,16 @@ module Queries
 
     # @param queries Array of [nil, merge clauses]
     def referenced_klass_union(queries)
-      q = queries.compact
-      referenced_klass.from("( #{q.collect{|i| '(' + i.to_sql + ')' }.join(' UNION ')}) as #{table.name}")
+      ::Queries.union(referenced_klass, queries)
     end
 
     # @param queries Array of [nil, merge clauses]
+    # TODO: merge this with self.intersect and call that instead.
     def referenced_klass_intersection(queries)
       q = queries.compact
 
       # We can return this directly, though we get conflicts with `from:` on merge clauses
-      z = referenced_klass.from("( #{q.collect{|i| '(' + i.to_sql + ')' }.join(' INTERSECT ')}) as #{table.name}")
+      z = referenced_klass.from("( #{q.collect{|i| '(' + i.unscope(:select).select(:id).to_sql + ')' }.join(' INTERSECT ')}) as #{table.name}")
 
       # Probably need a global counter, and this may not be needed
       s = Utilities::Strings.random_string(5)
@@ -77,10 +77,13 @@ module Queries
     #
     # This is an exists equivalent to saying all referenced_klass except those
     #  in the related query
+    # TODO merge this with self.except and call that.
     def referenced_klass_except(query)
       t = "q_#{table.name}"
-      s = "with #{t} AS (" + query.to_sql + ')' +
-      referenced_klass.joins("LEFT JOIN #{t} AS #{t}1 on #{t}1.id = #{table.name}.id").to_sql
+      s = "with #{t} AS (" + query.to_sql + ') ' +
+      referenced_klass
+        .joins("LEFT JOIN #{t} AS #{t}1 on #{t}1.id = #{table.name}.id")
+        .to_sql
       referenced_klass.from("(#{s}) as #{table.name}")
     end
 

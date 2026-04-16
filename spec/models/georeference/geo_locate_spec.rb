@@ -37,9 +37,9 @@ describe Georeference::GeoLocate, type: :model, group: [:geo] do
   # Behaviour -
   #   all values, regardless of whether they are clicked on, are saved to iFrame
   iframe_example_values = {
+    drawn_point: '36.816903|-112.986316||',
     drawn_polygon: '|||33.219077,-97.166004,41.974734,' \
     '-107.185535,46.625796,-89.958972,46.625796,-89.958972,33.219077,-97.166004',
-    drawn_point: '36.816903|-112.986316||',
     drawn_point_with_uncertainty: '41.449859|-98.220691|1907|',
     drawn_point_with_polygon_and_uncertainty: '41.449859|-98.220691|9100|' \
     '41.53125216994986,-98.32855566566684,' \
@@ -66,6 +66,22 @@ describe Georeference::GeoLocate, type: :model, group: [:geo] do
         .to eq(['41.449859', '-98.220691', '9100',
                 [['-98.32855566566684', '41.53125216994986'], ['-98.11282633433316', '41.36846583005013'],
                  ['-98.11282633433316', '41.53125216994986'], ['-98.32855566566684', '41.53125216994986']]])
+    end
+  end
+
+  context 'create fails with bad iframe error polygons' do
+    let!(:ce) { FactoryBot.create(:valid_collecting_event)}
+
+    specify 'with one extra number' do
+      geo_locate.iframe_response = '41.449859 -98.220691 9100 41.53125216994986'
+      expect(geo_locate.save).to be_falsey
+      expect(geo_locate.errors[:base].first).to match('polygon')
+    end
+
+    specify 'with only one error polygon vertex' do
+      geo_locate.iframe_response = '41.449859 -98.220691 9100 41.53125216994986,-98.32855566566684'
+      expect(geo_locate.save).to be_falsey
+      expect(geo_locate.errors[:base].first).to match('polygon')
     end
   end
 

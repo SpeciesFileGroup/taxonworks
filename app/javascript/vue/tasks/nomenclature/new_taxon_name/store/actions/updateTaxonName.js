@@ -45,7 +45,7 @@ export default ({ commit, state, dispatch }, taxon) => {
         commit(MutationNames.SetSaving, false)
         return resolve(response.body)
       },
-      (response) => {
+      ({ response }) => {
         commit(MutationNames.SetHardValidation, response.body)
         commit(MutationNames.SetSaving, false)
         return reject(response.body)

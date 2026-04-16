@@ -56,7 +56,7 @@ class ImportDatasetsController < ApplicationController
         format.json { render :show, status: :created, location: @import_dataset.becomes(ImportDataset) }
       else
         format.html { render :new }
-        format.json { render json: @import_dataset.errors, status: :unprocessable_entity }
+        format.json { render json: @import_dataset.errors, status: :unprocessable_content }
       end
     end
   end
@@ -70,7 +70,7 @@ class ImportDatasetsController < ApplicationController
         format.json { render :show, status: :ok, location: @import_dataset.becomes(ImportDataset) }
       else
         format.html { render :edit }
-        format.json { render json: @import_dataset.errors, status: :unprocessable_entity }
+        format.json { render json: @import_dataset.errors, status: :unprocessable_content }
       end
     end
   end
@@ -102,7 +102,9 @@ class ImportDatasetsController < ApplicationController
       :description,
       import_settings: [
         :nomenclatural_code,
-        :row_type
+        :row_type,
+        :col_sep,
+        :quote_char
       ])
   end
 end

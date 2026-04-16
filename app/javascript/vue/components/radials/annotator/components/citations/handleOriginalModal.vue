@@ -1,5 +1,5 @@
 <template>
-  <modal-component @close="$emit('close')">
+  <modal-component @close="emit('close')">
     <template #header>
       <h3>Select original citation</h3>
     </template>
@@ -65,7 +65,7 @@ const props = defineProps({
 
   originalCitation: {
     type: Object,
-    required: true
+    default: undefined
   }
 })
 
@@ -82,46 +82,60 @@ Source.find(props.originalCitation.source_id).then(({ body }) => {
   originalSource.value = body
 })
 
-function createNonOriginal() {
-  const payload = {
-    citation: {
-      ...props.citation,
-      is_original: false
-    },
-    extend: EXTEND_PARAMS
-  }
-
-  Citation.create(payload).then(({ body }) => {
-    emit('save', body)
-    emit('close')
+function saveNonOriginal() {
+  saveCitation({
+    ...props.citation,
+    is_original: false
   })
-}
-
-function changeOriginal() {
-  const payload = {
-    citation: {
-      id: props.originalCitation.id,
-      is_original: false
-    },
-    extend: EXTEND_PARAMS
-  }
-
-  Citation.update(props.originalCitation.id, payload).then(({ body }) => {
-    emit('save', body)
-
-    Citation.create({
-      citation: { ...props.citation, is_original: true }
-    }).then(({ body }) => {
+    .then(({ body }) => {
+      TW.workbench.alert.create('Citation was successfully saved.', 'notice')
       emit('save', body)
-      emit('create', body)
       emit('close')
     })
-  })
+    .catch(() => {})
+}
+
+function saveCitation(citation) {
+  const citationId = citation.id
+  const payload = {
+    citation,
+    extend: EXTEND_PARAMS
+  }
+
+  const request = citationId
+    ? Citation.update(citationId, payload)
+    : Citation.create(payload)
+
+  request
+    .then(({ body }) => {
+      emit('save', body)
+    })
+    .catch(() => {})
+
+  return request
+}
+
+async function changeOriginal() {
+  try {
+    await saveCitation({
+      id: props.originalCitation.id,
+      is_original: false
+    })
+
+    const { body } = await saveCitation({
+      ...props.citation,
+      is_original: true
+    })
+
+    TW.workbench.alert.create('Citation was successfully saved.', 'notice')
+    emit('create', body)
+    emit('close')
+  } catch {}
 }
 
 function handleCitation() {
   if (keepOriginal.value) {
-    createNonOriginal()
+    saveNonOriginal()
   } else {
     changeOriginal()
   }

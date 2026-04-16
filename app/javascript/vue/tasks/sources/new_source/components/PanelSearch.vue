@@ -1,20 +1,27 @@
 <template>
-  <div class="panel content">
-    <VAutocomplete
-      url="/sources/autocomplete"
-      param="term"
-      placeholder="Search a source..."
-      label="label_html"
-      clear-after
-      @get-item="store.dispatch(ActionNames.LoadSource, $event.id)"
-    />
-  </div>
+  <VAutocomplete
+    ref="autocomplete"
+    url="/sources/autocomplete"
+    param="term"
+    placeholder="Search a source..."
+    label="label_html"
+    clear-after
+    autofocus
+    @get-item="({ id }) => store.loadSource(id)"
+  />
 </template>
 
 <script setup>
-import { useStore } from 'vuex'
-import { ActionNames } from '../store/actions/actions'
+import { ref } from 'vue'
+import { useSourceStore } from '../store'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 
-const store = useStore()
+const store = useSourceStore()
+const autocomplete = ref(null)
+
+function focusSearch() {
+  autocomplete.value?.setFocus()
+}
+
+defineExpose({ focusSearch })
 </script>

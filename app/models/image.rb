@@ -45,7 +45,6 @@
 #   @return [Float, nil]
 #      used to generate scale bars on the fly
 #
-
 class Image < ApplicationRecord
   include Housekeeping
   include Shared::Identifiers
@@ -54,12 +53,17 @@ class Image < ApplicationRecord
   include Shared::ProtocolRelationships
   include Shared::Citations
   include Shared::Attributions
+  include Image::DwcMediaExtensions
   include Shared::IsData
   include SoftValidation
 
   include Image::Sled
 
   attr_accessor :rotate
+
+  # ANY non-blank? value here will attempt to also create a depiction
+  # for the Image, linking it to a CollectionObject
+  attr_accessor :filename_depicts_object
 
   MISSING_IMAGE_PATH = '/public/images/missing.jpg'.freeze
 
@@ -70,14 +74,14 @@ class Image < ApplicationRecord
     medium: { width: 300, height: 300 }
   }.freeze
 
-  has_one :sled_image, dependent: :destroy
+  has_one :sled_image, dependent: :destroy, inverse_of: :image
 
   has_many :depictions, inverse_of: :image, dependent: :restrict_with_error
 
   has_many :collection_objects, through: :depictions, source: :depiction_object, source_type: 'CollectionObject'
   has_many :otus, through: :depictions, source: :depiction_object, source_type: 'Otu'
-  has_many :taxon_names, through: :otus
 
+  after_validation :stub_depiction, if: Proc.new {|n| !n.filename_depicts_object.blank?}
   before_save :extract_tw_attributes
 
   # also using https://github.com/teeparham/paperclip-meta
@@ -94,19 +98,69 @@ class Image < ApplicationRecord
   validates_attachment_presence :image_file
   validate :image_dimensions_too_short
 
-  soft_validate(:sv_duplicate_image?)
+  validates_uniqueness_of :image_file_fingerprint, scope: :project_id
 
   accepts_nested_attributes_for :sled_image, allow_destroy: true
+
+  accepts_nested_attributes_for :depictions, allow_destroy: false
+
+  scope :with_taxon_names, -> {
+    joins(:depictions)
+    .joins("JOIN otus ON depictions.depiction_object_type = 'Otu' AND depictions.depiction_object_id = otus.id")
+    .joins("JOIN taxon_names ON taxon_names.id = otus.taxon_name_id")
+  }
+
+  # This is bad and you should feel bad if your digitization workflow uses it.
+  def stub_depiction
+    identifier = File.basename(
+      image_file.queued_for_write[:original].original_filename,
+      '.*'
+    )
+
+    co = CollectionObject.joins(:identifiers).where(
+      identifiers: {cached: identifier},
+      project_id: Current.project_id,
+    ).first
+
+    if co.nil?
+      errors.add(:base, 'filename does not match any known CollectionObject identifier')
+      return
+    end
+
+    depictions.build(
+      depiction_object_id: co.id,
+      depiction_object_type: 'CollectionObject',
+      by: Current.user_id,
+      project_id: Current.project_id
+    )
+  end
+
+  # Replaces Image.create!
+  def self.deduplicate_create(image_params)
+    image = Image.new(image_params)
+
+    if i = Image.where(project_id: Current.project_id, image_file_fingerprint: image.image_file_fingerprint).first
+      return i
+    else
+      return image
+    end
+  end
 
   def sqed_depiction
     depictions.joins(:sqed_depiction).first&.sqed_depiction
   end
 
+  # TODO:
+  # Deprecated, once images are de-duplicated
+  #   this will be removed
   # @return [Boolean]
   def has_duplicate?
     Image.where(image_file_fingerprint: self.image_file_fingerprint).count > 1
   end
 
+  # TODO:
+  # Deprecated, once images are de-duplicated
+  #   this will be removed. No duplicate images can now be created
   # @return [Array]
   def duplicate_images
     Image.where(image_file_fingerprint: self.image_file_fingerprint).not_self(self).to_a
@@ -119,7 +173,7 @@ class Image < ApplicationRecord
     ret_val = {} # return value
 
     unless self.new_record? # only process if record exists
-      tmp     = `identify -format "%[EXIF:*]" #{self.image_file.url}` # returns a string (exif:tag=value\n)
+      tmp     = `identify -format "%[EXIF:*]\n" #{self.image_file.path}` # returns a string (exif:tag=value\n)
       # following removes the exif, spits and recombines string as a hash
       ret_val = tmp.split("\n").collect { |b| b.gsub('exif:', '').split('=') }
         .inject({}) { |hsh, c| hsh.merge(c[0] => c[1]) }
@@ -242,10 +296,15 @@ class Image < ApplicationRecord
   def self.cropped(params)
     image = Image.find(params[:id])
     img = Magick::Image.read(image.image_file.path(:original)).first
+    x = params[:x].to_i
+    y = params[:y].to_i
+    w = params[:width].to_i
+    h = params[:height].to_i
     begin
+      raise ArgumentError, "invalid crop parameters: x=#{x}, y=#{y}, width=#{w}, height=#{h}" if w <= 0 || h <= 0 || x < 0 || y < 0
       # img.crop(x, y, width, height, true)
-      cropped = img.crop( params[:x].to_i, params[:y].to_i, params[:width].to_i, params[:height].to_i, true)
-    rescue RuntimeError
+      cropped = img.crop(x, y, w, h, true)
+    rescue ArgumentError, RuntimeError, Magick::ImageMagickError
       cropped = img.crop(0,0, 1, 1)  # return a single pixel on error ! TODO: make/return an error image
     ensure
       img.destroy!
@@ -265,6 +324,7 @@ class Image < ApplicationRecord
   # @param [ActionController::Parameters] params
   # @return [Magick::Image, nil]
   def self.scaled_to_box(params)
+    return nil if params[:box_width].to_f == 0 || params[:box_height].to_f == 0
     begin
       c = cropped(params)
       ratio = c.columns.to_f / c.rows.to_f
@@ -291,7 +351,7 @@ class Image < ApplicationRecord
           ) #.sharpen(0x1)
         else # tall into tall # TODO: or 1:1?!
           scaled = c.resize(
-            (params[:box_width ].to_f * ratio / box_ratio ).to_i,
+            (params[:box_width].to_f * ratio / box_ratio ).to_i,
             (params[:box_height].to_f ).to_i
           ) #.sharpen(0x1)
         end
@@ -319,6 +379,11 @@ class Image < ApplicationRecord
   # @return [String]
   def self.cropped_blob(params)
     self.to_blob!(cropped(params))
+  end
+
+  def original_as_png
+    img = Magick::Image.read(self.image_file.path(:original)).first
+    self.class.to_blob!(img, 'png')
   end
 
   # @param used_on [String] required, a depictable base class name like  `Otu`, `Content`, or `CollectionObject`
@@ -380,25 +445,11 @@ class Image < ApplicationRecord
   def extract_tw_attributes
     # NOTE: assumes content type is an image.
     tempfile = image_file.queued_for_write[:original]
-    if tempfile.nil?
-      self.width = 0
-      self.height = 0
-      self.user_file_name = nil
-    else
+    if tempfile
       self.user_file_name = tempfile.original_filename
       geometry = Paperclip::Geometry.from_file(tempfile)
       self.width = geometry.width.to_i
       self.height = geometry.height.to_i
-    end
-  end
-
-  # Check md5 fingerprint against existing fingerprints
-  # @return [Object]
-  def sv_duplicate_image?
-    if has_duplicate?
-      soft_validations.add(
-        :image_file_fingerprint,
-        'This image is a duplicate of an image already stored.')
     end
   end
 
@@ -409,9 +460,9 @@ class Image < ApplicationRecord
   # @return [String] a JPG representation of the image
   #   !! Always converts to .jpg, this may need abstraction later
   #   Returns an empty string if no image
-  def self.to_blob!(img)
+  def self.to_blob!(img, format = 'jpg')
     return '' if img.nil?
-    img.format = 'jpg'
+    img.format = format
     blob = img.to_blob
     img.destroy!
     blob

@@ -6,13 +6,13 @@ Object.assign(TW.views.annotations, {
   init() {
     this.handleAnnotatorEvent = this.handleAnnotator.bind(this)
     document.addEventListener(
-      'radialAnnotator:update',
+      'RadialAnnotator:change',
       this.handleAnnotatorEvent
     )
   },
 
   handleAnnotator() {
-    const metadata = event.detail.metadata
+    const metadata = event.detail.data.metadata
     const annotationDOMElement = document.querySelector(
       `[data-annotator-list-object-id="${metadata.object_id}"]`
     )
@@ -34,7 +34,7 @@ Object.assign(TW.views.annotations, {
 
   removeEvents() {
     document.removeEventListener(
-      'radialAnnotator:update',
+      'RadialAnnotator:change',
       this.handleAnnotatorEvent
     )
   }

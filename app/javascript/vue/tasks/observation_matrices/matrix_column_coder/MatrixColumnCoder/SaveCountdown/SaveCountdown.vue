@@ -16,7 +16,8 @@
       :class="{
         'save-countdown__status-bar--saving': isSaving,
         'save-countdown__status-bar--failed': failed,
-        'save-countdown__status-bar--saved-at-least-once': savedAtLeastOnce }"
+        'save-countdown__status-bar--saved-at-least-once': savedAtLeastOnce
+      }"
     />
 
     <button
@@ -30,7 +31,10 @@
   </div>
 </template>
 
-<style src="./SaveCountdown.styl" lang="stylus"></style>
+<style
+  src="../../../matrix_row_coder/MatrixRowCoder/SaveCountdown/SaveCountdown.scss"
+  lang="scss"
+></style>
 
 <script>
 import { GetterNames } from '../../store/getters/getters'
@@ -47,7 +51,7 @@ export default {
     }
   },
 
-  data () {
+  data() {
     return {
       isCountingDown: false,
       failed: false
@@ -55,22 +59,24 @@ export default {
   },
 
   computed: {
-    needsCountdown () {
-      return this.$store.getters[GetterNames.DoesRowObjectNeedCountdown](this.rowObject.id)
+    needsCountdown() {
+      return this.$store.getters[GetterNames.DoesRowObjectNeedCountdown](
+        this.rowObject.id
+      )
     },
-    isSaving () {
+    isSaving() {
       return this.rowObject.isSaving
     },
-    savedAtLeastOnce () {
+    savedAtLeastOnce() {
       return this.rowObject.hasSavedAtLeastOnce
     }
   },
 
   watch: {
-    needsCountdown (needsCountdown) {
+    needsCountdown(needsCountdown) {
       if (needsCountdown) {
         this.isCountingDown = false
-        requestAnimationFrame(_ => {
+        requestAnimationFrame((_) => {
           this.failed = false
           this.isCountingDown = true
           this.$store.commit(MutationNames.CountdownStartedFor, {
@@ -83,16 +89,18 @@ export default {
   },
 
   methods: {
-    doSave () {
+    doSave() {
       this.isCountingDown = false
-      this.$store.dispatch(ActionNames.SaveObservationsFor, {
-        rowObjectId: this.rowObject.id,
-        rowObjectType: this.rowObject.type
-      }).then(response => {
-        if (response.includes(false)) {
-          this.failed = true
-        }
-      })
+      this.$store
+        .dispatch(ActionNames.SaveObservationsFor, {
+          rowObjectId: this.rowObject.id,
+          rowObjectType: this.rowObject.type
+        })
+        .then((response) => {
+          if (response.includes(false)) {
+            this.failed = true
+          }
+        })
     }
   }
 }

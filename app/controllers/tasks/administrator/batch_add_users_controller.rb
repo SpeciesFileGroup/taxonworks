@@ -1,5 +1,5 @@
 class Tasks::Administrator::BatchAddUsersController < ApplicationController
-  include TaskControllerConfiguration
+  include SuperuserControllerConfiguration
 
   # GET
   def index

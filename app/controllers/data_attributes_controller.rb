@@ -20,16 +20,20 @@ class DataAttributesController < ApplicationController
     end
   end
 
+  # NOTE: We should try and only hit this if we know a-prior that we have a reasonable incoming query.
   def brief
     q = ::Queries::DataAttribute::Filter.new(params)
 
-    render json: [], status: :unprocessable_entity and return if q.all.count > 30000
+    # Disabling now, the extra over-head on complex queries is costly
+    # render json: [], status: :unprocessable_content and return if q.all.count > 30000
 
-    @data = q.all.pluck('data_attributes.attribute_subject_id as object_id, data_attributes.controlled_vocabulary_term_id, data_attributes.value')
-    cols = @data.collect{|a| a[1]}.uniq
+    @data = q.all.pluck('data_attributes.id, data_attributes.attribute_subject_id as object_id, data_attributes.controlled_vocabulary_term_id, data_attributes.value')
+
+    cols = @data.collect{|a| a[2]}.uniq
     @columns = Predicate.where(project_id: sessions_current_project_id, id: cols).order(:name).pluck(:id, :name).inject([]){|ary, a| ary.push(a[0] => a[1]); ary}
   end
 
+  # TODO: /brief differs in that the first value is id, determine whether we should do that in /api
   def api_brief
     q = ::Queries::DataAttribute::Filter.new(params)
 
@@ -76,7 +80,7 @@ class DataAttributesController < ApplicationController
       else
 
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Data attribute was NOT successfully created.')}
-        format.json { render json: @data_attribute.errors, status: :unprocessable_entity }
+        format.json { render json: @data_attribute.errors, status: :unprocessable_content }
       end
     end
   end
@@ -90,7 +94,7 @@ class DataAttributesController < ApplicationController
         format.json { render :show, status: :ok, location: @data_attribute.metamorphosize }
       else
         format.html { redirect_back(fallback_location: (request.referer || root_path), notice: 'Data attribute was NOT successfully updated.')}
-        format.json { render json: @data_attribute.errors, status: :unprocessable_entity }
+        format.json { render json: @data_attribute.errors, status: :unprocessable_content }
       end
     end
   end
@@ -111,7 +115,18 @@ class DataAttributesController < ApplicationController
     if @data_attributes.present?
       render '/data_attributes/index'
     else
-      render json: { failed: true, status: :unprocessable_entity}
+      render json: { errors: ['Batch create failed - make sure your controlled vocabulary term is a predicate.'] }, status: :unprocessable_content
+    end
+  end
+
+  # /data_attributes/batch_update_or_create?<some_object>_query={}&value_from=123&value_to=456&predicate_id=890
+  def batch_update_or_create
+    r = ::InternalAttribute.batch_update_or_create(params)
+    if r == true
+      render json: {}, status: :ok
+    else
+      r ||= 'Batch update or create failed for an unkown reason.'
+      render json: { errors: [r] }, status: :unprocessable_content
     end
   end
 
@@ -142,18 +157,19 @@ class DataAttributesController < ApplicationController
     render json: [] and return if params[:term].blank?
 
     @internal_attributes = ::DataAttribute
-    .where(project_id: sessions_current_project_id)
-    .where('import_predicate ilike ?', '%' + params[:term] + '%' )
-    .order(:import_predicate)
-    .distinct
-    .limit(20)
-    .pluck(:import_predicate)
+      .where(project_id: sessions_current_project_id)
+      .where('import_predicate ilike ?', '%' + params[:term] + '%' )
+      .order(:import_predicate)
+      .distinct
+      .limit(20)
+      .pluck(:import_predicate)
 
     render json: @internal_attributes
   end
 
   def value_autocomplete
-    render json: [] if params[:term].blank? || params[:predicate_id].blank?
+    render json: [] and return if params[:term].blank? || params[:predicate_id].blank?
+
     @values = ::Queries::DataAttribute::ValueAutocomplete.new(params[:term], **value_autocomplete_params).autocomplete
     render json: @values
   end

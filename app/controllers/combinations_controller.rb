@@ -35,7 +35,7 @@ class CombinationsController < ApplicationController
         format.json { render :show, status: :created, location: @combination.metamorphosize }
       else
         format.html { render :new }
-        format.json { render json: @combination.errors, status: :unprocessable_entity }
+        format.json { render json: @combination.errors, status: :unprocessable_content }
       end
     end
   end
@@ -49,7 +49,7 @@ class CombinationsController < ApplicationController
         format.json { render :show, status: :ok, location: @combination.metamorphosize }
       else
         format.html { render :edit }
-        format.json { render json: @combination.errors, status: :unprocessable_entity }
+        format.json { render json: @combination.errors, status: :unprocessable_content }
       end
     end
   end
@@ -59,8 +59,13 @@ class CombinationsController < ApplicationController
   def destroy
     @combination.destroy
     respond_to do |format|
-      format.html { redirect_to taxon_names_url }
-      format.json { head :no_content }
+      if @combination.destroyed?
+        format.html { redirect_to taxon_names_url } # may be unused
+        format.json { head :no_content }
+      else
+        format.html { destroy_redirect @combination, notice: 'Combination was not destroyed, ' + @combination.errors.full_messages.join('; ') }
+        format.json { render json: @combination.errors, status: :unprocessable_content }
+      end
     end
   end
 
@@ -71,13 +76,13 @@ class CombinationsController < ApplicationController
   end
 
   def combination_params
-    p = ::Combination::APPLICABLE_RANKS.inject(Hash.new){|hsh, r| hsh.merge "#{r}_taxon_name_relationship_attributes".to_sym => [:id, :_destroy] }
+    p = ::Combination::APPLICABLE_RANKS.keys.inject(Hash.new){|hsh, r| hsh.merge "#{r}_taxon_name_relationship_attributes".to_sym => [:id, :_destroy] }
     params.require(:combination).permit(
       :verbatim_name,
       :verbatim_author,
       :year_of_publication,
       :source_id,
-      *Combination::APPLICABLE_RANKS.collect{ |r| "#{r}_id".to_sym},
+      *Combination::APPLICABLE_RANKS.keys.collect{ |r| "#{r}_id".to_sym},
       p,
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
       roles_attributes: [

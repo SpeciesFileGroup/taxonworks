@@ -10,17 +10,16 @@ module GeographicAreasHelper
     geographic_area.name
   end
 
-  def geographic_area_autocomplete_tag(geographic_area, term)
+  def geographic_area_autocomplete_tag(geographic_area, term, mark = true)
     return nil if geographic_area.nil?
-
-    if term
-      s = geographic_area.name.gsub(/#{Regexp.escape(term)}/i, "<mark>#{term}</mark>") + ' ' # weee bit simpler
+    if term && mark
+      s = geographic_area.name.gsub(/#{Regexp.escape(term)}/i, "<mark>#{term}</mark>") + ' '
     else
       s = geographic_area.name + ' '
     end
+
     s = [geographic_area&.parent&.parent&.name, geographic_area&.parent&.name, s].compact.join(': ').gsub('Earth: ', '')
 
-#    s += " (#{geographic_area.parent.name}) " unless geographic_area.parent.nil?
     s += content_tag(:span, geographic_area.geographic_area_type.name, class: [:feedback, 'feedback-info', 'feedback-thin'])  unless geographic_area.geographic_area_type.nil?
     s += ' ' + (geographic_area.has_shape? ? content_tag(:span, 'has shape', class: [:feedback, 'feedback-success', 'feedback-thin']) : content_tag(:span, 'without shape', class: [:feedback, 'feedback-danger', 'feedback-thin']) )
     c = geographic_area.collecting_events.where(project_id: sessions_current_project_id).count + geographic_area.asserted_distributions.where(project_id: sessions_current_project_id).count

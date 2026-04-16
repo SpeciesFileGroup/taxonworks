@@ -7,3 +7,15 @@ if extend_response_with('roles')
     end
   end
 end
+
+if extend_response_with('identifiers')
+  json.identifiers do
+    json.merge! extend_identifiers(person)
+  end
+end
+
+if extend_response_with('notes')
+  json.notes person.notes.each do |n|
+    json.text n.text
+  end
+end

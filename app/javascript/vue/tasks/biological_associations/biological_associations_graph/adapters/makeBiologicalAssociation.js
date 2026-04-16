@@ -23,6 +23,6 @@ export async function makeBiologicalAssociation(ba) {
     },
     subject: makeNodeObject(ba.subject),
     object: makeNodeObject(ba.object),
-    color: await getHexColorFromString(ba.biological_relationship.object_label)
+    color: getHexColorFromString(ba.biological_relationship.object_label)
   }
 }

@@ -1,6 +1,8 @@
 class Tasks::DwcaImport::DwcaImportController < ApplicationController
   include TaskControllerConfiguration
 
+  after_action -> { set_pagination_headers(:datasets) }, only: [:index], if: :json_request?
+
   # GET
   def index
     respond_to do |format|
@@ -8,7 +10,7 @@ class Tasks::DwcaImport::DwcaImportController < ApplicationController
       format.json {
         @datasets = ImportDataset::DarwinCore
           .where(project_id: sessions_current_project_id)
-          .order(:updated_at, :description)
+          .order(updated_at: :desc, description: :asc)
           .page(params[:page]).per(params[:per] || 25)
       }
     end

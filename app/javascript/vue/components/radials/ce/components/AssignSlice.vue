@@ -19,7 +19,22 @@
           :target="COLLECTING_EVENT"
           :klass="COLLECTING_EVENT"
           @selected="(item) => (geographicArea = item)"
-        />
+        >
+          <template #body>
+            <ul class="no_bullets">
+              <li>
+                <label>
+                  <input
+                    :value="GEOGRAPHIC_AREA_NULL"
+                    type="radio"
+                    v-model="geographicArea"
+                  />
+                  <span v-html="GEOGRAPHIC_AREA_NULL.name" />
+                </label>
+              </li>
+            </ul>
+          </template>
+        </SmartSelector>
         <SmartSelectorItem
           label="name"
           :item="geographicArea"
@@ -33,7 +48,7 @@
             type="checkbox"
             v-model="prioritizeGeographicArea"
           />
-          Prioritize Geographic area when indexing
+          Use GeographicArea, not Georeference, to assign geography fields in Darwin Core
         </label>
       </div>
 
@@ -44,7 +59,7 @@
           ref="updateBatchRef"
           :batch-service="CollectingEvent.batchUpdate"
           :payload="payload"
-          :disabled="!geographicArea || isCountExceeded"
+          :disabled="geographicArea === undefined || isCountExceeded"
           @update="updateMessage"
           @close="emit('close')"
         />
@@ -52,7 +67,7 @@
         <PreviewBatch
           :batch-service="CollectingEvent.batchUpdate"
           :payload="payload"
-          :disabled="!geographicArea || isCountExceeded"
+          :disabled="geographicArea === undefined || isCountExceeded"
           @finalize="
             () => {
               updateBatchRef.openModal()
@@ -72,8 +87,14 @@ import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
 import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
+import updateMessage from '../utils/updateMessage.js'
 
-const MAX_LIMIT = 250
+const MAX_LIMIT = 1000
+
+const GEOGRAPHIC_AREA_NULL = {
+  id: null,
+  name: '<i>None (Remove geographic area)</i>'
+}
 
 const props = defineProps({
   parameters: {
@@ -100,12 +121,4 @@ const payload = computed(() => ({
     meta_prioritize_geographic_area: prioritizeGeographicArea.value
   }
 }))
-
-function updateMessage(data) {
-  const message = data.sync
-    ? `${data.updated.length} collecting events queued for updating.`
-    : `${data.updated.length} collecting events were successfully updated.`
-
-  TW.workbench.alert.create(message, 'notice')
-}
 </script>

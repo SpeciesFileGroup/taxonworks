@@ -141,7 +141,7 @@ module BatchLoad
           otus = Otu.with_identifier(row['taxon_guid'])
 
           otus.each do |otu|
-            taxon_determination = TaxonDetermination.new(otu: otu, biological_collection_object: co)
+            taxon_determination = TaxonDetermination.new(otu:, taxon_determination_object: co)
             parse_result.objects[:taxon_determination].push(taxon_determination)
           end
 

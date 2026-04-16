@@ -10,11 +10,11 @@ module Shared::Depictions
     # Add a corresponding has_many in Image
     Image.has_many self.name.tableize.to_sym, through: :depictions, source: :depiction_object, source_type: self.name
 
-    has_many :depictions, validate: true, as: :depiction_object, dependent: :destroy, inverse_of: :depiction_object
-    has_many :images, validate: true, through: :depictions
+    has_many :depictions, as: :depiction_object, dependent: :destroy, inverse_of: :depiction_object, validate: true
+    has_many :images, through: :depictions, validate: true
 
     accepts_nested_attributes_for :depictions, allow_destroy: true, reject_if: :reject_depictions
-    accepts_nested_attributes_for :images, allow_destroy: true, reject_if: :reject_images 
+    accepts_nested_attributes_for :images, allow_destroy: true, reject_if: :reject_images
   end
 
   def has_depictions?

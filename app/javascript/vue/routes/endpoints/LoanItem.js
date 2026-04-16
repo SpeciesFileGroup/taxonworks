@@ -26,5 +26,8 @@ export const LoanItem = {
   returnBatch: (params) =>
     AjaxCall('post', `/${controller}/batch_return`, params),
 
-  moveBatch: (params) => AjaxCall('post', `/${controller}/batch_move`, params)
+  moveBatch: (params) => AjaxCall('post', `/${controller}/batch_move`, params),
+
+  batchByFilter: (params) =>
+    AjaxCall('post', `/${controller}/batch_by_filter_scope.json`, params)
 }

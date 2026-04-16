@@ -1,10 +1,10 @@
 <template>
   <div title="Drop image here">
-    <spinner-component
+    <VSpinner
       :legend="'Uploading...'"
       v-if="isLoading"
     />
-    <dropzone-component
+    <VDropzone
       v-show="show"
       class="dropzone-card"
       ref="dropzoneElement"
@@ -12,27 +12,28 @@
       use-custom-dropzone-options
       @vdropzone-sending="sending"
       @vdropzone-success="success"
+      @vdropzone-error="error"
       @click="openInputFile"
       :dropzone-options="
         existObservations ? dropzoneDepiction : dropzoneObservation
       "
     >
-      <draggable-component
+      <VDraggable
         class="flex-wrap-row matrix-image-draggable"
-        group="cells"
         item-key="id"
+        :group="{ name: 'cells', pull: isClone ? 'clone' : true }"
         :list="depictions"
         @click.stop="openInputFile"
         @add="movedDepiction"
         @choose="setObservationDragged"
       >
-        <template #item="{ element }">
+        <template #item="{ element, index }">
           <div
-            @click.stop
             title=""
             class="drag-container"
+            @click.stop
           >
-            <image-viewer
+            <ImageViewer
               edit
               :depiction="element"
             >
@@ -40,13 +41,24 @@
                 <div
                   class="horizontal-left-content padding-xsmall-bottom padding-xsmall-top gap-small"
                 >
-                  <radial-annotator
+                  <RadialAnnotator
                     type="annotations"
                     :global-id="element.image.global_id"
                   />
-                  <button-citation
+                  <ButtonCitation
                     :global-id="element.image.global_id"
                     :citations="element.image.citations"
+                    @create="
+                      (citation) =>
+                        addToArray(depictions[index].image.citations, citation)
+                    "
+                    @delete="
+                      (citation) =>
+                        removeFromArray(
+                          depictions[index].image.citations,
+                          citation
+                        )
+                    "
                   />
                   <button
                     class="button circle-button btn-delete"
@@ -55,12 +67,12 @@
                   />
                 </div>
               </template>
-            </image-viewer>
+            </ImageViewer>
           </div>
         </template>
-      </draggable-component>
-    </dropzone-component>
-    <v-icon
+      </VDraggable>
+    </VDropzone>
+    <VIcon
       v-if="!show && existObservations"
       name="image"
     />
@@ -68,11 +80,11 @@
 </template>
 
 <script setup>
-import DropzoneComponent from '@/components/dropzone'
-import DraggableComponent from 'vuedraggable'
+import VDropzone from '@/components/dropzone'
+import VDraggable from 'vuedraggable'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import ImageViewer from '@/components/ui/ImageViewer/ImageViewer.vue'
-import SpinnerComponent from '@/components/ui/VSpinner'
+import VSpinner from '@/components/ui/VSpinner'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import ButtonCitation from './ButtonCitation.vue'
 import { useStore } from 'vuex'
@@ -82,6 +94,7 @@ import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
 import { OBSERVATION_MEDIA } from '@/constants/index'
+import { addToArray, removeFromArray } from '@/helpers'
 
 const CSRF_TOKEN = document
   .querySelector('meta[name="csrf-token"]')
@@ -144,6 +157,7 @@ const emit = defineEmits(['removeDepiction', 'addDepiction'])
 const store = useStore()
 const dropzoneElement = ref(null)
 
+const isClone = computed(() => store.getters[GetterNames.IsClone])
 const observationMoved = computed({
   get: () => store.getters[GetterNames.GetObservationMoved],
   set: (value) => store.commit(MutationNames.SetObservationMoved, value)
@@ -174,7 +188,7 @@ const observationId = computed(() => {
 
 const isLoading = ref(false)
 
-function movedDepiction(_) {
+function movedDepiction({ newIndex }) {
   if (props.depictions.length === 1) {
     const observation = {
       descriptor_id: props.descriptorId,
@@ -187,20 +201,33 @@ function movedDepiction(_) {
 
     Observation.create({ observation })
       .then(({ body }) => {
-        store.dispatch(ActionNames.MoveDepiction, {
-          columnIndex: props.columnIndex,
-          rowIndex: props.rowIndex,
-          observationId: body.id
-        })
+        addDepiction({ observationId: body.id, newIndex })
       })
       .catch(() => store.commit(MutationNames.SetIsSaving, false))
   } else {
+    addDepiction({ observationId: observationId.value, newIndex })
+  }
+}
+
+function addDepiction({ observationId, newIndex }) {
+  const args = {
+    columnIndex: props.columnIndex,
+    rowIndex: props.rowIndex,
+    imageId: depictionMoved.value.image_id
+  }
+
+  if (isClone.value) {
+    store.dispatch(ActionNames.CreateDepiction, {
+      ...args,
+      observationId
+    })
+  } else {
     store.dispatch(ActionNames.MoveDepiction, {
-      columnIndex: props.columnIndex,
-      rowIndex: props.rowIndex,
-      observationId: observationId.value
+      ...args,
+      observationId
     })
   }
+  emit('removeDepiction', newIndex)
 }
 
 function openInputFile() {
@@ -231,15 +258,23 @@ function removeDepiction(depiction) {
   }
 }
 
+function error(_, error) {
+  isLoading.value = false
+  TW.workbench.alert.create(Object.values(error).join('; '), 'error')
+}
+
 function success(file, response) {
   if (!existObservations.value) {
     dropzoneElement.value.setOption('url', dropzoneDepiction.url)
     dropzoneElement.value.setOption('paramName', dropzoneDepiction.paramName)
   }
 
-  addDepiction(
-    response.base_class === 'Depiction' ? response : response.depictions[0]
-  )
+  store.commit(MutationNames.AddDepiction, {
+    columnIndex: props.columnIndex,
+    rowIndex: props.rowIndex,
+    depiction:
+      response.base_class === 'Depiction' ? response : response.depictions[0]
+  })
 
   dropzoneElement.value.removeFile(file)
   isLoading.value = false
@@ -258,14 +293,6 @@ function sending(file, xhr, formData) {
   }
 
   isLoading.value = true
-}
-
-function addDepiction(depiction) {
-  store.commit(MutationNames.AddDepiction, {
-    columnIndex: props.columnIndex,
-    rowIndex: props.rowIndex,
-    depiction
-  })
 }
 </script>
 

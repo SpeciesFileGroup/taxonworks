@@ -1,10 +1,11 @@
 import { createApp } from 'vue'
 import App from './app.vue'
-import hotkey from '@/plugins/v-hotkey'
+import { createPinia } from 'pinia'
 
 function init() {
   const app = createApp(App)
-  app.directive('hotkey', hotkey)
+
+  app.use(createPinia())
   app.mount('#vue-task-asserted-distribution-new')
 }
 

@@ -74,9 +74,11 @@ onBeforeUnmount(() => {
 })
 
 function removeCitation(cite) {
-  Citation.destroy(cite.id).then((_) => {
-    removeFromArray(citations.value, cite)
-  })
+  Citation.destroy(cite.id)
+    .then((_) => {
+      removeFromArray(citations.value, cite)
+    })
+    .catch(() => {})
 }
 
 function loadCitations() {

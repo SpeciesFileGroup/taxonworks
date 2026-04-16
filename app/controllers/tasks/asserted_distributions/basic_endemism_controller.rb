@@ -6,10 +6,27 @@ class Tasks::AssertedDistributions::BasicEndemismController < ApplicationControl
     @taxon_name = TaxonName.where(project_id: sessions_current_project_id).find(params[:taxon_name_id]) if params[:taxon_name_id].present?
     @taxon_name ||= sessions_current_project.root_taxon_name
 
-    @geographic_area = GeographicArea.find(params[:geographic_area_id]) if params[:geographic_area_id].present?
-    @geographic_area ||= GeographicArea.first
+    @shape =
+     (GeographicArea.find(params[:geographic_area_id]) if
+       params[:geographic_area_id].present?) ||
+     (Gazetteer.find(params[:gazetteer_id]) if params[:gazetteer_id].present?) ||
+      GeographicArea.first
 
-    @data = TaxonWorks::Analysis::AssertedDistribution::BasicEndemism.quick_endemism(@taxon_name, @geographic_area)
+    shape_type = @shape.kind_of?(GeographicArea) ? 'GeographicArea' : 'Gazetteer'
+    @data = TaxonWorks::Analysis::AssertedDistribution::BasicEndemism
+      .quick_endemism(@taxon_name, shape_type, @shape.id)
+
+    if @data[:basic_endemism_error]
+      # The defaults will often produce a too-many-descendants error, ignore
+      # that.
+      if params[:taxon_name_id].present? ||
+         params[:geographic_area_id].present? ||
+         params[:gazetteer_id].present?
+        @error_message = @data[:basic_endemism_error]
+      end
+      @data = {}
+      return
+    end
   end
 
 end

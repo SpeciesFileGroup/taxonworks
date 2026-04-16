@@ -18,15 +18,32 @@
       v-model="roleList[roleType]"
     />
 
-    <div class="margin-medium-top">
-      <button
-        type="button"
+    <div class="margin-medium-top horizontal-left-content gap-small">
+      <VBtn
+        color="create"
+        medium
         :disabled="!validateFields"
         class="button normal-input button-submit save-annotator-button"
         @click="() => saveAttribution()"
       >
         {{ attribution.id ? 'Update' : 'Create' }}
-      </button>
+      </VBtn>
+
+      <CloneLastAttribution
+        :disabled="attribution.id"
+        @clone="(item) => setAttribution(item)"
+      />
+
+      <VBtn
+        v-if="attribution.id"
+        color="destroy"
+        medium
+        :disabled="!validateFields"
+        class="button normal-input button-submit save-annotator-button"
+        @click="() => destroyAttribution()"
+      >
+        Delete
+      </VBtn>
     </div>
   </div>
 </template>
@@ -36,6 +53,8 @@ import VSwitch from '@/components/ui/VSwitch.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import LicenseSelector from './LicenseSelector.vue'
 import PeopleSelector from './PeopleSelector.vue'
+import CloneLastAttribution from './CloneLastAttribution.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import { Attribution } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
 import {
@@ -113,6 +132,31 @@ function makeRoleList(item) {
   }
 }
 
+function destroyAttribution() {
+  if (
+    window.confirm(
+      "You're trying to delete this record. Are you sure want to proceed?"
+    )
+  ) {
+    Attribution.destroy(attribution.value.id).then(() => {
+      attribution.value = makeAttribution()
+      roleList.value = {
+        [ROLE_ATTRIBUTION_CREATOR]: [],
+        [ROLE_ATTRIBUTION_EDITOR]: [],
+        [ROLE_ATTRIBUTION_OWNER]: [],
+        [ROLE_ATTRIBUTION_COPYRIGHT_HOLDER]: []
+      }
+
+      emit('updateCount', 0)
+
+      TW.workbench.alert.create(
+        'Attribution was successfully destroyed.',
+        'notice'
+      )
+    })
+  }
+}
+
 function saveAttribution() {
   const payload = {
     ...attribution.value,
@@ -125,12 +169,21 @@ function saveAttribution() {
     ? Attribution.update(payload.id, { attribution: payload })
     : Attribution.create({ attribution: payload })
 
-  response.then(({ body }) => {
-    attribution.value = makeAttribution(body)
-    roleList.value = makeRoleList(body)
-    emit('updateCount', 1)
-    TW.workbench.alert.create('Attribution was successfully created.', 'notice')
-  })
+  response
+    .then(({ body }) => {
+      setAttribution(body)
+      emit('updateCount', 1)
+      TW.workbench.alert.create(
+        'Attribution was successfully created.',
+        'notice'
+      )
+    })
+    .catch(() => {})
+}
+
+function setAttribution(item) {
+  attribution.value = makeAttribution(item)
+  roleList.value = makeRoleList(item)
 }
 
 const isLoading = ref(true)
@@ -142,8 +195,7 @@ Attribution.where({
   .then(({ body }) => {
     const [item] = body
 
-    attribution.value = makeAttribution(item)
-    roleList.value = makeRoleList(item)
+    setAttribution(item)
   })
   .finally(() => {
     isLoading.value = false

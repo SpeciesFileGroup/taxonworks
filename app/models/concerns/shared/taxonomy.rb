@@ -1,3 +1,9 @@
+
+# Conceptually there are 2 aspects of building @taxonomy
+# 1) The higher, monomial names
+# 2) The elements of the scientificNamm.
+#
+#
 module Shared::Taxonomy
   extend ActiveSupport::Concern
 
@@ -19,9 +25,14 @@ module Shared::Taxonomy
     #     ]
     # }
     #
-    # !! Calling taxonom.keys gives ranks back from root to target.
+    # !! Calling taxonomy.keys gives ranks back from root to target.
     # !! Note Root is included, this may be deprecated ultimate
     # !!  as it is rarely used
+    #
+    # Currently based on full_name_hash format
+    #   TODO: simplify from fnh
+    #     * See Nodes experiment with text_tree
+    # @taxonomy.<rank> should return the name at that rank if any
     #
     attr_accessor :taxonomy
 
@@ -50,25 +61,10 @@ module Shared::Taxonomy
     protected
 
     # !! @return Taxonomy
-    # !!
-    # !! Since Ruby 2.5 Hash keys return in the order
-    # !!  they were added, this is assumed for this method
-    # !!  so if it is change this must be taken into account.
-    # !!
+    # !! Always return a valid taxon name
     # TODO: analyze and optimize for n+1
     def set_taxonomy
-      c = case self.class.base_class.name
-          when 'CollectionObject'
-            a = current_taxon_name
-
-            # If we have no name, see if there is a Type reference and use it as proxy
-            # !! Careful/TODO this is an arbitrary choice, technically can be only one primary, but not restricted in DB yet
-            a ||= type_materials.primary.first&.protonym
-          when 'Otu'
-            taxon_name&.valid_taxon_name
-          when 'AssertedDistribution'
-            otu.taxon_name&.valid_taxon_name
-          end
+      c = taxonomy_for_object(self)
 
       if c
         @taxonomy = c.full_name_hash
@@ -100,4 +96,44 @@ module Shared::Taxonomy
       end
     end
   end
+
+  def taxonomy_for_object(o)
+    case o.class.base_class.name
+    when 'CollectionObject', 'FieldOccurrence'
+      a = o.target_taxon_name # current_valid_taxon_name # !! See DwcExtensions, probably better placed here
+
+      # If we have no name, see if there is a Type reference and use it as proxy
+      # !! Careful/TODO this is an arbitrary choice, technically can be only one primary, but not restricted in DB yet
+      if o.class.base_class.name == 'CollectionObject'
+        a ||= o.type_materials.primary.first&.protonym
+      end
+    when 'Otu'
+      if o.taxon_name
+        if o.taxon_name.cached_is_valid
+          o.taxon_name
+        else
+          o.taxon_name.valid_taxon_name
+        end
+      end
+
+    when 'AssertedDistribution'
+
+      # TODO: this is faster, but needs spec confirmation
+      # Benchmark.measure { 2000.times do;  AssertedDistribution.find_by_id(ids.sample).taxonomy; end;  }
+      #
+      # TaxonName.joins('JOIN taxon_names tn on tn.id = taxon_names.cached_valid_taxon_name_id')
+      #   .joins('JOIN otus o on o.taxon_name_id = tn.id')
+      #   .where(o: { id: otu_id })
+      #   .first
+
+      o.otu&.taxon_name&.valid_taxon_name
+
+    when 'AnatomicalPart'
+      o.origin_otu.taxon_name
+
+    when 'TaxonName' # not used (probably has to be subclassed)
+      o
+    end
+  end
+
 end

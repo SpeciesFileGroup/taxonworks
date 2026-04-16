@@ -2,15 +2,17 @@
   <div class="vue-otu-picker gap-small">
     <VAutocomplete
       :input-id="inputId"
+      ref="autocomplete"
       url="/otus/autocomplete"
       label="label_html"
       min="2"
       display="label"
+      :autofocus="autofocus"
       :clear-after="clearAfter"
       :input-attributes="inputAttributes"
       placeholder="Select an OTU"
       param="term"
-      @found="($event) => (foundSomething = $event)"
+      @found="handleNotFound"
       @get-item="emitOtu"
       @get-input="callbackInput"
     />
@@ -75,7 +77,7 @@
           </template>
         </div>
         <button
-          class="button normal-input button-submit"
+          class="button normal-input button-submit margin-xlarge-top"
           :disabled="!otuName"
           type="button"
           @click="
@@ -97,12 +99,16 @@
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import MatchTaxonName from './matchTaxonNames'
 import { Otu } from '@/routes/endpoints'
-import { ref, watch } from 'vue'
+import { ref, useTemplateRef, watch } from 'vue'
 
 defineProps({
   inputId: {
     type: String,
     default: undefined
+  },
+  autofocus: {
+    type: Boolean,
+    default: false
   },
   clearAfter: {
     type: Boolean,
@@ -115,8 +121,9 @@ defineProps({
 })
 
 const emit = defineEmits(['get-item', 'get-input'])
-const foundSomething = ref(true)
 
+const autocompleteRef = useTemplateRef('autocomplete')
+const foundSomething = ref(true)
 const otuName = ref()
 const taxon = ref()
 const type = ref()
@@ -152,16 +159,33 @@ function createOtu({ taxonId, name }) {
   })
 }
 
+function handleNotFound(value) {
+  foundSomething.value = value
+
+  if (!value) {
+    autocompleteRef.value.hiddenList()
+  }
+}
+
 function resetPicker() {
   otuName.value = undefined
   create.value = false
+}
+
+function setFocus() {
+  autocompleteRef.value?.setFocus()
 }
 
 function callbackInput(event) {
   type.value = event
   emit('get-input', event)
 }
+
+defineExpose({
+  setFocus
+})
 </script>
+
 <style lang="scss">
 .vue-otu-picker {
   position: relative;

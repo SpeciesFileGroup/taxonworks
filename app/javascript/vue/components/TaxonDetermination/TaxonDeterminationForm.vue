@@ -3,7 +3,7 @@
     <taxon-determination-otu
       v-model="taxonDetermination.otu_id"
       v-model:lock="lockOTU"
-      @label="otuLabel = $event"
+      @label="(label) => (otuLabel = label)"
     />
     <taxon-determination-determiner
       v-model="taxonDetermination.roles_attributes"
@@ -59,7 +59,7 @@
 
 <script setup>
 import { EVENT_TAXON_DETERMINATION_FORM_RESET } from '@/constants/index.js'
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { randomUUID } from '@/helpers'
 
 import TaxonDeterminationOtu from './TaxonDeterminationOtu.vue'

@@ -24,6 +24,10 @@ module Queries
       if filters.blank?
         filter_keys = Utilities::Dates::REGEXP_DATES.keys.compact
       else
+        # Validate all filters are known
+        invalid_filters = filters.reject { |f| Utilities::Dates::REGEXP_DATES.key?(f) }
+        raise ArgumentError, "Invalid date filters: #{invalid_filters.join(', ')}" if invalid_filters.any?
+
         filter_keys = filters
       end
 

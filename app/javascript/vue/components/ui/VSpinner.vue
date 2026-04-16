@@ -5,7 +5,7 @@ show-legend: activate the legend */
 <template>
   <transition name="fade">
     <div
-      class="middle box-spinner mx-spinner"
+      class="middle vue-box-spinner"
       :style="cssProperties"
     >
       <div
@@ -125,7 +125,6 @@ export default {
     legendStyle: {
       type: Object,
       default: () => ({
-        color: '#444',
         marginTop: '30px',
         textAlign: 'center'
       })
@@ -140,6 +139,7 @@ export default {
       type: Boolean,
       default: true
     },
+
     spinnerPosition: {
       type: String,
       default: 'top'
@@ -151,20 +151,29 @@ export default {
         width: '50px',
         height: '50px'
       })
+    },
+
+    cssPosition: {
+      type: String,
+      default: 'absolute'
     }
   },
 
-  data: () => ({
-    cssProperties: {
-      width: undefined,
-      height: undefined,
-      position: 'absolute',
-      top: undefined,
-      zIndex: undefined,
-      left: undefined
-    },
-    resizeInterval: undefined
-  }),
+  data: function () {
+    return {
+      cssProperties: {
+        width: undefined,
+        height: undefined,
+        position: this.cssPosition,
+        top: undefined,
+        bottom: undefined,
+        zIndex: undefined,
+        left: undefined,
+        right: undefined
+      },
+      resizeInterval: undefined
+    }
+  },
 
   mounted() {
     this.init()
@@ -182,13 +191,19 @@ export default {
       const style = getComputedStyle(el)
       const width = el.offsetWidth
 
-      return width - parseInt(style.paddingLeft) - parseInt(style.paddingRight)
+      return {
+        width: `${width}px`,
+        marginLeft: `-${parseInt(style.paddingLeft) || 0}px`
+      }
     },
     outerHeight(el) {
       const style = getComputedStyle(el)
       const height = el.offsetHeight
 
-      return height - parseInt(style.paddingTop) - parseInt(style.paddingBottom)
+      return {
+        height: height + 'px',
+        marginTop: `-${parseInt(style.paddingTop) || 0}px`
+      }
     },
     init() {
       const domElement =
@@ -206,10 +221,17 @@ export default {
       } else {
         const elementBound = domElement.getBoundingClientRect()
 
-        copyCSS.width = this.outerWidth(domElement) + 'px'
-        copyCSS.height = this.outerHeight(domElement) + 'px'
-        copyCSS.top = elementBound.top
-        copyCSS.left = elementBound.left
+        Object.assign(
+          copyCSS,
+          this.outerHeight(domElement),
+          this.outerWidth(domElement),
+          { boxSizing: 'border-box' }
+        )
+
+        if (copyCSS.position == 'fixed') {
+          copyCSS.top = elementBound.top + 'px'
+          copyCSS.left = elementBound.left + 'px'
+        }
       }
       if (!this.showSpinner) {
         copyCSS.zIndex =
@@ -251,6 +273,17 @@ export default {
   width: auto;
   align-items: center;
 }
+
+.vue-box-spinner {
+  box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.2);
+  background-image: none !important;
+  background-color: var(--panel-bg-color);
+  color: var(--text-color);
+  z-index: 999999;
+  height: 100%;
+  opacity: 0.9;
+}
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.5s;
@@ -262,6 +295,7 @@ export default {
 
 .tw-spinner-left {
   flex-direction: row;
+  gap: 0.5rem;
 }
 
 .tw-spinner-right {

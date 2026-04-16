@@ -106,7 +106,7 @@ function autoAdvance(e, index) {
   const element = fieldsRef.value[index]
   const currentField = dateFields[index]
 
-  emit(`update:${dateFields[index].property}`, e.target.value)
+  emit(`update:${dateFields[index].property}`, Number(e.target.value))
   emit('input', e)
 
   index++

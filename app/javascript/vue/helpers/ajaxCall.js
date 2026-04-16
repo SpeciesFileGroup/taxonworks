@@ -1,6 +1,6 @@
-// use requestId to cancel previous request with the same Id
 import Axios from 'axios'
 import { capitalize } from './strings'
+import { getCSRFToken } from './user'
 
 const REQUEST_TYPE = {
   Get: 'get',
@@ -9,13 +9,18 @@ const REQUEST_TYPE = {
   Put: 'put',
   Delete: 'delete'
 }
-const CancelToken = Axios.CancelToken
-const previousTokenRequests = []
+
 const axios = Axios.create({
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json'
   }
+})
+
+axios.interceptors.request.use((config) => {
+  config.headers['X-Timezone'] =
+    Intl.DateTimeFormat().resolvedOptions().timeZone
+  return config
 })
 
 axios.interceptors.response.use(
@@ -28,11 +33,7 @@ axios.interceptors.response.use(
 )
 
 async function ajaxCall(type, url, data = {}, config = {}) {
-  const cancelFunction = config.cancelRequest || data.cancelRequest
-  const requestId = config.requestId || data.requestId
-  const CSRFToken = document
-    .querySelector('meta[name="csrf-token"]')
-    .getAttribute('content')
+  const CSRFToken = getCSRFToken()
   const defaultHeaders = { 'X-CSRF-Token': CSRFToken }
 
   if (type === REQUEST_TYPE.Get || type === REQUEST_TYPE.Delete) {
@@ -45,32 +46,6 @@ async function ajaxCall(type, url, data = {}, config = {}) {
       headers: defaultHeaders,
       ...config
     }
-  }
-
-  if (requestId) {
-    const source = CancelToken.source()
-    const previousToken = previousTokenRequests[requestId]
-
-    Object.assign(config, { cancelToken: source.token })
-
-    if (previousToken) {
-      previousToken.cancel()
-    }
-
-    previousTokenRequests[requestId] = source
-  }
-
-  if (cancelFunction) {
-    const cancelToken = { cancelToken: new CancelToken(cancelFunction) }
-
-    if (type === REQUEST_TYPE.Get || type === REQUEST_TYPE.Delete) {
-      Object.assign(data, cancelToken)
-    } else {
-      Object.assign(config, cancelToken)
-    }
-
-    delete config.cancelRequest
-    delete data.cancelRequest
   }
 
   const request = axios[type](url, data, config)
@@ -113,7 +88,7 @@ function createErrorList(error) {
     ${
       removeTitleFor.includes(key)
         ? ''
-        : `<span data-icon="warning">${key}:</span>`
+        : `<span><span data-icon="warning"></span>${key}:</span>`
     }
       <ul>
         <li>${

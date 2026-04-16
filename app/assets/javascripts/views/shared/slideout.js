@@ -4,18 +4,26 @@ TW.views.shared = TW.views.shared || {}
 TW.views.shared.slideout = TW.views.shared.slideout || {}
 
 Object.assign(TW.views.shared.slideout, {
+  init() {
+    this.KEY_EVENT_MAP = {
+      F1: 'pinboard',
+      F2: 'pdfviewer',
+      F3: 'clipboard'
+    }
 
-  init () {
     this.emitLoadPdfViewerEvent = this.emitLoadPdfViewer.bind(this)
     this.togglePanelEvent = this.togglePanel.bind(this)
+    this.handleKeyboardEvent = this.handleKeyboard.bind(this)
 
     this.handleEvents()
     this.fillButtonTooltip()
   },
 
-  fillButtonTooltip () {
-    document.querySelectorAll('.slide-panel').forEach(element => {
-      const descriptionElement = element.querySelector('.slide-panel-description')
+  fillButtonTooltip() {
+    document.querySelectorAll('.slide-panel').forEach((element) => {
+      const descriptionElement = element.querySelector(
+        '.slide-panel-description'
+      )
       const panelHeader = element.querySelector('.slide-panel-header')
 
       if (descriptionElement && panelHeader) {
@@ -24,133 +32,106 @@ Object.assign(TW.views.shared.slideout, {
     })
   },
 
-  emitLoadPdfViewer (e) {
+  emitLoadPdfViewer(e) {
     const element = e.target
     const url = element.getAttribute('data-pdfviewer')
 
     if (url) {
       e.preventDefault()
 
-      document.dispatchEvent(new CustomEvent('pdfViewer:load', {
-        detail: {
-          url,
-          sourceId: element.getAttribute('data-sourceid')
-        }
-      }))
+      document.dispatchEvent(
+        new CustomEvent('pdfViewer:load', {
+          detail: {
+            url,
+            sourceId: element.getAttribute('data-sourceid')
+          }
+        })
+      )
     }
   },
 
-  togglePanel (e) {
+  togglePanel(e) {
     const element = e.target
+    const attr = element.getAttribute('data-control-slide-panel')
 
-    if (element.classList.contains('slide-panel-circle-icon')) {
-      const panelElement = element.closest('.slide-panel')
-      const panelName = panelElement.getAttribute('data-panel-name')
+    if (attr) {
+      const panelElement = document.querySelector(`[data-panel-name="${attr}"]`)
       const isOpen = panelElement.classList.contains('slide-panel-show')
-      const detail = { name: panelName }
-      const eventName = isOpen
-        ? 'onSlidePanelClose'
-        : 'onSlidePanelOpen'
+      const eventName = isOpen ? 'onSlidePanelClose' : 'onSlidePanelOpen'
+      const detail = { name: attr }
 
-      // TODO: Remove this after make a new interface for filter CO and Otu by area
-      if (document.querySelector('#filter-collection-objects') || document.querySelector('#otu_by_area_and_nomen')) {
-        this.closeHideSlideoutPanel($(panelElement))
-      } else {
-        panelElement.classList.toggle('slide-panel-show')
-        document.dispatchEvent(new CustomEvent(eventName, { detail }))
-      }
+      panelElement.classList.toggle('slide-panel-show')
+
+      document.dispatchEvent(new CustomEvent(eventName, { detail }))
 
       e.preventDefault()
     }
   },
 
-  closePanel (panelName) {
-    const panelElement = document.querySelector(`[data-panel-name=${panelName}]`)
+  handleKeyboard(e) {
+    const slicePanel = this.KEY_EVENT_MAP[e.key]
+
+    if (slicePanel) {
+      const el = document.querySelector(
+        `[data-control-slide-panel="${slicePanel}"]`
+      )
+
+      Object.values(this.KEY_EVENT_MAP).forEach((panelName) => {
+        if (panelName !== slicePanel) {
+          const panelEl = document.querySelector(
+            `[data-panel-name="${panelName}"]`
+          )
+
+          panelEl.classList.remove('slide-panel-show')
+        }
+      })
+
+      el?.click()
+      e.preventDefault()
+    }
+  },
+
+  closePanel(panelName) {
+    const panelElement = document.querySelector(
+      `[data-panel-name=${panelName}]`
+    )
 
     if (panelElement) {
       panelElement.classList.remove('slide-panel-show')
     }
   },
 
-  openPanel (panelName) {
-    const panelElement = document.querySelector(`[data-panel-name=${panelName}]`)
+  openPanel(panelName) {
+    const panelElement = document.querySelector(
+      `[data-panel-name=${panelName}]`
+    )
 
     if (panelElement) {
       panelElement.classList.add('slide-panel-show')
     }
   },
 
-  handleEvents () {
+  handleEvents() {
     document.addEventListener('click', this.toggleHeaderEvent)
     document.addEventListener('click', this.togglePanelEvent)
     document.addEventListener('click', this.emitLoadPdfViewerEvent)
+    window.addEventListener('keydown', this.handleKeyboardEvent)
   },
 
-  removeEvents () {
+  removeEvents() {
     document.removeEventListener('click', this.toggleHeaderEvent)
     document.removeEventListener('click', this.togglePanelEvent)
     document.removeEventListener('click', this.emitLoadPdfViewerEvent)
+    window.removeEventListener('keydown', this.handleKeyboardEvent)
   },
 
   closeHideSlideoutPanel: function (panel) {
     this.closeSlideoutPanel(panel)
     this.openSlideoutPanel(panel)
-  },
-
-  // TODO: Remove from this line to the end of the object after merge new OTU filter task
-  closeSlideoutPanel: function (panel) {
-    if ($(panel).hasClass('slide-left')) {
-      $(panel).css('right', '')
-      if ($(panel).css('left') == '0px') {
-        $(panel).attr('data-panel-open', 'false')
-        $(panel).css('z-index', '1000')
-        $(panel).animate({ left: '-' + $(panel).css('width') }, 500, function () {
-          $(panel).css('position', 'fixed')
-        })
-      }
-    } else {
-      $(panel).css('left', '')
-      if ($(panel).css('right') == '0px') {
-        $(panel).attr('data-panel-open', 'false')
-        $(panel).css('z-index', '1000')
-        $(panel).animate({ right: '-' + $(panel).css('width') }, 500, function () {
-          $(panel).css('position', 'fixed')
-        })
-      }
-    }
-  },
-  openSlideoutPanel: function (panel) {
-    if ($(panel).hasClass('slide-left')) {
-      $(panel).css('right', '')
-      if ($(panel).css('left') != '0px') {
-        if ($(panel).attr('data-panel-position') == 'relative') {
-          $(panel).css('position', 'absolute')
-        }
-        $(panel).attr('data-panel-open', 'true')
-        $(panel).animate({ left: '0px' }, 500, function () {
-          $(panel).css('position', 'relative')
-        })
-        $(panel).css('z-index', '1100')
-      }
-    } else {
-      $(panel).css('left', '')
-      if ($(panel).css('right') != '0px') {
-        if ($(panel).attr('data-panel-position') == 'relative') {
-          $(panel).css('position', 'absolute')
-        }
-        $(panel).attr('data-panel-open', 'true')
-        $(panel).animate({ right: '0px' }, 500, function () {
-          if ($(panel).attr('data-panel-position') == 'relative') {
-            $(panel).css('position', 'relative')
-          }
-        })
-        $(panel).css('z-index', '1100')
-      }
-    }
   }
 })
 
-$(document).on('turbolinks:load', function () {
+document.addEventListener('turbolinks:load', function () {
   TW.views.shared.slideout.removeEvents()
   TW.views.shared.slideout.init()
 })

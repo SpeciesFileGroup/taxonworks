@@ -1,50 +1,7 @@
 import { MutationNames } from '../mutations/mutations'
-import { chunkArray } from '@/helpers/arrays.js'
-import { Georeference, TaxonName, CollectingEvent } from '@/routes/endpoints'
+import { TaxonName } from '@/routes/endpoints'
 
 const MAX_PER_CALL = 50
-
-function getAllCollectingEvents(taxonNames) {
-  return new Promise((resolve, reject) => {
-    const chunks = chunkArray(
-      Array.from(
-        new Set(
-          taxonNames
-            .map((tn) => tn.otus.map((otu) => otu.id))
-            .filter((id) => id.length)
-        )
-      ),
-      MAX_PER_CALL
-    )
-    const collectingEvents = []
-    const promises = []
-
-    if (chunks.length) {
-      chunks.forEach((ids) => {
-        if (ids.length) {
-          promises.push(
-            CollectingEvent.all({ otu_id: [].concat(...ids) }).then(
-              (response) => {
-                collectingEvents.push(response.body)
-              }
-            )
-          )
-        }
-      })
-    }
-    Promise.all(promises).then(() => {
-      const seen = new Set()
-      const allCEs = [].concat(...collectingEvents)
-
-      const uniqueCEs = allCEs.filter((el) => {
-        const duplicate = seen.has(el.id)
-        seen.add(el.id)
-        return !duplicate
-      })
-      resolve(Array.from(uniqueCEs))
-    })
-  })
-}
 
 export default ({ commit, state }, otu) => {
   if (!otu.taxon_name_id) return

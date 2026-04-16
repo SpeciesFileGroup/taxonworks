@@ -22,5 +22,10 @@ const permitParams = {
 export const Confidence = {
   ...baseCRUD(controller, permitParams),
 
-  exists: (params) => AjaxCall('get', `/${controller}/exists`, { params })
+  exists: (params) => AjaxCall('get', `/${controller}/exists`, { params }),
+
+  batchByFilter: (params) =>
+    AjaxCall('post', `/${controller}/batch_by_filter_scope`, params),
+
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params)
 }

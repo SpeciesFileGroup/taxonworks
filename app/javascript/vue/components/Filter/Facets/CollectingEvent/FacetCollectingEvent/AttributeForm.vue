@@ -6,7 +6,7 @@
       <input
         class="full_width"
         :type="TYPES[field.type]"
-        v-model="attribute.value"
+        v-model="attributeValue"
       />
     </div>
     <div class="field">
@@ -16,13 +16,14 @@
         <VBtn
           color="primary"
           medium
-          @click="() => addField(attribute)"
+          @click="() => addField({ any: false })"
         >
           Add
         </VBtn>
         <VBtn
           color="primary"
           medium
+          :disabled="!!attributeValue"
           @click="() => addField({ any: true })"
         >
           Any
@@ -52,16 +53,14 @@ const props = defineProps({
 
 const emit = defineEmits(['add'])
 
-const attribute = ref({
-  exact: false,
-  value: undefined
-})
+const attributeValue = ref(undefined)
 
-const addField = (params) => {
+function addField(fieldOptions) {
   emit('add', {
     param: props.field.name,
     type: props.field.type,
-    ...params
+    value: attributeValue.value,
+    ...fieldOptions
   })
 }
 </script>

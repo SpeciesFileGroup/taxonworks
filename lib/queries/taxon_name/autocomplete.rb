@@ -187,9 +187,19 @@ module Queries
         base_query.where(a.to_sql).limit(20)
       end
 
+      def autocomplete_cached_wildcard_whitespace_with_space
+        a = table[:cached].matches("#{query_string.gsub('. ', ' ').gsub(/[\s\\]/, '% ')}%")
+        base_query.where(a.to_sql).limit(20)
+      end
+
+      def autocomplete_cached_original_combination_wildcard_whitespace_with_space
+        a = table[:cached_original_combination].matches("#{query_string.gsub('. ', ' ').gsub(/[\s\\]/, '% ')}%")
+        base_query.where(a.to_sql).limit(20)
+      end
+
       # @return [Scope]
       def autocomplete_cached_wildcard_whitespace
-        a = table[:cached].matches("#{query_string.gsub('. ', ' ').gsub(' ', '%')}")
+        a = table[:cached].matches("#{query_string.gsub('. ', ' ').gsub(/[\s\\]/, '%')}")
         base_query.where(a.to_sql).limit(20)
       end
 
@@ -226,17 +236,17 @@ module Queries
       end
 
       #    def autocomplete_cached
-      #      base_query.where(table[:cached].eq(query_term))
+      #      base_query.where(table[:cached].eq(query_string))
       #    end
 
       # ---- gin methods
       # Consider word_similarity()
 
       def autocomplete_cached
-        ::TaxonName.where(project_id:).select(ApplicationRecord.sanitize_sql(['taxon_names.*, similarity(?, cached) AS sml', query_string]))
-          .where('cached % ?', query_string) # `%` in where means nothing < 0.3 (internal PG similarity value)
-          .where(ApplicationRecord.sanitize_sql_array(["similarity('%s', cached) > 0.6", query_string]))
-          .order('sml DESC, cached')
+        ::TaxonName.where(project_id:).select(ApplicationRecord.sanitize_sql(['taxon_names.*, similarity(?, taxon_names.cached) AS sml', query_string]))
+          .where('taxon_names.cached % ?', query_string) # `%` in where means nothing < 0.3 (internal PG similarity value)
+          .where(ApplicationRecord.sanitize_sql_array(["similarity('%s', taxon_names.cached) > 0.6", query_string]))
+          .order('sml DESC, taxon_names.cached')
       end
 
       def autocomplete_original_combination
@@ -293,6 +303,8 @@ module Queries
           autocomplete_exact_name_and_year,
 
           autocomplete_cached_end_wildcard,
+          autocomplete_cached_wildcard_whitespace_with_space,
+          autocomplete_cached_original_combination_wildcard_whitespace_with_space,
           autocomplete_cached_wildcard_whitespace,
           autocomplete_name_author_year_fragment,
           autocomplete_taxon_name_author_year_matches,
@@ -353,7 +365,6 @@ module Queries
 
       # @return [Array]
       def autocomplete
-
         # exact, unified, comprehensive
 
         queries = (exact ? exact_autocomplete : comprehensive_autocomplete )
@@ -427,7 +438,7 @@ module Queries
         else
           # Gnparser doesn't parse with names like `aus Jones`, do a quick and dirty check for things like `foo Jones`
           if a = query_string.match(/\A[a-z]+\s*\,?\s*(.*)\Z/)
-            @authorship = a[1]
+            @authorship = a[1].gsub(/\\+\z/, '')
           else
             @authorship = ''
           end

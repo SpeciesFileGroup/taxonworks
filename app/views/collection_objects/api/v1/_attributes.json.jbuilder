@@ -12,6 +12,12 @@ if extend_response_with('container')
   end
 end
 
+if extend_response_with('taxon_determinations')
+  json.taxon_determinations do |ct|
+    json.array! collection_object.taxon_determinations, partial: '/taxon_determinations/api/v1/attributes', as: :taxon_determination, extensions: false
+  end
+end
+
 if extend_response_with('dwc_fields')
   json.dwc do
     json.merge!(collection_object.dwc_occurrence&.attributes&.select{|k,v| v.present?} )
@@ -22,5 +28,16 @@ if extend_response_with('type_material')
   json.type_material collection_object.type_materials do |tm|
     json.extract! tm, :type_type
     json.partial! '/shared/data/all/metadata', object: tm
+    if extend_response_with('notes')
+      json.notes tm.notes.each do |n|
+        json.text n.text
+      end
+    end
+  end
+end
+
+if extend_response_with('notes')
+  json.notes collection_object.notes.each do |n|
+    json.text n.text
   end
 end

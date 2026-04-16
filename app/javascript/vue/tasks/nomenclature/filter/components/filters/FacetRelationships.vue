@@ -300,7 +300,7 @@ export default {
       this.relationships.push({
         type_object: this.typeSelected,
         type: this.typeSelected.type,
-        taxon_label: this.taxon.label,
+        taxon_label: this.taxon.object_tag,
         type_label: this.typeSelected[this.display],
         type_name: this.display,
         taxonId: this.taxon.id

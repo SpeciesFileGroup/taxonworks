@@ -3,6 +3,7 @@ import {
   TaxonDetermination,
   CollectionObject
 } from '@/routes/endpoints'
+import { COLLECTION_OBJECT } from '@/constants'
 import { MutationNames } from '../mutations/mutations'
 import validateSqed from '../../helpers/validateSqed'
 
@@ -46,10 +47,16 @@ export default ({ state, commit }) => {
               : undefined
           }
 
-          taxon_determinations.forEach((taxon_determination) => {
-            taxon_determination.biological_collection_object_id =
-              response.body.id
-            TaxonDetermination.create({ taxon_determination })
+          taxon_determinations.forEach((taxonDetermination) => {
+            const payload = {
+              taxon_determination: {
+                ...taxonDetermination,
+                taxon_determination_object_id: response.body.id,
+                taxon_determination_object_type: COLLECTION_OBJECT
+              }
+            }
+
+            TaxonDetermination.create(payload)
           })
 
           createdCount++
@@ -114,6 +121,7 @@ export default ({ state, commit }) => {
   Promise.all(promises).then(() => {
     state.settings.saving = false
     if (createdCount > 0) {
+      state.settings.applied.depiction = true
       TW.workbench.alert.create(
         'Depiction(s) was successfully created.',
         'notice'

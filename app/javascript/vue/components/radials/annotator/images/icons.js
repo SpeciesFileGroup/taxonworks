@@ -11,11 +11,13 @@ import tags from './tag'
 import attribution from './attribution'
 import pin from './pin'
 import verifiers from './verifier'
+import conveyances from './conveyances'
 
 const Icons = {
   alternate_values,
   citations,
   confidences,
+  conveyances,
   data_attributes,
   depictions,
   documentation,

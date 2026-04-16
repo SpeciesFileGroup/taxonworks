@@ -17,7 +17,9 @@ class PreparationType < ApplicationRecord
   include Shared::HasPapertrail
   include Shared::IsData
 
-  has_many :collection_objects, dependent: :restrict_with_error
+  has_many :collection_objects, dependent: :restrict_with_error, inverse_of: :preparation_type
+  has_many :anatomical_parts, inverse_of: :preparation_type, dependent: :restrict_with_error
+
   validates_presence_of :name, :definition
 
   validates_uniqueness_of :name

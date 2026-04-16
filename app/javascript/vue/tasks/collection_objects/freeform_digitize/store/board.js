@@ -7,7 +7,11 @@ export default defineStore('board', {
     currentLayer: null,
     SVGBoard: null,
     SVGCurrentMode: null,
-    layers: []
+    layers: [],
+    opts: {
+      stroke: '#FFA500',
+      strokeWidth: 2 * window.devicePixelRatio
+    }
   }),
 
   actions: {
@@ -23,7 +27,7 @@ export default defineStore('board', {
         collectionObjectId,
         g: svg,
         attributes: {
-          fill: await getHexColorFromString(String(collectionObjectId)),
+          fill: getHexColorFromString(String(collectionObjectId)),
           'fill-opacity': 0.25,
           'stroke-width': 2 * window.devicePixelRatio
         }

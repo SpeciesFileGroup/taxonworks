@@ -1,0 +1,172 @@
+<template>
+    <div class="dwc-compact-task">
+        <template v-if="rows.length">
+            <div class="dwc-compact-charts">
+                <SummaryPanel :rows="rows" :all-rows="allRows" :meta="meta" />
+                <ChartSexCounts :rows="rows" />
+                <ChartLifeStageCounts :rows="rows" />
+                <ChartByYear :rows="allRows" />
+                <ChartCalendarDay :rows="rows" />
+            </div>
+
+            <div class="dwc-compact-charts-wide">
+                <ChartByScientificName :rows="rows" />
+            </div>
+
+            <div class="dwc-compact-charts-wide">
+                <ChartGeoGrid :rows="rows" :filter-params="filterParams" />
+            </div>
+
+            <div class="dwc-compact-charts-wide">
+                <ChartSpeciesByMonth :rows="rows" />
+            </div>
+
+            <div v-if="errors.length" class="dwc-compact-errors">
+                <h3>Errors / Warnings ({{ errors.length }})</h3>
+                <ul>
+                    <li
+                        v-for="(error, index) in errors"
+                        :key="index"
+                        :class="{ 'dwc-compact-warning': error.type === 'warning' }"
+                    >
+                        <strong>{{ error.type }}: </strong><a
+                            v-if="error.catalog_number"
+                            :href="catalogNumberFilterUrl(error.catalog_number)"
+                            target="_blank"
+                            rel="noopener"
+                        >{{ error.catalog_number }}</a>
+                        — {{ error.message }}
+                        <span v-if="error.values">
+                            — values: {{ error.values.join(", ") }}
+                        </span>
+                    </li>
+                </ul>
+            </div>
+
+            <CompactTable :headers="headers" :rows="rows" />
+        </template>
+
+        <VSpinner v-if="isLoading" legend="Loading..." />
+    </div>
+</template>
+
+<script setup>
+import { ref } from "vue";
+import qs from "qs";
+import { DwcOcurrence } from "@/routes/endpoints";
+import { LinkerStorage } from "@/shared/Filter/utils";
+import VSpinner from "@/components/ui/VSpinner.vue";
+import SummaryPanel from "./components/SummaryPanel.vue";
+import ChartSexCounts from "./components/ChartSexCounts.vue";
+import ChartLifeStageCounts from "./components/ChartLifeStageCounts.vue";
+import ChartCalendarDay from "./components/ChartCalendarDay.vue";
+import ChartByYear from "./components/ChartByYear.vue";
+import ChartByScientificName from "./components/ChartByScientificName.vue";
+import ChartGeoGrid from "./components/ChartGeoGrid.vue";
+import ChartSpeciesByMonth from "./components/ChartSpeciesByMonth.vue";
+import CompactTable from "./components/CompactTable.vue";
+
+const CO_FILTER_URL = "/tasks/collection_objects/filter";
+
+const isLoading = ref(false);
+const headers = ref([]);
+const rows = ref([]);
+const allRows = ref([]);
+const errors = ref([]);
+const meta = ref({});
+const filterParams = ref(null);
+
+function catalogNumberFilterUrl(catalogNumber) {
+    const queryString = qs.stringify(
+        { match_identifiers: catalogNumber, match_identifiers_type: "identifier" },
+        { encode: false },
+    );
+    return `${CO_FILTER_URL}?${queryString}`;
+}
+
+function getInitialParams() {
+    const urlParams = qs.parse(window.location.search, {
+        ignoreQueryPrefix: true,
+        arrayLimit: 2000,
+    });
+    const stored = LinkerStorage.getParameters();
+
+    LinkerStorage.removeParameters();
+
+    const merged = { ...urlParams, ...stored };
+    return Object.keys(merged).length ? merged : null;
+}
+
+async function requestCompact(params, preview = false) {
+    isLoading.value = true;
+    errors.value = [];
+
+    try {
+        const response = await DwcOcurrence.compact({
+            ...params,
+            preview,
+        });
+
+        headers.value = response.body.headers;
+        rows.value = response.body.rows;
+        allRows.value = response.body.all_rows || response.body.rows;
+        errors.value = response.body.errors || [];
+        meta.value = response.body.meta || {};
+        filterParams.value = response.body.filter_params || null;
+    } catch (e) {
+        errors.value = [
+            { type: "error", message: e.message || "Request failed" },
+        ];
+    } finally {
+        isLoading.value = false;
+    }
+}
+
+const initialParams = getInitialParams();
+if (initialParams) {
+    requestCompact(initialParams, false);
+}
+</script>
+
+<style scoped>
+.dwc-compact-task {
+    padding: 1em;
+    max-width: 100%;
+}
+
+.dwc-compact-errors {
+    margin: 1em 0;
+    padding: 0.5em 1em;
+    background-color: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 4px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.dwc-compact-errors ul {
+    list-style: none;
+    padding: 0;
+}
+
+.dwc-compact-errors li {
+    padding: 0.25em 0;
+    border-bottom: 1px solid #eee;
+    color: #c62828;
+}
+
+.dwc-compact-warning {
+    color: #e65100 !important;
+}
+
+.dwc-compact-charts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 1em;
+    margin: 1em 0;
+}
+
+.dwc-compact-charts-wide {
+    margin: 1em 0;
+}
+</style>

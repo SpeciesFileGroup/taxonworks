@@ -41,10 +41,11 @@
     };
 
     var p = Raphael("paper", paperWidth, paperHeight);
-    var sizes = "<%= @result.large_dimensions_for(@result.primary_image) -%>".split(',')
+    var sizes = "<%= @result.primary_image ? @result.large_dimensions_for(@result.primary_image) : @result.large_dimensions_for(@result.secondary_sections.first) -%>".split(',')
+
     var resizeValues = resizeImage(Number(sizes[2]), Number(sizes[3]))
 
-    initRescale("<%= @result.image_path_for_large_image(@result.primary_image) -%>", [0, 0, resizeValues[0], resizeValues[1]])
+    initRescale("<%= @result.primary_image ? @result.image_path_for_large_image(@result.primary_image) : @result.image_path_for_large_image(@result.secondary_sections.first) -%>", [0, 0, resizeValues[0], resizeValues[1]])
 
     $('.clickable').on('click', function (click) {
         initRescale (click.currentTarget.src, [0, 0, click.currentTarget.naturalWidth, click.currentTarget.naturalHeight], true);
@@ -296,7 +297,7 @@
 
     function ocr_selection() {
         $("#selected_text").html("Calculating ocr...");
-        var coord_string = Math.round(sourceX) + "/" + Math.round(sourceY) + "/" + Math.round(sourceWidth) + "/" + Math.round(sourceHeight);
+        var coord_string = Math.max(0, Math.round(sourceX)) + "/" + Math.max(0, Math.round(sourceY)) + "/" + Math.max(0, Math.round(sourceWidth)) + "/" + Math.max(0, Math.round(sourceHeight));
         var ocr_string = "/images/<%= @result.depiction.image.id -%>/ocr/" + coord_string;
 
         $.get(ocr_string, function (data) {

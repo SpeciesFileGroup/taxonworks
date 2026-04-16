@@ -4,12 +4,13 @@
 #
 # * Values of `nil` should be avoided!
 #
+# DO NOT COLLIDE WITH `Project` methods
 ---
 
 workbench_starting_path: '/hub'
 is_api_accessible: false
-layout: { }  # element_set_id: { element_id: position } 
-model_predicate_sets: 
+layout: { }  # element_set_id: { element_id: position }
+model_predicate_sets:
   Otu: []
   AssertedDistribution: []
   CollectionObject: []
@@ -18,5 +19,5 @@ default_hub_tab_order: # not ported
   - tasks
   - data
   - favorite
-documents: 
-  default_loan_policy: 
+policies:
+  default_loan_policy:

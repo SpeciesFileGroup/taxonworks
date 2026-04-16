@@ -13,11 +13,11 @@ describe Queries::Extract::Autocomplete, type: :model do
     )
     o = Otu.create!(taxon_name: p)
     d = FactoryBot.create(:valid_taxon_determination, otu: o)
-    e = FactoryBot.create(:valid_extract, origin: d.biological_collection_object)
+    e = FactoryBot.create(:valid_extract, origin: d.taxon_determination_object)
 
     FactoryBot.create(:valid_extract) # not this one
 
-    query = Queries::Extract::Autocomplete.new('zzu', project_id: project_id )
+    query = Queries::Extract::Autocomplete.new('zzu', project_id: )
     expect(query.autocomplete_otu_taxon_name_id_determined_as.map(&:id)).to contain_exactly(e.id)
   end
 
@@ -29,11 +29,11 @@ describe Queries::Extract::Autocomplete, type: :model do
     )
     o = Otu.create!(taxon_name: p)
     d = FactoryBot.create(:valid_taxon_determination, otu: o)
-    e = FactoryBot.create(:valid_extract, origin: d.biological_collection_object)
+    e = FactoryBot.create(:valid_extract, origin: d.taxon_determination_object)
 
     FactoryBot.create(:valid_extract) # not this one
 
-    query = Queries::Extract::Autocomplete.new('zzu', project_id: project_id )
+    query = Queries::Extract::Autocomplete.new('zzu', project_id: )
     expect(query.autocomplete.map(&:id)).to contain_exactly(e.id)
   end
 
@@ -44,7 +44,7 @@ describe Queries::Extract::Autocomplete, type: :model do
 
   specify '#id, #project_id' do
     FactoryBot.create(:valid_extract, project: other_project) # not this one
-    q = Queries::Extract::Autocomplete.new(extract.id.to_s, project_id: project_id)
+    q = Queries::Extract::Autocomplete.new(extract.id.to_s, project_id:)
     expect(q.autocomplete).to contain_exactly(extract)
   end
 

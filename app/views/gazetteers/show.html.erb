@@ -1,0 +1,14 @@
+<%= content_for :associated do -%>
+  <p> <strong>Shape:</strong></p>
+  <%= simple_map([@gazetteer]) -%>
+
+  <p>
+  <strong> GeographicItems (shape IDs): </strong>
+  <%= geographic_item_link(@gazetteer.geographic_item) -%>
+  </p>
+
+  <%= link_to('Debug geographic item', debug_geographic_item_task_path(geographic_item_id: @gazetteer.geographic_item_id)) %>
+
+<% end %>
+
+<%= render(partial: 'shared/data/project/show', locals: {object: @gazetteer}) -%>

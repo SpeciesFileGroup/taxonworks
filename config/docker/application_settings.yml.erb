@@ -9,6 +9,7 @@ production:
     address: <%= ENV['TW_ACTION_MAILER_SMTP_SETTINGS_ADDRESS'] %>
     port: <%= ENV['TW_ACTION_MAILER_SMTP_SETTINGS_PORT'] %>
     domain: <%= ENV['TW_ACTION_MAILER_SMTP_SETTINGS_DOMAIN'] %>
+    authentication: <%= ENV['TW_ACTION_MAILER_SMTP_SETTINGS_AUTHENTICATION_TYPE']&.to_sym %>
   action_mailer_url_host:  <%= ENV['TW_ACTION_MAILER_URL_HOST'] %>
   mail_domain: <%= ENV['TW_MAIL_DOMAIN'] %>
   interface:

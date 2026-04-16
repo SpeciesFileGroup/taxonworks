@@ -10,9 +10,11 @@ module Protonym::SoftValidationExtensions
 
       sv_missing_etymology: {
         set: :missing_fields,
+        fix: :sv_fix_missing_etymology,
         name: 'Missing etymology',
         description: 'Etymology is not defined',
-        resolution:  [:new_taxon_name_task]
+        resolution:  [:new_taxon_name_task],
+        flagged: true
       },
 
       sv_validate_parent_rank: {
@@ -273,6 +275,12 @@ module Protonym::SoftValidationExtensions
         description: 'Two taxa should be homotypic synonyms if they share the same type'
       },
 
+      sv_missing_infrasubspecific_status: {
+        set: :missing_infrasubspecific_status,
+        name: 'Missing infrasubspecific status',
+        description: 'The name described as variety or form after 1960 should be treated as infrasubspecific'
+      },
+
       sv_family_is_invalid: {
         set: :family_is_invalid,
         name: 'Invalid family',
@@ -331,6 +339,13 @@ module Protonym::SoftValidationExtensions
         set: :person_vs_year_of_publication,
         name: 'The taxon author deceased',
         description: "The taxon year of description does not match with the author's years of life",
+        resolution:  [:new_taxon_name_task]
+      },
+
+      sv_duplicate_nomen_nudum: {
+        set: :duplicate_nomen_nudum,
+        name: 'Duplicate nomen nudum',
+        description: 'Nomen nudum could be a duplicate or described later with an available name',
         resolution:  [:new_taxon_name_task]
       },
 
@@ -472,7 +487,7 @@ module Protonym::SoftValidationExtensions
         else
           l = []
           z.each do |key, value|
-            l << (value == 1 ? " as '#{key.constantize.label}' #{value.to_s} time" : " as '#{key.constantize.label}' #{value.to_s} times")
+            l << (value == 1 ? " as '#{key.constantize.label}' #{value} time" : " as '#{key.constantize.label}' #{value} times")
           end
           soft_validations.add(:base, "Part of speech is not specified. The name was previously used#{other_project}" + l.join('; '))
         end
@@ -491,10 +506,10 @@ module Protonym::SoftValidationExtensions
         s = part_of_speech_name
         if !s.nil? && is_available?
           if %w{adjective participle}.include?(s)
-            if !feminine_name.blank? && !masculine_name.blank? && !neuter_name.blank? && name != masculine_name && name != feminine_name && name != neuter_name
+            if feminine_name.present? && masculine_name.present? && neuter_name.present? && name != masculine_name && name != feminine_name && name != neuter_name
               soft_validations.add(:base, 'Species name does not match with either of three alternative forms')
             else
-              forms = predict_three_forms
+              forms = Utilities::Nomenclature.predict_three_forms(name)
               if feminine_name.blank?
                 soft_validations.add(:feminine_name, "The species name is marked as #{part_of_speech_name}, but the name spelling in feminine is not provided")
               else
@@ -525,12 +540,12 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_species_gender_agreement_not_required
-      if is_species_rank? && ((!feminine_name.blank? || !masculine_name.blank? || !neuter_name.blank?)) && is_available?
+      if is_species_rank? && ((feminine_name.present? || masculine_name.present? || neuter_name.present?)) && is_available?
         s = part_of_speech_name
         if !s.nil? && !%w{adjective participle}.include?(s)
-          soft_validations.add(:feminine_name, 'Alternative spelling is not required for the name which is not adjective or participle.') unless feminine_name.blank?
-          soft_validations.add(:masculine_name, 'Alternative spelling is not required for the name which is not adjective or participle.')  unless masculine_name.blank?
-          soft_validations.add(:neuter_name, 'Alternative spelling is not required for the name which is not adjective or participle.')  unless neuter_name.blank?
+          soft_validations.add(:feminine_name, 'Alternative spelling is not required for the name which is not adjective or participle.') if feminine_name.present?
+          soft_validations.add(:masculine_name, 'Alternative spelling is not required for the name which is not adjective or participle.')  if masculine_name.present?
+          soft_validations.add(:neuter_name, 'Alternative spelling is not required for the name which is not adjective or participle.')  if neuter_name.present?
         end
       end
     end
@@ -592,15 +607,15 @@ module Protonym::SoftValidationExtensions
           end
         end
         if fixed
-        begin
-          Protonym.transaction do
-            self.source.save
-            self.origin_citation.update_column(:pages, pg)
+          begin
+            Protonym.transaction do
+              self.source.save
+              self.origin_citation.update_column(:pages, pg)
+            end
+            return true
+          rescue
+            return false
           end
-          return true
-        rescue
-          return false
-        end
       end
     end
 
@@ -938,9 +953,9 @@ module Protonym::SoftValidationExtensions
 
     def sv_fix_coordinated_names_etymology
       fixed = false
-      return false unless self.etymology.blank?
+      return false if self.etymology.present?
       list_of_coordinated_names.each do |t|
-        if !t.etymology.blank?
+        if t.etymology.present?
           self.etymology = t.etymology
           fixed = true
         end
@@ -1462,6 +1477,12 @@ module Protonym::SoftValidationExtensions
       end
     end
 
+    def sv_missing_infrasubspecific_status
+      if nomenclatural_code == :iczn && (self.cached_original_combination&.include?(' var. ') || self.cached_original_combination&.include?(' f. ')) && self.cached_nomenclature_date&.year.to_i > 1960 && is_available?
+        soft_validations.add(:base, 'Missing status. The name described as variety or form after 1960 should be treated as infrasubspecific (it is nevertheless deemed to be subspecific if, before 1985, it was either adopted as the valid name or was treated as a senior homonym).')
+      end
+    end
+
     def sv_original_combination_relationships
       relationships = self.original_combination_relationships
       unless relationships.empty?
@@ -1479,10 +1500,7 @@ module Protonym::SoftValidationExtensions
 
     def sv_missing_etymology
       if self.etymology.nil? && self.rank_string =~ /(Genus|Species)/ && is_available?
-        z = TaxonName.
-            where(name: name, project_id: project_id).where.not(etymology: nil).
-            group(:etymology).
-            count(:etymology)
+        z = TaxonName.where(name: name, project_id: project_id).where.not(etymology: nil).group(:etymology).count(:etymology)
 
         if z.empty?
           z = TaxonName.where(name: name).where.not(etymology: nil).group(:etymology).count(:etymology)
@@ -1492,18 +1510,34 @@ module Protonym::SoftValidationExtensions
         end
 
         if z.empty?
-          soft_validations.add(:etymology, 'Etymology is missing')
+          soft_validations.add(:etymology, 'Etymology is missing',
+                               success_message: 'Etymology is updated',
+                               failure_message:  'Failed to update etymology')
         else
           z1 = z.sort_by {|k, v| -v}
           t = z1[0][1] == 1 ? 'time' : 'times'
-          soft_validations.add(:etymology, "Etymology is missing. Previously used etymology for similar name#{other_project}: '#{z1[0][0]}' (#{z1[0][1]} #{t})")
+          soft_validations.add(:etymology, "Etymology is missing. Previously used etymology for similar name#{other_project}: '#{z1[0][0]}' (#{z1[0][1]} #{t})",
+                               success_message: 'Etymology is updated',
+                               failure_message:  'Failed to update etymology')
+        end
+      end
+    end
+
+    def sv_fix_missing_etymology
+      if self.etymology.nil? && self.rank_string =~ /(Genus|Species)/ && is_available?
+        z = TaxonName.where(name: name, project_id: project_id).where.not(etymology: nil).group(:etymology).count(:etymology)
+        z = TaxonName.where(name: name).where.not(etymology: nil).group(:etymology).count(:etymology) if z.empty?
+        if !z.empty?
+          z1 = z.sort_by {|k, v| -v}
+          self.etymology = z1[0][0]
+          self.save
         end
       end
     end
 
     def sv_extant_children
-      unless self.parent_id.blank?
-        if self.is_fossil?
+      if parent_id.present?
+        if is_fossil?
           taxa = Protonym.where(parent_id: self.id)
           z = 0
           unless taxa.empty?
@@ -1525,7 +1559,8 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_missing_roles
-      if self.taxon_name_author_roles.empty? && !has_misspelling_relationship? && !name_is_misapplied? && is_family_or_genus_or_species_rank?
+      misspelling = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION).any?
+      if self.taxon_name_author_roles.empty? && !misspelling && is_family_or_genus_or_species_rank?
         soft_validations.add(:base, 'Taxon name author role is not selected')
       end
     end
@@ -1575,8 +1610,9 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_misspelling_roles_are_not_required
-      #DD: do not use .has_misspelling_relationship?
-      misspellings = taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AUTHOR_STRING).any?
+      # DD: do not use .has_misspelling_relationship?
+      # MJY Why?
+      misspellings = taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION).any?
       if !self.taxon_name_author_roles.empty? && self.source && misspellings
         soft_validations.add(
           :base, 'Taxon name author role is not required for misspellings and misapplications',
@@ -1593,7 +1629,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_misspelling_author_is_not_required
-      if self.verbatim_author && self.source && (has_misspelling_relationship? || name_is_misapplied?)
+      if self.verbatim_author && self.source && taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION).any?
         soft_validations.add(
           :verbatim_author, 'Verbatim author is not required for misspellings and misapplications',
           success_message: 'Verbatim author was deleted',
@@ -1607,7 +1643,7 @@ module Protonym::SoftValidationExtensions
     end
 
     def sv_misspelling_year_is_not_required
-      if self.year_of_publication && self.source && (has_misspelling_relationship? || name_is_misapplied?)
+      if self.year_of_publication && taxon_name_relationships.with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_AND_MISAPPLICATION).any?
         soft_validations.add(
           :year_of_publication, 'Year is not required for misspellings and misapplications',
           success_message: 'Year was deleted',
@@ -1645,12 +1681,23 @@ module Protonym::SoftValidationExtensions
       end
     end
 
+    def sv_duplicate_nomen_nudum
+      if self.id == self.cached_valid_taxon_name_id && self.cached_is_valid == false
+        if !self.cached_secondary_homonym_alternative_spelling.nil?
+          possible_available = Protonym.where(cached_secondary_homonym_alternative_spelling: self.cached_secondary_homonym_alternative_spelling).not_self(self).with_project(self.project_id).any?
+          soft_validations.add(:base, "An available protonym with the same original combination,  #{self.cached_html}, exits.") if possible_available
+        elsif !self.cached_primary_homonym_alternative_spelling.nil?
+          possible_available = Protonym.where(cached_primary_homonym_alternative_spelling: self.cached_primary_homonym_alternative_spelling).not_self(self).with_project(self.project_id).any?
+          soft_validations.add(:base, "An available protonym with the same name,  #{self.cached_html}, exits.") if possible_available
+        end
+      end
+    end
 
     def sv_presence_of_combination
       if is_genus_or_species_rank? && is_valid? && self.id == self.lowest_rank_coordinated_taxon.id && !cached_original_combination.nil? && cached != cached_original_combination
-        unless Combination.where("cached = ? AND cached_valid_taxon_name_id = ?", cached, cached_valid_taxon_name_id).any?
+        unless Combination.where('cached = ? AND cached_valid_taxon_name_id = ?', cached, cached_valid_taxon_name_id).any?
           soft_validations.add(
-            :base, "Protonym #{self.cached_html} missing corresponding subsequent combination. Current classification of the taxon is different from original combination. (Fix will try to create a new combination if possible)",
+            :base, "Protonym #{self.cached_original_combination_html} missing corresponding subsequent combination. Current classification of the taxon is different from original combination. (Fix will try to create a new combination if possible)",
             success_message: "Combination #{self.cached_html} was successfully create",
             failure_message:  'Failed to create a new combination')
         end
@@ -1680,6 +1727,3 @@ module Protonym::SoftValidationExtensions
     end
   end
 end
-
-
-

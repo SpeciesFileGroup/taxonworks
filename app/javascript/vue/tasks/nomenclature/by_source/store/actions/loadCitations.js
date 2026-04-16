@@ -24,17 +24,23 @@ export default async ({ state }, payload) => {
 
 async function loadTaxonNamesIntoList(list) {
   const taxonIds = list.map((item) => item.citation_object_id)
-  const { body } = await TaxonName.all(
-    {
-      taxon_name_id: taxonIds
-    },
-    { useFilter: true }
-  )
+  let taxons = []
+
+  if (taxonIds.length) {
+    taxons = (
+      await TaxonName.all(
+        {
+          taxon_name_id: taxonIds
+        },
+        { useFilter: true }
+      )
+    ).body
+  }
 
   return list.map((item) => ({
     ...item,
     citation_object:
-      body.find((taxon) => taxon.id === item.citation_object_id) ||
+      taxons.find((taxon) => taxon.id === item.citation_object_id) ||
       item.citation_object
   }))
 }

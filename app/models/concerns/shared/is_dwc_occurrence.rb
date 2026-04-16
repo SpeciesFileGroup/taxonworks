@@ -24,6 +24,7 @@ module Shared::IsDwcOccurrence
 
     scope :dwc_indexed, -> {joins(:dwc_occurrence)}
     scope :dwc_not_indexed, -> { where.missing(:dwc_occurrence) }
+
   end
 
   module ClassMethods
@@ -47,16 +48,18 @@ module Shared::IsDwcOccurrence
     end
   end
 
-  # TODO: wrap in generic (reindex_dwc_occurrences method for use in InternalAttribute, TaxonDetermination, BiocurationClass and elsewhere)
   # @return [DwcOccurrence]
   #   !! always touches the database
   def set_dwc_occurrence
     retried = false
     begin
       if dwc_occurrence_persisted?
-        dwc_occurrence.generate_uuid_if_required # TODO: at some point when syncronized make this optional
-        dwc_occurrence.update_columns(dwc_occurrence_attributes)
-        dwc_occurrence.touch(:updated_at)
+        dwc_occurrence.generate_uuid_if_required # TODO: at some point when synchronized make this optional
+        dwc_occurrence.update_columns(
+          dwc_occurrence_attributes.merge(
+            rebuild_set: nil,
+            updated_at: Time.zone.now)
+        )
       else
         create_dwc_occurrence!(dwc_occurrence_attributes)
       end
@@ -76,6 +79,38 @@ module Shared::IsDwcOccurrence
     dwc_occurrence&.occurrence_identifier&.cached
   end
 
+  # @return String
+  #   the Darwin Core basisOfRecord value for this occurrence
+  # Moved here from DwcOccurrence#basis since that method is only called in
+  # before_validate, which never gets called on the dwc_occurrence_attributes
+  # path here that happens when something like adding a new BiocurationClass
+  # triggers a background job set_dwc_occurrence call to update dwc_occurrence.
+  def dwc_occurrence_basis
+    case self.class.base_class.name
+    when 'CollectionObject'
+      is_fossil? ? 'FossilSpecimen' : 'PreservedSpecimen'
+    when 'AssertedDistribution'
+      # Used to fork b/b Source::Human and Source::Bibtex:
+      case source&.type || sources.order(cached_nomenclature_date: :DESC).first&.type
+      when 'Source::Bibtex'
+        'MaterialCitation'
+      when 'Source::Human'
+        'HumanObservation'
+      else # Not recommended at this point
+        'Occurrence'
+      end
+    when 'FieldOccurrence'
+      machine_output? ? 'MachineObservation' : 'HumanObservation'
+    else
+      'Undefined'
+    end
+  end
+
+  # @return Hash
+  #   of field: value
+  #
+  # !! This is expensive, it recomputes values for every field.
+  # !! See dwc_occurrence
   def dwc_occurrence_attributes(taxonworks_fields = true)
     a = {}
     self.class::DWC_OCCURRENCE_MAP.each do |k,v|
@@ -83,6 +118,7 @@ module Shared::IsDwcOccurrence
     end
 
     a[:occurrenceID] = dwc_occurrence_id
+    a[:basisOfRecord] = dwc_occurrence_basis
 
     if taxonworks_fields
       a[:project_id] = project_id
@@ -90,7 +126,6 @@ module Shared::IsDwcOccurrence
       # TODO: semantics of these may need to be revisited, particularly updated_by_id
       a[:created_by_id] = created_by_id
       a[:updated_by_id] = updated_by_id
-
       # !! Do not set updated_at here !!
     end
 
@@ -104,9 +139,8 @@ module Shared::IsDwcOccurrence
   end
 
   # @return [DwcOccurrence]
-  #   does not rebuild if exists
+  #   does not rebuild if already built
   def get_dwc_occurrence
-    # TODO: why are extra queries fired if this is fired?
     if dwc_occurrence_persisted?
       dwc_occurrence
     else

@@ -158,6 +158,26 @@ module Utilities::Dates
     end
   end
 
+  def self.range_years(years)
+    min = years.min
+    max = years.max
+    (min..max).to_a
+  end
+
+  # @param data [ a year => count r]
+  #
+  # Injects years with zeroes.
+  #
+  def self.range_year_hash(data)
+    min = data.keys.min
+    max = data.keys.max
+    b = data.dup
+    (min..max).each do |y|
+      next if b[y]
+      b[y] = 0
+    end
+    b.sort{|a,b| a <=> b}.to_h
+  end
 
   # @param [String]
   # @param [Integer]
@@ -326,7 +346,7 @@ module Utilities::Dates
     full_pattern = %r{^
           (?<year>[0-9]{4})(-(?<month>[0-9]{1,2}))?(-(?<day>[0-9]{1,2}))?  # Date in these formats: YYYY | YYYY-M(M)? | YYYY-M(M)?-D(D)?
           (
-            T(?<hour>[0-9]{2}):(?<minute>[0-9]{2}):(?<second>[0-9]{2})(Z)? # Optional time, only THH:MM:SS(Z)? allowed.
+            T(?<hour>[0-9]{2}):(?<minute>[0-9]{2})(:(?<second>[0-9]{2}))?(Z)? # Optional time, only THH:MM:SS(Z)? and THH:MM(Z)? allowed.
           )?
         $}x.freeze
 
@@ -336,6 +356,10 @@ module Utilities::Dates
       first_date_hash = first_date_str.match(full_pattern)&.named_captures&.transform_values! { |v| v&.to_i }
 
       return nil unless first_date_hash
+
+      if date_str.include? "T"
+        return nil unless date_str.count(':') == 4
+      end
 
       # Split date on separators, then work backwards inserting numbers for non-null values from first date
       begin

@@ -23,18 +23,6 @@ describe BiologicalAssociation, type: :model do
     end
   end
 
-  specify 'subject is allowed' do
-    biological_association.biological_association_subject = FactoryBot.create(:valid_container)
-    biological_association.valid?
-    expect(biological_association.errors.include?(:biological_association_subject_type)).to be_truthy
-  end
-
-  specify 'object is allowed' do
-    biological_association.biological_association_object = FactoryBot.create(:valid_container)
-    biological_association.valid?
-    expect(biological_association.errors.include?(:biological_association_object_type)).to be_truthy
-  end
-
   specify 'subject/object_global_id' do
     biological_association.biological_relationship = biological_relationship
     biological_association.subject_global_id = otu.to_global_id.to_s
@@ -55,7 +43,7 @@ describe BiologicalAssociation, type: :model do
     b = FactoryBot.create(:valid_biological_association)
     r = FactoryBot.create(:valid_biological_relationship)
 
-    BiologicalAssociation.batch_update( 
+    BiologicalAssociation.batch_update(
       biological_association: { biological_relationship_id: r.id},
       biological_association_query: { biological_association_id: [a.id, b.id] }
     )
@@ -88,7 +76,7 @@ describe BiologicalAssociation, type: :model do
       biological_association_query: { biological_association_id: [  b.id ] }
     )
 
-    expect(m.errors).to eq( { "Validation failed: Biological association subject has already been taken" => 1 } )
+    expect(m.errors).to eq( { "Validation failed: Biological association object has already been taken" => 1 } )
   end
 
   specify '#rotate' do
@@ -143,6 +131,69 @@ describe BiologicalAssociation, type: :model do
     a.reload
     expect(a.subject).to eq(c)
     expect(a.biological_association_object).to eq(d)
+  end
+
+  specify '.batch_update() (async)' do
+    a = FactoryBot.create(:valid_biological_association)
+    b = FactoryBot.create(:valid_biological_association)
+    r = FactoryBot.create(:valid_biological_relationship)
+
+    q = ::Queries::BiologicalAssociation::Filter.new({biological_association_id: [a.id, b.id]})
+
+    params = {
+      async_cutoff: 1,
+      biological_association: {biological_relationship_id: r.id},
+      user_id: Current.user_id,
+      project_id: Current.project_id
+    }.merge(biological_association_query: q.params)
+
+    response = BiologicalAssociation.batch_update(params).to_json
+
+    sleep(2) # jobs trigger in 1 second
+    Delayed::Worker.new.work_off
+
+    expect(response[:total_attempted]).to eq(2)
+    expect(response[:async]).to eq(true)
+    expect(a.reload.biological_relationship).to eq(r)
+    expect(b.reload.biological_relationship).to eq(r)
+  end
+
+  specify '.batch_update() (async) raises error when user_id is missing' do
+    a = FactoryBot.create(:valid_biological_association)
+    b = FactoryBot.create(:valid_biological_association)
+    r = FactoryBot.create(:valid_biological_relationship)
+
+    q = ::Queries::BiologicalAssociation::Filter.new({biological_association_id: [a.id, b.id]})
+
+    params = {
+      async_cutoff: 1,
+      biological_association: {biological_relationship_id: r.id},
+      user_id: nil,
+      project_id: Current.project_id
+    }.merge(biological_association_query: q.params)
+
+    expect {
+      BiologicalAssociation.batch_update(params)
+    }.to raise_error(TaxonWorks::Error, /user_id.*not set in query_batch_update/)
+  end
+
+  specify '.batch_update() (async) raises error when project_id is missing' do
+    a = FactoryBot.create(:valid_biological_association)
+    b = FactoryBot.create(:valid_biological_association)
+    r = FactoryBot.create(:valid_biological_relationship)
+
+    q = ::Queries::BiologicalAssociation::Filter.new({biological_association_id: [a.id, b.id]})
+
+    params = {
+      async_cutoff: 1,
+      biological_association: {biological_relationship_id: r.id},
+      user_id: Current.user_id,
+      project_id: nil
+    }.merge(biological_association_query: q.params)
+
+    expect {
+      BiologicalAssociation.batch_update(params)
+    }.to raise_error(TaxonWorks::Error, /project_id.*not set in query_batch_update/)
   end
 
   context 'concerns' do

@@ -1,0 +1,29 @@
+<%= render("/shared/data/all/list/list_header", objects: @news) -%>
+
+<table class="tablesorter">
+  <thead>
+   
+    <tr>
+    <%= fancy_th_tag(name: 'Type') -%>
+    <%= fancy_th_tag(name: 'Title') -%>
+    <%= fancy_th_tag(name: 'Body') -%>
+    <%= fancy_th_tag(name: 'Display start') -%>
+    <%= fancy_th_tag(name: 'Display end') -%>
+  </tr>
+  
+  </thead>
+
+  <tbody>
+  <% @news.each do |news| %>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
+          <td><%= news.type %></td>
+          <td><%= news.title %></td>
+          <td><%= news.body %></td>
+          <td><%= news.display_start %></td>
+          <td><%= news.display_end %></td>
+          <%= fancy_metadata_cells_tag(news) -%>
+      <% end %>
+  <% end %>
+  </tbody>
+</table>
+

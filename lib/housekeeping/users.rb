@@ -9,13 +9,9 @@ module Housekeeping::Users
     belongs_to :creator, foreign_key: :created_by_id, class_name: 'User', inverse_of: "created_#{related_instances}".to_sym
     belongs_to :updater, foreign_key: :updated_by_id, class_name: 'User', inverse_of: "updated_#{related_instances}".to_sym
 
-#   scope :created_by_user, ->(user) { where(created_by_id: User.get_user_id(user) ) }
-#   scope :updated_by_user, ->(user) { where(updated_by_id: User.get_user_id(user) ) }
-
-    scope :created_or_updated_by, -> (user_id) { where(created_by_id: user_id).or(where(updated_by_id: user_id)) }
-
     unless_user = lambda { self.class.name == 'User' && self.self_created }
-    validates :creator, presence: true, unless: unless_user # lambda, proc, or block
+
+    validates :creator, presence: true, unless: unless_user
     validates :updater, presence: true, unless: unless_user
 
     before_validation(on: :create, unless: unless_user) do
@@ -26,6 +22,8 @@ module Housekeeping::Users
     before_validation(on: :update) do
       set_updated_by_id
     end
+
+    scope :created_or_updated_by, -> (user_id) { where(created_by_id: user_id).or(where(updated_by_id: user_id)) }
 
     # And extend User
     User.class_eval do
