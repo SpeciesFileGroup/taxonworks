@@ -34,6 +34,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Handle bad BibTeX and html returned during New Source's CrossRef lookup
 - Handle `%` in New Source's CrossRef lookup
 - DwC importer failing when importing unparsable people
+- Browse OTU button creates OTUs with an incorrect taxon name ID on the /otus/:id page [#4879]
 
 [#4851]: https://github.com/SpeciesFileGroup/taxonpages/issues/4851
 [#4852]: https://github.com/SpeciesFileGroup/taxonpages/issues/4852
@@ -41,6 +42,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4864]: https://github.com/SpeciesFileGroup/taxonpages/issues/4864
 [#4865]: https://github.com/SpeciesFileGroup/taxonpages/issues/4865
 [#4866]: https://github.com/SpeciesFileGroup/taxonpages/issues/4866
+[#4879]: https://github.com/SpeciesFileGroup/taxonpages/issues/4879
 
 ## [0.61.0] - 2026-02-20
 
