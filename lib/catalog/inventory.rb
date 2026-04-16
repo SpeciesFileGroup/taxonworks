@@ -17,10 +17,11 @@ class Catalog::Inventory < ::Catalog
         {
           type: type,
           source: grouped_items.first.citation&.source,
+          pages: grouped_items.first.citation&.pages,
+          is_original: grouped_items.first.citation&.is_original,
           topics: grouped_items.flat_map(&:topics).uniq
         }
       end
   end
 
 end
-

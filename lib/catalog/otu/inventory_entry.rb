@@ -28,8 +28,11 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
 
     # Include taxon_name with nested associations to avoid N+1 queries when
     # rendering.
-    coordinate_otus = ::Otu.where(id: coordinate_otu_ids)
-      .includes(taxon_name: [:taxon_name_classifications, :taxon_name_relationships])
+    coordinate_otus = ::Otu
+      .where(id: coordinate_otu_ids)
+      .includes(
+        taxon_name: [:taxon_name_classifications, :taxon_name_relationships]
+      )
       .index_by(&:id)
 
     belongs_to_relations = []

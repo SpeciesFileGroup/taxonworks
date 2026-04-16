@@ -38,9 +38,9 @@ describe Catalog::Inventory, group: :catalogs, type: :spinup do
       expect(c.citations_summary.size).to eq(2)
     end
 
-    specify 'entry has type, source, and topics keys' do
+    specify 'entry has type, source, pages, is_original, and topics keys' do
       entry = c.citations_summary.first
-      expect(entry.keys).to contain_exactly(:type, :source, :topics)
+      expect(entry.keys).to contain_exactly(:type, :source, :pages, :is_original, :topics)
     end
 
     specify 'types reflect the cited object classes' do
@@ -51,6 +51,17 @@ describe Catalog::Inventory, group: :catalogs, type: :spinup do
     specify 'sources match the citations' do
       sources = c.citations_summary.map { |e| e[:source] }
       expect(sources).to contain_exactly(source1, source2)
+    end
+
+    specify 'is_original reflects citation value' do
+      entry = c.citations_summary.find { |e| e[:type] == 'Specimen' }
+      expect(entry[:is_original]).to eq(true)
+    end
+
+    specify 'pages reflects citation value' do
+      ad.citations.first.update!(pages: '12-15')
+      entry = c.citations_summary.find { |e| e[:type] == 'AssertedDistribution' }
+      expect(entry[:pages]).to eq('12-15')
     end
 
     context 'merging by (type, source)' do

@@ -6,6 +6,8 @@ json.array! @catalog.citations_summary do |entry|
     json.cached s.cached
     json.author_year source_author_year_tag(s)
   end
+  json.pages entry[:pages]
+  json.is_original entry[:is_original]
   json.topics do
     json.array! entry[:topics] do |t|
       json.id t.id
