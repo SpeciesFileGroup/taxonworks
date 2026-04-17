@@ -14,6 +14,7 @@
       <PanelTimelineBiology
         v-if="isBiologyTab"
         :otu="otu"
+        :otus="otus"
       />
 
       <template v-else-if="filteredItems.length">
@@ -49,7 +50,11 @@
 <script setup>
 import { useUserPreferences } from '@/composables'
 import { computed, ref } from 'vue'
-import { TIMELINE_TABS, TIMELINE_TAB_BIOLOGY, DEFAULT_TIMELINE_TAB } from './constants/tabs'
+import {
+  TIMELINE_TABS,
+  TIMELINE_TAB_BIOLOGY,
+  DEFAULT_TIMELINE_TAB
+} from './constants/tabs'
 import { matchItem } from './utils/timelineFilters'
 import useOtuTimeline from './composables/useOtuTimeline'
 import PanelLayout from '../PanelLayout.vue'
@@ -62,6 +67,11 @@ import TimelineCitations from './PanelTimelineCitations.vue'
 const props = defineProps({
   otu: {
     type: Object,
+    required: true
+  },
+
+  otus: {
+    type: Array,
     required: true
   },
 
@@ -80,13 +90,8 @@ const preferences = computed(
 )
 
 const otuRef = computed(() => props.otu)
-const {
-  isLoading,
-  timeline,
-  selectedReferenceIds,
-  selectedTopics,
-  tab
-} = useOtuTimeline(otuRef, { defaultTab: DEFAULT_TIMELINE_TAB })
+const { isLoading, timeline, selectedReferenceIds, selectedTopics, tab } =
+  useOtuTimeline(otuRef, { defaultTab: DEFAULT_TIMELINE_TAB })
 
 const showReferencesTopic = ref(false)
 const isModalVisible = ref(false)
