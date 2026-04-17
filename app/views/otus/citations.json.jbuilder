@@ -3,6 +3,7 @@ json.array! @catalog.citations_summary.values do |data|
     otu = data[:otu]
     json.id otu.id
     json.label label_for_otu(otu)
+    json.global_id otu.to_global_id.to_s
   end
 
   json.citations do
@@ -15,6 +16,7 @@ json.array! @catalog.citations_summary.values do |data|
           json.id s.id
           json.cached s.cached
           json.author_year source_author_year_tag(s)
+          json.global_id s.to_global_id.to_s
         end
       end
 

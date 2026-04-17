@@ -3,7 +3,7 @@ class OtusController < ApplicationController
 
   before_action :set_otu, only: [
     :show, :edit, :update, :destroy, :collection_objects, :navigation,
-    :breadcrumbs, :timeline, :coordinate, :distribution,
+    :breadcrumbs, :timeline, :coordinate, :distribution, :citations_inventory,
     :api_show, :api_taxonomy_inventory, :api_type_material_inventory,
     :api_nomenclature_citations, :api_citations_inventory, :api_distribution,
     :api_content, :api_dwc_inventory, :api_dwc_gallery, :api_key_inventory, :api_determined_to_rank]
@@ -418,6 +418,12 @@ class OtusController < ApplicationController
   # GET /api/v1/otus/:id/inventory/type_material
   def api_type_material_inventory
     render '/otus/api/v1/inventory/type_material'
+  end
+
+  # GET /otus/:id/inventory/citations
+  def citations_inventory
+    @catalog = Catalog::Inventory.new(targets: [@otu])
+    render '/otus/citations'
   end
 
   # GET /api/v1/otus/:id/inventory/citations
