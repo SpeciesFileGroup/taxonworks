@@ -8,13 +8,18 @@ describe 'Content editor', type: :feature, group: :contents do
       before { visit content_editor_task_path }
 
       specify 'can create new topic' do
+        expect(page).to have_button('Topic')
         click_button('Topic')
+
+        expect(page).to have_button('Create new')
         click_button('Create new')
-        expect(page).to have_text('New topic')
-        fill_in 'Name', with: 'Testing topic'
-        fill_in 'Definition', with: 'Testing, making sure this is long enough'
+
+        find('input[placeholder="Name"]').set('Testing topic')
+        find('textarea[placeholder="Definition"]').set('Testing, making sure this is long enough')
         click_button('Create')
-        expect(page).to have_text('Testing topic was successfully created.')
+
+        expect(page).to have_text('Testing topic -')
+        expect(page).to have_button('Change Topic')
       end
     end
   end
