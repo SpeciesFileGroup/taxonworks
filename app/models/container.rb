@@ -57,6 +57,16 @@ class Container < ApplicationRecord
   validates :type, presence: true
   validate :type_is_valid
 
+  validates :asserted_percent_empty,
+    numericality: { greater_than_or_equal_to: 0.0, less_than_or_equal_to: 100.0 },
+    allow_nil: true
+
+  validates :asserted_percent_earmarked,
+    numericality: { greater_than_or_equal_to: 0.0, less_than_or_equal_to: 100.0 },
+    allow_nil: true
+
+  validate :earmarked_requires_sufficient_empty
+
   # @return [ContainerItem Scope]
   #    return all ContainerItems contained in this container (non recursive)
   # TODO: fix Please call `reload_container_item` instead. (called from container_items at /Users/jrflood/src/taxonworks/app/models/container.rb:43)
@@ -190,6 +200,73 @@ class Container < ApplicationRecord
     new_container
   end
 
+  # @param params [ActionController::Parameters, Hash] with keys:
+  #   building_id [Integer] id of the parent Container::Building
+  #   cabinet_type [String] full STI type name, e.g. 'Container::Cabinet::Cornell'
+  #   rooms [Integer] number of Room containers to create
+  #   cabinets [Integer] number of Cabinet containers per Room
+  #   drawers [Integer] number of Drawer containers per Cabinet
+  #   cabinet_size_x [Integer, nil] default size_x applied to each created cabinet
+  #   cabinet_size_y [Integer, nil] default size_y applied to each created cabinet
+  #   cabinet_size_z [Integer, nil] default size_z applied to each created cabinet
+  #   asserted_percent_empty [Float, nil] default value applied to each created drawer
+  #   asserted_percent_earmarked [Float, nil] default value applied to each created drawer
+  # @return [Array<Container::Room>] the created Room containers, or false on failure
+  def self.scaffold(params)
+    building_id   = params[:building_id].to_i
+    cabinet_type  = params[:cabinet_type].to_s.presence || 'Container::Cabinet'
+    room_count    = params[:rooms].to_i
+    cabinet_count = params[:cabinets].to_i
+    drawer_count  = params[:drawers].to_i
+
+    cabinet_defaults = {}
+    cabinet_defaults[:size_x] = params[:cabinet_size_x].presence&.to_i unless params[:cabinet_size_x].nil?
+    cabinet_defaults[:size_y] = params[:cabinet_size_y].presence&.to_i unless params[:cabinet_size_y].nil?
+    cabinet_defaults[:size_z] = params[:cabinet_size_z].presence&.to_i unless params[:cabinet_size_z].nil?
+
+    drawer_defaults = {}
+    drawer_defaults[:asserted_percent_empty]     = params[:asserted_percent_empty].presence&.to_f     unless params[:asserted_percent_empty].nil?
+    drawer_defaults[:asserted_percent_earmarked] = params[:asserted_percent_earmarked].presence&.to_f unless params[:asserted_percent_earmarked].nil?
+
+    return false if building_id == 0 || room_count < 1 || cabinet_count < 1 || drawer_count < 1
+
+    drawer_type = cabinet_type.gsub('Cabinet', 'Drawer')
+
+    begin
+      cabinet_klass = cabinet_type.constantize
+      drawer_klass  = drawer_type.constantize
+    rescue NameError
+      return false
+    end
+
+    created_rooms = []
+
+    begin
+      Container.transaction do
+        building = Container.find(building_id)
+
+        room_count.times do
+          room = Container::Room.create!
+          building.add_container_items([room])
+
+          cabinet_count.times do
+            cabinet = cabinet_klass.create!(cabinet_defaults)
+            room.add_container_items([cabinet])
+
+            drawers = drawer_count.times.map { drawer_klass.create!(drawer_defaults) }
+            cabinet.add_container_items(drawers)
+          end
+
+          created_rooms << room
+        end
+      end
+    rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound
+      return false
+    end
+
+    created_rooms
+  end
+
   # @return [Boolean]
   # add the objects to this container
   def add_container_items(objects)
@@ -228,6 +305,15 @@ class Container < ApplicationRecord
     raise ActiveRecord::SubclassNotFound, 'Invalid subclass' if type && !CONTAINER_TYPES.include?(type)
   end
 
+  def earmarked_requires_sufficient_empty
+    return if asserted_percent_earmarked.nil?
+    if asserted_percent_empty.nil?
+      errors.add(:asserted_percent_empty, 'must be present when earmarked is set')
+    elsif asserted_percent_empty < asserted_percent_earmarked
+      errors.add(:asserted_percent_empty, 'must be greater than or equal to asserted percent earmarked')
+    end
+  end
+
   def check_for_contents
     if !is_empty?
       errors.add(:base, 'is not empty, empty it before destroying it')
@@ -236,4 +322,3 @@ class Container < ApplicationRecord
   end
 
 end
-

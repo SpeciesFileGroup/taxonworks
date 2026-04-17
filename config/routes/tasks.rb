@@ -64,6 +64,12 @@ scope :tasks do
     scope :new_container, controller: 'tasks/containers/new_container' do
       get '/', action: :index, as: 'new_container_task'
     end
+    scope :collection_layout, controller: 'tasks/containers/collection_layout' do
+      get '/', action: :index, as: 'index_collection_layout_task'
+      get :children, as: 'children_collection_layout_task'
+      get :collection_tree, as: 'collection_tree_collection_layout_task'
+      post :scaffold, as: 'scaffold_collection_layout_task'
+    end
   end
 
   scope :dwc_occurrences do

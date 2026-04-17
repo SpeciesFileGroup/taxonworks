@@ -1225,3 +1225,12 @@ new_ba_task:
   categories:
   status: prototype
   description: 'Create, edit, and cite biological associations, with support for anatomical parts and asserted distributions'
+
+index_collection_layout_task:
+  hub: true
+  name: 'Collection layout'
+  related:
+  categories:
+    - containers
+  status: prototype
+  description: 'Rapidly create and visualize a physical collection layout (Building, Rooms, Cabinets, Drawers)'
