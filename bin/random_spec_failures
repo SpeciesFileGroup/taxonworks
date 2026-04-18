@@ -3,12 +3,33 @@
 
 # random_spec_failures — report most frequently failing specs from GitHub Actions CI
 #
-# Requirements: gh CLI authenticated to GitHub
+# Queries failed CI runs over a date range, aggregates intermittently failing
+# specs across those runs, and writes a self-contained HTML report with
+# sortable columns, filter buttons, and inline failure details.
 #
-# Usage:
-#   bin/random_spec_failures [options]
+# Prerequisites:
+#   gh CLI installed and authenticated:
+#     brew install gh          # macOS
+#     # other platforms: https://cli.github.com
+#     gh auth login
 #
-# Output: self-contained HTML report at <tmpdir>/random_spec_failures_YYYY-MM-DD.html
+# Quick start:
+#   bin/random_spec_failures
+#   # opens (or prints the path to) a report covering the last 60 days
+#
+# Examples:
+#   bin/random_spec_failures --days 30
+#   bin/random_spec_failures --days 14 --min-failures 2
+#   bin/random_spec_failures --end-date 2026-03-01 --days 30
+#   bin/random_spec_failures --output /tmp/my_report.html --open
+#
+# Report badges:
+#   feature       — spec lives under spec/features/ (often browser-driven, more timing-sensitive)
+#   pending       — spec is currently skipped (xspecify / xdescribe etc.) in your checkout
+#   possibly fixed — no failures recorded in the last --stale-days days
+#   external      — spec exercises an external service (e.g. gnfinder); not a random CI flake
+#
+# Output: self-contained HTML at <tmpdir>/random_spec_failures_YYYY-MM-DD.html
 #
 # Options:
 #   --days N          Days to look back (default: 60)
@@ -19,6 +40,7 @@
 #   --concurrency N   Parallel requests (default: 8)
 #   --sleep-ms N      Milliseconds to sleep between requests per worker (default: 100)
 #   --output FILE     Output file (default: <tmpdir>/random_spec_failures_YYYY-MM-DD.html)
+#   --open            Open the report in a browser after generating
 #   --stale-days N    Failures older than N days are flagged as possibly fixed (default: 30)
 #   --repo-root DIR   Local checkout root for pending detection (default: current directory)
 #   --branch NAME     Only include runs from this branch (repeatable,
@@ -31,6 +53,7 @@ require 'json'
 require 'date'
 require 'open3'
 require 'optparse'
+require 'rbconfig'
 require 'tmpdir'
 require 'stringio'
 
@@ -49,6 +72,7 @@ options = {
   concurrency:  8,
   sleep_ms:     100,
   output:       nil,
+  open:         false,
   stale_days:   30,
   repo_root:    Dir.pwd,
   branches:     %w[development master],
@@ -57,7 +81,15 @@ options = {
 }
 
 OptionParser.new do |o|
-  o.banner = "Usage: #{File.basename($PROGRAM_NAME)} [options]"
+  o.banner = <<~BANNER
+    Usage: #{File.basename($PROGRAM_NAME)} [options]
+
+    Queries GitHub Actions CI runs and writes a standalone HTML report of
+    intermittently failing specs. Requires gh CLI (https://cli.github.com).
+
+    Example: bin/random_spec_failures --days 30 --min-failures 2
+
+  BANNER
   o.on('--days N',         Integer, "Days back (default: #{options[:days]})")                              { |v| options[:days]         = v }
   o.on('--end-date DATE',            'End date YYYY-MM-DD (default: today)')                               { |v| options[:end_date]     = Date.parse(v) }
   o.on('--repo REPO',                "GitHub repo (default: #{options[:repo]})")                           { |v| options[:repo]         = v }
@@ -66,6 +98,7 @@ OptionParser.new do |o|
   o.on('--concurrency N',  Integer, "Parallel requests (default: #{options[:concurrency]})")              { |v| options[:concurrency]  = v }
   o.on('--sleep-ms N',     Integer, "Sleep ms between requests per worker (default: #{options[:sleep_ms]})") { |v| options[:sleep_ms]  = v }
   o.on('--output FILE',              'Output file (default: <tmpdir>/random_spec_failures_YYYY-MM-DD.html)') { |v| options[:output]    = v }
+  o.on('--open',                     'Open the report in a browser after generating')                      { options[:open]            = true }
   o.on('--stale-days N',   Integer, "Flag as possibly fixed if no failures in N days (default: #{options[:stale_days]})") { |v| options[:stale_days]  = v }
   o.on('--repo-root DIR',            'Local checkout for pending detection (default: cwd)')                { |v| options[:repo_root]   = File.expand_path(v) }
   o.on('--branch NAME',              'Only include runs from this branch (repeatable)')                    { |v| options[:branches]   << v }
@@ -353,6 +386,10 @@ out.puts <<~HTML
       .badge-pending  { background: #fff8c5; color: #7d4e00; }
       .badge-stale    { background: #dafbe1; color: #1a7f37; }
       .badge-external { background: #ffeff7; color: #bf3989; }
+      .filter-checkbox { display: flex; align-items: center; gap: 5px; font-size: 12px;
+                         padding: 4px 10px; border: 1px solid #d0d7de; border-radius: 20px;
+                         background: #fff; cursor: pointer; user-select: none; }
+      .filter-checkbox input { cursor: pointer; }
     </style>
   </head>
   <body>
@@ -373,6 +410,10 @@ out.puts <<~HTML
     <button class="filter-btn" data-filter="pending"><span class="badge badge-pending">pending</span> (#{rows.count { |f| f[:pending_spec] }})</button>
     <button class="filter-btn" data-filter="stale"><span class="badge badge-stale">possibly fixed</span> (#{rows.count { |f| f[:stale_spec] }})</button>
     <button class="filter-btn" data-filter="external"><span class="badge badge-external">external</span> (#{rows.count { |f| f[:external_spec] }})</button>
+    <label class="filter-checkbox">
+      <input type="checkbox" id="hide-external" checked>
+      Hide <span class="badge badge-external">external</span>
+    </label>
   </div>
 
   <table id="report">
@@ -447,27 +488,36 @@ out.puts <<~HTML
   </table>
 
   <script>
-    // ── Filter buttons ────────────────────────────────────────────────────────
+    // ── Filter buttons + hide-external checkbox ───────────────────────────────
+    function applyFilters() {
+      const filter      = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
+      const hideExt     = document.getElementById('hide-external').checked;
+
+      document.querySelectorAll('tr.data-row, tr.detail-row').forEach(row => {
+        const matchesFilter = filter === 'all' || row.dataset[filter] === 'true';
+        const suppressed    = hideExt && row.dataset.external === 'true';
+        row.dataset.hidden  = (matchesFilter && !suppressed) ? 'false' : 'true';
+      });
+
+      document.querySelectorAll('tr.file-group-header').forEach(hdr => {
+        const file = hdr.dataset.groupFile;
+        const anyVisible = [...document.querySelectorAll('tr.data-row')]
+          .filter(r => r.dataset.file === file)
+          .some(r => r.dataset.hidden !== 'true');
+        hdr.dataset.hidden = anyVisible ? 'false' : 'true';
+      });
+    }
+
     document.querySelectorAll('.filter-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        const filter = btn.dataset.filter;
-
-        document.querySelectorAll('tr.data-row, tr.detail-row').forEach(row => {
-          row.dataset.hidden = (filter === 'all' || row.dataset[filter] === 'true') ? 'false' : 'true';
-        });
-
-        // Hide file-group headers when all their data rows are hidden
-        document.querySelectorAll('tr.file-group-header').forEach(hdr => {
-          const file = hdr.dataset.groupFile;
-          const anyVisible = [...document.querySelectorAll('tr.data-row')]
-            .filter(r => r.dataset.file === file)
-            .some(r => r.dataset.hidden !== 'true');
-          hdr.dataset.hidden = anyVisible ? 'false' : 'true';
-        });
+        applyFilters();
       });
     });
+
+    document.getElementById('hide-external').addEventListener('change', applyFilters);
+    applyFilters(); // apply on load (checkbox is checked by default)
 
     // ── Column sort ───────────────────────────────────────────────────────────
     let sortCol = 'count', sortDir = -1;
@@ -535,3 +585,12 @@ html = out.string
 out_path = options[:output] || File.join(Dir.tmpdir, "random_spec_failures_#{options[:end_date]}.html")
 File.write(out_path, html)
 $stderr.puts "Output: #{out_path}"
+
+if options[:open]
+  opener = case RbConfig::CONFIG['host_os']
+           when /darwin/ then 'open'
+           when /mswin|mingw/ then 'start'
+           else 'xdg-open'
+           end
+  system(opener, out_path)
+end
