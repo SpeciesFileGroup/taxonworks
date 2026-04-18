@@ -58,7 +58,6 @@ require 'tmpdir'
 require 'stringio'
 
 abort 'gh CLI not found. Install from https://cli.github.com' unless system('which gh > /dev/null 2>&1')
-abort 'gh CLI is not authenticated. Run: gh auth login' unless system('gh auth status > /dev/null 2>&1')
 
 ANSI_STRIP = /\x1b\[[0-9;]*m/
 TS_STRIP   = /\A\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z /
@@ -107,6 +106,8 @@ OptionParser.new do |o|
 end.parse!
 
 options[:branches] = options[:branches].uniq
+
+abort 'gh CLI is not authenticated. Run: gh auth login' unless system('gh auth status > /dev/null 2>&1')
 
 # ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -587,10 +588,13 @@ File.write(out_path, html)
 $stderr.puts "Output: #{out_path}"
 
 if options[:open]
-  opener = case RbConfig::CONFIG['host_os']
-           when /darwin/ then 'open'
-           when /mswin|mingw/ then 'start'
-           else 'xdg-open'
+  opened = case RbConfig::CONFIG['host_os']
+           when /darwin/
+             system('open', out_path)
+           when /mswin|mingw/
+             system('cmd', '/c', 'start', '', out_path)
+           else
+             system('xdg-open', out_path)
            end
-  system(opener, out_path)
+  warn "Failed to open report automatically: #{out_path}" unless opened
 end
