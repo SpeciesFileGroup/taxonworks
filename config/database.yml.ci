@@ -5,7 +5,7 @@ test:
   adapter: postgis
   encoding: utf8 
   postgis_extension: true
-  pool: 5
+  pool: 1
   database: taxonworks_test<%= ENV['TEST_ENV_NUMBER'] %>
   username: <%= ENV['PGUSER'] %>
   password:
