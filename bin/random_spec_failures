@@ -1,0 +1,537 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# random_spec_failures — report most frequently failing specs from GitHub Actions CI
+#
+# Requirements: gh CLI authenticated to GitHub
+#
+# Usage:
+#   bin/random_spec_failures [options]
+#
+# Output: self-contained HTML report at <tmpdir>/random_spec_failures_YYYY-MM-DD.html
+#
+# Options:
+#   --days N          Days to look back (default: 60)
+#   --end-date DATE   Last day to include, YYYY-MM-DD (default: today)
+#   --repo REPO       GitHub repository (default: SpeciesFileGroup/taxonworks)
+#   --workflow NAME   Workflow name (default: build)
+#   --limit N         Max runs to fetch (default: 500)
+#   --concurrency N   Parallel requests (default: 8)
+#   --sleep-ms N      Milliseconds to sleep between requests per worker (default: 100)
+#   --output FILE     Output file (default: <tmpdir>/random_spec_failures_YYYY-MM-DD.html)
+#   --stale-days N    Failures older than N days are flagged as possibly fixed (default: 30)
+#   --repo-root DIR   Local checkout root for pending detection (default: current directory)
+#   --branch NAME     Only include runs from this branch (repeatable,
+#                     default: development, master)
+#   --external PAT    Mark specs matching path pattern as external-service-dependent (repeatable,
+#                     default: spec/lib/vendor/gnfinder)
+#   --min-failures N  Only show specs with >= N failures (default: 3)
+
+require 'json'
+require 'date'
+require 'open3'
+require 'optparse'
+require 'tmpdir'
+require 'stringio'
+
+abort 'gh CLI not found. Install from https://cli.github.com' unless system('which gh > /dev/null 2>&1')
+abort 'gh CLI is not authenticated. Run: gh auth login' unless system('gh auth status > /dev/null 2>&1')
+
+ANSI_STRIP = /\x1b\[[0-9;]*m/
+TS_STRIP   = /\A\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+Z /
+
+options = {
+  days:         60,
+  end_date:     Date.today,
+  repo:         'SpeciesFileGroup/taxonworks',
+  workflow:     'build',
+  limit:        500,
+  concurrency:  8,
+  sleep_ms:     100,
+  output:       nil,
+  stale_days:   30,
+  repo_root:    Dir.pwd,
+  branches:     %w[development master],
+  external:     ['spec/lib/vendor/gnfinder'],
+  min_failures: 3
+}
+
+OptionParser.new do |o|
+  o.banner = "Usage: #{File.basename($PROGRAM_NAME)} [options]"
+  o.on('--days N',         Integer, "Days back (default: #{options[:days]})")                              { |v| options[:days]         = v }
+  o.on('--end-date DATE',            'End date YYYY-MM-DD (default: today)')                               { |v| options[:end_date]     = Date.parse(v) }
+  o.on('--repo REPO',                "GitHub repo (default: #{options[:repo]})")                           { |v| options[:repo]         = v }
+  o.on('--workflow NAME',            "Workflow name (default: #{options[:workflow]})")                     { |v| options[:workflow]     = v }
+  o.on('--limit N',        Integer, "Max runs to fetch (default: #{options[:limit]})")                    { |v| options[:limit]        = v }
+  o.on('--concurrency N',  Integer, "Parallel requests (default: #{options[:concurrency]})")              { |v| options[:concurrency]  = v }
+  o.on('--sleep-ms N',     Integer, "Sleep ms between requests per worker (default: #{options[:sleep_ms]})") { |v| options[:sleep_ms]  = v }
+  o.on('--output FILE',              'Output file (default: <tmpdir>/random_spec_failures_YYYY-MM-DD.html)') { |v| options[:output]    = v }
+  o.on('--stale-days N',   Integer, "Flag as possibly fixed if no failures in N days (default: #{options[:stale_days]})") { |v| options[:stale_days]  = v }
+  o.on('--repo-root DIR',            'Local checkout for pending detection (default: cwd)')                { |v| options[:repo_root]   = File.expand_path(v) }
+  o.on('--branch NAME',              'Only include runs from this branch (repeatable)')                    { |v| options[:branches]   << v }
+  o.on('--external PAT',             'Mark specs matching path pattern as external-service-dependent (repeatable)') { |v| options[:external] << v }
+  o.on('--min-failures N', Integer, "Only show specs with >= N failures (default: #{options[:min_failures]})") { |v| options[:min_failures] = v }
+end.parse!
+
+options[:branches] = options[:branches].uniq
+
+# ── helpers ───────────────────────────────────────────────────────────────────
+
+def h(str)
+  str.to_s.gsub('&', '&amp;').gsub('<', '&lt;').gsub('>', '&gt;')
+end
+
+def gh(*args)
+  out, err, st = Open3.capture3('gh', *args)
+  abort "gh #{args.first(3).join(' ')} failed: #{err.strip}" unless st.success?
+  out
+end
+
+def clean(line)
+  line.sub(TS_STRIP, '').gsub(ANSI_STRIP, '').rstrip
+end
+
+PENDING_EXAMPLE_RE = /\b(xspecify|xit|xexample|xscenario)\b/
+PENDING_BLOCK_RE   = /\b(xdescribe|xcontext)\b/
+
+def currently_pending?(file, line_num, repo_root, file_cache)
+  return false unless line_num
+  full_path = File.join(repo_root, file)
+  return false unless File.exist?(full_path)
+
+  lines = file_cache[full_path] ||= File.readlines(full_path)
+  target = line_num.to_i - 1
+  return false if target >= lines.size
+
+  return true if lines[target] =~ PENDING_EXAMPLE_RE
+
+  current_indent = lines[target][/\A */].length
+  target.downto(0) do |i|
+    line   = lines[i]
+    indent = line[/\A */].length
+    next if line.strip.empty? || indent >= current_indent
+    return true if line =~ PENDING_BLOCK_RE
+    current_indent = indent
+  end
+
+  false
+end
+
+def parse_job_log(raw)
+  lines = raw.each_line.map { |l| clean(l) }
+
+  # ── 1. Parse Failures: section into description → detail body map ──────────
+  detail_map   = {}
+  in_failures  = false
+  current_desc = nil
+  current_body = []
+
+  commit_current = lambda do
+    if current_desc
+      body = current_body
+        .reverse
+        .drop_while { |l| l.strip.empty? }
+        .reverse
+        .reject { |l| l =~ /\A\s+# \./ }
+        .map    { |l| l.sub(/\A {6}/, '') }
+        .join("\n")
+        .strip
+      detail_map[current_desc] = body unless body.empty?
+      current_desc = nil
+      current_body = []
+    end
+  end
+
+  lines.each do |line|
+    if !in_failures && line == 'Failures:'
+      in_failures = true
+      next
+    end
+
+    next unless in_failures
+
+    if line =~ /\A\s{1,4}(\d+)\) (.+)\z/
+      new_desc = $2.strip  # capture before commit_current resets $~ via its own regexes
+      commit_current.call
+      current_desc = new_desc
+    elsif line =~ /\AFinished in/ || line =~ /\AFailed examples:/
+      commit_current.call
+      in_failures = false
+    elsif current_desc
+      current_body << line
+    end
+  end
+  commit_current.call
+
+  # ── 2. Parse Failed examples: section ────────────────────────────────────────
+  results     = []
+  in_examples = false
+
+  lines.each do |line|
+    if line == 'Failed examples:'
+      in_examples = true
+      next
+    end
+    next unless in_examples
+    break if line.strip.empty? && results.any?
+
+    m = line.match(/\Arspec \.\/(spec\/.+?)(?::(\d+)|\[[\d:]+\])?\s+#\s+(.+)\z/)
+    next unless m
+
+    file     = m[1]
+    line_num = m[2]
+    name     = m[3].strip
+
+    detail = detail_map[name] ||
+             detail_map.find { |k, _| k.start_with?(name[0, 60]) }&.last
+
+    results << { file: file, line: line_num, name: name, detail: detail }
+  end
+
+  results
+end
+
+# ── Fetch failed run IDs ──────────────────────────────────────────────────────
+
+start_date = options[:end_date] - options[:days]
+$stderr.puts "Fetching CI runs: #{options[:repo]} | #{start_date} → #{options[:end_date]} | branches=#{options[:branches].join(',')}"
+
+raw_runs = JSON.parse(gh(
+  'run', 'list',
+  '--repo',     options[:repo],
+  '--workflow', options[:workflow],
+  '--limit',    options[:limit].to_s,
+  '--json',     'databaseId,conclusion,createdAt,headBranch'
+))
+
+failed_runs_in_range = raw_runs.select { |r|
+  r['conclusion'] == 'failure' &&
+    options[:branches].include?(r['headBranch']) &&
+    (d = Date.parse(r['createdAt'])) >= start_date &&
+    d <= options[:end_date]
+}
+failed_run_ids = failed_runs_in_range.map { |r| r['databaseId'] }
+run_date_by_id = failed_runs_in_range.to_h { |r| [r['databaseId'], Date.parse(r['createdAt'])] }
+
+$stderr.puts "Found #{failed_run_ids.size} failed runs. Fetching job IDs (concurrency=#{options[:concurrency]})..."
+
+# ── Phase 1: parallel collect all failed job IDs ──────────────────────────────
+
+mutex     = Mutex.new
+job_metas = []
+run_queue = Queue.new
+errors    = Queue.new
+failed_run_ids.each { |id| run_queue << id }
+
+phase1_workers = [options[:concurrency], [failed_run_ids.size, 1].max].min.times.map do
+  Thread.new do
+    loop do
+      run_id = begin; run_queue.pop(true); rescue ThreadError; break; end
+      begin
+        jobs   = JSON.parse(gh('run', 'view', '--repo', options[:repo], run_id.to_s, '--json', 'jobs'))['jobs']
+        failed = jobs.select { |j| j['conclusion'] == 'failure' }
+                     .map    { |j| { id: j['databaseId'], run_date: run_date_by_id[run_id] } }
+        mutex.synchronize { job_metas.concat(failed) }
+      rescue => e
+        errors << "Run #{run_id} error: #{e.message}"
+      end
+      sleep(options[:sleep_ms] / 1000.0) if options[:sleep_ms] > 0
+      $stderr.print '.'
+    end
+  end
+end
+phase1_workers.each(&:join)
+abort errors.pop unless errors.empty?
+$stderr.puts "\n#{job_metas.size} failed jobs found. Fetching logs..."
+
+# ── Phase 2: parallel fetch logs + parse ─────────────────────────────────────
+
+all_failures = {}
+job_queue    = Queue.new
+job_metas.each { |m| job_queue << m }
+
+phase2_workers = [options[:concurrency], [job_metas.size, 1].max].min.times.map do
+  Thread.new do
+    loop do
+      meta = begin; job_queue.pop(true); rescue ThreadError; break; end
+      begin
+        log    = gh('api', "repos/#{options[:repo]}/actions/jobs/#{meta[:id]}/logs")
+        parsed = parse_job_log(log)
+        mutex.synchronize do
+          parsed.each do |f|
+            key = "#{f[:file]}|||#{f[:name]}"
+            e   = (all_failures[key] ||= { count: 0, file: f[:file], name: f[:name], line: nil,
+                                            first_seen: nil, last_seen: nil, details: [] })
+            e[:count]     += 1
+            e[:line]       = f[:line] if f[:line]
+            e[:last_seen]  = meta[:run_date] if e[:last_seen].nil?  || meta[:run_date] > e[:last_seen]
+            e[:first_seen] = meta[:run_date] if e[:first_seen].nil? || meta[:run_date] < e[:first_seen]
+            if f[:detail]
+              normalized = f[:detail].gsub(/\s+/, ' ').strip
+              e[:details] << f[:detail] unless e[:details].any? { |d| d.gsub(/\s+/, ' ').strip == normalized }
+            end
+          end
+        end
+      rescue => e
+        errors << "Job #{meta[:id]} error: #{e.message}"
+      end
+      sleep(options[:sleep_ms] / 1000.0) if options[:sleep_ms] > 0
+      $stderr.print '.'
+    end
+  end
+end
+phase2_workers.each(&:join)
+abort errors.pop unless errors.empty?
+$stderr.puts "\nDone. #{all_failures.size} unique failing specs across #{job_metas.size} jobs."
+
+# ── Annotate and sort ─────────────────────────────────────────────────────────
+
+stale_cutoff = options[:end_date] - options[:stale_days]
+file_cache   = {}
+
+rows = all_failures.values.select { |f| f[:count] >= options[:min_failures] }
+rows.each do |f|
+  f[:feature_spec]  = f[:file].start_with?('spec/features/')
+  f[:pending_spec]  = currently_pending?(f[:file], f[:line], options[:repo_root], file_cache)
+  f[:stale_spec]    = !f[:pending_spec] && f[:last_seen] && f[:last_seen] < stale_cutoff
+  f[:external_spec] = options[:external].any? { |pat| f[:file].include?(pat) }
+end
+
+# Group by file, files ordered by their highest failure count, then count desc within each file
+file_max = rows.group_by { |f| f[:file] }.transform_values { |fs| fs.map { |f| f[:count] }.max }
+rows.sort_by! { |f| [-file_max[f[:file]], f[:file], -f[:count]] }
+
+total_count = rows.sum { |f| f[:count] }
+
+# ── Generate HTML ─────────────────────────────────────────────────────────────
+
+out = StringIO.new
+
+out.puts <<~HTML
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Flaky Spec Report — #{h options[:repo]}</title>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+      body { font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+             margin: 0; padding: 20px 28px; background: #f6f8fa; color: #24292f; }
+      h1   { font-size: 20px; margin: 0 0 12px; }
+      .meta { border-collapse: collapse; margin-bottom: 16px; font-size: 13px; }
+      .meta td { padding: 2px 16px 2px 0; }
+      .meta td:first-child { color: #57606a; font-weight: 600; white-space: nowrap; }
+      .filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+      .filter-btn { padding: 4px 12px; border: 1px solid #d0d7de; border-radius: 20px;
+                    background: #fff; cursor: pointer; font-size: 12px; font-family: inherit; }
+      .filter-btn.active { background: #0969da; color: #fff; border-color: #0969da; }
+      .filter-btn:hover:not(.active) { background: #f3f4f6; }
+      table  { width: 100%; border-collapse: collapse; background: #fff; font-size: 13px;
+               border-radius: 6px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+      th { background: #f6f8fa; border-bottom: 2px solid #d0d7de; padding: 8px 10px;
+           text-align: left; white-space: nowrap; user-select: none; }
+      th[data-col] { cursor: pointer; }
+      th[data-col]:hover { background: #eaf0f6; }
+      th.sort-asc::after  { content: ' ↑'; opacity: .6; }
+      th.sort-desc::after { content: ' ↓'; opacity: .6; }
+      td { padding: 6px 10px; border-bottom: 1px solid #eaecef; vertical-align: top; }
+      tr.data-row:hover td { background: #f6f8fa; }
+      tr.file-group-header td { background: #f0f6ff; border-bottom: 1px solid #c8d8f0;
+                                 font-size: 12px; font-weight: 600; color: #0550ae; padding: 5px 10px; }
+      tr.detail-row td { background: #fffdf5; padding: 2px 10px 8px 28px; border-bottom: 1px solid #eaecef; }
+      tr[data-hidden="true"] { display: none; }
+      td.count { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700;
+                 color: #cf222e; min-width: 60px; }
+      code { font-size: 11px; background: #f6f8fa; border: 1px solid #d0d7de;
+             border-radius: 3px; padding: 1px 5px; white-space: nowrap; }
+      pre  { margin: 6px 0 2px; white-space: pre-wrap; word-break: break-all; font-size: 12px;
+             background: #f6f8fa; padding: 8px 10px; border-radius: 4px; border: 1px solid #d0d7de; }
+      details summary { cursor: pointer; font-size: 12px; color: #0969da; padding: 2px 0; }
+      .badge { display: inline-block; padding: 1px 7px; border-radius: 10px;
+               font-size: 11px; font-weight: 600; white-space: nowrap; }
+      .badge-feature  { background: #ddf4ff; color: #0550ae; }
+      .badge-pending  { background: #fff8c5; color: #7d4e00; }
+      .badge-stale    { background: #dafbe1; color: #1a7f37; }
+      .badge-external { background: #ffeff7; color: #bf3989; }
+    </style>
+  </head>
+  <body>
+  <h1>Flaky Spec Report</h1>
+
+  <table class="meta">
+    <tr><td>Repo</td>             <td>#{h options[:repo]}</td></tr>
+    <tr><td>Period</td>           <td>#{start_date} → #{options[:end_date]} (#{options[:days]} days)</td></tr>
+    <tr><td>Failed CI runs</td>   <td>#{failed_run_ids.size} analyzed</td></tr>
+    <tr><td>Min failures shown</td><td>#{options[:min_failures]}</td></tr>
+    <tr><td>Unique failing specs</td><td>#{rows.size}</td></tr>
+    <tr><td>Total spec failures</td><td>#{total_count}</td></tr>
+  </table>
+
+  <div class="filters">
+    <button class="filter-btn active" data-filter="all">All (#{rows.size})</button>
+    <button class="filter-btn" data-filter="feature"><span class="badge badge-feature">feature</span> (#{rows.count { |f| f[:feature_spec] }})</button>
+    <button class="filter-btn" data-filter="pending"><span class="badge badge-pending">pending</span> (#{rows.count { |f| f[:pending_spec] }})</button>
+    <button class="filter-btn" data-filter="stale"><span class="badge badge-stale">possibly fixed</span> (#{rows.count { |f| f[:stale_spec] }})</button>
+    <button class="filter-btn" data-filter="external"><span class="badge badge-external">external</span> (#{rows.count { |f| f[:external_spec] }})</button>
+  </div>
+
+  <table id="report">
+    <thead><tr>
+      <th data-col="count" class="sort-desc">#</th>
+      <th>Tags</th>
+      <th data-col="file">File</th>
+      <th data-col="name">Spec</th>
+      <th data-col="first_seen">First seen</th>
+      <th data-col="last_seen">Last seen</th>
+      <th>Run command</th>
+    </tr></thead>
+    <tbody>
+HTML
+
+current_file = nil
+rows.each do |f|
+  line_suffix = f[:line] ? ":#{f[:line]}" : ''
+  run_cmd     = "rspec #{f[:file]}#{line_suffix}"
+
+  if f[:file] != current_file
+    current_file = f[:file]
+    file_count   = rows.count { |r| r[:file] == current_file }
+    out.puts "    <tr class=\"file-group-header\" data-group-file=\"#{h current_file}\"><td colspan=\"7\">#{h current_file} <span style=\"font-weight:normal;color:#57606a\">(#{file_count} spec#{file_count == 1 ? '' : 's'})</span></td></tr>"
+  end
+
+  badges = []
+  badges << "<span class=\"badge badge-feature\">feature</span>"  if f[:feature_spec]
+  badges << "<span class=\"badge badge-pending\">pending</span>"  if f[:pending_spec]
+  badges << "<span class=\"badge badge-stale\">possibly fixed</span>" if f[:stale_spec]
+  badges << "<span class=\"badge badge-external\">external</span>"    if f[:external_spec]
+
+  display_name = h(f[:name].length > 120 ? "#{f[:name][0, 55]} … #{f[:name][-55..]}" : f[:name])
+
+  row_attrs = %W[
+    data-count=#{f[:count]}
+    data-file=#{f[:file].inspect}
+    data-name=#{f[:name][0, 80].inspect}
+    data-first-seen=#{f[:first_seen].to_s.inspect}
+    data-last-seen=#{f[:last_seen].to_s.inspect}
+    data-feature=#{f[:feature_spec]}
+    data-pending=#{f[:pending_spec]}
+    data-stale=#{f[:stale_spec]}
+    data-external=#{f[:external_spec]}
+  ].join(' ')
+
+  out.puts "    <tr class=\"data-row\" #{row_attrs}>"
+  out.puts "      <td class=\"count\">#{f[:count]}</td>"
+  out.puts "      <td>#{badges.join(' ')}</td>"
+  out.puts "      <td><code>#{h f[:file]}</code></td>"
+  out.puts "      <td>#{display_name}</td>"
+  out.puts "      <td>#{f[:first_seen]}</td>"
+  out.puts "      <td>#{f[:last_seen]}</td>"
+  out.puts "      <td><code>#{h run_cmd}</code></td>"
+  out.puts "    </tr>"
+
+  next if f[:details].empty?
+
+  unique_details = f[:details].uniq { |d| d.gsub(/\s+/, ' ').strip }
+  detail_html    = unique_details.each_with_index.map { |d, i|
+    label = unique_details.size > 1 ? "<strong>Occurrence #{i + 1}:</strong><br>" : ''
+    "#{label}<pre>#{h d}</pre>"
+  }.join("\n")
+
+  out.puts "    <tr class=\"detail-row\" data-feature=#{f[:feature_spec]} data-pending=#{f[:pending_spec]} data-stale=#{f[:stale_spec]} data-external=#{f[:external_spec]}>"
+  out.puts "      <td colspan=\"7\"><details><summary>Failure details</summary>#{detail_html}</details></td>"
+  out.puts "    </tr>"
+end
+
+out.puts <<~HTML
+    </tbody>
+  </table>
+
+  <script>
+    // ── Filter buttons ────────────────────────────────────────────────────────
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const filter = btn.dataset.filter;
+
+        document.querySelectorAll('tr.data-row, tr.detail-row').forEach(row => {
+          row.dataset.hidden = (filter === 'all' || row.dataset[filter] === 'true') ? 'false' : 'true';
+        });
+
+        // Hide file-group headers when all their data rows are hidden
+        document.querySelectorAll('tr.file-group-header').forEach(hdr => {
+          const file = hdr.dataset.groupFile;
+          const anyVisible = [...document.querySelectorAll('tr.data-row')]
+            .filter(r => r.dataset.file === file)
+            .some(r => r.dataset.hidden !== 'true');
+          hdr.dataset.hidden = anyVisible ? 'false' : 'true';
+        });
+      });
+    });
+
+    // ── Column sort ───────────────────────────────────────────────────────────
+    let sortCol = 'count', sortDir = -1;
+
+    document.querySelectorAll('th[data-col]').forEach(th => {
+      th.addEventListener('click', () => {
+        const col = th.dataset.col;
+        sortDir = col === sortCol ? -sortDir : -1;
+        sortCol = col;
+        document.querySelectorAll('th').forEach(t => t.classList.remove('sort-asc', 'sort-desc'));
+        th.classList.add(sortDir === 1 ? 'sort-asc' : 'sort-desc');
+        sortTable(col, sortDir);
+      });
+    });
+
+    function getVal(row, col) {
+      // dataset keys are camelCased: first_seen → firstSeen
+      const key = col.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
+      return row.dataset[key] ?? '';
+    }
+
+    function cmp(a, b) {
+      const an = parseFloat(a), bn = parseFloat(b);
+      if (!isNaN(an) && !isNaN(bn)) return an - bn;
+      return a < b ? -1 : a > b ? 1 : 0;
+    }
+
+    function sortTable(col, dir) {
+      const tbody = document.querySelector('#report tbody');
+      const allRows = [...tbody.querySelectorAll('tr')];
+
+      // Pair each data-row with its optional following detail-row
+      const pairs = [];
+      for (let i = 0; i < allRows.length; i++) {
+        if (!allRows[i].classList.contains('data-row')) continue;
+        const detail = allRows[i + 1]?.classList.contains('detail-row') ? allRows[i + 1] : null;
+        pairs.push({ data: allRows[i], detail });
+      }
+
+      pairs.sort((a, b) => dir * cmp(getVal(a.data, col), getVal(b.data, col)));
+
+      // Re-group by file, preserving inter-file order based on first pair in each file
+      const fileOrder = [], seen = new Set();
+      pairs.forEach(p => {
+        const f = p.data.dataset.file;
+        if (!seen.has(f)) { seen.add(f); fileOrder.push(f); }
+      });
+
+      const groupHeaders = Object.fromEntries(
+        [...document.querySelectorAll('tr.file-group-header')].map(h => [h.dataset.groupFile, h])
+      );
+
+      fileOrder.forEach(file => {
+        if (groupHeaders[file]) tbody.appendChild(groupHeaders[file]);
+        pairs.filter(p => p.data.dataset.file === file)
+             .forEach(p => { tbody.appendChild(p.data); if (p.detail) tbody.appendChild(p.detail); });
+      });
+    }
+  </script>
+  </body>
+  </html>
+HTML
+
+html = out.string
+out_path = options[:output] || File.join(Dir.tmpdir, "random_spec_failures_#{options[:end_date]}.html")
+File.write(out_path, html)
+$stderr.puts "Output: #{out_path}"
