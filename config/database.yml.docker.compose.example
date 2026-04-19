@@ -18,6 +18,5 @@ development:
 # production.
 test:
   <<: *default
-  pool: 1
+  pool: 5
   database: taxonworks_test<%= ENV['TEST_ENV_NUMBER'] %>
-
