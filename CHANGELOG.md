@@ -14,6 +14,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - In the New Asserted Distribution task, add map tab to Gazetteer selection for shape [#4853]
 - `/leads`, `/leads/:id/remaining_otus`and `/leads/:id/eliminated_otus` API endpoints
 - Filters: Save freeze columns state [#4882]
+- Filter Source: Add TaxonWorks CSL format to `download formatted` button [#4661]
 
 ### Changed
 
@@ -39,6 +40,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - The Browse taxon name task bar is positioned incorrectly when the header bar is fixed.
 - Filter Source: The style selection in formatted download always applies the same style regardless of what is selected.
 
+[#4661]: https://github.com/SpeciesFileGroup/taxonworks/issues/4661
 [#4851]: https://github.com/SpeciesFileGroup/taxonpages/issues/4851
 [#4852]: https://github.com/SpeciesFileGroup/taxonpages/issues/4852
 [#4853]: https://github.com/SpeciesFileGroup/taxonpages/issues/4853
