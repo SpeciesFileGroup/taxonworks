@@ -9,15 +9,15 @@
       v-if="list.length"
       class="separate-top"
     >
-      <a :href="`${RouteNames.FilterCollectionObjects}?otu_id[]=${otu.id}`">
-        Open filter
-      </a>
-      <VPagination
-        v-if="pagination"
-        class="margin-small-top margin-small-bottom"
-        :pagination="pagination"
-        @next-page="(e) => loadCollectionObjects(e.page)"
-      />
+      <div class="flex-separate middle">
+        <VPagination
+          v-if="pagination"
+          class="margin-small-top margin-small-bottom"
+          :pagination="pagination"
+          @next-page="(e) => loadCollectionObjects(e.page)"
+        />
+        <a :href="urlFilter"> Open filter </a>
+      </div>
       <table class="full_width table-striped">
         <thead>
           <tr>
@@ -59,11 +59,12 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { CollectionObject, Citation, Depiction } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
 import { getPagination } from '@/helpers'
 import { COLLECTION_OBJECT } from '@/constants'
+import qs from 'qs'
 import PanelLayout from '../PanelLayout.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
@@ -104,12 +105,33 @@ const props = defineProps({
   title: {
     type: String,
     default: 'Specimen records'
+  },
+
+  filter: {
+    type: Object,
+    default: () => ({})
   }
 })
 
 const list = ref([])
 const pagination = ref()
 const isLoading = ref(false)
+const otuIds = computed(() => props.otus.map((o) => o.id))
+
+const urlFilter = computed(() => {
+  const query = qs.stringify(
+    {
+      otu_id: otuIds.value,
+      ...props.filter
+    },
+    {
+      arrayFormat: 'brackets',
+      skipNulls: true
+    }
+  )
+
+  return `${RouteNames.FilterCollectionObjects}?${query}`
+})
 
 async function listParser(items) {
   const citations = (
@@ -147,10 +169,11 @@ async function listParser(items) {
 function loadCollectionObjects(page = 1) {
   isLoading.value = true
   CollectionObject.filter({
-    otu_id: [props.otu.id],
+    otu_id: otuIds.value,
     page,
     per: 50,
-    extend: ['dwc_occurrence', 'repository']
+    extend: ['dwc_occurrence', 'repository'],
+    ...props.filter
   })
     .then(async (response) => {
       pagination.value = getPagination(response)

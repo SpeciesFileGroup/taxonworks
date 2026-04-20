@@ -10,7 +10,6 @@ import PanelContent from '../components/Panel/PanelContent/PanelContent.vue'
 import PanelBiologicalAssociations from '../components/Panel/PanelBiologicalAssociations/PanelBiologicalAssociations.vue'
 import PanelAnnotations from '../components/Panel/PanelAnnotations/PanelAnnotations.vue'
 import PanelType from '../components/Panel/PanelType/PanelType.vue'
-import PanelTypeSpecimens from '../components/Panel/PanelTypeSpecimens/PanelTypeSpecimens.vue'
 import PanelCollectionObjects from '../components/Panel/PanelCollectionObjects/PanelCollectionObjects.vue'
 import PanelFieldOccurrences from '../components/Panel/PanelFieldOccurrences/PanelFieldOccurrences.vue'
 
@@ -68,10 +67,15 @@ export const PANEL_COMPONENTS = {
     rankGroup: ['FamilyGroup', 'GenusGroup']
   },
   PanelTypeSpecimens: {
-    component: PanelTypeSpecimens,
+    component: PanelCollectionObjects,
     title: 'Type specimens',
     status: 'prototype',
-    rankGroup: ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup']
+    rankGroup: ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup'],
+    bind: {
+      filter: {
+        type_material: true
+      }
+    }
   },
   PanelCollectionObjects: {
     component: PanelCollectionObjects,

@@ -45,6 +45,7 @@
             class="full_width"
             :title="PANEL_COMPONENTS[element].title"
             :status="PANEL_COMPONENTS[element].status"
+            v-bind="PANEL_COMPONENTS[element]?.bind"
             :otu="otuStore.otu"
             :otus="otuStore.selectedOtus"
             :taxon-name="otuStore.taxonName"
