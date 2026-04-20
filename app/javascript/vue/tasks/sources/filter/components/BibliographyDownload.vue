@@ -62,6 +62,13 @@
           >
             Download PDF
           </VBtn>
+          <label>
+            <input
+              type="checkbox"
+              v-model="stripHtml"
+            />
+            Strip HTML tags
+          </label>
         </div>
       </template>
     </VModal>
@@ -77,11 +84,7 @@ import { SOURCE_BIBTEX } from '@/constants'
 import { ref, watch, computed } from 'vue'
 import Qs from 'qs'
 
-import {
-  GetBibliography,
-  GetBibtexStyle,
-  GetBibtex
-} from '../request/resources'
+import { GetBibtexStyle, GetBibtex } from '../request/resources'
 
 const props = defineProps({
   params: {
@@ -100,12 +103,16 @@ const props = defineProps({
   }
 })
 
+const DEFAULT_CSL_STYLE = 'taxonworks'
+const TAXONWORKS_CSL_STYLE = { taxonworks: 'TaxonWorks' }
+
 const isLoading = ref(false)
 const bibtex = ref()
 const links = ref()
 const isModalVisible = ref(false)
 const bibtexStyle = ref()
-const styleId = ref()
+const styleId = ref(DEFAULT_CSL_STYLE)
+const stripHtml = ref(true)
 
 const payload = computed(() =>
   Object.assign(
@@ -116,6 +123,7 @@ const payload = computed(() =>
     {
       is_public: true,
       style_id: styleId.value,
+      strip_html: stripHtml.value,
       per: props.pagination.total
     }
   )
@@ -126,13 +134,13 @@ watch(
   () => {
     links.value = undefined
     bibtex.value = undefined
-    styleId.value = undefined
+    styleId.value = DEFAULT_CSL_STYLE
   },
   { deep: true }
 )
 
-watch(styleId, (newVal) => {
-  if (newVal) {
+watch([styleId, stripHtml, isModalVisible], () => {
+  if (isModalVisible.value) {
     loadBibliography()
   }
 })
@@ -143,9 +151,14 @@ function loadBibtexStyle() {
     isLoading.value = true
     GetBibtexStyle()
       .then(({ body }) => {
-        bibtexStyle.value = Object.fromEntries(
-          sortArray(Object.entries(body), '1')
-        )
+        const styles = {
+          ...body,
+          ...TAXONWORKS_CSL_STYLE
+        }
+
+        bibtexStyle.value = {
+          ...Object.fromEntries(sortArray(Object.entries(styles), '1'))
+        }
       })
       .finally(() => {
         isLoading.value = false

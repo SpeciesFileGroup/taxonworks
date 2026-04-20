@@ -37,6 +37,7 @@
           v-model="selectedIds"
           :list="list"
           :attributes="ATTRIBUTES"
+          :preference-key="`tasks::filters::${EXTRACT}`"
           @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"
         />

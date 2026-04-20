@@ -47,6 +47,7 @@
           v-model="selectedIds"
           :attributes="ATTRIBUTES"
           :list="list"
+          :preference-key="`tasks::filters::${ANATOMICAL_PART}`"
           :radial-object="true"
           @on-sort="(sorted) => (list = sorted)"
         >

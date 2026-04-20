@@ -38,6 +38,7 @@
         <FilterList
           :list="list"
           :attributes="ATTRIBUTES"
+          :preference-key="`tasks::filters::${SOURCE}`"
           v-model="selectedIds"
           radial-object
           @on-sort="list = $event"
