@@ -62,6 +62,13 @@
           >
             Download PDF
           </VBtn>
+          <label>
+            <input
+              type="checkbox"
+              v-model="stripHtml"
+            />
+            Strip HTML tags
+          </label>
         </div>
       </template>
     </VModal>
@@ -77,11 +84,7 @@ import { SOURCE_BIBTEX } from '@/constants'
 import { ref, watch, computed } from 'vue'
 import Qs from 'qs'
 
-import {
-  GetBibliography,
-  GetBibtexStyle,
-  GetBibtex
-} from '../request/resources'
+import { GetBibtexStyle, GetBibtex } from '../request/resources'
 
 const props = defineProps({
   params: {
@@ -106,6 +109,7 @@ const links = ref()
 const isModalVisible = ref(false)
 const bibtexStyle = ref()
 const styleId = ref()
+const stripHtml = ref(true)
 
 const payload = computed(() =>
   Object.assign(
@@ -116,6 +120,7 @@ const payload = computed(() =>
     {
       is_public: true,
       style_id: styleId.value,
+      strip_html: stripHtml.value,
       per: props.pagination.total
     }
   )
@@ -131,8 +136,8 @@ watch(
   { deep: true }
 )
 
-watch(styleId, (newVal) => {
-  if (newVal) {
+watch([styleId, stripHtml], () => {
+  if (styleId.value) {
     loadBibliography()
   }
 })
@@ -143,9 +148,15 @@ function loadBibtexStyle() {
     isLoading.value = true
     GetBibtexStyle()
       .then(({ body }) => {
-        bibtexStyle.value = Object.fromEntries(
-          sortArray(Object.entries(body), '1')
-        )
+        const styles = {
+          ...body,
+          taxonworks: 'TaxonWorks'
+        }
+
+        bibtexStyle.value = {
+          taxonworks: 'TaxonWorks',
+          ...Object.fromEntries(sortArray(Object.entries(styles), '1'))
+        }
       })
       .finally(() => {
         isLoading.value = false

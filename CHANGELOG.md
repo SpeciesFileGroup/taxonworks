@@ -37,6 +37,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - DwC importer failing when importing unparsable people
 - Browse OTU button creates OTUs with an incorrect taxon name ID on the /otus/:id page [#4879]
 - The Browse taxon name task bar is positioned incorrectly when the header bar is fixed.
+- Filter Source: The style selection in formatted download always applies the same style regardless of what is selected.
 
 [#4851]: https://github.com/SpeciesFileGroup/taxonpages/issues/4851
 [#4852]: https://github.com/SpeciesFileGroup/taxonpages/issues/4852
