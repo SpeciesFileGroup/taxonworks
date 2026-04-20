@@ -103,12 +103,15 @@ const props = defineProps({
   }
 })
 
+const DEFAULT_CSL_STYLE = 'taxonworks'
+const TAXONWORKS_CSL_STYLE = { taxonworks: 'TaxonWorks' }
+
 const isLoading = ref(false)
 const bibtex = ref()
 const links = ref()
 const isModalVisible = ref(false)
 const bibtexStyle = ref()
-const styleId = ref()
+const styleId = ref(DEFAULT_CSL_STYLE)
 const stripHtml = ref(true)
 
 const payload = computed(() =>
@@ -131,13 +134,13 @@ watch(
   () => {
     links.value = undefined
     bibtex.value = undefined
-    styleId.value = undefined
+    styleId.value = DEFAULT_CSL_STYLE
   },
   { deep: true }
 )
 
-watch([styleId, stripHtml], () => {
-  if (styleId.value) {
+watch([styleId, stripHtml, isModalVisible], () => {
+  if (isModalVisible.value) {
     loadBibliography()
   }
 })
@@ -150,7 +153,7 @@ function loadBibtexStyle() {
       .then(({ body }) => {
         const styles = {
           ...body,
-          taxonworks: 'TaxonWorks'
+          ...TAXONWORKS_CSL_STYLE
         }
 
         bibtexStyle.value = {
