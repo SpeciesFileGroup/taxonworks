@@ -13,12 +13,6 @@
         @click="() => (isModalVisible = true)"
       >
         Coordinate OTUs ({{ store.coordinateOtus.length }})
-
-        <VIcon
-          name="attention"
-          color="attention"
-          x-small
-        />
       </VBtn>
       <template #content>
         <div class="padding-small text-xs">
@@ -78,6 +72,7 @@
                 <input
                   type="checkbox"
                   :value="otu"
+                  :disabled="store.otu?.id === otu.id"
                   v-model="otus"
                 />
               </td>

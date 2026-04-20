@@ -12,8 +12,7 @@
     <template #options>
       <VBtn
         v-if="menu"
-        circle
-        color="primary"
+        color="transparent"
         v-help.section.options.filter
         @click="emit('menu')"
       >
