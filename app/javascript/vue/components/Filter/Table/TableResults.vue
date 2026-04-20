@@ -555,6 +555,7 @@ import { sortArray } from '@/helpers/arrays.js'
 import { vResizeColumn } from '@/directives/resizeColumn.js'
 import { humanize } from '@/helpers/strings'
 import { sanitizeHtml } from '@/helpers'
+import { useUserPreferences } from '@/composables'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VLock from '@/components/ui/VLock/index.vue'
@@ -602,6 +603,11 @@ const props = defineProps({
   radialNavigator: {
     type: Boolean,
     default: true
+  },
+
+  preferenceKey: {
+    type: String,
+    default: null
   }
 })
 
@@ -620,6 +626,24 @@ const FIXED_COLUMNS = {
 
 const freezeColumn = ref([])
 const freezeColumnLeftPosition = ref({})
+
+if (props.preferenceKey) {
+  const { loadPreferences, setPreference } = useUserPreferences()
+  const freezeStorageKey = `${props.preferenceKey}::freezeColumn`
+
+  loadPreferences().then((prefs) => {
+    const val = prefs?.layout?.[freezeStorageKey]
+
+    if (Array.isArray(val)) freezeColumn.value = val
+  })
+
+  watch(
+    freezeColumn,
+    (val) => setPreference(freezeStorageKey, val),
+    { deep: true }
+  )
+}
+
 const ascending = ref(false)
 const lastRadialOpenedRow = ref(null)
 const handyScrollRef = useTemplateRef('handyScrollRef')

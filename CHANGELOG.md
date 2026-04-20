@@ -13,6 +13,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Filters: Copy to clipboard button for API Url [#4852]
 - In the New Asserted Distribution task, add map tab to Gazetteer selection for shape [#4853]
 - `/leads`, `/leads/:id/remaining_otus`and `/leads/:id/eliminated_otus` API endpoints
+- Filters: Save freeze columns state [#4882]
 
 ### Changed
 
@@ -44,6 +45,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4865]: https://github.com/SpeciesFileGroup/taxonpages/issues/4865
 [#4866]: https://github.com/SpeciesFileGroup/taxonpages/issues/4866
 [#4879]: https://github.com/SpeciesFileGroup/taxonpages/issues/4879
+[#4882]: https://github.com/SpeciesFileGroup/taxonpages/issues/4882
 
 ## [0.61.0] - 2026-02-20
 
