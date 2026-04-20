@@ -5,7 +5,7 @@ FactoryBot.define do
     factory :valid_citation do
       association :source, factory: :valid_source_bibtex
       after(:build) do |citation|
-        citation.citation_object ||= FactoryBot.create(:valid_otu, project_id: citation.project_id)
+        FactoryProjectHelpers.assign_project_scoped(citation, :citation_object, :valid_otu)
       end
     end
   end
