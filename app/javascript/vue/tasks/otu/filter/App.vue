@@ -46,6 +46,7 @@
         <FilterList
           :list="list"
           :attributes="ATTRIBUTES"
+          :preference-key="`tasks::filters::${OTU}`"
           v-model="selectedIds"
           radial-object
           @on-sort="list = $event"

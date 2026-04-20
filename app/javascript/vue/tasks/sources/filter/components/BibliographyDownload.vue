@@ -154,7 +154,6 @@ function loadBibtexStyle() {
         }
 
         bibtexStyle.value = {
-          taxonworks: 'TaxonWorks',
           ...Object.fromEntries(sortArray(Object.entries(styles), '1'))
         }
       })

@@ -23,6 +23,7 @@
         <FilterList
           :list="list"
           :attributes="ATTRIBUTES"
+          :preference-key="`tasks::filters::${DWC_OCCURRENCE}`"
           :radial-annotator="false"
           :radial-navigator="false"
           v-model="selectedIds"
