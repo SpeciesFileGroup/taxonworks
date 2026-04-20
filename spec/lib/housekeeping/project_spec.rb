@@ -41,6 +41,15 @@ describe 'Housekeeping::Project' do
             expect(i.project_id).to eq(project.id)  # see support/set_user_and_project
           end
 
+          specify 'explicit project_id is not overridden on validation' do
+            other_project = FactoryBot.create(:valid_project)
+            i.project_id = other_project.id
+
+            i.valid?
+
+            expect(i.project_id).to eq(other_project.id)
+          end
+
           specify 'project is set from Current.project_id' do
             Current.project_id = nil # TODO: make a with_no_project method
             i.valid?
@@ -112,7 +121,7 @@ describe 'Housekeeping::Project' do
               otu = Otu.new(taxon_name: taxon_name)
 
               expect(otu.valid?).to be_falsey
-              expect(otu.errors[:taxon_name_id]).to include('must belong to the same project')
+              expect(otu.errors[:taxon_name_id]).to include(a_string_matching('must belong to the same project'))
             end
 
             specify 'rejects a polymorphic belongs_to in another project' do
@@ -122,7 +131,7 @@ describe 'Housekeeping::Project' do
               tag = Tag.new(tag_object: other_otu, keyword: FactoryBot.create(:valid_keyword))
 
               expect(tag.valid?).to be_falsey
-              expect(tag.errors[:tag_object_id]).to include('must belong to the same project')
+              expect(tag.errors[:tag_object_id]).to include(a_string_matching('must belong to the same project'))
             end
 
             specify 'rejects another project-scoped belongs_to in another project' do
@@ -135,7 +144,7 @@ describe 'Housekeeping::Project' do
               )
 
               expect(taxon_determination.valid?).to be_falsey
-              expect(taxon_determination.errors[:otu_id]).to include('must belong to the same project')
+              expect(taxon_determination.errors[:otu_id]).to include(a_string_matching('must belong to the same project'))
             end
           end
         end
