@@ -238,6 +238,21 @@ class TaxonNamesController < ApplicationController
     render json: { names: }
   end
 
+  # POST /taxon_names/match.json
+  def match
+
+    @result = Match::Otu::TaxonName.new(
+      names: match_params[:names] || [],
+      project_id: sessions_current_project_id,
+      levenshtein_distance: match_params[:levenshtein_distance] || 0,
+      taxon_name_id: match_params[:taxon_name_id],
+      resolve_synonyms: match_params[:resolve_synonyms] == 'true',
+      try_without_subgenus: match_params[:try_without_subgenus] == 'true'
+    ).call
+
+    render :match
+  end
+
   # GET /taxon_names/1/original_combination
   def original_combination
   end
@@ -357,6 +372,16 @@ class TaxonNamesController < ApplicationController
       :valid, :exact, :no_leaves,
       type: [], parent_id: [], nomenclature_group: []
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
+  end
+
+  def match_params
+    params.permit(
+      :levenshtein_distance,
+      :taxon_name_id,
+      :resolve_synonyms,
+      :try_without_subgenus,
+      names: []
+    )
   end
 
   def taxon_name_params

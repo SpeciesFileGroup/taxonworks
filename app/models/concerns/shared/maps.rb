@@ -106,11 +106,10 @@ module Shared::Maps
     def touched_cached_maps
       case self.class.base_class.name
       when 'AssertedDistribution'
-        if asserted_distribution_object_type == 'Otu'
-          return ::Queries::Otu::Filter.new(otu_id: asserted_distribution_object_id, coordinatify: true, ancestrify: true, project_id: ).all
-        else
-          return Otu.none
-        end
+        otu_ids = object_otu_ids
+
+        return Otu.none if otu_ids.empty?
+        return ::Queries::Otu::Filter.new(otu_id: otu_ids, coordinatify: true, ancestrify: true, project_id:).all
       when 'Georeference'
         otu_ids = collecting_event.otus.distinct.pluck(:id)
         return ::Queries::Otu::Filter.new(otu_id: otu_ids, coordinatify: true, ancestrify: true, project_id: ).all
@@ -127,12 +126,13 @@ module Shared::Maps
     # Creates or increments a CachedMapItem and creates a CachedMapRegister for this object.
     # * !! Assumes this is the first time CachedMapItem is being indexed for this object.
     # * !! Does NOT check register.
-    def create_cached_map_items(batch = false, context: nil)
+    def create_cached_map_items(batch = false, skip_register: false, register_queue: nil)
       ::DEFAULT_CACHED_MAP_BUILD_TYPES.each do |map_type|
-        stubs = CachedMapItem.stubs(self, map_type, context: context)
+        stubs = CachedMapItem.stubs(self, map_type)
 
         return true if stubs[:otu_id].empty?
 
+        registered = false
         name_hierarchy = {}
 
         max_retries = 3
@@ -197,13 +197,26 @@ module Shared::Maps
               end
             end
 
-            begin
-              CachedMapRegister.create!(
-                cached_map_register_object: self,
-                project_id:
-              )
-            rescue ActiveRecord::RecordInvalid => e
-              logger.debug e
+            unless skip_register
+              begin
+                CachedMapRegister.create!(
+                  cached_map_register_object: self,
+                  project_id:
+                )
+              rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique => e
+                logger.debug e
+              end
+            else
+              if register_queue && !registered
+                register_queue << {
+                  cached_map_register_object_type: self.class.base_class.name,
+                  cached_map_register_object_id: id,
+                  project_id:,
+                  created_at: Time.current,
+                  updated_at: Time.current
+                }
+                registered = true
+              end
             end
           end
         rescue ActiveRecord::Deadlocked => e

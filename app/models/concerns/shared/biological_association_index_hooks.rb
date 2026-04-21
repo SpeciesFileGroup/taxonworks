@@ -1,4 +1,5 @@
-# Add hooks to ensure record changes trigger re-indexing at BiologicalAssociationIndex.
+# Add hooks to ensure record changes trigger re-indexing at
+# BiologicalAssociationIndex.
 #
 # Models including this concern must implement:
 #

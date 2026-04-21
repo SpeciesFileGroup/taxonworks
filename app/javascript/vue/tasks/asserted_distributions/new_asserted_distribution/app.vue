@@ -24,11 +24,8 @@
         <div class="horizontal-center-content middle gap-small">
           <label class="middle">
             <input
-              v-model="store.autosave"
+              v-model="autosave"
               type="checkbox"
-              @change="
-                (e) => setPreference(KEY_STORAGE_AUTOSAVE, e.target.checked)
-              "
             />
             Autosave
           </label>
@@ -73,10 +70,10 @@ import VSpinner from '@/components/ui/VSpinner'
 import NavBar from '@/components/layout/NavBar'
 import platformKey from '@/helpers/getPlatformKey'
 
-import { useHotkey } from '@/composables'
+import { useHotkey, useUserPreference } from '@/composables'
 import { computed, ref, onBeforeMount, watch } from 'vue'
 import { useStore } from './store/store.js'
-import { useUserPreferences } from '@/composables'
+
 import VBtn from '@/components/ui/VBtn/index.vue'
 
 const KEY_STORAGE_AUTOSAVE = 'Task::NewAssertedDistribution::Autosave'
@@ -97,16 +94,12 @@ const shortcuts = ref([
 useHotkey(shortcuts.value)
 
 const store = useStore()
-const { preferences, loadPreferences, setPreference } = useUserPreferences()
+const autosave = useUserPreference(KEY_STORAGE_AUTOSAVE, false)
 
 const currentAssertedDistribution = computed(() =>
   store.assertedDistributions.find(
     (item) => item.id === store.assertedDistribution.id
   )
-)
-
-const autosave = computed(
-  () => preferences.value?.layout?.[KEY_STORAGE_AUTOSAVE]
 )
 
 watch(
@@ -120,7 +113,14 @@ watch(
 )
 
 onBeforeMount(() => {
+  const urlParams = new URLSearchParams(window.location.search)
+  const id = urlParams.get('asserted_distribution_id')
+
   store.loadRecentAssertedDistributions()
+
+  if (id) {
+    store.load(id)
+  }
 
   TW.workbench.keyboard.createLegend(
     `${platformKey()}+s`,

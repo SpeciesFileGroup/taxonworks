@@ -41,6 +41,18 @@ module AnatomicalPartsHelper
     "#{r[:label]} #{ontology_prefix}#{description}"
   end
 
+  def anatomical_part_ontology_autocomplete_label(ols_result, project_count: 0)
+    label = anatomical_part_ontology_label(ols_result)
+
+    if project_count > 0
+      in_project_tag = content_tag(:span, 'In project', class: 'feedback feedback-primary feedback-thin')
+      in_project_count_tag = content_tag(:span, project_count, class: 'feedback feedback-secondary feedback-thin')
+      safe_join([label, ' ', in_project_tag, ' ', in_project_count_tag])
+    else
+      label
+    end
+  end
+
   def anatomical_part_graph_label_for_related_object(obj)
     case obj.class.base_class.name
     when 'AnatomicalPart'

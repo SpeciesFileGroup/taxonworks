@@ -8,15 +8,30 @@
     <VSpinner v-if="state.loadingPdf" />
     <div class="slide-panel-header flex-separate">
       <span>PDF Document viewer</span>
-      <a
-        v-if="state.documentUrl"
-        class="margin-medium-right"
-        :href="state.documentUrl"
-        :data-pdf-source-id="state.sourceId"
-        download
-      >
-        Download
-      </a>
+      <div class="flex-row middle gap-small">
+        <VBtn
+          v-if="state.documentUrl"
+          circle
+          title="Download PDF"
+          :href="state.documentUrl"
+          :data-pdf-source-id="state.sourceId"
+          download=""
+          color="transparent"
+        >
+          <VIcon
+            class="text-white-color"
+            small
+            title="Download PDF"
+            name="download"
+          />
+        </VBtn>
+        <button
+          type="button"
+          title="Close"
+          class="slide-panel-close-button"
+          data-control-slide-panel="pdfviewer"
+        ></button>
+      </div>
     </div>
     <resize-handle
       side="left"
@@ -101,6 +116,8 @@ import PdfViewer from './components/pdfComponent'
 import ResizeHandle from '../resizeHandle'
 import IndexedDBStorage from '@/storage/indexddb.js'
 import VSpinner from '../ui/VSpinner.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import { ajaxCall } from '@/helpers'
 import { getCurrentProjectId } from '@/helpers/project.js'
 import { getCurrentUserId } from '@/helpers/user.js'

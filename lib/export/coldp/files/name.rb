@@ -19,118 +19,11 @@ module Export::Coldp::Files::Name
     :core_names,
     :combination_names,
     :original_combination_names,
+
     :invalid_family_and_higher_names,
     :invalid_core_names,
     :invalid_original_combination_names,
   ]
-
-  def self.code_field(rank_class)
-    return 'ICZN' if rank_class =~ /Iczn/
-    return 'ICNP' if rank_class =~ /Icnp/
-    return 'ICVCN' if rank_class =~ /Icvcn/
-    return 'ICN' if rank_class =~ /Icn/
-    nil
-  end
-
-  def self.taxon_name_classification_status(scope)
-    c = TaxonNameClassification.with(invalid_names: scope.select('taxon_names.id invalid_id'))
-      .joins('JOIN invalid_names ON invalid_names.invalid_id = taxon_name_classifications.taxon_name_id')
-      .joins("LEFT JOIN citations c on c.citation_object_id = taxon_name_classifications.id and c.citation_object_type = 'TaxonNameClassification'")
-      .joins('LEFT JOIN sources s on s.id = c.source_id')
-      .select('taxon_name_classifications.taxon_name_id, s.cached_nomenclature_date,
-              MAX(taxon_name_classifications.type) AS type,
-              MAX(s.cached_nomenclature_date) as date')
-      .group('taxon_name_classifications.taxon_name_id, s.cached_nomenclature_date, taxon_name_classifications.type')
-      .order('taxon_name_classifications.taxon_name_id, s.cached_nomenclature_date')
-
-    ApplicationRecord.connection.execute(c.to_sql).to_a
-  end
-
-  def self.taxon_name_relationship_status(scope)
-    c = TaxonNameRelationship.with(invalid_names: scope.select('taxon_names.id invalid_id'))
-      .joins('JOIN invalid_names ON invalid_names.invalid_id = taxon_name_relationships.subject_taxon_name_id')
-      .joins("LEFT JOIN citations c on c.citation_object_id = taxon_name_relationships.id and c.citation_object_type = 'TaxonNameClassification'")
-      .joins('LEFT JOIN sources s on s.id = c.source_id')
-      .where('taxon_name_relationships.object_taxon_name_id = invalid_names.cached_valid_taxon_name_id')
-      .where(taxon_name_relationships: {type: TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM})
-      .select('taxon_name_relationships.subject_taxon_name_id, s.cached_nomenclature_date,
-              MAX(taxon_name_relationships.type) AS type,
-              MAX(s.cached_nomenclature_date) as date')
-      .group('taxon_name_relationships.subject_taxon_name_id, s.cached_nomenclature_date, taxon_name_relationships.type')
-      .order('taxon_name_relationships.subject_taxon_name_id, s.cached_nomenclature_date')
-
-    ApplicationRecord.connection.execute(c.to_sql).to_a
-  end
-
-  # Core names are:
-  #   - Protonyms
-  #   - Valid
-  #   - Genus or species group
-  # They are NOT
-  #   - "inferred combinations" - We have consciously excluded inferred combinations (sensu Browse TaxonNames) from the result set.
-  # If you wish to include an inferred combination then you must create an equivalent (subsequent) Combination.
-  #
-  def self.core_names(otu)
-
-    # TODO: adding .that_is_valid increases names, why? Are we hitting duplicates?
-    a = otu.taxon_name.self_and_descendants.unscope(:order).select(:id)
-
-    # b sets up the query that aggregates the different ranks in one row
-    b = ::Protonym.is_species_or_genus_group.with(valid_scope: a)
-      .where(cached_is_valid: true)
-      .joins('JOIN valid_scope on valid_scope.id = taxon_names.cached_valid_taxon_name_id')
-
-    select = 'taxon_names.id,'
-    select << ::NomenclaturalRank.rank_expansion_sql(ranks: %w{genus subgenus species}, nomenclatural_code: otu.taxon_name.nomenclatural_code)
-
-    # We group some ranks here
-    # TODO: This doesn't likely actually work in the case of subspecies + <some other rank> ?
-    select << ", MAX(CASE WHEN parent.rank_class LIKE \'%::Subspecies\' OR parent.rank_class LIKE \'%::Variety\' OR parent.rank_class LIKE \'%::Form\' THEN parent.name END) AS infraspecies"
-
-    b = b.select(select)
-      .joins('INNER JOIN taxon_name_hierarchies ON taxon_names.id = taxon_name_hierarchies.descendant_id')
-      .joins('LEFT JOIN taxon_names AS parent ON parent.id = taxon_name_hierarchies.ancestor_id')
-      .group('taxon_names.id')
-
-    c = ::TaxonName.with(n: b)
-      .joins('JOIN n on n.id = taxon_names.id')
-      .where(cached_is_valid: true)
-      .eager_load(origin_citation: [:source])
-      .select('taxon_names.*, n.genus, n.subgenus, n.species, n.infraspecies, n.genus_gender, n.species_masculine_name, n.species_neuter_name, n.species_feminine_name')
-  end
-
-  def self.invalid_core_names(otu)
-    a = otu.taxon_name.self_and_descendants.unscope(:order).select(:id)
-
-    b = ::Protonym
-      .with(valid_scope: a)
-      .joins('JOIN valid_scope on valid_scope.id = taxon_names.cached_valid_taxon_name_id')
-      .is_species_or_genus_group
-      .where(cached_is_valid: false)
-      .where('((taxon_names.cached = taxon_names.cached_original_combination) OR (taxon_names.cached_original_combination IS NULL))')
-      .and(TaxonName.where.not("taxon_names.rank_class like '%::Iczn::Family%' AND taxon_names.cached_is_valid = FALSE"))
-
-    select = 'taxon_names.id,'
-    select << ::NomenclaturalRank.rank_expansion_sql(ranks: %w{genus subgenus species}, nomenclatural_code: otu.taxon_name.nomenclatural_code)
-
-    # We group some ranks here
-    # TODO: This doesn't likely actually work in the case of subspecies + <some other rank> ?
-    select << ", MAX(CASE WHEN parent.rank_class LIKE \'%::Subspecies\' OR parent.rank_class LIKE \'%::Variety\' OR parent.rank_class LIKE \'%::Form\' THEN parent.name END) AS infraspecies"
-
-    b = b
-
-    b = b.select(select)
-      .joins('INNER JOIN taxon_name_hierarchies ON taxon_names.id = taxon_name_hierarchies.descendant_id')
-      .joins('LEFT JOIN taxon_names AS parent ON parent.id = taxon_name_hierarchies.ancestor_id')
-      .group('taxon_names.id')
-      .eager_load(origin_citation: [:source])
-
-    c = ::TaxonName.with(n: b)
-      .joins('JOIN n on n.id = taxon_names.id')
-      .where(cached_is_valid: false) # redundant
-      .eager_load(origin_citation: [:source])
-      .select('taxon_names.*, n.genus, n.subgenus, n.species, n.infraspecies')
-  end
 
   # @params otu [Otu]
   #   the top level OTU
@@ -183,6 +76,175 @@ module Export::Coldp::Files::Name
     end
   end
 
+  def self.code_field(rank_class)
+    return 'ICZN' if rank_class =~ /Iczn/
+    return 'ICNP' if rank_class =~ /Icnp/
+    return 'ICVCN' if rank_class =~ /Icvcn/
+    return 'ICN' if rank_class =~ /Icn/
+    nil
+  end
+
+  def self.taxon_name_classification_status(scope)
+    c = TaxonNameClassification.with(invalid_names: scope.select('taxon_names.id invalid_id'))
+      .joins('JOIN invalid_names ON invalid_names.invalid_id = taxon_name_classifications.taxon_name_id')
+      .joins("LEFT JOIN citations c on c.citation_object_id = taxon_name_classifications.id and c.citation_object_type = 'TaxonNameClassification'")
+      .joins('LEFT JOIN sources s on s.id = c.source_id')
+      .select('taxon_name_classifications.taxon_name_id, s.cached_nomenclature_date,
+              MAX(taxon_name_classifications.type) AS type,
+              MAX(s.cached_nomenclature_date) as date')
+      .group('taxon_name_classifications.taxon_name_id, s.cached_nomenclature_date, taxon_name_classifications.type')
+      .order('taxon_name_classifications.taxon_name_id, s.cached_nomenclature_date')
+
+    ApplicationRecord.connection.execute(c.to_sql).to_a
+  end
+
+  def self.taxon_name_relationship_status(scope)
+    c = TaxonNameRelationship.with(invalid_names: scope.select('taxon_names.id invalid_id'))
+      .joins('JOIN invalid_names ON invalid_names.invalid_id = taxon_name_relationships.subject_taxon_name_id')
+      .joins("LEFT JOIN citations c on c.citation_object_id = taxon_name_relationships.id and c.citation_object_type = 'TaxonNameClassification'")
+      .joins('LEFT JOIN sources s on s.id = c.source_id')
+      .where('taxon_name_relationships.object_taxon_name_id = invalid_names.cached_valid_taxon_name_id')
+      .where(taxon_name_relationships: {type: TAXON_NAME_RELATIONSHIP_NAMES_SYNONYM})
+      .select('taxon_name_relationships.subject_taxon_name_id, s.cached_nomenclature_date,
+              MAX(taxon_name_relationships.type) AS type,
+              MAX(s.cached_nomenclature_date) as date')
+      .group('taxon_name_relationships.subject_taxon_name_id, s.cached_nomenclature_date, taxon_name_relationships.type')
+      .order('taxon_name_relationships.subject_taxon_name_id, s.cached_nomenclature_date')
+
+    ApplicationRecord.connection.execute(c.to_sql).to_a
+  end
+
+  # Return, based on the gender of the genus, the element
+  # at the rank requested. Note infraspecies is a "fake" rank
+  # that is combined data here. This is in part because
+  # CoL only handles trinomials.
+  #
+  # @param rank - the element of the name requested
+  #
+  def self.align_gender(core_name, rank = :species)
+    if g = core_name.genus_gender # there is a name at this rank and we can work with the gender
+
+      case core_name.rank
+      when 'species'
+        case rank
+        when :species
+          core_name.send( (g + '_name').to_sym ) || core_name.species
+        else
+          nil
+        end
+      when 'subspecies', 'form', 'variety' # See compression in core_names, may be an issue
+        case rank
+        when :species
+          core_name.send( "species_#{g}_name".to_sym ) || core_name.species
+        when :infraspecies
+          core_name.send( (g + '_name').to_sym ) || core_name.infraspecies
+        end
+      end
+    end
+  end
+
+  # @param classification_status Array
+  # @param relationship_status Array
+  def self.nomenclatural_status(taxon_name_id, classification_status = [], relationship_status = [])
+    # Always prefer  a classification, regardless of age
+    a = classification_status.bsearch{|i| i['taxon_name_id'] >= taxon_name_id}
+    return a['type'].safe_constantize::NOMEN_URI if !a.blank? && a['taxon_name_id'] == taxon_name_id # binary is first >=
+    b = relationship_status.bsearch{|i| i['subject_taxon_name_id'] >= taxon_name_id}
+    return nil if b.blank? || b['subject_taxon_name_id'] != taxon_name_id
+    return b['type'].safe_constantize::NOMEN_URI unless b.blank?
+    nil
+  end
+
+  # Core names are:
+  #   - Protonyms
+  #   - Valid
+  #   - Genus or species group
+  # They are NOT
+  #   - "inferred combinations" - We have consciously excluded inferred combinations (sensu Browse TaxonNames) from the result set.
+  # If you wish to include an inferred combination then you must create an equivalent (subsequent) Combination.
+  #
+  def self.core_names(otu)
+
+    # TODO: adding .that_is_valid increases names, why? Are we hitting duplicates?
+    a = otu.taxon_name.self_and_descendants.unscope(:order).select(:id)
+
+    # b sets up the query that aggregates the different ranks in one row
+    b = ::Protonym.is_species_or_genus_group.with(valid_scope: a)
+      .where(cached_is_valid: true)
+      .joins('JOIN valid_scope on valid_scope.id = taxon_names.cached_valid_taxon_name_id')
+
+    select = 'taxon_names.id,'
+    select << ::NomenclaturalRank.rank_expansion_sql(ranks: %w{genus subgenus species}, nomenclatural_code: otu.taxon_name.nomenclatural_code)
+
+    # We group some ranks here
+    # TODO: This doesn't likely actually work in the case of subspecies + <some other rank> ?
+    select << ", MAX(CASE WHEN parent.rank_class LIKE \'%::Subspecies\' OR parent.rank_class LIKE \'%::Variety\' OR parent.rank_class LIKE \'%::Form\' THEN parent.name END) AS infraspecies"
+
+    b = b.select(select)
+      .joins('INNER JOIN taxon_name_hierarchies ON taxon_names.id = taxon_name_hierarchies.descendant_id')
+      .joins('LEFT JOIN taxon_names AS parent ON parent.id = taxon_name_hierarchies.ancestor_id')
+      .group('taxon_names.id')
+
+    c = ::TaxonName.with(n: b)
+      .joins('JOIN n on n.id = taxon_names.id')
+      .joins('JOIN taxon_names parent_name on parent_name.id = taxon_names.parent_id')
+      .where(cached_is_valid: true)
+      .eager_load(origin_citation: [:source])
+      .select('taxon_names.*, parent_name.name parent_name, n.genus, n.subgenus, n.species, n.infraspecies, n.genus_gender, n.species_masculine_name, n.species_neuter_name, n.species_feminine_name')
+  end
+
+  def self.invalid_core_names(otu)
+    a = otu.taxon_name.self_and_descendants.unscope(:order).select(:id)
+
+    b = ::Protonym
+      .with(valid_scope: a)
+      .joins('JOIN valid_scope on valid_scope.id = taxon_names.cached_valid_taxon_name_id')
+      .is_species_or_genus_group
+      .where(cached_is_valid: false)
+      .where('((taxon_names.cached = taxon_names.cached_original_combination) OR (taxon_names.cached_original_combination IS NULL))')
+      .and(TaxonName.where.not("taxon_names.rank_class like '%::Iczn::Family%' AND taxon_names.cached_is_valid = FALSE"))
+      .where(not_misapplication_sql)
+
+    select = 'taxon_names.id,'
+    select << ::NomenclaturalRank.rank_expansion_sql(ranks: %w{genus subgenus species}, nomenclatural_code: otu.taxon_name.nomenclatural_code)
+
+    # We group some ranks here
+    # TODO: This doesn't likely actually work in the case of subspecies + <some other rank> ?
+    select << ", MAX(CASE WHEN parent.rank_class LIKE \'%::Subspecies\' OR parent.rank_class LIKE \'%::Variety\' OR parent.rank_class LIKE \'%::Form\' THEN parent.name END) AS infraspecies"
+
+    b = b
+
+    b = b.select(select)
+      .joins('INNER JOIN taxon_name_hierarchies ON taxon_names.id = taxon_name_hierarchies.descendant_id')
+      .joins('LEFT JOIN taxon_names AS parent ON parent.id = taxon_name_hierarchies.ancestor_id')
+      .group('taxon_names.id')
+      .eager_load(origin_citation: [:source])
+
+    c = ::TaxonName.with(n: b)
+      .joins('JOIN n on n.id = taxon_names.id')
+      .joins('JOIN taxon_names parent_name on parent_name.id = taxon_names.parent_id')
+      .where(cached_is_valid: false) # redundant
+      .eager_load(origin_citation: [:source])
+      .select('taxon_names.*, parent_name.name parent_name, n.genus, n.subgenus, n.species, n.infraspecies')
+  end
+
+  # Combinations
+  #   See also self.core_names
+  #  - Potential TODO: a-typical verbatim_names (though perhaps OK)
+  #    - If not OK, then simply provide verbatim_name *without* genus, subgenus, species fields
+  #
+  def self.combination_names(otu)
+    a = otu.taxon_name.self_and_descendants.unscope(:order).select(:id)
+
+    b = Combination
+      .where('taxon_names.verbatim_name is null OR taxon_names.verbatim_name = taxon_names.cached') # !! verbatim_name when present is used in cached?! if so this isn't correct!
+      .flattened
+      .with(project_scope: a)
+      .complete
+      .joins('JOIN project_scope ps on ps.id = taxon_names.cached_valid_taxon_name_id')           # Combinations that point to any of "a"
+      .where("NOT EXISTS( SELECT 1 from taxon_names tnc WHERE tnc.type = 'Protonym' AND tnc.cached = taxon_names.cached )") # No Combinations identical to Protonyms
+  end
+
   # Higher names are:
   #   - valid higher names
   # Notes
@@ -230,7 +292,7 @@ module Export::Coldp::Files::Name
 
     b = Protonym
       .original_combination_specified
-      .original_combinations_flattened
+      .original_combinations_flattened # !! This is excluding things that are not full specified for species group names
       .with(project_scope: a)
       .where('taxon_names.cached != taxon_names.cached_original_combination') # Only reified!!
       .joins('JOIN project_scope ps on ps.id = taxon_names.id')
@@ -253,6 +315,7 @@ module Export::Coldp::Files::Name
       .with(valid_scope: a)
       .where(cached_is_valid: false)
       .where('taxon_names.cached != taxon_names.cached_original_combination') # Only reified!!
+      .where(not_misapplication_sql)
       .joins('JOIN valid_scope on valid_scope.id = taxon_names.cached_valid_taxon_name_id')
   end
 
@@ -269,6 +332,7 @@ module Export::Coldp::Files::Name
     names.length
 
     names.find_each do |row|
+
       # At this point all formatting (gender) is done
       elements = Protonym.original_combination_full_name_hash_from_flat(row)
 
@@ -292,12 +356,6 @@ module Export::Coldp::Files::Name
       # By definition - for invalid names, the basionym points to itself (the reified original combination)
       basionym_id = id
 
-      # !! g-maculata
-      # if id == '1093903-f91ea42436b0bbf9a5115437e67afc27'
-      #   byebug
-      #   foo = 1
-      # end
-
       # A major brain-@#$@#.
       # Original combinations of misspelled names
       # CAN have parenthesis in their rendering
@@ -310,7 +368,17 @@ module Export::Coldp::Files::Name
       # placement of the properly spelled version of the name.
 
       author_year = row['cached_author_year']
-      author_year = author_year.delete('()') if strip_parens_for_author_year?(row)
+      author_year = author_year&.delete('()') if strip_parens_for_author_year?(row)
+
+      # !!
+      # !! Here we accomodate, somehwat crudely, that original combinations will infer the rank of
+      # !! of a species protonym without specifically assining an original species relationship.
+      # !!
+      # !! Curators can avoid this ambiguity by assigning the full original combination.
+      # !!
+      if rank == 'genus' && row.rank != 'genus'
+        rank = row.rank
+      end
 
       csv << [
         id,                                                                 # ID
@@ -371,14 +439,24 @@ module Export::Coldp::Files::Name
       # !! We are reifieing *without* "[sic]" in the string
       id = ::Utilities::Nomenclature.reified_id(row['id'], scientific_name)
 
-      # By definition
-      basionym_id = row['id']
+      # The reified OC IS the original combination/basionym, so it points to itself
+      basionym_id = id
+
+      # !!
+      # !! Here we accomodate, somehwat crudely, that original combinations will infer the rank of
+      # !! of a species protonym without specifically assining an original species relationship.
+      # !!
+      # !! Curators can avoid this ambiguity by assigning the full original combination.
+      # !!
+      if rank == 'genus' && row.rank != 'genus'
+        rank = row.rank
+      end
 
       csv << [
         id,                                                                 # ID
         basionym_id,                                                        # basionymID
         scientific_name,                                                    # scientificName
-        row['cached_author_year'].gsub(/[\(\)]/, ''),                       # authorship  # TODO <- stripping author/year here
+        row['cached_author_year']&.gsub(/[\(\)]/, ''),                      # authorship  # TODO <- stripping author/year here
         rank,                                                               # rank
         uninomial,                                                          # uninomial
         elements['genus']&.last,                                            # genus
@@ -474,22 +552,6 @@ module Export::Coldp::Files::Name
     end
   end
 
-  # Combinations
-  #   See also self.core_names
-  #  - Potential TODO: a-typical verbatim_names (though perhaps OK)
-  #    - If not OK, then simply provide verbatim_name *without* genus, subgenus, species fields
-  #
-  def self.combination_names(otu)
-    a = otu.taxon_name.self_and_descendants.unscope(:order).select(:id)
-
-    b = Combination
-      .where('taxon_names.verbatim_name is null OR taxon_names.verbatim_name = taxon_names.cached') # !! verbatim_name when present is used in cached?! if so this isn't correct!
-      .flattened
-      .with(project_scope: a)
-      .complete
-      .joins('JOIN project_scope ps on ps.id = taxon_names.cached_valid_taxon_name_id') # Combinations that point to any of "a"
-  end
-
   def self.add_combination_names(otu, csv, project_members, reference_csv)
     names = combination_names(otu)
     names.length
@@ -504,6 +566,9 @@ module Export::Coldp::Files::Name
 
       rank = elements.keys.last if rank.nil?
 
+      #
+      # TODO: this shouldn't be necessary with scoping of the EXISTS 1
+      #
       # Decide whether or not to skip this Combination
       #   * Is it identical to the current placement?
       #      * Yes
@@ -513,18 +578,10 @@ module Export::Coldp::Files::Name
       #      * No - include
       #
       if (row[rank + "_cached"] == row['cached'])  # it is a dupe
-
         if  row[rank + '_cached_is_valid']         # it is valid
           ::Export::Coldp.skipped_combinations << row['id']
           next
         end
-
-      # # it is not valid
-      # # it *is* referencing an inferred combination
-      #   if !row[rank + '_inferred_combination']
-      #     ::Export::Coldp.skipped_combinations << row['id']
-      #     next
-      #   end
       end
 
       scientific_name = ::Utilities::Nomenclature.unmisspell_name(row['cached'])
@@ -556,6 +613,7 @@ module Export::Coldp::Files::Name
       ]
     end
 
+    # TODO: CHECK THIS!!
     if reference_csv
       Source.with(names: names.where(citations: { is_original: true}))
         .joins('JOIN names n on n.source_id = sources.id')
@@ -565,45 +623,31 @@ module Export::Coldp::Files::Name
     end
   end
 
-  # Return, based on the gender of the genus, the element
-  # at the rank requested. Note infraspecies is a "fake" rank
-  # that is combined data here. This is in part because
-  # CoL only handles trinomials.
-  #
-  # @param rank - the element of the name requested
-  #
-  def self.align_gender(core_name, rank = :species)
-    if g = core_name.genus_gender # there is a name at this rank and we can work with the gender
-
-      case core_name.rank
-      when 'species'
-        case rank
-        when :species
-          core_name.send( (g + '_name').to_sym )
-        else
-          nil
-        end
-      when 'subspecies', 'form', 'variety' # See compression in core_names, may be an issue
-        case rank
-        when :species
-          core_name.send( "species_#{g}_name".to_sym )
-        when :infraspecies
-          core_name.send( (g + '_name').to_sym )
-        end
-      end
-    end
-  end
-
   def self.add_core_names(otu, csv, project_members, reference_csv)
     names = core_names(otu)
     names.length
 
     names.find_each do |t|
-
       origin_citation = t.origin_citation
-      basionym_id = t.id # by defintion
+
+      # TODO: Is this needed for invalid names?
+      #
+      # Ugh, shame we need this. Our Protonyms are not Basionyms.
+      #
+      # If this name has a reified original combination (genus changed),
+      # the basionym is the OC record, not this current placement record.
+      if t.cached_original_combination.present? &&
+          !t.cached_original_combination.include?('NOT SPECIFIED') &&
+          t.cached != t.cached_original_combination
+        scientific_name = ::Utilities::Nomenclature.unmisspell_name(t.cached_original_combination)
+        basionym_id = ::Utilities::Nomenclature.reified_id(t.id, scientific_name)
+      else
+        basionym_id = t.id
+      end
+
       uninomial = t.cached if t.rank == 'genus'
 
+      # TODO: Spammed the || in align_gender, may need checking
       # Future- resolve in SQL perhaps, though not very expensive here
       species = align_gender(t, :species)
       infraspecies = align_gender(t, :infraspecies)
@@ -634,18 +678,6 @@ module Export::Coldp::Files::Name
 
       Export::Coldp::Files::Reference.add_reference_rows([origin_citation.source].compact, reference_csv, project_members) if reference_csv && origin_citation
     end
-  end
-
-  # @param classification_status Array
-  # @param relationship_status Array
-  def self.nomenclatural_status(taxon_name_id, classification_status = [], relationship_status = [])
-    # Always prefer  a classification, regardless of age
-    a = classification_status.bsearch{|i| i['taxon_name_id'] >= taxon_name_id}
-    return a['type'].safe_constantize::NOMEN_URI if !a.blank? && a['taxon_name_id'] == taxon_name_id # binary is first >=
-    b = relationship_status.bsearch{|i| i['subject_taxon_name_id'] >= taxon_name_id}
-    return nil if b.blank? || b['subject_taxon_name_id'] != taxon_name_id
-    return b['type'].safe_constantize::NOMEN_URI unless b.blank?
-    nil
   end
 
   def self.add_invalid_family_and_higher_names(otu, csv, project_members, reference_csv)
@@ -734,6 +766,20 @@ module Export::Coldp::Files::Name
 
       Export::Coldp::Files::Reference.add_reference_rows([origin_citation.source].compact, reference_csv, project_members) if reference_csv && origin_citation
     end
+  end
+
+  # Misapplications are not nomenclatural acts and should be excluded from the export.
+  # Returns a SQL fragment that excludes names with a Misapplication relationship.
+  def self.not_misapplication_sql
+    misapplication_types = %w[
+      TaxonNameRelationship::Iczn::Invalidating::Misapplication
+      TaxonNameRelationship::Icn::Unaccepting::Misapplication
+      TaxonNameRelationship::Icnp::Unaccepting::Misapplication
+    ]
+
+    "NOT EXISTS (SELECT 1 FROM taxon_name_relationships tnr
+      WHERE tnr.subject_taxon_name_id = taxon_names.id
+      AND tnr.type IN (#{misapplication_types.map { |t| "'#{t}'" }.join(',')}))"
   end
 
 end

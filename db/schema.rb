@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_21_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_06_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -166,6 +166,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_21_000001) do
     t.integer "object_id", null: false
     t.string "object_label"
     t.string "object_order"
+    t.integer "object_otu_id"
     t.string "object_properties"
     t.string "object_type", null: false
     t.string "object_uuid"
@@ -179,6 +180,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_21_000001) do
     t.integer "subject_id", null: false
     t.string "subject_label"
     t.string "subject_order"
+    t.integer "subject_otu_id"
     t.string "subject_properties"
     t.string "subject_type", null: false
     t.string "subject_uuid"
@@ -191,6 +193,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_21_000001) do
     t.index ["object_genus"], name: "index_biological_association_indices_on_object_genus"
     t.index ["object_id", "object_type"], name: "idx_on_object_id_object_type_0eedf4ae5a"
     t.index ["object_order"], name: "index_biological_association_indices_on_object_order"
+    t.index ["object_otu_id"], name: "index_biological_association_indices_on_object_otu_id"
     t.index ["object_properties"], name: "index_biological_association_indices_on_object_properties"
     t.index ["project_id"], name: "index_biological_association_indices_on_project_id"
     t.index ["rebuild_set"], name: "index_biological_association_indices_on_rebuild_set"
@@ -200,6 +203,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_21_000001) do
     t.index ["subject_genus"], name: "index_biological_association_indices_on_subject_genus"
     t.index ["subject_id", "subject_type"], name: "idx_on_subject_id_subject_type_6dfd7ad8ad"
     t.index ["subject_order"], name: "index_biological_association_indices_on_subject_order"
+    t.index ["subject_otu_id"], name: "index_biological_association_indices_on_subject_otu_id"
     t.index ["subject_properties"], name: "index_biological_association_indices_on_subject_properties"
   end
 
@@ -312,6 +316,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_21_000001) do
     t.index ["otu_id", "geographic_item_id"], name: "index_cached_map_items_on_otu_id_and_geographic_item_id"
     t.index ["otu_id"], name: "index_cached_map_items_on_otu_id"
     t.index ["project_id"], name: "index_cached_map_items_on_project_id"
+    t.index ["type", "otu_id", "geographic_item_id", "project_id"], name: "index_cached_map_items_on_type_otu_gi_project", unique: true
   end
 
   create_table "cached_map_registers", force: :cascade do |t|
@@ -321,6 +326,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_21_000001) do
     t.bigint "project_id"
     t.datetime "updated_at", null: false
     t.index ["cached_map_register_object_type", "cached_map_register_object_id"], name: "index_cached_map_registers_on_cached_map_register_object"
+    t.index ["cached_map_register_object_type", "cached_map_register_object_id"], name: "index_cached_map_registers_on_object_identity_unique", unique: true
     t.index ["project_id"], name: "index_cached_map_registers_on_project_id"
   end
 

@@ -1,7 +1,12 @@
 import { getCSRFToken } from '@/helpers'
 import qs from 'qs'
 
-export function createAndSubmitForm({ action, data, openTab = false }) {
+export function createAndSubmitForm({
+  action,
+  data,
+  openTab = false,
+  openTabStrategy = 'popup'
+}) {
   const CSRFToken = getCSRFToken()
   const form = document.createElement('form')
 
@@ -29,9 +34,13 @@ export function createAndSubmitForm({ action, data, openTab = false }) {
   form.style.display = 'none'
 
   if (openTab) {
-    const newWindow = window.open('', '_blank')
-
-    newWindow.document.body.appendChild(form)
+    if (openTabStrategy === 'target') {
+      form.setAttribute('target', '_blank')
+      document.body.appendChild(form)
+    } else {
+      const newWindow = window.open('', '_blank')
+      newWindow.document.body.appendChild(form)
+    }
   } else {
     document.body.appendChild(form)
   }

@@ -56,32 +56,32 @@ jobs:
         echo "year_week=$(date -u +'%Y-%U')" >> $GITHUB_OUTPUT
 
     - name: Git checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
     
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1
         
     - name: Set up Ruby Bundler gems cache
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: vendor/bundle
         key: ${{ runner.os }}-${{ matrix.os }}-gems-${{ hashFiles('.ruby-version', '**/Gemfile', '**/Gemfile.lock') }}
 
-    - name: Set up Node 22 LTS
-      uses: actions/setup-node@v4
+    - name: Set up Node 24 LTS
+      uses: actions/setup-node@v6
       with:
-        node-version: '22'
+        node-version: '24'
 
     - name: Set up Node packages cache
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: |
           ~/.npm
           **/node_modules
-        key: ${{ runner.os }}-${{ matrix.os }}-node-22-${{ hashFiles('**/package-lock.json') }}
+        key: ${{ runner.os }}-${{ matrix.os }}-node-24-${{ hashFiles('**/package-lock.json') }}
 
     - name: Set up assets cache
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: |
           tmp/cache/shakapacker
@@ -92,7 +92,7 @@ jobs:
           ${{ runner.os }}-assets-${{ steps.datetime.outputs.iso_date }}
 
     - name: Set up VCR cache
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: spec/fixtures/vcr_cassettes
         key: ${{ runner.os }}-vcr-rev2-${{ steps.datetime.outputs.year_week }}-${{ hashFiles('**/Gemfile.lock') }}-${{ matrix.worker }}

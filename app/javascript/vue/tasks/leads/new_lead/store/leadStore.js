@@ -7,6 +7,17 @@ import { intersectArrays, subtractArrays } from '@/helpers'
 import editableChildrenFields from './constants/editableChildrenFields'
 import setParam from '@/helpers/setParam'
 
+// Joins an array of strings as they would appear in a dichotomous key couplet,
+// e.g. ['red'] => 'red', ['red', 'blue'] => 'red or blue',
+// ['red', 'blue', 'green'] => 'red, blue, or green'.
+function orJoin(items) {
+  if (!Array.isArray(items)) return items
+  if (items.length <= 1) return items[0] ?? ''
+  const parts = items.map((s) => s.includes(',') ? `"${s}"` : s)
+  if (parts.length === 2) return `${parts[0]} or ${parts[1]}`
+  return `${parts.slice(0, -1).join(', ')}, or ${parts[parts.length - 1]}`
+}
+
 const makeInitialState = () => ({
   // The root node of the key.
   root: makeLeadObject(),
@@ -391,8 +402,8 @@ export default defineStore('leads', {
     },
 
     process_descriptor_data(data) {
-      const left = data.map((d) => `${d.state}: ${d.value}`).join('; ')
-      const right = data.map((d) => `${d.state}: ${d.unused}`).join('; ')
+      const left = data.map((d) => `${d.state}: ${orJoin(d.value)}`).join('; ')
+      const right = data.map((d) => `${d.state}: ${orJoin(d.unused)}`).join('; ')
       if (!!left && this.children[0]) {
         this.children[0].text = !!this.children[0].text
         ? this.children[0].text + "\n" + left

@@ -35,6 +35,7 @@ class Citation < ApplicationRecord
   include Shared::Tags
   include Shared::IsData
   include Shared::PolymorphicAnnotator
+  include Shared::BiologicalAssociationIndexHooks
   include SoftValidation
 
   attr_accessor :no_cached
@@ -123,6 +124,14 @@ class Citation < ApplicationRecord
   # @return [Document, nil]
   def target_document
     documents.order('documentation.position').first
+  end
+
+  # @return [ActiveRecord::Relation]
+  #   BiologicalAssociationIndex records for the association cited by this citation
+  def biological_association_indices
+    return BiologicalAssociationIndex.none unless citation_object_type == 'BiologicalAssociation'
+
+    BiologicalAssociationIndex.where(biological_association_id: citation_object_id)
   end
 
   protected

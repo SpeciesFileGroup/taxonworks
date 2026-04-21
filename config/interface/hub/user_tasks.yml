@@ -38,9 +38,9 @@ filter_collecting_events_task:
     - filters
   status: prototype
   description: 'Filter collecting events by shape, tag, and various other params.'
-browse_annotations_task:
+annotations_filter_task:
   hub: true
-  name: 'Browse annotations'
+  name: 'Filter annotations'
   related:
   categories:
     - collection_object
@@ -51,7 +51,6 @@ browse_annotations_task:
     - matrix
     - dna
     - filters
-    - browse
   status: stable
   description: 'Filter data by annotations (e.g. Notes, Data attributes).  Delete or create additional annotations on filtered objects.  Generate JSON request based on annotations.'
 filter_otus_task:
@@ -524,6 +523,14 @@ filter_sources_task:
     - filters
   status: prototype
   description: 'Filter and find sources then download or share bibliographies.'
+documents_packager_task:
+  name: 'Documents packager'
+  related:
+  categories:
+    - source
+    - filters
+  status: prototype
+  description: 'Bundle Source Documents into size-limited download packages.'
 gnfinder_task:
   hub: true
   name: 'Gnfinder playground'
@@ -560,6 +567,14 @@ filter_images_task:
     - filters
   status: prototype
   description: 'Filter images.'
+images_packager_task:
+  name: 'Images packager'
+  related:
+  categories:
+    - image
+    - filters
+  status: prototype
+  description: 'Bundle Images into size-limited download packages.'
 project_data_task:
   hub: true
   name: 'Project data overview and download'
@@ -571,6 +586,14 @@ dwc_dashboard_task:
   hub: true
   name: 'DwC Dashboard'
   description: 'Report DwC Occurrence metadata, issues, and coverage. Manage DwC-A export.'
+  status: prototype
+  categories:
+    - collection_object
+    - collecting_event
+compact_dwc_task:
+  hub: true
+  name: 'Compact DarwinCore'
+  description: 'Compact and summarize DwC Occurrence data by catalog number with visualizations.'
   status: prototype
   categories:
     - collection_object
@@ -984,6 +1007,15 @@ duplicate_otus_task:
     - otu
   status: prototype
   description: 'A list of OTUs with whose combination of name and taxon name are found exactly/ in duplicate.'
+match_otu_by_taxon_name_task:
+  hub: true
+  name: 'Match OTU by taxon name'
+  related:
+  categories:
+    - otu
+    - nomenclature
+  status: prototype
+  description: 'Match external taxon names to TaxonWorks OTUs via taxon name matching. Supports exact and fuzzy matching, synonym resolution, and batch processing.'
 print_key_task:
   hub: false
   name: 'Print key'
@@ -1128,6 +1160,7 @@ new_news_task:
   name: 'New news'
   related:
   categories:
+    - new
   status: prototype
   description: 'Create and edit blog posts, notices, etc.'
 browse_news_task:
@@ -1182,5 +1215,13 @@ filter_namespaces_task:
   name: 'Filter namespaces'
   related:
   categories:
+    - filters
   status: prototype
   description: 'Filter namespaces by many different facets, download or visualize results.'
+new_ba_task:
+  hub: true
+  name: 'New biological associations II'
+  related:
+  categories:
+  status: prototype
+  description: 'Create, edit, and cite biological associations, with support for anatomical parts and asserted distributions'

@@ -32,9 +32,17 @@ if extend_response_with('identifiers')
   end
 end
 
+if extend_response_with('serial')
+	if(source.serial.nil?)
+	else
+		json.serial do
+			json.partial! '/serials/attributes', serial: source.serial, extensions: false
+		end
+	end
+end
+
 if extend_response_with('notes')
   json.notes source.notes.each do |n|
     json.text n.text
   end
 end
-

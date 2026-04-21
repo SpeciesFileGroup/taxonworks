@@ -70,9 +70,9 @@
               <td v-html="item.label" />
               <td>
                 <VBtn
-                  color="primary"
+                  :color="item.id ? 'destroy' : 'primary'"
                   circle
-                  @click="() => store.confidences.splice(index, 1)"
+                  @click="() => store.removeConfidence(index)"
                 >
                   <VIcon
                     name="trash"

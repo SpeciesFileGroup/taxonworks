@@ -239,7 +239,10 @@ class ObservationMatricesController < ApplicationController
   # GET /api/v1/observation_matrices
   def api_index
     @observation_matrices = Queries::ObservationMatrix::Filter.new(params.merge!(api: true)).all
-      .where(project_id: sessions_current_project_id)
+      .where(
+        project_id: sessions_current_project_id,
+        is_public: true
+      )
       .page(params[:page])
       .per(params[:per])
     render '/observation_matrices/api/v1/index'

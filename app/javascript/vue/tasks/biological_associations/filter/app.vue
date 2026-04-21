@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <h1>Filter biological associations</h1>
-
+  <div class="margin-medium-top">
     <FilterLayout
       :pagination="pagination"
       v-model="parameters"
@@ -42,6 +40,7 @@
           :attributes="ATTRIBUTES"
           :header-groups="HEADERS"
           :list="list"
+          :preference-key="`tasks::filters::${BIOLOGICAL_ASSOCIATION}`"
           radial-object
           @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"

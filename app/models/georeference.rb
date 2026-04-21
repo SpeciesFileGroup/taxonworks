@@ -91,7 +91,7 @@ class Georeference < ApplicationRecord
   has_many :collection_object_otus, -> { unscope(:order) }, through: :collection_objects, source: 'otu'
   has_many :field_occurrence_otus, -> { unscope(:order) }, through: :field_occurrences, source: 'otu'
 
-  # TODO: this should probably go away, it's misleading now with multiple
+  # TODO: this needs to go away, it's misleading now with multiple
   # throughs possible.
   has_many :otus, through: :collection_objects, source: 'otus'
 
@@ -117,6 +117,50 @@ class Georeference < ApplicationRecord
   validate :add_obj_inside_err_geo_item
   validate :add_obj_inside_err_radius
   validate :geographic_item_present_if_error_radius_provided
+
+  # Includes Georeferences whose CollectingEvent has at least one OTU through
+  # either CollectionObject or FieldOccurrence taxon determinations.
+  scope :having_otu, -> {
+    where(<<~SQL.squish)
+      EXISTS (
+        SELECT 1
+        FROM collection_objects co
+        JOIN taxon_determinations td
+          ON td.taxon_determination_object_type = 'CollectionObject'
+          AND td.taxon_determination_object_id = co.id
+        WHERE co.collecting_event_id = georeferences.collecting_event_id
+      )
+      OR EXISTS (
+        SELECT 1
+        FROM field_occurrences fo
+        JOIN taxon_determinations td
+          ON td.taxon_determination_object_type = 'FieldOccurrence'
+          AND td.taxon_determination_object_id = fo.id
+        WHERE fo.collecting_event_id = georeferences.collecting_event_id
+      )
+    SQL
+  }
+
+  scope :without_otu, -> {
+    where(<<~SQL.squish)
+      NOT EXISTS (
+        SELECT 1
+        FROM collection_objects co
+        JOIN taxon_determinations td
+          ON td.taxon_determination_object_type = 'CollectionObject'
+          AND td.taxon_determination_object_id = co.id
+        WHERE co.collecting_event_id = georeferences.collecting_event_id
+      )
+      AND NOT EXISTS (
+        SELECT 1
+        FROM field_occurrences fo
+        JOIN taxon_determinations td
+          ON td.taxon_determination_object_type = 'FieldOccurrence'
+          AND td.taxon_determination_object_id = fo.id
+        WHERE fo.collecting_event_id = georeferences.collecting_event_id
+      )
+    SQL
+  }
 
   # validate :add_error_geo_item_inside_area
 

@@ -67,9 +67,13 @@ const RouteNames = {
     '/tasks/controlled_vocabularies/biocuration/build_collection',
   ManageControlledVocabularyTask: '/tasks/controlled_vocabularies/manage',
   MatchCollectionObject: '/tasks/collection_objects/match',
+  MatchOtuByTaxonName: '/tasks/otus/match_by_taxon_name',
   MatrixRowCoder: '/tasks/observation_matrices/row_coder/index',
+  NewAssertedDistribution:
+    '/tasks/asserted_distributions/new_asserted_distribution',
   NewBiologicalAssociations:
     '/tasks/biological_associations/new_biological_association',
+  NewBiologicalAssociationsII: '/tasks/biological_associations/new_ba',
   NewBiologicalAssociationsGraph:
     '/tasks/biological_associations/biological_associations_graph',
   NewCollectingEvent: '/tasks/collecting_events/new_collecting_event',

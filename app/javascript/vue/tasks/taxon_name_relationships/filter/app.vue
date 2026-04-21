@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <h1>Filter taxon name relationships</h1>
-
+  <div class="margin-medium-top">
     <FilterLayout
       :url-request="urlRequest"
       :pagination="pagination"
@@ -25,6 +23,7 @@
           v-model="selectedIds"
           :attributes="ATTRIBUTES"
           :list="list"
+          :preference-key="`tasks::filters::${TAXON_NAME_RELATIONSHIP}`"
           @on-sort="(sorted) => (list = sorted)"
         />
       </template>

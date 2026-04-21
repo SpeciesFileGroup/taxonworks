@@ -241,6 +241,11 @@ scope :tasks do
       post 'generate_download', as: 'generate_dwc_download_task', defaults: {format: :json}
       post :create_index, as: 'create_dwc_index_task', defaults: {format: :json}
     end
+
+    scope :compact, controller: 'tasks/dwc/compact' do
+      get '/', action: :index, as: 'compact_dwc_task'
+      post :compact, defaults: {format: :json}
+    end
   end
 
   scope :exports do
@@ -255,8 +260,10 @@ scope :tasks do
     end
   end
 
-  scope :browse_annotations, controller: 'tasks/object_annotations/browse_annotations' do
-    get '/', action: :index, as: 'browse_annotations_task'
+  scope :annotations do
+    scope :filter, controller: 'tasks/annotations/filter' do
+      get '/', action: :index, as: 'annotations_filter_task'
+    end
   end
 
   scope :citations do
@@ -316,6 +323,12 @@ scope :tasks do
 
     scope :filter, controller: 'tasks/images/filter' do
       get '/', action: :index, as: 'filter_images_task'
+    end
+
+    scope :images_packager, controller: 'tasks/images/images_packager' do
+      get '/', action: :index, as: 'images_packager_task'
+      post 'preview', action: :preview, defaults: { format: :json }
+      post 'download', action: :download
     end
 
     scope :new_image, controller: 'tasks/images/new_image' do
@@ -385,6 +398,12 @@ scope :tasks do
   end
 
   scope :sources do
+    scope :documents_packager, controller: 'tasks/sources/documents_packager' do
+      get '/', action: :index, as: 'documents_packager_task'
+      post 'preview', action: :preview, defaults: { format: :json }
+      post 'download', action: :download
+    end
+
     scope :source_citation_totals, controller: 'tasks/sources/source_citation_totals' do
       get '/', action: :index, as: 'source_citation_totals_task'
     end
@@ -565,6 +584,10 @@ scope :tasks do
   end
 
   scope :biological_associations do
+    scope :new_ba, controller: 'tasks/biological_associations/new_ba' do
+      get '/', action: :index, as: 'new_ba_task'
+    end
+
     scope :new_biological_association, controller: 'tasks/biological_associations/new_biological_association' do
       get '/', action: :index, as: 'new_biological_association_task'
     end
@@ -765,6 +788,10 @@ scope :tasks do
 
     scope :browse, controller: 'tasks/otus/browse' do
       get '/(:otu_id)', action: :index, as: 'browse_otus_task'
+    end
+
+    scope :match_by_taxon_name, controller: 'tasks/otus/match_by_taxon_name' do
+      get '/', action: :index, as: 'match_otu_by_taxon_name_task'
     end
 
     scope :filter, controller: 'tasks/otus/filter' do

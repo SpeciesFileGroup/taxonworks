@@ -4,14 +4,13 @@ module TaxonWorks
       module BasicEndemism
 
         # @param taxon_name [TaxonName] required
-        # @param asserted_distribution_shape_type [String] required
-        # @param asserted_distribution_shape_id [Integer] required
-        # @return [Hash]
+        # @param shape_type [String] required
+        # @param shape_id [Integer] required
+        # @return [Hash] name => *not* endemic boolean
         #    a very simple report summarizing asserted distributions
-        #    !! only a single shape is used (not its children)
-        def self.quick_endemism(taxon_name,
-          asserted_distribution_shape_type, asserted_distribution_shape_id
-        )
+        #    !! only a single shape is used (i.e. a taxon endemic to a child
+        #       of the given shape will not match)
+        def self.quick_endemism(taxon_name, shape_type, shape_id)
           data = {}
 
           otus =  Otu.descendant_of_taxon_name(taxon_name.id)
@@ -24,9 +23,10 @@ module TaxonWorks
           q = ::Queries::AssertedDistribution::Filter.new(
             taxon_name_id: taxon_name.id,
             descendants: true,
-            geo_shape_type: asserted_distribution_shape_type,
-            geo_shape_id: asserted_distribution_shape_id,
-            geo_mode: nil # exact
+            geo_shape_type: shape_type,
+            geo_shape_id: shape_id,
+            geo_mode: nil, # exact,
+            asserted_distribution_object_type: 'Otu'
           )
 
           return {} if
@@ -36,11 +36,13 @@ module TaxonWorks
 
             e = ::AssertedDistribution
               .where(project: taxon_name.project)
-              .where(asserted_distribution_object_id: a.otu_id)
-              .where(asserted_distribution_shape_type:)
-              .where.not(asserted_distribution_shape_id:).count
+              .where(asserted_distribution_object: a.asserted_distribution_object)
+              .where(asserted_distribution_shape_type: shape_type)
+              .where.not(asserted_distribution_shape_id: shape_id)
+              .count
 
             n = a.asserted_distribution_object.taxon_name&.valid_taxon_name
+            next if n.nil?
 
             if e == 0 && !data[n]
               data[n] = false

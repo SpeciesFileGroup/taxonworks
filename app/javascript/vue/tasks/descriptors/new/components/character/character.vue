@@ -201,7 +201,13 @@ function removeCharacter(index) {
       "You're trying to delete this record. Are you sure want to proceed?"
     )
   ) {
-    list[index]._destroy = true
+    const item = list.value[index]
+
+    if (!item) {
+      return
+    }
+
+    item._destroy = true
     onSortable()
   }
 }

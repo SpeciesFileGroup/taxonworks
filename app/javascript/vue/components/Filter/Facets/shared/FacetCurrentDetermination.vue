@@ -30,11 +30,11 @@ import { computed } from 'vue'
 const CURRENT_DETERMINATION_OPTIONS = [
   {
     label: 'Current and historical',
-    value: undefined
+    value: true
   },
   {
     label: 'Current only',
-    value: true
+    value: undefined
   },
   {
     label: 'Historical only',

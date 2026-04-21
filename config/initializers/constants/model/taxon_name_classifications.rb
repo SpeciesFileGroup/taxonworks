@@ -20,6 +20,8 @@ ICNP_TAXON_NAME_CLASSIFICATION_NAMES ||= TaxonNameClassification::Icnp.descendan
 
 TAXON_NAME_CLASSIFICATION_GENDER_CLASSES ||= TaxonNameClassification::Latinized::Gender.descendants.freeze
 
+TAXON_NAME_CLASSIFICATIONS_FOR_GENDER ||= TAXON_NAME_CLASSIFICATION_GENDER_CLASSES.map(&:to_s).freeze
+
 # Array of all ICVCN TaxonNameClassifications classes, as Strings
 ICVCN_TAXON_NAME_CLASSIFICATION_NAMES ||= TaxonNameClassification::Icvcn.descendants.collect { |d| d.to_s }.freeze
 

@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <h1>Filter contents</h1>
-
+  <div class="margin-medium-top">
     <FilterLayout
       :url-request="urlRequest"
       :pagination="pagination"
@@ -26,6 +24,7 @@
           v-model="selectedIds"
           :attributes="ATTRIBUTES"
           :list="list"
+          :preference-key="`tasks::filters::${CONTENT}`"
           @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"
         />

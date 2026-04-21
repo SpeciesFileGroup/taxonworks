@@ -7,6 +7,8 @@ module Queries
 
       PARAMS = [
         :anatomical_part_id,
+        :collection_object_id,
+        :field_occurrence_id,
         :is_material,
         :name,
         :name_exact,
@@ -18,12 +20,20 @@ module Queries
         :uri_label_exact,
 
         anatomical_part_id: [],
+        collection_object_id: [],
+        field_occurrence_id: [],
         origin_object_type: [],
         otu_id: []
       ].freeze
 
       # @return [Array]
       attr_accessor :anatomical_part_id
+
+      # @return [Array]
+      attr_accessor :collection_object_id
+
+      # @return [Array]
+      attr_accessor :field_occurrence_id
 
       # @return [Boolean, nil]
       attr_accessor :is_material
@@ -58,6 +68,8 @@ module Queries
         super
 
         @anatomical_part_id = params[:anatomical_part_id]
+        @collection_object_id = params[:collection_object_id]
+        @field_occurrence_id = params[:field_occurrence_id]
         @is_material = boolean_param(params, :is_material)
         @name = params[:name]
         @name_exact = boolean_param(params, :name_exact)
@@ -75,6 +87,14 @@ module Queries
 
       def anatomical_part_id
         [@anatomical_part_id].flatten.compact
+      end
+
+      def collection_object_id
+        [@collection_object_id].flatten.compact
+      end
+
+      def field_occurrence_id
+        [@field_occurrence_id].flatten.compact
       end
 
       def origin_object_type
@@ -131,6 +151,24 @@ module Queries
           .joins(:related_origin_relationships)
           .where(related_origin_relationships: { old_object_type: origin_object_type })
           .distinct # remove if model adds validations to make this unnecessary
+      end
+
+      def collection_object_id_facet
+        return nil if collection_object_id.empty?
+
+        ::AnatomicalPart
+          .joins(:related_origin_relationships)
+          .where(origin_relationships: { old_object_type: 'CollectionObject', old_object_id: collection_object_id })
+          .distinct
+      end
+
+      def field_occurrence_id_facet
+        return nil if field_occurrence_id.empty?
+
+        ::AnatomicalPart
+          .joins(:related_origin_relationships)
+          .where(origin_relationships: { old_object_type: 'FieldOccurrence', old_object_id: field_occurrence_id })
+          .distinct
       end
 
       def original_otu_id_facet
@@ -214,8 +252,10 @@ module Queries
 
       def merge_clauses
         [
+          collection_object_id_facet,
           collection_object_query_facet,
           extract_query_facet,
+          field_occurrence_id_facet,
           field_occurrence_query_facet,
           otu_query_facet,
           observation_query_facet,

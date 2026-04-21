@@ -34,7 +34,7 @@
             type="button"
             class="button normal-input button-default full_width"
           >
-            Customize a new OTU with name "{{ otuName }}"
+            Create a new OTU with name "{{ otuName }}"
           </button>
         </li>
       </ul>
@@ -49,7 +49,7 @@
           type="button"
           class="button normal-input button-default full_width"
         >
-          Customize a new OTU with name "{{ otuName }}"
+          Create a new OTU with name "{{ otuName }}"
         </button>
       </li>
     </ul>

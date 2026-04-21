@@ -1,12 +1,12 @@
 <template>
   <div
     class="flex-row gap-small cursor-pointer middle"
-    @click="() => toggle()"
+    @click="() => toggleHeader()"
   >
     <IconLock
       class="w-4"
       stroke-width="2"
-      v-if="!isLocked"
+      v-if="isLocked"
     />
     <IconUnlock
       class="w-4"
@@ -19,33 +19,41 @@
 </template>
 
 <script setup>
-import { watch, ref, onMounted } from 'vue'
-import { useHeaderLock } from '@/composables'
+import { onMounted } from 'vue'
+import { useHeaderLock, useHotkey } from '@/composables'
 import IconLock from '@/components/Icon/IconLock.vue'
 import IconUnlock from '@/components/Icon/IconUnlock.vue'
+import platformKey from '@/helpers/getPlatformKey.js'
 
-const { isLocked, toggle, unlock, lock } = useHeaderLock()
-
-const navbarLocked = ref(null)
-
-if (localStorage.headerLocked === 'true') {
-  navbarLocked.value = true
-} else {
-  navbarLocked.value = false
-}
-
-watch(navbarLocked, (value) => {
-  if (value) {
-    lock()
-  } else {
-    unlock()
-  }
-
-  localStorage.setItem('headerLocked', value)
+defineOptions({
+  name: 'PinboardNavigator'
 })
 
+TW.workbench.keyboard.createLegend(
+  `${platformKey()}+shift+f`,
+  'Toggle Sticky Header',
+  'General shortcuts'
+)
+
+useHotkey([
+  {
+    keys: [platformKey(), 'Shift', 'f'],
+    preventDefault: true,
+    handler: () => {
+      toggleHeader()
+    }
+  }
+])
+
+const { isLocked, toggle, lock } = useHeaderLock()
+
+function toggleHeader() {
+  toggle()
+  localStorage.headerLocked = isLocked.value
+}
+
 onMounted(() => {
-  if (navbarLocked.value) {
+  if (localStorage.headerLocked === 'true') {
     lock()
   }
 })

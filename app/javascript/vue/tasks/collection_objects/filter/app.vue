@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <h1>Filter collection objects</h1>
-
+  <div class="margin-medium-top">
     <FilterLayout
       :url-request="urlRequest"
       :pagination="pagination"
@@ -79,6 +77,7 @@
           v-model="selectedIds"
           :list="list"
           :layout="currentLayout"
+          :preference-key="`tasks::filters::${COLLECTION_OBJECT}`"
           radial-object
           @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"

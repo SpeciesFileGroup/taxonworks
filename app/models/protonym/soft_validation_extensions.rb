@@ -10,9 +10,11 @@ module Protonym::SoftValidationExtensions
 
       sv_missing_etymology: {
         set: :missing_fields,
+        fix: :sv_fix_missing_etymology,
         name: 'Missing etymology',
         description: 'Etymology is not defined',
-        resolution:  [:new_taxon_name_task]
+        resolution:  [:new_taxon_name_task],
+        flagged: true
       },
 
       sv_validate_parent_rank: {
@@ -1498,10 +1500,7 @@ module Protonym::SoftValidationExtensions
 
     def sv_missing_etymology
       if self.etymology.nil? && self.rank_string =~ /(Genus|Species)/ && is_available?
-        z = TaxonName.
-            where(name: name, project_id: project_id).where.not(etymology: nil).
-            group(:etymology).
-            count(:etymology)
+        z = TaxonName.where(name: name, project_id: project_id).where.not(etymology: nil).group(:etymology).count(:etymology)
 
         if z.empty?
           z = TaxonName.where(name: name).where.not(etymology: nil).group(:etymology).count(:etymology)
@@ -1511,11 +1510,27 @@ module Protonym::SoftValidationExtensions
         end
 
         if z.empty?
-          soft_validations.add(:etymology, 'Etymology is missing')
+          soft_validations.add(:etymology, 'Etymology is missing',
+                               success_message: 'Etymology is updated',
+                               failure_message:  'Failed to update etymology')
         else
           z1 = z.sort_by {|k, v| -v}
           t = z1[0][1] == 1 ? 'time' : 'times'
-          soft_validations.add(:etymology, "Etymology is missing. Previously used etymology for similar name#{other_project}: '#{z1[0][0]}' (#{z1[0][1]} #{t})")
+          soft_validations.add(:etymology, "Etymology is missing. Previously used etymology for similar name#{other_project}: '#{z1[0][0]}' (#{z1[0][1]} #{t})",
+                               success_message: 'Etymology is updated',
+                               failure_message:  'Failed to update etymology')
+        end
+      end
+    end
+
+    def sv_fix_missing_etymology
+      if self.etymology.nil? && self.rank_string =~ /(Genus|Species)/ && is_available?
+        z = TaxonName.where(name: name, project_id: project_id).where.not(etymology: nil).group(:etymology).count(:etymology)
+        z = TaxonName.where(name: name).where.not(etymology: nil).group(:etymology).count(:etymology) if z.empty?
+        if !z.empty?
+          z1 = z.sort_by {|k, v| -v}
+          self.etymology = z1[0][0]
+          self.save
         end
       end
     end
