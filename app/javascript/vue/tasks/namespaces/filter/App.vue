@@ -21,6 +21,7 @@
         <FilterList
           :list="list"
           :attributes="ATTRIBUTES"
+          :preference-key="`tasks::filters::${NAMESPACE}`"
           v-model="selectedIds"
           @on-sort="(items) => (list = items)"
           @remove="({ index }) => list.splice(index, 1)"

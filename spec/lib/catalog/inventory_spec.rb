@@ -39,33 +39,42 @@ describe Catalog::Inventory, group: :catalogs, type: :spinup do
       expect(c.citations_summary.keys).to contain_exactly(otu.id)
     end
 
-    specify 'returns one entry per unique (type, source) pair per OTU' do
-      expect(c.citations_summary[otu.id].size).to eq(2)
+    specify 'returns the otu alongside its citations' do
+      expect(c.citations_summary[otu.id][:otu]).to eq(otu)
     end
 
-    specify 'entry has type, source, pages, is_original, and topics keys' do
-      entry = c.citations_summary[otu.id].first
-      expect(entry.keys).to contain_exactly(:type, :source, :pages, :is_original, :topics)
+    specify 'returns one entry per unique (type, source) pair per OTU' do
+      expect(c.citations_summary[otu.id][:citations].size).to eq(2)
+    end
+
+    specify 'entry has id, type, source, pages, is_original, and topics keys' do
+      entry = c.citations_summary[otu.id][:citations].first
+      expect(entry.keys).to contain_exactly(:id, :type, :source, :pages, :is_original, :topics)
     end
 
     specify 'types reflect the cited object classes' do
-      types = c.citations_summary[otu.id].map { |e| e[:type] }
+      types = c.citations_summary[otu.id][:citations].map { |e| e[:type] }
       expect(types).to contain_exactly('AssertedDistribution', 'Specimen')
     end
 
     specify 'sources match the citations' do
-      sources = c.citations_summary[otu.id].map { |e| e[:source] }
+      sources = c.citations_summary[otu.id][:citations].map { |e| e[:source] }
       expect(sources).to contain_exactly(source1, source2)
     end
 
+    specify 'id reflects the citation id' do
+      ids = c.citations_summary[otu.id][:citations].map { |e| e[:id] }
+      expect(ids).to contain_exactly(ad.citations.first.id, citation2.id)
+    end
+
     specify 'is_original reflects citation value' do
-      entry = c.citations_summary[otu.id].find { |e| e[:type] == 'Specimen' }
+      entry = c.citations_summary[otu.id][:citations].find { |e| e[:type] == 'Specimen' }
       expect(entry[:is_original]).to eq(true)
     end
 
     specify 'pages reflects citation value' do
       ad.citations.first.update!(pages: '12-15')
-      entry = c.citations_summary[otu.id].find { |e| e[:type] == 'AssertedDistribution' }
+      entry = c.citations_summary[otu.id][:citations].find { |e| e[:type] == 'AssertedDistribution' }
       expect(entry[:pages]).to eq('12-15')
     end
 
@@ -77,7 +86,7 @@ describe Catalog::Inventory, group: :catalogs, type: :spinup do
       )}
 
       specify 'two items of the same type and source produce one entry' do
-        expect(c.citations_summary[otu.id].count { |e| e[:type] == 'AssertedDistribution' }).to eq(1)
+        expect(c.citations_summary[otu.id][:citations].count { |e| e[:type] == 'AssertedDistribution' }).to eq(1)
       end
     end
 
@@ -95,8 +104,8 @@ describe Catalog::Inventory, group: :catalogs, type: :spinup do
       end
 
       specify 'entries for each OTU contain only that OTU\'s citations' do
-        expect(c.citations_summary[otu.id].map { |e| e[:source] }).to contain_exactly(source1, source2)
-        expect(c.citations_summary[otu2.id].map { |e| e[:source] }).to contain_exactly(source3)
+        expect(c.citations_summary[otu.id][:citations].map { |e| e[:source] }).to contain_exactly(source1, source2)
+        expect(c.citations_summary[otu2.id][:citations].map { |e| e[:source] }).to contain_exactly(source3)
       end
 
       specify 'coordinate OTU with no inventory data is absent from the hash' do
@@ -117,10 +126,9 @@ describe Catalog::Inventory, group: :catalogs, type: :spinup do
       let!(:citation_ad2_topic) { ad2.citations.first.topics << topic2 }
 
       specify 'topics are unioned across items of the same (type, source)' do
-        entry = c.citations_summary[otu.id].find { |e| e[:type] == 'AssertedDistribution' }
+        entry = c.citations_summary[otu.id][:citations].find { |e| e[:type] == 'AssertedDistribution' }
         expect(entry[:topics]).to contain_exactly(topic1, topic2)
       end
     end
   end
 end
-

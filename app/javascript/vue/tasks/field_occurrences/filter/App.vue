@@ -46,6 +46,7 @@
         <FilterList
           :list="list"
           :layout="currentLayout"
+          :preference-key="`tasks::filters::${FIELD_OCCURRENCE}`"
           v-model="selectedIds"
           radial-object
           @on-sort="list = $event"

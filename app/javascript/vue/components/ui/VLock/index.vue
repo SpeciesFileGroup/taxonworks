@@ -86,7 +86,7 @@ $lightGrey: #99a3ba;
         position: absolute;
         left: 11px;
         bottom: 8px;
-        border-radius: 2px;
+        border-radius: var(--border-radius-xsmall);
         display: block;
         z-index: 1;
         transition: all 0.45s ease;

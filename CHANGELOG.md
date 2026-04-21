@@ -13,6 +13,8 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Filters: Copy to clipboard button for API Url [#4852]
 - In the New Asserted Distribution task, add map tab to Gazetteer selection for shape [#4853]
 - `/leads`, `/leads/:id/remaining_otus`and `/leads/:id/eliminated_otus` API endpoints
+- Filters: Save freeze columns state [#4882]
+- Filter Source: Add TaxonWorks CSL format to `download formatted` button [#4661]
 
 ### Changed
 
@@ -20,6 +22,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Upgraded to Node 24 LTS
 - OTU Smart Selector now sorts recent list by most recently used [#4865]
 - API endpoint for observation matrices only returns public ones instead of all
+- `Download formatted` modal now display italics in preview box [#1856]
 
 ### Fixed
 
@@ -36,7 +39,10 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - DwC importer failing when importing unparsable people
 - Browse OTU button creates OTUs with an incorrect taxon name ID on the /otus/:id page [#4879]
 - The Browse taxon name task bar is positioned incorrectly when the header bar is fixed.
+- Filter Source: The style selection in formatted download always applies the same style regardless of what is selected.
 
+[#1856]: https://github.com/SpeciesFileGroup/taxonworks/issues/1856
+[#4661]: https://github.com/SpeciesFileGroup/taxonworks/issues/4661
 [#4851]: https://github.com/SpeciesFileGroup/taxonpages/issues/4851
 [#4852]: https://github.com/SpeciesFileGroup/taxonpages/issues/4852
 [#4853]: https://github.com/SpeciesFileGroup/taxonpages/issues/4853
@@ -44,6 +50,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4865]: https://github.com/SpeciesFileGroup/taxonpages/issues/4865
 [#4866]: https://github.com/SpeciesFileGroup/taxonpages/issues/4866
 [#4879]: https://github.com/SpeciesFileGroup/taxonpages/issues/4879
+[#4882]: https://github.com/SpeciesFileGroup/taxonpages/issues/4882
 
 ## [0.61.0] - 2026-02-20
 

@@ -532,7 +532,7 @@ export default {
   padding: 0px;
   position: static;
   padding-left: 0.9em;
-  border-radius: 2px;
+  border-radius: var(--border-radius-xsmall);
   border: 1px solid var(--border-color);
   min-height: 28px;
   background-color: var(--input-bg-color);
