@@ -65,10 +65,13 @@ scope :tasks do
       get '/', action: :index, as: 'new_container_task'
     end
     scope :collection_layout, controller: 'tasks/containers/collection_layout' do
-      get '/', action: :index, as: 'index_collection_layout_task'
+      get '/', action: :index, as: 'collection_layout_task'
       get :children, as: 'children_collection_layout_task'
-      get :collection_tree, as: 'collection_tree_collection_layout_task'
       post :scaffold, as: 'scaffold_collection_layout_task'
+    end
+    scope :collection_visualization, controller: 'tasks/containers/collection_visualization' do
+      get '/', action: :index, as: 'collection_visualization_task'
+      get :collection_tree, as: 'collection_tree_collection_visualization_task'
     end
   end
 
