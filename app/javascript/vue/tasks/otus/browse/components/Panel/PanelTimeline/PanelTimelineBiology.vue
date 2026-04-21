@@ -37,7 +37,6 @@
             class="margin-small-bottom"
           >
             <div class="flex-row gap-small middle">
-              <RadialAnnotator :global-id="source.global_id" />
               <RadialNavigator :global-id="source.global_id" />
               <label>
                 <input

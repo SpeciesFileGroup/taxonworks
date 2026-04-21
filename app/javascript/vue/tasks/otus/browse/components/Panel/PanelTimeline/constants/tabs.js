@@ -13,12 +13,12 @@ export const TIMELINE_TABS = [
     value: 'otu',
     equal: false
   },
-  {
+  /*   {
     label: 'Protonym',
     key: 'history-origin',
     value: 'protonym',
     equal: true
-  },
+  }, */
   {
     label: 'OTU (biology)',
     kind: TIMELINE_TAB_BIOLOGY
