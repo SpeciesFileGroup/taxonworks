@@ -15,6 +15,7 @@ json.array! @catalog.citations_summary.values do |data|
           json.id s.id
           json.cached s.cached
           json.author_year source_author_year_tag(s)
+          json.year s.year
         end
       end
 
