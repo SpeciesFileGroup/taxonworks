@@ -22,6 +22,7 @@ describe 'Content editor', type: :feature, group: :contents do
         fill_in 'Definition', with: 'Testing, making sure this is long enough'
         click_button('Create')
 
+        expect(page).to have_text('Testing topic was successfully created.')
         expect(page).to have_button('Change Topic')
       end
     end
