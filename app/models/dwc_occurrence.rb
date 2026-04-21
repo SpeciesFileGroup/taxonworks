@@ -53,6 +53,11 @@ class DwcOccurrence < ApplicationRecord
     :dwc_occurrence_object_id
   ].freeze
 
+  API_EXCLUDED_ATTRIBUTES = %w[
+    created_by_id
+    updated_by_id
+  ].freeze
+
   HEADER_CONVERTERS = {
     'dwcClass' => 'class',
   }.freeze
@@ -105,6 +110,10 @@ class DwcOccurrence < ApplicationRecord
       a[ HEADER_CONVERTERS[k] ] = a.delete(k) if a[k]
     end
     a.sort.to_h
+  end
+
+  def api_attributes
+    as_json.except(*API_EXCLUDED_ATTRIBUTES)
   end
 
   def collection_object

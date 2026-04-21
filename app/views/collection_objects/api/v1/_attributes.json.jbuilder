@@ -20,7 +20,7 @@ end
 
 if extend_response_with('dwc_fields')
   json.dwc do
-    json.merge!(collection_object.dwc_occurrence&.attributes&.select{|k,v| v.present?} )
+    json.merge!(collection_object.dwc_occurrence&.api_attributes || {})
   end
 end
 
