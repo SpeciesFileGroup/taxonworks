@@ -38,9 +38,9 @@
             {{ label }}
           </option>
         </select>
-        <textarea
-          class="full_width"
-          :value="bibtex"
+        <div
+          class="bibliography-preview"
+          v-html="bibtex"
         />
       </template>
       <template #footer>
@@ -67,7 +67,7 @@
               type="checkbox"
               v-model="stripHtml"
             />
-            Strip HTML tags
+            Remove formatting (bold, italics, etc.)
           </label>
         </div>
       </template>
@@ -191,7 +191,21 @@ function downloadFormatted(extension = '') {
   min-width: 80vw;
   min-height: 60vh;
 }
-textarea {
+
+.bibliography-preview {
+  width: 100%;
+  min-height: 120px;
+  padding: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-xsmall);
+  background-color: var(--input-bg-color);
+  line-height: 1.4;
+  color: var(--text-color);
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-y: auto;
+  cursor: default;
   height: 60vh;
+  width: 100%;
 }
 </style>
