@@ -419,11 +419,11 @@ async function addRooms() {
   scaffolding.value   = true
 
   const payload = {
-    building_id:  building.value.id,
-    cabinet_type: (drawerType.value || 'Container::Drawer').replace(/Drawer/g, 'Cabinet'),
-    rooms:        roomCount.value,
-    cabinets:     cabinetCount.value,
-    drawers:      drawerCount.value
+    building_id: building.value.id,
+    drawer_type: drawerType.value || 'Container::Drawer',
+    rooms:       roomCount.value,
+    cabinets:    cabinetCount.value,
+    drawers:     drawerCount.value
   }
 
   if (cabinetSizeX.value !== null && cabinetSizeX.value !== '')
@@ -441,7 +441,17 @@ async function addRooms() {
   if (defaultPercentEarmarked.value !== null && defaultPercentEarmarked.value !== '')
     payload.asserted_percent_earmarked = defaultPercentEarmarked.value
 
-  const { body } = await AjaxCall('post', '/tasks/containers/collection_layout/scaffold.json', payload)
+  let body
+  try {
+    ;({ body } = await AjaxCall('post', '/tasks/containers/collection_layout/scaffold.json', payload))
+  } catch (error) {
+    scaffolding.value = false
+    const errors = error?.response?.body
+    scaffoldError.value = errors
+      ? Object.values(errors).flat().join(', ')
+      : 'Failed to add containers.'
+    return
+  }
 
   scaffolding.value = false
 

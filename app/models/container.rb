@@ -203,7 +203,7 @@ class Container < ApplicationRecord
 
   # @param params [ActionController::Parameters, Hash] with keys:
   #   building_id [Integer] id of the parent Container::Building
-  #   cabinet_type [String] full STI type name, e.g. 'Container::Cabinet::Cornell'
+  #   drawer_type [String] full STI type name of the drawer, e.g. 'Container::Drawer::CalAcademy'
   #   rooms [Integer] number of Room containers to create
   #   cabinets [Integer] number of Cabinet containers per Room
   #   drawers [Integer] number of Drawer containers per Cabinet
@@ -215,7 +215,7 @@ class Container < ApplicationRecord
   # @return [Array<Container::Room>] the created Room containers, or false on failure
   def self.scaffold(params)
     building_id   = params[:building_id].to_i
-    cabinet_type  = params[:cabinet_type].to_s.presence || 'Container::Cabinet'
+    drawer_type   = params[:drawer_type].to_s.presence || 'Container::Drawer'
     room_count    = params[:rooms].to_i
     cabinet_count = params[:cabinets].to_i
     drawer_count  = params[:drawers].to_i
@@ -231,13 +231,19 @@ class Container < ApplicationRecord
 
     return false if building_id == 0 || room_count < 1 || cabinet_count < 1 || drawer_count < 1
 
-    drawer_type = cabinet_type.gsub('Cabinet', 'Drawer')
-
+    # The drawer class must exist; if not, fail early.
     begin
-      cabinet_klass = cabinet_type.constantize
-      drawer_klass  = drawer_type.constantize
+      drawer_klass = drawer_type.constantize
     rescue NameError
       return false
+    end
+
+    # Derive a matching cabinet subclass from the drawer type. If none exists
+    # (e.g. the Cabinet subclass was removed), fall back to the base Cabinet.
+    cabinet_klass = begin
+      drawer_type.gsub('Drawer', 'Cabinet').constantize
+    rescue NameError
+      Container::Cabinet
     end
 
     created_rooms = []

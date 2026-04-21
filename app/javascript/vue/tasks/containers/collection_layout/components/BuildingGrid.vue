@@ -467,14 +467,25 @@ async function place(containerItemId, col, row, z = undefined) {
   placeError.value = ''
   const attrs = { disposition_x: col, disposition_y: row }
   if (z !== undefined) attrs.disposition_z = z
-  const { body } = await AjaxCall('patch', `/container_items/${containerItemId}.json`, {
-    container_item: attrs
-  })
+
+  let body
+  try {
+    ;({ body } = await AjaxCall('patch', `/container_items/${containerItemId}.json`, {
+      container_item: attrs
+    }))
+  } catch (error) {
+    const errors = error?.response?.body
+    placeError.value = errors
+      ? Object.values(errors).flat().join(', ')
+      : 'Could not place container.'
+    return
+  }
+
   if (body?.id) {
     await loadChildren(currentContainer.value.id)
     closeModal()
   } else {
-    placeError.value = Object.values(body || {}).flat().join(', ') || 'Could not place container.'
+    placeError.value = 'Could not place container.'
   }
 }
 

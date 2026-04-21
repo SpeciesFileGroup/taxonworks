@@ -367,7 +367,7 @@ describe Container, type: :model, group: :containers do
     let(:building) { FactoryBot.create(:valid_container, type: 'Container::Building', name: 'Main Building') }
 
     let(:valid_params) do
-      { building_id: building.id, cabinet_type: 'Container::Cabinet::Cornell', rooms: 2, cabinets: 3, drawers: 4 }
+      { building_id: building.id, drawer_type: 'Container::Drawer::Cornell', rooms: 2, cabinets: 3, drawers: 4 }
     end
 
     specify 'returns an array of created rooms on success' do
@@ -388,7 +388,8 @@ describe Container, type: :model, group: :containers do
       ci_building = ContainerItem.find_by(contained_object: building)
       ci_building.children.each do |ci_room|
         expect(ci_room.children.count).to eq(3)
-        expect(ci_room.children.map { |c| c.contained_object.type }).to all(eq('Container::Cabinet::Cornell'))
+        # Cabinet::Cornell was removed; scaffold falls back to the base Cabinet class
+        expect(ci_room.children.map { |c| c.contained_object.type }).to all(eq('Container::Cabinet'))
       end
     end
 
@@ -403,18 +404,19 @@ describe Container, type: :model, group: :containers do
       end
     end
 
-    specify 'works with Container::Cabinet::CalAcademy cabinet type' do
-      result = Container.scaffold(valid_params.merge(cabinet_type: 'Container::Cabinet::CalAcademy', rooms: 1, cabinets: 1, drawers: 2))
+    specify 'works with Container::Drawer::CalAcademy drawer type' do
+      result = Container.scaffold(valid_params.merge(drawer_type: 'Container::Drawer::CalAcademy', rooms: 1, cabinets: 1, drawers: 2))
       expect(result).to be_an(Array)
       ci_building = ContainerItem.find_by(contained_object: building)
       ci_room = ci_building.children.first
       ci_cabinet = ci_room.children.first
-      expect(ci_cabinet.contained_object.type).to eq('Container::Cabinet::CalAcademy')
+      # Cabinet::CalAcademy was removed; scaffold falls back to the base Cabinet class
+      expect(ci_cabinet.contained_object.type).to eq('Container::Cabinet')
       expect(ci_cabinet.children.map { |c| c.contained_object.type }).to all(eq('Container::Drawer::CalAcademy'))
     end
 
-    specify 'returns false when no cabinet_type is given and base Cabinet has no matching Drawer' do
-      expect(Container.scaffold(valid_params.merge(cabinet_type: 'Container::Cabinet::Unknown'))).to be_falsey
+    specify 'returns false when drawer_type does not exist' do
+      expect(Container.scaffold(valid_params.merge(drawer_type: 'Container::Drawer::Unknown'))).to be_falsey
     end
 
     specify 'returns false when rooms is zero' do

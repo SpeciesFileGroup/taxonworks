@@ -60,7 +60,7 @@ class Tasks::Containers::CollectionLayoutController < ApplicationController
   private
 
   def scaffold_params
-    params.permit(:building_id, :cabinet_type, :rooms, :cabinets, :drawers,
+    params.permit(:building_id, :drawer_type, :rooms, :cabinets, :drawers,
                   :cabinet_size_x, :cabinet_size_y, :cabinet_size_z,
                   :asserted_percent_empty, :asserted_percent_earmarked)
   end
