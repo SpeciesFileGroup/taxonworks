@@ -10,10 +10,17 @@
       :zoom="2"
       fit-bounds
       draw-marker
+      :reset-on-empty="false"
       @layer:create="addShape"
       @mouseenter="() => enableDraw()"
       @mouseleave="() => disableDraw()"
     />
+    <div
+      v-if="noResultsFound"
+      class="feedback feedback-warning feedback-thin"
+    >
+      No shapes contain the clicked point.
+    </div>
     <ul class="no_bullets">
       <li
         v-for="item in shapes"
@@ -83,11 +90,12 @@ const geojson = computed(() => {
 const shapes = ref([])
 const isLoading = ref(false)
 const geoHover = ref(null)
+const noResultsFound = ref(false)
 
 function addShape({ feature }) {
-  const wkt = `POINT (${feature.geometry.coordinates.join(' ')})`
-
-  loadGeopgraphicAreas(wkt)
+  noResultsFound.value = false
+  shapes.value = []
+  loadGeopgraphicAreas(`POINT (${feature.geometry.coordinates.join(' ')})`)
 }
 
 function enableDraw() {
@@ -108,7 +116,11 @@ function loadGeopgraphicAreas(wkt) {
   props.shapeEndpoint
     .where(payload)
     .then(({ body }) => {
-      shapes.value = body
+      if (body.length > 0) {
+        shapes.value = body
+      } else {
+        noResultsFound.value = true
+      }
       disableDraw()
     })
     .finally(() => {

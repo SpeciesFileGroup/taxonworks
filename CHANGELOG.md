@@ -10,10 +10,45 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ### Added
 
 - `subject_otu_id` and `object_otu_id` to biological associations `/api/v1/biological_associations/basic` endpoint
+- Filters: Copy to clipboard button for API Url [#4852]
+- In the New Asserted Distribution task, add map tab to Gazetteer selection for shape [#4853]
+- `/leads`, `/leads/:id/remaining_otus`and `/leads/:id/eliminated_otus` API endpoints
+- Filters: Save freeze columns state [#4882]
+- Filter Source: Add TaxonWorks CSL format to `download formatted` button [#4661]
 
 ### Changed
 
 - Updated Ruby gems
+- Upgraded to Node 24 LTS
+- OTU Smart Selector now sorts recent list by most recently used [#4865]
+- API endpoint for observation matrices only returns public ones instead of all
+
+### Fixed
+
+- CSD: CE Form changes were not detected on Alt+S due to missing change event while input was focused [#4851]
+- New collecting event form: Allows to create georeferences with invalid coordinates from verbatim data
+- New BA: Delete a biological association redirects to the wrong page instead of refreshing the table [#4864]
+- New OTU Widget: Autocomplete list overlays create button [#4866]
+- Sometimes smart selectors trigger selected event twice
+- Filter Collecting Event can return an error from the Matching Identifiers facet when the "Internal" type is set but none of the identifiers provided are internal (i.e. numeric)
+- Unable to delete descriptor character states from the New Descriptor interface
+- Don't label 0-column matrices as image matrices in the Observation Matrix Hub
+- Handle bad BibTeX and html returned during New Source's CrossRef lookup
+- Handle `%` in New Source's CrossRef lookup
+- DwC importer failing when importing unparsable people
+- Browse OTU button creates OTUs with an incorrect taxon name ID on the /otus/:id page [#4879]
+- The Browse taxon name task bar is positioned incorrectly when the header bar is fixed.
+- Filter Source: The style selection in formatted download always applies the same style regardless of what is selected.
+
+[#4661]: https://github.com/SpeciesFileGroup/taxonworks/issues/4661
+[#4851]: https://github.com/SpeciesFileGroup/taxonpages/issues/4851
+[#4852]: https://github.com/SpeciesFileGroup/taxonpages/issues/4852
+[#4853]: https://github.com/SpeciesFileGroup/taxonpages/issues/4853
+[#4864]: https://github.com/SpeciesFileGroup/taxonpages/issues/4864
+[#4865]: https://github.com/SpeciesFileGroup/taxonpages/issues/4865
+[#4866]: https://github.com/SpeciesFileGroup/taxonpages/issues/4866
+[#4879]: https://github.com/SpeciesFileGroup/taxonpages/issues/4879
+[#4882]: https://github.com/SpeciesFileGroup/taxonpages/issues/4882
 
 ## [0.61.0] - 2026-02-20
 

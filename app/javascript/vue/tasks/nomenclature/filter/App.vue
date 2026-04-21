@@ -42,6 +42,7 @@
           v-model="selectedIds"
           :attributes="ATTRIBUTES"
           :list="list"
+          :preference-key="`tasks::filters::${TAXON_NAME}`"
           @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"
         />

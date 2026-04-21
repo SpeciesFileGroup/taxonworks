@@ -144,15 +144,12 @@ function getGeographicByVerbatim() {
   controller?.abort()
   clearTimeout(timeout)
 
-  if (
-    convertDMS(verbatimLatitude.value) &&
-    convertDMS(verbatimLongitude.value)
-  ) {
+  const lat = convertDMS(verbatimLatitude.value)
+  const long = convertDMS(verbatimLongitude.value)
+
+  if (lat && long) {
     timeout = setTimeout(() => {
-      getByCoords(
-        convertDMS(verbatimLatitude.value),
-        convertDMS(verbatimLongitude.value)
-      )
+      getByCoords(lat, long)
     }, DELAY)
   } else {
     areasByCoors.value = []

@@ -31,7 +31,7 @@
       <MapLegend
         v-if="geojson.length"
         :types="currentTypes"
-        :preview="!isVerbatimCreated && latitude && longitude"
+        :preview="!isVerbatimCreated && !isNaN(latitude) && !isNaN(longitude)"
       />
     </div>
   </div>
@@ -46,12 +46,7 @@ import useGeoreferenceStore from '../../store/georeferences.js'
 import MapLegend from './MapLegend.vue'
 import { vHelp } from '@/directives'
 import { computed } from 'vue'
-import {
-  GEOGRAPHIC_AREA,
-  GEOREFERENCE_VERBATIM,
-  GEOREFERENCE_GEOLOCATE,
-  GEOREFERENCE_WKT
-} from '@/constants'
+import { GEOGRAPHIC_AREA, GEOREFERENCE_VERBATIM } from '@/constants'
 
 const collectingEvent = defineModel()
 

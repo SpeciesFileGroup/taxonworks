@@ -23,7 +23,11 @@
             <div class="flex-row gap-small">
               <RadialAnnotator :global-id="item.global_id" />
               <RadialObject :global-id="item.global_id" />
-              <RadialNavigator :global-id="item.global_id" />
+              <RadialNavigator
+                :global-id="item.global_id"
+                :redirect="false"
+                @delete="(item) => emit('remove', item)"
+              />
               <VBtn
                 circle
                 color="primary"
@@ -56,5 +60,5 @@ defineProps({
   }
 })
 
-const emit = defineEmits(['select'])
+const emit = defineEmits(['select', 'remove'])
 </script>

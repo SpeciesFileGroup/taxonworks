@@ -12,7 +12,7 @@
       class="margin-small-left"
       color="primary"
       medium
-      :disabled="!verbatimLat && !verbatimLat"
+      :disabled="!hasValidVerbatimCoordinates"
       @click="createVerbatimShape"
     >
       Create georeference from verbatim
@@ -187,6 +187,13 @@ const count = computed(() => {
 })
 const verbatimLat = computed(() => collectingEvent.value.verbatim_latitude)
 const verbatimLng = computed(() => collectingEvent.value.verbatim_longitude)
+
+const hasValidVerbatimCoordinates = computed(() => {
+  const lat = convertDMS(verbatimLat.value)
+  const lng = convertDMS(verbatimLng.value)
+
+  return !isNaN(lat) && !isNaN(lng)
+})
 
 const verbatimCoordinates = computed(() => {
   const shape = isVerbatimCreated.value

@@ -104,6 +104,7 @@
               <template v-else>
                 <label
                   class="cursor-pointer"
+                  @click.prevent="sendObject(item)"
                 >
                   <input
                     :name="name"

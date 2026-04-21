@@ -23,6 +23,7 @@
           v-model="selectedIds"
           :attributes="ATTRIBUTES"
           :list="list"
+          :preference-key="`tasks::filters::${TAXON_NAME_RELATIONSHIP}`"
           @on-sort="(sorted) => (list = sorted)"
         />
       </template>

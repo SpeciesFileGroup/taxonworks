@@ -560,7 +560,7 @@ export default {
   list-style: none;
   border: 1px solid var(--border-color);
   border-top: none;
-  border-bottom: 4px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   box-sizing: border-box;
   position: absolute;
