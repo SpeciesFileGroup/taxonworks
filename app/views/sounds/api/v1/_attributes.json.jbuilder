@@ -16,3 +16,9 @@ if extend_response_with('attribution')
     json.label label_for_attribution(sound.attribution)
   end
 end
+
+if extend_response_with('notes')
+  json.notes sound.notes.each do |n|
+    json.text n.text
+  end
+end

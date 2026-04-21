@@ -236,7 +236,7 @@ const removeCombination = (data) => {
 // Citation
 // ======================================
 
-const citationData = reactive({
+let citationData = reactive({
   origin_citation_attributes: makeCitationObject(COMBINATION),
   verbatim_author: undefined,
   year_of_publication: undefined,

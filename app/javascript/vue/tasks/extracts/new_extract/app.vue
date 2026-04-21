@@ -152,6 +152,7 @@ export default {
 
           Promise.all(promise).then(() => {
             this.$nextTick(() => {
+              this.$store.dispatch(ActionNames.LoadRecents)
               this.$store.commit(MutationNames.SetLastChange, 0)
             })
           })

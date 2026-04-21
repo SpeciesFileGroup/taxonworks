@@ -192,7 +192,7 @@ watch(
 .group {
   border-left: 4px solid;
   width: 100%;
-  max-width: 400px;
+  max-width: 500px;
   min-width: 100%;
   table-layout: fixed;
 

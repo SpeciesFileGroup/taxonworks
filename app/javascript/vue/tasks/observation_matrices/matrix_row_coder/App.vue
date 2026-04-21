@@ -18,6 +18,12 @@
       <NavigationRows @select="loadRow" />
     </div>
     <MatrixRowCoder :row-id="rowId" />
+    <div
+      v-if="matrixRow"
+      class="horizontal-right-content middle margin-medium-top margin-medium-bottom"
+    >
+      <NavigationRows @select="loadRow" />
+    </div>
   </div>
 </template>
 <script>

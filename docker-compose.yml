@@ -1,7 +1,6 @@
 #
 # docker-compose targets development only
 #
-version: '2'
 services:
   app:
     build:
@@ -15,21 +14,23 @@ services:
       - '127.0.0.1:3000:3000' # local:docker
     links:
       - db
-      - postgres10_legacy
+      - postgres12_legacy
     stdin_open: true
     tty: true
-  postgres10_legacy:
-    image: mdillon/postgis:10
-    volumes:
-      - pg:/var/lib/postgresql/data
-  db:
+  postgres12_legacy:
     image: postgis/postgis:12-3.4
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - pg12:/var/lib/postgresql/data
+  db:
+    image: postgis/postgis:17-3.5
     environment:
       - POSTGRES_HOST_AUTH_METHOD=trust
     ports:
       - '0.0.0.0:15432:5432'
     volumes:
-      - pg12:/var/lib/postgresql/data
+      - pg17:/var/lib/postgresql/data
   webpack:
     build:
       context: .
@@ -45,7 +46,7 @@ services:
     ports:
       - '3035:3035'
 volumes:
-  pg:
-    external: false
   pg12:
+    external: false
+  pg17:
     external: false

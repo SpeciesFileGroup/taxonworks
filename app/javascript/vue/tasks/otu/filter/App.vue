@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <h1>Filter OTUs</h1>
-
+  <div class="margin-medium-top">
     <FilterLayout
       :pagination="pagination"
       :url-request="urlRequest"
@@ -22,7 +20,8 @@
           :parameters="parameters"
           :disabled="!list.length"
           :object-type="OTU"
-          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
+          use-new-key-slice
+          @update="() => makeFilterRequest({ ...parameters, extend })"
         />
       </template>
       <template #nav-right>
@@ -30,13 +29,14 @@
           :disabled="!list.length"
           :ids="sortedSelectedIds"
           :count="sortedSelectedIds.length"
-          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
+          @update="() => makeFilterRequest({ ...parameters, extend })"
         />
         <RadialMatrix
           :object-type="OTU"
           :disabled="!list.length"
           :ids="sortedSelectedIds"
-          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
+          use-new-key-slice
+          @update="() => makeFilterRequest({ ...parameters, extend })"
         />
       </template>
       <template #facets>

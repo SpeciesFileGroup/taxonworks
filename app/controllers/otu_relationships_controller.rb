@@ -50,8 +50,8 @@ class OtuRelationshipsController < ApplicationController
         format.html { redirect_to otu_relationship_url(@otu_relationship), notice: 'Otu relationship was successfully created.' }
         format.json { render :show, status: :created, location: @otu_relationship.metamorphosize }
       else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @otu_relationship.errors, status: :unprocessable_entity }
+        format.html { render :new, status: :unprocessable_content }
+        format.json { render json: @otu_relationship.errors, status: :unprocessable_content }
       end
     end
   end
@@ -63,8 +63,8 @@ class OtuRelationshipsController < ApplicationController
         format.html { redirect_to otu_relationship_url(@otu_relationship), notice: 'Otu relationship was successfully updated.' }
         format.json { render :show, status: :ok, location: @otu_relationship.metamorphosize }
       else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @otu_relationship.errors, status: :unprocessable_entity }
+        format.html { render :edit, status: :unprocessable_content }
+        format.json { render json: @otu_relationship.errors, status: :unprocessable_content }
       end
     end
   end

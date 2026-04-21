@@ -31,6 +31,36 @@ describe Catalog::Entry, group: :catalogs, type: :spinup do
     expect(catalog_entry.topics).to contain_exactly(topic1, topic2)
   end
 
+  context '#topics with multiple items' do
+    let!(:source2) { FactoryBot.create(:valid_source_bibtex, year: 2020) }
+    let!(:source3) { FactoryBot.create(:valid_source_bibtex, year: 2021) }
+    let!(:topic3) { FactoryBot.create(:valid_topic, name: 'Honey') }
+    let!(:citation2) { Citation.create!(source: source2, citation_object: o, citation_topics_attributes: [{topic: topic1}, {topic: topic3}]) }
+    let!(:citation3) { Citation.create!(source: source3, citation_object: o, citation_topics_attributes: [{topic: topic2}]) }
+
+    specify 'collects all unique topics from all items' do
+      entry = Catalog::Entry.new(o.reload)
+      # Manually add items with different topics to test all_topics collection
+      entry.items << Catalog::EntryItem.new(object: o, citation: citation2)
+      entry.items << Catalog::EntryItem.new(object: o, citation: citation3)
+
+      expect(entry.items.count).to eq(3)
+      expect(entry.topics).to contain_exactly(topic1, topic2, topic3)
+    end
+
+    specify 'deduplicates topics that appear in multiple citations' do
+      entry = Catalog::Entry.new(o.reload)
+      # Add items where topics overlap
+      entry.items << Catalog::EntryItem.new(object: o, citation: citation2) # has topic1, topic3
+      entry.items << Catalog::EntryItem.new(object: o, citation: citation3) # has topic2
+
+      # topic1 appears in citation and citation2, topic2 appears in citation and citation3
+      # Should still only return 3 unique topics
+      expect(entry.topics.count).to eq(3)
+      expect(entry.topics.uniq.count).to eq(3) # Verify no duplicates
+    end
+  end
+
   specify '#date_range' do
     expect(catalog_entry.date_range).to eq([source.nomenclature_date, source.nomenclature_date])
   end

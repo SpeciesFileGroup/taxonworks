@@ -1,0 +1,38 @@
+.system-news-bar {
+  padding: 0.5rem 1rem;
+  font-size: var(--font-size-sm);
+  text-align: center;
+  a:hover {
+    text-decoration: underline;
+  }
+
+  a,
+  svg {
+    color: white;
+  }
+}
+
+.system-news-bar *:last-of-type {
+  border-bottom: 0px;
+}
+
+.system-news-bar * {
+  display: inline-block;
+}
+
+.news-bar-warning {
+  background: oklch(39.6% 0.141 25.723);
+}
+
+.news-bar-notice {
+  background: oklch(50% 0.14 95);
+}
+
+.news-bar-info {
+  background: oklch(39.1% 0.09 240.876);
+}
+
+.news-bar-close-button {
+  float: right;
+  cursor: pointer;
+}

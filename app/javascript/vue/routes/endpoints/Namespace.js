@@ -1,4 +1,7 @@
 import baseCRUD from './base'
+import AjaxCall from '@/helpers/ajaxCall'
+
+const controller = 'namespaces'
 
 const permitParams = {
   namespace: {
@@ -13,5 +16,7 @@ const permitParams = {
 }
 
 export const Namespace = {
-  ...baseCRUD('namespaces', permitParams)
+  ...baseCRUD('namespaces', permitParams),
+
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params)
 }

@@ -10,6 +10,7 @@ module Features
         # fill_in 'session[email]', with: email, id: 'session_email'
         # fill_in 'session[password]', with: password, id: 'session_password'
         click_button 'sign_in'
+        find('#navbar_user_avatar').click
         expect(page).to have_link('sign_out')
         #find_link('sign_out')  # TODO: check for Capybara bug fix down the road?
       rescue

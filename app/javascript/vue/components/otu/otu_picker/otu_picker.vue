@@ -12,7 +12,7 @@
       :input-attributes="inputAttributes"
       placeholder="Select an OTU"
       param="term"
-      @found="($event) => (foundSomething = $event)"
+      @found="handleNotFound"
       @get-item="emitOtu"
       @get-input="callbackInput"
     />
@@ -77,7 +77,7 @@
           </template>
         </div>
         <button
-          class="button normal-input button-submit"
+          class="button normal-input button-submit margin-xlarge-top"
           :disabled="!otuName"
           type="button"
           @click="
@@ -157,6 +157,14 @@ function createOtu({ taxonId, name }) {
     create.value = false
     foundSomething.value = true
   })
+}
+
+function handleNotFound(value) {
+  foundSomething.value = value
+
+  if (!value) {
+    autocompleteRef.value.hiddenList()
+  }
 }
 
 function resetPicker() {

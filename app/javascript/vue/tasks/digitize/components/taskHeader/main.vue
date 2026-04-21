@@ -170,6 +170,7 @@ const shortcuts = ref([
     keys: [platformKey(), 's'],
     handler() {
       if (!settings.value.loading && !settings.value.saving) {
+        document.activeElement.blur()
         saveDigitalization()
       }
     }
@@ -261,7 +262,7 @@ async function saveDigitalization() {
 
   if (ok) {
     if (!settings.value.saving) {
-      store.dispatch(ActionNames.SaveDigitalization)
+      store.dispatch(ActionNames.SaveDigitalization).catch(() => {})
     }
   }
 }
@@ -272,9 +273,11 @@ function resetStore() {
 
 function saveAndNew() {
   if (!settings.value.saving) {
-    store.dispatch(ActionNames.SaveDigitalization, {
-      resetAfter: true
-    })
+    store
+      .dispatch(ActionNames.SaveDigitalization, {
+        resetAfter: true
+      })
+      .catch(() => {})
   }
 }
 

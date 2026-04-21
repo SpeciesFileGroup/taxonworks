@@ -104,6 +104,11 @@ const props = defineProps({
     default: false
   },
 
+  resetOnEmpty: {
+    type: Boolean,
+    default: true
+  },
+
   rotateMode: {
     type: Boolean,
     default: false
@@ -425,7 +430,9 @@ function getDefaultTile() {
 
 function geoJSON(geoJsonFeatures) {
   if (geoJsonFeatures?.length === 0) {
-    mapObject.setView([0, 0], props.zoom)
+    if (props.resetOnEmpty) {
+      mapObject.setView([0, 0], props.zoom)
+    }
   } else {
     addGeoJsonLayer(geoJsonFeatures)
   }
@@ -439,8 +446,9 @@ function addGeoJsonLayer(geoJsonLayers) {
 
   geojsonLayer.eachLayer((layer) => {
     addEventsToLayer(layer)
-    drawnItems.addLayer(layer)
   })
+
+  geojsonLayer.addTo(drawnItems)
 
   if (props.fitBounds && !isShapeToolActive) {
     centerShapesInMap()

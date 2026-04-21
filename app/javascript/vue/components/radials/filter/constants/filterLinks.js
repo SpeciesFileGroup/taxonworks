@@ -87,3 +87,7 @@ export const FILTER_SOUND = {
   label: 'Sounds',
   link: '/tasks/sounds/filter'
 }
+export const FILTER_ANATOMICAL_PART = {
+  label: 'AnatomicalParts',
+  link: '/tasks/anatomical_parts/filter'
+}

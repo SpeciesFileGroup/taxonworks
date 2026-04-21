@@ -523,15 +523,15 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
         end
       end
 
-      specify 'all specimens ever determined as an Otu' do
-        # current_deteriminations = nil
+      specify 'all specimens ever determined as an Otu (current and historical)' do
         query.otu_id = [o1.id]
+        query.current_determinations = true # current and historical
         expect(query.all.pluck(:id)).to contain_exactly(co1.id, co2.id)
       end
 
-      specify 'all specimens of a given Otu currently determined as' do
+      specify 'all specimens of a given Otu currently determined as (default)' do
         query.otu_id = [o1.id]
-        query.current_determinations = true
+        # current_determinations = nil (current only, default)
         expect(query.all.pluck(:id)).to contain_exactly(co2.id)
       end
 
@@ -542,54 +542,74 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       end
 
       # Redundant array test
-      specify 'when I ask for all specimens of several Otus, currently determined as' do
+      specify 'when I ask for all specimens of several Otus, currently determined as (default)' do
         query.otu_id = [o1.id, o2.id ]
-        query.current_determinations = true
+        # current_determinations = nil (current only, default)
         expect(query.all.pluck(:id)).to contain_exactly(co1.id, co2.id)
       end
 
       specify 'all specimens nested in a TaxonName regardless of status' do
         query.taxon_name_id = genus1.id
+        query.validity = true # both valid and invalid
+        query.taxon_name_current_determination = true # current and historical
         query.descendants = true
-        expect(query.all.pluck(:id)).to contain_exactly(co1.id, co2.id, co3.id ) # anything determined as o3, o1, o2
+        expect(query.all.pluck(:id)).to contain_exactly(co1.id, co2.id, co3.id)
       end
 
-      specify 'all specimens nested in a TaxonName, valid only' do
+      specify 'all specimens nested in a TaxonName, valid only, any determination' do
         query.taxon_name_id = genus1.id
-        query.validity = true
+        # validity = nil (valid only, default)
+        query.taxon_name_current_determination = true # current and historical
         query.descendants = true
-        expect(query.all.pluck(:id)).to contain_exactly(co1.id, co2.id, co3.id) # anything determined as o3, o1
+        expect(query.all.pluck(:id)).to contain_exactly(co1.id, co2.id, co3.id)
       end
 
-      specify 'all specimens nested in a TaxonName, invalid only' do
+      specify 'all specimens nested in a TaxonName, invalid only, any determination' do
         query.taxon_name_id = genus1.id
         query.validity = false
+        query.taxon_name_current_determination = true # current and historical
         query.descendants = true
-        expect(query.all.pluck(:id)).to contain_exactly(co1.id, co2.id) # anything determined as o2
+        expect(query.all.pluck(:id)).to contain_exactly(co1.id, co2.id)
       end
 
-      specify 'all specimens nested in a TaxonName, valid and current' do
+      specify 'all specimens nested in a TaxonName, valid and current (default)' do
         query.taxon_name_id = genus1.id
-        query.validity = true
-        query.current_determinations = true
+        # validity = nil (valid only, default)
+        # taxon_name_current_determination = nil (current only, default)
         query.descendants = true
         expect(query.all.pluck(:id)).to contain_exactly(co2.id, co3.id)
       end
 
-      specify 'all specimens nested in a TaxonName, invalid only, current' do
+      specify 'all specimens nested in a TaxonName, invalid only, current (default)' do
         query.taxon_name_id = genus1.id
         query.validity = false
-        query.current_determinations = true
+        # taxon_name_current_determination = nil (current only, default)
         query.descendants = true
-        expect(query.all.pluck(:id)).to contain_exactly(co1.id) # anything determined as o3, o1, and historical
+        expect(query.all.pluck(:id)).to contain_exactly(co1.id)
       end
 
-      specify 'all specimens nested in a TaxonName, invalid only, current' do
+      specify 'all specimens nested in a TaxonName, invalid only, historical' do
         query.taxon_name_id = genus1.id
         query.validity = false
-        query.current_determinations = false
+        query.taxon_name_current_determination = false
         query.descendants = true
-        expect(query.all.pluck(:id)).to contain_exactly(co2.id) # anything determined as o2 and historical
+        expect(query.all.pluck(:id)).to contain_exactly(co2.id)
+      end
+
+      specify 'all specimens for an exact TaxonName match, valid only (default)' do
+        query.taxon_name_id = species1.id
+        query.descendants = false
+        # validity = nil (valid only, default)
+        # taxon_name_current_determination = nil (current only, default)
+        expect(query.all.pluck(:id)).to contain_exactly(co2.id)
+      end
+
+      specify 'all specimens for an exact TaxonName match, invalid only' do
+        query.taxon_name_id = species2.id
+        query.descendants = false
+        query.validity = false
+        # taxon_name_current_determination = nil (current only, default)
+        expect(query.all.pluck(:id)).to contain_exactly(co1.id)
       end
     end
 

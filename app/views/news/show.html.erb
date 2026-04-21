@@ -1,0 +1,10 @@
+<p style="color: green"><%= notice %></p>
+
+<%= render @news.metamorphosize %>
+
+<div>
+  <%= link_to "Edit this news", edit_news_path(@news) %> |
+  <%= link_to "Back to news", news_index_path %>
+
+  <%= button_to "Destroy this news", @news.metamorphosize, method: :delete %>
+</div>

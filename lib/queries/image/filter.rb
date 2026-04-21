@@ -3,6 +3,7 @@ module Queries
     class Filter < Query::Filter
       include Queries::Concerns::Tags
       include Queries::Concerns::Citations
+      include Queries::Concerns::Notes
 
       PARAMS = [
         :biocuration_class_id,
@@ -26,6 +27,7 @@ module Queries
         :field_occurrence_scope,
         :freeform_svg,
         :image_id,
+        :metadata_depiction,
         :license,
         :owner_id,
         :owner_id_all,
@@ -250,6 +252,12 @@ module Queries
       #   Images match if their copyright year == copyright_year
       attr_accessor :copyright_year
 
+      # @return [Boolean, nil]
+      #   true - image has depiction(s) where is_metadata_depiction is true
+      #   false - image has depiction(s) where is_metadata_depiction is not true
+      #   nil - ignored
+      attr_accessor :metadata_depiction
+
       # @return [String]
       # @param depiction_caption [String]
       #   Images match if they have a depiction whose caption matches
@@ -287,6 +295,7 @@ module Queries
         @field_occurrence_scope = params[:field_occurrence_scope]
         @freeform_svg = boolean_param(params, :freeform_svg)
         @image_id = params[:image_id]
+        @metadata_depiction = boolean_param(params, :metadata_depiction)
         @license = params[:license]
         @otu_id = params[:otu_id]
         @otu_scope = params[:otu_scope]
@@ -303,6 +312,7 @@ module Queries
         @type_material_depictions = boolean_param(params, :type_material_depictions)
 
         set_citations_params(params)
+        set_notes_params(params)
         set_tags_params(params)
       end
 
@@ -428,6 +438,15 @@ module Queries
           ::CollectionObject::BiologicalCollectionObject.joins(:biocuration_classifications)
           .where(biocuration_classifications: {biocuration_class_id:})
         )
+      end
+
+      def metadata_depiction_facet
+        return nil if metadata_depiction.nil?
+        if metadata_depiction
+          ::Image.joins(:depictions).where(depictions: {is_metadata_depiction: true}).distinct
+        else
+          ::Image.joins(:depictions).where.not(depictions: {is_metadata_depiction: true}).distinct
+        end
       end
 
       def depiction_object_type_facet
@@ -888,6 +907,7 @@ module Queries
           depictions_facet,
           field_occurrence_scope_facet,
           freeform_svg_facet,
+          metadata_depiction_facet,
           license_facet,
           otu_id_facet,
           otu_scope_facet,

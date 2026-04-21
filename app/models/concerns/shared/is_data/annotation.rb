@@ -26,8 +26,8 @@ module Shared::IsData::Annotation
       a.each do |t|
         if respond_to?(t)
           send(t).each do |o|
-            o.dup
-            to_object.send(t) << o
+            clone = o.dup
+            to_object.send(t) << clone
           end
         end
       end

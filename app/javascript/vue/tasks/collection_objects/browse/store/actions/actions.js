@@ -1,5 +1,6 @@
 import ActionNames from './actionNames.js'
 
+import loadAnatomicalParts from './loadAnatomicalParts.js'
 import loadBiocurations from './loadBiocurations.js'
 import loadCollectionObject from './loadCollectionObject'
 import loadConveyances from './loadConveyances.js'
@@ -12,6 +13,7 @@ import updateCollectingEvent from './updateCollectingEvent.js'
 import resetState from './resetState.js'
 
 const ActionFunctions = {
+  [ActionNames.LoadAnatomicalParts]: loadAnatomicalParts,
   [ActionNames.LoadBiocurations]: loadBiocurations,
   [ActionNames.LoadCollectionObject]: loadCollectionObject,
   [ActionNames.LoadConveyances]: loadConveyances,

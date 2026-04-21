@@ -1,4 +1,6 @@
 root = @lead.root
+child_has_descendant_lead_items =
+  Lead.child_descendant_lead_item_flags(children: @children, root:)
 json.root do
   json.partial! 'attributes', lead: root
 end
@@ -9,7 +11,9 @@ end
 
 json.children do
   json.array! @children do |lead|
-    json.partial! 'attributes', lead:
+    json.partial! 'attributes',
+      lead:,
+      has_descendant_lead_items: child_has_descendant_lead_items&.fetch(lead.id, false)
   end
 end
 
@@ -36,4 +40,8 @@ if extend_response_with('key_data')
   json.key_metadata metadata
   json.key_ordered_parents metadata.keys
   json.key_data key_data(root, metadata, lead_items: true, back_couplets: true)
+end
+
+if extend_response_with('key_depictions')
+  json.key_depictions key_depictions(@lead)
 end

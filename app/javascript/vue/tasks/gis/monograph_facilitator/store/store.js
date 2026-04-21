@@ -4,10 +4,12 @@ import { getUnique, randomHue, randomUUID } from '@/helpers'
 import { makeMarkerStyle } from '../utils'
 import { addToArray, removeFromArray } from '@/helpers'
 import { toRaw } from 'vue'
+import { CollectionObject, FieldOccurrence } from '@/routes/endpoints'
 import { QUERY_PARAMETER } from '@/tasks/data_attributes/field_synchronize/constants'
 import { useQueryParam } from '@/tasks/data_attributes/field_synchronize/composables'
 import { sortGroupsByLastSelectedIndex } from '../utils/sortGroupsByLastSelectedIndex.js'
 import { chunkArray } from '@/helpers'
+import { COLLECTION_OBJECT, FIELD_OCCURRENCE, OTU } from '@/constants'
 
 const extend = ['taxon_determinations']
 const MAX_RECORDS = 1000
@@ -64,6 +66,30 @@ export default defineStore('monographFacilitator', {
   getters: {
     objectIds(state) {
       return state.objects.map((o) => o.id)
+    },
+
+    getObjectsByType(state) {
+      return (type) => state.objects.filter((o) => o.type === type)
+    },
+
+    getSelectedIdsByObjectType(state) {
+      return (type) => {
+        const arr = this.getObjectsByType(type)
+
+        return state.selectedIds.filter((id) => arr.some((o) => o.id === id))
+      }
+    },
+
+    coIds(state) {
+      return state.objects
+        .filter((o) => o.objectType === COLLECTION_OBJECT)
+        .map((c) => c.id)
+    },
+
+    foIds(state) {
+      return state.objects
+        .filter((f) => f.objectType === FIELD_OCCURRENCE)
+        .map((f) => f.id)
     },
 
     isObjectHover(state) {
@@ -169,22 +195,75 @@ export default defineStore('monographFacilitator', {
   },
 
   actions: {
+    async loadFromOTU(params) {
+      const arr = []
+
+      this.isLoading = true
+      try {
+        const payload = {
+          ...params,
+          per: MAX_RECORDS,
+          extend
+        }
+
+        const promises = await Promise.all([
+          CollectionObject.filter(payload),
+          FieldOccurrence.filter(payload)
+        ])
+
+        promises.forEach(({ body }) => {
+          arr.push(...body)
+        })
+
+        this.objectType = [COLLECTION_OBJECT, FIELD_OCCURRENCE]
+
+        const ceIds = [
+          ...new Set(
+            arr.map((item) => item.collecting_event_id).filter(Boolean)
+          )
+        ]
+
+        if (ceIds.length) {
+          await this.loadGeoreferences(ceIds)
+        }
+
+        this.totalRecords = arr.length
+        this.objects = arr.map(makeObject)
+        this.groups = buildGroups(this.objects)
+      } catch {
+      } finally {
+        this.isLoading = false
+      }
+    },
+
     async load() {
-      const { queryValue, queryParam } = useQueryParam()
+      const { queryValue, queryParam, parameters } = useQueryParam()
 
       if (!queryParam.value) {
-        TW.workbench.alert.create('Filter parameters are missing.', 'alert')
+        const { otu_id } = parameters
+
+        if (otu_id) {
+          this.loadFromOTU({ otu_id: [otu_id].flat() })
+        } else {
+          TW.workbench.alert.create('Filter parameters are missing.', 'alert')
+        }
         return
       }
 
       const { service, model } = QUERY_PARAMETER[queryParam.value]
+
+      if (model === OTU) {
+        this.loadFromOTU(parameters)
+        return
+      }
+
       const payload = {
         ...queryValue.value,
         per: MAX_RECORDS,
         extend
       }
 
-      this.objectType = model
+      this.objectType = [model]
       this.isLoading = true
 
       try {
@@ -209,9 +288,9 @@ export default defineStore('monographFacilitator', {
         }
       } catch (e) {
         throw e
+      } finally {
+        this.isLoading = false
       }
-
-      this.isLoading = false
     },
 
     async loadGeoreferences(ceIds) {

@@ -1,5 +1,4 @@
-# TODO: These need custom API versions
-json.partial! '/sources/base_attributes', source: source
+json.partial! '/sources/api/v1/base_attributes', source: source
 json.partial! '/shared/data/all/metadata', object: source, extensions: false
 
 json.source_in_project source_in_project?(source)
@@ -30,6 +29,12 @@ end
 if extend_response_with('identifiers')
   json.identifiers do
     json.merge! extend_identifiers(source)
+  end
+end
+
+if extend_response_with('notes')
+  json.notes source.notes.each do |n|
+    json.text n.text
   end
 end
 

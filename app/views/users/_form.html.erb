@@ -42,14 +42,14 @@
       <br>
       <%= f.check_box :is_administrator %>
     </div>
-  
+
     <div class="field">
       <%= f.label :is_flagged_for_password_reset %>
       <br>
       <% if @user.new_record? -%>
         <%= f.check_box :is_flagged_for_password_reset, disabled: true, checked: true %> <br>
         <em> All users created by administrators must make a password change request.</em>
-      <% else %> 
+      <% else %>
         <%= f.check_box :is_flagged_for_password_reset %>
       <% end %>
     </div>
@@ -60,6 +60,36 @@
     <br>
     <%= f.check_box :set_new_api_access_token %>
   </div>
+
+  <% if @available_projects&.any? %>
+    <div class="field">
+      <%= f.label :projects, 'Add to Projects' %>
+      <table class="margin-small-top">
+        <thead>
+          <tr>
+            <th>Add</th>
+            <th>Project</th>
+            <th>Project Administrator</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @available_projects.each do |project| %>
+            <tr>
+              <td>
+                <%= check_box_tag "user[project_ids][]", project.id, false, id: "user_project_#{project.id}" %>
+              </td>
+              <td>
+                <%= label_tag "user_project_#{project.id}", project.name %>
+              </td>
+              <td>
+                <%= check_box_tag "user[project_admin_ids][]", project.id, false, id: "user_project_admin_#{project.id}" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
 
   <div class="actions">
     <%= f.submit %>

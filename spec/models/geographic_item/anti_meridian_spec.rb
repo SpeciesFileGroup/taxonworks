@@ -297,6 +297,34 @@ describe GeographicItem, type: :model, group: :geo do
       end
     end
 
+    # The && (bounding box overlap) operator on geography correctly handles
+    # anti-meridian-crossing shapes, unlike geometry where the bbox inverts.
+    # This is assumed by GeographicItem.superset_of_union_of, which uses
+    # geography && as a GiST index pre-filter before ST_Covers on geometry.
+    context 'geography && bounding box operator handles anti-meridian correctly' do
+      let(:anti_box) { 'POLYGON((170 -10, -170 -10, -170 10, 170 10, 170 -10))' }
+
+      specify 'geometry bbox inverts for anti-meridian-crossing shapes' do
+        bbox = GeographicItem.find_by_sql(
+          "SELECT ST_AsText(ST_Envelope(ST_GeogFromText('#{anti_box}')::geometry)) as r;"
+        ).first.r
+        # bbox spans (-170, 170) — the whole world minus the actual polygon
+        expect(bbox).to match(/-170/)
+      end
+
+      specify 'geography && correctly matches point inside anti-meridian-crossing shape' do
+        expect(GeographicItem.find_by_sql(
+          "SELECT ST_GeogFromText('#{anti_box}') && ST_GeogFromText('POINT(175 0)') as r;"
+        ).first.r).to be true
+      end
+
+      specify 'geography && correctly excludes point outside anti-meridian-crossing shape' do
+        expect(GeographicItem.find_by_sql(
+          "SELECT ST_GeogFromText('#{anti_box}') && ST_GeogFromText('POINT(0 0)') as r;"
+        ).first.r).to be false
+      end
+    end
+
     context 'Verify array of GeographicItem IDs shifts longitude correctly for each geography' do
       # use boxes and lines above to make GeographicItem(s)' geometries (?)
       # a fair amount of infrastructure needs to be synthesized here to be able to get a list of GI IDs

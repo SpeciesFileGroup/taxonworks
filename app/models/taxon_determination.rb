@@ -48,6 +48,7 @@ class TaxonDetermination < ApplicationRecord
   include Shared::Labels
   include Shared::Depictions
   include Shared::ProtocolRelationships
+  include Shared::TaxonDeterminationsOtuWatcher
   include Shared::DwcOccurrenceHooks
   include SoftValidation
   include Shared::IsData
@@ -165,7 +166,13 @@ class TaxonDetermination < ApplicationRecord
 
     if taxon_determination_object.requires_taxon_determination? &&
         taxon_determination_object.taxon_determinations.count == 1
-      errors.add(:base, 'at least one taxon determination is required')
+      addendum = case taxon_determination_object.class.base_class.name
+        when 'CollectionObject'
+          ' (for related anatomical part(s))'
+        else
+          ''
+        end
+      errors.add(:base, 'at least one taxon determination is required' + addendum)
       throw(:abort)
     end
   end

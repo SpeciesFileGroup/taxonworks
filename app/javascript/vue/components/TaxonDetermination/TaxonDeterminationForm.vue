@@ -59,7 +59,7 @@
 
 <script setup>
 import { EVENT_TAXON_DETERMINATION_FORM_RESET } from '@/constants/index.js'
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { randomUUID } from '@/helpers'
 
 import TaxonDeterminationOtu from './TaxonDeterminationOtu.vue'

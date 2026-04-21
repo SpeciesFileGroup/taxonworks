@@ -37,7 +37,7 @@ class OtuPageLayoutsController < ApplicationController
         format.json { render :show, status: :created, location: @otu_page_layout }
       else
         format.html { render :new }
-        format.json { render json: @otu_page_layout.errors, status: :unprocessable_entity }
+        format.json { render json: @otu_page_layout.errors, status: :unprocessable_content }
       end
     end
   end
@@ -51,7 +51,7 @@ class OtuPageLayoutsController < ApplicationController
         format.json { render :show, status: :ok, location: @otu_page_layout }
       else
         format.html { render :edit }
-        format.json { render json: @otu_page_layout.errors, status: :unprocessable_entity }
+        format.json { render json: @otu_page_layout.errors, status: :unprocessable_content }
       end
     end
   end

@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <h1>Filter collecting events</h1>
-
+  <div class="margin-medium-top">
     <FilterLayout
       :pagination="pagination"
       v-model="parameters"
@@ -33,7 +31,7 @@
           :disabled="!list.length"
           :parameters="parameters"
           :count="pagination?.total || 0"
-          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
+          @update="() => makeFilterRequest({ ...parameters, extend })"
         />
       </template>
 
@@ -43,9 +41,7 @@
             :disabled="!list.length"
             :ids="sortedSelectedIds"
             :count="sortedSelectedIds.length"
-            @update="
-              () => makeFilterRequest({ ...parameters, extend, page: 1 })
-            "
+            @update="() => makeFilterRequest({ ...parameters, extend })"
           />
           <TableLayoutSelector
             v-model="currentLayout"

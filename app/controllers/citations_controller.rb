@@ -52,7 +52,7 @@ class CitationsController < ApplicationController
         format.json {render :show, status: :created, location: @citation}
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Citation was NOT successfully created.')}
-        format.json {render json: @citation.errors, status: :unprocessable_entity}
+        format.json {render json: @citation.errors, status: :unprocessable_content}
       end
     end
   end
@@ -63,7 +63,7 @@ class CitationsController < ApplicationController
     if @citations.present?
       render '/citations/index'
     else
-      render json: { failed: true, status: :unprocessable_entity}
+      render json: { failed: true, status: :unprocessable_content}
     end
   end
 
@@ -76,7 +76,7 @@ class CitationsController < ApplicationController
         format.json {render :show, location: @citation}
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Citation was NOT successfully updated.')}
-        format.json {render json: @citation.errors, status: :unprocessable_entity}
+        format.json {render json: @citation.errors, status: :unprocessable_content}
       end
     end
   end
@@ -91,7 +91,7 @@ class CitationsController < ApplicationController
         format.json { head :no_content }
       else
         format.html { destroy_redirect @citation, notice: 'Citation was not destroyed, ' + @citation.errors.full_messages.join('; ') }
-        format.json { render json: @citation.errors, status: :unprocessable_entity }
+        format.json { render json: @citation.errors, status: :unprocessable_content }
       end
     end
   end

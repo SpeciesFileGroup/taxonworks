@@ -1,5 +1,10 @@
 <template>
-  <FacetSoundName v-model="params" />
+  <FacetSoundName
+    v-model="params"
+    title="Name"
+    param-text="name"
+    param-exact="name_exact"
+  />
   <FacetOtu
     v-model="params"
     :target="SOUND"
@@ -13,6 +18,7 @@
     :target="SOUND"
     v-model="params"
   />
+  <FacetNotes v-model="params" />
   <FacetUsers v-model="params" />
   <FacetWith
     v-for="param in WITH_PARAMS"
@@ -32,9 +38,10 @@ import FacetUsers from '@/components/Filter/Facets/shared/FacetHousekeeping/Face
 import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
 import FacetOtu from '@/components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
-import FacetSoundName from '@/components/Filter/Facets/Sound/FacetSoundName.vue'
+import FacetSoundName from '@/components/Filter/Facets/shared/FacetText.vue'
 import FacetConveyanceObjectType from '@/components/Filter/Facets/Conveyance/FacetConveyanceObjectType.vue'
 import FacetCollectingEvent from '@/tasks/biological_associations/filter/components/Facet/FacetCollectingEvent.vue'
+import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
 
 const props = defineProps({
   modelValue: {
@@ -43,7 +50,7 @@ const props = defineProps({
   }
 })
 
-const WITH_PARAMS = ['citations', 'conveyances', 'with_name']
+const WITH_PARAMS = ['citations', 'notes', 'conveyances', 'with_name']
 
 const emit = defineEmits(['update:modelValue'])
 

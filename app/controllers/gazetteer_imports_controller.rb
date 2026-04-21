@@ -28,8 +28,8 @@ class GazetteerImportsController < ApplicationController
         format.html { redirect_to gazetteer_import_url(@gazetteer_import), notice: "Gazetteer import was successfully created." }
         format.json { render :show, status: :created, location: @gazetteer_import }
       else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @gazetteer_import.errors, status: :unprocessable_entity }
+        format.html { render :new, status: :unprocessable_content }
+        format.json { render json: @gazetteer_import.errors, status: :unprocessable_content }
       end
     end
   end
@@ -41,8 +41,8 @@ class GazetteerImportsController < ApplicationController
         format.html { redirect_to gazetteer_import_url(@gazetteer_import), notice: "Gazetteer import was successfully updated." }
         format.json { render :show, status: :ok, location: @gazetteer_import }
       else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @gazetteer_import.errors, status: :unprocessable_entity }
+        format.html { render :edit, status: :unprocessable_content }
+        format.json { render json: @gazetteer_import.errors, status: :unprocessable_content }
       end
     end
   end

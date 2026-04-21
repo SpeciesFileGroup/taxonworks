@@ -28,5 +28,16 @@ if extend_response_with('type_material')
   json.type_material collection_object.type_materials do |tm|
     json.extract! tm, :type_type
     json.partial! '/shared/data/all/metadata', object: tm
+    if extend_response_with('notes')
+      json.notes tm.notes.each do |n|
+        json.text n.text
+      end
+    end
+  end
+end
+
+if extend_response_with('notes')
+  json.notes collection_object.notes.each do |n|
+    json.text n.text
   end
 end

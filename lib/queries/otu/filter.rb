@@ -9,6 +9,7 @@ module Queries
       include Queries::Concerns::Tags
       include Queries::Concerns::Notes
       include Queries::Concerns::Confidences
+      include Queries::Concerns::Sounds
       include Queries::Helpers
 
       PARAMS = [
@@ -613,6 +614,17 @@ module Queries
         ::Otu.from('(' + s + ') as otus').distinct
       end
 
+      def sound_query_facet
+        otus_from_sound_query
+      end
+
+      def anatomical_part_query_facet
+        return nil if anatomical_part_query.nil?
+
+        ::Otu
+          .joins(:origin_relationships)
+          .where("origin_relationships.new_object_id IN (#{ anatomical_part_query.all.select(:id).to_sql })")
+      end
       # !! This is a soft-link (i.e. no otu_id FK directly), so latency between indexing has a very small proability
       # !! of impacting the results.
       def dwc_occurrence_query_facet
@@ -693,6 +705,7 @@ module Queries
 
       def merge_clauses
         [
+          anatomical_part_query_facet,
           asserted_distribution_query_facet,
           asserted_distributions_facet,
           biological_association_query_facet,
@@ -705,6 +718,7 @@ module Queries
           extract_query_facet,
           loan_query_facet,
           observation_query_facet,
+          sound_query_facet,
           taxon_name_query_facet,
 
           biological_association_id_facet,

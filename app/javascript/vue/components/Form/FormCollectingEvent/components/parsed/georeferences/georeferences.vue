@@ -12,7 +12,7 @@
       class="margin-small-left"
       color="primary"
       medium
-      :disabled="!verbatimLat && !verbatimLat"
+      :disabled="!hasValidVerbatimCoordinates"
       @click="createVerbatimShape"
     >
       Create georeference from verbatim
@@ -132,9 +132,10 @@ import useStore from '../../../store/georeferences.js'
 import useCEStore from '../../../store/collectingEvent.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import { addToArray, randomUUID } from '@/helpers'
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { truncateDecimal } from '@/helpers/math.js'
 import {
+  GEOREFERENCE,
   GEOREFERENCE_GEOLOCATE,
   GEOREFERENCE_EXIF,
   GEOREFERENCE_POINT,
@@ -187,6 +188,13 @@ const count = computed(() => {
 const verbatimLat = computed(() => collectingEvent.value.verbatim_latitude)
 const verbatimLng = computed(() => collectingEvent.value.verbatim_longitude)
 
+const hasValidVerbatimCoordinates = computed(() => {
+  const lat = convertDMS(verbatimLat.value)
+  const lng = convertDMS(verbatimLng.value)
+
+  return !isNaN(lat) && !isNaN(lng)
+})
+
 const verbatimCoordinates = computed(() => {
   const shape = isVerbatimCreated.value
 
@@ -224,26 +232,13 @@ const verbatimRadiusError = computed(() => {
 })
 
 const mapGeoreferences = computed(() => {
-  const geographicArea = ceStore.geographicArea
-  const georeferences = store.georeferences
-    .filter(
-      (item) =>
-        (item.id || !EXCLUDE.includes(item.type)) &&
-        (item?.geographic_item_attributes?.shape || item?.geo_json)
-    )
-    .map((item) => {
-      const geojson = item.geographic_item_attributes
-        ? JSON.parse(item?.geographic_item_attributes?.shape)
-        : item.geo_json
+  const features = [...store.geojson]
 
-      geojson.properties.uuid = item.uuid
+  if (ceStore.geographicArea?.has_shape) {
+    features.unshift(ceStore.geographicArea.shape)
+  }
 
-      return geojson
-    })
-
-  return geographicArea?.has_shape
-    ? [geographicArea.shape, ...georeferences]
-    : georeferences
+  return features
 })
 
 function updateRadius(geo) {

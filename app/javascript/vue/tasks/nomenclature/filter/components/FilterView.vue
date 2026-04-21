@@ -22,7 +22,22 @@
   <FacetDateYear v-model="params" />
   <FacetNomenclatureGroup v-model="params" />
   <FacetNomenclatureCode v-model="params" />
-  <FacetValidity v-model="params" />
+  <FacetWithWithout
+    v-model="params"
+    param-key="validity"
+    title="Validity"
+    either-text="in/valid"
+    with-text="only valid"
+    without-text="only invalid"
+  />
+  <FacetWithWithout
+    v-model="params"
+    param-key="availability"
+    title="Availability"
+    either-text="un/available"
+    with-text="only available"
+    without-text="only unavailable"
+  />
   <FacetTaxonNameType v-model="params" />
   <FacetRelationships v-model="params" />
   <FacetStatus v-model="params" />
@@ -41,15 +56,13 @@
   <FacetUpdatedSince v-model="params" />
   <FacetDataAttribute v-model="params" />
   <FacetImportAttribute v-model="params" />
+  <FacetNotes v-model="params" />
   <FacetWith
     v-for="param in WITH_PARAMS"
     :key="param"
     :param="param"
-    :title="
-      (WITH_TITLES[param] && WITH_TITLES[param].title) ||
-      param.replaceAll('_', ' ')
-    "
-    :inverted="WITH_TITLES[param] && WITH_TITLES[param].inverted"
+    :title="WITH_TITLES[param]?.title || param.replaceAll('_', ' ')"
+    :inverted="WITH_TITLES[param]?.inverted"
     v-model="params"
   />
   <FacetValidify v-model="params" />
@@ -61,7 +74,7 @@
 
 <script setup>
 import FacetUpdatedSince from './filters/FacetUpdatedSince'
-import FacetValidity from './filters/FacetValidity.vue'
+import FacetWithWithout from './filters/FacetWithWithout.vue'
 import FacetRelationships from './filters/FacetRelationships.vue'
 import FacetTaxonName from '@/components/Filter/Facets/TaxonName/FacetTaxonName.vue'
 import FacetStatus from './filters/FacetStatus.vue'
@@ -85,6 +98,7 @@ import FacetImportAttribute from '@/components/Filter/Facets/shared/FacetImportA
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.vue'
 import FacetRelationToRelationship from './filters/FacetRelationToRelationship.vue'
+import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
 import { computed } from 'vue'
 import { TAXON_NAME } from '@/constants'
 

@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 describe Project, type: :model do
+  include ActiveJob::TestHelper
 
   # before(:all) {
   #   Rails.application.eager_load!
@@ -308,6 +309,48 @@ describe Project, type: :model do
         }
       end
     end
+  end
+
+  context 'api access key destroyed' do
+    let(:project) { Project.first }
+    let!(:co) { Specimen.create! }
+    let!(:d) { Depiction.create!(depiction_object: co, image: FactoryBot.create(:valid_image)) }
+
+    before(:each) {
+      project.update!(set_new_api_access_token: true)
+      project.set_complete_dwc_download_extensions(['media'])
+      project.set_complete_dwc_eml_preferences(
+        '<alternateIdentifier>ABC123</alternateIdentifier>\n<title xmlns:lang="en">Polka funk</title>',
+        '<metadata>\n  <gbif>\n    <dateStamp></dateStamp>\n    <emojiForTheSoul>:D</emojiForTheSoul>  </gbif>\n</metadata>'
+      )
+    }
+
+    specify 'deletes complete downloads' do
+      perform_enqueued_jobs # create dwc_occurrences
+      Download::DwcArchive::Complete.create!
+      perform_enqueued_jobs
+      expect(Download::DwcArchive::Complete.count).to eq(1)
+
+      project.update!(clear_api_access_token: true)
+
+      expect(Download::DwcArchive::Complete.count).to eq(0)
+    end
+
+    specify 'deletes pupal downloads' do
+      project.set_complete_dwc_download_max_age(0)
+      perform_enqueued_jobs # create dwc_occurrences
+      Download::DwcArchive::Complete.create!
+      perform_enqueued_jobs
+      Download::DwcArchive::PupalComplete.create!
+      expect(Download::DwcArchive::Complete.count).to eq(2)
+      expect(Download::DwcArchive::PupalComplete.count).to eq(1)
+
+      project.update!(clear_api_access_token: true)
+
+      expect(Download::DwcArchive::Complete.count).to eq(0)
+      expect(Download::DwcArchive::PupalComplete.count).to eq(0)
+    end
+
   end
 
 end

@@ -43,6 +43,7 @@ class LoanItem < ApplicationRecord
   include Shared::Notes
   include Shared::Tags
   include Shared::IsData
+  include Shared::BatchByFilterScope
 
   attr_accessor :date_returned_jquery
 
@@ -156,6 +157,161 @@ class LoanItem < ApplicationRecord
     true
   end
 
+  # @param batch_response [BatchResponse]
+  # @param query [ActiveRecord::Relation] the filtered collection objects
+  # @param hash_query [Hash] the filter query as a hash (for async)
+  # @param mode [Symbol] :add
+  # @param params [Hash] must include :loan_id
+  # @param async [Boolean]
+  # @param project_id [Integer]
+  # @param user_id [Integer]
+  # @param called_from_async [Boolean]
+  # @return [BatchResponse]
+  def self.process_batch_by_filter_scope(
+    batch_response: nil, query: nil, hash_query: nil, mode: nil, params: nil,
+    async: nil, project_id: nil, user_id: nil,
+    called_from_async: false
+  )
+    async = false if called_from_async == true
+    r = batch_response
+
+    case mode.to_sym
+    when :add
+      loan_id = params[:loan_id]
+
+      if loan_id.blank?
+        r.errors['no loan_id provided'] = 1
+        return r
+      end
+
+      if async && !called_from_async
+        BatchByFilterScopeJob.perform_later(
+          klass: self.name,
+          hash_query:,
+          mode:,
+          params:,
+          project_id:,
+          user_id:
+        )
+      else
+        query.find_each do |collection_object|
+          loan_item = LoanItem.new(
+            loan_item_object: collection_object,
+            loan_id:,
+            project_id:,
+            by: user_id
+          )
+
+          if loan_item.save
+            r.updated.push loan_item.id
+          else
+            r.not_updated.push collection_object.id
+            loan_item.errors.full_messages.each do |msg|
+              r.validation_errors[msg] += 1
+            end
+          end
+        end
+      end
+
+    when :return
+      disposition = params[:disposition]
+      date_returned = params[:date_returned]
+
+      if disposition.blank?
+        r.errors['no disposition provided'] = 1
+        return r
+      end
+
+      if date_returned.blank?
+        r.errors['no date_returned provided'] = 1
+        return r
+      end
+
+      if async && !called_from_async
+        BatchByFilterScopeJob.perform_later(
+          klass: self.name,
+          hash_query:,
+          mode:,
+          params:,
+          project_id:,
+          user_id:
+        )
+      else
+        query.find_each do |collection_object|
+          loan_item = LoanItem.where(date_returned: nil)
+            .find_by(loan_item_object: collection_object, project_id:)
+
+          if loan_item
+            if loan_item.update(disposition:, date_returned:)
+              r.updated.push loan_item.id
+            else
+              r.not_updated.push collection_object.id
+              loan_item.errors.full_messages.each do |msg|
+                r.validation_errors[msg] += 1
+              end
+            end
+          else
+            r.not_updated.push collection_object.id
+            r.validation_errors['not currently on loan'] += 1
+          end
+        end
+      end
+
+    when :move
+      loan_id = params[:loan_id]
+      disposition = params[:disposition]
+      date_returned = params[:date_returned]
+
+      if loan_id.blank?
+        r.errors['no loan_id provided'] = 1
+        return r
+      end
+
+      if disposition.blank?
+        r.errors['no disposition provided'] = 1
+        return r
+      end
+
+      if date_returned.blank?
+        r.errors['no date_returned provided'] = 1
+        return r
+      end
+
+      if async && !called_from_async
+        BatchByFilterScopeJob.perform_later(
+          klass: self.name,
+          hash_query:,
+          mode:,
+          params:,
+          project_id:,
+          user_id:
+        )
+      else
+        query.find_each do |collection_object|
+          loan_item = LoanItem.where(date_returned: nil)
+            .find_by(loan_item_object: collection_object, project_id:)
+
+          if loan_item
+            loan_item.loan_item_object.association(:loan_item).reset
+            new_loan_item = loan_item.close_and_move(loan_id, date_returned, disposition, user_id)
+
+            if new_loan_item
+              r.updated.push new_loan_item.id
+            else
+              r.not_updated.push collection_object.id
+              r.validation_errors['either return or move of loan item failed'] += 1
+            end
+          else
+            r.not_updated.push collection_object.id
+            r.validation_errors['not currently on loan'] += 1
+          end
+        end
+      end
+    end
+
+    r
+  end
+
   # TODO: param handling is currently all kinds of "meh"
   def self.batch_create(params)
     case params[:batch_type]
@@ -211,7 +367,7 @@ class LoanItem < ApplicationRecord
   # Return all CollectionObjects matching the query. Does not yet work with OtuQuery
   def self.batch_return(params)
     a = Queries::CollectionObject::Filter.new(params[:collection_object_query])
-    
+
     return false if a.all.count == 0
 
     returned = []
@@ -239,6 +395,9 @@ class LoanItem < ApplicationRecord
     LoanItem.transaction do
       begin
         update!(date_returned:, disposition:)
+
+        # Reset cached association so on_loan? returns correct value
+        loan_item_object.association(:loan_item).reset
 
         new_loan_item = LoanItem.create!(
           project_id:,

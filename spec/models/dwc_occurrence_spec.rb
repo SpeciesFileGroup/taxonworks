@@ -187,11 +187,50 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
     context 'when collection object is provided' do
       before do
         dwc_occurrence.dwc_occurrence_object = collection_object
-        dwc_occurrence.valid?
+        dwc_occurrence.valid? # triggers before_validate callbacks
       end
 
       specify 'is automatically set' do
         expect(dwc_occurrence.basisOfRecord).to eq('PreservedSpecimen')
+      end
+    end
+
+    context 'when collection object has fossil biocuration class' do
+      specify 'DwcOccurrence#basis detects fossil' do
+        specimen = FactoryBot.create(:valid_specimen, no_dwc_occurrence: false)
+        fossil_biocuration_class = FactoryBot.create(:valid_biocuration_class, uri: DWC_FOSSIL_URI)
+        specimen.biocuration_classes << fossil_biocuration_class
+
+        expect(specimen.dwc_occurrence.basis).to eq('FossilSpecimen')
+      end
+
+      specify 'basisOfRecord changes to FossilSpecimen when fossil biocuration class is added' do
+        specimen = FactoryBot.create(:valid_specimen, no_dwc_occurrence: false)
+        expect(specimen.dwc_occurrence.basisOfRecord).to eq('PreservedSpecimen')
+
+        fossil_biocuration_class = FactoryBot.create(:valid_biocuration_class, uri: DWC_FOSSIL_URI)
+        specimen.biocuration_classes << fossil_biocuration_class
+
+        perform_enqueued_jobs
+
+        expect(specimen.dwc_occurrence.reload.basisOfRecord).to eq('FossilSpecimen')
+      end
+
+      specify 'basisOfRecord changes back to PreservedSpecimen when fossil biocuration class is removed' do
+        specimen = FactoryBot.create(:valid_specimen, no_dwc_occurrence: false)
+        fossil_biocuration_class = FactoryBot.create(:valid_biocuration_class, uri: DWC_FOSSIL_URI)
+        specimen.biocuration_classes << fossil_biocuration_class
+
+        perform_enqueued_jobs
+
+        expect(specimen.dwc_occurrence.reload.basisOfRecord).to eq('FossilSpecimen')
+
+        # Destroy the BiocurationClassification to trigger callbacks
+        specimen.biocuration_classifications.where(biocuration_class: fossil_biocuration_class).destroy_all
+
+        perform_enqueued_jobs
+
+        expect(specimen.dwc_occurrence.reload.basisOfRecord).to eq('PreservedSpecimen')
       end
     end
 

@@ -36,7 +36,7 @@ function setAttributes(dataAttributes) {
 store.$onAction(({ name, after }) => {
   after(() => {
     if (name === 'save') {
-      customAttributes.value.loadDataAttributes()
+      customAttributes.value?.loadDataAttributes()
     }
   })
 })

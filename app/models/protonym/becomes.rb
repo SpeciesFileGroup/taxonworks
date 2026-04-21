@@ -111,7 +111,7 @@ module Protonym::Becomes
         c.assign_attributes(
           rank_class: nil,
           name: nil,
-          verbatim_name: cached_original_combination,
+          verbatim_name: cached_original_combination, # TODO: revisit, this should not be required and may be broken
           disable_combination_relationship_check: true
         )
         c.clear_cached

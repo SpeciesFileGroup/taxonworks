@@ -57,7 +57,7 @@ class TopicsController < ApplicationController
             render action: 'new'
           end
         }
-        format.json { render json: @controlled_vocabulary_term.errors, status: :unprocessable_entity }
+        format.json { render json: @controlled_vocabulary_term.errors, status: :unprocessable_content }
       end
     end
   end

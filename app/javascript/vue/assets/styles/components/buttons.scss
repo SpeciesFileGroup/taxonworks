@@ -9,6 +9,10 @@
   padding-right: 0.9em;
 }
 
+a.btn:hover {
+  color: white;
+}
+
 .btn-link {
   @extend .btn;
   display: table-cell;
@@ -51,4 +55,8 @@
     background-color: var(--color-#{$key});
     color: white;
   }
+}
+
+.btn-transparent {
+  background-color: transparent;
 }

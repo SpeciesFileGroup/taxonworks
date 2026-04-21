@@ -43,3 +43,9 @@ json.asserted_distribution_shape do
       gazetteer: asserted_distribution.asserted_distribution_shape
   end
 end
+
+if extend_response_with('notes')
+  json.notes asserted_distribution.notes.each do |n|
+    json.text n.text
+  end
+end

@@ -17,7 +17,10 @@
             <FormDetermination class="margin-medium-bottom" />
             <FormCE />
           </div>
-          <FormDepictions />
+          <div>
+            <FormDepictions />
+            <FormScalebar />
+          </div>
           <div>
             <FormCreateTotal />
             <VBtn
@@ -52,6 +55,7 @@ import { ref } from 'vue'
 import { useStore } from './store/useStore'
 import { ActionNames } from './store/actions/actions'
 import { GetterNames } from './store/getters/getters'
+import FormScalebar from './components/FormScalebar.vue'
 
 const store = useStore()
 const root = ref(null)
@@ -127,7 +131,7 @@ TW.workbench.keyboard.createLegend(
   #collection-object-form {
     display: grid;
     grid-template-columns: repeat(2, minmax(250px, 1fr));
-    gap: 1em;
+    gap: 1.5em;
     grid-auto-flow: dense;
   }
 

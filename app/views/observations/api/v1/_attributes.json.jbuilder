@@ -32,3 +32,9 @@ if extend_response_with('depictions')
     end
   end
 end
+
+if extend_response_with('notes')
+  json.notes observation.notes.each do |n|
+    json.text n.text
+  end
+end

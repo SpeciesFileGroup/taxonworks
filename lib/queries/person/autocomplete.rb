@@ -70,6 +70,21 @@ module Queries
         matching_alternate_value_on(:first_name)
       end
 
+      def autocomplete_identifier_cached_suffix_exact
+        # Orcid id
+        a = base_query.joins(:identifiers)
+          .where("identifiers.type = ? AND (identifiers.cached = ? OR identifiers.cached = ?)",
+            'Identifier::Global::Orcid', "https://orcid.org/#{query_string}",
+            "http://orcid.org/#{query_string}")
+
+        # Wikidata Q id - this potentially overlaps too much with id.
+        b = base_query.joins(:identifiers)
+          .where("identifiers.type = ? AND identifiers.cached = ?",
+            'Identifier::Global::Wikidata', "Q#{query_string}")
+
+        Queries::union(::Person, [a,b])
+      end
+
       # TODO: Use bibtex parser!!
       # @param [String] string
       # @return [String, nil]
@@ -105,6 +120,7 @@ module Queries
           [ autocomplete_exact_inverted&.limit(5), true ],
           [ autocomplete_identifier_cached_exact, false ],
           [ autocomplete_identifier_identifier_exact, false ],
+          [ autocomplete_identifier_cached_suffix_exact, false ],
           [ autocomplete_exact_last_name_match.limit(20), true ],
           [ autocomplete_alternate_values_last_name.limit(20), true ],
           [ autocomplete_alternate_values_first_name.limit(20), true ],

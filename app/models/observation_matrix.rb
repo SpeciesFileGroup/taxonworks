@@ -41,6 +41,7 @@ class ObservationMatrix < ApplicationRecord
   has_many :extracts, through: :observation_matrix_rows, inverse_of: :observation_matrices, source: :observation_object, source_type: 'Extract'
   has_many :sounds, through: :observation_matrix_rows, inverse_of: :observation_matrices, source: :observation_object, source_type: 'Sound'
   has_many :field_occurrences, through: :observation_matrix_rows, inverse_of: :observation_matrices, source: :observation_object, source_type: 'FieldOccurrence'
+  has_many :anatomical_parts, through: :observation_matrix_rows, inverse_of: :observation_matrices, source: :observation_object, source_type: 'AnatomicalPart'
   has_many :leads, inverse_of: :observation_matrix, dependent: :nullify
 
   # TODO: restrict these- you can not directly create these!
@@ -93,6 +94,8 @@ class ObservationMatrix < ApplicationRecord
 
   # @return True if every descriptor is a media descriptor
   def is_media_matrix?
+    return false if observation_matrix_columns.empty?
+
     observation_matrix_columns.each do |c|
       return false unless c.descriptor.type == 'Descriptor::Media'
     end

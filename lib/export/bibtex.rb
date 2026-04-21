@@ -5,12 +5,12 @@ module Export
   # Exports to a simple format.
   module Bibtex 
 
-    DESCRIPTION = "A zip file containing a .bib export sources."
+    DESCRIPTION = 'A zip file containing a .bib export sources.'
 
     def self.export(sources, style_id)
       zip_file_path = "/tmp/_#{SecureRandom.hex(8)}_bibtex.bib"
 
-      Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
+      Zip::File.open(zip_file_path, create: true) do |zipfile|
         t = style_id ? ::Vendor::BibtexRuby.styled(sources, style_id).join("\n\n") : ::Vendor::BibtexRuby.bibliography(sources)
         zipfile.get_output_stream('bibliography.bib') { |f| f.write t }
       end

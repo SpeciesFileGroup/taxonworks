@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <h1>Filter field occurrences</h1>
-
+  <div class="margin-medium-top">
     <FilterLayout
       :pagination="pagination"
       :url-request="urlRequest"
@@ -115,10 +113,3 @@ const {
 
 const csvOptions = useCSVOptions({ layout: currentLayout, list })
 </script>
-
-<style scoped>
-:deep(.row-dwc-reindex-pending) {
-  outline: 2px solid var(--color-attention);
-  outline-offset: -2px;
-}
-</style>

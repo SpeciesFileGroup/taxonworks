@@ -7,13 +7,13 @@
       <div>
         <VSwitch
           class="margin-small-bottom"
-          :options="Object.keys(TABS)"
+          :options="Object.keys(tabs)"
           v-model="currentTab"
         />
         <SmartSelector
           class="full_width"
           v-model="selected"
-          :model="TABS[currentTab]"
+          :model="tabs[currentTab]"
           :klass="BIOLOGICAL_ASSOCIATION"
           :target="BIOLOGICAL_ASSOCIATION"
           :pin-section="currentTab"
@@ -41,11 +41,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onBeforeMount, ref } from 'vue'
 import {
   BIOLOGICAL_ASSOCIATION,
-  COLLECTION_OBJECT,
-  FIELD_OCCURRENCE,
   OTU
 } from '@/constants'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
@@ -55,12 +53,7 @@ import VSwitch from '@/components/ui/VSwitch.vue'
 import VLock from '@/components/ui/VLock/index.vue'
 import { useBroadcastChannel } from '@/composables'
 import VBroadcast from '@/components/ui/VBroadcast/VBroadcast.vue'
-
-const TABS = {
-  [OTU]: 'otus',
-  [COLLECTION_OBJECT]: 'collection_objects',
-  [FIELD_OCCURRENCE]: 'field_occurrences'
-}
+import { BiologicalAssociation } from '@/routes/endpoints'
 
 defineProps({
   title: {
@@ -83,6 +76,7 @@ const { post } = useBroadcastChannel({
   }
 })
 
+const tabs = ref([])
 const currentTab = ref(OTU)
 const isBroadcastActive = ref(false)
 
@@ -101,4 +95,12 @@ function broadcastObject(otu) {
     post(otu)
   }
 }
+
+onBeforeMount(() => {
+  BiologicalAssociation.subject_object_types()
+    .then(({ body }) => {
+      tabs.value = body
+    })
+    .catch(() => {})
+})
 </script>

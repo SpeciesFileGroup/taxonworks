@@ -20,4 +20,6 @@ export default ({ state, commit }) => {
       })
     )
   })
+
+  return Promise.all(promises)
 }

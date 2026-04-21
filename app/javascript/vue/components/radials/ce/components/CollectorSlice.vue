@@ -80,6 +80,8 @@ import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
 import RolePicker from '@/components/role_picker.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import { getCurrentUserId } from '@/helpers'
+import updateMessage from '../utils/updateMessage.js'
+
 const MAX_LIMIT = 250
 
 const props = defineProps({
@@ -114,14 +116,6 @@ const payload = computed(() => ({
 
 function addRole(role) {
   rolepicker.value.addPerson(role)
-}
-
-function updateMessage(data) {
-  const message = data.sync
-    ? `${data.updated.length} collecting events queued for updating.`
-    : `${data.updated.length} collecting events were successfully updated.`
-
-  TW.workbench.alert.create(message, 'notice')
 }
 </script>
 

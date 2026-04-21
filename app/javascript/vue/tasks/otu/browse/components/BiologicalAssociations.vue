@@ -6,7 +6,9 @@
     menu
     @menu="setModalView(true)"
   >
-    <BiologicalAssociationsList :list="filteredList" />
+    <div class="overflow-x-auto">
+      <BiologicalAssociationsList :list="filteredList" />
+    </div>
     <VModal
       v-if="showModal"
       @close="setModalView(false)"

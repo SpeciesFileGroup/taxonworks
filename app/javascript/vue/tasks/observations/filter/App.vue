@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <h1>Filter observations</h1>
-
+  <div class="margin-medium-top">
     <FilterLayout
       :pagination="pagination"
       :url-request="urlRequest"
@@ -20,7 +18,7 @@
           :parameters="parameters"
           :disabled="!list.length"
           :object-type="OBSERVATION"
-          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
+          @update="() => makeFilterRequest({ ...parameters, extend })"
         />
       </template>
       <template #nav-right>
@@ -28,7 +26,7 @@
           :ids="sortedSelectedIds"
           :disabled="!list.length"
           :object-type="OBSERVATION"
-          @update="() => makeFilterRequest({ ...parameters, extend, page: 1 })"
+          @update="() => makeFilterRequest({ ...parameters, extend })"
         />
       </template>
       <template #facets>

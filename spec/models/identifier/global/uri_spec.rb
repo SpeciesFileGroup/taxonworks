@@ -16,7 +16,7 @@ describe Identifier::Global::Uri, type: :model, group: :identifiers do
       specify 'any old word' do
         id.identifier = Faker::Lorem.unique.word
         expect(id.valid?).to be_falsey
-        expect(id.errors.messages[:identifier][0]).to eq('No URI detected.')
+        expect(id.errors.messages[:identifier][0]).to eq('Provided URI is unparsable.')
       end
 
       specify 'does UDP work?' do

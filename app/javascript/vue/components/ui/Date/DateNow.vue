@@ -17,7 +17,8 @@ const emit = defineEmits([
   'update:month',
   'update:year',
   'update:time',
-  'update:date'
+  'update:date',
+  'datetime'
 ])
 
 const setTime = () => {
@@ -28,10 +29,13 @@ const setTime = () => {
     convertToTwoDigits(today.getSeconds())
   ].join(':')
 
+  const isoDate = today.toISOString().split('T')[0]
+
   emit('update:time', time)
   emit('update:day', today.getDate())
   emit('update:month', today.getMonth() + 1)
   emit('update:year', today.getFullYear())
-  emit('update:date', today.toISOString().split('T')[0])
+  emit('update:date', isoDate)
+  emit('datetime', `${isoDate}T${time}`)
 }
 </script>

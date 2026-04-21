@@ -7,7 +7,7 @@
       <BiologicalAssociationForm
         class="margin-medium-bottom"
         ref="formRef"
-        :target="COLLECTION_OBJECT"
+        :target="BIOLOGICAL_ASSOCIATION"
         v-model:relationship-lock="
           settings.locked.biological_association.relationship
         "
@@ -28,7 +28,7 @@ import { computed, useTemplateRef } from 'vue'
 import { useStore } from 'vuex'
 import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations'
-import { COLLECTION_OBJECT } from '@/constants'
+import { BIOLOGICAL_ASSOCIATION } from '@/constants'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import BiologicalAssociationForm from '@/components/Form/FormBiologicalAssociation/BiologicalAssociation.vue'
 import useBiologicalAssociationStore from '@/components/Form/FormBiologicalAssociation/store/biologicalAssociations.js'

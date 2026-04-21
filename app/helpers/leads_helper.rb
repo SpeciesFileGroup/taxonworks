@@ -135,6 +135,20 @@ module LeadsHelper
     hsh
   end
 
+  def key_depictions(lead)
+    root = lead.parent_id.nil? ? lead : lead.ancestors.last
+    lead_ids = [root.id] + root.descendant_ids
+
+    depictions = Depiction
+      .where(
+        depiction_object_type: 'Lead',
+        depiction_object_id: lead_ids
+      )
+      .group_by(&:depiction_object_id)
+
+    lead_ids.index_with { |id| depictions[id] || [] }
+  end
+
   # An index of lead.id pointing to its content.
   # lead_items is for internal use only.
   def key_data(lead, metadata, lead_items: false, back_couplets: false)
@@ -156,6 +170,11 @@ module LeadsHelper
         if back_couplets && (b = metadata.dig(l.parent_id, :couplet_number))
           data[:back_couplets][couplet_number] = b
         end
+      elsif l.redirect_id
+        d.merge!(
+          target_type: :redirect,
+          redirect_id: l.redirect_id,
+        )
       elsif l.otu
         d.merge!(
           target_label: ( l.otu ? label_for_otu(l.otu) : nil ),
@@ -193,7 +212,7 @@ module LeadsHelper
       return []
     end
 
-    Otu.where(id: otu_ids).map { |o| label_for_otu(o) }.sort!
+    Otu.where(id: otu_ids).map { |o| { id: o.id, label:label_for_otu(o) }}.sort_by { |h| h[:label] }
   end
 
   # Used to serve Keys to the API.

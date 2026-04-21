@@ -14,7 +14,7 @@ class PublicContentsController < ApplicationController
         format.json { render json: @public_content, status: :created, location: @public_content }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Public content was NOT successfully created.')}
-        format.json { render json: @public_content.errors, status: :unprocessable_entity }
+        format.json { render json: @public_content.errors, status: :unprocessable_content }
       end
     end
   end
@@ -28,7 +28,7 @@ class PublicContentsController < ApplicationController
         format.json { render @public_content, status: :ok, location: @public_content }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Public content was NOT successfully updated.')}
-        format.json { render json: @public_content.errors, status: :unprocessable_entity }
+        format.json { render json: @public_content.errors, status: :unprocessable_content }
       end
     end
   end

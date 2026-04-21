@@ -211,42 +211,50 @@ module OtusHelper
              Otu.coordinate_otus(otu.id)
            end
 
-    h = {
-      'type' => 'FeatureCollection',
-      'features' => [],
-      'properties' => {
-        'target' => { # Top level target
-          'id' => otu.id,
-          'label' => label_for_otu(otu),
-          'type' => 'Otu'
-        }
-      }
-    }
+    h = geojson_for_otu(otu)
 
     if otu.taxon_name && otu.taxon_name.is_protonym? && !otu.taxon_name.is_species_rank?
       add_aggregate_geo_json(otu, h)
     else
+      seen_shapes = {
+        field_occurrences: {},
+        collection_objects: {},
+        asserted_distributions: {},
+        type_materials: {}
+      }
       otus.each do |o|
-        add_distribution_geo_json(o, h)
+        add_distribution_geo_json(o, h, seen_shapes)
       end
     end
 
     h
   end
 
+  def geojson_for_otu(otu)
+    {
+      'type' => 'FeatureCollection',
+      'features' => [],
+      'properties' => {
+        'target' => geojson_target_for_otu(otu)
+      }
+    }
+  end
+
+  def geojson_target_for_otu(otu)
+    {
+      'id' => otu.id,
+      'label' => label_for_otu(otu),
+      'type' => 'Otu'
+    }
+  end
+
   def add_aggregate_geo_json(otu, target)
     h = target
 
     if g = aggregate_geo_json(otu, h)
-      t = {
-        'id' => otu.id,
-        'type' => 'Otu',
-        'label' => label_for_otu(otu)
-      }
-
       g['properties'] = {'aggregate': true}
+      g['properties']['target'] = geojson_target_for_otu(otu)
 
-      g['properties']['target'] = t
       h['features'].push g
     end
 
@@ -280,10 +288,7 @@ module OtusHelper
           # 'type' => gj['type'],  # 'Feature',
 
           'properties' => {
-            'base' => {
-              'type' => 'Otu',
-              'id' => otu.id,
-              'label' => label_for_otu(otu) },
+            'base' => geojson_target_for_otu(otu),
             #     'shape' => {
             #       'type' => cached_map_type,
             #       'id' => 99999 }, # was nil
@@ -305,44 +310,119 @@ module OtusHelper
 
   end
 
-  def add_distribution_geo_json(otu, target)
+  def add_distribution_geo_json(otu, target, seen_shapes = nil)
     h = target
     o = otu
 
     # internal target
-    t = {
-      'id' => o.id,
-      'type' => 'Otu',
-      'label' => label_for_otu(otu)
-    }
+    t = geojson_target_for_otu(otu)
 
     o.current_field_occurrences.each do |f|
-      if g = field_occurrence_to_geo_json_feature(f)
-        g['properties']['target'] = t
-        h['features'].push g
+      shape_key = seen_shapes && f.collecting_event&.geo_json_shape_key
+      g = build_geo_json_feature_deduped(seen_shapes&.fetch(:field_occurrences), shape_key) do |skip_geometry|
+        field_occurrence_to_geo_json_feature(f, skip_geometry:)
       end
+      next unless g
+      g['properties']['target'] = t
+      h['features'].push g
     end
 
     o.current_collection_objects.each do |c|
-      if g = collection_object_to_geo_json_feature(c)
-        g['properties']['target'] = t
-        h['features'].push g
+      shape_key = seen_shapes && c.collecting_event&.geo_json_shape_key
+      g = build_geo_json_feature_deduped(seen_shapes&.fetch(:collection_objects), shape_key) do |skip_geometry|
+        collection_object_to_geo_json_feature(c, skip_geometry:)
       end
+      next unless g
+      g['properties']['target'] = t
+      h['features'].push g
     end
 
     o.asserted_distributions.each do |a|
-      if g = asserted_distribution_to_geo_json_feature(a)
-        g['properties']['target'] = t
-        h['features'].push g
+      shape_key = seen_shapes && [a.asserted_distribution_shape_type, a.asserted_distribution_shape_id]
+      g = build_geo_json_feature_deduped(seen_shapes&.fetch(:asserted_distributions), shape_key) do |skip_geometry|
+        asserted_distribution_to_geo_json_feature(a, skip_geometry:)
+      end
+      next unless g
+      g['properties']['target'] = t
+      h['features'].push g
+    end
+
+    ba_ids = o.all_biological_associations.map(&:id)
+    unless ba_ids.empty?
+      ::AssertedDistribution
+        .where(
+          asserted_distribution_object_type: 'BiologicalAssociation',
+          asserted_distribution_object_id: ba_ids
+        )
+        .each do |a|
+          shape_key = seen_shapes && [a.asserted_distribution_shape_type, a.asserted_distribution_shape_id]
+          g = build_geo_json_feature_deduped(seen_shapes&.fetch(:asserted_distributions), shape_key) do |skip_geometry|
+            asserted_distribution_to_geo_json_feature(a, skip_geometry:)
+          end
+          next unless g
+          g['properties']['target'] = t
+          h['features'].push g
+        end
+
+      bag_ids = ::BiologicalAssociationsGraph
+        .joins(:biological_associations_biological_associations_graphs)
+        .where(biological_associations_biological_associations_graphs: { biological_association_id: ba_ids })
+        .select(:id)
+
+      unless bag_ids.empty?
+        ::AssertedDistribution
+          .where(
+            asserted_distribution_object_type: 'BiologicalAssociationsGraph',
+            asserted_distribution_object_id: bag_ids
+          )
+          .each do |a|
+            shape_key = seen_shapes && [a.asserted_distribution_shape_type, a.asserted_distribution_shape_id]
+            g = build_geo_json_feature_deduped(seen_shapes&.fetch(:asserted_distributions), shape_key) do |skip_geometry|
+              asserted_distribution_to_geo_json_feature(a, skip_geometry:)
+            end
+            next unless g
+            g['properties']['target'] = t
+            h['features'].push g
+          end
       end
     end
 
-    o.type_materials.each do |e|
-      if g = type_material_to_geo_json_feature(e)
-        g['properties']['target'] = t
-        h['features'].push g
-      end
+    [
+      [o.depictions, 'Depiction', :depiction_object_id],
+      [o.conveyances, 'Conveyance', :conveyance_object_id],
+      [o.observations, 'Observation', :observation_object_id],
+    ].each do |related_records, object_type, _id_method|
+      related_ids = related_records.map(&:id)
+      next if related_ids.empty?
+
+      ::AssertedDistribution
+        .where(
+          asserted_distribution_object_type: object_type,
+          asserted_distribution_object_id: related_ids
+        )
+        .each do |a|
+          shape_key = seen_shapes && [a.asserted_distribution_shape_type, a.asserted_distribution_shape_id]
+          g = build_geo_json_feature_deduped(seen_shapes&.fetch(:asserted_distributions), shape_key) do |skip_geometry|
+            asserted_distribution_to_geo_json_feature(a, skip_geometry:)
+          end
+          next unless g
+          g['properties']['target'] = t
+          h['features'].push g
+        end
     end
+
+    o.type_materials.includes(:protonym).each do |e|
+      next unless type_material_is_primary_type(e) && o.taxon_name.cached_is_valid
+
+      shape_key = seen_shapes && e.collection_object&.collecting_event&.geo_json_shape_key
+      g = build_geo_json_feature_deduped(seen_shapes&.fetch(:type_materials), shape_key) do |skip_geometry|
+        type_material_to_geo_json_feature(e, skip_geometry:)
+      end
+      next unless g
+      g['properties']['target'] = t
+      h['features'].push g
+    end
+
     h
   end
 
@@ -403,19 +483,62 @@ module OtusHelper
     r
   end
 
+  def serialize_matrices(scope)
+    scope
+      .where(is_public: true)
+      .map do |m|
+        {
+          id: m.id,
+          name: m.name,
+          is_media: m.is_media_matrix?
+        }
+      end
+  end
+
   def otu_key_inventory(otu)
     return {
       observation_matrices: {
-        scoped: otu.in_scope_observation_matrices.where(is_public: true).select(:id, :name).inject({}){|hsh, m| hsh[m.id] = m.name; hsh;} || {} ,
-
-        in: otu.observation_matrices.where(is_public: true).select(:id, :name).inject({}){|hsh, m| hsh[m.id] = m.name; hsh;} || {},
+        scoped: serialize_matrices(otu.in_scope_observation_matrices),
+        in: serialize_matrices(otu.observation_matrices)
       },
       leads: {
-        scoped: otu.leads.where(parent_id: nil, is_public: true).select(:id, :text).inject({}){|hsh, m| hsh[m.id] = m.text; hsh;} || {},
+        scoped: otu.leads
+          .where(parent_id: nil, is_public: true)
+          .select(:id, :text)
+          .map { |l| { id: l.id, text: l.text } },
 
-        in: Lead.public_root_leads_for_leaf_otus(otu).select(:id, :text).inject({}){|hsh, m| hsh[m.id] = m.text; hsh;} || {},
+        in: Lead.public_root_leads_for_leaf_otus(otu)
+          .select(:id, :text)
+          .map { |l| { id: l.id, text: l.text } }
       }
     }
+  end
+
+  private
+
+  # Yields once with skip_geometry true or false depending on whether +shape_key+
+  # [shape_type, shape_id] has already been recorded in +seen+.
+  #
+  # First occurrence of a shape: yields skip_geometry=false (full geometry fetched).
+  #   The shape is recorded in +seen+ only if the block returns a non-nil feature,
+  #   so shapes that produce no feature (e.g. no geographic item) are never marked seen.
+  # Subsequent occurrences: yields skip_geometry=true (geometry skipped, nil in feature).
+  #
+  # When +seen+ or +shape_key+ is nil (deduplication disabled or no shape available),
+  # yields skip_geometry=false unconditionally.
+  def build_geo_json_feature_deduped(seen, shape_key)
+    if seen.nil? || shape_key.nil? || shape_key.first.nil?
+      return yield(false)
+    end
+
+    key = "#{shape_key[0]}_#{shape_key[1]}"
+    if seen.key?(key)
+      yield(true)
+    else
+      g = yield(false)
+      seen[key] = true if g
+      g
+    end
   end
 
 end

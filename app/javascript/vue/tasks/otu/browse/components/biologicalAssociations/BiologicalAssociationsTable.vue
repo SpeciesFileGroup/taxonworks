@@ -7,7 +7,11 @@
         <th :colspan="5" />
         <th class="table-cell-border-left-thick" />
         <th class="table-cell-border-left-thick">Object</th>
-        <th :colspan="6" />
+        <th :colspan="5" />
+        <th
+          :colspan="2"
+          class="table-cell-border-left-thick"
+        />
       </tr>
       <tr class="table-header-border table-header-bold">
         <th class="w-2" />
@@ -26,7 +30,8 @@
         <th>Family</th>
         <th>Genus</th>
         <th>Label</th>
-        <th>Citations</th>
+        <th class="table-cell-border-left-thick">Citations</th>
+        <th>Tags</th>
       </tr>
     </thead>
     <tbody>

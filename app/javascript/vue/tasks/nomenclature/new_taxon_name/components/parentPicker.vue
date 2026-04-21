@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="horizontal-left-content">
+    <div class="horizontal-left-content gap-small">
       <autocomplete
         input-id="parent-name"
         url="/taxon_names/autocomplete"
@@ -16,14 +16,26 @@
         param="term"
       />
       <default-taxon
-        class="margin-small-left"
+        type="TaxonName"
         section="TaxonNames"
         @getId="parentSelected"
-        type="TaxonName"
       />
+      <VBtn
+        color="primary"
+        circle
+        :disabled="!parent"
+        title="Edit parent"
+        @click="loadParent"
+      >
+        <VIcon
+          name="pencil"
+          title="Edit parent"
+          x-small
+        />
+      </VBtn>
       <div
         v-if="parent && !parent.cached_is_valid"
-        class="horizontal-left-content separate-left"
+        class="horizontal-left-content"
       >
         <span
           data-icon="warning"
@@ -67,6 +79,9 @@
 <script>
 import DefaultTaxon from '@/components/ui/Button/ButtonPinned.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import { RouteNames } from '@/routes/routes'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
@@ -75,7 +90,9 @@ import { TaxonName } from '@/routes/endpoints'
 export default {
   components: {
     Autocomplete,
-    DefaultTaxon
+    DefaultTaxon,
+    VBtn,
+    VIcon
   },
 
   computed: {
@@ -162,6 +179,13 @@ export default {
           this.$store.commit(MutationNames.SetParent, response.body)
         }
       })
+    },
+
+    loadParent() {
+      window.open(
+        `${RouteNames.NewTaxonName}?taxon_name_id=${this.parent?.id}`,
+        '_self'
+      )
     }
   }
 }

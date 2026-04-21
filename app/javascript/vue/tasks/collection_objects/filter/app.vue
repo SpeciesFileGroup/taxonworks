@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <h1>Filter collection objects</h1>
-
+  <div class="margin-medium-top">
     <FilterLayout
       :url-request="urlRequest"
       :pagination="pagination"
@@ -22,9 +20,7 @@
           :disabled="!list.length"
           :parameters="parameters"
           :count="pagination?.total || 0"
-          @update="
-            () => makeFilterRequest({ ...parameters, extend, exclude, page: 1 })
-          "
+          @update="() => makeFilterRequest({ ...parameters, extend, exclude })"
         />
         <RadialLoan
           :disabled="!list.length"
@@ -43,8 +39,7 @@
             :ids="sortedSelectedIds"
             :count="sortedSelectedIds.length"
             @update="
-              () =>
-                makeFilterRequest({ ...parameters, extend, exclude, page: 1 })
+              () => makeFilterRequest({ ...parameters, extend, exclude })
             "
           />
           <RadialLoan
@@ -184,10 +179,3 @@ export default {
   name: 'FilterCollectionObjects'
 }
 </script>
-
-<style scoped>
-:deep(.row-dwc-reindex-pending) {
-  outline: 2px solid var(--color-attention);
-  outline-offset: -2px;
-}
-</style>

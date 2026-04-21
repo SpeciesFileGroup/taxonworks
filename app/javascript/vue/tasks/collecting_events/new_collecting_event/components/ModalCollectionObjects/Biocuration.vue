@@ -46,7 +46,7 @@ onBeforeMount(async () => {
 })
 
 function toggleBiocuration(biocuration) {
-  const index = this.biocurations.findIndex((id) => id === biocuration.id)
+  const index = biocurations.value.findIndex((id) => id === biocuration.id)
 
   if (index > -1) {
     biocurations.value.splice(index, 1)

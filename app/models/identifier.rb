@@ -79,11 +79,13 @@ class Identifier < ApplicationRecord
   # TODO: DRY to IsData? Test.
   scope :with_type_string, -> (base_string) {where('type LIKE ?', "#{base_string}")}
 
-  scope :prefer, -> (type) { order(Arel.sql(<<~SQL)) }
-    CASE WHEN identifiers.type = '#{type}' THEN 1 \
-    WHEN identifiers.type != '#{type}' THEN 2 END ASC, \
-    position ASC
-  SQL
+  scope :prefer, -> (type) {
+    order(Arel.sql(sanitize_sql([<<~SQL, type, type])))
+      CASE WHEN identifiers.type = ? THEN 1 \
+      WHEN identifiers.type != ? THEN 2 END ASC, \
+      position ASC
+    SQL
+  }
 
   scope :visible, -> (project_id) { where("identifiers.project_id = ? OR identifiers.type ILIKE 'Identifier::Global%'", project_id) }
 

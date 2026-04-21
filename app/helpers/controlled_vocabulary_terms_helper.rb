@@ -25,10 +25,12 @@ module ControlledVocabularyTermsHelper
 
   def controlled_vocabulary_term_use(controlled_vocabulary_term)
     return nil if controlled_vocabulary_term.nil?
+
     a = { project_id: sessions_current_project_id }
     case controlled_vocabulary_term.type
     when 'Topic'
-      CitationTopic.where(topic: controlled_vocabulary_term).where(a).count + Content.where(topic: controlled_vocabulary_term).where(a).count
+      CitationTopic.where(topic: controlled_vocabulary_term).where(a).count +
+        Content.where(topic: controlled_vocabulary_term).where(a).count
     when 'Tag'
       Tag.where(keyword: controlled_vocabulary_term).where(a).count
     when 'BiologicalProperty'
@@ -37,6 +39,18 @@ module ControlledVocabularyTermsHelper
       InternalAttribute.where(predicate: controlled_vocabulary_term).where(a).count
     when 'ConfidenceLevel'
       Confidence.where(confidence_level: controlled_vocabulary_term).where(a).count
+    when 'Keyword'
+      Tag.where(keyword_id: controlled_vocabulary_term.id).where(a).count
+    when 'BiocurationClass'
+      BiocurationClassification
+        .where(biocuration_class_id: controlled_vocabulary_term.id).where(a).count
+    when 'BiocurationGroup'
+      # Count of the uses of the group's classes.
+      BiocurationClassification
+        .joins(biocuration_class: :keywords)
+        .where(keywords: { id: controlled_vocabulary_term.id })
+        .where(a)
+        .count
     else
       'n/a'
     end

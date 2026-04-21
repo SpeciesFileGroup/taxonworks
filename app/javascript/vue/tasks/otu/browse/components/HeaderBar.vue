@@ -242,6 +242,7 @@ function openValid() {
   display: none;
   position: absolute;
   padding: 12px;
+  z-index: 200;
 }
 
 .dropdown-otu:hover {

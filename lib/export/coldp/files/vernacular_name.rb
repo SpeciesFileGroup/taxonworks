@@ -27,7 +27,7 @@ module Export::Coldp::Files::VernacularName
   end
 
   def self.common_names(otus)
-    a =   CommonName.with(otu_scope: otus.select(:id))
+    a = CommonName.with(otu_scope: otus.select(:id))
       .joins('JOIN otu_scope on otu_scope.id = common_names.otu_id')
       .left_joins(:geographic_area, :language, :sources)
       .select("common_names.*, geographic_areas.iso_3166_a2, languages.alpha_3_bibliographic, STRING_AGG(sources.id::text, ',') AS aggregate_source_ids")

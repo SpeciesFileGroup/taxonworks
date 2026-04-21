@@ -48,7 +48,7 @@ class TypeMaterialsController < ApplicationController
         format.json { render :show, status: :created, location: @type_material }
       else
         format.html { render :new }
-        format.json { render json: @type_material.errors, status: :unprocessable_entity }
+        format.json { render json: @type_material.errors, status: :unprocessable_content }
       end
     end
   end
@@ -62,7 +62,7 @@ class TypeMaterialsController < ApplicationController
         format.json { render :show, status: :ok, location: @type_material }
       else
         format.html { render :edit }
-        format.json { render json: @type_material.errors, status: :unprocessable_entity }
+        format.json { render json: @type_material.errors, status: :unprocessable_content }
       end
     end
   end

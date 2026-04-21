@@ -245,9 +245,9 @@ module CollectionObjectsHelper
   # @return [GeoJSON feature, nil]
   # @param base [Boolean]
   #   wehther to annotate the feature properties with TW 'base' attributes
-  def collection_object_to_geo_json_feature(collection_object, base = true)
+  def collection_object_to_geo_json_feature(collection_object, base = true, skip_geometry: false)
     return nil if collection_object.nil?
-    if a = collecting_event_to_geo_json_feature(collection_object.collecting_event)
+    if a = collecting_event_to_geo_json_feature(collection_object.collecting_event, skip_geometry:)
       l = label_for_collection_object(collection_object)
       a['properties']['target'] = {
         'type' => 'CollectionObject',

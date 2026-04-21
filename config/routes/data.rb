@@ -19,14 +19,38 @@ end
 
 resources :alternate_values, except: [:show, :new] do
   concerns [:data_routes]
+  collection do
+    match :filter, to: 'alternate_values#index', via: [:get, :post]
+  end
 end
 match '/alternate_values/:global_id/metadata', to: 'alternate_values#metadata', via: :get, defaults: {format: :json}
+
+resources :anatomical_parts do
+  concerns [:data_routes]
+  collection do
+    match :filter, to: 'anatomical_parts#index', via: [:get, :post]
+    get :select_options, defaults: {format: :json}
+    get :graph, defaults: {format: :json}
+    get :ontologies, defaults: {format: :json}
+    get :children_of, defaults: {format: :json}
+    get :ontology_autocomplete, defaults: {format: :json}
+    get :used_ontologies, defaults: {format: :json}
+
+    scope :select_ontologies, controller: 'tasks/anatomical_parts/select_ontologies' do
+      # Scope these under the select_ontologies task controller for access
+      # control and functional grouping.
+      post :save_ontologies_to_project, defaults: {format: :json}
+      get :ontology_preferences, defaults: {format: :json}
+    end
+  end
+end
 
 match '/attributions/licenses', to: 'attributions#licenses', via: :get, defaults: {format: :json}
 match '/attributions/role_types', to: 'attributions#role_types', via: :get, defaults: {format: :json}
 resources :attributions, except: [:new] do
   concerns [:data_routes]
   collection do
+    match :filter, to: 'attributions#index', via: [:get, :post]
     post :batch_by_filter_scope, defaults: {format: :json}
   end
 end
@@ -36,6 +60,7 @@ resources :asserted_distributions do
   collection do
     patch :batch_update
     post :batch_template_create, defaults: {format: :json}
+    post :sources, defaults: {format: :json}
     post :preview_simple_batch_load # should be get
     post :create_simple_batch_load, defaults: {format: :json}
     match :filter, to: 'asserted_distributions#index', via: [:get, :post]
@@ -59,6 +84,7 @@ resources :biological_associations do
     patch :batch_update
     get :autocomplete, defaults: {format: :json}
     get :select_options, defaults: {format: :json}
+    get :subject_object_types, defaults: {format: :json}
   end
 end
 
@@ -98,6 +124,7 @@ resources :citation_topics, only: [:create, :update, :destroy]
 resources :citations do # except: [:show]
   concerns [:data_routes]
   collection do
+    match :filter, to: 'citations#index', via: [:get, :post]
     post :batch_create, defaults: {format: :json}
   end
 end
@@ -199,6 +226,7 @@ get 'confidences/exists', to: 'confidences#exists', defaults: {format: :json}
 resources :confidences do # , except: [:edit, :show]
   concerns [:data_routes]
   collection do
+    match :filter, to: 'confidences#index', via: [:get, :post]
     post :confidence_object_update
     post :batch_by_filter_scope, defaults: {format: :json}
   end
@@ -312,6 +340,7 @@ end
 
 resources :documentation, as: :documentation do
   collection do
+    match :filter, to: 'documentation#index', via: [:get, :post]
     get 'download'
     get 'list'
 
@@ -366,6 +395,7 @@ resources :field_occurrences do
   collection do
     match :filter, to: 'field_occurrences#index', via: [:get, :post]
     get :select_options, defaults: {format: :json}
+    post :from_collection_object, defaults: {format: :json}
   end
 end
 
@@ -428,9 +458,10 @@ resources :identifiers, except: [:show] do
 
   # Must be before member
   collection do
+    match :filter, to: 'identifiers#index', via: [:get, :post]
     patch :reorder, defaults: {format: :json}
-    get :identifier_types, {format: :json}
-    post :namespaces, {format: :json}
+    get :identifier_types, defaults: {format: :json}
+    post :namespaces, defaults: {format: :json}
     post :batch_by_filter_scope, defaults: {format: :json}
   end
 
@@ -445,6 +476,7 @@ resources :images do
     get 'extract(/:x/:y/:width/:height)', action: :extract
     get 'scale(/:x/:y/:width/:height/:new_width/:new_height)', action: :scale
     get 'scale_to_box(/:x/:y/:width/:height/:box_width/:box_height)', action: :scale_to_box
+    get 'as_png', action: 'as_png'
     get 'ocr(/:x/:y/:width/:height)', action: :ocr
     patch 'rotate', action: 'rotate'
     patch 'regenerate_derivative', action: 'regenerate_derivative'
@@ -481,6 +513,7 @@ resources :labels do
     scope :factory do
       post :unit_tray_header1, controller: 'labels/factory', defaults: {format: :json}
     end
+    post :batch_create, defaults: {format: :json}
   end
   # is data?
 end
@@ -495,6 +528,7 @@ end
 resources :leads do
   concerns [:data_routes]
   member do
+    post :depictions, defaults: {format: :json}
     post :add_children, defaults: {format: :json}
     post :insert_couplet, defaults: {format: :json}
     post :destroy_children, defaults: {format: :json}
@@ -506,6 +540,9 @@ resources :leads do
     patch :reorder_children, defaults: {format: :json}
     post :insert_key, defaults: {format: :json}
     post :set_observation_matrix, defaults: {format: :json}
+    get :remaining_otus, defaults: {format: :json}
+    get :eliminated_otus, defaults: {format: :json}
+    post :reset_lead_items, defaults: {format: :json}
   end
   collection do
     post :batch_create_lead_items, defaults: {format: :json}
@@ -542,22 +579,34 @@ resources :loan_items do
     post :batch_create
     post :batch_return
     post :batch_move
+    post :batch_by_filter_scope, defaults: {format: :json}
   end
 end
 
 resources :namespaces do
   collection do
+    get :attributes, defaults: {format: :json}
     get :autocomplete, defaults: {format: :json} # TODO: add JSON to all autocomplete as default, until then this line has to be above concerns
     post :preview_simple_batch_load
     post :create_simple_batch_load
     get :select_options, defaults: {format: :json}
+    match :filter, to: 'namespaces#index', via: [:get, :post]
   end
 
   concerns [:data_routes]
 end
 
+resources :news do
+  collection do
+    get :types
+  end
+end
+
 resources :notes, except: [:show] do
   concerns [:data_routes]
+  collection do
+    match :filter, to: 'notes#index', via: [:get, :post]
+  end
 end
 
 match 'observation_matrices/row/', to: 'observation_matrices#row', via: :get, method: :json
@@ -589,26 +638,26 @@ resources :observation_matrices do
   end
 
   collection do
-    get :otus_used_in_matrices, {format: :json}
-    get :nexus_data, {format: :json}
+    get :otus_used_in_matrices, defaults:  {format: :json}
+    get :nexus_data, defaults: {format: :json}
 
-    post :batch_create, {format: :json}
-    post :batch_add, {format: :json}
-    post :import_from_nexus, {format: :json}
+    post :batch_create, defaults: {format: :json}
+    post :batch_add, defaults: {format: :json}
+    post :import_from_nexus, defaults: {format: :json}
   end
 end
 
 resources :observation_matrix_columns, only: [:index, :show] do
   concerns [:data_routes]
   collection do
-    patch 'sort', {format: :json}
+    patch 'sort', defaults: {format: :json}
   end
 end
 
 resources :observation_matrix_rows, only: [:index, :show] do
   concerns [:data_routes]
   collection do
-    patch 'sort', {format: :json}
+    patch 'sort', defaults: {format: :json}
   end
 end
 
@@ -683,6 +732,7 @@ resources :otus do
 
     get 'inventory/distribution', action: :distribution, defaults: {format: :json}
     get 'inventory/taxonomy', action: :api_taxonomy_inventory, as: :taxonomy_inventory
+    get 'inventory/citations', action: :api_citations_inventory, as: :citations_inventory, defaults: {format: :json}
   end
 
 end
@@ -756,14 +806,14 @@ resources :projects, only: [] do
       post :set_max_age, defaults: {format: :json}
       post :set_is_public, defaults: {format: :json}
       post :set_extensions, defaults: {format: :json}
-      post :set_predicates, defaults: {format: :json}
+      post :set_predicates_and_internal_values, defaults: {format: :json}
       post :set_default_user, defaults: {format: :json}
     end
   end
 
   collection do
     scope :dwc_export_preferences, controller: 'tasks/projects/dwc_export_preferences' do
-      get :validate_eml, defaults: {format: :json}
+      post :validate_eml, defaults: {format: :json}
     end
   end
 end
@@ -892,6 +942,7 @@ get 'tags/exists', to: 'tags#exists', defaults: {format: :json}
 resources :tags, except: [:edit, :show, :new] do
   concerns [:data_routes]
   collection do
+    match :filter, to: 'tags#index', via: [:get, :post]
     get :autocomplete
     post :tag_object_update
     post :batch_create, defaults: {format: :json}
@@ -923,17 +974,18 @@ resources :taxon_names do
 
     post :preview_simple_batch_load # should be get
     post :create_simple_batch_load
-    get :ranks, {format: :json}
+    get :ranks, defaults: {format: :json}
 
     post :preview_nomen_batch_load
     post :create_nomen_batch_load
 
     get :parse, defaults: {format: :json}
     post :remove_authors, defaults: {format: :json}
+    post :match, defaults: {format: :json}
     get :random
 
     get :rank_table, defaults: {format: :json}
-    get :predicted_rank, {format: :json}
+    get :predicted_rank, defaults: {format: :json}
 
     patch :batch_update
 
@@ -943,7 +995,7 @@ resources :taxon_names do
 
   member do
     get :original_combination, defaults: {format: :json}
-    get :taxonomy, {format: :json}
+    get :taxonomy, defaults: {format: :json}
   end
 end
 
@@ -951,6 +1003,7 @@ resources :taxon_name_classifications do
   concerns [:data_routes]
   collection do
     get :taxon_name_classification_types
+    post :batch_by_filter_scope, defaults: {format: :json}
   end
   member do
     get :show
@@ -960,8 +1013,8 @@ end
 resources :taxon_name_relationships do
   concerns [:data_routes]
   collection do
-    get :type_relationships, {format: :json}
-    get :taxon_name_relationship_types, {format: :json}
+    get :type_relationships, defaults: {format: :json}
+    get :taxon_name_relationship_types, defaults: {format: :json}
     match :filter, to: 'taxon_name_relationships#index', via: [:get, :post]
   end
 end
@@ -979,6 +1032,6 @@ end
 resources :type_materials do
   concerns [:data_routes]
   collection do
-    get :type_types, {format: :json}
+    get :type_types, defaults: {format: :json}
   end
 end
