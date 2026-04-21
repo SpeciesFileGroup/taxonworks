@@ -54,8 +54,11 @@ describe 'Verbatim author year to source', type: :feature, group: :sources do
         end
 
         specify 'displays record counts' do
-          expect(page).to have_text('2') # Smith 2020 has 2 records
-          expect(page).to have_text('1') # Jones 2019 has 1 record
+          smith_row = find("tr[data-author='Smith'][data-year='2020']")
+          jones_row = find("tr[data-author='Jones'][data-year='2019']")
+
+          expect(smith_row).to have_css('td.count-cell', text: '2')
+          expect(jones_row).to have_css('td.count-cell', text: '1')
         end
 
         specify 'provides link to new source' do
