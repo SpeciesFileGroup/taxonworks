@@ -24,5 +24,6 @@ describe FactoryProjectHelpers, type: :model do
       expect(citation.citation_object).to equal(otu)
       expect(citation.citation_object).not_to be_persisted
     end
+
   end
 end
