@@ -248,6 +248,8 @@
             v-for="item in containerList"
             :key="item.id"
             :style="{ marginLeft: (item.depth * 1.5) + 'em' }"
+            class="container-list-item"
+            @click="selectContainer(item)"
           >
             <span class="container-type-badge">{{ item.typeName }}</span>
             {{ item.name }}
@@ -485,13 +487,19 @@ async function refreshData() {
   }
 }
 
-function flattenTree(node, depth) {
+function flattenTree(node, depth, ancestors = []) {
   const typeName = node.type ? node.type.split('::').slice(1).join('::') : ''
-  const rows = [{ id: node.id, name: node.name, typeName, depth }]
+  const self     = { id: node.id, name: node.name || typeName, type: node.type }
+  const path     = [...ancestors, self]
+  const rows     = [{ id: node.id, name: node.name, typeName, depth, path }]
   for (const child of node.children || []) {
-    rows.push(...flattenTree(child, depth + 1))
+    rows.push(...flattenTree(child, depth + 1, path))
   }
   return rows
+}
+
+function selectContainer(item) {
+  buildingGridRef.value?.navigateTo(item.path)
 }
 </script>
 
@@ -558,6 +566,16 @@ function flattenTree(node, depth) {
 
 .container-list-items li {
   padding: 2px 0;
+}
+
+.container-list-item {
+  cursor: pointer;
+  border-radius: 3px;
+  padding: 3px 4px;
+}
+
+.container-list-item:hover {
+  background: #eef4ff;
 }
 
 .container-type-badge {

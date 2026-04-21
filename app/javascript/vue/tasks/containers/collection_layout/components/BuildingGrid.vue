@@ -635,8 +635,32 @@ function shrinkCols() {
   patchCurrentContainer({ size_x: newSize })
 }
 
+// Navigate directly to a container given its ancestry path from the tree.
+// path: [{id, name, type}, ...] from root to target (produced by flattenTree).
+// The target container is fetched to get current dimensions; ancestors are
+// stored in the zoom stack so the breadcrumb reflects the full path.
+async function navigateTo(path) {
+  if (!path?.length) return
+  const target = path[path.length - 1]
+  loading.value = true
+  const { body } = await AjaxCall('get', `/containers/${target.id}.json`)
+  if (body?.id) {
+    const ancestors = path.slice(0, -1).map(p => ({
+      id:     p.id,
+      name:   p.name,
+      type:   p.type,
+      size_x: null,
+      size_y: null
+    }))
+    zoomStack.value = [...ancestors, containerSummary(body)]
+    await loadChildren(body.id)
+  }
+  loading.value = false
+}
+
 defineExpose({
-  reload: () => currentContainer.value && loadChildren(currentContainer.value.id)
+  reload:     () => currentContainer.value && loadChildren(currentContainer.value.id),
+  navigateTo
 })
 </script>
 
