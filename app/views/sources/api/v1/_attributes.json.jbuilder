@@ -32,13 +32,10 @@ if extend_response_with('identifiers')
   end
 end
 
-if extend_response_with('serial')
-	if(source.serial.nil?)
-	else
-		json.serial do
-			json.partial! '/serials/attributes', serial: source.serial, extensions: false
-		end
-	end
+if extend_response_with('serial') && source.serial
+  json.serial do
+    json.partial! '/serials/api/v1/attributes', serial: source.serial
+  end
 end
 
 if extend_response_with('notes')
