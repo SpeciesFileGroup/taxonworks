@@ -53,14 +53,15 @@
     <VSpinner v-else-if="loading" />
     <template v-else>
 
-      <!-- Expand controls (apply to current zoom target) -->
+      <!-- Expand/shrink controls (apply to current zoom target) -->
       <div class="expand-controls horizontal-left-content gap-small flex-wrap">
         <label class="horizontal-left-content gap-xsmall middle">
           <input
             v-model.number="expandRowsBy"
             type="number"
             min="1"
-            class="normal-input small-input"
+            max="1000"
+            class="normal-input dim-input"
           />
           <VBtn
             color="default"
@@ -70,6 +71,14 @@
           >
             + rows
           </VBtn>
+          <VBtn
+            color="default"
+            medium
+            :disabled="!expandRowsBy || saving"
+            @click="shrinkRows"
+          >
+            - rows
+          </VBtn>
         </label>
 
         <label class="horizontal-left-content gap-xsmall middle">
@@ -77,7 +86,8 @@
             v-model.number="expandColsBy"
             type="number"
             min="1"
-            class="normal-input small-input"
+            max="1000"
+            class="normal-input dim-input"
           />
           <VBtn
             color="default"
@@ -86,6 +96,14 @@
             @click="expandCols"
           >
             + columns
+          </VBtn>
+          <VBtn
+            color="default"
+            medium
+            :disabled="!expandColsBy || saving"
+            @click="shrinkCols"
+          >
+            - columns
           </VBtn>
         </label>
 
@@ -558,18 +576,28 @@ async function onMove(moves) {
 async function patchCurrentContainer(attrs) {
   saving.value      = true
   expandError.value = ''
-  const { body } = await AjaxCall('patch', `/containers/${currentContainer.value.id}.json`, { container: attrs })
-  saving.value = false
-  if (body?.id) {
-    // Update size in the zoom stack entry
-    const idx = zoomStack.value.length - 1
-    zoomStack.value = [
-      ...zoomStack.value.slice(0, idx),
-      { ...zoomStack.value[idx], size_x: body.size_x, size_y: body.size_y }
-    ]
-  } else {
-    expandError.value = 'Could not update dimensions.'
+
+  let body
+  try {
+    ;({ body } = await AjaxCall('patch', `/containers/${currentContainer.value.id}.json`, { container: attrs }))
+  } catch (error) {
+    saving.value = false
+    const errors = error?.response?.body
+    const message = errors
+      ? Object.values(errors).flat().join(', ')
+      : 'Could not update dimensions.'
+    expandError.value = message.includes('Resize would impact')
+      ? 'Resize would impact placed Containers.'
+      : message
+    return
   }
+
+  saving.value = false
+  const idx = zoomStack.value.length - 1
+  zoomStack.value = [
+    ...zoomStack.value.slice(0, idx),
+    { ...zoomStack.value[idx], size_x: body.size_x, size_y: body.size_y }
+  ]
 }
 
 function expandRows() {
@@ -577,9 +605,23 @@ function expandRows() {
   patchCurrentContainer({ size_y: (currentContainer.value.size_y || 0) + expandRowsBy.value })
 }
 
+function shrinkRows() {
+  if (!expandRowsBy.value || expandRowsBy.value < 1) return
+  const newSize = (currentContainer.value.size_y || 0) - expandRowsBy.value
+  if (newSize < 1) return
+  patchCurrentContainer({ size_y: newSize })
+}
+
 function expandCols() {
   if (!expandColsBy.value || expandColsBy.value < 1) return
   patchCurrentContainer({ size_x: (currentContainer.value.size_x || 0) + expandColsBy.value })
+}
+
+function shrinkCols() {
+  if (!expandColsBy.value || expandColsBy.value < 1) return
+  const newSize = (currentContainer.value.size_x || 0) - expandColsBy.value
+  if (newSize < 1) return
+  patchCurrentContainer({ size_x: newSize })
 }
 
 defineExpose({
@@ -667,6 +709,10 @@ defineExpose({
 /* Expand controls */
 .expand-controls {
   margin-bottom: 0.75em;
+}
+
+.dim-input {
+  width: 4em;   /* fits up to 4 digits (1000) comfortably */
 }
 
 /* Modal */

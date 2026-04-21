@@ -66,6 +66,7 @@ class Container < ApplicationRecord
     allow_nil: true
 
   validate :earmarked_requires_sufficient_empty
+  validate :size_does_not_exclude_placed_items, if: :persisted?
 
   # @return [ContainerItem Scope]
   #    return all ContainerItems contained in this container (non recursive)
@@ -303,6 +304,25 @@ class Container < ApplicationRecord
 
   def type_is_valid
     raise ActiveRecord::SubclassNotFound, 'Invalid subclass' if type && !CONTAINER_TYPES.include?(type)
+  end
+
+  # Prevent shrinking a dimension when placed container items would fall
+  # outside the new boundary on that axis.
+  def size_does_not_exclude_placed_items
+    {
+      size_x: :disposition_x,
+      size_y: :disposition_y,
+      size_z: :disposition_z
+    }.each do |size_attr, disp_attr|
+      next unless send(:"#{size_attr}_changed?")
+      new_val = send(size_attr)
+      old_val = send(:"#{size_attr}_was")
+      next unless new_val.present? && old_val.present? && new_val < old_val
+      if container_items.where("#{disp_attr} > ?", new_val).exists?
+        errors.add(:base, 'Resize would impact placed containers')
+        return
+      end
+    end
   end
 
   def earmarked_requires_sufficient_empty
