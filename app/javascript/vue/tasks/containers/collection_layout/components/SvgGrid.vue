@@ -47,7 +47,9 @@
           :height="cellSize - 1"
           :class="cellClasses(col, row)"
           :fill="cellFill(col, row)"
-        />
+        >
+          <title>{{ cellTitle(col, row) }}</title>
+        </rect>
         <text
           v-for="col in cols"
           :key="`cell-label-${col}-${row}`"
@@ -164,6 +166,11 @@ function cellLabel(col, row) {
   if (drag.active && drag.moving && drag.fromCells.some(c => c.col === col && c.row === row))
     return ''
   return cellAt(col, row)?.label || ''
+}
+
+function cellTitle(col, row) {
+  const cell = cellAt(col, row)
+  return cell ? `${cell.name}\n(${col}, ${row})` : `(${col}, ${row})`
 }
 
 function cellClasses(col, row) {

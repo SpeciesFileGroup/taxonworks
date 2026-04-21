@@ -121,75 +121,163 @@
     <!-- Cell modal -->
     <VModal
       v-if="modal.visible"
-      :container-style="{ width: '520px' }"
+      :container-style="{ width: modal.occupant ? '860px' : '520px' }"
       @close="closeModal"
     >
       <template #header>
         <h3>Cell ({{ modal.col }}, {{ modal.row }})</h3>
       </template>
       <template #body>
-        <div class="modal-body-inner">
+        <div :class="['modal-body-inner', { 'modal-two-col': modal.occupant }]">
 
-          <!-- Occupant -->
+          <!-- Left column: placement -->
+          <div class="modal-col-placement">
+
+            <!-- Occupant -->
+            <div
+              v-if="modal.occupant"
+              class="cell-occupant"
+            >
+              <strong>Current occupant:</strong> {{ modal.occupant.name }}
+              <span class="feedback feedback-thin feedback-secondary">{{ modal.occupant.type }}</span>
+              <VBtn
+                color="default"
+                circle
+                @click="unplaceOccupant"
+              >
+                <VIcon
+                  name="undo"
+                  x-small
+                  class="icon-unplace"
+                />
+              </VBtn>
+            </div>
+
+            <!-- Unplaced children list -->
+            <div v-if="unplacedChildren.length">
+              <h4>Unplaced children</h4>
+              <ul class="unplaced-list">
+                <li
+                  v-for="item in unplacedChildren"
+                  :key="item.container_item_id"
+                  class="unplaced-item"
+                  @click="placeChild(item)"
+                >
+                  <span class="container-type-badge">{{ item.type.split('::').slice(1).join('::') }}</span>
+                  {{ item.name }}
+                </li>
+              </ul>
+            </div>
+            <div
+              v-else
+              class="muted"
+            >
+              No unplaced children.
+            </div>
+
+            <hr class="modal-divider" />
+
+            <!-- Autocomplete -->
+            <h4>Find and place a container</h4>
+            <div class="horizontal-left-content gap-small">
+              <VAutocomplete
+                url="/containers/autocomplete"
+                placeholder="Find a container…"
+                param="term"
+                label="label"
+                @get-item="placeFromAutocomplete"
+              />
+            </div>
+
+            <span
+              v-if="placeError"
+              class="feedback-warning"
+            >{{ placeError }}</span>
+          </div>
+
+          <!-- Right column: edit occupant attributes -->
           <div
             v-if="modal.occupant"
-            class="cell-occupant"
+            class="modal-col-edit"
           >
-            <strong>Current occupant:</strong> {{ modal.occupant.name }}
-            <span class="feedback feedback-thin feedback-secondary">{{ modal.occupant.type }}</span>
-            <VBtn
-              color="default"
-              circle
-              @click="unplaceOccupant"
-            >
-              <VIcon
-                name="undo"
-                x-small
-                class="icon-unplace"
+            <h4>Edit</h4>
+
+            <label class="edit-field">
+              Name
+              <input
+                v-model="editForm.name"
+                type="text"
+                class="normal-input full-width-input"
+                @blur="saveOccupantField('name', editForm.name)"
               />
-            </VBtn>
+            </label>
+
+            <div class="edit-field">
+              <span class="edit-label">% empty</span>
+              <div class="slider-track-row">
+                <input
+                  v-model.number="editForm.percentEmpty"
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="1"
+                  class="range-input"
+                  @change="saveOccupantField('asserted_percent_empty', editForm.percentEmpty)"
+                />
+                <span class="slider-value">{{ editForm.percentEmpty ?? '—' }}</span>
+              </div>
+              <div class="slider-btn-row">
+                <VBtn
+                  v-for="pct in [25, 50, 100]"
+                  :key="pct"
+                  color="primary"
+                  small
+                  @click="setPercent('percentEmpty', 'asserted_percent_empty', pct)"
+                >{{ pct }}</VBtn>
+              </div>
+            </div>
+
+            <div class="edit-field">
+              <span class="edit-label">% earmarked</span>
+              <div class="slider-track-row">
+                <input
+                  v-model.number="editForm.percentEarmarked"
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="1"
+                  class="range-input"
+                  @change="saveOccupantField('asserted_percent_earmarked', editForm.percentEarmarked)"
+                />
+                <span class="slider-value">{{ editForm.percentEarmarked ?? '—' }}</span>
+              </div>
+              <div class="slider-btn-row">
+                <VBtn
+                  v-for="pct in [25, 50, 100]"
+                  :key="pct"
+                  color="primary"
+                  small
+                  @click="setPercent('percentEarmarked', 'asserted_percent_earmarked', pct)"
+                >{{ pct }}</VBtn>
+              </div>
+            </div>
+
+            <label class="edit-field">
+              <span class="edit-label">Print label</span>
+              <textarea
+                v-model="editForm.printLabel"
+                rows="3"
+                class="normal-input full-width-input"
+                @blur="saveOccupantField('print_label', editForm.printLabel)"
+              />
+            </label>
+
+            <span
+              v-if="editForm.error"
+              class="feedback-warning"
+            >{{ editForm.error }}</span>
           </div>
 
-          <!-- Unplaced children list -->
-          <div v-if="unplacedChildren.length">
-            <h4>Unplaced children</h4>
-            <ul class="unplaced-list">
-              <li
-                v-for="item in unplacedChildren"
-                :key="item.container_item_id"
-                class="unplaced-item"
-                @click="placeChild(item)"
-              >
-                <span class="container-type-badge">{{ item.type.split('::').slice(1).join('::') }}</span>
-                {{ item.name }}
-              </li>
-            </ul>
-          </div>
-          <div
-            v-else
-            class="muted"
-          >
-            No unplaced children.
-          </div>
-
-          <hr class="modal-divider" />
-
-          <!-- Autocomplete -->
-          <h4>Find and place a container</h4>
-          <div class="horizontal-left-content gap-small">
-            <VAutocomplete
-              url="/containers/autocomplete"
-              placeholder="Find a container…"
-              param="term"
-              label="label"
-              @get-item="placeFromAutocomplete"
-            />
-          </div>
-
-          <span
-            v-if="placeError"
-            class="feedback-warning"
-          >{{ placeError }}</span>
         </div>
       </template>
     </VModal>
@@ -197,7 +285,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, reactive, computed, watch } from 'vue'
 import AjaxCall from '@/helpers/ajaxCall'
 import SvgGrid from './SvgGrid.vue'
 import VModal from '@/components/ui/Modal.vue'
@@ -234,6 +322,7 @@ const moveError    = ref('')
 const expandRowsBy = ref(1)
 const expandColsBy = ref(1)
 const modal        = ref({ visible: false, col: null, row: null, occupant: null })
+const editForm     = reactive({ name: '', percentEmpty: null, percentEarmarked: null, printLabel: '', error: '' })
 
 // ── Derived ───────────────────────────────────────────────────────────────────
 
@@ -305,6 +394,7 @@ const placedCells = computed(() =>
       col:      c.disposition_x,
       row:      c.disposition_y,
       label:    c.name.slice(0, 4),
+      name:     c.name,
       cssClass: c.has_children ? 'grid-cell-placed grid-cell-drillable' : 'grid-cell-placed'
     }))
 )
@@ -315,11 +405,22 @@ const unplacedChildren = computed(() =>
 
 // ── Cell modal ────────────────────────────────────────────────────────────────
 
-function onCellClick({ col, row }) {
+async function onCellClick({ col, row }) {
   const occupant = children.value.find(c => c.disposition_x === col && c.disposition_y === row) || null
   placeError.value = ''
   moveError.value  = ''
+  editForm.error   = ''
   modal.value = { visible: true, col, row, occupant }
+
+  if (occupant) {
+    const { body } = await AjaxCall('get', `/containers/${occupant.id}.json`)
+    if (body?.id) {
+      editForm.name            = body.name || ''
+      editForm.percentEmpty    = body.asserted_percent_empty    ?? null
+      editForm.percentEarmarked = body.asserted_percent_earmarked ?? null
+      editForm.printLabel      = body.print_label || ''
+    }
+  }
 }
 
 function closeModal() {
@@ -357,6 +458,51 @@ async function place(containerItemId, col, row, z = undefined) {
   } else {
     placeError.value = Object.values(body || {}).flat().join(', ') || 'Could not place container.'
   }
+}
+
+// ── Occupant attribute editing ────────────────────────────────────────────────
+
+async function saveOccupantField(field, value) {
+  if (!modal.value.occupant) return
+  editForm.error = ''
+
+  // Always send both percent fields together so the cross-field validation
+  // (earmarked must not exceed empty) has both values to compare against.
+  const attrs = { [field]: value }
+  if (field === 'asserted_percent_empty')
+    attrs.asserted_percent_earmarked = editForm.percentEarmarked
+  if (field === 'asserted_percent_earmarked')
+    attrs.asserted_percent_empty = editForm.percentEmpty
+
+  let body
+  try {
+    ;({ body } = await AjaxCall('patch', `/containers/${modal.value.occupant.id}.json`, {
+      container: attrs
+    }))
+  } catch (error) {
+    const errors = error?.response?.body
+    editForm.error = errors
+      ? Object.values(errors).flat().join(', ')
+      : 'Could not save.'
+    return
+  }
+
+  // If the name changed, update children list and zoom stack so labels refresh
+  if (field === 'name') {
+    const newName = body.name
+    children.value = children.value.map(c =>
+      c.id === modal.value.occupant.id ? { ...c, name: newName } : c
+    )
+    zoomStack.value = zoomStack.value.map(z =>
+      z.id === modal.value.occupant.id ? { ...z, name: newName } : z
+    )
+    modal.value = { ...modal.value, occupant: { ...modal.value.occupant, name: newName } }
+  }
+}
+
+function setPercent(formKey, apiField, value) {
+  editForm[formKey] = value
+  saveOccupantField(apiField, value)
 }
 
 // ── Move (drag-drop) ──────────────────────────────────────────────────────────
@@ -435,6 +581,10 @@ function expandCols() {
   if (!expandColsBy.value || expandColsBy.value < 1) return
   patchCurrentContainer({ size_x: (currentContainer.value.size_x || 0) + expandColsBy.value })
 }
+
+defineExpose({
+  reload: () => currentContainer.value && loadChildren(currentContainer.value.id)
+})
 </script>
 
 <style scoped lang="scss">
@@ -524,6 +674,78 @@ function expandCols() {
   display: flex;
   flex-direction: column;
   gap: 0.75em;
+}
+
+.modal-two-col {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 1.5em;
+}
+
+.modal-col-placement {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75em;
+}
+
+.modal-col-edit {
+  flex: 0 0 300px;
+  min-width: 0;
+  overflow: hidden;
+  border-left: 1px solid #eee;
+  padding-left: 1.5em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75em;
+}
+
+.modal-col-edit h4 {
+  margin: 0 0 0.25em;
+}
+
+.edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+  font-size: 0.9em;
+  min-width: 0;
+}
+
+.edit-label {
+  font-weight: normal;
+}
+
+.full-width-input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.slider-track-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.range-input {
+  flex: 1 1 0;
+  min-width: 0;
+  width: 0;
+}
+
+.slider-value {
+  flex: 0 0 2.5em;
+  text-align: right;
+  font-size: 0.85em;
+  color: #555;
+}
+
+.slider-btn-row {
+  display: flex;
+  gap: 0.3em;
 }
 
 .modal-divider {

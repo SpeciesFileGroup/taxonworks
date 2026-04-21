@@ -95,17 +95,37 @@
         <fieldset :disabled="!building">
           <div class="horizontal-left-content gap-medium flex-wrap specification-row">
             <label>
-              Cabinet type
+              Rooms
+              <input
+                v-model.number="roomCount"
+                type="number"
+                min="1"
+                class="normal-input small-input"
+              />
+            </label>
+
+            <label>
+              Cabinets per room
+              <input
+                v-model.number="cabinetCount"
+                type="number"
+                min="1"
+                class="normal-input small-input"
+              />
+            </label>
+
+            <label>
+              Drawer type
               <select
-                v-model="cabinetType"
+                v-model="drawerType"
                 class="normal-input"
               >
                 <option
-                  v-for="ct in cabinetTypeOptions"
-                  :key="ct.key"
-                  :value="ct.key"
+                  v-for="dt in drawerTypeOptions"
+                  :key="dt.key"
+                  :value="dt.key"
                 >
-                  {{ ct.label }}
+                  {{ dt.label }}
                 </option>
               </select>
             </label>
@@ -139,26 +159,6 @@
                 type="number"
                 min="1"
                 placeholder="none"
-                class="normal-input small-input"
-              />
-            </label>
-
-            <label>
-              Rooms
-              <input
-                v-model.number="roomCount"
-                type="number"
-                min="1"
-                class="normal-input small-input"
-              />
-            </label>
-
-            <label>
-              Cabinets per room
-              <input
-                v-model.number="cabinetCount"
-                type="number"
-                min="1"
                 class="normal-input small-input"
               />
             </label>
@@ -213,7 +213,7 @@
           <!-- Info row -->
           <div class="info-row gap-medium horizontal-left-content flex-wrap">
             <em v-if="cabinetDimensions">
-              {{ selectedCabinetType.label }}:
+              {{ selectedDrawerType.label }}:
               {{ cabinetDimensions.x }}&thinsp;×&thinsp;{{ cabinetDimensions.y }} grid
               (max {{ maxDrawers }} drawers per cabinet)
             </em>
@@ -264,6 +264,7 @@
       <!-- Right: building grid -->
       <div class="grid-panel panel content">
         <BuildingGrid
+          ref="buildingGridRef"
           :building-id="building?.id ?? null"
           @add-container="onGridAddContainer"
         />
@@ -286,25 +287,25 @@ import BuildingGrid from './components/BuildingGrid.vue'
 
 defineOptions({ name: 'CollectionLayout' })
 
-// ── Cabinet types (loaded dynamically from /containers/container_types) ───────
-const cabinetTypeOptions = ref([])
+// ── Drawer types (loaded dynamically from /containers/container_types) ────────
+const drawerTypeOptions = ref([])
 
 onMounted(async () => {
   const { body } = await Container.types()
-  const cabinetEntries = (body || [])
-    .filter(t => t.type && t.type.startsWith('Container::Cabinet'))
+  const drawerEntries = (body || [])
+    .filter(t => t.type && t.type.startsWith('Container::Drawer'))
     .map(t => ({
       key:        t.type,
       label:      t.name || t.type.split('::').pop(),
       dimensions: t.dimensions || null
     }))
     .sort((a, b) => {
-      // Base Cabinet first, then alphabetical
-      if (a.key === 'Container::Cabinet') return -1
-      if (b.key === 'Container::Cabinet') return  1
+      // Base Drawer first, then alphabetical
+      if (a.key === 'Container::Drawer') return -1
+      if (b.key === 'Container::Drawer') return  1
       return a.label.localeCompare(b.label)
     })
-  cabinetTypeOptions.value = cabinetEntries
+  drawerTypeOptions.value = drawerEntries
 })
 
 // ── State ────────────────────────────────────────────────────────────────────
@@ -315,7 +316,7 @@ const buildingSizeY = ref(null)
 const buildingSizeZ = ref(null)
 const buildingError = ref('')
 
-const cabinetType             = ref('Container::Cabinet')
+const drawerType              = ref('Container::Drawer')
 const cabinetSizeX            = ref(null)
 const cabinetSizeY            = ref(null)
 const cabinetSizeZ            = ref(null)
@@ -327,14 +328,15 @@ const defaultPercentEarmarked = ref(null)
 const scaffolding             = ref(false)
 const scaffoldError           = ref('')
 
-const containerList = ref([])
+const containerList   = ref([])
+const buildingGridRef = ref(null)
 
-// ── Cabinet type helpers ──────────────────────────────────────────────────────
-const selectedCabinetType = computed(() =>
-  cabinetTypeOptions.value.find(t => t.key === cabinetType.value)
+// ── Drawer type helpers ───────────────────────────────────────────────────────
+const selectedDrawerType = computed(() =>
+  drawerTypeOptions.value.find(t => t.key === drawerType.value)
 )
 
-const cabinetDimensions = computed(() => selectedCabinetType.value?.dimensions ?? null)
+const cabinetDimensions = computed(() => selectedDrawerType.value?.dimensions ?? null)
 
 const maxDrawers = computed(() => {
   const d = cabinetDimensions.value
@@ -418,7 +420,7 @@ async function addRooms() {
 
   const payload = {
     building_id:  building.value.id,
-    cabinet_type: cabinetType.value,
+    cabinet_type: (drawerType.value || 'Container::Drawer').replace(/Drawer/g, 'Cabinet'),
     rooms:        roomCount.value,
     cabinets:     cabinetCount.value,
     drawers:      drawerCount.value
@@ -444,7 +446,10 @@ async function addRooms() {
   scaffolding.value = false
 
   if (body?.created_rooms !== undefined) {
-    await refreshData()
+    await Promise.all([
+      refreshData(),
+      buildingGridRef.value?.reload()
+    ])
   } else {
     scaffoldError.value = body?.error || 'Failed to add containers.'
   }
