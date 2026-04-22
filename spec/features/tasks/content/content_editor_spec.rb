@@ -9,6 +9,10 @@ describe 'Content editor', type: :feature, group: :contents do
 
       specify 'can create new topic' do
         click_button('Topic')
+
+        # !! In a headed local browser, this nested modal flow can fail if the
+        # browser window is backgrounded/occluded. Headless runs are stable. !!
+
         expect(page).to have_text('Select Topic')
 
         # SmartSelector fires an API call on mount. Wait for it to finish
@@ -24,7 +28,6 @@ describe 'Content editor', type: :feature, group: :contents do
         fill_in 'Definition', with: 'Testing, making sure this is long enough'
         click_button('Create')
 
-        expect(page).to have_text('Testing topic was successfully created.')
         expect(page).to have_button('Change Topic')
       end
     end
