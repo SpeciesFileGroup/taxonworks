@@ -9,6 +9,7 @@ describe 'Content editor', type: :feature, group: :contents do
 
       specify 'can create new topic' do
         click_button('Topic')
+        expect(page).to have_text('Select Topic')
 
         # SmartSelector fires an API call on mount. Wait for it to finish
         # before clicking 'Create new' — the DOM re-render on response can
@@ -17,6 +18,7 @@ describe 'Content editor', type: :feature, group: :contents do
         expect(page).not_to have_css('.vue-box-spinner')
 
         click_button('Create new')
+        expect(page).to have_text('New topic')
 
         fill_in 'Name', with: 'Testing topic'
         fill_in 'Definition', with: 'Testing, making sure this is long enough'
