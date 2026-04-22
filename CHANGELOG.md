@@ -24,6 +24,8 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - API endpoint for observation matrices only returns public ones instead of all
 - `Download formatted` modal now display italics in preview box [#1856]
 - Browse Taxon Name: Save `Redirect to valid name` state in user preferences [#4892]
+- New taxon name: Save `Autosave` state in user preferences
+- New source: Save `Autosave` state in user preferences
 
 ### Fixed
 
