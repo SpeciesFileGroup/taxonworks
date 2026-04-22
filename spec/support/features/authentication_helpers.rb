@@ -22,7 +22,7 @@ module Features
 
     def select_a_project(project)
       visit select_project_path(project)
-      expect(page).to have_css(".hub_project_name[data-current-project-id='#{project.id}']")
+      find(".hub_project_name[data-current-project-id='#{project.id}']")
     end
 
     def sign_in_project_administrator_and_select_project
