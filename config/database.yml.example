@@ -11,14 +11,15 @@ development:
   username: taxonworks_development
   password:
 #  host: db
-test:
+test: 
   adapter: postgis
-  encoding: utf8
+  encoding: utf8 
   postgis_extension: true
   pool: 5
   database: taxonworks_test<%= ENV['TEST_ENV_NUMBER'] %>
   username: taxonworks_development 
   password:
 #  host: db
+
 
 
