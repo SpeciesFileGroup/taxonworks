@@ -23,6 +23,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - OTU Smart Selector now sorts recent list by most recently used [#4865]
 - API endpoint for observation matrices only returns public ones instead of all
 - `Download formatted` modal now display italics in preview box [#1856]
+- Browse Taxon Name: Save `Redirect to valid name` state in user preferences [#4892]
 
 ### Fixed
 
@@ -51,6 +52,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4866]: https://github.com/SpeciesFileGroup/taxonpages/issues/4866
 [#4879]: https://github.com/SpeciesFileGroup/taxonpages/issues/4879
 [#4882]: https://github.com/SpeciesFileGroup/taxonpages/issues/4882
+[#4892]: https://github.com/SpeciesFileGroup/taxonpages/issues/4892
 
 ## [0.61.0] - 2026-02-20
 

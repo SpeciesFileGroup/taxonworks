@@ -26,8 +26,8 @@
 <script setup>
 import VAutocomplete from '@/components/ui/Autocomplete'
 import { RouteNames } from '@/routes/routes'
-import { useHotkey } from '@/composables'
-import { ref, watch, onMounted } from 'vue'
+import { useHotkey, useUserPreference } from '@/composables'
+import { ref, onMounted } from 'vue'
 import { getPlatformKey } from '@/helpers'
 
 const autocomplete = ref(null)
@@ -44,22 +44,12 @@ const shortcuts = ref([
 
 useHotkey(shortcuts.value)
 
-const SettingsStore = {
-  redirectValid: 'browseNomenclature::redirectValid'
-}
+const STORAGE_KEY_REDIRECT_VALID = 'browseNomenclature::redirectValid'
 
-const validName = ref(true)
+const validName = useUserPreference(STORAGE_KEY_REDIRECT_VALID, true)
 
-watch(validName, (newVal) => {
-  sessionStorage.setItem(SettingsStore.redirectValid, newVal)
-})
 
 onMounted(() => {
-  const value = sessionStorage.getItem(SettingsStore.redirectValid)
-  if (value !== null) {
-    validName.value = value === 'true'
-  }
-
   TW.workbench.keyboard.createLegend('Alt+f', 'Search', 'Browse nomenclature')
 })
 
