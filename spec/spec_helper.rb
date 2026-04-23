@@ -127,16 +127,14 @@ RSpec.configure do |config|
 
   # Capybara requires truncation strategy!!
   config.before(:each, type: :feature) do
-    # :rack_test driver's Rack app under test shares database connection
-    # with the specs, so continue to use transaction strategy for speed.
-    driver_shares_db_connection_with_specs = Capybara.current_driver == :rack_test
-
-    unless driver_shares_db_connection_with_specs
-      # Driver is probably for an external browser with an app
-      # under test that does *not* share a database connection with the
-      # specs, so use truncation strategy.
-      DatabaseCleaner.strategy = :truncation, {except: %w(spatial_ref_sys)}
-    end
+    # Feature specs frequently request a connection multiple times over the
+    # course of a spec (even rack_test specs, which run from a single thread,
+    # can cause rails itself to use more than one db connection over the course
+    # of a spec); if transaction strategy is used for cleanup then when any
+    # connection other than the original holding the transaction state is
+    # used from the pool of connections, auth fails immediately (usually
+    # with "woah there, sign in": an intermittent failure).
+    DatabaseCleaner.strategy = :truncation, {except: %w(spatial_ref_sys)}
     #Capybara.current_driver  = Capybara.javascript_driver
     Features::Downloads.clear_downloads # TODO, this should be downloads: true strategy to eliminate need to call everytime
     FileUtils.rm_rf(Download.storage_path)
@@ -148,6 +146,7 @@ RSpec.configure do |config|
 
   config.before(:each) do
     DatabaseCleaner.start
+    ActionMailer::Base.deliveries.clear
   end
 
   config.append_after(:each) do
