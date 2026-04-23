@@ -1,4 +1,4 @@
-json.extract! identifier, :id, :identifier_object_id, :identifier_object_type, :identifier, :type, :cached, :namespace_id, :created_by_id, :updated_by_id
+json.extract! identifier, :id, :identifier_object_id, :identifier_object_type, :identifier, :type, :cached, :namespace_id
 json.identifier_object_global_id identifier.identifier_object.to_global_id.to_s
 
 if extend_response_with('namespace')
@@ -8,5 +8,4 @@ if extend_response_with('namespace')
     end
   end
 end
-
 
