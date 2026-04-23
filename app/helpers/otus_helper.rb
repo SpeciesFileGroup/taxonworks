@@ -230,6 +230,24 @@ module OtusHelper
     h
   end
 
+  # @return [Hash]
+  #   GeoJSON FeatureCollection of absent field occurrences for the OTU,
+  #   including those determined by ancestor taxon names.
+  def otu_distribution_is_absent(otu)
+    return {} if otu.nil?
+    h = geojson_for_otu(otu)
+    t = geojson_target_for_otu(otu)
+
+    otu.absent_and_ancestor_absent_field_occurrences.each do |f|
+      g = field_occurrence_to_geo_json_feature(f)
+      next unless g
+      g['properties']['target'] = t
+      h['features'].push g
+    end
+
+    h
+  end
+
   def geojson_for_otu(otu)
     {
       'type' => 'FeatureCollection',

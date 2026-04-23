@@ -394,6 +394,24 @@ class Otu < ApplicationRecord
     field_occurrences.where(taxon_determinations: {position: 1})
   end
 
+  # @return [ActiveRecord::Relation<FieldOccurrence>]
+  #   FieldOccurrences with is_absent=true whose current TaxonDetermination is this OTU
+  #   or an OTU whose taxon name is an ancestor of this OTU's taxon name.
+  #   Uses TaxonNameHierarchies closure table; includes self when taxon_name_id is present.
+  def absent_and_ancestor_absent_field_occurrences
+    if taxon_name_id.nil?
+      return field_occurrences.where(taxon_determinations: {position: 1}, is_absent: true)
+    end
+
+    FieldOccurrence
+      .joins(taxon_determinations: :otu)
+      .joins('JOIN taxon_names tn_fo ON tn_fo.id = otus.taxon_name_id')
+      .joins('JOIN taxon_name_hierarchies tnh_fo ON tnh_fo.ancestor_id = tn_fo.cached_valid_taxon_name_id')
+      .where(taxon_determinations: {position: 1})
+      .where(field_occurrences: {is_absent: true, project_id:})
+      .where('tnh_fo.descendant_id = ?', taxon_name_id)
+  end
+
   # @return [Boolean]
   #   whether or not this otu is coordinate (see coordinate_otus) with this otu
   def coordinate_with?(otu_id)
