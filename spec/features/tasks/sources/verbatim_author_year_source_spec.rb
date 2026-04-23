@@ -13,33 +13,22 @@ describe 'Verbatim author year to source', type: :feature, group: :sources do
       end
 
       context 'with taxon names having verbatim author and year', js: true do
-        let!(:root) { FactoryBot.create(:root_taxon_name, user_project_attributes(@user, @project)) }
-
         let!(:taxon_name1) {
-          FactoryBot.create(:protonym,
-            parent: root,
-            name: 'Smithidae',
-            rank_class: Ranks.lookup(:iczn, 'family'),
+          FactoryBot.create(:valid_protonym,
             verbatim_author: 'Smith',
             year_of_publication: 2020,
             **user_project_attributes(@user, @project)
           )
         }
         let!(:taxon_name2) {
-          FactoryBot.create(:protonym,
-            parent: root,
-            name: 'Smithini',
-            rank_class: Ranks.lookup(:iczn, 'tribe'),
+          FactoryBot.create(:valid_protonym,
             verbatim_author: 'Smith',
             year_of_publication: 2020,
             **user_project_attributes(@user, @project)
           )
         }
         let!(:taxon_name3) {
-          FactoryBot.create(:protonym,
-            parent: root,
-            name: 'Jonidae',
-            rank_class: Ranks.lookup(:iczn, 'family'),
+          FactoryBot.create(:valid_protonym,
             verbatim_author: 'Jones',
             year_of_publication: 2019,
             **user_project_attributes(@user, @project)
