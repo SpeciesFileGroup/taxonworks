@@ -22,6 +22,10 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Upgraded to Node 24 LTS
 - OTU Smart Selector now sorts recent list by most recently used [#4865]
 - API endpoint for observation matrices only returns public ones instead of all
+- `Download formatted` modal now display italics in preview box [#1856]
+- Browse Taxon Name: Save `Redirect to valid name` state in user preferences [#4892]
+- New taxon name: Save `Autosave` state in user preferences
+- New source: Save `Autosave` state in user preferences
 
 ### Fixed
 
@@ -40,6 +44,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - The Browse taxon name task bar is positioned incorrectly when the header bar is fixed.
 - Filter Source: The style selection in formatted download always applies the same style regardless of what is selected.
 
+[#1856]: https://github.com/SpeciesFileGroup/taxonworks/issues/1856
 [#4661]: https://github.com/SpeciesFileGroup/taxonworks/issues/4661
 [#4851]: https://github.com/SpeciesFileGroup/taxonpages/issues/4851
 [#4852]: https://github.com/SpeciesFileGroup/taxonpages/issues/4852
@@ -49,6 +54,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4866]: https://github.com/SpeciesFileGroup/taxonpages/issues/4866
 [#4879]: https://github.com/SpeciesFileGroup/taxonpages/issues/4879
 [#4882]: https://github.com/SpeciesFileGroup/taxonpages/issues/4882
+[#4892]: https://github.com/SpeciesFileGroup/taxonpages/issues/4892
 
 ## [0.61.0] - 2026-02-20
 

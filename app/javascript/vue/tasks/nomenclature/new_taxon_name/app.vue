@@ -16,6 +16,7 @@
           />
           Autosave
         </label>
+
         <autocomplete
           v-if="!taxon.id"
           class="autocomplete-search-bar"
@@ -66,18 +67,19 @@ import NavHeader from './components/navHeader.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import platformKey from '@/helpers/getPlatformKey'
 import ColumnRight from './components/ColumnRight.vue'
-import { useHotkey } from '@/composables'
+import { useHotkey, useUserPreference } from '@/composables'
 import { SectionComponents } from './const/components.js'
-import { convertType } from '@/helpers/types.js'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 import { ActionNames } from './store/actions/actions'
-import { computed, ref, onMounted, useTemplateRef } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
 
 defineOptions({
   name: 'NewTaxonName'
 })
+
+const KEY_STORAGE_AUTOSAVE = 'task::NewTaxonName::Autosave'
 
 const store = useStore()
 
@@ -96,25 +98,17 @@ useHotkey(shortcuts.value)
 
 const taxon = computed(() => store.getters[GetterNames.GetTaxon])
 
-const isAutosaveActive = computed({
-  get() {
-    return store.getters[GetterNames.GetAutosave]
-  },
-  set(value) {
-    store.commit(MutationNames.SetAutosave, value)
-  }
-})
+const isAutosaveActive = useUserPreference(KEY_STORAGE_AUTOSAVE, true)
+
+watch(
+  isAutosaveActive,
+  (value) => store.commit(MutationNames.SetAutosave, value),
+  { immediate: true }
+)
 
 onMounted(() => {
   const urlParams = new URLSearchParams(window.location.search)
   let taxonId = urlParams.get('taxon_name_id')
-  const value = convertType(
-    sessionStorage.getItem('task::newtaxonname::autosave')
-  )
-
-  if (value !== null) {
-    isAutosaveActive.value = value
-  }
 
   if (!taxonId) {
     taxonId = location.pathname.split('/')[4]
