@@ -60,8 +60,8 @@ class BiologicalAssociationsController < ApplicationController
         format.json { render :show, status: :created, location: @biological_association }
       else
         format.html { render :new }
-        errors = @biological_association&.errors&.presence || { errors: service&.errors || [] }
-        format.json { render json: errors, status: :unprocessable_content }
+        messages = @biological_association&.errors&.any? ? @biological_association.errors.full_messages : (service&.errors || [])
+        format.json { render json: { errors: messages }, status: :unprocessable_content }
       end
     end
   end
@@ -244,7 +244,8 @@ class BiologicalAssociationsController < ApplicationController
   end
 
   # GET /biological_associations/origin_subject_index.json?origin_object_id=1&origin_object_type=Otu
-  # Returns BiologicalAssociations whose subject is an AnatomicalPart originated from the base object.
+  # Returns BiologicalAssociations whose subject is an AnatomicalPart originated
+  # from the base object.
   def origin_subject_index
     object_id = params.require(:origin_object_id).to_i
     object_type = params.require(:origin_object_type).to_s

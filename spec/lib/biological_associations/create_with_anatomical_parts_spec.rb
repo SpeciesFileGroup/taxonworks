@@ -158,5 +158,17 @@ RSpec.describe BiologicalAssociations::CreateWithAnatomicalParts, type: :model d
         .to change(AnatomicalPart, :count).by(0)
         .and change(TaxonDetermination, :count).by(0)
     end
+
+    specify 'returns false and populates errors when subject type is not a valid biological association type' do
+      service, success = call(base_params(biological_association_subject_type: 'User'))
+      expect(success).to be false
+      expect(service.errors).not_to be_empty
+    end
+
+    specify 'returns false and populates errors when object type is not a valid biological association type' do
+      service, success = call(base_params(biological_association_object_type: 'User'))
+      expect(success).to be false
+      expect(service.errors).not_to be_empty
+    end
   end
 end

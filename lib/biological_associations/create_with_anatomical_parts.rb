@@ -27,6 +27,9 @@ module BiologicalAssociations
     rescue ActiveRecord::RecordInvalid => e
       @errors = e.record.errors.full_messages
       false
+    rescue ArgumentError => e
+      @errors = [e.message]
+      false
     end
 
     private
@@ -64,6 +67,8 @@ module BiologicalAssociations
     end
 
     def build_association_end(id:, type:, anatomical_part_attributes:, taxon_determination_attributes:)
+      raise ArgumentError, "#{type.inspect} is not a valid type for biological associations" unless BIOLOGICALLY_RELATABLE_TYPES.include?(type)
+
       origin = type.constantize.find(id)
 
       return origin if anatomical_part_attributes.blank?
