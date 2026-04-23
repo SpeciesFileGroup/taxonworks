@@ -26,6 +26,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Browse Taxon Name: Save `Redirect to valid name` state in user preferences [#4892]
 - New taxon name: Save `Autosave` state in user preferences
 - New source: Save `Autosave` state in user preferences
+- Remove all `user_id`s from api outputs [#4888]
 
 ### Fixed
 
@@ -43,6 +44,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Browse OTU button creates OTUs with an incorrect taxon name ID on the /otus/:id page [#4879]
 - The Browse taxon name task bar is positioned incorrectly when the header bar is fixed.
 - Filter Source: The style selection in formatted download always applies the same style regardless of what is selected.
+- Fix some tests that intermittently fail in our CI (Continuous Integration) environment, add a script to produce a report of such failures [#4891]
 
 [#1856]: https://github.com/SpeciesFileGroup/taxonworks/issues/1856
 [#4661]: https://github.com/SpeciesFileGroup/taxonworks/issues/4661
@@ -54,7 +56,9 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4866]: https://github.com/SpeciesFileGroup/taxonpages/issues/4866
 [#4879]: https://github.com/SpeciesFileGroup/taxonpages/issues/4879
 [#4882]: https://github.com/SpeciesFileGroup/taxonpages/issues/4882
+[#4888]: https://github.com/SpeciesFileGroup/taxonpages/issues/4888
 [#4892]: https://github.com/SpeciesFileGroup/taxonpages/issues/4892
+[#4891]: https://github.com/SpeciesFileGroup/taxonpages/issues/4891
 
 ## [0.61.0] - 2026-02-20
 
