@@ -2,7 +2,6 @@ require 'rails_helper'
 
 describe Identifier::Local, type: :model, group: :identifiers do
   let(:local_identifier) {Identifier::Local.new}
-  let(:otu) {FactoryBot.create(:valid_otu)}
   let(:namespace_name) {'foo'}
   let(:namespace_name2) {'bar'}
   let(:namespace) {FactoryBot.create(:valid_namespace, name: namespace_name )}
@@ -56,22 +55,20 @@ describe Identifier::Local, type: :model, group: :identifiers do
       end
     end
 
-    context 'you can not add' do
-      specify 'the same namespaced identifier to more than one object (of the same type)' do
-        i1 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: specimen1, identifier: 123)
-        i2 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: specimen2, identifier: 123)
-        expect(i1.save).to be_truthy
-        expect(i2.save).to be_falsey
-        expect(i2.errors.include?(:identifier)).to be_truthy
-      end
+    specify 'you can not add the same namespaced identifier to more than one object (of the same type)' do
+      i1 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: specimen1, identifier: 123)
+      i2 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: specimen2, identifier: 123)
+      expect(i1.save).to be_truthy
+      expect(i2.save).to be_falsey
+      expect(i2.errors.include?(:identifier)).to be_truthy
+    end
 
-      specify 'the same namespaced identifier to more than one object (of different types)' do
-        i1 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: specimen1, identifier: 123)
-        i2 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: otu, identifier: 123)
-        expect(i1.save).to be_truthy
-        expect(i2.save).to be_falsey
-        expect(i2.errors.include?(:identifier)).to be_truthy
-      end
+    specify 'you can add the same namespaced identifier to more than one object (of different types)' do
+      e = FactoryBot.create(:valid_extract)
+      i1 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: specimen1, identifier: 123)
+      i2 = Identifier::Local::CatalogNumber.new(namespace: namespace, identifier_object: e, identifier: 123)
+      expect(i1.save).to be_truthy
+      expect(i2.save).to be_truthy
     end
   end
 

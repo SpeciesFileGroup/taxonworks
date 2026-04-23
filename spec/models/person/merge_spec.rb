@@ -53,8 +53,6 @@ describe Person, type: :model, group: :people do
                                 alternate_value_object_attribute: 'first_name',
                                 alternate_value_object:           person1) }
 
-  let(:id1) { FactoryBot.create(:valid_identifier) }
-
   let(:no1) { FactoryBot.create(:valid_note) }
 
   let(:da2) { FactoryBot.create(:valid_data_attribute_internal_attribute,

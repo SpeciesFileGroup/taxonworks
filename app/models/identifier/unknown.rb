@@ -9,9 +9,13 @@ class Identifier::Unknown < Identifier
 
   validates_uniqueness_of :identifier, scope: [:project_id]
 
+  def is_unknown?
+    true
+  end
+
   protected
 
-  def set_cached
-    update_column(:cached, identifier)
+  def build_cached
+    identifier
   end
 end

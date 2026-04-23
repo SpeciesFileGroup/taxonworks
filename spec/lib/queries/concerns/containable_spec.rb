@@ -78,7 +78,7 @@ describe 'Queries::Concerns::Containable', type: :model do
       e = FactoryBot.create(:valid_extract, contained_in: c)  # not this
       n = FactoryBot.create(:valid_extract)
 
-      c.identifiers << FactoryBot.create(:valid_identifier_local)
+      FactoryBot.create(:valid_identifier_local, identifier_object: c)
 
       qe.local_identifiers = false
       expect(qe.all).to contain_exactly(n)
@@ -89,8 +89,8 @@ describe 'Queries::Concerns::Containable', type: :model do
       e = FactoryBot.create(:valid_extract, contained_in: c)  # not this
       n = FactoryBot.create(:valid_extract)
 
-      c.identifiers << FactoryBot.create(:valid_identifier_local)
-      n.identifiers << FactoryBot.create(:valid_identifier_local)
+      FactoryBot.create(:valid_identifier_local, identifier_object: c)
+      FactoryBot.create(:valid_identifier_local, identifier_object: n)
 
       qe.local_identifiers = false
       expect(qe.all).to contain_exactly() # they all have!
@@ -113,7 +113,7 @@ describe 'Queries::Concerns::Containable', type: :model do
       c = FactoryBot.create(:valid_container)
       s = Specimen.create!(contained_in: c)
       Specimen.create! # not this
-      c.identifiers << FactoryBot.create(:valid_identifier_local)
+      FactoryBot.create(:valid_identifier_local, identifier_object: c)
 
       qco.local_identifiers = true
       expect(qco.all).to contain_exactly(s)
@@ -123,7 +123,7 @@ describe 'Queries::Concerns::Containable', type: :model do
       c = FactoryBot.create(:valid_container)
       s = Specimen.create!(contained_in: c)  # not this
       n = Specimen.create!
-      c.identifiers << FactoryBot.create(:valid_identifier_local)
+      FactoryBot.create(:valid_identifier_local, identifier_object: c)
 
       qco.local_identifiers = false
       expect(qco.all).to contain_exactly(n)
