@@ -43,12 +43,13 @@
 import { ref } from 'vue'
 import AutoselectField from '@/components/ui/AutoselectField.vue'
 import OtuNewModal from '@/components/ui/AutoselectField/OtuNewModal.vue'
+import TaxonNameNewModal from '@/components/ui/AutoselectField/TaxonNameNewModal.vue'
 
 // Models are registered here by the autoselect generator.
 // Each entry added by `rails generate taxon_works:autoselect <model_name>`
 // newRecordComponent: Vue component to mount when !n is typed (null = !n disabled)
 const registeredModels = ref([
-  { url: '/taxon_names/autoselect', param: 'taxon_name_id', label: 'TaxonName', newRecordComponent: null },
+  { url: '/taxon_names/autoselect', param: 'taxon_name_id', label: 'TaxonName', newRecordComponent: TaxonNameNewModal },
   { url: '/otus/autoselect',        param: 'otu_id',        label: 'OTU',       newRecordComponent: OtuNewModal },
 ])
 

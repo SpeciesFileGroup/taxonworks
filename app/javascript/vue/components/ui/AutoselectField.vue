@@ -167,7 +167,7 @@ import CatalogueOfLifeSpinner from '@/components/ui/AutoselectField/CatalogueOfL
 import TaxonWorksSpinner from '@/components/ui/AutoselectField/TaxonWorksSpinner.vue'
 
 const LEVEL_SPINNERS = {
-  catalog_of_life: CatalogueOfLifeSpinner
+  catalogue_of_life: CatalogueOfLifeSpinner
 }
 
 // ── Props & emits ──────────────────────────────────────────────────────────────
