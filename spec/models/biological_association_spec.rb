@@ -234,6 +234,13 @@ describe BiologicalAssociation, type: :model do
       ba = make_ba(subject: co, object: otu2)
       expect(ba.otu_ids).to contain_exactly(otu2.id)
     end
+
+    specify 'AnatomicalPart subject returns otu_id via cached_otu_id' do
+      otu2 = FactoryBot.create(:valid_otu)
+      ap = FactoryBot.create(:valid_anatomical_part, taxon_determination_otu: otu2)
+      ba = make_ba(subject: ap, object: otu)
+      expect(ba.otu_ids).to contain_exactly(otu.id, otu2.id)
+    end
   end
 
   context 'concerns' do

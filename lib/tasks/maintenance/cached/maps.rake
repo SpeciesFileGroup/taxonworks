@@ -659,6 +659,7 @@ namespace :tw do
           # Given a scope with biological_associations joined as `ba_table`,
           # returns one query per subject/object combination across all BA object types.
           ba_otu_queries = ->(base, ba_table) do
+            raise ArgumentError, "ba_table must be 'biological_associations' or 'ba'" unless %w[biological_associations ba].include?(ba_table)
             [
               base.where("#{ba_table}.biological_association_subject_type = 'Otu'")
                 .select("asserted_distributions.id AS ad_id, #{ba_table}.biological_association_subject_id AS otu_id"),
