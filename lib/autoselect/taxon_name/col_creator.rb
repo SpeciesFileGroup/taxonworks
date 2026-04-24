@@ -18,6 +18,9 @@ module Autoselect
     #   Falls back to trying all codes when nil or unrecognised.
     # @param project_id [Integer]
     # @param user_id [Integer]
+    #
+    # TODO: Rename to remove abbreviation
+    #  CatalogueOfLifeCreator
     class ColCreator
 
       COL_BASE_URI = 'https://www.catalogueoflife.org/data/taxon/'.freeze
@@ -94,9 +97,12 @@ module Autoselect
         ::Project.find(@project_id).root_taxon_name.id
       end
 
+
+      # TODO: needs to be in an isolated library
+
       # Maps a human-readable CoL rank string to a TaxonWorks rank_class string.
       #
-      # When @col_code is recognised (e.g. 'botanical' → ICN_LOOKUP), that lookup is tried first
+      # When @col_code is recognized (e.g. 'botanical' → ICN_LOOKUP), that lookup is tried first
       # so that plant names receive ICN rank classes rather than ICZN ones.  Falls back through
       # all four codes in order so that any rank resolves if possible.
       #
@@ -116,13 +122,16 @@ module Autoselect
         # Fall through all codes (excluding the primary already tried)
         fallbacks = [:ICZN_LOOKUP, :ICN_LOOKUP, :ICNP_LOOKUP, :ICVCN_LOOKUP].reject { |k| k == primary_key }
         fallbacks.each do |key|
-          result = Object.const_get("::#{key}")[r]
+          result = Object.const_get("::#{key}")[r] # TODO: BAD
           return result if result
         end
 
         nil
       end
 
+      #
+      # TODO: Needs to be in an isolated library
+      #
       # Splits a CoL authorship string into [verbatim_author, year_of_publication].
       #
       # TaxonWorks Protonym validates that verbatim_author contains no digits, so the year

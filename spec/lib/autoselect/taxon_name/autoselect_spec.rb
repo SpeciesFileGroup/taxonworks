@@ -23,13 +23,13 @@ RSpec.describe Autoselect::TaxonName::Autoselect, type: :model do
       expect(config[:config]).to be_a(Hash)
     end
 
-    it 'includes fast, smart, catalog_of_life as level keys in map' do
-      expect(config[:map]).to include('fast', 'smart', 'catalog_of_life')
+    it 'includes fast, smart, catalogue_of_life as level keys in map' do
+      expect(config[:map]).to include('fast', 'smart', 'catalogue_of_life')
     end
 
     it 'includes level metadata in levels array' do
       level_keys = config[:levels].map { |l| l[:key].to_s }
-      expect(level_keys).to include('fast', 'smart', 'catalog_of_life')
+      expect(level_keys).to include('fast', 'smart', 'catalogue_of_life')
     end
 
     it 'includes operators' do
@@ -46,12 +46,12 @@ RSpec.describe Autoselect::TaxonName::Autoselect, type: :model do
         expect(levels_by_key['fast'][:external]).to be false
       end
 
-      it 'catalog_of_life level is external' do
-        expect(levels_by_key['catalog_of_life'][:external]).to be true
+      it 'catalogue_of_life level is external' do
+        expect(levels_by_key['catalogue_of_life'][:external]).to be true
       end
 
-      it 'catalog_of_life has longer fuse_ms than fast' do
-        expect(levels_by_key['catalog_of_life'][:fuse_ms]).to be > levels_by_key['fast'][:fuse_ms]
+      it 'catalogue_of_life has longer fuse_ms than fast' do
+        expect(levels_by_key['catalogue_of_life'][:fuse_ms]).to be > levels_by_key['fast'][:fuse_ms]
       end
     end
   end
@@ -127,8 +127,8 @@ RSpec.describe Autoselect::TaxonName::Autoselect, type: :model do
         ).response
       }
 
-      it 'next_level is catalog_of_life when smart yields nothing' do
-        expect(result[:next_level]).to eq('catalog_of_life')
+      it 'next_level is catalogue_of_life when smart yields nothing' do
+        expect(result[:next_level]).to eq('catalogue_of_life')
       end
     end
   end
@@ -136,7 +136,7 @@ RSpec.describe Autoselect::TaxonName::Autoselect, type: :model do
   describe 'level stack' do
     it 'has three levels in order' do
       keys = autoselect.levels.map { |l| l.key.to_s }
-      expect(keys).to eq(%w[fast smart catalog_of_life])
+      expect(keys).to eq(%w[fast smart catalogue_of_life])
     end
   end
 end
@@ -161,7 +161,7 @@ RSpec.describe Autoselect::TaxonName::Levels::Fast, type: :model do
   end
 end
 
-RSpec.describe Autoselect::TaxonName::Levels::CatalogOfLife do
+RSpec.describe Autoselect::TaxonName::Levels::CatalogueOfLife do
   let(:level) { described_class.new }
 
   it 'is external' do

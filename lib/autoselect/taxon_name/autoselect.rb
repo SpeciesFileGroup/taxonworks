@@ -12,7 +12,7 @@ module Autoselect
         [
           ::Autoselect::TaxonName::Levels::Fast.new,
           ::Autoselect::TaxonName::Levels::Smart.new,
-          ::Autoselect::TaxonName::Levels::CatalogOfLife.new,
+          ::Autoselect::TaxonName::Levels::CatalogueOfLife.new,
         ]
       end
 

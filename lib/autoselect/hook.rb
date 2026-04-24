@@ -1,8 +1,8 @@
 # lib/autoselect/hook.rb
 #
 # Base class for multi-step levels that chain autoselects across models.
-# The canonical example is OTU's catalog_of_life level, which hooks into
-# TaxonName's catalog_of_life level to create a TaxonName first, then
+# The canonical example is OTU's catalogue_of_life level, which hooks into
+# TaxonName's catalogue_of_life level to create a TaxonName first, then
 # uses the resulting taxon_name_id to create the OTU.
 #
 # Hook execution is internal (Ruby, not HTTP). The hook calls the sub-autoselect

@@ -8,6 +8,9 @@
 #
 class Autoselect::Levels::Smart < Autoselect::Level
 
+  RECENT_LIMIT = 10
+  RECENT_WINDOW = 1.week
+
   # @return [Class] the Queries::<Model>::Autocomplete class to delegate to
   def query_class
     raise NotImplementedError, "#{self.class} must implement #query_class"
@@ -24,9 +27,6 @@ class Autoselect::Levels::Smart < Autoselect::Level
   def description
     'Multi-query results with fuzzy and pattern matching.'
   end
-
-  RECENT_LIMIT = 10
-  RECENT_WINDOW = 1.week
 
   # @param term [String]
   # @param operator [Symbol, nil] :recent, :recent_mine, or nil
@@ -47,6 +47,8 @@ class Autoselect::Levels::Smart < Autoselect::Level
 
   private
 
+  # TODO: abstract to a recent concern if it doesn't already exist
+  #
   # Records updated in the last week by anyone in the project, most recent first.
   # Delegates to the model Filter so project_id scoping is handled correctly
   # for models that may not have a project_id column.
@@ -58,6 +60,7 @@ class Autoselect::Levels::Smart < Autoselect::Level
     ).all.order(updated_at: :desc).limit(RECENT_LIMIT).to_a
   end
 
+  # TODO: See existing recent records, or abstract this to a Recent concern
   # Records updated in the last week by the given user, most recent first.
   def recent_records_by_user(project_id:, user_id:)
     return [] if project_id.blank? || user_id.blank?

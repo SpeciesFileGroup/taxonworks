@@ -81,7 +81,7 @@ module Vendor
       r
     end
 
-    # Searches the Catalog of Life by name string.
+    # Searches the Catalogue of Life by name string.
     #
     # The Colrapi gem takes dataset_id as a positional first argument.
     # Response structure: { 'total' => Integer, 'result' => Array }
@@ -145,7 +145,8 @@ module Vendor
 
       # Drop suprakingdom ranks (e.g. 'domain') that have no equivalent in TaxonWorks
       # nomenclatural codes.  Kingdom is the highest rank we include.
-      ancestor_chain = ancestor_chain.reject { |a| a['rank']&.downcase == 'domain' }
+      # CoL classification returns proximal→distal (immediate parent first); reverse to kingdom-first.
+      ancestor_chain = ancestor_chain.reject { |a| a['rank']&.downcase == 'domain' }.reverse
 
       alignment = ancestor_chain.map do |ancestor|
         rank     = ancestor['rank']&.downcase

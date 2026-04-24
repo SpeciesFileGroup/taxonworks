@@ -1,19 +1,19 @@
-# lib/autoselect/taxon_name/levels/catalog_of_life.rb
+# lib/autoselect/taxon_name/levels/catalogue_of_life.rb
 module Autoselect
   module TaxonName
     module Levels
-      class CatalogOfLife < ::Autoselect::Level
+      class CatalogueOfLife < ::Autoselect::Level
 
         def key
-          :catalog_of_life
+          :catalogue_of_life
         end
 
         def label
-          'Catalog of Life'
+          'Catalogue of Life'
         end
 
         def description
-          'Search the Catalog of Life for matching names. Returns external results with alignment data for confirmation.'
+          'Search the Catalogue of Life for matching names. Returns external results with alignment data for confirmation.'
         end
 
         def external?

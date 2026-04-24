@@ -18,11 +18,16 @@ Common built-in level types:
 |------|-------|-------------|
 | Fast | `Autoselect::Level` subclass | Prefix-match on a cached column; no GIN/similarity |
 | Smart | `Autoselect::Levels::Smart` | Delegates to `Queries::<Model>::Autocomplete` |
-| CatalogOfLife | model-specific | External HTTP call to the CoL API |
 
 A level is `external?` when it reaches outside the local database.  External
 levels get a longer default fuse (`EXTERNAL_FUSE_MS = 2000` vs
 `DEFAULT_FUSE_MS = 600`).
+
+Example external call:
+
+| Type | Class | Description |
+|------|-------|-------------|
+| CatalogueOfLife | model-specific | External HTTP call to the CoL API |
 
 ### Fuse mechanic
 When a term search at the current level returns 0 results, the server
@@ -48,7 +53,7 @@ Standard operators (all models):
 Client-only operators are not sent to the server.  `!n` is server-side:
 levels that support it return a sentinel (see **Extensions** below).
 
-Per-model operator customisation: override `operator_map` in the model's
+Per-model operator customization: override `operator_map` in the model's
 `Operators` module (e.g. `lib/autoselect/otu/operators.rb`).
 
 ### Extensions
@@ -64,13 +69,13 @@ Current extension modes:
 
 ### Hooks
 `Autoselect::Hook` (base class) represents cross-model level chains.  The
-canonical case is `Autoselect::Otu::Levels::CatalogOfLife`, which delegates
-to `Autoselect::TaxonName::Levels::CatalogOfLife` to obtain a TaxonName
+canonical case is `Autoselect::Otu::Levels::CatalogueOfLife`, which delegates
+to `Autoselect::TaxonName::Levels::CatalogueOfLife` to obtain a TaxonName
 first, then wraps the result for OTU creation.  Hook metadata is embedded in
 the `extension.hook` hash sent to the client:
 
 ```ruby
-{ model: 'TaxonName', level: 'catalog_of_life', yields: 'taxon_name_id' }
+{ model: 'TaxonName', level: 'catalogue_of_life', yields: 'taxon_name_id' }
 ```
 
 ## Directory layout
@@ -92,7 +97,7 @@ lib/autoselect/
     levels/
       fast.rb                # Prefix match on cached column
       smart.rb               # Delegates to Queries::TaxonName::Autocomplete
-      catalog_of_life.rb     # External CoL search
+      catalogue_of_life.rb     # External CoL search
     col_creator.rb           # TaxonName creation logic from CoL alignment data
 
   otu/
@@ -100,7 +105,7 @@ lib/autoselect/
     operators.rb             # OTU operator overrides (currently inherits default)
     levels/
       smart.rb               # Delegates to Queries::Otu::Autocomplete; handles !n sentinel
-      catalog_of_life.rb     # Delegates to TaxonName CoL level; wraps with hook metadata
+      catalogue_of_life.rb     # Delegates to TaxonName CoL level; wraps with hook metadata
 ```
 
 ## Request / response flow
@@ -113,7 +118,7 @@ Client (AutoselectField.vue)
   │
   └─ GET /otus/autoselect?term=X&level=smart  → term response
         response: [ { id, label, label_html, info, response_values, extension } ]
-        next_level: 'catalog_of_life'   (only when response is empty)
+        next_level: 'catalogue_of_life'   (only when response is empty)
 ```
 
 **Config response** (no term sent):
@@ -122,7 +127,7 @@ Client (AutoselectField.vue)
   "resource": "/otus/autoselect",
   "levels": [ { "key": "smart", "label": "Smart", "external": false, "fuse_ms": 600 }, ... ],
   "operators": [ { "key": "new_record", "trigger": "!n", ... }, ... ],
-  "map": ["smart", "catalog_of_life"]
+  "map": ["smart", "catalogue_of_life"]
 }
 ```
 
@@ -132,14 +137,14 @@ Client (AutoselectField.vue)
   "request": { "term": "Homo", "level": "smart" },
   "level": "smart",
   "response": [ { "id": 1, "label": "Homo sapiens", "response_values": { "otu_id": 1 }, "extension": {} } ],
-  "next_level": "catalog_of_life"   // omitted when results present
+  "next_level": "catalogue_of_life"   // omitted when results present
 }
 ```
 
 ## Implementing a new model autoselect
 
 1. `rails generate taxon_works:autoselect <Model> [levels...] [--fast] [--no-example]`
-   - Level names **before** flag args: `rails g taxon_works:autoselect Otu smart catalog_of_life`
+   - Level names **before** flag args: `rails g taxon_works:autoselect Otu smart catalogue_of_life`
 2. The generator creates:
    - `lib/autoselect/<model>/autoselect.rb`
    - `lib/autoselect/<model>/operators.rb`

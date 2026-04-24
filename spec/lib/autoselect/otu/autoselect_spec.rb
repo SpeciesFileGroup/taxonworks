@@ -19,8 +19,8 @@ RSpec.describe Autoselect::Otu::Autoselect, type: :model do
       expect(config[:response]).to be_nil
     end
 
-    it 'includes smart, catalog_of_life as level keys in map' do
-      expect(config[:map]).to include('smart', 'catalog_of_life')
+    it 'includes smart, catalogue_of_life as level keys in map' do
+      expect(config[:map]).to include('smart', 'catalogue_of_life')
     end
 
     it 'does not have fast level' do
@@ -36,7 +36,7 @@ RSpec.describe Autoselect::Otu::Autoselect, type: :model do
   describe 'level stack' do
     it 'has two levels in order' do
       keys = autoselect.levels.map { |l| l.key.to_s }
-      expect(keys).to eq(%w[smart catalog_of_life])
+      expect(keys).to eq(%w[smart catalogue_of_life])
     end
   end
 
@@ -88,7 +88,7 @@ RSpec.describe Autoselect::Otu::Levels::Smart do
   end
 end
 
-RSpec.describe Autoselect::Otu::Levels::CatalogOfLife do
+RSpec.describe Autoselect::Otu::Levels::CatalogueOfLife do
   subject(:level) { described_class.new }
 
   it 'is external' do
@@ -134,7 +134,7 @@ RSpec.describe Autoselect::Otu::Levels::CatalogOfLife do
       results = level.call(term: 'Homo sapiens', project_id: 1)
       expect(results.first._col_extension[:hook]).to include(
         model: 'TaxonName',
-        level: 'catalog_of_life',
+        level: 'catalogue_of_life',
         yields: 'taxon_name_id'
       )
     end
