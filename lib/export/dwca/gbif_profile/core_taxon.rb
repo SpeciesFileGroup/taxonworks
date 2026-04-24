@@ -1,9 +1,51 @@
 # Core Taxon class
 # Repository URL: http://rs.gbif.org/core/dwc_taxon.xml
-# Not yet used
 module Export::Dwca::GbifProfile
 
   class CoreTaxon
+    NAMESPACES = {
+      :taxonID => 'http://rs.tdwg.org/dwc/terms/taxonID',
+      :acceptedNameUsageID => 'http://rs.tdwg.org/dwc/terms/acceptedNameUsageID',
+      :acceptedNameUsage => 'http://rs.tdwg.org/dwc/terms/acceptedNameUsage',
+      :parentNameUsageID => 'http://rs.tdwg.org/dwc/terms/parentNameUsageID',
+      :parentNameUsage => 'http://rs.tdwg.org/dwc/terms/parentNameUsage',
+      :originalNameUsageID => 'http://rs.tdwg.org/dwc/terms/originalNameUsageID',
+      :originalNameUsage => 'http://rs.tdwg.org/dwc/terms/originalNameUsage',
+      :nameAccordingTo => 'http://rs.tdwg.org/dwc/terms/nameAccordingTo',
+      :nameAccordingToID => 'http://rs.tdwg.org/dwc/terms/nameAccordingToID',
+      :namePublishedIn => 'http://rs.tdwg.org/dwc/terms/namePublishedIn',
+      :namePublishedInID => 'http://rs.tdwg.org/dwc/terms/namePublishedInID',
+      :scientificName => 'http://rs.tdwg.org/dwc/terms/scientificName',
+      :scientificNameID => 'http://rs.tdwg.org/dwc/terms/scientificNameID',
+      :scientificNameAuthorship => 'http://rs.tdwg.org/dwc/terms/scientificNameAuthorship',
+      :higherClassification => 'http://rs.tdwg.org/dwc/terms/higherClassification',
+      :kingdom => 'http://rs.tdwg.org/dwc/terms/kingdom',
+      :phylum => 'http://rs.tdwg.org/dwc/terms/phylum',
+      :klass => 'http://rs.tdwg.org/dwc/terms/class',
+      :order => 'http://rs.tdwg.org/dwc/terms/order',
+      :family => 'http://rs.tdwg.org/dwc/terms/family',
+      :genus => 'http://rs.tdwg.org/dwc/terms/genus',
+      :subgenus => 'http://rs.tdwg.org/dwc/terms/subgenus',
+      :specificEpithet => 'http://rs.tdwg.org/dwc/terms/specificEpithet',
+      :infraspecificEpithet => 'http://rs.tdwg.org/dwc/terms/infraspecificEpithet',
+      :taxonRank => 'http://rs.tdwg.org/dwc/terms/taxonRank',
+      :verbatimTaxonRank => 'http://rs.tdwg.org/dwc/terms/verbatimTaxonRank',
+      :nomenclaturalCode => 'http://rs.tdwg.org/dwc/terms/nomenclaturalCode',
+      :taxonomicStatus => 'http://rs.tdwg.org/dwc/terms/taxonomicStatus',
+      :nomenclaturalStatus => 'http://rs.tdwg.org/dwc/terms/nomenclaturalStatus',
+      :taxonRemarks => 'http://rs.tdwg.org/dwc/terms/taxonRemarks',
+      :modified => 'http://purl.org/dc/terms/modified',
+      :language => 'http://purl.org/dc/terms/language',
+      :rights => 'http://purl.org/dc/terms/rights',
+      :rightsHolder => 'http://purl.org/dc/terms/rightsHolder',
+      :accessRights => 'http://purl.org/dc/terms/accessRights',
+      :bibliographicCitation => 'http://purl.org/dc/terms/bibliographicCitation',
+      :informationWithheld => 'http://rs.tdwg.org/dwc/terms/informationWithheld',
+      :datasetID => 'http://rs.tdwg.org/dwc/terms/datasetID',
+      :datasetName => 'http://rs.tdwg.org/dwc/terms/datasetName',
+      :source => 'http://purl.org/dc/terms/source'
+    }.freeze
+
     # taxonID (http://rs.tdwg.org/dwc/terms/taxonID)
     #
     # @return [String]
@@ -13,18 +55,18 @@ module Export::Dwca::GbifProfile
     # lines and therefore also have unique taxonIDs. TaxonIDs may be
     # simple integers or more complex globally unique identifiers.
     #
-    # Examples: 101; “8fa58e08-08de-4ac1-b69c-1235340b7001;
-    attr_accessor :taxonID # [USED IN SF]
+    # Examples: 101; "8fa58e08-08de-4ac1-b69c-1235340b7001;
+    attr_accessor :taxonID
 
     # acceptedNameUsageID (http://rs.tdwg.org/dwc/terms/acceptedNameUsageID)
     #
     # @return [String]
     # This represents a second column in a synonym record that points to
     # the record representing the valid (zoological) or accepted (botanical)
-    # name using the taxonID of that record as the “pointer.”
+    # name using the taxonID of that record as the "pointer."
     #
     # Example: 8fa58e08-08de-4ac1-b69c-1235340b7001
-    attr_accessor :acceptedNameUsageID # [USED IN SF]
+    attr_accessor :acceptedNameUsageID
 
     # acceptedNameUsage (http://rs.tdwg.org/dwc/terms/acceptedNameUsage)
     #
@@ -42,8 +84,8 @@ module Export::Dwca::GbifProfile
     # classification). Using the ID is preferred over using the name (listed
     # as the next term).
     #
-    # Example: “101” 8fa58e08-08de-4ac1-b69c-1235340b7001
-    attr_accessor :parentNameUsageID # [USED IN SF]
+    # Example: "101" 8fa58e08-08de-4ac1-b69c-1235340b7001
+    attr_accessor :parentNameUsageID
 
     # parentNameUsage (http://rs.tdwg.org/dwc/terms/parentNameUsage)
     #
@@ -65,7 +107,7 @@ module Export::Dwca::GbifProfile
     # basionym (botany) or basonym (bacteriology) of the scientificName or
     # the senior/earlier homonym for replaced names.
     #
-    # Example: “101” 8fa58e08-08de-4ac1-b69c-1235340b7001
+    # Example: "101" 8fa58e08-08de-4ac1-b69c-1235340b7001
     attr_accessor :originalNameUsageID
 
     # originalNameUsage (http://rs.tdwg.org/dwc/terms/originalNameUsage)
@@ -84,8 +126,8 @@ module Export::Dwca::GbifProfile
     #
     # @return [String]
     # A bibliographic citation representing the concept or sense in which
-    # the name is used. Traditionally, in botany, the Latin “sensu” or
-    # “sec”. (for secundum – according to) have been used. For taxa that
+    # the name is used. Traditionally, in botany, the Latin "sensu" or
+    # "sec". (for secundum – according to) have been used. For taxa that
     # result from identifications a reference to the keys used, monographs,
     # online source or experts should be given.
     #
@@ -103,7 +145,7 @@ module Export::Dwca::GbifProfile
     # A unique identifier that returns the details of a nameAccordingTo (see
     # above) reference.
     #
-    # Example: “doi:10.1016/S0269-915X(97)80026-2”
+    # Example: "doi:10.1016/S0269-915X(97)80026-2"
     attr_accessor :nameAccordingToID
 
     # namePublishedIn (http://rs.tdwg.org/dwc/terms/namePublishedIn)
@@ -112,11 +154,11 @@ module Export::Dwca::GbifProfile
     # Reference to a publication representing the original publication of the
     # name.
     #
-    # Example: “Forel, Auguste, Diagnosies provisoires de quelques espèces
+    # Example: "Forel, Auguste, Diagnosies provisoires de quelques espèces
     # nouvelles de fourmis de Madagascar, récoltées par M. Grandidier.,
     # Annales de la Societe Entomologique de de Belgique, Comptes-rendus
-    # des Seances 30, 1886”
-    attr_accessor :namePublishedIn # [USED IN SF]
+    # des Seances 30, 1886"
+    attr_accessor :namePublishedIn
 
     # namePublishedInID (http://rs.tdwg.org/dwc/terms/namePublishedInID)
     #
@@ -133,10 +175,10 @@ module Export::Dwca::GbifProfile
     # The scientific name of taxon with or without authorship information
     # depending on the format of the source database.
     #
-    # Examples: "Coleoptera" , "Vespertilionidae”, "Manis" , "Ctenomys
+    # Examples: "Coleoptera" , "Vespertilionidae", "Manis" , "Ctenomys
     # sociabilis", "Ambystoma tigrinum diaboli", "Quercus agrifolia var.
     # oxyadenia (Torr.)"
-    attr_accessor :scientificName # [USED IN SF]
+    attr_accessor :scientificName
 
     # scientificNameID (http://rs.tdwg.org/dwc/terms/scientificNameID)
     #
@@ -145,8 +187,8 @@ module Export::Dwca::GbifProfile
     # that returns nomenclatural (not taxonomic) details of a name. Use
     # taxonID to refer to taxa. Use to explicitly refer to an external
     # nomenclatural record.
-    # Example: “urn:lsid:ipni.org:names:37829-1:1.3”
-    attr_accessor :scientificNameID # [USED IN SF]
+    # Example: "urn:lsid:ipni.org:names:37829-1:1.3"
+    attr_accessor :scientificNameID
 
     # scientificNameAuthorship (http://rs.tdwg.org/dwc/terms/scientificNameAuthorship)
     #
@@ -158,7 +200,7 @@ module Export::Dwca::GbifProfile
     #
     # Example: "(Torr.) J.T. Howell", "(Martinovsk ) Tzvelev", "(Linnaeus
     # 1768)"
-    attr_accessor :scientificNameAuthorship # [USED IN SF]
+    attr_accessor :scientificNameAuthorship
 
     # higherClassification (http://rs.tdwg.org/dwc/terms/higherClassification)
     #
@@ -171,7 +213,7 @@ module Export::Dwca::GbifProfile
     # with a semi-colon (";").
     #
     # Example:
-    # “Animalia;Chordata;Vertebrata;Mammalia;Theria;Eutheria;Rodentia;Hystricognatha;Hystricognathi;Ctenomyidae;Ctenomyini;Ctenomys”
+    # "Animalia;Chordata;Vertebrata;Mammalia;Theria;Eutheria;Rodentia;Hystricognatha;Hystricognathi;Ctenomyidae;Ctenomyini;Ctenomys"
     attr_accessor :higherClassification
 
     # kingdom (http://rs.tdwg.org/dwc/terms/kingdom)
@@ -258,7 +300,7 @@ module Export::Dwca::GbifProfile
     # Recommended vocabulary: http://rs.gbif.org/vocabulary/gbif/rank.xml
     #
     # Example: "subspecies", "varietas", "forma", "species", "genus"
-    attr_accessor :taxonRank # [USED IN SF]
+    attr_accessor :taxonRank
 
     # verbatimTaxonRank (http://rs.tdwg.org/dwc/terms/verbatimTaxonRank)
     #
@@ -290,7 +332,7 @@ module Export::Dwca::GbifProfile
     # Vocabulary: http://rs.gbif.org/vocabulary/gbif/nomenclatural_code.xml
     #
     # Example: ICBN; ICZN
-    attr_accessor :nomenclaturalCode # [USED IN SF (in meta.xml)]
+    attr_accessor :nomenclaturalCode
 
     # taxonomicStatus (http://rs.tdwg.org/dwc/terms/taxonomicStatus)
     #
@@ -305,7 +347,7 @@ module Export::Dwca::GbifProfile
     # Recommended vocabulary: http://rs.gbif.org/vocabulary/gbif/taxonomic_status.xml
     #
     # Example: "invalid", "misapplied", "homotypic synonym", "accepted"
-    attr_accessor :taxonomicStatus # [USED IN SF]
+    attr_accessor :taxonomicStatus
 
     # nomenclaturalStatus (http://rs.tdwg.org/dwc/terms/nomenclaturalStatus)
     #
@@ -318,23 +360,23 @@ module Export::Dwca::GbifProfile
     # Recommended vocabulary: http://rs.gbif.org/vocabulary/gbif/nomenclatural_status.xml
     #
     # Example: "nom. ambig.", "nom. illeg.", "nom. subnud."
-    attr_accessor :nomenclaturalStatus # [USED IN SF]
+    attr_accessor :nomenclaturalStatus
 
     # taxonRemarks (http://rs.tdwg.org/dwc/terms/taxonRemarks)
     #
     # @return [String]
     # Comments or notes about the taxon or name.
     #
-    # Example: “Type consists of a skull and skeletal fragments”.
-    attr_accessor :taxonRemarks # [USED IN SF]
+    # Example: "Type consists of a skull and skeletal fragments".
+    attr_accessor :taxonRemarks
 
     # modified (http://purl.org/dc/terms/modified)
     #
     # @return [String]
     # Date when the record was last updated
     #
-    # Example: “2009-08-21”
-    attr_accessor :modified # [USED IN SF]
+    # Example: "2009-08-21"
+    attr_accessor :modified
 
     # language (http://purl.org/dc/terms/language)
     #
@@ -382,11 +424,11 @@ module Export::Dwca::GbifProfile
     # generally applies to all mammal species but a different citation for a
     # child taxon, Primates, applies to all child primate taxa.
     #
-    # Example: “van Soest, R. (2009). Leucandra fistulosa (Johnston, 1842).
+    # Example: "van Soest, R. (2009). Leucandra fistulosa (Johnston, 1842).
     # In: Van Soest, R.W.M, Boury-Esnault, N., Hooper, J.N.A., Rützler, K,
     # de Voogd, N.J., Alvarez, B., Hajdu, E., Pisera, A.B., Vacelet, J.
     # Manconi, R., Schoenberg, C., Janussen, D., Tabachnick, K.R.,
-    # Klautau, M. (Eds) (2009). World Porifera database”
+    # Klautau, M. (Eds) (2009). World Porifera database"
     attr_accessor :bibliographicCitation
 
     # informationWithheld (http://rs.tdwg.org/dwc/terms/informationWithheld)
@@ -394,7 +436,7 @@ module Export::Dwca::GbifProfile
     # @return [String]
     # Additional remarks as to information not published, but available
     #
-    # Example: “hybrid parents information available”
+    # Example: "hybrid parents information available"
     attr_accessor :informationWithheld
 
     # datasetID (http://rs.tdwg.org/dwc/terms/datasetID)
@@ -403,7 +445,7 @@ module Export::Dwca::GbifProfile
     # An identifier for a (sub) dataset. Ideally globally unique, but any id
     # allowed
     #
-    # Example: “13”
+    # Example: "13"
     attr_accessor :datasetID
 
     # datasetName (http://rs.tdwg.org/dwc/terms/datasetName)
@@ -422,7 +464,7 @@ module Export::Dwca::GbifProfile
     # record. A link to a webpage or RESTful webservice is recommended.
     # URI is mandatory format.
     #
-    # Example: “http://www.catalogueoflife.org/annual-checklist/show_species_details.php?record_id=6197868”
+    # Example: "http://www.catalogueoflife.org/annual-checklist/show_species_details.php?record_id=6197868"
     attr_accessor :source
 
   end

@@ -140,12 +140,12 @@ module CollectionObject::DwcExtensions
 
   # https://dwc.tdwg.org/list/#dwc_georeferenceRemarks
   def dwc_occurrence_remarks
-    notes.collect{|n| n.text}&.join(CollectionObject::DWC_DELIMITER).presence
+    notes.collect{|n| n.text}&.join(Export::Dwca::DELIMITER).presence
   end
 
   # https://dwc.tdwg.org/terms/#dwc:associatedMedia
   def dwc_associated_media
-    images.collect{|i| Shared::Api.api_link(i, i.image_file_fingerprint) }.join(CollectionObject::DWC_DELIMITER).presence
+    images.collect{|i| Shared::Api.api_link(i, i.image_file_fingerprint) }.join(Export::Dwca::DELIMITER).presence
   end
 
   # https://dwc.tdwg.org/terms/#dwc:associatedtaxa
@@ -169,7 +169,7 @@ module CollectionObject::DwcExtensions
 
   def dwc_other_catalog_numbers
     i = identifiers.where.not('type ilike ?', 'Identifier::Global::Uuid%').where.not(cached: catalog_number_cached).order(:position).to_a
-    i.map(&:cached).join(CollectionObject::DWC_DELIMITER).presence
+    i.map(&:cached).join(Export::Dwca::DELIMITER).presence
   end
 
 
@@ -242,7 +242,7 @@ module CollectionObject::DwcExtensions
   def dwc_type_status
     type_materials.all.collect{|t|
       ApplicationController.helpers.label_for_type_material(t)
-    }.join(CollectionObject::DWC_DELIMITER).presence
+    }.join(Export::Dwca::DELIMITER).presence
   end
 
   def dwc_higher_classification
@@ -250,7 +250,7 @@ module CollectionObject::DwcExtensions
     v.shift
     v.pop
     v.compact
-    v.join(CollectionObject::DWC_DELIMITER).presence
+    v.join(Export::Dwca::DELIMITER).presence
   end
 
   # Definition: A list (concatenated and separated) of names of people, groups, or organizations responsible for recording the original Occurrence. The primary collector or observer, especially one who applies a personal identifier (recordNumber), should be listed first.
