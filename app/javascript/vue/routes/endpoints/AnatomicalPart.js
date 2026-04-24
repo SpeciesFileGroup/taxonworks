@@ -41,6 +41,9 @@ export const AnatomicalPart = {
       { params }
     ),
 
+  templates: (params = {}) =>
+    AjaxCall('get', `/${controller}/templates.json`, { params }),
+
   childrenOf: (params) =>
     AjaxCall('get', `/${controller}/children_of.json`, { params }),
 

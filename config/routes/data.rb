@@ -34,6 +34,7 @@ resources :anatomical_parts do
     get :ontologies, defaults: {format: :json}
     get :children_of, defaults: {format: :json}
     get :ontology_autocomplete, defaults: {format: :json}
+    get :templates, defaults: {format: :json}
     get :used_ontologies, defaults: {format: :json}
 
     scope :select_ontologies, controller: 'tasks/anatomical_parts/select_ontologies' do
@@ -85,6 +86,7 @@ resources :biological_associations do
     get :autocomplete, defaults: {format: :json}
     get :select_options, defaults: {format: :json}
     get :subject_object_types, defaults: {format: :json}
+    get :origin_subject_index, defaults: {format: :json}
   end
 end
 
