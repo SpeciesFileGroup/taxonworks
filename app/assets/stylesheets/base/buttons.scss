@@ -90,15 +90,23 @@
   border: 1px solid $color-secondary-2-4;
   box-shadow: 0 1px 3px 0 $color-secondary-2-4;
 
-  transition: background-size 0.3s ease, background-color 0.3s ease,
-    top 0.5s ease, opacity 0.5s ease, padding-left 0.5s ease;
+  transition:
+    background-size 0.3s ease,
+    background-color 0.3s ease,
+    top 0.5s ease,
+    opacity 0.5s ease,
+    padding-left 0.5s ease;
 }
 
 .button-collapse-header:hover {
   opacity: 1;
   top: -25px;
-  transition: background-size 0.3s ease, background-color 0.3s ease,
-    top 0.5s ease, opacity 0.5s ease, padding-left 0.5s ease;
+  transition:
+    background-size 0.3s ease,
+    background-color 0.3s ease,
+    top 0.5s ease,
+    opacity 0.5s ease,
+    padding-left 0.5s ease;
   background-size: 35px;
 }
 
@@ -144,7 +152,7 @@
 }
 
 .btn-edit {
-  background-color: var(--color-create);
+  background-color: var(--color-primary);
   background-image: image-url('w_pencil.svg');
 }
 
@@ -283,7 +291,7 @@
   background-size: 14px;
   background-position: center;
   background-repeat: no-repeat;
-  border-radius: 2px;
+  border-radius: var(--border-radius-xsmall);
   transition: background-color 0.5s ease;
   border: 1px solid var(--border-color);
   background-color: $color-secondary-2-1;

@@ -149,7 +149,11 @@ watch(namespace, (newVal) => {
 
 function namespaceDisplay(namespace) {
   const s = namespace.is_virtual ? ' (virtual)' : ''
-  return `${namespace.verbatim_short_name}/${namespace.short_name}${s}`
+  if (namespace.verbatim_short_name) {
+    return `${namespace.verbatim_short_name}/${namespace.short_name}${s}`
+  } else {
+    return `${namespace.short_name}${s}`
+  }
 }
 
 </script>

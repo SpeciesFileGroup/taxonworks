@@ -33,7 +33,14 @@
             small
           />
           <span v-if="collectingEvent.id">
-            Modifying existing ({{ collectingEventStore.totalUsed }} uses)
+            <template v-if="collectingEventStore.totalUsed > 1">
+              Modifying existing ({{ collectingEventStore.totalUsed }} uses).
+              Any changes made will affect ALL specimens that have this CE
+              selected.
+            </template>
+            <template v-else>
+              Modifying existing ({{ collectingEventStore.totalUsed }} uses)
+            </template>
           </span>
           <span v-else> New CE record. </span>
         </div>

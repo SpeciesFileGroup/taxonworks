@@ -111,8 +111,9 @@ RSpec.describe 'TypeMaterials', type: :feature do
 
           select('paratype', from: 'type_material_type_type') # select 'paratype' from the dropdown
           click_button 'Create Type material' # click the 'Create type material' button
-          # then I get the message "Type material (paratype) for Aus bus was successfully created"
-          expect(page).to have_content('Type material (paratype) for Cus bus was successfully created.')
+          expect(page).to have_text('paratype of Cus bus')
+          expect(page).to have_text('Collection object: INHSIC 1234')
+          expect(page).to have_text('Type type: paratype')
         end
       end
     end

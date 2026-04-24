@@ -1,5 +1,5 @@
 json.extract! citation, :id, :citation_object_id, :citation_object_type, :source_id, :pages, :is_original,
-:created_by_id, :updated_by_id, :project_id
+:project_id
 
 json.citation_source_body citation_source_body(citation)
 
@@ -19,4 +19,10 @@ end
 
 if extend_response_with('source')
   json.partial! '/sources/api/v1/brief', source: citation.source
+end
+
+if extend_response_with('notes')
+  json.notes citation.notes.each do |n|
+    json.text n.text
+  end
 end

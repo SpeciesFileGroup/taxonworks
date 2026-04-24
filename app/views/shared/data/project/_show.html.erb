@@ -12,7 +12,7 @@
         </div> 
 
         <div class="navigation-controls border-bottom">
-          <div class="content">
+          <div class="content w-full">
             <%= search_form_for_model(@data_model) %>
           </div>
         </div>
@@ -26,6 +26,7 @@
     </div>
 
     <div class="item item2">
+      
       <div class="panel separate-left">
         <div class="title action-line">
           <div class="inline">
@@ -72,8 +73,8 @@
               <%= yield :report -%>
             </ul>
           </div>    
+        </div>
 
-        </div>        
       </div>    
       <div class="flex-wrap-row"> 
         <div class="panels-container">

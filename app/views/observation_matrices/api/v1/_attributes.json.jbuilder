@@ -1,4 +1,4 @@
-json.extract! observation_matrix, :id, :name, :created_by_id, :updated_by_id, :project_id, :created_at, :updated_at
+json.extract! observation_matrix, :id, :name, :project_id, :created_at, :updated_at
 json.partial! '/shared/data/all/metadata', object: observation_matrix 
 json.is_media_matrix observation_matrix.is_media_matrix?
 
@@ -14,10 +14,16 @@ end
 
 if extend_response_with('columns')
   json.columns(observation_matrix.observation_matrix_columns.order(:position)) do |c|
-    json.partial! '/shared/data/all/metadata', object: c, extensions: false 
+    json.partial! '/shared/data/all/metadata', object: c, extensions: false
 
     json.descriptor do
-      json.partial! '/shared/data/all/metadata', object: c.descriptor, extensions: false 
+      json.partial! '/shared/data/all/metadata', object: c.descriptor, extensions: false
     end
+  end
+end
+
+if extend_response_with('notes')
+  json.notes observation_matrix.notes.each do |n|
+    json.text n.text
   end
 end

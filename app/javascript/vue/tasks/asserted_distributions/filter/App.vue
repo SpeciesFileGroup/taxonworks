@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <h1>Filter asserted distributions</h1>
-
+  <div class="margin-medium-top">
     <FilterLayout
       :pagination="pagination"
       :selected-ids="sortedSelectedIds"
@@ -65,6 +63,7 @@
           v-model="selectedIds"
           :attributes="ATTRIBUTES"
           :list="list"
+          :preference-key="`tasks::filters::${ASSERTED_DISTRIBUTION}`"
           @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"
         >

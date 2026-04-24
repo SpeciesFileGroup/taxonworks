@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <h1>Filter loans</h1>
-
+  <div class="margin-medium-top">
     <FilterLayout
       :list="list"
       :url-request="urlRequest"
@@ -22,6 +20,7 @@
           v-model="selectedIds"
           :list="list"
           :attributes="ATTRIBUTES"
+          :preference-key="`tasks::filters::${LOAN}`"
           @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"
         />

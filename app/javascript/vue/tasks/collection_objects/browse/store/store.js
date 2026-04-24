@@ -5,6 +5,7 @@ import { MutationFunctions } from './mutations/mutations'
 
 const makeInitialState = () => {
   return {
+    anatomicalParts: [],
     biocurations: {},
     biologicalAssociations: [],
     collectingEvent: {},

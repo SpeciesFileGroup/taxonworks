@@ -52,7 +52,7 @@ class BiologicalAssociationsGraphsController < ApplicationController
         format.json { render :show, status: :created, location: @biological_associations_graph }
       else
         format.html { render :new }
-        format.json { render json: @biological_associations_graph.errors, status: :unprocessable_entity }
+        format.json { render json: @biological_associations_graph.errors, status: :unprocessable_content }
       end
     end
   end
@@ -66,7 +66,7 @@ class BiologicalAssociationsGraphsController < ApplicationController
         format.json { render :show, status: :ok, location: @biological_associations_graph }
       else
         format.html { render :edit }
-        format.json { render json: @biological_associations_graph.errors, status: :unprocessable_entity }
+        format.json { render json: @biological_associations_graph.errors, status: :unprocessable_content }
       end
     end
   end
@@ -134,7 +134,7 @@ class BiologicalAssociationsGraphsController < ApplicationController
       #       type: 'text',
       #       filename: "biological_associations_globi_#{DateTime.now}.tsv"
       #   else
-      #     render json: { msg: 'At present this format is only allowed for 1000 or less records.' }, status: :unprocessable_entity
+      #     render json: { msg: 'At present this format is only allowed for 1000 or less records.' }, status: :unprocessable_content
       #   end
       # }
     end

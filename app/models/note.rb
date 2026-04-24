@@ -31,6 +31,7 @@ class Note < ApplicationRecord
   include Shared::Tags
   include Shared::PolymorphicAnnotator
   include Shared::IsData
+  include Shared::BiologicalAssociationIndexHooks
 
   polymorphic_annotates(:note_object)
   ignore_whitespace_on(:text)
@@ -55,6 +56,14 @@ class Note < ApplicationRecord
   # Format a note
   def note_string
     "#{updated_at}: #{updater.name}: #{text}" + (note_object_attribute.blank? ? '' : "[on: #{note_object_attribute}]")
+  end
+
+  # @return [ActiveRecord::Relation]
+  #   BiologicalAssociationIndex records for associations that have this note
+  def biological_association_indices
+    return BiologicalAssociationIndex.none unless note_object_type == 'BiologicalAssociation'
+
+    BiologicalAssociationIndex.where(biological_association_id: note_object_id)
   end
 
 end

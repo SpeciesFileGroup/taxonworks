@@ -134,9 +134,18 @@ class NomenclaturalRank
     }.join(",\n")
 
     if gender
-      g = rank_names.select{|n| n =~ /[Gg]enus/}.collect{|m|
+
+      gn = rank_names.select{|n| n =~ /[Gg]enus/}.collect{|m|
         "MAX(CASE WHEN parent.rank_class LIKE \'%::#{m.capitalize}\' THEN parent.cached_gender END) AS #{m}_gender"
-      }.join(",\n")
+      }
+
+      rank_names.select{|n| !(n =~ /[Gg]enus/)}.each do |m|
+        gn.push "MAX(CASE WHEN parent.rank_class LIKE \'%::#{m.capitalize}\' THEN parent.masculine_name END) AS #{m}_masculine_name"
+        gn.push "MAX(CASE WHEN parent.rank_class LIKE \'%::#{m.capitalize}\' THEN parent.feminine_name END) AS #{m}_feminine_name"
+        gn.push "MAX(CASE WHEN parent.rank_class LIKE \'%::#{m.capitalize}\' THEN parent.neuter_name END) AS #{m}_neuter_name"
+      end
+
+      g = gn.join(",\n")
     end
 
     s = s + ', ' + g if !g.blank?

@@ -36,7 +36,9 @@ class Extract < ApplicationRecord
   # TODO: auto-UUID
 
   is_origin_for 'Extract', 'Sequence'
-  originates_from 'Extract', 'Specimen', 'Lot', 'RangedLot', 'Otu', 'CollectionObject', 'FieldOccurrence'
+  originates_from 'Extract', 'Specimen', 'Lot', 'RangedLot', 'Otu', 'CollectionObject', 'FieldOccurrence', 'AnatomicalPart'
+
+  GRAPH_ENTRY_POINTS = [:origin_relationships]
 
   belongs_to :repository, inverse_of: :extracts
 
@@ -46,6 +48,7 @@ class Extract < ApplicationRecord
   # Upstream - aliases of `origin_otus` and `origin_collection_objects` TODO remove
   has_many :otus, through: :related_origin_relationships, source: :old_object, source_type: 'Otu'
   has_many :collection_objects, through: :related_origin_relationships, source: :old_object, source_type: 'CollectionObject'
+  has_many :anatomical_parts, through: :related_origin_relationships, source: :old_object, source_type: 'AnatomicalPart'
 
   # Downstresm - aliases of `derived_*`, TODO: remove
   has_many :sequences, through: :origin_relationships, source: :new_object, source_type: 'Sequence'
@@ -71,7 +74,8 @@ class Extract < ApplicationRecord
   def referenced_otus
     [
       [otus],
-      [collection_objects.collect{|o| o.current_otu} ]
+      [collection_objects.collect{ |o| o.current_otu } ],
+      [anatomical_parts.collect{ |ap| ap.origin_otu }]
     ].flatten.compact.uniq
   end
 
@@ -107,6 +111,8 @@ class Extract < ApplicationRecord
   # @return [Scope]
   #    the max 10 most recently used collection_objects, as `used_on`
   def self.used_recently(user_id, project_id, used_on = '')
+    # TODO: write this for Extract (not CollectionObject).
+    return []
     return [] if used_on != 'TaxonDetermination' && used_on != 'BiologicalAssociation'
     t = case used_on
         when 'TaxonDetermination'

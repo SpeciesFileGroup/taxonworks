@@ -22,7 +22,7 @@ export const Conveyance = {
 
   sort: (data) => AjaxCall('patch', `/${controller}/sort`, data),
 
-  filter: (params) => AjaxCall('post', `/${controller}/filter`, params),
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
 
-  navigation: (id) => AjaxCall('get', `/${controller}/${id}/navigation`),
+  navigation: (id) => AjaxCall('get', `/${controller}/${id}/navigation`)
 }

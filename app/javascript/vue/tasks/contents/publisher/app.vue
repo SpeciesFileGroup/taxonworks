@@ -1,6 +1,5 @@
 <template>
-  <h1>Content publisher</h1>
-  <div>
+  <div class="margin-medium-top">
     <TopicList :topics="topics" />
     <VSpinner
       v-if="isLoading"

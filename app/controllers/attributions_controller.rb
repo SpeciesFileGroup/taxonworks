@@ -49,7 +49,7 @@ class AttributionsController < ApplicationController
         format.json { render :show, status: :created, location: @attribution }
       else
         format.html { render :new }
-        format.json { render json: @attribution.errors, status: :unprocessable_entity }
+        format.json { render json: @attribution.errors, status: :unprocessable_content }
       end
     end
   end
@@ -63,7 +63,7 @@ class AttributionsController < ApplicationController
         format.json { render :show, status: :ok, location: @attribution }
       else
         format.html { render :edit }
-        format.json { render json: @attribution.errors, status: :unprocessable_entity }
+        format.json { render json: @attribution.errors, status: :unprocessable_content }
       end
     end
   end
@@ -97,7 +97,10 @@ class AttributionsController < ApplicationController
   end
 
   def batch_by_filter_scope_params
-    params.require(:params).permit(attribution: [*attribution_params_list])
+    params.require(:params).permit(
+      attribution: [*attribution_params_list],
+      replace_attribution: [*attribution_params_list]
+    )
   end
 
   def attribution_params_list

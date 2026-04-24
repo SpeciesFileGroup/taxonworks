@@ -16,7 +16,7 @@ describe Queries::Concerns::Attributes, type: :model, group: [:filter] do
     verbatim_field_number: 'Foo manchu',
     start_date_year: 2000,
     start_date_month: 2,
-    start_date_day: 18,
+    start_date_day: 7,
     print_label: 'THERE: under the stars:18-2-2000') }
 
   # let!(:namespace) { FactoryBot.create(:valid_namespace, short_name: 'Foo') }
@@ -56,6 +56,48 @@ describe Queries::Concerns::Attributes, type: :model, group: [:filter] do
     end
   end
 
+  context 'wildcard_pairs' do
+    before(:each) do
+      FactoryBot.create(:valid_collecting_event) # not this
+    end
+
+    specify '1 attr, 1 wildcard value' do
+      query.attribute_wildcard_pair = 'verbatim_locality:Out there'
+
+      expect(query.all.map(&:id)).to contain_exactly(ce1.id, ce2.id)
+    end
+
+     specify '1 attr, 2 wildcard values (or)' do
+      query.attribute_wildcard_pair =
+        ['verbatim_locality:there', 'verbatim_locality:stars']
+      expect(query.all.map(&:id)).to contain_exactly(ce1.id, ce2.id)
+    end
+
+    specify '1 attr, 3 values (2 or wildcard, 1 and exact)' do
+      query.attribute_wildcard_pair =
+        ['verbatim_locality:there', 'verbatim_locality:stars']
+      query.attribute_exact_pair =
+        'verbatim_locality:Out there, under the stars'
+      expect(query.all.map(&:id)).to contain_exactly(ce2.id)
+    end
+
+    specify '1 attr, 2 exact or' do
+      query.attribute_exact_pair =
+        ['start_date_day:7', 'start_date_day:18']
+
+      expect(query.all.map(&:id)).to contain_exactly(ce1.id, ce2.id)
+    end
+
+    specify '2 attr, 2 wildcard or, 1 exact' do
+      query.attribute_wildcard_pair =
+        ['start_date_day:7', 'start_date_day:18']
+      query.attribute_exact_pair =
+        'verbatim_locality:Out there, under the stars'
+
+      expect(query.all.map(&:id)).to contain_exactly(ce2.id)
+    end
+  end
+
   specify '#no_value_attribute' do
     query.no_value_attribute = [:print_label]
     expect(query.all).to contain_exactly(ce1)
@@ -64,6 +106,111 @@ describe Queries::Concerns::Attributes, type: :model, group: [:filter] do
   specify '#any_value_attribute' do
     query.any_value_attribute = [:print_label]
     expect(query.all).to contain_exactly(ce2)
+  end
+
+  context 'row-based attribute facet' do
+    let!(:ce3) { CollectingEvent.create(
+      verbatim_locality: 'Elsewhere',
+      print_label: 'Label 3')
+    }
+
+    specify 'exact match' do
+      query.set_attributes_params(
+        attribute_name: ['verbatim_locality'],
+        attribute_value: ['Out there'],
+        attribute_value_type: ['exact'],
+        attribute_value_negator: [false],
+        attribute_combine_logic: [nil]
+      )
+
+      expect(query.all).to contain_exactly(ce1)
+    end
+
+    specify 'wildcard match' do
+      query.set_attributes_params(
+        attribute_name: ['verbatim_locality'],
+        attribute_value: ['Out there'],
+        attribute_value_type: ['wildcard'],
+        attribute_value_negator: [false],
+        attribute_combine_logic: [nil]
+      )
+
+      expect(query.all).to contain_exactly(ce1, ce2)
+    end
+
+    specify 'negated exact excludes matching value' do
+      query.set_attributes_params(
+        attribute_name: ['verbatim_locality'],
+        attribute_value: ['Out there'],
+        attribute_value_type: ['exact'],
+        attribute_value_negator: [true],
+        attribute_combine_logic: [nil]
+      )
+
+      expect(query.all).to contain_exactly(ce2, ce3)
+    end
+
+    specify 'any/no value types (OR, different fields)' do
+      ce3.update!(verbatim_locality: nil, print_label: nil)
+
+      query.set_attributes_params(
+        attribute_name: ['print_label', 'verbatim_locality'],
+        attribute_value: ['ignored', 'ignored'],
+        attribute_value_type: ['any', 'no'],
+        attribute_value_negator: [false, false],
+        attribute_combine_logic: [true, nil] # OR
+      )
+
+      expect(query.all).to contain_exactly(ce2, ce3)
+    end
+
+    specify 'combine logic AND (left-to-right)' do
+      query.set_attributes_params(
+        attribute_name: ['verbatim_locality', 'print_label'],
+        attribute_value: ['Out there', 'ignored'],
+        attribute_value_type: ['wildcard', 'any'],
+        attribute_value_negator: [false, false],
+        attribute_combine_logic: [nil, nil] # AND
+      )
+
+      expect(query.all).to contain_exactly(ce2)
+    end
+
+    specify 'combine logic AND NOT' do
+      query.set_attributes_params(
+        attribute_name: ['verbatim_locality', 'print_label'],
+        attribute_value: ['Out there', 'ignored'],
+        attribute_value_type: ['wildcard', 'any'],
+        attribute_value_negator: [false, false],
+        attribute_combine_logic: [false, nil] # AND NOT
+      )
+
+      expect(query.all).to contain_exactly(ce1)
+    end
+
+    specify 'combine logic OR' do
+      query.set_attributes_params(
+        attribute_name: ['verbatim_locality', 'print_label'],
+        attribute_value: ['Out there', 'Label 3'],
+        attribute_value_type: ['exact', 'exact'],
+        attribute_value_negator: [false, false],
+        attribute_combine_logic: [true, nil] # OR
+      )
+
+      expect(query.all).to contain_exactly(ce1, ce3)
+    end
+
+    specify 'chained logic left-to-right (OR, then AND NOT)' do
+      query.set_attributes_params(
+        attribute_name: ['print_label', 'verbatim_locality', 'print_label'],
+        attribute_value: ['ignored', 'Out there', 'Label 3'],
+        attribute_value_type: ['any', 'exact', 'exact'],
+        attribute_value_negator: [false, false, false],
+        attribute_combine_logic: [true, false, nil] # OR, then AND NOT
+      )
+
+      expect(query.all).to contain_exactly(ce1, ce2)
+    end
   end
 
 end

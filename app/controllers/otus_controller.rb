@@ -3,9 +3,10 @@ class OtusController < ApplicationController
 
   before_action :set_otu, only: [
     :show, :edit, :update, :destroy, :collection_objects, :navigation,
-    :breadcrumbs, :timeline, :coordinate, :distribution,
+    :breadcrumbs, :timeline, :coordinate, :distribution, :citations_inventory,
     :api_show, :api_taxonomy_inventory, :api_type_material_inventory,
-    :api_nomenclature_citations, :api_distribution, :api_content, :api_dwc_inventory, :api_dwc_gallery, :api_key_inventory, :api_determined_to_rank]
+    :api_nomenclature_citations, :api_citations_inventory, :api_distribution,
+    :api_content, :api_dwc_inventory, :api_dwc_gallery, :api_key_inventory, :api_determined_to_rank]
 
   after_action -> { set_pagination_headers(:otus) }, only: [:index, :api_index, :api_alphabetical_index], if: :json_request?
 
@@ -77,7 +78,7 @@ class OtusController < ApplicationController
         format.json { render action: :show, status: :created, location: @otu }
       else
         format.html { render action: 'new' }
-        format.json { render json: @otu.errors, status: :unprocessable_entity }
+        format.json { render json: @otu.errors, status: :unprocessable_content }
       end
     end
   end
@@ -91,7 +92,7 @@ class OtusController < ApplicationController
         format.json { render :show, location: @otu }
       else
         format.html { render action: 'edit' }
-        format.json { render json: @otu.errors, status: :unprocessable_entity }
+        format.json { render json: @otu.errors, status: :unprocessable_content }
       end
     end
   end
@@ -106,7 +107,7 @@ class OtusController < ApplicationController
         format.json { head :no_content}
       else
         format.html { destroy_redirect @otu, notice: 'OTU was not destroyed, ' + @otu.errors.full_messages.join('; ') }
-        format.json { render json: @otu.errors, status: :unprocessable_entity }
+        format.json { render json: @otu.errors, status: :unprocessable_content }
       end
     end
   end
@@ -256,10 +257,11 @@ class OtusController < ApplicationController
         preview: params[:preview],
         otu: otu_params.merge(by: sessions_current_user_id),
         otu_query: params[:otu_query],
-    )
+        user_id: sessions_current_user_id,
+        project_id: sessions_current_project_id)
       render json: r.to_json, status: :ok
     else
-      render json: {}, status: :unprocessable_entity
+      render json: {}, status: :unprocessable_content
     end
   end
 
@@ -418,13 +420,25 @@ class OtusController < ApplicationController
     render '/otus/api/v1/inventory/type_material'
   end
 
+  # GET /otus/:id/inventory/citations
+  def citations_inventory
+    @catalog = Catalog::Inventory.new(targets: [@otu])
+    render '/otus/citations'
+  end
+
+  # GET /api/v1/otus/:id/inventory/citations
+  def api_citations_inventory
+    @catalog = Catalog::Inventory.new(targets: [@otu])
+    render '/otus/api/v1/inventory/citations'
+  end
+
   # GET /api/v1/otus/:id/inventory/nomenclature_citations
   def api_nomenclature_citations
     if @otu.taxon_name
       @data = ::Catalog::Nomenclature::Entry.new(@otu.taxon_name)
       render '/otus/api/v1/inventory/nomenclature_citations'
     else
-      render json: {}, status: :unprocessable_entity
+      render json: {}, status: :unprocessable_content
     end
   end
 
@@ -510,7 +524,8 @@ class OtusController < ApplicationController
 
   # TODO: Move to generic toolkit  in lib/queries
   def conditional_sort(name, array)
-    s = "CASE #{name} " + array.each_with_index.collect{|v,i|
+    safe_name = ApplicationRecord.sanitize_sql_for_order(name)
+    s = "CASE #{safe_name} " + array.each_with_index.collect{|v,i|
       ApplicationRecord.sanitize_sql_for_conditions(["WHEN ? THEN #{i}", v])}.join(' ')
     s << ' ELSE 999999 END'
     s

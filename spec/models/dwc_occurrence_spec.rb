@@ -13,8 +13,8 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
   let(:source_bibtex) { FactoryBot.create(:valid_source_bibtex) }
   let(:asserted_distribution) { FactoryBot.create(:valid_asserted_distribution) }
 
-  specify '.target_columns must include occurrenceID' do
-    expect(DwcOccurrence.target_columns).to include(:occurrenceID)
+  specify '.target_occurrence_columns must include occurrenceID' do
+    expect(DwcOccurrence.target_occurrence_columns).to include(:occurrenceID)
   end
 
   specify 'extending predicates' do
@@ -45,11 +45,13 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
 
     download = Export::Dwca.download_async(
       scope,
+      'https://example.org/dwca_url',
       predicate_extensions:,
-      project_id: Current.project_id
+      project_id: Current.project_id,
+      user_id: Current.user_id
     )
 
-    ::DwcaCreateDownloadJob.perform_now(download.id, core_scope: scope, predicate_extensions:, project_id: Current.project_id)
+    ::DwcaCreateDownloadJob.perform_now(download.id, core_scope: scope, predicate_extensions:, project_id: Current.project_id, user_id: Current.user_id)
 
     tbl = Spec::Support::Utilities::Dwca.extract_data_tsv_table(download.file_path)
 
@@ -187,11 +189,50 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
     context 'when collection object is provided' do
       before do
         dwc_occurrence.dwc_occurrence_object = collection_object
-        dwc_occurrence.valid?
+        dwc_occurrence.valid? # triggers before_validate callbacks
       end
 
       specify 'is automatically set' do
         expect(dwc_occurrence.basisOfRecord).to eq('PreservedSpecimen')
+      end
+    end
+
+    context 'when collection object has fossil biocuration class' do
+      specify 'DwcOccurrence#basis detects fossil' do
+        specimen = FactoryBot.create(:valid_specimen, no_dwc_occurrence: false)
+        fossil_biocuration_class = FactoryBot.create(:valid_biocuration_class, uri: DWC_FOSSIL_URI)
+        specimen.biocuration_classes << fossil_biocuration_class
+
+        expect(specimen.dwc_occurrence.basis).to eq('FossilSpecimen')
+      end
+
+      specify 'basisOfRecord changes to FossilSpecimen when fossil biocuration class is added' do
+        specimen = FactoryBot.create(:valid_specimen, no_dwc_occurrence: false)
+        expect(specimen.dwc_occurrence.basisOfRecord).to eq('PreservedSpecimen')
+
+        fossil_biocuration_class = FactoryBot.create(:valid_biocuration_class, uri: DWC_FOSSIL_URI)
+        specimen.biocuration_classes << fossil_biocuration_class
+
+        perform_enqueued_jobs
+
+        expect(specimen.dwc_occurrence.reload.basisOfRecord).to eq('FossilSpecimen')
+      end
+
+      specify 'basisOfRecord changes back to PreservedSpecimen when fossil biocuration class is removed' do
+        specimen = FactoryBot.create(:valid_specimen, no_dwc_occurrence: false)
+        fossil_biocuration_class = FactoryBot.create(:valid_biocuration_class, uri: DWC_FOSSIL_URI)
+        specimen.biocuration_classes << fossil_biocuration_class
+
+        perform_enqueued_jobs
+
+        expect(specimen.dwc_occurrence.reload.basisOfRecord).to eq('FossilSpecimen')
+
+        # Destroy the BiocurationClassification to trigger callbacks
+        specimen.biocuration_classifications.where(biocuration_class: fossil_biocuration_class).destroy_all
+
+        perform_enqueued_jobs
+
+        expect(specimen.dwc_occurrence.reload.basisOfRecord).to eq('PreservedSpecimen')
       end
     end
 
@@ -261,9 +302,40 @@ describe DwcOccurrence, type: :model, group: [:darwin_core] do
     expect(a.is_stale?).to be_truthy
   end
 
-  # Can't test within a transaction.
-  specify '.empty_fields' do
-    expect(::DwcOccurrence.empty_fields).to contain_exactly() # Should be ::DwcOccurrence.column_names
+  context 'otu_id' do
+    specify 'is set from CollectionObject current determination' do
+      otu = FactoryBot.create(:valid_otu)
+      FactoryBot.create(:valid_taxon_determination, otu: otu, taxon_determination_object: collection_object)
+      d = collection_object.set_dwc_occurrence
+      expect(d.otu_id).to eq(otu.id)
+    end
+
+    specify 'is set from AssertedDistribution' do
+      d = asserted_distribution.set_dwc_occurrence
+      expect(d.otu_id).to eq(asserted_distribution.otu.id)
+    end
+
+    specify 'updates when current TaxonDetermination changes via reordering' do
+      otu1 = FactoryBot.create(:valid_otu)
+      otu2 = FactoryBot.create(:valid_otu)
+      td1 = FactoryBot.create(:valid_taxon_determination, otu: otu1, taxon_determination_object: collection_object)
+      td2 = FactoryBot.create(:valid_taxon_determination, otu: otu2, taxon_determination_object: collection_object)
+
+      d = collection_object.set_dwc_occurrence
+      expect(d.otu_id).to eq(otu2.id) # td2 added last, so it's at position 1 (current)
+
+      td1.move_to_top # triggers DwcOccurrenceHooks rebuild job
+      perform_enqueued_jobs
+      expect(d.reload.otu_id).to eq(otu1.id)
+    end
+
+    specify 'is not exported in occurrence exports' do
+      expect(DwcOccurrence.target_occurrence_columns).not_to include(:otu_id)
+    end
+
+    specify 'is not exported in checklist exports' do
+      expect(Export::Dwca::Checklist::Data::CHECKLIST_TAXON_EXTENSION_COLUMNS.keys).not_to include(:otu_id)
+    end
   end
 
 end

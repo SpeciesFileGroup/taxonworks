@@ -8,7 +8,7 @@ function initApp (element) {
 }
 
 document.addEventListener('turbolinks:load', () => {
-  const el = document.querySelector('#filter_task')
+  const el = document.querySelector('#vue-filter-taxon-name-relationships')
 
   if (el) { initApp(el) }
 })

@@ -147,9 +147,12 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
     expect(q.all).to contain_exactly(a)
   end
 
-  specify '#otu_id' do
-    o = ad1.otu_id
-    q = query.new({otu_id: o})
+  specify '#asserted_distribution_object an otu' do
+    o = ad1.asserted_distribution_object_id
+    q = query.new({
+      asserted_distribution_object_id: o,
+      asserted_distribution_object_type: 'Otu'
+    })
     expect(q.all.map(&:id)).to contain_exactly(ad1.id)
   end
 
@@ -245,13 +248,234 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
     expect(q.all).to contain_exactly(ad_ba)
   end
 
-  # # Source query integration
-  # specify '#source_id' do
-  #   FactoryBot.create(:valid_asserted_distribution)
-  #   o = a.source.id
-  #   q.source_id = o
+  specify '#otu_id includes direct OTU ADs' do
+    ad1
+    ad2 # not this one
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad1)
+  end
 
-  #   expect(q.all.map(&:id)).to contain_exactly(a.id)
-  # end
+  specify '#otu_id includes ADs on BiologicalAssociations where OTU is subject' do
+    ad2 # not this one
+    ba = FactoryBot.create(
+      :valid_biological_association,
+      biological_association_subject: o1
+    )
+    ad_ba = FactoryBot.create(
+      :valid_biological_association_asserted_distribution,
+      asserted_distribution_object: ba
+    )
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad_ba)
+  end
+
+  specify '#otu_id includes ADs on BiologicalAssociations where OTU is object' do
+    ad2 # not this one
+    ba = FactoryBot.create(
+      :valid_biological_association,
+      biological_association_object: o1
+    )
+    ad_ba = FactoryBot.create(
+      :valid_biological_association_asserted_distribution,
+      asserted_distribution_object: ba
+    )
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad_ba)
+  end
+
+  specify '#otu_id includes both direct and BA ADs' do
+    ad2 # not this one
+    ba = FactoryBot.create(
+      :valid_biological_association,
+      biological_association_subject: o1
+    )
+    ad_ba = FactoryBot.create(
+      :valid_biological_association_asserted_distribution,
+      asserted_distribution_object: ba
+    )
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad1, ad_ba)
+  end
+
+  specify '#otu_id includes ADs on BiologicalAssociationsGraphs containing a BA where OTU is subject' do
+    ad2 # not this one
+    ba = FactoryBot.create(:valid_biological_association, biological_association_subject: o1)
+    bag = FactoryBot.create(:valid_biological_associations_graph)
+    FactoryBot.create(:valid_biological_associations_biological_associations_graph,
+      biological_associations_graph: bag,
+      biological_association: ba
+    )
+    ad_bag = FactoryBot.create(:valid_biological_associations_graph_asserted_distribution,
+      asserted_distribution_object: bag
+    )
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad_bag)
+  end
+
+  specify '#otu_id includes ADs on BiologicalAssociationsGraphs containing a BA where OTU is object' do
+    ad2 # not this one
+    ba = FactoryBot.create(:valid_biological_association, biological_association_object: o1)
+    bag = FactoryBot.create(:valid_biological_associations_graph)
+    FactoryBot.create(:valid_biological_associations_biological_associations_graph,
+      biological_associations_graph: bag,
+      biological_association: ba
+    )
+    ad_bag = FactoryBot.create(:valid_biological_associations_graph_asserted_distribution,
+      asserted_distribution_object: bag
+    )
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad_bag)
+  end
+
+  specify '#otu_id includes ADs on Conveyances where OTU is the conveyance object' do
+    ad2 # not this one
+    conveyance = FactoryBot.create(:valid_conveyance, conveyance_object: o1)
+    ad_conveyance = FactoryBot.create(:valid_conveyance_asserted_distribution,
+      asserted_distribution_object: conveyance
+    )
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad_conveyance)
+  end
+
+  specify '#otu_id includes ADs on Depictions where OTU is the depiction object' do
+    ad2 # not this one
+    depiction = FactoryBot.create(:valid_depiction, depiction_object: o1)
+    ad_depiction = FactoryBot.create(:valid_depiction_asserted_distribution,
+      asserted_distribution_object: depiction
+    )
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad_depiction)
+  end
+
+  specify '#otu_id includes ADs on Observations where OTU is the observation object' do
+    ad2 # not this one
+    observation = FactoryBot.create(:valid_observation, observation_object: o1)
+    ad_observation = FactoryBot.create(:valid_observation_asserted_distribution,
+      asserted_distribution_object: observation
+    )
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad_observation)
+  end
+
+  specify '#source_id' do
+    source = FactoryBot.create(:valid_source)
+    other_source = FactoryBot.create(:valid_source)
+
+    a = FactoryBot.create(:valid_asserted_distribution, source:)
+    b = FactoryBot.create(:valid_asserted_distribution, source: other_source)
+
+    q = query.new({source_id: source.id})
+
+    expect(q.all).to contain_exactly(a)
+  end
+
+  context 'data attributes' do
+    let(:p1) { FactoryBot.create(:valid_predicate) }
+    let(:p2) { FactoryBot.create(:valid_predicate) }
+
+    specify '#data_attribute_exact_pair 1' do
+      d = InternalAttribute.create!(
+        predicate: p1,
+        value: '212',
+        attribute_subject: ad1
+      )
+      ad2 # not this
+
+      q = query.new(data_attribute_exact_pair: {p1.id => '212'})
+      expect(q.all).to contain_exactly(ad1)
+    end
+
+    specify '#data_attribute_exact_pair 2, multiple predicate values are ored' do
+      d1 = InternalAttribute.create!(
+        predicate: p1,
+        value: '212',
+        attribute_subject: ad1
+      )
+      d2 = InternalAttribute.create!(
+        predicate: p1,
+        value: '313',
+        attribute_subject: ad2
+      )
+
+      # Must use array form
+      q = query.new(
+        data_attribute_exact_pair: ["#{p1.id}:212", "#{p1.id}:313"]
+      )
+
+      expect(q.all).to contain_exactly(ad1, ad2)
+    end
+
+    specify '#data_attribute_wildcard_pair 1' do
+      d = InternalAttribute.create!(
+        predicate: p1,
+        value: '212',
+        attribute_subject: ad1
+      )
+      ad2 # not this
+
+      q = query.new(data_attribute_wildcard_pair: {p1.id => '2'})
+      expect(q.all).to contain_exactly(ad1)
+    end
+
+    specify '#data_attribute_wildcard_pair 2, multiple predicate values are ored' do
+      d1 = InternalAttribute.create!(
+        predicate: p1,
+        value: '212',
+        attribute_subject: ad1
+      )
+      d2 = InternalAttribute.create!(
+        predicate: p1,
+        value: '313',
+        attribute_subject: ad2
+      )
+
+      # Must use array form
+      q = query.new(
+        data_attribute_wildcard_pair: ["#{p1.id}:21", "#{p1.id}:31"]
+      )
+
+      expect(q.all).to contain_exactly(ad1, ad2)
+    end
+
+    specify '#data_attribute_wildcard_pair and #data_attribute_exact_pair are anded' do
+      d1 = InternalAttribute.create!(
+        predicate: p1,
+        value: '212',
+        attribute_subject: ad1
+      )
+      d2 = InternalAttribute.create!(
+        predicate: p1,
+        value: '313',
+        attribute_subject: ad2
+      )
+
+      # Must use array form
+      q = query.new(
+        data_attribute_wildcard_pair: ["#{p1.id}:21", "#{p1.id}:31"],
+        data_attribute_exact_pair: {p1.id => '313'}
+      )
+
+      expect(q.all).to contain_exactly(ad2)
+    end
+
+    specify 'multiple predicates with exact pairs' do
+      d1 = InternalAttribute.create!(
+        predicate: p1,
+        value: 'foo',
+        attribute_subject: ad1
+      )
+      d2 = InternalAttribute.create!(
+        predicate: p2,
+        value: 'bar',
+        attribute_subject: ad2
+      )
+
+      q = query.new(
+        data_attribute_exact_pair: ["#{p1.id}:foo", "#{p2.id}:bar"]
+      )
+
+      expect(q.all).to contain_exactly(ad1, ad2)
+    end
+  end
 
 end

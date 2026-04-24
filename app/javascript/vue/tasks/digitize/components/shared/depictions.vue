@@ -175,7 +175,7 @@ function getImageDepictionUrl(depiction) {
   return depiction.svg_view_box
     ? makeSVGViewbox(depiction)
     : {
-        imageUrl: depiction.image.image_display_url,
+        imageUrl: depiction.image.original_png,
         width: depiction.image.width,
         height: depiction.image.height
       }

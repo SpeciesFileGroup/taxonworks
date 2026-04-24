@@ -1,9 +1,10 @@
 <template>
   <div class="overflow-x-auto">
     <FormCitation
-      v-model="typeMaterial.originCitation"
+      v-model="typeMaterial.citation"
       :klass="TYPE_MATERIAL"
-      original
+      :original="false"
+      @update="() => (typeMaterial.citation.isUnsaved = true)"
     />
   </div>
 </template>

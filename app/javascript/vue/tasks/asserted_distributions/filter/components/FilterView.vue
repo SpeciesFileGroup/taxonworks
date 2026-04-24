@@ -14,6 +14,10 @@
     target="AssertedDistribution"
     v-model="params"
   />
+  <FacetSource
+    klass="AssertedDistribution"
+    v-model="params"
+  />
   <FacetUsers v-model="params" />
   <FacetNotes v-model="params" />
   <FacetTags
@@ -56,6 +60,7 @@ import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttri
 import FacetTaxonName from '@/components/Filter/Facets/TaxonName/FacetTaxonName.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.vue'
+import FacetSource from '@/components/Filter/Facets/shared/FacetSource.vue'
 import { ASSERTED_DISTRIBUTION } from '@/constants/index.js'
 
 const PRESENCE_OPTIONS = [

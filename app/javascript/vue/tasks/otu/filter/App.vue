@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <h1>Filter OTUs</h1>
-
+  <div class="margin-medium-top">
     <FilterLayout
       :pagination="pagination"
       :url-request="urlRequest"
@@ -22,6 +20,7 @@
           :parameters="parameters"
           :disabled="!list.length"
           :object-type="OTU"
+          use-new-key-slice
           @update="() => makeFilterRequest({ ...parameters, extend })"
         />
       </template>
@@ -36,6 +35,7 @@
           :object-type="OTU"
           :disabled="!list.length"
           :ids="sortedSelectedIds"
+          use-new-key-slice
           @update="() => makeFilterRequest({ ...parameters, extend })"
         />
       </template>
@@ -46,6 +46,7 @@
         <FilterList
           :list="list"
           :attributes="ATTRIBUTES"
+          :preference-key="`tasks::filters::${OTU}`"
           v-model="selectedIds"
           radial-object
           @on-sort="list = $event"
@@ -76,6 +77,7 @@ import { OTU } from '@/constants/index.js'
 import { Otu } from '@/routes/endpoints'
 import { computed } from 'vue'
 import csvDownload from './components/csvDownload.vue'
+import DwcChecklistDownload from './components/dwcChecklistDownload.vue'
 
 const extend = ['taxonomy']
 
@@ -99,6 +101,15 @@ const extendDownload = computed(() => [
     component: csvDownload,
     bind: {
       params: parameters.value
+    }
+  },
+  {
+    label: 'DwC Checklist',
+    component: DwcChecklistDownload,
+    bind: {
+      params: parameters.value,
+      total: pagination.value?.total,
+      selectedIds: selectedIds.value
     }
   }
 ])

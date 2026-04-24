@@ -14,7 +14,7 @@ class Georeference::Wkt < Georeference
       @wkt_error = nil
     rescue RGeo::Error::RGeoError => e
       self.geographic_item = nil
-      @wkt_error = e.message
+      @wkt_error = "value is not valid WKT ('#{e.message}')"
     end
   end
 

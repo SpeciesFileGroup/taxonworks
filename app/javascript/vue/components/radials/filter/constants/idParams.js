@@ -1,10 +1,12 @@
 import {
+  ANATOMICAL_PART,
   ASSERTED_DISTRIBUTION,
   BIOLOGICAL_ASSOCIATION,
   CHARACTER_STATE,
   COLLECTING_EVENT,
   COLLECTION_OBJECT,
   CONTENT,
+  CONTROLLED_VOCABULARY_TERM,
   DESCRIPTOR,
   DWC_OCCURRENCE,
   EXTRACT,
@@ -14,6 +16,7 @@ import {
   OBSERVATION,
   OTU,
   PERSON,
+  SEQUENCE,
   SOUND,
   SOURCE,
   TAXON_NAME,
@@ -21,12 +24,14 @@ import {
 } from '@/constants/index.js'
 
 export const ID_PARAM_FOR = {
+  [ANATOMICAL_PART]: 'anatomical_part_id',
   [ASSERTED_DISTRIBUTION]: 'asserted_distribution_id',
   [BIOLOGICAL_ASSOCIATION]: 'biological_association_id',
   [CHARACTER_STATE]: 'character_state_id',
   [COLLECTING_EVENT]: 'collecting_event_id',
   [COLLECTION_OBJECT]: 'collection_object_id',
   [CONTENT]: 'content_id',
+  [CONTROLLED_VOCABULARY_TERM]: 'controlled_vocabulary_term_id',
   [DESCRIPTOR]: 'descriptor_id',
   [DWC_OCCURRENCE]: 'dwc_occurrence_id',
   [EXTRACT]: 'extract_id',
@@ -36,6 +41,7 @@ export const ID_PARAM_FOR = {
   [OBSERVATION]: 'observation_id',
   [OTU]: 'otu_id',
   [PERSON]: 'person_id',
+  [SEQUENCE]: 'sequence_id',
   [SOUND]: 'sound_id',
   [SOURCE]: 'source_id',
   [TAXON_NAME]: 'taxon_name_id',

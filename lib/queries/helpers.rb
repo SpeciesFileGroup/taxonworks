@@ -29,8 +29,45 @@ module Queries::Helpers
       next if Utilities::Strings.only_integer(v) # This rabbit hole feels a little janky
       raise TaxonWorks::Error::API, "values of #{attribute} must be integers (provided: #{params[attribute]})"
     end
-    
+
     params[attribute]
+  end
+
+  def split_pairs(pairs)
+    h = {}
+    pairs.each do |p|
+      k, v = p.split(':', 2)
+      h[k] = v
+    end
+    h
+  end
+
+  def split_repeated_pairs(pairs)
+    a = []
+    pairs.each do |p|
+      a << p.split(':', 2)
+    end
+    a
+  end
+
+  # @param values [Array]
+  # @return [Array<Boolean, nil>]
+  #   Converts array elements to boolean or nil values
+  #   Accepts: true, false, nil, 'true', 'false', 'nil', ''
+  def tri_value_array(values)
+    return [] if values.nil?
+    [values].flatten.map do |v|
+      case v
+      when true, 'true'
+        true
+      when false, 'false'
+        false
+      when nil, 'nil', ''
+        nil
+      else
+        raise TaxonWorks::Error::API, "value must be boolean or nil (provided: #{v.inspect})"
+      end
+    end
   end
 
 end

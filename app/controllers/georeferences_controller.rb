@@ -75,7 +75,7 @@ class GeoreferencesController < ApplicationController
   #          end
   #        }
   #
-  #        format.json { render json: @georeference.errors, status: :unprocessable_entity }
+  #        format.json { render json: @georeference.errors, status: :unprocessable_content }
   #      end
   #    end
   #  else
@@ -88,15 +88,22 @@ class GeoreferencesController < ApplicationController
   # POST /georeferences.json
   def create
     @georeference = Georeference.new(georeference_params)
+    saved = nil
+    begin
+      saved = @georeference.save
+    rescue RGeo::Error::InvalidGeometry, RGeo::Error::GeosError => e
+      @georeference.errors.add(:geometry_error, "Georeference geometry error: #{e}")
+    end
+
     respond_to do |format|
-      if @georeference.save
+      if saved
         format.html {
           redirect_to collecting_event_path(@georeference.collecting_event), notice: 'Georeference was successfully created.'
         }
         format.json { render :show, status: :created, location: @georeference.metamorphosize }
       else
         format.html { render action: :new }
-        format.json { render json: @georeference.errors, status: :unprocessable_entity }
+        format.json { render json: @georeference.errors, status: :unprocessable_content }
       end
     end
   end
@@ -113,7 +120,7 @@ class GeoreferencesController < ApplicationController
         format.json { render :show, status: :ok, location: @georeference.metamorphosize }
       else
         format.html { render action: :edit} #  "/georeferences/#{@georeference.method_name}/edit"}
-        format.json { render json: @georeference.errors, status: :unprocessable_entity }
+        format.json { render json: @georeference.errors, status: :unprocessable_content }
       end
     end
   end
@@ -128,7 +135,7 @@ class GeoreferencesController < ApplicationController
         format.json { head :no_content}
       else
         format.html { destroy_redirect @georeference, notice: 'Georeference was not destroyed, ' + @georeference.errors.full_messages.join('; ') }
-        format.json { render json: @georeference.errors, status: :unprocessable_entity }
+        format.json { render json: @georeference.errors, status: :unprocessable_content }
       end
     end
   end

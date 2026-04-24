@@ -286,19 +286,20 @@ describe User, type: :model do
 
     describe '#transfer_housekeeping' do
       before do
+        FactoryBot.create(:root_taxon_name, creator: user, updater: user)
         4.times { FactoryBot.create(:valid_protonym, creator: user, updater: user) }
         3.times { FactoryBot.create(:valid_geographic_area, creator: target_user, updater: user) }
         5.times { FactoryBot.create(:valid_otu, creator: another_user, updater: another_user, updated_at: 1.week.ago) }
         user.transfer_housekeeping(target_user)
       end
-  
+
       it 'removes user from housekeeping data' do
         expect(TaxonName.where(created_by_id: user.id).or(TaxonName.where(updated_by_id: user.id))).to be_empty
         expect(GeographicArea.where(created_by_id: user.id).or(GeographicArea.where(updated_by_id: user.id))).to be_empty
       end
-  
+
       it 'assigns user to housekeeping data' do
-        expect(TaxonName.where(created_by_id: target_user.id).or(TaxonName.where(updated_by_id: target_user.id)).count).to eq(4)
+        expect(TaxonName.where(created_by_id: target_user.id).or(TaxonName.where(updated_by_id: target_user.id)).count).to eq(5)
         expect(GeographicArea.where(created_by_id: target_user.id).or(GeographicArea.where(updated_by_id: target_user.id)).count).to eq(3)
       end
   

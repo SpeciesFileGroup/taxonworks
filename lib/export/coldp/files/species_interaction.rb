@@ -5,58 +5,65 @@
 # referenceID
 # remarks
 #
+
+require 'net/http'
+require 'json'
+require 'uri'
+
+
 module Export::Coldp::Files::SpeciesInteraction
 
-  def self.taxon_id(ba)
-    subject_otu = nil
-    if ba.biological_association_subject_type == "Otu"
-      begin
-        subject_otu = Otu.find(ba.biological_association_subject_id).id
-      rescue ActiveRecord::RecordNotFound
-        subject_otu = nil
-      end
-    end
-    subject_otu
+  def self.biological_association_indices(otus)
+    b = BiologicalAssociationIndex
+      .with(otus:)
+      .joins("JOIN otus on otus.id = biological_association_indices.subject_id and biological_association_indices.subject_type = 'Otu'")
+      .left_joins(biological_association: [:sources])
+      .group('biological_association_id, subject_id, object_label, relationship_name, biological_association_indices.id, biological_associations.updated_at, biological_associations.updated_by_id, sources.id')
+      .order('biological_association_id, sources.cached_nomenclature_date')
+      .select(
+        %w{
+         biological_association_indices.id
+         subject_id
+         object_label
+         relationship_name
+         MAX(sources.id)\ AS\ source_id
+         sources.cached_nomenclature_date
+         biological_associations.updated_at
+         biological_associations.updated_by_id
+        }.join(', ')
+      )
   end
 
-  def self.related_taxon_id(ba)
-    object_otu = nil
-    if ba.biological_association_object_type == "Otu"
-      begin
-        object_otu = Otu.find(ba.biological_association_object_id).id
-      rescue ActiveRecord::RecordNotFound
-        object_otu = nil
-      end
-    end
-    object_otu
-  end
 
-  def self.related_taxon_scientific_name(otu_id)
-    object_taxon_name = nil
-    begin
-      o = Otu.find(otu_id)
-    rescue ActiveRecord::RecordNotFound
-      return nil
-    end
-    if !o.taxon_name_id.nil?
-      object_taxon_name = TaxonName.find(o.taxon_name_id).cached
+  def self.checklistbank_vocab
+    url = URI.parse("https://api.checklistbank.org/vocab/speciesinteractiontype")
+    response = Net::HTTP.get_response(url)
+
+    if response.is_a?(Net::HTTPSuccess)
+      data = JSON.parse(response.body)
     else
-      unless o.name.nil?
-        object_taxon_name = o.name
-      end
+      {}
     end
-    object_taxon_name
   end
 
-  def self.species_interaction_type(ba, inverted=false)
-    species_interaction_type = BiologicalRelationship.find(ba.biological_relationship_id).name
-    if inverted
-      species_interaction_type = BiologicalRelationship.find(ba.biological_relationship_id).inverted_name
-    end
-    species_interaction_type
+
+  def self.biological_relationships(otus)
+    BiologicalRelationship.where(project_id: otus.first.project_id)
   end
 
   def self.generate(otus, project_members, reference_csv = nil )
+
+    # We could skip non-standard vocabulary using this, but for now we just let it ride.
+    # cvb = checklistbank_vocab
+
+    # TODO: Support/encourage use of  Global URI Identifiers on BiologicalRelationships
+    #
+    #   Use those identifers as a proxy for type.
+    #
+    # br = biological_relationships(otus)
+    # br_lookup = br.inject({}){|hsh, a| hsh['name'] = hsh['uri']; hsh}
+    #
+
     CSV.generate(col_sep: "\t") do |csv|
 
       csv << %w{
@@ -70,31 +77,24 @@ module Export::Coldp::Files::SpeciesInteraction
         remarks
       }
 
-      q = ::Queries::BiologicalAssociation::Filter.new({})
-      q.otu_query = otus
+      a = biological_association_indices(otus)
 
-      # TODO: expand for CollectionObject or FO occurrences later
-      q.all.where(biological_association_subject_type: 'Otu', biological_association_object_type: 'Otu' ).find_each do |ba|
-
-        taxon_id = taxon_id(ba)
-        related_taxon_id = related_taxon_id(ba)
-        sources = ba.sources.load
-        reference_ids = sources.collect{|a| a.id}
-        reference_id = reference_ids.first
-
+      a.find_each(batch_size: 2000) do |bai|
         csv << [
-          taxon_id,                                                       # taxonID
-          related_taxon_id,                                               # relatedTaxonID
-          related_taxon_scientific_name(related_taxon_id),                # relatedTaxonScientificName
-          species_interaction_type(ba),                                   # type
-          reference_id,                                                   # referenceID
-          Export::Coldp.modified(ba[:update_at]),                         # modified
-          Export::Coldp.modified_by(ba[:updated_by_id], project_members), # modified_by
+          bai.subject_id,                                                 # taxonID
+          nil,                                                            # relatedTaxonID
+          bai.object_label,                                               # relatedTaxonScientificName
+          bai.relationship_name,                                          # type
+          bai.source_id,                                                  # referenceID
+          Export::Coldp.modified(bai[:updated_at]),                         # modified
+          Export::Coldp.modified_by(bai[:updated_by_id], project_members), # modified_by
           nil                                                             # remarks
         ]
-
-        Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv, project_members) if reference_csv
       end
+
+      sources = Source.with(a: ).joins('JOIN a on a.source_id = sources.id')
+      Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv, project_members) if reference_csv
+
     end
   end
 end

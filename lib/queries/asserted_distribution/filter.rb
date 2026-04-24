@@ -27,6 +27,7 @@ module Queries
         :otu_id,
         :presence,
         :radius,
+        :source_id,
         :shape_type,
         :taxon_name_id,
         :wkt,
@@ -40,6 +41,7 @@ module Queries
         geographic_area_id: [],
         geographic_item_id: [],
         otu_id: [],
+        source_id: [],
         taxon_name_id: []
       ].freeze
 
@@ -93,6 +95,10 @@ module Queries
       #   all Otus matching these taxon names
       attr_accessor :taxon_name_id
 
+      # @param source_id [Array, Integer, String]
+      # @return [Array]
+      attr_accessor :source_id
+
       # @return [Boolean, nil]
       #  true - include descendants of taxon_name_id in scope
       #  false, nil - only exact matches
@@ -125,6 +131,7 @@ module Queries
         @radius = params[:radius].presence || 100.0
         @asserted_distribution_shape_type =
           params[:asserted_distribution_shape_type]
+        @source_id = integer_param(params, :source_id)
         @taxon_name_id = integer_param(params, :taxon_name_id)
         @wkt = params[:wkt]
 
@@ -170,6 +177,10 @@ module Queries
 
       def taxon_name_id
         [@taxon_name_id].flatten.compact
+      end
+
+      def source_id
+        [@source_id].flatten.compact
       end
 
       def presence_facet
@@ -374,9 +385,67 @@ module Queries
 
       def otu_id_facet
         return nil if otu_id.empty?
-        table[:asserted_distribution_object_type].eq('Otu').and(
-          table[:asserted_distribution_object_id].in(otu_id)
+
+        # Direct OTU asserted distributions
+        a = ::AssertedDistribution.where(
+          asserted_distribution_object_type: 'Otu',
+          asserted_distribution_object_id: otu_id
         )
+
+        # ADs on BiologicalAssociations where the OTU is the subject
+        b = ::AssertedDistribution
+          .with_biological_associations
+          .where(biological_associations: {
+            biological_association_subject_type: 'Otu',
+            biological_association_subject_id: otu_id
+          })
+
+        # ADs on BiologicalAssociations where the OTU is the object
+        c = ::AssertedDistribution
+          .with_biological_associations
+          .where(biological_associations: {
+            biological_association_object_type: 'Otu',
+            biological_association_object_id: otu_id
+          })
+
+        # BiologicalAssociationsGraph IDs that contain a BA involving the OTU
+        otu_ba_ids = ::BiologicalAssociation.where(
+          biological_association_subject_type: 'Otu',
+          biological_association_subject_id: otu_id
+        ).or(
+          ::BiologicalAssociation.where(
+            biological_association_object_type: 'Otu',
+            biological_association_object_id: otu_id
+          )
+        ).select(:id)
+
+        bag_ids = ::BiologicalAssociationsGraph
+          .joins(:biological_associations_biological_associations_graphs)
+          .where(biological_associations_biological_associations_graphs: { biological_association_id: otu_ba_ids })
+          .select(:id)
+
+        # ADs on BiologicalAssociationsGraphs that include a BA involving the OTU
+        d = ::AssertedDistribution.where(
+          asserted_distribution_object_type: 'BiologicalAssociationsGraph',
+          asserted_distribution_object_id: bag_ids
+        )
+
+        # ADs on Conveyances where the OTU is the conveyance object
+        e = ::AssertedDistribution
+          .with_otu_conveyances
+          .where(conveyances: { conveyance_object_id: otu_id })
+
+        # ADs on Depictions where the OTU is the depiction object
+        f = ::AssertedDistribution
+          .with_otu_depictions
+          .where(depictions: { depiction_object_id: otu_id })
+
+        # ADs on Observations where the OTU is the observation object
+        g = ::AssertedDistribution
+          .with_otu_observations
+          .where(observations: { observation_object_id: otu_id })
+
+        referenced_klass_union([a, b, c, d, e, f, g])
       end
 
       def biological_association_id_facet
@@ -407,6 +476,15 @@ module Queries
         else
           ::AssertedDistribution.with_otus.where(otus: {taxon_name_id:})
         end
+      end
+
+      def source_id_facet
+        return nil if source_id.empty?
+
+        ::AssertedDistribution
+          .joins(:citations)
+          .where(citations: { source_id: })
+          .distinct
       end
 
       def otu_query_facet
@@ -476,7 +554,6 @@ module Queries
       def and_clauses
         [
           biological_association_id_facet,
-          otu_id_facet,
           presence_facet,
           asserted_distribution_shape_type_facet,
           asserted_distribution_object_type_facet,
@@ -489,8 +566,10 @@ module Queries
           dwc_occurrence_query_facet,
           biological_association_query_facet,
           geo_json_facet,
+          otu_id_facet,
           otu_query_facet,
           taxon_name_query_facet,
+          source_id_facet,
 
           asserted_distribution_geo_facet,
           geographic_item_id_facet,

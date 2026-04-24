@@ -1,4 +1,4 @@
-json.extract! sound, :id, :name, :project_id, :created_by_id, :updated_by_id, :sound_file, :created_at, :updated_at
+json.extract! sound, :id, :name, :project_id, :sound_file, :created_at, :updated_at
 
 json.sound_file short_url(url_for(sound.sound_file))
 
@@ -14,5 +14,11 @@ end
 if extend_response_with('attribution')
   json.attribution do
     json.label label_for_attribution(sound.attribution)
+  end
+end
+
+if extend_response_with('notes')
+  json.notes sound.notes.each do |n|
+    json.text n.text
   end
 end

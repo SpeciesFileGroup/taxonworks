@@ -99,7 +99,7 @@ module Export::Coldp::Files::Taxon
   # Potentially- all other Citations tied to Otu, what exactly supports a concept?
   def self.reference_id(sources)
     i = sources.pluck(:id)
-    return i.join(',') if i.any?
+    return i.join('|') if i.any?
     nil
   end
 
@@ -110,7 +110,7 @@ module Export::Coldp::Files::Taxon
       .select("data_attributes.attribute_subject_id, STRING_AGG(data_attributes.value::text, ',') AS #{target}")
       .where(predicate: { uri: IRI_MAP[target] })
       .group('data_attributes.attribute_subject_id')
-      .map{|a| [a.id, a.send(target)]}.to_h
+      .map{|a| [a.attribute_subject_id, a.send(target)]}.to_h
   end
 
   def self.generate(otu, otus, project_members, reference_csv = nil, prefer_unlabelled_otus = true)

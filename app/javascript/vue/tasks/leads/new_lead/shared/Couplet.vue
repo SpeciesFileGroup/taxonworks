@@ -74,7 +74,7 @@
             medium
             @click="() => { leadItemOtusModalVisible = true }"
           >
-            Start an OTUs list
+            Add an OTUs list
           </VBtn>
 
           <VBtn

@@ -47,6 +47,7 @@ export default ({ state, dispatch }, coId) => {
     }
   })
 
+  dispatch(ActionNames.LoadAnatomicalParts, coId)
   dispatch(ActionNames.LoadBiocurations, coId)
   dispatch(ActionNames.LoadDwc, coId)
   dispatch(ActionNames.LoadTimeline, coId)

@@ -114,6 +114,7 @@ import ViewComponent from './components/View/Main.vue'
 import setParam from '@/helpers/setParam'
 import PaginationComponent from '@/components/pagination.vue'
 import PaginationCount from '@/components/pagination/PaginationCount.vue'
+import { LinkerStorage } from '@/shared/Filter/utils'
 
 export default {
   name: 'ImageMatrix',
@@ -178,13 +179,18 @@ export default {
   },
 
   created() {
-    const urlParams = URLParamsToJSON(window.location.href)
+    const urlParams = {
+      ...URLParamsToJSON(window.location.href),
+      ...LinkerStorage.getParameters()
+    }
     const obsIdParam = urlParams.observation_matrix_id
     const otuFilterParam = urlParams.otu_filter || urlParams.otu_id?.join('|')
     const rowFilterParam = urlParams.row_filter
     const page = urlParams.page
 
     this.editMode = urlParams.edit
+
+    LinkerStorage.removeParameters()
 
     if (otuFilterParam) {
       this.otuFilter = otuFilterParam

@@ -42,8 +42,16 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName < TaxonN
   def sv_source_after_1999
     s = subject_taxon_name
     d = self&.origin_citation&.source&.cached_nomenclature_date
-    return true if d.nil?
-    soft_validations.add(:type, "#{s.cached_html_name_and_author_year} was rejected before 2000") if d > Date.parse('1999-12-31')
+    return true if d.nil? || self.type != 'TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName'
+    if d < Date.parse('2000-01-01')
+      soft_validations.add(:type, "#{s.cached_html_name_and_author_year} was rejected before 2000")
+    else
+      o = object_taxon_name
+      d1 = s&.origin_citation&.source&.cached_nomenclature_date
+      d2 = o&.origin_citation&.source&.cached_nomenclature_date
+      soft_validations.add(:subject_taxon_name_id, "#{s.cached_html_name_and_author_year} as <i>nomen oblitum</i> was not described before 1900") if d1 && d1 > Date.parse('1900-01-01')
+      #soft_validations.add(:object_taxon_name_id, "#{o.cached_html_name_and_author_year} as <i>nomen protectum</i> was not described before 1900") if d2 && d2 > Date.parse('1900-01-01')
+    end
   end
 
   def sv_not_specific_relationship

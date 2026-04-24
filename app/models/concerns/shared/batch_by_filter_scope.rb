@@ -38,6 +38,11 @@ module Shared::BatchByFilterScope
       r.total_attempted = c
       r.async = async
 
+      # Fail loudly now, otherwise we'll fail silently in the background.
+      if async && (user_id.nil? || project_id.nil?)
+        raise TaxonWorks::Error, "user_id (#{user_id}) or project_id (#{project_id}) not set in batch_by_filter_scope! '#{filter_query}, #{mode}, #{params}"
+      end
+
       r = self.process_batch_by_filter_scope(
         batch_response: r,
         query: q,

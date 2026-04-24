@@ -50,8 +50,8 @@
 
 <script setup>
 import { ref } from 'vue'
-import { COLLECTION_OBJECT, CONTAINER, EXTRACT } from '@/constants'
-import { CollectionObject, Extract, Container } from '@/routes/endpoints'
+import { ANATOMICAL_PART, COLLECTION_OBJECT, CONTAINER, EXTRACT } from '@/constants'
+import { CollectionObject, Extract, Container, AnatomicalPart } from '@/routes/endpoints'
 import { CONTAINER_PARAMETERS } from '../../constants'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
@@ -74,6 +74,11 @@ const TYPES = {
     autocomplete: '/extracts/autocomplete',
     placeholder: 'Search an extract...',
     service: Extract
+  },
+  [ANATOMICAL_PART]: {
+    autocomplete: '/anatomical_parts/autocomplete',
+    placeholder: 'Search an anatomical part...',
+    service: AnatomicalPart
   }
 }
 
@@ -103,7 +108,8 @@ function unsetContainerObject() {
     objectId: null,
     objectType: null,
     label: null,
-    isUnsaved: true
+    isUnsaved: true,
+    errorOnSave: null
   })
 }
 </script>

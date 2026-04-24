@@ -26,6 +26,10 @@ class Tasks::Dwc::DashboardController < ApplicationController
 
     media_query = nil
     if params[:media_extension]
+      if sessions_current_project.api_access_token.nil?
+        render json: { note: 'A project API Acess Token is required for exporting media - contact your project administrator for details' }, status: :unprocessable_content
+        return
+      end
       media_query = {
         collection_objects: ::Queries::CollectionObject::Filter.new(
           dwc_occurrence_query: q.params
@@ -45,7 +49,8 @@ class Tasks::Dwc::DashboardController < ApplicationController
         biological_associations: biological_associations_query,
         media: media_query
       },
-      project_id: sessions_current_project_id
+      project_id: sessions_current_project_id,
+      user_id: sessions_current_user_id
     )
     render '/downloads/show'
   end
@@ -60,7 +65,7 @@ class Tasks::Dwc::DashboardController < ApplicationController
       metadata = ::Export::Dwca.build_index_async(CollectionObject, q.all)
       render json: metadata, status: :ok
     else
-      render json: {}, status: :unprocessable_entity
+      render json: {}, status: :unprocessable_content
     end
   end
 
@@ -72,15 +77,55 @@ class Tasks::Dwc::DashboardController < ApplicationController
     render json: ::CollectionObject::DwcExtensions::TaxonworksExtensions::EXTENSION_FIELDS, status: :ok
   end
 
+  def checklist_extensions
+    render json: ::Export::Dwca::Checklist::Data::CHECKLIST_EXTENSION_OPTIONS, status: :ok
+  end
+
+  def accepted_name_mode_options
+    options = [
+      {
+        value: ::Export::Dwca::Checklist::Data::REPLACE_WITH_ACCEPTED_NAME,
+        label: 'Replace invalid names with valid names'
+      },
+      {
+        value: ::Export::Dwca::Checklist::Data::ACCEPTED_NAME_USAGE_ID,
+        label: 'Classify synonyms using acceptedNameUsageID'
+      }
+    ]
+    render json: options, status: :ok
+  end
+
+  def generate_checklist_download
+    core_otu_scope_params = Queries::Otu::Filter.new(params[:otu_query] || {}).params
+    extensions = (params[:extensions] || []).map(&:to_sym)
+    accepted_name_mode = params[:accepted_name_mode] || ::Export::Dwca::Checklist::Data::REPLACE_WITH_ACCEPTED_NAME
+    description_topics = params[:description_topics] || []
+    download_name = params[:download_name].presence
+    download_description = params[:download_description].presence
+
+    @download = ::Export::Dwca.checklist_download_async(
+      core_otu_scope_params,
+      request.url,
+      extensions:,
+      accepted_name_mode:,
+      description_topics:,
+      download_name:,
+      download_description:,
+      project_id: sessions_current_project_id
+    )
+
+    render '/downloads/show'
+  end
+
   private
 
   def predicate_extension_params
-    a = params.permit(collecting_event_predicate_id: [], collection_object_predicate_id: []).to_h.symbolize_keys
+    params.permit(collecting_event_predicate_id: [], collection_object_predicate_id: []).to_h.symbolize_keys
   end
 
   def taxonworks_extension_params
     a = params.permit(taxonworks_extension_methods: []).dig(:taxonworks_extension_methods)
-    a ? a.map(&:to_sym) : {}
+    a&.map(&:to_sym) || []
   end
 
 end

@@ -1,4 +1,33 @@
 scope :tasks do
+  scope :news do
+    scope :browse, controller: 'tasks/news/browse' do
+      get '/', action: :index, as: 'browse_news_task'
+    end
+
+    scope :new, controller: 'tasks/news/new' do
+      get '/', action: :index, as: 'new_news_task'
+    end
+  end
+
+  scope :anatomical_parts do
+    scope :edit_anatomical_part, controller: 'tasks/anatomical_parts/edit_anatomical_part' do
+      get '/', action: :index, as: 'edit_anatomical_part_task'
+    end
+
+    scope :select_ontologies, controller: 'tasks/anatomical_parts/select_ontologies' do
+      get '/', action: :index, as: 'select_ontologies_task'
+      # See other routes in data.rb.
+    end
+
+    scope :anatomical_parts_graph, controller: 'tasks/anatomical_parts/anatomical_parts_graph' do
+      get '/', action: :index, as: 'anatomical_parts_graph_task'
+    end
+
+    scope :filter, controller: 'tasks/anatomical_parts/filter' do
+      get '/', action: :index, as: 'filter_anatomical_parts_task'
+    end
+  end
+
   scope :taxon_name_relationships do
     scope :filter, controller: 'tasks/taxon_name_relationships/filter' do
       get '/', action: :index, as: 'filter_taxon_name_relationships_task'
@@ -49,6 +78,11 @@ scope :tasks do
   end
 
   scope :data_attributes do
+    scope :duplicate_data_attributes, controller: 'tasks/data_attributes/duplicate_data_attributes' do
+      get '/', action: :index, as: 'duplicate_data_attributes_task'
+      match :data, action: :data, defaults: { format: :json }, via: [:get, :post]
+    end
+
     scope :multi_update, controller: 'tasks/data_attributes/multi_update' do
       get '/', action: :index, as: 'index_multi_update_task'
     end
@@ -61,6 +95,10 @@ scope :tasks do
   end
 
   scope :leads do
+    scope :dichotomous_key, controller: 'tasks/leads/dichotomous_key' do
+      get '/', action: :index, as: 'dichotomous_key_task'
+    end
+
     scope :hub, controller: 'tasks/leads/hub' do
       get '/', action: :index, as: 'leads_hub_task'
     end
@@ -126,6 +164,11 @@ scope :tasks do
     scope :batch_add_users, controller: 'tasks/administrator/batch_add_users' do
       get '/', as: 'batch_add_users_task', action: :index
     end
+
+    scope :year_in_review, controller: 'tasks/administrator/year_in_review' do
+      get '/', action: :index, as: 'administrator_year_in_review_task'
+      get :data, as: 'administrator_year_in_review_data', defaults: {format: :json}
+    end
   end
 
   scope :dwca_import, controller: 'tasks/dwca_import/dwca_import' do
@@ -156,6 +199,10 @@ scope :tasks do
   end
 
   scope :namespaces do
+    scope :filter, controller: 'tasks/namespaces/filter' do
+      get '/', action: :index, as: 'filter_namespaces_task'
+    end
+
     scope :new_namespace, controller: 'tasks/namespaces/new_namespace' do
       get '/', action: :index, as: 'new_namespace_task'
     end
@@ -190,9 +237,17 @@ scope :tasks do
       get '/', action: :index, as: 'dwc_dashboard_task'
       get :index_versions, defaults: {format: :json}
       get :taxonworks_extension_methods, defaults: {format: :json}
+      get :checklist_extensions, defaults: {format: :json}
+      get :accepted_name_mode_options, defaults: {format: :json}
 
       post 'generate_download', as: 'generate_dwc_download_task', defaults: {format: :json}
+      post 'generate_checklist_download', as: 'generate_dwc_checklist_download_task', defaults: {format: :json}
       post :create_index, as: 'create_dwc_index_task', defaults: {format: :json}
+    end
+
+    scope :compact, controller: 'tasks/dwc/compact' do
+      get '/', action: :index, as: 'compact_dwc_task'
+      post :compact, defaults: {format: :json}
     end
   end
 
@@ -208,8 +263,10 @@ scope :tasks do
     end
   end
 
-  scope :browse_annotations, controller: 'tasks/object_annotations/browse_annotations' do
-    get '/', action: :index, as: 'browse_annotations_task'
+  scope :annotations do
+    scope :filter, controller: 'tasks/annotations/filter' do
+      get '/', action: :index, as: 'annotations_filter_task'
+    end
   end
 
   scope :citations do
@@ -227,6 +284,7 @@ scope :tasks do
   scope :content do
     scope :filter, controller: 'tasks/contents/filter' do
       get '/', action: :index, as: 'filter_contents_task'
+      post 'download', action: 'download', as: 'download_contents_filter_result'
     end
     scope :publisher, controller: 'tasks/content/publisher' do
       get 'summary', as: :publisher_summary,  defaults: {format: :json}
@@ -258,12 +316,22 @@ scope :tasks do
   end
 
   scope :images do
+    scope :browse, controller: 'tasks/images/browse' do
+      get '', action: :index, as: 'browse_images_task'
+    end
+
     scope :new_filename_depicting_image, controller: 'tasks/images/new_filename_depicting_image' do
       get '/', action: :index, as: 'new_filename_depicting_image_task'
     end
 
     scope :filter, controller: 'tasks/images/filter' do
       get '/', action: :index, as: 'filter_images_task'
+    end
+
+    scope :images_packager, controller: 'tasks/images/images_packager' do
+      get '/', action: :index, as: 'images_packager_task'
+      post 'preview', action: :preview, defaults: { format: :json }
+      post 'download', action: :download
     end
 
     scope :new_image, controller: 'tasks/images/new_image' do
@@ -293,6 +361,11 @@ scope :tasks do
   end
 
   scope :projects do
+    scope :year_in_review, controller: 'tasks/projects/year_in_review' do
+      get '/', action: :index, as: 'year_in_review_task'
+      get :data, as: 'year_in_review_data', defaults: {format: :json}
+    end
+
     scope :dwc_export_preferences, controller: 'tasks/projects/dwc_export_preferences' do
       get '/', action: :index, as: 'project_dwc_export_preferences_task'
       # See other routes in data.rb.
@@ -328,6 +401,12 @@ scope :tasks do
   end
 
   scope :sources do
+    scope :documents_packager, controller: 'tasks/sources/documents_packager' do
+      get '/', action: :index, as: 'documents_packager_task'
+      post 'preview', action: :preview, defaults: { format: :json }
+      post 'download', action: :download
+    end
+
     scope :source_citation_totals, controller: 'tasks/sources/source_citation_totals' do
       get '/', action: :index, as: 'source_citation_totals_task'
     end
@@ -349,8 +428,8 @@ scope :tasks do
       get '/', action: :index, as: 'source_hub_task'
     end
 
-    scope :individual_bibtex_source, controller: 'tasks/sources/individual_bibtex_source' do
-      get '/', action: :index, as: 'new_bibtex_source_task'
+    scope :verbatim_author_year_source, controller: 'tasks/sources/verbatim_author_year_source' do
+      get '/', action: :index, as: 'verbatim_author_year_source_task'
     end
   end
 
@@ -508,6 +587,10 @@ scope :tasks do
   end
 
   scope :biological_associations do
+    scope :new_ba, controller: 'tasks/biological_associations/new_ba' do
+      get '/', action: :index, as: 'new_ba_task'
+    end
+
     scope :new_biological_association, controller: 'tasks/biological_associations/new_biological_association' do
       get '/', action: :index, as: 'new_biological_association_task'
     end
@@ -609,6 +692,10 @@ scope :tasks do
   end
 
   scope :nomenclature do
+    scope :reclassifier, controller: 'tasks/nomenclature/reclassifier' do
+      get '/', action: :index, as: 'taxon_name_reclassifier_task'
+    end
+
     scope :paper_catalog, controller: 'tasks/nomenclature/paper_catalog' do
       get '/', action: :index, as: 'paper_catalog_generator_task'
       get :preview, as: 'paper_catalog_preview_task'
@@ -683,7 +770,7 @@ scope :tasks do
     end
 
     scope :image_matrix, controller: 'tasks/observation_matrices/image_matrix' do
-      get ':observation_matrix_id/key', action: :key, defaults: {format: :json}
+      match ':observation_matrix_id/key', action: :key, defaults: {format: :json}, via: [:get, :post]
       get '/', action: :index, as: 'image_matrix_task'
     end
   end
@@ -704,6 +791,10 @@ scope :tasks do
 
     scope :browse, controller: 'tasks/otus/browse' do
       get '/(:otu_id)', action: :index, as: 'browse_otus_task'
+    end
+
+    scope :match_by_taxon_name, controller: 'tasks/otus/match_by_taxon_name' do
+      get '/', action: :index, as: 'match_otu_by_taxon_name_task'
     end
 
     scope :filter, controller: 'tasks/otus/filter' do

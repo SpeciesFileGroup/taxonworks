@@ -61,6 +61,18 @@ export function setRectangleSelectTool({ map, layerGroup, callback }) {
     selectionRect.setBounds(bounds)
   }
 
+  function collectLayers(group) {
+    if (group.getAllChildMarkers) {
+      return group.getAllChildMarkers()
+    }
+
+    if (group.getLayers) {
+      return group.getLayers().flatMap(collectLayers)
+    }
+
+    return [group]
+  }
+
   function onMouseUp(e) {
     if (!isSelecting || !selectionRect) return
 
@@ -71,12 +83,12 @@ export function setRectangleSelectTool({ map, layerGroup, callback }) {
 
     const selected = []
 
-    layerGroup.eachLayer((layer) => {
+    collectLayers(layerGroup).forEach((layer) => {
       if (!layer || layer === selectionRect) return
 
       if (layer.getLatLng && bounds.contains(layer.getLatLng())) {
         selected.push(layer)
-      } else if (layer.getBounds && bounds.contains(layer.getBounds())) {
+      } else if (layer.getBounds && bounds.intersects(layer.getBounds())) {
         selected.push(layer)
       }
     })

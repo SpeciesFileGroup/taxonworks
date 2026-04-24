@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <h1>Filter sources</h1>
-
+  <div class="margin-medium-top">
     <FilterLayout
       :pagination="pagination"
       :url-request="urlRequest"
@@ -40,6 +38,7 @@
         <FilterList
           :list="list"
           :attributes="ATTRIBUTES"
+          :preference-key="`tasks::filters::${SOURCE}`"
           v-model="selectedIds"
           radial-object
           @on-sort="list = $event"
@@ -123,6 +122,7 @@ const csvOptions = {
       label: 'serial',
       value: 'serial_name'
     },
+    'author',
     'year',
     'title',
     'volume',

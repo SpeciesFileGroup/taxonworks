@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <h1>Filter field occurrences</h1>
-
+  <div class="margin-medium-top">
     <FilterLayout
       :pagination="pagination"
       :url-request="urlRequest"
@@ -48,6 +46,7 @@
         <FilterList
           :list="list"
           :layout="currentLayout"
+          :preference-key="`tasks::filters::${FIELD_OCCURRENCE}`"
           v-model="selectedIds"
           radial-object
           @on-sort="list = $event"

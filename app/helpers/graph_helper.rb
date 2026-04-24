@@ -278,9 +278,9 @@ module GraphHelper
       o.asserted_distributions.each do |a|
 
         g.add_node(a)
-        g.add_node(a.geographic_area)
+        g.add_node(a.asserted_distribution_shape)
 
-        g.add_edge(a, a.geographic_area)
+        g.add_edge(a, a.asserted_distribution_shape)
       end
     end
 

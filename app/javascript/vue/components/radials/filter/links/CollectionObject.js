@@ -1,5 +1,6 @@
 // Update corresponding at SUBQUERIES in /lib/queries/query/filter.rb
 import {
+  FILTER_ANATOMICAL_PART,
   FILTER_BIOLOGICAL_ASSOCIATION,
   FILTER_COLLECTING_EVENT,
   FILTER_EXTRACT,
@@ -13,6 +14,7 @@ import {
 } from '../constants/filterLinks'
 
 export const CollectionObject = [
+  FILTER_ANATOMICAL_PART,
   FILTER_BIOLOGICAL_ASSOCIATION,
   FILTER_COLLECTING_EVENT,
   FILTER_EXTRACT,

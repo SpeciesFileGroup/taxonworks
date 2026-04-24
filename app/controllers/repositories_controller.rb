@@ -36,7 +36,7 @@ class RepositoriesController < ApplicationController
         format.json { render action: 'show', status: :created, location: @repository }
       else
         format.html { render action: 'new' }
-        format.json { render json: @repository.errors, status: :unprocessable_entity }
+        format.json { render json: @repository.errors, status: :unprocessable_content }
       end
     end
   end
@@ -50,7 +50,7 @@ class RepositoriesController < ApplicationController
         format.json { head :no_content }
       else
         format.html { render action: 'edit' }
-        format.json { render json: @repository.errors, status: :unprocessable_entity }
+        format.json { render json: @repository.errors, status: :unprocessable_content }
       end
     end
   end

@@ -7,8 +7,21 @@ function tw_autocomplete_init(inputEl, options = {}) {
   const defaultResponseValues = {}
   defaultResponseValues[method] = ''
 
+  const emptyResult = () => [{
+    id: '',
+    value: '',
+    label: '-- None --',
+    label_html: '-- None --',
+    response_values: defaultResponseValues
+  }]
+
   const ac = new TWAutocomplete(inputEl, {
     source(term, respond) {
+      if (!term || term.trim() === '') {
+        respond(emptyResult())
+        return
+      }
+
       const separator = url.includes('?') ? '&' : '?'
       const fullUrl = url + separator + 'term=' + encodeURIComponent(term)
 
@@ -23,16 +36,7 @@ function tw_autocomplete_init(inputEl, options = {}) {
             response_values: it.response_values
           }))
 
-          if (items.length === 0) {
-            items.push({
-              id: '',
-              value: '',
-              label: '-- None --',
-              label_html: '-- None --',
-              response_values: defaultResponseValues
-            })
-          }
-          respond(items)
+          respond(items.length === 0 ? emptyResult() : items)
         })
         .catch(() => respond([]))
     },

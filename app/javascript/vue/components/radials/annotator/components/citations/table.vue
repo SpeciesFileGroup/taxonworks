@@ -28,6 +28,7 @@
             <div class="horizontal-right-content middle gap-small">
               <a
                 class="button-default circle-button btn-citation"
+                title="Open in citations by source task"
                 :href="`${RouteNames.NomenclatureBySource}?source_id=${item.source_id}`"
                 target="blank"
               />
@@ -42,23 +43,27 @@
               />
               <VBtn
                 circle
-                color="update"
+                color="primary"
+                title="Edit"
                 @click="$emit('edit', Object.assign({}, item))"
               >
                 <VIcon
                   name="pencil"
                   x-small
+                  title="Edit"
                 />
               </VBtn>
 
               <VBtn
                 circle
                 color="destroy"
+                title="Delete"
                 @click="deleteItem(item)"
               >
                 <VIcon
                   name="trash"
                   x-small
+                  title="Delete"
                 />
               </VBtn>
             </div>
@@ -117,7 +122,9 @@ function deleteItem(item) {
 
 .list-complete-item {
   justify-content: space-between;
-  transition: all 0.5s, opacity 0.2s;
+  transition:
+    all 0.5s,
+    opacity 0.2s;
 }
 
 .list-complete-enter-active,

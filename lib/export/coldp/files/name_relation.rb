@@ -61,25 +61,42 @@ module Export::Coldp::Files::NameRelation
     TaxonNameRelationship::Icvcn::Accepting::UncertainPlacement
     TaxonNameRelationship::Icvcn::Unaccepting
     TaxonNameRelationship::Hybrid
+    TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::Basionym
   }.freeze
 
   # TODO: This is the original set, but it doesn't quite feel right.
-  def self.taxon_name_relationships(otus)
+  def self.taxon_name_relationships(otu)
 
-    # TODO: Join in proper name methods, don't rely on OTU scope
-    a = TaxonNameRelationship.with(otu_scope: otus.select(:id, :taxon_name_id))
-      .joins("JOIN taxon_names obj_tn on obj_tn.id = taxon_name_relationships.object_taxon_name_id")
-      .joins("JOIN otu_scope on otu_scope.taxon_name_id = obj_tn.id")
-      .left_joins(:sources)
+    manifest =  [
+      :valid_higher_names,
+      :valid_family_names,
+      :core_names,
+      :invalid_family_and_higher_names,
+      :invalid_core_names,
+    ]
+
+    names = ::Export::Coldp.all_names(otu, manifest)
+
+    a = TaxonNameRelationship.with(name_scope: names)
+      .joins("JOIN name_scope ns on ns.id = taxon_name_relationships.object_taxon_name_id")
       .where.not(taxon_name_relationships: {type: BLOCKED})
+      .left_joins(:sources)
       .group('taxon_name_relationships.id')
       .select("taxon_name_relationships.*, MAX(sources.id) a_source_id")
+
+    b = TaxonNameRelationship.with(name_scope: names)
+      .joins("JOIN name_scope ns on ns.id = taxon_name_relationships.subject_taxon_name_id")
+      .where.not(taxon_name_relationships: {type: BLOCKED})
+      .left_joins(:sources)
+      .group('taxon_name_relationships.id')
+      .select("taxon_name_relationships.*, MAX(sources.id) a_source_id")
+
+    ::Queries.union(TaxonNameRelationship, [a,b])
   end
 
-  def self.generate(otus, project_members, reference_csv = nil )
+  def self.generate(otu, project_members, reference_csv = nil )
     rels = nil
     text = ::CSV.generate(col_sep: "\t") do |csv|
-
       csv << %w{
         nameID
         relatedNameID
@@ -90,18 +107,16 @@ module Export::Coldp::Files::NameRelation
         remarks
       }
 
-      rels = taxon_name_relationships(otus)
+      rels = taxon_name_relationships(otu)
       rels.length
 
-      rels.each do |tnr|
-
-        next if ::Export::Coldp.skipped_combinations.include?(tnr.subject_taxon_name_id)
-
-        unless tnr.type.constantize.nomen_uri.blank?
+      rels.find_each do |tnr|
+        klass = tnr.type.constantize
+        unless klass.nomen_uri.blank?
           csv << [
             tnr.subject_taxon_name_id,                                       # nameID
             tnr.object_taxon_name_id,                                        # relatedNameID
-            tnr.type.constantize.nomen_uri,                                  # type
+            klass.nomen_uri,                                                 # type
             tnr.a_source_id,                                                 # referenceID
             Export::Coldp.modified(tnr[:updated_at]),                        # modified
             Export::Coldp.modified_by(tnr[:updated_by_id], project_members), # modified_by

@@ -44,6 +44,9 @@ namespace :api, defaults: {format: :json} do
 
     # There should be no post or delete in this section
     defaults authenticate_user_or_project: true do
+      get '/news', to: '/news#api_index'
+      get '/news/:id', to: '/news#api_show'
+
       get '/downloads/dwc_archive_complete', to: '/downloads#api_dwc_archive_complete', as: :download_dwca_complete
       get '/downloads/:id', to: '/downloads#api_show', as: :download_show
       get '/downloads/:id/file', to: '/downloads#api_file', as: :download_file
@@ -61,6 +64,7 @@ namespace :api, defaults: {format: :json} do
       get '/otus/:id/inventory/dwc_gallery', to: '/otus#api_dwc_gallery', as: :dwc_inventory_gallery
       get '/otus/:id/inventory/dwc', to: '/otus#api_dwc_inventory', as: :dwc_inventory
       get '/otus/:id/inventory/type_material', to: '/otus#api_type_material_inventory', as: :type_material_inventory
+      get '/otus/:id/inventory/citations', to: '/otus#api_citations_inventory', as: :citations_inventory
       get '/otus/:id/inventory/nomenclature_citations', to: '/otus#api_nomenclature_citations', as: :nomenclature_citations_inventory
 
       get '/otus/:id/inventory/determined_to_rank', to: '/otus#api_determined_to_rank', as: :determined_to_inventory
@@ -118,6 +122,7 @@ namespace :api, defaults: {format: :json} do
       get '/biological_associations/:id/globi', to: '/biological_associations#api_globi'
       get '/biological_associations/extended', to: '/biological_associations#api_index_extended'
       get '/biological_associations/simple', to: '/biological_associations#api_index_simple'
+      get '/biological_associations/basic', to: '/biological_associations#api_index_basic'
       get '/biological_associations', to: '/biological_associations#api_index'
       get '/biological_associations/:id', to: '/biological_associations#api_show'
 
@@ -162,10 +167,12 @@ namespace :api, defaults: {format: :json} do
       get '/images', to: '/images#api_index'
       get '/images/:id', to: '/images#api_show', as: :images_id
       get '/images/:id/scale_to_box(/:x/:y/:width/:height/:box_width/:box_height)', to: '/images#api_scale_to_box'
+      get '/images/:id/as_png', to: '/images#api_as_png'
       # was : get '/otus/:otu_id/inventory/images', to: '/images#api_image_inventory', as: :images_inventory
       get '/images/:otu_id/inventory', to: '/images#api_image_inventory', as: :images_inventory
       get '/images/sha/:sha', to: '/images#api_image_show_sha', as: :images_sha
       get '/images/file/sha/:sha', to: '/images#api_image_file_sha', as: :images_file_sha
+      get '/images/file/sha/:sha/scale_to_box(/:x/:y/:width/:height/:box_width/:box_height)', to: '/images#api_scale_to_box_sha', as: :images_file_sha_scale_to_box
 
       get '/tags', to: '/tags#api_index'
       get '/tags/:id', to: '/tags#api_show'
@@ -173,7 +180,11 @@ namespace :api, defaults: {format: :json} do
       get '/sounds', to: '/sounds#api_index'
       get '/sounds/:id', to: '/sounds#api_show'
 
+      get '/leads', to: '/leads#api_index'
       get '/leads/key/:id', to: '/leads#api_key'
+
+      get '/leads/:id/eliminated_otus', to: '/leads#api_eliminated_otus'
+      get '/leads/:id/remaining_otus', to: '/leads#api_remaining_otus'
     end
 
     # Authenticate membership at the data controller level

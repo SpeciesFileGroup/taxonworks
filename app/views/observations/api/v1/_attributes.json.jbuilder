@@ -2,7 +2,7 @@ json.extract! observation, :id, :descriptor_id, :observation_object_id, :observa
 :continuous_value, :continuous_unit,
 :sample_n, :sample_min, :sample_max, :sample_median, :sample_mean, :sample_units, :sample_standard_error, :sample_standard_deviation,
 :presence, :description, :cached, :cached_column_label, :cached_row_label, :type,
-:created_by_id, :updated_by_id, :project_id, :created_at, :updated_at
+:project_id, :created_at, :updated_at
 json.partial! '/shared/data/all/metadata', object: observation
 
 json.label observation_cell(observation, 'label')
@@ -30,5 +30,11 @@ if extend_response_with('depictions')
         json.partial! '/depictions/api/v1/attributes', depiction: depiction
       end
     end
+  end
+end
+
+if extend_response_with('notes')
+  json.notes observation.notes.each do |n|
+    json.text n.text
   end
 end

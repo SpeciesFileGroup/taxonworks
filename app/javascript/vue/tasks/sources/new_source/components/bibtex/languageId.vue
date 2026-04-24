@@ -4,15 +4,15 @@
       <fieldset class="full_width">
         <legend>Language</legend>
         <div class="flex-separate align-start">
-          <smart-selector
+          <SmartSelector
             class="full_width"
             model="languages"
             klass="Source"
             label="english_name"
-            :filter-ids="languageId"
+            :filter-ids="source.language_id"
             @selected="setSelected"
           />
-          <lock-component
+          <VLock
             class="margin-small-left"
             v-model="settings.lock.language_id"
           />
@@ -35,83 +35,54 @@
   </div>
 </template>
 
-<script>
-import { GetterNames } from '../../store/getters/getters'
-import { MutationNames } from '../../store/mutations/mutations'
+<script setup>
+import { ref, watch } from 'vue'
+import { useSettingStore } from '../../store'
 import { Language } from '@/routes/endpoints'
-import LockComponent from '@/components/ui/VLock/index.vue'
+import VLock from '@/components/ui/VLock/index.vue'
 import SmartSelector from '@/components/ui/SmartSelector'
 
-export default {
-  components: {
-    SmartSelector,
-    LockComponent
-  },
-  computed: {
-    source: {
-      get() {
-        return this.$store.getters[GetterNames.GetSource]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetSource, value)
-      }
-    },
-    settings: {
-      get() {
-        return this.$store.getters[GetterNames.GetSettings]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetSettings, value)
-      }
-    },
-    lastSave() {
-      return this.$store.getters[GetterNames.GetLastSave]
-    },
-    languageId: {
-      get() {
-        return this.$store.getters[GetterNames.GetLanguageId]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetLanguageId, value)
-      }
-    }
-  },
-  watch: {
-    source: {
-      handler(newVal, oldVal) {
-        if (newVal && newVal.language_id) {
-          if (!oldVal || oldVal.language_id !== newVal.language_id) {
-            Language.find(newVal.language_id).then((response) => {
-              this.selected = response.body
-            })
-          }
-        }
-      },
-      immediate: true
-    },
+const source = defineModel({
+  type: Object,
+  required: true
+})
 
-    languageId: {
-      handler(newVal) {
-        if (!newVal) {
-          this.selected = undefined
-        }
+const settings = useSettingStore()
+
+watch(
+  () => source.value.language_id,
+  (newVal, oldVal) => {
+    if (newVal && newVal) {
+      if (!oldVal || oldVal !== newVal) {
+        Language.find(newVal).then(({ body }) => {
+          selected.value = body
+        })
       }
     }
   },
-  data() {
-    return {
-      selected: undefined
-    }
-  },
-  methods: {
-    setSelected(language) {
-      this.source.language_id = language.id
-      this.selected = language
-    },
-    unset() {
-      this.selected = undefined
-      this.source.language_id = null
+  { immediate: true }
+)
+
+watch(
+  () => source.value.language_id,
+  (newVal) => {
+    if (!newVal) {
+      selected.value = undefined
     }
   }
+)
+
+const selected = ref()
+
+function setSelected(language) {
+  source.value.isUnsaved = true
+  source.value.language_id = language.id
+  selected.value = language
+}
+
+function unset() {
+  selected.value = undefined
+  source.value.language_id = null
+  source.value.isUnsaved = true
 }
 </script>

@@ -49,16 +49,22 @@ class OriginRelationship < ApplicationRecord
   polymorphic_annotates('old_object', presence_validate: false)
   polymorphic_annotates('new_object', presence_validate: false)
 
+  # Used for what?
   acts_as_list scope: [:project_id, :old_object_id, :old_object_type]
 
-  belongs_to :old_object, polymorphic: true
-  belongs_to :new_object, polymorphic: true
+  belongs_to :old_object, polymorphic: true, inverse_of: :origin_relationships
+  belongs_to :new_object, polymorphic: true, inverse_of: :related_origin_relationships
+
+  # Abort destroy if any old or new object objects.
+  before_destroy :poll_old_and_new_objects_for_destroy
 
   # The two validations, and the inclusion of the Shared::OriginRelationship code
   # ensure that new/old objects are indeed ones that are allowed (otherwise we will get Raises, which means the UI is messed up)
   validates_presence_of :new_object
   validates_presence_of :old_object
 
+  # Abort create if any old or new object objects.
+  validate :poll_old_and_new_objects_for_create, on: :create
   validate :old_object_responds
   validate :new_object_responds
   validate :pairing_is_allowed, unless: -> {!errors.empty?}
@@ -97,4 +103,35 @@ class OriginRelationship < ApplicationRecord
     end
   end
 
+  def poll_old_and_new_objects_for_create
+    if old_object.respond_to?(:allow_origin_relationship_create?) &&
+       !old_object.allow_origin_relationship_create?(self)
+      errors.add(:base, "Old object #{old_object.class}:#{old_object.id} prevented create")
+    end
+
+    if new_object.respond_to?(:allow_origin_relationship_create?) &&
+       !new_object.allow_origin_relationship_create?(self)
+      errors.add(:base, "New object #{new_object.class}:#{new_object.id} prevented create")
+    end
+  end
+
+  def poll_old_and_new_objects_for_destroy
+    if old_object.respond_to?(:allow_origin_relationship_destroy?) &&
+       !old_object.allow_origin_relationship_destroy?(self)
+      errors.add(:base, "Old object #{old_object.class}:#{old_object.id} prevented destroy")
+      old_object.errors.add(:base, "Origin relationship #{id} can't be destroyed")
+      new_object.errors.add(:base, "Origin relationship #{id} can't be destroyed")
+
+      throw(:abort)
+    end
+
+    if new_object.respond_to?(:allow_origin_relationship_destroy?) &&
+       !new_object.allow_origin_relationship_destroy?(self)
+      errors.add(:base, "New object #{new_object.class}:#{new_object.id} prevented destroy")
+      old_object.errors.add(:base, "Origin relationship #{id} can't be destroyed")
+      new_object.errors.add(:base, "Origin relationship #{id} can't be destroyed")
+
+      throw(:abort)
+    end
+  end
 end

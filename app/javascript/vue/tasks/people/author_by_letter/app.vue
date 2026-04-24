@@ -1,12 +1,11 @@
 <template>
-  <div>
-    <spinner
+  <div class="margin-medium-top">
+    <VSpinner
       v-if="isLoading"
       full-screen
       legend="Loading..."
       :logo-size="{ width: '100px', height: '100px' }"
     />
-    <h1>Alphabetical list of source authors</h1>
     <AlphabetButtons
       class="margin-medium-bottom"
       v-model="key"
@@ -37,7 +36,7 @@
 import AlphabetButtons from './components/AlphabetButtons.vue'
 import AuthorList from './components/Author/AuthorList.vue'
 import SourceList from './components/Source/SourceList.vue'
-import Spinner from '@/components/ui/VSpinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import VPagination from '@/components/pagination.vue'
 import GetPagination from '@/helpers/getPagination.js'
 import { ROLE_SOURCE_AUTHOR } from '@/constants'

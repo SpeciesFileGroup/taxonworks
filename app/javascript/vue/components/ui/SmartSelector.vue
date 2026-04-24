@@ -16,6 +16,7 @@
           class="capitalize"
           v-model="view"
           ref="tabselectorRef"
+          :wrap="wrap"
           :options="options"
         />
       </div>
@@ -59,6 +60,7 @@
         />
       </div>
       <slot name="body" />
+      <slot :name="`${view}-top`" />
       <template v-if="isImageModel">
         <div class="flex-wrap-row">
           <div
@@ -102,7 +104,7 @@
               <template v-else>
                 <label
                   class="cursor-pointer"
-                  @mousedown="sendObject(item)"
+                  @click.prevent="sendObject(item)"
                 >
                   <input
                     :name="name"
@@ -304,6 +306,11 @@ const props = defineProps({
   placeholder: {
     type: String,
     required: false
+  },
+
+  wrap: {
+    type: Number,
+    default: undefined
   }
 })
 
@@ -410,9 +417,11 @@ const refresh = (forceUpdate = false) => {
       options.value = Object.keys(lists.value).concat(props.addTabs)
       options.value = OrderSmart(options.value)
 
-      view.value = props.default
-        ? props.default
-        : SelectFirst(lists.value, options.value)
+      if (props.default) {
+        view.value = props.default
+      } else if (!lists.value[view.value]?.length) {
+        view.value = SelectFirst(lists.value, options.value)
+      }
     })
     .catch(() => {
       options.value = []
@@ -490,12 +499,9 @@ watch(
   { deep: true }
 )
 
-watch(
-  () => props.model,
-  () => {
-    refresh(true)
-  }
-)
+watch([() => props.model, () => props.target, () => props.klass], () => {
+  refresh(true)
+})
 
 onUnmounted(() => {
   controller.value.abort()

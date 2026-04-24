@@ -39,6 +39,7 @@ import { computed, ref } from 'vue'
 import { CollectionObject } from '@/routes/endpoints'
 import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
 import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
+import updateMessage from '../utils/updateMessage.js'
 
 const MAX_LIMIT = 10000
 
@@ -57,12 +58,4 @@ const props = defineProps({
 const emit = defineEmits(['close'])
 const updateBatchRef = ref()
 const isCountExceeded = computed(() => props.count > MAX_LIMIT)
-
-function updateMessage(data) {
-  const message = data.sync
-    ? `${data.updated.length} collection objects queued for updating.`
-    : `${data.updated.length} collection objects were successfully updated.`
-
-  TW.workbench.alert.create(message, 'notice')
-}
 </script>

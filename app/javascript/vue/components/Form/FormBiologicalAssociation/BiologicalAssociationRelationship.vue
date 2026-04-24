@@ -21,8 +21,7 @@
 import { BiologicalRelationship } from '@/routes/endpoints'
 import {
   BIOLOGICAL_ASSOCIATION,
-  BIOLOGICAL_RELATIONSHIP,
-  FIELD_OCCURRENCE
+  BIOLOGICAL_RELATIONSHIP
 } from '@/constants'
 import { ref } from 'vue'
 import SmartSelector from '@/components/ui/SmartSelector'

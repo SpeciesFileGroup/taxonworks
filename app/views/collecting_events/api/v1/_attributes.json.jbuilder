@@ -23,7 +23,7 @@ json.extract! collecting_event, :id,
   :max_ma,
   :min_ma,
   :identifiers,
-  :created_by_id, :updated_by_id, :project_id, :created_at, :updated_at
+  :project_id, :created_at, :updated_at
 
 json.global_id collecting_event.to_global_id.to_s
 
@@ -35,5 +35,11 @@ if extend_response_with('roles')
         json.partial! '/people/api/v1/brief', person: role.person
       end
     end
+  end
+end
+
+if extend_response_with('notes')
+  json.notes collecting_event.notes.each do |n|
+    json.text n.text
   end
 end

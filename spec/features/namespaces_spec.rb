@@ -36,7 +36,9 @@ describe 'Namespaces', type: :feature do
           fill_in(:namespace_name, with: 'Things Pat Collected')
           fill_in(:namespace_short_name, with: 'tpd')
           click_button('Create')
-          expect(page).to have_content("Namespace was successfully saved.")
+          expect(page).to have_text('Edit namespace')
+          expect(page).to have_field('namespace_name', with: 'Things Pat Collected')
+          expect(page).to have_field('namespace_short_name', with: 'tpd')
         end
       end
     end

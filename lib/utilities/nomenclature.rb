@@ -118,6 +118,8 @@ module Utilities::Nomenclature
     m
   end
 
+  # SIC_PATTERN = /\s*[\[\(]\s*sic\s*[\]\)]/
+
   # TODO: Untested
   def self.unmisspell_name(misspelled_name)
     misspelled_name.gsub(/\s*[\[\(]\s*sic\s*[\]\)]/, '').strip

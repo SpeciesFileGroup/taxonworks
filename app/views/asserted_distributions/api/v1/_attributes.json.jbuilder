@@ -1,7 +1,7 @@
 json.extract! asserted_distribution, :id,
   :asserted_distribution_object_id, :asserted_distribution_object_type,
   :asserted_distribution_shape_id, :asserted_distribution_shape_type,
-  :project_id, :created_by_id, :updated_by_id, :is_absent,
+  :project_id, :is_absent,
   :created_at, :updated_at
 
 json.origin_citation_source_id asserted_distribution.origin_citation_source_id
@@ -41,5 +41,11 @@ json.asserted_distribution_shape do
   elsif asserted_distribution.asserted_distribution_shape_type == 'Gazetteer'
     json.partial! '/gazetteers/api/v1/attributes',
       gazetteer: asserted_distribution.asserted_distribution_shape
+  end
+end
+
+if extend_response_with('notes')
+  json.notes asserted_distribution.notes.each do |n|
+    json.text n.text
   end
 end

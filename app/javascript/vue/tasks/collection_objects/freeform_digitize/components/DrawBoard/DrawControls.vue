@@ -20,11 +20,24 @@
         v-else
       />
     </VBtn>
-
-    <input
-      type="color"
-      v-model="color"
-    />
+    |
+    <div class="flex-row middle gap-small">
+      <label> Stroke: </label>
+      <input
+        type="color"
+        v-model="color"
+      />
+      <div>
+        <input
+          class="w-16"
+          type="number"
+          v-between-numbers="[1, 100]"
+          v-model="store.opts.strokeWidth"
+          @input="(e) => SVGBoard.apiStrokeWidth(e.target.value)"
+        />
+        px
+      </div>
+    </div>
   </div>
 </template>
 
@@ -36,6 +49,7 @@ import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import IconCircle from '@/components/Icon/IconCircle.vue'
 import IconRubber from '@/components/Icon/IconRubber.vue'
+import { vBetweenNumbers } from '@/directives/betweenNumbers.js'
 
 const store = useStore()
 const color = ref('#FFA500')
@@ -86,17 +100,17 @@ watch(color, (newVal) => SVGBoard.value.apiStroke(newVal))
 </script>
 
 <style scoped lang="scss">
+.dark {
+  .draw__toolbar {
+    svg {
+      filter: invert(1);
+    }
+  }
+}
 .draw__toolbar {
   button {
     background-color: transparent;
     border: none;
-    cursor: pointer;
-  }
-
-  input {
-    border: none;
-    padding: 0;
-    width: 28px;
     cursor: pointer;
   }
 

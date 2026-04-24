@@ -1,0 +1,231 @@
+#project-profile,
+#project-members-new,
+#project-new {
+  max-width: 1480px;
+  min-width: 1280px;
+  margin: 2rem auto;
+
+  .project-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 32px;
+  }
+
+  .project-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .v-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    width: min-content;
+    white-space: nowrap;
+  }
+
+  .project-avatar {
+    width: 80px;
+    height: 80px;
+    background: var(--color-primary);
+    border-radius: 25%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: white;
+  }
+
+  .card-icon {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+
+  .project-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 4px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.75rem;
+    gap: 8px;
+    padding: 0.5rem 1rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s, opacity 0.2s;
+  }
+
+  .btn-full:last-child {
+    margin-bottom: 0;
+  }
+
+  .btn-icon {
+    padding: 8px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .btn-action {
+    padding: 4px 10px;
+    font-size: 12px;
+    border-radius: 4px;
+  }
+
+  @media (max-width: 768px) {
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .content-grid {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    gap: 1rem;
+  }
+
+  @media (max-width: 1024px) {
+    .content-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .left-column {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .right-column {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .profile-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 20px 12px;
+  }
+
+  .card-header-members {
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .card-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-content-links {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .card-content-table {
+    padding: 0 0 0 0;
+  }
+
+  #input-search {
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    border-radius: var(--border-radius-medium);
+  }
+
+  .members-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .members-table th {
+    padding: 0 1rem;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted-foreground);
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
+  }
+
+  .th-center {
+    text-align: center;
+  }
+
+  .members-table td {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--muted);
+  }
+
+  .td-center {
+    text-align: center;
+  }
+
+  .members-table tr:hover {
+    background-color: var(--bg-hover);
+  }
+
+  .member-name {
+    white-space: nowrap;
+  }
+
+  .email-cell {
+    font-size: 12px;
+  }
+
+  .news-blogpost-color {
+    background-color: var(--news-blogpost-bg);
+    color: var(--news-blogpost-color);
+  }
+
+  .news-notice-color {
+    background-color: var(--news-notice-bg);
+    color: var(--news-notice-color);
+  }
+
+  .news-instruction-color {
+    background-color: var(--news-instruction-bg);
+    color: var(--news-instruction-color);
+  }
+
+  .news-warning-color {
+    background-color: var(--news-warning-bg);
+    color: var(--news-warning-color);
+  }
+
+  @media (max-width: 768px) {
+    .project-header {
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card-header-members {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+}

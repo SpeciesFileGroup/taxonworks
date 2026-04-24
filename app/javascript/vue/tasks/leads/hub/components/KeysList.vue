@@ -49,15 +49,16 @@
               class="meta_row"
               :class="{ even: (index % 2 == 0)}"
             >
-              <td>
-                <b>
-                  <a
-                    :href="RouteNames.ShowLead + '?lead_id=' + key.id"
-                    target="_blank"
-                  >
-                    {{ key.text }}
-                  </a>
-                </b>
+              <td class="horizontal-left-content middle gap-small">
+                <b>{{ key.text }}</b>
+                <VBtn
+                  color="primary"
+                  @click="navigateTo(`${RouteNames.NewLead}?lead_id=${key.id}`)"
+                >Edit</VBtn>
+                <VBtn
+                  color="primary"
+                  @click="navigateTo(`${RouteNames.ShowLead}?lead_id=${key.id}`)"
+                >Use</VBtn>
               </td>
 
               <td>{{ key.couplets_count }}</td>
@@ -128,6 +129,7 @@ import KeyCitations from './KeyCitations.vue'
 import KeyOtus from './KeyOtus.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
 const keys = ref([])
@@ -201,6 +203,10 @@ function changeIsPublicState(key) {
       addToArray(keys.value, updatedKey)
     })
     .catch(() => {})
+}
+
+function navigateTo(url) {
+  window.open(url, '_blank')
 }
 
 function loadOtusForKey(key) {

@@ -1,55 +1,38 @@
 <template>
   <div>
     <h3 v-help.section.BibTeX.crosslinks>BibTeX crosslinks</h3>
-    <div class="field">
-      <label>Doi</label><br>
-      <input
+    <div
+      v-for="{ attr, component } in BIBTEX_FIELDS"
+      :key="attr"
+      class="field label-above"
+    >
+      <label class="capitalize">{{ attr }}</label>
+      <component
+        :is="component"
         type="text"
-        v-model="source.doi"/>
-    </div>
-    <div class="field">
-      <label>Isbn</label><br>
-      <input
-        type="text"
-        v-model="source.isbn"/>
-    </div>
-    <div class="field">
-      <label>Issn</label><br>
-      <input
-        type="text"
-        v-model="source.issn"/>
-    </div>
-    <div class="field">
-      <label>Note</label><br>
-      <textarea
-        type="text"
-        v-model="source.note">
-      </textarea>
-    </div>
-    <div class="field">
-      <label>Annote</label><br>
-      <input
-        type="text"
-        v-model="source.annote"/>
+        :value="source[attr]"
+        @change="(e) => handleInput(e, attr)"
+      />
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
+const source = defineModel({
+  type: Object,
+  required: true
+})
 
-import { GetterNames } from '../../store/getters/getters'
-import { MutationNames } from '../../store/mutations/mutations'
+const BIBTEX_FIELDS = [
+  { attr: 'doi', component: 'input' },
+  { attr: 'note', component: 'textarea' },
+  { attr: 'annote', component: 'input' },
+  { attr: 'isbn', component: 'input' },
+  { attr: 'issn', component: 'input' }
+]
 
-export default {
-  computed: {
-    source: {
-      get () {
-        return this.$store.getters[GetterNames.GetSource]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetSource, value)
-      }
-    }
-  }
+function handleInput(event, attr) {
+  source.value[attr] = event.target.value
+  source.value.isUnsaved = true
 }
 </script>

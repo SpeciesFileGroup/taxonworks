@@ -35,7 +35,7 @@ class CharacterStatesController < ApplicationController
         format.json { render :show, status: :created, location: @character_state }
       else
         format.html { render :new }
-        format.json { render json: @character_state.errors, status: :unprocessable_entity }
+        format.json { render json: @character_state.errors, status: :unprocessable_content }
       end
     end
   end
@@ -49,7 +49,7 @@ class CharacterStatesController < ApplicationController
         format.json { render :show, status: :ok, location: @character_state }
       else
         format.html { render :edit }
-        format.json { render json: @character_state.errors, status: :unprocessable_entity }
+        format.json { render json: @character_state.errors, status: :unprocessable_content }
       end
     end
   end

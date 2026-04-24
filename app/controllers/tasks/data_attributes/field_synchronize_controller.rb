@@ -11,7 +11,7 @@ class Tasks::DataAttributes::FieldSynchronizeController < ApplicationController
         return
       end
     end
-    render json: {}, status: :unprocessable_entity
+    render json: {}, status: :unprocessable_content
   end
 
 end

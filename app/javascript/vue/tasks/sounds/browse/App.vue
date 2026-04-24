@@ -1,11 +1,10 @@
 <template>
   <div id="app">
-    <div class="flex-separate middle">
+    <div class="flex-separate middle margin-medium-top">
       <VSpinner
         v-if="isLoading"
         full-screen
       />
-      <h1>Browse sound</h1>
       <VAutocomplete
         v-if="store.sound"
         url="/sounds/autocomplete"

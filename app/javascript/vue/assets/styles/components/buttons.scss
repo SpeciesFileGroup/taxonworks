@@ -9,6 +9,10 @@
   padding-right: 0.9em;
 }
 
+a.btn:hover {
+  color: white;
+}
+
 .btn-link {
   @extend .btn;
   display: table-cell;
@@ -46,9 +50,20 @@
   }
 }
 
+.btn-pill-left {
+  min-width: 60px;
+  border: 0;
+  border-top-left-radius: 14px;
+  border-bottom-left-radius: 14px;
+}
+
 @each $key, $value in $tw-colors {
   .btn-#{$key} {
     background-color: var(--color-#{$key});
     color: white;
   }
+}
+
+.btn-transparent {
+  background-color: transparent;
 }

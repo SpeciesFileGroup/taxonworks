@@ -23,7 +23,7 @@ if attribution.roles.load.any?
             end
           when :organization
             json.organization do
-              json.partial! '/organizations/attributes', organization: role.organization
+              json.partial! '/organizations/api/v1/attributes', organization: role.organization
             end
           else
             json.error true
@@ -31,5 +31,11 @@ if attribution.roles.load.any?
         end
       end
     end
+  end
+end
+
+if extend_response_with('notes')
+  json.notes attribution.notes.each do |n|
+    json.text n.text
   end
 end

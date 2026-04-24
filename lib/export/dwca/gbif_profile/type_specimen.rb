@@ -4,6 +4,29 @@
 module Export::Dwca::GbifProfile
 
   class TypeSpecimen
+    NAMESPACES = {
+      :taxonID => 'http://rs.tdwg.org/dwc/terms/taxonID',
+      :bibliographicCitation => 'http://purl.org/dc/terms/bibliographicCitation',
+      :occurrenceID => 'http://rs.tdwg.org/dwc/terms/occurrenceID',
+      :institutionCode => 'http://rs.tdwg.org/dwc/terms/institutionCode',
+      :collectionCode => 'http://rs.tdwg.org/dwc/terms/collectionCode',
+      :catalogNumber => 'http://rs.tdwg.org/dwc/terms/catalogNumber',
+      :typeStatus => 'http://rs.tdwg.org/dwc/terms/typeStatus',
+      :typeDesignationType => 'http://rs.gbif.org/terms/1.0/typeDesignationType',
+      :typeDesignatedBy => 'http://rs.gbif.org/terms/1.0/typeDesignatedBy',
+      :scientificName => 'http://rs.tdwg.org/dwc/terms/scientificName',
+      :taxonRank => 'http://rs.tdwg.org/dwc/terms/taxonRank',
+      :identificationRemarks => 'http://rs.tdwg.org/dwc/terms/identificationRemarks',
+      :locality => 'http://rs.tdwg.org/dwc/terms/locality',
+      :sex => 'http://rs.tdwg.org/dwc/terms/sex',
+      :recordedBy => 'http://rs.tdwg.org/dwc/terms/recordedBy',
+      :source => 'http://purl.org/dc/terms/source',
+      :verbatimEventDate => 'http://rs.tdwg.org/dwc/terms/verbatimEventDate',
+      :verbatimLabel => 'http://rs.gbif.org/terms/1.0/verbatimLabel',
+      :verbatimLongitude => 'http://rs.tdwg.org/dwc/terms/verbatimLongitude',
+      :verbatimLatitude => 'http://rs.tdwg.org/dwc/terms/verbatimLatitude'
+    }.freeze
+
     # taxonID (http://rs.tdwg.org/dwc/terms/taxonID)
     #
     # @return [String]
@@ -11,7 +34,7 @@ module Export::Dwca::GbifProfile
     # taxon in the core data file to which this specimen record points. This
     # identifier provides the link between the core data record and the
     # extension record.
-    attr_accessor :taxonID # [USED IN SF]
+    attr_accessor :taxonID
 
     # bibliographicCitation (http://purl.org/dc/terms/bibliographicCitation)
     #
@@ -41,7 +64,7 @@ module Export::Dwca::GbifProfile
     #
     # Examples: "MVZ", "FMNH", "AKN-CLO", "University of California Museum
     # of Paleontology (UCMP)"
-    attr_accessor :institutionCode # [USED IN SF]
+    attr_accessor :institutionCode
 
     # collectionCode (http://rs.tdwg.org/dwc/terms/collectionCode)
     #
@@ -59,7 +82,7 @@ module Export::Dwca::GbifProfile
     # collection.
     #
     # Examples: "2008.1334", "145732a", "145732"
-    attr_accessor :catalogNumber # [USED IN SF]
+    attr_accessor :catalogNumber
 
     # typeStatus (http://rs.tdwg.org/dwc/terms/typeStatus)
     #
@@ -70,8 +93,8 @@ module Export::Dwca::GbifProfile
     # Vocabulary: http://rs.gbif.org/vocabulary/gbif/type_status.xml
     #
     # Example: "holotype" "syntype" "lectotype"
-    attr_accessor :typeStatus # [USED IN SF]
-    
+    attr_accessor :typeStatus
+
     # typeDesignationType (http://rs.gbif.org/terms/1.0/typeDesignationType)
     #
     # @return [String]
@@ -88,9 +111,9 @@ module Export::Dwca::GbifProfile
     # The citation of the publication where the type designation is found
     #
     # Examples: Vachal, J. (1897) Éclaircissements sur de genre Scrapter et
-    # description d’une espéce nouvelle de Dufourea. Bulletin de la Société
+    # description d'une espéce nouvelle de Dufourea. Bulletin de la Société
     # Entomologique de France, 1897, 61–64.
-    attr_accessor :typeDesignatedBy # [USED IN SF]
+    attr_accessor :typeDesignatedBy
 
     # scientificName (http://rs.tdwg.org/dwc/terms/scientificName)
     #
@@ -99,8 +122,8 @@ module Export::Dwca::GbifProfile
     # collection/source. Not necessarily the same as the scientific name in
     # the core file.
     #
-    # Example: “Ctenomys sociabilis" "Roptrocerus typographi (Györfi, 1952)"
-    attr_accessor :scientificName # [USED IN SF]
+    # Example: "Ctenomys sociabilis" "Roptrocerus typographi (Györfi, 1952)"
+    attr_accessor :scientificName
 
     # taxonRank (http://rs.tdwg.org/dwc/terms/taxonRank)
     #
@@ -126,7 +149,7 @@ module Export::Dwca::GbifProfile
     #
     # Example: Iraq: Mosul: Jabal Khantur prope Sharanish N. Zakho, in
     # fissures rupium calc., 1200 m
-    attr_accessor :locality # [USED IN SF]
+    attr_accessor :locality
 
     # sex (http://rs.tdwg.org/dwc/terms/sex)
     #
@@ -136,7 +159,7 @@ module Export::Dwca::GbifProfile
     # Vocabulary: http://rs.gbif.org/vocabulary/gbif/life_stage.xml
     #
     # Example: male
-    attr_accessor :sex # [USED IN SF]
+    attr_accessor :sex
 
     # recordedBy (http://rs.tdwg.org/dwc/terms/recordedBy)
     #
@@ -145,7 +168,7 @@ module Export::Dwca::GbifProfile
     # personal identifier (recordNumber), should be listed first.
     #
     # Example: KH Rechinger
-    attr_accessor :recordedBy # [USED IN SF]
+    attr_accessor :recordedBy
 
     # source (http://purl.org/dc/terms/source)
     #
@@ -160,7 +183,7 @@ module Export::Dwca::GbifProfile
     # The date when the specimen was collected
     #
     # Example: "spring 1910", "Marzo 2002", "1999-03-XX", "17IV1934"
-    attr_accessor :verbatimEventDate # [USED IN SF]
+    attr_accessor :verbatimEventDate
 
     # verbatimLabel (http://rs.gbif.org/terms/1.0/verbatimLabel)
     #
@@ -173,18 +196,17 @@ module Export::Dwca::GbifProfile
     # @return [String]
     # The geographic longitude
     #
-    # Example: 121d 10' 34 W
-    attr_accessor :verbatimLongitude # [USED IN SF]
+    # Example: "121d 10' 34"" W"
+    attr_accessor :verbatimLongitude
 
     # verbatimLatitude (http://rs.tdwg.org/dwc/terms/verbatimLatitude)
     #
     # @return [String]
     # The geographic latitude
     #
-    # Example: 41 05 54.03S
-    attr_accessor :verbatimLatitude # [USED IN SF]
+    # Example: "41 05 54.03 S"
+    attr_accessor :verbatimLatitude
 
   end
-  
-end
 
+end

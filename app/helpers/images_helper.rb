@@ -19,13 +19,21 @@ module ImagesHelper
 
 
   # "/images/scale_to_box/:x/:y/:width/:height/:box_width/:box_height"
-  def original_as_png_via_api(image, api: true)
+  def original_as_scaled_png_via_api(image, api: true)
     h = image.height
     w = image.width
 
     s = api ? '/api/v1' : ''
 
     s << "/images/#{image.id}/scale_to_box/0/0/#{w}/#{h}/#{w}/#{h}"
+    s
+  end
+
+  # "/images/:1/as_png"
+  def original_as_png_via_api(image, api: true)
+    s = api ? '/api/v1' : ''
+
+    s << "/images/#{image.id}/as_png"
     s
   end
 
@@ -109,7 +117,7 @@ module ImagesHelper
 
     images.values.each do |i|
       p = {
-        original_png: original_as_png_via_api(i, api:),
+        original_png: original_as_scaled_png_via_api(i, api:),
         content_type: i.image_file_content_type,
         thumb: short_url(i.image_file.url(:thumb)),
         medium: short_url(i.image_file.url(:medium)),

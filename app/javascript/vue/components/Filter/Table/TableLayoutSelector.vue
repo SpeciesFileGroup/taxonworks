@@ -50,7 +50,7 @@
                   />
                   {{ humanize(key) }}
                 </label>
-                <IcconRightLeft class="w-4" />
+                <IconRightLeft class="w-4" />
               </h3>
               <VueDraggable
                 v-if="Array.isArray(properties[key])"
@@ -161,7 +161,7 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VueDraggable from 'vuedraggable'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import { sortArrayByArray } from '@/helpers'
-import IcconRightLeft from '@/components/Icon/IcconRightLeft.vue'
+import IconRightLeft from '@/components/Icon/IconRightLeft.vue'
 import { vHelp } from '@/directives'
 
 const props = defineProps({

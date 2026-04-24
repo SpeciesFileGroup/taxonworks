@@ -116,17 +116,25 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
         end
         year ||= get_field_value('namePublishedInYear')
 
-        # TODO validate that rank is a real rank, otherwise Combination will crash on find_or_initialize_by
         rank = get_field_value('taxonRank')
+        rank_class = Ranks.lookup(nomenclature_code, rank)
+
         is_hybrid = metadata['is_hybrid'] # TODO: NO...
+
+        raise DarwinCore::InvalidData.new(
+          { "taxonRank": [rank.present? ? "Unrecognized taxon rank #{rank}" : 'Taxon rank is missing'] }
+        ) if rank_class.nil?
 
         if metadata['parent'].nil?
           if self.import_dataset.use_existing_hierarchy?
-            protonym_attributes = { name:, #
+            protonym_attributes = { name:,
                                     cached: get_field_value(:scientificName),
-                                    rank_class: Ranks.lookup(nomenclature_code, rank),
-                                    verbatim_author: author_name,
-                                    year_of_publication: year}
+                                    rank_class: 
+                                  }
+                                    
+            protonym_attributes[:verbatim_author] = author_name if author_name.present?
+            protonym_attributes[:year_of_publication] = year if year.present?
+
             potential_protonyms = TaxonName.where(protonym_attributes.merge({project:})) # merged project here so data is not leaked in error messages.
 
             if potential_protonyms.count == 1
@@ -145,7 +153,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             parent = project.root_taxon_name
           end
         else
-          parent = TaxonName.find(get_parent.metadata['imported_objects']['taxon_name']['id'])
+          parent = TaxonName.find_by(id: get_parent.metadata['imported_objects']['taxon_name']['id'])
         end
 
         if metadata['type'] == 'protonym'
@@ -174,12 +182,15 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
           unless taxon_name.persisted?
             taxon_name.taxon_name_classifications.build(type: TaxonNameClassification::Icn::Hybrid) if is_hybrid
-            taxon_name.data_attributes.build(import_predicate: 'DwC-A import metadata', type: 'ImportAttribute', value: {
-              scientificName: get_field_value('scientificName'),
-              scientificNameAuthorship: get_field_value('scientificNameAuthorship'),
-              taxonRank: get_field_value('taxonRank'),
-              metadata:
-            })
+            taxon_name.data_attributes.build(
+              import_predicate: 'DwC-A import metadata',
+              type: 'ImportAttribute',
+              value: {
+                scientificName: get_field_value('scientificName'),
+                scientificNameAuthorship: get_field_value('scientificNameAuthorship'),
+                taxonRank: get_field_value('taxonRank'),
+                metadata: }.to_json # Will not serialize properly just passing the Hash!
+            )
 
             taxon_name.save!
           end

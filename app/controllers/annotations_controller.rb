@@ -29,7 +29,7 @@ class AnnotationsController < ApplicationController
     if e.empty?
       render json: {from_object: @from_object, to_object: @to_object}
     else
-      render json: {success: false, errors: e }, status: :unprocessable_entity
+      render json: {success: false, errors: e }, status: :unprocessable_content
     end
   end
 
@@ -43,7 +43,7 @@ class AnnotationsController < ApplicationController
       if @annotation.update(annotated_object: @to_object)
         format.json { render :show, status: :ok, location: @annotation }
       else
-        render json: {success: false}, status: :unprocessable_entity
+        render json: {success: false}, status: :unprocessable_content
       end
     end
   end

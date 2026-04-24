@@ -54,6 +54,12 @@
             Increment
           </label>
         </div>
+        <span
+          v-if="!store.namespace && store.identifier.identifier"
+          class="text-warning-color"
+        >
+          Namespace required: identifiers without a namespace will not be saved.
+        </span>
       </div>
     </div>
   </div>

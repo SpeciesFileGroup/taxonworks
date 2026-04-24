@@ -12,7 +12,20 @@
         "
       >
         <template #header>
-          <h3>{{ title }}</h3>
+          <div class="flex-row middle flex-separate">
+            <h3>{{ title }}</h3>
+
+            <label
+              class="flex-row middle gap-xsmall margin-large-right"
+              title="Automatically refreshes filter results after updating or adding records"
+            >
+              <input
+                type="checkbox"
+                v-model="autoRefresh"
+              />
+              Auto-refresh
+            </label>
+          </div>
         </template>
         <template #body>
           <div class="flex-separate">
@@ -36,12 +49,7 @@
                 :ids="ids"
                 :parameters="params"
                 :count="count"
-                @close="
-                  () => {
-                    closeRadialBatch()
-                    emit('update')
-                  }
-                "
+                @close="handleClose"
               />
             </div>
           </div>
@@ -71,6 +79,7 @@ import VModal from '@/components/ui/Modal.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import { useRadialBatch } from '@/components/radials/shared/useRadialBatch'
+import { useUserPreference } from '@/composables'
 
 const EXCLUDE_PARAMETERS = ['per', 'page', 'extend']
 
@@ -126,6 +135,18 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['close', 'update'])
+
+const STORAGE_KEY_AUTOREFRESH = 'RadialBatch::AutoRefresh'
+
+const autoRefresh = useUserPreference(STORAGE_KEY_AUTOREFRESH, true)
+
+function handleClose() {
+  closeRadialBatch()
+
+  if (autoRefresh.value) {
+    emit('update')
+  }
+}
 
 const {
   closeRadialBatch,

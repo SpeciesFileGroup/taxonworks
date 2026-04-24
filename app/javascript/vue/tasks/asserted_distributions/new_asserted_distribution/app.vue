@@ -3,8 +3,13 @@
     <VSpinner
       v-if="store.isLoading"
       full-screen
-      :logo-size="{ width: '100px', height: '100px' }"
       legend="Loading..."
+    />
+
+    <VSpinner
+      v-if="store.isSaving"
+      full-screen
+      legend="Saving..."
     />
     <h1>Task - New asserted distribution</h1>
     <NavBar class="margin-medium-bottom">
@@ -19,7 +24,7 @@
         <div class="horizontal-center-content middle gap-small">
           <label class="middle">
             <input
-              v-model="store.autosave"
+              v-model="autosave"
               type="checkbox"
             />
             Autosave
@@ -65,10 +70,13 @@ import VSpinner from '@/components/ui/VSpinner'
 import NavBar from '@/components/layout/NavBar'
 import platformKey from '@/helpers/getPlatformKey'
 
-import { useHotkey } from '@/composables'
-import { computed, ref, onBeforeMount } from 'vue'
+import { useHotkey, useUserPreference } from '@/composables'
+import { computed, ref, onBeforeMount, watch } from 'vue'
 import { useStore } from './store/store.js'
+
 import VBtn from '@/components/ui/VBtn/index.vue'
+
+const KEY_STORAGE_AUTOSAVE = 'Task::NewAssertedDistribution::Autosave'
 
 defineOptions({
   name: 'NewAssertedDistribution'
@@ -86,6 +94,7 @@ const shortcuts = ref([
 useHotkey(shortcuts.value)
 
 const store = useStore()
+const autosave = useUserPreference(KEY_STORAGE_AUTOSAVE, false)
 
 const currentAssertedDistribution = computed(() =>
   store.assertedDistributions.find(
@@ -93,8 +102,25 @@ const currentAssertedDistribution = computed(() =>
   )
 )
 
+watch(
+  autosave,
+  (newVal) => {
+    store.autosave = newVal
+  },
+  {
+    immediate: true
+  }
+)
+
 onBeforeMount(() => {
+  const urlParams = new URLSearchParams(window.location.search)
+  const id = urlParams.get('asserted_distribution_id')
+
   store.loadRecentAssertedDistributions()
+
+  if (id) {
+    store.load(id)
+  }
 
   TW.workbench.keyboard.createLegend(
     `${platformKey()}+s`,
@@ -102,7 +128,6 @@ onBeforeMount(() => {
     'New asserted distribution'
   )
 })
-
 </script>
 
 <style scoped>

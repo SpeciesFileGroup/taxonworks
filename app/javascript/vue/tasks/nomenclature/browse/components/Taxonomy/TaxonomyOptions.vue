@@ -21,7 +21,7 @@
         <input
           type="checkbox"
           v-model="onlyValid"
-          @change="updateStorage"
+          @change="(e) => updateStorage('onlyValid', e.target.checked)"
         />
         Show only valid names
       </label>
@@ -29,7 +29,7 @@
         <input
           type="checkbox"
           v-model="count"
-          @change="updateStorage"
+          @change="(e) => updateStorage('count', e.target.checked)"
         />
         Show in/valid count *
       </label>
@@ -37,7 +37,7 @@
         <input
           type="checkbox"
           v-model="rainbow"
-          @change="updateStorage"
+          @change="(e) => updateStorage('rainbow', e.target.checked)"
         />
         Level-based coloring
       </label>
@@ -75,11 +75,12 @@ const rainbow = defineModel('rainbow', {
 const isModalVisible = ref(false)
 const { preferences, setPreference } = useUserPreferences()
 
-function updateStorage() {
+function updateStorage(key, value) {
   setPreference(STORAGE_LAYOUT_KEY, {
     count: count.value,
     onlyValid: onlyValid.value,
-    rainbow: rainbow.value
+    rainbow: rainbow.value,
+    [key]: value
   })
 }
 

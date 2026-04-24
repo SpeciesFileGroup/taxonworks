@@ -2,7 +2,9 @@
   <div>
     <br />
     <VAutocomplete
+      ref="autocomplete"
       class="vue-autocomplete"
+      input-class="mousetrap"
       url="/taxon_names/autocomplete"
       placeholder="Select a taxon name"
       autofocus
@@ -24,23 +26,31 @@
 <script setup>
 import VAutocomplete from '@/components/ui/Autocomplete'
 import { RouteNames } from '@/routes/routes'
-import { ref, watch, onMounted } from 'vue'
+import { useHotkey, useUserPreference } from '@/composables'
+import { ref, onMounted } from 'vue'
+import { getPlatformKey } from '@/helpers'
 
-const SettingsStore = {
-  redirectValid: 'browseNomenclature::redirectValid'
-}
+const autocomplete = ref(null)
 
-const validName = ref(true)
+const shortcuts = ref([
+  {
+    keys: [getPlatformKey(), 'f'],
+    preventDefault: true,
+    handler() {
+      autocomplete.value?.setFocus()
+    }
+  }
+])
 
-watch(validName, (newVal) => {
-  sessionStorage.setItem(SettingsStore.redirectValid, newVal)
-})
+useHotkey(shortcuts.value)
+
+const STORAGE_KEY_REDIRECT_VALID = 'browseNomenclature::redirectValid'
+
+const validName = useUserPreference(STORAGE_KEY_REDIRECT_VALID, true)
+
 
 onMounted(() => {
-  const value = sessionStorage.getItem(SettingsStore.redirectValid)
-  if (value !== null) {
-    validName.value = value === 'true'
-  }
+  TW.workbench.keyboard.createLegend('Alt+f', 'Search', 'Browse nomenclature')
 })
 
 function redirect(event) {

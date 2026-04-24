@@ -50,7 +50,7 @@ class ExtractsController < ApplicationController
         format.json { render :show, status: :created, location: @extract }
       else
         format.html { render :new }
-        format.json { render json: @extract.errors, status: :unprocessable_entity }
+        format.json { render json: @extract.errors, status: :unprocessable_content }
       end
     end
   end
@@ -64,7 +64,7 @@ class ExtractsController < ApplicationController
         format.json { render :show, status: :ok, location: @extract }
       else
         format.html { render :edit }
-        format.json { render json: @extract.errors, status: :unprocessable_entity }
+        format.json { render json: @extract.errors, status: :unprocessable_content }
       end
     end
   end

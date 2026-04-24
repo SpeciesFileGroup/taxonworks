@@ -1,7 +1,6 @@
 # Build out the json response as needed
 
 json.observation_matrix_id @key.observation_matrix_id
-json.observation_matrix_citation @key.observation_matrix_citation
 json.descriptor_available_languages @key.descriptor_available_languages
 json.language_id @key.language_id
 json.language_to_use @key.language_to_use
@@ -15,14 +14,41 @@ json.identified_to_rank @key.identified_to_rank
 
 json.pagination @key, :pagination_page, :pagination_per_page, :pagination_total, :pagination_total_pages, :pagination_next_page, :pagination_previous_page
 
+if @key.observation_matrix_citation
+  json.observation_matrix_citation do
+    json.partial! 'citations/api/v1/attributes', citation: @key.observation_matrix_citation
+  end
+else
+  json.observation_matrix_citation nil
+end
+
 json.list_of_descriptors @key.list_of_descriptors.sort_by {|k, v| v[:index]}.map { |k, v| v }
-json.image_hash @key.image_hash
+json.image_hash do 
+  @key.image_hash.each do |id, data|
+    json.set! id do
+      json.image do
+        json.partial! 'images/api/v1/attributes', image: data[:image]
+      end
+
+      json.citations data[:citations] do |citation|
+        json.partial! 'citations/api/v1/attributes', citation: citation
+      end
+
+      json.attribution data[:attribution]
+    end
+  end
+end
 
 json.depiction_matrix (@key.depiction_matrix) do |d, v|
   json.object do
-    json.id v[:object].observation_object_id
-    json.type v[:object].observation_object_type
-    json.label label_for(v[:object])
+    obj = v[:object]
+
+    object_id   = obj.try(:observation_object_id) || obj.id
+    object_type = obj.try(:observation_object_type) || obj.class.base_class.name
+
+    json.id object_id
+    json.type object_type
+    json.label label_for(obj)
   end
   json.depictions (v[:depictions]) do |depiction|
     json.array! depiction do |d|

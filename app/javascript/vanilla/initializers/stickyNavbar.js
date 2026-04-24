@@ -1,14 +1,22 @@
-function getRelativeElement(element) {
-  const selector = element.getAttribute('data-relative-to')
-  const target = selector && document.querySelector(selector)
+const DEFAULT_OFFSET_REFERENCE = '#header-wrapper'
 
-  return document.querySelector(selector)
+function getReferenceElement(element) {
+  const selector =
+    element.getAttribute('data-relative-to') || DEFAULT_OFFSET_REFERENCE
+
+  return selector ? document.querySelector(selector) : null
 }
 
-function getPositionRelativeToElement(element) {
-  const target = getRelativeElement(element)
+function getReferenceOffset(element) {
+  const reference = getReferenceElement(element)
 
-  return target ? target.getBoundingClientRect() : {}
+  if (!reference) return 0
+
+  const isReferenceFixed = getComputedStyle(reference).position === 'fixed'
+
+  if (!isReferenceFixed) return 0
+
+  return reference.getBoundingClientRect().bottom
 }
 
 function getClasses(element) {
@@ -17,55 +25,84 @@ function getClasses(element) {
   return ['sticky-navbar-fixed', ...classes.split(' ')].filter(Boolean)
 }
 
-function setSticky(element) {
-  const { top = 0, height = 0 } = getPositionRelativeToElement(element)
-  const positionY = top + height
+function getOriginalPosition(element) {
+  const { parentElement } = element
 
+  return parentElement.getBoundingClientRect().top + window.scrollY
+}
+
+function setSticky(element, offset) {
   element.classList.add(...getClasses(element))
-  element.style.setProperty('top', `${positionY}px`)
+  element.style.setProperty('top', `${offset}px`)
   element.parentElement.style.minHeight = `${element.clientHeight}px`
-  element.style.maxHeight = `calc(100vh - ${element.offsetTop}px)`
+  element.style.maxHeight = `calc(100vh - ${offset}px)`
 }
 
 function removeSticky(element) {
   element.classList.remove(...getClasses(element))
   element.style.removeProperty('top')
+  element.style.removeProperty('max-height')
   element.parentElement.style.removeProperty('min-height')
-  element.style.maxHeight = `calc(100vh - ${
-    element.offsetTop - window.scrollY
-  }px)`
 }
 
 export function setStickyNavbar(element) {
-  const handleScroll = () => {
-    const { scrollY } = window
-    const { parentElement } = element
-    const offsetTop = (getRelativeElement(element) || parentElement).offsetTop
+  let observers = []
 
-    if (scrollY > offsetTop) {
-      setSticky(element)
+  const update = () => {
+    const offset = getReferenceOffset(element)
+    const originalPosition = getOriginalPosition(element)
+
+    if (window.scrollY + offset > originalPosition) {
+      setSticky(element, offset)
     } else {
       removeSticky(element)
     }
 
-    element.style.width = `${parentElement.clientWidth}px`
-  }
-
-  const resizeNavbar = () => {
     element.style.width = `${element.parentElement.clientWidth}px`
     element.style.boxSizing = 'border-box'
-    handleScroll()
   }
 
-  window.addEventListener('resize', resizeNavbar)
-  window.addEventListener('scroll', handleScroll)
+  const disconnectObservers = () => {
+    observers.forEach((observer) => observer.disconnect())
+    observers = []
+  }
 
-  resizeNavbar()
+  const observeReference = () => {
+    disconnectObservers()
 
-  document.addEventListener('turbolinks:before-render', () => {
-    window.removeEventListener('resize', resizeNavbar)
-    window.removeEventListener('scroll', handleScroll)
-  })
+    const reference = getReferenceElement(element)
+
+    if (!reference) return
+
+    const resizeObserver = new ResizeObserver(update)
+    resizeObserver.observe(reference)
+
+    const mutationObserver = new MutationObserver(() => {
+      requestAnimationFrame(update)
+    })
+    mutationObserver.observe(reference, {
+      attributes: true,
+      attributeFilter: ['class', 'style']
+    })
+
+    observers.push(resizeObserver, mutationObserver)
+  }
+
+  window.addEventListener('resize', update)
+  window.addEventListener('scroll', update)
+
+  observeReference()
+  update()
+
+  document.addEventListener(
+    'turbolinks:before-render',
+    () => {
+      window.removeEventListener('resize', update)
+      window.removeEventListener('scroll', update)
+      disconnectObservers()
+    },
+    { once: true }
+  )
 }
 
 document.addEventListener('turbolinks:load', () => {

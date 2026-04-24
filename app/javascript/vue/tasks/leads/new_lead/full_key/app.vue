@@ -53,13 +53,6 @@
               >
                 <b><span class="lead-item-mark">!!</span></b>
               </span>
-              <span
-                v-if="store.key_data[child]['lead_item_otus'].length == 1 && !store.key_data[child]['target_id']"
-                :style="{position: 'relative', left: leftCalc(parent)}"
-                class="gutter"
-              >
-                <b><span class="lead-item-one">!!</span></b>
-              </span>
             </template>
           </template>
 
@@ -97,11 +90,6 @@
           v-if="store.key_data[child]['lead_item_otus']?.length > 1"
         >
           <b><span class="lead-item-mark">!!</span></b>
-        </span>
-        <span
-          v-else-if="store.key_data[child]['lead_item_otus']?.length == 1 && !store.key_data[child]['target_id']"
-        >
-          <b><span class="lead-item-one">!!</span></b>
         </span>
 
         <VBtn
@@ -149,7 +137,7 @@
 
           <ul class="key-ul">
             <li v-for="lio in store.key_data[child]['lead_item_otus']">
-              {{ lio }}
+              <a :href="makeBrowseUrl({ id: lio.id, type: OTU })">{{ lio.label }}</a>
             </li>
           </ul>
         </template>
@@ -165,6 +153,8 @@ import { Lead as LeadEndpoint } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
 import { nextTick, onMounted, ref, watch } from 'vue'
 import { useUserOkayToLeave } from '../shared/composables/useUserOkayToLeave.js'
+import { makeBrowseUrl } from '@/helpers/index.js'
+import { OTU } from '@/constants'
 import useStore from '../store/leadStore'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
@@ -245,7 +235,8 @@ async function scrollToCurrentCouplet() {
 function offerCreateNewCouplet(lead) {
   return store.key_data[lead]['text'] &&
     !store.key_metadata[lead]?.['children'] &&
-    !store.key_data[lead]['target_id'] // an otu
+    !store.key_data[lead]['target_id'] && // an otu
+    !store.key_data[lead]['redirect_id'] // a redirect
 }
 
 function createNextCouplet(lead) {
@@ -267,6 +258,7 @@ function createNextCouplet(lead) {
         'notice'
       )
     })
+    .catch(() => {})
     .finally(() => {
       loading.value = false
     })

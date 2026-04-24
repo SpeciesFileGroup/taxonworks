@@ -1,4 +1,4 @@
-json.extract! biological_associations_graph, :id, :created_by_id, :updated_by_id, :project_id, :name, :layout
+json.extract! biological_associations_graph, :id, :project_id, :name, :layout
 json.partial! '/shared/data/all/metadata', object: biological_associations_graph
 
 if extend_response_with('biological_associations_biological_associations_graphs')
@@ -10,5 +10,11 @@ if extend_response_with('biological_associations_biological_associations_graphs'
         json.partial! '/shared/data/all/metadata', object: babag.biological_association, extend: false
      end
     end
+  end
+end
+
+if extend_response_with('notes')
+  json.notes biological_associations_graph.notes.each do |n|
+    json.text n.text
   end
 end

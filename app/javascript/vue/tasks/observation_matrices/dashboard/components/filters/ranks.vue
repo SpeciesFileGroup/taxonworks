@@ -1,5 +1,5 @@
 <template>
-  <div v-if="taxonName">
+  <FacetContainer v-if="taxonName">
     <h3>Select ranks</h3>
     <template
       v-for="(group, key, index) in ranks[taxonName.nomenclatural_code]"
@@ -41,15 +41,20 @@
     >
       {{ typicalUse ? 'Show more ranks' : 'Show less ranks' }}
     </button>
-  </div>
+  </FacetContainer>
 </template>
 
 <script>
 import { TaxonName } from '@/routes/endpoints'
 import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 
 export default {
+  components: {
+    FacetContainer
+  },
+
   props: {
     taxonName: {
       type: Object,

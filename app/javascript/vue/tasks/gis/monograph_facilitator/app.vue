@@ -43,7 +43,7 @@ onBeforeMount(() => {
   max-height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-  min-width: 400px;
-  width: 400px;
+  min-width: 500px;
+  width: 500px;
 }
 </style>

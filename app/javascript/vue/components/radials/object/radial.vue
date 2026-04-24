@@ -35,12 +35,19 @@
               </div>
               <div
                 class="radial-annotator-template panel"
-                v-if="currentAnnotator"
+                v-show="currentAnnotator"
               >
-                <h2 class="capitalize view-title">
-                  {{ currentAnnotator.replace('_', ' ') }}
-                </h2>
+                <div class="flex-separate middle">
+                  <h2 class="capitalize view-title">
+                    {{ currentAnnotator ? currentAnnotator.replaceAll('_', ' ') : '' }}
+                  </h2>
+                  <div
+                    :id="headerRightTargetId"
+                    class="horizontal-right-content middle"
+                  />
+                </div>
                 <component
+                  v-if="currentAnnotator"
                   class="radial-annotator-container"
                   :is="SLICE[currentAnnotator]"
                   :type="currentAnnotator"
@@ -49,6 +56,7 @@
                   :global-id="globalId"
                   :object-id="metadata.object_id"
                   :object-type="metadata.object_type"
+                  :header-right-target-id="headerRightTargetId"
                   :radial-emit="handleEmitRadial"
                   @update-count="setTotal"
                   @close="closeModal"
@@ -91,9 +99,9 @@ import VIcon from '@/components/ui/VIcon/index.vue'
 import makeRequest from '@/helpers/ajaxCall'
 import Icons from './images/icons.js'
 import { useShortcuts } from '@/components/radials/composables'
-import { SLICE } from './constants/slices.js'
+import { SLICE, SLICES_BY_OBJECT_TYPE } from './constants/slices.js'
 import { Tag } from '@/routes/endpoints'
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, getCurrentInstance } from 'vue'
 
 const MIDDLE_RADIAL_BUTTON = 'circleButton'
 
@@ -154,17 +162,35 @@ const isVisible = ref(false)
 const metadata = ref(null)
 const title = ref('Quick forms')
 const defaultTag = ref(null)
+const headerRightTargetId = `radial-object-header-right-${getCurrentInstance().uid}`
 const { removeListener, setShortcutsEvent } = useShortcuts({
   metadata,
   currentAnnotator
 })
 
+function getEndpoints() {
+  const endpoints = { ...metadata.value.endpoints }
+  const objectType = metadata.value.object_type
+
+  const slicesByType = SLICES_BY_OBJECT_TYPE[objectType] || []
+
+  slicesByType.forEach((slice) => {
+    if (!(slice in SLICE)) return
+
+    if (!(slice in endpoints)) {
+      endpoints[slice] = { total: 0 }
+    }
+  })
+
+  return endpoints
+}
+
 const menuOptions = computed(() => {
-  const { endpoints = {} } = metadata.value
+  const endpoints = getEndpoints()
 
   const slices = Object.entries(endpoints).map(([annotator, { total }]) => ({
     name: annotator,
-    label: (annotator.charAt(0).toUpperCase() + annotator.slice(1)).replace(
+    label: (annotator.charAt(0).toUpperCase() + annotator.slice(1)).replaceAll(
       '_',
       ' '
     ),

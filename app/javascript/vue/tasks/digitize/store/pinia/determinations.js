@@ -42,6 +42,7 @@ export const useTaxonDeterminationStore = defineStore('taxonDeterminations', {
       if (determination.id) {
         TaxonDetermination.destroy(determination.id)
           .then(() => {
+            removeFromArray(this.determinations, determination, { property: 'uuid' })
             TW.workbench.alert.create(
               'Taxon determination was successfully destroyed.',
               'notice'
@@ -49,8 +50,6 @@ export const useTaxonDeterminationStore = defineStore('taxonDeterminations', {
           })
           .catch(() => {})
       }
-
-      removeFromArray(this.determinations, determination, { property: 'uuid' })
     },
 
     save({ objectId, objectType }) {

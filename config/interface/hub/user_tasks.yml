@@ -38,9 +38,9 @@ filter_collecting_events_task:
     - filters
   status: prototype
   description: 'Filter collecting events by shape, tag, and various other params.'
-browse_annotations_task:
+annotations_filter_task:
   hub: true
-  name: 'Browse annotations'
+  name: 'Filter annotations'
   related:
   categories:
     - collection_object
@@ -51,7 +51,6 @@ browse_annotations_task:
     - matrix
     - dna
     - filters
-    - browse
   status: stable
   description: 'Filter data by annotations (e.g. Notes, Data attributes).  Delete or create additional annotations on filtered objects.  Generate JSON request based on annotations.'
 filter_otus_task:
@@ -378,15 +377,6 @@ new_source_task:
     - new
   status: stable
   description: 'Add a source (person, or reference to a book, serial, publication etc.) via a number of different methods including CrossRef lookup, DOI, or cut-paste of BibTeX.'
-new_bibtex_source_task:
-  hub: true
-  name: 'New source from BibTeX'
-  related:
-  categories:
-    - source
-    - new
-  status: prototype
-  description: 'Parse a captured BibTeX string into a new source'
 visualize_confidences_task:
   hub: true
   name: 'Visualize confidences'
@@ -533,6 +523,14 @@ filter_sources_task:
     - filters
   status: prototype
   description: 'Filter and find sources then download or share bibliographies.'
+documents_packager_task:
+  name: 'Documents packager'
+  related:
+  categories:
+    - source
+    - filters
+  status: prototype
+  description: 'Bundle Source Documents into size-limited download packages.'
 gnfinder_task:
   hub: true
   name: 'Gnfinder playground'
@@ -569,6 +567,14 @@ filter_images_task:
     - filters
   status: prototype
   description: 'Filter images.'
+images_packager_task:
+  name: 'Images packager'
+  related:
+  categories:
+    - image
+    - filters
+  status: prototype
+  description: 'Bundle Images into size-limited download packages.'
 project_data_task:
   hub: true
   name: 'Project data overview and download'
@@ -580,6 +586,14 @@ dwc_dashboard_task:
   hub: true
   name: 'DwC Dashboard'
   description: 'Report DwC Occurrence metadata, issues, and coverage. Manage DwC-A export.'
+  status: prototype
+  categories:
+    - collection_object
+    - collecting_event
+compact_dwc_task:
+  hub: true
+  name: 'Compact DarwinCore'
+  description: 'Compact and summarize DwC Occurrence data by catalog number with visualizations.'
   status: prototype
   categories:
     - collection_object
@@ -633,6 +647,14 @@ batch_add_users_task:
   categories:
   status: prototype
   description: 'Add a list of users.'
+administrator_year_in_review_task:
+  hub: false
+  name: 'Administration: Year in review'
+  related:
+    - year_in_review_task
+  categories:
+  status: prototype
+  description: 'A dashboard summarizing activity across all projects for a calendar year.'
 filter_extract_task:
   hub: true
   name: 'Filter extracts'
@@ -985,6 +1007,15 @@ duplicate_otus_task:
     - otu
   status: prototype
   description: 'A list of OTUs with whose combination of name and taxon name are found exactly/ in duplicate.'
+match_otu_by_taxon_name_task:
+  hub: true
+  name: 'Match OTU by taxon name'
+  related:
+  categories:
+    - otu
+    - nomenclature
+  status: prototype
+  description: 'Match external taxon names to TaxonWorks OTUs via taxon name matching. Supports exact and fuzzy matching, synonym resolution, and batch processing.'
 print_key_task:
   hub: false
   name: 'Print key'
@@ -1076,7 +1107,26 @@ monograph_facilitator_task:
   related:
   categories:
   status: prototype
-  description: 'TODO: Task description'
+  description: 'Plot objects on a map.  Group, updated determinations, and more.'
+filter_anatomical_parts_task:
+  hub: true
+  name: 'Filter anatomical parts'
+  related:
+  categories:
+    - filters
+    - biology
+  status: prototype
+  description: 'Filter anatomical parts by many different facets, download or visualize results.'
+anatomical_parts_graph_task:
+  hub: true
+  name: 'New/graph anatomical part'
+  related:
+  categories:
+    - biology
+    - filters
+    - new
+  status: prototype
+  description: 'Display graphs of relations between anatomical parts; create and edit anatomical parts.'
 project_dwc_export_preferences_task:
   hub: false
   name: 'Project preferences for DwCA project downloads'
@@ -1084,3 +1134,96 @@ project_dwc_export_preferences_task:
   categories:
   status: prototype
   description: Set preferences for Darwin Core Archive complete project downloads
+select_ontologies_task:
+  hub: false
+  name: 'Select anatomical part ontologies'
+  related:
+  categories:
+  status: prototype
+  description: 'Select OSL ontologies that can be used to find term uris for anatomical parts'
+edit_anatomical_part_task:
+  hub: false
+  name: 'Edit anatomical part'
+  related:
+  categories:
+  status: prototype
+  description: 'Edit anatomical part'
+taxon_name_reclassifier_task:
+  hub: true
+  name: 'Taxon name reclassifier'
+  related:
+  categories:
+  status: prototype
+  description: 'Drag-drop to change the parents of TaxonNames.'
+new_news_task:
+  hub: true
+  name: 'New news'
+  related:
+  categories:
+    - new
+  status: prototype
+  description: 'Create and edit blog posts, notices, etc.'
+browse_news_task:
+  hub: true
+  name: 'Browse News'
+  related:
+  categories:
+  status: prototype
+  description: "A Newspaper summarizing this project's current news."
+dichotomous_key_task:
+  hub: true
+  name: 'Dichotomous key'
+  related:
+  categories:
+  status: prototype
+  description: 'Interactive dichotomous key interface'
+browse_images_task:
+  hub: true
+  name: 'Browse images'
+  related:
+  categories:
+  status: prototype
+  description: 'Browse and explore images in this project, including their depictions and related objects, and take measurements by drawing lines on images.'
+verbatim_author_year_source_task:
+  hub: true
+  name: 'TaxonName verbatim author/year without citations'
+  related:
+  categories:
+  status: prototype
+  description: 'Facilitate working through TaxonName records that have verbatim author-year data, but no citations/source.'
+year_in_review_task:
+  hub: true
+  name: 'Year in review'
+  related:
+    - week_in_review_task
+  categories:
+    - project
+  status: prototype
+  description: 'A dashboard summarizing project activity for a calendar year.'
+duplicate_data_attributes_task:
+  hub: false
+  name: 'Repeated DataAttributes'
+  related:
+    - index_multi_update_task
+    - field_synchronize_task
+  categories:
+    - data_attributes
+  status: prototype
+  description: 'Report identifying objects with duplicate predicates on their data attributes.'
+filter_namespaces_task:
+  hub: true
+  name: 'Filter namespaces'
+  related:
+  categories:
+    - filters
+  status: prototype
+  description: 'Filter namespaces by many different facets, download or visualize results.'
+new_ba_task:
+  hub: true
+  name: 'New biological associations II'
+  related:
+  categories:
+    - biology
+    - new
+  status: prototype
+  description: 'Create, edit, and cite biological associations, with support for anatomical parts and asserted distributions'

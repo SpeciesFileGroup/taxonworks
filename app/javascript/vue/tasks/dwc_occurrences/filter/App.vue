@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <h1>Filter DwC Occurrences</h1>
-
+  <div class="margin-medium-top">
     <FilterLayout
       :pagination="pagination"
       :url-request="urlRequest"
@@ -25,6 +23,7 @@
         <FilterList
           :list="list"
           :attributes="ATTRIBUTES"
+          :preference-key="`tasks::filters::${DWC_OCCURRENCE}`"
           :radial-annotator="false"
           :radial-navigator="false"
           v-model="selectedIds"

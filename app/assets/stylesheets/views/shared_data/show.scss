@@ -2,8 +2,12 @@
   /* Panel size for show view */
   .item1 {
     display: block;
-    width: 300px;
+    width: 350px;
     min-width: 270px;
+
+    .tw-autocomplete {
+      width: 100%;
+    }
   }
   .item3 {
     display: block;
