@@ -4,36 +4,21 @@
 module Export::Dwca::GbifProfile
 
   class SpeciesProfile
-    TAXON_ID = :taxonID
-    IS_MARINE = :isMarine
-    IS_FRESHWATER = :isFreshwater
-    IS_TERRESTRIAL = :isTerrestrial
-    IS_INVASIVE = :isInvasive
-    IS_HYBRID = :isHybrid
-    IS_EXTINCT = :isExtinct
-    LIVING_PERIOD = :livingPeriod
-    AGE_IN_DAYS = :ageInDays
-    SIZE_IN_MILLIMITERS = :sizeInMillimiters
-    MASS_IN_GRAMS = :massInGrams
-    LIFE_FORM = :lifeForm
-    HABITAT = :habitat
-    SEX = :sex
-
     NAMESPACES = {
-      TAXON_ID => 'http://rs.tdwg.org/dwc/terms/taxonID',
-      IS_MARINE => 'http://rs.gbif.org/terms/1.0/isMarine',
-      IS_FRESHWATER => 'http://rs.gbif.org/terms/1.0/isFreshwater',
-      IS_TERRESTRIAL => 'http://rs.gbif.org/terms/1.0/isTerrestrial',
-      IS_INVASIVE => 'http://rs.gbif.org/terms/1.0/isInvasive',
-      IS_HYBRID => 'http://rs.gbif.org/terms/1.0/isHybrid',
-      IS_EXTINCT => 'http://rs.gbif.org/terms/1.0/isExtinct',
-      LIVING_PERIOD => 'http://rs.gbif.org/terms/1.0/livingPeriod',
-      AGE_IN_DAYS => 'http://rs.gbif.org/terms/1.0/ageInDays',
-      SIZE_IN_MILLIMITERS => 'http://rs.gbif.org/terms/1.0/sizeInMillimeters',
-      MASS_IN_GRAMS => 'http://rs.gbif.org/terms/1.0/massInGrams',
-      LIFE_FORM => 'http://rs.gbif.org/terms/1.0/lifeForm',
-      HABITAT => 'http://rs.tdwg.org/dwc/terms/habitat',
-      SEX => 'http://rs.tdwg.org/dwc/terms/sex'
+      :taxonID => 'http://rs.tdwg.org/dwc/terms/taxonID',
+      :isMarine => 'http://rs.gbif.org/terms/1.0/isMarine',
+      :isFreshwater => 'http://rs.gbif.org/terms/1.0/isFreshwater',
+      :isTerrestrial => 'http://rs.gbif.org/terms/1.0/isTerrestrial',
+      :isInvasive => 'http://rs.gbif.org/terms/1.0/isInvasive',
+      :isHybrid => 'http://rs.gbif.org/terms/1.0/isHybrid',
+      :isExtinct => 'http://rs.gbif.org/terms/1.0/isExtinct',
+      :livingPeriod => 'http://rs.gbif.org/terms/1.0/livingPeriod',
+      :ageInDays => 'http://rs.gbif.org/terms/1.0/ageInDays',
+      :sizeInMillimiters => 'http://rs.gbif.org/terms/1.0/sizeInMillimeters',
+      :massInGrams => 'http://rs.gbif.org/terms/1.0/massInGrams',
+      :lifeForm => 'http://rs.gbif.org/terms/1.0/lifeForm',
+      :habitat => 'http://rs.tdwg.org/dwc/terms/habitat',
+      :sex => 'http://rs.tdwg.org/dwc/terms/sex'
     }.freeze
 
     # taxonID (http://rs.tdwg.org/dwc/terms/taxonID)
@@ -43,7 +28,7 @@ module Export::Dwca::GbifProfile
     # taxon in the core data file to which this record points. This
     # identifier provides the link between the core data record and the
     # extension record.
-    attr_accessor TAXON_ID
+    attr_accessor :taxonID
 
     # isMarine (http://rs.gbif.org/terms/1.0/isMarine)
     #
@@ -54,7 +39,7 @@ module Export::Dwca::GbifProfile
     # Vocabulary: http://rs.gbif.org/vocabulary/basic/boolean.xml
     #
     # Examples: TRUE
-    attr_accessor IS_MARINE
+    attr_accessor :isMarine
 
     # isFreshwater (http://rs.gbif.org/terms/1.0/isFreshwater)
     #
@@ -65,7 +50,7 @@ module Export::Dwca::GbifProfile
     # Vocabulary: http://rs.gbif.org/vocabulary/basic/boolean.xml
     #
     # Examples: TRUE
-    attr_accessor IS_FRESHWATER
+    attr_accessor :isFreshwater
 
     # isTerrestrial (http://rs.gbif.org/terms/1.0/isTerrestrial)
     #
@@ -76,7 +61,7 @@ module Export::Dwca::GbifProfile
     # Vocabulary: http://rs.gbif.org/vocabulary/basic/boolean.xml
     #
     # Examples: false
-    attr_accessor IS_TERRESTRIAL
+    attr_accessor :isTerrestrial
 
     # isInvasive (http://rs.gbif.org/terms/1.0/isInvasive)
     #
@@ -88,7 +73,7 @@ module Export::Dwca::GbifProfile
     # Vocabulary: http://rs.gbif.org/vocabulary/basic/boolean.xml
     #
     # Examples: TRUE
-    attr_accessor IS_INVASIVE
+    attr_accessor :isInvasive
 
     # isHybrid (http://rs.gbif.org/terms/1.0/isHybrid)
     #
@@ -99,7 +84,7 @@ module Export::Dwca::GbifProfile
     # Vocabulary: http://rs.gbif.org/vocabulary/basic/boolean.xml
     #
     # Examples: TRUE
-    attr_accessor IS_HYBRID
+    attr_accessor :isHybrid
 
     # isExtinct (http://rs.gbif.org/terms/1.0/isExtinct)
     #
@@ -110,7 +95,7 @@ module Export::Dwca::GbifProfile
     # Vocabulary: http://rs.gbif.org/vocabulary/basic/boolean.xml
     #
     # Examples: TRUE
-    attr_accessor IS_EXTINCT
+    attr_accessor :isExtinct
 
     # livingPeriod (http://rs.gbif.org/terms/1.0/livingPeriod)
     #
@@ -120,7 +105,7 @@ module Export::Dwca::GbifProfile
     # http://en.wikipedia.org/wiki/Geologic_column
     #
     # Examples: Cretaceous
-    attr_accessor LIVING_PERIOD
+    attr_accessor :livingPeriod
 
     # ageInDays (http://rs.gbif.org/terms/1.0/ageInDays)
     #
@@ -128,7 +113,7 @@ module Export::Dwca::GbifProfile
     # Maximum observed age of an organism given as number of days
     #
     # Examples: 5
-    attr_accessor AGE_IN_DAYS
+    attr_accessor :ageInDays
 
     # sizeInMillimiters (http://rs.gbif.org/terms/1.0/sizeInMillimeters)
     #
@@ -137,7 +122,7 @@ module Export::Dwca::GbifProfile
     # or width, whichever is greater.
     #
     # Examples: 1500
-    attr_accessor SIZE_IN_MILLIMITERS
+    attr_accessor :sizeInMillimiters
 
     # massInGrams (http://rs.gbif.org/terms/1.0/massInGrams)
     #
@@ -145,7 +130,7 @@ module Export::Dwca::GbifProfile
     # Maximum observed weight of an organism in grams.
     #
     # Examples: 12
-    attr_accessor MASS_IN_GRAMS
+    attr_accessor :massInGrams
 
     # lifeForm (http://rs.gbif.org/terms/1.0/lifeForm)
     #
@@ -157,7 +142,7 @@ module Export::Dwca::GbifProfile
     # Vocabulary: http://rs.gbif.org/vocabulary/gbif/life_form.xml
     #
     # Examples: Phanerophyte
-    attr_accessor LIFE_FORM
+    attr_accessor :lifeForm
 
     # habitat (http://rs.tdwg.org/dwc/terms/habitat)
     #
@@ -168,7 +153,7 @@ module Export::Dwca::GbifProfile
     # Vocabulary: http://rs.gbif.org/vocabulary/iucn/habitat.xml
     #
     # Examples: "1.1"
-    attr_accessor HABITAT
+    attr_accessor :habitat
 
     # sex (http://rs.tdwg.org/dwc/terms/sex)
     #
@@ -179,7 +164,7 @@ module Export::Dwca::GbifProfile
     # Vocabulary: http://rs.gbif.org/vocabulary/gbif/sex.xml
     #
     # Examples: "Male,Female"
-    attr_accessor SEX
+    attr_accessor :sex
   end
 
 end

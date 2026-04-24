@@ -4,30 +4,18 @@
 module Export::Dwca::GbifProfile
 
   class SpeciesDescription
-    TAXON_ID = :taxonID
-    TYPE = :type
-    DESCRIPTION = :description
-    SOURCE = :source
-    LANGUAGE = :language
-    CREATED = :created
-    CREATOR = :creator
-    CONTRIBUTOR = :contributor
-    AUDIENCE = :audience
-    LICENSE = :license
-    RIGHTS_HOLDER = :rightsHolder
-
     NAMESPACES = {
-      TAXON_ID => 'http://rs.tdwg.org/dwc/terms/taxonID',
-      TYPE => 'http://purl.org/dc/terms/type',
-      DESCRIPTION => 'http://purl.org/dc/terms/description',
-      SOURCE => 'http://purl.org/dc/terms/source',
-      LANGUAGE => 'http://purl.org/dc/terms/language',
-      CREATED => 'http://purl.org/dc/terms/created',
-      CREATOR => 'http://purl.org/dc/terms/creator',
-      CONTRIBUTOR => 'http://purl.org/dc/terms/contributor',
-      AUDIENCE => 'http://purl.org/dc/terms/audience',
-      LICENSE => 'http://purl.org/dc/terms/license',
-      RIGHTS_HOLDER => 'http://purl.org/dc/terms/rightsHolder'
+      :taxonID => 'http://rs.tdwg.org/dwc/terms/taxonID',
+      :type => 'http://purl.org/dc/terms/type',
+      :description => 'http://purl.org/dc/terms/description',
+      :source => 'http://purl.org/dc/terms/source',
+      :language => 'http://purl.org/dc/terms/language',
+      :created => 'http://purl.org/dc/terms/created',
+      :creator => 'http://purl.org/dc/terms/creator',
+      :contributor => 'http://purl.org/dc/terms/contributor',
+      :audience => 'http://purl.org/dc/terms/audience',
+      :license => 'http://purl.org/dc/terms/license',
+      :rightsHolder => 'http://purl.org/dc/terms/rightsHolder'
     }.freeze
 
     # taxonID (http://rs.tdwg.org/dwc/terms/taxonID)
@@ -37,7 +25,7 @@ module Export::Dwca::GbifProfile
     # taxon in the core data file to which this description record points. This
     # identifier provides the link between the core data record and the
     # extension record.
-    attr_accessor TAXON_ID
+    attr_accessor :taxonID
 
     # type (http://purl.org/dc/terms/type)
     #
@@ -49,19 +37,19 @@ module Export::Dwca::GbifProfile
     # Vocabulary: http://rs.gbif.org/vocabulary/gbif/description_type.xml
     #
     # Example: "morphology", "distribution", "diagnostic"
-    attr_accessor TYPE
+    attr_accessor :type
 
     # description (http://purl.org/dc/terms/description)
     #
     # @return [String]
     # Any descriptive free text matching the category given by the type
-    attr_accessor DESCRIPTION
+    attr_accessor :description
 
     # source (http://purl.org/dc/terms/source)
     #
     # @return [String]
     # Source reference of this description; a URL or full publication citation
-    attr_accessor SOURCE
+    attr_accessor :source
 
     # language (http://purl.org/dc/terms/language)
     #
@@ -69,7 +57,7 @@ module Export::Dwca::GbifProfile
     # ISO 639-1 language code used for the vernacular name value.
     #
     # Example: "ES", "Spanish", "Español"
-    attr_accessor LANGUAGE
+    attr_accessor :language
 
     # created (http://purl.org/dc/terms/created)
     #
@@ -77,7 +65,7 @@ module Export::Dwca::GbifProfile
     # The date and time this description was written or last updated
     #
     # Example: "2010-09-29"
-    attr_accessor CREATED
+    attr_accessor :created
 
     # creator (http://purl.org/dc/terms/creator)
     #
@@ -85,14 +73,14 @@ module Export::Dwca::GbifProfile
     # The author(s) of the textual information provided for a description
     #
     # Example: "Hershkovitz, P."
-    attr_accessor CREATOR
+    attr_accessor :creator
 
     # contributor (http://purl.org/dc/terms/contributor)
     #
     # @return [String]
     # An entity responsible for making contributions to the textual information
     # provided for a description
-    attr_accessor CONTRIBUTOR
+    attr_accessor :contributor
 
     # audience (http://purl.org/dc/terms/audience)
     #
@@ -100,7 +88,7 @@ module Export::Dwca::GbifProfile
     # A class or description for whom the dwc:description is intended or useful
     #
     # Example: "experts", "general public", "children"
-    attr_accessor AUDIENCE
+    attr_accessor :audience
 
     # license (http://purl.org/dc/terms/license)
     #
@@ -109,13 +97,13 @@ module Export::Dwca::GbifProfile
     # Creative Commons URIs if you can.
     #
     # Example: CC-BY
-    attr_accessor LICENSE
+    attr_accessor :license
 
     # rightsHolder (http://purl.org/dc/terms/rightsHolder)
     #
     # @return [String]
     # A person or organization owning or managing rights over the resource.
-    attr_accessor RIGHTS_HOLDER
+    attr_accessor :rightsHolder
   end
 
 end

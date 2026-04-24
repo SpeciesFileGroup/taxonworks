@@ -11,9 +11,9 @@ module Export::CSV::Dwc::Extension::Checklist::VernacularName
   # Only including fields that can be populated from CommonName data.
   CHECKLIST_FIELDS = [
     :id, # Required for DwC-A star joins (taxonID, an OTU UUID)
-    GBIF::VERNACULAR_NAME,
-    GBIF::LANGUAGE,
-    GBIF::TEMPORAL
+    :vernacularName,
+    :language,
+    :temporal
   ].freeze
 
   HEADERS = CHECKLIST_FIELDS

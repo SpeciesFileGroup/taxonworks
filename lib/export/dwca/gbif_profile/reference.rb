@@ -4,34 +4,20 @@
 module Export::Dwca::GbifProfile
 
   class Reference
-    TAXON_ID = :taxonID
-    IDENTIFIER = :identifier
-    BIBLIOGRAPHIC_CITATION = :bibliographicCitation
-    TITLE = :title
-    CREATOR = :creator
-    DATE = :date
-    SOURCE = :source
-    DESCRIPTION = :description
-    SUBJECT = :subject
-    LANGUAGE = :language
-    RIGHTS = :rights
-    TAXON_REMARKS = :taxonRemarks
-    TYPE = :type
-
     NAMESPACES = {
-      TAXON_ID => 'http://rs.tdwg.org/dwc/terms/taxonID',
-      IDENTIFIER => 'http://purl.org/dc/terms/identifier',
-      BIBLIOGRAPHIC_CITATION => 'http://purl.org/dc/terms/bibliographicCitation',
-      TITLE => 'http://purl.org/dc/terms/title',
-      CREATOR => 'http://purl.org/dc/terms/creator',
-      DATE => 'http://purl.org/dc/terms/date',
-      SOURCE => 'http://purl.org/dc/terms/source',
-      DESCRIPTION => 'http://purl.org/dc/terms/description',
-      SUBJECT => 'http://purl.org/dc/terms/subject',
-      LANGUAGE => 'http://purl.org/dc/terms/language',
-      RIGHTS => 'http://purl.org/dc/terms/rights',
-      TAXON_REMARKS => 'http://rs.tdwg.org/dwc/terms/taxonRemarks',
-      TYPE => 'http://purl.org/dc/terms/type'
+      :taxonID => 'http://rs.tdwg.org/dwc/terms/taxonID',
+      :identifier => 'http://purl.org/dc/terms/identifier',
+      :bibliographicCitation => 'http://purl.org/dc/terms/bibliographicCitation',
+      :title => 'http://purl.org/dc/terms/title',
+      :creator => 'http://purl.org/dc/terms/creator',
+      :date => 'http://purl.org/dc/terms/date',
+      :source => 'http://purl.org/dc/terms/source',
+      :description => 'http://purl.org/dc/terms/description',
+      :subject => 'http://purl.org/dc/terms/subject',
+      :language => 'http://purl.org/dc/terms/language',
+      :rights => 'http://purl.org/dc/terms/rights',
+      :taxonRemarks => 'http://rs.tdwg.org/dwc/terms/taxonRemarks',
+      :type => 'http://purl.org/dc/terms/type'
     }.freeze
 
     # taxonID (http://rs.tdwg.org/dwc/terms/taxonID)
@@ -41,7 +27,7 @@ module Export::Dwca::GbifProfile
     # taxon in the core data file to which this reference record points. This
     # identifier provides the link between the core data record and the
     # extension record.
-    attr_accessor TAXON_ID
+    attr_accessor :taxonID
 
     # identifier (http://purl.org/dc/terms/identifier)
     #
@@ -52,7 +38,7 @@ module Export::Dwca::GbifProfile
     #
     # Example: doi:10.1038/ng0609-637;
     # http://www.nature.com/ng/journal/v41/n6/pdf/ng0609-637.pdf
-    attr_accessor IDENTIFIER
+    attr_accessor :identifier
 
     # bibliographicCitation (http://purl.org/dc/terms/bibliographicCitation)
     #
@@ -61,7 +47,7 @@ module Export::Dwca::GbifProfile
     #
     # Example: "Hartge, P., Genetics of reproductive lifespan. Nature
     # Genetics 41, 637 - 638 (2009)"
-    attr_accessor BIBLIOGRAPHIC_CITATION
+    attr_accessor :bibliographicCitation
 
     # title (http://purl.org/dc/terms/title)
     #
@@ -70,7 +56,7 @@ module Export::Dwca::GbifProfile
     #
     # Example: "Genetics of reproductive lifespan", "Field Guide to Moths of
     # Eastern North America"
-    attr_accessor TITLE
+    attr_accessor :title
 
     # creator (http://purl.org/dc/terms/creator)
     #
@@ -78,7 +64,7 @@ module Export::Dwca::GbifProfile
     # The author or authors of the referenced work
     #
     # Example: "Patricia Hartge"
-    attr_accessor CREATOR
+    attr_accessor :creator
 
     # date (http://purl.org/dc/terms/date)
     #
@@ -86,7 +72,7 @@ module Export::Dwca::GbifProfile
     # Date of publication, recommended ISO format YYYY or YYYY-MM-DD
     #
     # Example: "6/1/2009"; "2009"
-    attr_accessor DATE
+    attr_accessor :date
 
     # source (http://purl.org/dc/terms/source)
     #
@@ -95,7 +81,7 @@ module Export::Dwca::GbifProfile
     # of articles this is the journal, for parts of books the book itself
     #
     # Example: Nature Genetics 41, 635 (2009)
-    attr_accessor SOURCE
+    attr_accessor :source
 
     # description (http://purl.org/dc/terms/description)
     #
@@ -108,7 +94,7 @@ module Export::Dwca::GbifProfile
     # associations identified for these two traits should shed light on the
     # mechanisms of ovarian aging, as well as breast cancer and other
     # diseases associated with reproductive lifespan."
-    attr_accessor DESCRIPTION
+    attr_accessor :description
 
     # subject (http://purl.org/dc/terms/subject)
     #
@@ -118,7 +104,7 @@ module Export::Dwca::GbifProfile
     # namePublishedIn
     #
     # Example: genomics; epidemiology
-    attr_accessor SUBJECT
+    attr_accessor :subject
 
     # language (http://purl.org/dc/terms/language)
     #
@@ -127,7 +113,7 @@ module Export::Dwca::GbifProfile
     # publication
     #
     # Example: "en"
-    attr_accessor LANGUAGE
+    attr_accessor :language
 
     # rights (http://purl.org/dc/terms/rights)
     #
@@ -135,7 +121,7 @@ module Export::Dwca::GbifProfile
     # Copyright information relating to the referenced publication
     #
     # Example: "Copyright © 2009 Wiley-Liss, Inc., A Wiley Company"
-    attr_accessor RIGHTS
+    attr_accessor :rights
 
     # taxonRemarks (http://rs.tdwg.org/dwc/terms/taxonRemarks)
     #
@@ -145,7 +131,7 @@ module Export::Dwca::GbifProfile
     #
     # Example: "transferred H. nigritarsus to Acanolonia"; "Type specimen is
     # a skeleton"
-    attr_accessor TAXON_REMARKS
+    attr_accessor :taxonRemarks
 
     # type (http://purl.org/dc/terms/type)
     #
@@ -157,7 +143,7 @@ module Export::Dwca::GbifProfile
     # Vocabulary: http://rs.gbif.org/vocabulary/gbif/reference_type.xml
     #
     # Example: "Original publication of new combination (comb nov.)"
-    attr_accessor TYPE
+    attr_accessor :type
 
   end
 

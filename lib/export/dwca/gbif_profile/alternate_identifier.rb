@@ -4,18 +4,12 @@
 module Export::Dwca::GbifProfile
 
   class AlternateIdentifier
-    TAXON_ID = :taxonID
-    IDENTIFIER = :identifier
-    TITLE = :title
-    SUBJECT = :subject
-    FORMAT = :format
-
     NAMESPACES = {
-      TAXON_ID => 'http://rs.tdwg.org/dwc/terms/taxonID',
-      IDENTIFIER => 'http://purl.org/dc/terms/identifier',
-      TITLE => 'http://purl.org/dc/terms/title',
-      SUBJECT => 'http://purl.org/dc/terms/subject',
-      FORMAT => 'http://purl.org/dc/terms/format'
+      :taxonID => 'http://rs.tdwg.org/dwc/terms/taxonID',
+      :identifier => 'http://purl.org/dc/terms/identifier',
+      :title => 'http://purl.org/dc/terms/title',
+      :subject => 'http://purl.org/dc/terms/subject',
+      :format => 'http://purl.org/dc/terms/format'
     }.freeze
 
     # taxonID (http://rs.tdwg.org/dwc/terms/taxonID)
@@ -25,7 +19,7 @@ module Export::Dwca::GbifProfile
     # taxon in the core data file to which this identifier record points. This
     # identifier provides the link between the core data record and the
     # extension record.
-    attr_accessor TAXON_ID
+    attr_accessor :taxonID
 
     # identifier (http://purl.org/dc/terms/identifier)
     #
@@ -34,7 +28,7 @@ module Export::Dwca::GbifProfile
     # webpage, an xml or rdf document, a DOI, UUID or any other identifer
     #
     # Example: "urn:lsid:ipni.org:names:692570-1:1.4"
-    attr_accessor IDENTIFIER
+    attr_accessor :identifier
 
     # title (http://purl.org/dc/terms/title)
     #
@@ -43,13 +37,13 @@ module Export::Dwca::GbifProfile
     # displayed with the identifier or link
     #
     # Example: "Danaus plexippus page", "COL Taxon LSID"
-    attr_accessor TITLE
+    attr_accessor :title
 
     # subject (http://purl.org/dc/terms/subject)
     #
     # @return [String]
     # keywords qualifying the identifier
-    attr_accessor SUBJECT
+    attr_accessor :subject
 
     # format (http://purl.org/dc/terms/format)
     #
@@ -65,7 +59,7 @@ module Export::Dwca::GbifProfile
     # application/json
     #
     # Example: application/rdf+xml
-    attr_accessor FORMAT
+    attr_accessor :format
 
   end
 

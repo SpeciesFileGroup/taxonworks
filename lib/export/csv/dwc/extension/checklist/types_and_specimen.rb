@@ -13,17 +13,17 @@ module Export::CSV::Dwc::Extension::Checklist::TypesAndSpecimen
   # from CollectionObject records with type materials.
   CHECKLIST_FIELDS = [
     :id, # Required for DwC-A star joins (taxonID, an OTU UUID)
-    GBIF::TYPE_STATUS,
-    GBIF::SCIENTIFIC_NAME,
-    GBIF::TAXON_RANK,
-    GBIF::OCCURRENCE_ID,
-    GBIF::INSTITUTION_CODE,
-    GBIF::COLLECTION_CODE,
-    GBIF::CATALOG_NUMBER,
-    GBIF::LOCALITY,
-    GBIF::SEX,
-    GBIF::RECORDED_BY,
-    GBIF::VERBATIM_EVENT_DATE
+    :typeStatus,
+    :scientificName,
+    :taxonRank,
+    :occurrenceID,
+    :institutionCode,
+    :collectionCode,
+    :catalogNumber,
+    :locality,
+    :sex,
+    :recordedBy,
+    :verbatimEventDate
   ].freeze
 
   HEADERS = CHECKLIST_FIELDS

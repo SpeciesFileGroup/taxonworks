@@ -9,10 +9,10 @@ module Export::CSV::Dwc::Extension::Checklist::Description
   # Fields used in checklist exports (subset of full GBIF profile).
   CHECKLIST_FIELDS = [
     :id, # Required for DwC-A star joins (taxonID, an OTU UUID)
-    GBIF::DESCRIPTION,
-    GBIF::TYPE,
-    GBIF::LANGUAGE,
-    GBIF::CREATED
+    :description,
+    :type,
+    :language,
+    :created
   ].freeze
 
   HEADERS = CHECKLIST_FIELDS

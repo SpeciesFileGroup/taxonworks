@@ -15,7 +15,7 @@ module Export::CSV::Dwc::Extension::Checklist::Reference
   # which only includes Asserted Distribution data on references.
   CHECKLIST_FIELDS = [
     :id, # Required for DwC-A star joins (taxonID, an OTU UUID)
-    GBIF::BIBLIOGRAPHIC_CITATION
+    :bibliographicCitation
   ].freeze
 
   HEADERS = CHECKLIST_FIELDS
