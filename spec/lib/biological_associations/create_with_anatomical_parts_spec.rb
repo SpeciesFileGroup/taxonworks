@@ -7,8 +7,7 @@ RSpec.describe BiologicalAssociations::CreateWithAnatomicalParts, type: :model d
   let(:determination_otu) { FactoryBot.create(:valid_otu) }
 
   def call(params)
-    service = described_class.new(params)
-    [service, service.call]
+    described_class.new(params).call
   end
 
   def base_params(overrides = {})
@@ -24,16 +23,14 @@ RSpec.describe BiologicalAssociations::CreateWithAnatomicalParts, type: :model d
   context 'OTU subject and object, no anatomical parts' do
     specify 'creates the biological association' do
       expect {
-        service, success = call(base_params)
-        expect(success).to be true
+        expect(call(base_params)).to be_persisted
       }.to change(BiologicalAssociation, :count).by(1)
     end
 
     specify 'sets subject and object correctly' do
-      service, _ = call(base_params)
-      biological_association = service.biological_association
-      expect(biological_association.biological_association_subject).to eq(subject_otu)
-      expect(biological_association.biological_association_object).to eq(object_otu)
+      ba = call(base_params)
+      expect(ba.biological_association_subject).to eq(subject_otu)
+      expect(ba.biological_association_object).to eq(object_otu)
     end
   end
 
@@ -140,10 +137,10 @@ RSpec.describe BiologicalAssociations::CreateWithAnatomicalParts, type: :model d
   end
 
   context 'invalid params' do
-    specify 'returns false and populates errors when biological association is invalid' do
-      service, success = call(base_params(biological_relationship_id: nil))
-      expect(success).to be false
-      expect(service.errors).not_to be_empty
+    specify 'returns an unpersisted record with errors when biological association is invalid' do
+      ba = call(base_params(biological_relationship_id: nil))
+      expect(ba).not_to be_persisted
+      expect(ba.errors).not_to be_empty
     end
 
     specify 'rolls back anatomical part and taxon determination creation when biological association save fails' do
@@ -159,16 +156,16 @@ RSpec.describe BiologicalAssociations::CreateWithAnatomicalParts, type: :model d
         .and change(TaxonDetermination, :count).by(0)
     end
 
-    specify 'returns false and populates errors when subject type is not a valid biological association type' do
-      service, success = call(base_params(biological_association_subject_type: 'User'))
-      expect(success).to be false
-      expect(service.errors).not_to be_empty
+    specify 'returns an unpersisted record with errors when subject type is not a valid biological association type' do
+      ba = call(base_params(biological_association_subject_type: 'User'))
+      expect(ba).not_to be_persisted
+      expect(ba.errors).not_to be_empty
     end
 
-    specify 'returns false and populates errors when object type is not a valid biological association type' do
-      service, success = call(base_params(biological_association_object_type: 'User'))
-      expect(success).to be false
-      expect(service.errors).not_to be_empty
+    specify 'returns an unpersisted record with errors when object type is not a valid biological association type' do
+      ba = call(base_params(biological_association_object_type: 'User'))
+      expect(ba).not_to be_persisted
+      expect(ba.errors).not_to be_empty
     end
   end
 end

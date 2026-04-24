@@ -168,6 +168,7 @@ class AnatomicalPart < ApplicationRecord
     origin.class.base_class.name == 'CollectionObject'
   end
 
+  # TODO: helper method?
   # @return [Array] unique name and URI templates from this project, sorted by label
   def self.templates(project_id)
     rows = where(project_id:).pluck(:name, :uri, :uri_label)

@@ -46,22 +46,19 @@ class BiologicalAssociationsController < ApplicationController
   # POST /biological_associations.json
   def create
     if create_with_anatomical_parts?
-      service = ::BiologicalAssociations::CreateWithAnatomicalParts.new(biological_association_params)
-      success = service.call
-      @biological_association = service.biological_association
+      @biological_association = ::BiologicalAssociations::CreateWithAnatomicalParts.new(biological_association_params).call
     else
       @biological_association = BiologicalAssociation.new(biological_association_params)
-      success = @biological_association.save
+      @biological_association.save
     end
 
     respond_to do |format|
-      if success
+      if @biological_association.persisted?
         format.html { redirect_to @biological_association, notice: 'Biological association was successfully created.' }
         format.json { render :show, status: :created, location: @biological_association }
       else
         format.html { render :new }
-        messages = @biological_association&.errors&.any? ? @biological_association.errors.full_messages : (service&.errors || [])
-        format.json { render json: { errors: messages }, status: :unprocessable_content }
+        format.json { render json: { errors: @biological_association.errors.full_messages }, status: :unprocessable_content }
       end
     end
   end

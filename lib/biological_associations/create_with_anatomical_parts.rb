@@ -1,35 +1,35 @@
 module BiologicalAssociations
   class CreateWithAnatomicalParts
-    attr_reader :biological_association, :errors
+    attr_reader :biological_association
 
     def initialize(params)
       # ActionController::Parameters#to_h returns a HashWithIndifferentAccess
       # recursively, so all nested attributes are accessible by symbol key.
       @params = params.to_h
-      @errors = []
       @biological_association = nil
     end
 
     def call
-      ActiveRecord::Base.transaction do
-        subject = build_subject
-        object = build_object
+      begin
+        ActiveRecord::Base.transaction do
+          subject = build_subject
+          object = build_object
 
-        @biological_association = BiologicalAssociation.new(base_attributes)
+          @biological_association = BiologicalAssociation.new(base_attributes)
 
-        @biological_association.biological_association_subject = subject
-        @biological_association.biological_association_object = object
+          @biological_association.biological_association_subject = subject
+          @biological_association.biological_association_object = object
 
-        @biological_association.save!
+          @biological_association.save!
+        end
+      rescue ActiveRecord::RecordInvalid, ArgumentError => e
+        if @biological_association.nil?
+          @biological_association = BiologicalAssociation.new
+          @biological_association.errors.add(:base, e.message)
+        end
       end
 
-      true
-    rescue ActiveRecord::RecordInvalid => e
-      @errors = e.record.errors.full_messages
-      false
-    rescue ArgumentError => e
-      @errors = [e.message]
-      false
+      @biological_association
     end
 
     private
