@@ -247,7 +247,7 @@ GEM
     dwc_agent (3.4.3.0)
       namae (~> 1)
       namecase (~> 2)
-    erb (6.0.2)
+    erb (6.0.4)
     erubi (1.13.1)
     excon (0.112.0)
     execjs (2.10.1)
