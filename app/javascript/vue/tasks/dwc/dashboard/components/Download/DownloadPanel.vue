@@ -54,7 +54,7 @@
 
     <div class="margin-large-top">
       <h3>Checklist Downloads</h3>
-      Taxonomic checklists with optional extensions. <i>Includes only records stored as DwC occurrences.</i>
+      Taxonomic checklists with optional extensions. <i>Includes only OTUs related to DwC occurrences.</i>
       <div class="margin-medium-top">
         <a :href="filterOtusLink">
           Create DwC Checklist by filtered OTU result
