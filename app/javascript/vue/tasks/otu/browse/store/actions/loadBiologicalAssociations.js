@@ -94,7 +94,7 @@ export async function listAdapter(result) {
 
 export default async ({ state, commit, dispatch }, otuId) => {
   const { body } = await BiologicalAssociation.all({
-    otu_query: { otu_id: [otuId] },
+    otu_query: { otu_id: otuId },
     extend
   })
 
