@@ -15,6 +15,8 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `/leads`, `/leads/:id/remaining_otus`and `/leads/:id/eliminated_otus` API endpoints
 - Filters: Save freeze columns state [#4882]
 - Filter Source: Add TaxonWorks CSL format to `download formatted` button [#4661]
+- DwCA names checklist export (from Filter OTUs as a download type) [#4643]
+- Create Anatomical Parts from the Biological Associations annotator slice [#4716]
 
 ### Changed
 
@@ -45,9 +47,14 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - The Browse taxon name task bar is positioned incorrectly when the header bar is fixed.
 - Filter Source: The style selection in formatted download always applies the same style regardless of what is selected.
 - Fix some tests that intermittently fail in our CI (Continuous Integration) environment, add a script to produce a report of such failures [#4891]
+- Added `otu_id` to DwcOccurrence model [#4767]
+- Improved speed of OTU distribution responses
 
 [#1856]: https://github.com/SpeciesFileGroup/taxonworks/issues/1856
+[#4643]: https://github.com/SpeciesFileGroup/taxonworks/issues/4643
 [#4661]: https://github.com/SpeciesFileGroup/taxonworks/issues/4661
+[#4716]: https://github.com/SpeciesFileGroup/taxonworks/issues/4716
+[#4767]: https://github.com/SpeciesFileGroup/taxonworks/issues/4767
 [#4851]: https://github.com/SpeciesFileGroup/taxonpages/issues/4851
 [#4852]: https://github.com/SpeciesFileGroup/taxonpages/issues/4852
 [#4853]: https://github.com/SpeciesFileGroup/taxonpages/issues/4853
