@@ -198,9 +198,7 @@ class AssertedDistribution < ApplicationRecord
     when 'BiologicalAssociation'
       asserted_distribution_object.otu_ids
     when 'BiologicalAssociationsGraph'
-      asserted_distribution_object.biological_associations
-        .flat_map(&:otu_ids)
-        .uniq
+      ::BiologicalAssociation.collect_otu_ids(asserted_distribution_object.biological_associations)
     when 'Conveyance'
       c = asserted_distribution_object
       c.conveyance_object_type == 'Otu' ? [c.conveyance_object_id] : []

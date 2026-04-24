@@ -141,6 +141,39 @@ class BiologicalAssociation < ApplicationRecord
     ids.uniq
   end
 
+  # @return [Array of Integer]
+  #   OTU ids reachable across a collection of BiologicalAssociations,
+  #   batching queries by type to avoid N+1.
+  def self.collect_otu_ids(biological_associations)
+    bas = biological_associations.to_a
+    ids = []
+
+    [:subject, :object].each do |role|
+      type_attr = "biological_association_#{role}_type"
+      id_attr   = "biological_association_#{role}_id"
+      by_type   = bas.group_by { |ba| ba.send(type_attr) }
+
+      (by_type['Otu'] || []).each { |ba| ids << ba.send(id_attr) }
+
+      %w[CollectionObject FieldOccurrence].each do |type|
+        next unless (typed_bas = by_type[type])
+        typed_ids = typed_bas.map { |ba| ba.send(id_attr) }
+        ids.concat(
+          ::TaxonDetermination
+            .where(taxon_determination_object_type: type, taxon_determination_object_id: typed_ids, position: 1)
+            .pluck(:otu_id)
+        )
+      end
+
+      if (ap_bas = by_type['AnatomicalPart'])
+        ap_ids = ap_bas.map { |ba| ba.send(id_attr) }
+        ids.concat(::AnatomicalPart.where(id: ap_ids).pluck(:cached_otu_id).compact)
+      end
+    end
+
+    ids.uniq
+  end
+
   class << self
 
     def set_batch_cap(request)
