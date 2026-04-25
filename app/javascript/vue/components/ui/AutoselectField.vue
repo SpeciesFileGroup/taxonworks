@@ -38,7 +38,7 @@
           class="autoselect__fuse-tooltip"
         >
           <span class="autoselect__fuse-tooltip-trigger">!{{ idx + 1 }}</span>
-          <span class="autoselect__fuse-tooltip-label">{{ seg.label }}</span>
+          <span class="autoselect__fuse-tooltip-label">{{ seg.displayLabel }}</span>
           <span class="autoselect__fuse-tooltip-desc">{{ seg.description }}</span>
         </div>
       </div>
@@ -206,6 +206,10 @@ const { config, fetchConfig, getFirstLevelKey, getOperators } =
 
 const prefs = usePreferences(props.url, effectiveId)
 
+// ── Reactive preferences state ─────────────────────────────────────────────────
+// A reactive snapshot of the current prefs so computed labels re-derive on save.
+const currentPrefs = ref(prefs.getPrefs())
+
 // ── Refs ───────────────────────────────────────────────────────────────────────
 const inputEl = ref(null)
 const dropdownEl = ref(null)
@@ -242,13 +246,21 @@ let preInputText = '' // text in field before !p was typed
 
 // ── All segments (before preference filtering) ─────────────────────────────────
 const allFuseSegments = computed(() =>
-  (config.value?.levels ?? []).map((l) => ({
-    key: String(l.key),
-    label: l.label,
-    description: l.description,
-    external: l.external ?? false,
-    fuse_ms: l.fuse_ms ?? 600
-  }))
+  (config.value?.levels ?? []).map((l) => {
+    const key = String(l.key)
+    const options = currentPrefs.value.levels?.[key]?.options || {}
+    const displayLabel = options.dataset_title
+      ? `${l.label} (${options.dataset_title})`
+      : l.label
+    return {
+      key,
+      label: l.label,
+      displayLabel,
+      description: l.description,
+      external: l.external ?? false,
+      fuse_ms: l.fuse_ms ?? 600
+    }
+  })
 )
 
 // Segments visible after applying preferences (hide flag)
@@ -268,7 +280,7 @@ const currentLevelSegment = computed(() =>
 
 const spinnerTitle = computed(() => {
   const seg = currentLevelSegment.value
-  return seg?.external ? `Searching ${seg.label}...` : 'Searching...'
+  return seg?.external ? `Searching ${seg.displayLabel}...` : 'Searching...'
 })
 
 // ── Lifecycle ──────────────────────────────────────────────────────────────────
@@ -567,6 +579,7 @@ function cancelNewRecord() {
 // ── Preferences modal (!p) ─────────────────────────────────────────────────────
 function onPrefsSave(updatedPrefs) {
   prefs.savePrefs(updatedPrefs)
+  currentPrefs.value = updatedPrefs
   showPreferences.value = false
   // If the current level was hidden, jump to the first still-visible level
   if (!prefs.isLevelVisible(currentLevel.value)) {
