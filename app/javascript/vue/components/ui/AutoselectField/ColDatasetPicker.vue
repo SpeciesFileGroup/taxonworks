@@ -105,8 +105,8 @@ const hasColLevel = computed(() =>
   props.levels.some((l) => String(l.key) === LEVEL_KEY)
 )
 
-const currentDatasetId = computed(
-  () => props.modelValue?.[LEVEL_KEY]?.dataset_id || null
+const currentSavedOptions = computed(
+  () => props.modelValue?.[LEVEL_KEY] || null
 )
 
 // ── Refs ───────────────────────────────────────────────────────────────────────
@@ -116,9 +116,15 @@ const isSearching = ref(false)
 const searched = ref(false)
 let searchTimer = null
 
-// The selected dataset object (id + title + alias), reconstructed from saved id
+// Reconstruct the selected dataset display from saved options (id + title)
 const selectedDataset = ref(
-  currentDatasetId.value ? { id: currentDatasetId.value, title: currentDatasetId.value, alias: null } : null
+  currentSavedOptions.value?.dataset_id
+    ? {
+        id: currentSavedOptions.value.dataset_id,
+        title: currentSavedOptions.value.dataset_title || currentSavedOptions.value.dataset_id,
+        alias: null
+      }
+    : null
 )
 
 // ── Search ─────────────────────────────────────────────────────────────────────
@@ -151,17 +157,21 @@ function selectDataset(dataset) {
   results.value = []
   query.value = ''
   searched.value = false
-  emitOptions(dataset.id)
+  emitOptions(dataset.id, dataset.title)
 }
 
 function clearDataset() {
   selectedDataset.value = null
-  emitOptions(null)
+  emitOptions(null, null)
 }
 
-function emitOptions(datasetId) {
+function emitOptions(datasetId, datasetTitle) {
   const updated = { ...props.modelValue }
-  updated[LEVEL_KEY] = { ...(updated[LEVEL_KEY] || {}), dataset_id: datasetId }
+  updated[LEVEL_KEY] = {
+    ...(updated[LEVEL_KEY] || {}),
+    dataset_id: datasetId,
+    dataset_title: datasetTitle
+  }
   emit('update:modelValue', updated)
 }
 </script>

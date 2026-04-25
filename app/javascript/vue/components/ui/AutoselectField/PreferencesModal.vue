@@ -23,7 +23,7 @@
 
         <!-- Level visibility -->
         <section class="prefs-modal__section">
-          <h4 class="prefs-modal__section-title">Levels</h4>
+          <h4 class="prefs-modal__section-title">Visible levels</h4>
           <ul class="prefs-modal__levels">
             <li
               v-for="level in levels"
@@ -182,8 +182,5 @@ function doSave() {
   gap: 8px;
 }
 
-.prefs-modal__footer .button-submit {
-  padding-left: 20px;
-  padding-right: 20px;
-}
+
 </style>

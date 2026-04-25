@@ -568,11 +568,18 @@ function cancelNewRecord() {
 function onPrefsSave(updatedPrefs) {
   prefs.savePrefs(updatedPrefs)
   showPreferences.value = false
-  // If currently visible level was hidden, jump to first remaining visible level
+  // If the current level was hidden, jump to the first still-visible level
   if (!prefs.isLevelVisible(currentLevel.value)) {
     currentLevel.value = getFirstVisibleLevelKey()
   }
-  nextTick(() => inputEl.value?.focus())
+  // Reset search state so the field re-runs with the new preferences applied
+  clearResults()
+  cancelFuse()
+  const term = inputText.value.trim()
+  nextTick(() => {
+    inputEl.value?.focus()
+    if (term) triggerSearch(term)
+  })
 }
 
 function cancelPreferences() {

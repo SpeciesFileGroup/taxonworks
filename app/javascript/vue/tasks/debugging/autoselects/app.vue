@@ -54,10 +54,18 @@ import ColDatasetPicker from '@/components/ui/AutoselectField/ColDatasetPicker.v
 // preferencesOptionsComponent: Vue component rendered inside PreferencesModal for model-specific options
 const registeredModels = ref([
   {
-    id: 'playground-taxon-name',
+    id: 'playground-taxon-name-1',
     url: '/taxon_names/autoselect',
     param: 'taxon_name_id',
-    label: 'TaxonName',
+    label: 'TaxonName (1)',
+    newRecordComponent: TaxonNameNewModal,
+    preferencesOptionsComponent: ColDatasetPicker
+  },
+  {
+    id: 'playground-taxon-name-2',
+    url: '/taxon_names/autoselect',
+    param: 'taxon_name_id',
+    label: 'TaxonName (2)',
     newRecordComponent: TaxonNameNewModal,
     preferencesOptionsComponent: ColDatasetPicker
   },
