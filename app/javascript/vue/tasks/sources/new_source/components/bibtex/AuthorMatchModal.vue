@@ -38,7 +38,7 @@
                 v-if="row.isSearching"
                 :legend="null"
               />
-              <div v-else-if="row.matches.length === 0 && !row.alreadyExists">
+              <div v-else-if="row.matches.length === 0 && !row.alreadyExists && !row.isFuzzySearchPending">
                 <span class="no-matches">No matches found</span>
               </div>
               <div
@@ -72,6 +72,10 @@
                   </a>
                 </div>
               </div>
+              <div
+                v-if="row.isFuzzySearchPending && !row.isSearching"
+                class="fuzzy-pending"
+              >...</div>
             </td>
             <td class="create-cell">
               <div
@@ -234,6 +238,7 @@ onMounted(async () => {
       createdPerson: existingRole ?? null,
       alreadyExists: Boolean(existingRole),
       isSearching: !existingRole,
+      isFuzzySearchPending: !existingRole,
       newPersonForm: {
         first_name: author.firstName,
         last_name: author.lastName,
@@ -369,19 +374,39 @@ function parseBibtexAuthors(authorString) {
 async function searchMatches(row) {
   row.isSearching = true
 
-  try {
-    const payload = { last_name_like: row.parsedLastName }
-    if (row.parsedFirstName) payload.first_name_like = row.parsedFirstName
+  const exactPayload = { last_name: row.parsedLastName }
+  if (row.parsedFirstName) exactPayload.first_name = row.parsedFirstName
 
-    const { body } = await People.where(payload)
-    row.matches = body.slice().sort(
+  const fuzzyPayload = { last_name_like: row.parsedLastName }
+  if (row.parsedFirstName) fuzzyPayload.first_name_like = row.parsedFirstName
+
+  let firstReturned = false
+
+  const handleResult = (people) => {
+    const existingIds = new Set(row.matches.map((p) => p.id))
+    const incoming = firstReturned ? people.filter((p) => !existingIds.has(p.id)) : people
+    const sorted = incoming.slice().sort(
       (a, b) => scoreMatch(b, row.parsedFirstName, row.parsedLastName) - scoreMatch(a, row.parsedFirstName, row.parsedLastName)
     )
-  } catch {
-    row.matches = []
-  } finally {
-    row.isSearching = false
+
+    if (!firstReturned) {
+      firstReturned = true
+      row.matches = sorted
+      row.isSearching = false
+    } else {
+      row.matches = [...row.matches, ...sorted]
+      row.isFuzzySearchPending = false
+    }
   }
+
+  await Promise.allSettled([
+    People.where(exactPayload).then(({ body }) => handleResult(body)),
+    People.where(fuzzyPayload).then(({ body }) => handleResult(body))
+  ])
+
+  // safety net if both requests fail
+  row.isSearching = false
+  row.isFuzzySearchPending = false
 }
 
 async function createPerson(row) {
@@ -477,6 +502,11 @@ td {
 .no-matches {
   color: var(--text-muted-color);
   font-style: italic;
+}
+
+.fuzzy-pending {
+  color: var(--text-muted-color);
+  font-size: 0.85em;
 }
 
 .create-cell {
