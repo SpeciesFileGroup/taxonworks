@@ -371,15 +371,15 @@ module Queries
           # Single-word input: forward direction is sufficient.
           q.where(forward_clauses.join(' AND '), *forward_values).distinct
         else
-          # Multi-word input: also add backward direction — the stored last_name appears
-          # as a whole word in the input string, e.g. input 'Smith Jones' finds stored 'Smith'.
-          # Skipped for single-word inputs to avoid the per-row regex construction cost.
-          backward_clause = "? ~* ('\\m' || LOWER(people.last_name) || '\\M')"
+          # Multi-word input: also add backward direction — the stored last_name exactly equals
+          # one of the input words, e.g. stored 'Smith' is found by input 'Smith Jones'.
+          # Exact equality avoids per-row regex construction and is safe against metacharacters.
+          backward_clause = "LOWER(people.last_name) = ANY(ARRAY[#{words.map { '?' }.join(',')}])"
 
           q.where(
             "(#{forward_clauses.join(' AND ')}) OR (#{backward_clause})",
             *forward_values,
-            last_name_like.downcase
+            *words
           ).distinct
         end
       end
