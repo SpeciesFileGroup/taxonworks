@@ -38,31 +38,39 @@
                 v-if="row.isSearching"
                 :legend="null"
               />
-              <div v-else-if="row.matches.length === 0">
+              <div v-else-if="row.matches.length === 0 && !row.alreadyExists">
                 <span class="no-matches">No matches found</span>
               </div>
               <div
                 v-else
                 class="matches-list"
               >
-                <label
+                <div
                   v-for="person in row.matches"
                   :key="person.id"
                   class="match-option"
                 >
-                  <input
-                    type="radio"
-                    :name="`author-match-${index}`"
-                    :value="person.id"
-                    v-model="row.selectedPersonId"
-                    @change="row.createdPerson = null"
-                  />
+                  <label>
+                    <input
+                      type="radio"
+                      :name="`author-match-${index}`"
+                      :value="person.id"
+                      v-model="row.selectedPersonId"
+                      @change="row.createdPerson = null"
+                    />
+                    <span v-html="person.cached || person.name" />
+                  </label>
                   <a
                     :href="`/people/${person.id}`"
                     target="_blank"
-                    v-html="person.cached || person.name"
-                  />
-                </label>
+                    title="View person"
+                  >
+                    <VIcon
+                      name="person"
+                      x-small
+                    />
+                  </a>
+                </div>
               </div>
             </td>
             <td class="create-cell">
@@ -157,6 +165,7 @@ import { ref, computed, onMounted } from 'vue'
 import { People } from '@/routes/endpoints'
 import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
 const props = defineProps({
@@ -247,6 +256,46 @@ function normalizeName(name) {
   return (name || '').toLowerCase().trim().replace(/\s+/g, ' ')
 }
 
+// Score how closely a person's first name matches the parsed first name.
+// Parts are compared positionally: 2 points for exact word match, 1 for matching initial.
+function scoreFirstNameMatch(person, parsedFirstName) {
+  const pParts = normalizeName(parsedFirstName).replace(/\./g, ' ').split(/\s+/).filter(Boolean)
+  const sParts = normalizeName(person.first_name || '').replace(/\./g, ' ').split(/\s+/).filter(Boolean)
+
+  if (pParts.length === 0) return 0
+  if (sParts.length === 0) return -1
+
+  let score = 0
+  const compareCount = Math.min(pParts.length, sParts.length)
+
+  for (let i = 0; i < compareCount; i++) {
+    if (pParts[i] === sParts[i]) score += 2
+    else if (pParts[i][0] === sParts[i][0]) score += 1
+  }
+
+  return score
+}
+
+// Score how closely a person's last name matches the parsed last name.
+// 2 points per word in common; last name is weighted higher than first in the combined score.
+function scoreLastNameMatch(person, parsedLastName) {
+  const pWords = new Set(normalizeName(parsedLastName).split(/\s+/).filter(Boolean))
+  const sWords = new Set(normalizeName(person.last_name || '').split(/\s+/).filter(Boolean))
+
+  if (pWords.size === 0) return 0
+  if (sWords.size === 0) return -1
+
+  let score = 0
+  for (const w of pWords) {
+    if (sWords.has(w)) score += 2
+  }
+  return score
+}
+
+function scoreMatch(person, parsedFirstName, parsedLastName) {
+  return scoreLastNameMatch(person, parsedLastName) * 10 + scoreFirstNameMatch(person, parsedFirstName)
+}
+
 // Used only to match parsed authors against already-loaded existing roles.
 // Server-side filtering handles the broader DB search.
 function namesMatch(parsedAuthor, person) {
@@ -325,7 +374,9 @@ async function searchMatches(row) {
     if (row.parsedFirstName) payload.first_name_like = row.parsedFirstName
 
     const { body } = await People.where(payload)
-    row.matches = body
+    row.matches = body.slice().sort(
+      (a, b) => scoreMatch(b, row.parsedFirstName, row.parsedLastName) - scoreMatch(a, row.parsedFirstName, row.parsedLastName)
+    )
   } catch {
     row.matches = []
   } finally {
@@ -409,6 +460,13 @@ td {
   display: flex;
   align-items: center;
   gap: 8px;
+  cursor: pointer;
+}
+
+.match-option label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
   cursor: pointer;
 }
 

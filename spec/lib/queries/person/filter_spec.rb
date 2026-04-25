@@ -263,12 +263,21 @@ describe Queries::Person::Filter, type: :model, group: :people do
 
     context 'all-full-name input with a second name absent from stored values' do
       let!(:j_s)         { Person.create!(last_name: 'Smith', first_name: 'J. S.') }
+      let!(:j_s_no_dot)  { Person.create!(last_name: 'Smith', first_name: 'J S') }
+      let!(:john_s)      { Person.create!(last_name: 'Smith', first_name: 'John S.') }
+      let!(:john_s_no_dot) { Person.create!(last_name: 'Smith', first_name: 'John S') }
+      let!(:j_stuart)    { Person.create!(last_name: 'Smith', first_name: 'J. Stuart') }
+      let!(:j_stuart_no_dot) { Person.create!(last_name: 'Smith', first_name: 'J Stuart') }
       let!(:john_stuart) { Person.create!(last_name: 'Smith', first_name: 'John Stuart') }
 
-      specify "'John Stuart' matches stored J., J. S., and full match, not K-initial names" do
+      specify "'John Stuart' matches all combinations of abbreviated/full parts, not K-initial names" do
         query.first_name_like = 'John Stuart'
         expect(query.all.pluck(:id)).to contain_exactly(
-          john.id, j_abbr.id, j_s.id, john_stuart.id
+          john.id, j_abbr.id,
+          j_s.id, j_s_no_dot.id,
+          john_s.id, john_s_no_dot.id,
+          j_stuart.id, j_stuart_no_dot.id,
+          john_stuart.id
         )
       end
     end
