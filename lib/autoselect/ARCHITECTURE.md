@@ -166,6 +166,69 @@ Client (AutoselectField.vue)
 - Operator order in `OPERATORS` matters: more specific patterns first
   (`:recent_mine` before `:recent` so `!rm` is not consumed by `!r`).
 
+## Preferences
+
+Every autoselect instance may carry user preferences, persisted in `localStorage`
+under the key `tw_autoselect_prefs`.  Preferences are scoped by resource and
+autoselect `id`:
+
+```
+tw_autoselect_prefs → {
+  "<resource>": {                   // e.g. "taxon_names"
+    "<autoselect-id>": {
+      "levels": {
+        "<level_key>": {
+          "hide": Boolean,          // when true this level is hidden from the fuse bar
+          "options": {}             // arbitrary key/value pairs forwarded to the server
+        }
+      }
+    }
+  }
+}
+```
+
+### `id` attribute
+
+Every `<div class="autoselect">` element should carry a globally unique `id`
+attribute passed via the `id` prop.  When no `id` is provided, a UUID is generated
+automatically (`autoselect_<uuid>`).
+
+For **dynamically added** instances of the same type on one page the developer
+should pass a stable base `id` and let the component append a UUID suffix.
+
+A linting rake task (`rails autoselect:lint_ids`) checks uniqueness of static ids
+across `app/views`, `app/helpers`, and `app/javascript/vue`.
+
+### `!p` operator
+
+`!p` (client_only) opens the **PreferencesModal**, which is shared across all
+models.  It shows:
+
+1. **Levels section** — one checkbox per level; hiding a level removes its segment
+   from the fuse bar and renumbers the `!N` jump shortcuts dynamically.
+2. **Options section** (optional) — rendered via the `preferencesOptionsComponent`
+   prop; the caller provides a model-specific component (e.g. `ColDatasetPicker`).
+
+### Level options → server
+
+When `triggerSearch` fires it merges `preferences.getLevelOptions(currentLevel)`
+into the request params.  For example, selecting a CoL dataset results in:
+
+```
+GET /taxon_names/autoselect?term=Rattus&level=catalogue_of_life&dataset_id=9830
+```
+
+The controller must explicitly permit any option keys (e.g. `dataset_id` in
+`autoselect_params`), and the level's `call` method must accept them.
+
+### CoL dataset selection (`ColDatasetPicker`)
+
+`ColDatasetPicker` is the preferences options component for autoselects that include
+a `catalogue_of_life` level.  It searches CoL datasets via
+`GET /taxon_names/autoselect_col_datasets?q=...` and stores the chosen dataset id in
+`options.dataset_id` for the `catalogue_of_life` level preference.  When no dataset
+is chosen the `Vendor::Colrapi::DATASETS[:col]` default is used.
+
 ## Client-side components
 
 | File | Purpose |
@@ -176,6 +239,10 @@ Client (AutoselectField.vue)
 | `app/javascript/vue/components/ui/AutoselectField/OtuNewModal.vue` | OTU new-record modal (passed via `newRecordComponent` prop) |
 | `app/javascript/vue/components/ui/AutoselectField/TaxonWorksSpinner.vue` | 16 px spinning TaxonWorks logo (internal levels) |
 | `app/javascript/vue/components/ui/AutoselectField/CatalogueOfLifeSpinner.vue` | 16 px pulsing CoL colour squares (external levels) |
+| `app/javascript/vue/components/ui/AutoselectField/PreferencesModal.vue` | Generic preferences modal (!p); level visibility + optional model options |
+| `app/javascript/vue/components/ui/AutoselectField/ColDatasetPicker.vue` | CoL dataset search; used as `preferencesOptionsComponent` for CoL-enabled autoselects |
+| `app/javascript/vue/components/ui/AutoselectField/TaxonNameNewModal.vue` | New-Protonym modal (!n) for TaxonName autoselect |
+| `app/javascript/vue/components/ui/AutoselectField/usePreferences.js` | Composable; localStorage read/write for per-id preferences |
 
 ### `!n` new-record modal
 

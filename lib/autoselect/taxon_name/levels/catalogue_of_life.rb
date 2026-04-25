@@ -22,9 +22,10 @@ module Autoselect
 
         # @param term [String]
         # @param project_id [Integer, nil]
+        # @param dataset_id [String, nil] CoL dataset ID from user preferences; falls back to default when nil
         # @return [Array<OpenStruct>] pseudo-records compatible with TaxonName autoselect format_results
-        def call(term:, operator: nil, project_id: nil, user_id: nil, **_kwargs)
-          raw = ::Vendor::Colrapi.search(term)
+        def call(term:, operator: nil, project_id: nil, user_id: nil, dataset_id: nil, **_kwargs)
+          raw = ::Vendor::Colrapi.search(term, dataset_id:)
           results = raw['result'] || []
           return [] if results.empty?
 

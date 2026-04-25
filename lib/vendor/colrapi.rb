@@ -90,12 +90,32 @@ module Vendor
     #   'label', 'labelHtml', 'parentId', etc.
     #
     # @param name_string [String]
+    # @param dataset_id [String, nil] CoL dataset ID; falls back to the default hardwired ID when nil
     # @return [Hash] raw Colrapi nameusage response (keys 'total', 'result')
-    def self.search(name_string)
-      ::Colrapi.nameusage(DATASETS[:col], q: name_string, limit: 20)
+    def self.search(name_string, dataset_id: nil)
+      target = dataset_id.presence || DATASETS[:col]
+      ::Colrapi.nameusage(target, q: name_string, limit: 20)
     rescue => e
       Rails.logger.warn "Vendor::Colrapi.search error: #{e.message}"
       { 'total' => 0, 'result' => [] }
+    end
+
+    # Searches CoL datasets by name string.
+    #
+    # Returns an array of dataset summaries, each containing at least 'id', 'title', and 'alias'.
+    # Used by the preferences UI to let users pick a target dataset.
+    #
+    # @param q [String] dataset name search string
+    # @param limit [Integer]
+    # @return [Array<Hash>]
+    def self.datasets(q:, limit: 20)
+      result = ::Colrapi.dataset(q: q, limit: limit)
+      (result['result'] || []).map do |d|
+        { 'id' => d['key'].to_s, 'title' => d['title'], 'alias' => d['alias'] }
+      end
+    rescue => e
+      Rails.logger.warn "Vendor::Colrapi.datasets error: #{e.message}"
+      []
     end
 
     # Returns the ancestor classification chain for a CoL taxon.

@@ -371,6 +371,12 @@ class TaxonNamesController < ApplicationController
     ).response
   end
 
+  # GET /taxon_names/col_datasets?q=...
+  def autoselect_col_datasets
+    results = ::Vendor::Colrapi.datasets(q: params[:q].to_s, limit: 20)
+    render json: results
+  end
+
   # POST
   def autoselect_col_create
     result = ::Autoselect::TaxonName::ColCreator.new(
@@ -392,7 +398,7 @@ class TaxonNamesController < ApplicationController
 
   def autoselect_params
     params.permit(
-      :valid, :exact, :no_leaves,
+      :valid, :exact, :no_leaves, :dataset_id,
       type: [], parent_id: [], nomenclature_group: []
     ).to_h.symbolize_keys
   end

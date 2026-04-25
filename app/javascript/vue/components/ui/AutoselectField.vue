@@ -1,21 +1,23 @@
 <template>
-  <div class="autoselect-field">
-    <!-- Fuse bar — always visible, segmented, above input -->
-    <div class="autoselect-field__fuse-track">
+  <div
+    :id="effectiveId"
+    class="autoselect"
+  >
+    <!-- Fuse bar — segmented, above input; hidden levels are not rendered -->
+    <div class="autoselect__fuse-track">
       <div
-        v-for="(seg, idx) in fuseSegments"
+        v-for="(seg, idx) in visibleFuseSegments"
         :key="seg.key"
-        class="autoselect-field__fuse-segment"
+        class="autoselect__fuse-segment"
         :class="[
           seg.external
-            ? 'autoselect-field__fuse-segment--external'
-            : 'autoselect-field__fuse-segment--internal',
+            ? 'autoselect__fuse-segment--external'
+            : 'autoselect__fuse-segment--internal',
           {
-            'autoselect-field__fuse-segment--ignited': ignitedSegmentIdx === idx
+            'autoselect__fuse-segment--ignited': ignitedSegmentKey === seg.key
           },
           {
-            'autoselect-field__fuse-segment--active':
-              fuseSegments[idx]?.key === currentLevel
+            'autoselect__fuse-segment--active': seg.key === currentLevel
           }
         ]"
         @click="onFuseSegmentClick(seg, idx)"
@@ -24,36 +26,30 @@
       >
         <!-- Orange ignition sweep -->
         <div
-          v-if="ignitedSegmentIdx === idx"
-          class="autoselect-field__fuse-ignition"
+          v-if="ignitedSegmentKey === seg.key"
+          class="autoselect__fuse-ignition"
           :style="{ transitionDuration: currentFuseMs + 'ms' }"
-          :class="{ 'autoselect-field__fuse-ignition--running': fuseRunning }"
+          :class="{ 'autoselect__fuse-ignition--running': fuseRunning }"
         />
 
         <!-- Hover tooltip -->
         <div
           v-if="hoveredSegmentIdx === idx"
-          class="autoselect-field__fuse-tooltip"
+          class="autoselect__fuse-tooltip"
         >
-          <span class="autoselect-field__fuse-tooltip-trigger"
-            >!{{ idx + 1 }}</span
-          >
-          <span class="autoselect-field__fuse-tooltip-label">{{
-            seg.label
-          }}</span>
-          <span class="autoselect-field__fuse-tooltip-desc">{{
-            seg.description
-          }}</span>
+          <span class="autoselect__fuse-tooltip-trigger">!{{ idx + 1 }}</span>
+          <span class="autoselect__fuse-tooltip-label">{{ seg.label }}</span>
+          <span class="autoselect__fuse-tooltip-desc">{{ seg.description }}</span>
         </div>
       </div>
     </div>
 
     <!-- Input with inline spinner -->
-    <div class="autoselect-field__input-wrap">
+    <div class="autoselect__input-wrap">
       <input
         ref="inputEl"
         type="text"
-        class="autoselect-field__input normal-input"
+        class="autoselect__input normal-input"
         :placeholder="placeholder"
         :disabled="disabled || !ready"
         v-model="inputText"
@@ -68,19 +64,19 @@
       />
       <span
         v-if="isSearching"
-        class="autoselect-field__input-spinner"
+        class="autoselect__input-spinner"
         :title="spinnerTitle"
       >
         <component :is="currentSpinner" />
       </span>
     </div>
 
-    <!-- Dropdown — visible only after a search completes (searchEnd), matching Autocomplete.vue -->
+    <!-- Dropdown — visible only after a search completes -->
     <teleport to="body">
       <ul
         v-if="showList && searchEnd"
         v-show="showList"
-        class="autoselect-field__dropdown"
+        class="autoselect__dropdown"
         ref="dropdownEl"
         :style="dropdownStyle"
         @mousedown="onDropdownMousedown"
@@ -89,34 +85,31 @@
           <li
             v-for="(item, idx) in dropdownItems"
             :key="item.id ?? 'item-' + idx"
-            class="autoselect-field__dropdown-item"
-            :class="{
-              'autoselect-field__dropdown-item--active': idx === current
-            }"
+            class="autoselect__dropdown-item"
+            :class="{ 'autoselect__dropdown-item--active': idx === current }"
             @mouseover="current = idx"
             @click.prevent="itemClicked(idx)"
           >
             <span v-html="item.label_html || item.label" />
             <span
               v-if="item.info"
-              class="autoselect-field__item-info"
-              >{{ item.info }}</span
-            >
+              class="autoselect__item-info"
+            >{{ item.info }}</span>
           </li>
         </template>
         <li
           v-else
-          class="autoselect-field__dropdown-none"
+          class="autoselect__dropdown-none"
         >
           --None--
         </li>
       </ul>
     </teleport>
 
-    <!-- Help overlay (shown on !? operator) -->
+    <!-- Help overlay (!?) -->
     <div
       v-if="showHelp"
-      class="autoselect-field__help-overlay"
+      class="autoselect__help-overlay"
     >
       <h4>Available operators</h4>
       <ul>
@@ -135,7 +128,7 @@
       </button>
     </div>
 
-    <!-- CoL confirmation modal — teleported to body so it renders above all stacking contexts -->
+    <!-- CoL confirmation modal -->
     <Teleport to="body">
       <ColConfirmModal
         v-if="pendingExtensionItem?.extension?.col_key"
@@ -145,7 +138,7 @@
       />
     </Teleport>
 
-    <!-- New-record modal — opened by the !n operator; component is model-specific via prop -->
+    <!-- New-record modal (!n) -->
     <Teleport to="body">
       <component
         :is="newRecordComponent"
@@ -155,6 +148,18 @@
         @cancel="cancelNewRecord"
       />
     </Teleport>
+
+    <!-- Preferences modal (!p) -->
+    <Teleport to="body">
+      <PreferencesModal
+        v-if="showPreferences"
+        :levels="allFuseSegments"
+        :current-prefs="prefs.getPrefs()"
+        :options-component="preferencesOptionsComponent"
+        @save="onPrefsSave"
+        @cancel="cancelPreferences"
+      />
+    </Teleport>
   </div>
 </template>
 
@@ -162,7 +167,9 @@
 import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import AjaxCall from '@/helpers/ajaxCall'
 import { useAutoselect } from '@/components/ui/AutoselectField/useAutoselect'
+import { usePreferences } from '@/components/ui/AutoselectField/usePreferences'
 import ColConfirmModal from '@/components/ui/AutoselectField/ColConfirmModal.vue'
+import PreferencesModal from '@/components/ui/AutoselectField/PreferencesModal.vue'
 import CatalogueOfLifeSpinner from '@/components/ui/AutoselectField/CatalogueOfLifeSpinner.vue'
 import TaxonWorksSpinner from '@/components/ui/AutoselectField/TaxonWorksSpinner.vue'
 
@@ -177,55 +184,64 @@ const props = defineProps({
   param: { type: String, required: true },
   placeholder: { type: String, default: 'Search...' },
   disabled: { type: Boolean, default: false },
-  levelDelay: { type: Number, default: 500 }, // debounce ms; exposed for playground tuning
-  // Vue component to render when the !n operator is triggered.
-  // Pass a model-specific new-record modal (e.g. OtuNewModal).
-  // When null (default), !n is silently ignored for this field.
-  newRecordComponent: { type: Object, default: null }
+  levelDelay: { type: Number, default: 500 },
+  // Unique identifier for this autoselect instance.
+  // Used as the root div id and as the preferences storage key.
+  // When omitted a UUID is generated automatically.
+  id: { type: String, default: null },
+  // Vue component to render when !n is triggered (null = disabled).
+  newRecordComponent: { type: Object, default: null },
+  // Vue component rendered inside PreferencesModal for model-specific options (null = none).
+  preferencesOptionsComponent: { type: Object, default: null }
 })
 
 const emit = defineEmits(['update:modelValue', 'select'])
 
-// ── Composable ─────────────────────────────────────────────────────────────────
+// ── Effective id (prop or UUID) ────────────────────────────────────────────────
+const effectiveId = props.id ?? `autoselect_${crypto.randomUUID()}`
+
+// ── Composables ────────────────────────────────────────────────────────────────
 const { config, fetchConfig, getFirstLevelKey, getOperators } =
   useAutoselect(props.url)
+
+const prefs = usePreferences(props.url, effectiveId)
 
 // ── Refs ───────────────────────────────────────────────────────────────────────
 const inputEl = ref(null)
 const dropdownEl = ref(null)
 
-// search state — mirrors Autocomplete.vue naming closely
 const ready = ref(false)
 const inputText = ref('')
 const currentLevel = ref(null)
 const dropdownItems = ref([])
-const current = ref(-1) // highlighted index
+const current = ref(-1)
 const isSearching = ref(false)
-const searchEnd = ref(false) // true after first search completes (gates dropdown)
+const searchEnd = ref(false)
 const showList = ref(false)
 const dropdownStyle = ref({})
-const controller = ref(null) // AbortController
-let getRequest = 0 // debounce handle (matches Autocomplete.vue name)
+const controller = ref(null)
+let getRequest = 0
 
 // fuse state
 const fuseActive = ref(false)
 const fuseRunning = ref(false)
 const currentFuseMs = ref(600)
 const nextLevel = ref(null)
-const ignitedSegmentIdx = ref(null)
+const ignitedSegmentKey = ref(null)  // keyed by level key, not index
 let fuseTimer = null
 
-// fuse bar hover
 const hoveredSegmentIdx = ref(null)
 
 // overlays
 const showHelp = ref(false)
+const showPreferences = ref(false)
 const pendingExtensionItem = ref(null)
-const newRecordName = ref(null) // non-null string when the !n new-record modal is open
-let preventBlur = false // mirrors Autocomplete.vue pattern
+const newRecordName = ref(null)
+let preventBlur = false
+let preInputText = '' // text in field before !p was typed
 
-// ── Computed ───────────────────────────────────────────────────────────────────
-const fuseSegments = computed(() =>
+// ── All segments (before preference filtering) ─────────────────────────────────
+const allFuseSegments = computed(() =>
   (config.value?.levels ?? []).map((l) => ({
     key: String(l.key),
     label: l.label,
@@ -235,6 +251,11 @@ const fuseSegments = computed(() =>
   }))
 )
 
+// Segments visible after applying preferences (hide flag)
+const visibleFuseSegments = computed(() =>
+  allFuseSegments.value.filter((s) => prefs.isLevelVisible(s.key))
+)
+
 const visibleOperators = computed(() => getOperators())
 
 const currentSpinner = computed(
@@ -242,7 +263,7 @@ const currentSpinner = computed(
 )
 
 const currentLevelSegment = computed(() =>
-  fuseSegments.value.find((s) => s.key === String(currentLevel.value))
+  visibleFuseSegments.value.find((s) => s.key === String(currentLevel.value))
 )
 
 const spinnerTitle = computed(() => {
@@ -253,7 +274,7 @@ const spinnerTitle = computed(() => {
 // ── Lifecycle ──────────────────────────────────────────────────────────────────
 onMounted(async () => {
   await fetchConfig()
-  currentLevel.value = getFirstLevelKey()
+  currentLevel.value = getFirstVisibleLevelKey()
   ready.value = true
   window.addEventListener('resize', updateDropdownPosition)
 })
@@ -262,23 +283,32 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', updateDropdownPosition)
 })
 
-// ── Level operator detection (!1, !2 …) ───────────────────────────────────────
-// Scans anywhere in the string for !N (e.g. "Foo !1", "!2 Bar", "Homo !3 sapiens").
-// Returns { levelKey, cleanTerm } with the operator and surrounding whitespace stripped.
+// ── Level helpers ──────────────────────────────────────────────────────────────
+function getFirstVisibleLevelKey() {
+  return visibleFuseSegments.value[0]?.key ?? getFirstLevelKey()
+}
+
 function detectLevelOperator(text) {
   const match = text.match(/^(.*?)!(\d+)\s*(.*)$/)
   if (!match) return null
-  const n = parseInt(match[2], 10) - 1 // !1 → index 0
-  const segs = fuseSegments.value
+  const n = parseInt(match[2], 10) - 1
+  const segs = visibleFuseSegments.value
   if (n < 0 || n >= segs.length) return null
   const cleanTerm = (match[1] + match[3]).replace(/\s+/g, ' ').trim()
   return { levelKey: segs[n].key, cleanTerm }
 }
 
-// Returns the key of the leftmost external level, or null when none exists.
 function firstExternalLevelKey() {
-  const seg = fuseSegments.value.find((s) => s.external)
+  const seg = visibleFuseSegments.value.find((s) => s.external)
   return seg?.key ?? null
+}
+
+// Next visible level after currentKey
+function nextVisibleLevelKey(currentKey) {
+  const segs = visibleFuseSegments.value
+  const idx = segs.findIndex((s) => s.key === String(currentKey))
+  if (idx < 0 || idx >= segs.length - 1) return null
+  return segs[idx + 1].key
 }
 
 // ── Input handler ──────────────────────────────────────────────────────────────
@@ -291,22 +321,31 @@ function onInput() {
     return
   }
 
-  // A lone '!' (or '!' followed only by whitespace) is an incomplete operator — wait.
   if (/^!\s*$/.test(text)) {
     cancelFuse()
     if (getRequest) clearTimeout(getRequest)
     return
   }
 
-  // !? — show help, don't search
+  // !? — help overlay
   if (/^!\?/.test(text)) {
     showHelp.value = true
     return
   }
 
-  // !n — create new record; detectable anywhere in the string (e.g. "zzz !n")
-  // Only active when a newRecordComponent has been provided for this field instance.
-  // Strip the operator (and surrounding spaces) to get the name prefill.
+  // !p — preferences modal
+  const prefMatch = text.match(/^(.*?)\s*!p\s*(.*)$/i)
+  if (prefMatch !== null) {
+    preInputText = (prefMatch[1] + ' ' + prefMatch[2]).replace(/\s+/g, ' ').trim()
+    inputText.value = preInputText
+    cancelFuse()
+    if (getRequest) clearTimeout(getRequest)
+    clearResults()
+    showPreferences.value = true
+    return
+  }
+
+  // !n — new record modal
   const newRecordMatch = text.match(/^(.*?)\s*!n\s*(.*)$/i)
   if (newRecordMatch !== null && props.newRecordComponent !== null) {
     const cleanName = (newRecordMatch[1] + ' ' + newRecordMatch[2]).replace(/\s+/g, ' ').trim()
@@ -318,7 +357,7 @@ function onInput() {
     return
   }
 
-  // !e — jump to the leftmost external level; strip operator; do nothing when no external level.
+  // !e — jump to leftmost external level
   const externalMatch = text.match(/^(.*?)\s*!e\s*(.*)$/i)
   if (externalMatch !== null) {
     const externalKey = firstExternalLevelKey()
@@ -328,46 +367,30 @@ function onInput() {
       currentLevel.value = externalKey
       cancelFuse()
       if (getRequest) clearTimeout(getRequest)
-      if (cleanTerm.length === 0) {
-        clearResults()
-      } else {
-        triggerSearch(cleanTerm)
-      }
+      if (cleanTerm.length === 0) clearResults()
+      else triggerSearch(cleanTerm)
       return
     }
-    // No external level — fall through to normal search (operator stays in text)
   }
 
-  // !1, !2 … — jump to level, strip operator
-  // Jumping backward never fires a search (user may still be composing the term).
-  // Jumping forward only searches if there is a clean term; otherwise just clear.
+  // !1, !2 … — jump to visible level
   const levelOp = detectLevelOperator(text)
   if (levelOp !== null) {
     currentLevel.value = levelOp.levelKey
     inputText.value = levelOp.cleanTerm
     cancelFuse()
     if (getRequest) clearTimeout(getRequest)
-
-    if (levelOp.cleanTerm.length === 0) {
-      clearResults()
-    } else {
-      triggerSearch(levelOp.cleanTerm)
-    }
+    if (levelOp.cleanTerm.length === 0) clearResults()
+    else triggerSearch(levelOp.cleanTerm)
     return
   }
 
-  // Normal keypress — reset fuse to current level (frozen until next no-result)
-  if (fuseActive.value) {
-    cancelFuse()
-  }
+  if (fuseActive.value) cancelFuse()
 
-  // Debounce, matching Autocomplete.vue's checkTime() pattern
   current.value = -1
   searchEnd.value = false
   if (getRequest) clearTimeout(getRequest)
-  getRequest = setTimeout(() => {
-    triggerSearch(text)
-  }, props.levelDelay)
+  getRequest = setTimeout(() => triggerSearch(text), props.levelDelay)
 }
 
 // ── Search ─────────────────────────────────────────────────────────────────────
@@ -379,8 +402,11 @@ function triggerSearch(term) {
   isSearching.value = true
   dropdownItems.value = []
 
+  // Merge current level's preference options into the request params
+  const levelOptions = prefs.getLevelOptions(currentLevel.value)
+
   AjaxCall('get', props.url, {
-    params: { term, level: currentLevel.value },
+    params: { term, level: currentLevel.value, ...levelOptions },
     signal: controller.value.signal
   })
     .then(({ body }) => {
@@ -392,9 +418,10 @@ function triggerSearch(term) {
       current.value = -1
       nextTick(updateDropdownPosition)
 
-      // Light fuse only when search completes with zero results and there is a next level
       if (results.length === 0 && body.next_level) {
-        lightFuse(body.next_level)
+        // Only light fuse to the next visible level
+        const nextVisible = nextVisibleLevelKey(currentLevel.value)
+        if (nextVisible) lightFuse(nextVisible)
       }
     })
     .catch(() => {})
@@ -403,7 +430,7 @@ function triggerSearch(term) {
     })
 }
 
-// ── Dropdown positioning (mirrors Autocomplete.vue) ───────────────────────────
+// ── Dropdown positioning ───────────────────────────────────────────────────────
 function updateDropdownPosition() {
   nextTick(() => {
     const input = inputEl.value
@@ -449,25 +476,17 @@ function updateDropdownPosition() {
 }
 
 // ── Fuse mechanic ──────────────────────────────────────────────────────────────
-// The ignition sweeps across the *current* (departing) segment while we wait to escalate
-// to targetLevel.  Fuse duration comes from the departing segment's position in the stack,
-// not from the target level's intrinsic type, so that user-reordered stacks behave correctly.
 function lightFuse(targetLevel) {
   if (!targetLevel) return
 
-  const currentIdx = fuseSegments.value.findIndex(
-    (s) => s.key === String(currentLevel.value)
-  )
-  const departingSeg = fuseSegments.value[currentIdx]
+  const seg = visibleFuseSegments.value.find((s) => s.key === String(currentLevel.value))
 
   nextLevel.value = targetLevel
-  currentFuseMs.value = departingSeg?.fuse_ms ?? 600
-  ignitedSegmentIdx.value = currentIdx // animate the departing segment
+  currentFuseMs.value = seg?.fuse_ms ?? 600
+  ignitedSegmentKey.value = String(currentLevel.value)
   fuseActive.value = true
 
-  nextTick(() => {
-    fuseRunning.value = true
-  })
+  nextTick(() => { fuseRunning.value = true })
 
   fuseTimer = setTimeout(() => {
     escalateToLevel(targetLevel)
@@ -479,21 +498,18 @@ function cancelFuse() {
   fuseActive.value = false
   fuseRunning.value = false
   nextLevel.value = null
-  ignitedSegmentIdx.value = null
+  ignitedSegmentKey.value = null
 }
 
 function escalateToLevel(level) {
   currentLevel.value = level
   cancelFuse()
   clearResults()
-  if (inputText.value.trim()) {
-    triggerSearch(inputText.value)
-  }
+  if (inputText.value.trim()) triggerSearch(inputText.value)
 }
 
-// Clicking a fuse segment: jump directly to that level (any direction)
 function onFuseSegmentClick(seg, idx) {
-  const currentIdx = fuseSegments.value.findIndex(
+  const currentIdx = visibleFuseSegments.value.findIndex(
     (s) => s.key === currentLevel.value
   )
   if (idx === currentIdx) return
@@ -522,10 +538,6 @@ function completeSelection(item) {
   pendingExtensionItem.value = null
 }
 
-function confirmExtension() {
-  if (pendingExtensionItem.value) completeSelection(pendingExtensionItem.value)
-}
-
 function cancelExtension() {
   pendingExtensionItem.value = null
   nextTick(() => inputEl.value?.focus())
@@ -552,13 +564,28 @@ function cancelNewRecord() {
   nextTick(() => inputEl.value?.focus())
 }
 
+// ── Preferences modal (!p) ─────────────────────────────────────────────────────
+function onPrefsSave(updatedPrefs) {
+  prefs.savePrefs(updatedPrefs)
+  showPreferences.value = false
+  // If currently visible level was hidden, jump to first remaining visible level
+  if (!prefs.isLevelVisible(currentLevel.value)) {
+    currentLevel.value = getFirstVisibleLevelKey()
+  }
+  nextTick(() => inputEl.value?.focus())
+}
+
+function cancelPreferences() {
+  showPreferences.value = false
+  nextTick(() => inputEl.value?.focus())
+}
+
 function closeHelp() {
   showHelp.value = false
   nextTick(() => {
     const el = inputEl.value
     if (!el) return
     el.focus()
-    // Place cursor at end of any existing text
     const len = el.value.length
     el.setSelectionRange(len, len)
   })
@@ -582,8 +609,7 @@ function scrollToActive() {
     if (!activeEl) return
     const dRect = dropdown.getBoundingClientRect()
     const iRect = activeEl.getBoundingClientRect()
-    if (iRect.bottom > dRect.bottom)
-      dropdown.scrollTop += iRect.bottom - dRect.bottom
+    if (iRect.bottom > dRect.bottom) dropdown.scrollTop += iRect.bottom - dRect.bottom
     else if (iRect.top < dRect.top) dropdown.scrollTop -= dRect.top - iRect.top
   })
 }
@@ -599,7 +625,7 @@ function onEscape() {
   cancelFuse()
 }
 
-// ── Focus / blur — mirrors Autocomplete.vue ────────────────────────────────────
+// ── Focus / blur ───────────────────────────────────────────────────────────────
 function onFocus() {
   if (searchEnd.value) showList.value = true
 }
@@ -626,13 +652,13 @@ function clearResults() {
 </script>
 
 <style scoped>
-.autoselect-field {
+.autoselect {
   position: relative;
   width: 100%;
 }
 
 /* ── Fuse track ── */
-.autoselect-field__fuse-track {
+.autoselect__fuse-track {
   display: flex;
   align-items: flex-end;
   width: 100%;
@@ -641,36 +667,33 @@ function clearResults() {
   margin-bottom: 3px;
 }
 
-.autoselect-field__fuse-segment {
+.autoselect__fuse-segment {
   flex: 1;
   position: relative;
   height: 5px;
   border-radius: 3px;
   cursor: pointer;
   overflow: visible;
-  transition:
-    flex 0.25s ease,
-    height 0.25s ease;
+  transition: flex 0.25s ease, height 0.25s ease;
 }
 
-.autoselect-field__fuse-segment:hover {
+.autoselect__fuse-segment:hover {
   flex: 2;
 }
 
-/* Active segment (currently being searched) is 3px taller */
-.autoselect-field__fuse-segment--active {
+.autoselect__fuse-segment--active {
   height: 8px;
 }
 
-.autoselect-field__fuse-segment--internal {
+.autoselect__fuse-segment--internal {
   background: #c8c0b8;
 }
 
-.autoselect-field__fuse-segment--external {
+.autoselect__fuse-segment--external {
   background: #6da8d4;
 }
 
-.autoselect-field__fuse-ignition {
+.autoselect__fuse-ignition {
   position: absolute;
   inset: 0;
   border-radius: 3px;
@@ -680,11 +703,11 @@ function clearResults() {
   transition-timing-function: linear;
 }
 
-.autoselect-field__fuse-ignition--running {
+.autoselect__fuse-ignition--running {
   width: 100%;
 }
 
-.autoselect-field__fuse-tooltip {
+.autoselect__fuse-tooltip {
   position: absolute;
   top: calc(100% + 4px);
   left: 50%;
@@ -704,33 +727,33 @@ function clearResults() {
   pointer-events: none;
 }
 
-.autoselect-field__fuse-tooltip-trigger {
+.autoselect__fuse-tooltip-trigger {
   font-family: monospace;
   color: #e07832;
   font-weight: 700;
 }
 
-.autoselect-field__fuse-tooltip-label {
+.autoselect__fuse-tooltip-label {
   font-weight: 600;
   color: var(--text-color, #333);
 }
 
-.autoselect-field__fuse-tooltip-desc {
+.autoselect__fuse-tooltip-desc {
   color: var(--text-color-muted, #666);
 }
 
 /* ── Input row ── */
-.autoselect-field__input-wrap {
+.autoselect__input-wrap {
   position: relative;
 }
 
-.autoselect-field__input {
+.autoselect__input {
   width: 100%;
   padding-right: 26px;
   box-sizing: border-box;
 }
 
-.autoselect-field__input-spinner {
+.autoselect__input-spinner {
   position: absolute;
   right: 6px;
   top: 50%;
@@ -744,8 +767,8 @@ function clearResults() {
   user-select: none;
 }
 
-/* ── Dropdown (teleported to body, matches vue-autocomplete-list styling) ── */
-.autoselect-field__dropdown {
+/* ── Dropdown ── */
+.autoselect__dropdown {
   position: absolute;
   display: block;
   max-height: 500px;
@@ -764,7 +787,7 @@ function clearResults() {
   min-width: 100%;
 }
 
-.autoselect-field__dropdown-item {
+.autoselect__dropdown-item {
   cursor: pointer;
   padding: 6px 12px;
   border-top: 1px solid var(--border-color);
@@ -775,17 +798,17 @@ function clearResults() {
   font-size: 12px;
 }
 
-.autoselect-field__dropdown-item--active {
+.autoselect__dropdown-item--active {
   background-color: var(--border-color);
 }
 
-.autoselect-field__item-info {
+.autoselect__item-info {
   font-size: 10px;
   opacity: 0.7;
   white-space: nowrap;
 }
 
-.autoselect-field__dropdown-none {
+.autoselect__dropdown-none {
   padding: 6px 12px;
   border-top: 1px solid var(--border-color);
   font-size: 12px;
@@ -793,7 +816,7 @@ function clearResults() {
 }
 
 /* ── Help overlay ── */
-.autoselect-field__help-overlay {
+.autoselect__help-overlay {
   position: absolute;
   top: 100%;
   left: 0;
@@ -807,14 +830,13 @@ function clearResults() {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
-.autoselect-field__help-overlay h4 {
+.autoselect__help-overlay h4 {
   margin: 0 0 6px;
   font-size: 13px;
 }
 
-.autoselect-field__help-overlay ul {
+.autoselect__help-overlay ul {
   margin: 0 0 8px;
   padding-left: 16px;
 }
-
 </style>

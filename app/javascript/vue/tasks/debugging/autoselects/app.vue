@@ -23,11 +23,13 @@
     >
       <h2>{{ model.label }}</h2>
       <AutoselectField
+        :id="model.id"
         :url="model.url"
         :param="model.param"
         :placeholder="`Search ${model.label}...`"
         :level-delay="levelDelay"
         :new-record-component="model.newRecordComponent ?? null"
+        :preferences-options-component="model.preferencesOptionsComponent ?? null"
         @select="onSelect(model.label, $event)"
       />
       <pre v-if="selections[model.label]">{{ JSON.stringify(selections[model.label], null, 2) }}</pre>
@@ -44,13 +46,29 @@ import { ref } from 'vue'
 import AutoselectField from '@/components/ui/AutoselectField.vue'
 import OtuNewModal from '@/components/ui/AutoselectField/OtuNewModal.vue'
 import TaxonNameNewModal from '@/components/ui/AutoselectField/TaxonNameNewModal.vue'
+import ColDatasetPicker from '@/components/ui/AutoselectField/ColDatasetPicker.vue'
 
 // Models are registered here by the autoselect generator.
-// Each entry added by `rails generate taxon_works:autoselect <model_name>`
-// newRecordComponent: Vue component to mount when !n is typed (null = !n disabled)
+// id: stable unique identifier used for preferences storage and the DOM id attribute
+// newRecordComponent: Vue component to mount when !n is typed (null = disabled)
+// preferencesOptionsComponent: Vue component rendered inside PreferencesModal for model-specific options
 const registeredModels = ref([
-  { url: '/taxon_names/autoselect', param: 'taxon_name_id', label: 'TaxonName', newRecordComponent: TaxonNameNewModal },
-  { url: '/otus/autoselect',        param: 'otu_id',        label: 'OTU',       newRecordComponent: OtuNewModal },
+  {
+    id: 'playground-taxon-name',
+    url: '/taxon_names/autoselect',
+    param: 'taxon_name_id',
+    label: 'TaxonName',
+    newRecordComponent: TaxonNameNewModal,
+    preferencesOptionsComponent: ColDatasetPicker
+  },
+  {
+    id: 'playground-otu',
+    url: '/otus/autoselect',
+    param: 'otu_id',
+    label: 'OTU',
+    newRecordComponent: OtuNewModal,
+    preferencesOptionsComponent: ColDatasetPicker
+  },
 ])
 
 const levelDelay = ref(500)
