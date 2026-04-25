@@ -386,6 +386,12 @@ class TaxonNamesController < ApplicationController
       user_id:    sessions_current_user_id
     ).call
     render json: result
+  rescue ::Autoselect::TaxonName::ColCreator::CreationError => e
+    render json: {
+      error:          e.message,
+      failed_col_name: e.col_name,
+      failed_col_id:   e.col_id
+    }, status: :unprocessable_entity
   end
 
   private

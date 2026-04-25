@@ -26,6 +26,7 @@
             v-for="row in ancestorRowsDistalFirst"
             :key="row.col_name + row.rank"
             :class="rowClass(row)"
+            :ref="(el) => setRowRef(row, el)"
           >
             <td>
               <input
@@ -72,7 +73,6 @@
         Checked names without a TaxonWorks match will be created as Protonyms with Catalog of Life identifiers.
       </p>
 
-      <p v-if="errorMessage" class="col-confirm-modal__error">{{ errorMessage }}</p>
     </template>
 
     <template #footer>
@@ -136,12 +136,13 @@ function toggleRow(colName) {
 }
 
 function rowClass(row) {
+  if (row.col_name === errorColName.value) return 'col-confirm-modal__row--error'
   return row.match === 'exact' ? 'col-confirm-modal__row--exact' : ''
 }
 
 const confirmBtn   = ref(null)
 const isCreating   = ref(false)
-const errorMessage = ref(null)
+const errorColName = ref(null)
 
 onMounted(() => {
   nextTick(() => confirmBtn.value?.focus())
@@ -150,7 +151,7 @@ onMounted(() => {
 async function doCreate() {
   if (isCreating.value) return
   isCreating.value  = true
-  errorMessage.value = null
+  errorColName.value = null
 
   // Build distal→proximal rows for the server.
   // Exact-match ancestors pass their taxonworks_id so the server uses them as parent anchors.
@@ -186,7 +187,7 @@ async function doCreate() {
     })
     emit('confirm', body.taxon_name_id)
   } catch (err) {
-    errorMessage.value = 'Creation failed. Please check the TaxonNames and try again.'
+    errorColName.value = err.response?.body?.failed_col_name ?? null
   } finally {
     isCreating.value = false
   }
@@ -228,6 +229,10 @@ async function doCreate() {
 .col-confirm-modal__row--target {
   font-weight: 600;
   border-top: 2px solid var(--border-color, #ccc);
+}
+
+.col-confirm-modal__row--error {
+  background-color: rgba(200, 0, 0, 0.08);
 }
 
 .col-confirm-modal__note {

@@ -23,6 +23,18 @@ module Autoselect
     #  CatalogueOfLifeCreator
     class ColCreator
 
+      # Raised when any name in the creation loop fails validation.
+      # Carries the row that triggered the failure for frontend highlighting.
+      class CreationError < StandardError
+        attr_reader :col_name, :col_id
+
+        def initialize(message, col_name: nil, col_id: nil)
+          super(message)
+          @col_name = col_name
+          @col_id   = col_id
+        end
+      end
+
       COL_BASE_URI = 'https://www.catalogueoflife.org/data/taxon/'.freeze
 
       # Maps CoL code strings to the primary lookup constant to use for rank resolution.
@@ -41,50 +53,68 @@ module Autoselect
       end
 
       # @return [Hash] { taxon_name_id: Integer, created_ids: Array<Integer> }
+      # @raise [CreationError] if any record fails validation; the transaction is fully rolled back.
       def call
-        # Seed parent_id from the project root so the topmost created name has a valid parent.
         parent_id   = project_root_id
         created_ids = []
 
-        @rows.each do |row|
-          if row[:taxonworks_id].present?
-            parent_id = row[:taxonworks_id].to_i
-            next
+        ::ActiveRecord::Base.transaction do
+          @rows.each do |row|
+            if row[:taxonworks_id].present?
+              parent_id = row[:taxonworks_id].to_i
+              next
+            end
+
+            rank_class = resolve_rank_class(row[:col_rank])
+
+            # Skip rows whose rank is entirely unknown to TaxonWorks — we cannot create a
+            # valid Protonym without a rank_class (e.g. CoL-only ranks like 'domain').
+            next if rank_class.nil?
+
+            author, year = split_authorship(row[:col_authorship], row[:col_year])
+
+            begin
+              tn = ::TaxonName.create!(
+                type:                'Protonym',
+                name:                row[:col_name],
+                parent_id:,
+                rank_class:,
+                verbatim_author:     author,
+                year_of_publication: year,
+                project_id:          @project_id,
+                created_by_id:       @user_id,
+                updated_by_id:       @user_id
+              )
+            rescue ::ActiveRecord::RecordInvalid => e
+              raise CreationError.new(
+                e.record.errors.full_messages.join(', '),
+                col_name: row[:col_name],
+                col_id:   row[:col_id]
+              )
+            end
+
+            if row[:col_id].present?
+              begin
+                ::Identifier.create!(
+                  type:              'Identifier::Global::Uri',
+                  identifier:        COL_BASE_URI + row[:col_id].to_s,
+                  identifier_object: tn,
+                  project_id:        @project_id,
+                  created_by_id:     @user_id,
+                  updated_by_id:     @user_id
+                )
+              rescue ::ActiveRecord::RecordInvalid => e
+                raise CreationError.new(
+                  "CoL identifier for #{row[:col_name]}: #{e.record.errors.full_messages.join(', ')}",
+                  col_name: row[:col_name],
+                  col_id:   row[:col_id]
+                )
+              end
+            end
+
+            created_ids << tn.id
+            parent_id = tn.id
           end
-
-          rank_class = resolve_rank_class(row[:col_rank])
-
-          # Skip rows whose rank is entirely unknown to TaxonWorks — we cannot create a
-          # valid Protonym without a rank_class (e.g. CoL-only ranks like 'domain').
-          next if rank_class.nil?
-
-          author, year = split_authorship(row[:col_authorship], row[:col_year])
-
-          tn = ::TaxonName.create!(
-            type:                'Protonym',
-            name:                row[:col_name],
-            parent_id:,
-            rank_class:,
-            verbatim_author:     author,
-            year_of_publication: year,
-            project_id:          @project_id,
-            created_by_id:       @user_id,
-            updated_by_id:       @user_id
-          )
-
-          if row[:col_id].present?
-            ::Identifier.create!(
-              type:              'Identifier::Global::Uri',
-              identifier:        COL_BASE_URI + row[:col_id].to_s,
-              identifier_object: tn,
-              project_id:        @project_id,
-              created_by_id:     @user_id,
-              updated_by_id:     @user_id
-            )
-          end
-
-          created_ids << tn.id
-          parent_id = tn.id
         end
 
         { taxon_name_id: parent_id, created_ids: }
