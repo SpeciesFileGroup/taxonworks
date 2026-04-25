@@ -242,13 +242,33 @@ describe Queries::Person::Filter, type: :model, group: :people do
       )
     end
 
-    # All of these encode the same intent — two parts, first starting with J, second with K —
-    # so they return the same set whether parts are abbreviated, full, or lack periods.
-    ['J. K.', 'J K', 'John K.', 'John Kenneth', 'J. Kenneth'].each do |input|
+    # Inputs containing at least one initial are explicit about all parts — all required.
+    ['J. K.', 'J K', 'John K.', 'J. Kenneth'].each do |input|
       specify "multi-part '#{input}' matches names with J and K parts" do
         query.first_name_like = input
         expect(query.all.pluck(:id)).to contain_exactly(
           john_k.id, john_kenneth.id, j_k_abbr.id, j_kenneth.id
+        )
+      end
+    end
+
+    # All-full-name input: subsequent parts are optional so stored values with fewer
+    # parts (e.g. 'J.' or 'John') are also returned as candidates.
+    specify "all-full-name 'John Kenneth' also matches stored values with fewer name parts" do
+      query.first_name_like = 'John Kenneth'
+      expect(query.all.pluck(:id)).to contain_exactly(
+        john.id, john_k.id, john_kenneth.id, j_abbr.id, j_k_abbr.id, j_kenneth.id
+      )
+    end
+
+    context 'all-full-name input with a second name absent from stored values' do
+      let!(:j_s)         { Person.create!(last_name: 'Smith', first_name: 'J. S.') }
+      let!(:john_stuart) { Person.create!(last_name: 'Smith', first_name: 'John Stuart') }
+
+      specify "'John Stuart' matches stored J., J. S., and full match, not K-initial names" do
+        query.first_name_like = 'John Stuart'
+        expect(query.all.pluck(:id)).to contain_exactly(
+          john.id, j_abbr.id, j_s.id, john_stuart.id
         )
       end
     end

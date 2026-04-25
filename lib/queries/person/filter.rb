@@ -311,6 +311,9 @@ module Queries
       #   multiple chars -> matches exactly OR as a bare initial (e.g. 'john' -> '(?:john|j\.?)')
       # Parts are joined by a flexible whitespace/period separator.
       # Trailing name parts (e.g. middle names absent from input) are allowed via '(\s.*)?$'.
+      # When all input parts are full names (no initials), each part after the first is optional,
+      # so e.g. 'John Stuart' also matches stored 'J.' or 'J. S.'.
+      # When any input part is an initial, all parts are required (the caller is being explicit).
       def build_first_name_like_pattern(input)
         parts = input.downcase.gsub('.', ' ').split.reject(&:empty?)
         return nil if parts.empty?
@@ -324,7 +327,18 @@ module Queries
           end
         end
 
-        "^#{regex_parts.join('[\\s.]+')}(\\s.*)?$"
+        if parts.length > 1 && parts.all? { |p| p.length > 1 }
+          # Build right-to-left: each non-first part becomes an optional continuation
+          # so a stored value with fewer parts (e.g. 'J.') still matches.
+          tail = "(\\s.*)?"
+          regex_parts.reverse.each_with_index do |rp, i|
+            tail = "#{rp}#{tail}"
+            tail = "([\\s.]+#{tail})?" unless i == regex_parts.length - 1
+          end
+          "^#{tail}$"
+        else
+          "^#{regex_parts.join('[\\s.]+')}(\\s.*)?$"
+        end
       end
 
       def first_name_like_facet
