@@ -36,12 +36,11 @@
         <CombinationVerbatim v-model="currentCombination.verbatim_name" />
       </div>
       <template v-if="Object.keys(combination).length">
-        <div ref="citationRef">
-          <CombinationCitation
-            :taxon="taxon"
-            v-model="citationData"
-          />
-        </div>
+        <CombinationCitation
+          ref="citationComponent"
+          :taxon="taxon"
+          v-model="citationData"
+        />
         <hr class="divisor" />
 
         <template v-if="isBotanyCode">
@@ -121,10 +120,10 @@ import makeCitationObject from '@/factory/Citation.js'
 import DisplayList from '@/components/displayList.vue'
 
 const store = useStore()
-const citationRef = ref(null)
+const citationComponent = ref(null)
 
 defineExpose({
-  focus() { citationRef.value?.querySelector('input')?.focus() }
+  focus() { citationComponent.value?.focus() }
 })
 const combination = ref({})
 const combinationList = computed(
@@ -169,7 +168,7 @@ const isICN = computed(
 
 const onSetCurrent = (item) => {
   combination.value = item
-  nextTick(() => citationRef.value?.querySelector('input')?.focus())
+  nextTick(() => citationComponent.value?.focus())
 }
 
 const saveCombination = () => {

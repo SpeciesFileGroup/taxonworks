@@ -115,6 +115,10 @@ function getTitle(title) {
 .taxonname {
   font-weight: 300;
 }
+.context-menu a {
+  cursor: pointer;
+}
+
 .unsaved li {
   a:first-child {
     padding-left: 0px;

@@ -8,12 +8,22 @@
   />
   <component
     :is="componentName"
+    ref="activeTab"
     v-model="combination"
   />
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, nextTick } from 'vue'
+
+const activeTab = ref(null)
+
+defineExpose({
+  focus() {
+    tabIndex.value = 0
+    nextTick(() => activeTab.value?.focus?.())
+  }
+})
 import {
   NOMENCLATURE_CODE_BOTANY,
   NOMENCLATURE_CODE_ZOOLOGY

@@ -45,7 +45,7 @@ export default {
   },
   data() {
     return {
-      etymologyAtFocus: undefined,
+      etymologySnapshot: undefined,
       config: {
         status: false,
         spellChecker: false
@@ -53,18 +53,17 @@ export default {
     }
   },
   mounted() {
-    this.etymologyAtFocus = this.etymology
+    this.etymologySnapshot = this.etymology
   },
 
   methods: {
     focus() {
-      this.etymologyAtFocus = this.etymology
       this.$refs.etymologyText?.setFocus()
     },
 
     onBlur(currentValue) {
-      if (currentValue !== this.etymologyAtFocus) {
-        this.etymologyAtFocus = currentValue
+      if (currentValue !== this.etymologySnapshot) {
+        this.etymologySnapshot = currentValue
         this.$store.commit(MutationNames.UpdateLastChange)
       }
     },
