@@ -10,10 +10,16 @@
 #   Registration group element – this identifies the particular country, geographical region, or language area
 #     participating in the ISBN system. This element may be between 1 and 5 digits in length.
 #   Registrant element - this identifies the particular publisher or imprint. This may be up to 7 digits in length.
-#   Publication element – this identifies the particular edition and format of a specific title. This may be up to 6
-#     digits in length
+#   Publication element – this identifies the particular edition and format of a specific title. This may be up to 7
+#     digits in length.
 #   Check digit – this is always the final single digit that mathematically validates the rest of the number.
 #     It is calculated using a Modulus 10 system with alternate weights of 1 and 3.
+#
+# The 7-digit maximum for registrant and publication elements is confirmed by the official ISBN range data.
+# The range file format is documented at https://www.isbn-international.org/range_file_generation, which
+# specifies that registrant element ranges are "padded to maximum 7 digits". The range data itself
+# (https://www.isbn-international.org/export_rangemessage.xml) contains Length values up to 7 for
+# registrant elements, e.g. within the 978-2 (French) group (checked 2026-04-25).
 #
 # All of this means that it is difficult to validate an ISBN.
 #
@@ -40,10 +46,13 @@ class Identifier::Global::Isbn < Identifier::Global
       isbn.strip!
       # '978-0-596-52068-7' or '978 0 596 52068 7'
       # if there are spaces or hyphens, check to see that they are in the right places
-      /^(\d{3}[ -]{0,1}){0,1}\d{1,5}[ -]{0,1}\d{1,5}[ -]{0,1}\d{1,5}[ -]{0,1}(?<last>.)$/ =~ isbn
+      /^(\d{3}[ -]{0,1}){0,1}\d{1,5}[ -]{0,1}\d{1,7}[ -]{0,1}\d{1,7}[ -]{0,1}(?<last>.)$/ =~ isbn
 
       isbn.gsub!(' ', '')
       isbn.gsub!('-', '')
+      # Registrant/publication elements can exceed the regex limits for some valid ISBNs;
+      # always derive last from the stripped isbn as the authoritative check digit.
+      last = isbn[-1]
       # if there are *any* non-digits left, it is improperly formed
       # NB! 'X' is a valid digit in this case
       /[^\dX]/ =~ isbn
