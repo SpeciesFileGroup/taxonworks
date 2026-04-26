@@ -188,7 +188,6 @@ class LeadItem < ApplicationRecord
         return false
       rescue ActiveRecord::RecordInvalid => e
         lead.errors.add(:base, e.to_s)
-        byebug
         return false
       end
     end

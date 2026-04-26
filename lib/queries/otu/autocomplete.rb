@@ -115,7 +115,6 @@ module Queries
       # For names like Tapinoma CASC_2231
       def autocomplete_taxon_name_hybrid
         if terms.length == 2
-          byebug
           base_query
           .joins(:taxon_name)
           .where('taxon_names.cached % ? AND otus.name % ?', terms.first, terms.second)

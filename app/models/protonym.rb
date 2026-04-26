@@ -789,7 +789,6 @@ class Protonym < TaxonName
       related_through_original_combination_relationships.collect{|i| i.object_taxon_name}.uniq.each do |i|
         all_names.push i
         i.reload
-        #  byebug if name == 'Dus'
         i.update_cached_original_combinations
       end
 
@@ -825,7 +824,6 @@ class Protonym < TaxonName
           cached_author_year: i.get_author_and_year,
           cached_nomenclature_date: i.nomenclature_date)
       end
-      #  byebug if all_names.uniq.size != all_names.size || all_names.size > 1
 
     end
   end

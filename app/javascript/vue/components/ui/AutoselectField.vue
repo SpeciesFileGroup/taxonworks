@@ -112,20 +112,27 @@
       class="autoselect__help-overlay"
     >
       <h4>Available operators</h4>
-      <ul>
+      <ul class="autoselect__help-list">
         <li
-          v-for="op in visibleOperators"
+          v-for="op in sortedOperators"
           :key="op.trigger"
+          class="autoselect__help-item"
         >
-          <code>{{ op.trigger }}</code> — {{ op.description }}
+          <template v-if="isOperatorLinkable(op)">
+            <button
+              ref="helpItemEls"
+              class="autoselect__help-btn"
+              @click="fireOperator(op)"
+              @keydown.up.prevent="moveHelpFocus(-1)"
+              @keydown.down.prevent="moveHelpFocus(1)"
+              @keydown.enter.prevent="fireOperator(op)"
+              @keydown.escape.prevent="closeHelp"
+            ><code>{{ op.trigger }}</code></button>
+          </template>
+          <code v-else>{{ op.trigger }}</code>
+          <span class="autoselect__help-desc"> — {{ op.description }}</span>
         </li>
       </ul>
-      <button
-        class="btn"
-        @click="closeHelp"
-      >
-        Close
-      </button>
     </div>
 
     <!-- CoL confirmation modal -->
@@ -164,7 +171,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import AjaxCall from '@/helpers/ajaxCall'
 import { useAutoselect } from '@/components/ui/AutoselectField/useAutoselect'
 import { usePreferences } from '@/components/ui/AutoselectField/usePreferences'
@@ -239,6 +246,7 @@ const hoveredSegmentIdx = ref(null)
 // overlays
 const showHelp = ref(false)
 const showPreferences = ref(false)
+const helpItemEls = ref([])
 const pendingExtensionItem = ref(null)
 const newRecordName = ref(null)
 let preventBlur = false
@@ -268,7 +276,19 @@ const visibleFuseSegments = computed(() =>
   allFuseSegments.value.filter((s) => prefs.isLevelVisible(s.key))
 )
 
-const visibleOperators = computed(() => getOperators())
+// Help operator moved to bottom; !N is a pattern placeholder (not directly invokable)
+const sortedOperators = computed(() => {
+  const ops = getOperators()
+  const help = ops.find((op) => op.key === 'help')
+  const rest = ops.filter((op) => op.key !== 'help')
+  return help ? [...rest, help] : ops
+})
+
+function isOperatorLinkable(op) {
+  if (op.key === 'help' || op.key === 'level_number') return false
+  if (op.key === 'new_record' && props.newRecordComponent === null) return false
+  return true
+}
 
 const currentSpinner = computed(
   () => LEVEL_SPINNERS[currentLevel.value] ?? TaxonWorksSpinner
@@ -341,6 +361,7 @@ function onInput() {
 
   // !? — help overlay
   if (/^!\?/.test(text)) {
+    inputText.value = text.replace(/^!\?\s*/, '')
     showHelp.value = true
     return
   }
@@ -600,6 +621,11 @@ function cancelPreferences() {
   nextTick(() => inputEl.value?.focus())
 }
 
+// Focus the first linkable operator button when the help overlay opens
+watch(showHelp, (val) => {
+  if (val) nextTick(() => helpItemEls.value[0]?.focus())
+})
+
 function closeHelp() {
   showHelp.value = false
   nextTick(() => {
@@ -609,6 +635,23 @@ function closeHelp() {
     const len = el.value.length
     el.setSelectionRange(len, len)
   })
+}
+
+// Fire an operator from the help list: close overlay, inject trigger, run onInput
+function fireOperator(op) {
+  showHelp.value = false
+  inputText.value = op.trigger
+  onInput()
+  // Modal-opening operators manage their own focus; search operators need input focus
+  if (op.key !== 'new_record' && op.key !== 'preferences') {
+    nextTick(() => inputEl.value?.focus())
+  }
+}
+
+function moveHelpFocus(delta) {
+  const btns = helpItemEls.value.filter(Boolean)
+  const idx = btns.indexOf(document.activeElement)
+  btns[Math.max(0, Math.min(btns.length - 1, idx + delta))]?.focus()
 }
 
 // ── Keyboard navigation ────────────────────────────────────────────────────────
@@ -641,6 +684,10 @@ function confirmHighlighted() {
 }
 
 function onEscape() {
+  if (showHelp.value) {
+    closeHelp()
+    return
+  }
   showList.value = false
   cancelFuse()
 }
@@ -855,8 +902,38 @@ function clearResults() {
   font-size: 13px;
 }
 
-.autoselect__help-overlay ul {
-  margin: 0 0 8px;
-  padding-left: 16px;
+.autoselect__help-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.autoselect__help-item {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.autoselect__help-btn {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  padding: 0 1px;
+  cursor: pointer;
+  line-height: 1;
+  font-size: inherit;
+}
+
+.autoselect__help-btn:hover,
+.autoselect__help-btn:focus {
+  border-color: var(--color-primary, #2563eb);
+  outline: none;
+}
+
+.autoselect__help-desc {
+  color: var(--text-color, #333);
 }
 </style>
