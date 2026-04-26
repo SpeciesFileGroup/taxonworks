@@ -315,7 +315,7 @@ module Queries
       # so e.g. 'John Stuart' also matches stored 'J.' or 'J. S.'.
       # When any input part is an initial, all parts are required (the caller is being explicit).
       def build_first_name_like_pattern(input)
-        parts = input.downcase.gsub('.', ' ').split.reject(&:empty?)
+        parts = input.downcase.gsub(/[.\-]/, ' ').split.reject(&:empty?)
         return nil if parts.empty?
 
         regex_parts = parts.map do |part|
@@ -330,14 +330,15 @@ module Queries
         if parts.length > 1 && parts.all? { |p| p.length > 1 }
           # Build right-to-left: each non-first part becomes an optional continuation
           # so a stored value with fewer parts (e.g. 'J.') still matches.
-          tail = "(\\s.*)?"
+          # Separator is zero-or-more so fused forms (e.g. 'Yalin' for 'Ya-Lin') also match.
+          tail = "([\\s.\\-]*)?"
           regex_parts.reverse.each_with_index do |rp, i|
             tail = "#{rp}#{tail}"
-            tail = "([\\s.]+#{tail})?" unless i == regex_parts.length - 1
+            tail = "([\\s.\\-]*#{tail})?" unless i == regex_parts.length - 1
           end
           "^#{tail}$"
         else
-          "^#{regex_parts.join('[\\s.]+')}(\\s.*)?$"
+          "^#{regex_parts.join('[\\s.\\-]+')}([\\s.\\-].*)?$"
         end
       end
 
@@ -357,7 +358,7 @@ module Queries
       def last_name_like_facet
         return nil if last_name_like.blank?
 
-        words = last_name_like.downcase.strip.split(/\s+/).reject(&:empty?)
+        words = last_name_like.downcase.gsub('-', ' ').strip.split(/\s+/).reject(&:empty?)
         return nil if words.empty?
 
         # Forward: every input word must appear as a whole word in the stored value.

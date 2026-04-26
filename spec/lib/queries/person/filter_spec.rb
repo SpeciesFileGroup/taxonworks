@@ -282,6 +282,35 @@ describe Queries::Person::Filter, type: :model, group: :people do
       end
     end
 
+    context 'hyphen normalization' do
+      let!(:ya_lin)       { Person.create!(last_name: 'Zhang', first_name: 'Ya-Lin') }
+      let!(:yalin)        { Person.create!(last_name: 'Zhang', first_name: 'Yalin') }
+      let!(:y_l_dot)      { Person.create!(last_name: 'Zhang', first_name: 'Y.L.') }
+      let!(:y_dash_l_dot) { Person.create!(last_name: 'Zhang', first_name: 'Y.-L.') }
+      let!(:y_abbr)       { Person.create!(last_name: 'Zhang', first_name: 'Y.') }
+
+      specify "'Ya-Lin' matches hyphen, fused, dotted, and initial-only stored values" do
+        query.first_name_like = 'Ya-Lin'
+        expect(query.all.pluck(:id)).to contain_exactly(
+          ya_lin.id, yalin.id, y_l_dot.id, y_dash_l_dot.id, y_abbr.id
+        )
+      end
+
+      specify "'Y.L.' matches hyphenated and dotted forms but not fused or single-initial" do
+        query.first_name_like = 'Y.L.'
+        expect(query.all.pluck(:id)).to contain_exactly(
+          ya_lin.id, y_l_dot.id, y_dash_l_dot.id
+        )
+      end
+
+      specify "'Y.-L.' matches the same set as 'Y.L.'" do
+        query.first_name_like = 'Y.-L.'
+        expect(query.all.pluck(:id)).to contain_exactly(
+          ya_lin.id, y_l_dot.id, y_dash_l_dot.id
+        )
+      end
+    end
+
     specify 'matches AlternateValue' do
       AlternateValue::Abbreviation.create!(
         alternate_value_object: john,
@@ -320,6 +349,16 @@ describe Queries::Person::Filter, type: :model, group: :people do
       )
       query.last_name_like = 'Smythe'
       expect(query.all.pluck(:id)).to contain_exactly(smith.id)
+    end
+
+    context 'hyphen normalization' do
+      let!(:van_der_hyphen) { Person.create!(last_name: 'Van-Der-Berg') }
+      let!(:van_der_space)  { Person.create!(last_name: 'Van Der Berg') }
+
+      specify 'hyphenated input matches stored hyphenated and space-separated forms' do
+        query.last_name_like = 'Van-Der-Berg'
+        expect(query.all.pluck(:id)).to contain_exactly(van_der_hyphen.id, van_der_space.id)
+      end
     end
   end
 
