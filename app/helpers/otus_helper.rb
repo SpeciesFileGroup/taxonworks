@@ -206,10 +206,10 @@ module OtusHelper
   def otu_distribution(otu, children = true, cutoff = 200)
     return {} if otu.nil?
     otus = if children
-             otu.coordinate_otus_with_children
-           else
-             Otu.coordinate_otus(otu.id)
-           end
+      otu.coordinate_otus_with_children
+    else
+      Otu.coordinate_otus(otu.id)
+    end
 
     h = geojson_for_otu(otu)
 
@@ -363,7 +363,7 @@ module OtusHelper
     # internal target
     t = geojson_target_for_otu(otu)
 
-    o.current_field_occurrences.where.not(is_absent: true).each do |f|
+    o.current_field_occurrences.where(is_absent: [nil, false]).each do |f|
       shape_key = seen_shapes && f.collecting_event&.geo_json_shape_key
       g = build_geo_json_feature_deduped(seen_shapes&.fetch(:field_occurrences), shape_key) do |skip_geometry|
         field_occurrence_to_geo_json_feature(f, skip_geometry:)
