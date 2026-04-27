@@ -5,7 +5,7 @@ namespace :tw do
       source_id = ENV['SOURCE_PROJECT_ID']
       target_id = ENV['TARGET_PROJECT_ID']
       root_id = ENV['ROOT_TAXON_NAME_ID']&.to_i
-      preview = ENV['PREVIEW'] != 'false' # Default to true for safety
+      preview = ActiveModel::Type::Boolean.new.cast(ENV.fetch('PREVIEW', true))
 
       unless source_id && target_id
         puts <<~USAGE
@@ -31,11 +31,21 @@ namespace :tw do
         exit 1
       end
 
+      if source_id == target_id
+        puts "Error: source and target project IDs must be different"
+        exit 1
+      end
+
       begin
         source_project = Project.find(source_id)
         target_project = Project.find(target_id)
       rescue ActiveRecord::RecordNotFound => e
         puts "Error: #{e.message}"
+        exit 1
+      end
+
+      if root_id && !TaxonName.exists?(id: root_id, project_id: target_project.id)
+        puts "Error: ROOT_TAXON_NAME_ID #{root_id} does not exist in target project"
         exit 1
       end
 
@@ -62,12 +72,17 @@ namespace :tw do
       puts "Starting unification..."
       start_time = Time.now
 
-      result = target_project.unify(
-        source_project,
-        root_taxon_name_id: root_id,
-        preview: preview,
-        skip_cached_rebuild: false
-      )
+      begin
+        result = target_project.unify(
+          source_project,
+          root_taxon_name_id: root_id,
+          preview: preview,
+          skip_cached_rebuild: false
+        )
+      rescue Interrupt
+        puts "\nInterrupted — transaction rolled back."
+        exit 1
+      end
 
       puts "\n" + "=" * 80
       puts "RESULTS"
