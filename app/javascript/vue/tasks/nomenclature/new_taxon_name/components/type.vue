@@ -170,10 +170,6 @@ const TAB = {
 
 const quickTaxonName = ref(null)
 
-defineExpose({
-  focus() { quickTaxonName.value?.focus() }
-})
-
 const store = useStore()
 
 const shortcuts = ref([
@@ -370,4 +366,8 @@ function switchComprehensive() {
     '_self'
   )
 }
+
+defineExpose({
+  focus() { quickTaxonName.value?.focus() }
+})
 </script>

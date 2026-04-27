@@ -14,20 +14,8 @@
 </template>
 
 <script setup>
-import { computed, ref, nextTick } from 'vue'
-
-const activeTab = ref(null)
-
-defineExpose({
-  focus() {
-    tabIndex.value = 0
-    nextTick(() => activeTab.value?.focus?.())
-  }
-})
-import {
-  NOMENCLATURE_CODE_BOTANY,
-  NOMENCLATURE_CODE_ZOOLOGY
-} from '@/constants/index.js'
+import { computed, ref } from 'vue'
+import { NOMENCLATURE_CODE_BOTANY } from '@/constants/index.js'
 import SwitchComponent from '@/components/ui/VSwitch.vue'
 import AuthorPerson from './AuthorPeople.vue'
 import AuthorSource from './AuthorSource.vue'
@@ -37,10 +25,6 @@ const TAB = {
   Source: AuthorSource,
   Verbatim: AuthorVerbatim,
   Person: AuthorPerson
-}
-
-function getTabLabel(label, hasData) {
-  return label + (hasData ? ' ✓' : '')
 }
 
 const props = defineProps({
@@ -58,6 +42,8 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue'])
 
 const tabIndex = ref(0)
+const activeTab = ref(null)
+
 const combination = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value)
@@ -81,4 +67,12 @@ const sections = computed(() =>
       ]
     : []
 )
+
+function getTabLabel(label, hasData) {
+  return label + (hasData ? ' ✓' : '')
+}
+
+defineExpose({
+  focus() { activeTab.value?.focus?.() }
+})
 </script>

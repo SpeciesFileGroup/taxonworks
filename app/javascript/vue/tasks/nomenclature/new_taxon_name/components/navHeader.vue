@@ -115,6 +115,7 @@ function getTitle(title) {
 .taxonname {
   font-weight: 300;
 }
+
 .context-menu a {
   cursor: pointer;
 }

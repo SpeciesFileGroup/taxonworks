@@ -121,10 +121,6 @@ import DisplayList from '@/components/displayList.vue'
 
 const store = useStore()
 const citationComponent = ref(null)
-
-defineExpose({
-  focus() { citationComponent.value?.focus() }
-})
 const combination = ref({})
 const combinationList = computed(
   () => store.getters[GetterNames.GetCombinations]
@@ -322,5 +318,9 @@ watch(currentCombinationId, async (newId) => {
     : []
 
   queueClassification.value = []
+})
+
+defineExpose({
+  focus() { citationComponent.value?.focus() }
 })
 </script>

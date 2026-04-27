@@ -89,17 +89,12 @@ import EditTaxonName from './EditTaxonName'
 import FormCitation from '@/components/Form/FormCitation.vue'
 import VConfidence from '@/components/ui/Button/ButtonConfidence.vue'
 
-const nameInput = ref(null)
-
-defineExpose({
-  focus() { nameInput.value?.focus() }
-})
-
 const store = useStore()
 
 const name = ref('')
 const relationship = ref()
 const citation = ref({})
+const nameInput = ref(null)
 
 const taxon = computed(() => store.getters[GetterNames.GetTaxon])
 
@@ -166,4 +161,8 @@ function resetForm() {
   citation.value = {}
   relationship.value = null
 }
+
+defineExpose({
+  focus() { nameInput.value?.focus() }
+})
 </script>

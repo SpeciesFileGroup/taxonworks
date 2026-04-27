@@ -29,12 +29,6 @@ import { vNumberOnly } from '@/directives/index.js'
 
 const verbatimAuthorInput = ref(null)
 
-function focus() {
-  verbatimAuthorInput.value?.focus()
-}
-
-defineExpose({ focus })
-
 const store = useStore()
 
 const verbatimAuthor = computed({
@@ -52,4 +46,10 @@ const verbatimYear = computed({
     store.commit(MutationNames.UpdateLastChange)
   }
 })
+
+function focus() {
+  verbatimAuthorInput.value?.focus()
+}
+
+defineExpose({ focus })
 </script>

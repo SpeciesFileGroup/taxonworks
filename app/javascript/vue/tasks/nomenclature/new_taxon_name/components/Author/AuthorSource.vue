@@ -80,12 +80,6 @@ import FormCitationClone from '@/components/Form/FormCitation/FormCitationClone.
 
 const autocomplete = ref(null)
 
-function focus() {
-  autocomplete.value?.setFocus()
-}
-
-defineExpose({ focus })
-
 let autosave = null
 
 const store = useStore()
@@ -141,4 +135,10 @@ function removeSource(id) {
     store.dispatch(ActionNames.RemoveSource, id)
   }
 }
+
+function focus() {
+  autocomplete.value?.setFocus()
+}
+
+defineExpose({ focus })
 </script>
