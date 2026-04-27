@@ -115,18 +115,10 @@ module ProjectUnification
 
     # Temporarily disable cached field callbacks for performance
     def disable_cached_callbacks
-      callbacks_disabled = false
-
-      if TaxonName.respond_to?(:skip_callback)
-        TaxonName.skip_callback(:commit, :after, :set_cached)
-        callbacks_disabled = true
-      end
-
+      Thread.current[:tw_taxon_name_no_cached] = true
       yield
     ensure
-      if callbacks_disabled && TaxonName.respond_to?(:set_callback)
-        TaxonName.set_callback(:commit, :after, :set_cached)
-      end
+      Thread.current[:tw_taxon_name_no_cached] = nil
     end
   end
 end

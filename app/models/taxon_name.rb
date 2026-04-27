@@ -270,8 +270,8 @@ class TaxonName < ApplicationRecord
 
   # Rails 7 experiments have after_commit creating a whack-a-mole situation
   # (though leave after_commit on TaxonNameRelationship)
-  after_commit :set_cached, unless: Proc.new {|n| n.no_cached || errors.any? }
-  after_commit :set_cached_warnings, if: Proc.new {|n| n.no_cached } # Should definitely be after commit
+  after_commit :set_cached, unless: Proc.new {|n| n.no_cached || n.errors.any? || Thread.current[:tw_taxon_name_no_cached] }
+  after_commit :set_cached_warnings, if: Proc.new {|n| n.no_cached }, unless: Proc.new {|n| n.errors.any? || Thread.current[:tw_taxon_name_no_cached] } # Should definitely be after commit
 
   validate :validate_rank_class_class
   validate :check_new_rank_class
