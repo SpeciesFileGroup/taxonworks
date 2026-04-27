@@ -90,6 +90,12 @@ export default {
   },
 
   watch: {
+    tabIndex: {
+      handler() {
+        this.$nextTick(() => this.$refs.activeTab?.focus?.())
+      }
+    },
+
     taxon: {
       handler(newVal, oldVal) {
         if (newVal.id && !oldVal.id) {

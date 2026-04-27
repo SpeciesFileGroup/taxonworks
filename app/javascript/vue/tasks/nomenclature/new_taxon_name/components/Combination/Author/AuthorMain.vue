@@ -14,7 +14,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch, nextTick } from 'vue'
 import { NOMENCLATURE_CODE_BOTANY } from '@/constants/index.js'
 import SwitchComponent from '@/components/ui/VSwitch.vue'
 import AuthorPerson from './AuthorPeople.vue'
@@ -71,6 +71,8 @@ const sections = computed(() =>
 function getTabLabel(label, hasData) {
   return label + (hasData ? ' ✓' : '')
 }
+
+watch(tabIndex, () => nextTick(() => activeTab.value?.focus?.()))
 
 defineExpose({
   focus() { activeTab.value?.focus?.() }
