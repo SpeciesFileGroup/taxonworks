@@ -1,6 +1,7 @@
 <template>
   <div class="flex-separate">
     <role-picker
+      ref="rolePicker"
       v-model="roles"
       :role-type="ROLE_TAXON_NAME_AUTHOR"
     />
@@ -21,6 +22,9 @@ import { ROLE_TAXON_NAME_AUTHOR } from '@/constants/index.js'
 import RolePicker from '@/components/role_picker.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
+const rolePicker = ref(null)
+const source = ref(null)
+
 const props = defineProps({
   modelValue: {
     type: Object,
@@ -28,7 +32,6 @@ const props = defineProps({
   }
 })
 const emit = defineEmits(['update:modelValue'])
-const source = ref(null)
 
 const combination = computed({
   get: () => props.modelValue,
@@ -79,4 +82,8 @@ if (sourceId) {
     source.value = body
   })
 }
+
+defineExpose({
+  focus() { rolePicker.value?.focus() }
+})
 </script>

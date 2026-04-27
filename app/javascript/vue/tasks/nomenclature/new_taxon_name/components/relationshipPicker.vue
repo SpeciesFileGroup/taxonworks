@@ -23,6 +23,7 @@
       <div v-if="!taxonRelation">
         <div class="horizontal-left-content">
           <autocomplete
+            ref="taxonSearch"
             url="/taxon_names/autocomplete"
             label="label_html"
             min="2"
@@ -91,6 +92,7 @@
           <div class="separate-top">
             <autocomplete
               v-if="view === 'Advanced'"
+              ref="advancedSearch"
               :array-list="objectLists.allList"
               label="subject_status_tag"
               min="3"
@@ -251,6 +253,14 @@ export default {
     }
   },
   methods: {
+    focus() {
+      if (!this.taxonRelation) {
+        this.$refs.taxonSearch?.setFocus()
+      } else if (this.view === 'Advanced') {
+        this.$refs.advancedSearch?.setFocus()
+      }
+    },
+
     setInsertaeSedis() {
       this.isInsertaeSedis = true
       this.taxonRelation = this.parent

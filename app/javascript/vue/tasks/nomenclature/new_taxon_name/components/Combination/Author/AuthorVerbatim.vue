@@ -3,6 +3,7 @@
     <div class="field label-above">
       <label>Verbatim author</label>
       <input
+        ref="verbatimAuthorInput"
         type="text"
         v-model="combination.verbatim_author">
     </div>
@@ -17,7 +18,9 @@
 
 <script setup>
 
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+
+const verbatimAuthorInput = ref(null)
 
 const props = defineProps({
   modelValue: {
@@ -31,6 +34,10 @@ const emit = defineEmits(['update:modelValue'])
 const combination = computed({
   get: () => props.modelValue,
   set: value => emit('update:modelValue', value)
+})
+
+defineExpose({
+  focus() { verbatimAuthorInput.value?.focus() }
 })
 
 </script>
