@@ -574,20 +574,50 @@ module Export::Dwca::Checklist
 
     # Build a mapping of taxon_name_id => OTU UUID for the given taxon_name_ids.
     # Only includes taxa that have an OTU with a Uuid identifier.
+    #
+    # When multiple OTUs share a taxon_name_id, we prefer OTUs that are in the
+    # export scope (so the taxonID matches the OTU the user selected) and break
+    # ties by lowest OTU id for a stable, deterministic result.
+    #
     # @param taxon_name_ids [Array<Integer>]
     # @return [Hash] taxon_name_id => uuid string
     def taxon_name_id_to_otu_uuid(taxon_name_ids)
       return {} if taxon_name_ids.empty?
 
-      taxon_name_ids.each_slice(25_000).each_with_object({}) do |batch, result|
+      # We'll order below to get preferred UUID.
+      identifier_join = <<~SQL.squish
+        JOIN identifiers ON identifiers.identifier_object_id = otus.id
+          AND identifiers.identifier_object_type = 'Otu'
+          AND identifiers.type LIKE 'Identifier::Global::Uuid%'
+      SQL
+
+      # Pass 1: resolve UUIDs for OTUs directly in the export scope, batched by
+      # OTU id. Scoped OTUs take priority over any out-of-scope OTU sharing the
+      # same taxon_name_id (handled by pass 2 only seeing unresolved ids).
+      scoped_result = {}
+      otu_to_taxon_name_data.keys.each_slice(25_000) do |otu_id_batch|
         ::Otu
-          .joins("JOIN identifiers ON identifiers.identifier_object_id = otus.id
-                    AND identifiers.identifier_object_type = 'Otu'
-                    AND identifiers.type LIKE 'Identifier::Global::Uuid%'
-                    AND identifiers.position = 1")
-          .where(taxon_name_id: batch)
+          .joins(identifier_join)
+          .where(id: otu_id_batch)
+          # Make deterministic (along with ||= below) on the preferred UUID.
+          .order('otus.id ASC, identifiers.position ASC')
           .pluck('otus.taxon_name_id', 'identifiers.cached')
-          .each { |tn_id, uuid| result[tn_id] = uuid }
+          .each { |tn_id, uuid| scoped_result[tn_id] ||= uuid }
+      end
+
+      # Pass 2: for taxon_name_ids not covered by a scoped OTU (ancestor taxa),
+      # fall back to any OTU with that taxon_name_id; lowest OTU id wins.
+      taxon_name_ids.each_slice(25_000).each_with_object(scoped_result) do |batch, result|
+        unscoped = batch.reject { |tn_id| result.key?(tn_id) }
+        next if unscoped.empty?
+
+        ::Otu
+          .joins(identifier_join)
+          .where(taxon_name_id: unscoped)
+          # Make deterministic (along with ||= below) on the preferred UUID.
+          .order('otus.id ASC, identifiers.position ASC')
+          .pluck('otus.taxon_name_id', 'identifiers.cached')
+          .each { |tn_id, uuid| result[tn_id] ||= uuid }
       end
     end
 

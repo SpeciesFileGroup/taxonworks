@@ -123,6 +123,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Filters: keep per state after reset [#4831]
 - Updated Ruby gems
 - Refactor Filter annotations task [#4809]
+- Focus the next keyboard input after mouse clicks in New Taxon Name
 
 [#345]: https://github.com/SpeciesFileGroup/taxonpages/issues/345
 [#4271]: https://github.com/SpeciesFileGroup/taxonworks/issues/4271
