@@ -49,24 +49,27 @@ module ProjectUnification
       validate_prerequisites!
 
       Project.transaction do
-        begin
-          run_migration
+        run_migration
 
-          @results[:unified] = @results[:errors].empty?
+        @results[:unified] = @results[:errors].empty?
 
-          if @options[:preview] || @results[:errors].any?
-            @results[:rollback_performed] = true
-            raise ActiveRecord::Rollback
-          end
-        rescue => e
-          @results[:errors] << {
-            model: 'Transaction',
-            error: e.message,
-            backtrace: e.backtrace.first(5)
-          }
+        if @options[:preview] || @results[:errors].any?
           @results[:rollback_performed] = true
           raise ActiveRecord::Rollback
         end
+      rescue ActiveRecord::Rollback
+        raise
+      rescue StandardError => e
+        @results[:errors] << {
+          model: 'Transaction',
+          error: e.message,
+          backtrace: e.backtrace.first(5)
+        }
+        @results[:rollback_performed] = true
+        raise ActiveRecord::Rollback
+      rescue Exception => e
+        @results[:rollback_performed] = true
+        raise
       end
 
       @results[:completed_at] = Time.now
