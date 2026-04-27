@@ -169,24 +169,21 @@ module ProjectUnification
           record.no_cached = true if record.respond_to?(:no_cached=)
           record.project_id = target_project_id
 
-          # Use model-specific conflict handler if available
-          if record.respond_to?(:handle_unify_conflict)
+          if record.valid?
+            record.save!
+            stats[:migrated] += 1
+          elsif uniqueness_error?(record) && record.respond_to?(:handle_unify_conflict)
             record.handle_unify_conflict(target_project_id)
             record.save!
             stats[:migrated] += 1
-          elsif record.valid?
-            record.save!
+          elsif uniqueness_error?(record) && deduplicate_record(record)
             stats[:migrated] += 1
           elsif uniqueness_error?(record)
-            if deduplicate_record(record)
-              stats[:migrated] += 1
-            else
-              stats[:errors] << {
-                id: record.id,
-                model: klass.name,
-                error: 'Uniqueness conflict - could not deduplicate'
-              }
-            end
+            stats[:errors] << {
+              id: record.id,
+              model: klass.name,
+              error: 'Uniqueness conflict - could not deduplicate'
+            }
           else
             stats[:errors] << {
               id: record.id,
