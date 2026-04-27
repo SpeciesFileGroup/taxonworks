@@ -137,37 +137,48 @@ describe OtusHelper, type: :helper do
           .select { |f| f.dig('properties', 'base', 'type') == 'AssertedDistribution' }
       end
 
-      specify 'emits AssertedDistribution features for both GeographicArea and Gazetteer shapes' do
+      specify 'emits AssertedDistribution features for present (non-absent) shapes' do
         features = ad_features_for(otu)
 
         base_ids = features.map { |f| f.dig('properties', 'base', 'id') }
-        shape_types = features.map { |f| f.dig('properties', 'shape', 'type') }
 
-        expect(base_ids).to contain_exactly(ad_geographic_area.id, ad_gazetteer.id)
-        expect(shape_types).to contain_exactly('GeographicArea', 'Gazetteer')
+        expect(base_ids).to contain_exactly(ad_geographic_area.id)
         expect(features.all? { |f| f['geometry'].present? }).to be(true)
       end
 
-      specify 'preserves shape' do
+      specify 'preserves shape type for present AssertedDistribution' do
         features = ad_features_for(otu)
-
-        # Shape/type preserved per AD
         ga_feature = features.find { |f| f.dig('properties', 'base', 'id') == ad_geographic_area.id }
-        gz_feature = features.find { |f| f.dig('properties', 'base', 'id') == ad_gazetteer.id }
 
         expect(ga_feature.dig('properties', 'shape', 'type')).to eq('GeographicArea')
-        expect(gz_feature.dig('properties', 'shape', 'type')).to eq('Gazetteer')
       end
 
-      specify 'preserves is_absent' do
+      specify 'excludes absent AssertedDistribution' do
         features = ad_features_for(otu)
+        base_ids = features.map { |f| f.dig('properties', 'base', 'id') }
 
-        ga_feature = features.find { |f| f.dig('properties', 'base', 'id') == ad_geographic_area.id }
-        gz_feature = features.find { |f| f.dig('properties', 'base', 'id') == ad_gazetteer.id }
+        expect(base_ids).not_to include(ad_gazetteer.id)
+      end
+    end
 
-        # is_absent preserved (we set true on gazetteer AD)
-        expect(ga_feature.dig('properties', 'is_absent')).to eq(nil)
-        expect(gz_feature.dig('properties', 'is_absent')).to eq(true)
+    describe 'FieldOccurrences' do
+      let!(:absent_fo_ce) { FactoryBot.create(:valid_collecting_event) }
+      let!(:absent_fo_gr) { FactoryBot.create(:valid_georeference, collecting_event: absent_fo_ce) }
+      let!(:absent_fo) do
+        fo = FactoryBot.create(:valid_field_occurrence, is_absent: true, total: 0, collecting_event: absent_fo_ce)
+        fo.taxon_determinations.first.update!(otu: otu)
+        fo
+      end
+
+      def fo_features_for(target_otu)
+        h = helper.geojson_for_otu(target_otu)
+        helper.add_distribution_geo_json(target_otu, h).fetch('features')
+          .select { |f| f.dig('properties', 'base', 'type') == 'FieldOccurrence' }
+      end
+
+      specify 'excludes absent FieldOccurrence from presence distribution' do
+        fo_ids = fo_features_for(otu).map { |f| f.dig('properties', 'base', 'id') }
+        expect(fo_ids).not_to include(absent_fo.id)
       end
     end
 
@@ -383,6 +394,28 @@ describe OtusHelper, type: :helper do
           expect(ce2.geo_json_shape_key).to eq(['GeographicArea', shared_ga.id])
         end
       end
+    end
+  end
+
+  describe '#otu_distribution_is_absent' do
+    let!(:species_name) { FactoryBot.create(:relationship_species) }
+    let!(:otu)          { FactoryBot.create(:valid_otu, taxon_name: species_name) }
+    let!(:coord_otu)    { Otu.create!(taxon_name: species_name) }
+    let!(:ga)           { FactoryBot.create(:valid_geographic_area) }
+
+    before do
+      FactoryBot.create(:valid_geographic_areas_geographic_item, geographic_area: ga)
+    end
+
+    specify 'includes absent AssertedDistribution from a coordinate OTU' do
+      ad = FactoryBot.create(:valid_geographic_area_asserted_distribution,
+        asserted_distribution_object: coord_otu,
+        asserted_distribution_shape: ga,
+        is_absent: true)
+
+      features = helper.otu_distribution_is_absent(otu)['features']
+      ad_ids = features.map { |f| f.dig('properties', 'base', 'id') }.compact
+      expect(ad_ids).to include(ad.id)
     end
   end
 

@@ -231,18 +231,46 @@ module OtusHelper
   end
 
   # @return [Hash]
-  #   GeoJSON FeatureCollection of absent field occurrences for the OTU,
-  #   including those determined by ancestor taxon names.
-  def otu_distribution_is_absent(otu)
+  #   GeoJSON FeatureCollection of absent FieldOccurrences and AssertedDistributions
+  #   for the OTU and its coordinate/descendant OTUs. Within each OTU, ancestor taxon
+  #   names are traversed via TaxonNameHierarchies (same as otu_distribution).
+  def otu_distribution_is_absent(otu, children = true, cutoff = 200)
     return {} if otu.nil?
-    h = geojson_for_otu(otu)
-    t = geojson_target_for_otu(otu)
 
-    otu.absent_and_ancestor_absent_field_occurrences.each do |f|
-      g = field_occurrence_to_geo_json_feature(f)
-      next unless g
-      g['properties']['target'] = t
-      h['features'].push g
+    otus = if children
+             otu.coordinate_otus_with_children
+           else
+             Otu.coordinate_otus(otu.id)
+           end
+
+    h = geojson_for_otu(otu)
+    seen_shapes = {
+      field_occurrences: {},
+      asserted_distributions: {}
+    }
+
+    otus.each do |o|
+      t = geojson_target_for_otu(o)
+
+      o.absent_and_ancestor_absent_field_occurrences.each do |f|
+        shape_key = f.collecting_event&.geo_json_shape_key
+        g = build_geo_json_feature_deduped(seen_shapes[:field_occurrences], shape_key) do |skip_geometry|
+          field_occurrence_to_geo_json_feature(f, skip_geometry:)
+        end
+        next unless g
+        g['properties']['target'] = t
+        h['features'].push g
+      end
+
+      o.absent_and_ancestor_absent_asserted_distributions.each do |a|
+        shape_key = [a.asserted_distribution_shape_type, a.asserted_distribution_shape_id]
+        g = build_geo_json_feature_deduped(seen_shapes[:asserted_distributions], shape_key) do |skip_geometry|
+          asserted_distribution_to_geo_json_feature(a, skip_geometry:)
+        end
+        next unless g
+        g['properties']['target'] = t
+        h['features'].push g
+      end
     end
 
     h
@@ -335,7 +363,7 @@ module OtusHelper
     # internal target
     t = geojson_target_for_otu(otu)
 
-    o.current_field_occurrences.each do |f|
+    o.current_field_occurrences.where.not(is_absent: true).each do |f|
       shape_key = seen_shapes && f.collecting_event&.geo_json_shape_key
       g = build_geo_json_feature_deduped(seen_shapes&.fetch(:field_occurrences), shape_key) do |skip_geometry|
         field_occurrence_to_geo_json_feature(f, skip_geometry:)
@@ -355,7 +383,7 @@ module OtusHelper
       h['features'].push g
     end
 
-    o.asserted_distributions.each do |a|
+    o.asserted_distributions.without_is_absent.each do |a|
       shape_key = seen_shapes && [a.asserted_distribution_shape_type, a.asserted_distribution_shape_id]
       g = build_geo_json_feature_deduped(seen_shapes&.fetch(:asserted_distributions), shape_key) do |skip_geometry|
         asserted_distribution_to_geo_json_feature(a, skip_geometry:)
@@ -372,6 +400,7 @@ module OtusHelper
           asserted_distribution_object_type: 'BiologicalAssociation',
           asserted_distribution_object_id: ba_ids
         )
+        .without_is_absent
         .each do |a|
           shape_key = seen_shapes && [a.asserted_distribution_shape_type, a.asserted_distribution_shape_id]
           g = build_geo_json_feature_deduped(seen_shapes&.fetch(:asserted_distributions), shape_key) do |skip_geometry|
@@ -393,6 +422,7 @@ module OtusHelper
             asserted_distribution_object_type: 'BiologicalAssociationsGraph',
             asserted_distribution_object_id: bag_ids
           )
+          .without_is_absent
           .each do |a|
             shape_key = seen_shapes && [a.asserted_distribution_shape_type, a.asserted_distribution_shape_id]
             g = build_geo_json_feature_deduped(seen_shapes&.fetch(:asserted_distributions), shape_key) do |skip_geometry|
@@ -418,6 +448,7 @@ module OtusHelper
           asserted_distribution_object_type: object_type,
           asserted_distribution_object_id: related_ids
         )
+        .without_is_absent
         .each do |a|
           shape_key = seen_shapes && [a.asserted_distribution_shape_type, a.asserted_distribution_shape_id]
           g = build_geo_json_feature_deduped(seen_shapes&.fetch(:asserted_distributions), shape_key) do |skip_geometry|
