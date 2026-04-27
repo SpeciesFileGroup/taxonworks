@@ -124,6 +124,20 @@ describe Identifier::Global::Isbn, type: :model, group: :identifiers do
         expect(id.valid?).to be_truthy
       end
 
+      # 8-digit registrant element exceeds the 7-digit spec maximum
+      specify '0-12345678-1-2 has 8-digit registrant element' do
+        id.identifier = '0-12345678-1-2'
+        expect(id.valid?).to be_falsey
+        expect(id.errors.messages[:identifier][0]).to eq("'0-12345678-1-2' is an improperly formed ISBN.")
+      end
+
+      # 8-digit publication element exceeds the 7-digit spec maximum
+      specify '0-1-12345678-2 has 8-digit publication element' do
+        id.identifier = '0-1-12345678-2'
+        expect(id.valid?).to be_falsey
+        expect(id.errors.messages[:identifier][0]).to eq("'0-1-12345678-2' is an improperly formed ISBN.")
+      end
+
       # Bad check digit on an ISBN with a long registrant element
       specify '2-903052-10-8 has bad check digit' do
         id.identifier = '2-903052-10-8'

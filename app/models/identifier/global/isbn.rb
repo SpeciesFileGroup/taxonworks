@@ -45,13 +45,14 @@ class Identifier::Global::Isbn < Identifier::Global
       # ' 978-0-596-52068-7'
       isbn.strip!
       # '978-0-596-52068-7' or '978 0 596 52068 7'
-      # if there are spaces or hyphens, check to see that they are in the right places
-      /^(\d{3}[ -]{0,1}){0,1}\d{1,5}[ -]{0,1}\d{1,7}[ -]{0,1}\d{1,7}[ -]{0,1}(?<last>.)$/ =~ isbn
+      # for hyphenated/spaced input, reject if element lengths exceed spec bounds
+      if isbn.match?(/[ -]/) && /^(\d{3}[ -]{0,1}){0,1}\d{1,5}[ -]{0,1}\d{1,7}[ -]{0,1}\d{1,7}[ -]{0,1}.$/ !~ isbn
+        errors.add(:identifier, "'#{identifier}' is an improperly formed ISBN.")
+        return
+      end
 
       isbn.gsub!(' ', '')
       isbn.gsub!('-', '')
-      # Registrant/publication elements can exceed the regex limits for some valid ISBNs;
-      # always derive last from the stripped isbn as the authoritative check digit.
       last = isbn[-1]
       # if there are *any* non-digits left, it is improperly formed
       # NB! 'X' is a valid digit in this case
