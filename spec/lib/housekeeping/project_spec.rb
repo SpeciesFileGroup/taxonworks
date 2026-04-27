@@ -111,6 +111,20 @@ describe 'Housekeeping::Project' do
             end
           end
 
+          context 'non-project-scoped models' do
+            specify 'find_or_initialize_by is not modified' do
+              expect(Namespace.ancestors).not_to include(Housekeeping::Projects)
+              result = Namespace.find_or_initialize_by(name: 'test', short_name: 'tst')
+              expect(result.attributes).not_to have_key('project_id')
+            end
+
+            specify 'find_or_initialize_by raises when project_id is explicitly passed' do
+              expect {
+                Namespace.find_or_initialize_by(name: 'test', short_name: 'tst', project_id: 1)
+              }.to raise_error(ActiveRecord::StatementInvalid)
+            end
+          end
+
           context 'cross-project foreign key validation' do
             let(:other_project) { FactoryBot.create(:valid_project) }
 
