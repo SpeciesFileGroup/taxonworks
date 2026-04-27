@@ -378,17 +378,17 @@ class Project < ApplicationRecord
   # @return [Hash] Detailed results including statistics, errors, and per-model details
   #
   # @example Basic merge with preview
-  #   result = target_project.merge_project(source_project, preview: true)
+  #   result = target_project.unify(source_project, preview: true)
   #   puts result[:statistics][:total_records]
   #
   # @example Actual merge with custom TaxonName root
   #   genus = target_project.taxon_names.find_by(name: 'Aus')
-  #   result = target_project.merge_project(source_project,
+  #   result = target_project.unify(source_project,
   #     root_taxon_name_id: genus.id,
   #     preview: false
   #   )
   #
-  def merge_project(project_to_remove, root_taxon_name_id: nil, preview: true, skip_cached_rebuild: false)
+  def unify(project_to_remove, root_taxon_name_id: nil, preview: true, skip_cached_rebuild: false)
     service = ProjectUnification::Service.new(
       project_to_remove,
       self,
