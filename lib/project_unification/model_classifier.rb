@@ -61,7 +61,6 @@ module ProjectUnification
     # Models that have uniqueness validations but don't explicitly scope to project_id
     # These are handled based on business logic - most can be fast-tracked
     IMPLICIT_SCOPE = %w[
-      CachedMapItem
       TypeMaterial
       CharacterState
       BiocurationClassification

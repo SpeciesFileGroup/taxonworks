@@ -16,22 +16,20 @@
 module Shared::ProjectUnification
   extend ActiveSupport::Concern
 
-  included do
-    # Override this method in models that need custom conflict resolution
-    # Called during project unification when validation fails after project_id change
-    #
-    # @param target_project_id [Integer] The ID of the target project
-    # @return [void]
-    #
-    # Default implementation does nothing - validation failures will be reported as errors
-    def handle_unify_conflict(target_project_id)
-      # Models can override this to implement custom conflict resolution
-      # For example:
-      # - Rename fields to avoid uniqueness conflicts
-      # - Merge with existing records
-      # - Skip migration of specific records
-      # - Modify relationships
-    end
+  # Override this method in models that need custom conflict resolution
+  # Called during project unification when validation fails after project_id change
+  #
+  # @param target_project_id [Integer] The ID of the target project
+  # @return [void]
+  #
+  # Default implementation does nothing - validation failures will be reported as errors
+  def handle_unify_conflict(target_project_id)
+    # Models can override this to implement custom conflict resolution
+    # For example:
+    # - Rename fields to avoid uniqueness conflicts
+    # - Merge with existing records
+    # - Skip migration of specific records
+    # - Modify relationships
   end
 
   module ClassMethods

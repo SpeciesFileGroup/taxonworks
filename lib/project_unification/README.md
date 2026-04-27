@@ -250,7 +250,7 @@ Optimize by:
 Run the comprehensive test suite:
 
 ```bash
-bundle exec rspec spec/models/project/unify_spec.rb
+bundle exec rspec spec/models/project_unify_spec.rb
 ```
 
 ## Troubleshooting

@@ -4,7 +4,7 @@ namespace :tw do
     task unify: [:environment] do
       source_id = ENV['SOURCE_PROJECT_ID']
       target_id = ENV['TARGET_PROJECT_ID']
-      root_id = ENV['ROOT_TAXON_NAME_ID']
+      root_id = ENV['ROOT_TAXON_NAME_ID']&.to_i
       preview = ENV['PREVIEW'] != 'false' # Default to true for safety
 
       unless source_id && target_id

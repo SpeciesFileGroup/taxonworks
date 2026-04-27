@@ -128,6 +128,7 @@ module ProjectUnification
             elsif uniqueness_error?(record)
               # Try to deduplicate
               if deduplicate_record(record)
+                stats[:migrated] += 1
                 stats[:deduplicated] += 1
               else
                 stats[:errors] << {
@@ -238,8 +239,7 @@ module ProjectUnification
                  )
                  handler.migrate
                else
-                 # Fallback to medium track for unknown special cases
-                 process_medium_track(klass)
+                 raise NotImplementedError, "No special handler defined for #{klass.name}"
                end
 
       result
