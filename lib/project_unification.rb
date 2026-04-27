@@ -52,12 +52,12 @@ module ProjectUnification
         begin
           run_migration
 
+          @results[:unified] = @results[:errors].empty?
+
           if @options[:preview] || @results[:errors].any?
             @results[:rollback_performed] = true
             raise ActiveRecord::Rollback
           end
-
-          @results[:unified] = true
         rescue => e
           @results[:errors] << {
             model: 'Transaction',
