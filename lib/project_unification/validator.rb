@@ -14,16 +14,27 @@ module ProjectUnification
 
     # @return [Hash] Conflict analysis results
     def detect_all_conflicts
+      counts = source_record_counts
+
       {
         status: :ok,
         can_proceed: true,
         conflicts: detect_uniqueness_conflicts,
-        warnings: detect_warnings,
-        statistics: gather_statistics
+        warnings: detect_warnings(counts),
+        statistics: gather_statistics(counts)
       }
     end
 
     private
+
+    def source_record_counts
+      Project::MANIFEST.each_with_object({}) do |model_name, counts|
+        klass = model_name.safe_constantize
+        next unless klass&.column_names&.include?('project_id')
+
+        counts[model_name] = klass.where(project_id: source_project_id).count
+      end
+    end
 
     def detect_uniqueness_conflicts
       conflicts = {}
@@ -104,11 +115,11 @@ module ProjectUnification
       []
     end
 
-    def detect_warnings
+    def detect_warnings(counts)
       warnings = []
 
       # Check for large datasets that might take a long time
-      total_records = count_source_records
+      total_records = counts.values.sum
       if total_records > 100000
         warnings << {
           type: :performance,
@@ -128,17 +139,6 @@ module ProjectUnification
       warnings
     end
 
-    def count_source_records
-      total = 0
-      Project::MANIFEST.each do |model_name|
-        klass = model_name.safe_constantize
-        next unless klass&.column_names&.include?('project_id')
-
-        total += klass.where(project_id: source_project_id).count
-      end
-      total
-    end
-
     def check_taxon_name_depth
       sql = <<-SQL
         SELECT MAX(generations) as max_depth
@@ -151,7 +151,7 @@ module ProjectUnification
       result&.fetch('max_depth', 0) || 0
     end
 
-    def gather_statistics
+    def gather_statistics(counts)
       stats = {
         total_records: 0,
         affected_models: 0,
@@ -166,7 +166,7 @@ module ProjectUnification
         next unless klass&.column_names&.include?('project_id')
         next if model_name == 'ProjectMember'
 
-        count = klass.where(project_id: source_project_id).count
+        count = counts[model_name] || 0
         next if count == 0
 
         stats[:affected_models] += 1
