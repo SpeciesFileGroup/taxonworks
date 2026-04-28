@@ -45,7 +45,7 @@
                 <span class="no-matches">No matches found</span>
               </div>
               <div
-                v-else
+                v-else-if="!row.alreadyExists"
                 class="matches-list"
               >
                 <div
@@ -76,7 +76,7 @@
                 </div>
               </div>
               <div
-                v-if="row.isFuzzySearchPending"
+                v-if="row.isFuzzySearchPending && !row.alreadyExists"
                 class="fuzzy-pending"
               >
                 ...
@@ -151,18 +151,9 @@
     </template>
     <template #footer>
       <VBtn
-        v-if="allExistingMatches"
         color="primary"
         medium
-        @click="() => emit('close')"
-      >
-        Close
-      </VBtn>
-      <VBtn
-        v-else
-        color="primary"
-        medium
-        :disabled="!hasSelections"
+        :disabled="!hasSelections && !allExistingMatches"
         @click="applySelections"
       >
         Apply
@@ -226,15 +217,11 @@ const allExistingMatches = computed(() => {
 
 onMounted(async () => {
   const parsedAuthors = parseBibtexAuthors(props.authorString)
-
-  const matchedRoleIds = new Set()
+  const claimedRoleIds = new Set()
 
   authorRows.value = parsedAuthors.map((author) => {
-    const existingRole = findExistingRoleByName(author, matchedRoleIds)
-
-    if (existingRole) {
-      matchedRoleIds.add(existingRole.id)
-    }
+    const existingRole = findExistingRoleByName(author, claimedRoleIds)
+    if (existingRole) claimedRoleIds.add(existingRole.id)
 
     return {
       originalString: author.originalString,
@@ -259,7 +246,7 @@ onMounted(async () => {
 
   for (const row of authorRows.value) {
     if (!row.alreadyExists) {
-      await searchMatches(row)
+      await searchMatches(row, claimedRoleIds)
     }
   }
 })
@@ -268,8 +255,6 @@ function normalizeName(name) {
   return (name || '').toLowerCase().trim().replace(/\s+/g, ' ')
 }
 
-// Used only to match parsed authors against already-loaded existing roles.
-// Server-side filtering handles the broader DB search.
 function namesMatch(parsedAuthor, person) {
   const parsedLast = normalizeName(parsedAuthor.lastName)
   const personLast = normalizeName(person.last_name)
@@ -286,12 +271,16 @@ function namesMatch(parsedAuthor, person) {
   return parsedFirst.charAt(0) === personFirst.charAt(0)
 }
 
-function findExistingRoleByName(parsedAuthor, alreadyMatchedIds) {
+// Inherent limitation: two parsed authors with indistinguishable
+// initials (e.g.) against two similarly-named existing roles cannot be resolved
+// unambiguously.
+function findExistingRoleByName(parsedAuthor, claimedRoleIds) {
   for (const role of activeRoles.value) {
-    const person = role.person ?? role
-    const personId = role.person_id ?? person.id
+    const person = role.person
+    const personId = role.person_id ?? person?.id
 
-    if (alreadyMatchedIds.has(personId)) continue
+    if (!person || !personId) continue
+    if (claimedRoleIds.has(personId)) continue
 
     if (namesMatch(parsedAuthor, person)) {
       return {
@@ -338,26 +327,51 @@ function parseBibtexAuthors(authorString) {
   })
 }
 
-async function searchMatches(row) {
-  row.isSearching = true
-
-  const exactPayload = { last_name: row.parsedLastName }
+async function searchMatches(row, claimedRoleIds) {
+  const exactPayload = {}
+  if (row.parsedLastName) exactPayload.last_name = row.parsedLastName
   if (row.parsedFirstName) exactPayload.first_name = row.parsedFirstName
 
-  const fuzzyPayload = { last_name_like: row.parsedLastName }
+  if (Object.keys(exactPayload).length === 0) {
+    row.isSearching = false
+    row.isFuzzySearchPending = false
+    return
+  }
+
+  const fuzzyPayload = {}
+  if (row.parsedLastName) fuzzyPayload.last_name_like = row.parsedLastName
   if (row.parsedFirstName) fuzzyPayload.first_name_like = row.parsedFirstName
 
   let firstReturned = false
+
+  const claimExistingRole = (people) => {
+    if (row.alreadyExists) return
+    const activeRoleIds = new Set(
+      activeRoles.value
+        .map((r) => r.person_id ?? r.person?.id)
+        .filter((id) => id != null && !claimedRoleIds.has(id))
+    )
+    const match = people.find((p) => activeRoleIds.has(p.id))
+    if (match) {
+      row.selectedPersonId = match.id
+      row.createdPerson = match
+      row.alreadyExists = true
+      claimedRoleIds.add(match.id)
+    }
+  }
 
   const handleResult = (people) => {
     if (!firstReturned) {
       firstReturned = true
       row.matches = people
       row.isSearching = false
+      claimExistingRole(people)
     } else {
       const existingIds = new Set(row.matches.map((p) => p.id))
-      row.matches = [...row.matches, ...people.filter((p) => !existingIds.has(p.id))]
+      const incoming = people.filter((p) => !existingIds.has(p.id))
+      row.matches = [...row.matches, ...incoming]
       row.isFuzzySearchPending = false
+      claimExistingRole(incoming)
     }
   }
 

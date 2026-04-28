@@ -95,6 +95,10 @@ function addRole(person) {
 
 function applyMatchedAuthors(people) {
     for (const person of people) {
+        // TODO: we can't currently control the ordering of rolePicker people,
+        // so if the user adds people piecemeal on multiple visits to the
+        // matcher, names may get displayed in a different order than what the
+        // matcher shows.
         rolePicker.value.addPerson(person);
     }
     source.value.isUnsaved = true;
