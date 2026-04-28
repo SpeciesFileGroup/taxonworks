@@ -232,22 +232,22 @@ module OtusHelper
 
   # @return [Hash]
   #   GeoJSON FeatureCollection of absent FieldOccurrences and AssertedDistributions
-  #   for the OTU and its coordinate/descendant OTUs. Within each OTU, ancestor taxon
-  #   names are traversed via TaxonNameHierarchies (same as otu_distribution).
-  def otu_distribution_is_absent(otu, children = true, cutoff = 200)
+  #   for the OTU, its coordinate OTUs, and ancestor taxon names (traversed via
+  #   TaxonNameHierarchies).
+  # @param descendants [Boolean] when true, also include direct absents from
+  #   descendant OTUs. Off by default: a descendant's absence does not propagate
+  #   up to the OTU, and a sibling descendant's presence in the same region may
+  #   contradict it. Use only when the caller wants a clade-wide visualization.
+  def otu_distribution_is_absent(otu, descendants: false)
     return {} if otu.nil?
-
-    otus = if children
-             otu.coordinate_otus_with_children
-           else
-             Otu.coordinate_otus(otu.id)
-           end
 
     h = geojson_for_otu(otu)
     seen_shapes = {
       field_occurrences: {},
       asserted_distributions: {}
     }
+
+    otus = descendants ? otu.coordinate_otus_with_children : Otu.coordinate_otus(otu.id)
 
     otus.each do |o|
       t = geojson_target_for_otu(o)

@@ -417,6 +417,49 @@ describe OtusHelper, type: :helper do
       ad_ids = features.map { |f| f.dig('properties', 'base', 'id') }.compact
       expect(ad_ids).to include(ad.id)
     end
+
+    context 'taxonomic scope' do
+      let(:order_name)  { FactoryBot.create(:iczn_order) }
+      let(:family_name) { Protonym.create!(name: 'Orderidae', rank_class: Ranks.lookup(:iczn, :family), parent: order_name) }
+      let(:genus_name)  { Protonym.create!(name: 'Orderus',   rank_class: Ranks.lookup(:iczn, :genus),  parent: family_name) }
+
+      let(:order_otu)  { Otu.create!(taxon_name: order_name) }
+      let(:family_otu) { Otu.create!(taxon_name: family_name) }
+      let(:genus_otu)  { Otu.create!(taxon_name: genus_name) }
+
+      specify 'includes absent AssertedDistribution determined to an ancestor OTU' do
+        ad = FactoryBot.create(:valid_geographic_area_asserted_distribution,
+          asserted_distribution_object: order_otu,
+          asserted_distribution_shape: ga,
+          is_absent: true)
+
+        features = helper.otu_distribution_is_absent(family_otu)['features']
+        ad_ids = features.map { |f| f.dig('properties', 'base', 'id') }.compact
+        expect(ad_ids).to include(ad.id)
+      end
+
+      specify 'excludes absent AssertedDistribution determined to a descendant OTU by default' do
+        ad = FactoryBot.create(:valid_geographic_area_asserted_distribution,
+          asserted_distribution_object: genus_otu,
+          asserted_distribution_shape: ga,
+          is_absent: true)
+
+        features = helper.otu_distribution_is_absent(family_otu)['features']
+        ad_ids = features.map { |f| f.dig('properties', 'base', 'id') }.compact
+        expect(ad_ids).not_to include(ad.id)
+      end
+
+      specify 'includes absent AssertedDistribution from a descendant OTU when descendants: true' do
+        ad = FactoryBot.create(:valid_geographic_area_asserted_distribution,
+          asserted_distribution_object: genus_otu,
+          asserted_distribution_shape: ga,
+          is_absent: true)
+
+        features = helper.otu_distribution_is_absent(family_otu, descendants: true)['features']
+        ad_ids = features.map { |f| f.dig('properties', 'base', 'id') }.compact
+        expect(ad_ids).to include(ad.id)
+      end
+    end
   end
 
 end

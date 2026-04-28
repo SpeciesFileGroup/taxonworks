@@ -492,6 +492,7 @@ class OtusController < ApplicationController
 
   # GET /otus/:id/inventory/distribution_is_absent.geojson
   def distribution_is_absent
+    @descendants = params[:descendants] == 'true'
     respond_to do |format|
       format.geojson do
       end
@@ -500,6 +501,7 @@ class OtusController < ApplicationController
 
   # GET /api/v1/otus/:id/inventory/distribution_is_absent.geojson
   def api_distribution_is_absent
+    @descendants = params[:descendants] == 'true'
     respond_to do |format|
       format.geojson do
         render '/otus/api/v1/inventory/distribution_is_absent'
