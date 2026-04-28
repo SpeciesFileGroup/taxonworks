@@ -53,6 +53,8 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - [#2141] On the Browse OTU page, display Biological Associations related to an OTU by:
   - Biological Association -> subject/object is a Collection Object or Field Occurrence -> the Taxon Determination of the Collection Object or Field Occurrence is the OTU in question
   - Anatomical Part has origin OTU the OTU in question
+- ISBNs with 7-digit parts not recognized as valid [#4819]
+- Batch Source Import returns 'Serial identifiers identifier has already been taken' with no clear reason or explanation
 
 
 [#4896]: https://github.com/SpeciesFileGroup/taxonworks/issues/4896
@@ -62,6 +64,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4661]: https://github.com/SpeciesFileGroup/taxonworks/issues/4661
 [#4716]: https://github.com/SpeciesFileGroup/taxonworks/issues/4716
 [#4767]: https://github.com/SpeciesFileGroup/taxonworks/issues/4767
+[#4819]: https://github.com/SpeciesFileGroup/taxonpages/issues/4819
 [#4851]: https://github.com/SpeciesFileGroup/taxonpages/issues/4851
 [#4852]: https://github.com/SpeciesFileGroup/taxonpages/issues/4852
 [#4853]: https://github.com/SpeciesFileGroup/taxonpages/issues/4853
@@ -117,7 +120,6 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Allow creating multiple authors at a time from the New Source authors matcher [#4791]
 - Freeform digitize: In some cases, the SVG editor does not use the full available space. [#4806]
 - Not all selected character state text being returned to a standard key during standard key construction from interactive key
-- ISBNs with 7-digit parts not recognized as valid [#4819]
 
 ### Changed
 
@@ -161,7 +163,6 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4813]: https://github.com/SpeciesFileGroup/taxonworks/issues/4813
 [#4805]: https://github.com/SpeciesFileGroup/taxonworks/issues/4805
 [#4816]: https://github.com/SpeciesFileGroup/taxonpages/issues/4816
-[#4819]: https://github.com/SpeciesFileGroup/taxonpages/issues/4819
 [#4826]: https://github.com/SpeciesFileGroup/taxonworks/issues/4826
 [#4831]: https://github.com/SpeciesFileGroup/taxonworks/issues/4831
 
