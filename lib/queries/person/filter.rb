@@ -307,13 +307,18 @@ module Queries
 
       # Builds a PostgreSQL regex pattern for positional initial-expansion matching.
       # Each part of the input is matched in sequence:
-      #   single char  -> matches any word starting with that letter (e.g. 'j' -> 'j\w*\.?')
-      #   multiple chars -> matches exactly OR as a bare initial (e.g. 'john' -> '(?:john|j\.?)')
+      #   single char -> matches any word starting with that letter
+      #     (e.g. 'j' -> 'j\w*\.?')
+      #   multiple chars -> matches exactly OR as a bare initial
+      #     (e.g. 'john' -> '(?:john|j\.?)')
       # Parts are joined by a flexible whitespace/period separator.
-      # Trailing name parts (e.g. middle names absent from input) are allowed via '(\s.*)?$'.
-      # When all input parts are full names (no initials), each part after the first is optional,
-      # so e.g. 'John Stuart' also matches stored 'J.' or 'J. S.'.
-      # When any input part is an initial, all parts are required (the caller is being explicit).
+      # Trailing name parts (e.g. middle names absent from input) are allowed
+      # via '(\s.*)?$'.
+      # When all input parts are full names (no initials), each part after the
+      # first is optional, so e.g. 'John Stuart' also matches stored
+      # 'J.' or 'J. S.'.
+      # When any input part is an initial, all parts are required (the caller is
+      # being explicit).
       def build_first_name_like_pattern(input)
         parts = input.downcase.gsub(/[.\-]/, ' ').split.reject(&:empty?)
         return nil if parts.empty?
@@ -328,9 +333,11 @@ module Queries
         end
 
         if parts.length > 1 && parts.all? { |p| p.length > 1 }
-          # Build right-to-left: each non-first part becomes an optional continuation
-          # so a stored value with fewer parts (e.g. 'J.') still matches.
-          # Separator is zero-or-more so fused forms (e.g. 'Yalin' for 'Ya-Lin') also match.
+          # Build right-to-left: each non-first part becomes an optional
+          # continuation so a stored value with fewer parts (e.g. 'J.') still
+          # matches.
+          # Separator is zero-or-more so fused forms (e.g. 'Yalin' for 'Ya-Lin')
+          # also match.
           tail = "([\\s.\\-]*)?"
           regex_parts.reverse.each_with_index do |rp, i|
             tail = "#{rp}#{tail}"
@@ -344,6 +351,7 @@ module Queries
 
       def first_name_like_facet
         return nil if first_name_like.blank?
+
         pattern = build_first_name_like_pattern(first_name_like)
         return nil if pattern.nil?
 
@@ -361,28 +369,26 @@ module Queries
         words = last_name_like.downcase.gsub('-', ' ').strip.split(/\s+/).reject(&:empty?)
         return nil if words.empty?
 
-        # Forward: every input word must appear as a whole word in the stored value.
-        # \m and \M are PostgreSQL word-boundary markers.
+        # Forward: every input word must appear as a whole word in the stored
+        # value.
+        # \m and \M are PostgreSQL word-boundary markers, ~* is case-insensitive.
         forward_clauses = words.map { "(people.last_name ~* ? OR (alternate_values.alternate_value_object_attribute = 'last_name' AND alternate_values.value ~* ?))" }
-        forward_values  = words.flat_map { |w| pat = "\\m#{::Regexp.escape(w)}\\M"; [pat, pat] }
+        forward_values  = words.flat_map { |w|
+          pat = "\\m#{::Regexp.escape(w)}\\M"
+          [pat, pat]
+        }
 
         q = ::Person.left_outer_joins(:alternate_values)
+        forward = q.where(forward_clauses.join(' AND '), *forward_values)
 
-        if words.length == 1
-          # Single-word input: forward direction is sufficient.
-          q.where(forward_clauses.join(' AND '), *forward_values).distinct
-        else
-          # Multi-word input: also add backward direction — the stored last_name exactly equals
-          # one of the input words, e.g. stored 'Smith' is found by input 'Smith Jones'.
-          # Exact equality avoids per-row regex construction and is safe against metacharacters.
-          backward_clause = "LOWER(people.last_name) = ANY(ARRAY[#{words.map { '?' }.join(',')}])"
+        return forward.distinct if words.length == 1
 
-          q.where(
-            "(#{forward_clauses.join(' AND ')}) OR (#{backward_clause})",
-            *forward_values,
-            *words
-          ).distinct
-        end
+        # Multi-word input: also add backward direction — the stored last_name
+        # exactly equals one of the input words, e.g. stored 'Smith' is found
+        # by input 'Smith Jones'.
+        backward_clause = "LOWER(people.last_name) = ANY(ARRAY[#{words.map { '?' }.join(',')}])"
+
+        forward.or(q.where(backward_clause, *words)).distinct
       end
 
       def last_name_starts_with_facet

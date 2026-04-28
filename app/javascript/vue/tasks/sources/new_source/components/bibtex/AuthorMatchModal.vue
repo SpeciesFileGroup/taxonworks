@@ -38,7 +38,10 @@
                 v-if="row.isSearching"
                 :legend="null"
               />
-              <div v-else-if="row.matches.length === 0 && !row.alreadyExists && !row.isFuzzySearchPending">
+              <div
+                v-else-if="row.matches.length === 0 &&
+                  !row.alreadyExists && !row.isFuzzySearchPending"
+              >
                 <span class="no-matches">No matches found</span>
               </div>
               <div
@@ -73,9 +76,11 @@
                 </div>
               </div>
               <div
-                v-if="row.isFuzzySearchPending && !row.isSearching"
+                v-if="row.isFuzzySearchPending"
                 class="fuzzy-pending"
-              >...</div>
+              >
+                ...
+              </div>
             </td>
             <td class="create-cell">
               <div
@@ -87,7 +92,9 @@
                   <a
                     :href="`/people/${row.createdPerson.id}`"
                     target="_blank"
-                  >{{ row.createdPerson.cached }}</a>
+                  >
+                    {{ row.createdPerson.cached }}
+                  </a>
                 </span>
               </div>
               <div
@@ -355,8 +362,12 @@ async function searchMatches(row) {
   }
 
   await Promise.allSettled([
-    People.authorMatch(exactPayload).then(({ body }) => handleResult(body)),
-    People.authorMatch(fuzzyPayload).then(({ body }) => handleResult(body))
+    People.authorMatch(exactPayload)
+      .then(({ body }) => handleResult(body))
+      .catch(() => { firstReturned = true; row.isSearching = false }),
+    People.authorMatch(fuzzyPayload)
+      .then(({ body }) => handleResult(body))
+      .catch(() => { firstReturned = true; row.isFuzzySearchPending = false })
   ])
 
   // safety net if both requests fail
