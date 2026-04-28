@@ -15,6 +15,8 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `/leads`, `/leads/:id/remaining_otus`and `/leads/:id/eliminated_otus` API endpoints
 - Filters: Save freeze columns state [#4882]
 - Filter Source: Add TaxonWorks CSL format to `download formatted` button [#4661]
+- DwCA names checklist export (from Filter OTUs as a download type) [#4643]
+- Create Anatomical Parts from the Biological Associations annotator slice [#4716]
 
 ### Changed
 
@@ -26,6 +28,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Browse Taxon Name: Save `Redirect to valid name` state in user preferences [#4892]
 - New taxon name: Save `Autosave` state in user preferences
 - New source: Save `Autosave` state in user preferences
+- Remove all `user_id`s from api outputs [#4888]
 
 ### Fixed
 
@@ -43,9 +46,15 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Browse OTU button creates OTUs with an incorrect taxon name ID on the /otus/:id page [#4879]
 - The Browse taxon name task bar is positioned incorrectly when the header bar is fixed.
 - Filter Source: The style selection in formatted download always applies the same style regardless of what is selected.
+- Fix some tests that intermittently fail in our CI (Continuous Integration) environment, add a script to produce a report of such failures [#4891]
+- Added `otu_id` to DwcOccurrence model [#4767]
+- Improved speed of OTU distribution responses
 
 [#1856]: https://github.com/SpeciesFileGroup/taxonworks/issues/1856
+[#4643]: https://github.com/SpeciesFileGroup/taxonworks/issues/4643
 [#4661]: https://github.com/SpeciesFileGroup/taxonworks/issues/4661
+[#4716]: https://github.com/SpeciesFileGroup/taxonworks/issues/4716
+[#4767]: https://github.com/SpeciesFileGroup/taxonworks/issues/4767
 [#4851]: https://github.com/SpeciesFileGroup/taxonpages/issues/4851
 [#4852]: https://github.com/SpeciesFileGroup/taxonpages/issues/4852
 [#4853]: https://github.com/SpeciesFileGroup/taxonpages/issues/4853
@@ -54,7 +63,9 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4866]: https://github.com/SpeciesFileGroup/taxonpages/issues/4866
 [#4879]: https://github.com/SpeciesFileGroup/taxonpages/issues/4879
 [#4882]: https://github.com/SpeciesFileGroup/taxonpages/issues/4882
+[#4888]: https://github.com/SpeciesFileGroup/taxonpages/issues/4888
 [#4892]: https://github.com/SpeciesFileGroup/taxonpages/issues/4892
+[#4891]: https://github.com/SpeciesFileGroup/taxonpages/issues/4891
 
 ## [0.61.0] - 2026-02-20
 
@@ -112,6 +123,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Filters: keep per state after reset [#4831]
 - Updated Ruby gems
 - Refactor Filter annotations task [#4809]
+- Focus the next keyboard input after mouse clicks in New Taxon Name
 
 [#345]: https://github.com/SpeciesFileGroup/taxonpages/issues/345
 [#4271]: https://github.com/SpeciesFileGroup/taxonworks/issues/4271

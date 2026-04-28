@@ -13,34 +13,25 @@ describe 'Verbatim author year to source', type: :feature, group: :sources do
       end
 
       context 'with taxon names having verbatim author and year', js: true do
-        # Current must be set in the test process so that the parent_is_root factory
-        # trait can look up / create the root TaxonName via housekeeping callbacks.
-        before do
-          Current.user_id    = @user.id
-          Current.project_id = @project.id
-        end
-
-        after { Current.reset }
-
         let!(:taxon_name1) {
           FactoryBot.create(:valid_protonym,
             verbatim_author: 'Smith',
             year_of_publication: 2020,
-            by: @user
+            **user_project_attributes(@user, @project)
           )
         }
         let!(:taxon_name2) {
           FactoryBot.create(:valid_protonym,
             verbatim_author: 'Smith',
             year_of_publication: 2020,
-            by: @user
+            **user_project_attributes(@user, @project)
           )
         }
         let!(:taxon_name3) {
           FactoryBot.create(:valid_protonym,
             verbatim_author: 'Jones',
             year_of_publication: 2019,
-            by: @user
+            **user_project_attributes(@user, @project)
           )
         }
 

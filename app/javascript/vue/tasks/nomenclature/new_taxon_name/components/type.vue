@@ -27,6 +27,7 @@
           />
         </div>
         <QuickTaxonName
+          ref="quickTaxonName"
           v-if="
             !showForThisGroup(
               ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup'],
@@ -166,6 +167,8 @@ const TAB = {
   common: 'Common',
   showAll: 'Show all'
 }
+
+const quickTaxonName = ref(null)
 
 const store = useStore()
 
@@ -363,4 +366,8 @@ function switchComprehensive() {
     '_self'
   )
 }
+
+defineExpose({
+  focus() { quickTaxonName.value?.focus() }
+})
 </script>

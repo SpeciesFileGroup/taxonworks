@@ -31,7 +31,7 @@
       </div>
     </div>
     <div>
-      <NavHeader />
+      <NavHeader @section-clicked="focusSectionComponent" />
       <div class="flexbox horizontal-center-content align-start">
         <div class="item full_width">
           <VSpinner
@@ -41,11 +41,12 @@
             v-if="isLoading"
           />
           <template
-            v-for="{ component, title, isAvailableFor } in SectionComponents"
+            v-for="({ component, title, isAvailableFor }, index) in SectionComponents"
             :key="title"
           >
             <component
               v-if="isAvailableFor(taxon)"
+              :ref="el => { if (el) sectionRefs[index] = el; else delete sectionRefs[index] }"
               class="margin-medium-bottom"
               :is="component"
             />
@@ -82,6 +83,7 @@ defineOptions({
 const KEY_STORAGE_AUTOSAVE = 'task::NewTaxonName::Autosave'
 
 const store = useStore()
+const sectionRefs = {}
 
 const isLoading = ref()
 const shortcuts = ref([
@@ -191,6 +193,13 @@ function loadTaxon(taxon) {
     `/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxon.id}`,
     '_self'
   )
+}
+
+function focusSectionComponent(index) {
+  const component = sectionRefs[index]
+  if (!component) return
+  component.$el?.querySelector('a[name]')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  component.focus?.()
 }
 
 function focusSearch() {

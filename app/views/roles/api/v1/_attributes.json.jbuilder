@@ -1,4 +1,4 @@
-json.extract! role, :id, :person_id, :role_object_id, :role_object_type, :position, :type, :created_by_id, :updated_by_id, :created_at, :updated_at
+json.extract! role, :id, :person_id, :role_object_id, :role_object_type, :position, :type, :created_at, :updated_at
 
 json.global_id role.to_global_id.to_s
 

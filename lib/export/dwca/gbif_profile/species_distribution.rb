@@ -4,6 +4,23 @@
 module Export::Dwca::GbifProfile
 
   class SpeciesDistribution
+    NAMESPACES = {
+      :taxonID => 'http://rs.tdwg.org/dwc/terms/taxonID',
+      :locality => 'http://rs.tdwg.org/dwc/terms/locality',
+      :locationID => 'http://rs.tdwg.org/dwc/terms/locationID',
+      :countryCode => 'http://rs.tdwg.org/dwc/terms/countryCode',
+      :lifeStage => 'http://rs.tdwg.org/dwc/terms/lifeStage',
+      :occurrenceStatus => 'http://rs.tdwg.org/dwc/terms/occurrenceStatus',
+      :threatStatus => 'http://rs.gbif.org/terms/1.0/threatStatus',
+      :establishmentMeans => 'http://rs.tdwg.org/dwc/terms/establishmentMeans',
+      :appendixCITES => 'http://rs.gbif.org/terms/1.0/appendixCITES',
+      :eventDate => 'http://rs.tdwg.org/dwc/terms/eventDate',
+      :startDayOfYear => 'http://rs.tdwg.org/dwc/terms/startDayOfYear',
+      :endDayOfYear => 'http://rs.tdwg.org/dwc/terms/endDayOfYear',
+      :source => 'http://purl.org/dc/terms/source',
+      :occurrenceRemarks => 'http://rs.tdwg.org/dwc/terms/occurrenceRemarks'
+    }.freeze
+
     # taxonID (http://rs.tdwg.org/dwc/terms/taxonID)
     #
     # @return [String]
@@ -11,15 +28,15 @@ module Export::Dwca::GbifProfile
     # taxon in the core data file to which this distribution record points. This
     # identifier provides the link between the core data record and the
     # extension record.
-    attr_accessor :taxonID # [USED IN SF]
+    attr_accessor :taxonID
 
     # locality (http://rs.tdwg.org/dwc/terms/locality)
     #
     # @return [String]
     # The verbatim name of the area this distributon record is about.
     #
-    # Example: “Patagonia”
-    attr_accessor :locality # [USED IN SF]
+    # Example: "Patagonia"
+    attr_accessor :locality
 
     # locationID (http://rs.tdwg.org/dwc/terms/locationID)
     #
@@ -30,8 +47,8 @@ module Export::Dwca::GbifProfile
     # the code. See http://rs.gbif.org/areas/ for GBIF recommended area
     # vocabularies
     #
-    # Example: “TDWG:AGS-TF; ISO3166:AR; WOEID:564721”
-    attr_accessor :locationID # [USED IN SF]
+    # Example: "TDWG:AGS-TF; ISO3166:AR; WOEID:564721"
+    attr_accessor :locationID
 
     # countryCode (http://rs.tdwg.org/dwc/terms/countryCode)
     #
@@ -52,9 +69,9 @@ module Export::Dwca::GbifProfile
     # http://rs.gbif.org/vocabulary/gbif/life_stage.xml for recommended
     # values.
     #
-    # Vocabulary: http://rs.gbif.org/vocabulary/gbif/life_stage.xml 
+    # Vocabulary: http://rs.gbif.org/vocabulary/gbif/life_stage.xml
     #
-    # Example: “adult”
+    # Example: "adult"
     attr_accessor :lifeStage
 
     # occurrenceStatus (http://rs.tdwg.org/dwc/terms/occurrenceStatus)
@@ -67,7 +84,7 @@ module Export::Dwca::GbifProfile
     #
     # Vocabulary: http://rs.gbif.org/vocabulary/gbif/occurrence_status.xml
     #
-    # Example: “Absent” “present”
+    # Example: "Absent" "present"
     attr_accessor :occurrenceStatus
 
     # threatStatus (http://rs.gbif.org/terms/1.0/threatStatus)
@@ -89,7 +106,7 @@ module Export::Dwca::GbifProfile
     #
     # Vocabulary: http://rs.gbif.org/vocabulary/gbif/establishment_means.xml
     #
-    # Example: “introduced”
+    # Example: "introduced"
     attr_accessor :establishmentMeans
 
     # appendixCITES (http://rs.gbif.org/terms/1.0/appendixCITES)
@@ -102,7 +119,7 @@ module Export::Dwca::GbifProfile
     #
     # Vocabulary: http://rs.gbif.org/vocabulary/un/cites_appendix.xml
     #
-    # Example: “II”
+    # Example: "II"
     attr_accessor :appendixCITES
 
     # eventDate (http://rs.tdwg.org/dwc/terms/eventDate)
@@ -142,7 +159,7 @@ module Export::Dwca::GbifProfile
     # Source reference for this distribution record. Can be proper publication
     # citation, a webpage URL, etc.
     #
-    # Example: "Euro+Med Plantbase - the information resource for 
+    # Example: "Euro+Med Plantbase - the information resource for
     # Euro-Mediterranean plant diversity (2006-). Published on the Internet
     # http://ww2.bgbm.org/EuroPlusMed/ July, 2009"
     attr_accessor :source
@@ -155,5 +172,5 @@ module Export::Dwca::GbifProfile
     # Example: "Excluded because of misidentification"
     attr_accessor :occurrenceRemarks
   end
-  
+
 end

@@ -22,7 +22,7 @@
     </div>
     <smart-selector-item
       :item="selectedOtu"
-      @unset="selectedOtu = undefined"
+      @unset="unsetOtu"
     />
   </fieldset>
 </template>
@@ -76,5 +76,11 @@ const setOtu = (otu) => {
   selectedOtu.value = otu
   otuId.value = otu.id
   emit('label', otu.object_tag)
+}
+
+const unsetOtu = () => {
+  selectedOtu.value = undefined
+  otuId.value = undefined
+  emit('label', undefined)
 }
 </script>

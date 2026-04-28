@@ -88,6 +88,8 @@ class GeographicArea < ApplicationRecord
   has_many :collecting_events, inverse_of: :geographic_area
   has_many :common_names, inverse_of: :geographic_area
   has_many :geographic_areas_geographic_items, -> { ordered_by_data_origin }, dependent: :destroy, inverse_of: :geographic_area
+  has_many :default_geographic_areas_geographic_items,
+    -> { default_geographic_item_data }, class_name: 'GeographicAreasGeographicItem'
   has_many :geographic_items, through: :geographic_areas_geographic_items
 
   accepts_nested_attributes_for :geographic_areas_geographic_items
@@ -451,7 +453,11 @@ class GeographicArea < ApplicationRecord
 
   # @return [GeographicAreasGeographicItem, nil]
   def default_geographic_area_geographic_item
-    GeographicAreasGeographicItem.where(geographic_area_id: id).default_geographic_item_data.first
+    if association(:geographic_areas_geographic_items).loaded?
+      geographic_areas_geographic_items.first
+    else
+      GeographicAreasGeographicItem.where(geographic_area_id: id).default_geographic_item_data.first
+    end
   end
 
   # rubocop:disable Style/StringHashKeys

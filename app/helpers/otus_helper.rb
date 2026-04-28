@@ -216,12 +216,39 @@ module OtusHelper
     if otu.taxon_name && otu.taxon_name.is_protonym? && !otu.taxon_name.is_species_rank?
       add_aggregate_geo_json(otu, h)
     else
+      otus = if children
+              otu.coordinate_otus_with_children
+            else
+              Otu.coordinate_otus(otu.id)
+            end
+
+      # Batch-load everything the downstream helpers touch.
+      otus = otus.includes(
+        :taxon_name,
+        current_field_occurrences: [
+          :identifiers,
+          { collecting_event: [ :georeferences, :geographic_area, :geographic_items ] }
+        ],
+        current_collection_objects: [
+          :identifiers,
+          { collecting_event: [ :georeferences, :geographic_area, :geographic_items ] }
+        ],
+        asserted_distributions: { asserted_distribution_shape: :geographic_items },
+        type_materials: [
+          { collection_object: [
+              :identifiers,
+              { collecting_event: [ :georeferences, :geographic_area, :geographic_items ] }
+            ] }
+        ]
+      )
+
       seen_shapes = {
         field_occurrences: {},
         collection_objects: {},
         asserted_distributions: {},
         type_materials: {}
       }
+
       otus.each do |o|
         add_distribution_geo_json(o, h, seen_shapes)
       end

@@ -60,6 +60,7 @@
         />
       </div>
       <slot name="body" />
+      <slot :name="`${view}-top`" />
       <template v-if="isImageModel">
         <div class="flex-wrap-row">
           <div
