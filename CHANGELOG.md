@@ -9,6 +9,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ### Added
 
+- Distribution absence inference and mapping endpoints #4896
 - `subject_otu_id` and `object_otu_id` to biological associations `/api/v1/biological_associations/basic` endpoint
 - Filters: Copy to clipboard button for API Url [#4852]
 - In the New Asserted Distribution task, add map tab to Gazetteer selection for shape [#4853]
@@ -50,6 +51,8 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Added `otu_id` to DwcOccurrence model [#4767]
 - Improved speed of OTU distribution responses
 
+
+[#4896]: https://github.com/SpeciesFileGroup/taxonworks/issues/4896
 [#1856]: https://github.com/SpeciesFileGroup/taxonworks/issues/1856
 [#4643]: https://github.com/SpeciesFileGroup/taxonworks/issues/4643
 [#4661]: https://github.com/SpeciesFileGroup/taxonworks/issues/4661
