@@ -117,6 +117,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Allow creating multiple authors at a time from the New Source authors matcher [#4791]
 - Freeform digitize: In some cases, the SVG editor does not use the full available space. [#4806]
 - Not all selected character state text being returned to a standard key during standard key construction from interactive key
+- ISBNs with 7-digit parts not recognized as valid [#4819]
 
 ### Changed
 
@@ -160,6 +161,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4813]: https://github.com/SpeciesFileGroup/taxonworks/issues/4813
 [#4805]: https://github.com/SpeciesFileGroup/taxonworks/issues/4805
 [#4816]: https://github.com/SpeciesFileGroup/taxonpages/issues/4816
+[#4819]: https://github.com/SpeciesFileGroup/taxonpages/issues/4819
 [#4826]: https://github.com/SpeciesFileGroup/taxonworks/issues/4826
 [#4831]: https://github.com/SpeciesFileGroup/taxonworks/issues/4831
 
