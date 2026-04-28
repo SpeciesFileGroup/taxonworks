@@ -407,6 +407,41 @@ class Otu < ApplicationRecord
     association(:current_field_occurrences).reader
   end
 
+  # @return [ActiveRecord::Relation<FieldOccurrence>]
+  #   FieldOccurrences with is_absent=true whose current TaxonDetermination is this OTU
+  #   or an OTU whose taxon name is an ancestor of this OTU's taxon name.
+  #   Uses TaxonNameHierarchies closure table; includes self when taxon_name_id is present.
+  def absent_and_ancestor_absent_field_occurrences
+    if taxon_name_id.nil?
+      return field_occurrences.where(taxon_determinations: {position: 1}, is_absent: true)
+    end
+
+    FieldOccurrence
+      .joins(taxon_determinations: :otu)
+      .joins('JOIN taxon_names tn_fo ON tn_fo.id = otus.taxon_name_id')
+      .joins('JOIN taxon_name_hierarchies tnh_fo ON tnh_fo.ancestor_id = tn_fo.cached_valid_taxon_name_id')
+      .where(taxon_determinations: {position: 1})
+      .where(field_occurrences: {is_absent: true, project_id:})
+      .where('tnh_fo.descendant_id = ?', taxon_name_id)
+  end
+
+  # @return [ActiveRecord::Relation<AssertedDistribution>]
+  #   AssertedDistributions with is_absent=true whose asserted_distribution_object is this OTU
+  #   or an OTU whose taxon name is an ancestor of this OTU's taxon name.
+  #   Uses TaxonNameHierarchies closure table; includes self when taxon_name_id is present.
+  def absent_and_ancestor_absent_asserted_distributions
+    if taxon_name_id.nil?
+      return asserted_distributions.with_is_absent
+    end
+
+    AssertedDistribution
+      .joins("JOIN otus ON otus.id = asserted_distributions.asserted_distribution_object_id AND asserted_distributions.asserted_distribution_object_type = 'Otu'")
+      .joins('JOIN taxon_names tn_ad ON tn_ad.id = otus.taxon_name_id')
+      .joins('JOIN taxon_name_hierarchies tnh_ad ON tnh_ad.ancestor_id = tn_ad.cached_valid_taxon_name_id')
+      .where(asserted_distributions: {is_absent: true, project_id:})
+      .where('tnh_ad.descendant_id = ?', taxon_name_id)
+  end
+
   # @return [Boolean]
   #   whether or not this otu is coordinate (see coordinate_otus) with this otu
   def coordinate_with?(otu_id)

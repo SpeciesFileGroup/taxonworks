@@ -733,6 +733,7 @@ resources :otus do
     get :coordinate, defaults: {format: :json}
 
     get 'inventory/distribution', action: :distribution, defaults: {format: :json}
+    get 'inventory/distribution_is_absent', action: :distribution_is_absent, defaults: {format: :geojson}
     get 'inventory/taxonomy', action: :api_taxonomy_inventory, as: :taxonomy_inventory
     get 'inventory/citations', action: :citations_inventory, defaults: {format: :json}
   end
