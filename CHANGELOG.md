@@ -50,10 +50,14 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Fix some tests that intermittently fail in our CI (Continuous Integration) environment, add a script to produce a report of such failures [#4891]
 - Added `otu_id` to DwcOccurrence model [#4767]
 - Improved speed of OTU distribution responses
+- [#2141] On the Browse OTU page, display Biological Associations related to an OTU by:
+  - Biological Association -> subject/object is a Collection Object or Field Occurrence -> the Taxon Determination of the Collection Object or Field Occurrence is the OTU in question
+  - Anatomical Part has origin OTU the OTU in question
 
 
 [#4896]: https://github.com/SpeciesFileGroup/taxonworks/issues/4896
 [#1856]: https://github.com/SpeciesFileGroup/taxonworks/issues/1856
+[#2141]: https://github.com/SpeciesFileGroup/taxonworks/issues/2141
 [#4643]: https://github.com/SpeciesFileGroup/taxonworks/issues/4643
 [#4661]: https://github.com/SpeciesFileGroup/taxonworks/issues/4661
 [#4716]: https://github.com/SpeciesFileGroup/taxonworks/issues/4716

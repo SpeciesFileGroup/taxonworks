@@ -420,7 +420,7 @@ module OtusHelper
       h['features'].push g
     end
 
-    ba_ids = o.all_biological_associations.map(&:id)
+    ba_ids = ::Queries::BiologicalAssociation::Filter.new(otu_query: { otu_id: [o.id] }).all.pluck(:id)
     unless ba_ids.empty?
       ::AssertedDistribution
         .where(
