@@ -261,46 +261,6 @@ function normalizeName(name) {
   return (name || '').toLowerCase().trim().replace(/\s+/g, ' ')
 }
 
-// Score how closely a person's first name matches the parsed first name.
-// Parts are compared positionally: 2 points for exact word match, 1 for matching initial.
-function scoreFirstNameMatch(person, parsedFirstName) {
-  const pParts = normalizeName(parsedFirstName).replace(/\./g, ' ').split(/\s+/).filter(Boolean)
-  const sParts = normalizeName(person.first_name || '').replace(/\./g, ' ').split(/\s+/).filter(Boolean)
-
-  if (pParts.length === 0) return 0
-  if (sParts.length === 0) return -1
-
-  let score = 0
-  const compareCount = Math.min(pParts.length, sParts.length)
-
-  for (let i = 0; i < compareCount; i++) {
-    if (pParts[i] === sParts[i]) score += 2
-    else if (pParts[i][0] === sParts[i][0]) score += 1
-  }
-
-  return score
-}
-
-// Score how closely a person's last name matches the parsed last name.
-// 2 points per word in common; last name is weighted higher than first in the combined score.
-function scoreLastNameMatch(person, parsedLastName) {
-  const pWords = new Set(normalizeName(parsedLastName).split(/\s+/).filter(Boolean))
-  const sWords = new Set(normalizeName(person.last_name || '').split(/\s+/).filter(Boolean))
-
-  if (pWords.size === 0) return 0
-  if (sWords.size === 0) return -1
-
-  let score = 0
-  for (const w of pWords) {
-    if (sWords.has(w)) score += 2
-  }
-  return score
-}
-
-function scoreMatch(person, parsedFirstName, parsedLastName) {
-  return scoreLastNameMatch(person, parsedLastName) * 10 + scoreFirstNameMatch(person, parsedFirstName)
-}
-
 // Used only to match parsed authors against already-loaded existing roles.
 // Server-side filtering handles the broader DB search.
 function namesMatch(parsedAuthor, person) {
@@ -383,25 +343,20 @@ async function searchMatches(row) {
   let firstReturned = false
 
   const handleResult = (people) => {
-    const existingIds = new Set(row.matches.map((p) => p.id))
-    const incoming = firstReturned ? people.filter((p) => !existingIds.has(p.id)) : people
-    const sorted = incoming.slice().sort(
-      (a, b) => scoreMatch(b, row.parsedFirstName, row.parsedLastName) - scoreMatch(a, row.parsedFirstName, row.parsedLastName)
-    )
-
     if (!firstReturned) {
       firstReturned = true
-      row.matches = sorted
+      row.matches = people
       row.isSearching = false
     } else {
-      row.matches = [...row.matches, ...sorted]
+      const existingIds = new Set(row.matches.map((p) => p.id))
+      row.matches = [...row.matches, ...people.filter((p) => !existingIds.has(p.id))]
       row.isFuzzySearchPending = false
     }
   }
 
   await Promise.allSettled([
-    People.where(exactPayload).then(({ body }) => handleResult(body)),
-    People.where(fuzzyPayload).then(({ body }) => handleResult(body))
+    People.authorMatch(exactPayload).then(({ body }) => handleResult(body)),
+    People.authorMatch(fuzzyPayload).then(({ body }) => handleResult(body))
   ])
 
   // safety net if both requests fail

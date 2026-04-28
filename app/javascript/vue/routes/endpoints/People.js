@@ -21,6 +21,8 @@ export const People = {
   ...baseCRUD(controller, permitParams),
   ...annotations(controller),
 
+  authorMatch: (params) => AjaxCall('get', `/${controller}/author_match.json`, params),
+
   roleTypes: () => AjaxCall('get', `/${controller}/role_types.json`),
 
   roles: (id) => AjaxCall('get', `/${controller}/${id}/roles.json`),

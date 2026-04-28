@@ -776,6 +776,7 @@ resources :people do
 
   collection do
     get :select_options, defaults: {format: :json}
+    get :author_match, defaults: {format: :json}
     match :filter, to: 'people#index', via: [:get, :post]
   end
 
