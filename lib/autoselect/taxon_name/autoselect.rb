@@ -22,27 +22,6 @@ module Autoselect
         { taxon_name_id: record.id }
       end
 
-      def record_label(record)
-        record.cached
-      end
-
-      def record_label_html(record)
-        record_label(record)
-      end
-
-      def record_info(record)
-        parts = []
-        if record.respond_to?(:rank_string) && record.rank_string.present?
-          parts << record.rank_string.split('::').last.downcase
-        elsif record.respond_to?(:_col_extension) && record._col_extension&.dig(:col_rank).present?
-          parts << record._col_extension[:col_rank]
-        end
-        if record.respond_to?(:cached_valid_taxon_name_id) && record.id.present?
-          parts << (record.id == record.cached_valid_taxon_name_id ? 'valid' : 'synonym')
-        end
-        parts.join(', ').presence
-      end
-
       private
 
       # Override to populate extension from CoL pseudo-records.
@@ -52,7 +31,7 @@ module Autoselect
             id: record.id,
             label: record_label(record),
             label_html: record_label_html(record),
-            info: record_info(record),
+            info_html: @show_info ? record_info_html(record) : '',
             response_values: response_values(record),
             extension: record.respond_to?(:_col_extension) ? record._col_extension : {}
           }

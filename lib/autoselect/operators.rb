@@ -16,6 +16,7 @@ module Autoselect::Operators
     help:          { pattern: /\A!\?/,     client_only: true,  trigger: '!?',  description: 'Show help overlay' },
     new_record:    { pattern: /\A!n/,      client_only: true,  trigger: '!n',  description: 'Create a new record' },
     preferences:   { pattern: /\A!p/,      client_only: true,  trigger: '!p',  description: 'Open preferences (hide levels, set options)' },
+    show_info:     { pattern: /\A!i/,      client_only: true,  trigger: '!i',  description: 'Toggle info display on/off' },
     external:      { pattern: /\A!e/,      client_only: true,  trigger: '!e',  description: 'Jump to leftmost external search level' },
     level_number:  { pattern: /\A!(\d+)/,  client_only: true,  trigger: '!N',  description: 'Jump to level N' },
   }.freeze

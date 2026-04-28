@@ -404,7 +404,7 @@ class TaxonNamesController < ApplicationController
 
   def autoselect_params
     params.permit(
-      :valid, :exact, :no_leaves, :dataset_id,
+      :valid, :exact, :no_leaves, :dataset_id, :show_info,
       type: [], parent_id: [], nomenclature_group: []
     ).to_h.symbolize_keys
   end

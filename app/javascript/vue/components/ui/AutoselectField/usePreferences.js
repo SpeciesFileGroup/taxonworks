@@ -12,7 +12,8 @@
  *           "hide": Boolean,      // when true this level is hidden from the fuse bar
  *           "options": {}         // arbitrary key/value pairs passed to the server on search
  *         }
- *       }
+ *       },
+ *       "show_info": Boolean      // when false, info column is hidden; default true
  *     }
  *   }
  * }
@@ -66,5 +67,16 @@ export function usePreferences(url, id) {
     return getPrefs().levels?.[levelKey]?.options || {}
   }
 
-  return { getPrefs, savePrefs, isLevelVisible, getLevelOptions }
+  /** Whether info column is shown (defaults to true when not set). */
+  function getShowInfo() {
+    return getPrefs().show_info !== false
+  }
+
+  /** Toggle info display and persist. */
+  function toggleShowInfo() {
+    const current = getPrefs()
+    savePrefs({ ...current, show_info: !getShowInfo() })
+  }
+
+  return { getPrefs, savePrefs, isLevelVisible, getLevelOptions, getShowInfo, toggleShowInfo }
 }

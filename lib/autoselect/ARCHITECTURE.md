@@ -47,6 +47,8 @@ Standard operators (all models):
 | `!r`  | `:recent`      | false | Records updated project-wide in the last week (limit 10) |
 | `!?`  | `:help`        | true  | Show help overlay (no server call) |
 | `!n`  | `:new_record`  | true  | Open new-record modal (detected anywhere in string) |
+| `!p`  | `:preferences` | true  | Open preferences modal (level visibility, options) |
+| `!i`  | `:show_info`   | true  | Toggle info column on/off (per model per id) |
 | `!e`  | `:external`    | true  | Jump to leftmost external level; no-op if none present |
 | `!N`  | `:level_number`| true  | Jump to level N (e.g. `!2`) |
 
@@ -136,10 +138,25 @@ Client (AutoselectField.vue)
 {
   "request": { "term": "Homo", "level": "smart" },
   "level": "smart",
-  "response": [ { "id": 1, "label": "Homo sapiens", "response_values": { "otu_id": 1 }, "extension": {} } ],
+  "response": [ { "id": 1, "label": "Homo sapiens", "label_html": "...", "info_html": "genus&nbsp;valid", "response_values": { "otu_id": 1 }, "extension": {} } ],
   "next_level": "catalogue_of_life"   // omitted when results present
 }
 ```
+
+### Record rendering methods
+
+Each model's Autoselect class has four rendering methods defined in `Autoselect::Base`.
+By default they delegate to per-model helpers in `app/helpers/`:
+
+| Method | Delegate | Purpose |
+|--------|----------|---------|
+| `record_label(record)` | `label_for_<model>(record)` | Plain text shown in the input after selection |
+| `record_label_html(record)` | `<model>_autoselect_tag(record)` | HTML label shown left-justified in the dropdown |
+| `record_info(record)` | `<model>_autoselect_info(record)` | Array of disambiguation strings |
+| `record_info_html(record)` | — (joins `record_info` with `&nbsp;`) | HTML info shown right-justified in the dropdown |
+
+To customise rendering for a model, implement the corresponding `app/helpers/` methods.
+The `record_*` methods on the Autoselect class itself should **not** be overridden in subclasses.
 
 ## Implementing a new model autoselect
 
@@ -181,7 +198,8 @@ tw_autoselect_prefs → {
           "hide": Boolean,          // when true this level is hidden from the fuse bar
           "options": {}             // arbitrary key/value pairs forwarded to the server
         }
-      }
+      },
+      "show_info": Boolean          // when false, info column is hidden; defaults to true
     }
   }
 }

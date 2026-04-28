@@ -34,7 +34,7 @@ RSpec.describe Autoselect::TaxonName::Autoselect, type: :model do
 
     it 'includes operators' do
       expect(config[:operators]).to be_an(Array)
-      expect(config[:operators].map { |o| o[:trigger] }).to include('!r', '!rm', '!?')
+      expect(config[:operators].map { |o| o[:trigger] }).to include('!r', '!u', '!?', '!i')
     end
 
     describe 'level metadata' do
@@ -83,7 +83,7 @@ RSpec.describe Autoselect::TaxonName::Autoselect, type: :model do
 
       it 'response items have required keys' do
         item = result[:response].first
-        expect(item).to include(:id, :label, :label_html, :info, :response_values, :extension)
+        expect(item).to include(:id, :label, :label_html, :info_html, :response_values, :extension)
       end
 
       it 'response_values includes taxon_name_id' do

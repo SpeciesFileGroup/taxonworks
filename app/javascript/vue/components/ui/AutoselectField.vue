@@ -92,9 +92,10 @@
           >
             <span v-html="item.label_html || item.label" />
             <span
-              v-if="item.info"
+              v-if="item.info_html && showInfo"
               class="autoselect__item-info"
-            >{{ item.info }}</span>
+              v-html="item.info_html"
+            />
           </li>
         </template>
         <li
@@ -290,6 +291,8 @@ function isOperatorLinkable(op) {
   return true
 }
 
+const showInfo = computed(() => currentPrefs.value.show_info !== false)
+
 const currentSpinner = computed(
   () => LEVEL_SPINNERS[currentLevel.value] ?? TaxonWorksSpinner
 )
@@ -378,6 +381,16 @@ function onInput() {
     return
   }
 
+  // !i — toggle info display
+  const infoMatch = text.match(/^(.*?)\s*!i\s*(.*)$/i)
+  if (infoMatch !== null) {
+    const cleanTerm = (infoMatch[1] + ' ' + infoMatch[2]).replace(/\s+/g, ' ').trim()
+    inputText.value = cleanTerm
+    prefs.toggleShowInfo()
+    currentPrefs.value = prefs.getPrefs()
+    return
+  }
+
   // !n — new record modal
   const newRecordMatch = text.match(/^(.*?)\s*!n\s*(.*)$/i)
   if (newRecordMatch !== null && props.newRecordComponent !== null) {
@@ -435,11 +448,11 @@ function triggerSearch(term) {
   isSearching.value = true
   dropdownItems.value = []
 
-  // Merge current level's preference options into the request params
+  // Merge current level's preference options and global prefs into the request params
   const levelOptions = prefs.getLevelOptions(currentLevel.value)
 
   AjaxCall('get', props.url, {
-    params: { term, level: currentLevel.value, ...levelOptions },
+    params: { term, level: currentLevel.value, ...levelOptions, show_info: prefs.getShowInfo() },
     signal: controller.value.signal
   })
     .then(({ body }) => {

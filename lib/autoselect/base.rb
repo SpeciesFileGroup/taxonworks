@@ -9,6 +9,7 @@
 #     ...
 #   end
 #
+# Claude wrote > 50% of this class.
 class Autoselect::Base
   include Autoselect::Operators
 
@@ -31,12 +32,14 @@ class Autoselect::Base
   # @param level [String, nil] the level key to query
   # @param project_id [Integer, nil]
   # @param user_id [Integer, nil]
+  # @param show_info [Boolean, String] when false/'false', record_info_html is skipped (empty string returned)
   # @param kwargs [Hash] any level-specific filter params
-  def initialize(term: nil, level: nil, project_id: nil, user_id: nil, **kwargs)
+  def initialize(term: nil, level: nil, project_id: nil, user_id: nil, show_info: true, **kwargs)
     @raw_term = term.presence
     @requested_level = level.presence
     @project_id = project_id
     @user_id = user_id
+    @show_info = show_info.to_s != 'false'
     @level_params = kwargs
   end
 
@@ -66,6 +69,39 @@ class Autoselect::Base
   # Override in subclasses, e.g. '/taxon_names/autoselect'
   def resource_path
     raise NotImplementedError, "#{self.class} must implement #resource_path"
+  end
+
+  # Plain-text label for display in the input after selection (no HTML).
+  # Delegates to label_for_<model> in app/helpers by default.
+  def record_label(record)
+    helper_name = "label_for_#{model_key}"
+    h = ApplicationController.helpers
+    return h.send(helper_name, record).to_s if h.respond_to?(helper_name)
+    record.to_s
+  end
+
+  # HTML label displayed left-justified in the dropdown row.
+  # Delegates to <model>_autoselect_tag in app/helpers by default.
+  def record_label_html(record)
+    helper_name = "#{model_key}_autoselect_tag"
+    h = ApplicationController.helpers
+    return h.send(helper_name, record).to_s if h.respond_to?(helper_name)
+    record_label(record)
+  end
+
+  # Informative elements for disambiguation, returned as an Array of Strings.
+  # Delegates to <model>_autoselect_info in app/helpers by default.
+  # Elements are right-justified in the dropdown row via record_info_html.
+  def record_info(record)
+    helper_name = "#{model_key}_autoselect_info"
+    h = ApplicationController.helpers
+    return h.send(helper_name, record) if h.respond_to?(helper_name)
+    []
+  end
+
+  # HTML string for the info section; joins record_info Array with &nbsp;
+  def record_info_html(record)
+    record_info(record).compact.join('&nbsp;')
   end
 
   private
@@ -145,26 +181,17 @@ class Autoselect::Base
         id: record.id,
         label: record_label(record),
         label_html: record_label_html(record),
-        info: record_info(record),
+        info_html: @show_info ? record_info_html(record) : '',
         response_values: response_values(record),
         extension: {}
       }
     end
   end
 
-  # Subclasses override for model-specific plain-text display
-  def record_label(record)
-    record.to_s
-  end
-
-  # Subclasses override for HTML-decorated display
-  def record_label_html(record)
-    record_label(record)
-  end
-
-  # Subclasses override for secondary disambiguation metadata (rank, validity, etc.)
-  def record_info(record)
-    nil
+  # Derives the snake_case model name from the class namespace.
+  # Autoselect::TaxonName::Autoselect → 'taxon_name'
+  def model_key
+    self.class.name.split('::')[-2].underscore
   end
 
 end

@@ -491,7 +491,7 @@ class OtusController < ApplicationController
   private
 
   def autoselect_params
-    params.permit().to_h.symbolize_keys
+    params.permit(:show_info).to_h.symbolize_keys
   end
 
   def set_otu

@@ -1,6 +1,21 @@
 module OtusHelper
   include RecordNavigationHelper
 
+  # HTML label for the autoselect dropdown (left-justified).
+  def otu_autoselect_tag(otu)
+    return nil if otu.nil?
+    otu_tag(otu)
+  end
+
+  # Disambiguation info Array for the autoselect dropdown (right-justified).
+  # Returns the taxon name when the OTU has no custom name (for disambiguation
+  # between multiple nameless OTUs sharing the same taxon).
+  def otu_autoselect_info(otu)
+    return [] if otu.nil?
+    return [] unless otu.respond_to?(:name) && otu.name.blank?
+    [otu.try(:taxon_name)&.cached].compact
+  end
+
   def otu_tag(otu)
     return nil if otu.nil?
     a = otu_tag_elements(otu)

@@ -3,6 +3,7 @@
 
   Shows:
   - A checkbox row per level: users can hide/show individual levels in the fuse bar.
+  - A "Show info" toggle: globally enables or disables the info column per instance.
   - An optional model-specific options section rendered via the optionsComponent prop.
 
   Emits:
@@ -44,6 +45,19 @@
               </label>
             </li>
           </ul>
+        </section>
+
+        <!-- Display options -->
+        <section class="prefs-modal__section">
+          <h4 class="prefs-modal__section-title">Display</h4>
+          <label class="prefs-modal__level-label">
+            <input
+              type="checkbox"
+              :checked="draft.show_info"
+              @change="draft.show_info = $event.target.checked"
+            />
+            <span>Show info</span>
+          </label>
         </section>
 
         <!-- Model-specific options section -->
@@ -91,7 +105,7 @@ const props = defineProps({
   // Array of level metadata objects from the autoselect config
   levels: { type: Array, required: true },
 
-  // Current saved preferences { levels: { key: { hide, options } } }
+  // Current saved preferences { levels: { key: { hide, options } }, show_info: Boolean }
   currentPrefs: { type: Object, default: () => ({ levels: {} }) },
 
   // Optional Vue component for model-specific options.
@@ -110,7 +124,8 @@ const draft = reactive({
   // levelOptions is a flat { level_key: { ...options } } map used by optionsComponent
   levelOptions: Object.fromEntries(
     Object.entries(props.currentPrefs.levels || {}).map(([k, v]) => [k, { ...(v.options || {}) }])
-  )
+  ),
+  show_info: props.currentPrefs.show_info !== false
 })
 
 function toggleLevel(key, checked) {
@@ -125,7 +140,7 @@ function doSave() {
     draft.levels[key].options = { ...opts }
   }
 
-  emit('save', { levels: { ...draft.levels } })
+  emit('save', { levels: { ...draft.levels }, show_info: draft.show_info })
 }
 </script>
 

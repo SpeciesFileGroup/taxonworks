@@ -1,5 +1,28 @@
 module TaxonNamesHelper
 
+  # HTML label for the autoselect dropdown (left-justified).
+  # Uses cached_html for real records; falls back to cached for CoL pseudo-records.
+  def taxon_name_autoselect_tag(taxon_name)
+    return nil if taxon_name.nil?
+    taxon_name_tag(taxon_name)
+  end
+
+  # Disambiguation info Array for the autoselect dropdown (right-justified).
+  # Handles both real TaxonName records and CoL OpenStruct pseudo-records.
+  def taxon_name_autoselect_info(taxon_name)
+    return [] if taxon_name.nil?
+    parts = []
+    if taxon_name.respond_to?(:rank_string) && taxon_name.rank_string.present?
+      parts << taxon_name.rank_string.split('::').last.downcase
+    elsif taxon_name.respond_to?(:_col_extension) && taxon_name._col_extension&.dig(:col_rank).present?
+      parts << taxon_name._col_extension[:col_rank]
+    end
+    if taxon_name.respond_to?(:cached_valid_taxon_name_id) && taxon_name.id.present?
+      parts << (taxon_name.id == taxon_name.cached_valid_taxon_name_id ? 'valid' : 'synonym')
+    end
+    parts
+  end
+
   # @return [String]
   #   the taxon name without author year, with HTML
   def taxon_name_tag(taxon_name)

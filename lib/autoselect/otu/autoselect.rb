@@ -23,18 +23,6 @@ module Autoselect
         { otu_id: record.id }
       end
 
-      def record_label(record)
-        record.name || record.try(:taxon_name)&.cached || "(OTU ##{record.id})"
-      end
-
-      def record_label_html(record)
-        record_label(record)
-      end
-
-      def record_info(record)
-        record.try(:taxon_name)&.cached if record.respond_to?(:name) && record.name.blank?
-      end
-
       private
 
       # Override to handle new-OTU sentinel (extension with :_otu_new_form)
@@ -49,7 +37,7 @@ module Autoselect
             id: record.id,
             label: record_label(record),
             label_html: record_label_html(record),
-            info: record_info(record),
+            info_html: @show_info ? record_info_html(record) : '',
             response_values: response_values(record),
             extension: ext
           }

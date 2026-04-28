@@ -17,8 +17,8 @@ describe Autoselect::Operators do
       expect(result[:effective_term]).to eq('Homo')
     end
 
-    specify '!rm (recent_mine) is matched before !r' do
-      result = instance.parse_operators('!rm Homo')
+    specify '!u (recent_mine) is matched before !r' do
+      result = instance.parse_operators('!u Homo')
       expect(result[:operator]).to eq(:recent_mine)
       expect(result[:effective_term]).to eq('Homo')
     end
@@ -35,10 +35,10 @@ describe Autoselect::Operators do
       expect(result[:effective_term]).to eq('Foobar')
     end
 
-    specify '!# (level_hash) is extracted' do
-      result = instance.parse_operators('!# Foobar')
-      expect(result[:operator]).to eq(:level_hash)
-      expect(result[:effective_term]).to eq('Foobar')
+    specify '!i (show_info) is extracted' do
+      result = instance.parse_operators('!i')
+      expect(result[:operator]).to eq(:show_info)
+      expect(result[:effective_term]).to eq('')
     end
 
     specify '!1 (level_number) is extracted' do
@@ -99,14 +99,14 @@ describe Autoselect::Operators do
       end
     end
 
-    specify 'level_hash and level_number are client_only' do
+    specify 'level_number, show_info, preferences, external are client_only' do
       client_only = definitions.select { |d| d[:client_only] }.map { |d| d[:key] }
-      expect(client_only).to include('level_hash', 'level_number')
+      expect(client_only).to include('level_number', 'show_info', 'preferences', 'external')
     end
 
-    specify 'recent, recent_mine, help, new_record are not client_only' do
+    specify 'recent and recent_mine are server-side (not client_only)' do
       server_side = definitions.reject { |d| d[:client_only] }.map { |d| d[:key] }
-      expect(server_side).to include('recent', 'recent_mine', 'help', 'new_record')
+      expect(server_side).to include('recent', 'recent_mine')
     end
   end
 
