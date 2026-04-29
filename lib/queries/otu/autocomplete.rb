@@ -43,7 +43,7 @@ module Queries
       # before requesting the query
       QUERIES = {
         # OTU
-        autocomplete_taxon_name_hybrid: {priorty: 1},
+        autocomplete_taxon_name_hybrid: {priority: 1},
         otu_name_exact: {priority: 2}, # Was 1
         autocomplete_exact_id: {priority: 2},
         autocomplete_identifier_cached_exact: {priority: 3},
