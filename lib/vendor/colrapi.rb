@@ -125,12 +125,78 @@ module Vendor
     # Response is an Array of hashes with keys: 'id', 'name' (String, not hash),
     # 'authorship', 'rank', 'label', 'labelHtml'.
     #
+    # Only valid for backbone datasets (DATASETS[:col], DATASETS[:col_extended]).
+    # For external datasets use ancestors_via_parent_id instead.
+    #
     # @param taxon_id [String] CoL taxon ID (e.g. '6MB3T')
     # @return [Array<Hash>]
     def self.ancestors(taxon_id)
       ::Colrapi.taxon(DATASETS[:col], taxon_id: taxon_id, subresource: 'classification')
     rescue => e
       Rails.logger.warn "Vendor::Colrapi.ancestors error: #{e.message}"
+      []
+    end
+
+    # Returns true when dataset_id refers to one of the CoL backbone datasets that
+    # support the classification subresource for ancestor retrieval.
+    # External/denormed datasets (e.g. Mammal Diversity Database, dataset 9802) do not
+    # have this subresource and require iterative parentId traversal instead.
+    #
+    # @param dataset_id [String]
+    # @return [Boolean]
+    def self.col_backbone_dataset?(dataset_id)
+      DATASETS.values.include?(dataset_id.to_s)
+    end
+
+    # Builds an ancestor chain for external/denormed datasets by following the parentId
+    # field of successive taxon records.
+    #
+    # External datasets (like the Mammal Diversity Database) are ingested into ChecklistBank
+    # without a pre-built classification subresource.  Instead, each nameusage record carries
+    # a parentId pointing to the immediate parent within the same dataset.
+    #
+    # Returns entries in the same format as the classification subresource used by ancestors():
+    #   { 'id', 'name' (String uninomial), 'rank', 'authorship', 'label', 'labelHtml' }
+    # Order is proximal-first (immediate parent first) matching ancestors() behavior.
+    # The starting taxon itself is NOT included; only its ancestors are.
+    #
+    # @param dataset_id [String] the external dataset to query
+    # @param taxon_id [String] ID of the starting taxon
+    # @param max_depth [Integer] circuit-breaker against malformed/cyclic data
+    # @return [Array<Hash>]
+    def self.ancestors_via_parent_id(dataset_id, taxon_id, max_depth: 20)
+      chain   = []
+      visited = Set.new
+
+      initial = ::Colrapi.taxon(dataset_id, taxon_id: taxon_id)
+      return chain if initial.blank?
+
+      current_id = initial['parentId']
+
+      max_depth.times do
+        break if current_id.blank? || visited.include?(current_id)
+        visited << current_id
+
+        taxon = ::Colrapi.taxon(dataset_id, taxon_id: current_id)
+        break if taxon.blank?
+
+        chain << {
+          'id'         => current_id,
+          'name'       => uninomial_name(taxon['name']).to_s,
+          'rank'       => taxon.dig('name', 'rank'),
+          'authorship' => taxon.dig('name', 'authorship'),
+          'label'      => taxon.fetch('label', '').to_s,
+          'labelHtml'  => taxon.fetch('labelHtml', '').to_s
+        }
+
+        current_id = taxon['parentId']
+      end
+
+      # Return distal-first (kingdom before genus) to match the classification subresource
+      # order returned by ancestors(), so build_extension can treat both paths uniformly.
+      chain.reverse
+    rescue => e
+      Rails.logger.warn "Vendor::Colrapi.ancestors_via_parent_id error: #{e.message}"
       []
     end
 
@@ -164,10 +230,22 @@ module Vendor
       # CoL nomenclatural code: 'zoological', 'botanical', 'bacterial', 'viral'
       col_code       = col_result.dig('name', 'code')
 
-      # Dataset used for the search (target row). Ancestors always come from the main CoL dataset.
+      # Dataset used for the search (target row).
       col_dataset_id = dataset_id.presence || DATASETS[:col]
 
-      ancestor_chain = col_key.present? ? ancestors(col_key) : []
+      # Backbone datasets (main CoL, extended CoL) expose a classification subresource.
+      # External/denormed datasets must be traversed via iterative parentId lookups.
+      # Ancestor records carry the dataset_id of whichever source they came from.
+      ancestor_chain, ancestor_dataset_id =
+        if col_key.present?
+          if col_backbone_dataset?(col_dataset_id)
+            [ancestors(col_key), DATASETS[:col]]
+          else
+            [ancestors_via_parent_id(col_dataset_id, col_key), col_dataset_id]
+          end
+        else
+          [[], col_dataset_id]
+        end
 
       # Drop suprakingdom ranks (e.g. 'domain') that have no equivalent in TaxonWorks
       # nomenclatural codes.  Kingdom is the highest rank we include.
@@ -188,7 +266,7 @@ module Vendor
           rank:,
           col_name:        anc_name,
           col_id:,
-          dataset_id:      DATASETS[:col],
+          dataset_id:      ancestor_dataset_id,
           col_authorship:  ancestor['authorship'].presence,
           taxonworks_id:   tw_record&.id,
           taxonworks_name: tw_record&.cached,

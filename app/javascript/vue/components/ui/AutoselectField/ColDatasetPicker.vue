@@ -49,9 +49,7 @@
                 autocomplete="off"
                 @input="onQueryInput"
             />
-            <span v-if="isSearching" class="col-dataset-picker__searching"
-                >…</span
-            >
+            <CatalogueOfLifeSpinner v-if="isSearching" />
         </div>
 
         <!-- Results -->
@@ -87,6 +85,7 @@
 <script setup>
 import { ref, computed } from "vue";
 import AjaxCall from "@/helpers/ajaxCall";
+import CatalogueOfLifeSpinner from "@/components/ui/AutoselectField/CatalogueOfLifeSpinner.vue";
 
 const props = defineProps({
     levels: { type: Array, required: true },
@@ -237,11 +236,6 @@ function emitOptions(datasetId, datasetTitle) {
 .col-dataset-picker__input {
     flex: 1;
     box-sizing: border-box;
-}
-
-.col-dataset-picker__searching {
-    font-size: 11px;
-    color: var(--text-color-muted, #888);
 }
 
 .col-dataset-picker__results {

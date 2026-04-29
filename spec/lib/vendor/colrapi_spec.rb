@@ -7,24 +7,48 @@ require 'rails_helper'
 #
 # classification (ancestors) entries have 'name' as a plain String (uninomial):
 #   { 'id', 'name' => 'Homo', 'rank' => 'genus', 'label', 'labelHtml' }
+#
+# taxon (single-record) entries returned by Colrapi.taxon without subresource have 'name' as a Hash
+# and include a 'parentId' field for iterative traversal.
 
-def col_nameusage_result(id: '6MB3T', scientific_name: 'Homo sapiens', rank: 'species', status: 'accepted')
-  {
+def col_nameusage_result(id: '6MB3T', scientific_name: 'Homo sapiens', rank: 'species', status: 'accepted', parent_id: nil)
+  result = {
     'id'     => id,
     'status' => status,
     'name'   => {
       'scientificName' => scientific_name,
       'rank'           => rank,
-      'authorship'     => 'Linnaeus, 1758'
+      'authorship'     => 'Linnaeus, 1758',
+      'specificEpithet' => scientific_name.split.last
     },
     'label'     => "#{scientific_name} Linnaeus, 1758",
     'labelHtml' => "<i>#{scientific_name}</i> Linnaeus, 1758"
   }
+  result['parentId'] = parent_id if parent_id
+  result
 end
 
 def col_classification_entry(id:, name:, rank:)
   # In classification responses 'name' is a plain String
   { 'id' => id, 'name' => name, 'rank' => rank, 'label' => name, 'labelHtml' => name }
+end
+
+# A full taxon record as returned by Colrapi.taxon without subresource —
+# used in ancestors_via_parent_id traversal.
+def col_taxon_record(id:, name:, rank:, parent_id: nil, authorship: nil)
+  {
+    'id'       => id,
+    'parentId' => parent_id,
+    'status'   => 'accepted',
+    'name'     => {
+      'scientificName' => name,
+      'rank'           => rank,
+      'authorship'     => authorship,
+      'uninomial'      => rank.downcase == 'species' ? nil : name
+    },
+    'label'     => [name, authorship].compact.join(' '),
+    'labelHtml' => name
+  }
 end
 
 describe Vendor::Colrapi, type: :model do
@@ -228,6 +252,144 @@ describe Vendor::Colrapi, type: :model do
         ext = described_class.build_extension(col_result_no_id, nil)
         expect(described_class).not_to have_received(:ancestors)
         expect(ext[:alignment]).to eq([])
+      end
+    end
+
+    context 'when dataset is external/denormed (non-backbone)' do
+      let(:denormed_result) { col_nameusage_result(id: 'SP1', scientific_name: 'Mus musculus', rank: 'species', parent_id: 'GEN1') }
+
+      let(:genus_record)  { col_taxon_record(id: 'GEN1', name: 'Mus',      rank: 'genus',   parent_id: 'FAM1') }
+      let(:family_record) { col_taxon_record(id: 'FAM1', name: 'Muridae',  rank: 'family',  parent_id: nil) }
+
+      before do
+        allow(described_class).to receive(:ancestors_via_parent_id)
+          .with('9802', 'SP1')
+          .and_return([
+            col_classification_entry(id: 'FAM1', name: 'Muridae', rank: 'family'),
+            col_classification_entry(id: 'GEN1', name: 'Mus',     rank: 'genus')
+          ])
+      end
+
+      subject(:ext) { described_class.build_extension(denormed_result, nil, dataset_id: '9802') }
+
+      it 'calls ancestors_via_parent_id rather than ancestors' do
+        ext
+        expect(described_class).to have_received(:ancestors_via_parent_id).with('9802', 'SP1')
+        expect(described_class).not_to have_received(:ancestors)
+      end
+
+      it 'builds alignment from the denormed ancestor chain' do
+        expect(ext[:alignment].length).to eq(2)
+      end
+
+      it 'alignment rows carry the external dataset_id' do
+        ext[:alignment].each do |row|
+          expect(row[:dataset_id]).to eq('9802')
+        end
+      end
+
+      it 'col_dataset_id reflects the external dataset' do
+        expect(ext[:col_dataset_id]).to eq('9802')
+      end
+    end
+  end
+
+  # ── col_backbone_dataset? ────────────────────────────────────────────────────
+
+  describe '.col_backbone_dataset?' do
+    it 'returns true for the main CoL dataset' do
+      expect(described_class.col_backbone_dataset?('3LR')).to be true
+    end
+
+    it 'returns true for the extended CoL dataset' do
+      expect(described_class.col_backbone_dataset?('3LXR')).to be true
+    end
+
+    it 'returns false for an external dataset' do
+      expect(described_class.col_backbone_dataset?('9802')).to be false
+    end
+
+    it 'returns false for blank input' do
+      expect(described_class.col_backbone_dataset?('')).to be false
+    end
+  end
+
+  # ── ancestors_via_parent_id ──────────────────────────────────────────────────
+
+  describe '.ancestors_via_parent_id' do
+    # Species → genus → family chain, family has no parent (chain stops)
+    let(:species_record) { col_taxon_record(id: 'SP1', name: 'Mus musculus', rank: 'species', parent_id: 'GEN1') }
+    let(:genus_record)   { col_taxon_record(id: 'GEN1', name: 'Mus',     rank: 'genus',   parent_id: 'FAM1') }
+    let(:family_record)  { col_taxon_record(id: 'FAM1', name: 'Muridae', rank: 'family',  parent_id: nil) }
+
+    before do
+      allow(::Colrapi).to receive(:taxon).with('9802', taxon_id: 'SP1').and_return(species_record)
+      allow(::Colrapi).to receive(:taxon).with('9802', taxon_id: 'GEN1').and_return(genus_record)
+      allow(::Colrapi).to receive(:taxon).with('9802', taxon_id: 'FAM1').and_return(family_record)
+    end
+
+    subject(:chain) { described_class.ancestors_via_parent_id('9802', 'SP1') }
+
+    it 'returns an array of ancestor hashes' do
+      expect(chain).to be_an(Array)
+    end
+
+    it 'does not include the starting taxon' do
+      names = chain.map { |e| e['name'] }
+      expect(names).not_to include('Mus musculus')
+    end
+
+    it 'returns ancestors in distal-first order (family before genus) matching the classification subresource' do
+      expect(chain[0]['name']).to eq('Muridae')
+      expect(chain[1]['name']).to eq('Mus')
+    end
+
+    it 'each entry has id, name (String), rank' do
+      entry = chain.first
+      expect(entry['id']).to be_a(String)
+      expect(entry['name']).to be_a(String)
+      expect(entry['rank']).to be_a(String)
+    end
+
+    it 'stops when parentId is blank' do
+      expect(chain.length).to eq(2)
+    end
+
+    context 'when the initial taxon has no parentId' do
+      let(:orphan) { col_taxon_record(id: 'ROOT', name: 'Animalia', rank: 'kingdom', parent_id: nil) }
+
+      before do
+        allow(::Colrapi).to receive(:taxon).with('9802', taxon_id: 'ROOT').and_return(orphan)
+      end
+
+      it 'returns an empty chain' do
+        expect(described_class.ancestors_via_parent_id('9802', 'ROOT')).to eq([])
+      end
+    end
+
+    context 'when Colrapi raises an error' do
+      before do
+        allow(::Colrapi).to receive(:taxon).and_raise(StandardError, 'timeout')
+      end
+
+      it 'returns an empty array' do
+        expect(described_class.ancestors_via_parent_id('9802', 'SP1')).to eq([])
+      end
+    end
+
+    context 'VCR integration — Mammal Diversity Database (dataset 9802)' do
+      it 'retrieves real ancestors for Mus musculus via parentId traversal' do
+        VCR.use_cassette('colrapi_denormed_ancestors_mus_musculus') do
+          # Search to obtain a real taxon ID from the external dataset before traversing.
+          search_result = ::Vendor::Colrapi.search('Mus musculus', dataset_id: '9802')
+          taxon_id = search_result.dig('result', 0, 'id')
+          skip 'No results returned from dataset 9802' if taxon_id.blank?
+
+          chain = described_class.ancestors_via_parent_id('9802', taxon_id)
+          expect(chain).to be_an(Array)
+          expect(chain).to all(include('id', 'name', 'rank'))
+          expect(chain.map { |e| e['name'] }).to all(be_a(String))
+        end
       end
     end
   end

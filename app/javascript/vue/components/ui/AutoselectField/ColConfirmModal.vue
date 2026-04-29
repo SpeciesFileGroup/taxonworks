@@ -254,8 +254,4 @@ async function doCreate() {
   gap: 8px;
 }
 
-.col-confirm-modal__footer .button-submit {
-  padding-left: 20px;
-  padding-right: 20px;
-}
 </style>
