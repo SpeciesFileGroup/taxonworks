@@ -14,6 +14,10 @@ class Identifier::Global::Uri::ChecklistBank < Identifier::Global::Uri
     http://api.checklistbank.org
   } + [API_ROOT]
 
+  attr_writer :dataset_id, :taxon_id
+
+  before_validation :set_identifier, if: -> { @dataset_id || @taxon_id }
+
   validate :used_on_taxon_name_or_otu
   validate :path_format
 
@@ -22,14 +26,18 @@ class Identifier::Global::Uri::ChecklistBank < Identifier::Global::Uri
   end
 
   def dataset_id
-    identifier.split('/')[4]
+    @dataset_id || identifier&.split('/')&.fetch(4, nil)
   end
 
   def taxon_id
-    identifier.split('/')[6]
+    @taxon_id || identifier&.split('/')&.fetch(6, nil)
   end
 
   protected
+
+  def set_identifier
+    self.identifier = [API_ROOT, 'dataset', @dataset_id, 'taxon', @taxon_id].join('/')
+  end
 
   def path_format
     errors.add(:identifier) unless identifier.match(/dataset\/.+\/taxon\/.+$/)

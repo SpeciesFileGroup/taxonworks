@@ -101,4 +101,44 @@ describe Identifier::Global::Uri::ChecklistBank, type: :model, group: :identifie
     end
   end
 
+  # ── virtual setters (dataset_id=, taxon_id=) ─────────────────────────────────
+
+  describe 'virtual setters' do
+    describe 'set_identifier callback' do
+      specify 'constructs identifier from dataset_id and taxon_id before validation' do
+        id.dataset_id = '9802'
+        id.taxon_id   = '1000027'
+        id.valid?
+        expect(id.identifier).to eq('https://api.checklistbank.org/dataset/9802/taxon/1000027')
+      end
+
+      specify 'produces a valid record when both virtual attributes are set' do
+        id.dataset_id = '9802'
+        id.taxon_id   = '1000027'
+        expect(id.valid?).to be_truthy
+      end
+
+      specify 'works with non-integer ids' do
+        id.dataset_id = '3LR'
+        id.taxon_id   = 'abc-99'
+        id.valid?
+        expect(id.identifier).to eq('https://api.checklistbank.org/dataset/3LR/taxon/abc-99')
+      end
+    end
+
+    describe '#dataset_id getter' do
+      specify 'returns the virtual value when set via setter' do
+        id.dataset_id = '9802'
+        expect(id.dataset_id).to eq('9802')
+      end
+    end
+
+    describe '#taxon_id getter' do
+      specify 'returns the virtual value when set via setter' do
+        id.taxon_id = '1000027'
+        expect(id.taxon_id).to eq('1000027')
+      end
+    end
+  end
+
 end
