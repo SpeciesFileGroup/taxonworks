@@ -25,13 +25,14 @@ module Autoselect
       private
 
       # Override to populate extension from CoL pseudo-records.
-      def format_results(records)
+      def format_results(records, level_instance)
         records.map do |record|
           {
             id: record.id,
-            label: record_label(record),
-            label_html: record_label_html(record),
-            info_html: @show_info ? record_info_html(record) : '',
+            global_id: record.respond_to?(:to_global_id) ? record.to_global_id.to_s : nil,
+            label: level_instance.record_label(record),
+            label_html: level_instance.record_label_html(record),
+            info_html: @show_info ? level_instance.record_info_html(record) : '',
             response_values: response_values(record),
             extension: record.respond_to?(:_col_extension) ? record._col_extension : {}
           }

@@ -26,7 +26,6 @@
             v-for="row in ancestorRowsDistalFirst"
             :key="row.col_name + row.rank"
             :class="rowClass(row)"
-            :ref="(el) => setRowRef(row, el)"
           >
             <td>
               <input
@@ -166,6 +165,7 @@ async function doCreate() {
       col_name:       r.col_name,
       col_rank:       r.rank,
       col_id:         r.col_id ?? null,
+      dataset_id:     r.dataset_id ?? null,
       taxonworks_id:  r.match === 'exact' ? r.taxonworks_id : null,
       col_authorship: r.col_authorship ?? null,
       col_year:       null
@@ -175,6 +175,7 @@ async function doCreate() {
     col_name:       ext.value.col_name,
     col_rank:       ext.value.col_rank,
     col_id:         ext.value.col_key,
+    dataset_id:     ext.value.col_dataset_id ?? null,
     taxonworks_id:  null,
     col_authorship: ext.value.col_authorship ?? null,
     col_year:       ext.value.col_year ?? null

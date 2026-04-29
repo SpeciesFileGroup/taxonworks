@@ -22,6 +22,18 @@ module Autoselect
           true
         end
 
+        def record_label(record)
+          record.name.to_s
+        end
+
+        def record_label_html(record)
+          record.name.to_s
+        end
+
+        def record_info(record)
+          []
+        end
+
         # @param term [String]
         # @param project_id [Integer, nil]
         # @return [Array<OpenStruct>] pseudo-records with _col_extension including hook metadata

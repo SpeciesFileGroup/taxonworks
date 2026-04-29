@@ -32,7 +32,7 @@ class Autoselect::Base
   # @param level [String, nil] the level key to query
   # @param project_id [Integer, nil]
   # @param user_id [Integer, nil]
-  # @param show_info [Boolean, String] when false/'false', record_info_html is skipped (empty string returned)
+  # @param show_info [Boolean, String] when false/'false', record_info_html is skipped
   # @param kwargs [Hash] any level-specific filter params
   def initialize(term: nil, level: nil, project_id: nil, user_id: nil, show_info: true, **kwargs)
     @raw_term = term.presence
@@ -71,39 +71,6 @@ class Autoselect::Base
     raise NotImplementedError, "#{self.class} must implement #resource_path"
   end
 
-  # Plain-text label for display in the input after selection (no HTML).
-  # Delegates to label_for_<model> in app/helpers by default.
-  def record_label(record)
-    helper_name = "label_for_#{model_key}"
-    h = ApplicationController.helpers
-    return h.send(helper_name, record).to_s if h.respond_to?(helper_name)
-    record.to_s
-  end
-
-  # HTML label displayed left-justified in the dropdown row.
-  # Delegates to <model>_autoselect_tag in app/helpers by default.
-  def record_label_html(record)
-    helper_name = "#{model_key}_autoselect_tag"
-    h = ApplicationController.helpers
-    return h.send(helper_name, record).to_s if h.respond_to?(helper_name)
-    record_label(record)
-  end
-
-  # Informative elements for disambiguation, returned as an Array of Strings.
-  # Delegates to <model>_autoselect_info in app/helpers by default.
-  # Elements are right-justified in the dropdown row via record_info_html.
-  def record_info(record)
-    helper_name = "#{model_key}_autoselect_info"
-    h = ApplicationController.helpers
-    return h.send(helper_name, record) if h.respond_to?(helper_name)
-    []
-  end
-
-  # HTML string for the info section; joins record_info Array with &nbsp;
-  def record_info_html(record)
-    record_info(record).compact.join('&nbsp;')
-  end
-
   private
 
   def config_response
@@ -124,7 +91,7 @@ class Autoselect::Base
 
     level_instance = find_level(requested_level)
     results = execute_level(level_instance, effective_term, operator)
-    formatted = format_results(results)
+    formatted = format_results(results, level_instance)
 
     Autoselect::Response.new(
       config: nil,
@@ -172,26 +139,23 @@ class Autoselect::Base
   end
 
   # Build response item hashes from an array of records.
-  # Subclasses may override to handle POJOs (e.g. CoL pseudo-records with extension data).
+  # Rendering is delegated to level_instance so external levels can supply their own.
+  # Subclasses may override to handle extension data (e.g. CoL pseudo-records).
   # @param records [Array]
+  # @param level_instance [Autoselect::Level]
   # @return [Array<Hash>]
-  def format_results(records)
+  def format_results(records, level_instance)
     records.map do |record|
       {
         id: record.id,
-        label: record_label(record),
-        label_html: record_label_html(record),
-        info_html: @show_info ? record_info_html(record) : '',
+        global_id: record.respond_to?(:to_global_id) ? record.to_global_id.to_s : nil,
+        label: level_instance.record_label(record),
+        label_html: level_instance.record_label_html(record),
+        info_html: @show_info ? level_instance.record_info_html(record) : '',
         response_values: response_values(record),
         extension: {}
       }
     end
-  end
-
-  # Derives the snake_case model name from the class namespace.
-  # Autoselect::TaxonName::Autoselect → 'taxon_name'
-  def model_key
-    self.class.name.split('::')[-2].underscore
   end
 
 end

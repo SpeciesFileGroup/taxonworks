@@ -20,6 +20,20 @@ module Autoselect
           true
         end
 
+        def record_label(record)
+          record.cached.to_s
+        end
+
+        def record_label_html(record)
+          record.cached.to_s
+        end
+
+        def record_info(record)
+          col_ext = record._col_extension
+          return [] unless col_ext
+          [col_ext[:col_rank].presence].compact
+        end
+
         # @param term [String]
         # @param project_id [Integer, nil]
         # @param dataset_id [String, nil] CoL dataset ID from user preferences; falls back to default when nil
@@ -34,7 +48,7 @@ module Autoselect
             col_name   = col_result.dig('name', 'scientificName') || col_result['label']
             col_status = col_result['status']
             col_key    = col_result['id']
-            extension  = ::Vendor::Colrapi.build_extension(col_result, project_id)
+            extension  = ::Vendor::Colrapi.build_extension(col_result, project_id, dataset_id:)
 
             OpenStruct.new(
               id: nil,

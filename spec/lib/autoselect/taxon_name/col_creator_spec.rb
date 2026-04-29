@@ -7,11 +7,12 @@ RSpec.describe Autoselect::TaxonName::ColCreator, type: :model do
   before(:each) { find_or_create_root_taxon_name }
 
   # Minimal row helper — creates a row hash as the modal would send it.
-  def row(col_name:, col_rank:, col_id: nil, taxonworks_id: nil, col_authorship: nil, col_year: nil)
+  def row(col_name:, col_rank:, col_id: nil, dataset_id: nil, taxonworks_id: nil, col_authorship: nil, col_year: nil)
     {
       col_name:,
       col_rank:,
       col_id:,
+      dataset_id:,
       taxonworks_id:,
       col_authorship:,
       col_year:
@@ -26,7 +27,7 @@ RSpec.describe Autoselect::TaxonName::ColCreator, type: :model do
           row(col_name: 'Hominidae', col_rank: 'family',  col_authorship: 'Gray, 1825', col_year: '1825'),
           row(col_name: 'Homo',      col_rank: 'genus',   col_authorship: 'Linnaeus, 1758'),
           row(col_name: 'sapiens',   col_rank: 'species', col_authorship: 'Linnaeus, 1758', col_year: '1758',
-              col_id: 'HomoSapiensColId')
+              col_id: 'HomoSapiensColId', dataset_id: '3LR')
         ]
       end
 
@@ -42,10 +43,12 @@ RSpec.describe Autoselect::TaxonName::ColCreator, type: :model do
         expect { result }.to change(::TaxonName, :count).by(4)
       end
 
-      it 'creates a URI identifier for the target row' do
+      it 'creates a ChecklistBank identifier for the target row' do
         result
-        identifier = ::Identifier.where(identifier: "#{described_class::COL_BASE_URI}HomoSapiensColId").first
+        expected_uri = "#{::Identifier::Global::Uri::ChecklistBank::API_ROOT}/dataset/3LR/taxon/HomoSapiensColId"
+        identifier = ::Identifier.where(identifier: expected_uri).first
         expect(identifier).not_to be_nil
+        expect(identifier).to be_a(::Identifier::Global::Uri::ChecklistBank)
       end
 
       it 'assigns ICZN rank classes to created records' do
@@ -72,7 +75,7 @@ RSpec.describe Autoselect::TaxonName::ColCreator, type: :model do
           row(col_name: 'Fagaceae',  col_rank: 'family',  col_authorship: 'Dumort., 1829'),
           row(col_name: 'Quercus',   col_rank: 'genus',   col_authorship: 'L.'),
           row(col_name: 'robur',     col_rank: 'species', col_authorship: 'L., 1753', col_year: '1753',
-              col_id: 'QuercusRoburColId')
+              col_id: 'QuercusRoburColId', dataset_id: '3LR')
         ]
       end
 
@@ -115,10 +118,12 @@ RSpec.describe Autoselect::TaxonName::ColCreator, type: :model do
         expect(species.year_of_publication).to eq(1753)
       end
 
-      it 'creates a URI identifier for the target row' do
+      it 'creates a ChecklistBank identifier for the target row' do
         result
-        identifier = ::Identifier.where(identifier: "#{described_class::COL_BASE_URI}QuercusRoburColId").first
+        expected_uri = "#{::Identifier::Global::Uri::ChecklistBank::API_ROOT}/dataset/3LR/taxon/QuercusRoburColId"
+        identifier = ::Identifier.where(identifier: expected_uri).first
         expect(identifier).not_to be_nil
+        expect(identifier).to be_a(::Identifier::Global::Uri::ChecklistBank)
       end
     end
 

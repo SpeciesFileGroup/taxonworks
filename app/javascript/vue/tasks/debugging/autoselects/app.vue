@@ -18,7 +18,7 @@
 
     <section
       v-for="model in registeredModels"
-      :key="model.url"
+      :key="model.url + model.id"
       class="separate-bottom"
     >
       <h2>{{ model.label }}</h2>
@@ -30,8 +30,15 @@
         :level-delay="levelDelay"
         :new-record-component="model.newRecordComponent ?? null"
         :preferences-options-component="model.preferencesOptionsComponent ?? null"
+        v-model="selectedItems[model.id]"
         @select="onSelect(model.label, $event)"
       />
+      <div
+        v-if="selectedItems[model.id]?.global_id"
+        class="autoselects-task__radial"
+      >
+        <RadialNavigator :global-id="selectedItems[model.id].global_id" />
+      </div>
       <pre v-if="selections[model.label]">{{ JSON.stringify(selections[model.label], null, 2) }}</pre>
     </section>
 
@@ -44,6 +51,7 @@
 <script setup>
 import { ref } from 'vue'
 import AutoselectField from '@/components/ui/AutoselectField.vue'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import OtuNewModal from '@/components/ui/AutoselectField/OtuNewModal.vue'
 import TaxonNameNewModal from '@/components/ui/AutoselectField/TaxonNameNewModal.vue'
 import ColDatasetPicker from '@/components/ui/AutoselectField/ColDatasetPicker.vue'
@@ -81,9 +89,19 @@ const registeredModels = ref([
 
 const levelDelay = ref(500)
 
+// Full selected item per model id (includes global_id for radial)
+const selectedItems = ref({})
+
 const selections = ref({})
 
 function onSelect(label, values) {
   selections.value[label] = values
 }
 </script>
+
+<style scoped>
+.autoselects-task__radial {
+  display: inline-block;
+  margin-top: 4px;
+}
+</style>

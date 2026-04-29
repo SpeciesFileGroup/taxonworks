@@ -164,9 +164,23 @@ describe Vendor::Colrapi, type: :model do
       expect(extension[:alignment].length).to eq(2)
     end
 
-    it 'alignment entries have rank, col_name, taxonworks_id, taxonworks_name, match' do
+    it 'alignment entries have rank, col_name, col_id, dataset_id, taxonworks_id, taxonworks_name, match' do
       entry = extension[:alignment].first
-      expect(entry).to include(:rank, :col_name, :taxonworks_id, :taxonworks_name, :match)
+      expect(entry).to include(:rank, :col_name, :col_id, :dataset_id, :taxonworks_id, :taxonworks_name, :match)
+    end
+
+    it 'alignment entry dataset_id is the main CoL dataset' do
+      entry = extension[:alignment].first
+      expect(entry[:dataset_id]).to eq(described_class::DATASETS[:col])
+    end
+
+    it 'extension includes col_dataset_id defaulting to main CoL dataset' do
+      expect(extension[:col_dataset_id]).to eq(described_class::DATASETS[:col])
+    end
+
+    it 'extension col_dataset_id reflects the searched dataset when provided' do
+      ext = described_class.build_extension(col_result, nil, dataset_id: '3LXR')
+      expect(ext[:col_dataset_id]).to eq('3LXR')
     end
 
     it 'alignment entry col_name comes from the plain-string name field' do

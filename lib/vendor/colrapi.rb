@@ -4,8 +4,9 @@ module Vendor
   module Colrapi
 
     DATASETS = {
-      col: '3LR'
-  }.freeze
+      col: '3LR', # The Human edited compilation
+      col_extended: '3LXR'  # Human plus algorithmic extensions
+    }.freeze
 
     # @params taxonworks_object
     #   any object that responds_to `.taxonomy`
@@ -148,18 +149,23 @@ module Vendor
     #
     # @param col_result [Hash] a single entry from search['result']
     # @param project_id [Integer, nil]
+    # @param dataset_id [String, nil] the dataset that was searched; falls back to DATASETS[:col]
     # @return [Hash] extension hash with :col_key, :col_name, :col_status, :col_authorship,
-    #   :col_year, :col_rank, and :alignment (Array of ancestor hashes each including :col_id)
-    def self.build_extension(col_result, project_id)
-      col_key       = col_result['id']
-      col_name      = uninomial_name(col_result['name'])
-      col_status    = col_result['status']
+    #   :col_year, :col_rank, :col_dataset_id, and :alignment (Array of ancestor hashes each including :col_id, :dataset_id)
+    def self.build_extension(col_result, project_id, dataset_id: nil)
+      col_key        = col_result['id']
+      col_name       = uninomial_name(col_result['name'])
+      col_status     = col_result['status']
       col_authorship = col_result.dig('name', 'authorship')
-      col_year      = col_result.dig('name', 'combinationAuthorship', 'year') ||
-                      col_result.dig('name', 'basionymOrCombinationAuthorship', 'year')
-      col_rank      = col_result.dig('name', 'rank')&.downcase
+      col_year       = col_result.dig('name', 'combinationAuthorship', 'year') ||
+                       col_result.dig('name', 'basionymOrCombinationAuthorship', 'year')
+      col_rank       = col_result.dig('name', 'rank')&.downcase
+
       # CoL nomenclatural code: 'zoological', 'botanical', 'bacterial', 'viral'
-      col_code      = col_result.dig('name', 'code')
+      col_code       = col_result.dig('name', 'code')
+
+      # Dataset used for the search (target row). Ancestors always come from the main CoL dataset.
+      col_dataset_id = dataset_id.presence || DATASETS[:col]
 
       ancestor_chain = col_key.present? ? ancestors(col_key) : []
 
@@ -174,7 +180,7 @@ module Vendor
         anc_name = ancestor['name'].is_a?(String) ? ancestor['name'] : ancestor.dig('name', 'scientificName')
         col_id   = ancestor['id']
 
-        scope = ::TaxonName.where(cached: anc_name)
+        scope = ::TaxonName.where(cached: anc_name) # !!!
         scope = scope.where(project_id:) if project_id.present?
         tw_record = scope.first
 
@@ -182,6 +188,7 @@ module Vendor
           rank:,
           col_name:        anc_name,
           col_id:,
+          dataset_id:      DATASETS[:col],
           col_authorship:  ancestor['authorship'].presence,
           taxonworks_id:   tw_record&.id,
           taxonworks_name: tw_record&.cached,
@@ -189,7 +196,7 @@ module Vendor
         }
       end
 
-      { col_key:, col_name:, col_status:, col_authorship:, col_year:, col_rank:, col_code:, alignment: }
+      { col_key:, col_name:, col_status:, col_authorship:, col_year:, col_rank:, col_code:, col_dataset_id:, alignment: }
     end
 
     # Returns the single-word name component suitable for storing as a TaxonWorks Protonym name.

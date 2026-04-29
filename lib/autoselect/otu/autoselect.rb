@@ -27,7 +27,7 @@ module Autoselect
 
       # Override to handle new-OTU sentinel (extension with :_otu_new_form)
       # and CoL results (extension with :_col_extension).
-      def format_results(records)
+      def format_results(records, level_instance)
         records.map do |record|
           ext = {}
           ext = record._otu_new_form if record.respond_to?(:_otu_new_form) && record._otu_new_form
@@ -35,9 +35,10 @@ module Autoselect
 
           {
             id: record.id,
-            label: record_label(record),
-            label_html: record_label_html(record),
-            info_html: @show_info ? record_info_html(record) : '',
+            global_id: record.respond_to?(:to_global_id) ? record.to_global_id.to_s : nil,
+            label: level_instance.record_label(record),
+            label_html: level_instance.record_label_html(record),
+            info_html: @show_info ? level_instance.record_info_html(record) : '',
             response_values: response_values(record),
             extension: ext
           }

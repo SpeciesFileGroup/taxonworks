@@ -5,6 +5,12 @@
 # Levels do not fork; they are executed sequentially by the Autoselect base class
 # when their predecessor returns empty results (the fuse mechanic).
 #
+# Rendering responsibility:
+#   Internal levels use the default record_* methods, which delegate to
+#   per-model helpers in app/helpers/ (e.g. taxon_name_autoselect_tag).
+#   External levels override record_* directly — they must not rely on the
+#   helper pattern because their records are POJOs, not AR instances.
+#
 class Autoselect::Level
 
   DEFAULT_FUSE_MS = 600
@@ -61,6 +67,49 @@ class Autoselect::Level
       external: external?,
       fuse_ms:
     }
+  end
+
+  # Plain-text label shown in the input after selection (no HTML).
+  # Delegates to label_for_<model> in app/helpers by default.
+  # External levels must override this.
+  def record_label(record)
+    h = ApplicationController.helpers
+    helper = "label_for_#{model_key}"
+    return h.send(helper, record).to_s if h.respond_to?(helper)
+    record.to_s
+  end
+
+  # HTML label shown left-justified in the dropdown row.
+  # Delegates to <model>_autoselect_tag in app/helpers by default.
+  # External levels must override this.
+  def record_label_html(record)
+    h = ApplicationController.helpers
+    helper = "#{model_key}_autoselect_tag"
+    return h.send(helper, record).to_s if h.respond_to?(helper)
+    record_label(record)
+  end
+
+  # Array of disambiguation strings shown right-justified in the dropdown row.
+  # Delegates to <model>_autoselect_info in app/helpers by default.
+  # External levels must override this.
+  def record_info(record)
+    h = ApplicationController.helpers
+    helper = "#{model_key}_autoselect_info"
+    return h.send(helper, record) if h.respond_to?(helper)
+    []
+  end
+
+  # HTML string joining record_info with &nbsp;
+  def record_info_html(record)
+    record_info(record).compact.join('&nbsp;')
+  end
+
+  private
+
+  # Derives the snake_case model name from the level's class namespace.
+  # Autoselect::TaxonName::Levels::Fast → 'taxon_name'
+  def model_key
+    self.class.name.split('::')[-3].underscore
   end
 
 end

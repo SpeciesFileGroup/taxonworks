@@ -8,19 +8,15 @@ module TaxonNamesHelper
   end
 
   # Disambiguation info Array for the autoselect dropdown (right-justified).
-  # Handles both real TaxonName records and CoL OpenStruct pseudo-records.
+  # Only called for real TaxonName AR records (external levels render their own info).
   def taxon_name_autoselect_info(taxon_name)
     return [] if taxon_name.nil?
-    parts = []
-    if taxon_name.respond_to?(:rank_string) && taxon_name.rank_string.present?
-      parts << taxon_name.rank_string.split('::').last.downcase
-    elsif taxon_name.respond_to?(:_col_extension) && taxon_name._col_extension&.dig(:col_rank).present?
-      parts << taxon_name._col_extension[:col_rank]
-    end
-    if taxon_name.respond_to?(:cached_valid_taxon_name_id) && taxon_name.id.present?
-      parts << (taxon_name.id == taxon_name.cached_valid_taxon_name_id ? 'valid' : 'synonym')
-    end
-    parts
+    [
+      taxon_name_rank_tag(taxon_name),
+      taxon_name_parent_tag(taxon_name),
+      taxon_name_original_combination_tag(taxon_name),
+      taxon_name_type_short_tag(taxon_name)
+    ]
   end
 
   # @return [String]

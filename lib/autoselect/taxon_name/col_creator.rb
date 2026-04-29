@@ -31,31 +31,32 @@ module Autoselect
         def initialize(message, col_name: nil, col_id: nil)
           super(message)
           @col_name = col_name
-          @col_id   = col_id
+          @col_id = col_id
         end
       end
 
+      # TODO:
       COL_BASE_URI = 'https://www.catalogueoflife.org/data/taxon/'.freeze
 
       # Maps CoL code strings to the primary lookup constant to use for rank resolution.
       COL_CODE_LOOKUP_MAP = {
         'zoological' => :ICZN_LOOKUP,
-        'botanical'  => :ICN_LOOKUP,
-        'bacterial'  => :ICNP_LOOKUP,
-        'viral'      => :ICVCN_LOOKUP
+        'botanical' => :ICN_LOOKUP,
+        'bacterial' => :ICNP_LOOKUP,
+        'viral' => :ICVCN_LOOKUP
       }.freeze
 
       def initialize(rows:, project_id:, user_id:, col_code: nil)
-        @rows       = rows
+        @rows = rows
         @project_id = project_id.to_i
-        @user_id    = user_id.to_i
-        @col_code   = col_code.to_s.downcase.presence
+        @user_id = user_id.to_i
+        @col_code = col_code.to_s.downcase.presence
       end
 
       # @return [Hash] { taxon_name_id: Integer, created_ids: Array<Integer> }
       # @raise [CreationError] if any record fails validation; the transaction is fully rolled back.
       def call
-        parent_id   = project_root_id
+        parent_id = project_root_id # TODO, not always?
         created_ids = []
 
         ::ActiveRecord::Base.transaction do
@@ -95,13 +96,12 @@ module Autoselect
 
             if row[:col_id].present?
               begin
-                ::Identifier.create!(
-                  type:              'Identifier::Global::Uri',
-                  identifier:        COL_BASE_URI + row[:col_id].to_s,
+                ::Identifier::Global::Uri::ChecklistBank.create!(
+                  taxon_id:          row[:col_id],
+                  dataset_id:        row[:dataset_id],
                   identifier_object: tn,
                   project_id:        @project_id,
-                  created_by_id:     @user_id,
-                  updated_by_id:     @user_id
+                  by:                @user_id
                 )
               rescue ::ActiveRecord::RecordInvalid => e
                 raise CreationError.new(
