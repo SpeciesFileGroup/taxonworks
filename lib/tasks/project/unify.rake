@@ -88,8 +88,14 @@ namespace :tw do
       puts "RESULTS"
       puts "=" * 80
 
-      if result[:unified]
-        puts "✓ Unification #{preview ? 'preview' : ''} completed successfully!"
+      if preview
+        if result[:errors].empty?
+          puts "✓ Preview completed - no errors detected (changes rolled back)"
+        else
+          puts "✗ Preview completed with errors"
+        end
+      elsif result[:unified]
+        puts "✓ Unification completed successfully!"
       else
         puts "✗ Unification failed"
       end
@@ -100,7 +106,7 @@ namespace :tw do
       puts "  Fast track:          #{result[:statistics][:fast_track_count]}"
       puts "  Medium track:        #{result[:statistics][:medium_track_count]}"
       puts "  Slow track:          #{result[:statistics][:slow_track_count]}"
-      puts "  Special handling:    #{result[:statistics][:special_handling_count]}"
+      puts "  Special handling:    #{result[:statistics][:special_track_count]}"
       puts "  Deduplicated:        #{result[:statistics][:deduplicated]}"
       puts "  Errors:              #{result[:statistics][:errors_encountered]}"
       puts "  Duration:            #{result[:duration_seconds]}s"

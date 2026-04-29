@@ -23,7 +23,7 @@ module ProjectUnification
           fast_track_count: 0,
           medium_track_count: 0,
           slow_track_count: 0,
-          special_handling_count: 0,
+          special_track_count: 0,
           deduplicated: 0,
           errors_encountered: 0
         },
@@ -79,8 +79,7 @@ module ProjectUnification
 
     # Fast track: Bulk SQL UPDATE for simple cases
     def process_fast_track(klass)
-      count = klass.where(project_id: source_project_id).count
-      return nil if count == 0
+      return nil unless klass.where(project_id: source_project_id).exists?
 
       sql = ActiveRecord::Base.sanitize_sql_array([
         "UPDATE #{klass.table_name} SET project_id = ? WHERE project_id = ?",
@@ -112,79 +111,28 @@ module ProjectUnification
       stats = { track: :medium, migrated: 0, deduplicated: 0, errors: [] }
 
       records = klass.where(project_id: source_project_id)
-      return nil if records.count == 0
+      return nil unless records.exists?
 
       records.find_in_batches(batch_size: 500) do |batch|
         batch.each do |record|
-          begin
-            # Disable callbacks if possible
-            record.no_cached = true if record.respond_to?(:no_cached=)
-
-            record.project_id = target_project_id
-
-            if record.valid?
-              record.save!(validate: false)
-              stats[:migrated] += 1
-            elsif uniqueness_error?(record)
-              # Try to deduplicate
-              if deduplicate_record(record)
-                stats[:migrated] += 1
-                stats[:deduplicated] += 1
-              else
-                stats[:errors] << {
-                  id: record.id,
-                  model: klass.name,
-                  error: 'Failed to deduplicate',
-                  details: record.errors.full_messages
-                }
-              end
-            else
-              stats[:errors] << {
-                id: record.id,
-                model: klass.name,
-                error: record.errors.full_messages.join('; ')
-              }
-            end
-          rescue => e
-            stats[:errors] << {
-              id: record.id,
-              model: klass.name,
-              error: e.message
-            }
-          end
-        end
-      end
-
-      stats
-    end
-
-    # Slow track: Per-record processing with custom handlers
-    def process_slow_track(klass)
-      stats = { track: :slow, migrated: 0, conflicts: 0, errors: [] }
-
-      records = klass.where(project_id: source_project_id)
-      return nil if records.count == 0
-
-      records.find_each do |record|
-        begin
           record.no_cached = true if record.respond_to?(:no_cached=)
           record.project_id = target_project_id
 
           if record.valid?
-            record.save!
-            stats[:migrated] += 1
-          elsif uniqueness_error?(record) && record.respond_to?(:handle_unify_conflict)
-            record.handle_unify_conflict(target_project_id)
-            record.save!
-            stats[:migrated] += 1
-          elsif uniqueness_error?(record) && deduplicate_record(record)
+            record.save!(validate: false)
             stats[:migrated] += 1
           elsif uniqueness_error?(record)
-            stats[:errors] << {
-              id: record.id,
-              model: klass.name,
-              error: 'Uniqueness conflict - could not deduplicate'
-            }
+            if deduplicate_record(record)
+              stats[:migrated] += 1
+              stats[:deduplicated] += 1
+            else
+              stats[:errors] << {
+                id: record.id,
+                model: klass.name,
+                error: 'Failed to deduplicate',
+                details: record.errors.full_messages
+              }
+            end
           else
             stats[:errors] << {
               id: record.id,
@@ -199,6 +147,50 @@ module ProjectUnification
             error: e.message
           }
         end
+      end
+
+      stats
+    end
+
+    # Slow track: Per-record processing with custom handlers
+    def process_slow_track(klass)
+      stats = { track: :slow, migrated: 0, conflicts: 0, errors: [] }
+
+      records = klass.where(project_id: source_project_id)
+      return nil unless records.exists?
+
+      records.find_each do |record|
+        record.no_cached = true if record.respond_to?(:no_cached=)
+        record.project_id = target_project_id
+
+        if record.valid?
+          record.save!
+          stats[:migrated] += 1
+        elsif uniqueness_error?(record) && record.respond_to?(:handle_unify_conflict)
+          record.handle_unify_conflict(target_project_id)
+          record.save!
+          stats[:migrated] += 1
+        elsif uniqueness_error?(record) && deduplicate_record(record)
+          stats[:migrated] += 1
+        elsif uniqueness_error?(record)
+          stats[:errors] << {
+            id: record.id,
+            model: klass.name,
+            error: 'Uniqueness conflict - could not deduplicate'
+          }
+        else
+          stats[:errors] << {
+            id: record.id,
+            model: klass.name,
+            error: record.errors.full_messages.join('; ')
+          }
+        end
+      rescue => e
+        stats[:errors] << {
+          id: record.id,
+          model: klass.name,
+          error: e.message
+        }
       end
 
       stats
