@@ -24,10 +24,10 @@ module ProjectUnification
           medium_track_count: 0,
           slow_track_count: 0,
           special_track_count: 0,
-          deduplicated: 0,
           errors_encountered: 0
         },
         details_by_model: {},
+        conflicts: [],
         errors: []
       }
 
@@ -66,8 +66,8 @@ module ProjectUnification
           results[:statistics][track_key] ||= 0
           results[:statistics][track_key] += model_result[:migrated] || 0
 
-          results[:statistics][:deduplicated] += model_result[:deduplicated] || 0
           results[:statistics][:errors_encountered] += model_result[:errors]&.length || 0
+          results[:conflicts].concat(model_result[:conflicts] || [])
           results[:errors].concat(model_result[:errors] || [])
         end
       end
@@ -108,7 +108,7 @@ module ProjectUnification
 
     # Medium track: Batch processing with validation
     def process_medium_track(klass)
-      stats = { track: :medium, migrated: 0, deduplicated: 0, errors: [] }
+      stats = { track: :medium, migrated: 0, conflicts: [], errors: [] }
 
       records = klass.where(project_id: source_project_id)
       return nil unless records.exists?
@@ -122,17 +122,12 @@ module ProjectUnification
             record.save!(validate: false)
             stats[:migrated] += 1
           elsif uniqueness_error?(record)
-            if deduplicate_record(record)
-              stats[:migrated] += 1
-              stats[:deduplicated] += 1
-            else
-              stats[:errors] << {
-                id: record.id,
-                model: klass.name,
-                error: 'Failed to deduplicate',
-                details: record.errors.full_messages
-              }
-            end
+            stats[:conflicts] << {
+              id: record.id,
+              model: klass.name,
+              conflict_fields: conflict_fields(record),
+              errors: record.errors.full_messages
+            }
           else
             stats[:errors] << {
               id: record.id,
@@ -154,7 +149,7 @@ module ProjectUnification
 
     # Slow track: Per-record processing with custom handlers
     def process_slow_track(klass)
-      stats = { track: :slow, migrated: 0, conflicts: 0, errors: [] }
+      stats = { track: :slow, migrated: 0, conflicts: [], errors: [] }
 
       records = klass.where(project_id: source_project_id)
       return nil unless records.exists?
@@ -170,13 +165,12 @@ module ProjectUnification
           record.handle_unify_conflict(target_project_id)
           record.save!
           stats[:migrated] += 1
-        elsif uniqueness_error?(record) && deduplicate_record(record)
-          stats[:migrated] += 1
         elsif uniqueness_error?(record)
-          stats[:errors] << {
+          stats[:conflicts] << {
             id: record.id,
             model: klass.name,
-            error: 'Uniqueness conflict - could not deduplicate'
+            conflict_fields: conflict_fields(record),
+            errors: record.errors.full_messages
           }
         else
           stats[:errors] << {
@@ -237,43 +231,14 @@ module ProjectUnification
       result
     end
 
-    # Check if validation errors are due to uniqueness constraints
     def uniqueness_error?(record)
       record.errors.details.values.flatten.any? { |e| e[:error] == :taken }
     end
 
-    # Attempt to deduplicate a record by finding and merging with existing
-    def deduplicate_record(record)
-      return false unless record.respond_to?(:identical)
-
-      existing = record.identical.where(project_id: target_project_id).first
-      return false unless existing
-
-      # If both records support unify, use it
-      if existing.respond_to?(:unify)
-        result = existing.unify(record, preview: false)
-        return result[:result][:unified] == true
-      end
-
-      # Otherwise, try to destroy the duplicate if it has no unique data
-      if safe_to_destroy?(record)
-        record.destroy
-        return true
-      end
-
-      false
-    rescue => e
-      Rails.logger.error("Deduplication failed: #{e.message}")
-      false
-    end
-
-    # Check if a record can be safely destroyed (has no unique relationships)
-    def safe_to_destroy?(record)
-      # Very conservative - only destroy if there are no has_many relationships with data
-      record.class.reflect_on_all_associations(:has_many).each do |assoc|
-        return false if record.send(assoc.name).any?
-      end
-      true
+    def conflict_fields(record)
+      record.errors.details
+        .select { |_, details| details.any? { |d| d[:error] == :taken } }
+        .keys
     end
   end
 end

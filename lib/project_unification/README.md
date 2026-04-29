@@ -244,6 +244,7 @@ Optimize by:
 - **Community data** (Sources, People) is not duplicated
 - **Root TaxonName conflict**: Source root becomes child of target root
 - **Large datasets** may require extended processing time
+- **Conflict detection is point-in-time**: Each record is validated at the moment it is processed, against the partially-migrated state of the database. A record that passes validation mid-migration could theoretically become invalid once a later-processed associated model is also moved. In practice this is guarded against by MANIFEST processing order (dependencies before dependents), and analysis of current TaxonWorks validations has not identified a concrete path where this occurs. However it is a known structural limitation of the approach.
 
 ## Testing
 

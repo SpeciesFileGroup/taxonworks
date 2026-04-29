@@ -89,8 +89,10 @@ namespace :tw do
       puts "=" * 80
 
       if preview
-        if result[:errors].empty?
-          puts "✓ Preview completed - no errors detected (changes rolled back)"
+        if result[:errors].empty? && result[:conflicts].empty?
+          puts "✓ Preview completed - no conflicts or errors (changes rolled back)"
+        elsif result[:conflicts].any?
+          puts "✗ Preview completed - #{result[:conflicts].length} conflict(s) must be resolved before migrating"
         else
           puts "✗ Preview completed with errors"
         end
@@ -107,9 +109,18 @@ namespace :tw do
       puts "  Medium track:        #{result[:statistics][:medium_track_count]}"
       puts "  Slow track:          #{result[:statistics][:slow_track_count]}"
       puts "  Special handling:    #{result[:statistics][:special_track_count]}"
-      puts "  Deduplicated:        #{result[:statistics][:deduplicated]}"
+      puts "  Conflicts:           #{result[:conflicts].length}"
       puts "  Errors:              #{result[:statistics][:errors_encountered]}"
       puts "  Duration:            #{result[:duration_seconds]}s"
+
+      if result[:conflicts].any?
+        puts "\nConflicts requiring manual resolution:"
+        result[:conflicts].each_with_index do |conflict, i|
+          fields = Array(conflict[:conflict_fields]).join(', ')
+          puts "  #{i + 1}. [#{conflict[:model]}] ID #{conflict[:id]} - field(s): #{fields}"
+          puts "       #{conflict[:errors].first}" if conflict[:errors].any?
+        end
+      end
 
       if result[:errors].any?
         puts "\nErrors encountered:"

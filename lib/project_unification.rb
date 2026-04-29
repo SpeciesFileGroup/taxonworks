@@ -36,6 +36,7 @@ module ProjectUnification
         duration_seconds: 0,
         statistics: {},
         details_by_model: {},
+        conflicts: [],
         errors: [],
         rollback_performed: false
       }
@@ -51,9 +52,9 @@ module ProjectUnification
       Project.transaction do
         run_migration
 
-        @results[:unified] = @results[:errors].empty?
+        @results[:unified] = @results[:errors].empty? && @results[:conflicts].empty?
 
-        if @options[:preview] || @results[:errors].any?
+        if @options[:preview] || @results[:errors].any? || @results[:conflicts].any?
           @results[:rollback_performed] = true
           raise ActiveRecord::Rollback
         end
@@ -104,6 +105,7 @@ module ProjectUnification
 
       @results[:statistics] = migration_results[:statistics]
       @results[:details_by_model] = migration_results[:details_by_model]
+      @results[:conflicts].concat(migration_results[:conflicts])
       @results[:errors].concat(migration_results[:errors])
 
       # Rebuild cached fields unless skipped

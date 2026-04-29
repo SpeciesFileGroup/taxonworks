@@ -26,6 +26,7 @@ RSpec.describe Project, '#unify', type: :model do
           :duration_seconds,
           :statistics,
           :details_by_model,
+          :conflicts,
           :errors
         )
       end
@@ -337,27 +338,48 @@ RSpec.describe Project, '#unify', type: :model do
         FactoryBot.create(:observation_matrix, name: shared_name, project: target_project)
       end
 
-      it 'detects conflict in preview mode' do
+      it 'reports the conflict with model and record detail' do
+        result = target_project.unify(source_project, preview: true)
+
+        expect(result[:conflicts]).not_to be_empty
+        conflict = result[:conflicts].first
+        expect(conflict[:model]).to eq('ObservationMatrix')
+        expect(conflict[:id]).to eq(source_matrix.id)
+        expect(conflict[:conflict_fields]).to include(:name)
+      end
+
+      it 'rolls back in preview mode' do
         result = target_project.unify(source_project, preview: true)
 
         expect(result[:preview_mode]).to be true
         expect(result[:rollback_performed]).to be true
       end
+
+      it 'does not unify when conflicts exist' do
+        result = target_project.unify(source_project, preview: false)
+
+        expect(result[:unified]).to be false
+        expect(result[:conflicts]).not_to be_empty
+      end
+
+      it 'rolls back all changes when conflicts exist in actual mode' do
+        result = target_project.unify(source_project, preview: false)
+
+        expect(result[:rollback_performed]).to be true
+        source_matrix.reload
+        expect(source_matrix.project_id).to eq(source_project.id)
+      end
     end
 
-    context 'with Note potential deduplication' do
-      let!(:source_otu) do
-        FactoryBot.create(:valid_otu, project: source_project)
-      end
+    context 'without conflicts' do
+      let!(:source_otu) { FactoryBot.create(:valid_otu, project: source_project) }
+      let!(:note) { FactoryBot.create(:note, note_object: source_otu, project: source_project, text: 'Test note') }
 
-      let!(:note) do
-        FactoryBot.create(:note, note_object: source_otu, project: source_project, text: 'Test note')
-      end
-
-      it 'migrates note with OTU' do
+      it 'migrates without conflicts' do
         result = target_project.unify(source_project, preview: false)
 
         expect(result[:unified]).to be true
+        expect(result[:conflicts]).to be_empty
 
         note.reload
         expect(note.project_id).to eq(target_project.id)
