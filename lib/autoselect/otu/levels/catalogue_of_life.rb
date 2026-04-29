@@ -43,7 +43,7 @@ module Autoselect
 
           col_records.map do |record|
             extension = record._col_extension.merge(
-              hook: { model: 'TaxonName', level: 'catalogue_of_life', yields: 'taxon_name_id' }
+              hook: { create_url: '/otus/autoselect_col_create', yields: 'otu_id' }
             )
 
             OpenStruct.new(

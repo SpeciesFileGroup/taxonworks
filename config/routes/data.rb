@@ -709,6 +709,7 @@ resources :otus do
 
     get :autoselect, defaults: { format: :json }
     get :select_options, defaults: {format: :json}
+    post :autoselect_col_create, defaults: { format: :json }
 
     patch :batch_update
   end

@@ -181,12 +181,15 @@ async function doCreate() {
     col_year:       ext.value.col_year ?? null
   }
 
+  const createUrl   = ext.value.hook?.create_url ?? '/taxon_names/autoselect_col_create'
+  const yieldsKey   = ext.value.hook?.yields     ?? 'taxon_name_id'
+
   try {
-    const { body } = await AjaxCall('post', '/taxon_names/autoselect_col_create', {
+    const { body } = await AjaxCall('post', createUrl, {
       rows:     [...ancestorRows, targetRow],
       col_code: ext.value.col_code ?? null
     })
-    emit('confirm', body.taxon_name_id)
+    emit('confirm', body[yieldsKey])
   } catch (err) {
     errorColName.value = err.response?.body?.failed_col_name ?? null
   } finally {

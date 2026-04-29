@@ -488,10 +488,42 @@ class OtusController < ApplicationController
     ).response
   end
 
+  # POST /otus/autoselect_col_create
+  # Creates TaxonNames from a CoL alignment then wraps the result in a new OTU.
+  def autoselect_col_create
+    tn_result = ::Autoselect::TaxonName::ColCreator.new(
+      rows:       autoselect_col_create_params,
+      col_code:   params[:col_code],
+      project_id: sessions_current_project_id,
+      user_id:    sessions_current_user_id
+    ).call
+
+    otu = ::Otu.create!(
+      taxon_name_id: tn_result[:taxon_name_id],
+      project_id:    sessions_current_project_id,
+      created_by_id: sessions_current_user_id,
+      updated_by_id: sessions_current_user_id
+    )
+
+    render json: { otu_id: otu.id, taxon_name_id: tn_result[:taxon_name_id] }
+  rescue ::Autoselect::TaxonName::ColCreator::CreationError => e
+    render json: {
+      error:           e.message,
+      failed_col_name: e.col_name,
+      failed_col_id:   e.col_id
+    }, status: :unprocessable_entity
+  end
+
   private
 
   def autoselect_params
     params.permit(:show_info).to_h.symbolize_keys
+  end
+
+  def autoselect_col_create_params
+    params.permit(rows: [:col_name, :col_rank, :col_id, :dataset_id, :taxonworks_id, :col_authorship, :col_year])
+          .fetch(:rows, [])
+          .map(&:to_h)
   end
 
   def set_otu
