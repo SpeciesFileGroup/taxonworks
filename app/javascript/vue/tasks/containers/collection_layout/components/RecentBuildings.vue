@@ -78,8 +78,12 @@ watch(isVisible, (val) => {
   if (val) {
     isLoading.value = true
     Container.where({ type: 'Container::Building', per: 10, recent: true })
-      .then(({ body }) => { buildings.value = body })
-      .finally(() => { isLoading.value = false })
+      .then(({ body }) => {
+        buildings.value = body
+      })
+      .finally(() => {
+        isLoading.value = false
+      })
   }
 })
 

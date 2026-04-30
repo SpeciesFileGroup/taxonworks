@@ -6,7 +6,8 @@
         <span
           v-if="zoomStack.length"
           class="building-name"
-        >{{ zoomStack[0].name }}</span>
+          >{{ zoomStack[0].name }}</span
+        >
       </h3>
       <VBtn
         v-if="buildingId"
@@ -31,87 +32,39 @@
           <span
             v-if="i > 0"
             class="breadcrumb-sep"
-          >&rsaquo;</span>
+            >&rsaquo;</span
+          >
           <span
-            :class="['breadcrumb-link', { 'breadcrumb-current': i === zoomStack.length - 1 }]"
+            :class="[
+              'breadcrumb-link',
+              { 'breadcrumb-current': i === zoomStack.length - 1 }
+            ]"
             @click="zoomTo(i)"
-          >{{ crumb.name }}</span>
+            >{{ crumb.name }}</span
+          >
         </span>
       </template>
       <span
         v-else
         class="breadcrumb-empty"
-      >&nbsp;</span>
+        >&nbsp;</span
+      >
     </div>
 
     <div
       v-if="!buildingId"
-      class="muted"
+      class="suble"
     >
       Select or create a building to see the grid.
     </div>
     <VSpinner v-else-if="loading" />
     <template v-else>
-
-      <!-- Expand/shrink controls (apply to current zoom target) -->
-      <div class="expand-controls horizontal-left-content gap-small flex-wrap">
-        <label class="horizontal-left-content gap-xsmall middle">
-          <input
-            v-model.number="expandRowsBy"
-            type="number"
-            min="1"
-            max="1000"
-            class="normal-input dim-input"
-          />
-          <VBtn
-            color="update"
-            medium
-            :disabled="!expandRowsBy || saving"
-            @click="expandRows"
-          >
-            + rows
-          </VBtn>
-          <VBtn
-            color="update"
-            medium
-            :disabled="!expandRowsBy || saving"
-            @click="shrinkRows"
-          >
-            - rows
-          </VBtn>
-        </label>
-
-        <label class="horizontal-left-content gap-xsmall middle">
-          <input
-            v-model.number="expandColsBy"
-            type="number"
-            min="1"
-            max="1000"
-            class="normal-input dim-input"
-          />
-          <VBtn
-            color="update"
-            medium
-            :disabled="!expandColsBy || saving"
-            @click="expandCols"
-          >
-            + columns
-          </VBtn>
-          <VBtn
-            color="update"
-            medium
-            :disabled="!expandColsBy || saving"
-            @click="shrinkCols"
-          >
-            - columns
-          </VBtn>
-        </label>
-
-        <span
-          v-if="expandError"
-          class="feedback-warning"
-        >{{ expandError }}</span>
-      </div>
+      <GridResizeControls
+        :container="currentContainer"
+        :saving="saving"
+        :error="expandError"
+        @resize="onResize"
+      />
 
       <div
         v-if="!currentContainer?.size_x || !currentContainer?.size_y"
@@ -124,7 +77,8 @@
         <span
           v-if="moveError"
           class="feedback-warning"
-        >{{ moveError }}</span>
+          >{{ moveError }}</span
+        >
         <SvgGrid
           :cols="currentContainer.size_x"
           :rows="currentContainer.size_y"
@@ -136,182 +90,31 @@
       </template>
     </template>
 
-    <!-- Cell modal -->
-    <VModal
+    <CellModal
       v-if="modal.visible"
-      :container-style="{ width: modal.occupant ? '860px' : '520px' }"
+      :cell="{ col: modal.col, row: modal.row }"
+      :occupant="modal.occupant"
+      :unplaced-children="unplacedChildren"
+      :place-error="placeError"
       @close="closeModal"
-    >
-      <template #header>
-        <h3>Cell ({{ modal.col }}, {{ modal.row }})</h3>
-      </template>
-      <template #body>
-        <div :class="['modal-body-inner', { 'modal-two-col': modal.occupant }]">
-
-          <!-- Left column: placement -->
-          <div class="modal-col-placement">
-
-            <!-- Occupant -->
-            <div
-              v-if="modal.occupant"
-              class="cell-occupant"
-            >
-              <strong>Current occupant:</strong> {{ modal.occupant.name }}
-              <span class="feedback feedback-thin feedback-secondary">{{ modal.occupant.type }}</span>
-              <VBtn
-                color="destroy"
-                circle
-                @click="unplaceOccupant"
-              >
-                <VIcon
-                  name="undo"
-                  x-small
-                  class="icon-unplace"
-                />
-              </VBtn>
-            </div>
-
-            <!-- Unplaced children list -->
-            <div v-if="unplacedChildren.length">
-              <h4>Unplaced children</h4>
-              <ul class="unplaced-list">
-                <li
-                  v-for="item in unplacedChildren"
-                  :key="item.container_item_id"
-                  class="unplaced-item"
-                  @click="placeChild(item)"
-                >
-                  <span class="container-type-badge">{{ item.type.split('::').slice(1).join('::') }}</span>
-                  {{ item.name }}
-                </li>
-              </ul>
-            </div>
-            <div
-              v-else
-              class="muted"
-            >
-              No unplaced children.
-            </div>
-
-            <hr class="modal-divider" />
-
-            <!-- Autocomplete -->
-            <h4>Find and place a container</h4>
-            <div class="horizontal-left-content gap-small">
-              <VAutocomplete
-                url="/containers/autocomplete"
-                placeholder="Find a container…"
-                param="term"
-                label="label"
-                @get-item="placeFromAutocomplete"
-              />
-            </div>
-
-            <span
-              v-if="placeError"
-              class="feedback-warning"
-            >{{ placeError }}</span>
-          </div>
-
-          <!-- Right column: edit occupant attributes -->
-          <div
-            v-if="modal.occupant"
-            class="modal-col-edit"
-          >
-            <h4>Edit</h4>
-
-            <label class="edit-field">
-              Name
-              <input
-                v-model="editForm.name"
-                type="text"
-                class="normal-input full-width-input"
-                @blur="saveOccupantField('name', editForm.name)"
-              />
-            </label>
-
-            <div class="edit-field">
-              <span class="edit-label">% empty</span>
-              <div class="slider-track-row">
-                <input
-                  v-model.number="editForm.percentEmpty"
-                  type="range"
-                  min="0"
-                  max="100"
-                  step="1"
-                  class="range-input"
-                  @change="saveOccupantField('asserted_percent_empty', editForm.percentEmpty)"
-                />
-                <span class="slider-value">{{ editForm.percentEmpty ?? '—' }}</span>
-              </div>
-              <div class="slider-btn-row">
-                <VBtn
-                  v-for="pct in [25, 50, 100]"
-                  :key="pct"
-                  color="primary"
-                  small
-                  @click="setPercent('percentEmpty', 'asserted_percent_empty', pct)"
-                >{{ pct }}</VBtn>
-              </div>
-            </div>
-
-            <div class="edit-field">
-              <span class="edit-label">% earmarked</span>
-              <div class="slider-track-row">
-                <input
-                  v-model.number="editForm.percentEarmarked"
-                  type="range"
-                  min="0"
-                  max="100"
-                  step="1"
-                  class="range-input"
-                  @change="saveOccupantField('asserted_percent_earmarked', editForm.percentEarmarked)"
-                />
-                <span class="slider-value">{{ editForm.percentEarmarked ?? '—' }}</span>
-              </div>
-              <div class="slider-btn-row">
-                <VBtn
-                  v-for="pct in [25, 50, 100]"
-                  :key="pct"
-                  color="primary"
-                  small
-                  @click="setPercent('percentEarmarked', 'asserted_percent_earmarked', pct)"
-                >{{ pct }}</VBtn>
-              </div>
-            </div>
-
-            <label class="edit-field">
-              <span class="edit-label">Print label</span>
-              <textarea
-                v-model="editForm.printLabel"
-                rows="3"
-                class="normal-input full-width-input"
-                @blur="saveOccupantField('print_label', editForm.printLabel)"
-              />
-            </label>
-
-            <span
-              v-if="editForm.error"
-              class="feedback-warning"
-            >{{ editForm.error }}</span>
-          </div>
-
-        </div>
-      </template>
-    </VModal>
+      @place="placeChild"
+      @unplace="unplaceOccupant"
+      @autocomplete-pick="placeFromAutocomplete"
+      @occupant-updated="onOccupantUpdated"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch } from 'vue'
-import AjaxCall from '@/helpers/ajaxCall'
+import { ref, computed, toRef } from 'vue'
 import SvgGrid from './SvgGrid.vue'
-import VModal from '@/components/ui/Modal.vue'
-import VAutocomplete from '@/components/ui/Autocomplete.vue'
+import CellModal from './CellModal.vue'
+import GridResizeControls from './GridResizeControls.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import { Container, ContainerItem } from '@/routes/endpoints'
+import { useZoomStack } from '../composables/useZoomStack'
+import { usePlacement } from '../composables/usePlacement'
 
 const props = defineProps({
   buildingId: {
@@ -328,215 +131,106 @@ const visualizeHref = computed(() =>
     : '/tasks/containers/collection_visualization'
 )
 
-// ── State ─────────────────────────────────────────────────────────────────────
+const {
+  zoomStack,
+  children,
+  loading,
+  currentContainer,
+  placedCells,
+  unplacedChildren,
+  loadChildren,
+  drillInto,
+  zoomTo,
+  navigateTo,
+  patchCurrentSize,
+  renameInStack
+} = useZoomStack(toRef(props, 'buildingId'))
 
-const zoomStack    = ref([])   // [{ id, name, type, size_x, size_y }, ...]
-const children     = ref([])
-const loading      = ref(false)
-const moving       = ref(false)
-const saving       = ref(false)
-const expandError  = ref('')
-const placeError   = ref('')
-const moveError    = ref('')
-const expandRowsBy = ref(1)
-const expandColsBy = ref(1)
-const modal        = ref({ visible: false, col: null, row: null, occupant: null })
-const editForm     = reactive({ name: '', percentEmpty: null, percentEarmarked: null, printLabel: '', error: '' })
+const { placeError, place, unplace, reset: resetPlaceError } = usePlacement()
 
-// ── Derived ───────────────────────────────────────────────────────────────────
-
-const currentContainer = computed(() => zoomStack.value[zoomStack.value.length - 1] || null)
-
-// ── Watchers ──────────────────────────────────────────────────────────────────
-
-watch(() => props.buildingId, async (id) => {
-  zoomStack.value = []
-  children.value  = []
-  if (id) await loadAll(id)
-}, { immediate: true })
-
-// ── Data loading ──────────────────────────────────────────────────────────────
-
-async function loadAll(buildingId) {
-  loading.value = true
-  const { body } = await Container.find(buildingId)
-  if (body?.id) {
-    zoomStack.value = [containerSummary(body)]
-    await loadChildren(buildingId)
-  }
-  loading.value = false
-}
-
-async function loadChildren(containerId) {
-  const { body } = await AjaxCall('get', '/tasks/containers/collection_layout/children.json', {
-    params: { container_id: containerId }
-  })
-  children.value = Array.isArray(body) ? body : []
-}
-
-function containerSummary(c) {
-  return {
-    id:     c.id,
-    name:   c.name || c.type?.split('::').pop() || `Container ${c.id}`,
-    type:   c.type,
-    size_x: c.size_x,
-    size_y: c.size_y
-  }
-}
-
-// ── Zoom / breadcrumb ─────────────────────────────────────────────────────────
-
-async function onCellDblclick({ col, row }) {
-  const child = children.value.find(c => c.disposition_x === col && c.disposition_y === row)
-  if (!child?.has_children) return
-
-  // Fetch the child container to get its dimensions
-  const { body } = await Container.find(child.id)
-  if (!body?.id) return
-
-  zoomStack.value = [...zoomStack.value, containerSummary(body)]
-  await loadChildren(body.id)
-}
-
-async function zoomTo(index) {
-  if (index === zoomStack.value.length - 1) return  // already there
-  zoomStack.value = zoomStack.value.slice(0, index + 1)
-  await loadChildren(zoomStack.value[index].id)
-}
-
-// ── Computed cells ────────────────────────────────────────────────────────────
-
-const placedCells = computed(() =>
-  children.value
-    .filter(c => c.disposition_x != null && c.disposition_y != null)
-    .map(c => ({
-      col:      c.disposition_x,
-      row:      c.disposition_y,
-      label:    c.name.slice(0, 4),
-      name:     c.name,
-      cssClass: c.has_children ? 'grid-cell-placed grid-cell-drillable' : 'grid-cell-placed'
-    }))
-)
-
-const unplacedChildren = computed(() =>
-  children.value.filter(c => c.disposition_x == null && c.disposition_y == null && c.disposition_z == null)
-)
+const moving = ref(false)
+const saving = ref(false)
+const expandError = ref('')
+const moveError = ref('')
+const modal = ref({ visible: false, col: null, row: null, occupant: null })
 
 // ── Cell modal ────────────────────────────────────────────────────────────────
 
-async function onCellClick({ col, row }) {
-  const occupant = children.value.find(c => c.disposition_x === col && c.disposition_y === row) || null
-  placeError.value = ''
-  moveError.value  = ''
-  editForm.error   = ''
+function onCellClick({ col, row }) {
+  const occupant =
+    children.value.find(
+      (c) => c.disposition_x === col && c.disposition_y === row
+    ) || null
+  resetPlaceError()
+  moveError.value = ''
   modal.value = { visible: true, col, row, occupant }
+}
 
-  if (occupant) {
-    const { body } = await Container.find(occupant.id)
-    if (body?.id) {
-      editForm.name            = body.name || ''
-      editForm.percentEmpty    = body.asserted_percent_empty    ?? null
-      editForm.percentEarmarked = body.asserted_percent_earmarked ?? null
-      editForm.printLabel      = body.print_label || ''
-    }
-  }
+async function onCellDblclick({ col, row }) {
+  const child = children.value.find(
+    (c) => c.disposition_x === col && c.disposition_y === row
+  )
+  await drillInto(child)
 }
 
 function closeModal() {
   modal.value = { visible: false, col: null, row: null, occupant: null }
 }
 
+function refreshModalOccupant() {
+  if (!modal.value.visible) return
+  const { col, row } = modal.value
+  const occupant =
+    children.value.find(
+      (c) => c.disposition_x === col && c.disposition_y === row
+    ) || null
+  modal.value = { ...modal.value, occupant }
+}
+
 async function placeChild(item) {
-  await place(item.container_item_id, modal.value.col, modal.value.row)
-}
-
-async function placeFromAutocomplete(container) {
-  const child = children.value.find(c => c.id === container.id)
-  if (child) {
-    await place(child.container_item_id, modal.value.col, modal.value.row)
-  } else {
-    emit('add-container', { container, col: modal.value.col, row: modal.value.row })
-    closeModal()
-  }
-}
-
-async function unplaceOccupant() {
-  await place(modal.value.occupant.container_item_id, null, null, null)
-}
-
-async function place(containerItemId, col, row, z = undefined) {
-  placeError.value = ''
-  const attrs = { disposition_x: col, disposition_y: row }
-  if (z !== undefined) attrs.disposition_z = z
-
-  let body
-  try {
-    const response = await ContainerItem.update(containerItemId, {
-      container_item: attrs
-    })
-
-    body = response.body
-  } catch (error) {
-    const errors = error?.response?.body
-    placeError.value = errors
-      ? Object.values(errors).flat().join(', ')
-      : 'Could not place container.'
-    return
-  }
-
-  if (body?.id) {
+  const ok = await place(
+    item.container_item_id,
+    modal.value.col,
+    modal.value.row
+  )
+  if (ok) {
     await loadChildren(currentContainer.value.id)
-    closeModal()
+    refreshModalOccupant()
+  }
+}
+
+async function unplaceOccupant(occupant) {
+  const ok = await unplace(occupant.container_item_id)
+  if (ok) {
+    await loadChildren(currentContainer.value.id)
+    refreshModalOccupant()
+  }
+}
+
+async function placeFromAutocomplete({ container, cell }) {
+  const child = children.value.find((c) => c.id === container.id)
+  if (child) {
+    const ok = await place(child.container_item_id, cell.col, cell.row)
+    if (ok) {
+      await loadChildren(currentContainer.value.id)
+      refreshModalOccupant()
+    }
   } else {
-    placeError.value = 'Could not place container.'
+    emit('add-container', { container, col: cell.col, row: cell.row })
+    closeModal()
   }
 }
 
-// ── Occupant attribute editing ────────────────────────────────────────────────
-
-async function saveOccupantField(field, value) {
-  if (!modal.value.occupant) return
-  editForm.error = ''
-
-  // Always send both percent fields together so the cross-field validation
-  // (earmarked must not exceed empty) has both values to compare against.
-  const attrs = { [field]: value }
-
-  console.log(attrs)
-  if (field === 'asserted_percent_empty')
-    attrs.asserted_percent_earmarked = editForm.percentEarmarked
-  if (field === 'asserted_percent_earmarked')
-    attrs.asserted_percent_empty = editForm.percentEmpty
-
-  let body
-  try {
-    ;({ body } = await Container.update(modal.value.occupant.id, {
-      container: attrs
-    }))
-  } catch (error) {
-    const errors = error?.response?.body
-    editForm.error = errors
-      ? Object.values(errors).flat().join(', ')
-      : 'Could not save.'
-    return
-  }
-
-  // If the name changed, update children list and zoom stack so labels refresh
+function onOccupantUpdated({ field, body }) {
   if (field === 'name') {
-    const newName = body.name
-    children.value = children.value.map(c =>
-      c.id === modal.value.occupant.id ? { ...c, name: newName } : c
-    )
-    zoomStack.value = zoomStack.value.map(z =>
-      z.id === modal.value.occupant.id ? { ...z, name: newName } : z
-    )
-    modal.value = { ...modal.value, occupant: { ...modal.value.occupant, name: newName } }
+    renameInStack(body.id, body.name)
+    if (modal.value.occupant?.id === body.id) {
+      modal.value = {
+        ...modal.value,
+        occupant: { ...modal.value.occupant, name: body.name }
+      }
+    }
   }
-}
-
-function setPercent(formKey, apiField, value) {
-  editForm[formKey] = value
-  saveOccupantField(apiField, value)
 }
 
 // ── Move (drag-drop) ──────────────────────────────────────────────────────────
@@ -562,7 +256,9 @@ async function onMove(moves) {
   // First pass — sequential so each PATCH lands before the next departs
   const failed = []
   for (const { from, to } of sorted) {
-    const child = children.value.find(c => c.disposition_x === from.col && c.disposition_y === from.row)
+    const child = children.value.find(
+      (c) => c.disposition_x === from.col && c.disposition_y === from.row
+    )
     if (!child) continue
     const { body } = await ContainerItem.update(child.container_item_id, {
       container_item: { disposition_x: to.col, disposition_y: to.row }
@@ -587,15 +283,17 @@ async function onMove(moves) {
   }
 }
 
-// ── Expand controls (apply to current zoom target) ────────────────────────────
+// ── Resize ────────────────────────────────────────────────────────────────────
 
-async function patchCurrentContainer(attrs) {
-  saving.value      = true
+async function onResize(attrs) {
+  saving.value = true
   expandError.value = ''
 
   let body
   try {
-    ;({ body } = await Container.update(currentContainer.value.id, { container: attrs }))
+    ;({ body } = await Container.update(currentContainer.value.id, {
+      container: attrs
+    }))
   } catch (error) {
     saving.value = false
     const errors = error?.response?.body
@@ -609,62 +307,12 @@ async function patchCurrentContainer(attrs) {
   }
 
   saving.value = false
-  const idx = zoomStack.value.length - 1
-  zoomStack.value = [
-    ...zoomStack.value.slice(0, idx),
-    { ...zoomStack.value[idx], size_x: body.size_x, size_y: body.size_y }
-  ]
-}
-
-function expandRows() {
-  if (!expandRowsBy.value || expandRowsBy.value < 1) return
-  patchCurrentContainer({ size_y: (currentContainer.value.size_y || 0) + expandRowsBy.value })
-}
-
-function shrinkRows() {
-  if (!expandRowsBy.value || expandRowsBy.value < 1) return
-  const newSize = (currentContainer.value.size_y || 0) - expandRowsBy.value
-  if (newSize < 1) return
-  patchCurrentContainer({ size_y: newSize })
-}
-
-function expandCols() {
-  if (!expandColsBy.value || expandColsBy.value < 1) return
-  patchCurrentContainer({ size_x: (currentContainer.value.size_x || 0) + expandColsBy.value })
-}
-
-function shrinkCols() {
-  if (!expandColsBy.value || expandColsBy.value < 1) return
-  const newSize = (currentContainer.value.size_x || 0) - expandColsBy.value
-  if (newSize < 1) return
-  patchCurrentContainer({ size_x: newSize })
-}
-
-// Navigate directly to a container given its ancestry path from the tree.
-// path: [{id, name, type}, ...] from root to target (produced by flattenTree).
-// The target container is fetched to get current dimensions; ancestors are
-// stored in the zoom stack so the breadcrumb reflects the full path.
-async function navigateTo(path) {
-  if (!path?.length) return
-  const target = path[path.length - 1]
-  loading.value = true
-  const { body } = await Container.find(target.id)
-  if (body?.id) {
-    const ancestors = path.slice(0, -1).map(p => ({
-      id:     p.id,
-      name:   p.name,
-      type:   p.type,
-      size_x: null,
-      size_y: null
-    }))
-    zoomStack.value = [...ancestors, containerSummary(body)]
-    await loadChildren(body.id)
-  }
-  loading.value = false
+  patchCurrentSize({ size_x: body.size_x, size_y: body.size_y })
 }
 
 defineExpose({
-  reload:     () => currentContainer.value && loadChildren(currentContainer.value.id),
+  reload: () =>
+    currentContainer.value && loadChildren(currentContainer.value.id),
   navigateTo
 })
 </script>
@@ -672,11 +320,11 @@ defineExpose({
 <style scoped lang="scss">
 @use 'sass:map';
 @use '../../../../assets/styles/variables/_palette.scss' as *;
+
 .building-grid-panel {
   margin-top: 1em;
 }
 
-/* Building name inline with heading */
 .building-name {
   font-weight: normal;
   font-size: 0.85em;
@@ -705,7 +353,6 @@ defineExpose({
   color: map.get($tw-colors, 'white');
 }
 
-/* Breadcrumb trail */
 .breadcrumb-row {
   display: flex;
   align-items: center;
@@ -714,7 +361,7 @@ defineExpose({
   min-height: 1.4em;
   margin-bottom: 0.5em;
   font-size: 0.88em;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border-color);
   padding-bottom: 0.35em;
 }
 
@@ -746,123 +393,8 @@ defineExpose({
   text-decoration: none;
 }
 
-/* Expand controls */
-.expand-controls {
-  margin-bottom: 0.75em;
+.muted {
+  color: #999;
+  font-style: italic;
 }
-
-.dim-input {
-  width: 4em;   /* fits up to 4 digits (1000) comfortably */
-}
-
-/* Modal */
-.modal-body-inner {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75em;
-}
-
-.modal-two-col {
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 1.5em;
-}
-
-.modal-col-placement {
-  flex: 1 1 0;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75em;
-}
-
-.modal-col-edit {
-  flex: 0 0 300px;
-  min-width: 0;
-  overflow: hidden;
-  border-left: 1px solid #eee;
-  padding-left: 1.5em;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75em;
-}
-
-.modal-col-edit h4 {
-  margin: 0 0 0.25em;
-}
-
-.edit-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25em;
-  font-size: 0.9em;
-  min-width: 0;
-}
-
-.edit-label {
-  font-weight: normal;
-}
-
-.full-width-input {
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.slider-track-row {
-  display: flex;
-  align-items: center;
-  gap: 0.4em;
-  overflow: hidden;
-  min-width: 0;
-}
-
-.range-input {
-  flex: 1 1 0;
-  min-width: 0;
-  width: 0;
-}
-
-.slider-value {
-  flex: 0 0 2.5em;
-  text-align: right;
-  font-size: 0.85em;
-  color: #555;
-}
-
-.slider-btn-row {
-  display: flex;
-  gap: 0.3em;
-}
-
-.modal-divider {
-  border: none;
-  border-top: 1px solid #ddd;
-  margin: 0.25em 0;
-}
-
-.cell-occupant {
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
-}
-
-.unplaced-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-.unplaced-item {
-  padding: 4px 6px;
-  border-radius: 3px;
-  cursor: pointer;
-  font-size: 0.9em;
-}
-
-.unplaced-item:hover {
-  background: #eef4ff;
-}
-
 </style>
