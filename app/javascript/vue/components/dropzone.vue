@@ -59,6 +59,10 @@ const props = defineProps({
     type: Boolean,
     default: true
   },
+  paste: {
+    type: Boolean,
+    default: true
+  },
   useFontAwesome: {
     type: Boolean,
     default: false
@@ -212,7 +216,10 @@ onMounted(() => {
     emit('vdropzone-file-added', file)
   })
 
-  document.addEventListener('paste', onPaste)
+  // Each mounted instance with paste=true registers its own document listener, so a
+  // paste event fires all of them. Callers must ensure at most one paste-enabled
+  // dropzone is mounted at a time to avoid the same file being added to multiple instances.
+  if (props.paste) document.addEventListener('paste', onPaste)
 
   dropzone.on('error', function (file, error, xhr) {
     const errorElements = dropzoneRef.value.querySelectorAll(
@@ -287,7 +294,7 @@ watch(
 )
 
 onBeforeUnmount(() => {
-  document.removeEventListener('paste', onPaste)
+  if (props.paste) document.removeEventListener('paste', onPaste)
   dropzone.destroy()
 })
 </script>

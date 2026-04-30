@@ -10,6 +10,7 @@
       ref="dropzoneElement"
       url="/observations"
       use-custom-dropzone-options
+      :paste="false"
       @vdropzone-sending="sending"
       @vdropzone-success="success"
       @vdropzone-error="error"
