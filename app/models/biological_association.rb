@@ -116,6 +116,64 @@ class BiologicalAssociation < ApplicationRecord
     biological_association_object
   end
 
+  # @return [Array of Integer]
+  #   OTU ids reachable through this BiologicalAssociation's subject and object.
+  #   Handles direct Otu subject/object, CollectionObject and FieldOccurrence
+  #   (via position=1 taxon determination), and AnatomicalPart (via cached_otu_id).
+  def otu_ids
+    ids = []
+    [:subject, :object].each do |role|
+      type = send("biological_association_#{role}_type")
+      id   = send("biological_association_#{role}_id")
+      case type
+      when 'Otu'
+        ids << id
+      when 'CollectionObject', 'FieldOccurrence'
+        otu_id = ::TaxonDetermination
+          .where(taxon_determination_object_type: type, taxon_determination_object_id: id, position: 1)
+          .pick(:otu_id)
+        ids << otu_id if otu_id
+      when 'AnatomicalPart'
+        otu_id = ::AnatomicalPart.where(id:).pick(:cached_otu_id)
+        ids << otu_id if otu_id
+      end
+    end
+    ids.uniq
+  end
+
+  # @return [Array of Integer]
+  #   OTU ids reachable across a collection of BiologicalAssociations,
+  #   batching queries by type to avoid N+1.
+  def self.collect_otu_ids(biological_associations)
+    bas = biological_associations.to_a
+    ids = []
+
+    [:subject, :object].each do |role|
+      type_attr = "biological_association_#{role}_type"
+      id_attr   = "biological_association_#{role}_id"
+      by_type   = bas.group_by { |ba| ba.send(type_attr) }
+
+      (by_type['Otu'] || []).each { |ba| ids << ba.send(id_attr) }
+
+      %w[CollectionObject FieldOccurrence].each do |type|
+        next unless (typed_bas = by_type[type])
+        typed_ids = typed_bas.map { |ba| ba.send(id_attr) }
+        ids.concat(
+          ::TaxonDetermination
+            .where(taxon_determination_object_type: type, taxon_determination_object_id: typed_ids, position: 1)
+            .pluck(:otu_id)
+        )
+      end
+
+      if (ap_bas = by_type['AnatomicalPart'])
+        ap_ids = ap_bas.map { |ba| ba.send(id_attr) }
+        ids.concat(::AnatomicalPart.where(id: ap_ids).pluck(:cached_otu_id).compact)
+      end
+    end
+
+    ids.uniq
+  end
+
   class << self
 
     def set_batch_cap(request)

@@ -1223,6 +1223,8 @@ new_ba_task:
   name: 'New biological associations II'
   related:
   categories:
+    - biology
+    - new
   status: prototype
   description: 'Create, edit, and cite biological associations, with support for anatomical parts and asserted distributions'
 collection_layout_task:

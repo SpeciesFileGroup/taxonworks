@@ -135,9 +135,9 @@ input:checked + .slider-toggle:before {
 
 /* Rounded sliders */
 .slider-toggle.round {
-  border-radius: 2px;
+  border-radius: var(--border-radius-xsmall);
 }
 
 .slider-toggle.round:before {
-  border-radius: 2px;
+  border-radius: var(--border-radius-xsmall);
 }

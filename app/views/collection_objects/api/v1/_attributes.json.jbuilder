@@ -1,7 +1,7 @@
 json.extract! collection_object, :id, :total, :preparation_type_id, :collecting_event_id, :repository_id, :type,
 :buffered_collecting_event, :buffered_determinations, :buffered_other_labels,
 :ranged_lot_category_id, :accessioned_at, :deaccessioned_at, :deaccession_reason,
-:created_by_id, :updated_by_id, :project_id, :created_at, :updated_at
+:project_id, :created_at, :updated_at
 
 json.global_id collection_object.to_global_id.to_s
 
@@ -20,7 +20,7 @@ end
 
 if extend_response_with('dwc_fields')
   json.dwc do
-    json.merge!(collection_object.dwc_occurrence&.attributes&.select{|k,v| v.present?} )
+    json.merge!(collection_object.dwc_occurrence&.api_attributes || {})
   end
 end
 

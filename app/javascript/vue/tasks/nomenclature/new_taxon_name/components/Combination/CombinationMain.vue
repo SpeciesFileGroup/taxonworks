@@ -11,7 +11,7 @@
         v-if="!isCurrentTaxonInCombination"
         :combination-ranks="combinationRanks"
         :manual-mode="isManualMode"
-        @on-set="(item) => (combination = item)"
+        @on-set="onSetCurrent"
       />
       <CombinationRank
         v-for="(group, groupName) in combinationRanks"
@@ -37,6 +37,7 @@
       </div>
       <template v-if="Object.keys(combination).length">
         <CombinationCitation
+          ref="citationComponent"
           :taxon="taxon"
           v-model="citationData"
         />
@@ -96,7 +97,7 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive, watch } from 'vue'
+import { ref, computed, reactive, watch, nextTick } from 'vue'
 import { useStore } from 'vuex'
 import { GetterNames } from '../../store/getters/getters.js'
 import { ActionNames } from '../../store/actions/actions.js'
@@ -119,6 +120,7 @@ import makeCitationObject from '@/factory/Citation.js'
 import DisplayList from '@/components/displayList.vue'
 
 const store = useStore()
+const citationComponent = ref(null)
 const combination = ref({})
 const combinationList = computed(
   () => store.getters[GetterNames.GetCombinations]
@@ -159,6 +161,11 @@ const combinationRanks = computed(() =>
 const isICN = computed(
   () => store.getters[GetterNames.GetNomenclaturalCode] === 'icn'
 )
+
+const onSetCurrent = (item) => {
+  combination.value = item
+  nextTick(() => citationComponent.value?.focus())
+}
 
 const saveCombination = () => {
   const combObj = Object.assign(
@@ -311,5 +318,9 @@ watch(currentCombinationId, async (newId) => {
     : []
 
   queueClassification.value = []
+})
+
+defineExpose({
+  focus() { citationComponent.value?.focus() }
 })
 </script>

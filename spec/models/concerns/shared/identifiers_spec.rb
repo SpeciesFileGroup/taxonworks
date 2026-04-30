@@ -84,6 +84,37 @@ describe 'Identifiable', type: :model, group: [:identifiers] do
         expect(identifiable_class.with_identifier(['INHSIC 123', 'CNC 789']).count).to eq(2)
       end
 
+      context '#visible_identifiers_for' do
+        let!(:otu) { FactoryBot.create(:valid_otu) }
+        let!(:local_id) { Identifier::Local::OtuUtility.create!(identifier: '1', identifier_object: otu, namespace: n1) }
+        let!(:global_id) { Identifier::Global::Uri.create!(identifier: 'http://example.org/1', identifier_object: otu) }
+        let(:other_project_id) { otu.project_id + 1 }
+
+        context 'when association is not loaded' do
+          specify 'includes local and global identifiers for matching project' do
+            expect(otu.visible_identifiers_for(otu.project_id)).to include(local_id, global_id)
+          end
+
+          specify 'excludes local identifier for non-matching project' do
+            expect(otu.visible_identifiers_for(other_project_id)).to include(global_id)
+            expect(otu.visible_identifiers_for(other_project_id)).not_to include(local_id)
+          end
+        end
+
+        context 'when association is loaded' do
+          before { otu.identifiers.load }
+
+          specify 'includes local and global identifiers for matching project' do
+            expect(otu.visible_identifiers_for(otu.project_id)).to include(local_id, global_id)
+          end
+
+          specify 'excludes local identifier for non-matching project' do
+            expect(otu.visible_identifiers_for(other_project_id)).to include(global_id)
+            expect(otu.visible_identifiers_for(other_project_id)).not_to include(local_id)
+          end
+        end
+      end
+
       context 'on destroy' do
         specify 'attached identifiers are destroyed' do
           expect(identifiable_instance.identifiers.count).to eq(3)

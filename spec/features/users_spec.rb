@@ -1,6 +1,9 @@
 require 'rails_helper'
 
 describe 'Users', type: :feature do
+  def last_email_to(address)
+    ActionMailer::Base.deliveries.reverse.find { |mail| Array(mail.to).include?(address) }
+  end
 
   # All users must sign in -- a user isn't a user until s/he signs in
   # When a worker signs in, what does he see, what can he do?  dashboard, what links?
@@ -277,7 +280,8 @@ describe 'Users', type: :feature do
         scenario 'request password reset' do
           password = '12345678abcd'
           expect(page).to have_content('Password reset request sent!')
-          mail = ActionMailer::Base.deliveries.last
+          mail = last_email_to('user@example.com')
+          expect(mail).to be_present
           path = mail.body.match(/http(s)?:\/\/[^\/]+(?<path>\S+)/)['path']
           visit path
           # current error is 'Token not present or expired.'
@@ -313,7 +317,8 @@ describe 'Users', type: :feature do
         click_button 'Sign in'
         click_button 'Send e-mail'
         expect(page).to have_content('Password reset request sent!')
-        mail = ActionMailer::Base.deliveries.last
+        mail = last_email_to('flagged@example.com')
+        expect(mail).to be_present
         visit mail.body.match(/http(s)?:\/\/[^\/]+(?<path>\S+)/)['path']
         fill_in 'New password', with: password
         fill_in 'New password confirmation', with: password

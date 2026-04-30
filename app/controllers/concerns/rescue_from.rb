@@ -35,6 +35,7 @@ module RescueFrom
       respond_to do |format|
         format.html { render plain: '404 Not Found', status: :not_found }
         format.json { render json: {success: false}, status: :not_found }
+        format.geojson { render json: {success: false}, status: :not_found }
       end
     end
 

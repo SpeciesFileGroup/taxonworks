@@ -4,6 +4,23 @@
 module Export::Dwca::GbifProfile
 
   class SpeciesProfile
+    NAMESPACES = {
+      :taxonID => 'http://rs.tdwg.org/dwc/terms/taxonID',
+      :isMarine => 'http://rs.gbif.org/terms/1.0/isMarine',
+      :isFreshwater => 'http://rs.gbif.org/terms/1.0/isFreshwater',
+      :isTerrestrial => 'http://rs.gbif.org/terms/1.0/isTerrestrial',
+      :isInvasive => 'http://rs.gbif.org/terms/1.0/isInvasive',
+      :isHybrid => 'http://rs.gbif.org/terms/1.0/isHybrid',
+      :isExtinct => 'http://rs.gbif.org/terms/1.0/isExtinct',
+      :livingPeriod => 'http://rs.gbif.org/terms/1.0/livingPeriod',
+      :ageInDays => 'http://rs.gbif.org/terms/1.0/ageInDays',
+      :sizeInMillimiters => 'http://rs.gbif.org/terms/1.0/sizeInMillimeters',
+      :massInGrams => 'http://rs.gbif.org/terms/1.0/massInGrams',
+      :lifeForm => 'http://rs.gbif.org/terms/1.0/lifeForm',
+      :habitat => 'http://rs.tdwg.org/dwc/terms/habitat',
+      :sex => 'http://rs.tdwg.org/dwc/terms/sex'
+    }.freeze
+
     # taxonID (http://rs.tdwg.org/dwc/terms/taxonID)
     #
     # @return [String]
@@ -11,7 +28,7 @@ module Export::Dwca::GbifProfile
     # taxon in the core data file to which this record points. This
     # identifier provides the link between the core data record and the
     # extension record.
-    attr_accessor :taxonID # [USED IN SF]
+    attr_accessor :taxonID
 
     # isMarine (http://rs.gbif.org/terms/1.0/isMarine)
     #
@@ -50,7 +67,7 @@ module Export::Dwca::GbifProfile
     #
     # @return [String]
     # Flag indicating a species known to be invasive/alien in some are of the world.
-    # Detailed native and introduced distribution areas can be published with the 
+    # Detailed native and introduced distribution areas can be published with the
     # distribution extension.
     #
     # Vocabulary: http://rs.gbif.org/vocabulary/basic/boolean.xml
@@ -78,17 +95,17 @@ module Export::Dwca::GbifProfile
     # Vocabulary: http://rs.gbif.org/vocabulary/basic/boolean.xml
     #
     # Examples: TRUE
-    attr_accessor :isExtinct # [USED IN SF]
+    attr_accessor :isExtinct
 
     # livingPeriod (http://rs.gbif.org/terms/1.0/livingPeriod)
     #
     # @return [String]
     # The (geological) time a currently extinct organism is known to have lived. For
-    # geological times of fossils ideally based on a vocabulary like 
+    # geological times of fossils ideally based on a vocabulary like
     # http://en.wikipedia.org/wiki/Geologic_column
     #
     # Examples: Cretaceous
-    attr_accessor :livingPeriod # [USED IN SF]
+    attr_accessor :livingPeriod
 
     # ageInDays (http://rs.gbif.org/terms/1.0/ageInDays)
     #
@@ -141,7 +158,7 @@ module Export::Dwca::GbifProfile
     # sex (http://rs.tdwg.org/dwc/terms/sex)
     #
     # @return [String]
-    # Comma separated list of known sexes to exist for this organism. Recommended 
+    # Comma separated list of known sexes to exist for this organism. Recommended
     # vocabulary is: http://rs.gbif.org/vocabulary/gbif/sex.xml
     #
     # Vocabulary: http://rs.gbif.org/vocabulary/gbif/sex.xml

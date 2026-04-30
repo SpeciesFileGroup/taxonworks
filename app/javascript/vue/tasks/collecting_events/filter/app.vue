@@ -71,6 +71,7 @@
           v-model="selectedIds"
           :layout="currentLayout"
           :list="list"
+          :preference-key="`tasks::filters::${COLLECTING_EVENT}`"
           :radial-object="false"
           @mouseover:row="setRowHover"
           @mouseout:body="() => (rowHover = null)"

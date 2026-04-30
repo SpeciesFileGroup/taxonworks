@@ -13,7 +13,7 @@ export default async ({ dispatch, commit, state }, otus) => {
 
   async function loadOtuInformation(otu) {
     await Promise.all([
-      dispatch(ActionNames.LoadBiologicalAssociations, otu.global_id),
+      dispatch(ActionNames.LoadBiologicalAssociations, otu.id),
       dispatch(ActionNames.LoadDepictions, otu.id),
       dispatch(ActionNames.LoadConveyances, otu.id),
       dispatch(ActionNames.LoadCommonNames, otu.id)

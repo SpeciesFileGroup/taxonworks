@@ -154,6 +154,10 @@ class AnatomicalPartsController < ApplicationController
     @project_uri_counts = AnatomicalPart.where(project_id: sessions_current_project_id, uri: iris).group(:uri).count
   end
 
+  def templates
+    render json: AnatomicalPart.templates(sessions_current_project_id)
+  end
+
   private
 
   def set_anatomical_part

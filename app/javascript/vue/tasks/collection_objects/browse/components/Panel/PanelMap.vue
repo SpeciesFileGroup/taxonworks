@@ -3,6 +3,7 @@
     width="100%"
     height="100%"
     style="min-height: 500px"
+    :zoom-bounds="10"
     :geojson="geoJson"
     resize
   />
