@@ -1,10 +1,7 @@
 require 'rails_helper'
 
 describe 'Collection layout task', type: :feature, group: :containers do
-
-  let(:index_path) { index_collection_layout_task_path }
-
-  it_behaves_like 'a_login_required_and_project_selected_controller'
+  let(:index_path) { collection_layout_task_path }
 
   context 'when signed in and a project is selected' do
     before { sign_in_user_and_select_project }
