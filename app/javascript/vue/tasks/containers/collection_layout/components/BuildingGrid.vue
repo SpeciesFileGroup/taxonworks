@@ -64,7 +64,7 @@
             class="normal-input dim-input"
           />
           <VBtn
-            color="default"
+            color="update"
             medium
             :disabled="!expandRowsBy || saving"
             @click="expandRows"
@@ -72,7 +72,7 @@
             + rows
           </VBtn>
           <VBtn
-            color="default"
+            color="update"
             medium
             :disabled="!expandRowsBy || saving"
             @click="shrinkRows"
@@ -90,7 +90,7 @@
             class="normal-input dim-input"
           />
           <VBtn
-            color="default"
+            color="update"
             medium
             :disabled="!expandColsBy || saving"
             @click="expandCols"
@@ -98,7 +98,7 @@
             + columns
           </VBtn>
           <VBtn
-            color="default"
+            color="update"
             medium
             :disabled="!expandColsBy || saving"
             @click="shrinkCols"
@@ -159,7 +159,7 @@
               <strong>Current occupant:</strong> {{ modal.occupant.name }}
               <span class="feedback feedback-thin feedback-secondary">{{ modal.occupant.type }}</span>
               <VBtn
-                color="default"
+                color="destroy"
                 circle
                 @click="unplaceOccupant"
               >
@@ -311,6 +311,7 @@ import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import { Container, ContainerItem } from '@/routes/endpoints'
 
 const props = defineProps({
   buildingId: {
@@ -358,7 +359,7 @@ watch(() => props.buildingId, async (id) => {
 
 async function loadAll(buildingId) {
   loading.value = true
-  const { body } = await AjaxCall('get', `/containers/${buildingId}.json`)
+  const { body } = await Container.find(buildingId)
   if (body?.id) {
     zoomStack.value = [containerSummary(body)]
     await loadChildren(buildingId)
@@ -390,7 +391,7 @@ async function onCellDblclick({ col, row }) {
   if (!child?.has_children) return
 
   // Fetch the child container to get its dimensions
-  const { body } = await AjaxCall('get', `/containers/${child.id}.json`)
+  const { body } = await Container.find(child.id)
   if (!body?.id) return
 
   zoomStack.value = [...zoomStack.value, containerSummary(body)]
@@ -431,7 +432,7 @@ async function onCellClick({ col, row }) {
   modal.value = { visible: true, col, row, occupant }
 
   if (occupant) {
-    const { body } = await AjaxCall('get', `/containers/${occupant.id}.json`)
+    const { body } = await Container.find(occupant.id)
     if (body?.id) {
       editForm.name            = body.name || ''
       editForm.percentEmpty    = body.asserted_percent_empty    ?? null
@@ -470,9 +471,11 @@ async function place(containerItemId, col, row, z = undefined) {
 
   let body
   try {
-    ;({ body } = await AjaxCall('patch', `/container_items/${containerItemId}.json`, {
+    const response = await ContainerItem.update(containerItemId, {
       container_item: attrs
-    }))
+    })
+
+    body = response.body
   } catch (error) {
     const errors = error?.response?.body
     placeError.value = errors
@@ -498,6 +501,8 @@ async function saveOccupantField(field, value) {
   // Always send both percent fields together so the cross-field validation
   // (earmarked must not exceed empty) has both values to compare against.
   const attrs = { [field]: value }
+
+  console.log(attrs)
   if (field === 'asserted_percent_empty')
     attrs.asserted_percent_earmarked = editForm.percentEarmarked
   if (field === 'asserted_percent_earmarked')
@@ -505,7 +510,7 @@ async function saveOccupantField(field, value) {
 
   let body
   try {
-    ;({ body } = await AjaxCall('patch', `/containers/${modal.value.occupant.id}.json`, {
+    ;({ body } = await Container.update(modal.value.occupant.id, {
       container: attrs
     }))
   } catch (error) {
@@ -559,7 +564,7 @@ async function onMove(moves) {
   for (const { from, to } of sorted) {
     const child = children.value.find(c => c.disposition_x === from.col && c.disposition_y === from.row)
     if (!child) continue
-    const { body } = await AjaxCall('patch', `/container_items/${child.container_item_id}.json`, {
+    const { body } = await ContainerItem.update(child.container_item_id, {
       container_item: { disposition_x: to.col, disposition_y: to.row }
     })
     if (!body?.id) failed.push({ child, to })
@@ -568,7 +573,7 @@ async function onMove(moves) {
   // Second pass — retry anything that bounced the first time
   const stillFailed = []
   for (const { child, to } of failed) {
-    const { body } = await AjaxCall('patch', `/container_items/${child.container_item_id}.json`, {
+    const { body } = await ContainerItem.update(child.container_item_id, {
       container_item: { disposition_x: to.col, disposition_y: to.row }
     })
     if (!body?.id) stillFailed.push(child)
@@ -590,7 +595,7 @@ async function patchCurrentContainer(attrs) {
 
   let body
   try {
-    ;({ body } = await AjaxCall('patch', `/containers/${currentContainer.value.id}.json`, { container: attrs }))
+    ;({ body } = await Container.update(currentContainer.value.id, { container: attrs }))
   } catch (error) {
     saving.value = false
     const errors = error?.response?.body
@@ -643,7 +648,7 @@ async function navigateTo(path) {
   if (!path?.length) return
   const target = path[path.length - 1]
   loading.value = true
-  const { body } = await AjaxCall('get', `/containers/${target.id}.json`)
+  const { body } = await Container.find(target.id)
   if (body?.id) {
     const ancestors = path.slice(0, -1).map(p => ({
       id:     p.id,
@@ -860,7 +865,4 @@ defineExpose({
   background: #eef4ff;
 }
 
-.icon-unplace {
-  color: #43a047;
-}
 </style>
