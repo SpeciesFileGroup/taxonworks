@@ -121,6 +121,7 @@ class ContainersController < ApplicationController
     params.require(:container).permit(
       :type, :name, :disposition, :size_x, :size_y, :size_z,
       :empty_container,
+      :print_label,
       :asserted_percent_empty,
       :asserted_percent_earmarked
 
