@@ -5,7 +5,7 @@
       :options="options"
       v-model="view"
     />
-    <role-picker v-model="roles_attributes" />
+    <role-picker v-model="roles_attributes" :autofocus="false" />
   </div>
 </template>
 

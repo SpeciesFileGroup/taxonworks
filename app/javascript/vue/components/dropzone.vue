@@ -115,6 +115,30 @@ const emit = defineEmits([
 const dropzoneRef = useTemplateRef('dropzoneRef')
 let dropzone = null
 
+const NON_TEXT_INPUT_TYPES = new Set([
+  'button', 'checkbox', 'color', 'file',
+  'hidden', 'image', 'radio', 'range', 'reset', 'submit'
+])
+
+function isTextEditable(el) {
+  if (!el) return false
+  if (el.isContentEditable) return true
+  if (el.tagName === 'TEXTAREA') return true
+  if (el.tagName === 'INPUT') return !NON_TEXT_INPUT_TYPES.has(el.type)
+  return false
+}
+
+function onPaste(e) {
+  if (isTextEditable(document.activeElement)) return
+  const items = e.clipboardData?.items
+  if (!items) return
+  for (const item of items) {
+    if (item.kind === 'file') {
+      dropzone.addFile(item.getAsFile())
+    }
+  }
+}
+
 const defaultConfiguration = computed(() => ({
   maxFilesize: props.maxFileSizeInMB,
   timeout: props.timeout
@@ -187,6 +211,8 @@ onMounted(() => {
 
     emit('vdropzone-file-added', file)
   })
+
+  document.addEventListener('paste', onPaste)
 
   dropzone.on('error', function (file, error, xhr) {
     const errorElements = dropzoneRef.value.querySelectorAll(
@@ -261,6 +287,7 @@ watch(
 )
 
 onBeforeUnmount(() => {
+  document.removeEventListener('paste', onPaste)
   dropzone.destroy()
 })
 </script>
