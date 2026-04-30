@@ -1,5 +1,5 @@
 <template>
-  <div class="building-grid-panel panel content">
+  <div class="panel content">
     <div class="grid-header">
       <h3>
         Building grid
@@ -15,7 +15,7 @@
         medium
         :href="visualizeHref"
         target="_blank"
-        class="viz-task-link"
+        class="flex-row middle"
       >
         Visualize
       </VBtn>
@@ -68,7 +68,7 @@
 
       <div
         v-if="!currentContainer?.size_x || !currentContainer?.size_y"
-        class="muted"
+        class="subtle"
       >
         Container has no x/y dimensions defined.
       </div>
@@ -321,10 +321,6 @@ defineExpose({
 @use 'sass:map';
 @use '../../../../assets/styles/variables/_palette.scss' as *;
 
-.building-grid-panel {
-  margin-top: 1em;
-}
-
 .building-name {
   font-weight: normal;
   font-size: 0.85em;
@@ -341,16 +337,6 @@ defineExpose({
 
 .grid-header h3 {
   margin: 0;
-}
-
-.viz-task-link {
-  display: flex;
-  align-items: center;
-  color: map.get($tw-colors, 'white');
-}
-
-.viz-task-link:hover {
-  color: map.get($tw-colors, 'white');
 }
 
 .breadcrumb-row {
@@ -391,10 +377,5 @@ defineExpose({
 
 .breadcrumb-current:hover {
   text-decoration: none;
-}
-
-.muted {
-  color: #999;
-  font-style: italic;
 }
 </style>

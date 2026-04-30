@@ -2,7 +2,7 @@
   <div class="modal-col-edit">
     <h4>Edit</h4>
 
-    <label class="edit-field">
+    <label class="field">
       Name
       <input
         v-model="editForm.name"
@@ -12,8 +12,8 @@
       />
     </label>
 
-    <div class="edit-field">
-      <span class="edit-label">% empty</span>
+    <div class="field">
+      <span>% empty</span>
       <div class="slider-track-row">
         <input
           v-model.number="editForm.percentEmpty"
@@ -38,8 +38,8 @@
       </div>
     </div>
 
-    <div class="edit-field">
-      <span class="edit-label">% earmarked</span>
+    <div class="field">
+      <span>% earmarked</span>
       <div class="slider-track-row">
         <input
           v-model.number="editForm.percentEarmarked"
@@ -68,8 +68,8 @@
       </div>
     </div>
 
-    <label class="edit-field">
-      <span class="edit-label">Print label</span>
+    <label class="field">
+      <span>Print label</span>
       <textarea
         v-model="editForm.printLabel"
         rows="3"
@@ -129,7 +129,7 @@ function onSetPercent(formKey, apiField, value) {
   flex: 0 0 300px;
   min-width: 0;
   overflow: hidden;
-  border-left: 1px solid #eee;
+  border-left: 1px solid var(--border-color);
   padding-left: 1.5em;
   display: flex;
   flex-direction: column;
@@ -138,18 +138,6 @@ function onSetPercent(formKey, apiField, value) {
 
 .modal-col-edit h4 {
   margin: 0 0 0.25em;
-}
-
-.edit-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25em;
-  font-size: 0.9em;
-  min-width: 0;
-}
-
-.edit-label {
-  font-weight: normal;
 }
 
 .slider-track-row {

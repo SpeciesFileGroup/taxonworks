@@ -7,12 +7,12 @@
       <h3>Cell ({{ cell.col }}, {{ cell.row }})</h3>
     </template>
     <template #body>
-      <div :class="['modal-body-inner', { 'modal-two-col': occupant }]">
+      <div :class="['flex-row gap-medium align-start']">
         <!-- Left column: placement -->
         <div class="modal-col-placement">
           <div
             v-if="occupant"
-            class="cell-occupant"
+            class="flex-row gap-small middle"
           >
             <strong>Current occupant:</strong> {{ occupant.name }}
             <span class="feedback feedback-thin feedback-secondary">{{
@@ -49,12 +49,12 @@
           </div>
           <div
             v-else
-            class="muted"
+            class="subtle"
           >
-            No unplaced children.
+            <i>No unplaced children.</i>
           </div>
 
-          <hr class="modal-divider" />
+          <hr class="divisor full_width" />
 
           <h4>Find and place a container</h4>
           <div class="horizontal-left-content gap-small">
@@ -126,36 +126,12 @@ function onAutocomplete(container) {
 </script>
 
 <style scoped>
-.modal-body-inner {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75em;
-}
-
-.modal-two-col {
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 1.5em;
-}
-
 .modal-col-placement {
   flex: 1 1 0;
   min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 0.75em;
-}
-
-.modal-divider {
-  border: none;
-  border-top: 1px solid #ddd;
-  margin: 0.25em 0;
-}
-
-.cell-occupant {
-  display: flex;
-  align-items: center;
-  gap: 0.5em;
 }
 
 .unplaced-list {
@@ -174,12 +150,7 @@ function onAutocomplete(container) {
 }
 
 .unplaced-item:hover {
-  background: #eef4ff;
-}
-
-.muted {
-  color: #999;
-  font-style: italic;
+  background: var(--bg-color);
 }
 
 .container-type-badge {

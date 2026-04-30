@@ -4,16 +4,14 @@
   >
     <h3>Add rooms, cabinets &amp; drawers</h3>
     <fieldset :disabled="!building">
-      <div
-        class="horizontal-left-content gap-medium flex-wrap specification-row"
-      >
+      <div class="horizontal-left-content gap-medium flex-wrap align-end">
         <label>
           Rooms
           <input
             v-model.number="roomCount"
             type="number"
             min="1"
-            class="normal-input small-input"
+            class="w-auto"
           />
         </label>
 
@@ -23,16 +21,13 @@
             v-model.number="cabinetCount"
             type="number"
             min="1"
-            class="normal-input small-input"
+            class="w-auto"
           />
         </label>
 
         <label>
           Drawer type
-          <select
-            v-model="drawerType"
-            class="normal-input"
-          >
+          <select v-model="drawerType">
             <option
               v-for="dt in drawerTypeOptions"
               :key="dt.key"
@@ -50,7 +45,7 @@
             type="number"
             min="1"
             placeholder="none"
-            class="normal-input small-input"
+            class="w-auto"
           />
         </label>
 
@@ -61,7 +56,7 @@
             type="number"
             min="1"
             placeholder="none"
-            class="normal-input small-input"
+            class="w-auto"
           />
         </label>
 
@@ -72,7 +67,7 @@
             type="number"
             min="1"
             placeholder="none"
-            class="normal-input small-input"
+            class="w-auto"
           />
         </label>
 
@@ -83,7 +78,7 @@
             type="number"
             min="1"
             :max="maxDrawers ?? undefined"
-            class="normal-input small-input"
+            class="w-auto"
           />
         </label>
 
@@ -96,7 +91,7 @@
             max="100"
             step="any"
             placeholder="none"
-            class="normal-input small-input"
+            class="w-auto"
           />
         </label>
 
@@ -109,7 +104,7 @@
             max="100"
             step="any"
             placeholder="none"
-            class="normal-input small-input"
+            class="w-auto"
           />
         </label>
 
@@ -123,7 +118,7 @@
         </VBtn>
       </div>
 
-      <div class="info-row gap-medium horizontal-left-content flex-wrap">
+      <div class="text-xs subtle gap-medium horizontal-left-content flex-wrap">
         <em v-if="cabinetDimensions">
           {{ selectedDrawerType.label }}:
           {{ cabinetDimensions.x }}&thinsp;×&thinsp;{{
@@ -131,7 +126,7 @@
           }}
           grid (max {{ maxDrawers }} drawers per cabinet)
         </em>
-        <em class="preview-text">{{ previewText }}</em>
+        <em class="subtle">{{ previewText }}</em>
       </div>
 
       <span
@@ -276,31 +271,20 @@ async function addRooms() {
 </script>
 
 <style scoped>
-.specification-section {
-  margin-bottom: 1em;
-}
-
 .section-disabled {
   opacity: 0.45;
   pointer-events: none;
 }
 
-.specification-row {
-  align-items: flex-end;
-  margin-bottom: 0.5em;
+label {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
-.info-row {
-  font-size: 0.9em;
-  color: #555;
-  min-height: 1.4em;
-}
-
-.preview-text {
-  color: #666;
-}
-
-.small-input {
-  width: 7em;
+input,
+select {
+  width: 100%;
+  max-width: 100%;
 }
 </style>

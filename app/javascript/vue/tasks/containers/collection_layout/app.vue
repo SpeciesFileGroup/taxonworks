@@ -1,8 +1,6 @@
 <template>
-  <div class="collection-layout-task">
-    <h1>Collection layout</h1>
-
-    <div class="top-panel panel content">
+  <div class="margin-medium-top flex-col gap-medium container-xl mx-auto">
+    <div class="panel content">
       <BuildingSelector v-model="building" />
       <ScaffoldForm
         :building="building"
@@ -10,14 +8,14 @@
       />
     </div>
 
-    <div class="bottom-panel gap-medium">
+    <div class="flex-row gap-medium">
       <ContainerTreeList
         ref="treeListRef"
         :building-id="building?.id ?? null"
         @navigate="onNavigate"
       />
 
-      <div class="grid-panel panel content">
+      <div class="grid-panel">
         <BuildingGrid
           ref="buildingGridRef"
           :building-id="building?.id ?? null"
@@ -37,9 +35,9 @@ import BuildingGrid from './components/BuildingGrid.vue'
 
 defineOptions({ name: 'CollectionLayout' })
 
-const building        = ref(null)
+const building = ref(null)
 const buildingGridRef = ref(null)
-const treeListRef     = ref(null)
+const treeListRef = ref(null)
 
 async function onScaffolded() {
   await Promise.all([
@@ -60,19 +58,6 @@ function onGridAddContainer({ container, col, row }) {
 </script>
 
 <style scoped>
-.collection-layout-task {
-  padding: 1em;
-}
-
-.top-panel {
-  margin-bottom: 1em;
-}
-
-.bottom-panel {
-  display: flex;
-  gap: 1em;
-}
-
 .grid-panel {
   flex: 1 1 0;
   min-width: 0;

@@ -3,9 +3,9 @@
     <h3>Containers in building</h3>
     <div
       v-if="!buildingId"
-      class="muted"
+      class="subtle"
     >
-      Select or create a building to see containers.
+      <i>Select or create a building to see containers.</i>
     </div>
     <ul
       v-else-if="items.length"
@@ -14,7 +14,7 @@
       <li
         v-for="item in items"
         :key="item.id"
-        :style="{ marginLeft: (item.depth * 1.5) + 'em' }"
+        :style="{ marginLeft: item.depth * 1.5 + 'em' }"
         class="container-list-item"
         @click="$emit('navigate', item.path)"
       >
@@ -24,9 +24,9 @@
     </ul>
     <div
       v-else
-      class="muted"
+      class="subtle"
     >
-      No containers yet. Use &lsquo;Add&rsquo; above.
+      <i>No containers yet. Use &lsquo;Add&rsquo; above.</i>
     </div>
   </div>
 </template>
@@ -49,9 +49,9 @@ const items = ref([])
 
 function flattenTree(node, depth, ancestors = []) {
   const typeName = displayType(node.type)
-  const self     = { id: node.id, name: node.name || typeName, type: node.type }
-  const path     = [...ancestors, self]
-  const rows     = [{ id: node.id, name: node.name, typeName, depth, path }]
+  const self = { id: node.id, name: node.name || typeName, type: node.type }
+  const path = [...ancestors, self]
+  const rows = [{ id: node.id, name: node.name, typeName, depth, path }]
   for (const child of node.children || []) {
     rows.push(...flattenTree(child, depth + 1, path))
   }
@@ -63,9 +63,13 @@ async function refresh() {
     items.value = []
     return
   }
-  const { body } = await AjaxCall('get', '/tasks/containers/collection_visualization/collection_tree.json', {
-    params: { building_id: props.buildingId }
-  })
+  const { body } = await AjaxCall(
+    'get',
+    '/tasks/containers/collection_visualization/collection_tree.json',
+    {
+      params: { building_id: props.buildingId }
+    }
+  )
   if (body?.id) {
     items.value = flattenTree(body, 0)
   } else {
@@ -104,7 +108,7 @@ defineExpose({ refresh })
 }
 
 .container-list-item:hover {
-  background: #eef4ff;
+  background: var(--bg-color);
 }
 
 .container-type-badge {
@@ -114,10 +118,5 @@ defineExpose({ refresh })
   font-size: 0.8em;
   margin-right: 4px;
   color: #555;
-}
-
-.muted {
-  color: #999;
-  font-style: italic;
 }
 </style>

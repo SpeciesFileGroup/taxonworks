@@ -1,5 +1,5 @@
 <template>
-  <section class="building-section">
+  <section class="margin-medium-bottom">
     <h3>Building</h3>
 
     <div
@@ -29,7 +29,7 @@
         :add-param="{ type: 'Container::Building' }"
         @get-item="onSelectExisting"
       />
-      <span class="building-divider">or</span>
+      <span class="subtle">or</span>
       <input
         v-model="name"
         type="text"
@@ -43,7 +43,7 @@
           type="number"
           min="1"
           placeholder="none"
-          class="normal-input small-input"
+          class="normal-input w-24"
         />
       </label>
       <label>
@@ -53,7 +53,7 @@
           type="number"
           min="1"
           placeholder="none"
-          class="normal-input small-input"
+          class="normal-input w-24"
         />
       </label>
       <label>
@@ -63,7 +63,7 @@
           type="number"
           min="1"
           placeholder="none"
-          class="normal-input small-input"
+          class="normal-input w-24"
         />
       </label>
       <VBtn
@@ -153,17 +153,3 @@ function onClear() {
   emit('update:modelValue', null)
 }
 </script>
-
-<style scoped>
-.building-section {
-  margin-bottom: 1em;
-}
-
-.building-divider {
-  color: #999;
-}
-
-.small-input {
-  width: 7em;
-}
-</style>

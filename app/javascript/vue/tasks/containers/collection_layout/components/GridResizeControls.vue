@@ -1,12 +1,12 @@
 <template>
-  <div class="expand-controls horizontal-left-content gap-small flex-wrap">
+  <div class="margin-medium-bottom horizontal-left-content gap-small flex-wrap">
     <label class="horizontal-left-content gap-xsmall middle">
       <input
         v-model.number="rowsBy"
         type="number"
         min="1"
         max="1000"
-        class="normal-input dim-input"
+        class="w-12"
       />
       <VBtn
         color="update"
@@ -32,7 +32,7 @@
         type="number"
         min="1"
         max="1000"
-        class="normal-input dim-input"
+        class="w-12"
       />
       <VBtn
         color="update"
@@ -100,13 +100,3 @@ function resizeCols(direction) {
   emit('resize', { size_x: newSize })
 }
 </script>
-
-<style scoped>
-.expand-controls {
-  margin-bottom: 0.75em;
-}
-
-.dim-input {
-  width: 4em;
-}
-</style>

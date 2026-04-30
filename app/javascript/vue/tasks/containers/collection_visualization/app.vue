@@ -1,8 +1,5 @@
 <template>
-  <div class="collection-visualization-task">
-    <h1>Collection visualization</h1>
-
-    <!-- Building selector -->
+  <div class="margin-medium-top">
     <div class="top-panel panel content">
       <section>
         <h3>Building</h3>
@@ -86,16 +83,14 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 
 defineOptions({ name: 'CollectionVisualization' })
 
-const VISUALIZATION_TYPES = [
-  { key: 'treemap', label: 'Treemap' }
-]
+const VISUALIZATION_TYPES = [{ key: 'treemap', label: 'Treemap' }]
 
 // ── State ─────────────────────────────────────────────────────────────────────
-const building   = ref(null)
-const vizType    = ref('treemap')
-const loading    = ref(false)
+const building = ref(null)
+const vizType = ref('treemap')
+const loading = ref(false)
 const treemapRef = ref(null)
-let   chart      = null
+let chart = null
 
 // ── Building ──────────────────────────────────────────────────────────────────
 
@@ -129,9 +124,13 @@ watch([building, vizType], async ([b]) => {
 
 async function loadAndRender() {
   if (vizType.value === 'treemap') {
-    const { body } = await AjaxCall('get', '/tasks/containers/collection_visualization/collection_tree.json', {
-      params: { building_id: building.value.id }
-    })
+    const { body } = await AjaxCall(
+      'get',
+      '/tasks/containers/collection_visualization/collection_tree.json',
+      {
+        params: { building_id: building.value.id }
+      }
+    )
     if (body?.id) {
       // Clear spinner before nextTick so the treemap <div> is in the DOM
       // when ECharts initialises — treemapRef is null while VSpinner is mounted.
@@ -166,7 +165,11 @@ function renderTreemap(treeData) {
           { itemStyle: { borderColor: '#777', borderWidth: 4, gapWidth: 4 } },
           {
             colorSaturation: [0.35, 0.5],
-            itemStyle: { borderWidth: 2, gapWidth: 2, borderColorSaturation: 0.6 }
+            itemStyle: {
+              borderWidth: 2,
+              gapWidth: 2,
+              borderColorSaturation: 0.6
+            }
           }
         ]
       }
@@ -178,10 +181,6 @@ onBeforeUnmount(() => chart?.dispose())
 </script>
 
 <style scoped>
-.collection-visualization-task {
-  padding: 1em;
-}
-
 .top-panel {
   margin-bottom: 1em;
   display: flex;
