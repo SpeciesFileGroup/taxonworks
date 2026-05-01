@@ -51,6 +51,7 @@
               >view</a>
             </span>
             <span v-else-if="row.status === 'not_found'">Not found on iNaturalist</span>
+            <span v-else-if="row.status === 'no_taxon'">No taxon — skipped</span>
             <span v-else>Queued</span>
           </td>
         </tr>

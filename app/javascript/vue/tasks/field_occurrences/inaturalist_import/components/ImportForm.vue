@@ -19,7 +19,7 @@
         v-if="parsedIds.length"
         class="subtle"
       >
-        {{ parsedIds.length }} observation{{ parsedIds.length === 1 ? '' : 's' }} recognized
+        {{ parsedIds.length }} observation{{ parsedIds.length === 1 ? '' : 's' }}
       </span>
     </div>
 
@@ -104,7 +104,7 @@ const parsedIds = computed(() =>
     .map(line => line.trim())
     .filter(Boolean)
     .flatMap(line => {
-      const match = line.match(/(?:inaturalist\.org\/observations\/)?(\d+)\s*$/)
+      const match = line.match(/^(?:https?:\/\/(?:www\.)?inaturalist\.org\/observations\/)?(\d+)\s*$/)
       return match ? [match[1]] : []
     })
 )
@@ -128,11 +128,13 @@ async function submit() {
     const queued = body.summary.filter(r => r.status === 'queued').length
     const existing = body.summary.filter(r => r.status === 'already_imported').length
     const notFound = body.summary.filter(r => r.status === 'not_found').length
+    const noTaxon = body.summary.filter(r => r.status === 'no_taxon').length
 
     const parts = []
     if (queued) parts.push(`${queued} queued`)
     if (existing) parts.push(`${existing} already imported`)
     if (notFound) parts.push(`${notFound} not found on iNaturalist`)
+    if (noTaxon) parts.push(`${noTaxon} skipped (no taxon)`)
 
     TW.workbench.alert.create(parts.join('; '), 'notice')
 

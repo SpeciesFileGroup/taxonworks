@@ -32,11 +32,12 @@
       <thead>
         <tr>
           <th>ID</th>
+          <th></th>
           <th>OTU</th>
           <th>Collecting event</th>
           <th>Created</th>
-          <th></th>
-          <th></th>
+          <th>Images</th>
+          <th>Sounds</th>
         </tr>
       </thead>
       <tbody>
@@ -44,15 +45,11 @@
           v-for="fo in fieldOccurrences"
           :key="fo.id"
         >
-          <td>{{ fo.id }}</td>
-          <td>{{ fo.taxon_name }}</td>
-          <td>{{ fo.verbatim_locality }}</td>
-          <td>{{ fo.created_at }}</td>
           <td>
             <a
               :href="fo.browse_url"
               target="_blank"
-            >Browse</a>
+            >{{ fo.id }}</a>
           </td>
           <td>
             <a
@@ -61,6 +58,11 @@
               target="_blank"
             >iNaturalist</a>
           </td>
+          <td v-html="fo.taxon_name" />
+          <td>{{ fo.verbatim_locality }}</td>
+          <td>{{ fo.created_at }}</td>
+          <td>{{ fo.image_count }}</td>
+          <td>{{ fo.sound_count }}</td>
         </tr>
       </tbody>
     </table>
