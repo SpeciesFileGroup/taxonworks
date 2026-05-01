@@ -68,6 +68,18 @@ module Vendor
       ::Nasturtium.observations(id:)['results'].first
     end
 
+    # Fetch multiple observations in a single iNat API request.
+    # IDs are joined as a comma-separated string because Faraday serializes
+    # Ruby arrays as id[]=...&id[]=... which the iNat API does not accept.
+    #
+    # @param ids [Array<String>] iNat observation integer IDs
+    # @return [Array<Hash>] Nasturtium result hashes (only found observations are returned)
+    def self.by_observation_ids(ids)
+      return [] if ids.blank?
+
+      ::Nasturtium.observations(id: ids.join(','), per_page: ids.size)['results']
+    end
+
     def self.stub_collecting_event(result, guess_as_locality: true)
       return nil if result.blank?
 

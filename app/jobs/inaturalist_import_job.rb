@@ -1,35 +1,32 @@
 class InaturalistImportJob < ApplicationJob
   queue_as :default
 
-  # @param observation_ids [Array<String>]
+  # @param results [Array<Hash>] pre-fetched Nasturtium observation results
   # @param project_id [Integer]
   # @param user_id [Integer]
   # @param match_otu_by_name [Boolean]
   # @param use_community_taxon [Boolean]
   # @param import_images [Boolean]
   # @param import_sounds [Boolean]
-  def perform(observation_ids:, project_id:, user_id:, match_otu_by_name: false, use_community_taxon: true, import_images: false, import_sounds: false)
+  def perform(results:, project_id:, user_id:, match_otu_by_name: false, use_community_taxon: true, import_images: false, import_sounds: false)
     Current.project_id = project_id
     Current.user_id = user_id
 
-    observation_ids.each do |observation_id|
-      import_observation(observation_id, project_id:, match_otu_by_name:, use_community_taxon:, import_images:, import_sounds:)
+    results.each do |result|
+      import_observation(result, project_id:, match_otu_by_name:, use_community_taxon:, import_images:, import_sounds:)
     end
   end
 
   private
 
-  def import_observation(observation_id, project_id:, match_otu_by_name:, use_community_taxon:, import_images:, import_sounds:)
-    result = ::Vendor::Nasturtium.by_observation_id(observation_id)
-    return if result.blank?
-
+  def import_observation(result, project_id:, match_otu_by_name:, use_community_taxon:, import_images:, import_sounds:)
     ApplicationRecord.transaction do
       # Save the OTU first so otu.id is available for the TaxonDetermination nested
       # attributes — reject_taxon_determinations rejects entries with a blank otu_id
       # and a blank otu.id, which is the case for any new (unsaved) OTU object.
       otu = ::Vendor::Nasturtium.stub_otu(result, project_id:, match_by_name: match_otu_by_name, use_community_taxon:)
       unless otu
-        Rails.logger.warn("InaturalistImportJob: skipping observation #{observation_id} — no taxon name")
+        Rails.logger.warn("InaturalistImportJob: skipping observation #{result['id']} — no taxon name")
         return
       end
       otu.save! if otu.new_record?
@@ -44,10 +41,10 @@ class InaturalistImportJob < ApplicationJob
         total: 1,
         collecting_event: ce,
         taxon_determinations_attributes: [{
-          otu_id:      otu.id,
-          year_made:   d['year'],
-          month_made:  d['month'],
-          day_made:    d['day'],
+          otu_id: otu.id,
+          year_made: d['year'],
+          month_made: d['month'],
+          day_made: d['day'],
         }],
         identifiers: [::Vendor::Nasturtium.stub_identifier(result)].compact,
       )
@@ -73,7 +70,7 @@ class InaturalistImportJob < ApplicationJob
   rescue => e
     # Failures are logged but do not interrupt the remaining imports
     Rails.logger.error(
-      "InaturalistImportJob: failed to import observation #{observation_id}: " \
+      "InaturalistImportJob: failed to import observation #{result['id']}: " \
       "#{e.class}: #{e.message}\n#{e.backtrace&.first(5)&.join("\n")}"
     )
   end
