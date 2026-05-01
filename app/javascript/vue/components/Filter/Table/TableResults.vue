@@ -565,7 +565,15 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  useTemplateRef,
+  watch
+} from 'vue'
 import { sortArray } from '@/helpers/arrays.js'
 import { vResizeColumn } from '@/directives/resizeColumn.js'
 import { humanize } from '@/helpers/strings'
@@ -670,6 +678,8 @@ const ascending = ref(false)
 const lastRadialOpenedRow = ref(null)
 const handyScrollRef = useTemplateRef('handyScrollRef')
 const theadRef = useTemplateRef('theadRef')
+const tableRef = useTemplateRef('element')
+let tableResizeObserver = null
 const isLayoutConfig = computed(() => !!Object.keys(props.layout || {}).length)
 
 const filteredIds = computed(() =>
@@ -788,7 +798,20 @@ function computeHeaderRowTops() {
   })
 }
 
-onMounted(() => nextTick(computeHeaderRowTops))
+onMounted(() => {
+  nextTick(computeHeaderRowTops)
+
+  if (tableRef.value && typeof ResizeObserver !== 'undefined') {
+    tableResizeObserver = new ResizeObserver(() => {
+      requestAnimationFrame(generateFreezeColumnLeftPosition)
+    })
+    tableResizeObserver.observe(tableRef.value)
+  }
+})
+
+onBeforeUnmount(() => {
+  tableResizeObserver?.disconnect()
+})
 
 watch(
   () => props.list,
