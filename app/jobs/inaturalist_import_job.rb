@@ -36,6 +36,12 @@ class InaturalistImportJob < ApplicationJob
       ce = ::Vendor::Nasturtium.stub_collecting_event(result)
       ce.save!
 
+      if (georef = ce.georeferences.first)
+        georeferencer = ::Vendor::Nasturtium.stub_observer_person(result)
+        georeferencer.save! if georeferencer.new_record?
+        georef.georeferencer_roles.create!(person: georeferencer)
+      end
+
       d = result['observed_on_details']
       fo = FieldOccurrence.new(
         total: 1,
@@ -55,7 +61,7 @@ class InaturalistImportJob < ApplicationJob
       end
 
       unless use_community_taxon
-        determiner = ::Vendor::Nasturtium.stub_determiner(result)
+        determiner = ::Vendor::Nasturtium.stub_observer_person(result)
         determiner.save! if determiner.new_record?
         td = fo.taxon_determinations.first
         td.determiner_roles.create!(person: determiner)

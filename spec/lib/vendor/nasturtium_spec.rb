@@ -167,17 +167,16 @@ describe Vendor::Nasturtium, type: :model, group: [:field_occurrences] do
     end
   end
 
-  describe '.stub_determiner' do
+  describe '.stub_observer_person' do
     specify 'returns Person::Unvetted built from user name when no ORCID' do
-      d = Vendor::Nasturtium.stub_determiner(result)
-      expect(d).to be_a(Person::Unvetted)
-      expect(d.last_name).to eq('Jane Doe')
+      p = Vendor::Nasturtium.stub_observer_person(result)
+      expect(p).to be_a(Person::Unvetted)
+      expect(p.last_name).to eq('Jane Doe')
     end
 
     specify 'falls back to login when name is blank' do
       r = result.merge('user' => result['user'].merge('name' => nil))
-      d = Vendor::Nasturtium.stub_determiner(r)
-      expect(d.last_name).to eq('janedoe')
+      expect(Vendor::Nasturtium.stub_observer_person(r).last_name).to eq('janedoe')
     end
 
     context 'when ORCID matches an existing Person' do
@@ -192,7 +191,7 @@ describe Vendor::Nasturtium, type: :model, group: [:field_occurrences] do
 
       specify 'returns the matched Person' do
         r = result.merge('user' => result['user'].merge('orcid' => '0000-0002-1825-0097'))
-        expect(Vendor::Nasturtium.stub_determiner(r)&.id).to eq(person.id)
+        expect(Vendor::Nasturtium.stub_observer_person(r)&.id).to eq(person.id)
       end
     end
   end

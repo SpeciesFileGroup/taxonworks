@@ -51,6 +51,22 @@ RSpec.describe InaturalistImportJob, type: :model, group: :field_occurrences do
     expect(FieldOccurrence.last.taxon_determinations.first.otu.name).to eq('Aus bus')
   end
 
+  context 'when the observation has coordinates' do
+    let(:georeferenced_result) {
+      base_result.merge(
+        'geojson'             => { 'coordinates' => [-88.0, 41.0], 'type' => 'Point' },
+        'positional_accuracy' => 10
+      )
+    }
+
+    specify 'attaches the observer as georeferencer on the georeference' do
+      perform(results: [georeferenced_result])
+      georef = FieldOccurrence.last.collecting_event.georeferences.first
+      expect(georef).to be_a(Georeference::Inaturalist)
+      expect(georef.georeference_authors.map(&:last_name)).to include('Jane Doe')
+    end
+  end
+
   context 'when use_community_taxon is false' do
     let(:result_with_ident) {
       base_result.merge(

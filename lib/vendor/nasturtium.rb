@@ -5,27 +5,9 @@ module Vendor
   #  a = Nasturtium.observations(id: '99182856')
 
   # Possible Extensions
-  #  * iNaturalist has UUID for identifications, this could be linked to a TaxonDetermination with a Identifier::Global::Uuid::InaturalistIdentification
-
-  # From an oID
   #   - CE with a iNat global UUID
-  #   - Georeference on that CE
-  #
-  #   - place_guess -> as verbatim_locality option
-  #
-  #   - Person reference wikidata/orcid ID on people
-  #   - mock collectors
-  #
-  #   - mock georeferencers
-  #
-  #   - image is importable (check attribution?)
-  #   - set attribution
-  #   - ... virtually display images ?!
-  #
   #   - Bonus set GA for CE based on string matching
-  #    - consider prioritization meta being set
-  #
-  #  - predict_otu
+  #   - predict_otu
   #
   # A middle-layer wrapper between Nasturtium and TaxonWorks
   module Nasturtium
@@ -102,12 +84,13 @@ module Vendor
       person_by_orcid(result)
     end
 
-    # Find or build the observer as a Person for use as a TaxonDetermination determiner.
+    # Find or build the observer as a Person.
     # Strategy: ORCID match first, then Person::Unvetted from user.name or user.login.
+    # Used as determiner on TaxonDetermination and georeferencer on Georeference.
     #
     # @param result [Hash] a Nasturtium result
     # @return [Person]
-    def self.stub_determiner(result)
+    def self.stub_observer_person(result)
       person_by_orcid(result) ||
         Person::Unvetted.new(last_name: result.dig('user', 'name').presence || result.dig('user', 'login'))
     end
