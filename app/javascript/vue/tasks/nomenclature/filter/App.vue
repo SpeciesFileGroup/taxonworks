@@ -42,10 +42,23 @@
           v-model="selectedIds"
           :attributes="ATTRIBUTES"
           :list="list"
+          :hide-unfrozen="hideFrozen"
           :preference-key="`tasks::filters::${TAXON_NAME}`"
           @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"
         />
+      </template>
+      <template #nav-settings-start>
+        <VToggle
+          title="Hide/show non-frozen columns"
+          @click="() => (hideFrozen = !hideFrozen)"
+        >
+          <VIcon
+            title="Hide/show non-frozen columns"
+            :name="hideFrozen ? 'contract' : 'expand'"
+            x-small
+          />
+        </VToggle>
       </template>
     </FilterLayout>
     <VSpinner
@@ -64,12 +77,16 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
 import RadialLabel from '@/components/radials/label/radial.vue'
 import RadialNomenclature from '@/components/radials/nomenclature/radial.vue'
+import VToggle from '@/components/ui/VToggle.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import { ATTRIBUTES } from './constants/attributes.js'
 import { listParser } from './utils/listParser'
 import { TaxonName } from '@/routes/endpoints'
 import { TAXON_NAME } from '@/constants/index.js'
+import { ref } from 'vue'
 
 const extend = ['parent', 'valid_name']
+const hideFrozen = ref(false)
 
 const {
   append,

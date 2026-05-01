@@ -24,10 +24,23 @@
           v-model="selectedIds"
           :attributes="ATTRIBUTES"
           :list="list"
+          :hide-unfrozen="hideFrozen"
           :preference-key="`tasks::filters::${CONTENT}`"
           @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"
         />
+      </template>
+      <template #nav-settings-start>
+        <VToggle
+          title="Hide/show non-frozen columns"
+          @click="() => (hideFrozen = !hideFrozen)"
+        >
+          <VIcon
+            title="Hide/show non-frozen columns"
+            :name="hideFrozen ? 'contract' : 'expand'"
+            x-small
+          />
+        </VToggle>
       </template>
     </FilterLayout>
     <VSpinner
@@ -40,11 +53,13 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterView from './components/FilterView.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import VToggle from '@/components/ui/VToggle.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import TsvDownload from './components/TsvDownload.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
 import { listParser } from './utils/listParser'
@@ -53,6 +68,7 @@ import { Content } from '@/routes/endpoints'
 import { CONTENT } from '@/constants/index.js'
 
 const extend = ['otu', 'topic']
+const hideFrozen = ref(false)
 
 const {
   append,

@@ -11,16 +11,16 @@
       <thead ref="theadRef">
         <tr v-if="headerGroups.length || layout?.properties">
           <td
+            v-if="headerEmptyColspan"
             class="header-empty-td"
-            :colspan="
-              radialObject || radialAnnotator || radialNavigator ? 2 : 1
-            "
+            :colspan="headerEmptyColspan"
           />
           <template
             v-for="header in headerGroups"
             :key="header"
           >
             <component
+              v-if="!hideUnfrozen"
               :is="header.title ? 'th' : 'td'"
               :colspan="header.colspan"
               :scope="header.scope"
@@ -35,8 +35,8 @@
           >
             <template v-if="Array.isArray(properties)">
               <th
-                v-if="properties.length"
-                :colspan="properties.length"
+                v-if="getVisiblePropertiesCount(key, properties)"
+                :colspan="getVisiblePropertiesCount(key, properties)"
                 scope="colgroup"
                 class="cell-left-border"
               >
@@ -45,10 +45,10 @@
             </template>
             <template v-else>
               <th
-                v-if="getDynamicColumns(key).length"
+                v-if="getVisiblePropertiesCount(key, getDynamicColumns(key))"
                 scope="colgroup"
                 class="cell-left-border"
-                :colspan="getDynamicColumns(key).length"
+                :colspan="getVisiblePropertiesCount(key, getDynamicColumns(key))"
               >
                 {{ humanize(key) }}
               </th>
@@ -63,6 +63,7 @@
 
         <tr>
           <th
+            v-show="isColumnVisible(FIXED_COLUMNS.Checkbox)"
             :class="[{ freeze: freezeColumn.includes(FIXED_COLUMNS.Checkbox) }]"
             :style="
               freezeColumn.includes(FIXED_COLUMNS.Checkbox) && {
@@ -77,6 +78,7 @@
           </th>
           <th
             v-if="radialObject || radialAnnotator || radialNavigator"
+            v-show="isColumnVisible(FIXED_COLUMNS.Radial)"
             :class="[{ freeze: freezeColumn.includes(FIXED_COLUMNS.Radial) }]"
             :style="
               freezeColumn.includes(FIXED_COLUMNS.Radial) && {
@@ -92,6 +94,7 @@
           <th
             v-for="(title, attr) in attributes"
             :key="attr"
+            v-show="isColumnVisible(attr)"
             :class="[{ freeze: freezeColumn.includes(attr) }]"
             :style="
               freezeColumn.includes(attr) && {
@@ -162,6 +165,7 @@
               <th
                 v-for="(property, pIndex) in propertiesList"
                 :key="property"
+                v-show="isColumnVisible(`${key}.${property}`)"
                 :class="{
                   'cell-left-border': pIndex === 0,
                   freeze: freezeColumn.includes(`${key}.${property}`)
@@ -228,6 +232,7 @@
               <th
                 v-for="(property, pIndex) in getDynamicColumns(key)"
                 :key="property"
+                v-show="isColumnVisible(`${key}.${property}`)"
                 :class="{
                   'cell-left-border': pIndex === 0,
                   freeze: freezeColumn.includes(`${key}.${property}`)
@@ -295,6 +300,7 @@
 
         <tr class="header-row-attributes">
           <th
+            v-show="isColumnVisible(FIXED_COLUMNS.Checkbox)"
             :class="[
               'w-2',
               { freeze: freezeColumn.includes(FIXED_COLUMNS.Checkbox) }
@@ -314,6 +320,7 @@
           </th>
           <th
             v-if="radialObject || radialAnnotator || radialNavigator"
+            v-show="isColumnVisible(FIXED_COLUMNS.Radial)"
             :class="[
               'w-2',
               { freeze: freezeColumn.includes(FIXED_COLUMNS.Radial) }
@@ -328,6 +335,7 @@
           <th
             v-for="(title, attr) in attributes"
             :key="attr"
+            v-show="isColumnVisible(attr)"
             :class="{ freeze: freezeColumn.includes(attr) }"
             :style="
               freezeColumn.includes(attr) && {
@@ -349,6 +357,7 @@
               <th
                 v-for="(property, pIndex) in propertiesList"
                 :key="property"
+                v-show="isColumnVisible(`${key}.${property}`)"
                 :class="{
                   'cell-left-border': pIndex === 0,
                   freeze: freezeColumn.includes(`${key}.${property}`)
@@ -369,6 +378,7 @@
               <th
                 v-for="(property, pIndex) in getDynamicColumns(key)"
                 :key="property"
+                v-show="isColumnVisible(`${key}.${property}`)"
                 :class="{
                   'cell-left-border': pIndex === 0,
                   freeze: freezeColumn.includes(`${key}.${property}`)
@@ -400,6 +410,7 @@
           @mouseover="() => emit('mouseover:row', { index, item })"
         >
           <td
+            v-show="isColumnVisible(FIXED_COLUMNS.Checkbox)"
             :class="{ freeze: freezeColumn.includes(FIXED_COLUMNS.Checkbox) }"
             :style="
               freezeColumn.includes(FIXED_COLUMNS.Checkbox) && {
@@ -415,6 +426,7 @@
           </td>
           <td
             v-if="radialObject || radialAnnotator || radialNavigator"
+            v-show="isColumnVisible(FIXED_COLUMNS.Radial)"
             :class="{ freeze: freezeColumn.includes(FIXED_COLUMNS.Radial) }"
             :style="
               freezeColumn.includes(FIXED_COLUMNS.Radial) && {
@@ -454,6 +466,7 @@
             <td
               v-for="(_, attr) in attributes"
               :key="attr"
+              v-show="isColumnVisible(attr)"
               :name="attr"
               :value="item[attr]"
               :class="{ freeze: freezeColumn.includes(attr) }"
@@ -489,6 +502,7 @@
                 <td
                   v-for="(value, property, dIndex) in item[key]"
                   :key="property"
+                  v-show="isColumnVisible(`${key}.${property}`)"
                   :class="{
                     'cell-left-border': dIndex === 0,
                     freeze: freezeColumn.includes(`${key}.${property}`)
@@ -518,6 +532,7 @@
               <td
                 v-for="(property, pIndex) in properties"
                 :key="property"
+                v-show="isColumnVisible(`${key}.${property}`)"
                 v-html="renderItem(item, key, property)"
                 :class="{
                   'cell-left-border': pIndex === 0,
@@ -624,10 +639,32 @@ const FIXED_COLUMNS = {
   Radial: 'FixedRadialColumn'
 }
 
+const hideUnfrozen = defineModel('hideUnfrozen', {
+  type: Boolean,
+  default: false
+})
+
 const freezeColumn = props.preferenceKey
   ? useUserPreference(`${props.preferenceKey}::freezeColumn`, [])
   : ref([])
 const freezeColumnLeftPosition = ref({})
+
+function isColumnVisible(key) {
+  return !hideUnfrozen.value || freezeColumn.value.includes(key)
+}
+
+function getVisiblePropertiesCount(key, properties) {
+  return properties.filter((p) => isColumnVisible(`${key}.${p}`)).length
+}
+
+const headerEmptyColspan = computed(() => {
+  const hasRadial =
+    props.radialObject || props.radialAnnotator || props.radialNavigator
+  let n = 0
+  if (isColumnVisible(FIXED_COLUMNS.Checkbox)) n++
+  if (hasRadial && isColumnVisible(FIXED_COLUMNS.Radial)) n++
+  return n
+})
 
 const ascending = ref(false)
 const lastRadialOpenedRow = ref(null)
@@ -776,7 +813,7 @@ watch(
 )
 
 watch(
-  [() => props.layout, () => props.attributes, freezeColumn],
+  [() => props.layout, () => props.attributes, freezeColumn, hideUnfrozen],
   () =>
     nextTick(() => {
       generateFreezeColumnLeftPosition()
