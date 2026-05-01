@@ -37,37 +37,6 @@ module Vendor
       .each_with_object({}) { |(k, v), h| h[v[:inat_code]] = k if v[:inat_code] }
       .freeze
 
-    # Parse a block of text (one entry per line) into an array of iNaturalist observation IDs.
-    # Each line may be a bare integer ID or a full iNaturalist URL.
-    #
-    # @param text [String]
-    # @return [Array<String>] observation IDs as strings
-    def self.parse_observation_ids(text)
-      return [] if text.blank?
-
-      text.lines.filter_map do |line|
-        line = line.strip
-        next if line.blank?
-
-        # Match a trailing integer from a URL or a bare integer
-        if line =~ /(?:inaturalist\.org\/observations\/)?(\d+)\s*$/
-          $1
-        else
-          nil
-        end
-      end
-    end
-
-    # @return Array of Nasturtium 'results'
-    # @param id Integer
-    #   an iNat observation ID
-    def self.by_observation_id(id = nil)
-      return [] if id.nil?
-
-      # We are assuming there is only 1 paginated result when hit by observation id
-      ::Nasturtium.observations(id:)['results'].first
-    end
-
     # Fetch multiple observations in a single iNat API request.
     # IDs are joined as a comma-separated string because Faraday serializes
     # Ruby arrays as id[]=...&id[]=... which the iNat API does not accept.
@@ -107,7 +76,7 @@ module Vendor
         p[:time_start_minute] = parsed.min
         p[:time_start_second] = parsed.sec if parsed.sec > 0
       else
-        p[:time_start_hour] = d['hour']
+        p[:time_start_hour] = d['hour'] unless d['hour'].nil?
       end
 
       p[:verbatim_locality] = result['place_guess'] if guess_as_locality
@@ -288,7 +257,7 @@ module Vendor
       sound_data  = obs_sound['sound']
       license_key = INAT_LICENSE_CODE_TO_TW_LICENSE[sound_data['license_code']]
 
-      copyright_person = stub_copyright_person(result, photo: sound_data)
+      copyright_person = stub_copyright_person(result, media: sound_data)
       copyright_person.save! if copyright_person.new_record?
 
       attribution = Attribution.new(
@@ -299,14 +268,17 @@ module Vendor
         ]
       )
 
-      tempfile = download_to_tempfile(sound_data['file_url'])
-
       sound = Sound.new(name: sound_data['original_filename'].presence || obs_sound['uuid'])
-      sound.sound_file.attach(
-        io: File.open(tempfile.path),
-        filename: tempfile.original_filename,
-        content_type: sound_data['file_content_type'],
-      )
+      tempfile = download_to_tempfile(sound_data['file_url'])
+      begin
+        sound.sound_file.attach(
+          io: File.open(tempfile.path),
+          filename: tempfile.original_filename,
+          content_type: sound_data['file_content_type'],
+        )
+      ensure
+        tempfile.close!
+      end
       sound.attribution = attribution
       if obs_sound['uuid'].present?
         sound.identifiers << Identifier::Global::Uuid::InaturalistObservationSound.new(
@@ -318,26 +290,26 @@ module Vendor
       sound
     end
 
-    # Find or build the copyright holder Person for a photo.
+    # Find or build the copyright holder Person for a photo or sound.
     #
     # Strategy (in order):
     #   1. ORCID match — if the observer has an ORCID and a matching Person exists in TW, use them.
     #   2. Name fallback — parse the attribution string for a name and create a new Person::Unvetted.
     #
     # @param result [Hash] the full Nasturtium observation result (used for ORCID lookup)
-    # @param photo [Hash] the photo hash (used for attribution string fallback)
+    # @param media [Hash] the photo or sound hash (used for attribution string fallback)
     # @return [Person]
-    def self.stub_copyright_person(result, photo:)
+    def self.stub_copyright_person(result, media:)
       # 1. Try ORCID
       matched = person_by_orcid(result)
       return matched if matched
 
       # 2. Name fallback from attribution string, e.g.
       #    "(c) username, some rights reserved (CC BY-NC)" → "username"
-      copyright_name = if photo['attribution'] =~ /\(c\)\s+(.+?),/
+      copyright_name = if media['attribution'] =~ /\(c\)\s+(.+?),/
         $1.strip
       else
-        photo['attribution'].presence || 'Unknown'
+        media['attribution'].presence || 'Unknown'
       end
 
       Person::Unvetted.new(last_name: copyright_name)
@@ -353,7 +325,7 @@ module Vendor
     def self.build_image!(photo, result:, observed_year: nil)
       license_key = INAT_LICENSE_CODE_TO_TW_LICENSE[photo['license_code']]
 
-      copyright_person = stub_copyright_person(result, photo:)
+      copyright_person = stub_copyright_person(result, media: photo)
       copyright_person.save! if copyright_person.new_record?
 
       attribution = Attribution.new(
@@ -365,16 +337,19 @@ module Vendor
       )
 
       image_url = large_photo_url(photo['url'])
-      image_file = download_to_tempfile(image_url)
-
-      image = Image.new(image_file:)
-      image.attribution = attribution
-      if photo['uuid'].present?
-        image.identifiers << Identifier::Global::Uuid::InaturalistObservationPhoto.new(
-          identifier: photo['uuid']
-        )
+      tempfile = download_to_tempfile(image_url)
+      begin
+        image = Image.new(image_file: tempfile)
+        image.attribution = attribution
+        if photo['uuid'].present?
+          image.identifiers << Identifier::Global::Uuid::InaturalistObservationPhoto.new(
+            identifier: photo['uuid']
+          )
+        end
+        image.save!
+      ensure
+        tempfile.close!
       end
-      image.save!
 
       image
     end
@@ -393,13 +368,13 @@ module Vendor
     # @param url [String]
     # @return [Tempfile]
     def self.download_to_tempfile(url)
-      ext = File.extname(URI.parse(url).path)
-      tempfile = Tempfile.new(['inat_photo', ext], binmode: true)
+      uri_path = URI.parse(url).path
+      tempfile = Tempfile.new(['inat_media', File.extname(uri_path)], binmode: true)
 
       URI.open(url, 'rb') { |io| tempfile.write(io.read) }
       tempfile.rewind
 
-      basename = File.basename(URI.parse(url).path)
+      basename = File.basename(uri_path)
       tempfile.define_singleton_method(:original_filename) { basename }
 
       tempfile

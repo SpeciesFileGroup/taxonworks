@@ -36,29 +36,6 @@ describe Vendor::Nasturtium, type: :model, group: [:field_occurrences] do
     end
   end
 
-  describe '.parse_observation_ids' do
-    specify 'parses bare integer IDs' do
-      expect(Vendor::Nasturtium.parse_observation_ids("12345\n99182856")).to eq(['12345', '99182856'])
-    end
-
-    specify 'parses full iNat URLs' do
-      expect(Vendor::Nasturtium.parse_observation_ids('https://www.inaturalist.org/observations/99182856'))
-        .to eq(['99182856'])
-    end
-
-    specify 'skips blank lines' do
-      expect(Vendor::Nasturtium.parse_observation_ids("12345\n\n67890")).to eq(['12345', '67890'])
-    end
-
-    specify 'skips non-matching lines' do
-      expect(Vendor::Nasturtium.parse_observation_ids("not-an-id\n12345")).to eq(['12345'])
-    end
-
-    specify 'returns empty array for blank input' do
-      expect(Vendor::Nasturtium.parse_observation_ids('')).to eq([])
-    end
-  end
-
   describe '.stub_georeference' do
     specify 'returns nil when result is obscured' do
       expect(Vendor::Nasturtium.stub_georeference(result.merge('obscured' => true))).to be_nil
@@ -119,6 +96,12 @@ describe Vendor::Nasturtium, type: :model, group: [:field_occurrences] do
       specify 'does not set minute' do
         ce = Vendor::Nasturtium.stub_collecting_event(result)
         expect(ce.time_start_minute).to be_nil
+      end
+
+      specify 'does not set hour when observed_on_details hour is nil' do
+        r = result.merge('observed_on_details' => result['observed_on_details'].merge('hour' => nil))
+        ce = Vendor::Nasturtium.stub_collecting_event(r)
+        expect(ce.time_start_hour).to be_nil
       end
     end
   end

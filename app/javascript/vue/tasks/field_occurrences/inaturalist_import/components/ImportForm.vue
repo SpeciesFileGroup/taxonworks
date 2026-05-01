@@ -12,7 +12,7 @@
         id="observation_ids"
         v-model="rawInput"
         rows="6"
-        style="width: 100%; display: block;"
+        class="observation-input"
         :placeholder="`99182856\nhttps://www.inaturalist.org/observations/12345678`"
       />
       <span
@@ -148,5 +148,10 @@ async function submit() {
 <style scoped>
 .submit-btn {
   align-self: flex-start;
+}
+
+.observation-input {
+  width: 100%;
+  display: block;
 }
 </style>

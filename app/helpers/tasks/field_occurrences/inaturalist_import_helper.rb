@@ -35,7 +35,7 @@ module Tasks::FieldOccurrences::InaturalistImportHelper
       verbatim_locality: fo.collecting_event&.verbatim_locality,
       created_at: fo.created_at&.strftime('%Y-%m-%d %H:%M'),
       browse_url: browse_field_occurrence_task_path(field_occurrence_id: fo.id),
-      inat_url: inat_identifier&.url,
+      inat_url: inat_identifier ? "https://www.inaturalist.org/observations/#{inat_identifier.identifier}" : nil,
       image_count: fo.depictions.size,
       sound_count: fo.conveyances.size
     }
