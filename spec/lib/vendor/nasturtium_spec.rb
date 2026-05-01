@@ -36,6 +36,34 @@ describe Vendor::Nasturtium, type: :model, group: [:field_occurrences] do
     end
   end
 
+  describe '.observer_identification_uuid' do
+    specify 'returns the uuid of the observer\'s current identification' do
+      r = result.merge(
+        'user' => result['user'].merge('id' => 42),
+        'identifications' => [
+          { 'uuid' => 'ident-uuid-1', 'user' => { 'id' => 42 }, 'current' => true },
+          { 'uuid' => 'ident-uuid-2', 'user' => { 'id' => 99 }, 'current' => true },
+        ]
+      )
+      expect(Vendor::Nasturtium.observer_identification_uuid(r)).to eq('ident-uuid-1')
+    end
+
+    specify 'returns nil when the observer has no current identification' do
+      r = result.merge(
+        'user' => result['user'].merge('id' => 42),
+        'identifications' => [
+          { 'uuid' => 'ident-uuid-1', 'user' => { 'id' => 42 }, 'current' => false },
+        ]
+      )
+      expect(Vendor::Nasturtium.observer_identification_uuid(r)).to be_nil
+    end
+
+    specify 'returns nil when identifications are absent' do
+      r = result.merge('user' => result['user'].merge('id' => 42))
+      expect(Vendor::Nasturtium.observer_identification_uuid(r)).to be_nil
+    end
+  end
+
   describe '.stub_georeference' do
     specify 'returns nil when result is obscured' do
       expect(Vendor::Nasturtium.stub_georeference(result.merge('obscured' => true))).to be_nil

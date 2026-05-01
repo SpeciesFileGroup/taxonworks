@@ -149,6 +149,22 @@ module Vendor
       )
     end
 
+    # Find the UUID of the observer's current identification on the observation.
+    # Only the observer's own identifications are considered; community taxon has no UUID.
+    #
+    # @param result [Hash] a Nasturtium result
+    # @return [String, nil] UUID string, or nil if not found
+    def self.observer_identification_uuid(result)
+      user_id = result.dig('user', 'id')
+      return nil if user_id.blank?
+
+      ident = (result['identifications'] || []).find do |i|
+        i.dig('user', 'id') == user_id && i['current']
+      end
+
+      ident&.dig('uuid')
+    end
+
     # @param result [Hash] a Nasturtium result
     # @return [Identifier::Global::Uuid::InaturalistObservation, nil]
     def self.stub_identifier(result)

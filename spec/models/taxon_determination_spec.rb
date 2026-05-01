@@ -169,6 +169,7 @@ describe TaxonDetermination, type: :model, group: [:collection_objects] do
 
   context 'concerns' do
     it_behaves_like 'citations'
+    it_behaves_like 'identifiable'
     it_behaves_like 'has_roles'
     it_behaves_like 'is_data'
   end

@@ -57,7 +57,15 @@ class InaturalistImportJob < ApplicationJob
       unless use_community_taxon
         determiner = ::Vendor::Nasturtium.stub_determiner(result)
         determiner.save! if determiner.new_record?
-        fo.taxon_determinations.first.determiner_roles.create!(person: determiner)
+        td = fo.taxon_determinations.first
+        td.determiner_roles.create!(person: determiner)
+
+        if (ident_uuid = ::Vendor::Nasturtium.observer_identification_uuid(result))
+          Identifier::Global::Uuid::InaturalistIdentification.create!(
+            identifier_object: td,
+            identifier: ident_uuid
+          )
+        end
       end
 
       if result['description'].present?

@@ -43,6 +43,7 @@ class TaxonDetermination < ApplicationRecord
   include Housekeeping
   include Shared::Citations
   include Shared::DataAttributes
+  include Shared::Identifiers
   include Shared::Notes
   include Shared::Confidences
   include Shared::Labels
