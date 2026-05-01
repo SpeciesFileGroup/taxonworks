@@ -11,7 +11,7 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
   # POST /tasks/field_occurrences/inaturalist_import/submit.json
   def submit
     observation_ids = params[:observation_ids] || []
-    find_only = params[:find_only] == true
+    find_only = ActiveModel::Type::Boolean.new.cast(params[:find_only])
 
     if observation_ids.size > OBSERVATION_LIMIT
       render json: { error: "Maximum #{OBSERVATION_LIMIT} observations per submission." }, status: :unprocessable_entity
@@ -43,19 +43,7 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
       ) if new_results.any?
     end
 
-    fo_data = {}
-    if find_only && existing_fo_by_uuid.any?
-      FieldOccurrence
-        .where(id: existing_fo_by_uuid.values)
-        .includes(:depictions, :conveyances, taxon_determinations: { otu: :taxon_name })
-        .each do |fo|
-          fo_data[fo.id] = {
-            image_count: fo.depictions.size,
-            sound_count: fo.conveyances.size,
-            taxon_name: helpers.otu_tag(fo.taxon_determinations.first&.otu)
-          }
-        end
-    end
+    fo_data = find_only ? fetch_fo_data(existing_fo_by_uuid) : {}
 
     submitted_ids = observation_ids.to_set
     found_ids = results.map { |r| r['id'].to_s }.to_set
@@ -76,11 +64,28 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
       )
       .order(created_at: :desc)
       .page(params[:page])
-      .per(params.fetch(:per_page, 10))
+      .per(params.fetch(:per_page, 10).to_i.clamp(1, 100))
       .includes(:collecting_event, :identifiers, :depictions, :conveyances, taxon_determinations: { otu: :taxon_name })
 
     assign_pagination(fos)
     render json: { field_occurrences: fos.map { |fo| helpers.serialize_inat_field_occurrence(fo) } }
+  end
+
+  private
+
+  def fetch_fo_data(existing_fo_by_uuid)
+    return {} if existing_fo_by_uuid.empty?
+
+    FieldOccurrence
+      .where(id: existing_fo_by_uuid.values)
+      .includes(:depictions, :conveyances, taxon_determinations: { otu: :taxon_name })
+      .each_with_object({}) do |fo, h|
+        h[fo.id] = {
+          image_count: fo.depictions.size,
+          sound_count: fo.conveyances.size,
+          taxon_name: helpers.otu_tag(fo.taxon_determinations.first&.otu)
+        }
+      end
   end
 
 end
