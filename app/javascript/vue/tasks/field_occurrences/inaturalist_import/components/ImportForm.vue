@@ -88,7 +88,7 @@
 import { ref, computed, reactive } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSwitch from '@/components/ui/VSwitch.vue'
-import Api from '../api/inaturalist_import.js'
+import { FieldOccurrence } from '@/routes/endpoints'
 
 const IMPORT_LIMIT = 50
 const FIND_LIMIT = 200
@@ -131,7 +131,7 @@ async function submit() {
   const findOnly = mode.value === 'Find'
   isSubmitting.value = true
   try {
-    const { body } = await Api.submit({
+    const { body } = await FieldOccurrence.iNatSubmit({
       observation_ids: parsedIds.value,
       find_only: findOnly,
       ...(findOnly ? {} : options)

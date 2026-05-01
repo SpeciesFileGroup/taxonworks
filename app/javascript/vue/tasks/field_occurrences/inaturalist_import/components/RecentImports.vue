@@ -40,7 +40,7 @@
 
     <table
       v-else
-      class="full_width"
+      class="full_width table-striped"
     >
       <thead>
         <tr>
@@ -88,7 +88,7 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VPagination from '@/components/pagination.vue'
 import PaginationCount from '@/components/pagination/PaginationCount.vue'
 import { getPagination } from '@/helpers'
-import Api from '../api/inaturalist_import.js'
+import { FieldOccurrence } from '@/routes/endpoints'
 
 defineOptions({ name: 'RecentImports' })
 
@@ -104,7 +104,7 @@ function refresh() {
 async function load(page = 1) {
   isLoading.value = true
   try {
-    const response = await Api.recent({ page, per_page: perPage.value })
+    const response = await FieldOccurrence.iNatRecent({ page, per_page: perPage.value })
     fieldOccurrences.value = response.body.field_occurrences
     pagination.value = getPagination(response)
   } finally {

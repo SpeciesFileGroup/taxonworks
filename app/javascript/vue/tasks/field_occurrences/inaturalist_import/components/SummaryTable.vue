@@ -20,7 +20,7 @@
       </div>
     </div>
 
-    <table class="full_width">
+    <table class="full_width table-striped">
       <thead>
         <tr>
           <th>iNat observation</th>
