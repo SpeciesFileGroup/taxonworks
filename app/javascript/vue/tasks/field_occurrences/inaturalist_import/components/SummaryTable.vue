@@ -28,8 +28,8 @@
           <th>Observer</th>
           <th>Date</th>
           <th>Place</th>
-          <th>Images</th>
-          <th>Sounds</th>
+          <th>CC Images</th>
+          <th>CC Sounds</th>
           <th>Status</th>
         </tr>
       </thead>
