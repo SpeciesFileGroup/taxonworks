@@ -3,7 +3,8 @@ require 'nasturtium'
 class Tasks::FieldOccurrences::InaturalistImportController < ApplicationController
   include TaskControllerConfiguration
 
-  OBSERVATION_LIMIT = 50
+  IMPORT_LIMIT = 50
+  FIND_LIMIT   = 200
 
   def index
   end
@@ -13,8 +14,9 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
     observation_ids = params[:observation_ids] || []
     find_only = ActiveModel::Type::Boolean.new.cast(params[:find_only])
 
-    if observation_ids.size > OBSERVATION_LIMIT
-      render json: { error: "Maximum #{OBSERVATION_LIMIT} observations per submission." }, status: :unprocessable_entity
+    limit = find_only ? FIND_LIMIT : IMPORT_LIMIT
+    if observation_ids.size > limit
+      render json: { error: "Maximum #{limit} observations per submission." }, status: :unprocessable_entity
       return
     end
 

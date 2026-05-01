@@ -1,16 +1,15 @@
 <template>
   <div class="panel content">
     <div class="separate-bottom">
-      <label for="observation_ids">
-        Enter iNaturalist observation IDs or URLs, one per line.
-        <em>Maximum {{ LIMIT }} per submission.</em>
-      </label>
-      <VSwitch
-        v-model="mode"
-        name="inat-mode"
-        :options="['Import', 'Find']"
-        class="margin-medium-top"
-      />
+      <label for="observation_ids">Enter iNaturalist observation IDs or URLs, one per line.</label>
+      <div class="horizontal-left-content middle gap-small margin-large-top">
+        <VSwitch
+          v-model="mode"
+          name="inat-mode"
+          :options="['Import', 'Find']"
+        />
+        <em>Maximum {{ mode === 'Import' ? IMPORT_LIMIT : FIND_LIMIT }} per submission.</em>
+      </div>
       <textarea
         id="observation_ids"
         v-model="rawInput"
@@ -91,7 +90,8 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VSwitch from '@/components/ui/VSwitch.vue'
 import Api from '../api/inaturalist_import.js'
 
-const LIMIT = 50
+const IMPORT_LIMIT = 50
+const FIND_LIMIT = 200
 
 const emit = defineEmits(['submitted'])
 
@@ -121,7 +121,7 @@ const parsedIds = computed(() =>
 
 const canSubmit = computed(() =>
   parsedIds.value.length > 0 &&
-  parsedIds.value.length <= LIMIT &&
+  parsedIds.value.length <= (mode.value === 'Import' ? IMPORT_LIMIT : FIND_LIMIT) &&
   !isSubmitting.value
 )
 

@@ -5,7 +5,7 @@
       <VBtn
         color="primary"
         :disabled="isLoading"
-        @click="load"
+        @click="refresh"
       >
         {{ isLoading ? 'Loading…' : 'Refresh' }}
       </VBtn>
@@ -96,6 +96,10 @@ const fieldOccurrences = ref([])
 const isLoading = ref(false)
 const perPage = ref(10)
 const pagination = ref({})
+
+function refresh() {
+  load()
+}
 
 async function load(page = 1) {
   isLoading.value = true
