@@ -55,7 +55,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
   - Anatomical Part has origin OTU the OTU in question
 - ISBNs with 7-digit parts not recognized as valid [#4819]
 - Batch Source Import returns 'Serial identifiers identifier has already been taken' with no clear reason or explanation
-
+- Pin source button is missing in New Image task
 
 [#4896]: https://github.com/SpeciesFileGroup/taxonworks/issues/4896
 [#1856]: https://github.com/SpeciesFileGroup/taxonworks/issues/1856
