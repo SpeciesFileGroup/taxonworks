@@ -72,7 +72,7 @@
       {{ isSubmitting ? 'Looking up observations…' : 'Queue import' }}
     </VBtn>
     <div class="margin-medium-top">
-      iNat observations are imported in the background; after submission, click the Refresh button in the Recents table to track import progress
+      iNaturalist observations are imported in the background; after submission, click the Refresh button in the Recents table to track import progress.
     </div>
   </div>
 </template>
