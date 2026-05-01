@@ -1,13 +1,16 @@
 <template>
   <div class="panel content">
-    <h2>Import observations</h2>
-    <p>
-      Enter iNaturalist observation IDs or URLs, one per line.
-      <em>Maximum {{ LIMIT }} per submission.</em>
-    </p>
-
     <div class="separate-bottom">
-      <label for="observation_ids">Observation IDs or URLs (one per line)</label>
+      <label for="observation_ids">
+        Enter iNaturalist observation IDs or URLs, one per line.
+        <em>Maximum {{ LIMIT }} per submission.</em>
+      </label>
+      <VSwitch
+        v-model="mode"
+        name="inat-mode"
+        :options="['Import', 'Find']"
+        class="margin-medium-top"
+      />
       <textarea
         id="observation_ids"
         v-model="rawInput"
@@ -23,45 +26,47 @@
       </span>
     </div>
 
-    <div class="separate-bottom">
-      <label>
-        <input
-          type="checkbox"
-          v-model="options.import_images"
-        />
-        Import images (CC license only)
-      </label>
-    </div>
+    <template v-if="mode === 'Import'">
+      <div class="separate-bottom">
+        <label>
+          <input
+            type="checkbox"
+            v-model="options.import_images"
+          />
+          Import images (CC license only)
+        </label>
+      </div>
 
-    <div class="separate-bottom">
-      <label>
-        <input
-          type="checkbox"
-          v-model="options.import_sounds"
-        />
-        Import sounds (CC license only)
-      </label>
-    </div>
+      <div class="separate-bottom">
+        <label>
+          <input
+            type="checkbox"
+            v-model="options.import_sounds"
+          />
+          Import sounds (CC license only)
+        </label>
+      </div>
 
-    <div class="separate-bottom">
-      <label>
-        <input
-          type="checkbox"
-          v-model="options.use_community_taxon"
-        />
-        Use iNat community taxon determination (uncheck to use observer's own identification instead)
-      </label>
-    </div>
+      <div class="separate-bottom">
+        <label>
+          <input
+            type="checkbox"
+            v-model="options.use_community_taxon"
+          />
+          Use iNat community taxon determination (uncheck to use observer's own identification instead)
+        </label>
+      </div>
 
-    <div class="separate-bottom">
-      <label>
-        <input
-          type="checkbox"
-          v-model="options.match_otu_by_name"
-        />
-        Match OTU by taxon name (tries existing OTU in project first; creates name-only OTU if none found)
-      </label>
-    </div>
+      <div class="separate-bottom">
+        <label>
+          <input
+            type="checkbox"
+            v-model="options.match_otu_by_name"
+          />
+          Match OTU by taxon name (tries existing OTU in project first; creates name-only OTU if none found)
+        </label>
+      </div>
+    </template>
 
     <VBtn
       color="primary"
@@ -69,9 +74,12 @@
       :disabled="!canSubmit"
       @click="submit"
     >
-      {{ isSubmitting ? 'Looking up observations…' : 'Queue import' }}
+      {{ isSubmitting ? 'Looking up observations…' : (mode === 'Import' ? 'Queue import' : 'Find') }}
     </VBtn>
-    <div class="margin-medium-top">
+    <div
+      v-if="mode === 'Import'"
+      class="margin-medium-top"
+    >
       iNaturalist observations are imported in the background; after submission, click the Refresh button in the Recents table to track import progress.
     </div>
   </div>
@@ -80,6 +88,7 @@
 <script setup>
 import { ref, computed, reactive } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VSwitch from '@/components/ui/VSwitch.vue'
 import Api from '../api/inaturalist_import.js'
 
 const LIMIT = 50
@@ -90,6 +99,7 @@ defineOptions({ name: 'ImportForm' })
 
 const rawInput = ref('')
 const isSubmitting = ref(false)
+const mode = ref('Import')
 
 const options = reactive({
   use_community_taxon: true,
@@ -118,26 +128,35 @@ const canSubmit = computed(() =>
 async function submit() {
   if (!canSubmit.value) return
 
+  const findOnly = mode.value === 'Find'
   isSubmitting.value = true
   try {
     const { body } = await Api.submit({
       observation_ids: parsedIds.value,
-      ...options
+      find_only: findOnly,
+      ...(findOnly ? {} : options)
     })
 
-    const queued = body.summary.filter(r => r.status === 'queued').length
-    const existing = body.summary.filter(r => r.status === 'already_imported').length
-    const notFound = body.summary.filter(r => r.status === 'not_found').length
-    const noTaxon = body.summary.filter(r => r.status === 'no_taxon').length
-
     const parts = []
-    if (queued) parts.push(`${queued} queued`)
-    if (existing) parts.push(`${existing} already imported`)
-    if (notFound) parts.push(`${notFound} not found on iNaturalist`)
-    if (noTaxon) parts.push(`${noTaxon} skipped (no taxon)`)
+    if (findOnly) {
+      const found = body.summary.filter(r => r.status === 'found').length
+      const notImported = body.summary.filter(r => r.status === 'not_imported').length
+      const notFound = body.summary.filter(r => r.status === 'not_found').length
+      if (found) parts.push(`${found} found in this project`)
+      if (notImported) parts.push(`${notImported} not yet imported`)
+      if (notFound) parts.push(`${notFound} not found on iNaturalist`)
+    } else {
+      const queued = body.summary.filter(r => r.status === 'queued').length
+      const existing = body.summary.filter(r => r.status === 'already_imported').length
+      const notFound = body.summary.filter(r => r.status === 'not_found').length
+      const noTaxon = body.summary.filter(r => r.status === 'no_taxon').length
+      if (queued) parts.push(`${queued} queued`)
+      if (existing) parts.push(`${existing} already imported`)
+      if (notFound) parts.push(`${notFound} not found on iNaturalist`)
+      if (noTaxon) parts.push(`${noTaxon} skipped (no taxon)`)
+    }
 
     TW.workbench.alert.create(parts.join('; '), 'notice')
-
     emit('submitted', body.summary)
   } finally {
     isSubmitting.value = false

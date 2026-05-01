@@ -1,13 +1,23 @@
 <template>
   <div class="panel content separate-top">
     <div class="flex-separate middle separate-bottom">
-      <h2>Submission summary</h2>
-      <VBtn
-        color="primary"
-        @click="$emit('clear')"
-      >
-        Clear
-      </VBtn>
+      <h2>{{ isFindMode ? 'Search results' : 'Submission summary' }}</h2>
+      <div class="horizontal-right-content">
+        <VBtn
+          v-if="isFindMode && foundIds.length"
+          color="primary"
+          @click="sendToFilter"
+          class="margin-medium-right"
+        >
+          Send to filter
+        </VBtn>
+        <VBtn
+          color="primary"
+          @click="$emit('clear')"
+        >
+          Clear
+        </VBtn>
+      </div>
     </div>
 
     <table class="full_width">
@@ -36,14 +46,20 @@
               {{ row.observation_id }}
             </a>
           </td>
-          <td>{{ row.taxon_name }}</td>
+          <td v-html="row.taxon_name" />
           <td>{{ row.observer }}</td>
           <td>{{ row.observed_on }}</td>
           <td>{{ row.place_guess }}</td>
           <td>{{ row.image_count ?? 'n/a' }}</td>
           <td>{{ row.sound_count ?? 'n/a' }}</td>
           <td>
-            <span v-if="row.status === 'already_imported'">
+            <a
+              v-if="row.status === 'found'"
+              :href="row.browse_url"
+              target="_blank"
+            >Found</a>
+            <span v-else-if="row.status === 'not_imported'">Not yet imported</span>
+            <span v-else-if="row.status === 'already_imported'">
               Already imported —
               <a
                 :href="row.browse_url"
@@ -61,9 +77,11 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import { RouteNames } from '@/routes/routes'
 
-defineProps({
+const props = defineProps({
   rows: {
     type: Array,
     required: true
@@ -73,4 +91,17 @@ defineProps({
 defineEmits(['clear'])
 
 defineOptions({ name: 'SummaryTable' })
+
+const isFindMode = computed(() =>
+  props.rows.some(r => r.status === 'found' || r.status === 'not_imported')
+)
+
+const foundIds = computed(() =>
+  props.rows.filter(r => r.status === 'found').map(r => r.field_occurrence_id)
+)
+
+function sendToFilter() {
+  const params = foundIds.value.map(id => `field_occurrence_id[]=${id}`).join('&')
+  window.open(`${RouteNames.FilterFieldOccurrence}?${params}`, '_blank')
+}
 </script>
