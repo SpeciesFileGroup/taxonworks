@@ -1,0 +1,44 @@
+module Tasks::FieldOccurrences::InaturalistImportHelper
+
+  def inaturalist_import_summary(results, existing_fo_by_uuid, import_images:, import_sounds:, use_community_taxon:)
+    results.map do |r|
+      uuid = r['uuid']
+      existing_fo_id = existing_fo_by_uuid[uuid]
+      no_taxon = ::Vendor::Nasturtium.taxon_name(r, use_community_taxon:).blank?
+      status = if existing_fo_id
+        'already_imported'
+      elsif no_taxon
+        'no_taxon'
+      else
+        'queued'
+      end
+      {
+        observation_id: r['id'].to_s,
+        taxon_name: ::Vendor::Nasturtium.taxon_name(r, use_community_taxon:),
+        observer: r.dig('user', 'name').presence || r.dig('user', 'login'),
+        observed_on: r['observed_on'],
+        place_guess: r['place_guess'],
+        status:,
+        field_occurrence_id: existing_fo_id,
+        browse_url: existing_fo_id ? browse_field_occurrence_task_path(field_occurrence_id: existing_fo_id) : nil,
+        image_count: import_images ? ::Vendor::Nasturtium.permitted_photos(r).size : nil,
+        sound_count: import_sounds ? ::Vendor::Nasturtium.permitted_sounds(r).size : nil
+      }
+    end
+  end
+
+  def serialize_inat_field_occurrence(fo)
+    inat_identifier = fo.identifiers.find { |i| i.is_a?(Identifier::Global::Uuid::InaturalistObservation) }
+    {
+      id: fo.id,
+      taxon_name: otu_tag(fo.taxon_determinations.first&.otu),
+      verbatim_locality: fo.collecting_event&.verbatim_locality,
+      created_at: fo.created_at&.strftime('%Y-%m-%d %H:%M'),
+      browse_url: browse_field_occurrence_task_path(field_occurrence_id: fo.id),
+      inat_url: inat_identifier&.url,
+      image_count: fo.depictions.size,
+      sound_count: fo.conveyances.size
+    }
+  end
+
+end

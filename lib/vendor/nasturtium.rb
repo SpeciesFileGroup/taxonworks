@@ -80,6 +80,14 @@ module Vendor
       ::Nasturtium.observations(id: ids.join(','), per_page: ids.size)['results']
     end
 
+    def self.taxon_name(result, use_community_taxon: true)
+      if use_community_taxon
+        result.dig('community_taxon', 'name').presence || result.dig('taxon', 'name')
+      else
+        result.dig('taxon', 'name')
+      end
+    end
+
     def self.stub_collecting_event(result, guess_as_locality: true)
       return nil if result.blank?
 
@@ -195,11 +203,7 @@ module Vendor
     #   own most recent ID when no community consensus exists
     # @return [Otu, nil]
     def self.stub_otu(result, project_id:, match_by_name: false, use_community_taxon: true)
-      taxon_name = if use_community_taxon
-        result.dig('community_taxon', 'name').presence || result.dig('taxon', 'name')
-      else
-        result.dig('taxon', 'name')
-      end
+      taxon_name = self.taxon_name(result, use_community_taxon:)
       return nil if taxon_name.blank?
 
       if match_by_name

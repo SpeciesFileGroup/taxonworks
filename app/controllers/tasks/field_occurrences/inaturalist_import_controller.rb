@@ -20,14 +20,14 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
     results = ::Vendor::Nasturtium.by_observation_ids(observation_ids)
 
     candidate_uuids = results.filter_map { |r| r['uuid'] }
-    existing_fo_by_uuid = existing_field_occurrences_by_uuid(candidate_uuids)
+    existing_fo_by_uuid = FieldOccurrence.by_inat_uuids(candidate_uuids, project_id: sessions_current_project_id)
 
     import_images = params[:import_images] == true
     import_sounds = params[:import_sounds] == true
     use_community_taxon = params[:use_community_taxon] != false
 
     new_results = results.reject { |r|
-      existing_fo_by_uuid.key?(r['uuid']) || inat_taxon_name(r, use_community_taxon:).blank?
+      existing_fo_by_uuid.key?(r['uuid']) || ::Vendor::Nasturtium.taxon_name(r, use_community_taxon:).blank?
     }
 
     InaturalistImportJob.perform_later(
@@ -43,7 +43,7 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
     submitted_ids = observation_ids.to_set
     found_ids = results.map { |r| r['id'].to_s }.to_set
 
-    summary = build_summary(results, existing_fo_by_uuid, import_images:, import_sounds:, use_community_taxon:) +
+    summary = helpers.inaturalist_import_summary(results, existing_fo_by_uuid, import_images:, import_sounds:, use_community_taxon:) +
       (submitted_ids - found_ids).map { |id| { observation_id: id, status: 'not_found' } }
 
     render json: { summary: }
@@ -61,74 +61,7 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
       .limit(10)
       .includes(:collecting_event, :identifiers, :depictions, :conveyances, taxon_determinations: { otu: :taxon_name })
 
-    render json: { field_occurrences: fos.map { |fo| serialize_fo(fo) } }
-  end
-
-  private
-
-  def existing_field_occurrences_by_uuid(uuids)
-    return {} if uuids.blank?
-
-    FieldOccurrence
-      .joins(:identifiers)
-      .where(
-        project_id: sessions_current_project_id,
-        identifiers: {
-          type: 'Identifier::Global::Uuid::InaturalistObservation',
-          identifier: uuids
-        }
-      )
-      .pluck('field_occurrences.id', 'identifiers.identifier')
-      .to_h { |fo_id, uuid| [uuid, fo_id] }
-  end
-
-  def build_summary(results, existing_fo_by_uuid, import_images:, import_sounds:, use_community_taxon:)
-    results.map do |r|
-      uuid = r['uuid']
-      existing_fo_id = existing_fo_by_uuid[uuid]
-      no_taxon = inat_taxon_name(r, use_community_taxon:).blank?
-      status = if existing_fo_id
-        'already_imported'
-      elsif no_taxon
-        'no_taxon'
-      else
-        'queued'
-      end
-      {
-        observation_id: r['id'].to_s,
-        taxon_name: r.dig('community_taxon', 'name') || r.dig('taxon', 'name'),
-        observer: r.dig('user', 'name').presence || r.dig('user', 'login'),
-        observed_on: r['observed_on'],
-        place_guess: r['place_guess'],
-        status:,
-        field_occurrence_id: existing_fo_id,
-        browse_url: existing_fo_id ? browse_field_occurrence_task_path(field_occurrence_id: existing_fo_id) : nil,
-        image_count: import_images ? ::Vendor::Nasturtium.permitted_photos(r).size : nil,
-        sound_count: import_sounds ? ::Vendor::Nasturtium.permitted_sounds(r).size : nil
-      }
-    end
-  end
-
-  def inat_taxon_name(result, use_community_taxon:)
-    if use_community_taxon
-      result.dig('community_taxon', 'name').presence || result.dig('taxon', 'name')
-    else
-      result.dig('taxon', 'name')
-    end
-  end
-
-  def serialize_fo(fo)
-    inat_identifier = fo.identifiers.find { |i| i.is_a?(Identifier::Global::Uuid::InaturalistObservation) }
-    {
-      id: fo.id,
-      taxon_name: helpers.otu_tag(fo.taxon_determinations.first&.otu),
-      verbatim_locality: fo.collecting_event&.verbatim_locality,
-      created_at: fo.created_at&.strftime('%Y-%m-%d %H:%M'),
-      browse_url: browse_field_occurrence_task_path(field_occurrence_id: fo.id),
-      inat_url: inat_identifier&.url,
-      image_count: fo.depictions.size,
-      sound_count: fo.conveyances.size
-    }
+    render json: { field_occurrences: fos.map { |fo| helpers.serialize_inat_field_occurrence(fo) } }
   end
 
 end
