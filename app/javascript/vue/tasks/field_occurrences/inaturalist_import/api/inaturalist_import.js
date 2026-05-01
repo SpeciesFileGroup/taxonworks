@@ -7,7 +7,7 @@ export default {
     return AjaxCall('post', `${BASE}/submit.json`, params)
   },
 
-  recent() {
-    return AjaxCall('get', `${BASE}/recent.json`)
+  recent(params = {}) {
+    return AjaxCall('get', `${BASE}/recent.json`, { params })
   }
 }

@@ -75,9 +75,11 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
         identifiers: { type: 'Identifier::Global::Uuid::InaturalistObservation' }
       )
       .order(created_at: :desc)
-      .limit(10)
+      .page(params[:page])
+      .per(params.fetch(:per_page, 10))
       .includes(:collecting_event, :identifiers, :depictions, :conveyances, taxon_determinations: { otu: :taxon_name })
 
+    assign_pagination(fos)
     render json: { field_occurrences: fos.map { |fo| helpers.serialize_inat_field_occurrence(fo) } }
   end
 
