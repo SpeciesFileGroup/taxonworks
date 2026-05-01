@@ -998,7 +998,7 @@ inaturalist_import_task:
   categories:
     - field_occurrence
   status: prototype
-  description: 'Create FieldOcurrences from iNaturalist observations.'
+  description: 'Create FieldOccurrences from iNaturalist observations.'
 new_biological_association_task:
   hub: true
   name: 'New biological association'

@@ -28,7 +28,10 @@ class InaturalistImportJob < ApplicationJob
       # attributes — reject_taxon_determinations rejects entries with a blank otu_id
       # and a blank otu.id, which is the case for any new (unsaved) OTU object.
       otu = ::Vendor::Nasturtium.stub_otu(result, project_id:, match_by_name: match_otu_by_name, use_community_taxon:)
-      raise ActiveRecord::RecordInvalid, otu unless otu
+      unless otu
+        Rails.logger.warn("InaturalistImportJob: skipping observation #{observation_id} — no taxon name")
+        return
+      end
       otu.save! if otu.new_record?
 
       # Save the CE (and its nested georeference) before the FO so that
@@ -75,10 +78,10 @@ class InaturalistImportJob < ApplicationJob
     )
   end
 
-  # For each CC/PD-licensed photo on the observation, create an Image with full
-  # licensing metadata and attach it as a Depiction on the FO.
-  # Each photo runs in its own savepoint so a single failure doesn't roll back
-  # the FO or other photos.
+  # For each CC/PD-licensed sound on the observation, create a Sound with full
+  # licensing metadata and attach it as a Conveyance on the FO.
+  # Each sound runs in its own savepoint so a single failure doesn't roll back
+  # the FO or other sounds.
   def import_sounds(result, fo:)
     observed_year = result.dig('observed_on_details', 'year')
 

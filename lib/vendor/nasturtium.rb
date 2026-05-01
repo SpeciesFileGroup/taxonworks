@@ -37,10 +37,6 @@ module Vendor
       .each_with_object({}) { |(k, v), h| h[v[:inat_code]] = k if v[:inat_code] }
       .freeze
 
-    # Derived from INAT_ANNOTATION_LABEL_TO_DWC_URI: inverted to URI -> label for
-    # looking up BiocurationGroup by URI and matching BiocurationClass by name.
-    DWC_URI_TO_INAT_ANNOTATION_LABEL = INAT_ANNOTATION_LABEL_TO_DWC_URI.invert.freeze
-
     # Parse a block of text (one entry per line) into an array of iNaturalist observation IDs.
     # Each line may be a bare integer ID or a full iNaturalist URL.
     #
@@ -106,10 +102,6 @@ module Vendor
       ce.collector_roles.build(person: collector) if collector
 
       ce
-    end
-
-    def self.stub_collecting_event_identifier(result)
-      nil
     end
 
     # Attempt to find a Person in TW by ORCID. Returns nil if iNat provides no ORCID,
