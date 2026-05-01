@@ -16,8 +16,8 @@ import {
   useTemplateRef,
   watch
 } from 'vue'
-
 import { isJSON } from '@/helpers/objects'
+import { useDropzonePasteManager } from '@/composables/useDropzonePasteManager'
 
 const props = defineProps({
   url: {
@@ -59,10 +59,6 @@ const props = defineProps({
     type: Boolean,
     default: true
   },
-  paste: {
-    type: Boolean,
-    default: true
-  },
   useFontAwesome: {
     type: Boolean,
     default: false
@@ -101,6 +97,10 @@ const props = defineProps({
   },
   dropzoneOptions: {
     type: Object
+  },
+  prioritizePaste: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -116,30 +116,23 @@ const emit = defineEmits([
   'vdropzone-queue-complete'
 ])
 
+const { registerPaster, unregisterPaster } = useDropzonePasteManager()
+
 const dropzoneRef = useTemplateRef('dropzoneRef')
 let dropzone = null
-
-const NON_TEXT_INPUT_TYPES = new Set([
-  'button', 'checkbox', 'color', 'file',
-  'hidden', 'image', 'radio', 'range', 'reset', 'submit'
-])
-
-function isTextEditable(el) {
-  if (!el) return false
-  if (el.isContentEditable) return true
-  if (el.tagName === 'TEXTAREA') return true
-  if (el.tagName === 'INPUT') return !NON_TEXT_INPUT_TYPES.has(el.type)
-  return false
-}
+let pasteZone = null
 
 function onPaste(e) {
-  if (isTextEditable(document.activeElement)) return
   const items = e.clipboardData?.items
   if (!items) return
+
   for (const item of items) {
-    if (item.kind === 'file') {
-      dropzone.addFile(item.getAsFile())
-    }
+    if (item.kind !== 'file' || !item.type) continue
+
+    const file = item.getAsFile()
+    if (!file || !(file instanceof File)) continue
+
+    dropzone.addFile(file)
   }
 }
 
@@ -216,11 +209,6 @@ onMounted(() => {
     emit('vdropzone-file-added', file)
   })
 
-  // Each mounted instance with paste=true registers its own document listener, so a
-  // paste event fires all of them. Callers must ensure at most one paste-enabled
-  // dropzone is mounted at a time to avoid the same file being added to multiple instances.
-  if (props.paste) document.addEventListener('paste', onPaste)
-
   dropzone.on('error', function (file, error, xhr) {
     const errorElements = dropzoneRef.value.querySelectorAll(
       '.dz-error-message span'
@@ -233,6 +221,16 @@ onMounted(() => {
       : error
     emit('vdropzone-error', file, error, xhr)
   })
+
+  pasteZone = {
+    handler: (e) => {
+      if (!dropzone) return
+      onPaste(e)
+    },
+    prioritize: props.prioritizePaste
+  }
+
+  registerPaster(pasteZone)
 })
 
 function makeRemoveButton(file) {
@@ -294,7 +292,7 @@ watch(
 )
 
 onBeforeUnmount(() => {
-  if (props.paste) document.removeEventListener('paste', onPaste)
+  unregisterPaster(pasteZone)
   dropzone.destroy()
 })
 </script>
