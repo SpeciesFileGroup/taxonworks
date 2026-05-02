@@ -131,11 +131,9 @@ async function submit() {
   const findOnly = mode.value === 'Find'
   isSubmitting.value = true
   try {
-    const { body } = await FieldOccurrence.iNatSubmit({
-      observation_ids: parsedIds.value,
-      find_only: findOnly,
-      ...(findOnly ? {} : options)
-    })
+    const call = findOnly ? FieldOccurrence.iNatFind : FieldOccurrence.iNatImport
+    const params = findOnly ? { observation_ids: parsedIds.value } : { observation_ids: parsedIds.value, ...options }
+    const { body } = await call(params)
 
     const parts = []
     if (findOnly) {

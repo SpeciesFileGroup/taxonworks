@@ -1,18 +1,9 @@
 module Tasks::FieldOccurrences::InaturalistImportHelper
 
-  def inaturalist_import_summary(results, existing_fo_by_uuid, import_images:, import_sounds:, use_community_taxon:, find_only: false, fo_data: {})
+  def inaturalist_find_summary(results, existing_fo_by_uuid, fo_data:, use_community_taxon: true)
     results.map do |r|
       uuid = r['uuid']
       existing_fo_id = existing_fo_by_uuid[uuid]
-      status = if find_only
-        existing_fo_id ? 'found' : 'not_imported'
-      elsif existing_fo_id
-        'already_imported'
-      elsif ::Vendor::Nasturtium.taxon_name(r, use_community_taxon:).blank?
-        'no_taxon'
-      else
-        'queued'
-      end
       fo = fo_data[existing_fo_id]
       {
         observation_id: r['id'].to_s,
@@ -20,11 +11,38 @@ module Tasks::FieldOccurrences::InaturalistImportHelper
         observer: r.dig('user', 'name').presence || r.dig('user', 'login'),
         observed_on: r['observed_on'],
         place_guess: r['place_guess'],
+        status: existing_fo_id ? 'found' : 'not_imported',
+        field_occurrence_id: existing_fo_id,
+        browse_url: existing_fo_id ? browse_field_occurrence_task_path(field_occurrence_id: existing_fo_id) : nil,
+        image_count: fo&.dig(:image_count),
+        sound_count: fo&.dig(:sound_count)
+      }
+    end
+  end
+
+  def inaturalist_import_summary(results, existing_fo_by_uuid, use_community_taxon:, import_images:, import_sounds:)
+    results.map do |r|
+      uuid = r['uuid']
+      existing_fo_id = existing_fo_by_uuid[uuid]
+      taxon_name = ::Vendor::Nasturtium.taxon_name(r, use_community_taxon:)
+      status = if existing_fo_id
+        'already_imported'
+      elsif taxon_name.blank?
+        'no_taxon'
+      else
+        'queued'
+      end
+      {
+        observation_id: r['id'].to_s,
+        taxon_name:,
+        observer: r.dig('user', 'name').presence || r.dig('user', 'login'),
+        observed_on: r['observed_on'],
+        place_guess: r['place_guess'],
         status:,
         field_occurrence_id: existing_fo_id,
         browse_url: existing_fo_id ? browse_field_occurrence_task_path(field_occurrence_id: existing_fo_id) : nil,
-        image_count: find_only ? fo&.dig(:image_count) : (import_images ? ::Vendor::Nasturtium.permitted_photos(r).size : nil),
-        sound_count: find_only ? fo&.dig(:sound_count) : (import_sounds ? ::Vendor::Nasturtium.permitted_sounds(r).size : nil)
+        image_count: import_images ? ::Vendor::Nasturtium.permitted_photos(r).size : nil,
+        sound_count: import_sounds ? ::Vendor::Nasturtium.permitted_sounds(r).size : nil
       }
     end
   end

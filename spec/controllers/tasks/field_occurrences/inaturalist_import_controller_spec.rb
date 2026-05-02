@@ -47,57 +47,57 @@ RSpec.describe Tasks::FieldOccurrences::InaturalistImportController, type: :cont
     fo
   }
 
-  describe 'POST #submit with find_only: true' do
-    def do_submit(**extra)
-      post :submit, format: :json, params: { observation_ids: ['100', '200'], find_only: true, **extra }
+  describe 'POST #find' do
+    def do_find(**extra)
+      post :find, as: :json, params: { observation_ids: ['100', '200'], **extra }
     end
 
     specify 'returns found for an observation that exists in the project' do
-      do_submit
+      do_find
       row = response.parsed_body['summary'].find { |r| r['observation_id'] == '100' }
       expect(row['status']).to eq('found')
     end
 
     specify 'found row includes browse_url' do
-      do_submit
+      do_find
       row = response.parsed_body['summary'].find { |r| r['observation_id'] == '100' }
       expect(row['browse_url']).to be_present
     end
 
     specify 'returns not_imported for an observation not in the project' do
-      do_submit
+      do_find
       row = response.parsed_body['summary'].find { |r| r['observation_id'] == '200' }
       expect(row['status']).to eq('not_imported')
     end
 
     specify 'found row returns real image and sound counts from the FO' do
-      do_submit
+      do_find
       row = response.parsed_body['summary'].find { |r| r['observation_id'] == '100' }
       expect(row['image_count']).to eq(0)
       expect(row['sound_count']).to eq(0)
     end
 
     specify 'not_imported row has nil image and sound counts' do
-      do_submit
+      do_find
       row = response.parsed_body['summary'].find { |r| r['observation_id'] == '200' }
       expect(row['image_count']).to be_nil
       expect(row['sound_count']).to be_nil
     end
 
     specify 'does not enqueue an import job' do
-      expect { do_submit }.not_to have_enqueued_job(InaturalistImportJob)
+      expect { do_find }.not_to have_enqueued_job(InaturalistImportJob)
     end
 
     specify 'found row has a non-blank taxon_name from otu_tag' do
-      do_submit
+      do_find
       row = response.parsed_body['summary'].find { |r| r['observation_id'] == '100' }
       expect(row['taxon_name']).to be_present
     end
   end
 
-  describe 'POST #submit (import mode)' do
+  describe 'POST #import' do
     def do_import(**extra)
-      post :submit, format: :json, params: { observation_ids: ['100', '200'], find_only: false, **extra }
+      post :import, as: :json, params: { observation_ids: ['100', '200'], **extra }
     end
 
     specify 'enqueues a job for observations not yet in the project' do
@@ -135,16 +135,25 @@ RSpec.describe Tasks::FieldOccurrences::InaturalistImportController, type: :cont
       expect(row['status']).to eq('no_taxon')
     end
 
+    specify 'enqueues a job even when the only new observation has no taxon' do
+      no_taxon_result = mock_results.map { |r|
+        r['uuid'] == uuid_missing ? r.merge('taxon' => nil, 'community_taxon' => nil) : r
+      }
+      allow(Vendor::Nasturtium).to receive(:by_observation_ids).and_return(no_taxon_result)
+
+      expect { do_import }.to have_enqueued_job(InaturalistImportJob)
+    end
+
     specify 'does not enqueue a job when all observations are already imported' do
       allow(Vendor::Nasturtium).to receive(:by_observation_ids).and_return([mock_results.first])
       expect {
-        post :submit, format: :json, params: { observation_ids: ['100'], find_only: false }
+        post :import, as: :json, params: { observation_ids: ['100'] }
       }.not_to have_enqueued_job(InaturalistImportJob)
     end
 
     specify 'returns 422 when observation count exceeds the import limit' do
       ids = (1..51).map(&:to_s)
-      post :submit, format: :json, params: { observation_ids: ids, find_only: false }
+      post :import, as: :json, params: { observation_ids: ids }
       expect(response).to have_http_status(:unprocessable_entity)
     end
 

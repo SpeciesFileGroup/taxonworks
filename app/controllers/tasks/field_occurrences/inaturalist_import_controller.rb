@@ -4,59 +4,50 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
   include TaskControllerConfiguration
 
   IMPORT_LIMIT = 50
-  FIND_LIMIT   = 200
+  FIND_LIMIT = 200
 
   def index
   end
 
-  # POST /tasks/field_occurrences/inaturalist_import/submit.json
-  def submit
+  # POST /tasks/field_occurrences/inaturalist_import/find.json
+  def find
     observation_ids = params[:observation_ids] || []
-    find_only = ActiveModel::Type::Boolean.new.cast(params[:find_only])
-
-    limit = find_only ? FIND_LIMIT : IMPORT_LIMIT
-    if observation_ids.size > limit
-      render json: { error: "Maximum #{limit} observations per submission." }, status: :unprocessable_entity
+    if observation_ids.size > FIND_LIMIT
+      render json: { error: "Maximum #{FIND_LIMIT} observations per submission." }, status: :unprocessable_entity
       return
     end
 
-    begin
-      results = ::Vendor::Nasturtium.by_observation_ids(observation_ids)
-    rescue Timeout::Error
-      render json: { error: 'The iNaturalist API did not respond in time. Please try again.' }, status: :service_unavailable
-      return
-    end
+    results = fetch_inat_results(observation_ids)
+    return unless results
 
-    candidate_uuids = results.filter_map { |r| r['uuid'] }
-    existing_fo_by_uuid = FieldOccurrence.by_inat_uuids(candidate_uuids, project_id: sessions_current_project_id)
-
-    import_images = !find_only && params[:import_images] == true
-    import_sounds = !find_only && params[:import_sounds] == true
+    existing_fo_by_uuid = existing_field_occurrences_for(results)
+    fo_data = fetch_field_occurrence_data(existing_fo_by_uuid)
     use_community_taxon = params[:use_community_taxon] != false
 
-    unless find_only
-      new_results = results.reject { |r|
-        existing_fo_by_uuid.key?(r['uuid']) || ::Vendor::Nasturtium.taxon_name(r, use_community_taxon:).blank?
-      }
+    summary = helpers.inaturalist_find_summary(results, existing_fo_by_uuid, fo_data:, use_community_taxon:) +
+              not_found_rows(observation_ids, results)
 
-      InaturalistImportJob.perform_later(
-        results: new_results,
-        project_id: sessions_current_project_id,
-        user_id: sessions_current_user_id,
-        match_otu_by_name: params[:match_otu_by_name] == true,
-        use_community_taxon:,
-        import_images:,
-        import_sounds:
-      ) if new_results.any?
+    render json: { summary: }
+  end
+
+  # POST /tasks/field_occurrences/inaturalist_import/import.json
+  def import
+    observation_ids = params[:observation_ids] || []
+    if observation_ids.size > IMPORT_LIMIT
+      render json: { error: "Maximum #{IMPORT_LIMIT} observations per submission." }, status: :unprocessable_entity
+      return
     end
 
-    fo_data = find_only ? fetch_fo_data(existing_fo_by_uuid) : {}
+    results = fetch_inat_results(observation_ids)
+    return unless results
 
-    submitted_ids = observation_ids.to_set
-    found_ids = results.map { |r| r['id'].to_s }.to_set
+    existing_fo_by_uuid = existing_field_occurrences_for(results)
+    opts = import_options
 
-    summary = helpers.inaturalist_import_summary(results, existing_fo_by_uuid, import_images:, import_sounds:, use_community_taxon:, find_only:, fo_data:) +
-      (submitted_ids - found_ids).map { |id| { observation_id: id, status: 'not_found' } }
+    queue_import(results, existing_fo_by_uuid, opts)
+
+    summary = helpers.inaturalist_import_summary(results, existing_fo_by_uuid, **opts) +
+              not_found_rows(observation_ids, results)
 
     render json: { summary: }
   end
@@ -80,7 +71,46 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
 
   private
 
-  def fetch_fo_data(existing_fo_by_uuid)
+  def fetch_inat_results(observation_ids)
+    ::Vendor::Nasturtium.by_observation_ids(observation_ids)
+  rescue Timeout::Error
+    render json: { error: 'The iNaturalist API did not respond in time. Please try again.' }, status: :service_unavailable
+    nil
+  end
+
+  def existing_field_occurrences_for(results)
+    FieldOccurrence.by_inat_uuids(
+      results.filter_map { |r| r['uuid'] },
+      project_id: sessions_current_project_id
+    )
+  end
+
+  def not_found_rows(observation_ids, results)
+    (observation_ids.to_set - results.map { |r| r['id'].to_s }.to_set)
+      .map { |id| { observation_id: id, status: 'not_found' } }
+  end
+
+  def import_options
+    {
+      use_community_taxon: params[:use_community_taxon] != false,
+      import_images: params[:import_images] == true,
+      import_sounds: params[:import_sounds] == true,
+    }
+  end
+
+  def queue_import(results, existing_fo_by_uuid, opts)
+    new_results = results.reject { |r| existing_fo_by_uuid.key?(r['uuid']) }
+
+    InaturalistImportJob.perform_later(
+      results: new_results,
+      project_id: sessions_current_project_id,
+      user_id: sessions_current_user_id,
+      match_otu_by_name: params[:match_otu_by_name] == true,
+      **opts
+    ) if new_results.any?
+  end
+
+  def fetch_field_occurrence_data(existing_fo_by_uuid)
     return {} if existing_fo_by_uuid.empty?
 
     FieldOccurrence
@@ -90,7 +120,7 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
         h[fo.id] = {
           image_count: fo.depictions.size,
           sound_count: fo.conveyances.size,
-          taxon_name: helpers.otu_tag(fo.taxon_determinations.first&.otu)
+          taxon_name: helpers.otu_tag(fo.taxon_determinations.first.otu)
         }
       end
   end

@@ -182,7 +182,8 @@ scope :tasks do
   scope :field_occurrences do
     scope :inaturalist_import, controller: 'tasks/field_occurrences/inaturalist_import' do
       get '/', as: 'inaturalist_import_task', action: :index
-      post 'submit', action: :submit
+      post 'find', action: :find
+      post 'import', action: :import
       get 'recent', action: :recent
     end
 
