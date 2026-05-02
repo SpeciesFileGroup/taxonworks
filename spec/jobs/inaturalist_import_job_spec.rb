@@ -63,7 +63,9 @@ RSpec.describe InaturalistImportJob, type: :model, group: :field_occurrences do
       perform(results: [georeferenced_result])
       georef = FieldOccurrence.last.collecting_event.georeferences.first
       expect(georef).to be_a(Georeference::Inaturalist)
-      expect(georef.georeference_authors.map(&:last_name)).to include('Jane Doe')
+      author = georef.georeference_authors.first
+      expect(author.first_name).to eq('Jane')
+      expect(author.last_name).to eq('Doe')
     end
   end
 
@@ -102,6 +104,76 @@ RSpec.describe InaturalistImportJob, type: :model, group: :field_occurrences do
     no_taxon = base_result.merge('taxon' => nil, 'community_taxon' => nil, 'uuid' => '00000000-0000-0000-0000-000000000001')
     with_taxon = base_result.merge('uuid' => '00000000-0000-0000-0000-000000000002')
     expect { perform(results: [no_taxon, with_taxon]) }.to change(FieldOccurrence, :count).by(1)
+  end
+
+  context 'when import_images is true' do
+    let(:photo) {
+      {
+        'uuid' => 'photo-uuid-1',
+        'license_code' => 'cc-by',
+        'url' => 'http://example.com/square.jpg',
+        'attribution' => '(c) janedoe, some rights reserved (CC BY)',
+        'original_filename' => nil,
+        'file_content_type' => 'image/jpeg'
+      }
+    }
+
+    let(:result_with_photo) {
+      base_result.merge('observation_photos' => [{ 'photo' => photo }])
+    }
+
+    before do
+      allow(Vendor::Nasturtium).to receive(:build_image!).and_return(FactoryBot.create(:valid_image))
+    end
+
+    specify 'creates a Depiction linking the image to the FieldOccurrence' do
+      expect { perform(results: [result_with_photo], import_images: true) }
+        .to change(Depiction, :count).by(1)
+      expect(FieldOccurrence.last.depictions.size).to eq(1)
+    end
+
+    specify 'a failed image download does not roll back the FieldOccurrence' do
+      allow(Vendor::Nasturtium).to receive(:build_image!).and_raise(StandardError, 'download failed')
+      expect { perform(results: [result_with_photo], import_images: true) }
+        .to change(FieldOccurrence, :count).by(1)
+      expect(FieldOccurrence.last.depictions).to be_empty
+    end
+  end
+
+  context 'when import_sounds is true' do
+    let(:obs_sound) {
+      {
+        'uuid' => 'sound-uuid-1',
+        'sound' => {
+          'license_code' => 'cc-by',
+          'file_url' => 'http://example.com/sound.mp3',
+          'attribution' => '(c) janedoe, some rights reserved (CC BY)',
+          'original_filename' => nil,
+          'file_content_type' => 'audio/mpeg'
+        }
+      }
+    }
+
+    let(:result_with_sound) {
+      base_result.merge('observation_sounds' => [obs_sound])
+    }
+
+    before do
+      allow(Vendor::Nasturtium).to receive(:build_sound!).and_return(FactoryBot.create(:valid_sound))
+    end
+
+    specify 'creates a Conveyance linking the sound to the FieldOccurrence' do
+      expect { perform(results: [result_with_sound], import_sounds: true) }
+        .to change(Conveyance, :count).by(1)
+      expect(FieldOccurrence.last.conveyances.size).to eq(1)
+    end
+
+    specify 'a failed sound download does not roll back the FieldOccurrence' do
+      allow(Vendor::Nasturtium).to receive(:build_sound!).and_raise(StandardError, 'download failed')
+      expect { perform(results: [result_with_sound], import_sounds: true) }
+        .to change(FieldOccurrence, :count).by(1)
+      expect(FieldOccurrence.last.conveyances).to be_empty
+    end
   end
 
 end

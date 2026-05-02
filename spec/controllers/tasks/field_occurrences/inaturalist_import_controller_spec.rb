@@ -95,6 +95,66 @@ RSpec.describe Tasks::FieldOccurrences::InaturalistImportController, type: :cont
     end
   end
 
+  describe 'POST #submit (import mode)' do
+    def do_import(**extra)
+      post :submit, format: :json, params: { observation_ids: ['100', '200'], find_only: false, **extra }
+    end
+
+    specify 'enqueues a job for observations not yet in the project' do
+      expect { do_import }.to have_enqueued_job(InaturalistImportJob)
+    end
+
+    specify 'enqueued job includes only the new observation' do
+      expect {
+        do_import
+      }.to have_enqueued_job(InaturalistImportJob).with(
+        hash_including(results: [hash_including('uuid' => uuid_missing)])
+      )
+    end
+
+    specify 'returns already_imported for an observation already in the project' do
+      do_import
+      row = response.parsed_body['summary'].find { |r| r['observation_id'] == '100' }
+      expect(row['status']).to eq('already_imported')
+    end
+
+    specify 'returns queued for a new observation' do
+      do_import
+      row = response.parsed_body['summary'].find { |r| r['observation_id'] == '200' }
+      expect(row['status']).to eq('queued')
+    end
+
+    specify 'returns no_taxon for an observation with no taxon' do
+      no_taxon_result = mock_results.map { |r|
+        r['uuid'] == uuid_missing ? r.merge('taxon' => nil, 'community_taxon' => nil) : r
+      }
+      allow(Vendor::Nasturtium).to receive(:by_observation_ids).and_return(no_taxon_result)
+
+      do_import
+      row = response.parsed_body['summary'].find { |r| r['observation_id'] == '200' }
+      expect(row['status']).to eq('no_taxon')
+    end
+
+    specify 'does not enqueue a job when all observations are already imported' do
+      allow(Vendor::Nasturtium).to receive(:by_observation_ids).and_return([mock_results.first])
+      expect {
+        post :submit, format: :json, params: { observation_ids: ['100'], find_only: false }
+      }.not_to have_enqueued_job(InaturalistImportJob)
+    end
+
+    specify 'returns 422 when observation count exceeds the import limit' do
+      ids = (1..51).map(&:to_s)
+      post :submit, format: :json, params: { observation_ids: ids, find_only: false }
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    specify 'returns 503 when the iNat API times out' do
+      allow(Vendor::Nasturtium).to receive(:by_observation_ids).and_raise(Timeout::Error)
+      do_import
+      expect(response).to have_http_status(:service_unavailable)
+    end
+  end
+
   describe 'GET #recent' do
     specify 'clamps per_page to 100' do
       get :recent, format: :json, params: { per_page: 9999 }
