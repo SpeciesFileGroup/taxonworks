@@ -98,7 +98,7 @@ module Vendor
     # @return [Person]
     def self.stub_observer_person(result)
       person_by_orcid(result) ||
-        Person::Unvetted.new(last_name: result.dig('user', 'name').presence || result.dig('user', 'login'))
+        person_from_display_name(result.dig('user', 'name').presence || result.dig('user', 'login'))
     end
 
     # Attempt to find a Person in TW by the observer's ORCID.
@@ -317,7 +317,7 @@ module Vendor
         media['attribution'].presence || 'Unknown'
       end
 
-      Person::Unvetted.new(last_name: copyright_name)
+      person_from_display_name(copyright_name)
     end
 
     # Build and save an Image (with Attribution, copyright holder Person, and iNat identifier)
@@ -357,6 +357,19 @@ module Vendor
       end
 
       image
+    end
+
+    # Build a Person::Unvetted from a display name string.
+    # Multi-word names (e.g. "Greg Lasley") are parsed via BibTeX so that
+    # first/last are split correctly.  Single-word strings (login slugs or
+    # single-name users) go directly into last_name unchanged.
+    #
+    # @param name [String]
+    # @return [Person::Unvetted]
+    def self.person_from_display_name(name)
+      return Person::Unvetted.new(last_name: name) unless name.include?(' ')
+
+      Person.parse_to_people(name).first
     end
 
     # @param photo_url [String] iNat square thumbnail URL

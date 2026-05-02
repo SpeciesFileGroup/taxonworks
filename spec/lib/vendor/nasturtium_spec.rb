@@ -168,15 +168,18 @@ describe Vendor::Nasturtium, type: :model, group: [:field_occurrences] do
   end
 
   describe '.stub_observer_person' do
-    specify 'returns Person::Unvetted built from user name when no ORCID' do
+    specify 'returns Person::Unvetted with first/last split from user name when no ORCID' do
       p = Vendor::Nasturtium.stub_observer_person(result)
       expect(p).to be_a(Person::Unvetted)
-      expect(p.last_name).to eq('Jane Doe')
+      expect(p.first_name).to eq('Jane')
+      expect(p.last_name).to eq('Doe')
     end
 
-    specify 'falls back to login when name is blank' do
+    specify 'falls back to login when name is blank, keeping it in last_name' do
       r = result.merge('user' => result['user'].merge('name' => nil))
-      expect(Vendor::Nasturtium.stub_observer_person(r).last_name).to eq('janedoe')
+      p = Vendor::Nasturtium.stub_observer_person(r)
+      expect(p.first_name).to be_nil
+      expect(p.last_name).to eq('janedoe')
     end
 
     context 'when ORCID matches an existing Person' do
