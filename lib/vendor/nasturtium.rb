@@ -19,16 +19,22 @@ module Vendor
       .each_with_object({}) { |(k, v), h| h[v[:inat_code]] = k if v[:inat_code] }
       .freeze
 
+    # Seconds before a synchronous iNat API call is abandoned.
+    INAT_API_TIMEOUT = 15
+
     # Fetch multiple observations in a single iNat API request.
     # IDs are joined as a comma-separated string because Faraday serializes
     # Ruby arrays as id[]=...&id[]=... which the iNat API does not accept.
     #
     # @param ids [Array<String>] iNat observation integer IDs
     # @return [Array<Hash>] Nasturtium result hashes (only found observations are returned)
+    # @raise [Timeout::Error] if the iNat API does not respond within INAT_API_TIMEOUT seconds
     def self.by_observation_ids(ids)
       return [] if ids.blank?
 
-      ::Nasturtium.observations(id: ids.join(','), per_page: ids.size)['results']
+      Timeout.timeout(INAT_API_TIMEOUT) do
+        ::Nasturtium.observations(id: ids.join(','), per_page: ids.size)['results']
+      end
     end
 
     def self.taxon_name(result, use_community_taxon: true)

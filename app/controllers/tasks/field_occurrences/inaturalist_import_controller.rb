@@ -20,7 +20,12 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
       return
     end
 
-    results = ::Vendor::Nasturtium.by_observation_ids(observation_ids)
+    begin
+      results = ::Vendor::Nasturtium.by_observation_ids(observation_ids)
+    rescue Timeout::Error
+      render json: { error: 'The iNaturalist API did not respond in time. Please try again.' }, status: :service_unavailable
+      return
+    end
 
     candidate_uuids = results.filter_map { |r| r['uuid'] }
     existing_fo_by_uuid = FieldOccurrence.by_inat_uuids(candidate_uuids, project_id: sessions_current_project_id)
