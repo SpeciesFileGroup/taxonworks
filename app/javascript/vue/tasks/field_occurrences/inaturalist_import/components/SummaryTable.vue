@@ -46,7 +46,11 @@
               {{ row.observation_id }}
             </a>
           </td>
-          <td v-html="row.taxon_name" />
+          <td
+            v-if="row.field_occurrence_id"
+            v-html="row.taxon_name"
+          />
+          <td v-else>{{ row.taxon_name }}</td>
           <td>{{ row.observer }}</td>
           <td>{{ row.observed_on }}</td>
           <td>{{ row.place_guess }}</td>

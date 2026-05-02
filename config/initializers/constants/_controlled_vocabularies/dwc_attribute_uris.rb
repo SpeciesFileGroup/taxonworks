@@ -42,7 +42,7 @@ DWC_FOSSIL_URI = 'http://rs.tdwg.org/dwc/terms/FossilSpecimen'.freeze
 # iNat controlled terms carry no URIs of their own, so TW owns the mapping.
 # Only attributes with a direct DwC equivalent are included.
 INAT_ANNOTATION_LABEL_TO_DWC_URI = {
-  'Sex'        => DWC_ATTRIBUTE_URIS[:sex].first,
+  'Sex' => DWC_ATTRIBUTE_URIS[:sex].first,
   'Life Stage' => DWC_ATTRIBUTE_URIS[:lifeStage].first,
 }.freeze
 

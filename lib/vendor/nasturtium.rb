@@ -200,16 +200,25 @@ module Vendor
     # @param project_id [Integer]
     # @return [Array<BiocurationClass>]
     def self.stub_biocuration_classes(result, project_id:)
-      (result['annotations'] || []).filter_map do |annotation|
+      annotations = (result['annotations'] || []).select do |a|
+        a.dig('controlled_attribute', 'label').present? &&
+          a.dig('controlled_value', 'label').present? &&
+          INAT_ANNOTATION_LABEL_TO_DWC_URI.key?(a.dig('controlled_attribute', 'label'))
+      end
+      return [] if annotations.empty?
+
+      relevant_uris = annotations.map { |a| INAT_ANNOTATION_LABEL_TO_DWC_URI[a.dig('controlled_attribute', 'label')] }.uniq
+      group_ids_by_uri = BiocurationGroup
+        .where(project_id:, uri: relevant_uris)
+        .pluck(:uri, :id)
+        .each_with_object(Hash.new { |h, k| h[k] = [] }) { |(uri, id), h| h[uri] << id }
+
+      annotations.filter_map do |annotation|
         term_label  = annotation.dig('controlled_attribute', 'label')
         value_label = annotation.dig('controlled_value', 'label')
-        next if term_label.blank? || value_label.blank?
 
-        dwc_uri = INAT_ANNOTATION_LABEL_TO_DWC_URI[term_label]
-        next unless dwc_uri
-
-        group_ids = BiocurationGroup.where(project_id:, uri: dwc_uri).pluck(:id)
-        next if group_ids.empty?
+        group_ids = group_ids_by_uri[INAT_ANNOTATION_LABEL_TO_DWC_URI[term_label]]
+        next if group_ids.blank?
 
         BiocurationClass
           .where(project_id:)
