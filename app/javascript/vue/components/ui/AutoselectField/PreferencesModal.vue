@@ -79,12 +79,12 @@
 
     <template #footer>
       <div class="prefs-modal__footer">
-        <button
-          class="button button-submit"
+        <VBtn
+          color="create"
           @click="doSave"
         >
           Save
-        </button>
+        </VBtn>
         <button
           class="button circle-button btn-undo button-default"
           title="Cancel"
@@ -100,6 +100,7 @@
 <script setup>
 import { reactive } from 'vue'
 import Modal from '@/components/ui/Modal.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const props = defineProps({
   // Array of level metadata objects from the autoselect config

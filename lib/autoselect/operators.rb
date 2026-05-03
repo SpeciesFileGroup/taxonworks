@@ -18,7 +18,7 @@ module Autoselect::Operators
     preferences:   { pattern: /\A!p/,      client_only: true,  trigger: '!p',  description: 'Open preferences (hide levels, set options)' },
     show_info:     { pattern: /\A!i/,      client_only: true,  trigger: '!i',  description: 'Toggle info display on/off' },
     external:      { pattern: /\A!e/,      client_only: true,  trigger: '!e',  description: 'Jump to leftmost external search level' },
-    level_number:  { pattern: /\A!(\d+)/,  client_only: true,  trigger: '!N',  description: 'Jump to level N' },
+    level_number:  { pattern: /\A!(\d+)/,  client_only: true,  trigger: '!N',  description: 'Jump to level N (e.g. !1, !2)' },
   }.freeze
 
   def self.included(base)

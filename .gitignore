@@ -8,9 +8,12 @@
 
 *.dump
 
+.rdoc_options
 .ctags
 .idea/
 .vscode/
+.zed/
+
 *.tmp
 *~
 *.bak
@@ -18,6 +21,7 @@
 *.swo
 .DS_store
 .byebug_history
+
 .otto*
 *.orig
 

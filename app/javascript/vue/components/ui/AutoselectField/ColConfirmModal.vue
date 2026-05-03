@@ -4,7 +4,7 @@
     @close="emit('cancel')"
   >
     <template #header>
-      <span>Catalog of Life: <strong>{{ ext.col_name }}</strong></span>
+      <span>Catalogue of Life: <strong>{{ ext.col_name }}</strong></span>
       <span v-if="ext.col_status" class="col-confirm-modal__status">{{ ext.col_status }}</span>
     </template>
 
@@ -69,22 +69,22 @@
       </table>
 
       <p class="col-confirm-modal__note">
-        Checked names without a TaxonWorks match will be created as Protonyms with Catalog of Life identifiers.
+        Checked names without a TaxonWorks match will be created as Protonyms with Catalogue of Life identifiers.
       </p>
 
     </template>
 
     <template #footer>
       <div class="col-confirm-modal__footer">
-        <button
+        <VBtn
           ref="confirmBtn"
-          class="button button-submit"
+          color="create"
           :disabled="isCreating"
           @click="doCreate"
           @keydown.enter.prevent="doCreate"
         >
           {{ isCreating ? 'Creating…' : 'Create' }}
-        </button>
+        </VBtn>
         <button
           class="button circle-button btn-undo button-default"
           :disabled="isCreating"
@@ -101,6 +101,7 @@
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue'
 import Modal from '@/components/ui/Modal.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import AjaxCall from '@/helpers/ajaxCall'
 
 const props = defineProps({

@@ -35,7 +35,6 @@
           class="otu-new-modal__input normal-input"
           placeholder="OTU name (optional)"
           autocomplete="off"
-          tabindex="1"
           @keydown.enter.prevent="focusTaxonNameInput"
         />
 
@@ -50,7 +49,6 @@
               <button
                 class="otu-new-modal__taxon-clear"
                 title="Clear taxon name"
-                tabindex="3"
                 @click="clearTaxonName"
               >&#x2715;</button>
             </span>
@@ -63,7 +61,6 @@
               label="label_html"
               placeholder="Search a taxon name..."
               input-id="otu-new-taxon-name"
-              :input-tab-index="2"
               clear-after
               @get-item="onTaxonNameSelected"
             />
@@ -102,21 +99,19 @@
 
     <template #footer>
       <div class="otu-new-modal__footer">
-        <button
+        <VBtn
           ref="createBtn"
-          class="button button-submit"
-          :disabled="isCreating || !otuName.trim()"
-          tabindex="3"
+          color="create"
+          :disabled="isCreating || (!otuName.trim() && !selectedTaxonName)"
           @click="doCreate"
           @keydown.enter.prevent="doCreate"
         >
           {{ isCreating ? 'Creating…' : 'Create' }}
-        </button>
+        </VBtn>
         <button
           class="button circle-button btn-undo button-default"
           :disabled="isCreating"
           title="Cancel — return to search"
-          tabindex="4"
           @click="emit('cancel')"
         >
           &#8617;
@@ -130,6 +125,7 @@
 // # Claude: provided >50% of this component
 import { ref, onMounted, nextTick } from 'vue'
 import Modal from '@/components/ui/Modal.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import AjaxCall from '@/helpers/ajaxCall'
 
@@ -219,21 +215,20 @@ function focusTaxonNameInput() {
 
 // ── Create ─────────────────────────────────────────────────────────────────────
 async function doCreate() {
-  if (isCreating.value || !otuName.value.trim()) return
+  if (isCreating.value || (!otuName.value.trim() && !selectedTaxonName.value)) return
 
   isCreating.value = true
   errorMessage.value = null
 
   try {
-    const payload = { otu: { name: otuName.value.trim() } }
-    if (selectedTaxonName.value?.id) {
-      payload.otu.taxon_name_id = selectedTaxonName.value.id
-    }
+    const payload = { otu: {} }
+    if (otuName.value.trim()) payload.otu.name = otuName.value.trim()
+    if (selectedTaxonName.value?.id) payload.otu.taxon_name_id = selectedTaxonName.value.id
 
     const { body } = await AjaxCall('post', '/otus', payload)
 
     if (body?.id) {
-      const label = body.name || otuName.value.trim()
+      const label = body.name || selectedTaxonName.value?.label || 'OTU'
       emit('confirm', {
         id: body.id,
         label,
@@ -362,10 +357,5 @@ async function doCreate() {
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.otu-new-modal__footer .button-submit {
-  padding-left: 20px;
-  padding-right: 20px;
 }
 </style>

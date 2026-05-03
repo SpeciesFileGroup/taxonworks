@@ -15,7 +15,7 @@ TaxonWorks is a Biodiversity Informatics workbench.
 - Read conventions when operating in/on on those paths
 - Models: `app/models/ARCHITECTURE.md`
 - Javascript: `app/javascript/ARCHITECTURE.md`
-- Style : `app/assets/stylesheets/ARCHITECTURE.md`
+- Style: `app/assets/stylesheets/ARCHITECTURE.md` (also contains rules for `app/javascript/` styles)
 - Queries and filters `lib/queries/ARCHITECTURE.md`
 - Exports: `lib/export/ARCHITECTURE.md`
 - Autoselects: `lib/autoselect/ARCHITECTURE.md`
@@ -43,6 +43,9 @@ TaxonWorks is a Biodiversity Informatics workbench.
 - DO follow conventions in ARCHITECTURE.md
 - When requesting clarification from a user, propose to add it to an ARCHITECTURE.md file if it appears systemic
 
+### UI
+- DO NOT style buttons, links, or fonts independently, USE guidance and reference existing classes as in the Style ARCHITECTURE
+
 ### Syntax
 - DO prefer verbose method and variable names
 - DO permit abbreviated variable names in loops and simple assignments within methods
@@ -67,12 +70,12 @@ TaxonWorks is a Biodiversity Informatics workbench.
 
 ## Git
 - DO NOT try to commit unless asked
-- DO remind after signficant work to commit
+- DO remind after significant work to commit
 - DO include a concise summary in the commit log when asked to commit
 
 ## Tips
-- The Otu model and its related views etc. can be used as a template when determining conventions
-- Use Filters (`lib/queries/*`) to gather data
+- USE the Otu model and its related views etc. can be used as a template when determining conventions
+- USE Filters (`lib/queries/*`) to gather data
 - Only consider raw SQL for performance 
 
 ## Claude interactions

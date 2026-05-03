@@ -112,6 +112,11 @@
       v-if="showHelp"
       class="autoselect__help-overlay"
     >
+      <button
+        class="autoselect__help-close"
+        title='Use "Esc" to close'
+        @click="closeHelp"
+      >&#x2715;</button>
       <h4>Available operators</h4>
       <ul class="autoselect__help-list">
         <li
@@ -362,9 +367,10 @@ function onInput() {
     return
   }
 
-  // !? — help overlay
-  if (/^!\?/.test(text)) {
-    inputText.value = text.replace(/^!\?\s*/, '')
+  // !? — help overlay (may appear anywhere in the string, like other operators)
+  const helpMatch = text.match(/^(.*?)\s*!\?\s*(.*)$/)
+  if (helpMatch !== null) {
+    inputText.value = (helpMatch[1] + ' ' + helpMatch[2]).replace(/\s+/g, ' ').trim()
     showHelp.value = true
     return
   }
@@ -589,13 +595,14 @@ function cancelExtension() {
   nextTick(() => inputEl.value?.focus())
 }
 
-function onColConfirm(taxonNameId) {
+function onColConfirm(createdId) {
+  const yieldsKey = pendingExtensionItem.value.extension?.hook?.yields ?? 'taxon_name_id'
   completeSelection({
-    id: taxonNameId,
+    id: createdId,
     label: pendingExtensionItem.value.label,
     label_html: pendingExtensionItem.value.label_html,
     info: '',
-    response_values: { taxon_name_id: taxonNameId },
+    response_values: { [yieldsKey]: createdId },
     extension: {}
   })
 }
@@ -910,9 +917,27 @@ function clearResults() {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
+.autoselect__help-close {
+  position: absolute;
+  top: 5px;
+  right: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+  color: var(--text-color-muted, #888);
+  padding: 0 2px;
+}
+
+.autoselect__help-close:hover {
+  color: var(--color-destroy, #c00);
+}
+
 .autoselect__help-overlay h4 {
   margin: 0 0 6px;
   font-size: 13px;
+  padding-right: 18px;
 }
 
 .autoselect__help-list {

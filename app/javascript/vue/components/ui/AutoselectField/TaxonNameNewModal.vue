@@ -101,16 +101,16 @@
 
     <template #footer>
       <div class="tn-new-modal__footer">
-        <button
+        <VBtn
           ref="createBtn"
-          class="button button-submit"
+          color="create"
           :disabled="isCreating || !canCreate"
           tabindex="4"
           @click="doCreate"
           @keydown.enter.prevent="doCreate"
         >
           {{ isCreating ? 'Creating…' : 'Create' }}
-        </button>
+        </VBtn>
         <button
           class="button circle-button btn-undo button-default"
           :disabled="isCreating"
@@ -128,6 +128,7 @@
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue'
 import Modal from '@/components/ui/Modal.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import { TaxonName } from '@/routes/endpoints'
 
@@ -337,10 +338,5 @@ async function doCreate() {
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.tn-new-modal__footer .button-submit {
-  padding-left: 20px;
-  padding-right: 20px;
 }
 </style>
