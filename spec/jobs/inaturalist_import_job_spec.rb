@@ -174,6 +174,13 @@ RSpec.describe InaturalistImportJob, type: :model, group: :field_occurrences do
         .to change(FieldOccurrence, :count).by(1)
       expect(FieldOccurrence.last.conveyances).to be_empty
     end
+
+    specify 'a DB-level sound failure does not roll back the FieldOccurrence' do
+      allow(Conveyance).to receive(:create!).and_raise(ActiveRecord::RecordInvalid)
+      expect { perform(results: [result_with_sound], import_sounds: true) }
+        .to change(FieldOccurrence, :count).by(1)
+      expect(FieldOccurrence.last.conveyances).to be_empty
+    end
   end
 
 end

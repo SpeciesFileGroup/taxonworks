@@ -9,7 +9,7 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
   def index
   end
 
-  # POST /tasks/field_occurrences/inaturalist_import/find.json
+  # GET /tasks/field_occurrences/inaturalist_import/find.json
   def find
     observation_ids = params[:observation_ids] || []
     if observation_ids.size > FIND_LIMIT

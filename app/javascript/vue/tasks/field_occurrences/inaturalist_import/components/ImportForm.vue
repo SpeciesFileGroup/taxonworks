@@ -13,8 +13,8 @@
       <textarea
         id="observation_ids"
         v-model="rawInput"
-        rows="6"
-        class="observation-input"
+        rows="10"
+        class="full_width block_display"
         :placeholder="`99182856\nhttps://www.inaturalist.org/observations/12345678`"
       />
       <span
@@ -73,7 +73,7 @@
       :disabled="!canSubmit"
       @click="submit"
     >
-      {{ isSubmitting ? 'Looking up observations…' : (mode === 'Import' ? 'Queue import' : 'Find') }}
+      {{ isSubmitting ? 'Looking up observations…' : (mode === 'Import' ? 'Import' : 'Find') }}
     </VBtn>
     <div
       v-if="mode === 'Import'"
@@ -132,7 +132,9 @@ async function submit() {
   isSubmitting.value = true
   try {
     const call = findOnly ? FieldOccurrence.iNatFind : FieldOccurrence.iNatImport
-    const params = findOnly ? { observation_ids: parsedIds.value } : { observation_ids: parsedIds.value, ...options }
+    const params = findOnly
+      ? { observation_ids: parsedIds.value }
+      : { observation_ids: parsedIds.value, ...options }
     const { body } = await call(params)
 
     const parts = []
@@ -155,7 +157,8 @@ async function submit() {
     }
 
     TW.workbench.alert.create(parts.join('; '), 'notice')
-    emit('submitted', body.summary)
+    emit('submitted', { rows: body.summary, findMode: findOnly })
+  } catch {
   } finally {
     isSubmitting.value = false
   }
@@ -165,10 +168,5 @@ async function submit() {
 <style scoped>
 .submit-btn {
   align-self: flex-start;
-}
-
-.observation-input {
-  width: 100%;
-  display: block;
 }
 </style>

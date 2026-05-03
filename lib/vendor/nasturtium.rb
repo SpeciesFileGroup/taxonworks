@@ -378,7 +378,7 @@ module Vendor
     def self.person_from_display_name(name)
       return Person::Unvetted.new(last_name: name) unless name.include?(' ')
 
-      Person.parse_to_people(name).first
+      Person.parse_to_people(name).first || Person::Unvetted.new(last_name: name)
     end
 
     # @param photo_url [String] iNat square thumbnail URL

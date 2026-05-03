@@ -1,11 +1,17 @@
 <template>
-  <ImportForm @submitted="onSubmitted" />
+  <ImportForm
+    @submitted="onSubmitted"
+    class="margin-xlarge-bottom"
+  />
   <SummaryTable
     v-if="summary"
-    :rows="summary"
+    :rows="summary.rows"
+    :find-mode="summary.findMode"
     @clear="summary = null"
   />
-  <RecentImports />
+  <RecentImports
+    class="margin-xlarge-top"
+  />
 </template>
 
 <script setup>
@@ -18,7 +24,7 @@ defineOptions({ name: 'InaturalistImport' })
 
 const summary = ref(null)
 
-function onSubmitted(rows) {
-  summary.value = rows
+function onSubmitted(result) {
+  summary.value = result
 }
 </script>

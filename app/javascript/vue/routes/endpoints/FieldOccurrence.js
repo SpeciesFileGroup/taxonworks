@@ -83,7 +83,7 @@ export const FieldOccurrence = {
     AjaxCall('post', `/${controller}/from_collection_object`, params),
 
   iNatFind: (params) =>
-    AjaxCall('post', '/tasks/field_occurrences/inaturalist_import/find.json', params),
+    AjaxCall('get', '/tasks/field_occurrences/inaturalist_import/find.json', { params }),
 
   iNatImport: (params) =>
     AjaxCall('post', '/tasks/field_occurrences/inaturalist_import/import.json', params),

@@ -14,8 +14,8 @@ module Tasks::FieldOccurrences::InaturalistImportHelper
         status: existing_fo_id ? 'found' : 'not_imported',
         field_occurrence_id: existing_fo_id,
         browse_url: existing_fo_id ? browse_field_occurrence_task_path(field_occurrence_id: existing_fo_id) : nil,
-        image_count: fo&.dig(:image_count),
-        sound_count: fo&.dig(:sound_count)
+        image_count: fo ? fo.dig(:image_count) : ::Vendor::Nasturtium.permitted_photos(r).size,
+        sound_count: fo ? fo.dig(:sound_count) : ::Vendor::Nasturtium.permitted_sounds(r).size
       }
     end
   end
@@ -51,9 +51,9 @@ module Tasks::FieldOccurrences::InaturalistImportHelper
     inat_identifier = fo.identifiers.find { |i| i.is_a?(Identifier::Global::Uuid::InaturalistObservation) }
     {
       id: fo.id,
-      taxon_name: otu_tag(fo.taxon_determinations.first&.otu),
-      verbatim_locality: fo.collecting_event&.verbatim_locality,
-      created_at: fo.created_at&.strftime('%Y-%m-%d %H:%M'),
+      taxon_name: otu_tag(fo.taxon_determinations.first.otu),
+      verbatim_locality: fo.collecting_event.verbatim_locality,
+      created_at: fo.created_at.strftime('%Y-%m-%d %H:%M'),
       browse_url: browse_field_occurrence_task_path(field_occurrence_id: fo.id),
       inat_url: inat_identifier ? "https://www.inaturalist.org/observations/#{inat_identifier.identifier}" : nil,
       image_count: fo.depictions.size,

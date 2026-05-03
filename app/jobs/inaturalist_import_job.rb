@@ -1,5 +1,5 @@
 class InaturalistImportJob < ApplicationJob
-  queue_as :default
+  queue_as :inaturalist_import
 
   # @param results [Array<Hash>] pre-fetched Nasturtium observation results
   # @param project_id [Integer]
@@ -91,13 +91,11 @@ class InaturalistImportJob < ApplicationJob
 
   # For each CC/PD-licensed sound on the observation, create a Sound with full
   # licensing metadata and attach it as a Conveyance on the FO.
-  # Each sound runs in its own savepoint so a single failure doesn't roll back
-  # the FO or other sounds.
   def import_sounds(result, fo:)
     observed_year = result.dig('observed_on_details', 'year')
 
     ::Vendor::Nasturtium.permitted_sounds(result).each do |obs_sound|
-      ApplicationRecord.transaction(requires_new: true) do
+      ApplicationRecord.transaction do
         sound = ::Vendor::Nasturtium.build_sound!(obs_sound, result:, observed_year:)
         Conveyance.create!(sound:, conveyance_object: fo)
       end
@@ -114,7 +112,7 @@ class InaturalistImportJob < ApplicationJob
     observed_year = result.dig('observed_on_details', 'year')
 
     ::Vendor::Nasturtium.permitted_photos(result).each do |photo|
-      ApplicationRecord.transaction(requires_new: true) do
+      ApplicationRecord.transaction do
         image = ::Vendor::Nasturtium.build_image!(photo, result:, observed_year:)
         Depiction.create!(image:, depiction_object: fo)
       end

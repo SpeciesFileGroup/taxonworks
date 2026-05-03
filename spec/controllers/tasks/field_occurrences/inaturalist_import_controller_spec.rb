@@ -49,7 +49,7 @@ RSpec.describe Tasks::FieldOccurrences::InaturalistImportController, type: :cont
 
   describe 'POST #find' do
     def do_find(**extra)
-      post :find, as: :json, params: { observation_ids: ['100', '200'], **extra }
+      get :find, as: :json, params: { observation_ids: ['100', '200'], **extra }
     end
 
     specify 'returns found for an observation that exists in the project' do
@@ -75,13 +75,6 @@ RSpec.describe Tasks::FieldOccurrences::InaturalistImportController, type: :cont
       row = response.parsed_body['summary'].find { |r| r['observation_id'] == '100' }
       expect(row['image_count']).to eq(0)
       expect(row['sound_count']).to eq(0)
-    end
-
-    specify 'not_imported row has nil image and sound counts' do
-      do_find
-      row = response.parsed_body['summary'].find { |r| r['observation_id'] == '200' }
-      expect(row['image_count']).to be_nil
-      expect(row['sound_count']).to be_nil
     end
 
     specify 'does not enqueue an import job' do

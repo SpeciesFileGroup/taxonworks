@@ -1,10 +1,10 @@
 <template>
   <div class="panel content separate-top">
     <div class="flex-separate middle separate-bottom">
-      <h2>{{ isFindMode ? 'Search results' : 'Submission summary' }}</h2>
+      <h2>{{ findMode ? 'Search results' : 'Submission summary' }}</h2>
       <div class="horizontal-right-content">
         <VBtn
-          v-if="isFindMode && foundIds.length"
+          v-if="findMode && foundIds.length"
           color="primary"
           @click="sendToFilter"
           class="margin-medium-right"
@@ -13,7 +13,7 @@
         </VBtn>
         <VBtn
           color="primary"
-          @click="$emit('clear')"
+          @click="() => { emit('clear') }"
         >
           Clear
         </VBtn>
@@ -89,16 +89,16 @@ const props = defineProps({
   rows: {
     type: Array,
     required: true
+  },
+  findMode: {
+    type: Boolean,
+    default: false
   }
 })
 
-defineEmits(['clear'])
+const emit = defineEmits(['clear'])
 
 defineOptions({ name: 'SummaryTable' })
-
-const isFindMode = computed(() =>
-  props.rows.some(r => r.status === 'found' || r.status === 'not_imported')
-)
 
 const foundIds = computed(() =>
   props.rows.filter(r => r.status === 'found').map(r => r.field_occurrence_id)

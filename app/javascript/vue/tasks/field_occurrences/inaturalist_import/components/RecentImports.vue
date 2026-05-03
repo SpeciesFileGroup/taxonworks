@@ -1,11 +1,11 @@
 <template>
-  <div class="panel content separate-top">
+  <div class="panel content">
     <div class="flex-separate middle separate-bottom">
       <h2>Recently imported field occurrences</h2>
       <VBtn
         color="primary"
         :disabled="isLoading"
-        @click="refresh"
+        @click="load"
       >
         {{ isLoading ? 'Loading…' : 'Refresh' }}
       </VBtn>
@@ -97,16 +97,13 @@ const isLoading = ref(false)
 const perPage = ref(10)
 const pagination = ref({})
 
-function refresh() {
-  load()
-}
-
 async function load(page = 1) {
   isLoading.value = true
   try {
     const response = await FieldOccurrence.iNatRecent({ page, per_page: perPage.value })
     fieldOccurrences.value = response.body.field_occurrences
     pagination.value = getPagination(response)
+  } catch {
   } finally {
     isLoading.value = false
   }
