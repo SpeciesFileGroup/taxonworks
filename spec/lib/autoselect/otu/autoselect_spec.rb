@@ -19,12 +19,8 @@ RSpec.describe Autoselect::Otu::Autoselect, type: :model do
       expect(config[:response]).to be_nil
     end
 
-    it 'includes smart, catalogue_of_life as level keys in map' do
-      expect(config[:map]).to include('smart', 'catalogue_of_life')
-    end
-
-    it 'does not have fast level' do
-      expect(config[:map]).not_to include('fast')
+    it 'includes fast, smart, catalogue_of_life as level keys in map' do
+      expect(config[:map]).to include('fast', 'smart', 'catalogue_of_life')
     end
 
     it 'includes !n operator trigger' do
@@ -34,9 +30,9 @@ RSpec.describe Autoselect::Otu::Autoselect, type: :model do
   end
 
   describe 'level stack' do
-    it 'has two levels in order' do
+    it 'has three levels in order: fast → smart → catalogue_of_life' do
       keys = autoselect.levels.map { |l| l.key.to_s }
-      expect(keys).to eq(%w[smart catalogue_of_life])
+      expect(keys).to eq(%w[fast smart catalogue_of_life])
     end
   end
 
@@ -67,6 +63,94 @@ RSpec.describe Autoselect::Otu::Autoselect, type: :model do
     it 'response item has nil otu_id in response_values' do
       item = result[:response].first
       expect(item[:response_values][:otu_id]).to be_nil
+    end
+  end
+end
+
+RSpec.describe Autoselect::Otu::Levels::Fast, type: :model do
+  subject(:level) { described_class.new }
+
+  let(:project) { FactoryBot.create(:valid_project) }
+
+  it 'returns empty array when term is blank' do
+    expect(level.call(term: '', project_id: project.id)).to eq([])
+  end
+
+  # Pattern 1 — Otu#name, taxon_name_id IS NULL
+  context 'pattern 1: standalone OTU name (no taxon_name)' do
+    let!(:otu_exact)  { FactoryBot.create(:valid_otu, name: 'Berlinia',   taxon_name: nil, project: project) }
+    let!(:otu_prefix) { FactoryBot.create(:valid_otu, name: 'Berliniana', taxon_name: nil, project: project) }
+    let!(:otu_miss)   { FactoryBot.create(:valid_otu, name: 'Quercus',    taxon_name: nil, project: project) }
+
+    it 'returns exact match' do
+      expect(level.call(term: 'Berlinia', project_id: project.id)).to include(otu_exact)
+    end
+
+    it 'returns prefix match' do
+      expect(level.call(term: 'Berli', project_id: project.id)).to include(otu_exact, otu_prefix)
+    end
+
+    it 'does not return non-matching OTU' do
+      expect(level.call(term: 'Berli', project_id: project.id)).not_to include(otu_miss)
+    end
+  end
+
+  # Pattern 2 — TaxonName#cached prefix
+  # valid_taxon_name carries its own internal project; use that project for the OTU too.
+  context 'pattern 2: OTU backed by a matching TaxonName#cached' do
+    let!(:taxon_name) { FactoryBot.create(:valid_taxon_name) }
+    let!(:otu)        { FactoryBot.create(:valid_otu, taxon_name: taxon_name, project_id: taxon_name.project_id) }
+
+    it 'returns OTU when TaxonName#cached matches exactly' do
+      results = level.call(term: taxon_name.cached, project_id: taxon_name.project_id)
+      expect(results).to include(otu)
+    end
+
+    it 'returns OTU when TaxonName#cached matches by prefix' do
+      prefix = taxon_name.cached[0, 3]
+      results = level.call(term: prefix, project_id: taxon_name.project_id)
+      expect(results).to include(otu)
+    end
+  end
+
+  # Pattern 3 — Multi-word hybrid: every split of the term into taxon prefix + OTU part.
+  # Both halves use prefix matching, so 'P PE01' matches TaxonName cached='Pheidole', OTU name='PE01'.
+  context 'pattern 3: multi-word hybrid (TaxonName prefix + Otu#name prefix)' do
+    let!(:taxon_name) { FactoryBot.create(:valid_taxon_name) }
+    let!(:otu)        { FactoryBot.create(:valid_otu, name: 'sp 123', taxon_name: taxon_name, project_id: taxon_name.project_id) }
+
+    it 'matches when full taxon cached + full OTU name given' do
+      term = "#{taxon_name.cached} sp 123"
+      expect(level.call(term: term, project_id: taxon_name.project_id)).to include(otu)
+    end
+
+    it 'matches when OTU part is a prefix' do
+      term = "#{taxon_name.cached} sp"
+      expect(level.call(term: term, project_id: taxon_name.project_id)).to include(otu)
+    end
+
+    it 'matches when taxon part is an abbreviated prefix (e.g. P PE01 style)' do
+      prefix = taxon_name.cached[0, 1]  # single-letter abbreviation
+      term   = "#{prefix} sp 123"
+      expect(level.call(term: term, project_id: taxon_name.project_id)).to include(otu)
+    end
+
+    it 'matches when taxon part is a multi-char prefix' do
+      prefix = taxon_name.cached[0, 3]
+      term   = "#{prefix} sp"
+      expect(level.call(term: term, project_id: taxon_name.project_id)).to include(otu)
+    end
+  end
+
+  context 'project scoping' do
+    let(:other_project) { FactoryBot.create(:valid_project) }
+    let!(:otu_mine)  { FactoryBot.create(:valid_otu, name: 'Scoparia', taxon_name: nil, project: project) }
+    let!(:otu_other) { FactoryBot.create(:valid_otu, name: 'Scoparia', taxon_name: nil, project: other_project) }
+
+    it 'does not return OTUs from other projects' do
+      results = level.call(term: 'Scoparia', project_id: project.id)
+      expect(results).to include(otu_mine)
+      expect(results).not_to include(otu_other)
     end
   end
 end
@@ -130,12 +214,11 @@ RSpec.describe Autoselect::Otu::Levels::CatalogueOfLife do
       expect(results.first).to respond_to(:_col_extension)
     end
 
-    it 'extension includes hook metadata' do
+    it 'extension hook points to OTU create endpoint and yields otu_id' do
       results = level.call(term: 'Homo sapiens', project_id: 1)
       expect(results.first._col_extension[:hook]).to include(
-        model: 'TaxonName',
-        level: 'catalogue_of_life',
-        yields: 'taxon_name_id'
+        create_url: '/otus/autoselect_col_create',
+        yields:     'otu_id'
       )
     end
   end

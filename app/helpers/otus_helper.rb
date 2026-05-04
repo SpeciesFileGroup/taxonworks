@@ -36,7 +36,7 @@ module OtusHelper
       end
     end
 
-    r.join('&nbsp;')
+    r
   end
 
   def otu_tag(otu)

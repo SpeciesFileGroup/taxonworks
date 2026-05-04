@@ -9,9 +9,9 @@ module Autoselect
       end
 
       # Ordered level stack — defines the fuse escalation sequence.
-      # OTU has no fast level; starts at smart, then escalates to CatalogueOfLife.
       def levels
         [
+          ::Autoselect::Otu::Levels::Fast.new,
           ::Autoselect::Otu::Levels::Smart.new,
           ::Autoselect::Otu::Levels::CatalogueOfLife.new,
         ]
