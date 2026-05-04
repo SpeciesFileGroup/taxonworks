@@ -4,7 +4,7 @@
       <h2>{{ localFindMode ? 'Search results' : 'Submission summary' }}</h2>
       <div class="horizontal-right-content gap-small">
         <VBtn
-          v-if="localFindMode && foundIds.length"
+          v-if="foundIds.length"
           color="primary"
           @click="sendToFilter"
         >
@@ -128,7 +128,10 @@ watch(() => props.rows, rows => { localRows.value = [...rows] })
 watch(() => props.findMode, mode => { localFindMode.value = mode })
 
 const foundIds = computed(() =>
-  localRows.value.filter(r => r.status === 'found').map(r => r.field_occurrence_id)
+  localRows.value
+    .filter(r => r.status === 'found' || r.status === 'created')
+    .map(r => r.field_occurrence_id)
+    .filter(Boolean)
 )
 
 async function refresh() {
