@@ -71,12 +71,26 @@
           v-model="selectedIds"
           :layout="currentLayout"
           :list="list"
+          :hide-unfrozen="hideFrozen"
+          :preference-key="`tasks::filters::${COLLECTING_EVENT}`"
           :radial-object="false"
           @mouseover:row="setRowHover"
           @mouseout:body="() => (rowHover = null)"
           @on-sort="($event) => (list = $event)"
           @remove="({ index }) => list.splice(index, 1)"
         />
+      </template>
+      <template #nav-settings-start>
+        <VToggle
+          title="Hide/show non-frozen columns"
+          @click="() => (hideFrozen = !hideFrozen)"
+        >
+          <VIcon
+            title="Hide/show non-frozen columns"
+            :name="hideFrozen ? 'contract' : 'expand'"
+            x-small
+          />
+        </VToggle>
       </template>
     </FilterLayout>
     <VSpinner
@@ -95,6 +109,8 @@ import { useFilter, useCSVOptions } from '@/shared/Filter/composition'
 import RadialCollectingEvent from '@/components/radials/ce/radial.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
 import TableLayoutSelector from '@/components/Filter/Table/TableLayoutSelector.vue'
+import VToggle from '@/components/ui/VToggle.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import { listParser } from './utils/listParser.js'
 import { COLLECTING_EVENT } from '@/constants/index.js'
 import { computed, ref, reactive, onMounted, onBeforeMount } from 'vue'
@@ -108,6 +124,7 @@ defineOptions({
 })
 
 const extend = ['roles']
+const hideFrozen = ref(false)
 
 const {
   currentLayout,

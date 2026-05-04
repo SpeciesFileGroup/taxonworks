@@ -23,7 +23,7 @@ json.extract! collecting_event, :id,
   :max_ma,
   :min_ma,
   :identifiers,
-  :created_by_id, :updated_by_id, :project_id, :created_at, :updated_at
+  :project_id, :created_at, :updated_at
 
 json.global_id collecting_event.to_global_id.to_s
 

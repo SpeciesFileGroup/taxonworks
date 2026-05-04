@@ -25,11 +25,14 @@
   bottom: 0;
   z-index: 9999;
   background-color: #474747;
-  background-image: image-url('pdfviewer/texture.png'),
+  background-image:
+    image-url('pdfviewer/texture.png'),
     linear-gradient(hsla(0, 0%, 32%, 0.99), hsla(0, 0%, 27%, 0.95));
-  box-shadow: inset 1px 0 0 hsla(0, 0%, 100%, 0.08),
+  box-shadow:
+    inset 1px 0 0 hsla(0, 0%, 100%, 0.08),
     inset 0 1px 1px hsla(0, 0%, 0%, 0.15),
-    inset 0 -1px 0 hsla(0, 0%, 100%, 0.05), 0 1px 0 hsla(0, 0%, 0%, 0.15),
+    inset 0 -1px 0 hsla(0, 0%, 100%, 0.05),
+    0 1px 0 hsla(0, 0%, 0%, 0.15),
     0 1px 1px hsla(0, 0%, 0%, 0.1);
 
   button {
@@ -40,7 +43,7 @@
     min-width: 16px;
     padding: 2px 6px 0;
     border: 1px solid transparent;
-    border-radius: 2px;
+    border-radius: var(--border-radius-xsmall);
     color: hsla(0, 0%, 100%, 0.8);
     font-size: 12px;
     line-height: 14px;
@@ -69,8 +72,10 @@
     border: 1px solid hsla(0, 0%, 0%, 0.35);
     border-color: hsla(0, 0%, 0%, 0.32) hsla(0, 0%, 0%, 0.38)
       hsla(0, 0%, 0%, 0.42);
-    box-shadow: 0 1px 0 hsla(0, 0%, 100%, 0.05) inset,
-      0 0 1px hsla(0, 0%, 100%, 0.15) inset, 0 1px 0 hsla(0, 0%, 100%, 0.05);
+    box-shadow:
+      0 1px 0 hsla(0, 0%, 100%, 0.05) inset,
+      0 0 1px hsla(0, 0%, 100%, 0.15) inset,
+      0 1px 0 hsla(0, 0%, 100%, 0.05);
   }
 
   #zoominbutton {
@@ -125,7 +130,7 @@
   padding: 3px 6px 3px 2px;
   margin: 4px 2px 4px 0;
   border: 1px solid transparent;
-  border-radius: 2px;
+  border-radius: var(--border-radius-xsmall);
   color: hsl(0, 0%, 85%);
   font-size: 12px;
   line-height: 14px;
@@ -200,7 +205,7 @@
   padding: 3px 6px;
   margin: 4px 0 4px 0;
   border: 1px solid transparent;
-  border-radius: 2px;
+  border-radius: var(--border-radius-xsmall);
   background-color: hsla(0, 0%, 100%, 0.09);
   background-image: linear-gradient(
     hsla(0, 0%, 100%, 0.05),
@@ -210,7 +215,8 @@
   border: 1px solid hsla(0, 0%, 0%, 0.35);
   border-color: hsla(0, 0%, 0%, 0.32) hsla(0, 0%, 0%, 0.38)
     hsla(0, 0%, 0%, 0.42);
-  box-shadow: 0 1px 0 hsla(0, 0%, 0%, 0.05) inset,
+  box-shadow:
+    0 1px 0 hsla(0, 0%, 0%, 0.05) inset,
     0 1px 0 hsla(0, 0%, 100%, 0.05);
   color: hsl(0, 0%, 95%);
   font-size: 12px;
@@ -352,7 +358,7 @@
   max-width: 20em;
   background-color: #ffff99;
   box-shadow: 0px 2px 5px #333;
-  border-radius: 2px;
+  border-radius: var(--border-radius-xsmall);
   padding: 0.6em;
   margin-left: 5px;
   cursor: pointer;

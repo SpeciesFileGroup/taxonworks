@@ -1,5 +1,5 @@
 json.extract! data_attribute, :id, :type, :attribute_subject_id, :attribute_subject_type, :controlled_vocabulary_term_id, :import_predicate, :value,
-:created_at, :updated_at, :created_by_id, :updated_by_id, :project_id
+:created_at, :updated_at, :project_id
 json.predicate_name data_attribute.predicate_name
 
 json.partial! '/shared/data/all/metadata', object: data_attribute

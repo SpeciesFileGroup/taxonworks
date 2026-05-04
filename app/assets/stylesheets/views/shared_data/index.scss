@@ -9,7 +9,7 @@
 }
 
 #model_index {
-  border-radius: 2px;
+  border-radius: var(--border-radius-xsmall);
   margin: 0 auto;
   min-width: 1080px;
   position: absolute;

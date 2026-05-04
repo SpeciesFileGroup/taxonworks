@@ -35,6 +35,7 @@ module Queries
         :radius,
         :taxon_name,
         :taxon_name_id,
+        :dwc_occurrences,
         :with_name,
         :wkt,
 
@@ -167,6 +168,12 @@ module Queries
       attr_accessor :biological_associations
 
       # @return [True, False, nil]
+      #   true - Otu is linked to one or more DwcOccurrences (via CollectionObject, FieldOccurrence, or AssertedDistribution)
+      #   false - Otu has no DwcOccurrences
+      #   nil - not applied
+      attr_accessor :dwc_occurrences
+
+      # @return [True, False, nil]
       #   true - Otu has observations
       #   false - Otu without observations
       #   nil - not applied
@@ -189,6 +196,7 @@ module Queries
         @contents = boolean_param(params, :contents)
         @coordinatify = boolean_param(params, :coordinatify)
         @descendants = boolean_param(params, :descendants)
+        @dwc_occurrences = boolean_param(params, :dwc_occurrences)
         @descriptor_id = params[:descriptor_id]
         @geo_json = params[:geo_json]
         @historical_determinations = boolean_param(params, :historical_determinations)
@@ -625,6 +633,18 @@ module Queries
           .joins(:origin_relationships)
           .where("origin_relationships.new_object_id IN (#{ anatomical_part_query.all.select(:id).to_sql })")
       end
+      def dwc_occurrences_facet
+        return nil if @dwc_occurrences.nil?
+
+        q = ::Otu.where(id: ::DwcOccurrence.select(:otu_id).where.not(otu_id: nil))
+
+        if @dwc_occurrences
+          q
+        else
+          ::Otu.where.not(id: q.select(:id))
+        end
+      end
+
       # !! This is a soft-link (i.e. no otu_id FK directly), so latency between indexing has a very small proability
       # !! of impacting the results.
       def dwc_occurrence_query_facet
@@ -711,6 +731,7 @@ module Queries
           biological_association_query_facet,
           collecting_event_query_facet,
           collection_object_query_facet,
+          dwc_occurrences_facet,
           dwc_occurrence_query_facet,
           field_occurrence_query_facet,
           content_query_facet,

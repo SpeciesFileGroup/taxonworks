@@ -2,8 +2,7 @@
 module Shared::IsDwcOccurrence
   extend ActiveSupport::Concern
 
-  # These probably belong in a global helper
-  DWC_DELIMITER = ' | '.freeze
+  DWC_DELIMITER = Export::Dwca::DELIMITER
 
   VIEW_EXCLUSIONS = [
     :footprintWKT
@@ -106,6 +105,19 @@ module Shared::IsDwcOccurrence
     end
   end
 
+  # @return [Integer, nil]
+  #   TaxonWorks OTU id included on the denormalized DwcOccurrence row.
+  def dwc_otu_id
+    case self.class.base_class.name
+    when 'CollectionObject', 'FieldOccurrence'
+      current_otu&.id
+    when 'AssertedDistribution'
+      otu&.id
+    else
+      raise NotImplementedError, "Unhandled dwc_otu_id for #{self.class.base_class.name}"
+    end
+  end
+
   # @return Hash
   #   of field: value
   #
@@ -121,6 +133,7 @@ module Shared::IsDwcOccurrence
     a[:basisOfRecord] = dwc_occurrence_basis
 
     if taxonworks_fields
+      a[:otu_id] = dwc_otu_id
       a[:project_id] = project_id
 
       # TODO: semantics of these may need to be revisited, particularly updated_by_id

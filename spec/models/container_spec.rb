@@ -191,11 +191,254 @@ describe Container, type: :model, group: :containers do
     end
   end
 
+  context 'asserted_percent_empty' do
+    let(:c) { Container.new(type: 'Container::Drawer') }
+
+    specify 'is valid when nil' do
+      c.asserted_percent_empty = nil
+      expect(c.valid?).to be_truthy
+    end
+
+    specify 'is valid at 0.0' do
+      c.asserted_percent_empty = 0.0
+      expect(c.valid?).to be_truthy
+    end
+
+    specify 'is valid at 100.0' do
+      c.asserted_percent_empty = 100.0
+      expect(c.valid?).to be_truthy
+    end
+
+    specify 'is valid at a value between 0 and 100' do
+      c.asserted_percent_empty = 42.5
+      expect(c.valid?).to be_truthy
+    end
+
+    specify 'is invalid when negative' do
+      c.asserted_percent_empty = -1.0
+      expect(c.valid?).to be_falsey
+      expect(c.errors[:asserted_percent_empty]).to be_present
+    end
+
+    specify 'is invalid when greater than 100' do
+      c.asserted_percent_empty = 100.1
+      expect(c.valid?).to be_falsey
+      expect(c.errors[:asserted_percent_empty]).to be_present
+    end
+  end
+
+  context 'asserted_percent_earmarked' do
+    let(:c) { Container.new(type: 'Container::Drawer') }
+
+    specify 'is valid when nil' do
+      c.asserted_percent_earmarked = nil
+      expect(c.valid?).to be_truthy
+    end
+
+    specify 'is valid at 0.0' do
+      c.asserted_percent_earmarked = 0.0
+      c.asserted_percent_empty     = 0.0
+      expect(c.valid?).to be_truthy
+    end
+
+    specify 'is valid at 100.0 when empty is also 100.0' do
+      c.asserted_percent_earmarked = 100.0
+      c.asserted_percent_empty     = 100.0
+      expect(c.valid?).to be_truthy
+    end
+
+    specify 'is invalid when negative' do
+      c.asserted_percent_earmarked = -1.0
+      c.asserted_percent_empty     = 50.0
+      expect(c.valid?).to be_falsey
+      expect(c.errors[:asserted_percent_earmarked]).to be_present
+    end
+
+    specify 'is invalid when greater than 100' do
+      c.asserted_percent_earmarked = 101.0
+      c.asserted_percent_empty     = 100.0
+      expect(c.valid?).to be_falsey
+      expect(c.errors[:asserted_percent_earmarked]).to be_present
+    end
+
+    specify 'is invalid when empty is nil' do
+      c.asserted_percent_earmarked = 25.0
+      c.asserted_percent_empty     = nil
+      expect(c.valid?).to be_falsey
+      expect(c.errors[:asserted_percent_empty]).to be_present
+    end
+
+    specify 'is invalid when empty is less than earmarked' do
+      c.asserted_percent_earmarked = 50.0
+      c.asserted_percent_empty     = 49.9
+      expect(c.valid?).to be_falsey
+      expect(c.errors[:asserted_percent_empty]).to be_present
+    end
+
+    specify 'is valid when empty equals earmarked' do
+      c.asserted_percent_earmarked = 30.0
+      c.asserted_percent_empty     = 30.0
+      expect(c.valid?).to be_truthy
+    end
+
+    specify 'is valid when empty is greater than earmarked' do
+      c.asserted_percent_earmarked = 30.0
+      c.asserted_percent_empty     = 60.0
+      expect(c.valid?).to be_truthy
+    end
+  end
+
+  context 'size_does_not_exclude_placed_items' do
+    let(:cabinet) { Container::Cabinet.create!(size_x: 5, size_y: 5, size_z: 3) }
+    let(:drawer)  { Container::Drawer.create! }
+
+    before do
+      cabinet.add_container_items([drawer])
+      ContainerItem.find_by(contained_object: drawer)
+        .update!(disposition_x: 3, disposition_y: 3, disposition_z: 2)
+    end
+
+    context 'x axis' do
+      specify 'can shrink x when no item exceeds the new boundary' do
+        cabinet.size_x = 4
+        expect(cabinet.valid?).to be_truthy
+      end
+
+      specify 'cannot shrink x to exclude a placed item' do
+        cabinet.size_x = 2
+        expect(cabinet.valid?).to be_falsey
+      end
+
+      specify 'can grow x' do
+        cabinet.size_x = 10
+        expect(cabinet.valid?).to be_truthy
+      end
+    end
+
+    context 'y axis' do
+      specify 'can shrink y when no item exceeds the new boundary' do
+        cabinet.size_y = 4
+        expect(cabinet.valid?).to be_truthy
+      end
+
+      specify 'cannot shrink y to exclude a placed item' do
+        cabinet.size_y = 2
+        expect(cabinet.valid?).to be_falsey
+      end
+
+      specify 'can grow y' do
+        cabinet.size_y = 10
+        expect(cabinet.valid?).to be_truthy
+      end
+    end
+
+    context 'z axis' do
+      specify 'can shrink z when no item exceeds the new boundary' do
+        cabinet.size_z = 2
+        expect(cabinet.valid?).to be_truthy
+      end
+
+      specify 'cannot shrink z to exclude a placed item' do
+        cabinet.size_z = 1
+        expect(cabinet.valid?).to be_falsey
+      end
+
+      specify 'can grow z' do
+        cabinet.size_z = 10
+        expect(cabinet.valid?).to be_truthy
+      end
+    end
+
+    specify 'adds a :base error with the expected message' do
+      cabinet.size_x = 2
+      cabinet.valid?
+      expect(cabinet.errors[:base]).to include('Resize would impact placed containers')
+    end
+  end
+
   context 'concerns' do
     it_behaves_like 'containable'
     it_behaves_like 'identifiable'
     it_behaves_like 'taggable'
     it_behaves_like 'is_data'
+  end
+
+  context '.scaffold' do
+    let(:building) { FactoryBot.create(:valid_container, type: 'Container::Building', name: 'Main Building') }
+
+    let(:valid_params) do
+      { building_id: building.id, drawer_type: 'Container::Drawer::Cornell', rooms: 2, cabinets: 3, drawers: 4 }
+    end
+
+    specify 'returns an array of created rooms on success' do
+      result = Container.scaffold(valid_params)
+      expect(result).to be_an(Array)
+      expect(result.length).to eq(2)
+      expect(result).to all(be_a(Container::Room))
+    end
+
+    specify 'creates the correct number of rooms under the building' do
+      Container.scaffold(valid_params)
+      ci = ContainerItem.find_by(contained_object: building)
+      expect(ci.children.count).to eq(2)
+    end
+
+    specify 'each room has the correct number of cabinets' do
+      Container.scaffold(valid_params)
+      ci_building = ContainerItem.find_by(contained_object: building)
+      ci_building.children.each do |ci_room|
+        expect(ci_room.children.count).to eq(3)
+        # Cabinet::Cornell was removed; scaffold falls back to the base Cabinet class
+        expect(ci_room.children.map { |c| c.contained_object.type }).to all(eq('Container::Cabinet'))
+      end
+    end
+
+    specify 'each cabinet has the correct number of drawers' do
+      Container.scaffold(valid_params)
+      ci_building = ContainerItem.find_by(contained_object: building)
+      ci_building.children.each do |ci_room|
+        ci_room.children.each do |ci_cabinet|
+          expect(ci_cabinet.children.count).to eq(4)
+          expect(ci_cabinet.children.map { |c| c.contained_object.type }).to all(eq('Container::Drawer::Cornell'))
+        end
+      end
+    end
+
+    specify 'works with Container::Drawer::CalAcademy drawer type' do
+      result = Container.scaffold(valid_params.merge(drawer_type: 'Container::Drawer::CalAcademy', rooms: 1, cabinets: 1, drawers: 2))
+      expect(result).to be_an(Array)
+      ci_building = ContainerItem.find_by(contained_object: building)
+      ci_room = ci_building.children.first
+      ci_cabinet = ci_room.children.first
+      # Cabinet::CalAcademy was removed; scaffold falls back to the base Cabinet class
+      expect(ci_cabinet.contained_object.type).to eq('Container::Cabinet')
+      expect(ci_cabinet.children.map { |c| c.contained_object.type }).to all(eq('Container::Drawer::CalAcademy'))
+    end
+
+    specify 'returns false when drawer_type does not exist' do
+      expect(Container.scaffold(valid_params.merge(drawer_type: 'Container::Drawer::Unknown'))).to be_falsey
+    end
+
+    specify 'returns false when rooms is zero' do
+      expect(Container.scaffold(valid_params.merge(rooms: 0))).to be_falsey
+    end
+
+    specify 'returns false when building_id is invalid' do
+      expect(Container.scaffold(valid_params.merge(building_id: 0))).to be_falsey
+    end
+
+    specify 'rolls back all changes when an error occurs mid-transaction' do
+      allow(ContainerItem).to receive(:create!).and_call_original
+      call_count = 0
+      allow(Container::Room).to receive(:create!) do
+        call_count += 1
+        raise ActiveRecord::RecordInvalid.new(Container.new) if call_count > 1
+        Container::Room.new.tap { |r| r.name = 'Room 1'; r.save! }
+      end
+
+      Container.scaffold(valid_params)
+      expect(ContainerItem.find_by(contained_object: building)).to be_nil
+    end
   end
 
 end

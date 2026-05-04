@@ -25,6 +25,41 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     expect(q.all).to contain_exactly(d.otu)
   end
 
+  context '#dwc_occurrences' do
+    specify 'true via CollectionObject' do
+      s = Specimen.create!
+      s.taxon_determinations << TaxonDetermination.new(otu: o1)
+      s.reload.set_dwc_occurrence # simulate background job updating otu_id
+      o2
+      q.dwc_occurrences = true
+      expect(q.all).to contain_exactly(o1)
+    end
+
+    specify 'true via AssertedDistribution' do
+      FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o1)
+      o2
+      q.dwc_occurrences = true
+      expect(q.all).to contain_exactly(o1)
+    end
+
+    specify 'true via FieldOccurrence' do
+      fo = FactoryBot.create(:valid_field_occurrence)
+      TaxonDetermination.create!(otu: o1, taxon_determination_object: fo)
+      fo.reload.set_dwc_occurrence # simulate background job updating otu_id
+      o2
+      q.dwc_occurrences = true
+      expect(q.all).to contain_exactly(o1)
+    end
+
+    specify 'false' do
+      s = Specimen.create!
+      s.taxon_determinations << TaxonDetermination.new(otu: o1)
+      s.reload.set_dwc_occurrence # simulate background job updating otu_id
+      q.dwc_occurrences = false
+      expect(q.all).to contain_exactly(o2)
+    end
+  end
+
   # confidences query concern
   specify '#confidence_level_id' do
     l = FactoryBot.create(:valid_confidence_level)

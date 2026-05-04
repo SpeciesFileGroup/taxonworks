@@ -64,6 +64,15 @@ scope :tasks do
     scope :new_container, controller: 'tasks/containers/new_container' do
       get '/', action: :index, as: 'new_container_task'
     end
+    scope :collection_layout, controller: 'tasks/containers/collection_layout' do
+      get '/', action: :index, as: 'collection_layout_task'
+      get :children, as: 'children_collection_layout_task'
+      post :scaffold, as: 'scaffold_collection_layout_task'
+    end
+    scope :collection_visualization, controller: 'tasks/containers/collection_visualization' do
+      get '/', action: :index, as: 'collection_visualization_task'
+      get :collection_tree, as: 'collection_tree_collection_visualization_task'
+    end
   end
 
   scope :dwc_occurrences do
@@ -245,8 +254,11 @@ scope :tasks do
       get '/', action: :index, as: 'dwc_dashboard_task'
       get :index_versions, defaults: {format: :json}
       get :taxonworks_extension_methods, defaults: {format: :json}
+      get :checklist_extensions, defaults: {format: :json}
+      get :accepted_name_mode_options, defaults: {format: :json}
 
       post 'generate_download', as: 'generate_dwc_download_task', defaults: {format: :json}
+      post 'generate_checklist_download', as: 'generate_dwc_checklist_download_task', defaults: {format: :json}
       post :create_index, as: 'create_dwc_index_task', defaults: {format: :json}
     end
 

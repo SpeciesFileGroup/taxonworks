@@ -57,7 +57,7 @@ module Shared::Dwc::CollectingEventExtensions
 
 
   def dwc_event_remarks
-    collecting_event&.notes&.collect {|n| n.text}&.join(CollectionObject::DWC_DELIMITER).presence
+    collecting_event&.notes&.collect {|n| n.text}&.join(Export::Dwca::DELIMITER).presence
   end
 
   def dwc_georeference_sources
@@ -196,7 +196,7 @@ module Shared::Dwc::CollectingEventExtensions
         .unscope(:order)
         .distinct
         .pluck('identifiers.cached')
-        .join(CollectionObject::DWC_DELIMITER)&.presence
+        .join(Export::Dwca::DELIMITER)&.presence
     end
   end
 
@@ -209,7 +209,7 @@ module Shared::Dwc::CollectingEventExtensions
       v = collecting_event.collectors
         .order('roles.position')
         .map(&:name)
-        .join(CollectionObject::DWC_DELIMITER)
+        .join(Export::Dwca::DELIMITER)
         .presence
       v = collecting_event.verbatim_collectors.presence if v.blank?
     end

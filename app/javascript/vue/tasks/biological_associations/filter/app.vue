@@ -40,10 +40,24 @@
           :attributes="ATTRIBUTES"
           :header-groups="HEADERS"
           :list="list"
+          :hide-unfrozen="hideFrozen"
+          :preference-key="`tasks::filters::${BIOLOGICAL_ASSOCIATION}`"
           radial-object
           @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"
         />
+      </template>
+      <template #nav-settings-start>
+        <VToggle
+          title="Hide/show non-frozen columns"
+          @click="() => (hideFrozen = !hideFrozen)"
+        >
+          <VIcon
+            title="Hide/show non-frozen columns"
+            :name="hideFrozen ? 'contract' : 'expand'"
+            x-small
+          />
+        </VToggle>
       </template>
     </FilterLayout>
     <VSpinner
@@ -60,12 +74,17 @@ import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/FilterView.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import VToggle from '@/components/ui/VToggle.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
 import RadialBiologicalAssociation from '@/components/radials/BiologicalAssociation/radial.vue'
 import { listParser } from './utils/listParser'
 import { BIOLOGICAL_ASSOCIATION } from '@/constants/index.js'
 import { BiologicalAssociation } from '@/routes/endpoints'
 import { ATTRIBUTES } from './constants/attributes.js'
+import { ref } from 'vue'
+
+const hideFrozen = ref(false)
 
 const HEADERS = [
   {
