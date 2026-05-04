@@ -69,6 +69,12 @@ module TaxonNamesHelper
     content_tag(:span, taxon_name.cached_original_combination, class: css_class)
   end
 
+  # Styling indicating the current valid name
+  def taxon_name_now_tag(taxon_name, css_class = [:feedback, 'feedback-notice', 'feedback-thin'] )
+    return nil if taxon_name.nil? || taxon_name.is_valid?
+    content_tag(:span, 'now ' + taxon_name.cached_html, class: css_class)
+  end
+
   # @return [String]
   #   the taxon name in original combination, without author year, with HTML
   def original_taxon_name_tag(taxon_name)
