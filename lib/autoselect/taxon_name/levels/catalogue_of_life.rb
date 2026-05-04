@@ -31,7 +31,10 @@ module Autoselect
         def record_info(record)
           col_ext = record._col_extension
           return [] unless col_ext
-          [col_ext[:col_rank].presence].compact
+          parts = []
+          parts << 'synonym' if col_ext[:col_status] == 'synonym'
+          parts << col_ext[:col_rank].presence
+          parts.compact
         end
 
         # @param term [String]
