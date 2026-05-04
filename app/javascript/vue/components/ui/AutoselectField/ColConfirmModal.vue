@@ -145,7 +145,7 @@ const isCreating   = ref(false)
 const errorColName = ref(null)
 
 onMounted(() => {
-  nextTick(() => confirmBtn.value?.focus())
+  nextTick(() => confirmBtn.value?.$el?.focus())
 })
 
 async function doCreate() {
