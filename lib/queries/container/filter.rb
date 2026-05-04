@@ -39,12 +39,12 @@ module Queries
 
       def type_facet
         return nil if @type.blank?
-        table[:type].equal(@type)
+        table[:type].eq(@type)
       end
 
       def name_facet
         return nil if @name.blank?
-        table[:name].equal(@name)
+        table[:name].eq(@name)
       end
 
       # If we add merge_clauses then we likely have
