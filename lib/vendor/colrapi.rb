@@ -178,6 +178,7 @@ module Vendor
         visited << current_id
 
         taxon = ::Colrapi.taxon(dataset_id, taxon_id: current_id)
+
         break if taxon.blank?
 
         chain << {
@@ -236,16 +237,41 @@ module Vendor
       # Backbone datasets (main CoL, extended CoL) expose a classification subresource.
       # External/denormed datasets must be traversed via iterative parentId lookups.
       # Ancestor records carry the dataset_id of whichever source they came from.
+      #
+      # For synonyms, CoL attaches the synonym under its accepted name in the tree, so
+      # fetching classification via the synonym's ID returns the accepted name in the chain.
+      # Use the accepted name's ID for the lookup instead, then strip the accepted name
+      # itself out by ID (CoL's classification endpoint includes the queried taxon itself
+      # as the most proximal entry).
+      accepted_id         = col_status == 'synonym' ? col_result.dig('accepted', 'id').presence : nil
+      ancestor_lookup_key = accepted_id || col_key
+
       ancestor_chain, ancestor_dataset_id =
-        if col_key.present?
+        if ancestor_lookup_key.present?
           if col_backbone_dataset?(col_dataset_id)
-            [ancestors(col_key), DATASETS[:col]]
+            [ancestors(ancestor_lookup_key), DATASETS[:col]]
           else
-            [ancestors_via_parent_id(col_dataset_id, col_key), col_dataset_id]
+            [ancestors_via_parent_id(col_dataset_id, ancestor_lookup_key), col_dataset_id]
           end
         else
           [[], col_dataset_id]
         end
+
+      ancestor_chain = ancestor_chain.reject { |a| a['id'] == accepted_id } if accepted_id
+
+      # For synonyms, also strip any ancestor at or below the synonym's own rank.
+      # This arises when the accepted name is at a lower rank than the synonym (e.g. a
+      # genus synonym whose accepted name is a subgenus): the accepted name's classification
+      # chain includes same- or lower-ranked entries that are not valid parents of the synonym.
+      if col_status == 'synonym' && col_rank.present?
+        target_sort = col_rank_sort(col_rank, col_code)
+        if target_sort
+          ancestor_chain = ancestor_chain.reject { |a|
+            anc_sort = col_rank_sort(a['rank']&.downcase, col_code)
+            anc_sort && anc_sort >= target_sort
+          }
+        end
+      end
 
       # Drop suprakingdom ranks (e.g. 'domain') that have no equivalent in TaxonWorks
       # nomenclatural codes.  Kingdom is the highest rank we include.
@@ -256,6 +282,7 @@ module Vendor
         rank     = ancestor['rank']&.downcase
         # In classification entries 'name' is a plain String (the uninomial name)
         anc_name = ancestor['name'].is_a?(String) ? ancestor['name'] : ancestor.dig('name', 'scientificName')
+        anc_name = extract_subgenus_name(anc_name) if rank == 'subgenus'
         col_id   = ancestor['id']
 
         scope = ::TaxonName.where(cached: anc_name) # !!!
@@ -290,6 +317,29 @@ module Vendor
         name_hash['specificEpithet'].presence ||
         name_hash['uninomial'].presence ||
         name_hash['scientificName']
+    end
+
+    # Subgenus names in CoL classification arrive as "Genus (Subgenus)" combinations.
+    # Extract just the subgenus epithet from inside the parentheses when present.
+    def self.extract_subgenus_name(name)
+      return name if name.nil?
+      name[/\(([^)]+)\)/, 1] || name
+    end
+
+    # Maps a CoL rank name ('genus', 'family', …) and CoL nomenclatural code
+    # ('zoological', 'botanical', 'bacterial', 'viral') to the TaxonWorks RANK_SORT
+    # index. Higher index = more specific rank. Returns nil when unresolvable.
+    def self.col_rank_sort(rank_name, col_code)
+      return nil if rank_name.blank?
+      lookup = case col_code
+               when 'zoological' then ::ICZN_LOOKUP
+               when 'botanical'  then ::ICN_LOOKUP
+               when 'bacterial'  then ::ICNP_LOOKUP
+               when 'viral'      then ::ICVCN_LOOKUP
+               else ::ICZN_LOOKUP
+               end
+      rank_class = lookup[rank_name]
+      rank_class ? ::RANK_SORT[rank_class] : nil
     end
 
     # Extend to buffered with GNA in middle layer?

@@ -158,15 +158,15 @@ describe Vendor::Colrapi, type: :model do
 
     let(:classification) {
       [
-        col_classification_entry(id: '636X2', name: 'Homo',     rank: 'genus'),
+        col_classification_entry(id: '636X2', name: 'Homo', rank: 'genus'),
         col_classification_entry(id: '6256T', name: 'Hominidae', rank: 'family'),
       ]
     }
 
     before do
       allow(described_class).to receive(:ancestors)
-        .with('6MB3T')
-        .and_return(classification)
+      .with('6MB3T')
+      .and_return(classification)
     end
 
     subject(:extension) { described_class.build_extension(col_result, nil) }
@@ -176,7 +176,7 @@ describe Vendor::Colrapi, type: :model do
     end
 
     it 'extracts col_name from name.scientificName' do
-      expect(extension[:col_name]).to eq('Homo sapiens')
+      expect(extension[:col_name]).to eq('sapiens')
     end
 
     it 'extracts col_status from top-level status' do
@@ -207,14 +207,15 @@ describe Vendor::Colrapi, type: :model do
       expect(ext[:col_dataset_id]).to eq('3LXR')
     end
 
+    # Also - the alignment starts at the top
     it 'alignment entry col_name comes from the plain-string name field' do
       entry = extension[:alignment].first
-      expect(entry[:col_name]).to eq('Homo')
+      expect(entry[:col_name]).to eq('Hominidae')
     end
 
     it 'alignment entry rank is downcased' do
       entry = extension[:alignment].first
-      expect(entry[:rank]).to eq('genus')
+      expect(entry[:rank]).to eq('family')
     end
 
     it 'alignment entry match is none when TaxonName not in project' do
@@ -377,20 +378,56 @@ describe Vendor::Colrapi, type: :model do
       end
     end
 
-    context 'VCR integration — Mammal Diversity Database (dataset 9802)' do
-      it 'retrieves real ancestors for Mus musculus via parentId traversal' do
-        VCR.use_cassette('colrapi_denormed_ancestors_mus_musculus') do
-          # Search to obtain a real taxon ID from the external dataset before traversing.
-          search_result = ::Vendor::Colrapi.search('Mus musculus', dataset_id: '9802')
-          taxon_id = search_result.dig('result', 0, 'id')
-          skip 'No results returned from dataset 9802' if taxon_id.blank?
+  end
 
-          chain = described_class.ancestors_via_parent_id('9802', taxon_id)
-          expect(chain).to be_an(Array)
-          expect(chain).to all(include('id', 'name', 'rank'))
-          expect(chain.map { |e| e['name'] }).to all(be_a(String))
-        end
+  # ── VCR integration ──────────────────────────────────────────────────────────
+
+  context 'VCR integration — Mammal Diversity Database (dataset 9802)' do
+    it 'retrieves real ancestors for Mus musculus via parentId traversal' do
+      VCR.use_cassette('colrapi_denormed_ancestors_mus_musculus') do
+        search_result = ::Vendor::Colrapi.search('Mus musculus', dataset_id: '9802')
+        taxon_id = search_result.dig('result', 0, 'id')
+        skip 'No results returned from dataset 9802' if taxon_id.blank?
+
+        chain = described_class.ancestors_via_parent_id('9802', taxon_id)
+
+        expect(chain).to be_an(Array)
+        expect(chain).to all(include('id', 'name', 'rank'))
+        expect(chain.map { |e| e['name'] }).to all(be_a(String))
       end
     end
   end
+
+  context 'VCR integration — Campa synonym against default CoL dataset (3LR)' do
+    it 'alignment does not contain the accepted genus as an ancestor of the synonym' do
+      VCR.use_cassette('colrapi_build_extension_campa_synonym') do
+        search_result = ::Vendor::Colrapi.search('Campa')
+        campa_result  = search_result['result'].find { |r|
+          r.dig('name', 'scientificName') == 'Campa' && r['status'] == 'synonym'
+        }
+        skip 'No synonym result for Campa found in CoL 3LR' if campa_result.nil?
+
+        accepted_name = campa_result.dig('accepted', 'name', 'scientificName')
+        accepted_id   = campa_result.dig('accepted', 'id')
+
+        ext = described_class.build_extension(campa_result, nil)
+
+        expect(ext[:col_status]).to eq('synonym')
+
+        alignment_col_names = ext[:alignment].map { |r| r[:col_name] }
+        alignment_col_ids   = ext[:alignment].map { |r| r[:col_id] }
+        alignment_ranks     = ext[:alignment].map { |r| r[:rank] }
+
+        expect(alignment_col_names).not_to include(accepted_name),
+          "Accepted name '#{accepted_name}' must not appear in alignment for synonym 'Campa'"
+        expect(alignment_col_ids).not_to include(accepted_id),
+          "Accepted name ID '#{accepted_id}' must not appear in alignment for synonym 'Campa'"
+
+        # No ancestor may be at the same rank as the synonym itself (genus cannot parent genus).
+        expect(alignment_ranks).not_to include(ext[:col_rank]),
+          "Ancestor at same rank '#{ext[:col_rank]}' must not appear for synonym 'Campa'; got ranks: #{alignment_ranks.inspect}"
+      end
+    end
+  end
+
 end
