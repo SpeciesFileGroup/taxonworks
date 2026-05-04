@@ -205,7 +205,11 @@ const props = defineProps({
   // Vue component to render when !n is triggered (null = disabled).
   newRecordComponent: { type: Object, default: null },
   // Vue component rendered inside PreferencesModal for model-specific options (null = none).
-  preferencesOptionsComponent: { type: Object, default: null }
+  preferencesOptionsComponent: { type: Object, default: null },
+  // When true, clear the field and reset to level 0 after selection instead of filling
+  // the input with the selected label.  Use for "append to list" contexts where the
+  // field should be ready for the next search immediately after each pick.
+  resetOnSelect: { type: Boolean, default: false }
 })
 
 const emit = defineEmits(['update:modelValue', 'select'])
@@ -584,10 +588,20 @@ function itemClicked(idx) {
 }
 
 function completeSelection(item) {
-  inputText.value = item.label ?? ''
-  emit('update:modelValue', item)
-  emit('select', item.response_values)
   pendingExtensionItem.value = null
+
+  if (props.resetOnSelect) {
+    emit('select', item.response_values)
+    emit('update:modelValue', null)
+    inputText.value = ''
+    currentLevel.value = getFirstVisibleLevelKey()
+    clearResults()
+    nextTick(() => inputEl.value?.focus())
+  } else {
+    inputText.value = item.label ?? ''
+    emit('update:modelValue', item)
+    emit('select', item.response_values)
+  }
 }
 
 function cancelExtension() {

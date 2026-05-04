@@ -35,6 +35,7 @@
                 :preferences-options-component="
                     model.preferencesOptionsComponent ?? null
                 "
+                :reset-on-select="model.resetOnSelect ?? false"
                 v-model="selectedItems[model.id]"
                 @select="onSelect(model.label, $event)"
             />
@@ -81,6 +82,7 @@ const registeredModels = ref([
         label: "TaxonName (1)",
         newRecordComponent: TaxonNameNewModal,
         preferencesOptionsComponent: ColDatasetPicker,
+        resetOnSelect: true,
     },
     {
         id: "playground-taxon-name-2",
@@ -89,6 +91,7 @@ const registeredModels = ref([
         label: "TaxonName (2)",
         newRecordComponent: TaxonNameNewModal,
         preferencesOptionsComponent: ColDatasetPicker,
+        resetOnSelect: true,
     },
     {
         id: "playground-otu",
@@ -97,6 +100,7 @@ const registeredModels = ref([
         label: "OTU",
         newRecordComponent: OtuNewModal,
         preferencesOptionsComponent: ColDatasetPicker,
+        resetOnSelect: true,
     },
 ]);
 
