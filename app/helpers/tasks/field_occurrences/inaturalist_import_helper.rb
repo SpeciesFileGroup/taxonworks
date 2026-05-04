@@ -7,6 +7,7 @@ module Tasks::FieldOccurrences::InaturalistImportHelper
       fo = fo_data[existing_fo_id]
       {
         observation_id: r['id'].to_s,
+        uuid:,
         taxon_name: fo&.dig(:taxon_name) || ::Vendor::Nasturtium.taxon_name(r, use_community_taxon:),
         observer: r.dig('user', 'name').presence || r.dig('user', 'login'),
         observed_on: r['observed_on'],
@@ -34,6 +35,7 @@ module Tasks::FieldOccurrences::InaturalistImportHelper
       end
       {
         observation_id: r['id'].to_s,
+        uuid:,
         taxon_name:,
         observer: r.dig('user', 'name').presence || r.dig('user', 'login'),
         observed_on: r['observed_on'],

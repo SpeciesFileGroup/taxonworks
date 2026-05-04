@@ -75,12 +75,6 @@
     >
       {{ isSubmitting ? 'Looking up observations…' : (mode === 'Import' ? 'Import' : 'Find') }}
     </VBtn>
-    <div
-      v-if="mode === 'Import'"
-      class="margin-medium-top"
-    >
-      iNaturalist observations are imported in the background; after submission, click the Refresh button in the Recents table to track import progress.
-    </div>
   </div>
 </template>
 
@@ -158,6 +152,7 @@ async function submit() {
 
     TW.workbench.alert.create(parts.join('; '), 'notice')
     emit('submitted', { rows: body.summary, findMode: findOnly })
+    rawInput.value = ''
   } catch {
   } finally {
     isSubmitting.value = false

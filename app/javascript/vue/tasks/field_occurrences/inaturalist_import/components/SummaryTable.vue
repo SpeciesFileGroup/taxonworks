@@ -1,15 +1,22 @@
 <template>
   <div class="panel content separate-top">
     <div class="flex-separate middle separate-bottom">
-      <h2>{{ findMode ? 'Search results' : 'Submission summary' }}</h2>
-      <div class="horizontal-right-content">
+      <h2>{{ localFindMode ? 'Search results' : 'Submission summary' }}</h2>
+      <div class="horizontal-right-content gap-small">
         <VBtn
-          v-if="findMode && foundIds.length"
+          v-if="localFindMode && foundIds.length"
           color="primary"
           @click="sendToFilter"
-          class="margin-medium-right"
         >
           Send to filter
+        </VBtn>
+        <VBtn
+          v-if="localRows.length"
+          color="primary"
+          :disabled="isRefreshing"
+          @click="refresh"
+        >
+          Refresh
         </VBtn>
         <VBtn
           color="primary"
@@ -35,7 +42,7 @@
       </thead>
       <tbody>
         <tr
-          v-for="row in rows"
+          v-for="row in localRows"
           :key="row.observation_id"
         >
           <td>
@@ -62,7 +69,12 @@
               :href="row.browse_url"
               target="_blank"
             >Found</a>
-            <span v-else-if="row.status === 'not_imported'">Not yet imported</span>
+            <a
+              v-else-if="row.status === 'created'"
+              :href="row.browse_url"
+              target="_blank"
+            >Created</a>
+            <span v-else-if="row.status === 'not_imported'">Queued</span>
             <span v-else-if="row.status === 'already_imported'">
               Already imported —
               <a
@@ -77,12 +89,20 @@
         </tr>
       </tbody>
     </table>
+
+    <p
+      v-if="!localFindMode"
+      class="subtle margin-medium-top"
+    >
+      Observations are imported in the background. Use Refresh to check progress.
+    </p>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, watch, computed } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import { FieldOccurrence } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
 
 const props = defineProps({
@@ -100,9 +120,34 @@ const emit = defineEmits(['clear'])
 
 defineOptions({ name: 'SummaryTable' })
 
+const localRows = ref([...props.rows])
+const localFindMode = ref(props.findMode)
+const isRefreshing = ref(false)
+
+watch(() => props.rows, rows => { localRows.value = [...rows] })
+watch(() => props.findMode, mode => { localFindMode.value = mode })
+
 const foundIds = computed(() =>
-  props.rows.filter(r => r.status === 'found').map(r => r.field_occurrence_id)
+  localRows.value.filter(r => r.status === 'found').map(r => r.field_occurrence_id)
 )
+
+async function refresh() {
+  const uuids = localRows.value.filter(r => r.uuid).map(r => r.uuid)
+  if (!uuids.length) return
+
+  isRefreshing.value = true
+  try {
+    const { body } = await FieldOccurrence.iNatCheckForExisting({ uuids })
+    const foundByUuid = Object.fromEntries(body.found.map(f => [f.uuid, f]))
+    localRows.value = localRows.value.map(row => {
+      const match = row.uuid && foundByUuid[row.uuid]
+      return match ? { ...row, ...match, status: 'created' } : row
+    })
+  } catch {
+  } finally {
+    isRefreshing.value = false
+  }
+}
 
 function sendToFilter() {
   const params = foundIds.value.map(id => `field_occurrence_id[]=${id}`).join('&')

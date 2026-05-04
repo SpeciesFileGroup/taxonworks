@@ -184,6 +184,7 @@ scope :tasks do
       get '/', as: 'inaturalist_import_task', action: :index
       get 'find', action: :find
       post 'import', action: :import
+      get 'check_for_existing', action: :check_for_existing
       get 'recent', action: :recent
     end
 

@@ -52,6 +52,27 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
     render json: { summary: }
   end
 
+  # GET /tasks/field_occurrences/inaturalist_import/check_for_existing.json
+  def check_for_existing
+    uuids = params[:uuids] || []
+    existing_fo_by_uuid = existing_field_occurrences_for_uuids(uuids)
+    fo_data = fetch_field_occurrence_data(existing_fo_by_uuid)
+
+    found = existing_fo_by_uuid.map { |uuid, fo_id|
+      fo = fo_data[fo_id]
+      {
+        uuid:,
+        field_occurrence_id: fo_id,
+        browse_url: helpers.browse_field_occurrence_task_path(field_occurrence_id: fo_id),
+        taxon_name: fo[:taxon_name],
+        image_count: fo[:image_count],
+        sound_count: fo[:sound_count]
+      }
+    }
+
+    render json: { found: }
+  end
+
   # GET /tasks/field_occurrences/inaturalist_import/recent.json
   def recent
     fos = FieldOccurrence
@@ -79,10 +100,11 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
   end
 
   def existing_field_occurrences_for(results)
-    FieldOccurrence.by_inat_uuids(
-      results.filter_map { |r| r['uuid'] },
-      project_id: sessions_current_project_id
-    )
+    existing_field_occurrences_for_uuids(results.filter_map { |r| r['uuid'] })
+  end
+
+  def existing_field_occurrences_for_uuids(uuids)
+    FieldOccurrence.by_inat_uuids(uuids, project_id: sessions_current_project_id)
   end
 
   def not_found_rows(observation_ids, results)
