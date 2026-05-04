@@ -231,7 +231,7 @@ module Vendor
     # Returns the iNat observation_photos that carry a CC or PD license importable into TW.
     #
     # @param result [Hash] a Nasturtium result
-    # @return [Array<Hash>] photo hashes (the nested 'photo' object from each observation_photo)
+    # @return [Array<Hash>] observation_photo hashes (the outer object, which carries uuid)
     def self.permitted_photos(result)
       return [] if result.blank?
 
@@ -240,7 +240,7 @@ module Vendor
         next if photo.blank?
         next unless INAT_LICENSE_CODE_TO_TW_LICENSE.key?(photo['license_code'])
 
-        photo
+        obs_photo
       end
     end
 
@@ -288,7 +288,7 @@ module Vendor
         sound.sound_file.attach(
           io: File.open(tempfile.path),
           filename: tempfile.original_filename,
-          content_type: sound_data['file_content_type'],
+          content_type: Marcel::MimeType.for(Pathname.new(tempfile.path), name: tempfile.original_filename)
         )
       ensure
         tempfile.close!
@@ -336,7 +336,8 @@ module Vendor
     # @param result [Hash] the full Nasturtium observation result (for ORCID matching)
     # @param observed_year [Integer, nil] year of observation, used as copyright year
     # @return [Image]
-    def self.build_image!(photo, result:, observed_year: nil)
+    def self.build_image!(obs_photo, result:, observed_year: nil)
+      photo = obs_photo['photo']
       license_key = INAT_LICENSE_CODE_TO_TW_LICENSE[photo['license_code']]
 
       copyright_person = stub_copyright_person(result, media: photo)
@@ -355,9 +356,9 @@ module Vendor
       begin
         image = Image.new(image_file: tempfile)
         image.attribution = attribution
-        if photo['uuid'].present?
+        if obs_photo['uuid'].present?
           image.identifiers << Identifier::Global::Uuid::InaturalistObservationPhoto.new(
-            identifier: photo['uuid']
+            identifier: obs_photo['uuid']
           )
         end
         image.save!

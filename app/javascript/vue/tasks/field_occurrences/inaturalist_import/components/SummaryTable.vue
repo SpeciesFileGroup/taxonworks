@@ -27,6 +27,13 @@
       </div>
     </div>
 
+    <p
+      v-if="!localFindMode"
+      class="subtle"
+    >
+      Observations are imported in the background. Use Refresh to check progress.
+    </p>
+
     <table class="full_width table-striped">
       <thead>
         <tr>
@@ -89,13 +96,6 @@
         </tr>
       </tbody>
     </table>
-
-    <p
-      v-if="!localFindMode"
-      class="subtle margin-medium-top"
-    >
-      Observations are imported in the background. Use Refresh to check progress.
-    </p>
   </div>
 </template>
 

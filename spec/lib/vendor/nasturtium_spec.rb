@@ -255,8 +255,8 @@ describe Vendor::Nasturtium, type: :model, group: [:field_occurrences] do
         { 'photo' => { 'uuid' => 'p2', 'license_code' => 'arr', 'url' => 'http://example.com/square2.jpg' } },
         { 'photo' => { 'uuid' => 'p3', 'license_code' => nil, 'url' => 'http://example.com/square3.jpg' } },
       ])
-      photos = Vendor::Nasturtium.permitted_photos(r)
-      expect(photos.map { |p| p['uuid'] }).to eq(['p1'])
+      obs_photos = Vendor::Nasturtium.permitted_photos(r)
+      expect(obs_photos.map { |op| op['photo']['uuid'] }).to eq(['p1'])
     end
 
     specify 'returns empty array when observation_photos is absent' do
@@ -310,6 +310,76 @@ describe Vendor::Nasturtium, type: :model, group: [:field_occurrences] do
 
     specify 'returns empty array when annotations are absent' do
       expect(Vendor::Nasturtium.stub_biocuration_classes(result, project_id: Current.project_id)).to be_empty
+    end
+  end
+
+  describe '.build_image!' do
+    let(:photo_uuid) { '550e8400-e29b-41d4-a716-446655440010' }
+    let(:obs_photo) {
+      {
+        'uuid' => photo_uuid,
+        'photo' => {
+          'license_code' => 'cc-by',
+          'url' => 'http://example.com/square.jpg',
+          'attribution' => '(c) janedoe, some rights reserved (CC BY)',
+          'original_filename' => nil,
+          'file_content_type' => 'image/png'
+        }
+      }
+    }
+
+    let(:image_tempfile) {
+      t = Tempfile.new(['test', '.png'], binmode: true)
+      t.write(File.binread(Rails.root.join('spec/files/images/tiny.png')))
+      t.rewind
+      t.define_singleton_method(:original_filename) { 'tiny.png' }
+      t
+    }
+
+    before do
+      allow(Vendor::Nasturtium).to receive(:download_to_tempfile).and_return(image_tempfile)
+      allow(Vendor::Nasturtium).to receive(:stub_copyright_person).and_return(FactoryBot.create(:valid_person))
+    end
+
+    specify 'attaches an InaturalistObservationPhoto identifier with the obs_photo uuid' do
+      image = Vendor::Nasturtium.build_image!(obs_photo, result:, observed_year: 2023)
+      ident = image.identifiers.find { |i| i.is_a?(Identifier::Global::Uuid::InaturalistObservationPhoto) }
+      expect(ident&.identifier).to eq(photo_uuid)
+    end
+  end
+
+  describe '.build_sound!' do
+    let(:sound_uuid) { '550e8400-e29b-41d4-a716-446655440011' }
+    let(:obs_sound) {
+      {
+        'uuid' => sound_uuid,
+        'sound' => {
+          'license_code' => 'cc-by',
+          'file_url' => 'http://example.com/sound.wav',
+          'attribution' => '(c) janedoe, some rights reserved (CC BY)',
+          'original_filename' => nil,
+          'file_content_type' => 'audio/wav'
+        }
+      }
+    }
+
+    let(:sound_tempfile) {
+      t = Tempfile.new(['test', '.wav'], binmode: true)
+      t.write(File.binread(Rails.root.join('spec/files/sounds/sound1.wav')))
+      t.rewind
+      t.define_singleton_method(:original_filename) { 'sound1.wav' }
+      t
+    }
+
+    before do
+      allow(Vendor::Nasturtium).to receive(:download_to_tempfile).and_return(sound_tempfile)
+      allow(Vendor::Nasturtium).to receive(:stub_copyright_person).and_return(FactoryBot.create(:valid_person))
+    end
+
+    specify 'attaches an InaturalistObservationSound identifier with the obs_sound uuid' do
+      sound = Vendor::Nasturtium.build_sound!(obs_sound, result:, observed_year: 2023)
+      ident = sound.identifiers.find { |i| i.is_a?(Identifier::Global::Uuid::InaturalistObservationSound) }
+      expect(ident&.identifier).to eq(sound_uuid)
     end
   end
 

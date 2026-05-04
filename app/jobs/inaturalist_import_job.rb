@@ -111,14 +111,14 @@ class InaturalistImportJob < ApplicationJob
   def import_photos(result, fo:)
     observed_year = result.dig('observed_on_details', 'year')
 
-    ::Vendor::Nasturtium.permitted_photos(result).each do |photo|
+    ::Vendor::Nasturtium.permitted_photos(result).each do |obs_photo|
       ApplicationRecord.transaction do
-        image = ::Vendor::Nasturtium.build_image!(photo, result:, observed_year:)
+        image = ::Vendor::Nasturtium.build_image!(obs_photo, result:, observed_year:)
         Depiction.create!(image:, depiction_object: fo)
       end
     rescue => e
       Rails.logger.error(
-        "InaturalistImportJob: failed to import photo #{photo['uuid']} " \
+        "InaturalistImportJob: failed to import photo #{obs_photo['uuid']} " \
         "for observation #{result['uuid']}: #{e.class}: #{e.message}\n" \
         "#{e.backtrace&.first(5)&.join("\n")}"
       )
