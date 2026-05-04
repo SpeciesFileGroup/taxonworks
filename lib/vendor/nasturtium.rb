@@ -126,6 +126,10 @@ module Vendor
       # within a ~22km bounding box, exceeding TW's 10km error_radius maximum.
       return nil if result['obscured']
 
+      # Skip if the reported accuracy itself exceeds TW's 10km error_radius limit.
+      accuracy = result['positional_accuracy']
+      return nil if accuracy.present? && accuracy > 10_000
+
       c = result.dig('geojson', 'coordinates')
 
       return nil if c.blank?

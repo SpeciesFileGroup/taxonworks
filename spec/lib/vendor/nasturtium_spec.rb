@@ -76,6 +76,14 @@ describe Vendor::Nasturtium, type: :model, group: [:field_occurrences] do
     specify 'returns nil when coordinates are blank' do
       expect(Vendor::Nasturtium.stub_georeference(result.merge('geojson' => nil))).to be_nil
     end
+
+    specify 'returns nil when positional_accuracy exceeds 10km' do
+      expect(Vendor::Nasturtium.stub_georeference(result.merge('positional_accuracy' => 10_001))).to be_nil
+    end
+
+    specify 'returns a georeference when positional_accuracy is exactly at the limit' do
+      expect(Vendor::Nasturtium.stub_georeference(result.merge('positional_accuracy' => 10_000))).to be_a(Georeference::Inaturalist)
+    end
   end
 
   describe '.stub_collecting_event' do
