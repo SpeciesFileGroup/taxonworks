@@ -10,11 +10,9 @@ In `app/assets/stylesheets/`
 
 See also `app/assets/javascript/vue/assets/styles/`.
 
-* papertrail - css for papertrail audit views (TODO: evaluate if this should be in views/ or vendor/) ()
-
 # CSS
 
-* DO ALWAYS use shared styles libraries for buttons, links, and fonts for both SS and vue.js work.
+* DO ALWAYS use shared styles libraries for buttons, links, and fonts for both SS and vue.js work
 
 # Semantic palette
 
