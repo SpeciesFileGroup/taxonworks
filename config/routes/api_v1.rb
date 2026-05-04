@@ -48,6 +48,7 @@ namespace :api, defaults: {format: :json} do
       get '/news/:id', to: '/news#api_show'
 
       get '/downloads/dwc_archive_complete', to: '/downloads#api_dwc_archive_complete', as: :download_dwca_complete
+      get '/downloads/coldp_complete', to: '/downloads#api_coldp_complete', as: :download_coldp_complete
       get '/downloads/:id', to: '/downloads#api_show', as: :download_show
       get '/downloads/:id/file', to: '/downloads#api_file', as: :download_file
       get '/downloads', to: '/downloads#api_index'

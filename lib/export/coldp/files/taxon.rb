@@ -15,7 +15,10 @@ module Export::Coldp::Files::Taxon
     lifezone: 'https://api.checklistbank.org/datapackage#Taxon.lifezone',                       # from https://api.checklistbank.org/vocab/lifezone
     remarks: 'https://github.com/catalogueoflife/coldp#Taxon.remarks',
     namePhrase: 'https://github.com/catalogueoflife/coldp#Taxon.namePhrase',
-    link: 'https://api.checklistbank.org/vocab/term/col:link'
+    link: 'https://api.checklistbank.org/vocab/term/col:link',
+    species_estimate_living:  'https://api.checklistbank.org/vocab/estimatetype#species_living',
+    species_estimate_extinct: 'https://api.checklistbank.org/vocab/estimatetype#species_extinct',
+    species_estimate_total:   'https://api.checklistbank.org/vocab/estimatetype#estimated_species'
   }.freeze
 
   SKIPPED_RANKS = %w{
@@ -84,7 +87,8 @@ module Export::Coldp::Files::Taxon
   end
 
   def self.link(link_base_url, otu)
-    link_base_url&.gsub('{id}', otu.id.to_s) unless link_base_url.nil?
+    return nil if link_base_url.nil?
+    link_base_url.gsub('{otu_id}', otu.id.to_s).gsub('{id}', otu.id.to_s)
   end
 
   def self.remarks(otu, taxon_remarks_vocab_id)
@@ -113,7 +117,7 @@ module Export::Coldp::Files::Taxon
       .map{|a| [a.attribute_subject_id, a.send(target)]}.to_h
   end
 
-  def self.generate(otu, otus, project_members, reference_csv = nil, prefer_unlabelled_otus = true)
+  def self.generate(otu, otus, project_members, reference_csv = nil, prefer_unlabelled_otus = true, base_url: nil, coldp_profile: nil)
 
     # Until we have RC5 articulations we are simplifying handling the fact
     # that one taxon name can be used for many OTUs. Track to see that
@@ -138,7 +142,22 @@ module Export::Coldp::Files::Taxon
       attributes[k] = attributes(otus, k)
     end
 
-    link_base_url = attributes[:link][otu.id]
+    fossil_extinct = coldp_profile && (coldp_profile['fossil_extinct'] == true || coldp_profile['fossil_extinct'] == 'true')
+    default_lifezone = coldp_profile&.fetch('default_lifezone', nil).presence
+
+    # Build a set of taxon_name_ids classified as fossil for the fossil_extinct fallback
+    fossil_taxon_name_ids = if fossil_extinct
+      TaxonNameClassification
+        .where(taxon_name_id: otus.joins(:taxon_name).select('taxon_names.id'))
+        .with_type_contains('::Fossil')
+        .distinct
+        .pluck(:taxon_name_id)
+        .to_set
+    else
+      Set.new
+    end
+
+    link_base_url = base_url || attributes[:link][otu.id]
     root_otu_id = otu.id
 
     parent_id_lookup = Otu.parent_otu_ids(otus, skip_ranks: SKIPPED_RANKS).map{|a| [a.id, a.valid_ancestor_otu_ids&.split(',')&.first&.to_i]}.to_h
@@ -194,10 +213,10 @@ module Export::Coldp::Files::Taxon
           nil,                                                             # scrutinizerID scrutinizer_id(o)
           nil,                                                             # scrutizinerDate scrutinizer_date(o)
           o.aggregate_source_ids,                                          # referenceID
-          attributes[:extinct][o.id],                                      # extinct
+          attributes[:extinct][o.id] || (fossil_extinct && fossil_taxon_name_ids.include?(o.taxon_name_id) ? '1' : nil), # extinct
           attributes[:temporal_range_start][o.id],                         # temporalRangeStart
           attributes[:temporal_range_end][o.id],                           # temporalRangeEnd
-          attributes[:lifezone][o.id],                                     # environment (formerly named lifezone)
+          attributes[:lifezone][o.id] || default_lifezone,                 # environment (formerly named lifezone)
           link(link_base_url, o),                                          # link
           Export::Coldp.sanitize_remarks(attributes[:remarks][o.id]),      # remarks
           Export::Coldp.modified(o[:updated_at]),                          # modified
