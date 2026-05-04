@@ -328,16 +328,14 @@ describe Vendor::Nasturtium, type: :model, group: [:field_occurrences] do
       }
     }
 
-    let(:image_tempfile) {
-      t = Tempfile.new(['test', '.png'], binmode: true)
-      t.write(File.binread(Rails.root.join('spec/files/images/tiny.png')))
-      t.rewind
-      t.define_singleton_method(:original_filename) { 'tiny.png' }
-      t
-    }
-
     before do
-      allow(Vendor::Nasturtium).to receive(:download_to_tempfile).and_return(image_tempfile)
+      allow(Vendor::Nasturtium).to receive(:download_to_tempfile) {
+        t = Tempfile.new(['test', '.png'], binmode: true)
+        t.write(File.binread(Rails.root.join('spec/files/images/tiny.png')))
+        t.rewind
+        t.define_singleton_method(:original_filename) { 'tiny.png' }
+        t
+      }
       allow(Vendor::Nasturtium).to receive(:stub_copyright_person).and_return(FactoryBot.create(:valid_person))
     end
 
@@ -345,6 +343,12 @@ describe Vendor::Nasturtium, type: :model, group: [:field_occurrences] do
       image = Vendor::Nasturtium.build_image!(obs_photo, result:, observed_year: 2023)
       ident = image.identifiers.find { |i| i.is_a?(Identifier::Global::Uuid::InaturalistObservationPhoto) }
       expect(ident&.identifier).to eq(photo_uuid)
+    end
+
+    specify 'returns the existing image when the fingerprint is already in the database' do
+      existing = Vendor::Nasturtium.build_image!(obs_photo, result:, observed_year: 2023)
+      image = Vendor::Nasturtium.build_image!(obs_photo, result:, observed_year: 2023)
+      expect(image.id).to eq(existing.id)
     end
   end
 
@@ -363,16 +367,14 @@ describe Vendor::Nasturtium, type: :model, group: [:field_occurrences] do
       }
     }
 
-    let(:sound_tempfile) {
-      t = Tempfile.new(['test', '.wav'], binmode: true)
-      t.write(File.binread(Rails.root.join('spec/files/sounds/sound1.wav')))
-      t.rewind
-      t.define_singleton_method(:original_filename) { 'sound1.wav' }
-      t
-    }
-
     before do
-      allow(Vendor::Nasturtium).to receive(:download_to_tempfile).and_return(sound_tempfile)
+      allow(Vendor::Nasturtium).to receive(:download_to_tempfile) {
+        t = Tempfile.new(['test', '.wav'], binmode: true)
+        t.write(File.binread(Rails.root.join('spec/files/sounds/sound1.wav')))
+        t.rewind
+        t.define_singleton_method(:original_filename) { 'sound1.wav' }
+        t
+      }
       allow(Vendor::Nasturtium).to receive(:stub_copyright_person).and_return(FactoryBot.create(:valid_person))
     end
 
@@ -380,6 +382,12 @@ describe Vendor::Nasturtium, type: :model, group: [:field_occurrences] do
       sound = Vendor::Nasturtium.build_sound!(obs_sound, result:, observed_year: 2023)
       ident = sound.identifiers.find { |i| i.is_a?(Identifier::Global::Uuid::InaturalistObservationSound) }
       expect(ident&.identifier).to eq(sound_uuid)
+    end
+
+    specify 'returns the existing sound when the identifier uuid is already in the database' do
+      existing = Vendor::Nasturtium.build_sound!(obs_sound, result:, observed_year: 2023)
+      sound = Vendor::Nasturtium.build_sound!(obs_sound, result:, observed_year: 2023)
+      expect(sound.id).to eq(existing.id)
     end
   end
 

@@ -299,7 +299,14 @@ module Vendor
           identifier: obs_sound['uuid']
         )
       end
-      sound.save!
+      begin
+        sound.save!
+      rescue ActiveRecord::RecordInvalid
+        existing = obs_sound['uuid'].present? &&
+          Identifier::Global::Uuid::InaturalistObservationSound.find_by(identifier: obs_sound['uuid'])
+        raise unless existing
+        sound = existing.identifier_object
+      end
 
       sound
     end
@@ -361,7 +368,13 @@ module Vendor
             identifier: obs_photo['uuid']
           )
         end
-        image.save!
+        begin
+          image.save!
+        rescue ActiveRecord::RecordInvalid
+          existing = Image.find_by(image_file_fingerprint: image.image_file_fingerprint)
+          raise unless existing
+          image = existing
+        end
       ensure
         tempfile.close!
       end
