@@ -32,7 +32,10 @@ secrets.yml
 application_settings.yml
 config/initializers/vendor/better_errors.rb
 
+.rdoc_options
+
 .yardoc/
+.zed/
 /doc
 /git_stats
 /log
@@ -57,6 +60,7 @@ config/initializers/vendor/better_errors.rb
 /public/assets/
 /spec/fixtures/vcr_cassettes
 /spec/test_files/
+spec/tmp/
 
 REVISION
 npm-debug.log
@@ -77,3 +81,4 @@ _development/
 
 .claude/
 claude/
+.codex

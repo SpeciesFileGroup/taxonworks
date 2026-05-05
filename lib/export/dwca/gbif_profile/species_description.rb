@@ -4,6 +4,20 @@
 module Export::Dwca::GbifProfile
 
   class SpeciesDescription
+    NAMESPACES = {
+      :taxonID => 'http://rs.tdwg.org/dwc/terms/taxonID',
+      :type => 'http://purl.org/dc/terms/type',
+      :description => 'http://purl.org/dc/terms/description',
+      :source => 'http://purl.org/dc/terms/source',
+      :language => 'http://purl.org/dc/terms/language',
+      :created => 'http://purl.org/dc/terms/created',
+      :creator => 'http://purl.org/dc/terms/creator',
+      :contributor => 'http://purl.org/dc/terms/contributor',
+      :audience => 'http://purl.org/dc/terms/audience',
+      :license => 'http://purl.org/dc/terms/license',
+      :rightsHolder => 'http://purl.org/dc/terms/rightsHolder'
+    }.freeze
+
     # taxonID (http://rs.tdwg.org/dwc/terms/taxonID)
     #
     # @return [String]
@@ -11,7 +25,7 @@ module Export::Dwca::GbifProfile
     # taxon in the core data file to which this description record points. This
     # identifier provides the link between the core data record and the
     # extension record.
-    attr_accessor :taxonID # [USED IN SF]
+    attr_accessor :taxonID
 
     # type (http://purl.org/dc/terms/type)
     #
@@ -22,14 +36,14 @@ module Export::Dwca::GbifProfile
     #
     # Vocabulary: http://rs.gbif.org/vocabulary/gbif/description_type.xml
     #
-    # Example: “morphology”, “distribution”, “diagnostic”
-    attr_accessor :type # [USED IN SF]
+    # Example: "morphology", "distribution", "diagnostic"
+    attr_accessor :type
 
     # description (http://purl.org/dc/terms/description)
     #
     # @return [String]
     # Any descriptive free text matching the category given by the type
-    attr_accessor :description # [USED IN SF]
+    attr_accessor :description
 
     # source (http://purl.org/dc/terms/source)
     #
@@ -42,15 +56,23 @@ module Export::Dwca::GbifProfile
     # @return [String]
     # ISO 639-1 language code used for the vernacular name value.
     #
-    # Example: “ES”, “Spanish”, “Español”
+    # Example: "ES", "Spanish", "Español"
     attr_accessor :language
+
+    # created (http://purl.org/dc/terms/created)
+    #
+    # @return [String]
+    # The date and time this description was written or last updated
+    #
+    # Example: "2010-09-29"
+    attr_accessor :created
 
     # creator (http://purl.org/dc/terms/creator)
     #
     # @return [String]
     # The author(s) of the textual information provided for a description
     #
-    # Example: “Hershkovitz, P.”
+    # Example: "Hershkovitz, P."
     attr_accessor :creator
 
     # contributor (http://purl.org/dc/terms/contributor)
@@ -83,5 +105,5 @@ module Export::Dwca::GbifProfile
     # A person or organization owning or managing rights over the resource.
     attr_accessor :rightsHolder
   end
-  
+
 end

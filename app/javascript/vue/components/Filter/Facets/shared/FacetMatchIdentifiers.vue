@@ -42,7 +42,7 @@
           v-for="(value, key) in TYPE_PARAMETERS"
           :key="key"
         >
-          <label>
+          <label :data-help="TYPE_HELP[value]">
             <input
               type="radio"
               :value="value"
@@ -117,7 +117,7 @@
               v-for="(value, key) in TYPE_PARAMETERS"
               :key="key"
             >
-              <label>
+              <label :data-help="TYPE_HELP[value]">
                 <input
                   type="radio"
                   :value="value"
@@ -159,6 +159,11 @@ const SPECIAL_CHAR = {
 const TYPE_PARAMETERS = {
   Internal: 'internal',
   Identifier: 'identifier'
+}
+
+const TYPE_HELP = {
+  internal: 'Internal identifiers are TaxonWorks record IDs, e.g. collecting_events.id values like 123.',
+  identifier: undefined
 }
 
 const props = defineProps({

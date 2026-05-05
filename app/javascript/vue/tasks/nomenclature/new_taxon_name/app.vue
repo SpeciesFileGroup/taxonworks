@@ -16,6 +16,7 @@
           />
           Autosave
         </label>
+
         <autocomplete
           v-if="!taxon.id"
           class="autocomplete-search-bar"
@@ -30,9 +31,9 @@
       </div>
     </div>
     <div>
-      <NavHeader />
+      <NavHeader @section-clicked="focusSectionComponent" />
       <div class="flexbox horizontal-center-content align-start">
-        <div class="item">
+        <div class="item full_width">
           <VSpinner
             full-screen
             :legend="isLoading ? 'Loading...' : 'Saving changes...'"
@@ -40,11 +41,12 @@
             v-if="isLoading"
           />
           <template
-            v-for="{ component, title, isAvailableFor } in SectionComponents"
+            v-for="({ component, title, isAvailableFor }, index) in SectionComponents"
             :key="title"
           >
             <component
               v-if="isAvailableFor(taxon)"
+              :ref="el => { if (el) sectionRefs[index] = el; else delete sectionRefs[index] }"
               class="margin-medium-bottom"
               :is="component"
             />
@@ -66,20 +68,22 @@ import NavHeader from './components/navHeader.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import platformKey from '@/helpers/getPlatformKey'
 import ColumnRight from './components/ColumnRight.vue'
-import { useHotkey } from '@/composables'
+import { useHotkey, useUserPreference } from '@/composables'
 import { SectionComponents } from './const/components.js'
-import { convertType } from '@/helpers/types.js'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 import { ActionNames } from './store/actions/actions'
-import { computed, ref, onMounted, useTemplateRef } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
 
 defineOptions({
   name: 'NewTaxonName'
 })
 
+const KEY_STORAGE_AUTOSAVE = 'task::NewTaxonName::Autosave'
+
 const store = useStore()
+const sectionRefs = {}
 
 const isLoading = ref()
 const shortcuts = ref([
@@ -96,25 +100,17 @@ useHotkey(shortcuts.value)
 
 const taxon = computed(() => store.getters[GetterNames.GetTaxon])
 
-const isAutosaveActive = computed({
-  get() {
-    return store.getters[GetterNames.GetAutosave]
-  },
-  set(value) {
-    store.commit(MutationNames.SetAutosave, value)
-  }
-})
+const isAutosaveActive = useUserPreference(KEY_STORAGE_AUTOSAVE, true)
+
+watch(
+  isAutosaveActive,
+  (value) => store.commit(MutationNames.SetAutosave, value),
+  { immediate: true }
+)
 
 onMounted(() => {
   const urlParams = new URLSearchParams(window.location.search)
   let taxonId = urlParams.get('taxon_name_id')
-  const value = convertType(
-    sessionStorage.getItem('task::newtaxonname::autosave')
-  )
-
-  if (value !== null) {
-    isAutosaveActive.value = value
-  }
 
   if (!taxonId) {
     taxonId = location.pathname.split('/')[4]
@@ -197,6 +193,13 @@ function loadTaxon(taxon) {
     `/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxon.id}`,
     '_self'
   )
+}
+
+function focusSectionComponent(index) {
+  const component = sectionRefs[index]
+  if (!component) return
+  component.$el?.querySelector('a[name]')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  component.focus?.()
 }
 
 function focusSearch() {

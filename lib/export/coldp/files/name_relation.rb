@@ -61,8 +61,8 @@ module Export::Coldp::Files::NameRelation
     TaxonNameRelationship::Icvcn::Accepting::UncertainPlacement
     TaxonNameRelationship::Icvcn::Unaccepting
     TaxonNameRelationship::Hybrid
+    TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::Basionym
   }.freeze
-
 
   # TODO: This is the original set, but it doesn't quite feel right.
   def self.taxon_name_relationships(otu)
@@ -111,15 +111,12 @@ module Export::Coldp::Files::NameRelation
       rels.length
 
       rels.find_each do |tnr|
-
-        # TODO: should not be required if we scope properly
-        # next if ::Export::Coldp.skipped_combinations.include?(tnr.subject_taxon_name_id)
-
-        unless tnr.type.constantize.nomen_uri.blank?
+        klass = tnr.type.constantize
+        unless klass.nomen_uri.blank?
           csv << [
             tnr.subject_taxon_name_id,                                       # nameID
             tnr.object_taxon_name_id,                                        # relatedNameID
-            tnr.type.constantize.nomen_uri,                                  # type
+            klass.nomen_uri,                                                 # type
             tnr.a_source_id,                                                 # referenceID
             Export::Coldp.modified(tnr[:updated_at]),                        # modified
             Export::Coldp.modified_by(tnr[:updated_by_id], project_members), # modified_by

@@ -149,7 +149,7 @@ module CollectionObjectsHelper
   # TODO: Isolate into own helper
   # TODO: synchronize with class methods
   def dwc_occurrence_table_header_tag
-    content_tag(:tr, CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.collect{|k| content_tag(:th, k)}.join.html_safe, class: [:error])
+    content_tag(:tr, CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.collect{ |k| content_tag(:th, k)}.join.html_safe, class: [:error])
   end
 
   def dwc_occurrence_table_body_tag(collection_objects)
@@ -177,8 +177,14 @@ module CollectionObjectsHelper
 
   def dwc_occurrence_table_row_tag(dwc_occurrence)
     o = metamorphosize_if(dwc_occurrence.dwc_occurrence_object)
+    formatted_attributes = format_dwc_occurrence_attributes_for_ui(
+      dwc_occurrence.attributes.symbolize_keys.slice(*CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys)
+    )
+
     content_tag(:tr, class: :contextMenuCells) do
-      [CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.collect{|k| content_tag(:td, dwc_occurrence.send(k))}.join,
+      [CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.collect{ |k|
+        content_tag(:td, formatted_attributes[k])
+      }.join,
        fancy_show_tag(o),
        fancy_edit_tag(o)
       ].join.html_safe
@@ -245,9 +251,9 @@ module CollectionObjectsHelper
   # @return [GeoJSON feature, nil]
   # @param base [Boolean]
   #   wehther to annotate the feature properties with TW 'base' attributes
-  def collection_object_to_geo_json_feature(collection_object, base = true)
+  def collection_object_to_geo_json_feature(collection_object, base = true, skip_geometry: false)
     return nil if collection_object.nil?
-    if a = collecting_event_to_geo_json_feature(collection_object.collecting_event)
+    if a = collecting_event_to_geo_json_feature(collection_object.collecting_event, skip_geometry:)
       l = label_for_collection_object(collection_object)
       a['properties']['target'] = {
         'type' => 'CollectionObject',

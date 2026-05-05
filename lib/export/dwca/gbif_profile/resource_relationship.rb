@@ -4,6 +4,17 @@
 module Export::Dwca::GbifProfile
 
   class ResourceRelationship
+    NAMESPACES = {
+      :taxonID => 'http://rs.tdwg.org/dwc/terms/taxonID',
+      :relatedResourceID => 'http://rs.tdwg.org/dwc/terms/relatedResourceID',
+      :scientificName => 'http://rs.tdwg.org/dwc/terms/scientificName',
+      :relationshipOfResource => 'http://rs.tdwg.org/dwc/terms/relationshipOfResource',
+      :relationshipAccordingTo => 'http://rs.tdwg.org/dwc/terms/relationshipAccordingTo',
+      :relationshipEstablishedDate => 'http://rs.tdwg.org/dwc/terms/relationshipEstablishedDate',
+      :relationshipRemarks => 'http://rs.tdwg.org/dwc/terms/relationshipRemarks',
+      :resourceRelationshipID => 'http://rs.tdwg.org/dwc/terms/resourceRelationshipID'
+    }.freeze
+
     # taxonID (http://rs.tdwg.org/dwc/terms/taxonID)
     #
     # @return [String]
@@ -11,7 +22,7 @@ module Export::Dwca::GbifProfile
     # which the current record refers. This identifier provides the link
     # between the core data record and the extension record.
     attr_accessor :taxonID
-    
+
     # relatedResourceID (http://rs.tdwg.org/dwc/terms/relatedResourceID)
     #
     # @return [String]
@@ -23,8 +34,8 @@ module Export::Dwca::GbifProfile
     #
     # @return [String]
     # When the related taxon (the object) does not occur in the core data
-    # file, refer to it by scientific name. Example: “Quercus agrifolia var.
-    # oxyadenia (Torr.)”
+    # file, refer to it by scientific name. Example: "Quercus agrifolia var.
+    # oxyadenia (Torr.)"
     attr_accessor :scientificName
 
     # relationshipOfResource (http://rs.tdwg.org/dwc/terms/relationshipOfResource)
@@ -44,7 +55,7 @@ module Export::Dwca::GbifProfile
     # The source (person, organization, publication, reference)
     # establishing the relationship between the two resources.
     #
-    # Example: “Julie Woodruff”
+    # Example: "Julie Woodruff"
     attr_accessor :relationshipAccordingTo
 
     # relationshipEstablishedDate (http://rs.tdwg.org/dwc/terms/relationshipEstablishedDate)
@@ -63,7 +74,7 @@ module Export::Dwca::GbifProfile
     # Comments or notes about the relationship between the two
     # resources.
     #
-    # Example: “mother and offspring collected from the same nest”
+    # Example: "mother and offspring collected from the same nest"
     attr_accessor :relationshipRemarks
 
     # resourceRelationshipID (http://rs.tdwg.org/dwc/terms/resourceRelationshipID)
@@ -76,5 +87,5 @@ module Export::Dwca::GbifProfile
     attr_accessor :resourceRelationshipID
 
   end
-  
+
 end

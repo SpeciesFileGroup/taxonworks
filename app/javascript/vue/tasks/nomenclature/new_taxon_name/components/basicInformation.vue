@@ -53,14 +53,6 @@
           />
         </div>
       </div>
-      <div
-        v-if="!taxon.id"
-        class="margin-large-top"
-      >
-        <save-taxon-name
-          class="normal-input button button-submit create-button"
-        />
-      </div>
     </template>
     <modal-component
       v-if="showModal"
@@ -173,6 +165,10 @@ export default {
   },
 
   methods: {
+    focus() {
+      this.$refs.inputTaxonname.focus()
+    },
+
     existError: function (type) {
       return this.errors && this.errors.hasOwnProperty(type)
     },

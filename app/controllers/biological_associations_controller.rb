@@ -18,8 +18,38 @@ class BiologicalAssociationsController < ApplicationController
         @biological_associations = Queries::BiologicalAssociation::Filter.new(params)
           .all
           .where(project_id: sessions_current_project_id)
+          .includes(
+            citations: [:source, { citation_topics: :topic }],
+            biological_relationship: :biological_relationship_types
+          )
+          .preload(:biological_association_subject, :biological_association_object)
           .page(params[:page])
           .per(params[:per])
+          .load
+
+        co_fo_subjects = @biological_associations
+          .filter_map { |ba| ba.biological_association_subject if ['CollectionObject', 'FieldOccurrence'].include?(ba.biological_association_subject_type) }
+        ActiveRecord::Associations::Preloader.new(records: co_fo_subjects, associations: [:taxon_determinations, :identifiers]).call unless co_fo_subjects.empty?
+
+        co_fo_objects = @biological_associations
+          .filter_map { |ba| ba.biological_association_object if ['CollectionObject', 'FieldOccurrence'].include?(ba.biological_association_object_type) }
+        ActiveRecord::Associations::Preloader.new(records: co_fo_objects, associations: [:taxon_determinations, :identifiers]).call unless co_fo_objects.empty?
+
+        otu_subjects = @biological_associations
+          .filter_map { |ba| ba.biological_association_subject if ba.biological_association_subject_type == 'Otu' }
+        ActiveRecord::Associations::Preloader.new(records: otu_subjects, associations: [:taxon_name]).call unless otu_subjects.empty?
+
+        otu_objects = @biological_associations
+          .filter_map { |ba| ba.biological_association_object if ba.biological_association_object_type == 'Otu' }
+        ActiveRecord::Associations::Preloader.new(records: otu_objects, associations: [:taxon_name]).call unless otu_objects.empty?
+
+        ap_subjects = @biological_associations
+          .filter_map { |ba| ba.biological_association_subject if ba.biological_association_subject_type == 'AnatomicalPart' }
+        ActiveRecord::Associations::Preloader.new(records: ap_subjects, associations: [:inbound_origin_relationship]).call unless ap_subjects.empty?
+
+        ap_objects = @biological_associations
+          .filter_map { |ba| ba.biological_association_object if ba.biological_association_object_type == 'AnatomicalPart' }
+        ActiveRecord::Associations::Preloader.new(records: ap_objects, associations: [:inbound_origin_relationship]).call unless ap_objects.empty?
       }
     end
   end
@@ -45,14 +75,20 @@ class BiologicalAssociationsController < ApplicationController
   # POST /biological_associations
   # POST /biological_associations.json
   def create
-    @biological_association = BiologicalAssociation.new(biological_association_params)
+    if create_with_anatomical_parts?
+      @biological_association = ::BiologicalAssociations::CreateWithAnatomicalParts.new(biological_association_params).call
+    else
+      @biological_association = BiologicalAssociation.new(biological_association_params)
+      @biological_association.save
+    end
+
     respond_to do |format|
-      if @biological_association.save
+      if @biological_association.persisted?
         format.html { redirect_to @biological_association, notice: 'Biological association was successfully created.' }
         format.json { render :show, status: :created, location: @biological_association }
       else
         format.html { render :new }
-        format.json { render json: @biological_association.errors, status: :unprocessable_content }
+        format.json { render json: { errors: @biological_association.errors.full_messages }, status: :unprocessable_content }
       end
     end
   end
@@ -234,6 +270,28 @@ class BiologicalAssociationsController < ApplicationController
     render json: hash
   end
 
+  # GET /biological_associations/origin_subject_index.json?origin_object_id=1&origin_object_type=Otu
+  # Returns BiologicalAssociations whose subject is an AnatomicalPart originated
+  # from the base object.
+  def origin_subject_index
+    object_id = params.require(:origin_object_id).to_i
+    object_type = params.require(:origin_object_type).to_s
+
+    @biological_associations = BiologicalAssociation
+      .joins("INNER JOIN origin_relationships ap_origin_relationships ON ap_origin_relationships.new_object_id = biological_associations.biological_association_subject_id")
+      .where(project_id: sessions_current_project_id)
+      .where(biological_association_subject_type: 'AnatomicalPart')
+      .where("ap_origin_relationships.new_object_type = 'AnatomicalPart'")
+      .where(
+        'ap_origin_relationships.old_object_id = ? AND ap_origin_relationships.old_object_type = ?',
+        object_id,
+        object_type
+      )
+      .order('biological_associations.updated_at DESC')
+
+    render '/biological_associations/index'
+  end
+
   private
 
   def set_biological_association
@@ -247,8 +305,18 @@ class BiologicalAssociationsController < ApplicationController
       :subject_global_id,
       :object_global_id,
       :rotate,
+      subject_anatomical_part_attributes: [:name, :uri, :uri_label, :is_material, :preparation_type_id],
+      object_anatomical_part_attributes: [:name, :uri, :uri_label, :is_material, :preparation_type_id],
+      subject_taxon_determination_attributes: [:otu_id],
+      object_taxon_determination_attributes: [:otu_id],
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
       citations_attributes: [:id, :is_original, :_destroy, :source_id, :pages, :citation_object_id, :citation_object_type],
     )
   end
+
+  def create_with_anatomical_parts?
+    p = biological_association_params
+    p[:subject_anatomical_part_attributes].present? || p[:object_anatomical_part_attributes].present?
+  end
+
 end

@@ -16,11 +16,40 @@ module CollectingEvent::Georeference
     accepts_nested_attributes_for :gpx_georeferences
 
     def preferred_georeference
-      georeferences.order(:position).first
+      if association(:georeferences).loaded?
+        georeferences.min_by(&:position)
+      else
+        georeferences.order(:position).first
+      end
     end
 
     def preferred_georeference_geographic_item_id
-      georeferences.order(:position).limit(1).pluck(:geographic_item_id).first
+      if association(:georeferences).loaded?
+        preferred_georeference&.geographic_item_id
+      else
+        georeferences.order(:position).limit(1).pluck(:geographic_item_id).first
+      end
+    end
+  end
+
+  # Returns [shape_type, shape_id] for the preferred geographic representation
+  # without fetching or computing the geometry. Returns nil if no mappable location exists.
+  # Uses the same precedence logic as geo_json_data.
+  #
+  # Note on georeference deduplication: georeferences are collecting-event-specific objects.
+  # Two collecting events at the same geographic location will have different georeference IDs
+  # and will NOT be deduplicated. Deduplication of georeference shapes only occurs when
+  # multiple records (e.g. collection objects from different OTUs) share the same
+  # collecting event.
+  #
+  # Geographic area deduplication is broader: any two records referencing the same
+  # geographic area share the same shape key regardless of which collecting event they
+  # belong to.
+  def geo_json_shape_key
+    if gr_id = georeferences.order(:position).pluck(:id).first
+      ['Georeference', gr_id]
+    elsif geographic_area_default_geographic_item_id
+      ['GeographicArea', geographic_area_id]
     end
   end
 

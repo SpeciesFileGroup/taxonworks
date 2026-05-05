@@ -296,10 +296,15 @@ class Image < ApplicationRecord
   def self.cropped(params)
     image = Image.find(params[:id])
     img = Magick::Image.read(image.image_file.path(:original)).first
+    x = params[:x].to_i
+    y = params[:y].to_i
+    w = params[:width].to_i
+    h = params[:height].to_i
     begin
+      raise ArgumentError, "invalid crop parameters: x=#{x}, y=#{y}, width=#{w}, height=#{h}" if w <= 0 || h <= 0 || x < 0 || y < 0
       # img.crop(x, y, width, height, true)
-      cropped = img.crop( params[:x].to_i, params[:y].to_i, params[:width].to_i, params[:height].to_i, true)
-    rescue RuntimeError
+      cropped = img.crop(x, y, w, h, true)
+    rescue ArgumentError, RuntimeError, Magick::ImageMagickError
       cropped = img.crop(0,0, 1, 1)  # return a single pixel on error ! TODO: make/return an error image
     ensure
       img.destroy!

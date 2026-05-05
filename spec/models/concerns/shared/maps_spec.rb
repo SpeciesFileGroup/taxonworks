@@ -44,13 +44,48 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
     expect(ad_offset.send(:touched_cached_maps).pluck(:id)).to eq([ad_offset.asserted_distribution_object_id])
   end
 
-  specify '#touched_cached_maps (untouched)' do
+  context '#touched_cached_maps for non-Otu AD object types' do
+    let(:root) { FactoryBot.create(:root_taxon_name) }
+    let(:otu) { Otu.create!(taxon_name: FactoryBot.create(:relationship_species, parent: root)) }
+    let(:source) { FactoryBot.create(:valid_source) }
+
+    def build_ad(object)
+      AssertedDistribution.create!(
+        asserted_distribution_object: object,
+        asserted_distribution_shape: ga_offset,
+        citations_attributes: [{ source: }]
+      )
+    end
+
+    specify 'BiologicalAssociation where OTU is subject' do
+      ba = FactoryBot.create(:valid_biological_association, biological_association_subject: otu)
+      ad = build_ad(ba)
+      expect(ad.send(:touched_cached_maps).pluck(:id)).to include(otu.id)
+    end
+
+    specify 'BiologicalAssociation where OTU is object' do
+      ba = FactoryBot.create(:valid_biological_association, biological_association_object: otu)
+      ad = build_ad(ba)
+      expect(ad.send(:touched_cached_maps).pluck(:id)).to include(otu.id)
+    end
+
+    specify 'BiologicalAssociation where same OTU is both subject and object returns that OTU once' do
+      ba = FactoryBot.create(:valid_biological_association, biological_association_subject: otu, biological_association_object: otu)
+      ad = build_ad(ba)
+      ids = ad.send(:touched_cached_maps).pluck(:id)
+      expect(ids).to include(otu.id)
+      expect(ids.count(otu.id)).to eq(1)
+    end
+  end
+
+  specify '#touched_cached_maps ignores OTUs from another project' do
     ad_offset.save!
     p = FactoryBot.create(:valid_project)
     proot = Protonym.where(name: 'Root', project: p).first
     pspecies = FactoryBot.create(:relationship_species, parent: proot, project: p)
     potu = FactoryBot.create(:valid_otu, project: p, taxon_name: pspecies)
     a = FactoryBot.create(:valid_otu_asserted_distribution,
+      project: p,
       asserted_distribution_object: potu,
       asserted_distribution_shape: ga_offset)
 
@@ -59,11 +94,12 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
     expect(ad_offset.send(:touched_cached_maps).map(&:id)).to contain_exactly(ad_offset.asserted_distribution_object_id)
   end
 
-  specify '#cached_maps_to_clear 1' do
+  specify '#cached_maps_to_clear excludes cached maps from another project' do
     ad_offset.save!
     p = FactoryBot.create(:valid_project)
     potu = FactoryBot.create(:valid_otu, project: p)
     a = FactoryBot.create(:valid_otu_asserted_distribution,
+      project: p,
       asserted_distribution_object: potu,
       asserted_distribution_shape: ga_offset)
     Delayed::Worker.new.work_off
@@ -71,11 +107,12 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
     expect(ad_offset.send(:cached_maps_to_clear).all).to eq([])
   end
 
-  specify '#cached_maps_to_clear 2' do
+  specify '#cached_maps_to_clear only returns cached maps for touched OTUs in the same project' do
     ad_offset.save!
     p = FactoryBot.create(:valid_project)
     potu = FactoryBot.create(:valid_otu, project: p)
     a = FactoryBot.create(:valid_otu_asserted_distribution,
+      project: p,
       asserted_distribution_object: potu,
       asserted_distribution_shape: ga_offset)
     Delayed::Worker.new.work_off

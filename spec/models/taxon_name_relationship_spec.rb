@@ -378,4 +378,97 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
     it_behaves_like 'is_data'
   end
 
+  context '.batch_update' do
+    let(:species2) { FactoryBot.create(:relationship_species, parent: genus, name: 'other') }
+    let!(:synonym_relationship) do
+      TaxonNameRelationship.create!(
+        subject_taxon_name: species2,
+        object_taxon_name: species,
+        type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
+      )
+    end
+
+    specify 'updates synonym type to a more specific subtype' do
+      result = TaxonNameRelationship.batch_update(
+        taxon_name_relationship_query: { taxon_name_relationship_id: [synonym_relationship.id] },
+        taxon_name_relationship: { type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective' }
+      )
+      expect(result).to be_a(BatchResponse)
+      expect(result.updated).to include(synonym_relationship.id)
+      expect(synonym_relationship.reload.type).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
+    end
+
+    specify 'returns false when target type is not a synonym type' do
+      result = TaxonNameRelationship.batch_update(
+        taxon_name_relationship_query: { taxon_name_relationship_id: [synonym_relationship.id] },
+        taxon_name_relationship: { type: 'TaxonNameRelationship::Iczn::Validating::ConservedName' }
+      )
+      expect(result).to eq(false)
+    end
+
+    specify 'returns false when no type is provided' do
+      result = TaxonNameRelationship.batch_update(
+        taxon_name_relationship_query: { taxon_name_relationship_id: [synonym_relationship.id] },
+        taxon_name_relationship: {}
+      )
+      expect(result).to eq(false)
+    end
+
+    specify 'skips records whose existing type is not a synonym type' do
+      non_synonym = TaxonNameRelationship.create!(
+        subject_taxon_name: FactoryBot.create(:relationship_genus, parent: family),
+        object_taxon_name: family,
+        type: 'TaxonNameRelationship::Typification::Family'
+      )
+
+      result = TaxonNameRelationship.batch_update(
+        taxon_name_relationship_query: { taxon_name_relationship_id: [non_synonym.id] },
+        taxon_name_relationship: { type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective' }
+      )
+
+      expect(result.not_updated).to include(non_synonym.id)
+      expect(result.validation_errors).to have_key('Existing relationship is not a synonym type')
+      expect(non_synonym.reload.type).to eq('TaxonNameRelationship::Typification::Family')
+    end
+
+    specify 'skips records whose existing type is a different nomenclatural code' do
+      root        = kingdom.ancestor_at_rank('root') || kingdom.parent
+      icn_family  = Protonym.create!(name: 'Xanthaceae',    rank_class: Ranks.lookup(:icn, 'family'),  parent: root)
+      icn_genus   = Protonym.create!(name: 'Xanthus',       rank_class: Ranks.lookup(:icn, 'genus'),   parent: icn_family)
+      icn_species  = Protonym.create!(name: 'xanthophylla', rank_class: Ranks.lookup(:icn, 'species'), parent: icn_genus)
+      icn_species2 = Protonym.create!(name: 'xanthoides',   rank_class: Ranks.lookup(:icn, 'species'), parent: icn_genus)
+
+      icn_synonym = TaxonNameRelationship.create!(
+        subject_taxon_name: icn_species2,
+        object_taxon_name: icn_species,
+        type: 'TaxonNameRelationship::Icn::Unaccepting::Synonym'
+      )
+
+      result = TaxonNameRelationship.batch_update(
+        taxon_name_relationship_query: { taxon_name_relationship_id: [icn_synonym.id] },
+        taxon_name_relationship: { type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective' }
+      )
+
+      expect(result.not_updated).to include(icn_synonym.id)
+      expect(result.validation_errors).to have_key('Relationship type must be within the same nomenclatural code')
+      expect(icn_synonym.reload.type).to eq('TaxonNameRelationship::Icn::Unaccepting::Synonym')
+    end
+
+    specify 'async' do
+      result = TaxonNameRelationship.batch_update(
+        async_cutoff: 0,
+        taxon_name_relationship_query: { taxon_name_relationship_id: [synonym_relationship.id] },
+        taxon_name_relationship: { type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective' },
+        user_id: Current.user_id,
+        project_id: Current.project_id
+      )
+
+      sleep(2)
+      Delayed::Worker.new.work_off
+
+      expect(result.to_json[:async]).to eq(true)
+      expect(synonym_relationship.reload.type).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
+    end
+  end
+
 end

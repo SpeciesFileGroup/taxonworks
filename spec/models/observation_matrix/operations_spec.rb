@@ -118,6 +118,19 @@ RSpec.describe ObservationMatrix, type: :model, group: :observation_matrix do
     expect(om.is_media_matrix?).to eq(false)
   end
 
+  specify '#is_media_matrix? is false for a matrix with rows but no columns' do
+    empty_column_matrix = ObservationMatrix.create!(name: 'Row only matrix')
+
+    ObservationMatrixRowItem::Single.create!(
+      observation_matrix: empty_column_matrix,
+      observation_object: FactoryBot.create(:valid_otu)
+    )
+
+    expect(empty_column_matrix.observation_matrix_rows.count).to eq(1)
+    expect(empty_column_matrix.observation_matrix_columns.count).to eq(0)
+    expect(empty_column_matrix.is_media_matrix?).to eq(false)
+  end
+
   # columns, rows
   context '#observations_in_grid' do
     let(:g) { om.observations_in_grid(row_index: true, column_index: true) }

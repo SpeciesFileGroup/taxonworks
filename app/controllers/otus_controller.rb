@@ -3,9 +3,12 @@ class OtusController < ApplicationController
 
   before_action :set_otu, only: [
     :show, :edit, :update, :destroy, :collection_objects, :navigation,
-    :breadcrumbs, :timeline, :coordinate, :distribution,
+    :breadcrumbs, :timeline, :coordinate, :distribution, :citations_inventory,
+    :distribution_is_absent,
     :api_show, :api_taxonomy_inventory, :api_type_material_inventory,
-    :api_nomenclature_citations, :api_distribution, :api_content, :api_dwc_inventory, :api_dwc_gallery, :api_key_inventory, :api_determined_to_rank]
+    :api_nomenclature_citations, :api_citations_inventory, :api_distribution,
+    :api_distribution_is_absent,
+    :api_content, :api_dwc_inventory, :api_dwc_gallery, :api_key_inventory, :api_determined_to_rank]
 
   after_action -> { set_pagination_headers(:otus) }, only: [:index, :api_index, :api_alphabetical_index], if: :json_request?
 
@@ -420,6 +423,18 @@ class OtusController < ApplicationController
     render '/otus/api/v1/inventory/type_material'
   end
 
+  # GET /otus/:id/inventory/citations
+  def citations_inventory
+    @catalog = Catalog::Inventory.new(targets: [@otu])
+    render '/otus/citations'
+  end
+
+  # GET /api/v1/otus/:id/inventory/citations
+  def api_citations_inventory
+    @catalog = Catalog::Inventory.new(targets: [@otu])
+    render '/otus/api/v1/inventory/citations'
+  end
+
   # GET /api/v1/otus/:id/inventory/nomenclature_citations
   def api_nomenclature_citations
     if @otu.taxon_name
@@ -476,7 +491,6 @@ class OtusController < ApplicationController
 
   end
 
-
   # GET /otus/autoselect
   def autoselect
     render json: ::Autoselect::Otu::Autoselect.new(
@@ -512,6 +526,25 @@ class OtusController < ApplicationController
       failed_col_name: e.col_name,
       failed_col_id:   e.col_id
     }, status: :unprocessable_entity
+  end
+  
+  # GET /otus/:id/inventory/distribution_is_absent.geojson
+  def distribution_is_absent
+    @descendants = params[:descendants] == 'true'
+    respond_to do |format|
+      format.geojson do
+      end
+    end
+  end
+
+  # GET /api/v1/otus/:id/inventory/distribution_is_absent.geojson
+  def api_distribution_is_absent
+    @descendants = params[:descendants] == 'true'
+    respond_to do |format|
+      format.geojson do
+        render '/otus/api/v1/inventory/distribution_is_absent'
+      end
+    end
   end
 
   private

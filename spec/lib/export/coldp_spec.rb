@@ -71,4 +71,187 @@ describe Export::Coldp, type: :model, group: :col do
       end
     end
   end
+
+  # See https://github.com/CatalogueOfLife/testing/issues/322
+  context 'nominotypical autonym synonymy' do
+    let!(:species) { FactoryBot.create(:iczn_species) }
+
+    specify 'nominotypical subspecies is not exported as synonym of its parent species' do
+      subspecies = Protonym.create!(
+        name: species.name,
+        rank_class: Ranks.lookup(:iczn, :subspecies),
+        parent: species,
+        verbatim_author: species.verbatim_author,
+        year_of_publication: species.year_of_publication
+      )
+
+      TaxonNameRelationship::Iczn::Invalidating.create!(
+        subject_taxon_name: subspecies,
+        object_taxon_name: species
+      )
+
+      species_otu = Otu.create!(taxon_name: species)
+      otus = Export::Coldp.otus(species_otu.id)
+
+      tsv = Export::Coldp::Files::Synonym.generate(species_otu, otus, {})
+      rows = CSV.parse(tsv, col_sep: "\t", headers: true)
+      name_ids = rows.map { |r| r['nameID'] }
+
+      expect(name_ids).not_to include(subspecies.id.to_s)
+    end
+
+    specify 'species is not exported as Synonym of its nominotypical subspecies' do
+      subspecies = Protonym.create!(
+        name: species.name,
+        rank_class: Ranks.lookup(:iczn, :subspecies),
+        parent: species,
+        verbatim_author: species.verbatim_author,
+        year_of_publication: species.year_of_publication
+      )
+
+      # We wouldn't create a self-referencing synonym in this way, it's not
+      # possible.
+      # 
+      # TaxonNameRelationship::Iczn::Invalidating.create!(
+      #   subject_taxon_name: species,
+      #   object_taxon_name: subspecies
+      # )
+      # 
+
+      species_otu = Otu.create!(taxon_name: species)
+      subspecies_otu = Otu.create!(taxon_name: subspecies)
+      otus = Export::Coldp.otus(subspecies_otu.id)
+
+      tsv = Export::Coldp::Files::Synonym.generate(species_otu, otus, {})
+      rows = CSV.parse(tsv, col_sep: "\t", headers: true)
+      
+      name_ids = rows.map { |r| r['nameID'] } # Nothing is exported to Synonym table
+
+      expect(name_ids).not_to include(species.id.to_s)
+    end
+
+    # Are we saying this?  This is very weird if so.  We should not assume taxon identity between Ranks
+    xspecify 'nominotypical species is exported as synonym of its sibling subspecies' do
+    end
+
+
+    # 
+    # Is it a name for a Taxon? That's what Synonym is.
+    #
+    # Bus aus ()     # Current Combination
+    # Aus aus        # (Different) Original combination 
+    # 
+    # ?!
+    #
+    xspecify 'species with different original combination is not exported as reified synonym of its nominotypical subspecies' do
+      # Create a different genus for the original combination
+      other_genus = Protonym.create!(
+        name: 'Xus',
+        rank_class: Ranks.lookup(:iczn, :genus),
+        parent: species.ancestor_at_rank('tribe'),
+        verbatim_author: 'Author',
+        year_of_publication: 1800
+      )
+
+      # Set original genus so cached_original_combination differs from cached
+      species.original_genus = other_genus
+      species.save!
+      species.reload
+
+      subspecies = Protonym.create!(
+        name: species.name,
+        rank_class: Ranks.lookup(:iczn, :subspecies),
+        parent: species,
+        verbatim_author: species.verbatim_author,
+        year_of_publication: species.year_of_publication
+      )
+
+      # TODO: Review later.
+      # 
+      # This level of granular relationship should't happen.  A more 
+      # refined relationship (homonymy, unavailable to available, etc.) 
+      # should be used when same-string names are related.
+      #
+      # If one name is invalid then both are, and this is setup
+      # by relationships to the valid name, not the nominotrypical.
+      #
+      TaxonNameRelationship::Iczn::Invalidating.create!(
+        subject_taxon_name: species,
+        object_taxon_name: subspecies
+      )
+
+      subspecies_otu = Otu.create!(taxon_name: subspecies)
+      otus = Export::Coldp.otus(subspecies_otu.id)
+
+      tsv = Export::Coldp::Files::Synonym.generate(subspecies_otu, otus, {})
+      rows = CSV.parse(tsv, col_sep: "\t", headers: true)
+      name_ids = rows.map { |r| r['nameID'] }
+
+      # The reified ID should not appear as a synonym
+      species.reload
+      reified_id = Utilities::Nomenclature.reified_id(species.id, species.cached_original_combination)
+      expect(name_ids).not_to include(reified_id.to_s)
+      
+    end
+
+    specify 'valid autonym subspecies with different original combination does not export its binomial OC as synonym' do
+      # The subspecies was originally described at species rank (binomial OC),
+      # then later moved to subspecies. The reified OC "Aus bus" should not
+      # be listed as a synonym of the subspecies "Aus bus bus" because it
+      # collides with the accepted parent species.
+      other_genus = Protonym.create!(
+        name: 'Xus',
+        rank_class: Ranks.lookup(:iczn, :genus),
+        parent: species.ancestor_at_rank('tribe'),
+        verbatim_author: 'Author',
+        year_of_publication: 1800
+      )
+
+      subspecies = Protonym.create!(
+        name: species.name,
+        rank_class: Ranks.lookup(:iczn, :subspecies),
+        parent: species,
+        verbatim_author: species.verbatim_author,
+        year_of_publication: species.year_of_publication
+      )
+
+      # Set original genus on the subspecies so its OC is a binomial in a different genus
+      subspecies.original_genus = other_genus
+      subspecies.save!
+      subspecies.reload
+
+      species_otu = Otu.create!(taxon_name: species)
+      subspecies_otu = Otu.create!(taxon_name: subspecies)
+      otus = Export::Coldp.otus(species_otu.id)
+
+      tsv = Export::Coldp::Files::Synonym.generate(species_otu, otus, {})
+      rows = CSV.parse(tsv, col_sep: "\t", headers: true)
+      name_ids = rows.map { |r| r['nameID'] }
+
+      reified_id = Utilities::Nomenclature.reified_id(subspecies.id, subspecies.cached_original_combination)
+      expect(name_ids).not_to include(reified_id.to_s)
+    end
+  end
+
+  # See https://github.com/catalogueoflife/testing/issues/322
+  specify 'invalid_core_names excludes misapplications' do
+    species = FactoryBot.create(:iczn_species)
+    otu = Otu.create!(taxon_name: species)
+
+    misapplied = Protonym.create!(
+      name: 'misapplicatus',
+      rank_class: Ranks.lookup(:iczn, :species),
+      parent: species.parent,
+      verbatim_author: 'Smith',
+      year_of_publication: 1900
+    )
+
+    TaxonNameRelationship::Iczn::Invalidating::Misapplication.create!(
+      subject_taxon_name: misapplied,
+      object_taxon_name: species
+    )
+
+    scope = Export::Coldp::Files::Name.invalid_core_names(otu)
+    expect(scope.where(id: misapplied.id).count).to eq(0)
+  end
 end

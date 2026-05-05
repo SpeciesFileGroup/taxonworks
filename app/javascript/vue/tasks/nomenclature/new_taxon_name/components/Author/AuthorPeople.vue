@@ -1,6 +1,7 @@
 <template>
   <div class="flex-separate">
     <role-picker
+      ref="rolePicker"
       v-model="roles"
       @create="updateLastChange"
       @delete="updateLastChange"
@@ -69,6 +70,10 @@ export default {
   },
 
   methods: {
+    focus() {
+      this.$refs.rolePicker?.focus()
+    },
+
     cloneFromSource() {
       const authors = []
       const peopleIds = this.roles.map((role) => role.person.id)

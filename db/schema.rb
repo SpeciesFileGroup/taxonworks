@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_16_024500) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_24_134946) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -166,6 +166,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_16_024500) do
     t.integer "object_id", null: false
     t.string "object_label"
     t.string "object_order"
+    t.integer "object_otu_id"
     t.string "object_properties"
     t.string "object_type", null: false
     t.string "object_uuid"
@@ -179,6 +180,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_16_024500) do
     t.integer "subject_id", null: false
     t.string "subject_label"
     t.string "subject_order"
+    t.integer "subject_otu_id"
     t.string "subject_properties"
     t.string "subject_type", null: false
     t.string "subject_uuid"
@@ -191,6 +193,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_16_024500) do
     t.index ["object_genus"], name: "index_biological_association_indices_on_object_genus"
     t.index ["object_id", "object_type"], name: "idx_on_object_id_object_type_0eedf4ae5a"
     t.index ["object_order"], name: "index_biological_association_indices_on_object_order"
+    t.index ["object_otu_id"], name: "index_biological_association_indices_on_object_otu_id"
     t.index ["object_properties"], name: "index_biological_association_indices_on_object_properties"
     t.index ["project_id"], name: "index_biological_association_indices_on_project_id"
     t.index ["rebuild_set"], name: "index_biological_association_indices_on_rebuild_set"
@@ -200,6 +203,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_16_024500) do
     t.index ["subject_genus"], name: "index_biological_association_indices_on_subject_genus"
     t.index ["subject_id", "subject_type"], name: "idx_on_subject_id_subject_type_6dfd7ad8ad"
     t.index ["subject_order"], name: "index_biological_association_indices_on_subject_order"
+    t.index ["subject_otu_id"], name: "index_biological_association_indices_on_subject_otu_id"
     t.index ["subject_properties"], name: "index_biological_association_indices_on_subject_properties"
   end
 
@@ -588,6 +592,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_16_024500) do
   end
 
   create_table "containers", id: :serial, force: :cascade do |t|
+    t.decimal "asserted_percent_earmarked"
+    t.decimal "asserted_percent_empty"
     t.datetime "created_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.string "disposition"
@@ -994,6 +1000,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_16_024500) do
     t.string "originalNameUsage"
     t.string "originalNameUsageID"
     t.string "otherCatalogNumbers"
+    t.bigint "otu_id"
     t.string "ownerInstitutionCode"
     t.string "parentEventID"
     t.string "parentNameUsage"
@@ -1053,6 +1060,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_16_024500) do
     t.index ["county"], name: "index_dwc_occurrences_on_county"
     t.index ["created_at"], name: "index_dwc_occurrences_on_created_at"
     t.index ["dwc_occurrence_object_id", "dwc_occurrence_object_type"], name: "dwc_occurrences_object_index"
+    t.index ["otu_id"], name: "index_dwc_occurrences_on_otu_id"
     t.index ["project_id", "id"], name: "index_dwco_on_project_id"
     t.index ["project_id"], name: "index_dwc_occurrences_on_project_id"
     t.index ["rebuild_set", "id"], name: "idx_dwc_occurrences_rebuild_set_id"

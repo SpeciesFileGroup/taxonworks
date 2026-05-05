@@ -413,7 +413,7 @@ describe 'Shared::Unify', type: :model do
     a = FactoryBot.create(:valid_source)
     b = FactoryBot.create(:valid_source)
 
-    c = FactoryBot.create(:valid_citation, source: b, citation_object: o3)
+    c = FactoryBot.create(:valid_citation, project:, source: b, citation_object: o3)
 
     a.unify(b)
     expect(b.destroyed?).to be_falsey
@@ -775,4 +775,3 @@ class TestUnify < ApplicationRecord
   include FakeTable
   include Shared::Unify
 end
-

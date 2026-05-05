@@ -385,9 +385,50 @@ module Queries
 
       def otu_id_facet
         return nil if otu_id.empty?
-        table[:asserted_distribution_object_type].eq('Otu').and(
-          table[:asserted_distribution_object_id].in(otu_id)
+
+        # Direct OTU asserted distributions
+        a = ::AssertedDistribution.where(
+          asserted_distribution_object_type: 'Otu',
+          asserted_distribution_object_id: otu_id
         )
+
+        # ADs on BiologicalAssociations related to the OTU — including through
+        # CollectionObject/FieldOccurrence taxon determinations and AnatomicalParts,
+        # by delegating to the BA filter which already covers all those paths.
+        ba_ids = Queries::BiologicalAssociation::Filter.new(otu_query: { otu_id: otu_id }).all.select(:id)
+
+        b = ::AssertedDistribution
+          .with_biological_associations
+          .where(biological_associations: { id: ba_ids })
+
+        # BiologicalAssociationsGraph IDs that contain a BA involving the OTU
+        bag_ids = ::BiologicalAssociationsGraph
+          .joins(:biological_associations_biological_associations_graphs)
+          .where(biological_associations_biological_associations_graphs: { biological_association_id: ba_ids })
+          .select(:id)
+
+        # ADs on BiologicalAssociationsGraphs that include a BA involving the OTU
+        d = ::AssertedDistribution.where(
+          asserted_distribution_object_type: 'BiologicalAssociationsGraph',
+          asserted_distribution_object_id: bag_ids
+        )
+
+        # ADs on Conveyances where the OTU is the conveyance object
+        e = ::AssertedDistribution
+          .with_otu_conveyances
+          .where(conveyances: { conveyance_object_id: otu_id })
+
+        # ADs on Depictions where the OTU is the depiction object
+        f = ::AssertedDistribution
+          .with_otu_depictions
+          .where(depictions: { depiction_object_id: otu_id })
+
+        # ADs on Observations where the OTU is the observation object
+        g = ::AssertedDistribution
+          .with_otu_observations
+          .where(observations: { observation_object_id: otu_id })
+
+        referenced_klass_union([a, b, d, e, f, g])
       end
 
       def biological_association_id_facet
@@ -496,7 +537,6 @@ module Queries
       def and_clauses
         [
           biological_association_id_facet,
-          otu_id_facet,
           presence_facet,
           asserted_distribution_shape_type_facet,
           asserted_distribution_object_type_facet,
@@ -509,6 +549,7 @@ module Queries
           dwc_occurrence_query_facet,
           biological_association_query_facet,
           geo_json_facet,
+          otu_id_facet,
           otu_query_facet,
           taxon_name_query_facet,
           source_id_facet,

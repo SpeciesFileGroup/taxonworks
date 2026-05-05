@@ -1,23 +1,26 @@
 <template>
-  <HandyScroll>
+  <div
+    id="horizontally-scrollable"
+    class="overflow-x-auto"
+  >
     <table
       class="table-striped table-cell-border table-header-border full_width"
       v-resize-column
       ref="element"
     >
-      <thead>
+      <thead ref="theadRef">
         <tr v-if="headerGroups.length || layout?.properties">
           <td
+            v-if="headerEmptyColspan"
             class="header-empty-td"
-            :colspan="
-              radialObject || radialAnnotator || radialNavigator ? 2 : 1
-            "
+            :colspan="headerEmptyColspan"
           />
           <template
             v-for="header in headerGroups"
             :key="header"
           >
             <component
+              v-if="!hideUnfrozen"
               :is="header.title ? 'th' : 'td'"
               :colspan="header.colspan"
               :scope="header.scope"
@@ -32,8 +35,8 @@
           >
             <template v-if="Array.isArray(properties)">
               <th
-                v-if="properties.length"
-                :colspan="properties.length"
+                v-if="getVisiblePropertiesCount(key, properties)"
+                :colspan="getVisiblePropertiesCount(key, properties)"
                 scope="colgroup"
                 class="cell-left-border"
               >
@@ -42,10 +45,10 @@
             </template>
             <template v-else>
               <th
-                v-if="getDynamicColumns(key).length"
+                v-if="getVisiblePropertiesCount(key, getDynamicColumns(key))"
                 scope="colgroup"
                 class="cell-left-border"
-                :colspan="getDynamicColumns(key).length"
+                :colspan="getVisiblePropertiesCount(key, getDynamicColumns(key))"
               >
                 {{ humanize(key) }}
               </th>
@@ -60,6 +63,7 @@
 
         <tr>
           <th
+            v-show="isColumnVisible(FIXED_COLUMNS.Checkbox)"
             :class="[{ freeze: freezeColumn.includes(FIXED_COLUMNS.Checkbox) }]"
             :style="
               freezeColumn.includes(FIXED_COLUMNS.Checkbox) && {
@@ -74,6 +78,7 @@
           </th>
           <th
             v-if="radialObject || radialAnnotator || radialNavigator"
+            v-show="isColumnVisible(FIXED_COLUMNS.Radial)"
             :class="[{ freeze: freezeColumn.includes(FIXED_COLUMNS.Radial) }]"
             :style="
               freezeColumn.includes(FIXED_COLUMNS.Radial) && {
@@ -89,6 +94,7 @@
           <th
             v-for="(title, attr) in attributes"
             :key="attr"
+            v-show="isColumnVisible(attr)"
             :class="[{ freeze: freezeColumn.includes(attr) }]"
             :style="
               freezeColumn.includes(attr) && {
@@ -159,6 +165,7 @@
               <th
                 v-for="(property, pIndex) in propertiesList"
                 :key="property"
+                v-show="isColumnVisible(`${key}.${property}`)"
                 :class="{
                   'cell-left-border': pIndex === 0,
                   freeze: freezeColumn.includes(`${key}.${property}`)
@@ -225,6 +232,7 @@
               <th
                 v-for="(property, pIndex) in getDynamicColumns(key)"
                 :key="property"
+                v-show="isColumnVisible(`${key}.${property}`)"
                 :class="{
                   'cell-left-border': pIndex === 0,
                   freeze: freezeColumn.includes(`${key}.${property}`)
@@ -292,6 +300,7 @@
 
         <tr class="header-row-attributes">
           <th
+            v-show="isColumnVisible(FIXED_COLUMNS.Checkbox)"
             :class="[
               'w-2',
               { freeze: freezeColumn.includes(FIXED_COLUMNS.Checkbox) }
@@ -311,6 +320,7 @@
           </th>
           <th
             v-if="radialObject || radialAnnotator || radialNavigator"
+            v-show="isColumnVisible(FIXED_COLUMNS.Radial)"
             :class="[
               'w-2',
               { freeze: freezeColumn.includes(FIXED_COLUMNS.Radial) }
@@ -325,6 +335,7 @@
           <th
             v-for="(title, attr) in attributes"
             :key="attr"
+            v-show="isColumnVisible(attr)"
             :class="{ freeze: freezeColumn.includes(attr) }"
             :style="
               freezeColumn.includes(attr) && {
@@ -346,6 +357,7 @@
               <th
                 v-for="(property, pIndex) in propertiesList"
                 :key="property"
+                v-show="isColumnVisible(`${key}.${property}`)"
                 :class="{
                   'cell-left-border': pIndex === 0,
                   freeze: freezeColumn.includes(`${key}.${property}`)
@@ -366,6 +378,7 @@
               <th
                 v-for="(property, pIndex) in getDynamicColumns(key)"
                 :key="property"
+                v-show="isColumnVisible(`${key}.${property}`)"
                 :class="{
                   'cell-left-border': pIndex === 0,
                   freeze: freezeColumn.includes(`${key}.${property}`)
@@ -397,6 +410,7 @@
           @mouseover="() => emit('mouseover:row', { index, item })"
         >
           <td
+            v-show="isColumnVisible(FIXED_COLUMNS.Checkbox)"
             :class="{ freeze: freezeColumn.includes(FIXED_COLUMNS.Checkbox) }"
             :style="
               freezeColumn.includes(FIXED_COLUMNS.Checkbox) && {
@@ -412,6 +426,7 @@
           </td>
           <td
             v-if="radialObject || radialAnnotator || radialNavigator"
+            v-show="isColumnVisible(FIXED_COLUMNS.Radial)"
             :class="{ freeze: freezeColumn.includes(FIXED_COLUMNS.Radial) }"
             :style="
               freezeColumn.includes(FIXED_COLUMNS.Radial) && {
@@ -451,6 +466,7 @@
             <td
               v-for="(_, attr) in attributes"
               :key="attr"
+              v-show="isColumnVisible(attr)"
               :name="attr"
               :value="item[attr]"
               :class="{ freeze: freezeColumn.includes(attr) }"
@@ -486,6 +502,7 @@
                 <td
                   v-for="(value, property, dIndex) in item[key]"
                   :key="property"
+                  v-show="isColumnVisible(`${key}.${property}`)"
                   :class="{
                     'cell-left-border': dIndex === 0,
                     freeze: freezeColumn.includes(`${key}.${property}`)
@@ -515,6 +532,7 @@
               <td
                 v-for="(property, pIndex) in properties"
                 :key="property"
+                v-show="isColumnVisible(`${key}.${property}`)"
                 v-html="renderItem(item, key, property)"
                 :class="{
                   'cell-left-border': pIndex === 0,
@@ -543,22 +561,31 @@
         </tr>
       </tbody>
     </table>
-  </HandyScroll>
+  </div>
 </template>
 
 <script setup>
-import { computed, nextTick, ref, watch } from 'vue'
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  useTemplateRef,
+  watch
+} from 'vue'
 import { sortArray } from '@/helpers/arrays.js'
 import { vResizeColumn } from '@/directives/resizeColumn.js'
 import { humanize } from '@/helpers/strings'
 import { sanitizeHtml } from '@/helpers'
+import { useUserPreference } from '@/composables'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VLock from '@/components/ui/VLock/index.vue'
-import HandyScroll from 'vue-handy-scroll'
 import RadialNavigation from '@/components/radials/navigation/radial.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
+import 'handy-scroll'
 
 const props = defineProps({
   list: {
@@ -599,6 +626,11 @@ const props = defineProps({
   radialNavigator: {
     type: Boolean,
     default: true
+  },
+
+  preferenceKey: {
+    type: String,
+    default: null
   }
 })
 
@@ -615,11 +647,39 @@ const FIXED_COLUMNS = {
   Radial: 'FixedRadialColumn'
 }
 
-const freezeColumn = ref([])
+const hideUnfrozen = defineModel('hideUnfrozen', {
+  type: Boolean,
+  default: false
+})
+
+const freezeColumn = props.preferenceKey
+  ? useUserPreference(`${props.preferenceKey}::freezeColumn`, [])
+  : ref([])
 const freezeColumnLeftPosition = ref({})
-const element = ref(null)
+
+function isColumnVisible(key) {
+  return !hideUnfrozen.value || freezeColumn.value.includes(key)
+}
+
+function getVisiblePropertiesCount(key, properties) {
+  return properties.filter((p) => isColumnVisible(`${key}.${p}`)).length
+}
+
+const headerEmptyColspan = computed(() => {
+  const hasRadial =
+    props.radialObject || props.radialAnnotator || props.radialNavigator
+  let n = 0
+  if (isColumnVisible(FIXED_COLUMNS.Checkbox)) n++
+  if (hasRadial && isColumnVisible(FIXED_COLUMNS.Radial)) n++
+  return n
+})
+
 const ascending = ref(false)
 const lastRadialOpenedRow = ref(null)
+const handyScrollRef = useTemplateRef('handyScrollRef')
+const theadRef = useTemplateRef('theadRef')
+const tableRef = useTemplateRef('element')
+let tableResizeObserver = null
 const isLayoutConfig = computed(() => !!Object.keys(props.layout || {}).length)
 
 const filteredIds = computed(() =>
@@ -692,7 +752,7 @@ function sortTable(sortProperty) {
 }
 
 function scrollToTop() {
-  window.scrollTo(0, 0)
+  document.getElementById('horizontally-scrollable')?.scrollTo(0, 0)
 }
 
 function clearFilterValues() {
@@ -726,10 +786,39 @@ function updateSelectedIdsByFilter() {
   ids.value = ids.value.filter((id) => filteredIds.value.includes(id))
 }
 
+function computeHeaderRowTops() {
+  if (!theadRef.value) return
+  let cumulative = 0
+  ;[...theadRef.value.querySelectorAll('tr')].forEach((row, index) => {
+    theadRef.value.style.setProperty(
+      `--row-${index + 1}-top`,
+      `${cumulative}px`
+    )
+    cumulative += row.getBoundingClientRect().height
+  })
+}
+
+onMounted(() => {
+  nextTick(computeHeaderRowTops)
+
+  if (tableRef.value && typeof ResizeObserver !== 'undefined') {
+    tableResizeObserver = new ResizeObserver(() => {
+      requestAnimationFrame(generateFreezeColumnLeftPosition)
+    })
+    tableResizeObserver.observe(tableRef.value)
+  }
+})
+
+onBeforeUnmount(() => {
+  tableResizeObserver?.disconnect()
+})
+
 watch(
   () => props.list,
   (newVal, oldVal) => {
-    HandyScroll.EventBus.emit('update', { sourceElement: element.value })
+    nextTick(() => {
+      handyScrollRef.value?.update()
+    })
 
     if (oldVal && oldVal?.length === newVal?.length) {
       const ids = oldVal.map((item) => item.id)
@@ -737,6 +826,7 @@ watch(
 
       if (!hasSameIds) {
         clearFilterValues()
+        scrollToTop()
       }
     } else {
       clearFilterValues()
@@ -746,19 +836,25 @@ watch(
 )
 
 watch(
-  () => props.layout,
-  () => {
-    HandyScroll.EventBus.emit('update', { sourceElement: element.value })
-  },
-  { deep: true }
-)
-
-watch(
-  [() => props.layout, () => props.attributes, freezeColumn],
-  () => nextTick(generateFreezeColumnLeftPosition),
+  [() => props.layout, () => props.attributes, freezeColumn, hideUnfrozen],
+  () =>
+    nextTick(() => {
+      generateFreezeColumnLeftPosition()
+      computeHeaderRowTops()
+    }),
   {
     deep: true
   }
+)
+
+watch(
+  () => props.layout,
+  () => {
+    nextTick(() => {
+      handyScrollRef.value?.update()
+    })
+  },
+  { deep: true }
 )
 
 defineExpose({
@@ -823,10 +919,40 @@ table {
   }
 }
 
+#horizontally-scrollable {
+  height: 100%;
+}
+
+thead th,
+thead td {
+  position: sticky;
+  background-color: var(--panel-bg-color, #fff);
+  z-index: 12;
+}
+
+thead tr:nth-child(1) th,
+thead tr:nth-child(1) td {
+  top: var(--row-1-top, 0px);
+}
+
+thead tr:nth-child(2) th,
+thead tr:nth-child(2) td {
+  top: var(--row-2-top, 0px);
+}
+
+thead tr:nth-child(3) th,
+thead tr:nth-child(3) td {
+  top: var(--row-3-top, 0px);
+}
+
 .freeze {
   left: 0;
   position: sticky;
   z-index: 10;
+}
+
+thead .freeze {
+  z-index: 15;
 }
 
 .header-empty-td {

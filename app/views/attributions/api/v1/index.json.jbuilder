@@ -1,1 +1,1 @@
-json.array! @attributions, partial: '/attributions/attributes', as: :attribution
+json.array! @attributions, partial: '/attributions/api/v1/attributes', as: :attribution

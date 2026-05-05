@@ -97,7 +97,32 @@ function applyMatchedAuthors(people) {
     for (const person of people) {
         rolePicker.value.addPerson(person);
     }
+
+    reorderAuthorRoles(people.map((p) => p.id));
+
     source.value.isUnsaved = true;
     showMatchModal.value = false;
+}
+
+function reorderAuthorRoles(orderedIds) {
+    const activeAuthorRoles = source.value.roles_attributes.filter(
+        (r) => r.type === ROLE_SOURCE_AUTHOR && !r._destroy,
+    );
+
+    const remaining = [...activeAuthorRoles];
+    const ordered = [];
+
+    for (const id of orderedIds) {
+        const idx = remaining.findIndex(
+            (r) => (r.person_id ?? r.person?.id) === id,
+        );
+        if (idx !== -1) ordered.push(remaining.splice(idx, 1)[0]);
+    }
+
+    ordered.push(...remaining);
+
+    ordered.forEach((role, i) => {
+        role.position = i + 1;
+    });
 }
 </script>

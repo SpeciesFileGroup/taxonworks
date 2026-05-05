@@ -57,7 +57,7 @@ module Shared::Dwc::CollectingEventExtensions
 
 
   def dwc_event_remarks
-    collecting_event&.notes&.collect {|n| n.text}&.join(CollectionObject::DWC_DELIMITER).presence
+    collecting_event&.notes&.collect {|n| n.text}&.join(Export::Dwca::DELIMITER).presence
   end
 
   def dwc_georeference_sources
@@ -86,12 +86,6 @@ module Shared::Dwc::CollectingEventExtensions
 
   def dwc_verbatim_srs
     georeference_attributes[:dwcVerbatimSrs]
-  end
-
-  # georeferenceDate
-  # technically could look at papertrail to see when geographic_area_id appeared
-  def dwc_georeferenced_date
-    collecting_event&.attribute_updated(:geographic_area_id) if collecting_event&.geographic_area_id
   end
 
   # TODO: extend to Georeferences when we understand how to describe spatial uncertainty
@@ -196,7 +190,7 @@ module Shared::Dwc::CollectingEventExtensions
         .unscope(:order)
         .distinct
         .pluck('identifiers.cached')
-        .join(CollectionObject::DWC_DELIMITER)&.presence
+        .join(Export::Dwca::DELIMITER)&.presence
     end
   end
 
@@ -209,7 +203,7 @@ module Shared::Dwc::CollectingEventExtensions
       v = collecting_event.collectors
         .order('roles.position')
         .map(&:name)
-        .join(CollectionObject::DWC_DELIMITER)
+        .join(Export::Dwca::DELIMITER)
         .presence
       v = collecting_event.verbatim_collectors.presence if v.blank?
     end

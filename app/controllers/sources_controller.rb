@@ -75,7 +75,7 @@ class SourcesController < ApplicationController
 
     respond_to do |format|
       begin
-        if @source && @source.save
+        if @source.errors.empty? && @source.save
           format.html { redirect_to url_for(@source.metamorphosize),
                         notice: "#{@source.type} successfully created." }
           format.json { render action: 'show', status: :created, location: @source.metamorphosize }
@@ -210,8 +210,8 @@ class SourcesController < ApplicationController
         cookies[:batch_sources_namespace_id] = @namespace_id if @namespace_id.present?
         render 'sources/batch_load/bibtex/bibtex_batch_preview'
       else
-      redirect_to batch_load_sources_path,
-        notice: "Error parsing BibTeX :#{message}."
+        redirect_to batch_load_sources_path,
+          notice: "Error parsing BibTeX :#{message}."
       end
     end
   end

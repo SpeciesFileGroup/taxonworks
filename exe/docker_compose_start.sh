@@ -15,13 +15,13 @@ function wait_for_db() {
 # Could do sanity check of environment here
 # * Raise a warning of the database.yml file looks like it is setup for docker-compose
 
-wait_for_db "postgres10_legacy"
+wait_for_db "postgres12_legacy"
 wait_for_db "db"
 
-# If database is empty migrate data over from legacy postgres 10 postgres
+# If database is empty migrate data over from legacy postgres 12 postgres
 if psql -h db -U postgres -tAc "SELECT '<'||COUNT(*)||'>' FROM pg_database WHERE datname NOT LIKE 'template%'" | grep -q "<1>"; then
-  echo "Migrating from legacy postgres 10 to postgres 12"
-  pg_dumpall -h postgres10_legacy -U postgres | psql -h db -U "postgres" -f-
+  echo "Migrating from legacy postgres 12 to postgres 17"
+  pg_dumpall -h postgres12_legacy -U postgres | psql -h db -U "postgres" -f-
 fi
 
 

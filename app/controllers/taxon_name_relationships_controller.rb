@@ -115,6 +115,20 @@ class TaxonNameRelationshipsController < ApplicationController
     render json: TAXON_NAME_RELATIONSHIPS_JSON
   end
 
+  # PATCH /taxon_name_relationships/batch_update.json
+  def batch_update
+    if r = TaxonNameRelationship.batch_update(
+        preview: params[:preview],
+        taxon_name_relationship: taxon_name_relationship_params,
+        taxon_name_relationship_query: params[:taxon_name_relationship_query],
+        user_id: sessions_current_user_id,
+        project_id: sessions_current_project_id)
+      render json: r.to_json, status: :ok
+    else
+      render json: {}, status: :unprocessable_content
+    end
+  end
+
   # GET /api/v1/taxon_name_relationships
   def api_index
     q = Queries::TaxonNameRelationship::Filter.new(params.merge!(api: true)).all

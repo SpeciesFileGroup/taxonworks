@@ -187,7 +187,7 @@ class Tools::ImageMatrix
     @observation_matrix_id = observation_matrix_id
     @project_id = project_id
     @observation_matrix = find_observation_matrix
-    @observation_matrix_citation = @observation_matrix&.source
+    @observation_matrix_citation = @observation_matrix&.origin_citation
     @language_id = language_id
     @keyword_ids = keyword_ids
     @per = (per.presence || 250)
@@ -415,7 +415,7 @@ class Tools::ImageMatrix
   # @return [Depiction scope]
   def observation_depictions_from_otu_filter
     Depiction.select('depictions.*, observations.descriptor_id, observations.observation_object_id, observations.observation_object_type, sources.id AS source_id, sources.cached_author_string, sources.year, sources.cached AS source_cached')
-      .joins('INNER JOIN observations ON observations.id = depictions.depiction_object_id')
+      .joins("INNER JOIN observations ON observations.id = depictions.depiction_object_id AND depictions.depiction_object_type = 'Observation'")
       .joins('INNER JOIN images ON depictions.image_id = images.id')
       .joins("LEFT OUTER JOIN citations ON citations.citation_object_id = images.id AND citations.citation_object_type = 'Image' AND citations.is_original IS TRUE")
       .joins('LEFT OUTER JOIN sources ON citations.source_id = sources.id')

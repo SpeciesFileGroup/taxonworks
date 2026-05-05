@@ -22,11 +22,12 @@
         >
           <td>{{ item.id }}</td>
           <td class="word-keep-all">
-            {{
-              isTmpWkt(item) || isTempGeolocate(item)
-                ? ''
-                : getGeoJsonType(item)
-            }}
+            <span v-if="isTmpWkt(item) || isTempGeolocate(item)">
+              Available after save
+            </span>
+            <span v-else>
+              {{ getGeoJsonType(item) }}
+            </span>
           </td>
           <td>{{ getCoordinatesByType(item) }}</td>
           <td>{{ item.has_error_polygon ? 'Yes' : 'No' }}</td>
@@ -79,7 +80,7 @@ import EditInPlace from '@/components/editInPlace'
 import VDate from '@/components/ui/Date/DateFields.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
-import { convertToLatLongOrder } from '@/helpers/geojson'
+import { formatGeoJsonGeometryForDisplay } from '@/helpers/geojson'
 import { GEOREFERENCE_GEOLOCATE, GEOREFERENCE_WKT } from '@/constants/index.js'
 
 const props = defineProps({
@@ -104,13 +105,6 @@ function deleteItem(item) {
     emit('delete', item)
   }
 }
-function getCoordinates(coordinates) {
-  const flatten = coordinates.flat(1)
-
-  return typeof flatten[0] === 'number'
-    ? convertToLatLongOrder(coordinates)
-    : flatten.map((arr) => convertToLatLongOrder(arr))
-}
 function geojsonObject(object) {
   return object.geo_json
     ? object.geo_json
@@ -121,6 +115,22 @@ function getGeoJsonType(object) {
   return geojsonObject(object).geometry.type
 }
 
+function getCoordinatesByType(object) {
+  if (isTmpWkt(object)) {
+    return object.wkt
+  }
+
+  if (isTempGeolocate(object)) {
+    return object.iframe_response
+  }
+
+  const geometry = geojsonObject(object).geometry
+
+  return geometry
+    ? formatGeoJsonGeometryForDisplay(geometry)
+    : 'Available after save'
+}
+
 function isTmpWkt(object) {
   return object.type === GEOREFERENCE_WKT && !object.id
 }
@@ -129,13 +139,4 @@ function isTempGeolocate(object) {
   return object.type === GEOREFERENCE_GEOLOCATE && !object.id
 }
 
-function getCoordinatesByType(object) {
-  if (isTmpWkt(object)) {
-    return object.wkt
-  } else if (isTempGeolocate(object)) {
-    return object.iframe_response
-  } else {
-    return getCoordinates(geojsonObject(object).geometry.coordinates)
-  }
-}
 </script>

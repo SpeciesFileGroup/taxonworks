@@ -16,7 +16,9 @@
             color="primary"
             medium
             :class="[
-              'biocuration-toggle-button',
+              'btn-pill-left',
+              'margin-small-right',
+              'margin-small-bottom',
               disabled && 'biocuration-toggle-button__disabled'
             ]"
             @click="() => !disabled && emit('add', item)"
@@ -27,7 +29,9 @@
             v-else
             medium
             :class="[
-              'biocuration-toggle-button',
+              'btn-pill-left',
+              'margin-small-right',
+              'margin-small-bottom',
               disabled && 'biocuration-toggle-button__disabled'
             ]"
             @click="() => !disabled && emit('remove', item)"
@@ -73,16 +77,7 @@ function isInList(id) {
 .total-input {
   width: 50px;
 }
-.biocuration-toggle-button {
-  min-width: 60px;
-  border: 0px;
-  margin-right: 6px;
-  margin-bottom: 6px;
-  border-top-left-radius: 14px;
-  border-bottom-left-radius: 14px;
-
-  &__disabled {
-    opacity: 0.5;
-  }
+.biocuration-toggle-button__disabled {
+  opacity: 0.5;
 }
 </style>

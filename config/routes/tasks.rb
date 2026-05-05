@@ -70,6 +70,15 @@ scope :tasks do
     scope :new_container, controller: 'tasks/containers/new_container' do
       get '/', action: :index, as: 'new_container_task'
     end
+    scope :collection_layout, controller: 'tasks/containers/collection_layout' do
+      get '/', action: :index, as: 'collection_layout_task'
+      get :children, as: 'children_collection_layout_task'
+      post :scaffold, as: 'scaffold_collection_layout_task'
+    end
+    scope :collection_visualization, controller: 'tasks/containers/collection_visualization' do
+      get '/', action: :index, as: 'collection_visualization_task'
+      get :collection_tree, as: 'collection_tree_collection_visualization_task'
+    end
   end
 
   scope :dwc_occurrences do
@@ -186,6 +195,14 @@ scope :tasks do
   end
 
   scope :field_occurrences do
+    scope :inaturalist_import, controller: 'tasks/field_occurrences/inaturalist_import' do
+      get '/', as: 'inaturalist_import_task', action: :index
+      get 'find', action: :find
+      post 'import', action: :import
+      get 'check_for_existing', action: :check_for_existing
+      get 'recent', action: :recent
+    end
+
     scope :filter, controller: 'tasks/field_occurrences/filter' do
       get '/', as: 'filter_field_occurrences_task', action: :index
     end
@@ -243,8 +260,11 @@ scope :tasks do
       get '/', action: :index, as: 'dwc_dashboard_task'
       get :index_versions, defaults: {format: :json}
       get :taxonworks_extension_methods, defaults: {format: :json}
+      get :checklist_extensions, defaults: {format: :json}
+      get :accepted_name_mode_options, defaults: {format: :json}
 
       post 'generate_download', as: 'generate_dwc_download_task', defaults: {format: :json}
+      post 'generate_checklist_download', as: 'generate_dwc_checklist_download_task', defaults: {format: :json}
       post :create_index, as: 'create_dwc_index_task', defaults: {format: :json}
     end
 
@@ -266,8 +286,10 @@ scope :tasks do
     end
   end
 
-  scope :browse_annotations, controller: 'tasks/object_annotations/browse_annotations' do
-    get '/', action: :index, as: 'browse_annotations_task'
+  scope :annotations do
+    scope :filter, controller: 'tasks/annotations/filter' do
+      get '/', action: :index, as: 'annotations_filter_task'
+    end
   end
 
   scope :citations do
@@ -327,6 +349,12 @@ scope :tasks do
 
     scope :filter, controller: 'tasks/images/filter' do
       get '/', action: :index, as: 'filter_images_task'
+    end
+
+    scope :images_packager, controller: 'tasks/images/images_packager' do
+      get '/', action: :index, as: 'images_packager_task'
+      post 'preview', action: :preview, defaults: { format: :json }
+      post 'download', action: :download
     end
 
     scope :new_image, controller: 'tasks/images/new_image' do
@@ -396,6 +424,12 @@ scope :tasks do
   end
 
   scope :sources do
+    scope :documents_packager, controller: 'tasks/sources/documents_packager' do
+      get '/', action: :index, as: 'documents_packager_task'
+      post 'preview', action: :preview, defaults: { format: :json }
+      post 'download', action: :download
+    end
+
     scope :source_citation_totals, controller: 'tasks/sources/source_citation_totals' do
       get '/', action: :index, as: 'source_citation_totals_task'
     end
@@ -576,6 +610,10 @@ scope :tasks do
   end
 
   scope :biological_associations do
+    scope :new_ba, controller: 'tasks/biological_associations/new_ba' do
+      get '/', action: :index, as: 'new_ba_task'
+    end
+
     scope :new_biological_association, controller: 'tasks/biological_associations/new_biological_association' do
       get '/', action: :index, as: 'new_biological_association_task'
     end

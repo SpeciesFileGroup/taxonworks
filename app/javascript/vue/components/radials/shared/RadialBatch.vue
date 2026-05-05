@@ -78,9 +78,8 @@ import RadialMenu from '@/components/radials/RadialMenu.vue'
 import VModal from '@/components/ui/Modal.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import { computed } from 'vue'
 import { useRadialBatch } from '@/components/radials/shared/useRadialBatch'
-import { useUserPreferences } from '@/composables'
+import { useUserPreference } from '@/composables'
 
 const EXCLUDE_PARAMETERS = ['per', 'page', 'extend']
 
@@ -139,14 +138,7 @@ const emit = defineEmits(['close', 'update'])
 
 const STORAGE_KEY_AUTOREFRESH = 'RadialBatch::AutoRefresh'
 
-const { preferences, setPreference } = useUserPreferences()
-
-const autoRefresh = computed({
-  get: () => preferences.value?.layout?.[STORAGE_KEY_AUTOREFRESH] ?? true,
-  set: (value) => {
-    setPreference(STORAGE_KEY_AUTOREFRESH, value)
-  }
-})
+const autoRefresh = useUserPreference(STORAGE_KEY_AUTOREFRESH, true)
 
 function handleClose() {
   closeRadialBatch()

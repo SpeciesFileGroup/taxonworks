@@ -196,6 +196,53 @@ describe BiologicalAssociation, type: :model do
     }.to raise_error(TaxonWorks::Error, /project_id.*not set in query_batch_update/)
   end
 
+  context '#otu_ids' do
+    let(:br) { FactoryBot.create(:valid_biological_relationship) }
+
+    def make_ba(subject:, object:)
+      BiologicalAssociation.create!(
+        biological_association_subject: subject,
+        biological_association_object: object,
+        biological_relationship: br,
+        project: otu.project
+      )
+    end
+
+    specify 'direct OTU subject and object' do
+      otu2 = FactoryBot.create(:valid_otu)
+      ba = make_ba(subject: otu, object: otu2)
+      expect(ba.otu_ids).to contain_exactly(otu.id, otu2.id)
+    end
+
+    specify 'CollectionObject subject with taxon determination' do
+      co = FactoryBot.create(:valid_specimen)
+      FactoryBot.create(:taxon_determination, otu:, taxon_determination_object: co)
+      ba = make_ba(subject: co, object: otu)
+      expect(ba.otu_ids).to contain_exactly(otu.id)
+    end
+
+    specify 'FieldOccurrence subject with taxon determination' do
+      fo = FactoryBot.create(:valid_field_occurrence)
+      FactoryBot.create(:taxon_determination, otu:, taxon_determination_object: fo)
+      ba = make_ba(subject: fo, object: otu)
+      expect(ba.otu_ids).to contain_exactly(otu.id)
+    end
+
+    specify 'CollectionObject with no taxon determination returns no otu_id for that role' do
+      co = FactoryBot.create(:valid_specimen)
+      otu2 = FactoryBot.create(:valid_otu)
+      ba = make_ba(subject: co, object: otu2)
+      expect(ba.otu_ids).to contain_exactly(otu2.id)
+    end
+
+    specify 'AnatomicalPart subject returns otu_id via cached_otu_id' do
+      otu2 = FactoryBot.create(:valid_otu)
+      ap = FactoryBot.create(:valid_anatomical_part, taxon_determination_otu: otu2)
+      ba = make_ba(subject: ap, object: otu)
+      expect(ba.otu_ids).to contain_exactly(otu.id, otu2.id)
+    end
+  end
+
   context 'concerns' do
     it_behaves_like 'citations'
     it_behaves_like 'is_data'
