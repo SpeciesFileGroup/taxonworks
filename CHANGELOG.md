@@ -61,8 +61,9 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - ISBNs with 7-digit parts not recognized as valid [#4819]
 - Batch Source Import returns 'Serial identifiers identifier has already been taken' with no clear reason or explanation
 - Pin source button is missing in New Image task
-- Add extra protections to prevent saving data with associated data from a different project [#4881]
+- Add extra protections to prevent saving data with associated data from a different project [#4881] [#4895]
 - Unions of Gazetteers may not always include the shapes the union was made of (off by tiny slivers); that could still be an issue with some unions that have already been created [#4823]
+- Improve matching in the Author match modal from the New Source task: now matches on initials, maiden names, alternate values [#4847]
 
 [#1856]: https://github.com/SpeciesFileGroup/taxonworks/issues/1856
 [#2141]: https://github.com/SpeciesFileGroup/taxonworks/issues/2141
@@ -75,6 +76,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4819]: https://github.com/SpeciesFileGroup/taxonpages/issues/4819
 [#4823]: https://github.com/SpeciesFileGroup/taxonpages/issues/4823
 [#4828]: https://github.com/SpeciesFileGroup/taxonpages/issues/4828
+[#4847]: https://github.com/SpeciesFileGroup/taxonpages/issues/4847
 [#4851]: https://github.com/SpeciesFileGroup/taxonpages/issues/4851
 [#4852]: https://github.com/SpeciesFileGroup/taxonpages/issues/4852
 [#4853]: https://github.com/SpeciesFileGroup/taxonpages/issues/4853
@@ -87,6 +89,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4888]: https://github.com/SpeciesFileGroup/taxonpages/issues/4888
 [#4891]: https://github.com/SpeciesFileGroup/taxonpages/issues/4891
 [#4892]: https://github.com/SpeciesFileGroup/taxonpages/issues/4892
+[#4895]: https://github.com/SpeciesFileGroup/taxonpages/issues/4895
 [#4896]: https://github.com/SpeciesFileGroup/taxonworks/issues/4896
 
 ## [0.61.0] - 2026-02-20
