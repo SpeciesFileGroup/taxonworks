@@ -591,7 +591,7 @@ function completeSelection(item) {
   pendingExtensionItem.value = null
 
   if (props.resetOnSelect) {
-    emit('select', item.response_values)
+    emit('select', item)
     emit('update:modelValue', null)
     inputText.value = ''
     currentLevel.value = getFirstVisibleLevelKey()
@@ -600,7 +600,7 @@ function completeSelection(item) {
   } else {
     inputText.value = item.label ?? ''
     emit('update:modelValue', item)
-    emit('select', item.response_values)
+    emit('select', item)
   }
 }
 
@@ -609,10 +609,11 @@ function cancelExtension() {
   nextTick(() => inputEl.value?.focus())
 }
 
-function onColConfirm(createdId) {
+function onColConfirm({ id: createdId, global_id: createdGlobalId }) {
   const yieldsKey = pendingExtensionItem.value.extension?.hook?.yields ?? 'taxon_name_id'
   completeSelection({
     id: createdId,
+    global_id: createdGlobalId,
     label: pendingExtensionItem.value.label,
     label_html: pendingExtensionItem.value.label_html,
     info: '',

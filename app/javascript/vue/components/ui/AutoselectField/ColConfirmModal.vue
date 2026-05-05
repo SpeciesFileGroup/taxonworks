@@ -190,7 +190,7 @@ async function doCreate() {
       rows:     [...ancestorRows, targetRow],
       col_code: ext.value.col_code ?? null
     })
-    emit('confirm', body[yieldsKey])
+    emit('confirm', { id: body[yieldsKey], global_id: body.global_id ?? null })
   } catch (err) {
     errorColName.value = err.response?.body?.failed_col_name ?? null
   } finally {

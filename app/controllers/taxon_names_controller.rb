@@ -385,7 +385,8 @@ class TaxonNamesController < ApplicationController
       project_id: sessions_current_project_id,
       user_id:    sessions_current_user_id
     ).call
-    render json: result
+    tn = ::TaxonName.find(result[:taxon_name_id])
+    render json: result.merge(global_id: tn.to_global_id.to_s)
   rescue ::Autoselect::TaxonName::ColCreator::CreationError => e
     render json: {
       error:          e.message,

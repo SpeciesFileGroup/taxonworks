@@ -37,14 +37,14 @@
                 "
                 :reset-on-select="model.resetOnSelect ?? false"
                 v-model="selectedItems[model.id]"
-                @select="onSelect(model.label, $event)"
+                @select="onSelect(model, $event)"
             />
             <div
-                v-if="selectedItems[model.id]?.global_id"
+                v-if="lastGlobalIds[model.id]"
                 class="autoselects-task__radial"
             >
                 <RadialNavigator
-                    :global-id="selectedItems[model.id].global_id"
+                    :global-id="lastGlobalIds[model.id]"
                 />
             </div>
             <pre v-if="selections[model.label]">{{
@@ -106,13 +106,15 @@ const registeredModels = ref([
 
 const levelDelay = ref(500);
 
-// Full selected item per model id (includes global_id for radial)
 const selectedItems = ref({});
-
+const lastGlobalIds = ref({});
 const selections = ref({});
 
-function onSelect(label, values) {
-    selections.value[label] = values;
+function onSelect(model, item) {
+    selections.value[model.label] = item.response_values
+    if (item.global_id) {
+        lastGlobalIds.value[model.id] = item.global_id
+    }
 }
 </script>
 

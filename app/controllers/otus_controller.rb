@@ -505,7 +505,7 @@ class OtusController < ApplicationController
       updated_by_id: sessions_current_user_id
     )
 
-    render json: { otu_id: otu.id, taxon_name_id: tn_result[:taxon_name_id] }
+    render json: { otu_id: otu.id, taxon_name_id: tn_result[:taxon_name_id], global_id: otu.to_global_id.to_s }
   rescue ::Autoselect::TaxonName::ColCreator::CreationError => e
     render json: {
       error:           e.message,
