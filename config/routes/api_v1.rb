@@ -88,6 +88,7 @@ namespace :api, defaults: {format: :json} do
       get '/taxon_names/parse', to: '/taxon_names#parse'
       get '/taxon_names/:id/inventory/catalog', to: '/taxon_names#api_catalog'
       get '/taxon_names/:id/inventory/summary', to: '/taxon_names#api_summary'
+      get '/taxon_names/:id/monograph', to: '/taxon_names#api_monograph'
       get '/taxon_names/:id', to: '/taxon_names#api_show'
 
       get '/taxon_name_classifications', to: '/taxon_name_classifications#api_index'

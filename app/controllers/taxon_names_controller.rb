@@ -1,7 +1,7 @@
 class TaxonNamesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse, :original_combination, :catalog, :api_show, :api_summary, :api_catalog]
+  before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse, :original_combination, :catalog, :api_show, :api_summary, :api_catalog, :api_monograph]
   after_action -> { set_pagination_headers(:taxon_names) }, only: [:index, :api_index, :origin_citation], if: :json_request?
 
   # GET /taxon_names
@@ -300,6 +300,11 @@ class TaxonNamesController < ApplicationController
   # GET /api/v1/taxon_names/:id/inventory/summary
   def api_summary
     render '/taxon_names/api/v1/summary'
+  end
+
+  # GET /api/v1/taxon_names/:id/monograph
+  def api_monograph
+    render '/taxon_names/api/v1/monograph'
   end
 
   # GET /api/v1/taxon_names/:id/inventory/catalog
