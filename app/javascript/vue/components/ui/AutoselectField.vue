@@ -474,7 +474,7 @@ function triggerSearch(term) {
       current.value = -1
       nextTick(updateDropdownPosition)
 
-      if (results.length === 0 && body.next_level) {
+      if (results.length === 0 && body.next_level && prefs.getAutoJump()) {
         // Only light fuse to the next visible level
         const nextVisible = nextVisibleLevelKey(currentLevel.value)
         if (nextVisible) lightFuse(nextVisible)

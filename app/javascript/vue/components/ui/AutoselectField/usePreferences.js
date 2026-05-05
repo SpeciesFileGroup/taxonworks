@@ -5,19 +5,24 @@
  *
  * Preference structure (stored under STORAGE_KEY):
  * {
- *   "<resource>": {               // e.g. "taxon_names", derived from the autoselect URL
- *     "<autoselect-id>": {
- *       "levels": {
- *         "<level_key>": {
- *           "hide": Boolean,      // when true this level is hidden from the fuse bar
- *           "options": {}         // arbitrary key/value pairs passed to the server on search
- *         }
- *       },
- *       "show_info": Boolean      // when false, info column is hidden; default true
+ *   "<project_id>": {              // numeric project id, or "global" when outside a project
+ *     "<resource>": {              // e.g. "taxon_names", derived from the autoselect URL
+ *       "<autoselect-id>": {
+ *         "levels": {
+ *           "<level_key>": {
+ *             "hide": Boolean,     // when true this level is hidden from the fuse bar
+ *             "options": {}        // arbitrary key/value pairs passed to the server on search
+ *           }
+ *         },
+ *         "show_info":  Boolean,   // when false, info column is hidden; default true
+ *         "auto_jump":  Boolean    // when false, fuse does not auto-escalate; default true
+ *       }
  *     }
  *   }
  * }
  */
+
+import { getCurrentProjectId } from '@/helpers/project.js'
 
 const STORAGE_KEY = 'tw_autoselect_prefs'
 
@@ -33,6 +38,10 @@ function saveAll(all) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(all))
 }
 
+function projectKey() {
+  return String(getCurrentProjectId() || 'global')
+}
+
 /**
  * @param {string} url   - The autoselect endpoint URL, e.g. '/taxon_names/autoselect'
  * @param {string} id    - The unique id of this autoselect instance
@@ -43,13 +52,15 @@ export function usePreferences(url, id) {
 
   function getPrefs() {
     const all = loadAll()
-    return all[resource]?.[id] || { levels: {} }
+    return all[projectKey()]?.[resource]?.[id] || { levels: {} }
   }
 
   function savePrefs(prefs) {
     const all = loadAll()
-    all[resource] ??= {}
-    all[resource][id] = prefs
+    const pk = projectKey()
+    all[pk] ??= {}
+    all[pk][resource] ??= {}
+    all[pk][resource][id] = prefs
     saveAll(all)
   }
 
@@ -78,5 +89,10 @@ export function usePreferences(url, id) {
     savePrefs({ ...current, show_info: !getShowInfo() })
   }
 
-  return { getPrefs, savePrefs, isLevelVisible, getLevelOptions, getShowInfo, toggleShowInfo }
+  /** Whether the fuse auto-escalates to the next level on empty results (defaults to true). */
+  function getAutoJump() {
+    return getPrefs().auto_jump !== false
+  }
+
+  return { getPrefs, savePrefs, isLevelVisible, getLevelOptions, getShowInfo, toggleShowInfo, getAutoJump }
 }

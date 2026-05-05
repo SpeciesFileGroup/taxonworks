@@ -58,6 +58,14 @@
             />
             <span>Show info</span>
           </label>
+          <label class="prefs-modal__level-label">
+            <input
+              type="checkbox"
+              :checked="draft.auto_jump"
+              @change="draft.auto_jump = $event.target.checked"
+            />
+            <span>Auto jump</span>
+          </label>
         </section>
 
         <!-- Model-specific options section -->
@@ -126,7 +134,8 @@ const draft = reactive({
   levelOptions: Object.fromEntries(
     Object.entries(props.currentPrefs.levels || {}).map(([k, v]) => [k, { ...(v.options || {}) }])
   ),
-  show_info: props.currentPrefs.show_info !== false
+  show_info: props.currentPrefs.show_info !== false,
+  auto_jump: props.currentPrefs.auto_jump !== false
 })
 
 function toggleLevel(key, checked) {
@@ -141,7 +150,7 @@ function doSave() {
     draft.levels[key].options = { ...opts }
   }
 
-  emit('save', { levels: { ...draft.levels }, show_info: draft.show_info })
+  emit('save', { levels: { ...draft.levels }, show_info: draft.show_info, auto_jump: draft.auto_jump })
 }
 </script>
 
