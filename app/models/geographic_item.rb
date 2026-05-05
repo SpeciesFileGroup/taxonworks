@@ -5,6 +5,8 @@
 # @!attribute geography
 #   @return [RGeo::Geographic::Geography]
 #   Holds a shape of any geographic type.
+#   !! Our geography values have z-values, but they're not currently officially
+#      supported (cf. discussion in Gazetteer.rb). !!
 #
 # @!attribute cached_total_area
 #   @return [Numeric]
