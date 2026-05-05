@@ -37,6 +37,7 @@ class Sound < ApplicationRecord
     audio/x-wav
     audio/x-ms-wma
     audio/m4a
+    audio/mp4
     audio/mpeg
   }
 

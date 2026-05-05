@@ -35,17 +35,17 @@ module SoundsHelper
         return { error: 'Missing sound file' }
       end
     end
-    w = ::WahWah.open(t)
-    # This brakes on binary strings
-    #m = w.as_json.compact.delete_if{|k,v| v.blank?}
-    #m.delete 'file_io'
-    #m
+    begin
+      w = ::WahWah.open(t)
+    rescue ::WahWah::WahWahArgumentError
+      return { error: 'Unsupported format' }
+    end
 
     # Metadata. Add more as needed.
     {
       duration: w.duration,
       sample_rate: w.sample_rate
     }
-   end
+  end
 
 end

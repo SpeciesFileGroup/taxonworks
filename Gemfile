@@ -135,6 +135,8 @@ gem 'ruby-units', '~> 4.1.0', require: 'ruby_units/namespaced'
 gem 'colrapi', '~>0.1.1'
 gem 'hookkaido', '0.1.0'
 
+gem 'nasturtium'
+
 # Nexus
 gem 'nexus_parser', '~> 1.2.2'
 
@@ -201,10 +203,10 @@ end
 
 group :test do
   gem 'capybara', '~> 3.18'
- 
+
   gem 'codecov', '~> 0.6.0'
   # gem 'simplecov', require: false # coming from codecov, do we need this require?
-  
+
   gem 'database_cleaner', '~> 2.0'
   gem 'database_cleaner-active_record', '2.2.1' # TODO: Remove when instability issues are solved
   gem 'os', '~> 1.0', '>= 1.0.1'
