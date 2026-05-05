@@ -11,8 +11,8 @@ module Autoselect
       #      'P PE01' matches 'Pheidole' + 'PE01', 'Ph PE01' also matches, etc.
       #      All split points are OR'd into the same query (one round-trip).
       #
-      # Ordering: longer TaxonName#cached first (more specific match floats up),
-      # then shorter Otu#name (more specific OTU name floats up).
+      # Ordering: shorter coalesced name first (exact matches float up over prefix matches);
+      # standalone OTUs use Otu#name length; then shorter Otu#name as tiebreaker.
       class Fast < ::Autoselect::Level
 
         def key
@@ -65,11 +65,11 @@ module Autoselect
             conditions = conditions.or(hybrid)
           end
 
-          scope = ::Otu.left_joins(:taxon_name).where(conditions)
+          scope = ::Otu.eager_load(:taxon_name).where(conditions)
           scope = scope.where(project_id:) if project_id.present?
-          # Longer cached = more specific taxon; shorter otu name = more specific OTU.
+          # Shorter coalesced name = closer to exact match; standalone OTUs fall back to otus.name.
           scope = scope.order(
-            Arel.sql('length(coalesce(taxon_names.cached, \'\')) desc nulls last, length(coalesce(otus.name, \'\')) asc nulls last')
+            Arel.sql('length(coalesce(taxon_names.cached, otus.name, \'\')) asc nulls last, length(coalesce(otus.name, \'\')) asc nulls last')
           )
           scope.limit(20).to_a
         end
