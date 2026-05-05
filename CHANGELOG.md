@@ -19,6 +19,10 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Filter Source: Add TaxonWorks CSL format to `download formatted` button [#4661]
 - DwCA names checklist export (from Filter OTUs as a download type) [#4643]
 - Create Anatomical Parts from the Biological Associations annotator slice [#4716]
+- Batch update synonym type from the Filter Taxon Name Relationships task [#4828]
+- You can now create a Georeference using a Gazetteer shape [#4383]
+- `api/v1/taxon_name/:id/monograph` endpoint, including classifications, relationships, and citations associated with a name
+- iNaturalist import task: import observations from iNaturalist, along with their images and/or sounds [#2723]
 
 ### Changed
 
@@ -57,15 +61,20 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - ISBNs with 7-digit parts not recognized as valid [#4819]
 - Batch Source Import returns 'Serial identifiers identifier has already been taken' with no clear reason or explanation
 - Pin source button is missing in New Image task
+- Add extra protections to prevent saving data with associated data from a different project [#4881]
+- Unions of Gazetteers may not always include the shapes the union was made of (off by tiny slivers); that could still be an issue with some unions that have already been created [#4823]
 
-[#4896]: https://github.com/SpeciesFileGroup/taxonworks/issues/4896
 [#1856]: https://github.com/SpeciesFileGroup/taxonworks/issues/1856
 [#2141]: https://github.com/SpeciesFileGroup/taxonworks/issues/2141
+[#2723]: https://github.com/SpeciesFileGroup/taxonworks/issues/2723
+[#4383]: https://github.com/SpeciesFileGroup/taxonworks/issues/4383
 [#4643]: https://github.com/SpeciesFileGroup/taxonworks/issues/4643
 [#4661]: https://github.com/SpeciesFileGroup/taxonworks/issues/4661
 [#4716]: https://github.com/SpeciesFileGroup/taxonworks/issues/4716
 [#4767]: https://github.com/SpeciesFileGroup/taxonworks/issues/4767
 [#4819]: https://github.com/SpeciesFileGroup/taxonpages/issues/4819
+[#4823]: https://github.com/SpeciesFileGroup/taxonpages/issues/4823
+[#4828]: https://github.com/SpeciesFileGroup/taxonpages/issues/4828
 [#4851]: https://github.com/SpeciesFileGroup/taxonpages/issues/4851
 [#4852]: https://github.com/SpeciesFileGroup/taxonpages/issues/4852
 [#4853]: https://github.com/SpeciesFileGroup/taxonpages/issues/4853
@@ -73,10 +82,12 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4865]: https://github.com/SpeciesFileGroup/taxonpages/issues/4865
 [#4866]: https://github.com/SpeciesFileGroup/taxonpages/issues/4866
 [#4879]: https://github.com/SpeciesFileGroup/taxonpages/issues/4879
+[#4881]: https://github.com/SpeciesFileGroup/taxonpages/issues/4881
 [#4882]: https://github.com/SpeciesFileGroup/taxonpages/issues/4882
 [#4888]: https://github.com/SpeciesFileGroup/taxonpages/issues/4888
-[#4892]: https://github.com/SpeciesFileGroup/taxonpages/issues/4892
 [#4891]: https://github.com/SpeciesFileGroup/taxonpages/issues/4891
+[#4892]: https://github.com/SpeciesFileGroup/taxonpages/issues/4892
+[#4896]: https://github.com/SpeciesFileGroup/taxonworks/issues/4896
 
 ## [0.61.0] - 2026-02-20
 
