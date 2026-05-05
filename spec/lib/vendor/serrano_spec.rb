@@ -25,6 +25,75 @@ describe Vendor::Serrano, type: :model, group: [:sources] do
           expect(s.class).to eq(Source::Bibtex)
         }
       end
+
+      specify 'when DOI resolution fails it returns verbatim without fetching bibtex' do
+        allow(described_class).to receive(:citation_is_valid_doi?).with(citation).and_return(false)
+        allow(described_class).to receive(:resolve_doi).with(citation).and_return(nil)
+
+        s = Vendor::Serrano.new_from_citation(citation: citation)
+
+        expect(s).to be_a(Source::Verbatim)
+        expect(s.verbatim).to eq(citation)
+      end
+
+      specify 'when content negotiation returns HTML with a later @ line it is rejected as non-bibtex' do
+        doi = '10.12101/j.issn.1004-390X(n).202209026'
+        html_response = <<~HTML
+          <!DOCTYPE html>
+          <html>
+            <body>
+              <p>Example page</p>
+              @media screen { body { color: black; } }
+            </body>
+          </html>
+        HTML
+
+        allow(::Serrano).to receive(:content_negotiation).with(ids: described_class.unurize_doi(doi), format: 'bibtex').and_return(html_response)
+
+        expect(described_class.get_bibtex_string(doi, 'bibtex')).to be_nil
+      end
+
+      specify 'when parsed bibtex fails it raises an error that includes the resolved DOI' do
+        doi = '10.3956/2026-102.1.37'
+        malformed_bibtex = '@article{Thompson_2026, Jr._Yap_2026, title={Broken}}'
+
+        allow(described_class).to receive(:citation_is_valid_doi?).with(citation).and_return(false)
+        allow(described_class).to receive(:resolve_doi).with(citation).and_return(doi)
+        allow(described_class).to receive(:get_bibtex_string).with(doi, 'bibtex').and_return(malformed_bibtex)
+
+        expect { Vendor::Serrano.new_from_citation(citation: citation) }
+          .to raise_error(Vendor::Serrano::CrossrefBibtexParseError) { |error|
+            expect(error.doi).to eq(doi)
+            expect(error.bibtex).to eq(malformed_bibtex)
+          }
+      end
+
+      specify 'when citeproc enrichment is available it still populates fields on the resolved source' do
+        doi = '10.3956/2026-102.1.37'
+        bibtex_text = <<~BIB
+          @article{Test2026,
+            title = {Resolved title}
+          }
+        BIB
+        citeproc_text = {
+          'container-title' => 'The Pan-Pacific Entomologist',
+          'publisher' => 'Pacific Coast Entomological Society',
+          'issued' => { 'date-parts' => [[2026]] }
+        }.to_json
+
+        allow(described_class).to receive(:citation_is_valid_doi?).with(citation).and_return(false)
+        allow(described_class).to receive(:resolve_doi).with(citation).and_return(doi)
+        allow(described_class).to receive(:get_bibtex_string).with(doi, 'bibtex').and_return(bibtex_text)
+        allow(described_class).to receive(:get_bibtex_string).with(doi, 'citeproc').and_return(citeproc_text)
+
+        s = Vendor::Serrano.new_from_citation(citation: citation)
+
+        expect(s).to be_a(Source::Bibtex)
+        expect(s.title).to eq('Resolved title')
+        expect(s.journal).to eq('The Pan-Pacific Entomologist')
+        expect(s.publisher).to eq('Pacific Coast Entomological Society')
+        expect(s.year).to eq(2026)
+      end
     end
 
     context 'from DOI text' do

@@ -1,4 +1,4 @@
-json.extract! sound, :id, :name, :project_id, :created_by_id, :updated_by_id, :sound_file, :created_at, :updated_at
+json.extract! sound, :id, :name, :project_id, :sound_file, :created_at, :updated_at
 
 json.sound_file short_url(url_for(sound.sound_file))
 

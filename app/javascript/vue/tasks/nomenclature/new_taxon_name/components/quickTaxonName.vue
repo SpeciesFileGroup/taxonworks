@@ -1,6 +1,7 @@
 <template>
   <div class="horizontal-left-content">
     <VAutocomplete
+      ref="autocomplete"
       url="/taxon_names/autocomplete"
       label="label_html"
       display="label"
@@ -89,6 +90,12 @@ const props = defineProps({
 const emit = defineEmits(['select'])
 
 const store = useStore()
+
+const autocomplete = ref(null)
+
+defineExpose({
+  focus() { autocomplete.value?.setFocus() }
+})
 
 const ranksList = ref([])
 const confirmInput = ref('')

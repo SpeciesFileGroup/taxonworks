@@ -11,6 +11,7 @@ module Vendor
     # Searches first through CSL/Styles
     def self.get_style(style)
       return nil if style.nil?
+      style = style.to_s.sub(%r{\Ahttps?://.*/styles/}, '')
       begin
         if s = CSL::Style.load(style)
           return s
@@ -56,7 +57,7 @@ module Vendor
     # @return Array
     #   of styled sources. Allows and annotates non-BibTeX sources to be passed. 
     def self.styled(sources = [], style_id = 'http://www.zotero.org/styles/vancouver')
-      return [] if ::CSL_STYLES[style_id].nil?
+      return [] if get_style(style_id).nil?
       r = []
       sources.each do |s|
         if s.type == 'Source::Bibtex'

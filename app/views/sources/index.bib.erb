@@ -1,5 +1,7 @@
-<% if params[:style_id] -%>
-<%= ::Vendor::BibtexRuby.styled(@sources, params[:style_id]).join("\n\n").html_safe -%>
-<% else %>
-<%= ::Vendor::BibtexRuby.bibliography(@sources).to_s.html_safe -%>
-<% end %>
+<% output = if params[:style_id]
+              ::Vendor::BibtexRuby.styled(@sources, params[:style_id]).join("\n\n")
+            else
+              ::Vendor::BibtexRuby.bibliography(@sources).to_s
+            end -%>
+<% output = strip_tags(output) if params[:strip_html] == 'true' -%>
+<%= output.html_safe -%>

@@ -106,7 +106,7 @@ const hidden = ref(false)
     width: 14px;
     height: 2px;
     background-color: #ffffff;
-    border-radius: 2px;
+    border-radius: var(--border-radius-xsmall);
     margin: 2px 0;
   }
 

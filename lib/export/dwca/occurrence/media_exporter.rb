@@ -802,7 +802,7 @@ module Export::Dwca::Occurrence
 
       # Early return if no media to export
       if image_ids.empty? && sound_ids.empty?
-        output_file.write(Export::CSV::Dwc::Extension::Media::HEADERS.join("\t") + "\n")
+        output_file.write(Export::CSV::Dwc::Extension::Occurrence::Media::HEADERS.join("\t") + "\n")
         return
       end
 
@@ -840,7 +840,7 @@ module Export::Dwca::Occurrence
 
       # Step 6: Write header and stream media data to output file.
       Rails.logger.debug 'dwca_export: executing COPY TO for media data'
-      output_file.write(Export::CSV::Dwc::Extension::Media::HEADERS.join("\t") + "\n")
+      output_file.write(Export::CSV::Dwc::Extension::Occurrence::Media::HEADERS.join("\t") + "\n")
 
       export_images_to_file(image_ids, output_file)
       export_sounds_to_file(sound_ids, output_file)

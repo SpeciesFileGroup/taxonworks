@@ -186,7 +186,8 @@ class AssertedDistribution < ApplicationRecord
     asserted_distribution_object
   end
 
-  # @return [Array of Integer] OTU ids reachable through the AD's polymorphic object.
+  # @return [Array of Integer] OTU ids reachable through the Asserted
+  #   Distribution's polymorphic object.
   #   Handles all supported asserted_distribution_object_type values.
   #   Returns an empty array when no OTUs are reachable through the object.
   #   Raises if the object type is not explicitly handled — see spec vs. DISTRIBUTION_ASSERTABLE_TYPES.
@@ -195,18 +196,9 @@ class AssertedDistribution < ApplicationRecord
     when 'Otu'
       [asserted_distribution_object_id]
     when 'BiologicalAssociation'
-      ba = asserted_distribution_object
-      ids = []
-      ids << ba.biological_association_subject_id if ba.biological_association_subject_type == 'Otu'
-      ids << ba.biological_association_object_id if ba.biological_association_object_type == 'Otu'
-      ids.uniq
+      asserted_distribution_object.otu_ids
     when 'BiologicalAssociationsGraph'
-      asserted_distribution_object.biological_associations.flat_map do |ba|
-        ids = []
-        ids << ba.biological_association_subject_id if ba.biological_association_subject_type == 'Otu'
-        ids << ba.biological_association_object_id if ba.biological_association_object_type == 'Otu'
-        ids.uniq
-      end.uniq
+      ::BiologicalAssociation.collect_otu_ids(asserted_distribution_object.biological_associations)
     when 'Conveyance'
       c = asserted_distribution_object
       c.conveyance_object_type == 'Otu' ? [c.conveyance_object_id] : []

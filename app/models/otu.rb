@@ -71,6 +71,19 @@ class Otu < ApplicationRecord
   # TODO, move to infer BiologicalCollectionObject
   has_many :collection_objects, through: :taxon_determinations, source: :taxon_determination_object, inverse_of: :otus, source_type: 'CollectionObject'
   has_many :field_occurrences, through: :taxon_determinations, source: :taxon_determination_object, inverse_of: :otus, source_type: 'FieldOccurrence'
+  #
+  has_many :current_taxon_determinations,
+    -> { where(position: 1) },
+    class_name: 'TaxonDetermination',
+    inverse_of: :otu
+  has_many :current_collection_objects,
+    through: :current_taxon_determinations,
+    source: :taxon_determination_object,
+    source_type: 'CollectionObject'
+  has_many :current_field_occurrences,
+    through: :current_taxon_determinations,
+    source: :taxon_determination_object,
+    source_type: 'FieldOccurrence'
 
   has_many :type_materials, through: :protonym
 
@@ -369,16 +382,16 @@ class Otu < ApplicationRecord
 
     if target && !r.empty?
       h[:recent] = (
-        q.where(id: r.first(10) ).to_a +
+        q.where(id: r.first(10) ).sort_by { |o| r.index(o.id) || r.length } +
         q.where(created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('updated_at DESC').limit(3).to_a
-      ).uniq.sort{|a,b| a.otu_name <=> b.otu_name}
+      ).uniq
       h[:quick] = (
         q.pinned_by(user_id).to_a +
         q.where(created_by_id: user_id, created_at: 3.hours.ago..Time.now).order('updated_at DESC').limit(1).to_a +
         q.where(id: r.first(4) ).to_a
       ).uniq.sort{|a,b| a.otu_name <=> b.otu_name}
     else
-      h[:recent] = q.order(updated_at: :desc).limit(10).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
+      h[:recent] = q.order(updated_at: :desc).limit(10).to_a
 
       h[:quick] = q.pinned_by(user_id).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
     end
@@ -387,11 +400,46 @@ class Otu < ApplicationRecord
   end
 
   def current_collection_objects
-    collection_objects.where(taxon_determinations: {position: 1})
+    association(:current_collection_objects).reader
   end
 
   def current_field_occurrences
-    field_occurrences.where(taxon_determinations: {position: 1})
+    association(:current_field_occurrences).reader
+  end
+
+  # @return [ActiveRecord::Relation<FieldOccurrence>]
+  #   FieldOccurrences with is_absent=true whose current TaxonDetermination is this OTU
+  #   or an OTU whose taxon name is an ancestor of this OTU's taxon name.
+  #   Uses TaxonNameHierarchies closure table; includes self when taxon_name_id is present.
+  def absent_and_ancestor_absent_field_occurrences
+    if taxon_name_id.nil?
+      return field_occurrences.where(taxon_determinations: {position: 1}, is_absent: true)
+    end
+
+    FieldOccurrence
+      .joins(taxon_determinations: :otu)
+      .joins('JOIN taxon_names tn_fo ON tn_fo.id = otus.taxon_name_id')
+      .joins('JOIN taxon_name_hierarchies tnh_fo ON tnh_fo.ancestor_id = tn_fo.cached_valid_taxon_name_id')
+      .where(taxon_determinations: {position: 1})
+      .where(field_occurrences: {is_absent: true, project_id:})
+      .where('tnh_fo.descendant_id = ?', taxon_name_id)
+  end
+
+  # @return [ActiveRecord::Relation<AssertedDistribution>]
+  #   AssertedDistributions with is_absent=true whose asserted_distribution_object is this OTU
+  #   or an OTU whose taxon name is an ancestor of this OTU's taxon name.
+  #   Uses TaxonNameHierarchies closure table; includes self when taxon_name_id is present.
+  def absent_and_ancestor_absent_asserted_distributions
+    if taxon_name_id.nil?
+      return asserted_distributions.with_is_absent
+    end
+
+    AssertedDistribution
+      .joins("JOIN otus ON otus.id = asserted_distributions.asserted_distribution_object_id AND asserted_distributions.asserted_distribution_object_type = 'Otu'")
+      .joins('JOIN taxon_names tn_ad ON tn_ad.id = otus.taxon_name_id')
+      .joins('JOIN taxon_name_hierarchies tnh_ad ON tnh_ad.ancestor_id = tn_ad.cached_valid_taxon_name_id')
+      .where(asserted_distributions: {is_absent: true, project_id:})
+      .where('tnh_ad.descendant_id = ?', taxon_name_id)
   end
 
   # @return [Boolean]

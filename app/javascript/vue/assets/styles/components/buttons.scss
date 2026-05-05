@@ -15,7 +15,8 @@ a.btn:hover {
 
 .btn-link {
   @extend .btn;
-  display: table-cell;
+  display: flex;
+  align-items: center;
 }
 
 @each $key, $value in $tw-input-sizes {
@@ -48,6 +49,13 @@ a.btn:hover {
   &:disabled {
     border: none;
   }
+}
+
+.btn-pill-left {
+  min-width: 60px;
+  border: 0;
+  border-top-left-radius: 14px;
+  border-bottom-left-radius: 14px;
 }
 
 @each $key, $value in $tw-colors {

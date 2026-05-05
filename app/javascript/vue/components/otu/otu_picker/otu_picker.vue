@@ -77,7 +77,7 @@
           </template>
         </div>
         <button
-          class="button normal-input button-submit"
+          class="button normal-input button-submit margin-xlarge-top"
           :disabled="!otuName"
           type="button"
           @click="

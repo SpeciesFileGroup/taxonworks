@@ -453,6 +453,8 @@ module Queries::Concerns::Identifiers
                 identifiers_to_match
               end
 
+        return target_query if ids.empty?
+
         case match_identifiers_type # rubocop:disable Metrics/BlockNesting
         when 'internal'
           o = "array_position(ARRAY[#{ids.join(',')}], #{table.name}.id)"
