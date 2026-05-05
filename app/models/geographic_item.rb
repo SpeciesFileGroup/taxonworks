@@ -70,6 +70,12 @@ class GeographicItem < ApplicationRecord
   scope :geo_with_collecting_event, -> { joins(:collecting_events_through_georeferences) }
   scope :err_with_collecting_event, -> { joins(:georeferences_through_error_geographic_item) }
 
+  # @return [Boolean] True if this geographic_item has no references to it and
+  # can be safely destroyed.
+  def unreferenced_for_cleanup?
+    ApplicationEnumeration.no_related_data?(self)
+  end
+
   # !! Think twice and _measure_ before using these, they can prevent your query
   # from using a spatial index, making them very slow. See the && query pattern
   # here and elsewhere for one way to alleviate.!!

@@ -52,7 +52,10 @@
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
-import { convertToLatLongOrder } from '@/helpers/geojson.js'
+import {
+  convertToLatLongOrder,
+  formatGeoJsonGeometryForDisplay
+} from '@/helpers/geojson.js'
 import {
   GZ_POINT,
   GZ_WKT,
@@ -117,79 +120,7 @@ function getCoordinates(item) {
 
 // TODO? Return this as valid WKT
 function coordinatesForListItem(item) {
-  let returnArray
-  let gc = false
-  switch(item.shape.geometry.type) {
-    case 'Point':
-      returnArray = convertToLatLongOrder(item.shape.geometry.coordinates)
-      break
-
-    case 'MultiPoint':
-    case 'LineString': {
-      const coordinates = item.shape.geometry.coordinates
-      returnArray = coordinates.map((point) => convertToLatLongOrder(point))
-      break
-    }
-
-    case 'MultiLineString': {
-      const lines = item.shape.geometry.coordinates
-      returnArray = lines.map((line) => {
-        return line.map((point) => convertToLatLongOrder(point))
-      })
-      break
-    }
-
-    case 'Polygon': {
-      const polygon = item.shape.geometry.coordinates
-      returnArray = polygon.map((ring) => {
-        return ring.map((point) => convertToLatLongOrder(point))
-      })
-      break
-    }
-
-    case 'MultiPolygon': {
-      const polygons = item.shape.geometry.coordinates
-      returnArray = polygons.map((polygon) => {
-        return polygon.map((piece) => {
-          return piece.map((point) => convertToLatLongOrder(point))
-        })
-      })
-      break
-    }
-
-    case 'GeometryCollection':
-      gc = true
-      returnArray =
-        coordinatesForGeometryCollection(item.shape.geometry.geometries)
-      break
-  }
-
-  let returnString = JSON.stringify(returnArray)
-  if (returnString.length > 150) {
-    returnString = returnString.slice(0, 150) + ' ...'
-  }
-  // Geometry collection needs a little cleanup
-  return gc ? returnString.replaceAll(/",?/g, '') : returnString
-}
-
-function coordinatesForGeometryCollection(geometries) {
-  let collectionStrings = []
-  geometries.forEach((geometry) => {
-    const shape_hash = {
-      geometry,
-      properties: {}
-    }
-
-    const new_shape = {
-      type: GZ_LEAFLET, // also works in the GZ_DATABASE case
-      shape: shape_hash
-    }
-
-    collectionStrings.push(' ' + geometry.type + ': ')
-    collectionStrings.push(getCoordinates(new_shape))
-  })
-
-  return collectionStrings
+  return formatGeoJsonGeometryForDisplay(item.shape.geometry, 150)
 }
 
 function deleteItem(item) {

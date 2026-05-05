@@ -46,6 +46,7 @@
             <VWkt @create="addToQueue" />
             <VManually @create="addGeoreference($event, GEOREFERENCE_POINT)" />
             <VGeolocate @create="addToQueue" />
+            <VGazetteer @create="addToQueue" />
             <VBtn
               v-if="verbatimLat && verbatimLng"
               color="primary"
@@ -96,6 +97,7 @@
             <VWkt @create="addToQueue" />
             <VManually @create="addGeoreference($event, GEOREFERENCE_POINT)" />
             <VGeolocate @create="addToQueue" />
+            <VGazetteer @create="addToQueue" />
             <VBtn
               v-if="verbatimLat && verbatimLng"
               color="primary"
@@ -123,6 +125,7 @@
 import VMap from '@/components/ui/VMap/VMap.vue'
 import DisplayList from './list'
 import convertDMS from '@/helpers/parseDMS.js'
+import VGazetteer from './gazetteer.vue'
 import VManually from '@/components/georeferences/manuallyComponent'
 import VGeolocate from './geolocate'
 import VModal from '@/components/ui/Modal'

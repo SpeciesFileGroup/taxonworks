@@ -31,6 +31,8 @@ class Gazetteer < ApplicationRecord
   include Shared::AlternateValues
   include Shared::IsData
 
+  attr_accessor :geographic_item_id_for_cleanup
+
   ALTERNATE_VALUES_FOR = [:name].freeze
 
   GZ_DATA_ORIGIN = 'TaxonWorks Gazetteer'.freeze
@@ -39,7 +41,10 @@ class Gazetteer < ApplicationRecord
 
   belongs_to :geographic_item, inverse_of: :gazetteers
 
-  has_many :asserted_distributions, as: :asserted_distribution_shape, inverse_of: :asserted_distribution_shape
+  has_many :asserted_distributions,
+    as: :asserted_distribution_shape,
+    inverse_of: :asserted_distribution_shape,
+    dependent: :restrict_with_error
 
   before_validation do
     self.iso_3166_a2 = iso_3166_a2.strip.upcase if iso_3166_a2.present?
@@ -52,6 +57,7 @@ class Gazetteer < ApplicationRecord
   validate :iso_3166_a2_is_two_characters
   validate :iso_3166_a3_is_three_characters
 
+  before_destroy :capture_geographic_item_id_for_cleanup
   after_destroy :destroy_geographic_item_if_orphaned
 
   accepts_nested_attributes_for :geographic_item
@@ -333,8 +339,9 @@ class Gazetteer < ApplicationRecord
 
   # @params target [String] currently only `AssertedDistribution`
   # @return [Hash] gazetteers optimized for user selection
-  def self.select_optimized(user_id, project_id, target = 'AssertedDistributions')
-    r = used_recently(user_id, project_id, target)
+  def self.select_optimized(user_id, project_id, target = 'AssertedDistribution')
+    target = 'AssertedDistribution' if target.blank?
+    r = used_recently(user_id, project_id, target) || []
     h = {
       quick: [],
       pinboard: Gazetteer.pinned_by(user_id).where(pinboard_items: {project_id:}).to_a,
@@ -547,8 +554,13 @@ class Gazetteer < ApplicationRecord
   end
 
   def destroy_geographic_item_if_orphaned
-    if geographic_item.gazetteers.count == 0
-      geographic_item.destroy!
-    end
+    item = GeographicItem.find_by(id: geographic_item_id_for_cleanup)
+    item&.destroy! if item&.unreferenced_for_cleanup?
+  end
+
+  def capture_geographic_item_id_for_cleanup
+    # Capture id before destroy so cleanup does not depend on association state
+    # on the destroyed record.
+    self.geographic_item_id_for_cleanup = geographic_item_id
   end
 end

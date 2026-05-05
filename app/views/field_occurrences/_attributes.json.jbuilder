@@ -35,6 +35,8 @@ end
 
 if extend_response_with('dwc_occurrence')
   json.dwc_occurrence do
-    json.merge!(field_occurrence.dwc_occurrence&.attributes&.select{|k,v| v.present?} )
+    json.merge! format_dwc_occurrence_attributes_for_ui(
+      field_occurrence.dwc_occurrence&.attributes&.select { |key, value| value.present? } || {}
+    )
   end
 end

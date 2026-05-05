@@ -22,7 +22,9 @@ end
 
 if extend_response_with('dwc_occurrence')
   json.dwc_occurrence do
-    json.merge!(collection_object.dwc_occurrence&.attributes&.select{|k,v| v.present?} )
+    json.merge! format_dwc_occurrence_attributes_for_ui(
+      collection_object.dwc_occurrence&.attributes&.select { |key, value| value.present? } || {}
+    )
   end
 end
 
