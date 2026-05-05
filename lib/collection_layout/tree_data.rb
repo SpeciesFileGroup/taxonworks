@@ -60,7 +60,8 @@ module CollectionLayout
         id: container.id,
         name: container.name.presence || container.type.demodulize,
         type: container.type,
-        value: 1
+        value: 1,
+        children: []
       }
     end
 

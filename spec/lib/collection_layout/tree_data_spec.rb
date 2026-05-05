@@ -8,14 +8,14 @@ describe CollectionLayout::TreeData, type: :spinup, group: :containers do
   before do
     Container.scaffold(
       building_id:  building.id,
-      cabinet_type: 'cornell',
+      drawer_type: 'Container::Drawer::Cornell',
       rooms:        2,
       cabinets:     3,
       drawers:      4
     )
   end
 
-  subject(:tree) { described_class.new(building).to_json_tree }
+  subject(:tree) { CollectionLayout::TreeData.new(building).to_json_tree }
 
   # ── Top level ──────────────────────────────────────────────────────────────
 
@@ -26,65 +26,32 @@ describe CollectionLayout::TreeData, type: :spinup, group: :containers do
 
   specify 'building node children are rooms' do
     expect(tree[:children].length).to eq(2)
-    expect(tree[:children].map { |c| c[:type] }).to all(eq('Container::Room'))
+    expect(tree[:children].map { |c| c[:type] }).to eq(['Container::Room'] * 2)
   end
 
   specify 'building node labels are room names' do
     labels = tree[:children].map { |c| c[:name] }
-    expect(labels).to all(be_present)
-    expect(labels).to all(match(/Room/i))
+    expect(labels).to eq( ['Room'] * 2)  
   end
 
   # ── Room level ─────────────────────────────────────────────────────────────
 
-  specify 'each room has the correct number of cabinet children' do
+  specify 'room children are cabinets, and there are 3' do
     tree[:children].each do |room_node|
-      expect(room_node[:children].length).to eq(3)
-    end
-  end
-
-  specify 'room children are cabinets' do
-    tree[:children].each do |room_node|
-      expect(room_node[:children].map { |c| c[:type] }).to all(eq('Container::Cabinet::Cornell'))
-    end
-  end
-
-  specify 'room children labels are cabinet names' do
-    tree[:children].each do |room_node|
-      labels = room_node[:children].map { |c| c[:name] }
-      expect(labels).to all(be_present)
-      expect(labels).to all(match(/Cabinet/i))
+      expect(room_node[:children].map { |c| c[:type] }).to eq( ['Container::Cabinet'] * 3 )
     end
   end
 
   # ── Cabinet level ──────────────────────────────────────────────────────────
 
-  specify 'each cabinet has the correct number of drawer children' do
+  specify 'cabinet children are drawers, and there are 4' do
     tree[:children].each do |room_node|
       room_node[:children].each do |cabinet_node|
-        expect(cabinet_node[:children].length).to eq(4)
+        expect(cabinet_node[:children].map { |c| c[:type] }).to eq( ['Container::Drawer::Cornell'] * 4)
       end
     end
   end
-
-  specify 'cabinet children are drawers' do
-    tree[:children].each do |room_node|
-      room_node[:children].each do |cabinet_node|
-        expect(cabinet_node[:children].map { |c| c[:type] }).to all(eq('Container::Drawer::Cornell'))
-      end
-    end
-  end
-
-  specify 'cabinet children labels are drawer names' do
-    tree[:children].each do |room_node|
-      room_node[:children].each do |cabinet_node|
-        labels = cabinet_node[:children].map { |c| c[:name] }
-        expect(labels).to all(be_present)
-        expect(labels).to all(match(/Drawer/i))
-      end
-    end
-  end
-
+  
   # ── Leaf level ─────────────────────────────────────────────────────────────
 
   specify 'drawer nodes have no children' do

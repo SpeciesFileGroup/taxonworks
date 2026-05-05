@@ -226,7 +226,7 @@ class Container < ApplicationRecord
     cabinet_defaults[:size_z] = params[:cabinet_size_z].presence&.to_i unless params[:cabinet_size_z].nil?
 
     drawer_defaults = {}
-    drawer_defaults[:asserted_percent_empty]     = params[:asserted_percent_empty].presence&.to_f     unless params[:asserted_percent_empty].nil?
+    drawer_defaults[:asserted_percent_empty] = params[:asserted_percent_empty].presence&.to_f     unless params[:asserted_percent_empty].nil?
     drawer_defaults[:asserted_percent_earmarked] = params[:asserted_percent_earmarked].presence&.to_f unless params[:asserted_percent_earmarked].nil?
 
     return false if building_id == 0 || room_count < 1 || cabinet_count < 1 || drawer_count < 1
@@ -238,13 +238,8 @@ class Container < ApplicationRecord
       return false
     end
 
-    # Derive a matching cabinet subclass from the drawer type. If none exists
-    # (e.g. the Cabinet subclass was removed), fall back to the base Cabinet.
-    cabinet_klass = begin
-      drawer_type.gsub('Drawer', 'Cabinet').constantize
-    rescue NameError
-      Container::Cabinet
-    end
+    # Not customizable yet
+    cabinet_klass = Container::Cabinet
 
     created_rooms = []
 
@@ -268,8 +263,11 @@ class Container < ApplicationRecord
         end
       end
     rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound
+
       return false
     end
+
+
 
     created_rooms
   end
@@ -299,6 +297,7 @@ class Container < ApplicationRecord
     rescue ActiveRecord::RecordInvalid
       return false
     end
+
     true
   end
 
