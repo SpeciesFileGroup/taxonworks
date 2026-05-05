@@ -3,6 +3,7 @@ module Autoselect
   module TaxonName
     module Levels
       class CatalogueOfLife < ::Autoselect::Level
+        include ::Autoselect::Levels::ColRecordInfo
 
         def key
           :catalogue_of_life
@@ -26,15 +27,6 @@ module Autoselect
 
         def record_label_html(record)
           record.cached.to_s
-        end
-
-        def record_info(record)
-          col_ext = record._col_extension
-          return [] unless col_ext
-          parts = []
-          parts << 'synonym' if col_ext[:col_status] == 'synonym'
-          parts << col_ext[:col_rank].presence
-          parts.compact
         end
 
         # @param term [String]

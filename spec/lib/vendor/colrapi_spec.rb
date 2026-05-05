@@ -398,6 +398,69 @@ describe Vendor::Colrapi, type: :model do
     end
   end
 
+  context 'VCR integration — Lepisma authorship in default CoL dataset (3LR)' do
+    # CoL 3LR returns two results for "Lepisma":
+    #   1. Accepted zoological genus (id: 5CN8) — no authorship field in name hash,
+    #      basionymOrCombinationAuthorship: {}, label: "Lepisma".  CoL has no author
+    #      data for this record; col_authorship is correctly nil.
+    #   2. Botanical synonym (id: 5TBX9, authorship: "E.Mey.") — a different organism.
+    it 'accepted Lepisma (zoological) has nil col_authorship — CoL carries no author data for this record' do
+      VCR.use_cassette('colrapi_lepisma_authorship') do
+        search_result = ::Vendor::Colrapi.search('Lepisma')
+        lepisma_result = search_result['result'].find { |r|
+          r.dig('name', 'scientificName') == 'Lepisma' && r['status'] == 'accepted'
+        }
+        skip 'No accepted result for Lepisma found in CoL 3LR' if lepisma_result.nil?
+
+        ext = described_class.build_extension(lepisma_result, nil)
+
+        expect(ext[:col_authorship]).to be_nil
+        expect(ext[:col_name]).to eq('Lepisma')
+        expect(ext[:col_status]).to eq('accepted')
+      end
+    end
+
+    it 'botanical Lepisma synonym has col_authorship populated from name.authorship' do
+      VCR.use_cassette('colrapi_lepisma_authorship') do
+        search_result = ::Vendor::Colrapi.search('Lepisma')
+        botanical_result = search_result['result'].find { |r|
+          r.dig('name', 'scientificName') == 'Lepisma' && r['status'] == 'synonym'
+        }
+        skip 'No synonym result for Lepisma found in CoL 3LR' if botanical_result.nil?
+
+        ext = described_class.build_extension(botanical_result, nil)
+
+        expect(ext[:col_authorship]).to eq('E.Mey.')
+      end
+    end
+  end
+
+  context 'VCR integration — Crayracion ambiguous synonym against default CoL dataset (3LR)' do
+    it 'alignment does not contain a genus-rank ancestor for the ambiguous synonym Crayracion' do
+      VCR.use_cassette('colrapi_build_extension_crayracion_ambiguous_synonym') do
+        search_result = ::Vendor::Colrapi.search('Crayracion')
+        crayracion_result = search_result['result'].find { |r|
+          r.dig('name', 'scientificName') == 'Crayracion' && r['status'] == 'ambiguous synonym'
+        }
+        skip 'No ambiguous synonym result for Crayracion found in CoL 3LR' if crayracion_result.nil?
+
+        ext = described_class.build_extension(crayracion_result, nil)
+
+        expect(ext[:col_status]).to eq('ambiguous synonym')
+        expect(ext[:col_rank]).to eq('genus')
+
+        alignment_ranks = ext[:alignment].map { |r| r[:rank] }
+        alignment_col_names = ext[:alignment].map { |r| r[:col_name] }
+
+        expect(alignment_ranks).not_to include('genus'),
+          "genus-rank ancestor must not appear in alignment for genus-rank ambiguous synonym; got: #{ext[:alignment].map { |r| [r[:rank], r[:col_name]] }.inspect}"
+
+        expect(alignment_col_names).to include('Tetraodontidae'),
+          "Tetraodontidae (family) should appear as the proximal ancestor; got: #{alignment_col_names.inspect}"
+      end
+    end
+  end
+
   context 'VCR integration — Campa synonym against default CoL dataset (3LR)' do
     it 'alignment does not contain the accepted genus as an ancestor of the synonym' do
       VCR.use_cassette('colrapi_build_extension_campa_synonym') do

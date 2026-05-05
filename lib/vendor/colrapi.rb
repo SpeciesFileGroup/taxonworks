@@ -110,13 +110,30 @@ module Vendor
     # @param limit [Integer]
     # @return [Array<Hash>]
     def self.datasets(q:, limit: 20)
-      result = ::Colrapi.dataset(q: q, limit: limit)
-      (result['result'] || []).map do |d|
-        { 'id' => d['key'].to_s, 'title' => d['title'], 'alias' => d['alias'] }
+      # Text search by title/name.
+      text_results = begin
+        result = ::Colrapi.dataset(q: q, limit: limit)
+        (result['result'] || []).map { |d| { 'id' => d['key'].to_s, 'title' => d['title'], 'alias' => d['alias'] } }
+      rescue => e
+        Rails.logger.warn "Vendor::Colrapi.datasets text search error: #{e.message}"
+        []
       end
-    rescue => e
-      Rails.logger.warn "Vendor::Colrapi.datasets error: #{e.message}"
-      []
+
+      # Direct lookup by dataset ID — `q` may itself be a key like '3LXR'.
+      # Colrapi.dataset(dataset_id:) returns a single hash, not a paged result.
+      direct_hit = begin
+        d = ::Colrapi.dataset(dataset_id: q)
+        d.is_a?(Hash) && d['key'].present? ? { 'id' => d['key'].to_s, 'title' => d['title'], 'alias' => d['alias'] } : nil
+      rescue
+        nil
+      end
+
+      seen = {}
+      [direct_hit, *text_results].compact.each_with_object([]) do |d, arr|
+        next if seen[d['id']]
+        seen[d['id']] = true
+        arr << d
+      end
     end
 
     # Returns the ancestor classification chain for a CoL taxon.
@@ -238,12 +255,14 @@ module Vendor
       # External/denormed datasets must be traversed via iterative parentId lookups.
       # Ancestor records carry the dataset_id of whichever source they came from.
       #
-      # For synonyms, CoL attaches the synonym under its accepted name in the tree, so
-      # fetching classification via the synonym's ID returns the accepted name in the chain.
-      # Use the accepted name's ID for the lookup instead, then strip the accepted name
-      # itself out by ID (CoL's classification endpoint includes the queried taxon itself
-      # as the most proximal entry).
-      accepted_id         = col_status == 'synonym' ? col_result.dig('accepted', 'id').presence : nil
+      # For synonyms with a single accepted target, CoL attaches the synonym under its accepted
+      # name in the tree, so fetching classification via the synonym's own ID returns the accepted
+      # name in the chain.  Use the accepted name's ID for the lookup instead, then strip it out
+      # by ID (CoL's classification endpoint includes the queried taxon itself as the most
+      # proximal entry).
+      # Ambiguous synonyms have no single accepted target, so we look up via their own ID.
+      non_accepted    = col_status.present? && col_status != 'accepted'
+      accepted_id     = col_status == 'synonym' ? col_result.dig('accepted', 'id').presence : nil
       ancestor_lookup_key = accepted_id || col_key
 
       ancestor_chain, ancestor_dataset_id =
@@ -259,11 +278,11 @@ module Vendor
 
       ancestor_chain = ancestor_chain.reject { |a| a['id'] == accepted_id } if accepted_id
 
-      # For synonyms, also strip any ancestor at or below the synonym's own rank.
-      # This arises when the accepted name is at a lower rank than the synonym (e.g. a
-      # genus synonym whose accepted name is a subgenus): the accepted name's classification
-      # chain includes same- or lower-ranked entries that are not valid parents of the synonym.
-      if col_status == 'synonym' && col_rank.present?
+      # For any non-accepted name, strip ancestors at or below the name's own rank.
+      # CoL places non-accepted names under their accepted name, so the accepted name's
+      # classification chain can include same- or lower-ranked entries that are not valid
+      # parents of the queried name (e.g. a genus synonym whose accepted name is a subgenus).
+      if non_accepted && col_rank.present?
         target_sort = col_rank_sort(col_rank, col_code)
         if target_sort
           ancestor_chain = ancestor_chain.reject { |a|

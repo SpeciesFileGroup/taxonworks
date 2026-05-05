@@ -93,13 +93,6 @@
         >
           Save
         </VBtn>
-        <button
-          class="button circle-button btn-undo button-default"
-          title="Cancel"
-          @click="emit('cancel')"
-        >
-          &#8617;
-        </button>
       </div>
     </template>
   </Modal>

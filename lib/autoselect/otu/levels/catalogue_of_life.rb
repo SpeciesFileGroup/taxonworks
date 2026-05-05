@@ -5,6 +5,7 @@ module Autoselect
       # Delegates to the TaxonName CatalogueOfLife level and wraps results with
       # hook metadata indicating they should trigger a TaxonName-creation flow.
       class CatalogueOfLife < ::Autoselect::Level
+        include ::Autoselect::Levels::ColRecordInfo
 
         def key
           :catalogue_of_life
@@ -28,10 +29,6 @@ module Autoselect
 
         def record_label_html(record)
           record.name.to_s
-        end
-
-        def record_info(record)
-          []
         end
 
         # @param term [String]

@@ -186,6 +186,7 @@ module Autoselect
           .gsub(/\(\s*\)/, '')           # clean up empty parens left behind
           .gsub(/,\s*\z/, '')            # strip trailing comma
           .strip
+          .then { |a| a.match?(/\A\([^)]*\)\z/) ? a : a.gsub(/\([^)]*\)\s*/, '').strip }
 
         # If no explicit year was given, extract the last 4-digit year from the string
         # (the combination year, not the basionym year in parentheses).
