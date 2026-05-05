@@ -208,6 +208,160 @@ describe Queries::Person::Filter, type: :model, group: :people do
     expect(query.all.pluck(:id)).to contain_exactly(p1.id, p2.id)
   end
 
+  context '#first_name_like' do
+    let!(:john)         { Person.create!(last_name: 'Smith', first_name: 'John') }
+    let!(:jack)         { Person.create!(last_name: 'Smith', first_name: 'Jack') }
+    let!(:john_k)       { Person.create!(last_name: 'Smith', first_name: 'John K.') }
+    let!(:john_kenneth) { Person.create!(last_name: 'Smith', first_name: 'John Kenneth') }
+    let!(:j_abbr)       { Person.create!(last_name: 'Smith', first_name: 'J.') }
+    let!(:j_k_abbr)     { Person.create!(last_name: 'Smith', first_name: 'J. K.') }
+    let!(:j_kenneth)    { Person.create!(last_name: 'Smith', first_name: 'J. Kenneth') }
+    let!(:j_james)      { Person.create!(last_name: 'Smith', first_name: 'J. James') }
+
+    specify 'single initial matches all names with that first letter' do
+      query.first_name_like = 'J.'
+      expect(query.all.pluck(:id)).to contain_exactly(
+        john.id, jack.id, john_k.id, john_kenneth.id,
+        j_abbr.id, j_k_abbr.id, j_kenneth.id, j_james.id
+      )
+    end
+
+    specify 'initial without period matches same set as initial with period' do
+      query.first_name_like = 'J'
+      expect(query.all.pluck(:id)).to contain_exactly(
+        john.id, jack.id, john_k.id, john_kenneth.id,
+        j_abbr.id, j_k_abbr.id, j_kenneth.id, j_james.id
+      )
+    end
+
+    specify 'full name matches initial stored values and names with trailing parts, excludes different full name' do
+      query.first_name_like = 'John'
+      expect(query.all.pluck(:id)).to contain_exactly(
+        john.id, john_k.id, john_kenneth.id,
+        j_abbr.id, j_k_abbr.id, j_kenneth.id, j_james.id
+      )
+    end
+
+    # Inputs containing at least one initial are explicit about all parts — all required.
+    ['J. K.', 'J K', 'John K.', 'J. Kenneth'].each do |input|
+      specify "multi-part '#{input}' matches names with J and K parts" do
+        query.first_name_like = input
+        expect(query.all.pluck(:id)).to contain_exactly(
+          john_k.id, john_kenneth.id, j_k_abbr.id, j_kenneth.id
+        )
+      end
+    end
+
+    # All-full-name input: subsequent parts are optional so stored values with fewer
+    # parts (e.g. 'J.' or 'John') are also returned as candidates.
+    specify "all-full-name 'John Kenneth' also matches stored values with fewer name parts" do
+      query.first_name_like = 'John Kenneth'
+      expect(query.all.pluck(:id)).to contain_exactly(
+        john.id, john_k.id, john_kenneth.id, j_abbr.id, j_k_abbr.id, j_kenneth.id
+      )
+    end
+
+    context 'all-full-name input with a second name absent from stored values' do
+      let!(:j_s)         { Person.create!(last_name: 'Smith', first_name: 'J. S.') }
+      let!(:j_s_no_dot)  { Person.create!(last_name: 'Smith', first_name: 'J S') }
+      let!(:john_s)      { Person.create!(last_name: 'Smith', first_name: 'John S.') }
+      let!(:john_s_no_dot) { Person.create!(last_name: 'Smith', first_name: 'John S') }
+      let!(:j_stuart)    { Person.create!(last_name: 'Smith', first_name: 'J. Stuart') }
+      let!(:j_stuart_no_dot) { Person.create!(last_name: 'Smith', first_name: 'J Stuart') }
+      let!(:john_stuart) { Person.create!(last_name: 'Smith', first_name: 'John Stuart') }
+
+      specify "'John Stuart' matches all combinations of abbreviated/full parts, not K-initial names" do
+        query.first_name_like = 'John Stuart'
+        expect(query.all.pluck(:id)).to contain_exactly(
+          john.id, j_abbr.id,
+          j_s.id, j_s_no_dot.id,
+          john_s.id, john_s_no_dot.id,
+          j_stuart.id, j_stuart_no_dot.id,
+          john_stuart.id
+        )
+      end
+    end
+
+    context 'hyphen normalization' do
+      let!(:ya_lin)       { Person.create!(last_name: 'Zhang', first_name: 'Ya-Lin') }
+      let!(:yalin)        { Person.create!(last_name: 'Zhang', first_name: 'Yalin') }
+      let!(:y_l_dot)      { Person.create!(last_name: 'Zhang', first_name: 'Y.L.') }
+      let!(:y_dash_l_dot) { Person.create!(last_name: 'Zhang', first_name: 'Y.-L.') }
+      let!(:y_abbr)       { Person.create!(last_name: 'Zhang', first_name: 'Y.') }
+
+      specify "'Ya-Lin' matches hyphen, fused, dotted, and initial-only stored values" do
+        query.first_name_like = 'Ya-Lin'
+        expect(query.all.pluck(:id)).to contain_exactly(
+          ya_lin.id, yalin.id, y_l_dot.id, y_dash_l_dot.id, y_abbr.id
+        )
+      end
+
+      specify "'Y.L.' matches hyphenated and dotted forms but not fused or single-initial" do
+        query.first_name_like = 'Y.L.'
+        expect(query.all.pluck(:id)).to contain_exactly(
+          ya_lin.id, y_l_dot.id, y_dash_l_dot.id
+        )
+      end
+
+      specify "'Y.-L.' matches the same set as 'Y.L.'" do
+        query.first_name_like = 'Y.-L.'
+        expect(query.all.pluck(:id)).to contain_exactly(
+          ya_lin.id, y_l_dot.id, y_dash_l_dot.id
+        )
+      end
+    end
+
+    specify 'matches AlternateValue' do
+      AlternateValue::Abbreviation.create!(
+        alternate_value_object: john,
+        alternate_value_object_attribute: :first_name,
+        value: 'Johann'
+      )
+      query.first_name_like = 'Johann'
+      # john matched via AlternateValue; j_abbr/j_k_abbr/j_kenneth/j_james matched because
+      # 'Johann' also generates a j\.? branch that matches stored 'J.' prefixed names
+      expect(query.all.pluck(:id)).to contain_exactly(john.id, j_abbr.id, j_k_abbr.id, j_kenneth.id, j_james.id)
+    end
+  end
+
+  context '#last_name_like' do
+    let!(:smith)       { Person.create!(last_name: 'Smith') }
+    let!(:smith_jones) { Person.create!(last_name: 'Smith Jones') }
+    let!(:blacksmith)  { Person.create!(last_name: 'Blacksmith') }
+    let!(:jones)       { Person.create!(last_name: 'Jones') }
+
+    # p1 and p2 from the outer context both have last_name 'Smith' so appear in Smith queries
+    specify 'single word matches exact and compound last names, word boundary excludes partial' do
+      query.last_name_like = 'Smith'
+      expect(query.all.pluck(:id)).to contain_exactly(p1.id, p2.id, smith.id, smith_jones.id)
+    end
+
+    specify 'multi-word: forward finds compound, backward finds each single-word stored value' do
+      query.last_name_like = 'Smith Jones'
+      expect(query.all.pluck(:id)).to contain_exactly(p1.id, p2.id, smith.id, smith_jones.id, jones.id)
+    end
+
+    specify 'matches AlternateValue' do
+      AlternateValue::Misspelling.create!(
+        alternate_value_object: smith,
+        alternate_value_object_attribute: :last_name,
+        value: 'Smythe'
+      )
+      query.last_name_like = 'Smythe'
+      expect(query.all.pluck(:id)).to contain_exactly(smith.id)
+    end
+
+    context 'hyphen normalization' do
+      let!(:van_der_hyphen) { Person.create!(last_name: 'Van-Der-Berg') }
+      let!(:van_der_space)  { Person.create!(last_name: 'Van Der Berg') }
+
+      specify 'hyphenated input matches stored hyphenated and space-separated forms' do
+        query.last_name_like = 'Van-Der-Berg'
+        expect(query.all.pluck(:id)).to contain_exactly(van_der_hyphen.id, van_der_space.id)
+      end
+    end
+  end
+
   specify '#identifier' do
     i = 'http://orcid.org/0000-0003-5000-0001'
     j = Identifier::Global::Orcid.create!(identifier: i, identifier_object: p1)
