@@ -45,7 +45,7 @@ module BatchLoad
         error = (row['error'].to_s + ' ' + row['georeference_error_units'].to_s).strip
         ce_namespace = row[header5]
         co = CollectionObject.joins(:identifiers).where(identifiers: {cached: "#{co_namespace} #{co_id}"}).first
-        otu = Otu.find_or_create_by!(name: row['otu'])
+        otu = Otu.find_or_create_by!(name: row['otu'], project_id:)
         td = TaxonDetermination.find_or_create_by!(
           otu:,
           taxon_determination_object: co)
@@ -62,7 +62,8 @@ module BatchLoad
           verbatim_longitude:               long,
           verbatim_latitude:                lat,
           verbatim_method:                  method,
-          verbatim_label:                   row['verbatim_label'])
+          verbatim_label:                   row['verbatim_label'],
+          project_id:)
         ce.save!
         case method.downcase
           when 'geolocate'
