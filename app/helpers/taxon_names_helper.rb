@@ -1,10 +1,14 @@
 module TaxonNamesHelper
 
+  VALID_MARK = '&#10003;'.html_safe.freeze # checkmark
+  INVALID_MARK =  '&#10060;'.html_safe.freeze
+  COMBINATION_MARK = '[c]'.freeze
+
   # HTML label for the autoselect dropdown (left-justified).
   # Uses cached_html for real records; falls back to cached for CoL pseudo-records.
   def taxon_name_autoselect_tag(taxon_name)
     return nil if taxon_name.nil?
-    taxon_name_tag(taxon_name)
+    tag.span( taxon_name.cached_html_name_and_author_year.html_safe, class: :klass)
   end
 
   # Disambiguation info Array for the autoselect dropdown (right-justified).
@@ -70,7 +74,7 @@ module TaxonNamesHelper
   end
 
   # Styling indicating the current valid name
-  def taxon_name_now_tag(taxon_name, css_class = [:feedback, 'feedback-notice', 'feedback-thin'] )
+  def taxon_name_now_tag(taxon_name, css_class = [:feedback, 'feedback-warning', 'feedback-thin'] )
     return nil if taxon_name.nil? || !taxon_name.is_valid?
     content_tag(:span, ('now ' + taxon_name.cached_html).html_safe, class: css_class)
   end
@@ -137,9 +141,9 @@ module TaxonNamesHelper
   def taxon_name_type_short_tag(taxon_name)
     return nil if taxon_name.nil?
     if taxon_name.is_valid?
-      '&#10003;'.html_safe # checkmark
+      VALID_MARK
     else
-      taxon_name.type == 'Combination' ? '[c]' : '&#10060;'.html_safe # c or X
+      taxon_name.is_combination? ? COMBINATION_MARK : INVALID_MARK # c or X
     end
   end
 

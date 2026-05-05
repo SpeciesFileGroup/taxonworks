@@ -5,17 +5,17 @@ module OtusHelper
 
   # HTML label for the autoselect dropdown (left-justified).
   def otu_autoselect_tag(otu)
-
     return nil if otu.nil?
     if otu.taxon_name&.is_combination?
       if otu.name.present?
         return [
           otu.name,
           '=',
-          otu.taxon_name.cached_html
+          tag.span( otu.taxon_name.cached_html_name_and_author_year.html_safe, class: :klass),
+          TaxonNamesHelper::COMBINATION_MARK
         ].compact.join('&nbsp;')
       else
-        return otu.taxon_name.cached_html
+        return tag.span( otu.taxon_name.cached_html_name_and_author_year.html_safe, class: :klass)
       end
     else
       return  [
@@ -39,8 +39,10 @@ module OtusHelper
       if !t.is_valid?
         r.push taxon_name_now_tag(t.valid_taxon_name)
       end
+    else
+      r.push t.type
     end
-    r.compact
+    r
   end
 
   def otu_tag(otu)
