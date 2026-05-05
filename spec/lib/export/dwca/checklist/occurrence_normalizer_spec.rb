@@ -301,6 +301,7 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
     specify 'skips taxa whose OTU only has non-UUID global identifiers' do
       root = FactoryBot.create(:root_taxon_name)
       otu = FactoryBot.create(:valid_otu, taxon_name: root)
+      otu.identifiers.where('type LIKE ?', 'Identifier::Global::Uuid%').delete_all
       FactoryBot.create(:uri_identifier, identifier_object: otu, identifier: 'https://example.test/otus/1')
       tn_id = root.id
 
@@ -354,6 +355,50 @@ describe Export::Dwca::Checklist::OccurrenceNormalizer, type: :model, group: :da
       # second_uuid was created last, so it has position 1 (highest priority)
       result = normalizer.send(:taxon_name_id_to_otu_uuid, [otu.taxon_name_id])
       expect(result[otu.taxon_name_id]).to eq(second_uuid)
+    end
+
+    specify 'prefers a scoped OTU over an out-of-scope OTU sharing the same taxon_name_id' do
+      taxon_name = FactoryBot.create(:root_taxon_name)
+      _out_of_scope_otu = FactoryBot.create(:valid_otu, taxon_name: taxon_name)
+      scoped_otu = FactoryBot.create(:valid_otu, taxon_name: taxon_name)
+
+      scoped_normalizer = described_class.new(
+        raw_csv: raw_csv,
+        accepted_name_mode: 'replace_with_accepted_name',
+        otu_to_taxon_name_data: { scoped_otu.id => { id: taxon_name.id } },
+        occurrence_to_otu: {}
+      )
+
+      result = scoped_normalizer.send(:taxon_name_id_to_otu_uuid, [taxon_name.id])
+      expect(result[taxon_name.id]).to eq(scoped_otu.uuid)
+    end
+
+    specify 'uses lowest OTU id when multiple scoped OTUs share the same taxon_name_id' do
+      taxon_name = FactoryBot.create(:root_taxon_name)
+      otu_a = FactoryBot.create(:valid_otu, taxon_name: taxon_name)
+      otu_b = FactoryBot.create(:valid_otu, taxon_name: taxon_name)
+
+      scoped_normalizer = described_class.new(
+        raw_csv: raw_csv,
+        accepted_name_mode: 'replace_with_accepted_name',
+        otu_to_taxon_name_data: {
+          otu_a.id => { id: taxon_name.id },
+          otu_b.id => { id: taxon_name.id }
+        },
+        occurrence_to_otu: {}
+      )
+
+      result = scoped_normalizer.send(:taxon_name_id_to_otu_uuid, [taxon_name.id])
+      expect(result[taxon_name.id]).to eq([otu_a, otu_b].min_by(&:id).uuid)
+    end
+
+    specify 'uses lowest OTU id when multiple unscoped OTUs share the same taxon_name_id' do
+      taxon_name = FactoryBot.create(:root_taxon_name)
+      otu_a = FactoryBot.create(:valid_otu, taxon_name: taxon_name)
+      otu_b = FactoryBot.create(:valid_otu, taxon_name: taxon_name)
+
+      result = normalizer.send(:taxon_name_id_to_otu_uuid, [taxon_name.id])
+      expect(result[taxon_name.id]).to eq([otu_a, otu_b].min_by(&:id).uuid)
     end
   end
 

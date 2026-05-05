@@ -18,8 +18,38 @@ class BiologicalAssociationsController < ApplicationController
         @biological_associations = Queries::BiologicalAssociation::Filter.new(params)
           .all
           .where(project_id: sessions_current_project_id)
+          .includes(
+            citations: [:source, { citation_topics: :topic }],
+            biological_relationship: :biological_relationship_types
+          )
+          .preload(:biological_association_subject, :biological_association_object)
           .page(params[:page])
           .per(params[:per])
+          .load
+
+        co_fo_subjects = @biological_associations
+          .filter_map { |ba| ba.biological_association_subject if ['CollectionObject', 'FieldOccurrence'].include?(ba.biological_association_subject_type) }
+        ActiveRecord::Associations::Preloader.new(records: co_fo_subjects, associations: [:taxon_determinations, :identifiers]).call unless co_fo_subjects.empty?
+
+        co_fo_objects = @biological_associations
+          .filter_map { |ba| ba.biological_association_object if ['CollectionObject', 'FieldOccurrence'].include?(ba.biological_association_object_type) }
+        ActiveRecord::Associations::Preloader.new(records: co_fo_objects, associations: [:taxon_determinations, :identifiers]).call unless co_fo_objects.empty?
+
+        otu_subjects = @biological_associations
+          .filter_map { |ba| ba.biological_association_subject if ba.biological_association_subject_type == 'Otu' }
+        ActiveRecord::Associations::Preloader.new(records: otu_subjects, associations: [:taxon_name]).call unless otu_subjects.empty?
+
+        otu_objects = @biological_associations
+          .filter_map { |ba| ba.biological_association_object if ba.biological_association_object_type == 'Otu' }
+        ActiveRecord::Associations::Preloader.new(records: otu_objects, associations: [:taxon_name]).call unless otu_objects.empty?
+
+        ap_subjects = @biological_associations
+          .filter_map { |ba| ba.biological_association_subject if ba.biological_association_subject_type == 'AnatomicalPart' }
+        ActiveRecord::Associations::Preloader.new(records: ap_subjects, associations: [:inbound_origin_relationship]).call unless ap_subjects.empty?
+
+        ap_objects = @biological_associations
+          .filter_map { |ba| ba.biological_association_object if ba.biological_association_object_type == 'AnatomicalPart' }
+        ActiveRecord::Associations::Preloader.new(records: ap_objects, associations: [:inbound_origin_relationship]).call unless ap_objects.empty?
       }
     end
   end

@@ -31,9 +31,22 @@
           v-model="selectedIds"
           :attributes="ATTRIBUTES"
           :list="list"
+          :hide-unfrozen="hideFrozen"
           :preference-key="`tasks::filters::${TAXON_NAME_RELATIONSHIP}`"
           @on-sort="(sorted) => (list = sorted)"
         />
+      </template>
+      <template #nav-settings-start>
+        <VToggle
+          title="Hide/show non-frozen columns"
+          @click="() => (hideFrozen = !hideFrozen)"
+        >
+          <VIcon
+            title="Hide/show non-frozen columns"
+            :name="hideFrozen ? 'contract' : 'expand'"
+            x-small
+          />
+        </VToggle>
       </template>
     </FilterLayout>
     <VSpinner
@@ -56,10 +69,13 @@ import { listParser } from '../utils/listParser.js'
 import { TAXON_NAME_RELATIONSHIP } from '@/constants/index.js'
 import { TaxonNameRelationship } from '@/routes/endpoints'
 import { ATTRIBUTES } from './constants/attributes'
+import { ref } from 'vue'
 
 defineOptions({
   name: 'FilterTaxonNameRelationships'
 })
+
+const hideFrozen = ref(false)
 
 const {
   append,

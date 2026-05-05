@@ -61,10 +61,11 @@ describe ControlledVocabularyTermsHelper, type: :helper do
 
         # Not this one - different project.
         other_project = FactoryBot.create(:valid_project)
+        other_klass = FactoryBot.create(:valid_biocuration_class, project: other_project)
         FactoryBot.create(
           :valid_biocuration_classification,
           project: other_project,
-          biocuration_class: klass1
+          biocuration_class: other_klass
         )
 
         # Expect: 2 (klass1) + 1 (klass2) = 3

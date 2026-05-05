@@ -15,7 +15,8 @@ a.btn:hover {
 
 .btn-link {
   @extend .btn;
-  display: table-cell;
+  display: flex;
+  align-items: center;
 }
 
 @each $key, $value in $tw-input-sizes {

@@ -9,7 +9,7 @@
     </template>
     <template #body>
       <markdown-editor
-        @blur="updateLastChange"
+        @blur="onBlur"
         class="edit-content"
         v-model="etymology"
         :configs="config"
@@ -45,13 +45,29 @@ export default {
   },
   data() {
     return {
+      etymologySnapshot: undefined,
       config: {
         status: false,
         spellChecker: false
       }
     }
   },
+  mounted() {
+    this.etymologySnapshot = this.etymology
+  },
+
   methods: {
+    focus() {
+      this.$refs.etymologyText?.setFocus()
+    },
+
+    onBlur(currentValue) {
+      if (currentValue !== this.etymologySnapshot) {
+        this.etymologySnapshot = currentValue
+        this.$store.commit(MutationNames.UpdateLastChange)
+      }
+    },
+
     updateLastChange() {
       this.$store.commit(MutationNames.UpdateLastChange)
     }

@@ -16,11 +16,19 @@ module CollectingEvent::Georeference
     accepts_nested_attributes_for :gpx_georeferences
 
     def preferred_georeference
-      georeferences.order(:position).first
+      if association(:georeferences).loaded?
+        georeferences.min_by(&:position)
+      else
+        georeferences.order(:position).first
+      end
     end
 
     def preferred_georeference_geographic_item_id
-      georeferences.order(:position).limit(1).pluck(:geographic_item_id).first
+      if association(:georeferences).loaded?
+        preferred_georeference&.geographic_item_id
+      else
+        georeferences.order(:position).limit(1).pluck(:geographic_item_id).first
+      end
     end
   end
 

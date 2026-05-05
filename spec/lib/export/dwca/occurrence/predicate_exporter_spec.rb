@@ -1,8 +1,6 @@
 require 'rails_helper'
 
 RSpec.describe Export::Dwca::Occurrence::PredicateExporter, type: :model do
-  let(:project) { FactoryBot.create(:valid_project) }
-
   describe '#export_to' do
     let!(:specimen1) { FactoryBot.create(:valid_specimen, no_dwc_occurrence: false) }
     let!(:specimen2) { FactoryBot.create(:valid_specimen,  no_dwc_occurrence: false) }
@@ -79,7 +77,7 @@ RSpec.describe Export::Dwca::Occurrence::PredicateExporter, type: :model do
       end
 
       specify 'only includes predicates with data' do
-        unused_predicate = FactoryBot.create(:valid_controlled_vocabulary_term_predicate, project: project)
+        unused_predicate = FactoryBot.create(:valid_controlled_vocabulary_term_predicate)
 
         exporter_with_unused = described_class.new(
           core_scope: core_scope,
@@ -106,10 +104,10 @@ RSpec.describe Export::Dwca::Occurrence::PredicateExporter, type: :model do
 
       specify 'concatenates multiple values for same predicate with DwC delimiter' do
         # Create a specimen with multiple values for the same predicate
-        multi_specimen = FactoryBot.create(:valid_specimen, project: project)
+        multi_specimen = FactoryBot.create(:valid_specimen)
         multi_specimen.get_dwc_occurrence
 
-        multi_predicate = FactoryBot.create(:valid_controlled_vocabulary_term_predicate, project: project)
+        multi_predicate = FactoryBot.create(:valid_controlled_vocabulary_term_predicate)
 
         # Create multiple data attributes with same predicate
         FactoryBot.create(:valid_data_attribute_internal_attribute,
@@ -158,7 +156,7 @@ RSpec.describe Export::Dwca::Occurrence::PredicateExporter, type: :model do
       let!(:ce_specimen2) { FactoryBot.create(:valid_specimen, collecting_event: ce2) }
       let(:ce_collection_objects) { CollectionObject.where(id: [ce_specimen1.id, ce_specimen2.id]) }
       let(:ce_core_scope) { DwcOccurrence.where(dwc_occurrence_object_id: [ce_specimen1.id, ce_specimen2.id], dwc_occurrence_object_type: 'CollectionObject') }
-      let!(:predicate) { FactoryBot.create(:valid_controlled_vocabulary_term_predicate, project: project) }
+      let!(:predicate) { FactoryBot.create(:valid_controlled_vocabulary_term_predicate) }
       let!(:data_attr1) { FactoryBot.create(:valid_data_attribute_internal_attribute,
         attribute_subject: ce1,
         predicate: predicate,
@@ -205,15 +203,15 @@ RSpec.describe Export::Dwca::Occurrence::PredicateExporter, type: :model do
     end
 
     context 'with complex filtering scenarios' do
-      let!(:p1) { FactoryBot.create(:valid_controlled_vocabulary_term_predicate, project: project) }
-      let!(:p2) { FactoryBot.create(:valid_controlled_vocabulary_term_predicate, project: project) }
-      let!(:p3) { FactoryBot.create(:valid_controlled_vocabulary_term_predicate, project: project) }
+      let!(:p1) { FactoryBot.create(:valid_controlled_vocabulary_term_predicate) }
+      let!(:p2) { FactoryBot.create(:valid_controlled_vocabulary_term_predicate) }
+      let!(:p3) { FactoryBot.create(:valid_controlled_vocabulary_term_predicate) }
 
       specify 'includes only referenced collecting events' do
         # All three specimens share same CE
-        s1 = FactoryBot.create(:valid_specimen, project: project)
-        s2 = FactoryBot.create(:valid_specimen, project: project)
-        s3 = FactoryBot.create(:valid_specimen, project: project)
+        s1 = FactoryBot.create(:valid_specimen)
+        s2 = FactoryBot.create(:valid_specimen)
+        s3 = FactoryBot.create(:valid_specimen)
 
         ce = FactoryBot.create(:valid_collecting_event)
         s1.update!(collecting_event: ce)
@@ -258,11 +256,11 @@ RSpec.describe Export::Dwca::Occurrence::PredicateExporter, type: :model do
       end
 
       specify 'filters collecting event attributes to only referenced CEs and predicates' do
-        s1 = FactoryBot.create(:valid_specimen, project: project)
-        s2 = FactoryBot.create(:valid_specimen, project: project)
-        s3 = FactoryBot.create(:valid_specimen, project: project)
-        s4 = FactoryBot.create(:valid_specimen, project: project)
-        s5 = FactoryBot.create(:valid_specimen, project: project)
+        s1 = FactoryBot.create(:valid_specimen)
+        s2 = FactoryBot.create(:valid_specimen)
+        s3 = FactoryBot.create(:valid_specimen)
+        s4 = FactoryBot.create(:valid_specimen)
+        s5 = FactoryBot.create(:valid_specimen)
 
         ce1 = FactoryBot.create(:valid_collecting_event)
         ce2 = FactoryBot.create(:valid_collecting_event)
@@ -347,9 +345,9 @@ RSpec.describe Export::Dwca::Occurrence::PredicateExporter, type: :model do
 
       specify 'does not inject collection_object_ids not in original scope' do
         # All three share CE
-        s1 = FactoryBot.create(:valid_specimen, project: project)
-        s2 = FactoryBot.create(:valid_specimen, project: project)
-        s3 = FactoryBot.create(:valid_specimen, project: project)
+        s1 = FactoryBot.create(:valid_specimen)
+        s2 = FactoryBot.create(:valid_specimen)
+        s3 = FactoryBot.create(:valid_specimen)
 
         ce = FactoryBot.create(:valid_collecting_event)
         s1.update!(collecting_event: ce)
@@ -395,9 +393,9 @@ RSpec.describe Export::Dwca::Occurrence::PredicateExporter, type: :model do
       end
 
       specify 'exports collection object attributes correctly' do
-        s1 = FactoryBot.create(:valid_specimen, project: project)
-        s2 = FactoryBot.create(:valid_specimen, project: project)
-        s3 = FactoryBot.create(:valid_specimen, project: project)
+        s1 = FactoryBot.create(:valid_specimen)
+        s2 = FactoryBot.create(:valid_specimen)
+        s3 = FactoryBot.create(:valid_specimen)
 
         s1.get_dwc_occurrence
         s2.get_dwc_occurrence
@@ -451,7 +449,7 @@ RSpec.describe Export::Dwca::Occurrence::PredicateExporter, type: :model do
       end
 
       specify 'exports collecting event attributes correctly' do
-        s1 = FactoryBot.create(:valid_specimen, project: project)
+        s1 = FactoryBot.create(:valid_specimen)
 
         ce = FactoryBot.create(:valid_collecting_event)
         s1.update!(collecting_event: ce)
@@ -560,7 +558,7 @@ RSpec.describe Export::Dwca::Occurrence::PredicateExporter, type: :model do
         # When a CO or CE has multiple data attributes with the same predicate,
         # all values should be concatenated with the DwC delimiter (pipe).
         # This preserves all data rather than arbitrarily picking one value.
-        s1 = FactoryBot.create(:valid_specimen, project: project)
+        s1 = FactoryBot.create(:valid_specimen)
         ce = FactoryBot.create(:valid_collecting_event)
         s1.update!(collecting_event: ce)
         s1.get_dwc_occurrence

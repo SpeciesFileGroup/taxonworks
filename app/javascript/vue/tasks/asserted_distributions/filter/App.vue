@@ -63,6 +63,7 @@
           v-model="selectedIds"
           :attributes="ATTRIBUTES"
           :list="list"
+          :hide-unfrozen="hideFrozen"
           :preference-key="`tasks::filters::${ASSERTED_DISTRIBUTION}`"
           @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"
@@ -85,6 +86,18 @@
           </template>
         </FilterList>
       </template>
+      <template #nav-settings-start>
+        <VToggle
+          title="Hide/show non-frozen columns"
+          @click="() => (hideFrozen = !hideFrozen)"
+        >
+          <VIcon
+            title="Hide/show non-frozen columns"
+            :name="hideFrozen ? 'contract' : 'expand'"
+            x-small
+          />
+        </VToggle>
+      </template>
     </FilterLayout>
     <VSpinner
       v-if="isLoading"
@@ -101,6 +114,8 @@ import FilterComponent from './components/FilterView.vue'
 import FloatMap from '@/components/ui/map/FloatMap.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import VToggle from '@/components/ui/VToggle.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
 import RadialAssertedDistribution from '@/components/radials/asserted_distribution/radial.vue'
@@ -121,6 +136,7 @@ defineOptions({
   name: 'FilterAssertedDistributions'
 })
 
+const hideFrozen = ref(false)
 const idForMap = ref(null)
 const geojson = ref(null)
 

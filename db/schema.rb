@@ -592,6 +592,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_24_134946) do
   end
 
   create_table "containers", id: :serial, force: :cascade do |t|
+    t.decimal "asserted_percent_earmarked"
+    t.decimal "asserted_percent_empty"
     t.datetime "created_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.string "disposition"

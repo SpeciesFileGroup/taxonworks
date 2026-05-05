@@ -46,12 +46,25 @@
         <FilterList
           :list="list"
           :layout="currentLayout"
+          :hide-unfrozen="hideFrozen"
           :preference-key="`tasks::filters::${FIELD_OCCURRENCE}`"
           v-model="selectedIds"
           radial-object
           @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"
         />
+      </template>
+      <template #nav-settings-start>
+        <VToggle
+          title="Hide/show non-frozen columns"
+          @click="() => (hideFrozen = !hideFrozen)"
+        >
+          <VIcon
+            title="Hide/show non-frozen columns"
+            :name="hideFrozen ? 'contract' : 'expand'"
+            x-small
+          />
+        </VToggle>
       </template>
     </FilterLayout>
     <VSpinner
@@ -70,12 +83,15 @@ import FilterList from '@/components/Filter/Table/TableResults.vue'
 import RadialMatrix from '@/components/radials/matrix/radial.vue'
 import { useFilter, useCSVOptions } from '@/shared/Filter/composition'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import VToggle from '@/components/ui/VToggle.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import TableLayoutSelector from '@/components/Filter/Table/TableLayoutSelector.vue'
 import { LAYOUTS } from './constants/layouts'
 import { listParser } from './utils/listParser'
 import { FIELD_OCCURRENCE } from '@/constants/index.js'
 import { FieldOccurrence } from '@/routes/endpoints'
 import { useTableLayoutConfiguration } from '@/components/Filter/composables/useTableLayoutConfiguration.js'
+import { ref } from 'vue'
 
 defineOptions({
   name: 'FilterFieldOccurrences'
@@ -87,6 +103,7 @@ const extend = [
   'identifiers',
   'dwc_occurrence'
 ]
+const hideFrozen = ref(false)
 
 const {
   currentLayout,
