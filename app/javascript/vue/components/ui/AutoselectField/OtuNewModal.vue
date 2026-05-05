@@ -8,7 +8,7 @@
   - If more than 1 result → shows a radio-button disambiguation list; selecting one collapses
     the list and assigns that TaxonName
 
-  Tab order: Name → TaxonName autocomplete → Create → back-arrow
+  Tab order: TaxonName autocomplete → Name → Create → back-arrow
 
   Emits:
     confirm({ otuName, taxonNameId, taxonNameLabel })  — user clicked Create
@@ -25,19 +25,6 @@
 
     <template #body>
       <div class="otu-new-modal__form">
-        <!-- Name -->
-        <label class="otu-new-modal__label" for="otu-new-name">Name</label>
-        <input
-          id="otu-new-name"
-          ref="nameInputEl"
-          v-model="otuName"
-          type="text"
-          class="otu-new-modal__input normal-input"
-          placeholder="OTU name (optional)"
-          autocomplete="off"
-          @keydown.enter.prevent="focusTaxonNameInput"
-        />
-
         <!-- TaxonName autocomplete -->
         <label class="otu-new-modal__label" for="otu-new-taxon-name">Taxon name</label>
 
@@ -92,6 +79,19 @@
             </label>
           </li>
         </ul>
+
+        <!-- Name -->
+        <label class="otu-new-modal__label" for="otu-new-name">Name</label>
+        <input
+          id="otu-new-name"
+          ref="nameInputEl"
+          v-model="otuName"
+          type="text"
+          class="otu-new-modal__input normal-input"
+          placeholder="OTU name (optional)"
+          autocomplete="off"
+          @keydown.enter.prevent="focusTaxonNameInput"
+        />
 
         <p v-if="errorMessage" class="otu-new-modal__error">{{ errorMessage }}</p>
       </div>
@@ -151,8 +151,7 @@ const errorMessage = ref(null)
 // ── Lifecycle ──────────────────────────────────────────────────────────────────
 onMounted(() => {
   nextTick(() => {
-    nameInputEl.value?.focus()
-    nameInputEl.value?.select()
+    taxonNameAutocompleteEl.value?.$el?.querySelector('input')?.focus()
 
     if (props.namePrefill.trim()) {
       searchTaxonNamesByExactName(props.namePrefill.trim())
@@ -175,6 +174,8 @@ async function searchTaxonNamesByExactName(name) {
     if (results.length === 1) {
       // Single exact match — pre-populate silently
       selectedTaxonName.value = results[0]
+      stripTaxonNamePrefix(results[0])
+      nextTick(() => nameInputEl.value?.focus())
     } else if (results.length > 1) {
       // Multiple matches — show radio disambiguation
       disambiguationList.value = results
@@ -187,18 +188,31 @@ async function searchTaxonNamesByExactName(name) {
   }
 }
 
+// ── Helpers ────────────────────────────────────────────────────────────────────
+function stripTaxonNamePrefix(item) {
+  const tnName = item.name
+  if (!tnName) return
+  const current = otuName.value
+  if (current === tnName) {
+    otuName.value = ''
+  } else if (current.startsWith(tnName + ' ')) {
+    otuName.value = current.slice(tnName.length + 1)
+  }
+}
+
 // ── Event handlers ─────────────────────────────────────────────────────────────
 function onTaxonNameSelected(item) {
   selectedTaxonName.value = item
   disambiguationList.value = []
-  // After selecting, move focus to Create
-  nextTick(() => createBtn.value?.focus())
+  stripTaxonNamePrefix(item)
+  nextTick(() => nameInputEl.value?.focus())
 }
 
 function onDisambigSelect(item) {
   selectedTaxonName.value = item
   disambiguationList.value = []
-  nextTick(() => createBtn.value?.focus())
+  stripTaxonNamePrefix(item)
+  nextTick(() => nameInputEl.value?.focus())
 }
 
 function clearTaxonName() {
@@ -231,6 +245,7 @@ async function doCreate() {
       const label = body.name || selectedTaxonName.value?.label || 'OTU'
       emit('confirm', {
         id: body.id,
+        global_id: body.global_id ?? null,
         label,
         label_html: label,
         info: selectedTaxonName.value?.label ?? null,
