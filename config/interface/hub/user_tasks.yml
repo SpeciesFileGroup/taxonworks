@@ -1223,5 +1223,23 @@ new_ba_task:
   name: 'New biological associations II'
   related:
   categories:
+    - biology
+    - new
   status: prototype
   description: 'Create, edit, and cite biological associations, with support for anatomical parts and asserted distributions'
+collection_layout_task:
+  hub: true
+  name: 'Collection layout'
+  related:
+  categories:
+  status: prototype
+  description: 'Rapidly create and visualize a physical collection layout (Building, Rooms, Cabinets, Drawers)'
+collection_visualization_task:
+  hub: true
+  name: 'Collection visualization'
+  related:
+    - collection_layout_task
+  categories:
+    - collection objects
+  status: prototype
+  description: 'Visualize a collection hierarchy using treemap and other views'

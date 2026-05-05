@@ -72,6 +72,7 @@ const WITH_PARAMS = [
   'data_depictions',
   'depictions',
   'determinations',
+  'dwc_occurrences',
   'observations',
   'origin_citation',
   'taxon_name',

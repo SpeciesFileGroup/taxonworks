@@ -7,6 +7,9 @@ const permitParams = {
     type: String,
     name: String,
     disposition: String,
+    asserted_percent_earmarked: Number,
+    asserted_percent_empty: Number,
+    print_label: String,
     size_x: Number,
     size_y: Number,
     size_z: Number

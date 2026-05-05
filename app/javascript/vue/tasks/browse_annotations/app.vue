@@ -29,10 +29,23 @@
           v-if="annotationType"
           :list="list"
           :attributes="currentAttributes"
+          :hide-unfrozen="hideFrozen"
           v-model="selectedIds"
           @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"
         />
+      </template>
+      <template #nav-settings-start>
+        <VToggle
+          title="Hide/show non-frozen columns"
+          @click="() => (hideFrozen = !hideFrozen)"
+        >
+          <VIcon
+            title="Hide/show non-frozen columns"
+            :name="hideFrozen ? 'contract' : 'expand'"
+            x-small
+          />
+        </VToggle>
       </template>
     </FilterLayout>
     <VSpinner
@@ -49,11 +62,16 @@ import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterView from './components/FilterView.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import VToggle from '@/components/ui/VToggle.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import useAnnotationFilter from './composables/useAnnotationFilter.js'
+import { ref } from 'vue'
 
 defineOptions({
   name: 'FilterAnnotations'
 })
+
+const hideFrozen = ref(false)
 
 const {
   append,

@@ -42,11 +42,12 @@ class Identifier::Global::Wikidata < Identifier::Global
 
   def data_exists
     return if errors.any?
-    # wikidata-client doesn't use prepended 'Prefix:' in query
-    a = ::Wikidata::Item.find(identifier)
-    if a.nil?
-      errors.add(:identifier, "Can not find #{identifier} in wikidata.")
-    end
-  end
 
+    unless @wikidata_exists_checked_identifier == identifier
+      @wikidata_exists_checked_identifier = identifier
+      @wikidata_exists_cached = !!::Wikidata::Item.find(identifier)
+    end
+
+    errors.add(:identifier, "Can not find #{identifier} in wikidata.") unless @wikidata_exists_cached
+  end
 end

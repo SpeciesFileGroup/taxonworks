@@ -38,6 +38,7 @@
         <FilterList
           :list="list"
           :attributes="ATTRIBUTES"
+          :hide-unfrozen="hideFrozen"
           :preference-key="`tasks::filters::${SOURCE}`"
           v-model="selectedIds"
           radial-object
@@ -66,6 +67,18 @@
           </template>
         </FilterList>
       </template>
+      <template #nav-settings-start>
+        <VToggle
+          title="Hide/show non-frozen columns"
+          @click="() => (hideFrozen = !hideFrozen)"
+        >
+          <VIcon
+            title="Hide/show non-frozen columns"
+            :name="hideFrozen ? 'contract' : 'expand'"
+            x-small
+          />
+        </VToggle>
+      </template>
     </FilterLayout>
     <VSpinner
       v-if="isLoading"
@@ -83,6 +96,8 @@ import BibtexButton from './components/bibtex'
 import BibliographyDownload from './components/BibliographyDownload.vue'
 import RadialSource from '@/components/radials/source/radial.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import VToggle from '@/components/ui/VToggle.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
 
@@ -93,9 +108,10 @@ import PinComponent from '@/components/ui/Button/ButtonPin.vue'
 import { Source } from '@/routes/endpoints'
 import { SOURCE } from '@/constants/index.js'
 import { ATTRIBUTES } from './constants/attributes.js'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 const extend = ['documents', 'serial']
+const hideFrozen = ref(false)
 
 defineOptions({
   name: 'FilterSources'

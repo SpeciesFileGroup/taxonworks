@@ -180,6 +180,25 @@ describe Source::Bibtex, type: :model, group: :sources do
     expect(src.serial_id).to eq(s.id)
   end
 
+  specify '.new_from_bibtex with ISSN and name matching different Serials links to ISSN-matched Serial' do
+    issn = '1540-7063'
+    citation_string = %q{@Article{Someone2021,
+        author = {Someone},
+        title = {A paper},
+        journal = {Integrative and Comparative Biology},
+        year = {2021},
+        issn = {1540-7063},
+        }}
+
+    name_serial = FactoryBot.create(:valid_serial, name: 'Integrative and Comparative Biology')
+    issn_serial = FactoryBot.create(:valid_serial, name: 'Integrative & Comparative Biology',
+      identifiers_attributes: [{ type: 'Identifier::Global::Issn', identifier: issn }])
+
+    src = Source::Bibtex.new_from_bibtex_text(citation_string)
+    src.save!
+    expect(src.serial_id).to eq(issn_serial.id)
+  end
+
   specify '.new_from_bibtex without create project source' do
     citation_string =  %q{@Article{Park2021a,
         author = {Kyu-Tek Park AND J. B. Heppner},

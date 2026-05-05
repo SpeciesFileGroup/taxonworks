@@ -297,6 +297,32 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
     expect(q.all).to contain_exactly(ad1, ad_ba)
   end
 
+  specify '#otu_id includes ADs on BiologicalAssociations where BA subject is a CO determined as the OTU' do
+    ad2 # not this one
+    co = FactoryBot.create(:valid_specimen)
+    FactoryBot.create(:valid_taxon_determination, taxon_determination_object: co, otu: o1)
+    ba = FactoryBot.create(:valid_biological_association, biological_association_subject: co)
+    ad_ba = FactoryBot.create(
+      :valid_biological_association_asserted_distribution,
+      asserted_distribution_object: ba
+    )
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad_ba)
+  end
+
+  specify '#otu_id includes ADs on BiologicalAssociations where BA object is a CO determined as the OTU' do
+    ad2 # not this one
+    co = FactoryBot.create(:valid_specimen)
+    FactoryBot.create(:valid_taxon_determination, taxon_determination_object: co, otu: o1)
+    ba = FactoryBot.create(:valid_biological_association, biological_association_object: co)
+    ad_ba = FactoryBot.create(
+      :valid_biological_association_asserted_distribution,
+      asserted_distribution_object: ba
+    )
+    q = query.new({ otu_id: o1.id })
+    expect(q.all).to contain_exactly(ad_ba)
+  end
+
   specify '#otu_id includes ADs on BiologicalAssociationsGraphs containing a BA where OTU is subject' do
     ad2 # not this one
     ba = FactoryBot.create(:valid_biological_association, biological_association_subject: o1)

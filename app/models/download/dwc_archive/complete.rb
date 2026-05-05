@@ -65,6 +65,7 @@ class Download::DwcArchive::Complete < Download::DwcArchive
     predicates = project.complete_dwc_download_predicates || {}
     extensions = project.complete_dwc_download_extensions || []
     taxonworks_extensions = project.complete_dwc_download_internal_values || []
+    by_id = Current.user_id || project.complete_dwc_download_default_user_id
 
     biological_associations_scope = extensions.include?('resource_relationships') ?
       {
@@ -99,7 +100,8 @@ class Download::DwcArchive::Complete < Download::DwcArchive
       },
       predicate_extensions: normalized_predicate_extensions(predicates),
       taxonworks_extensions:,
-      project_id:
+      project_id:,
+      user_id: by_id
     )
   end
 

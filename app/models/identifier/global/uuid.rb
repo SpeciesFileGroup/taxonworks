@@ -1,7 +1,5 @@
 # Universally Unique Identifier
 #
-# validates :identifier, :format => {:with => /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i, :message => 'Invalid UUID.'}
-#
 class Identifier::Global::Uuid < Identifier::Global
   attr_accessor :is_generated
 
@@ -11,14 +9,11 @@ class Identifier::Global::Uuid < Identifier::Global
 
   def generate_uuid
     write_attribute(:identifier, SecureRandom.uuid)
-  end 
+  end
 
   def using_uuid_class
     unless identifier.nil?
-      /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i =~ identifier
-      if $&.nil?
-        errors.add(:identifier, "#{identifier} is not a valid UUID.")
-      end
+      errors.add(:identifier, "#{identifier} is not a valid UUID.") unless Utilities::Uuid.uuid?(identifier)
     end
   end
 end

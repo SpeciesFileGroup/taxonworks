@@ -4,6 +4,7 @@
       class="horizontal-left-content full_width margin-medium-bottom gap-small"
     >
       <VAutocomplete
+        ref="autocomplete"
         class="full_width"
         url="/sources/autocomplete"
         min="3"
@@ -82,6 +83,12 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue'
+
+const autocomplete = ref(null)
+
+defineExpose({
+  focus() { autocomplete.value?.setFocus() }
+})
 import { Source, Citation } from '@/routes/endpoints'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import VPin from '@/components/ui/Button/ButtonPinned.vue'
