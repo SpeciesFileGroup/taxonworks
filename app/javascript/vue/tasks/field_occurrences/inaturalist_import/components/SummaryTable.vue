@@ -72,25 +72,25 @@
           <td>{{ row.sound_count ?? 'n/a' }}</td>
           <td>
             <a
-              v-if="row.status === 'found'"
+              v-if="row.status === INAT_STATUS_FOUND"
               :href="row.browse_url"
               target="_blank"
             >Found</a>
             <a
-              v-else-if="row.status === 'created'"
+              v-else-if="row.status === INAT_STATUS_CREATED"
               :href="row.browse_url"
               target="_blank"
             >Created</a>
-            <span v-else-if="row.status === 'not_imported'">Queued</span>
-            <span v-else-if="row.status === 'already_imported'">
+            <span v-else-if="row.status === INAT_STATUS_NOT_IMPORTED">{{ localFindMode ? 'Not imported' : 'Queued' }}</span>
+            <span v-else-if="row.status === INAT_STATUS_ALREADY_IMPORTED">
               Already imported —
               <a
                 :href="row.browse_url"
                 target="_blank"
               >view</a>
             </span>
-            <span v-else-if="row.status === 'not_found'">Not found on iNaturalist</span>
-            <span v-else-if="row.status === 'no_taxon'">No taxon — skipped</span>
+            <span v-else-if="row.status === INAT_STATUS_NOT_FOUND">Not found on iNaturalist</span>
+            <span v-else-if="row.status === INAT_STATUS_NO_TAXON">No taxon — skipped</span>
             <span v-else>Queued</span>
           </td>
         </tr>
@@ -104,6 +104,14 @@ import { ref, watch, computed } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import { FieldOccurrence } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
+import {
+  INAT_STATUS_FOUND,
+  INAT_STATUS_CREATED,
+  INAT_STATUS_NOT_IMPORTED,
+  INAT_STATUS_ALREADY_IMPORTED,
+  INAT_STATUS_NOT_FOUND,
+  INAT_STATUS_NO_TAXON
+} from '../constants/importStatuses.js'
 
 const props = defineProps({
   rows: {
@@ -129,7 +137,7 @@ watch(() => props.findMode, mode => { localFindMode.value = mode })
 
 const foundIds = computed(() =>
   localRows.value
-    .filter(r => r.status === 'found' || r.status === 'created')
+    .filter(r => r.status === INAT_STATUS_FOUND || r.status === INAT_STATUS_CREATED)
     .map(r => r.field_occurrence_id)
     .filter(Boolean)
 )

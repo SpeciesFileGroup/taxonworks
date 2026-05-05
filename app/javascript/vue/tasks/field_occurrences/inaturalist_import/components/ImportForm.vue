@@ -83,6 +83,11 @@ import { ref, computed, reactive } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSwitch from '@/components/ui/VSwitch.vue'
 import { FieldOccurrence } from '@/routes/endpoints'
+import {
+  FIND_STATUS_LABELS,
+  IMPORT_STATUS_LABELS,
+  summarizeStatuses
+} from '../constants/importStatuses.js'
 
 const IMPORT_LIMIT = 50
 const FIND_LIMIT = 200
@@ -131,26 +136,10 @@ async function submit() {
       : { observation_ids: parsedIds.value, ...options }
     const { body } = await call(params)
 
-    const parts = []
-    if (findOnly) {
-      const found = body.summary.filter(r => r.status === 'found').length
-      const notImported = body.summary.filter(r => r.status === 'not_imported').length
-      const notFound = body.summary.filter(r => r.status === 'not_found').length
-      if (found) parts.push(`${found} found in this project`)
-      if (notImported) parts.push(`${notImported} not yet imported`)
-      if (notFound) parts.push(`${notFound} not found on iNaturalist`)
-    } else {
-      const queued = body.summary.filter(r => r.status === 'queued').length
-      const existing = body.summary.filter(r => r.status === 'already_imported').length
-      const notFound = body.summary.filter(r => r.status === 'not_found').length
-      const noTaxon = body.summary.filter(r => r.status === 'no_taxon').length
-      if (queued) parts.push(`${queued} queued`)
-      if (existing) parts.push(`${existing} already imported`)
-      if (notFound) parts.push(`${notFound} not found on iNaturalist`)
-      if (noTaxon) parts.push(`${noTaxon} skipped (no taxon)`)
-    }
+    const labelMap = findOnly ? FIND_STATUS_LABELS : IMPORT_STATUS_LABELS
+    const summary = summarizeStatuses(body.summary, labelMap)
 
-    TW.workbench.alert.create(parts.join('; '), 'notice')
+    TW.workbench.alert.create(summary, 'notice')
     emit('submitted', { rows: body.summary, findMode: findOnly })
     rawInput.value = ''
   } catch {
