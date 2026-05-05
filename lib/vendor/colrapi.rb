@@ -239,11 +239,12 @@ module Vendor
     def self.build_extension(col_result, project_id, dataset_id: nil)
       col_key        = col_result['id']
       col_name       = uninomial_name(col_result['name'])
+      col_rank       = col_result.dig('name', 'rank')&.downcase
+      col_name       = extract_subgenus_name(col_name) if col_rank == 'subgenus'
       col_status     = col_result['status']
       col_authorship = col_result.dig('name', 'authorship')
       col_year       = col_result.dig('name', 'combinationAuthorship', 'year') ||
                        col_result.dig('name', 'basionymOrCombinationAuthorship', 'year')
-      col_rank       = col_result.dig('name', 'rank')&.downcase
 
       # CoL nomenclatural code: 'zoological', 'botanical', 'bacterial', 'viral'
       col_code       = col_result.dig('name', 'code')

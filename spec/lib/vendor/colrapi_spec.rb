@@ -246,6 +246,41 @@ describe Vendor::Colrapi, type: :model do
       end
     end
 
+    context 'when result is subgenus rank with paren-wrapped combination' do
+      let(:subgenus_result) {
+        {
+          'id'     => 'SG1',
+          'status' => 'accepted',
+          'name'   => {
+            'scientificName' => 'Cicadula (Cyperana)',
+            'uninomial'      => 'Cicadula (Cyperana)',
+            'rank'           => 'subgenus',
+            'authorship'     => 'Ribaut, 1946'
+          },
+          'label'     => 'Cicadula (Cyperana) Ribaut, 1946',
+          'labelHtml' => '<i>Cicadula (Cyperana)</i> Ribaut, 1946'
+        }
+      }
+
+      before do
+        allow(described_class).to receive(:ancestors).with('SG1').and_return([])
+      end
+
+      subject(:ext) { described_class.build_extension(subgenus_result, nil) }
+
+      it 'col_name extracts the epithet from inside the parentheses' do
+        expect(ext[:col_name]).to eq('Cyperana')
+      end
+
+      it 'col_rank is subgenus' do
+        expect(ext[:col_rank]).to eq('subgenus')
+      end
+
+      it 'col_authorship is preserved' do
+        expect(ext[:col_authorship]).to eq('Ribaut, 1946')
+      end
+    end
+
     context 'when col_key is blank' do
       let(:col_result_no_id) { col_nameusage_result(id: nil) }
 
@@ -431,6 +466,24 @@ describe Vendor::Colrapi, type: :model do
         ext = described_class.build_extension(botanical_result, nil)
 
         expect(ext[:col_authorship]).to eq('E.Mey.')
+      end
+    end
+  end
+
+  context 'VCR integration — Cicadula (Cyperana) subgenus in default CoL dataset (3LR)' do
+    it 'col_name is the epithet Cyperana, not the full combination Cicadula (Cyperana)' do
+      VCR.use_cassette('colrapi_subgenus_cicadula_cyperana') do
+        search_result = ::Vendor::Colrapi.search('Cicadula (Cyperana)')
+        subgenus_result = search_result['result'].find { |r|
+          r.dig('name', 'rank')&.downcase == 'subgenus'
+        }
+        skip 'No subgenus result for Cicadula (Cyperana) found in CoL 3LR' if subgenus_result.nil?
+
+        ext = described_class.build_extension(subgenus_result, nil)
+
+        expect(ext[:col_rank]).to eq('subgenus')
+        expect(ext[:col_name]).to eq('Cyperana'),
+          "Expected 'Cyperana' but got '#{ext[:col_name]}'; raw scientificName: #{subgenus_result.dig('name', 'scientificName').inspect}"
       end
     end
   end

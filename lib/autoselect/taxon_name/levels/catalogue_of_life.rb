@@ -41,6 +41,8 @@ module Autoselect
           results.map do |col_result|
             # Flat nameusage structure: 'id', 'status', 'name' hash, 'label', 'labelHtml'
             col_name   = col_result.dig('name', 'scientificName') || col_result['label']
+            col_rank   = col_result.dig('name', 'rank')&.downcase
+            col_name   = ::Vendor::Colrapi.extract_subgenus_name(col_name) if col_rank == 'subgenus'
             col_status = col_result['status']
             col_key    = col_result['id']
             extension  = ::Vendor::Colrapi.build_extension(col_result, project_id, dataset_id:)
