@@ -37,7 +37,6 @@
         >
           <VIcon
             x-small
-            @click="showModal = true"
             name="trash"
           />
         </VBtn>
