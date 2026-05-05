@@ -2,10 +2,83 @@
 
 All (hopefully) notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-This project <em>does not yet</em> adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as the API is evolving and MINOR patches may be backwards incompatible.
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+This project <em>does not yet</em> adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) as the API is evolving and MINOR patches may be backwards incompatible.
 
 ## [unreleased]
+
+### Added
+
+- Distribution absence inference and mapping endpoints #4896
+- `subject_otu_id` and `object_otu_id` to biological associations `/api/v1/biological_associations/basic` endpoint
+- Filters: Copy to clipboard button for API Url [#4852]
+- Filters: Toggle hide/show non-frozen columns
+- In the New Asserted Distribution task, add map tab to Gazetteer selection for shape [#4853]
+- `/leads`, `/leads/:id/remaining_otus`and `/leads/:id/eliminated_otus` API endpoints
+- Filters: Save freeze columns state [#4882]
+- Filter Source: Add TaxonWorks CSL format to `download formatted` button [#4661]
+- DwCA names checklist export (from Filter OTUs as a download type) [#4643]
+- Create Anatomical Parts from the Biological Associations annotator slice [#4716]
+
+### Changed
+
+- Updated Ruby gems
+- Upgraded to Node 24 LTS
+- OTU Smart Selector now sorts recent list by most recently used [#4865]
+- API endpoint for observation matrices only returns public ones instead of all
+- `Download formatted` modal now display italics in preview box [#1856]
+- Browse Taxon Name: Save `Redirect to valid name` state in user preferences [#4892]
+- New taxon name: Save `Autosave` state in user preferences
+- New source: Save `Autosave` state in user preferences
+- Remove all `user_id`s from api outputs [#4888]
+
+### Fixed
+
+- CSD: CE Form changes were not detected on Alt+S due to missing change event while input was focused [#4851]
+- New collecting event form: Allows to create georeferences with invalid coordinates from verbatim data
+- New BA: Delete a biological association redirects to the wrong page instead of refreshing the table [#4864]
+- New OTU Widget: Autocomplete list overlays create button [#4866]
+- Sometimes smart selectors trigger selected event twice
+- Filter Collecting Event can return an error from the Matching Identifiers facet when the "Internal" type is set but none of the identifiers provided are internal (i.e. numeric)
+- Unable to delete descriptor character states from the New Descriptor interface
+- Don't label 0-column matrices as image matrices in the Observation Matrix Hub
+- Handle bad BibTeX and html returned during New Source's CrossRef lookup
+- Handle `%` in New Source's CrossRef lookup
+- DwC importer failing when importing unparsable people
+- Browse OTU button creates OTUs with an incorrect taxon name ID on the /otus/:id page [#4879]
+- The Browse taxon name task bar is positioned incorrectly when the header bar is fixed.
+- Filter Source: The style selection in formatted download always applies the same style regardless of what is selected.
+- Fix some tests that intermittently fail in our CI (Continuous Integration) environment, add a script to produce a report of such failures [#4891]
+- Added `otu_id` to DwcOccurrence model [#4767]
+- Improved speed of OTU distribution responses
+- [#2141] On the Browse OTU page, display Biological Associations related to an OTU by:
+  - Biological Association -> subject/object is a Collection Object or Field Occurrence -> the Taxon Determination of the Collection Object or Field Occurrence is the OTU in question
+  - Anatomical Part has origin OTU the OTU in question
+- ISBNs with 7-digit parts not recognized as valid [#4819]
+- Batch Source Import returns 'Serial identifiers identifier has already been taken' with no clear reason or explanation
+- Pin source button is missing in New Image task
+
+[#4896]: https://github.com/SpeciesFileGroup/taxonworks/issues/4896
+[#1856]: https://github.com/SpeciesFileGroup/taxonworks/issues/1856
+[#2141]: https://github.com/SpeciesFileGroup/taxonworks/issues/2141
+[#4643]: https://github.com/SpeciesFileGroup/taxonworks/issues/4643
+[#4661]: https://github.com/SpeciesFileGroup/taxonworks/issues/4661
+[#4716]: https://github.com/SpeciesFileGroup/taxonworks/issues/4716
+[#4767]: https://github.com/SpeciesFileGroup/taxonworks/issues/4767
+[#4819]: https://github.com/SpeciesFileGroup/taxonpages/issues/4819
+[#4851]: https://github.com/SpeciesFileGroup/taxonpages/issues/4851
+[#4852]: https://github.com/SpeciesFileGroup/taxonpages/issues/4852
+[#4853]: https://github.com/SpeciesFileGroup/taxonpages/issues/4853
+[#4864]: https://github.com/SpeciesFileGroup/taxonpages/issues/4864
+[#4865]: https://github.com/SpeciesFileGroup/taxonpages/issues/4865
+[#4866]: https://github.com/SpeciesFileGroup/taxonpages/issues/4866
+[#4879]: https://github.com/SpeciesFileGroup/taxonpages/issues/4879
+[#4882]: https://github.com/SpeciesFileGroup/taxonpages/issues/4882
+[#4888]: https://github.com/SpeciesFileGroup/taxonpages/issues/4888
+[#4892]: https://github.com/SpeciesFileGroup/taxonpages/issues/4892
+[#4891]: https://github.com/SpeciesFileGroup/taxonpages/issues/4891
+
+## [0.61.0] - 2026-02-20
 
 ### Added
 
@@ -20,9 +93,13 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - Freeform digitize: Stroke width input [#4807]
 - Filter image: Add facet `Metadata depiction` [#4805]
 - Matrix row coder task: Add next|back links to bottom [#4795]
+- New task: New biological associations II [#4784]
+- Multi-update task: Sort column and fill column button [#4826]
+- OTU citations endpoints - results are not yet available in the UI [#4423]
 
 ### Fixed
 
+- Catalogue of Life Data Package export [#4816]
 - Task bar overlays panels when header is locked in New taxon name and New source tasks
 - Basic Endemism task reports an error
 - Selecting `Object Graph` from the navigator radial of an OTU with an Asserted Distribution reports an error
@@ -54,9 +131,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 - In filters, Taxon Name facets now default to 'Valid only' and 'Current only', and Taxon Determination facets now default to 'Current only'
 - Searching for Repositories now matches across multiple terms, e.g. 'hist dep' now matches '... Department ... History ...' [#4769]
 - Browse Collection Object: When opened without specifying an ID, the pinned ID is loaded. If no pinned ID is available, a random one is selected instead [#4810]
+- Filters: keep per state after reset [#4831]
+- Updated Ruby gems
+- Refactor Filter annotations task [#4809]
+- Focus the next keyboard input after mouse clicks in New Taxon Name
 
 [#345]: https://github.com/SpeciesFileGroup/taxonpages/issues/345
 [#4271]: https://github.com/SpeciesFileGroup/taxonworks/issues/4271
+[#4423]: https://github.com/SpeciesFileGroup/taxonworks/issues/4423
 [#4683]: https://github.com/SpeciesFileGroup/taxonworks/issues/4683
 [#4694]: https://github.com/SpeciesFileGroup/taxonworks/issues/4694
 [#4700]: https://github.com/SpeciesFileGroup/taxonworks/issues/4700
@@ -67,6 +149,7 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4777]: https://github.com/SpeciesFileGroup/taxonworks/issues/4777
 [#4782]: https://github.com/SpeciesFileGroup/taxonworks/issues/4782
 [#4783]: https://github.com/SpeciesFileGroup/taxonworks/issues/4783
+[#4784]: https://github.com/SpeciesFileGroup/taxonworks/issues/4784
 [#4785]: https://github.com/SpeciesFileGroup/taxonworks/issues/4785
 [#4790]: https://github.com/SpeciesFileGroup/taxonworks/issues/4790
 [#4791]: https://github.com/SpeciesFileGroup/taxonworks/issues/4791
@@ -75,10 +158,14 @@ This project <em>does not yet</em> adheres to [Semantic Versioning](https://semv
 [#4800]: https://github.com/SpeciesFileGroup/taxonworks/issues/4800
 [#4806]: https://github.com/SpeciesFileGroup/taxonworks/issues/4806
 [#4807]: https://github.com/SpeciesFileGroup/taxonworks/issues/4807
+[#4809]: https://github.com/SpeciesFileGroup/taxonworks/issues/4809
 [#4810]: https://github.com/SpeciesFileGroup/taxonworks/issues/4810
 [#4811]: https://github.com/SpeciesFileGroup/taxonworks/issues/4811
 [#4813]: https://github.com/SpeciesFileGroup/taxonworks/issues/4813
 [#4805]: https://github.com/SpeciesFileGroup/taxonworks/issues/4805
+[#4816]: https://github.com/SpeciesFileGroup/taxonpages/issues/4816
+[#4826]: https://github.com/SpeciesFileGroup/taxonworks/issues/4826
+[#4831]: https://github.com/SpeciesFileGroup/taxonworks/issues/4831
 
 ## [0.60.0] - 2026-02-20
 
@@ -6170,7 +6257,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.60.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.61.0...development
+[0.61.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.60.0...v0.61.0
 [0.60.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.59.0...v0.60.0
 [0.59.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.58.0...v0.59.0
 [0.58.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.57.0...v0.58.0

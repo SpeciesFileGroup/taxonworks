@@ -2,26 +2,35 @@ import parseDMS from 'parse-dms'
 
 function foundCoordinate(coordinates) {
   let keys = Object.keys(coordinates)
-  let key = keys.find(key => {
+  let key = keys.find((key) => {
     return coordinates[key] != undefined
   })
-  
+
   return key ? coordinates[key] : undefined
 }
 
-export default function(coord) {
-  let newCoord = coord
-  if(newCoord && isNaN(newCoord)) {
-    try {
-      newCoord = parseDMS(newCoord)
-      newCoord = foundCoordinate(newCoord)
-      return newCoord
-    }
-    catch(error) {
-      return undefined
-    }
+export default function (coord) {
+  if (coord == null) return undefined
+
+  const value = coord.toString().trim()
+
+  if (!value) return undefined
+
+  const numeric = Number(value)
+
+  if (Number.isFinite(numeric)) {
+    return numeric
   }
-  else {
-    return newCoord
+
+  try {
+    const parsed = parseDMS(value)
+
+    if (typeof parsed === 'number') {
+      return parsed
+    }
+
+    return foundCoordinate(parsed)
+  } catch {
+    return undefined
   }
 }

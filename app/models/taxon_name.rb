@@ -1607,6 +1607,9 @@ class TaxonName < ApplicationRecord
   #  - reified ids never reference gender changes because they are always in context of original combination, i.e. there is never a gender change
   # Mental note- consider combination - is_current_placement? (presently excluded in CoL code, which is the correct place to decide that.)
   # Duplicated in COLDP export code
+  #
+  # !! UNUSED and should likely be removed for `original_combination_reified_id`, which is the only way we use this.
+  #
   def reified_id
     return id.to_s if is_combination?
     return id.to_s unless has_alternate_original?

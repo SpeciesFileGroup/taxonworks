@@ -102,6 +102,7 @@
 
   --badge-purple-bg: rgba(139, 92, 246, 0.15);
   --badge-purple-color: #8b5cf6;
+  --color-secondary-primary: #1f7e9a;
 
   --news-blogpost-bg: var(--badge-blue-bg);
   --news-blogpost-color: var(--badge-blue-color);
@@ -176,6 +177,7 @@
 
   --taxon-name-valid-color: #b6cfff;
   --taxon-name-invalid-color: #cf873b;
+  --color-secondary-primary: #246d84;
 
   --color-status-included: #10b981;
   --color-status-included-glow: rgba(16, 185, 129, 0.5);
@@ -220,17 +222,18 @@ $tw-colors: (
   'warning': #f97316,
   'white': #ffffff,
   'border': #f5f5f5,
-  'toggle-active': #cebd5d
+  'toggle-active': #cebd5d,
+  'muted': 'var(--text-muted-color)'
 );
 
 $tw-map-colors: (
   'aggregate': #037316,
   'collection-object': #ef4444,
-  'field-occurrence': #84cc16,
+  'field-occurrence': #40b0a6,
   'type-material': #3388ff,
   'asserted-distribution': #f97316,
   'asserted-distribution-absent': #6a51a3,
-  'georeference': #ef4444,
+  'georeference': #d41159,
   'verbatim': #8908b4,
   'verbatim-preview': #636363
 );

@@ -29,5 +29,5 @@ export const Content = {
   topicTable: (params) =>
     AjaxCall('get', '/tasks/content/publisher/topic_table', { params }),
 
-  filter: (params) => AjaxCall('post', '/contents/filter', params)
+  filter: (params) => AjaxCall('post', '/contents/filter.json', params)
 }

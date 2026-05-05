@@ -205,6 +205,42 @@ describe Identifier, type: :model, group: [:annotators, :identifiers] do
     expect(Label.first.text).to eq(namespace.short_name + ' ' + '123')
   end
 
+  context '.visible' do
+    let!(:local_identifier) { Identifier::Local::CatalogNumber.create!(namespace:, identifier: '1', identifier_object: specimen1) }
+    let!(:global_identifier) { Identifier::Global::Uri.create!(identifier: 'http://example.org/1', identifier_object: specimen2) }
+    let(:other_project_id) { specimen1.project_id + 1 }
+
+    specify 'includes local identifier for matching project' do
+      expect(Identifier.visible(specimen1.project_id)).to include(local_identifier)
+    end
+
+    specify 'excludes local identifier for non-matching project' do
+      expect(Identifier.visible(other_project_id)).not_to include(local_identifier)
+    end
+
+    specify 'includes global identifier for any project' do
+      expect(Identifier.visible(other_project_id)).to include(global_identifier)
+    end
+  end
+
+  context '#visible_to_project?' do
+    let!(:local_identifier) { Identifier::Local::CatalogNumber.create!(namespace:, identifier: '1', identifier_object: specimen1) }
+    let!(:global_identifier) { Identifier::Global::Uri.create!(identifier: 'http://example.org/1', identifier_object: specimen2) }
+    let(:other_project_id) { specimen1.project_id + 1 }
+
+    specify 'local identifier is visible to its own project' do
+      expect(local_identifier.visible_to_project?(specimen1.project_id)).to be true
+    end
+
+    specify 'local identifier is not visible to a different project' do
+      expect(local_identifier.visible_to_project?(other_project_id)).to be false
+    end
+
+    specify 'global identifier is visible to any project' do
+      expect(global_identifier.visible_to_project?(other_project_id)).to be true
+    end
+  end
+
   context 'concerns' do
     it_behaves_like 'is_data'
   end

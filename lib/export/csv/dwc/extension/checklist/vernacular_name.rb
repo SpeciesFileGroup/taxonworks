@@ -1,0 +1,73 @@
+# CSV for Vernacular Name extension (for checklist archives).
+# See http://rs.gbif.org/extension/gbif/1.0/vernacularname.xml
+#
+# Note: NOT using DwcOccurrence data (vernacularName field is not populated).
+# Accesses CommonName records directly via OTU relationships.
+module Export::CSV::Dwc::Extension::Checklist::VernacularName
+
+  GBIF = Export::Dwca::GbifProfile::VernacularName
+
+  # Fields used in checklist exports (subset of full GBIF profile).
+  # Only including fields that can be populated from CommonName data.
+  CHECKLIST_FIELDS = [
+    :id, # Required for DwC-A star joins (taxonID, an OTU UUID)
+    :vernacularName,
+    :language,
+    :temporal
+  ].freeze
+
+  HEADERS = CHECKLIST_FIELDS
+
+  HEADERS_NAMESPACES = CHECKLIST_FIELDS.map do |field|
+    field == :id ? '' : GBIF::NAMESPACES[field]
+  end.freeze
+
+  # Generate CSV for vernacular name extension from CommonName records.
+  # @param core_otu_scope [Hash] OTU query params from Checklist::Data
+  # @param taxon_name_id_to_taxon_id [Hash] taxon_name_id => OTU UUID (used as dwc:taxonID in the checklist core)
+  # @param accepted_name_mode [String] checklist synonym handling mode
+  # @return [String] CSV content
+  def self.csv(core_otu_scope, taxon_name_id_to_taxon_id, accepted_name_mode:)
+    tbl = []
+    tbl[0] = HEADERS
+
+    otu_scope = ::Queries::Otu::Filter.new(core_otu_scope).all
+
+    common_names = CommonName
+      .joins(otu: :taxon_name)
+      .where(otu_id: otu_scope.select(:id))
+      .includes(:language, otu: :taxon_name)
+
+    common_names.find_each do |cn|
+      taxon_name = cn.otu.taxon_name
+      taxon_name_id = if accepted_name_mode == ::Export::Dwca::Checklist::Data::ACCEPTED_NAME_USAGE_ID
+        taxon_name.id
+      else
+        taxon_name.cached_valid_taxon_name_id || taxon_name.id
+      end
+      taxon_id = taxon_name_id_to_taxon_id[taxon_name_id]
+      next unless taxon_id
+
+      temporal = nil
+      if cn.start_year.present? && cn.end_year.present?
+        temporal = "#{cn.start_year}-#{cn.end_year}"
+      elsif cn.start_year.present?
+        temporal = cn.start_year.to_s
+      elsif cn.end_year.present?
+        temporal = cn.end_year.to_s
+      end
+
+      row = [
+        taxon_id,
+        cn.name,
+        cn.language&.alpha_2,
+        temporal
+      ]
+
+      tbl << row
+    end
+
+    ::Export::Dwca.output_csv(tbl)
+  end
+
+end

@@ -43,7 +43,7 @@
 
 table {
   box-shadow: 0 0 2px 0 var(--border-color);
-  border-radius: 2px;
+  border-radius: var(--border-radius-xsmall);
   width: auto;
   border-spacing: 0;
   color: var(--text--color);

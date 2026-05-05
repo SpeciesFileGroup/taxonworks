@@ -336,5 +336,43 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
         end
       end
     end
+
+    context 'destroying' do
+      specify 'does not destroy a geographic_item still used by a georeference' do
+        gi = FactoryBot.create(:geographic_item_with_polygon)
+        gazetteer = FactoryBot.create(:valid_gazetteer, geographic_item: gi)
+        FactoryBot.create(
+          :georeference_gazetteer,
+          gazetteer_record: gazetteer,
+          collecting_event: FactoryBot.create(:valid_collecting_event)
+        )
+
+        gazetteer.destroy!
+
+        expect(GeographicItem.where(id: gi.id).exists?).to be(true)
+      end
+
+      specify 'cannot be destroyed when referenced by an asserted distribution' do
+        gazetteer = FactoryBot.create(:valid_gazetteer)
+        FactoryBot.create(
+          :valid_gazetteer_asserted_distribution,
+          asserted_distribution_shape: gazetteer
+        )
+
+        expect(gazetteer.destroy).to be(false)
+        expect(gazetteer.errors[:base]).to be_present
+        expect(Gazetteer.where(id: gazetteer.id).exists?).to be(true)
+      end
+    end
+
+    context '.select_optimized' do
+      specify 'returns selector buckets when target is nil' do
+        expect(described_class.select_optimized(1, @project_id, nil)).to include(
+          :quick,
+          :pinboard,
+          :recent
+        )
+      end
+    end
   end
 end

@@ -165,6 +165,10 @@ export default {
   },
 
   methods: {
+    focus() {
+      this.$refs.inputTaxonname.focus()
+    },
+
     existError: function (type) {
       return this.errors && this.errors.hasOwnProperty(type)
     },

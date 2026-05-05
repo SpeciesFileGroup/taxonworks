@@ -8,16 +8,14 @@
   />
   <component
     :is="componentName"
+    ref="activeTab"
     v-model="combination"
   />
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
-import {
-  NOMENCLATURE_CODE_BOTANY,
-  NOMENCLATURE_CODE_ZOOLOGY
-} from '@/constants/index.js'
+import { computed, ref, watch, nextTick } from 'vue'
+import { NOMENCLATURE_CODE_BOTANY } from '@/constants/index.js'
 import SwitchComponent from '@/components/ui/VSwitch.vue'
 import AuthorPerson from './AuthorPeople.vue'
 import AuthorSource from './AuthorSource.vue'
@@ -27,10 +25,6 @@ const TAB = {
   Source: AuthorSource,
   Verbatim: AuthorVerbatim,
   Person: AuthorPerson
-}
-
-function getTabLabel(label, hasData) {
-  return label + (hasData ? ' ✓' : '')
 }
 
 const props = defineProps({
@@ -48,6 +42,8 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue'])
 
 const tabIndex = ref(0)
+const activeTab = ref(null)
+
 const combination = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value)
@@ -71,4 +67,14 @@ const sections = computed(() =>
       ]
     : []
 )
+
+function getTabLabel(label, hasData) {
+  return label + (hasData ? ' ✓' : '')
+}
+
+watch(tabIndex, () => nextTick(() => activeTab.value?.focus?.()))
+
+defineExpose({
+  focus() { activeTab.value?.focus?.() }
+})
 </script>

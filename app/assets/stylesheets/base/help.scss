@@ -3,7 +3,6 @@
   cursor: pointer;
   width: 32px;
   height: 32px;
-  opacity: 0.4;
   border-radius: 50%;
   background-color: #ff8f00;
   background-image: image-url('help.svg');
@@ -67,7 +66,7 @@
 
 .help-legend {
   display: none;
-  border-radius: 2px;
+  border-radius: var(--border-radius-xsmall);
   padding: $standard_padding * 0.5;
   padding-left: $standard_padding;
   padding-right: $standard_padding;

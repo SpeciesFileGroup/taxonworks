@@ -1,6 +1,6 @@
 .modal-mask {
   position: fixed;
-  z-index: 1099;
+  z-index: 2102;
   top: 0;
   left: 0;
   width: 100%;
@@ -21,10 +21,14 @@
   margin: 0px auto;
   padding: 20px 30px;
   background-color: var(--panel-bg-color);
-  border-radius: 2px;
+  border-radius: var(--border-radius-xsmall);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   transition: all 0.3s ease;
-  font-family: IBM Plex Sans, Helvetica, Arial, sans-serif;
+  font-family:
+    IBM Plex Sans,
+    Helvetica,
+    Arial,
+    sans-serif;
   max-height: 90vh;
   overflow-y: auto;
 }

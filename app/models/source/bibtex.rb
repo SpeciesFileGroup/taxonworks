@@ -689,11 +689,10 @@ class Source::Bibtex < Source
       s = Serial.where(name: journal).first
       i = Identifier::Global::Issn.where(identifier: value, identifier_object_type: 'Serial').first
 
-      # Found an Existing Serial identically named with an assigned Identical ISSN
-      if !s.nil? && (s == i&.identifier_object)
-        self[:serial_id] = s.id
-      elsif i && s.nil? # Found a Serial with an Identifier, but not identically named, assign it anyway
+      if i # ISSN match takes priority
         self[:serial_id] = i.identifier_object_id
+      elsif s # Fall back to name-only match
+        self[:serial_id] = s.id
       end
     end
   end

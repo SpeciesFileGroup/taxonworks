@@ -7,7 +7,7 @@
           <label>
             <input
               type="checkbox"
-              v-model="settings.autosave"
+              v-model="autosave"
             />
             Autosave
           </label>
@@ -32,7 +32,7 @@
         </li>
       </ul>
     </div>
-    <NavBar>
+    <NavBar class="relative">
       <div class="flex-separate full_width">
         <div class="middle gap-small">
           <template v-if="store.source.id">
@@ -110,12 +110,12 @@
             New
           </button>
         </div>
-        <Autosave
-          :disabled="!settings.autosave"
-          style="bottom: 0px; left: 0px"
-          class="position-absolute full_width"
-        />
       </div>
+      <Autosave
+        :disabled="!settings.autosave"
+        style="bottom: 0px; left: 0px"
+        class="position-absolute full_width"
+      />
     </NavBar>
     <div class="horizontal-left-content align-start">
       <BlockLayout class="full_width">
@@ -160,7 +160,7 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, watch } from 'vue'
 import { SOURCE_BIBTEX, SOURCE_HUMAN, SOURCE_VERBATIM } from '@/constants'
 import { useSettingStore, useSourceStore } from './store'
 import { useHotkey } from '@/composables'
@@ -190,7 +190,7 @@ import RightSection from './components/rightSection'
 import NavBar from '@/components/layout/NavBar'
 import platformKey from '@/helpers/getPlatformKey'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
-import { usePopstateListener } from '@/composables'
+import { usePopstateListener, useUserPreference } from '@/composables'
 
 const componentSection = {
   [SOURCE_VERBATIM]: Verbatim,
@@ -205,6 +205,18 @@ defineOptions({
 const store = useSourceStore()
 const settings = useSettingStore()
 const panelSearch = ref(null)
+
+const KEY_STORAGE_AUTOSAVE = 'task::NewSource::Autosave'
+
+const autosave = useUserPreference(KEY_STORAGE_AUTOSAVE, settings.autosave)
+
+watch(
+  autosave,
+  (value) => {
+    settings.autosave = value
+  },
+  { immediate: true }
+)
 
 const shortcuts = ref([
   {

@@ -174,9 +174,7 @@ describe Project, type: :model do
     before(:each) {
       project.update!(name: 'Destroy sanity')
 
-      project.asserted_distributions <<
-        FactoryBot.create(:valid_asserted_distribution)
-      project.save!
+      FactoryBot.create(:valid_asserted_distribution, project:)
     }
 
     specify { expect(project.asserted_distributions.size).to eq(1) }

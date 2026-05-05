@@ -8,52 +8,55 @@ describe 'Verbatim author year to source', type: :feature, group: :sources do
     context 'when I visit the task page' do
       before { visit verbatim_author_year_source_task_path }
 
-      xspecify 'page loads without error' do
-        expect(page).to have_text('Verbatim author/year to Source')
+      specify 'page loads without error' do
+        expect(page).to have_text('TaxonName verbatim author/year without citations')
       end
 
-      context 'with taxon names having verbatim author and year' do
+      context 'with taxon names having verbatim author and year', js: true do
         let!(:taxon_name1) {
           FactoryBot.create(:valid_protonym,
             verbatim_author: 'Smith',
             year_of_publication: 2020,
-            by: @user
+            **user_project_attributes(@user, @project)
           )
         }
         let!(:taxon_name2) {
           FactoryBot.create(:valid_protonym,
             verbatim_author: 'Smith',
             year_of_publication: 2020,
-            by: @user
+            **user_project_attributes(@user, @project)
           )
         }
         let!(:taxon_name3) {
           FactoryBot.create(:valid_protonym,
             verbatim_author: 'Jones',
             year_of_publication: 2019,
-            by: @user
+            **user_project_attributes(@user, @project)
           )
         }
 
         before { visit verbatim_author_year_source_task_path }
 
-        xspecify 'displays unique author/year combinations' do
+        specify 'displays unique author/year combinations' do
           expect(page).to have_text('Smith')
           expect(page).to have_text('2020')
           expect(page).to have_text('Jones')
           expect(page).to have_text('2019')
         end
 
-        xspecify 'displays record counts' do
-          expect(page).to have_text('2') # Smith 2020 has 2 records
-          expect(page).to have_text('1') # Jones 2019 has 1 record
+        specify 'displays record counts' do
+          smith_row = find("tr[data-author='Smith'][data-year='2020']")
+          jones_row = find("tr[data-author='Jones'][data-year='2019']")
+
+          expect(smith_row).to have_css('td.count-cell', text: '2')
+          expect(jones_row).to have_css('td.count-cell', text: '1')
         end
 
-        xspecify 'provides link to new source' do
+        specify 'provides link to new source' do
           expect(page).to have_link('New Source')
         end
 
-        xspecify 'provides link to filter taxon names' do
+        specify 'provides link to filter taxon names' do
           expect(page).to have_link('Filter TaxonNames')
         end
       end

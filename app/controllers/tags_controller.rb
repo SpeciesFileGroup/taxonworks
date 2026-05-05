@@ -137,7 +137,8 @@ class TagsController < ApplicationController
           :keyword_id,
           :object_type,
           object_id: []).to_h
-          .merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).symbolize_keys
+          .merge(project_id: sessions_current_project_id)
+          .symbolize_keys
     )
       render json: {success: true}
     else

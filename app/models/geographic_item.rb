@@ -70,6 +70,12 @@ class GeographicItem < ApplicationRecord
   scope :geo_with_collecting_event, -> { joins(:collecting_events_through_georeferences) }
   scope :err_with_collecting_event, -> { joins(:georeferences_through_error_geographic_item) }
 
+  # @return [Boolean] True if this geographic_item has no references to it and
+  # can be safely destroyed.
+  def unreferenced_for_cleanup?
+    ApplicationEnumeration.no_related_data?(self)
+  end
+
   # !! Think twice and _measure_ before using these, they can prevent your query
   # from using a spatial index, making them very slow. See the && query pattern
   # here and elsewhere for one way to alleviate.!!
@@ -91,7 +97,7 @@ class GeographicItem < ApplicationRecord
   before_save :normalize_point_longitude
 
   after_save :set_cached, unless: Proc.new {|n| n.no_cached || errors.any? }
-  after_save :align_winding
+  before_save :align_winding
 
   class << self
 
@@ -1029,11 +1035,7 @@ class GeographicItem < ApplicationRecord
 
   # @return [Hash] in GeoJSON format
   def to_geo_json
-    JSON.parse(
-      select_from_self(
-        self.class.st_as_geo_json_sql(self.class.arel_table[:geography])
-      )['st_asgeojson']
-    )
+    RGeo::GeoJSON.encode(geography)
   end
 
   # @return [Hash]
@@ -1228,14 +1230,17 @@ class GeographicItem < ApplicationRecord
   end
 
   def align_winding
-    if orientations.flatten.include?(false)
-      if (geography_is_polygon? || geography_is_multi_polygon?)
-        ApplicationRecord.connection.execute(
-          "UPDATE geographic_items SET geography = ST_ForcePolygonCCW(geography::geometry)
-            WHERE id = #{self.id};"
-          )
-      end
-    end
+    return unless geography.present?
+    return unless geography_is_polygon? || geography_is_multi_polygon?
+
+    wkb_bytes = RGeo::WKRep::WKBGenerator.new(hex: false, emit_ewkb_srid: false).generate(geography)
+    row = ApplicationRecord.connection.exec_query(
+      'SELECT ST_ForcePolygonCCW(ST_GeomFromWKB($1, 4326)) AS ccw',
+      'GeographicItem#align_winding',
+      [ActiveRecord::Relation::QueryAttribute.new('wkb', wkb_bytes, ActiveRecord::Type::Binary.new)]
+    ).first
+
+    self[:geography] = Gis::FACTORY.parse_wkb(row['ccw'])
   end
 
   # Crude debuging helper, write the shapes

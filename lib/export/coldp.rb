@@ -8,7 +8,7 @@ require 'yaml'
 #   d = ::Export::Coldp.download(o, 'foo')
 #   d.file_path
 #
-#   Current.user_id = ; Current.project_id = ;  o = Otu.find()  d = ::Export::Coldp.download(o, 'foo'); 
+#   Current.user_id = ; Current.project_id = ;  o = Otu.find()  d = ::Export::Coldp.download(o, 'foo');
 #
 module Export
 
@@ -285,31 +285,18 @@ module Export
       (taxon_name.type == 'Protonym') && taxon_name.is_original_name?
     end
 
+    # TODO: NOT USED?!
     # @param taxon_name [a valid Protonym or a Combination]
     #   see also exclusion of OTUs/Names based on Ranks not handled
-    def self.basionym_id(taxon_name)
-      if taxon_name.type == 'Protonym'
-        taxon_name.reified_id
-      elsif taxon_name.type == 'Combination'
-        taxon_name.protonyms.last.reified_id
-      else
-        nil
-      end
-    end
-
-    # Replicate TaxonName.refified_id.  This is here because we pluck to arrays in the
-    # dump. It's janky.
-    # TODO: try to eliminate, at minimum test for consistency?
-    def self.reified_id(taxon_name_id, cached, cached_original_combination)
-      # Protonym#has_alternate_original?
-      if cached_original_combination && (cached != cached_original_combination)
-        taxon_name_id.to_s + '-' + Digest::MD5.hexdigest(cached_original_combination)
-      else
-        taxon_name_id
-      end
-    end
-    # Reification spec
-    # Duplicate Combination check -> is the Combination in question already represented int he current *classification*
+    # def self.basionym_id(taxon_name)
+    #   if taxon_name.type == 'Protonym'
+    #     taxon_name.reified_id
+    #   elsif taxon_name.type == 'Combination'
+    #     taxon_name.protonyms.last.reified_id
+    #   else
+    #     nil
+    #   end
+    # end
 
     # Iterates the manifest used by Name
     # !! includes only id

@@ -44,11 +44,11 @@
         @selected="sendObject"
       >
         <template
-          v-for="(component, tab) in smartSelectorTabs"
-          v-slot:[tab]
+          v-if="smartSelectorTabs.map"
+          v-slot:map
         >
-          <component
-            :is="component"
+          <MapShapePicker
+            :shapeEndpoint="tabData.endpoint"
             @select="sendObject"
           />
         </template>
@@ -60,6 +60,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { ASSERTED_DISTRIBUTION } from '@/constants'
+import MapShapePicker from '@/components/ui/SmartSelector/MapShapePicker.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'

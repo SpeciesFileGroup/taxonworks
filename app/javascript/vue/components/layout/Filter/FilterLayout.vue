@@ -123,6 +123,7 @@
               :only-extend-download="onlyExtendDownload"
             />
             <span class="separate-left separate-right">|</span>
+            <slot name="nav-settings-start" />
             <FilterSettings
               v-model:filter="preferences.activeFilter"
               v-model:url="preferences.activeJSONRequest"
