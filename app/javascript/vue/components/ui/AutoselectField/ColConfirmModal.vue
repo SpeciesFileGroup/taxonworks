@@ -4,8 +4,14 @@
     @close="emit('cancel')"
   >
     <template #header>
-      <span>Catalogue of Life: <strong>{{ ext.col_name }}</strong></span>
-      <span v-if="ext.col_status" class="col-confirm-modal__status">{{ ext.col_status }}</span>
+      <span
+        >Catalogue of Life: <strong>{{ ext.col_name }}</strong></span
+      >
+      <span
+        v-if="ext.col_status"
+        class="col-confirm-modal__status"
+        >{{ ext.col_status }}</span
+      >
     </template>
 
     <template #body>
@@ -45,12 +51,27 @@
             <td>{{ row.col_name }}</td>
             <td>{{ row.taxonworks_name ?? '—' }}</td>
             <td>{{ row.col_authorship ?? '—' }}</td>
-            <td><code v-if="row.col_id">{{ row.col_id }}</code><template v-else>—</template></td>
+            <td>
+              <a
+                v-if="row.col_id"
+                :href="`https://www.catalogueoflife.org/data/taxon/${row.col_id}`"
+                target="_blank"
+                rel="noopener noreferrer"
+                >{{ row.col_id }}</a
+              >
+              <template v-else>—</template>
+            </td>
           </tr>
 
           <!-- Target row — always last, always checked, always disabled -->
           <tr class="col-confirm-modal__row--target">
-            <td><input type="checkbox" checked disabled /></td>
+            <td>
+              <input
+                type="checkbox"
+                checked
+                disabled
+              />
+            </td>
             <td>{{ ext.col_rank }}</td>
             <td>{{ ext.col_name }}</td>
             <td>—</td>
@@ -61,7 +82,8 @@
                 :href="`https://www.catalogueoflife.org/data/taxon/${ext.col_key}`"
                 target="_blank"
                 rel="noopener noreferrer"
-              >{{ ext.col_key }}</a>
+                >{{ ext.col_key }}</a
+              >
               <template v-else>—</template>
             </td>
           </tr>
@@ -69,9 +91,9 @@
       </table>
 
       <p class="col-confirm-modal__note">
-        Checked names without a TaxonWorks match will be created as Protonyms with Catalogue of Life identifiers.
+        Checked names without a TaxonWorks match will be created as Protonyms
+        with Catalogue of Life identifiers.
       </p>
-
     </template>
 
     <template #footer>
@@ -119,11 +141,13 @@ const ancestorRowsDistalFirst = computed(() =>
 )
 
 // Set of col_name values the user has checked for creation (match==='none' rows)
-const checkedNames = ref(new Set(
-  (ext.value.alignment ?? [])
-    .filter((r) => r.match === 'none')
-    .map((r) => r.col_name)
-))
+const checkedNames = ref(
+  new Set(
+    (ext.value.alignment ?? [])
+      .filter((r) => r.match === 'none')
+      .map((r) => r.col_name)
+  )
+)
 
 function toggleRow(colName) {
   if (checkedNames.value.has(colName)) {
@@ -136,12 +160,13 @@ function toggleRow(colName) {
 }
 
 function rowClass(row) {
-  if (row.col_name === errorColName.value) return 'col-confirm-modal__row--error'
+  if (row.col_name === errorColName.value)
+    return 'col-confirm-modal__row--error'
   return row.match === 'exact' ? 'col-confirm-modal__row--exact' : ''
 }
 
-const confirmBtn   = ref(null)
-const isCreating   = ref(false)
+const confirmBtn = ref(null)
+const isCreating = ref(false)
 const errorColName = ref(null)
 
 onMounted(() => {
@@ -150,7 +175,7 @@ onMounted(() => {
 
 async function doCreate() {
   if (isCreating.value) return
-  isCreating.value  = true
+  isCreating.value = true
   errorColName.value = null
 
   // Build distal→proximal rows for the server.
@@ -158,36 +183,35 @@ async function doCreate() {
   // Unchecked none-match ancestors are excluded.
   const ancestorRows = (ext.value.alignment ?? [])
     .slice()
-    .reverse()  // distal first
-    .filter((r) =>
-      r.match === 'exact' || checkedNames.value.has(r.col_name)
-    )
+    .reverse() // distal first
+    .filter((r) => r.match === 'exact' || checkedNames.value.has(r.col_name))
     .map((r) => ({
-      col_name:       r.col_name,
-      col_rank:       r.rank,
-      col_id:         r.col_id ?? null,
-      dataset_id:     r.dataset_id ?? null,
-      taxonworks_id:  r.match === 'exact' ? r.taxonworks_id : null,
+      col_name: r.col_name,
+      col_rank: r.rank,
+      col_id: r.col_id ?? null,
+      dataset_id: r.dataset_id ?? null,
+      taxonworks_id: r.match === 'exact' ? r.taxonworks_id : null,
       col_authorship: r.col_authorship ?? null,
-      col_year:       null
+      col_year: null
     }))
 
   const targetRow = {
-    col_name:       ext.value.col_name,
-    col_rank:       ext.value.col_rank,
-    col_id:         ext.value.col_key,
-    dataset_id:     ext.value.col_dataset_id ?? null,
-    taxonworks_id:  null,
+    col_name: ext.value.col_name,
+    col_rank: ext.value.col_rank,
+    col_id: ext.value.col_key,
+    dataset_id: ext.value.col_dataset_id ?? null,
+    taxonworks_id: null,
     col_authorship: ext.value.col_authorship ?? null,
-    col_year:       ext.value.col_year ?? null
+    col_year: ext.value.col_year ?? null
   }
 
-  const createUrl   = ext.value.hook?.create_url ?? '/taxon_names/autoselect_col_create'
-  const yieldsKey   = ext.value.hook?.yields     ?? 'taxon_name_id'
+  const createUrl =
+    ext.value.hook?.create_url ?? '/taxon_names/autoselect_col_create'
+  const yieldsKey = ext.value.hook?.yields ?? 'taxon_name_id'
 
   try {
     const { body } = await AjaxCall('post', createUrl, {
-      rows:     [...ancestorRows, targetRow],
+      rows: [...ancestorRows, targetRow],
       col_code: ext.value.col_code ?? null
     })
     emit('confirm', { id: body[yieldsKey], global_id: body.global_id ?? null })
@@ -257,5 +281,4 @@ async function doCreate() {
   align-items: center;
   gap: 8px;
 }
-
 </style>
