@@ -4,39 +4,49 @@
       <h3>Loan information</h3>
     </template>
     <template #options>
-      <ul class="no_bullets context-menu">
-        <li>
-          <a
-            v-if="loan.id"
-            :href="`/loans/${loan.id}/recipient_form`"
-          >
-            Recipient form
-          </a>
-        </li>
-        <li>
-          <a
-            v-if="loan.id"
-            :href="`/loans/${loan.id}`"
-            target="_blank"
-            class="taxonname separate-right"
-          >
-            Show
-          </a>
-        </li>
-      </ul>
-      <button
-        v-if="loan.id"
-        @click="showModal = true"
-        :disabled="loanItems.length > 0"
-        type="button"
-        class="button normal-input button-delete separate-left separate-right"
-      >
-        Delete loan
-      </button>
-      <expand
-        class="separate-left"
-        v-model="displayBody"
-      />
+      <div class="flex-row gap-small middle">
+        <ul class="no_bullets context-menu">
+          <li>
+            <a
+              v-if="loan.id"
+              :href="`/loans/${loan.id}/recipient_form`"
+            >
+              Recipient form
+            </a>
+          </li>
+          <li>
+            <a
+              v-if="loan.id"
+              :href="`/loans/${loan.id}`"
+              target="_blank"
+              class="taxonname separate-right"
+            >
+              Show
+            </a>
+          </li>
+        </ul>
+
+        <RadialAnnotator :global-id="loan.global_id" />
+        <RadialNavigator :global-id="loan.global_id" />
+        <VBtn
+          v-if="loan.id"
+          circle
+          color="destroy"
+          :disabled="loanItems.length > 0"
+          @click="() => (showModal = true)"
+        >
+          <VIcon
+            x-small
+            @click="showModal = true"
+            name="trash"
+          />
+        </VBtn>
+
+        <expand
+          class="separate-left"
+          v-model="displayBody"
+        />
+      </div>
     </template>
     <template #body>
       <modal
@@ -250,13 +260,21 @@ import BlockLayout from '@/components/layout/BlockLayout.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { Loan } from '@/routes/endpoints'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 export default {
   components: {
     RolePicker,
     Expand,
     Modal,
-    BlockLayout
+    BlockLayout,
+    RadialNavigator,
+    RadialAnnotator,
+    VBtn,
+    VIcon
   },
 
   computed: {
