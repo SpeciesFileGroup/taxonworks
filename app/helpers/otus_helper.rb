@@ -9,7 +9,6 @@ module OtusHelper
     return nil if otu.nil?
     if otu.taxon_name&.is_combination?
       if otu.name.present?
-        byebug
         return [
           otu.name,
           '=',
