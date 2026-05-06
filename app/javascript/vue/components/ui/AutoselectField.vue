@@ -101,8 +101,9 @@
         <li
           v-else
           class="autoselect__dropdown-none"
+          :class="{ 'autoselect__dropdown-none--flash': pinboardNoneFlash }"
         >
-          --None--
+          None
         </li>
       </ul>
     </teleport>
@@ -251,6 +252,10 @@ const nextLevel = ref(null)
 const ignitedSegmentKey = ref(null)  // keyed by level key, not index
 let fuseTimer = null
 
+// pinboard "None" flash state
+const pinboardNoneFlash = ref(false)
+let pinboardNoneTimer = null
+
 const hoveredSegmentIdx = ref(null)
 
 // overlays
@@ -325,6 +330,7 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', updateDropdownPosition)
+  cancelPinboardNoneFlash()
 })
 
 // ── Level helpers ──────────────────────────────────────────────────────────────
@@ -441,6 +447,14 @@ function onInput() {
     return
   }
 
+  // Pinboard operators: skip debounce
+  if (/^!!/.test(text) || /^!b/.test(text)) {
+    cancelFuse()
+    if (getRequest) clearTimeout(getRequest)
+    triggerSearch(text)
+    return
+  }
+
   if (fuseActive.value) cancelFuse()
 
   current.value = -1
@@ -453,6 +467,7 @@ function onInput() {
 function triggerSearch(term) {
   if (!term || term.trim() === '') return
 
+  cancelPinboardNoneFlash()
   controller.value?.abort()
   controller.value = new AbortController()
   isSearching.value = true
@@ -468,11 +483,31 @@ function triggerSearch(term) {
     .then(({ body }) => {
       if (!body) return
       const results = body.response ?? []
+      const responseOperator = body.request?.operator
+
+      // !! — auto-select the topmost pinboard item immediately
+      if (responseOperator === 'pinboard_top' && results.length === 1) {
+        completeSelection(results[0])
+        return
+      }
+
       dropdownItems.value = results
       showList.value = true
       searchEnd.value = true
       current.value = -1
       nextTick(updateDropdownPosition)
+
+      // !b / !! with no results: brief "None" flash then clear
+      if ((responseOperator === 'pinboard' || responseOperator === 'pinboard_top') && results.length === 0) {
+        pinboardNoneFlash.value = true
+        pinboardNoneTimer = setTimeout(() => {
+          pinboardNoneFlash.value = false
+          showList.value = false
+          inputText.value = ''
+          searchEnd.value = false
+        }, 1200)
+        return
+      }
 
       if (results.length === 0 && body.next_level && prefs.getAutoJump()) {
         // Only light fuse to the next visible level
@@ -746,7 +781,13 @@ function onDropdownMousedown() {
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
+function cancelPinboardNoneFlash() {
+  if (pinboardNoneTimer) { clearTimeout(pinboardNoneTimer); pinboardNoneTimer = null }
+  pinboardNoneFlash.value = false
+}
+
 function clearResults() {
+  cancelPinboardNoneFlash()
   dropdownItems.value = []
   showList.value = false
   searchEnd.value = false
@@ -915,6 +956,15 @@ function clearResults() {
   border-top: 1px solid var(--border-color);
   font-size: 12px;
   color: var(--text-color-muted, #888);
+}
+
+@keyframes autoselect-none-fade {
+  0%, 40% { opacity: 1; }
+  100%     { opacity: 0; }
+}
+
+.autoselect__dropdown-none--flash {
+  animation: autoselect-none-fade 1.2s ease-out forwards;
 }
 
 /* ── Help overlay ── */

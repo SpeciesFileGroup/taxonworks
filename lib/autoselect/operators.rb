@@ -11,9 +11,11 @@
 module Autoselect::Operators
 
   OPERATORS = {
-    recent_mine:   { pattern: /\A!u/,     client_only: false, trigger: '!u',  description: 'Recent records updated by you (last week)' },
-    recent:        { pattern: /\A!r/,      client_only: false, trigger: '!r',  description: 'Recent records project-wide (last week)' },
-    help:          { pattern: /\A!\?/,     client_only: true,  trigger: '!?',  description: 'Show help overlay' },
+    recent_mine:    { pattern: /\A!u/,    client_only: false, trigger: '!u',  description: 'Recent records updated by you (last week)' },
+    recent:         { pattern: /\A!r/,    client_only: false, trigger: '!r',  description: 'Recent records project-wide (last week)' },
+    pinboard_top:   { pattern: /\A!!/,    client_only: false, trigger: '!!',  description: 'Current (topmost) pinboard item of this type' },
+    pinboard:       { pattern: /\A!b/,    client_only: false, trigger: '!b',  description: 'All pinboard items of this type (in pin order)' },
+    help:           { pattern: /\A!\?/,   client_only: true,  trigger: '!?',  description: 'Show help overlay' },
     new_record:    { pattern: /\A!n/,      client_only: true,  trigger: '!n',  description: 'Create a new record' },
     preferences:   { pattern: /\A!p/,      client_only: true,  trigger: '!p',  description: 'Open preferences (hide levels, set options)' },
     show_info:     { pattern: /\A!i/,      client_only: true,  trigger: '!i',  description: 'Toggle info display on/off' },

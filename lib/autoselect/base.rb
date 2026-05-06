@@ -93,12 +93,14 @@ class Autoselect::Base
     results = execute_level(level_instance, effective_term, operator)
     formatted = format_results(results, level_instance)
 
+    suppress_escalation = %i[pinboard pinboard_top].include?(operator)
+
     Autoselect::Response.new(
       config: nil,
-      request: { term: raw_term, level: requested_level, project_id: },
+      request: { term: raw_term, level: requested_level, project_id:, operator: operator&.to_s },
       level: requested_level,
       results: formatted,
-      next_level: formatted.empty? ? next_level_key(requested_level) : nil,
+      next_level: (!suppress_escalation && formatted.empty?) ? next_level_key(requested_level) : nil,
       level_map: nil
     ).as_json
   end
@@ -129,6 +131,17 @@ class Autoselect::Base
   end
 
   def execute_level(level_instance, effective_term, operator)
+    # Record-list operators are disabled on external levels (e.g. CoL)
+    return [] if level_instance.external? && record_list_operator?(operator)
+
+    if record_list_operator?(operator)
+      # Always route to the Smart level regardless of the client's active level,
+      # so !b/!! work even when the user is on the Fast level (the default).
+      smart = levels.find { |l| l.is_a?(::Autoselect::Levels::Smart) }
+      target = smart || level_instance
+      return target.call(term: effective_term, operator:, project_id:, user_id:, **level_params)
+    end
+
     level_instance.call(
       term: effective_term,
       operator:,
@@ -136,6 +149,10 @@ class Autoselect::Base
       user_id:,
       **level_params
     )
+  end
+
+  def record_list_operator?(operator)
+    %i[recent recent_mine pinboard pinboard_top].include?(operator)
   end
 
   # Build response item hashes from an array of records.

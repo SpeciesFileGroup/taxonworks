@@ -29,7 +29,7 @@ class Autoselect::Levels::Smart < Autoselect::Level
   end
 
   # @param term [String]
-  # @param operator [Symbol, nil] :recent, :recent_mine, or nil
+  # @param operator [Symbol, nil] :recent, :recent_mine, :pinboard, :pinboard_top, or nil
   # @param project_id [Integer, nil]
   # @param user_id [Integer, nil]
   # @param kwargs [Hash] passed through to the query class
@@ -40,6 +40,10 @@ class Autoselect::Levels::Smart < Autoselect::Level
       recent_records(project_id:)
     when :recent_mine
       recent_records_by_user(project_id:, user_id:)
+    when :pinboard
+      pinboard_records(project_id:, user_id:)
+    when :pinboard_top
+      pinboard_top_record(project_id:, user_id:)
     else
       query_class.new(term, project_id:, **kwargs).autocomplete
     end
@@ -70,6 +74,29 @@ class Autoselect::Levels::Smart < Autoselect::Level
       user_id:,
       user_target: 'updated'
     ).all.order(updated_at: :desc).limit(RECENT_LIMIT).to_a
+  end
+
+  # All pinboard items for this model type, ordered by pin position.
+  def pinboard_records(project_id:, user_id:)
+    return [] if user_id.blank?
+    ::PinboardItem
+      .where(pinned_object_type: pinboard_model_name, user_id:, project_id:)
+      .order(:position)
+      .includes(:pinned_object)
+      .map(&:pinned_object)
+      .compact
+  end
+
+  # The topmost pinboard item for this model type (0 or 1 records).
+  def pinboard_top_record(project_id:, user_id:)
+    rec = pinboard_records(project_id:, user_id:).first
+    rec ? [rec] : []
+  end
+
+  # Derive the AR model name from the query class namespace.
+  # Queries::TaxonName::Autocomplete → 'TaxonName'
+  def pinboard_model_name
+    query_class.name.split('::')[-2]
   end
 
   # Derive the Filter class from the query_class namespace.

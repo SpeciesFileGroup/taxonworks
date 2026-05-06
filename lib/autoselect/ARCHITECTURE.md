@@ -43,17 +43,23 @@ They are defined in `lib/autoselect/operators.rb` and parsed server-side by
 Standard operators (all models):
 | Trigger | Key | client_only | Meaning |
 |---------|-----|-------------|---------|
-| `!u`  | `:recent_mine` | false | Records updated by you in the last week (limit 10) |
-| `!r`  | `:recent`      | false | Records updated project-wide in the last week (limit 10) |
-| `!?`  | `:help`        | true  | Show help overlay (no server call) |
-| `!n`  | `:new_record`  | true  | Open new-record modal (detected anywhere in string) |
-| `!p`  | `:preferences` | true  | Open preferences modal (level visibility, options) |
-| `!i`  | `:show_info`   | true  | Toggle info column on/off (per model per id) |
-| `!e`  | `:external`    | true  | Jump to leftmost external level; no-op if none present |
-| `!N`  | `:level_number`| true  | Jump to level N (e.g. `!2`) |
+| `!u`  | `:recent_mine`   | false | Records updated by you in the last week (limit 10) |
+| `!r`  | `:recent`        | false | Records updated project-wide in the last week (limit 10) |
+| `!b`  | `:pinboard`      | false | All pinboard items of this type, in pin order |
+| `!!`  | `:pinboard_top`  | false | Current (topmost) pinboard item — auto-selects immediately if found; shows "None" flash otherwise |
+| `!?`  | `:help`          | true  | Show help overlay (no server call) |
+| `!n`  | `:new_record`    | true  | Open new-record modal (detected anywhere in string) |
+| `!p`  | `:preferences`   | true  | Open preferences modal (level visibility, options) |
+| `!i`  | `:show_info`     | true  | Toggle info column on/off (per model per id) |
+| `!e`  | `:external`      | true  | Jump to leftmost external level; no-op if none present |
+| `!N`  | `:level_number`  | true  | Jump to level N (e.g. `!2`) |
 
-Client-only operators are not sent to the server.  `!n` is server-side:
-levels that support it return a sentinel (see **Extensions** below).
+Client-only operators are not sent to the server.
+
+Record-list operators (`!u`, `!r`, `!b`, `!!`) are **disabled on external levels** (e.g. CoL).
+`base.rb`'s `execute_level` returns `[]` immediately when `level.external?` and the operator
+is a record-list type.  The `!b`/`!!` operators also suppress fuse escalation so the
+field does not chain to the next level when the pinboard is empty.
 
 Per-model operator customization: override `operator_map` in the model's
 `Operators` module (e.g. `lib/autoselect/otu/operators.rb`).
