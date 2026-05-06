@@ -78,6 +78,7 @@ class Georeference < ApplicationRecord
   include Shared::IsData
 
   attr_accessor :iframe_response # used to handle the geolocate from Tulane response
+  attr_accessor :geographic_item_id_for_cleanup, :error_geographic_item_id_for_cleanup
 
   acts_as_list scope: [:collecting_event_id, :project_id], add_new_at: :top
 
@@ -172,7 +173,9 @@ class Georeference < ApplicationRecord
 
   before_validation :round_error_radius
   before_validation :set_geographic_item, unless: -> { self.geographic_item_id.blank? }
+  before_destroy :capture_geographic_items_for_cleanup
   after_save :set_cached, unless: -> { self.no_cached || (self.collecting_event && self.collecting_event.no_cached == true) }
+  after_destroy :destroy_geographic_items_if_orphaned
   after_destroy :set_cached_collecting_event
 
 
@@ -420,6 +423,20 @@ class Georeference < ApplicationRecord
 
   def set_cached
     collecting_event.send(:set_cached_geographic_names)
+  end
+
+  def capture_geographic_items_for_cleanup
+    # Capture ids before destroy so cleanup does not depend on association state
+    # on the destroyed record.
+    self.geographic_item_id_for_cleanup = geographic_item_id
+    self.error_geographic_item_id_for_cleanup = error_geographic_item_id
+  end
+
+  def destroy_geographic_items_if_orphaned
+    [geographic_item_id_for_cleanup, error_geographic_item_id_for_cleanup].compact.uniq.each do |id|
+      item = GeographicItem.find_by(id:)
+      item&.destroy! if item&.unreferenced_for_cleanup?
+    end
   end
 
   # validation methods

@@ -7,7 +7,7 @@ describe Tag, type: :model, group: [:annotators, :tags] do
   let(:otu) { FactoryBot.create(:valid_otu) }
 
   context 'associations' do
-    specify 'tag_object' do 
+    specify 'tag_object' do
       expect(tag.tag_object = FactoryBot.create(:valid_biocuration_class)).to be_truthy
     end
 
@@ -69,7 +69,7 @@ describe Tag, type: :model, group: [:annotators, :tags] do
 
   context 'STI based tag behaviour' do
     before(:each) {
-      tag.keyword = FactoryBot.create(:valid_keyword, name: 'some sti keyword') 
+      tag.keyword = FactoryBot.create(:valid_keyword, name: 'some sti keyword')
       tag.tag_object = FactoryBot.create(:valid_specimen)
     }
 
@@ -86,7 +86,7 @@ describe Tag, type: :model, group: [:annotators, :tags] do
 
     specify 'tagging a subclass of an STI model *returns* the subclassed object' do
       expect(tag.save).to be_truthy
-      expect(tag.tag_object.class).to eq(Specimen) 
+      expect(tag.tag_object.class).to eq(Specimen)
     end
   end
 
@@ -113,20 +113,20 @@ describe Tag, type: :model, group: [:annotators, :tags] do
     end
   end
 
-  context 'keyword nested attributes' do 
+  context 'keyword nested attributes' do
     let(:o) { Otu.new(
-      name: 'Some otu', 
-      tags_attributes: [ 
-        { keyword_attributes: 
-          {name: 'untouched keyword',  
-           definition: 'Must be twenty letters'}} ]) 
+      name: 'Some otu',
+      tags_attributes: [
+        { keyword_attributes:
+          {name: 'untouched keyword',
+           definition: 'Must be twenty letters'}} ])
     }
 
     specify 'keyword can be created' do
       expect(o.save).to be_truthy
       expect(o.keywords.count).to eq(1)
-      expect(Tag.count).to eq(1) 
-      expect(Keyword.count).to eq(1) 
+      expect(Tag.count).to eq(1)
+      expect(Keyword.count).to eq(1)
     end
 
     specify 'when tag is destroyed keyword is left' do
@@ -156,10 +156,10 @@ describe Tag, type: :model, group: [:annotators, :tags] do
       let(:definition) { 'bad_definition'}
       let(:keyword_params) { { name: name, definition: definition } }
 
-      context 'by identical params' do 
+      context 'by identical params' do
         let(:dupe_param_otu) {
           Otu.new(name: 'Other otu', tags_attributes: [
-            {keyword_attributes: keyword_params}, 
+            {keyword_attributes: keyword_params},
             {keyword_attributes: keyword_params}
           ])
         }
@@ -192,13 +192,13 @@ describe Tag, type: :model, group: [:annotators, :tags] do
 
     specify 'removes all when klass not provided' do
       Tag.batch_remove(k1.id)
-      expect(Tag.count).to eq(0) 
+      expect(Tag.count).to eq(0)
     end
 
     specify 'removes klass only when provided' do
       Tag.batch_remove(k1.id, 'Otu')
       expect(Tag.all.to_a).to contain_exactly(t1)
-    end 
+    end
   end
 
   context '.batch_create' do
@@ -208,17 +208,17 @@ describe Tag, type: :model, group: [:annotators, :tags] do
     let(:o3) { Otu.create(name: 'b')}
 
     specify 'params' do
-      expect(Tag.batch_create(object_type: 'Otu', object_id: [o1.id, o2.id, o3.id], keyword_id: k1.id)).to be_truthy
+      expect(Tag.batch_create(object_type: 'Otu', object_id: [o1.id, o2.id, o3.id], keyword_id: k1.id, project_id: o1.project_id)).to be_truthy
     end
 
     specify 'creates' do
-      Tag.batch_create(object_type: 'Otu', object_id: [o1.id, o2.id, o3.id], keyword_id: k1.id)
+      Tag.batch_create(object_type: 'Otu', object_id: [o1.id, o2.id, o3.id], keyword_id: k1.id, project_id: o1.project_id)
       expect(Tag.count).to eq(3)
     end
 
     specify 'existing tags do not raise' do
       Tag.create!(tag_object: o1, keyword: k1)
-      Tag.batch_create(object_type: 'Otu', object_id: [o1.id, o2.id, o3.id], keyword_id: k1.id)
+      Tag.batch_create(object_type: 'Otu', object_id: [o1.id, o2.id, o3.id], keyword_id: k1.id, project_id: o1.project_id)
       expect(Tag.count).to eq(3)
     end
   end
@@ -228,4 +228,3 @@ describe Tag, type: :model, group: [:annotators, :tags] do
   end
 
 end
-

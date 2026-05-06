@@ -135,6 +135,8 @@ gem 'ruby-units', '~> 4.1.0', require: 'ruby_units/namespaced'
 gem 'colrapi', '~>0.1.1'
 gem 'hookkaido', '0.1.0'
 
+gem 'nasturtium'
+
 # Nexus
 gem 'nexus_parser', '~> 1.2.2'
 
@@ -164,11 +166,11 @@ gem 'parallel', '~> 1.23'
 gem 'ruby-progressbar', '~> 1.11'
 
 group :test, :development do
-  gem 'byebug', '~> 12.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
+  gem 'byebug', '~> 13.0', {}.merge(ENV['RM_INFO'] ? {require: false} : {})
   gem 'factory_bot_rails', '~> 6.5'
   gem 'faker', '~> 3.2'
   gem 'pp_sql'
-  gem 'puma', '~> 7.0'
+  gem 'puma', '~> 8.0'
   gem 'rspec-activemodel-mocks', '~> 1.1.0'
   gem 'rspec-rails', '~> 8.0'
   gem 'selenium-webdriver', '~> 4.6', '>= 4.6.1'
@@ -188,7 +190,7 @@ group :development do
   gem 'rubocop-performance', '~> 1.10'
   gem 'rubocop-rails', '~> 2.34'
   gem 'rubocop-rspec', '~> 3.9'
-  gem 'ruby-prof', '~> 1.2'
+  gem 'ruby-prof', '~> 2.0'
   gem 'seedbank', '~> 0.5.0'
   gem 'spring-commands-rspec', '~> 1.0.4'
   gem 'thruster'
@@ -201,10 +203,10 @@ end
 
 group :test do
   gem 'capybara', '~> 3.18'
- 
+
   gem 'codecov', '~> 0.6.0'
   # gem 'simplecov', require: false # coming from codecov, do we need this require?
-  
+
   gem 'database_cleaner', '~> 2.0'
   gem 'database_cleaner-active_record', '2.2.1' # TODO: Remove when instability issues are solved
   gem 'os', '~> 1.0', '>= 1.0.1'

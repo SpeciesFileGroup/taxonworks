@@ -25,7 +25,7 @@
         >
           <td>{{ item.id }}</td>
           <td class="word-keep-all">{{ item.geo_json.geometry.type }}</td>
-          <td>{{ getCoordinates(item.geo_json.geometry.coordinates) }}</td>
+          <td>{{ getCoordinates(item.geo_json.geometry) }}</td>
           <td>{{ item.has_error_polygon ? 'Yes' : 'No' }}</td>
           <td class="line-nowrap">
             <edit-in-place
@@ -80,7 +80,7 @@ import EditInPlace from '@/components/editInPlace'
 import DateComponent from '@/components/ui/Date/DateFields.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
-import { convertToLatLongOrder } from '@/helpers/geojson.js'
+import { formatGeoJsonGeometryForDisplay } from '@/helpers/geojson.js'
 
 const props = defineProps({
   list: {
@@ -101,14 +101,9 @@ const deleteItem = (item) => {
   }
 }
 
-function getCoordinates(coordinates) {
-  const flatten = coordinates.flat(1)
-
-  if (typeof flatten[0] === 'number') {
-    console.log(coordinates)
-    return convertToLatLongOrder(coordinates)
-  } else {
-    return flatten.map((arr) => convertToLatLongOrder(arr))
-  }
+function getCoordinates(geometry) {
+  return geometry
+    ? formatGeoJsonGeometryForDisplay(geometry)
+    : 'Available after save'
 }
 </script>

@@ -77,11 +77,24 @@
           v-model="selectedIds"
           :list="list"
           :layout="currentLayout"
+          :hide-unfrozen="hideFrozen"
           :preference-key="`tasks::filters::${COLLECTION_OBJECT}`"
           radial-object
           @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"
         />
+      </template>
+      <template #nav-settings-start>
+        <VToggle
+          title="Hide/show non-frozen columns"
+          @click="() => (hideFrozen = !hideFrozen)"
+        >
+          <VIcon
+            title="Hide/show non-frozen columns"
+            :name="hideFrozen ? 'contract' : 'expand'"
+            x-small
+          />
+        </VToggle>
       </template>
     </FilterLayout>
     <VSpinner
@@ -100,11 +113,13 @@ import TableResults from '@/components/Filter/Table/TableResults.vue'
 import DwcDownload from './components/dwcDownload.vue'
 import DeleteCollectionObjects from './components/DeleteCollectionObjects.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import VToggle from '@/components/ui/VToggle.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import TableLayoutSelector from '@/components/Filter/Table/TableLayoutSelector.vue'
 import RadialLoan from '@/components/radials/loan/radial.vue'
 import RadialMatrix from '@/components/radials/matrix/radial.vue'
 import RadialCollectionObject from '@/components/radials/co/radial.vue'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { CollectionObject } from '@/routes/endpoints'
 import { COLLECTION_OBJECT } from '@/constants/index.js'
 import { useTableLayoutConfiguration } from '@/components/Filter/composables/useTableLayoutConfiguration.js'
@@ -124,6 +139,7 @@ const extend = [
 ]
 
 const exclude = ['object_labels']
+const hideFrozen = ref(false)
 
 const {
   currentLayout,

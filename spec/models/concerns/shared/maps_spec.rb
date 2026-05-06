@@ -78,13 +78,14 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
     end
   end
 
-  specify '#touched_cached_maps (untouched)' do
+  specify '#touched_cached_maps ignores OTUs from another project' do
     ad_offset.save!
     p = FactoryBot.create(:valid_project)
     proot = Protonym.where(name: 'Root', project: p).first
     pspecies = FactoryBot.create(:relationship_species, parent: proot, project: p)
     potu = FactoryBot.create(:valid_otu, project: p, taxon_name: pspecies)
     a = FactoryBot.create(:valid_otu_asserted_distribution,
+      project: p,
       asserted_distribution_object: potu,
       asserted_distribution_shape: ga_offset)
 
@@ -93,11 +94,12 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
     expect(ad_offset.send(:touched_cached_maps).map(&:id)).to contain_exactly(ad_offset.asserted_distribution_object_id)
   end
 
-  specify '#cached_maps_to_clear 1' do
+  specify '#cached_maps_to_clear excludes cached maps from another project' do
     ad_offset.save!
     p = FactoryBot.create(:valid_project)
     potu = FactoryBot.create(:valid_otu, project: p)
     a = FactoryBot.create(:valid_otu_asserted_distribution,
+      project: p,
       asserted_distribution_object: potu,
       asserted_distribution_shape: ga_offset)
     Delayed::Worker.new.work_off
@@ -105,11 +107,12 @@ describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
     expect(ad_offset.send(:cached_maps_to_clear).all).to eq([])
   end
 
-  specify '#cached_maps_to_clear 2' do
+  specify '#cached_maps_to_clear only returns cached maps for touched OTUs in the same project' do
     ad_offset.save!
     p = FactoryBot.create(:valid_project)
     potu = FactoryBot.create(:valid_otu, project: p)
     a = FactoryBot.create(:valid_otu_asserted_distribution,
+      project: p,
       asserted_distribution_object: potu,
       asserted_distribution_shape: ga_offset)
     Delayed::Worker.new.work_off

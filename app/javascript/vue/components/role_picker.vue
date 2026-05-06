@@ -474,6 +474,7 @@ function addOrganization(organization) {
 }
 defineExpose({
   addPerson,
-  addOrganization
+  addOrganization,
+  focus() { autocompleteRef.value?.setFocus() }
 })
 </script>

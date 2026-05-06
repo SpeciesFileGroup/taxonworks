@@ -1,0 +1,205 @@
+module Autoselect
+  module TaxonName
+    # Creates TaxonName records (and CoL URI identifiers) from a Catalog of Life selection.
+    #
+    # Receives an ordered list of rows (distal → proximal, i.e. kingdom first, target last).
+    # Each row represents one name to be created or an existing TaxonName to be used as a parent.
+    # Rows with a taxonworks_id are already in the project and serve only as parent anchors.
+    #
+    # @param rows [Array<Hash>] ordered distal→proximal; each hash has:
+    #   col_name      [String]  — scientific name string from CoL
+    #   col_rank      [String]  — human-readable rank (e.g. 'genus', 'species')
+    #   col_id        [String]  — CoL taxon ID used to build the identifier URI
+    #   taxonworks_id [Integer, nil] — existing TaxonName ID; if present, no creation occurs for this row
+    #   col_authorship [String, nil] — combined author+year string from CoL (e.g. 'Linnaeus, 1758')
+    #   col_year      [String, nil]  — year string extracted from CoL combinationAuthorship (target row only)
+    # @param col_code [String, nil] CoL nomenclatural code string: 'zoological', 'botanical',
+    #   'bacterial', 'viral'. When present, rank resolution uses the corresponding lookup first.
+    #   Falls back to trying all codes when nil or unrecognised.
+    # @param project_id [Integer]
+    # @param user_id [Integer]
+    #
+    # TODO: Rename to remove abbreviation
+    #  CatalogueOfLifeCreator
+    class ColCreator
+
+      # Raised when any name in the creation loop fails validation.
+      # Carries the row that triggered the failure for frontend highlighting.
+      class CreationError < StandardError
+        attr_reader :col_name, :col_id
+
+        def initialize(message, col_name: nil, col_id: nil)
+          super(message)
+          @col_name = col_name
+          @col_id = col_id
+        end
+      end
+
+      # TODO:
+      COL_BASE_URI = 'https://www.catalogueoflife.org/data/taxon/'.freeze
+
+      # Maps CoL code strings to the primary lookup constant to use for rank resolution.
+      COL_CODE_LOOKUP_MAP = {
+        'zoological' => :ICZN_LOOKUP,
+        'botanical' => :ICN_LOOKUP,
+        'bacterial' => :ICNP_LOOKUP,
+        'viral' => :ICVCN_LOOKUP
+      }.freeze
+
+      def initialize(rows:, project_id:, user_id:, col_code: nil)
+        @rows = rows
+        @project_id = project_id.to_i
+        @user_id = user_id.to_i
+        @col_code = col_code.to_s.downcase.presence
+      end
+
+      # @return [Hash] { taxon_name_id: Integer, created_ids: Array<Integer> }
+      # @raise [CreationError] if any record fails validation; the transaction is fully rolled back.
+      def call
+        parent_id = project_root_id # TODO, not always?
+        created_ids = []
+
+        ::ActiveRecord::Base.transaction do
+          @rows.each do |row|
+            if row[:taxonworks_id].present?
+              parent_id = row[:taxonworks_id].to_i
+              next
+            end
+
+            rank_class = resolve_rank_class(row[:col_rank])
+
+            # Skip rows whose rank is entirely unknown to TaxonWorks — we cannot create a
+            # valid Protonym without a rank_class (e.g. CoL-only ranks like 'domain').
+            next if rank_class.nil?
+
+            author, year = split_authorship(row[:col_authorship], row[:col_year])
+
+            begin
+              tn = ::TaxonName.create!(
+                type:                'Protonym',
+                name:                row[:col_name],
+                parent_id:,
+                rank_class:,
+                verbatim_author:     author,
+                year_of_publication: year,
+                project_id:          @project_id,
+                created_by_id:       @user_id,
+                updated_by_id:       @user_id
+              )
+            rescue ::ActiveRecord::RecordInvalid => e
+              raise CreationError.new(
+                e.record.errors.full_messages.join(', '),
+                col_name: row[:col_name],
+                col_id:   row[:col_id]
+              )
+            end
+
+            if row[:col_id].present?
+              begin
+                ::Identifier::Global::Uri::ChecklistBank.create!(
+                  taxon_id:          row[:col_id],
+                  dataset_id:        row[:dataset_id],
+                  identifier_object: tn,
+                  project_id:        @project_id,
+                  by:                @user_id
+                )
+              rescue ::ActiveRecord::RecordInvalid => e
+                raise CreationError.new(
+                  "CoL identifier for #{row[:col_name]}: #{e.record.errors.full_messages.join(', ')}",
+                  col_name: row[:col_name],
+                  col_id:   row[:col_id]
+                )
+              end
+            end
+
+            created_ids << tn.id
+            parent_id = tn.id
+          end
+        end
+
+        { taxon_name_id: parent_id, created_ids: }
+      end
+
+      private
+
+      # Returns the TaxonName id of the project's Root node.
+      def project_root_id
+        ::Project.find(@project_id).root_taxon_name.id
+      end
+
+
+      # TODO: needs to be in an isolated library
+
+      # Maps a human-readable CoL rank string to a TaxonWorks rank_class string.
+      #
+      # When @col_code is recognized (e.g. 'botanical' → ICN_LOOKUP), that lookup is tried first
+      # so that plant names receive ICN rank classes rather than ICZN ones.  Falls back through
+      # all four codes in order so that any rank resolves if possible.
+      #
+      # Returns nil for unknown ranks; callers should skip creation for those rows.
+      def resolve_rank_class(rank_string)
+        return nil if rank_string.blank?
+        r = rank_string.to_s.downcase
+
+        primary_key = COL_CODE_LOOKUP_MAP[@col_code]
+
+        if primary_key
+          primary_lookup = Object.const_get("::#{primary_key}")
+          result = primary_lookup[r]
+          return result if result
+        end
+
+        # Fall through all codes (excluding the primary already tried)
+        fallbacks = [:ICZN_LOOKUP, :ICN_LOOKUP, :ICNP_LOOKUP, :ICVCN_LOOKUP].reject { |k| k == primary_key }
+        fallbacks.each do |key|
+          result = Object.const_get("::#{key}")[r] # TODO: BAD
+          return result if result
+        end
+
+        nil
+      end
+
+      #
+      # TODO: Needs to be in an isolated library
+      #
+      # Splits a CoL authorship string into [verbatim_author, year_of_publication].
+      #
+      # TaxonWorks Protonym validates that verbatim_author contains no digits, so the year
+      # must be stored separately in year_of_publication.
+      #
+      # CoL provides authorship in two forms:
+      #   "Linnaeus, 1758"                        → author "Linnaeus", year 1758
+      #   "(Chatton, 1925) Whittaker & Margulis, 1978" → author "(Chatton) Whittaker & Margulis", year 1978
+      #
+      # An explicit col_year (from the target row's combinationAuthorship.year) takes precedence.
+      # If no year can be extracted the author string is returned as-is with year nil.
+      def split_authorship(col_authorship, col_year)
+        return [nil, nil] if col_authorship.blank?
+
+        # Prefer the explicit year already extracted server-side (present for the target row).
+        year = col_year.presence&.to_i
+
+        # Strip any trailing ", YYYY" or " YYYY" from the authorship string.
+        # Also strip years embedded inside parenthetical groups, e.g. "(Chatton, 1925)".
+        author = col_authorship
+          .gsub(/,?\s*\b\d{4}\b/, '')   # remove ", 1925" and " 1925" occurrences
+          .gsub(/\(\s*\)/, '')           # clean up empty parens left behind
+          .gsub(/,\s*\z/, '')            # strip trailing comma
+          .strip
+          .then { |a| a.match?(/\A\([^)]*\)\z/) ? a : a.gsub(/\([^)]*\)\s*/, '').strip }
+
+        # If no explicit year was given, extract the last 4-digit year from the string
+        # (the combination year, not the basionym year in parentheses).
+        if year.nil?
+          if (m = col_authorship.scan(/\b(\d{4})\b/).last)
+            year = m[0].to_i
+          end
+        end
+
+        author = nil if author.blank?
+        [author, year]
+      end
+
+    end
+  end
+end

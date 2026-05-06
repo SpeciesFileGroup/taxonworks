@@ -49,71 +49,10 @@ if extend_response_with('type_taxon_name_relationship')
   unless taxon_name.is_a?(Combination)
     json.type_taxon_name_relationship do
       if taxon_name.type_taxon_name_relationship
-        json.partial! '/taxon_name_relationships/attributes', taxon_name_relationship: taxon_name.type_taxon_name_relationship
+        json.partial! '/taxon_name_relationships/api/v1/attributes', taxon_name_relationship: taxon_name.type_taxon_name_relationship
       end
     end
   end
-end
-
-if extend_response_with('original_citation')
-	json.original_citation do
-		if(taxon_name.origin_citation.nil?)
-			json.id json.null
-			json.source_id 'NA'
-			json.pages 'NA'
-		else
-			json.partial! '/citations/api/v1/attributes', citation: taxon_name.origin_citation, extensions: false
-		end
-	end
-end
-
-
-if extend_response_with('taxon_name_classifications')
-	json.taxon_name_classifications TaxonNameClassification.where(taxon_name_id: taxon_name.id) do |r|
-		json.partial! '/taxon_name_classifications/api/v1/attributes', taxon_name_classification: r, extensions: false
-	end
-end
-
-if extend_response_with('object_taxon_name_relationships')
-	json.object_taxon_name_relationships TaxonNameRelationship.where(object_taxon_name_id: taxon_name.id) do |r|
-		json.id r.id
-		json.type r.type
-
-		json.subject_taxon_name do
-			json.partial! '/taxon_names/api/v1/base_attributes', taxon_name: r.subject_taxon_name, extensions: false
-		end
-
-		json.object_taxon_name do
-			json.partial! '/taxon_names/api/v1/base_attributes', taxon_name: r.object_taxon_name, extensions: false
-		end
-
-		json.relationship_citation Citation.where(citation_object_id: r.id).take
-		json.subject_citation Citation.where(citation_object_id: r.subject_taxon_name_id).take
-		json.object_citation Citation.where(citation_object_id: r.object_taxon_name_id).take
-
-
-
-	end
-end
-
-if extend_response_with('subject_taxon_name_relationships')
-	json.subject_taxon_name_relationships TaxonNameRelationship.where(subject_taxon_name_id: taxon_name.id) do |r|
-		json.id r.id
-		json.type r.type
-
-		json.subject_taxon_name do
-			json.partial! '/taxon_names/api/v1/base_attributes', taxon_name: r.subject_taxon_name, extensions: false
-		end
-
-		json.object_taxon_name do
-			json.partial! '/taxon_names/api/v1/base_attributes', taxon_name: r.object_taxon_name, extensions: false
-		end
-
-		json.relationship_citation Citation.where(citation_object_id: r.id).take
-		json.subject_citation Citation.where(citation_object_id: r.subject_taxon_name_id).take
-		json.object_citation Citation.where(citation_object_id: r.object_taxon_name_id).take
-
-	end
 end
 
 if extend_response_with('notes')

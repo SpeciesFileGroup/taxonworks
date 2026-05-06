@@ -54,7 +54,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
         p = 'POLYGON ((0 0, 0 10, 10 10, 10 0, 0 0), ' \
           '(3 3, 6 3, 6 6, 3 6, 3 3))'
 
-          FactoryBot.create(:geographic_item, geography: p)
+          FactoryBot.build(:geographic_item, geography: p)
       end
 
       let(:ccw_cw_m_p) do
@@ -62,7 +62,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
         m_p = 'MULTIPOLYGON (((0 0, 10 0, 10 10, 0 10, 0 0)),' \
                             '((20 0, 20 10, 30 10, 30 0, 20 0)))'
 
-        FactoryBot.create(:geographic_item, geography: m_p)
+        FactoryBot.build(:geographic_item, geography: m_p)
       end
 
       specify 'polygon winding is ccw after save' do
@@ -373,6 +373,61 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
       end
     end
 
+    context '#unreferenced_for_cleanup?' do
+      specify 'returns true when only a cached map item references the geographic_item' do
+        geographic_item = FactoryBot.create(:valid_geographic_item)
+
+        CachedMapItem.create!(
+          otu: FactoryBot.create(:valid_otu),
+          geographic_item:,
+          type: 'CachedMapItem::WebLevel1',
+          reference_count: 1
+        )
+
+        expect(geographic_item.unreferenced_for_cleanup?).to be true
+      end
+
+      specify 'returns false when a georeference references the geographic_item' do
+        geographic_item = FactoryBot.create(:valid_geographic_item)
+
+        FactoryBot.create(
+          :valid_georeference,
+          geographic_item:
+        )
+
+        expect(geographic_item.unreferenced_for_cleanup?).to be false
+      end
+
+      specify 'returns false when a georeference references the geographic_item as an error shape' do
+        geographic_item = FactoryBot.create(:valid_geographic_item)
+        georeference = FactoryBot.build(:valid_georeference)
+        georeference.error_geographic_item = geographic_item
+        georeference.save!
+
+        expect(geographic_item.unreferenced_for_cleanup?).to be false
+      end
+
+      specify 'returns false when a gazetteer references the geographic_item' do
+        geographic_item = FactoryBot.create(:valid_geographic_item)
+
+        FactoryBot.create(:valid_gazetteer, geographic_item:)
+
+        expect(geographic_item.unreferenced_for_cleanup?).to be false
+      end
+
+      specify 'returns false when a geographic area geographic item references the geographic_item' do
+        geographic_item = FactoryBot.create(:valid_geographic_item)
+
+        FactoryBot.create(
+          :geographic_areas_geographic_item,
+          geographic_area: FactoryBot.create(:valid_geographic_area),
+          geographic_item:
+        )
+
+        expect(geographic_item.unreferenced_for_cleanup?).to be false
+      end
+    end
+
     context '#st_distance_to_geographic_item' do
       specify 'works for distance beetween points on equator' do
         expect(
@@ -615,7 +670,7 @@ describe GeographicItem, type: :model, group: [:geo, :shared_geo] do
       specify 'shapes contained by two shapes are only returned once' do
         expect(GeographicItem.st_covered_by('point',
           box, rectangle_intersecting_box).to_a)
-        .to eq([box_centroid, box_rectangle_intersection_point])
+        .to contain_exactly(box_centroid, box_rectangle_intersection_point)
       end
 
       specify 'points in separate polygons' do

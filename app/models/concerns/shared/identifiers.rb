@@ -50,6 +50,14 @@ module Shared::Identifiers
     end
   end
 
+  def visible_identifiers_for(project_id)
+    if association(:identifiers).loaded?
+      identifiers.select { |i| i.visible_to_project?(project_id) }
+    else
+      identifiers.visible(project_id)
+    end
+  end
+
   module ClassMethods
     def of_type(type_name)
       where(type: type_name)

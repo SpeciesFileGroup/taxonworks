@@ -1,7 +1,7 @@
 class TaxonNamesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse, :original_combination, :catalog, :api_show, :api_summary, :api_catalog]
+  before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse, :original_combination, :catalog, :api_show, :api_summary, :api_catalog, :api_monograph]
   after_action -> { set_pagination_headers(:taxon_names) }, only: [:index, :api_index, :origin_citation], if: :json_request?
 
   # GET /taxon_names
@@ -302,6 +302,11 @@ class TaxonNamesController < ApplicationController
     render '/taxon_names/api/v1/summary'
   end
 
+  # GET /api/v1/taxon_names/:id/monograph
+  def api_monograph
+    render '/taxon_names/api/v1/monograph'
+  end
+
   # GET /api/v1/taxon_names/:id/inventory/catalog
   # Contains stats block
   def api_catalog
@@ -360,7 +365,55 @@ class TaxonNamesController < ApplicationController
     end
   end
 
+  # GET /taxon_names/autoselect
+  def autoselect
+    render json: ::Autoselect::TaxonName::Autoselect.new(
+      term: params[:term],
+      level: params[:level],
+      project_id: sessions_current_project_id,
+      user_id: sessions_current_user_id,
+      **autoselect_params
+    ).response
+  end
+
+  # GET /taxon_names/col_datasets?q=...
+  def autoselect_col_datasets
+    results = ::Vendor::Colrapi.datasets(q: params[:q].to_s, limit: 20)
+    render json: results
+  end
+
+  # POST
+  def autoselect_col_create
+    result = ::Autoselect::TaxonName::ColCreator.new(
+      rows:       autoselect_col_create_params,
+      col_code:   params[:col_code],
+      project_id: sessions_current_project_id,
+      user_id:    sessions_current_user_id
+    ).call
+    tn = ::TaxonName.find(result[:taxon_name_id])
+    render json: result.merge(global_id: tn.to_global_id.to_s)
+  rescue ::Autoselect::TaxonName::ColCreator::CreationError => e
+    render json: {
+      error:          e.message,
+      failed_col_name: e.col_name,
+      failed_col_id:   e.col_id
+    }, status: :unprocessable_entity
+  end
+
   private
+
+  def autoselect_col_create_params
+    params.permit(rows: [:col_name, :col_rank, :col_id, :dataset_id, :taxonworks_id, :col_authorship, :col_year])
+          .fetch(:rows, [])
+          .map(&:to_h)
+  end
+
+  def autoselect_params
+    params.permit(
+      :valid, :exact, :no_leaves, :dataset_id, :show_info,
+      type: [], parent_id: [], nomenclature_group: []
+    ).to_h.symbolize_keys
+  end
 
   def set_taxon_name
     @taxon_name = TaxonName.with_project_id(sessions_current_project_id).includes(:creator, :updater).find(params[:id])

@@ -30,7 +30,7 @@
 <script setup>
 import { BiologicalAssociation } from '@/routes/endpoints'
 import { ref, onBeforeMount, watch } from 'vue'
-import { OTU, COLLECTION_OBJECT } from '@/constants/index.js'
+import { OTU, COLLECTION_OBJECT, FIELD_OCCURRENCE, ANATOMICAL_PART } from '@/constants/index.js'
 import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import getPagination from '@/helpers/getPagination'
@@ -38,7 +38,9 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 
 const param = {
   [OTU]: 'otu_id',
-  [COLLECTION_OBJECT]: 'collection_object_id'
+  [COLLECTION_OBJECT]: 'collection_object_id',
+  [FIELD_OCCURRENCE]: 'field_occurrence_id',
+  [ANATOMICAL_PART]: 'anatomical_part_id'
 }
 
 const props = defineProps({

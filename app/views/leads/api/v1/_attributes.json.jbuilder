@@ -19,10 +19,6 @@ else
     json.key_updated_at_in_words time_ago_in_words(lead[:key_updated_at])
   end
 
-  if lead[:key_updated_by]
-    json.key_updated_by lead[:key_updated_by]
-  end
-
   if !local_assigns[:has_descendant_lead_items].nil?
     json.has_descendant_lead_items has_descendant_lead_items
   end

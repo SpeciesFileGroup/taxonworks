@@ -16,6 +16,7 @@
       <div v-else>
         <div class="horizontal-left-content gap-small margin-medium-bottom">
           <input
+            ref="nameInput"
             placeholder="Type a name..."
             type="text"
             v-model="name"
@@ -93,6 +94,7 @@ const store = useStore()
 const name = ref('')
 const relationship = ref()
 const citation = ref({})
+const nameInput = ref(null)
 
 const taxon = computed(() => store.getters[GetterNames.GetTaxon])
 
@@ -159,4 +161,8 @@ function resetForm() {
   citation.value = {}
   relationship.value = null
 }
+
+defineExpose({
+  focus() { nameInput.value?.focus() }
+})
 </script>

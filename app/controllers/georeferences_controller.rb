@@ -172,6 +172,7 @@ class GeoreferencesController < ApplicationController
       :day_georeferenced,
       :month_georeferenced,
       :wkt,
+      :gazetteer_id,
       geographic_item_attributes: [:shape],
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages]
     )

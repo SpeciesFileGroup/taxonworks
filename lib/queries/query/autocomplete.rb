@@ -41,7 +41,9 @@ module Queries
       @query_string = ::ApplicationRecord.sanitize_sql(string)&.delete("\u0000") # remove null bytes
 
       @project_id = project_id
-      build_terms # TODO - should remove this for accessors
+
+      # should not need this
+      # build_terms # TODO - should remove this for accessors
     end
 
     def project_id

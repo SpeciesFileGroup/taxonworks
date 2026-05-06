@@ -118,6 +118,18 @@ class PeopleController < ApplicationController
     end
   end
 
+  # GET /people/author_match.json
+  def author_match
+    first_name = params[:first_name].presence || params[:first_name_like].presence
+    last_name = params[:last_name].presence || params[:last_name_like].presence
+
+    people = Queries::Person::Filter.new(author_match_params).all.to_a
+
+    @people = Utilities::PersonNameMatch.sort_by_match(people, first_name, last_name)
+
+    render :index
+  end
+
   # GET /people/download
   def download
     send_data Export::CSV.generate_csv(Person.all), type: 'text', filename: "people_#{DateTime.now}.tsv"
@@ -175,6 +187,10 @@ class PeopleController < ApplicationController
       :suffix, :prefix,
       :year_born, :year_died, :year_active_start, :year_active_end
     )
+  end
+
+  def author_match_params
+    params.permit(:first_name, :last_name, :first_name_like, :last_name_like)
   end
 
   def merge_params

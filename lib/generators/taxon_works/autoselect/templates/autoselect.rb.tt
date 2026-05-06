@@ -1,0 +1,40 @@
+# lib/autoselect/<%= model_name %>/autoselect.rb
+module Autoselect
+  module <%= model_class_name %>
+    class Autoselect < ::Autoselect::Base
+
+      def resource_path
+        '/<%= model_name.pluralize %>/autoselect'
+      end
+
+      # Ordered level stack — defines the fuse escalation sequence.
+      def levels
+        [
+<% level_class_names.each do |klass| -%>
+          Autoselect::<%= model_class_name %>::Levels::<%= klass %>.new,
+<% end -%>
+        ]
+      end
+
+      # @param record [<%= model_class_name %>]
+      # @return [Hash] key-value pairs injected into the parent form on selection
+      def response_values(record)
+        { <%= model_name %>_id: record.id }
+      end
+
+      def record_label(record)
+        # TODO: replace with model-appropriate cached or display field
+        record.to_s
+      end
+
+      def record_label_html(record)
+        record_label(record)
+      end
+
+      def record_info(record)
+        nil
+      end
+
+    end
+  end
+end

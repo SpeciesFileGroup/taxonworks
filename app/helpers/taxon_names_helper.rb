@@ -1,5 +1,28 @@
 module TaxonNamesHelper
 
+  VALID_MARK = '&#10003;'.html_safe.freeze # checkmark
+  INVALID_MARK =  '&#10060;'.html_safe.freeze
+  COMBINATION_MARK = '[c]'.freeze
+
+  # HTML label for the autoselect dropdown (left-justified).
+  # Uses cached_html for real records; falls back to cached for CoL pseudo-records.
+  def taxon_name_autoselect_tag(taxon_name)
+    return nil if taxon_name.nil?
+    tag.span( taxon_name.cached_html_name_and_author_year.html_safe, class: :klass)
+  end
+
+  # Disambiguation info Array for the autoselect dropdown (right-justified).
+  # Only called for real TaxonName AR records (external levels render their own info).
+  def taxon_name_autoselect_info(taxon_name)
+    return [] if taxon_name.nil?
+    [
+      taxon_name_rank_tag(taxon_name),
+      taxon_name_parent_tag(taxon_name),
+      taxon_name_original_combination_tag(taxon_name),
+      taxon_name_type_short_tag(taxon_name)
+    ]
+  end
+
   # @return [String]
   #   the taxon name without author year, with HTML
   def taxon_name_tag(taxon_name)
@@ -48,6 +71,12 @@ module TaxonNamesHelper
   def taxon_name_original_combination_tag(taxon_name, css_class = [:feedback, 'feedback-notice', 'feedback-thin'] )
     return nil if taxon_name.nil? || taxon_name.cached_original_combination.blank?
     content_tag(:span, taxon_name.cached_original_combination, class: css_class)
+  end
+
+  # Styling indicating the current valid name
+  def taxon_name_now_tag(taxon_name, css_class = [:feedback, 'feedback-warning', 'feedback-thin'] )
+    return nil if taxon_name.nil? || !taxon_name.is_valid?
+    content_tag(:span, ('now ' + taxon_name.cached_html).html_safe, class: css_class)
   end
 
   # @return [String]
@@ -112,9 +141,9 @@ module TaxonNamesHelper
   def taxon_name_type_short_tag(taxon_name)
     return nil if taxon_name.nil?
     if taxon_name.is_valid?
-      '&#10003;'.html_safe # checkmark
+      VALID_MARK
     else
-      taxon_name.type == 'Combination' ? '[c]' : '&#10060;'.html_safe # c or X
+      taxon_name.is_combination? ? COMBINATION_MARK : INVALID_MARK # c or X
     end
   end
 

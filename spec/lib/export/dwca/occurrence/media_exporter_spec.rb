@@ -22,7 +22,7 @@ RSpec.describe Export::Dwca::Occurrence::MediaExporter, type: :model do
         lines = content.lines
 
         expect(lines.count).to eq(1)
-        expect(lines.first).to eq(Export::CSV::Dwc::Extension::Media::HEADERS.join("\t") + "\n")
+        expect(lines.first).to eq(Export::CSV::Dwc::Extension::Occurrence::Media::HEADERS.join("\t") + "\n")
       end
     end
 
@@ -47,7 +47,7 @@ RSpec.describe Export::Dwca::Occurrence::MediaExporter, type: :model do
         content = output.read
         lines = content.lines
 
-        expect(lines.first).to eq(Export::CSV::Dwc::Extension::Media::HEADERS.join("\t") + "\n")
+        expect(lines.first).to eq(Export::CSV::Dwc::Extension::Occurrence::Media::HEADERS.join("\t") + "\n")
       end
 
       specify 'exports expected data in data row' do
