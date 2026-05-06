@@ -413,7 +413,7 @@ module Queries
       # @return [Scope]
       # TODO: this should deprecate for gin based approaches.
       def base_query
-        ::TaxonName.select(:id, :parent_id, :type, :name, :cached,  :cached_html, :cached_original_combination, :cached_author_year, :cached_valid_taxon_name_id, :cached_is_valid, 'char_length(taxon_names.cached)')
+        ::TaxonName.select(:id, :parent_id, :type, :rank_class, :name, :cached,  :cached_html, :cached_original_combination, :cached_author_year, :cached_valid_taxon_name_id, :cached_is_valid, 'char_length(taxon_names.cached)')
           .eager_load(:parent)
           .order(Arel.sql('char_length(taxon_names.cached), taxon_names.cached ASC'))
       end

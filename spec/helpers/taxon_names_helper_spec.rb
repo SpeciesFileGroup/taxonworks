@@ -3,6 +3,13 @@ require 'rails_helper'
 describe TaxonNamesHelper, type: :helper do
   let(:taxon_name) {FactoryBot.create(:valid_protonym) }
 
+  specify '#taxon_name_autocomplete_tag  Root' do
+    root = FactoryBot.create(:root_taxon_name)
+    s = helper.taxon_name_autocomplete_tag(root, 'Root').to_s
+    expect(s).to include('Root')
+    expect(s).to include('nomenclatural rank')
+  end
+
   specify '#taxon_name_autocomplete_tag 1' do
     expect(helper.taxon_name_autocomplete_tag(taxon_name, 'Aus (')).to be_truthy
   end
