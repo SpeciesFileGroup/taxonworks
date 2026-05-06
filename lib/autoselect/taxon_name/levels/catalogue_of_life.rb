@@ -47,6 +47,23 @@ module Autoselect
             col_key    = col_result['id']
             extension  = ::Vendor::Colrapi.build_extension(col_result, project_id, dataset_id:)
 
+            # Annotate whether the target name already exists in this project so the
+            # confirmation modal can offer "Select" instead of "Create" when nothing
+            # needs to be created.
+            if project_id.present?
+              existing = ::TaxonName.where(project_id:, cached: col_name).first
+              if existing
+                extension = extension.merge(
+                  target_taxonworks_id: existing.id,
+                  target_global_id: existing.to_global_id.to_s
+                )
+              end
+            end
+
+            # Flag when the target's rank is not resolvable in TaxonWorks (e.g. 'domain').
+            # ColCreator silently skips such rows, so the modal needs to know up-front.
+            extension = extension.merge(target_rank_unknown: true) unless rank_resolvable?(col_rank)
+
             OpenStruct.new(
               id: nil,
               cached: col_name,
@@ -55,6 +72,16 @@ module Autoselect
               cached_valid_taxon_name_id: nil,
               _col_extension: extension
             )
+          end
+        end
+
+        private
+
+        def rank_resolvable?(rank_string)
+          return false if rank_string.blank?
+          r = rank_string.to_s.downcase
+          [:ICZN_LOOKUP, :ICN_LOOKUP, :ICNP_LOOKUP, :ICVCN_LOOKUP].any? do |key|
+            Object.const_get("::#{key}")[r].present?
           end
         end
 

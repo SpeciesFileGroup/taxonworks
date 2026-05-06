@@ -190,7 +190,7 @@ async function onParentSelected(item) {
     if (!rankClass.value) {
       document.getElementById('tn-new-rank')?.focus()
     } else {
-      createBtn.value?.focus()
+      createBtn.value?.$el?.focus()
     }
   })
 }
