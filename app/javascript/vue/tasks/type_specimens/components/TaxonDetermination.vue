@@ -64,6 +64,9 @@ const otus = ref([])
 
 Otu.where({ taxon_name_id: store.taxonName.id }).then(({ body }) => {
   otus.value = body
+  if (body.length === 1 && store.selectedOtuId === undefined) {
+    store.selectedOtuId = body[0].id
+  }
 })
 
 function removeTaxonDetermination(td) {
