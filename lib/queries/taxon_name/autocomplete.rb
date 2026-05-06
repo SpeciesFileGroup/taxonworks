@@ -112,19 +112,19 @@ module Queries
       # @return [Scope]
       def autocomplete_exact_cached
         a = table[:cached].eq(query_string)
-        base_query.where(a.to_sql).order('cached_author_year ASC').limit(20)
+        base_query.where(a.to_sql).order('taxon_names.cached_author_year ASC').limit(20)
       end
 
       # @return [Scope]
       def autocomplete_exact_cached_original_combination
         a = table[:cached_original_combination].eq(query_string)
-        base_query.where(a.to_sql).order('cached_author_year ASC').limit(20)
+        base_query.where(a.to_sql).order('taxon_names.cached_author_year ASC').limit(20)
       end
 
       # @return [Scope]
       def autocomplete_wildcard_cached_original_combination
         a = table[:cached_original_combination].matches(wildcard_pieces)
-        base_query.where(a.to_sql).order('cached_author_year ASC').limit(20)
+        base_query.where(a.to_sql).order('taxon_names.cached_author_year ASC').limit(20)
       end
 
       # @return [Scope]
@@ -142,7 +142,7 @@ module Queries
       # @return [Scope]
       def autocomplete_exact_name
         a = table[:name].eq(query_string)
-        base_query.where(a.to_sql).order('cached_author_year ASC').limit(20)
+        base_query.where(a.to_sql).order('taxon_names.cached_author_year ASC').limit(20)
       end
 
       # @return [Scope]
@@ -178,7 +178,7 @@ module Queries
       def autocomplete_genus_species2(result)
         return nil if result.nil?
         a = table[:cached].matches(result + '%')
-        base_query.where(a.to_sql).order('type DESC, cached ASC').limit(8)
+        base_query.where(a.to_sql).order('taxon_names.type DESC, taxon_names.cached ASC').limit(8)
       end
 
       # @return [Scope]
@@ -218,7 +218,7 @@ module Queries
       def autocomplete_wildcard_author_year_joined_pieces
         return nil if pieces.empty?
         a = table[:cached_author_year].matches("%#{pieces.join('%')}%")
-        base_query.where(a.to_sql).order('cached ASC').limit(20)
+        base_query.where(a.to_sql).order('taxon_names.cached ASC').limit(20)
       end
 
       # @return [Scope, nil]
@@ -276,7 +276,7 @@ module Queries
         a = ::TaxonName.select(ApplicationRecord.sanitize_sql(
           ['taxon_names.*, similarity(?, name) AS sml_n, similarity(?, taxon_names.cached_author_year) AS sml_cay, similarity(?, cached) AS sml_c, similarity(?, taxon_names.cached_original_combination) AS sml_coc',
            query_string, authorship, query_string, query_string])
-                              ).where('taxon_names.cached_author_year % ? OR taxon_names.cached_original_combination % ? OR cached % ?', query_string, query_string, query_string)
+                              ).where('taxon_names.cached_author_year % ? OR taxon_names.cached_original_combination % ? OR taxon_names.cached % ?', query_string, query_string, query_string)
 
         s = 'WITH tns AS (' + a.to_sql + ') ' +
           ::TaxonName
@@ -288,7 +288,7 @@ module Queries
           .joins('JOIN tns as tns1  on tns1.id = taxon_names.id')
           .to_sql
 
-        ::TaxonName.select('taxon_names.*, sml_tn as sml_t').from('(' + s + ') as taxon_names').order('sml_tn DESC').distinct
+        ::TaxonName.select('taxon_names.*, sml_tn as sml_t').from('(' + s + ') as taxon_names').order('taxon_names.sml_tn DESC').distinct
       end
 
       # Used in New taxon name task, for example
@@ -374,8 +374,7 @@ module Queries
 
         queries.each_with_index do |q,i|
           a = q
-          a = q.where(project_id:) if project_id.present?
-
+          a = q.where(project_id:) if project_id.present? # strange here, concept is global autocomplete, doesn't exist in API
           a = a.where(and_clauses.to_sql) if and_clauses
 
           if !parent_id.empty?
@@ -413,7 +412,8 @@ module Queries
       # @return [Scope]
       # TODO: this should deprecate for gin based approaches.
       def base_query
-        ::TaxonName.select(:id, :parent_id, :type, :rank_class, :name, :cached,  :cached_html, :cached_original_combination, :cached_author_year, :cached_valid_taxon_name_id, :cached_is_valid, 'char_length(taxon_names.cached)')
+        ::TaxonName.select(:id, :parent_id, :type, :rank_class, :name, :cached,  :cached_html,
+          :cached_original_combination, :cached_author_year, :cached_valid_taxon_name_id, :cached_is_valid, 'char_length(taxon_names.cached)')
           .eager_load(:parent)
           .order(Arel.sql('char_length(taxon_names.cached), taxon_names.cached ASC'))
       end
