@@ -9,7 +9,8 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ### Added
 
-- Autoselect playground, first step towards new autocompletes #3519
+- Collection layout task, with preliminary vizualization
+- Autoselect playground task, first step towards new "autocompletes" #3519
 - Distribution absence inference and mapping endpoints #4896
 - `subject_otu_id` and `object_otu_id` to biological associations `/api/v1/biological_associations/basic` endpoint
 - Filters: Copy to clipboard button for API Url [#4852]
