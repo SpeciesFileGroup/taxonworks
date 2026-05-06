@@ -167,7 +167,8 @@ GEM
     brakeman (7.1.2)
       racc
     builder (3.3.0)
-    byebug (12.0.0)
+    byebug (13.0.0)
+      reline (>= 0.6.0)
     capybara (3.40.0)
       addressable
       matrix
@@ -501,7 +502,7 @@ GEM
       date
       stringio
     public_suffix (7.0.5)
-    puma (7.2.0)
+    puma (8.0.1)
       nio4r (~> 2.0)
     racc (1.8.1)
     rack (3.2.6)
@@ -678,8 +679,9 @@ GEM
     ruby-graphviz (1.2.5)
       rexml
     ruby-ole (1.2.13.1)
-    ruby-prof (1.7.2)
+    ruby-prof (2.0.4)
       base64
+      ostruct
     ruby-progressbar (1.13.0)
     ruby-rc4 (0.1.5)
     ruby-units (4.1.0)
@@ -853,7 +855,7 @@ DEPENDENCIES
   biodiversity (~> 6.0)
   bootsnap
   brakeman (~> 7.1)
-  byebug (~> 12.0)
+  byebug (~> 13.0)
   capybara (~> 3.18)
   chartkick (~> 5.0)
   chronic (~> 0.10.2)
@@ -909,7 +911,7 @@ DEPENDENCIES
   pp_sql
   prawn (~> 2.5.0)
   psych (~> 5.1)
-  puma (~> 7.0)
+  puma (~> 8.0)
   rack (~> 3.2)
   rack-cors (~> 3.0)
   rails (~> 8.1.0)
@@ -939,7 +941,7 @@ DEPENDENCIES
   rubocop-rails (~> 2.34)
   rubocop-rspec (~> 3.9)
   ruby-graphviz (~> 1.2.5)
-  ruby-prof (~> 1.2)
+  ruby-prof (~> 2.0)
   ruby-progressbar (~> 1.11)
   ruby-units (~> 4.1.0)
   rubyzip (~> 3.2)
