@@ -9,6 +9,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ### Added
 
+- Autoselect playground, first step towards new autocompletes #3519
 - Distribution absence inference and mapping endpoints #4896
 - `subject_otu_id` and `object_otu_id` to biological associations `/api/v1/biological_associations/basic` endpoint
 - Filters: Copy to clipboard button for API Url [#4852]
@@ -65,6 +66,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Unions of Gazetteers may not always include the shapes the union was made of (off by tiny slivers); that could still be an issue with some unions that have already been created [#4823]
 - Improve matching in the Author match modal from the New Source task: now matches on initials, maiden names, alternate values [#4847]
 
+[#3519]: https://github.com/SpeciesFileGroup/taxonworks/issues/3519
 [#1856]: https://github.com/SpeciesFileGroup/taxonworks/issues/1856
 [#2141]: https://github.com/SpeciesFileGroup/taxonworks/issues/2141
 [#2723]: https://github.com/SpeciesFileGroup/taxonworks/issues/2723
