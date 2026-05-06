@@ -27,7 +27,7 @@ module Tasks::FieldOccurrences::InaturalistImportHelper
       existing_fo_id = existing_fo_by_uuid[uuid]
       taxon_name = ::Vendor::Nasturtium.taxon_name(r, use_community_taxon:)
       status = if existing_fo_id
-        'already_imported'
+                 'already_imported'
       elsif taxon_name.blank?
         'no_taxon'
       else
@@ -50,10 +50,14 @@ module Tasks::FieldOccurrences::InaturalistImportHelper
   end
 
   def serialize_inat_field_occurrence(fo)
+    otu = fo.taxon_determinations.first.otu
     inat_identifier = fo.identifiers.find { |i| i.is_a?(Identifier::Global::Uuid::InaturalistObservation) }
     {
-      id: fo.id,
-      taxon_name: otu_tag(fo.taxon_determinations.first.otu),
+      id: fo.taxon_determinations.first.otu.id,
+      taxon_name: otu_tag(otu),
+      otu_global_id: otu.to_global_id.to_s,
+      otu_id: otu.id,
+      global_id: fo.to_global_id.to_s,
       verbatim_locality: fo.collecting_event.verbatim_locality,
       created_at: fo.created_at.strftime('%Y-%m-%d %H:%M'),
       browse_url: browse_field_occurrence_task_path(field_occurrence_id: fo.id),

@@ -47,10 +47,12 @@
           <th>ID</th>
           <th></th>
           <th>OTU</th>
+          <th>OTU radials</th>
           <th>Collecting event</th>
           <th>Created</th>
           <th>Images</th>
           <th>Sounds</th>
+          <th />
         </tr>
       </thead>
       <tbody>
@@ -62,20 +64,41 @@
             <a
               :href="fo.browse_url"
               target="_blank"
-            >{{ fo.id }}</a>
+              >{{ fo.id }}</a
+            >
           </td>
           <td>
             <a
               v-if="fo.inat_url"
               :href="fo.inat_url"
               target="_blank"
-            >iNaturalist</a>
+              >iNaturalist</a
+            >
           </td>
-          <td v-html="fo.taxon_name" />
+          <td>
+            <a
+              :href="`${RouteNames.BrowseOtu}?otu_id=${fo.otu_id}`"
+              v-html="fo.taxon_name"
+            />
+          </td>
+          <td class="w-2">
+            <div class="flex-row gap-small">
+              <RadialAnnotator :global-id="fo.otu_global_id" />
+              <RadialObject :global-id="fo.otu_global_id" />
+              <RadialNavigator :global-id="fo.otu_global_id" />
+            </div>
+          </td>
           <td>{{ fo.verbatim_locality }}</td>
           <td>{{ fo.created_at }}</td>
           <td>{{ fo.image_count }}</td>
           <td>{{ fo.sound_count }}</td>
+          <td class="w-2">
+            <div class="flex-row gap-small">
+              <RadialAnnotator :global-id="fo.global_id" />
+              <RadialObject :global-id="fo.global_id" />
+              <RadialNavigator :global-id="fo.global_id" />
+            </div>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -87,8 +110,12 @@ import { ref, onMounted } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VPagination from '@/components/pagination.vue'
 import PaginationCount from '@/components/pagination/PaginationCount.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialObject from '@/components/radials/object/radial.vue'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import { getPagination } from '@/helpers'
 import { FieldOccurrence } from '@/routes/endpoints'
+import { RouteNames } from '@/routes/routes'
 
 defineOptions({ name: 'RecentImports' })
 
@@ -100,7 +127,10 @@ const pagination = ref({})
 async function load(page = 1) {
   isLoading.value = true
   try {
-    const response = await FieldOccurrence.iNatRecent({ page, per_page: perPage.value })
+    const response = await FieldOccurrence.iNatRecent({
+      page,
+      per_page: perPage.value
+    })
     fieldOccurrences.value = response.body.field_occurrences
     pagination.value = getPagination(response)
   } catch {
