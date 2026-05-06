@@ -46,4 +46,76 @@ describe Export::Coldp::Files::Name, type: :model, group: :col do
     expect(q.all).to_not include(combination)
   end
 
+  # Reified original combination row for the species with an incomplete OC
+  # (only OriginalGenus is set, no OriginalSpecies relationship). The protonym
+  # has cached "Aus cus" but cached_original_combination "Ous cus" so it is reified
+  # into a separate Name.tsv row. The reified species row must have empty uninomial, and the
+  # genus / specificEpithet columns must hold the parsed parts.
+  specify '#generate emits reified species OC with correct uninomial/genus/specificEpithet' do
+    tsv = Export::Coldp::Files::Name.generate(otu, [])
+    rows = CSV.parse(tsv, col_sep: "\t", headers: true)
+
+    reified_row = rows.find { |r| r['scientificName'] == 'Ous cus' && r['rank'] == 'species' }
+
+    expect(reified_row).not_to be_nil
+    expect(reified_row['uninomial']).to be_nil.or eq('')
+    expect(reified_row['genus']).to eq('Ous')
+    expect(reified_row['specificEpithet']).to eq('cus')
+  end
+
+  # Reified OC row for a subspecies whose original combination is incomplete:
+  # original_genus + original_species relations exist, but no
+  # original_subspecies (self-referential) relation.
+  #
+  # The protonym under test is the subspecies 'minor':
+  #   current  combination (cached):                      "Aus rufa minor"
+  #   original combination (cached_original_combination): "Ous alba minor"
+  # i.e. the OC differs from the current placement at both the genus and the
+  # species level (a subspecies reclassified to a different species, in a
+  # different genus, since publication).
+  #
+  # The reified row's atomized parts ("Ous", "alba") must come from the OC,
+  # not from the current placement, and the protonym's own name ('minor')
+  # must land in `infraspecificEpithet`. The pre-fix bug overwrote
+  # `data['species']` with the protonym's name, producing genus="Ous",
+  # specificEpithet="minor", infraspecificEpithet=nil, rank="species".
+  specify '#generate handles incomplete subspecies OC (parent ranks preserved)' do
+    original_species_alba = Protonym.create!(
+      rank_class: Ranks.lookup(:iczn, :species),
+      name: 'alba',
+      parent: original_genus,
+      verbatim_author: 'Smith',
+      year_of_publication: 2000
+    )
+
+    species_rufa = Protonym.create!(
+      rank_class: Ranks.lookup(:iczn, :species),
+      name: 'rufa',
+      parent: genus,
+      verbatim_author: 'Smith',
+      year_of_publication: 2000
+    )
+
+    Protonym.create!(
+      rank_class: Ranks.lookup(:iczn, :subspecies),
+      name: 'minor',
+      parent: species_rufa,
+      original_genus:,
+      original_species: original_species_alba,
+      verbatim_author: 'Smith',
+      year_of_publication: 2000
+    )
+
+    tsv = Export::Coldp::Files::Name.generate(otu, [])
+    rows = CSV.parse(tsv, col_sep: "\t", headers: true)
+    reified_row = rows.find { |r| r['scientificName'] == 'Ous alba minor' }
+
+    expect(reified_row).not_to be_nil
+    expect(reified_row['rank']).to eq('subspecies')
+    expect(reified_row['uninomial']).to be_nil.or eq('')
+    expect(reified_row['genus']).to eq('Ous')
+    expect(reified_row['specificEpithet']).to eq('alba')
+    expect(reified_row['infraspecificEpithet']).to eq('minor')
+  end
+
 end

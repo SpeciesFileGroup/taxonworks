@@ -345,9 +345,6 @@ module Export::Coldp::Files::Name
       # Generic names can also be misspelled so, just process everything, don't bother checking the flag
       scientific_name = ::Utilities::Nomenclature.unmisspell_name(row['cached_original_combination'])
 
-      # TODO: resolve/verify needed
-      uninomial = scientific_name if rank == 'genus'
-
       # !! Ideally we de-reify these names in the query with (cached != cached_original_combination)
       # !! SO that we know these *must* be reified
       # !! We are reifying *without* "[sic]" in the string
@@ -379,6 +376,8 @@ module Export::Coldp::Files::Name
       if rank == 'genus' && row.rank != 'genus'
         rank = row.rank
       end
+
+      uninomial = scientific_name if rank == 'genus'
 
       csv << [
         id,                                                                 # ID
@@ -431,9 +430,6 @@ module Export::Coldp::Files::Name
 
       scientific_name = ::Utilities::Nomenclature.unmisspell_name(row['cached_original_combination'])
 
-      # TODO: resolve/verify needed
-      uninomial = scientific_name if rank == 'genus'
-
       # !! Ideally we de-reify these names in the query with (cached != cached_original_combination)
       # !! So that we know these *must* be reified
       # !! We are reifieing *without* "[sic]" in the string
@@ -451,6 +447,8 @@ module Export::Coldp::Files::Name
       if rank == 'genus' && row.rank != 'genus'
         rank = row.rank
       end
+
+      uninomial = scientific_name if rank == 'genus'
 
       csv << [
         id,                                                                 # ID

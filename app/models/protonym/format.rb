@@ -168,7 +168,16 @@ module Protonym::Format
         data[rank.to_s] = v
       end
 
-      data[finest_rank.to_s][1] = row[:name] # Ensure the last name is not genderized
+      # Ensure the protonym's own (non-genderized) name lives at its own rank.
+      # When the original combination is incomplete (no OC relation at the
+      # protonym's rank) we add the entry rather than overwriting a parent rank.
+      protonym_rank = row.rank
+      if data[protonym_rank]
+        data[protonym_rank][1] = row[:name] # ungenderize the finest rank
+      elsif protonym_rank
+        data[protonym_rank] = [nil, row[:name]]
+      end
+
       data
     end
 
