@@ -3,37 +3,37 @@
     <template v-if="store.root">
       <div class="flex-row gap-small align-end">
         <div
-          class="key-header-name"
-          v-text="store.root.text"
-        />
-        <template v-if="citations">
-          <span>-</span>
-          <div>{{ citations }}</div>
-        </template>
-      </div>
-      <div class="flex-row gap-small">
-        <label>
-          <input
-            type="checkbox"
-            v-model="settings.treeView"
-          />
-          Tree style
-        </label>
-        <RadialAnnotator :global-id="store.root.global_id" />
-        <RadialNavigator :global-id="store.root.global_id" />
-        <ToggleLayout />
-        <VBtn
-          color="primary"
-          @click="resetKey"
-        >
-          Reset
-        </VBtn>
-      </div>
+            class="key-header-name"
+            v-text="store.root.text"
+            />
+          <template v-if="citations">
+            <span>-</span>
+            <div>{{ citations }}</div>
+          </template>
+        </div>
+        <div class="flex-row gap-small">
+          <label>
+            <input
+                type="checkbox"
+                v-model="settings.treeView"
+                />
+            Tree style
+          </label>
+          <RadialAnnotator :global-id="store.root.global_id" />
+          <RadialNavigator :global-id="store.root.global_id" />
+          <ToggleLayout />
+          <VBtn
+              color="primary"
+              @click="resetKey"
+              >
+              Reset
+          </VBtn>
+        </div>
     </template>
     <template v-else>
-      <a :href="RouteNames.LeadsHub">Hub key</a>
+      <a :href="RouteNames.LeadsHub">Keys hub</a>
     </template>
-  </div>
+      </div>
 </template>
 
 <script setup>
