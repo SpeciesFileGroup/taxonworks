@@ -21,8 +21,8 @@
         <thead>
           <tr>
             <th>Author String</th>
-            <th>Matches</th>
-            <th>Select(ed)</th>
+            <th>Selected match</th>
+            <th>Create a new person</th>
           </tr>
         </thead>
         <tbody>
@@ -45,9 +45,20 @@
                 <span class="no-matches">No matches found</span>
               </div>
               <div
-                v-else-if="!row.alreadyExists"
+                v-else-if="!row.alreadyExists && !row.createdPerson"
                 class="matches-list"
               >
+                <div class="match-option">
+                  <label>
+                    <input
+                      type="radio"
+                      :name="`author-match-${index}`"
+                      :value="null"
+                      v-model="row.selectedPersonId"
+                    />
+                    <span>none</span>
+                  </label>
+                </div>
                 <div
                   v-for="person in row.matches"
                   :key="person.id"
@@ -138,7 +149,7 @@
                 <VBtn
                   color="create"
                   medium
-                  :disabled="!row.newPersonForm.last_name"
+                  :disabled="!row.newPersonForm.last_name || !!row.selectedPersonId"
                   @click="createPerson(row)"
                 >
                   Create
