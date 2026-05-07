@@ -22,7 +22,7 @@
           <tr>
             <th>Author String</th>
             <th>Matches</th>
-            <th>Select(ed)</th>
+            <th>Create a new person</th>
           </tr>
         </thead>
         <tbody>
@@ -138,7 +138,7 @@
                 <VBtn
                   color="create"
                   medium
-                  :disabled="!row.newPersonForm.last_name"
+                  :disabled="!row.newPersonForm.last_name || !!row.selectedPersonId"
                   @click="createPerson(row)"
                 >
                   Create
