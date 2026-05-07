@@ -66,6 +66,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Add extra protections to prevent saving data with associated data from a different project [#4881] [#4895]
 - Unions of Gazetteers may not always include the shapes the union was made of (off by tiny slivers); that could still be an issue with some unions that have already been created [#4823]
 - Improve matching in the Author match modal from the New Source task: now matches on initials, maiden names, alternate values [#4847]
+- CSD: Ctrl/Alt + T shortcut is not passing taxon_name_id parameter to new taxon name task
 
 [#3519]: https://github.com/SpeciesFileGroup/taxonworks/issues/3519
 [#1856]: https://github.com/SpeciesFileGroup/taxonworks/issues/1856
