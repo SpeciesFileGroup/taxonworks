@@ -7,7 +7,8 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ## [unreleased]
 
-\-
+### Fixed
+Taxon Pages Biological Associations returns no results
 
 ## [0.62.0] - 2026-05-08
 
