@@ -80,12 +80,10 @@ module ProjectUnification
         }
 
         if duplicates.empty?
-          # No duplicates - use fast SQL update
           result[:migrated] = migrate_with_sql
         else
-          # Has duplicates - fall back to validation-based migration
-          result[:migrated] = migrate_with_validation
           result[:note] = "#{duplicates.size} verbatim_label duplicates found, using validation"
+          migrate_with_validation(result)
         end
 
         result
@@ -134,23 +132,19 @@ module ProjectUnification
         result.cmd_tuples || count
       end
 
-      def migrate_with_validation
-        count = 0
-        errors = []
-
+      def migrate_with_validation(result)
         CollectingEvent.where(project_id: source_project_id).find_each do |ce|
           ce.project_id = target_project_id
           if ce.save
-            count += 1
+            result[:migrated] += 1
           else
-            errors << {
+            result[:errors] << {
               id: ce.id,
-              errors: ce.errors.full_messages
+              model: 'CollectingEvent',
+              error: ce.errors.full_messages.join('; ')
             }
           end
         end
-
-        count
       end
     end
 
