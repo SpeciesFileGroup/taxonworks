@@ -23,6 +23,7 @@
       <div v-if="!taxonRelation">
         <div class="horizontal-left-content">
           <autocomplete
+            ref="taxonSearch"
             url="/taxon_names/autocomplete"
             label="label_html"
             min="2"
@@ -155,6 +156,10 @@ export default {
     }
   },
   methods: {
+    focus() {
+      this.$refs.taxonSearch?.setFocus()
+    },
+
     setInsertaeSedis: function () {
       this.taxonRelation = this.parent
     },

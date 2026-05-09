@@ -41,3 +41,27 @@ if extend_response_with('object')
     end
   end
 end
+
+subject = biological_association.biological_association_subject
+if subject&.class&.base_class&.name == 'AnatomicalPart'
+  json.subject_anatomical_part do
+    json.extract! subject, :id, :name, :uri, :uri_label
+
+    if (origin = subject.inbound_origin_relationship)
+      json.origin_object_id origin.old_object_id
+      json.origin_object_type origin.old_object_type
+    end
+  end
+end
+
+object = biological_association.biological_association_object
+if object&.class&.base_class&.name == 'AnatomicalPart'
+  json.object_anatomical_part do
+    json.extract! object, :id, :name, :uri, :uri_label
+
+    if (origin = object.inbound_origin_relationship)
+      json.origin_object_id origin.old_object_id
+      json.origin_object_type origin.old_object_type
+    end
+  end
+end

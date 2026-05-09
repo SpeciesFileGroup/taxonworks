@@ -47,6 +47,8 @@
           v-model="selectedIds"
           :attributes="ATTRIBUTES"
           :list="list"
+          :hide-unfrozen="hideFrozen"
+          :preference-key="`tasks::filters::${ANATOMICAL_PART}`"
           :radial-object="true"
           @on-sort="(sorted) => (list = sorted)"
         >
@@ -59,6 +61,18 @@
             </VBtn>
           </template>
         </FilterList>
+      </template>
+      <template #nav-settings-start>
+        <VToggle
+          title="Hide/show non-frozen columns"
+          @click="() => (hideFrozen = !hideFrozen)"
+        >
+          <VIcon
+            title="Hide/show non-frozen columns"
+            :name="hideFrozen ? 'contract' : 'expand'"
+            x-small
+          />
+        </VToggle>
       </template>
     </FilterLayout>
     <VSpinner
@@ -76,6 +90,8 @@ import FilterComponent from './components/filter.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import VToggle from '@/components/ui/VToggle.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
 import { listParser } from './utils/listParser.js'
 import { ANATOMICAL_PART } from '@/constants/index.js'
@@ -89,6 +105,7 @@ defineOptions({
   name: 'FilterAnatomicalParts'
 })
 
+const hideFrozen = ref(false)
 const idForGraph = ref(null)
 
 const {

@@ -57,6 +57,7 @@ namespace :api, defaults: {format: :json} do
       get '/otus/inventory/alphabetical', to: '/otus#api_alphabetical_index', as: :api_alphabetical_index
       get '/otus/:id/inventory/content', to: '/otus#api_content', as: :api_content
       get '/otus/:id/inventory/distribution', to: '/otus#api_distribution', as: :api_distribution
+      get '/otus/:id/inventory/distribution_is_absent', to: '/otus#api_distribution_is_absent', as: :api_distribution_is_absent
       get '/otus/:id/inventory/keys', to: '/otus#api_key_inventory', as: :key_inventory
       get '/otus/:id/inventory/taxonomy', to: '/otus#api_taxonomy_inventory', as: :taxonomy_inventory
       get '/otus/:otu_id/inventory/images', to: '/otus#api_image_inventory', as: :otu_images_inventory
@@ -87,6 +88,7 @@ namespace :api, defaults: {format: :json} do
       get '/taxon_names/parse', to: '/taxon_names#parse'
       get '/taxon_names/:id/inventory/catalog', to: '/taxon_names#api_catalog'
       get '/taxon_names/:id/inventory/summary', to: '/taxon_names#api_summary'
+      get '/taxon_names/:id/monograph', to: '/taxon_names#api_monograph'
       get '/taxon_names/:id', to: '/taxon_names#api_show'
 
       get '/taxon_name_classifications', to: '/taxon_name_classifications#api_index'
@@ -180,7 +182,11 @@ namespace :api, defaults: {format: :json} do
       get '/sounds', to: '/sounds#api_index'
       get '/sounds/:id', to: '/sounds#api_show'
 
+      get '/leads', to: '/leads#api_index'
       get '/leads/key/:id', to: '/leads#api_key'
+
+      get '/leads/:id/eliminated_otus', to: '/leads#api_eliminated_otus'
+      get '/leads/:id/remaining_otus', to: '/leads#api_remaining_otus'
     end
 
     # Authenticate membership at the data controller level

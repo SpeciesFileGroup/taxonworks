@@ -402,7 +402,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
 
     specify '#dwc_life_stage' do
       g = BiocurationGroup.create!(
-        name: 'sex',
+        name: 'life stage',
         definition: 'as defined by gamete count in some ontology',
         uri: 'http://rs.tdwg.org/dwc/terms/lifeStage' # see /config/initializers/constants/_controlled_vocabularies/dwc_attribute_uris.rb
       )

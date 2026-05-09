@@ -149,7 +149,7 @@ module CollectionObjectsHelper
   # TODO: Isolate into own helper
   # TODO: synchronize with class methods
   def dwc_occurrence_table_header_tag
-    content_tag(:tr, CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.collect{|k| content_tag(:th, k)}.join.html_safe, class: [:error])
+    content_tag(:tr, CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.collect{ |k| content_tag(:th, k)}.join.html_safe, class: [:error])
   end
 
   def dwc_occurrence_table_body_tag(collection_objects)
@@ -177,8 +177,14 @@ module CollectionObjectsHelper
 
   def dwc_occurrence_table_row_tag(dwc_occurrence)
     o = metamorphosize_if(dwc_occurrence.dwc_occurrence_object)
+    formatted_attributes = format_dwc_occurrence_attributes_for_ui(
+      dwc_occurrence.attributes.symbolize_keys.slice(*CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys)
+    )
+
     content_tag(:tr, class: :contextMenuCells) do
-      [CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.collect{|k| content_tag(:td, dwc_occurrence.send(k))}.join,
+      [CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.collect{ |k|
+        content_tag(:td, formatted_attributes[k])
+      }.join,
        fancy_show_tag(o),
        fancy_edit_tag(o)
       ].join.html_safe

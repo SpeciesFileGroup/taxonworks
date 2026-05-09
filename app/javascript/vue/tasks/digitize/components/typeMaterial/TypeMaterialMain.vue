@@ -62,9 +62,11 @@ const shortcuts = ref([
 
 useHotkey(shortcuts.value)
 
-const typeMaterial = computed(() => store.getters[GetterNames.GetTypeMaterial])
+const typeMaterial = computed(
+  () => store.getters[GetterNames.GetTypeSpecimens][0] || {}
+)
 const hasUnsavedChanges = computed(() =>
-  store.getters[GetterNames.GetTypeMaterials].some((item) => !item.isUnsaved)
+  store.getters[GetterNames.GetTypeSpecimens].some((item) => !item.isUnsaved)
 )
 
 function switchToTask(url) {

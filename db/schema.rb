@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_06_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_24_134946) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -592,6 +592,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_000001) do
   end
 
   create_table "containers", id: :serial, force: :cascade do |t|
+    t.decimal "asserted_percent_earmarked"
+    t.decimal "asserted_percent_empty"
     t.datetime "created_at", precision: nil, null: false
     t.integer "created_by_id", null: false
     t.string "disposition"
@@ -998,6 +1000,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_000001) do
     t.string "originalNameUsage"
     t.string "originalNameUsageID"
     t.string "otherCatalogNumbers"
+    t.bigint "otu_id"
     t.string "ownerInstitutionCode"
     t.string "parentEventID"
     t.string "parentNameUsage"
@@ -1057,6 +1060,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_06_000001) do
     t.index ["county"], name: "index_dwc_occurrences_on_county"
     t.index ["created_at"], name: "index_dwc_occurrences_on_created_at"
     t.index ["dwc_occurrence_object_id", "dwc_occurrence_object_type"], name: "dwc_occurrences_object_index"
+    t.index ["otu_id"], name: "index_dwc_occurrences_on_otu_id"
     t.index ["project_id", "id"], name: "index_dwco_on_project_id"
     t.index ["project_id"], name: "index_dwc_occurrences_on_project_id"
     t.index ["rebuild_set", "id"], name: "idx_dwc_occurrences_rebuild_set_id"

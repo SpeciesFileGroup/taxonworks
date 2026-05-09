@@ -102,6 +102,7 @@
     </div>
     <TableResults
       :list="store.biologicalAssociations"
+      @remove="(item) => removeFromArray(store.biologicalAssociations, item)"
       @select="store.setBiologicalAssociation"
     />
   </div>
@@ -123,7 +124,7 @@ import PanelCitation from './components/Panel/PanelCitation.vue'
 import PanelPreview from './components/Panel/PanelPreview.vue'
 import TableResults from './components/TableResults.vue'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
-import { URLParamsToJSON } from '@/helpers/index.js'
+import { removeFromArray, URLParamsToJSON } from '@/helpers/index.js'
 
 defineOptions({
   name: 'NewBiologicalAssociation'

@@ -4,21 +4,17 @@ module ContainersHelper
     return nil if container.nil?
     a = []
 
+    a.push container.name if container.name
+
     a.push identifier_short_tag(container.identifiers.first)
-
-    if container.name
-      a.push container.class.name
-    else
-      a.push tag.i container.type, class: [:feedback, 'feedback-thin', 'feedback-secondary']
-    end
-
+    a.push tag.i(container.type, class: [:feedback, 'feedback-thin', 'feedback-secondary'])
     a.push tag.span container.container_items.count.to_s + ' inside', class: [:feedback, 'feedback-thin', 'feedback-info']
 
     if container.print_label
       a.push tag.span container.print_label, class: [:feedback, 'feedback-thin', 'feedback-light']
     end
 
-    a.push tag.span 'id: ' + container.to_param
+   # a.push tag.span 'id: ' + container.to_param
 
     a.compact.join('&nbsp;').html_safe
   end

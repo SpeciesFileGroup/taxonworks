@@ -80,5 +80,17 @@ export const FieldOccurrence = {
   filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
 
   fromCollectionObject: (params) =>
-    AjaxCall('post', `/${controller}/from_collection_object`, params)
+    AjaxCall('post', `/${controller}/from_collection_object`, params),
+
+  iNatFind: (params) =>
+    AjaxCall('get', '/tasks/field_occurrences/inaturalist_import/find.json', { params }),
+
+  iNatImport: (params) =>
+    AjaxCall('post', '/tasks/field_occurrences/inaturalist_import/import.json', params),
+
+  iNatCheckForExisting: (params) =>
+    AjaxCall('get', '/tasks/field_occurrences/inaturalist_import/check_for_existing.json', { params }),
+
+  iNatRecent: (params = {}) =>
+    AjaxCall('get', '/tasks/field_occurrences/inaturalist_import/recent.json', { params })
 }

@@ -279,7 +279,6 @@ function saveNewGz() {
         }
       ]
       SetParam(RouteNames.NewGazetteer, 'gazetteer_id', gz.value.id)
-      shapesUpdated()
       setPreviewData(shapes.value[0], operationIsUnion.value)
       TW.workbench.alert.create('New gazetteer created.', 'notice')
     })
@@ -307,7 +306,6 @@ function updateGz() {
           uuid: randomUUID()
         }
       ]
-      shapesUpdated()
       setPreviewData(shapes.value[0], operationIsUnion.value)
       TW.workbench.alert.create('Gazetteer updated.', 'notice')
     })

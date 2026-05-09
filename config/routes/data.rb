@@ -34,6 +34,7 @@ resources :anatomical_parts do
     get :ontologies, defaults: {format: :json}
     get :children_of, defaults: {format: :json}
     get :ontology_autocomplete, defaults: {format: :json}
+    get :templates, defaults: {format: :json}
     get :used_ontologies, defaults: {format: :json}
 
     scope :select_ontologies, controller: 'tasks/anatomical_parts/select_ontologies' do
@@ -85,6 +86,7 @@ resources :biological_associations do
     get :autocomplete, defaults: {format: :json}
     get :select_options, defaults: {format: :json}
     get :subject_object_types, defaults: {format: :json}
+    get :origin_subject_index, defaults: {format: :json}
   end
 end
 
@@ -719,7 +721,9 @@ resources :otus do
     post :preview_identifiers_batch_load
     post :create_identifiers_batch_load
 
+    get :autoselect, defaults: { format: :json }
     get :select_options, defaults: {format: :json}
+    post :autoselect_col_create, defaults: { format: :json }
 
     patch :batch_update
   end
@@ -731,8 +735,9 @@ resources :otus do
     get :coordinate, defaults: {format: :json}
 
     get 'inventory/distribution', action: :distribution, defaults: {format: :json}
+    get 'inventory/distribution_is_absent', action: :distribution_is_absent, defaults: {format: :geojson}
     get 'inventory/taxonomy', action: :api_taxonomy_inventory, as: :taxonomy_inventory
-    get 'inventory/citations', action: :api_citations_inventory, as: :citations_inventory, defaults: {format: :json}
+    get 'inventory/citations', action: :citations_inventory, defaults: {format: :json}
   end
 
 end
@@ -774,6 +779,7 @@ resources :people do
 
   collection do
     get :select_options, defaults: {format: :json}
+    get :author_match, defaults: {format: :json}
     match :filter, to: 'people#index', via: [:get, :post]
   end
 
@@ -969,6 +975,9 @@ resources :taxon_names do
   resources :taxon_name_relationships, shallow: true, only: [:index], defaults: {format: :json}, param: :subject_taxon_name_id
 
   collection do
+    get :autoselect, defaults: { format: :json }
+    get :autoselect_col_datasets, defaults: { format: :json }
+    post :autoselect_col_create, defaults: { format: :json }
     get :select_options, defaults: {format: :json}
     match :filter, to: 'taxon_names#index', via: [:get, :post]
 
@@ -1016,6 +1025,7 @@ resources :taxon_name_relationships do
     get :type_relationships, defaults: {format: :json}
     get :taxon_name_relationship_types, defaults: {format: :json}
     match :filter, to: 'taxon_name_relationships#index', via: [:get, :post]
+    patch :batch_update
   end
 end
 

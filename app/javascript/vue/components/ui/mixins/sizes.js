@@ -34,7 +34,7 @@ export default {
 
     size: {
       type: [Number, String],
-      default: '24px'
+      default: '28px'
     }
   },
 
@@ -44,7 +44,7 @@ export default {
         xxSmall: '8px',
         xSmall: '12px',
         small: '16px',
-        default: '24px',
+        default: '28px',
         medium: '28px',
         large: '36px',
         xLarge: '40px'

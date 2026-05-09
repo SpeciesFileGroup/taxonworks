@@ -53,6 +53,10 @@ class Content < ApplicationRecord
   #   where('otu_page_layout_id = ?', otu_page_layout.od)
   # }
 
+  def to_html
+    MARKDOWN_HTML.render(text).chomp.gsub(/\n/, '<br>')
+  end
+
   # @return [Boolean]
   #    true if this content has been published
   def is_published?

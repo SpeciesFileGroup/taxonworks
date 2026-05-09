@@ -59,7 +59,7 @@
                 @click="changeIsPublicState(item)"
               />
             </td>
-            <td>{{ item.updated_at }}</td>
+            <td :title="item.updated_at">{{ item.updated_at?.split('T')[0] }}</td>
             <td>
               <div class="flex-wrap-row gap-xsmall">
                 <RadialAnnotator :global-id="item.global_id" />

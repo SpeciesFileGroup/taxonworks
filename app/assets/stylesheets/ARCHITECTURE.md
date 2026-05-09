@@ -1,11 +1,18 @@
 # Organization
 
-* base - includes core element styles, covering the general defaults (i.e. color palette, white space, etc)
-* views - css for classes that originate in app/views
-* helpers - css for classes that originate in app/helpers
-* vendor - css that references libraries that aren't TW origin
-* tasks - css for TaxonWorks tasks (TODO: most task styles are in Vue components, clarify when to use this vs component scoped styles)
-* papertrail - css for papertrail audit views (TODO: evaluate if this should be in views/ or vendor/)
+In `app/assets/stylesheets/`
+
+* base/ - core element styles, covering the general defaults (i.e. color palette, white space, etc)
+* views/ - css for classes that originate in `app/views/`
+* helpers/ - css for classes that originate in `app/helpers/`
+* vendor/ - css that references libraries that aren't TW origin
+* tasks/ - css for TaxonWorks tasks (TODO: most task styles are in Vue components, clarify when to use this vs component scoped styles)
+
+See also `app/assets/javascript/vue/assets/styles/`.
+
+# CSS
+
+* DO ALWAYS use shared styles libraries for buttons, links, and fonts for both SS and vue.js work
 
 # Semantic palette
 

@@ -12,7 +12,7 @@
       class="margin-small-left"
       color="primary"
       medium
-      :disabled="!verbatimLat && !verbatimLat"
+      :disabled="!hasValidVerbatimCoordinates"
       @click="createVerbatimShape"
     >
       Create georeference from verbatim
@@ -46,6 +46,7 @@
             <VWkt @create="addToQueue" />
             <VManually @create="addGeoreference($event, GEOREFERENCE_POINT)" />
             <VGeolocate @create="addToQueue" />
+            <VGazetteer @create="addToQueue" />
             <VBtn
               v-if="verbatimLat && verbatimLng"
               color="primary"
@@ -96,6 +97,7 @@
             <VWkt @create="addToQueue" />
             <VManually @create="addGeoreference($event, GEOREFERENCE_POINT)" />
             <VGeolocate @create="addToQueue" />
+            <VGazetteer @create="addToQueue" />
             <VBtn
               v-if="verbatimLat && verbatimLng"
               color="primary"
@@ -123,6 +125,7 @@
 import VMap from '@/components/ui/VMap/VMap.vue'
 import DisplayList from './list'
 import convertDMS from '@/helpers/parseDMS.js'
+import VGazetteer from './gazetteer.vue'
 import VManually from '@/components/georeferences/manuallyComponent'
 import VGeolocate from './geolocate'
 import VModal from '@/components/ui/Modal'
@@ -187,6 +190,13 @@ const count = computed(() => {
 })
 const verbatimLat = computed(() => collectingEvent.value.verbatim_latitude)
 const verbatimLng = computed(() => collectingEvent.value.verbatim_longitude)
+
+const hasValidVerbatimCoordinates = computed(() => {
+  const lat = convertDMS(verbatimLat.value)
+  const lng = convertDMS(verbatimLng.value)
+
+  return !isNaN(lat) && !isNaN(lng)
+})
 
 const verbatimCoordinates = computed(() => {
   const shape = isVerbatimCreated.value

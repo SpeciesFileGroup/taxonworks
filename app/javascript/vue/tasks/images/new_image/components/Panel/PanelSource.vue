@@ -9,6 +9,8 @@
         model="sources"
         klass="Depiction"
         label="cached"
+        pin-section="Sources"
+        :pin-type="SOURCE"
         v-model="source"
         @selected="($event) => (source = $event)"
       />
@@ -36,6 +38,7 @@ import { GetterNames } from '../../store/getters/getters.js'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
+import { SOURCE } from '@/constants/modelTypes.js'
 
 const store = useStore()
 

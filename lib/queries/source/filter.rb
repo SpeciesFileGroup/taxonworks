@@ -214,7 +214,7 @@ module Queries
         @year_end = params[:year_end]
         @year_start = params[:year_start]
 
-        build_terms
+        # build_terms
 
         set_data_attributes_params(params)
         set_attributes_params(params)

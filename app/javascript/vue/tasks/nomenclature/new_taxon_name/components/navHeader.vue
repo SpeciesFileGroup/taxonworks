@@ -10,8 +10,7 @@
             <a
               data-turbolinks="false"
               :class="{ active: activePosition == index }"
-              :href="'#' + getTitle(title).toLowerCase().replace(' ', '-')"
-              @click="activePosition = index"
+              @click.prevent="onNavClick(index)"
               >{{ getTitle(title) }}
             </a>
           </li>
@@ -60,6 +59,7 @@ import { RouteNames } from '@/routes/routes'
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 
+const emit = defineEmits(['section-clicked'])
 const store = useStore()
 const unsavedChanges = computed(() => {
   return (
@@ -75,6 +75,11 @@ const isAutosaveActive = computed(() => store.getters[GetterNames.GetAutosave])
 const parentId = computed(() => parent.value?.id)
 
 const activePosition = ref(0)
+
+function onNavClick(index) {
+  activePosition.value = index
+  emit('section-clicked', index)
+}
 
 function createNew(id) {
   const url = `${RouteNames.NewTaxonName}?parent_id=${id}`
@@ -110,6 +115,11 @@ function getTitle(title) {
 .taxonname {
   font-weight: 300;
 }
+
+.context-menu a {
+  cursor: pointer;
+}
+
 .unsaved li {
   a:first-child {
     padding-left: 0px;

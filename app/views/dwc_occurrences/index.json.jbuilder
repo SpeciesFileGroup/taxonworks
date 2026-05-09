@@ -1,3 +1,5 @@
 json.array!(@dwc_occurrences) do |dwc|
-  json.merge! dwc.attributes.delete_if{|k,v| v.blank?}
+  json.merge! format_dwc_occurrence_attributes_for_ui(
+    dwc.attributes.select { |key, value| value.present? }
+  )
 end

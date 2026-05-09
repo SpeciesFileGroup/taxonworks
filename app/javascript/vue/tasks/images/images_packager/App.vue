@@ -7,12 +7,20 @@
     />
 
     <div v-if="errorMessage && !isLoading">
-      <p v-if="errorMessage === 'no-params'" class="feedback feedback-warning">
+      <p
+        v-if="errorMessage === 'no-params'"
+        class="feedback feedback-warning"
+      >
         No image filter parameters were found. Launch this task from
         <a :href="RouteNames.FilterImages">Filter Images</a>
         using the right side linker radial.
       </p>
-      <p v-else class="feedback feedback-warning">{{ errorMessage }}</p>
+      <p
+        v-else
+        class="feedback feedback-warning"
+      >
+        {{ errorMessage }}
+      </p>
     </div>
 
     <div v-if="!isLoading && !errorMessage">
@@ -39,7 +47,10 @@
         <template #image="{ item }">
           <span class="display-flex align-center gap-small">
             <template v-if="item.available">
-              <a :href="`/images/${item.id}`" target="_blank">
+              <a
+                :href="`/images/${item.id}`"
+                target="_blank"
+              >
                 <img
                   :src="item.thumb_url"
                   :alt="item.name"
@@ -49,7 +60,11 @@
               </a>
               <span>{{ item.name }}</span>
             </template>
-            <span v-else class="unavailable">{{ item.name }} (unavailable)</span>
+            <span
+              v-else
+              class="unavailable"
+              >{{ item.name }} (unavailable)</span
+            >
           </span>
         </template>
         <template #dimensions="{ item }">
@@ -97,7 +112,6 @@ const tableColumns = [
   { title: 'Image', slot: 'image' },
   { title: 'Dimensions', slot: 'dimensions' }
 ]
-
 </script>
 
 <style scoped>
@@ -106,7 +120,7 @@ const tableColumns = [
   height: 40px;
   object-fit: contain;
   background: #f5f5f5;
-  border-radius: 2px;
+  border-radius: var(--border-radius-xsmall);
 }
 
 .unavailable {

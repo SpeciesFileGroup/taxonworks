@@ -655,7 +655,13 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           OriginRelationship.where(old_object: self.import_dataset)
         ).first ||
         Person::Unvetted.create!(attributes.merge({
-          related_origin_relationships: [OriginRelationship.new(old_object: self.import_dataset, annotator_batch_mode: true)]
+          related_origin_relationships: [
+            OriginRelationship.new(
+              old_object_id: self.import_dataset.id,
+              old_object_type: self.import_dataset.class.base_class.name,
+              annotator_batch_mode: true
+            )
+          ]
         }))
       end
     end
