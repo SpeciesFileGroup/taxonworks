@@ -30,7 +30,6 @@ module ProjectUnification
       PinboardItem
       ObservationMatrixColumn
       TaxonNameClassification
-      Document
     ].freeze
 
     # Slow track: High complexity - require per-record validation
@@ -46,6 +45,7 @@ module ProjectUnification
       TaxonName
       CollectingEvent
       Image
+      Document
     ].freeze
 
     # Cached tables - use direct SQL update without validation

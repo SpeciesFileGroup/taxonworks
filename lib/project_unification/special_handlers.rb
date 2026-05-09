@@ -271,5 +271,89 @@ module ProjectUnification
         result.cmd_tuples || count
       end
     end
+
+    # Handler for Document with fingerprint-based deduplication.
+    # Mirrors ImageHandler: re-routes Documentation records off duplicate
+    # source Documents before destroying them, preventing cross-project
+    # document_id references after the fast-track Documentation bulk update.
+    class DocumentHandler
+      attr_reader :source_project_id, :target_project_id
+
+      def initialize(source_project_id, target_project_id, options = {})
+        @source_project_id = source_project_id
+        @target_project_id = target_project_id
+      end
+
+      def migrate
+        result = {
+          track: :special,
+          model: 'Document',
+          migrated: 0,
+          destroyed: 0,
+          duplicates_found: [],
+          errors: []
+        }
+
+        duplicate_pairs.each do |source_document, target_id|
+          reroute_documentation(source_document.id, target_id)
+
+          if source_document.destroy
+            result[:destroyed] += 1
+            result[:duplicates_found] << {
+              source_id: source_document.id,
+              target_id: target_id,
+              fingerprint: source_document.document_file_fingerprint
+            }
+          else
+            result[:errors] << {
+              model: 'Document',
+              id: source_document.id,
+              error: source_document.errors.full_messages.join('; ')
+            }
+          end
+        end
+
+        result[:migrated] = Document.where(project_id: source_project_id)
+                                    .update_all(project_id: target_project_id)
+        result
+      rescue => e
+        {
+          track: :special,
+          model: 'Document',
+          migrated: 0,
+          destroyed: 0,
+          errors: [{ error: e.message, backtrace: e.backtrace.first(3) }]
+        }
+      end
+
+      private
+
+      # Re-point all Documentation from source_document to target_document.
+      # Documentation has no uniqueness constraint on (document_id, object),
+      # so update_all is sufficient.
+      def reroute_documentation(source_document_id, target_document_id)
+        Documentation.where(document_id: source_document_id)
+                     .update_all(document_id: target_document_id)
+      end
+
+      # Returns [[source_document, target_id], ...] for documents whose
+      # fingerprint matches one in the target project. Excludes .prj/.cpg
+      # files since fingerprint uniqueness is not enforced for those.
+      def duplicate_pairs
+        target_by_fingerprint = non_shapefile_documents(target_project_id)
+                                  .pluck(:document_file_fingerprint, :id)
+                                  .to_h
+
+        non_shapefile_documents(source_project_id)
+          .where(document_file_fingerprint: target_by_fingerprint.keys)
+          .map { |doc| [doc, target_by_fingerprint[doc.document_file_fingerprint]] }
+      end
+
+      def non_shapefile_documents(project_id)
+        Document.where(project_id: project_id)
+                .where.not(document_file_fingerprint: nil)
+                .where.not("document_file_file_name ILIKE '%.prj' OR document_file_file_name ILIKE '%.cpg'")
+      end
+    end
   end
 end

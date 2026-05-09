@@ -752,6 +752,63 @@ RSpec.describe Project, '#unify', type: :model do
     end
   end
 
+  describe 'Document deduplication' do
+    let!(:source_document) { FactoryBot.create(:valid_document, project_id: source_project.id) }
+    let!(:target_document) { FactoryBot.create(:valid_document, project_id: target_project.id) }
+    let!(:source_otu)      { FactoryBot.create(:valid_otu, project: source_project) }
+
+    before do
+      # Force matching fingerprints so the handler treats them as duplicates
+      target_document.update_column(:document_file_fingerprint, source_document.document_file_fingerprint)
+    end
+
+    context 'when a source document has a Documentation and a matching fingerprint in target' do
+      let!(:documentation) do
+        Documentation.create!(
+          document: source_document,
+          documentation_object: source_otu,
+          project_id: source_project.id
+        )
+      end
+
+      it 're-routes the Documentation to the target document' do
+        target_project.unify(source_project, preview: false)
+
+        documentation.reload
+        expect(documentation.document_id).to eq(target_document.id)
+      end
+
+      it 'destroys the duplicate source document' do
+        target_project.unify(source_project, preview: false)
+
+        expect(Document.exists?(source_document.id)).to be false
+      end
+
+      it 'does not orphan the Documentation' do
+        target_project.unify(source_project, preview: false)
+
+        documentation.reload
+        expect(documentation.document).to eq(target_document)
+      end
+
+      it 'reports the destroyed document in results' do
+        result = target_project.unify(source_project, preview: false)
+
+        doc_result = result[:details_by_model]['Document']
+        expect(doc_result[:destroyed]).to eq(1)
+      end
+    end
+
+    context 'when a source document has no Documentation and a matching fingerprint in target' do
+      it 'destroys the source document without error' do
+        target_project.unify(source_project, preview: false)
+
+        expect(Document.exists?(source_document.id)).to be false
+        expect(target_project.unify(source_project, preview: false)[:errors]).to be_empty
+      end
+    end
+  end
+
   describe 'cleanup after merge' do
     context 'after successful merge' do
       let!(:source_otu) do

@@ -224,6 +224,13 @@ module ProjectUnification
                    options
                  )
                  handler.migrate
+               when 'Document'
+                 handler = ProjectUnification::SpecialHandlers::DocumentHandler.new(
+                   source_project_id,
+                   target_project_id,
+                   options
+                 )
+                 handler.migrate
                else
                  raise NotImplementedError, "No special handler defined for #{klass.name}"
                end
