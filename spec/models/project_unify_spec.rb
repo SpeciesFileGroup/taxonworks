@@ -669,6 +669,89 @@ RSpec.describe Project, '#unify', type: :model do
     end
   end
 
+  describe 'Image deduplication' do
+    # valid_image always uploads the same tiny.png file, so fingerprints match.
+    # Uniqueness is scoped to project_id, so two projects may each hold it.
+    let!(:source_image) { FactoryBot.create(:valid_image, project_id: source_project.id) }
+    let!(:target_image) { FactoryBot.create(:valid_image, project_id: target_project.id) }
+    let!(:source_otu)   { FactoryBot.create(:valid_otu, project: source_project) }
+
+    context 'when a source image has a Depiction and a matching fingerprint in target' do
+      let!(:depiction) do
+        Depiction.create!(
+          image: source_image,
+          depiction_object: source_otu,
+          project_id: source_project.id
+        )
+      end
+
+      it 'reroutes the Depiction to the target image' do
+        target_project.unify(source_project, preview: false)
+
+        depiction.reload
+        expect(depiction.image_id).to eq(target_image.id)
+      end
+
+      it 'destroys the duplicate source image' do
+        target_project.unify(source_project, preview: false)
+
+        expect(Image.exists?(source_image.id)).to be false
+      end
+
+      it 'does not orphan the Depiction' do
+        target_project.unify(source_project, preview: false)
+
+        depiction.reload
+        expect(depiction.image).to eq(target_image)
+      end
+
+      it 'reports the destroyed image in results' do
+        result = target_project.unify(source_project, preview: false)
+
+        image_result = result[:details_by_model]['Image']
+        expect(image_result[:destroyed]).to eq(1)
+      end
+    end
+
+    context 'when both source and target already depict the same object with matching images' do
+      let!(:target_otu) { FactoryBot.create(:valid_otu, project: target_project) }
+
+      let!(:source_depiction) do
+        Depiction.create!(
+          image: source_image,
+          depiction_object: source_otu,
+          project_id: source_project.id
+        )
+      end
+
+      let!(:target_depiction) do
+        Depiction.create!(
+          image: target_image,
+          depiction_object: source_otu,
+          project_id: target_project.id
+        )
+      end
+
+      it 'destroys the redundant source Depiction rather than creating a duplicate' do
+        expect {
+          target_project.unify(source_project, preview: false)
+        }.to change { Depiction.count }.by(-1)
+
+        expect(Depiction.exists?(source_depiction.id)).to be false
+        expect(Depiction.exists?(target_depiction.id)).to be true
+      end
+    end
+
+    context 'when a source image has no Depictions and a matching fingerprint in target' do
+      it 'destroys the source image without error' do
+        result = target_project.unify(source_project, preview: false)
+
+        expect(Image.exists?(source_image.id)).to be false
+        expect(result[:errors]).to be_empty
+      end
+    end
+  end
+
   describe 'cleanup after merge' do
     context 'after successful merge' do
       let!(:source_otu) do

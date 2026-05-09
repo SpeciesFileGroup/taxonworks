@@ -176,16 +176,28 @@ module ProjectUnification
         # Find duplicates by fingerprint
         duplicates = find_duplicate_fingerprints
 
-        # Destroy source images that have duplicates in target
+        # Re-route Depictions off source images before destroying them.
+        # Image has dependent: :restrict_with_error, so destroy silently
+        # fails if any Depictions remain — leaving a duplicate fingerprint
+        # in the target project after the bulk SQL update that follows.
         duplicates.each do |dup|
           source_image = Image.find_by(id: dup['source_id'])
-          if source_image
-            source_image.destroy
+          next unless source_image
+
+          reroute_depictions(source_image.id, dup['target_id'])
+
+          if source_image.destroy
             result[:destroyed] += 1
             result[:duplicates_found] << {
               source_id: dup['source_id'],
               target_id: dup['target_id'],
               fingerprint: dup['image_file_fingerprint']
+            }
+          else
+            result[:errors] << {
+              model: 'Image',
+              id: source_image.id,
+              error: source_image.errors.full_messages.join('; ')
             }
           end
         end
@@ -226,6 +238,23 @@ module ProjectUnification
         SQL
 
         ActiveRecord::Base.connection.exec_query(sql).to_a
+      end
+
+      # Re-point Depictions from source_image to target_image.
+      # Depictions that would duplicate an existing (target_image, depiction_object)
+      # pair are destroyed rather than re-pointed.
+      def reroute_depictions(source_image_id, target_image_id)
+        Depiction.where(image_id: source_image_id).find_each do |depiction|
+          if Depiction.exists?(
+            image_id: target_image_id,
+            depiction_object_type: depiction.depiction_object_type,
+            depiction_object_id: depiction.depiction_object_id
+          )
+            depiction.destroy
+          else
+            depiction.update_column(:image_id, target_image_id)
+          end
+        end
       end
 
       def update_remaining_images
