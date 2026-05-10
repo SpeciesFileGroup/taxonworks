@@ -11,6 +11,7 @@ module ProjectUnification
       @source_project_id = source_project_id
       @target_project_id = target_project_id
       @options = options
+      @on_model_migrated = options[:on_model_migrated]
     end
 
     # Migrate all models from source to target project
@@ -57,6 +58,8 @@ module ProjectUnification
                        end
 
         if model_result
+          @on_model_migrated&.call(model_name, track, model_result)
+
           results[:details_by_model][model_name] = model_result
           results[:statistics][:models_processed] += 1
           results[:statistics][:records_migrated] += model_result[:migrated] || 0

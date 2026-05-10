@@ -74,6 +74,20 @@ namespace :tw do
       puts "Starting unification..."
       start_time = Time.now
 
+      on_progress = ->(model_name, track, model_result) {
+        migrated  = model_result[:migrated].to_i
+        destroyed = model_result[:destroyed].to_i
+        errors    = model_result[:errors]&.length.to_i
+        conflicts = model_result[:conflicts]&.length.to_i
+        parts = []
+        parts << "#{migrated} migrated"    if migrated  > 0
+        parts << "#{destroyed} destroyed"  if destroyed > 0
+        parts << "#{conflicts} conflict(s)" if conflicts > 0
+        parts << "#{errors} error(s)"      if errors    > 0
+        parts << '(empty)'                 if parts.empty?
+        printf "  %-34s  %-10s  %s\n", model_name, track, parts.join(', ')
+      }
+
       begin
         result = target_project.unify(
           source_project,
@@ -81,6 +95,7 @@ namespace :tw do
           preview: preview,
           confirm: !preview,
           user_id: user_id,
+          on_model_migrated: on_progress,
           skip_cached_rebuild: false
         )
       rescue Interrupt
