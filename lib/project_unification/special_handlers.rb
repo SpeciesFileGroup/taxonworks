@@ -150,6 +150,8 @@ module ProjectUnification
 
     # Handler for Image with fingerprint-based deduplication
     class ImageHandler
+      include ProjectUnification::AnnotationRerouter
+
       attr_reader :source_project_id, :target_project_id
 
       def initialize(source_project_id, target_project_id, options = {})
@@ -179,6 +181,7 @@ module ProjectUnification
           next unless source_image
 
           reroute_depictions(source_image.id, dup['target_id'])
+          reroute_annotations(source_image, dup['target_id'])
 
           if source_image.destroy
             result[:destroyed] += 1
@@ -271,6 +274,8 @@ module ProjectUnification
     # source Documents before destroying them, preventing cross-project
     # document_id references after the fast-track Documentation bulk update.
     class DocumentHandler
+      include ProjectUnification::AnnotationRerouter
+
       attr_reader :source_project_id, :target_project_id
 
       def initialize(source_project_id, target_project_id, options = {})
@@ -290,6 +295,7 @@ module ProjectUnification
 
         duplicate_pairs.each do |source_document, target_id|
           reroute_documentation(source_document.id, target_id)
+          reroute_annotations(source_document, target_id)
 
           if source_document.destroy
             result[:destroyed] += 1

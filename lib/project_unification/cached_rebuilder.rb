@@ -7,11 +7,48 @@ module ProjectUnification
   class CachedRebuilder
     attr_reader :project_id
 
-    # Models that have cached fields requiring rebuild
+    # Models with cached_ columns that DO NOT need rebuilding after unification,
+    # and why:
+    #
+    #   AnatomicalPart     cached_otu_id: OTU primary keys are unchanged by the
+    #                        bulk project_id update; moved TNRs form a
+    #                        self-contained subtree so current_otu resolves
+    #                        identically post-unification.
+    #                      cached: derives from name/uri_label, project-independent.
+    #
+    #   CollectingEvent    cached_level*_geographic_name: derives from
+    #                        geographic_area_id, which is unchanged.
+    #
+    #   Descriptor         cached_gene_attribute_sql: derives from gene attribute
+    #                        structure, not project context.
+    #
+    #   GeographicItem     cached_total_area: not project-scoped.
+    #
+    #   Identifier         cached_numeric_identifier: derives from the identifier
+    #                        string value, project-independent.
+    #
+    #   Observation        cached_column_label, cached_row_label: derive from
+    #                        observation matrix column/row labels, which are stable
+    #                        strings unchanged by migration.
+    #
+    #   ObservationMatrixColumn  cached_observation_matrix_column_item_id: stable
+    #                        reference whose primary key is unchanged.
+    #
+    #   ObservationMatrixRow     cached_observation_matrix_row_item_id: same.
+    #
+    #   SledImage          cached_total_*: counts of associated CollectionObjects,
+    #                        which moved intact with their sled_image_id FK.
+    #
+    #   Source             cached_author_string, cached_nomenclature_date:
+    #                        community data, not project-scoped.
+    #
+    # TaxonName is the only model that needs rebuilding: its cached fields
+    # (cached_html, cached_valid_taxon_name_id, cached_is_valid, etc.) depend on
+    # the hierarchy and TaxonNameRelationships, both of which are restructured
+    # during unification. TaxonName#set_cached queries live TNR state directly,
+    # so rebuilding TaxonName also picks up all TNR contributions.
     MODELS_WITH_CACHED_FIELDS = %w[
       TaxonName
-      Otu
-      CollectionObject
     ].freeze
 
     def initialize(project_id)

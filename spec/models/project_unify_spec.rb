@@ -809,6 +809,119 @@ RSpec.describe Project, '#unify', type: :model do
     end
   end
 
+  describe 'Image annotation rerouting' do
+    # When a source Image is destroyed as a fingerprint-duplicate, AnnotationRerouter
+    # must move all annotations to the target Image before the destroy.
+    let!(:source_image) { FactoryBot.create(:valid_image, project_id: source_project.id) }
+    let!(:target_image) { FactoryBot.create(:valid_image, project_id: target_project.id) }
+
+    context 'when source image has a Tag' do
+      let!(:keyword) { FactoryBot.create(:valid_keyword, project: source_project) }
+      let!(:tag) do
+        Tag.create!(tag_object: source_image, keyword: keyword, project_id: source_project.id)
+      end
+
+      it 'reroutes the Tag to the target image' do
+        target_project.unify(source_project, preview: false)
+        tag.reload
+        expect(tag.tag_object).to eq(target_image)
+      end
+
+      it 'does not destroy the Tag' do
+        target_project.unify(source_project, preview: false)
+        expect(Tag.where(id: tag.id).exists?).to be true
+      end
+    end
+
+    context 'when source image has a Note' do
+      let!(:note) do
+        Note.create!(note_object: source_image, text: 'test note', project_id: source_project.id)
+      end
+
+      it 'reroutes the Note to the target image' do
+        target_project.unify(source_project, preview: false)
+        note.reload
+        expect(note.note_object).to eq(target_image)
+      end
+    end
+
+    context 'when source image has a Citation with no match on target' do
+      let!(:source) { FactoryBot.create(:valid_source_bibtex) }
+      let!(:citation) do
+        Citation.create!(citation_object: source_image, source: source, project_id: source_project.id)
+      end
+
+      it 'reroutes the Citation to the target image' do
+        target_project.unify(source_project, preview: false)
+        citation.reload
+        expect(citation.citation_object).to eq(target_image)
+      end
+    end
+
+    context 'when source and target images have Citations from the same Source' do
+      # Sources are shared cross-project, so duplicate Citations can exist.
+      # AnnotationRerouter must move CitationTopics to the surviving Citation
+      # before destroying the source duplicate.
+      let!(:shared_source) { FactoryBot.create(:valid_source_bibtex) }
+      let!(:source_citation) do
+        Citation.create!(citation_object: source_image, source: shared_source, project_id: source_project.id)
+      end
+      let!(:target_citation) do
+        Citation.create!(citation_object: target_image, source: shared_source, project_id: target_project.id)
+      end
+      let!(:topic) { FactoryBot.create(:valid_topic, project: source_project) }
+      let!(:citation_topic) do
+        CitationTopic.create!(citation: source_citation, topic: topic, project_id: source_project.id)
+      end
+
+      it 'reroutes the CitationTopic to the surviving target Citation' do
+        target_project.unify(source_project, preview: false)
+        citation_topic.reload
+        expect(citation_topic.citation).to eq(target_citation)
+      end
+
+      it 'destroys the duplicate source Citation' do
+        target_project.unify(source_project, preview: false)
+        expect(Citation.exists?(source_citation.id)).to be false
+      end
+    end
+  end
+
+  describe 'Document annotation rerouting' do
+    let!(:source_document) { FactoryBot.create(:valid_document, project_id: source_project.id) }
+    let!(:target_document) { FactoryBot.create(:valid_document, project_id: target_project.id) }
+    let!(:source_otu) { FactoryBot.create(:valid_otu, project: source_project) }
+
+    before do
+      target_document.update_column(:document_file_fingerprint, source_document.document_file_fingerprint)
+    end
+
+    context 'when source document has a Tag' do
+      let!(:keyword) { FactoryBot.create(:valid_keyword, project: source_project) }
+      let!(:tag) do
+        Tag.create!(tag_object: source_document, keyword: keyword, project_id: source_project.id)
+      end
+
+      it 'reroutes the Tag to the target document' do
+        target_project.unify(source_project, preview: false)
+        tag.reload
+        expect(tag.tag_object).to eq(target_document)
+      end
+    end
+
+    context 'when source document has a Note' do
+      let!(:note) do
+        Note.create!(note_object: source_document, text: 'test note', project_id: source_project.id)
+      end
+
+      it 'reroutes the Note to the target document' do
+        target_project.unify(source_project, preview: false)
+        note.reload
+        expect(note.note_object).to eq(target_document)
+      end
+    end
+  end
+
   describe 'cleanup after merge' do
     context 'after successful merge' do
       let!(:source_otu) do
