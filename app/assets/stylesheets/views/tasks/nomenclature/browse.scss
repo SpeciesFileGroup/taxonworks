@@ -1,3 +1,13 @@
+.dark {
+  #browse-nomenclature-taxon-name {
+    background-color: color-mix(
+      in srgb,
+      var(--taxon-name-invalid-color) 10%,
+      transparent
+    );
+  }
+}
+
 .browse-view {
   .filter-button-open {
     transform: rotate(180deg);

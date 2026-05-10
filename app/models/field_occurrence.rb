@@ -82,6 +82,22 @@ class FieldOccurrence < ApplicationRecord
 
   # Convert a CollectionObject into a FieldOccurrence
   #
+  # @return [Hash] uuid => field_occurrence_id for any of the given UUIDs already imported in the project
+  def self.by_inat_uuids(uuids, project_id:)
+    return {} if uuids.blank?
+
+    joins(:identifiers)
+      .where(
+        project_id:,
+        identifiers: {
+          type: 'Identifier::Global::Uuid::InaturalistObservation',
+          identifier: uuids
+        }
+      )
+      .pluck('field_occurrences.id', 'identifiers.identifier')
+      .to_h { |fo_id, uuid| [uuid, fo_id] }
+  end
+
   # @param collection_object_id [Integer] the ID of the CollectionObject to transmute
   # @return [Integer, String] returns the new FieldOccurrence ID on success, or an error message on failure
   def self.transmute_collection_object(collection_object_id)

@@ -117,3 +117,10 @@ Our general approach to AR based models uses the pattern below.  Please use it.
 * Use uppercase `TODO` when referencing
 * Do not use comments to define sections, rather organize code consistently as above
 
+# AR overrides
+* Patching AR methods is discouraged and extremely rare!
+* We've patched three AR methods:
+  * `find_or_create_by`
+  * `find_or_create_by!`
+  * `find_or_initialize_by`
+so that the current `project_id` is injected into their parameters when any of them is called on a model that has a project id (see [`Housekeeping::Projects`](../../lib/housekeeping/projects.rb)).

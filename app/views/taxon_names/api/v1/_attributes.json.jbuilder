@@ -49,7 +49,7 @@ if extend_response_with('type_taxon_name_relationship')
   unless taxon_name.is_a?(Combination)
     json.type_taxon_name_relationship do
       if taxon_name.type_taxon_name_relationship
-        json.partial! '/taxon_name_relationships/attributes', taxon_name_relationship: taxon_name.type_taxon_name_relationship
+        json.partial! '/taxon_name_relationships/api/v1/attributes', taxon_name_relationship: taxon_name.type_taxon_name_relationship
       end
     end
   end

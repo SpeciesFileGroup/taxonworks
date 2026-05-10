@@ -21,8 +21,8 @@
         <thead>
           <tr>
             <th>Author String</th>
-            <th>Matches</th>
-            <th>Select(ed)</th>
+            <th>Selected match</th>
+            <th>Create a new person</th>
           </tr>
         </thead>
         <tbody>
@@ -38,27 +38,59 @@
                 v-if="row.isSearching"
                 :legend="null"
               />
-              <div v-else-if="row.matches.length === 0">
+              <div
+                v-else-if="row.matches.length === 0 &&
+                  !row.alreadyExists && !row.isFuzzySearchPending"
+              >
                 <span class="no-matches">No matches found</span>
               </div>
               <div
-                v-else
+                v-else-if="!row.alreadyExists && !row.createdPerson"
                 class="matches-list"
               >
-                <label
+                <div class="match-option">
+                  <label>
+                    <input
+                      type="radio"
+                      :name="`author-match-${index}`"
+                      :value="null"
+                      v-model="row.selectedPersonId"
+                    />
+                    <span>none</span>
+                  </label>
+                </div>
+                <div
                   v-for="person in row.matches"
                   :key="person.id"
                   class="match-option"
                 >
-                  <input
-                    type="radio"
-                    :name="`author-match-${index}`"
-                    :value="person.id"
-                    v-model="row.selectedPersonId"
-                    @change="row.createdPerson = null"
-                  />
-                  <span v-html="person.cached || person.name" />
-                </label>
+                  <label>
+                    <input
+                      type="radio"
+                      :name="`author-match-${index}`"
+                      :value="person.id"
+                      v-model="row.selectedPersonId"
+                      @change="row.createdPerson = null"
+                    />
+                    <span v-html="person.cached || person.name" />
+                  </label>
+                  <a
+                    :href="`/people/${person.id}`"
+                    target="_blank"
+                    title="View person"
+                  >
+                    <VIcon
+                      name="person"
+                      x-small
+                    />
+                  </a>
+                </div>
+              </div>
+              <div
+                v-if="row.isFuzzySearchPending && !row.alreadyExists"
+                class="fuzzy-pending"
+              >
+                ...
               </div>
             </td>
             <td class="create-cell">
@@ -68,7 +100,12 @@
               >
                 <span class="selected-text">
                   {{ row.alreadyExists ? 'Selected:' : 'Created:' }}
-                  {{ row.createdPerson.cached }}
+                  <a
+                    :href="`/people/${row.createdPerson.id}`"
+                    target="_blank"
+                  >
+                    {{ row.createdPerson.cached }}
+                  </a>
                 </span>
               </div>
               <div
@@ -112,7 +149,7 @@
                 <VBtn
                   color="create"
                   medium
-                  :disabled="!row.newPersonForm.last_name"
+                  :disabled="!row.newPersonForm.last_name || !!row.selectedPersonId"
                   @click="createPerson(row)"
                 >
                   Create
@@ -125,18 +162,9 @@
     </template>
     <template #footer>
       <VBtn
-        v-if="allExistingMatches"
         color="primary"
         medium
-        @click="() => emit('close')"
-      >
-        Close
-      </VBtn>
-      <VBtn
-        v-else
-        color="primary"
-        medium
-        :disabled="!hasSelections"
+        :disabled="!hasSelections && !allExistingMatches"
         @click="applySelections"
       >
         Apply
@@ -150,6 +178,7 @@ import { ref, computed, onMounted } from 'vue'
 import { People } from '@/routes/endpoints'
 import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
 const props = defineProps({
@@ -199,15 +228,11 @@ const allExistingMatches = computed(() => {
 
 onMounted(async () => {
   const parsedAuthors = parseBibtexAuthors(props.authorString)
-
-  const matchedRoleIds = new Set()
+  const claimedRoleIds = new Set()
 
   authorRows.value = parsedAuthors.map((author) => {
-    const existingRole = findExistingRoleByName(author, matchedRoleIds)
-
-    if (existingRole) {
-      matchedRoleIds.add(existingRole.id)
-    }
+    const existingRole = findExistingRoleByName(author, claimedRoleIds)
+    if (existingRole) claimedRoleIds.add(existingRole.id)
 
     return {
       originalString: author.originalString,
@@ -218,6 +243,7 @@ onMounted(async () => {
       createdPerson: existingRole ?? null,
       alreadyExists: Boolean(existingRole),
       isSearching: !existingRole,
+      isFuzzySearchPending: !existingRole,
       newPersonForm: {
         first_name: author.firstName,
         last_name: author.lastName,
@@ -231,7 +257,7 @@ onMounted(async () => {
 
   for (const row of authorRows.value) {
     if (!row.alreadyExists) {
-      await searchMatches(row)
+      await searchMatches(row, claimedRoleIds)
     }
   }
 })
@@ -251,21 +277,21 @@ function namesMatch(parsedAuthor, person) {
   const personFirst = normalizeName(person.first_name)
 
   if (!parsedFirst || !personFirst) return true
-
   if (parsedFirst === personFirst) return true
 
-  const parsedInitial = parsedFirst.replace(/\./g, '').charAt(0)
-  const personInitial = personFirst.charAt(0)
-
-  return parsedInitial === personInitial
+  return parsedFirst.charAt(0) === personFirst.charAt(0)
 }
 
-function findExistingRoleByName(parsedAuthor, alreadyMatchedIds) {
+// Inherent limitation: two parsed authors with indistinguishable
+// initials (e.g.) against two similarly-named existing roles cannot be resolved
+// unambiguously.
+function findExistingRoleByName(parsedAuthor, claimedRoleIds) {
   for (const role of activeRoles.value) {
-    const person = role.person ?? role
-    const personId = role.person_id ?? person.id
+    const person = role.person
+    const personId = role.person_id ?? person?.id
 
-    if (alreadyMatchedIds.has(personId)) continue
+    if (!person || !personId) continue
+    if (claimedRoleIds.has(personId)) continue
 
     if (namesMatch(parsedAuthor, person)) {
       return {
@@ -312,20 +338,66 @@ function parseBibtexAuthors(authorString) {
   })
 }
 
-async function searchMatches(row) {
-  row.isSearching = true
+async function searchMatches(row, claimedRoleIds) {
+  const exactPayload = {}
+  if (row.parsedLastName) exactPayload.last_name = row.parsedLastName
+  if (row.parsedFirstName) exactPayload.first_name = row.parsedFirstName
 
-  try {
-    const { body } = await People.where({
-      name: row.originalString
-    })
-
-    row.matches = body
-  } catch {
-    row.matches = []
-  } finally {
+  if (Object.keys(exactPayload).length === 0) {
     row.isSearching = false
+    row.isFuzzySearchPending = false
+    return
   }
+
+  const fuzzyPayload = {}
+  if (row.parsedLastName) fuzzyPayload.last_name_like = row.parsedLastName
+  if (row.parsedFirstName) fuzzyPayload.first_name_like = row.parsedFirstName
+
+  let firstReturned = false
+
+  const claimExistingRole = (people) => {
+    if (row.alreadyExists) return
+    const activeRoleIds = new Set(
+      activeRoles.value
+        .map((r) => r.person_id ?? r.person?.id)
+        .filter((id) => id != null && !claimedRoleIds.has(id))
+    )
+    const match = people.find((p) => activeRoleIds.has(p.id))
+    if (match) {
+      row.selectedPersonId = match.id
+      row.createdPerson = match
+      row.alreadyExists = true
+      claimedRoleIds.add(match.id)
+    }
+  }
+
+  const handleResult = (people) => {
+    if (!firstReturned) {
+      firstReturned = true
+      row.matches = people
+      row.isSearching = false
+      claimExistingRole(people)
+    } else {
+      const existingIds = new Set(row.matches.map((p) => p.id))
+      const incoming = people.filter((p) => !existingIds.has(p.id))
+      row.matches = [...row.matches, ...incoming]
+      row.isFuzzySearchPending = false
+      claimExistingRole(incoming)
+    }
+  }
+
+  await Promise.allSettled([
+    People.authorMatch(exactPayload)
+      .then(({ body }) => handleResult(body))
+      .catch(() => { firstReturned = true; row.isSearching = false }),
+    People.authorMatch(fuzzyPayload)
+      .then(({ body }) => handleResult(body))
+      .catch(() => { firstReturned = true; row.isFuzzySearchPending = false })
+  ])
+
+  // safety net if both requests fail
+  row.isSearching = false
+  row.isFuzzySearchPending = false
 }
 
 async function createPerson(row) {
@@ -407,6 +479,13 @@ td {
   cursor: pointer;
 }
 
+.match-option label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
 .match-option input[type='radio'] {
   margin: 0;
 }
@@ -414,6 +493,11 @@ td {
 .no-matches {
   color: var(--text-muted-color);
   font-style: italic;
+}
+
+.fuzzy-pending {
+  color: var(--text-muted-color);
+  font-size: 0.85em;
 }
 
 .create-cell {

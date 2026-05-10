@@ -210,8 +210,8 @@ class SourcesController < ApplicationController
         cookies[:batch_sources_namespace_id] = @namespace_id if @namespace_id.present?
         render 'sources/batch_load/bibtex/bibtex_batch_preview'
       else
-      redirect_to batch_load_sources_path,
-        notice: "Error parsing BibTeX :#{message}."
+        redirect_to batch_load_sources_path,
+          notice: "Error parsing BibTeX :#{message}."
       end
     end
   end

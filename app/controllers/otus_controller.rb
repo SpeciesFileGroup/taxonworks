@@ -3,9 +3,11 @@ class OtusController < ApplicationController
 
   before_action :set_otu, only: [
     :show, :edit, :update, :destroy, :collection_objects, :navigation,
-    :breadcrumbs, :timeline, :coordinate, :distribution,
+    :breadcrumbs, :timeline, :coordinate, :distribution, :citations_inventory,
+    :distribution_is_absent,
     :api_show, :api_taxonomy_inventory, :api_type_material_inventory,
     :api_nomenclature_citations, :api_citations_inventory, :api_distribution,
+    :api_distribution_is_absent,
     :api_content, :api_dwc_inventory, :api_dwc_gallery, :api_key_inventory, :api_determined_to_rank]
 
   after_action -> { set_pagination_headers(:otus) }, only: [:index, :api_index, :api_alphabetical_index], if: :json_request?
@@ -310,7 +312,7 @@ class OtusController < ApplicationController
   def autocomplete
     @otus = ::Queries::Otu::Autocomplete.new(
       params.require(:term),
-      exact: 'true',
+      exact: params[:exact],  # 'true',
       project_id: sessions_current_project_id,
       with_taxon_name: params[:with_taxon_name],
       having_taxon_name_only: params[:having_taxon_name_only],
@@ -320,6 +322,7 @@ class OtusController < ApplicationController
   # GET /api/v1/otus/autocomplete
   def api_autocomplete
     @term = params.require(:term)
+
     include_common_names =
       params[:include_common_names].present? ? true : false
 
@@ -420,6 +423,12 @@ class OtusController < ApplicationController
     render '/otus/api/v1/inventory/type_material'
   end
 
+  # GET /otus/:id/inventory/citations
+  def citations_inventory
+    @catalog = Catalog::Inventory.new(targets: [@otu])
+    render '/otus/citations'
+  end
+
   # GET /api/v1/otus/:id/inventory/citations
   def api_citations_inventory
     @catalog = Catalog::Inventory.new(targets: [@otu])
@@ -482,7 +491,72 @@ class OtusController < ApplicationController
 
   end
 
+  # GET /otus/autoselect
+  def autoselect
+    render json: ::Autoselect::Otu::Autoselect.new(
+      term: params[:term],
+      level: params[:level],
+      project_id: sessions_current_project_id,
+      user_id: sessions_current_user_id,
+      **autoselect_params
+    ).response
+  end
+
+  # POST /otus/autoselect_col_create
+  # Creates TaxonNames from a CoL alignment then wraps the result in a new OTU.
+  def autoselect_col_create
+    tn_result = ::Autoselect::TaxonName::ColCreator.new(
+      rows:     autoselect_col_create_params,
+      col_code: params[:col_code],
+      project_id: sessions_current_project_id,
+      user_id:    sessions_current_user_id
+    ).call
+
+    otu = ::Otu.create!(
+      taxon_name_id: tn_result[:taxon_name_id],
+      project_id:    sessions_current_project_id,
+      created_by_id: sessions_current_user_id,
+      updated_by_id: sessions_current_user_id
+    )
+    render json: { otu_id: otu.id, taxon_name_id: tn_result[:taxon_name_id], global_id: otu.to_global_id.to_s }
+  rescue ::Autoselect::TaxonName::ColCreator::CreationError => e
+    render json: {
+      error:           e.message,
+      failed_col_name: e.col_name,
+      failed_col_id:   e.col_id
+    }, status: :unprocessable_entity
+  end
+
+  # GET /otus/:id/inventory/distribution_is_absent.geojson
+  def distribution_is_absent
+    @descendants = params[:descendants] == 'true'
+    respond_to do |format|
+      format.geojson do
+      end
+    end
+  end
+
+  # GET /api/v1/otus/:id/inventory/distribution_is_absent.geojson
+  def api_distribution_is_absent
+    @descendants = params[:descendants] == 'true'
+    respond_to do |format|
+      format.geojson do
+        render '/otus/api/v1/inventory/distribution_is_absent'
+      end
+    end
+  end
+
   private
+
+  def autoselect_params
+    params.permit(:show_info).to_h.symbolize_keys
+  end
+
+  def autoselect_col_create_params
+    params.permit(rows: [:col_name, :col_rank, :col_id, :dataset_id, :taxonworks_id, :col_authorship, :col_year])
+          .fetch(:rows, [])
+          .map(&:to_h)
+  end
 
   def set_otu
     @otu = Otu.where(project_id: sessions_current_project_id).eager_load(:taxon_name).find(params[:id])
@@ -497,7 +571,7 @@ class OtusController < ApplicationController
   # end
 
   def otu_params
-    params.require(:otu).permit(:name, :taxon_name_id, :exact)
+    params.require(:otu).permit(:name, :taxon_name_id) # , :exact
   end
 
   def batch_params

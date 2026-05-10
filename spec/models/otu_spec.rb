@@ -394,4 +394,75 @@ describe Otu, type: :model, group: :otu do
     it_behaves_like 'is_data'
   end
 
+  context '#absent_and_ancestor_absent_field_occurrences' do
+    let(:root)        { FactoryBot.create(:root_taxon_name) }
+    let(:order_name)  { Protonym.create!(name: 'Orderia',  rank_class: Ranks.lookup(:iczn, :order),  parent: root) }
+    let(:family_name) { Protonym.create!(name: 'Orderidae', rank_class: Ranks.lookup(:iczn, :family), parent: order_name) }
+    let(:genus_name)  { Protonym.create!(name: 'Orderus',  rank_class: Ranks.lookup(:iczn, :genus),  parent: family_name) }
+
+    let(:order_otu)  { Otu.create!(taxon_name: order_name) }
+    let(:family_otu) { Otu.create!(taxon_name: family_name) }
+    let(:genus_otu)  { Otu.create!(taxon_name: genus_name) }
+
+    def absent_fo_for(target_otu)
+      fo = FactoryBot.create(:valid_field_occurrence, is_absent: true, total: 0)
+      fo.taxon_determinations.first.update!(otu: target_otu)
+      fo
+    end
+
+    specify 'includes absent field occurrence determined by the exact OTU' do
+      fo = absent_fo_for(genus_otu)
+      expect(genus_otu.absent_and_ancestor_absent_field_occurrences).to include(fo)
+    end
+
+    specify 'includes absent field occurrence determined by an immediate ancestor OTU' do
+      fo = absent_fo_for(family_otu)
+      expect(genus_otu.absent_and_ancestor_absent_field_occurrences).to include(fo)
+    end
+
+    specify 'includes absent field occurrence determined by a higher ancestor OTU' do
+      fo = absent_fo_for(order_otu)
+      expect(genus_otu.absent_and_ancestor_absent_field_occurrences).to include(fo)
+    end
+
+    specify 'excludes present (is_absent: false) field occurrence for the exact OTU' do
+      fo = FactoryBot.create(:valid_field_occurrence)
+      fo.taxon_determinations.first.update!(otu: genus_otu)
+      expect(genus_otu.absent_and_ancestor_absent_field_occurrences).not_to include(fo)
+    end
+
+    specify 'excludes absent field occurrence determined by an unrelated OTU' do
+      unrelated_otu = Otu.create!(name: 'unrelated')
+      fo = absent_fo_for(unrelated_otu)
+      expect(genus_otu.absent_and_ancestor_absent_field_occurrences).not_to include(fo)
+    end
+
+    specify 'excludes absent field occurrence where the current determination is a descendant, not ancestor' do
+      species_name = Protonym.create!(name: 'orderia', rank_class: Ranks.lookup(:iczn, :species), parent: genus_name)
+      species_otu  = Otu.create!(taxon_name: species_name)
+      fo = absent_fo_for(species_otu)
+      expect(genus_otu.absent_and_ancestor_absent_field_occurrences).not_to include(fo)
+    end
+
+    specify 'excludes absent field occurrence with a non-current (position > 1) determination pointing to ancestor OTU' do
+      fo = FactoryBot.create(:valid_field_occurrence, is_absent: true, total: 0)
+      original_det = fo.taxon_determinations.first
+      original_det.update!(otu: family_otu)
+      # Add a new determination (becomes position 1, pushing original to position 2)
+      fo.taxon_determinations.create!(otu: Otu.create!(name: 'other'), taxon_determination_object: fo)
+      expect(genus_otu.absent_and_ancestor_absent_field_occurrences).not_to include(fo)
+    end
+
+    specify 'returns empty when target OTU has no taxon_name_id and no direct absent FO' do
+      nameless_otu = Otu.create!(name: 'nameless')
+      expect(nameless_otu.absent_and_ancestor_absent_field_occurrences).to be_empty
+    end
+
+    specify 'returns direct absent FO when target OTU has no taxon_name_id' do
+      nameless_otu = Otu.create!(name: 'nameless')
+      fo = absent_fo_for(nameless_otu)
+      expect(nameless_otu.absent_and_ancestor_absent_field_occurrences).to include(fo)
+    end
+  end
+
 end

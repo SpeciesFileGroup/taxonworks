@@ -22,7 +22,9 @@ end
 
 if extend_response_with('dwc_occurrence')
   json.dwc_occurrence do
-    json.merge!(collection_object.dwc_occurrence&.attributes&.select{|k,v| v.present?} )
+    json.merge! format_dwc_occurrence_attributes_for_ui(
+      collection_object.dwc_occurrence&.attributes&.select { |key, value| value.present? } || {}
+    )
   end
 end
 
@@ -54,7 +56,7 @@ end
 
 if extend_response_with('taxon_determinations')
   json.taxon_determinations do |ct|
-    json.array! collection_object.taxon_determinations, partial: '/taxon_determinations/attributes', as: :taxon_determination, extensions: false
+    json.array! collection_object.taxon_determinations.order(:position), partial: '/taxon_determinations/attributes', as: :taxon_determination, extensions: false
   end
 end
 

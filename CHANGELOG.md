@@ -7,12 +7,29 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ## [unreleased]
 
+### Fixed
+Taxon Pages Biological Associations returns no results
+
+## [0.62.0] - 2026-05-08
+
 ### Added
 
+- Collection layout task, with preliminary vizualization
+- Autoselect playground task, first step towards new "autocompletes" #3519
+- Distribution absence inference and mapping endpoints #4896
 - `subject_otu_id` and `object_otu_id` to biological associations `/api/v1/biological_associations/basic` endpoint
 - Filters: Copy to clipboard button for API Url [#4852]
+- Filters: Toggle hide/show non-frozen columns
 - In the New Asserted Distribution task, add map tab to Gazetteer selection for shape [#4853]
 - `/leads`, `/leads/:id/remaining_otus`and `/leads/:id/eliminated_otus` API endpoints
+- Filters: Save freeze columns state [#4882]
+- Filter Source: Add TaxonWorks CSL format to `download formatted` button [#4661]
+- DwCA names checklist export (from Filter OTUs as a download type) [#4643]
+- Create Anatomical Parts from the Biological Associations annotator slice [#4716]
+- Batch update synonym type from the Filter Taxon Name Relationships task [#4828]
+- You can now create a Georeference using a Gazetteer shape [#4383]
+- `api/v1/taxon_name/:id/monograph` endpoint, including classifications, relationships, and citations associated with a name
+- iNaturalist import task: import observations from iNaturalist, along with their images and/or sounds [#2723]
 
 ### Changed
 
@@ -20,6 +37,11 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Upgraded to Node 24 LTS
 - OTU Smart Selector now sorts recent list by most recently used [#4865]
 - API endpoint for observation matrices only returns public ones instead of all
+- `Download formatted` modal now display italics in preview box [#1856]
+- Browse Taxon Name: Save `Redirect to valid name` state in user preferences [#4892]
+- New taxon name: Save `Autosave` state in user preferences
+- New source: Save `Autosave` state in user preferences
+- Remove all `user_id`s from api outputs [#4888]
 
 ### Fixed
 
@@ -33,13 +55,51 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Don't label 0-column matrices as image matrices in the Observation Matrix Hub
 - Handle bad BibTeX and html returned during New Source's CrossRef lookup
 - Handle `%` in New Source's CrossRef lookup
+- DwC importer failing when importing unparsable people
+- Browse OTU button creates OTUs with an incorrect taxon name ID on the /otus/:id page [#4879]
+- The Browse taxon name task bar is positioned incorrectly when the header bar is fixed.
+- Filter Source: The style selection in formatted download always applies the same style regardless of what is selected.
+- Fix some tests that intermittently fail in our CI (Continuous Integration) environment, add a script to produce a report of such failures [#4891]
+- Added `otu_id` to DwcOccurrence model [#4767]
+- Improved speed of OTU distribution responses
+- [#2141] On the Browse OTU page, display Biological Associations related to an OTU by:
+  - Biological Association -> subject/object is a Collection Object or Field Occurrence -> the Taxon Determination of the Collection Object or Field Occurrence is the OTU in question
+  - Anatomical Part has origin OTU the OTU in question
+- ISBNs with 7-digit parts not recognized as valid [#4819]
+- Batch Source Import returns 'Serial identifiers identifier has already been taken' with no clear reason or explanation
+- Pin source button is missing in New Image task
+- Add extra protections to prevent saving data with associated data from a different project [#4881] [#4895]
+- Unions of Gazetteers may not always include the shapes the union was made of (off by tiny slivers); that could still be an issue with some unions that have already been created [#4823]
+- Improve matching in the Author match modal from the New Source task: now matches on initials, maiden names, alternate values [#4847]
+- CSD: Ctrl/Alt + T shortcut is not passing taxon_name_id parameter to new taxon name task
 
+[#3519]: https://github.com/SpeciesFileGroup/taxonworks/issues/3519
+[#1856]: https://github.com/SpeciesFileGroup/taxonworks/issues/1856
+[#2141]: https://github.com/SpeciesFileGroup/taxonworks/issues/2141
+[#2723]: https://github.com/SpeciesFileGroup/taxonworks/issues/2723
+[#4383]: https://github.com/SpeciesFileGroup/taxonworks/issues/4383
+[#4643]: https://github.com/SpeciesFileGroup/taxonworks/issues/4643
+[#4661]: https://github.com/SpeciesFileGroup/taxonworks/issues/4661
+[#4716]: https://github.com/SpeciesFileGroup/taxonworks/issues/4716
+[#4767]: https://github.com/SpeciesFileGroup/taxonworks/issues/4767
+[#4819]: https://github.com/SpeciesFileGroup/taxonpages/issues/4819
+[#4823]: https://github.com/SpeciesFileGroup/taxonpages/issues/4823
+[#4828]: https://github.com/SpeciesFileGroup/taxonpages/issues/4828
+[#4847]: https://github.com/SpeciesFileGroup/taxonpages/issues/4847
 [#4851]: https://github.com/SpeciesFileGroup/taxonpages/issues/4851
 [#4852]: https://github.com/SpeciesFileGroup/taxonpages/issues/4852
 [#4853]: https://github.com/SpeciesFileGroup/taxonpages/issues/4853
 [#4864]: https://github.com/SpeciesFileGroup/taxonpages/issues/4864
 [#4865]: https://github.com/SpeciesFileGroup/taxonpages/issues/4865
 [#4866]: https://github.com/SpeciesFileGroup/taxonpages/issues/4866
+[#4879]: https://github.com/SpeciesFileGroup/taxonpages/issues/4879
+[#4881]: https://github.com/SpeciesFileGroup/taxonpages/issues/4881
+[#4882]: https://github.com/SpeciesFileGroup/taxonpages/issues/4882
+[#4888]: https://github.com/SpeciesFileGroup/taxonpages/issues/4888
+[#4891]: https://github.com/SpeciesFileGroup/taxonpages/issues/4891
+[#4892]: https://github.com/SpeciesFileGroup/taxonpages/issues/4892
+[#4895]: https://github.com/SpeciesFileGroup/taxonpages/issues/4895
+[#4896]: https://github.com/SpeciesFileGroup/taxonworks/issues/4896
 
 ## [0.61.0] - 2026-02-20
 
@@ -97,6 +157,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Filters: keep per state after reset [#4831]
 - Updated Ruby gems
 - Refactor Filter annotations task [#4809]
+- Focus the next keyboard input after mouse clicks in New Taxon Name
 
 [#345]: https://github.com/SpeciesFileGroup/taxonpages/issues/345
 [#4271]: https://github.com/SpeciesFileGroup/taxonworks/issues/4271
@@ -6219,7 +6280,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.61.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.62.0...development
+[0.62.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.61.0...v0.62.0
 [0.61.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.60.0...v0.61.0
 [0.60.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.59.0...v0.60.0
 [0.59.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.58.0...v0.59.0

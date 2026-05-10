@@ -92,7 +92,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits('create:otu')
+const emit = defineEmits(['create:otu'])
 
 const emptyList = computed(() => !list.value.length)
 
@@ -104,29 +104,31 @@ const annotator = useTemplateRef('annotator')
 const list = ref([])
 
 watch(
-  [() => props.otu, props.objectId],
+  [() => props.otu, () => props.objectId],
   () => {
-    if (!props.otu && props.objectId) {
+    if (props.otu) {
+      list.value = [props.otu]
+      loaded.value = true
+    } else if (props.objectId) {
+      loaded.value = false
       getOtuList()
     } else {
-      list.value = [props.otu]
+      list.value = []
       loaded.value = true
     }
   },
-  {
-    immediate: true
-  }
+  { immediate: true }
 )
 
 async function getOtuList() {
   try {
-    const { body } =
-      props.klass === OTU
-        ? await Otu.find(props.objectId)
-        : await TaxonName.otus(props.objectId)
+    const isOtu = props.klass === OTU
+    const { body } = isOtu
+      ? await Otu.find(props.objectId)
+      : await TaxonName.otus(props.objectId)
 
     loaded.value = true
-    list.value = body
+    list.value = isOtu ? [body] : body
   } catch {}
 }
 

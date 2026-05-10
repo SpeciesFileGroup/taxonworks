@@ -41,6 +41,15 @@ describe 'Housekeeping::Project' do
             expect(i.project_id).to eq(project.id)  # see support/set_user_and_project
           end
 
+          specify 'explicit project_id is not overridden on validation' do
+            other_project = FactoryBot.create(:valid_project)
+            i.project_id = other_project.id
+
+            i.valid?
+
+            expect(i.project_id).to eq(other_project.id)
+          end
+
           specify 'project is set from Current.project_id' do
             Current.project_id = nil # TODO: make a with_no_project method
             i.valid?
@@ -64,6 +73,92 @@ describe 'Housekeeping::Project' do
 
               expect(Otu.in_project(project1).to_a).to eq([@otu1])
               expect(Otu.with_project_id(project2.id).to_a).to eq([@otu2])
+            end
+          end
+
+          context 'scoped finder enforcement' do
+            specify '.find_or_create_by auto-injects Current.project_id' do
+              result = HousekeepingTestClass::WithProject.find_or_create_by(string: 'test')
+              expect(result.project_id).to eq(Current.project_id)
+            end
+
+            specify '.find_or_create_by! auto-injects Current.project_id' do
+              result = HousekeepingTestClass::WithProject.find_or_create_by!(string: 'test')
+              expect(result.project_id).to eq(Current.project_id)
+            end
+
+            specify '.find_or_initialize_by auto-injects Current.project_id' do
+              result = HousekeepingTestClass::WithProject.find_or_initialize_by(string: 'test')
+              expect(result.project_id).to eq(Current.project_id)
+            end
+
+            specify 'explicit project is not overridden' do
+              expect {
+                HousekeepingTestClass::WithProject.find_or_initialize_by(project:, string: 'test')
+              }.not_to raise_error
+            end
+
+            specify 'project-scoped find_or_create_by remains allowed' do
+              expect {
+                HousekeepingTestClass::WithProject.find_or_create_by(project:, string: 'test')
+              }.not_to raise_error
+            end
+
+            specify 'project-scoped find_or_create_by! remains allowed' do
+              expect {
+                HousekeepingTestClass::WithProject.find_or_create_by!(project:, string: 'test')
+              }.not_to raise_error
+            end
+          end
+
+          context 'non-project-scoped models' do
+            specify 'find_or_initialize_by is not modified' do
+              expect(Namespace.ancestors).not_to include(Housekeeping::Projects)
+              result = Namespace.find_or_initialize_by(name: 'test', short_name: 'tst')
+              expect(result.attributes).not_to have_key('project_id')
+            end
+
+            specify 'find_or_initialize_by raises when project_id is explicitly passed' do
+              expect {
+                Namespace.find_or_initialize_by(name: 'test', short_name: 'tst', project_id: 1)
+              }.to raise_error(ActiveRecord::StatementInvalid)
+            end
+          end
+
+          context 'cross-project foreign key validation' do
+            let(:other_project) { FactoryBot.create(:valid_project) }
+
+            specify 'rejects a direct belongs_to in another project' do
+              taxon_name = FactoryBot.create(:root_taxon_name)
+              taxon_name.update_column(:project_id, other_project.id)
+
+              otu = Otu.new(taxon_name: taxon_name)
+
+              expect(otu.valid?).to be_falsey
+              expect(otu.errors[:taxon_name_id]).to include(a_string_matching('must belong to the same project'))
+            end
+
+            specify 'rejects a polymorphic belongs_to in another project' do
+              other_otu = FactoryBot.create(:valid_otu)
+              other_otu.update_column(:project_id, other_project.id)
+
+              tag = Tag.new(tag_object: other_otu, keyword: FactoryBot.create(:valid_keyword))
+
+              expect(tag.valid?).to be_falsey
+              expect(tag.errors[:tag_object_id]).to include(a_string_matching('must belong to the same project'))
+            end
+
+            specify 'rejects another project-scoped belongs_to in another project' do
+              other_otu = FactoryBot.create(:valid_otu)
+              other_otu.update_column(:project_id, other_project.id)
+
+              taxon_determination = TaxonDetermination.new(
+                otu: other_otu,
+                taxon_determination_object: FactoryBot.create(:valid_specimen)
+              )
+
+              expect(taxon_determination.valid?).to be_falsey
+              expect(taxon_determination.errors[:otu_id]).to include(a_string_matching('must belong to the same project'))
             end
           end
         end

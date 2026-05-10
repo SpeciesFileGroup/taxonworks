@@ -66,7 +66,7 @@
 
 .help-legend {
   display: none;
-  border-radius: 2px;
+  border-radius: var(--border-radius-xsmall);
   padding: $standard_padding * 0.5;
   padding-left: $standard_padding;
   padding-right: $standard_padding;

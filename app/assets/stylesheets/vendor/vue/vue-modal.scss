@@ -1,6 +1,6 @@
 .modal-mask {
   position: fixed;
-  z-index: 2102;
+  z-index: 10002; /* above autoselect dropdowns (9998), help (9999), tw-autocomplete (10000), fuse tooltip (10001)  (was 2102)*/
   top: 0;
   left: 0;
   width: 100%;
@@ -21,7 +21,7 @@
   margin: 0px auto;
   padding: 20px 30px;
   background-color: var(--panel-bg-color);
-  border-radius: 2px;
+  border-radius: var(--border-radius-xsmall);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   transition: all 0.3s ease;
   font-family:

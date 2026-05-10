@@ -25,7 +25,7 @@ describe GeoreferencesController, type: :controller do
   # This should return the minimal set of attributes required to create a valid
   # Georeference. As you add validations to Georeference be sure to
   # adjust the attributes here as well.
-  let(:collecting_event) { CollectingEvent.create(verbatim_label: 'Canada, somewhere cold.') }
+  let(:collecting_event) { FactoryBot.create(:valid_collecting_event) }
   let(:valid_attributes) {
     strip_housekeeping_attributes( FactoryBot.build(:valid_georeference).attributes )
   }
@@ -68,6 +68,31 @@ describe GeoreferencesController, type: :controller do
      expect(assigns(:georeference)).to eq(georeference)
    end
  end
+
+  describe 'POST create' do
+    let(:gazetteer) { FactoryBot.create(:gazetteer_with_polygon) }
+
+    it 'creates a gazetteer georeference from gazetteer_id' do
+      expect {
+        post :create,
+          params: {
+            georeference: {
+              collecting_event_id: collecting_event.id,
+              gazetteer_id: gazetteer.id,
+              type: 'Georeference::Gazetteer'
+            }
+          },
+          format: :json,
+          session: valid_session
+      }.to change(Georeference, :count).by(1)
+
+      georeference = Georeference.last
+
+      expect(georeference).to be_a(Georeference::Gazetteer)
+      expect(georeference.geographic_item).to eq(gazetteer.geographic_item)
+      expect(response).to have_http_status(:created)
+    end
+  end
 
   # Move to individual specs
   #describe "POST create" do

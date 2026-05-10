@@ -18,7 +18,7 @@ module Queries
     include Queries::Concerns::Identifiers
 
     # @return [Array]
-    #   an expanded search target arary, splitting query_string into a number of wild-carded values
+    #   an expanded search target array, splitting query_string into a number of wild-carded values
     attr_accessor :terms
 
     # @return [String]
@@ -82,8 +82,8 @@ module Queries
       t = "q_#{table.name}"
       s = "with #{t} AS (" + query.to_sql + ') ' +
       referenced_klass
-        .joins("LEFT JOIN #{t} AS #{t}1 on #{t}1.id = #{table.name}.id")
-        .to_sql
+      .joins("LEFT JOIN #{t} AS #{t}1 on #{t}1.id = #{table.name}.id")
+      .to_sql
       referenced_klass.from("(#{s}) as #{table.name}")
     end
 
@@ -98,80 +98,86 @@ module Queries
         @terms = build_terms
       elsif @query_string.blank?
         @terms = []
-      else
-        @terms
-      end
+    else
+      @terms
     end
+  end
 
-    # @return [Array]
-    #   a reasonable (starting) interpretation of any query string
-    # Ultimately we should replace this concept with full text indexing.
-    def build_terms
-      @terms = @query_string.blank? ? [] : [end_wildcard, start_and_end_wildcard]
-    end
+  #  ----
 
-    def no_terms?
-      terms.blank?
-    end
 
-    # @return [String]
-    def start_wildcard
-      '%' + query_string
-    end
 
-    # @return [String]
-    def end_wildcard
-      query_string + '%'
-    end
 
-    # @return [String]
-    def start_and_end_wildcard
-      '%' + query_string + '%'
-    end
+  def no_terms?
+    terms.blank?
+  end
 
-    # @return [Array]
-    def alphabetic_strings
-      Utilities::Strings.alphabetic_strings(query_string)
-    end
+  # @return [String]
+  def start_wildcard
+    '%' + query_string
+  end
 
-    # @return [Array]
-    def alphanumeric_strings
-      Utilities::Strings.alphanumeric_strings(query_string)
-    end
+  # @return [String]
+  def end_wildcard
+    query_string + '%'
+  end
 
-    def levenshtein_distance(attribute, value)
-      value = "'" + value.gsub(/'/, "''") + "'"
-      a = ApplicationRecord.sanitize_sql(value)
-      Arel::Nodes::NamedFunction.new('levenshtein', [table[attribute], Arel::Nodes::SqlLiteral.new(a) ] )
-    end
+  # @return [String]
+  def start_and_end_wildcard
+    '%' + query_string + '%'
+  end
 
-    #
-    # TODO: Refactor below (largely remove reference from Source::Filter) to move these to Queries::Query::Autocomplete
-    #       and eliminate them from Filter subclass use.
-    #
+  # @return [Array]
+  def alphabetic_strings
+    Utilities::Strings.alphabetic_strings(query_string)
+  end
 
-    # @return [Arel::Nodes::Matches]
-    def match_ordered_wildcard_pieces_in_cached
-      table[:cached].matches(wildcard_pieces)
-    end
+  # @return [Array]
+  def alphanumeric_strings
+    Utilities::Strings.alphanumeric_strings(query_string)
+  end
 
-    # @return [ActiveRecord::Relation, nil]
-    #   cached matches full query string wildcarded
-    # TODO: Used in taxon_name, source, identifier
-    def cached_facet
-      return nil if no_terms?
-      # TODO: or is redundant with terms in many cases
-      (table[:cached].matches_any(terms)).or(match_ordered_wildcard_pieces_in_cached)
-    end
+  def levenshtein_distance(attribute, value)
+    value = "'" + value.gsub(/'/, "''") + "'"
+    a = ApplicationRecord.sanitize_sql(value)
+    Arel::Nodes::NamedFunction.new('levenshtein', [table[attribute], Arel::Nodes::SqlLiteral.new(a) ] )
+  end
 
-    # TODO: This is bad, it should return nil, not 'NothingToMatch'
-    # @return [String, TODO: nil]
-    #   if `foo, and 123 and stuff` then %foo%and%123%and%stuff%
-    def wildcard_pieces
-      a = '%' + query_string.gsub(/[^[[:word:]]]+/, '%') + '%' ### DD: if query_string is cyrilic or diacritics, it returns '%%%'
-      a = 'NothingToMatch' if a.gsub('%','').gsub(' ', '').blank?
-      a
-    end
+  #
+  # TODO: Refactor below (largely remove reference from Source::Filter) to move these to Queries::Query::Autocomplete
+  #       and eliminate them from Filter subclass use.
+  #
+
+  # @return [Arel::Nodes::Matches]
+  def match_ordered_wildcard_pieces_in_cached
+    table[:cached].matches(wildcard_pieces)
+  end
+
+  # @return [ActiveRecord::Relation, nil]
+  #   cached matches full query string wildcarded
+  # TODO: Used in taxon_name, source, identifier
+  def cached_facet
+    return nil if no_terms?
+    # TODO: or is redundant with terms in many cases
+    (table[:cached].matches_any(terms)).or(match_ordered_wildcard_pieces_in_cached)
+  end
+
+  # TODO: This is bad, it should return nil, not 'NothingToMatch'
+  # @return [String, TODO: nil]
+  #   if `foo, and 123 and stuff` then %foo%and%123%and%stuff%
+  def wildcard_pieces
+    a = '%' + query_string.gsub(/[^[[:word:]]]+/, '%') + '%' ### DD: if query_string is cyrilic or diacritics, it returns '%%%'
+    a = 'NothingToMatch' if a.gsub('%','').gsub(' ', '').blank?
+    a
+  end
+
+  private
+  # @return [Array]
+  #   a reasonable (starting) interpretation of any query string
+  # Ultimately we should replace this concept with full text indexing.
+  def build_terms
+    @query_string.blank? ? [] : [end_wildcard, start_and_end_wildcard]
+  end
 
   end
 end

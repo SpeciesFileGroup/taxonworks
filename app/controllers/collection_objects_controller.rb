@@ -40,7 +40,7 @@ class CollectionObjectsController < ApplicationController
       current_respository: Repository,
       collecting_event: CollectingEvent,
       taxon_determinations: TaxonDetermination })
-      .merge( dwc_occurrence:  DwcOccurrence.target_columns.inject({}){|hsh,p| hsh[p] = nil; hsh}.delete_if{|k,v| k =~ /(_id|_type)\z/} )
+      .merge( dwc_occurrence:  DwcOccurrence.target_occurrence_columns.inject({}){|hsh,p| hsh[p] = nil; hsh}.delete_if{|k,v| k =~ /(_id|_type)\z/} )
       .merge( CollectionObject.core_attributes.inject({}){|hsh,p| hsh[p] = nil; hsh})
       .merge(
         identifiers: nil,
@@ -133,14 +133,14 @@ class CollectionObjectsController < ApplicationController
         o.get_dwc_occurrence
       end
     end
-    render json: o.dwc_occurrence_attributes
+    render json: helpers.format_dwc_occurrence_attributes_for_ui(o.dwc_occurrence_attributes)
   end
 
   # GET /collection_objects/123/dwc_compact
   # !! Never recalculates !!
   def dwc_compact
     # Batch imports delay the indexing, so we need to be able to respond empty as well
-    render json:  @collection_object.dwc_occurrence&.dwc_json || {}
+    render json: helpers.format_dwc_occurrence_attributes_for_ui(@collection_object.dwc_occurrence&.dwc_json || {})
   end
 
   # Intent is DWC fields + quick summary fields for reports
