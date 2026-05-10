@@ -17,6 +17,9 @@ module ProjectUnification
     # @param options [Hash]
     # @option options [Integer] :root_taxon_name_id Optional target parent for TaxonName hierarchy
     # @option options [Boolean] :preview If true, rolls back all changes (default: true)
+    # @option options [Integer] :user_id ID of the user performing the unification; required so that
+    #   updated_by_id is set correctly on all migrated records (including during preview, since
+    #   record.valid? triggers before_validation callbacks)
     # @option options [Boolean] :skip_cached_rebuild Skip rebuilding cached fields (default: false)
     def initialize(source_project, target_project, options = {})
       @source_project = source_project
@@ -49,6 +52,9 @@ module ProjectUnification
 
       validate_prerequisites!
 
+      Current.user_id = @options[:user_id]
+      Thread.current[:tw_project_unification] = true
+
       Project.transaction do
         run_migration
 
@@ -77,6 +83,8 @@ module ProjectUnification
       @results[:duration_seconds] = (@results[:completed_at] - @results[:started_at]).round(2)
 
       @results
+    ensure
+      Thread.current[:tw_project_unification] = nil
     end
 
     private

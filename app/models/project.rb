@@ -388,8 +388,9 @@ class Project < ApplicationRecord
   #     preview: false
   #   )
   #
-  def unify(project_to_remove, root_taxon_name_id: nil, preview: true, confirm: false, skip_cached_rebuild: false)
+  def unify(project_to_remove, root_taxon_name_id: nil, preview: true, confirm: false, user_id: nil, skip_cached_rebuild: false)
     raise ArgumentError, 'Pass confirm: true to perform a destructive unification (preview: false)' if !preview && !confirm
+    raise ArgumentError, 'user_id is required for unification (needed to set updated_by_id on migrated records)' if user_id.nil?
 
     service = ProjectUnification::Service.new(
       project_to_remove,
@@ -397,6 +398,7 @@ class Project < ApplicationRecord
       {
         root_taxon_name_id: root_taxon_name_id,
         preview: preview,
+        user_id: user_id,
         skip_cached_rebuild: skip_cached_rebuild
       }
     )

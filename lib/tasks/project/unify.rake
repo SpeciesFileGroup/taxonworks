@@ -4,29 +4,31 @@ namespace :tw do
     task unify: [:environment] do
       source_id = ENV['SOURCE_PROJECT_ID']
       target_id = ENV['TARGET_PROJECT_ID']
-      root_id = ENV['ROOT_TAXON_NAME_ID']&.to_i
-      preview = ActiveModel::Type::Boolean.new.cast(ENV.fetch('PREVIEW', true))
+      user_id   = ENV['USER_ID']&.to_i
+      root_id   = ENV['ROOT_TAXON_NAME_ID']&.to_i
+      preview   = ActiveModel::Type::Boolean.new.cast(ENV.fetch('PREVIEW', true))
 
-      unless source_id && target_id
+      unless source_id && target_id && user_id
         puts <<~USAGE
           Usage:
-            rake tw:project:unify SOURCE_PROJECT_ID=X TARGET_PROJECT_ID=Y [PREVIEW=true|false] [ROOT_TAXON_NAME_ID=Z]
+            rake tw:project:unify SOURCE_PROJECT_ID=X TARGET_PROJECT_ID=Y USER_ID=Z [PREVIEW=true|false] [ROOT_TAXON_NAME_ID=W]
 
           Arguments:
             SOURCE_PROJECT_ID (required) - Project to merge from (will be emptied)
             TARGET_PROJECT_ID (required) - Project to merge into (receives all data)
+            USER_ID           (required) - ID of the user performing the merge (set as updated_by on migrated records)
             PREVIEW (optional)           - If 'false', performs actual migration. Default: true (dry-run)
             ROOT_TAXON_NAME_ID (optional)- TaxonName ID in target project to use as parent for source hierarchy
 
           Examples:
             # Preview unification (safe, rolls back)
-            rake tw:project:unify SOURCE_PROJECT_ID=5 TARGET_PROJECT_ID=3
+            rake tw:project:unify SOURCE_PROJECT_ID=5 TARGET_PROJECT_ID=3 USER_ID=1
 
             # Actually perform unification
-            rake tw:project:unify SOURCE_PROJECT_ID=5 TARGET_PROJECT_ID=3 PREVIEW=false
+            rake tw:project:unify SOURCE_PROJECT_ID=5 TARGET_PROJECT_ID=3 USER_ID=1 PREVIEW=false
 
             # Merge under specific taxon
-            rake tw:project:unify SOURCE_PROJECT_ID=5 TARGET_PROJECT_ID=3 ROOT_TAXON_NAME_ID=123 PREVIEW=false
+            rake tw:project:unify SOURCE_PROJECT_ID=5 TARGET_PROJECT_ID=3 USER_ID=1 ROOT_TAXON_NAME_ID=123 PREVIEW=false
         USAGE
         exit 1
       end
@@ -78,6 +80,7 @@ namespace :tw do
           root_taxon_name_id: root_id,
           preview: preview,
           confirm: !preview,
+          user_id: user_id,
           skip_cached_rebuild: false
         )
       rescue Interrupt
