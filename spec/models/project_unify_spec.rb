@@ -4,10 +4,24 @@ RSpec.describe Project, '#unify', type: :model do
   let(:source_project) { FactoryBot.create(:valid_project, name: 'Source Project') }
   let(:target_project) { FactoryBot.create(:valid_project, name: 'Target Project') }
 
+  describe 'confirmation guard' do
+    it 'raises when preview: false is passed without confirm: true' do
+      expect {
+        target_project.unify(source_project, preview: false)
+      }.to raise_error(ArgumentError, /confirm: true/)
+    end
+
+    it 'does not raise for preview: true without confirm' do
+      expect {
+        target_project.unify(source_project, preview: true)
+      }.not_to raise_error
+    end
+  end
+
   describe 'basic unification' do
     context 'with empty projects' do
       it 'unifies without errors' do
-        result = target_project.unify(source_project, preview: false)
+        result = target_project.unify(source_project, preview: false, confirm: true)
 
         expect(result[:unified]).to be true
         expect(result[:errors]).to be_empty
@@ -38,7 +52,7 @@ RSpec.describe Project, '#unify', type: :model do
       end
 
       it 'bulk updates all records' do
-        result = target_project.unify(source_project, preview: false)
+        result = target_project.unify(source_project, preview: false, confirm: true)
 
         expect(CollectionObject.where(project_id: target_project.id).count).to eq(10)
         expect(CollectionObject.where(project_id: source_project.id).count).to eq(0)
@@ -46,7 +60,7 @@ RSpec.describe Project, '#unify', type: :model do
       end
 
       it 'reports correct statistics' do
-        result = target_project.unify(source_project, preview: false)
+        result = target_project.unify(source_project, preview: false, confirm: true)
 
         expect(result[:statistics][:records_migrated]).to be >= 10
         expect(result[:statistics][:implicit_track_count]).to be > 0
@@ -78,7 +92,7 @@ RSpec.describe Project, '#unify', type: :model do
       end
 
       it 'moves entire tree under target root' do
-        result = target_project.unify(source_project, preview: false)
+        result = target_project.unify(source_project, preview: false, confirm: true)
 
         genus.reload
         species.reload
@@ -92,7 +106,7 @@ RSpec.describe Project, '#unify', type: :model do
       end
 
       it 'preserves closure_tree integrity' do
-        result = target_project.unify(source_project, preview: false)
+        result = target_project.unify(source_project, preview: false, confirm: true)
 
         genus.reload
         species.reload
@@ -103,7 +117,7 @@ RSpec.describe Project, '#unify', type: :model do
       end
 
       it 'counts TaxonNames in statistics' do
-        result = target_project.unify(source_project, preview: false)
+        result = target_project.unify(source_project, preview: false, confirm: true)
 
         expect(result[:statistics][:special_track_count]).to eq(2) # genus + species (root is not moved)
       end
@@ -132,7 +146,8 @@ RSpec.describe Project, '#unify', type: :model do
         result = target_project.unify(
           source_project,
           root_taxon_name_id: target_family.id,
-          preview: false
+          preview: false,
+          confirm: true
         )
 
         source_genus.reload
@@ -149,7 +164,8 @@ RSpec.describe Project, '#unify', type: :model do
           target_project.unify(
             source_project,
             root_taxon_name_id: invalid_id,
-            preview: false
+            preview: false,
+            confirm: true
           )
         }.to raise_error(ArgumentError, /root_taxon_name_id/)
       end
@@ -167,7 +183,8 @@ RSpec.describe Project, '#unify', type: :model do
           target_project.unify(
             source_project,
             root_taxon_name_id: wrong_taxon.id,
-            preview: false
+            preview: false,
+            confirm: true
           )
         }.to raise_error(ArgumentError, /must belong to target project/)
       end
@@ -220,7 +237,7 @@ RSpec.describe Project, '#unify', type: :model do
       end
 
       it 'preserves entire hierarchy structure' do
-        result = target_project.unify(source_project, preview: false)
+        result = target_project.unify(source_project, preview: false, confirm: true)
 
         expect(result[:unified]).to be true
 
@@ -238,7 +255,7 @@ RSpec.describe Project, '#unify', type: :model do
       end
 
       it 'updates all project_ids' do
-        result = target_project.unify(source_project, preview: false)
+        result = target_project.unify(source_project, preview: false, confirm: true)
 
         [family, genus1, genus2, species1, species2].each do |taxon|
           taxon.reload
@@ -247,7 +264,7 @@ RSpec.describe Project, '#unify', type: :model do
       end
 
       it 'maintains cached values after migration' do
-        result = target_project.unify(source_project, preview: false, skip_cached_rebuild: false)
+        result = target_project.unify(source_project, preview: false, confirm: true, skip_cached_rebuild: false)
 
         expect(result[:cached_rebuild]).to be_present
         expect(result[:cached_rebuild][:models_rebuilt]).to be > 0
@@ -292,7 +309,7 @@ RSpec.describe Project, '#unify', type: :model do
       end
 
       it 'migrates relationships with taxon names' do
-        result = target_project.unify(source_project, preview: false)
+        result = target_project.unify(source_project, preview: false, confirm: true)
 
         relationship.reload
         expect(relationship.project_id).to eq(target_project.id)
@@ -318,7 +335,7 @@ RSpec.describe Project, '#unify', type: :model do
       end
 
       it 'migrates classifications' do
-        result = target_project.unify(source_project, preview: false)
+        result = target_project.unify(source_project, preview: false, confirm: true)
 
         classification.reload
         expect(classification.project_id).to eq(target_project.id)
@@ -356,14 +373,14 @@ RSpec.describe Project, '#unify', type: :model do
       end
 
       it 'does not unify when conflicts exist' do
-        result = target_project.unify(source_project, preview: false)
+        result = target_project.unify(source_project, preview: false, confirm: true)
 
         expect(result[:unified]).to be false
         expect(result[:conflicts]).not_to be_empty
       end
 
       it 'rolls back all changes when conflicts exist in actual mode' do
-        result = target_project.unify(source_project, preview: false)
+        result = target_project.unify(source_project, preview: false, confirm: true)
 
         expect(result[:rollback_performed]).to be true
         source_matrix.reload
@@ -376,7 +393,7 @@ RSpec.describe Project, '#unify', type: :model do
       let!(:note) { FactoryBot.create(:note, note_object: source_otu, project: source_project, text: 'Test note') }
 
       it 'migrates without conflicts' do
-        result = target_project.unify(source_project, preview: false)
+        result = target_project.unify(source_project, preview: false, confirm: true)
 
         expect(result[:unified]).to be true
         expect(result[:conflicts]).to be_empty
@@ -430,7 +447,7 @@ RSpec.describe Project, '#unify', type: :model do
 
     context 'with skip_cached_rebuild: true' do
       it 'completes migration faster' do
-        result = target_project.unify(source_project, preview: false, skip_cached_rebuild: true)
+        result = target_project.unify(source_project, preview: false, confirm: true, skip_cached_rebuild: true)
 
         expect(result[:unified]).to be true
         expect(result[:cached_rebuild]).to be_nil
@@ -439,7 +456,7 @@ RSpec.describe Project, '#unify', type: :model do
 
     context 'with skip_cached_rebuild: false' do
       it 'rebuilds cached fields' do
-        result = target_project.unify(source_project, preview: false, skip_cached_rebuild: false)
+        result = target_project.unify(source_project, preview: false, confirm: true, skip_cached_rebuild: false)
 
         expect(result[:cached_rebuild]).to be_present
         expect(result[:cached_rebuild][:models_rebuilt]).to be > 0
@@ -452,7 +469,7 @@ RSpec.describe Project, '#unify', type: :model do
       5.times { FactoryBot.create(:valid_collection_object, project: source_project) }
       3.times { FactoryBot.create(:valid_otu, project: source_project) }
 
-      result = target_project.unify(source_project, preview: false)
+      result = target_project.unify(source_project, preview: false, confirm: true)
 
       expect(result[:statistics][:models_processed]).to be > 1
     end
@@ -460,7 +477,7 @@ RSpec.describe Project, '#unify', type: :model do
     it 'tracks processing by track type' do
       5.times { FactoryBot.create(:valid_collection_object, project: source_project) }
 
-      result = target_project.unify(source_project, preview: false)
+      result = target_project.unify(source_project, preview: false, confirm: true)
 
       stats = result[:statistics]
       # Check that at least one track was used (keys are dynamic based on what was processed)
@@ -473,7 +490,7 @@ RSpec.describe Project, '#unify', type: :model do
     it 'handles empty source project' do
       empty_project = FactoryBot.create(:valid_project)
 
-      result = target_project.unify(empty_project, preview: false)
+      result = target_project.unify(empty_project, preview: false, confirm: true)
 
       expect(result[:unified]).to be true
       expect(result[:statistics][:records_migrated]).to eq(0) # Empty project has no data to migrate (root is not moved)
@@ -485,7 +502,7 @@ RSpec.describe Project, '#unify', type: :model do
 
       initial_source_count = Source.count
 
-      result = target_project.unify(source_project, preview: false)
+      result = target_project.unify(source_project, preview: false, confirm: true)
 
       # Source should not be duplicated
       expect(Source.count).to eq(initial_source_count)
@@ -544,7 +561,7 @@ RSpec.describe Project, '#unify', type: :model do
         third_co_ids = third_collection_objects.map(&:id)
         third_genus_id = third_genus.id
 
-        result = target_project.unify(source_project, preview: false)
+        result = target_project.unify(source_project, preview: false, confirm: true)
 
         expect(result[:unified]).to be true
 
@@ -556,7 +573,7 @@ RSpec.describe Project, '#unify', type: :model do
       end
 
       it 'does not change project_id of third project data' do
-        result = target_project.unify(source_project, preview: false)
+        result = target_project.unify(source_project, preview: false, confirm: true)
 
         expect(result[:unified]).to be true
 
@@ -577,7 +594,7 @@ RSpec.describe Project, '#unify', type: :model do
         initial_cached_html = third_genus.cached_html
         initial_cached = third_genus.cached
 
-        result = target_project.unify(source_project, preview: false)
+        result = target_project.unify(source_project, preview: false, confirm: true)
 
         expect(result[:unified]).to be true
 
@@ -588,7 +605,7 @@ RSpec.describe Project, '#unify', type: :model do
       end
 
       it 'maintains correct counts for all three projects' do
-        result = target_project.unify(source_project, preview: false)
+        result = target_project.unify(source_project, preview: false, confirm: true)
 
         expect(result[:unified]).to be true
 
@@ -617,7 +634,7 @@ RSpec.describe Project, '#unify', type: :model do
       end
 
       it 'does not affect third project relationships to community data' do
-        result = target_project.unify(source_project, preview: false)
+        result = target_project.unify(source_project, preview: false, confirm: true)
 
         expect(result[:unified]).to be true
 
@@ -648,7 +665,7 @@ RSpec.describe Project, '#unify', type: :model do
       end
 
       it 'migrates annotations with fast track SQL' do
-        result = target_project.unify(source_project, preview: false)
+        result = target_project.unify(source_project, preview: false, confirm: true)
 
         expect(result[:unified]).to be true
 
@@ -661,7 +678,7 @@ RSpec.describe Project, '#unify', type: :model do
       end
 
       it 'uses fast track for annotation models' do
-        result = target_project.unify(source_project, preview: false)
+        result = target_project.unify(source_project, preview: false, confirm: true)
 
         # Should show fast_track_count > 0 due to annotations
         expect(result[:statistics][:fast_track_count]).to be > 0
@@ -686,27 +703,27 @@ RSpec.describe Project, '#unify', type: :model do
       end
 
       it 'reroutes the Depiction to the target image' do
-        target_project.unify(source_project, preview: false)
+        target_project.unify(source_project, preview: false, confirm: true)
 
         depiction.reload
         expect(depiction.image_id).to eq(target_image.id)
       end
 
       it 'destroys the duplicate source image' do
-        target_project.unify(source_project, preview: false)
+        target_project.unify(source_project, preview: false, confirm: true)
 
         expect(Image.exists?(source_image.id)).to be false
       end
 
       it 'does not orphan the Depiction' do
-        target_project.unify(source_project, preview: false)
+        target_project.unify(source_project, preview: false, confirm: true)
 
         depiction.reload
         expect(depiction.image).to eq(target_image)
       end
 
       it 'reports the destroyed image in results' do
-        result = target_project.unify(source_project, preview: false)
+        result = target_project.unify(source_project, preview: false, confirm: true)
 
         image_result = result[:details_by_model]['Image']
         expect(image_result[:destroyed]).to eq(1)
@@ -734,7 +751,7 @@ RSpec.describe Project, '#unify', type: :model do
 
       it 'destroys the redundant source Depiction rather than creating a duplicate' do
         expect {
-          target_project.unify(source_project, preview: false)
+          target_project.unify(source_project, preview: false, confirm: true)
         }.to change { Depiction.count }.by(-1)
 
         expect(Depiction.exists?(source_depiction.id)).to be false
@@ -744,7 +761,7 @@ RSpec.describe Project, '#unify', type: :model do
 
     context 'when a source image has no Depictions and a matching fingerprint in target' do
       it 'destroys the source image without error' do
-        result = target_project.unify(source_project, preview: false)
+        result = target_project.unify(source_project, preview: false, confirm: true)
 
         expect(Image.exists?(source_image.id)).to be false
         expect(result[:errors]).to be_empty
@@ -772,27 +789,27 @@ RSpec.describe Project, '#unify', type: :model do
       end
 
       it 're-routes the Documentation to the target document' do
-        target_project.unify(source_project, preview: false)
+        target_project.unify(source_project, preview: false, confirm: true)
 
         documentation.reload
         expect(documentation.document_id).to eq(target_document.id)
       end
 
       it 'destroys the duplicate source document' do
-        target_project.unify(source_project, preview: false)
+        target_project.unify(source_project, preview: false, confirm: true)
 
         expect(Document.exists?(source_document.id)).to be false
       end
 
       it 'does not orphan the Documentation' do
-        target_project.unify(source_project, preview: false)
+        target_project.unify(source_project, preview: false, confirm: true)
 
         documentation.reload
         expect(documentation.document).to eq(target_document)
       end
 
       it 'reports the destroyed document in results' do
-        result = target_project.unify(source_project, preview: false)
+        result = target_project.unify(source_project, preview: false, confirm: true)
 
         doc_result = result[:details_by_model]['Document']
         expect(doc_result[:destroyed]).to eq(1)
@@ -801,10 +818,10 @@ RSpec.describe Project, '#unify', type: :model do
 
     context 'when a source document has no Documentation and a matching fingerprint in target' do
       it 'destroys the source document without error' do
-        target_project.unify(source_project, preview: false)
+        target_project.unify(source_project, preview: false, confirm: true)
 
         expect(Document.exists?(source_document.id)).to be false
-        expect(target_project.unify(source_project, preview: false)[:errors]).to be_empty
+        expect(target_project.unify(source_project, preview: false, confirm: true)[:errors]).to be_empty
       end
     end
   end
@@ -822,13 +839,13 @@ RSpec.describe Project, '#unify', type: :model do
       end
 
       it 'reroutes the Tag to the target image' do
-        target_project.unify(source_project, preview: false)
+        target_project.unify(source_project, preview: false, confirm: true)
         tag.reload
         expect(tag.tag_object).to eq(target_image)
       end
 
       it 'does not destroy the Tag' do
-        target_project.unify(source_project, preview: false)
+        target_project.unify(source_project, preview: false, confirm: true)
         expect(Tag.where(id: tag.id).exists?).to be true
       end
     end
@@ -839,7 +856,7 @@ RSpec.describe Project, '#unify', type: :model do
       end
 
       it 'reroutes the Note to the target image' do
-        target_project.unify(source_project, preview: false)
+        target_project.unify(source_project, preview: false, confirm: true)
         note.reload
         expect(note.note_object).to eq(target_image)
       end
@@ -852,7 +869,7 @@ RSpec.describe Project, '#unify', type: :model do
       end
 
       it 'reroutes the Citation to the target image' do
-        target_project.unify(source_project, preview: false)
+        target_project.unify(source_project, preview: false, confirm: true)
         citation.reload
         expect(citation.citation_object).to eq(target_image)
       end
@@ -875,13 +892,13 @@ RSpec.describe Project, '#unify', type: :model do
       end
 
       it 'reroutes the CitationTopic to the surviving target Citation' do
-        target_project.unify(source_project, preview: false)
+        target_project.unify(source_project, preview: false, confirm: true)
         citation_topic.reload
         expect(citation_topic.citation).to eq(target_citation)
       end
 
       it 'destroys the duplicate source Citation' do
-        target_project.unify(source_project, preview: false)
+        target_project.unify(source_project, preview: false, confirm: true)
         expect(Citation.exists?(source_citation.id)).to be false
       end
     end
@@ -903,7 +920,7 @@ RSpec.describe Project, '#unify', type: :model do
       end
 
       it 'reroutes the Tag to the target document' do
-        target_project.unify(source_project, preview: false)
+        target_project.unify(source_project, preview: false, confirm: true)
         tag.reload
         expect(tag.tag_object).to eq(target_document)
       end
@@ -915,7 +932,7 @@ RSpec.describe Project, '#unify', type: :model do
       end
 
       it 'reroutes the Note to the target document' do
-        target_project.unify(source_project, preview: false)
+        target_project.unify(source_project, preview: false, confirm: true)
         note.reload
         expect(note.note_object).to eq(target_document)
       end
@@ -943,7 +960,7 @@ RSpec.describe Project, '#unify', type: :model do
 
       it 'allows nuke() to succeed on emptied project_to_remove' do
         # Perform actual merge (not preview)
-        result = target_project.unify(source_project, preview: false)
+        result = target_project.unify(source_project, preview: false, confirm: true)
 
         expect(result[:unified]).to be true
 
@@ -965,7 +982,7 @@ RSpec.describe Project, '#unify', type: :model do
       end
 
       it 'leaves only root TaxonName in project_to_remove after merge' do
-        result = target_project.unify(source_project, preview: false)
+        result = target_project.unify(source_project, preview: false, confirm: true)
 
         expect(result[:unified]).to be true
 
@@ -976,7 +993,7 @@ RSpec.describe Project, '#unify', type: :model do
       end
 
       it 'removes all data except root from project_to_remove' do
-        result = target_project.unify(source_project, preview: false)
+        result = target_project.unify(source_project, preview: false, confirm: true)
 
         expect(result[:unified]).to be true
 

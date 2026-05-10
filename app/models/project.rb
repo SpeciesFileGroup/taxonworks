@@ -388,7 +388,9 @@ class Project < ApplicationRecord
   #     preview: false
   #   )
   #
-  def unify(project_to_remove, root_taxon_name_id: nil, preview: true, skip_cached_rebuild: false)
+  def unify(project_to_remove, root_taxon_name_id: nil, preview: true, confirm: false, skip_cached_rebuild: false)
+    raise ArgumentError, 'Pass confirm: true to perform a destructive unification (preview: false)' if !preview && !confirm
+
     service = ProjectUnification::Service.new(
       project_to_remove,
       self,

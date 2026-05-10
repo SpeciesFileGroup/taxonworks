@@ -112,7 +112,6 @@ module ProjectUnification
           WHERE s.project_id = #{source_project_id}
             AND t.project_id = #{target_project_id}
           GROUP BY s.verbatim_label
-          HAVING COUNT(*) > 0
         SQL
 
         ActiveRecord::Base.connection.exec_query(sql).to_a

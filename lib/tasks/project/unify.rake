@@ -77,6 +77,7 @@ namespace :tw do
           source_project,
           root_taxon_name_id: root_id,
           preview: preview,
+          confirm: !preview,
           skip_cached_rebuild: false
         )
       rescue Interrupt
