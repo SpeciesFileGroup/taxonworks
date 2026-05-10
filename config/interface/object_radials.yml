@@ -204,6 +204,7 @@ Otu:
   tasks:
     - browse_otus_task
     - filter_otus_task
+    - material_examined_otus_task
     - comprehensive_collection_object_task
     - new_field_occurrence_task
     - edit_biological_associations_graph_task
