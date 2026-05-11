@@ -13,7 +13,8 @@ class Tasks::Otus::MaterialExaminedController < ApplicationController
     results = otu_ids.map do |otu_id|
       otu = ::Otu.where(project_id: sessions_current_project_id).find(otu_id)
       text = ::Export::Helpers::MaterialExamined.render_for_otu(otu)
-      { otu_id: otu.id, label: helpers.label_for_otu(otu), text: }
+      html = text.empty? ? '' : MARKDOWN_HTML.render(text)
+      { otu_id: otu.id, label: helpers.label_for_otu(otu), text:, html: }
     end
 
     render json: { results: }

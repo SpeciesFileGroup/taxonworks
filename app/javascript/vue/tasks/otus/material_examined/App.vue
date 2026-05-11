@@ -18,10 +18,25 @@
         {{ result.label }}
       </h2>
       <div
-        v-if="result.text"
+        v-if="result.html"
         class="material-examined-block"
       >
-        <pre class="material-examined-text">{{ result.text }}</pre>
+        <div class="material-examined-toolbar">
+          <ButtonClipboard
+            :text="result.text"
+            title="Copy Markdown to clipboard"
+          />
+          <a
+            :href="`/tasks/dwc_occurrences/filter?otu_id[]=${result.otu_id}`"
+            target="_blank"
+            rel="noopener"
+            class="dwc-filter-link"
+          >DwcOccurrences</a>
+        </div>
+        <div
+          class="material-examined-html"
+          v-html="result.html"
+        />
       </div>
       <p
         v-else
@@ -45,6 +60,7 @@ import { ref } from 'vue'
 import qs from 'qs'
 import AjaxCall from '@/helpers/ajaxCall'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import ButtonClipboard from '@/components/ui/Button/ButtonClipboard.vue'
 import { LinkerStorage } from '@/shared/Filter/utils'
 
 const PREVIEW_URL = '/tasks/otus/material_examined/preview'
@@ -99,13 +115,23 @@ if (initialParams) {
   margin-bottom: 1.5em;
 }
 
-.material-examined-text {
-  white-space: pre-wrap;
-  font-family: inherit;
+.material-examined-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5em;
+  margin-bottom: 0.4em;
+}
+
+.dwc-filter-link {
+  font-size: 0.85em;
+}
+
+.material-examined-html {
   background: #f8f8f8;
   border: 1px solid #e0e0e0;
   border-radius: 4px;
   padding: 1em;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 </style>
