@@ -126,6 +126,10 @@ class DwcOccurrence < ApplicationRecord
     a.sort.to_h
   end
 
+  def self.api_columns
+    column_names - API_EXCLUDED_ATTRIBUTES
+  end
+
   def api_attributes
     as_json.except(*API_EXCLUDED_ATTRIBUTES)
   end
