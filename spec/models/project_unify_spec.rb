@@ -1086,6 +1086,105 @@ RSpec.describe Project, '#unify', type: :model do
         expect(confidence.reload.confidence_level_id).to eq(target_cvt.id)
       end
     end
+
+    # The existing contexts above (name: 'Shared', definition: 'A' * 20 for both) already
+    # exercise the name+definition multi-field conflict path through the sentinel loop.
+    # The contexts below cover single-field and mixed-field conflict combinations to verify
+    # that only failing fields are stamped.
+
+    context 'definition-only conflict (different names, same definition) — not equivalent' do
+      # Names differ: not semantically equivalent. The unify must fail so the
+      # user can resolve the definition clash manually before retrying.
+      let!(:source_cvt) { FactoryBot.create(:valid_keyword, name: 'Source Keyword', definition: 'A shared definition here', project: source_project) }
+      let!(:target_cvt) { FactoryBot.create(:valid_keyword, name: 'Target Keyword', definition: 'A shared definition here', project: target_project) }
+      let!(:source_otu) { FactoryBot.create(:valid_otu, project: source_project) }
+      let!(:tag)        { Tag.create!(tag_object: source_otu, keyword: source_cvt, project_id: source_project.id) }
+
+      it 'reports a CVT conflict' do
+        result = target_project.unify(source_project, preview: false, confirm: true, user_id: user.id)
+        expect(result[:conflicts].map { |c| c[:model] }).to include('ControlledVocabularyTerm')
+      end
+
+      it 'does not unify' do
+        result = target_project.unify(source_project, preview: false, confirm: true, user_id: user.id)
+        expect(result[:unified]).to be false
+      end
+
+      it 'preserves the source CVT (transaction rolled back)' do
+        source_id = source_cvt.id
+        target_project.unify(source_project, preview: false, confirm: true, user_id: user.id)
+        expect(ControlledVocabularyTerm.exists?(source_id)).to be true
+        expect(source_cvt.reload.project_id).to eq(source_project.id)
+      end
+
+      it 'does not touch the tag' do
+        target_project.unify(source_project, preview: false, confirm: true, user_id: user.id)
+        expect(tag.reload.keyword_id).to eq(source_cvt.id)
+      end
+    end
+
+    context 'URI-only conflict (same URI+uri_relation, different name and definition) — not equivalent' do
+      # Both name and definition differ: not semantically equivalent.
+      let(:shared_uri) { 'http://purl.obolibrary.org/obo/RO_0000001' }
+      let!(:source_cvt) { FactoryBot.create(:valid_keyword, name: 'Source Keyword', definition: 'Source keyword definition text', uri: shared_uri, uri_relation: 'skos:exactMatch', project: source_project) }
+      let!(:target_cvt) { FactoryBot.create(:valid_keyword, name: 'Target Keyword', definition: 'Target keyword definition text', uri: shared_uri, uri_relation: 'skos:exactMatch', project: target_project) }
+      let!(:source_otu) { FactoryBot.create(:valid_otu, project: source_project) }
+      let!(:tag)        { Tag.create!(tag_object: source_otu, keyword: source_cvt, project_id: source_project.id) }
+
+      it 'reports a CVT conflict' do
+        result = target_project.unify(source_project, preview: false, confirm: true, user_id: user.id)
+        expect(result[:conflicts].map { |c| c[:model] }).to include('ControlledVocabularyTerm')
+      end
+
+      it 'does not unify' do
+        result = target_project.unify(source_project, preview: false, confirm: true, user_id: user.id)
+        expect(result[:unified]).to be false
+      end
+
+      it 'preserves the source CVT (transaction rolled back)' do
+        source_id = source_cvt.id
+        target_project.unify(source_project, preview: false, confirm: true, user_id: user.id)
+        expect(ControlledVocabularyTerm.exists?(source_id)).to be true
+        expect(source_cvt.reload.project_id).to eq(source_project.id)
+      end
+    end
+
+    context 'name and URI both conflict (definition differs) — not equivalent' do
+      # Definitions differ: not semantically equivalent even though name+URI match.
+      let(:shared_uri) { 'http://purl.obolibrary.org/obo/RO_0000001' }
+      let!(:source_cvt) { FactoryBot.create(:valid_keyword, name: 'Shared', definition: 'Source keyword definition text', uri: shared_uri, uri_relation: 'skos:exactMatch', project: source_project) }
+      let!(:target_cvt) { FactoryBot.create(:valid_keyword, name: 'Shared', definition: 'Target keyword definition text', uri: shared_uri, uri_relation: 'skos:exactMatch', project: target_project) }
+      let!(:source_otu) { FactoryBot.create(:valid_otu, project: source_project) }
+      let!(:tag)        { Tag.create!(tag_object: source_otu, keyword: source_cvt, project_id: source_project.id) }
+
+      it 'reports a CVT conflict' do
+        result = target_project.unify(source_project, preview: false, confirm: true, user_id: user.id)
+        expect(result[:conflicts].map { |c| c[:model] }).to include('ControlledVocabularyTerm')
+      end
+
+      it 'does not unify' do
+        result = target_project.unify(source_project, preview: false, confirm: true, user_id: user.id)
+        expect(result[:unified]).to be false
+      end
+
+      it 'preserves the source CVT (transaction rolled back)' do
+        source_id = source_cvt.id
+        target_project.unify(source_project, preview: false, confirm: true, user_id: user.id)
+        expect(ControlledVocabularyTerm.exists?(source_id)).to be true
+        expect(source_cvt.reload.project_id).to eq(source_project.id)
+      end
+    end
+
+    context 'on_model_migrated progress callback' do
+      let!(:source_cvt) { FactoryBot.create(:valid_keyword, project: source_project) }
+
+      it 'fires for ControlledVocabularyTerm' do
+        fired = []
+        target_project.unify(source_project, preview: false, confirm: true, user_id: user.id,
+          on_model_migrated: ->(model, _track, _result) { fired << model })
+        expect(fired).to include('ControlledVocabularyTerm')
+      end
+    end
   end
 
   describe 'cleanup after merge' do

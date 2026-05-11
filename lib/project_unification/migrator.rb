@@ -281,19 +281,21 @@ module ProjectUnification
     end
 
     # Migrate ControlledVocabularyTerm records last, after all FK-bearing rows have
-    # been moved to the target project.  On a uniqueness conflict, the source CVT is
-    # renamed (suffix "[<source project name>]", with a counter if needed) so it can
-    # be saved without conflict.  Each renamed CVT is added to a merge_registry so
-    # the Service can invoke Shared::Unify#unify in Phase 2, collapsing renamed CVTs
-    # into their target counterparts now that both are in the same project.
+    # been moved to the target project.  On a uniqueness conflict, only the specific
+    # failing field(s) are stamped with a sentinel suffix so the record can be saved.
+    # Each such CVT is added to a merge_registry so the Service can invoke
+    # Shared::Unify#unify in Phase 2, collapsing it into its target counterpart now
+    # that both are in the same project.
+    #
+    # The sentinel is deliberately conspicuous — if Phase 2 cleanup ever fails, the
+    # user can find the bad data by searching for "UNIFICATION TO PROJECT".
     def process_controlled_vocabulary_terms
       klass = ControlledVocabularyTerm
       stats = { track: :slow, migrated: 0, conflicts: [], errors: [], merge_registry: [] }
+      sentinel = "UNIFICATION TO PROJECT #{target_project_id}"
 
       records = klass.where(project_id: source_project_id)
       return nil unless records.exists?
-
-      source_name = Project.find(source_project_id).name
 
       records.find_each do |record|
         record.no_cached = true if record.respond_to?(:no_cached=)
@@ -303,21 +305,34 @@ module ProjectUnification
           record.save!
           stats[:migrated] += 1
         elsif uniqueness_error?(record)
-          original_name       = record.name
-          original_definition = record.definition
+          target_cvt = find_conflicting_target_cvt(record)
 
-          target_cvt = find_conflicting_target_cvt(record, original_name, original_definition)
+          if target_cvt && target_cvt.type == record.type && cvts_semantically_equivalent?(record, target_cvt)
+            record.errors.details.each do |field, errors|
+              next unless errors.any? { |e| e[:error] == :taken }
+              case field
+              when :name
+                record.name = unique_cvt_name(record.name, record.type, sentinel)
+              when :definition
+                record.definition = unique_cvt_definition(record.definition, sentinel)
+              when :uri
+                record.uri = unique_cvt_uri(record.uri, record.uri_relation, sentinel)
+              end
+            end
 
-          record.name       = unique_cvt_name(original_name, record.type, source_name)
-          record.definition = unique_cvt_definition(original_definition, source_name)
-          record.save!
-          stats[:migrated] += 1
-
-          if target_cvt && target_cvt.type == record.type
+            record.save!
+            stats[:migrated] += 1
             stats[:merge_registry] << {
               model: record.class.name,
               renamed_id: record.id,
               target_id: target_cvt.id
+            }
+          else
+            stats[:conflicts] << {
+              id: record.id,
+              model: klass.name,
+              conflict_fields: conflict_fields(record),
+              errors: record.errors.full_messages
             }
           end
         else
@@ -334,31 +349,50 @@ module ProjectUnification
       stats
     end
 
-    def find_conflicting_target_cvt(record, original_name, original_definition)
-      ControlledVocabularyTerm.find_by(type: record.type, name: original_name, project_id: target_project_id) ||
-        ControlledVocabularyTerm.find_by(definition: original_definition, project_id: target_project_id)
+    def cvts_semantically_equivalent?(record, target_cvt)
+      record.name == target_cvt.name &&
+        record.definition == target_cvt.definition &&
+        record.uri_relation == target_cvt.uri_relation &&
+        (record.uri.blank? || record.uri == target_cvt.uri)
     end
 
-    # Returns a name that does not conflict with any CVT of the same type in target project.
-    def unique_cvt_name(original_name, cvt_type, suffix)
-      candidate = "#{original_name} [#{suffix}]"
-      counter   = 2
+    def find_conflicting_target_cvt(record)
+      ControlledVocabularyTerm.find_by(type: record.type, name: record.name, project_id: target_project_id) ||
+        ControlledVocabularyTerm.find_by(definition: record.definition, project_id: target_project_id) ||
+        (record.uri.present? ? ControlledVocabularyTerm.find_by(uri: record.uri, uri_relation: record.uri_relation, project_id: target_project_id) : nil)
+    end
+
+    # Returns a name that does not conflict with any CVT of the same type in the target project.
+    def unique_cvt_name(original_name, cvt_type, sentinel)
+      candidate = "#{original_name} [#{sentinel}]"
+      counter = 2
       while ControlledVocabularyTerm.exists?(type: cvt_type, name: candidate, project_id: target_project_id)
-        candidate = "#{original_name} [#{suffix} #{counter}]"
-        counter  += 1
+        candidate = "#{original_name} [#{sentinel} #{counter}]"
+        counter += 1
       end
       candidate
     end
 
-    # Returns a definition that does not conflict with any CVT in target project.
-    # Returns the original unchanged if it doesn't already conflict.
-    def unique_cvt_definition(original_definition, suffix)
-      return original_definition unless ControlledVocabularyTerm.exists?(definition: original_definition, project_id: target_project_id)
-      candidate = "#{original_definition} [#{suffix}]"
-      counter   = 2
+    # Returns a definition that does not conflict with any CVT in the target project.
+    def unique_cvt_definition(original_definition, sentinel)
+      candidate = "#{original_definition} [#{sentinel}]"
+      counter = 2
       while ControlledVocabularyTerm.exists?(definition: candidate, project_id: target_project_id)
-        candidate = "#{original_definition} [#{suffix} #{counter}]"
-        counter  += 1
+        candidate = "#{original_definition} [#{sentinel} #{counter}]"
+        counter += 1
+      end
+      candidate
+    end
+
+    # Returns a URI that does not conflict in the target project (scoped by uri_relation).
+    # Appends the sentinel without spaces so the result remains a valid URI.
+    def unique_cvt_uri(original_uri, uri_relation, sentinel)
+      no_space_sentinel = sentinel.tr(' ', '-')
+      candidate = "#{original_uri}/#{no_space_sentinel}"
+      counter = 2
+      while ControlledVocabularyTerm.exists?(uri: candidate, uri_relation: uri_relation, project_id: target_project_id)
+        candidate = "#{original_uri}/#{no_space_sentinel}-#{counter}"
+        counter += 1
       end
       candidate
     end

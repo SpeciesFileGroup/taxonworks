@@ -399,7 +399,8 @@ class Project < ApplicationRecord
         root_taxon_name_id: root_taxon_name_id,
         preview: preview,
         user_id: user_id,
-        skip_cached_rebuild: skip_cached_rebuild
+        skip_cached_rebuild: skip_cached_rebuild,
+        on_model_migrated: on_model_migrated
       }
     )
 
