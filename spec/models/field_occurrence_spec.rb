@@ -379,6 +379,7 @@ RSpec.describe FieldOccurrence, type: :model do
         expect(result).to match('taxon determination')
       end
 
+      specify 'fails when CO has loan items' do
         co = FactoryBot.create(:valid_collection_object, collecting_event: collecting_event)
         co.taxon_determinations << TaxonDetermination.new(otu: otu)
         co.save!
