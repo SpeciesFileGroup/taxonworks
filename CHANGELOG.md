@@ -7,7 +7,12 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ## [unreleased]
 
+### Changed
+
+- Allow catalog and record number identifiers on field occurrences
+
 ### Fixed
+
 - Taxon Pages Biological Associations returns no results
 - error on /api/v1/dwc_occurrences
 - /downloads/1 shows `Expires: n days` when the download has been *expired* for n days

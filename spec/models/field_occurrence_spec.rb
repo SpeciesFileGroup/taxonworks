@@ -322,6 +322,40 @@ RSpec.describe FieldOccurrence, type: :model do
         expect(fo.ranged_lot_category).to eq(category)
         expect(fo.total).to eq(0)  # Must be 0 (not nil) due to NOT NULL constraint
       end
+
+      specify 'retains catalog number identifier when transmuting from CollectionObject' do
+        co = FactoryBot.create(:valid_collection_object, collecting_event: collecting_event)
+        co.taxon_determinations << TaxonDetermination.new(otu: otu)
+        co.save!
+
+        # Create a catalog number (not allowed on FieldOccurrence)
+        identifier = Identifier::Local::CatalogNumber.create!(
+          identifier_object: co,
+          namespace: FactoryBot.create(:valid_namespace),
+          identifier: '12345'
+        )
+
+        result = FieldOccurrence.transmute_collection_object(co.id)
+        fo = FieldOccurrence.find(result)
+        expect(fo.identifiers).to include(identifier)
+      end
+
+      specify 'retains record number identifier when transmuting from CollectionObject' do
+        co = FactoryBot.create(:valid_collection_object, collecting_event: collecting_event)
+        co.taxon_determinations << TaxonDetermination.new(otu: otu)
+        co.save!
+
+        # Create a record number (not allowed on FieldOccurrence)
+        identifier = Identifier::Local::RecordNumber.create!(
+          identifier_object: co,
+          namespace: FactoryBot.create(:valid_namespace),
+          identifier: 'RN456'
+        )
+
+        result = FieldOccurrence.transmute_collection_object(co.id)
+        fo = FieldOccurrence.find(result)
+        expect(fo.identifiers).to include(identifier)
+      end
     end
 
     context 'validation failures' do
@@ -345,41 +379,6 @@ RSpec.describe FieldOccurrence, type: :model do
         expect(result).to match('taxon determination')
       end
 
-      specify 'fails when CO has incompatible identifiers (catalog number)' do
-        co = FactoryBot.create(:valid_collection_object, collecting_event: collecting_event)
-        co.taxon_determinations << TaxonDetermination.new(otu: otu)
-        co.save!
-
-        # Create a catalog number (not allowed on FieldOccurrence)
-        Identifier::Local::CatalogNumber.create!(
-          identifier_object: co,
-          namespace: FactoryBot.create(:valid_namespace),
-          identifier: '12345'
-        )
-
-        result = FieldOccurrence.transmute_collection_object(co.id)
-        expect(result).to match(/Failed to move associations/)
-        expect(CollectionObject.exists?(co.id)).to be_truthy # Transaction rolled back
-      end
-
-      specify 'fails when CO has incompatible identifiers (record number)' do
-        co = FactoryBot.create(:valid_collection_object, collecting_event: collecting_event)
-        co.taxon_determinations << TaxonDetermination.new(otu: otu)
-        co.save!
-
-        # Create a record number (not allowed on FieldOccurrence)
-        Identifier::Local::RecordNumber.create!(
-          identifier_object: co,
-          namespace: FactoryBot.create(:valid_namespace),
-          identifier: 'RN456'
-        )
-
-        result = FieldOccurrence.transmute_collection_object(co.id)
-        expect(result).to match(/Failed to move associations/)
-        expect(CollectionObject.exists?(co.id)).to be_truthy # Transaction rolled back
-      end
-
-      specify 'fails when CO has loan items' do
         co = FactoryBot.create(:valid_collection_object, collecting_event: collecting_event)
         co.taxon_determinations << TaxonDetermination.new(otu: otu)
         co.save!
