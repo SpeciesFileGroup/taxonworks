@@ -48,6 +48,7 @@ module ProjectUnification
 
         track = ProjectUnification::ModelClassifier.track_for(klass)
 
+        model_started_at = Time.now
         model_result = case track
                        when :fast
                          process_fast_track(klass)
@@ -64,6 +65,7 @@ module ProjectUnification
                        end
 
         if model_result
+          model_result[:duration] = (Time.now - model_started_at).round(1)
           @on_model_migrated&.call(model_name, track, model_result)
 
           results[:details_by_model][model_name] = model_result
@@ -84,8 +86,10 @@ module ProjectUnification
       # ControlledVocabularyTerm — processed last so all FK-bearing rows already
       # live in the target project.  Conflicts are resolved by renaming the source
       # CVT; the registry of renamed→target pairs is returned for Phase 2 cleanup.
+      cvt_started_at = Time.now
       cvt_result = process_controlled_vocabulary_terms
       if cvt_result
+        cvt_result[:duration] = (Time.now - cvt_started_at).round(1)
         @on_model_migrated&.call('ControlledVocabularyTerm', :slow, cvt_result)
         results[:details_by_model]['ControlledVocabularyTerm'] = cvt_result
         results[:statistics][:models_processed]    += 1

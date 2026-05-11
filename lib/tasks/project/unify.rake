@@ -87,7 +87,8 @@ namespace :tw do
         parts << "#{conflicts} conflict(s)" if conflicts > 0
         parts << "#{errors} error(s)"      if errors    > 0
         parts << '(empty)'                 if parts.empty?
-        $stdout.puts "  #{model_name.ljust(34)}  #{track.to_s.ljust(10)}  #{parts.join(', ')}"
+        duration = model_result[:duration] ? "  #{model_result[:duration]}s" : ''
+        $stdout.puts "  #{model_name.ljust(34)}  #{track.to_s.ljust(10)}  #{parts.join(', ')}#{duration}"
       }
 
       begin
