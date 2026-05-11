@@ -87,7 +87,7 @@ namespace :tw do
         parts << "#{conflicts} conflict(s)" if conflicts > 0
         parts << "#{errors} error(s)"      if errors    > 0
         parts << '(empty)'                 if parts.empty?
-        printf "  %-34s  %-10s  %s\n", model_name, track, parts.join(', ')
+        $stdout.puts "  #{model_name.ljust(34)}  #{track.to_s.ljust(10)}  #{parts.join(', ')}"
       }
 
       begin
