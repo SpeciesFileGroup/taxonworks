@@ -336,7 +336,24 @@ module ProjectUnification
               id: record.id,
               model: klass.name,
               conflict_fields: conflict_fields(record),
-              errors: record.errors.full_messages
+              errors: record.errors.full_messages,
+              source_cvt: {
+                project_id: source_project_id,
+                cvt_type: record.type,
+                name: record.name,
+                definition: record.definition,
+                uri: record.uri,
+                uri_relation: record.uri_relation
+              },
+              target_cvt: target_cvt ? {
+                id: target_cvt.id,
+                project_id: target_project_id,
+                cvt_type: target_cvt.type,
+                name: target_cvt.name,
+                definition: target_cvt.definition,
+                uri: target_cvt.uri,
+                uri_relation: target_cvt.uri_relation
+              } : nil
             }
           end
         else

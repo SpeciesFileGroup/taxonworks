@@ -139,8 +139,22 @@ namespace :tw do
         puts "\nConflicts requiring manual resolution:"
         result[:conflicts].each_with_index do |conflict, i|
           fields = Array(conflict[:conflict_fields]).join(', ')
-          puts "  #{i + 1}. [#{conflict[:model]}] ID #{conflict[:id]} - field(s): #{fields}"
-          puts "       #{conflict[:errors].first}" if conflict[:errors].any?
+
+          if (src = conflict[:source_cvt])
+            puts "  #{i + 1}. [#{conflict[:model]}] '#{src[:name]}' (#{src[:cvt_type]}, ID #{conflict[:id]}, source project #{src[:project_id]})"
+            puts "       Conflicting field(s): #{fields}"
+            puts "       Source definition: #{src[:definition]}"
+            puts "       Source uri:        #{src[:uri]} [#{src[:uri_relation]}]" if src[:uri].present?
+            if (tgt = conflict[:target_cvt])
+              puts "       Conflicts with:    '#{tgt[:name]}' (#{tgt[:cvt_type]}, ID #{tgt[:id]}, target project #{tgt[:project_id]})"
+              puts "       Target definition: #{tgt[:definition]}"
+              puts "       Target uri:        #{tgt[:uri]} [#{tgt[:uri_relation]}]" if tgt[:uri].present?
+            end
+            puts "       Resolution: edit the name, definition, or uri of one CVT in TaxonWorks before retrying"
+          else
+            puts "  #{i + 1}. [#{conflict[:model]}] ID #{conflict[:id]} - field(s): #{fields}"
+            puts "       #{conflict[:errors].first}" if conflict[:errors].any?
+          end
         end
       end
 
