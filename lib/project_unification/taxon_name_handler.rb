@@ -48,18 +48,14 @@ module ProjectUnification
 
         # Temporarily disable cached field updates for performance
         disable_cached_callbacks do
-          # Move all children of source root to target parent
-          # Updates both parent_id and project_id for direct children
-          # Descendants inherit correct project_id through parent-child relationships
           move_children_to_target(source_root, target_parent)
-
-          # Update project_id for all descendants in bulk
           update_all_descendants_project_id(source_root)
 
           stats[:migrated] = total_count
 
-          # Rebuild closure_tree to ensure hierarchy integrity
-          TaxonName.rebuild!
+          # Rebuild only target_parent's subtree — all source names now hang off it.
+          # TaxonName.rebuild! is O(all projects); instance rebuild! is O(moved subtree).
+          target_parent.rebuild!
           stats[:closure_tree_rebuilt] = true
         end
       rescue => e
