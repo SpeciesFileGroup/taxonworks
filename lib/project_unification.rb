@@ -52,7 +52,17 @@ module ProjectUnification
 
       validate_prerequisites!
 
-      Current.user_id = @options[:user_id]
+      # Capture ambient Current state so we can restore it after (important when
+      # called from a request context, not just a rake task where they'd be nil).
+      saved_user_id    = Current.user_id
+      saved_project_id = Current.project_id
+
+      # Migration must run under the provided user so that updated_by_id is set
+      # correctly on every record. project_id is cleared so that find_or_create_by
+      # calls in callbacks cannot accidentally scope to the caller's ambient project.
+      Current.user_id    = @options[:user_id]
+      Current.project_id = nil
+
       Thread.current[:tw_project_unification] = true
 
       Project.transaction do
@@ -85,6 +95,8 @@ module ProjectUnification
       @results
     ensure
       Thread.current[:tw_project_unification] = nil
+      Current.user_id    = saved_user_id
+      Current.project_id = saved_project_id
     end
 
     private
