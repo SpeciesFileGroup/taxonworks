@@ -151,6 +151,42 @@ class TaxonDetermination < ApplicationRecord
     ::Queries.union(DwcOccurrence, [co, fo])
   end
 
+  # Called by the project unification migrator when changing project_id produces a
+  # position conflict.  acts_as_list resets position to 1 on scope changes, so
+  # multiple TDs on the same CO all try to claim position 1, conflicting with
+  # each other rather than with any pre-existing TD in the target project.
+  #
+  # We bypass acts_as_list entirely via update_columns and restore the record's
+  # original position.  If that position is already occupied (by an earlier-ID
+  # sibling that was processed first by find_each and "stole" it), we bump the
+  # squatter to the end of the list to make room — preserving the semantically
+  # important position-1 accepted determination.
+  #
+  # @param target_project_id [Integer]
+  # @return [true] signals the migrator that the record is already persisted
+  def handle_unify_conflict(target_project_id)
+    original_position = self.class.where(id: id).pick(:position)
+
+    target_scope = TaxonDetermination.where(
+      taxon_determination_object_id: taxon_determination_object_id,
+      taxon_determination_object_type: taxon_determination_object_type,
+      project_id: target_project_id
+    )
+
+    squatter = target_scope.find_by(position: original_position)
+    if squatter
+      squatter.update_columns(position: target_scope.maximum(:position) + 1)
+    end
+
+    update_columns(
+      project_id: target_project_id,
+      position: original_position,
+      updated_at: Time.current,
+      updated_by_id: Current.user_id
+    )
+    true
+  end
+
   protected
 
   # @param [Hash] attributed

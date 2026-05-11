@@ -2,6 +2,8 @@ namespace :tw do
   namespace :project do
     desc 'Unify two projects - merge all data from source into target'
     task unify: [:environment] do
+      $stdout.sync = true
+
       source_id = ENV['SOURCE_PROJECT_ID']
       target_id = ENV['TARGET_PROJECT_ID']
       user_id   = ENV['USER_ID']&.to_i
@@ -151,11 +153,15 @@ namespace :tw do
       if result[:details_by_model].any?
         puts "\nDetails by model:"
         result[:details_by_model].sort.each do |model_name, details|
-          migrated = details[:migrated] || 0
-          next if migrated == 0
+          migrated  = details[:migrated]   || 0
+          destroyed = details[:destroyed]  || 0
+          next if migrated == 0 && destroyed == 0
 
           track = details[:track] || 'unknown'
-          puts "  #{model_name.ljust(40)} #{track.to_s.ljust(10)} #{migrated} records"
+          parts = []
+          parts << "#{migrated} migrated"   if migrated  > 0
+          parts << "#{destroyed} destroyed" if destroyed > 0
+          puts "  #{model_name.ljust(40)} #{track.to_s.ljust(10)} #{parts.join(', ')}"
         end
       end
 

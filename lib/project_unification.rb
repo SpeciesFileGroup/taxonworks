@@ -123,16 +123,38 @@ module ProjectUnification
 
       migration_results = migrator.migrate_all
 
-      @results[:statistics] = migration_results[:statistics]
+      @results[:statistics]     = migration_results[:statistics]
       @results[:details_by_model] = migration_results[:details_by_model]
       @results[:conflicts].concat(migration_results[:conflicts])
       @results[:errors].concat(migration_results[:errors])
+
+      # Phase 2: unify renamed CVTs (and any other renamed records) with their
+      # target counterparts.  Both sides are now in the target project, so
+      # Shared::Unify works without cross-project restrictions.
+      run_cleanup(migration_results[:merge_registry] || [])
 
       # Rebuild cached fields unless skipped
       unless @options[:skip_cached_rebuild] || @options[:preview]
         rebuilder = ProjectUnification::CachedRebuilder.new(target_project.id)
         rebuild_results = rebuilder.rebuild_all
         @results[:cached_rebuild] = rebuild_results
+      end
+    end
+
+    # Iterate the merge registry produced by Phase 1 and call Shared::Unify#unify
+    # on each pair.  Failures are collected as errors (not raised) so one bad pair
+    # does not abort the remaining cleanup.
+    def run_cleanup(merge_registry)
+      merge_registry.each do |entry|
+        klass   = entry[:model].constantize
+        target  = klass.find(entry[:target_id])
+        renamed = klass.find(entry[:renamed_id])
+        result  = target.unify(renamed)
+        next if result[:result][:unified]
+        @results[:errors] << {
+          model: entry[:model],
+          error: "Post-migration unify failed for #{entry[:model]} ID #{entry[:renamed_id]}: #{result[:result][:message]}"
+        }
       end
     end
   end

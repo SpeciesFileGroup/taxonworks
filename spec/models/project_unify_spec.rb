@@ -952,6 +952,142 @@ RSpec.describe Project, '#unify', type: :model do
     end
   end
 
+  describe 'TaxonDetermination position conflict handling' do
+    # acts_as_list resets position to 1 on project_id scope change, causing
+    # false uniqueness conflicts when multiple TDs on the same CO are migrated.
+    # There are no real cross-project position conflicts (COs are project-specific).
+    # handle_unify_conflict restores each TD's original position, bumping any
+    # earlier-processed sibling that stole the slot.
+    let!(:co)   { FactoryBot.create(:valid_collection_object, project: source_project) }
+    let!(:otu1) { FactoryBot.create(:valid_otu, project: source_project) }
+    let!(:otu2) { FactoryBot.create(:valid_otu, project: source_project) }
+
+    # acts_as_list add_new_at: :top → td2 (created second) gets position 1
+    let!(:td1) { TaxonDetermination.create!(taxon_determination_object: co, otu: otu1, project: source_project) }
+    let!(:td2) { TaxonDetermination.create!(taxon_determination_object: co, otu: otu2, project: source_project) }
+
+    it 'migrates both TDs without conflicts' do
+      result = target_project.unify(source_project, preview: false, confirm: true, user_id: user.id)
+      expect(result[:conflicts]).to be_empty
+      expect(result[:errors]).to be_empty
+    end
+
+    it 'migrates both TDs to the target project' do
+      target_project.unify(source_project, preview: false, confirm: true, user_id: user.id)
+      expect(td1.reload.project_id).to eq(target_project.id)
+      expect(td2.reload.project_id).to eq(target_project.id)
+    end
+
+    it 'assigns distinct positions in the target project' do
+      target_project.unify(source_project, preview: false, confirm: true, user_id: user.id)
+      positions = [td1.reload.position, td2.reload.position]
+      expect(positions.uniq.length).to eq(2)
+    end
+
+    it 'preserves the accepted determination (original position 1) at position 1' do
+      # td2 was created last, so acts_as_list placed it at position 1 (accepted)
+      expect(td2.position).to eq(1)
+      target_project.unify(source_project, preview: false, confirm: true, user_id: user.id)
+      expect(td2.reload.position).to eq(1)
+    end
+  end
+
+  describe 'ControlledVocabularyTerm conflict handling' do
+    # When source and target projects have a CVT with the same name+type (or same
+    # definition), handle_unify_conflict reroutes all FK references to the target
+    # CVT and destroys the source, avoiding the conflict without leaving orphaned data.
+
+    shared_examples 'a merged CVT' do |type_name|
+      it 'reports no conflicts' do
+        result = target_project.unify(source_project, preview: false, confirm: true, user_id: user.id)
+        expect(result[:conflicts].map { |c| c[:model] }).not_to include('ControlledVocabularyTerm')
+      end
+
+      it 'destroys the source CVT' do
+        source_id = source_cvt.id
+        target_project.unify(source_project, preview: false, confirm: true, user_id: user.id)
+        expect(ControlledVocabularyTerm.exists?(source_id)).to be false
+      end
+
+      it 'keeps the target CVT' do
+        target_project.unify(source_project, preview: false, confirm: true, user_id: user.id)
+        expect(ControlledVocabularyTerm.exists?(target_cvt.id)).to be true
+      end
+    end
+
+    context 'Keyword with Tags' do
+      let!(:source_cvt) { FactoryBot.create(:valid_keyword, name: 'Shared', definition: 'A' * 20, project: source_project) }
+      let!(:target_cvt) { FactoryBot.create(:valid_keyword, name: 'Shared', definition: 'A' * 20, project: target_project) }
+      let!(:source_otu) { FactoryBot.create(:valid_otu, project: source_project) }
+      let!(:tag)        { Tag.create!(tag_object: source_otu, keyword: source_cvt, project_id: source_project.id) }
+
+      include_examples 'a merged CVT', 'Keyword'
+
+      it 'reroutes the Tag to the target Keyword' do
+        target_project.unify(source_project, preview: false, confirm: true, user_id: user.id)
+        expect(tag.reload.keyword_id).to eq(target_cvt.id)
+      end
+    end
+
+    context 'Topic with CitationTopics' do
+      let!(:source_cvt) { FactoryBot.create(:valid_topic, name: 'Shared', definition: 'A' * 20, project: source_project) }
+      let!(:target_cvt) { FactoryBot.create(:valid_topic, name: 'Shared', definition: 'A' * 20, project: target_project) }
+      let!(:source)     { FactoryBot.create(:valid_source_bibtex) }
+      let!(:source_otu) { FactoryBot.create(:valid_otu, project: source_project) }
+      let!(:citation)   { Citation.create!(citation_object: source_otu, source: source, project_id: source_project.id) }
+      let!(:citation_topic) { CitationTopic.create!(citation: citation, topic: source_cvt, project_id: source_project.id) }
+
+      include_examples 'a merged CVT', 'Topic'
+
+      it 'reroutes the CitationTopic to the target Topic' do
+        target_project.unify(source_project, preview: false, confirm: true, user_id: user.id)
+        expect(citation_topic.reload.topic_id).to eq(target_cvt.id)
+      end
+    end
+
+    context 'BiocurationClass with BiocurationClassifications' do
+      let!(:source_cvt) { FactoryBot.create(:valid_biocuration_class, name: 'Shared', definition: 'A' * 20, project: source_project) }
+      let!(:target_cvt) { FactoryBot.create(:valid_biocuration_class, name: 'Shared', definition: 'A' * 20, project: target_project) }
+      let!(:co)         { FactoryBot.create(:valid_collection_object, project: source_project) }
+      let!(:bc)         { BiocurationClassification.create!(biocuration_class: source_cvt, biocuration_classification_object: co, project_id: source_project.id) }
+
+      include_examples 'a merged CVT', 'BiocurationClass'
+
+      it 'reroutes the BiocurationClassification to the target BiocurationClass' do
+        target_project.unify(source_project, preview: false, confirm: true, user_id: user.id)
+        expect(bc.reload.biocuration_class_id).to eq(target_cvt.id)
+      end
+    end
+
+    context 'Predicate with DataAttributes' do
+      let!(:source_cvt)  { FactoryBot.create(:valid_predicate, name: 'Shared', definition: 'A' * 20, project: source_project) }
+      let!(:target_cvt)  { FactoryBot.create(:valid_predicate, name: 'Shared', definition: 'A' * 20, project: target_project) }
+      let!(:source_otu)  { FactoryBot.create(:valid_otu, project: source_project) }
+      let!(:data_attr)   { InternalAttribute.create!(attribute_subject: source_otu, predicate: source_cvt, value: 'test', project_id: source_project.id) }
+
+      include_examples 'a merged CVT', 'Predicate'
+
+      it 'reroutes the DataAttribute to the target Predicate' do
+        target_project.unify(source_project, preview: false, confirm: true, user_id: user.id)
+        expect(data_attr.reload.controlled_vocabulary_term_id).to eq(target_cvt.id)
+      end
+    end
+
+    context 'ConfidenceLevel with Confidences' do
+      let!(:source_cvt) { FactoryBot.create(:valid_confidence_level, name: 'Shared', definition: 'A' * 20, project: source_project) }
+      let!(:target_cvt) { FactoryBot.create(:valid_confidence_level, name: 'Shared', definition: 'A' * 20, project: target_project) }
+      let!(:source_otu) { FactoryBot.create(:valid_otu, project: source_project) }
+      let!(:confidence) { Confidence.create!(confidence_object: source_otu, confidence_level: source_cvt, project_id: source_project.id) }
+
+      include_examples 'a merged CVT', 'ConfidenceLevel'
+
+      it 'reroutes the Confidence to the target ConfidenceLevel' do
+        target_project.unify(source_project, preview: false, confirm: true, user_id: user.id)
+        expect(confidence.reload.confidence_level_id).to eq(target_cvt.id)
+      end
+    end
+  end
+
   describe 'cleanup after merge' do
     context 'after successful merge' do
       let!(:source_otu) do
