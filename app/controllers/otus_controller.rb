@@ -506,8 +506,8 @@ class OtusController < ApplicationController
   # Creates TaxonNames from a CoL alignment then wraps the result in a new OTU.
   def autoselect_col_create
     tn_result = ::Autoselect::TaxonName::ColCreator.new(
-      rows:       autoselect_col_create_params,
-      col_code:   params[:col_code],
+      rows:     autoselect_col_create_params,
+      col_code: params[:col_code],
       project_id: sessions_current_project_id,
       user_id:    sessions_current_user_id
     ).call
@@ -518,7 +518,6 @@ class OtusController < ApplicationController
       created_by_id: sessions_current_user_id,
       updated_by_id: sessions_current_user_id
     )
-
     render json: { otu_id: otu.id, taxon_name_id: tn_result[:taxon_name_id], global_id: otu.to_global_id.to_s }
   rescue ::Autoselect::TaxonName::ColCreator::CreationError => e
     render json: {
@@ -527,7 +526,7 @@ class OtusController < ApplicationController
       failed_col_id:   e.col_id
     }, status: :unprocessable_entity
   end
-  
+
   # GET /otus/:id/inventory/distribution_is_absent.geojson
   def distribution_is_absent
     @descendants = params[:descendants] == 'true'

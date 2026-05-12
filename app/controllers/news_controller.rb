@@ -23,7 +23,7 @@ class NewsController < ApplicationController
           .order(created_at: :desc)
           .page(params[:page])
           .per(params[:per])
-          
+
       }
     end
   end
@@ -34,7 +34,7 @@ class NewsController < ApplicationController
       .all
       .current
       .where(
-        type: News::Project::BlogPost.name, 
+        type: News::Project::BlogPost.name,
         is_public: true
       )
       .order(created_at: :desc)
@@ -46,7 +46,10 @@ class NewsController < ApplicationController
 
   # Serves only current blog_posts at the moment
   def api_show
-    @news = News::Project::BlogPost.find(params[:id])
+    item = News::Project::BlogPost.find_by(id: params[:id])
+    return if !item&.is_public
+
+    @news = item
     render '/news/api/v1/show'
   end
 
@@ -110,7 +113,7 @@ class NewsController < ApplicationController
       project: News::PROJECT_TYPES.keys,
       administration: News::ADMINISTRATION_TYPES.keys
     }
-   
+
     render json: types
   end
 

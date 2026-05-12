@@ -7,9 +7,22 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ## [unreleased]
 
+### Changed
+
+- Allow catalog and record number identifiers on field occurrences
+
+### Fixed
+
+- Taxon Pages Biological Associations returns no results
+- error on /api/v1/dwc_occurrences
+- /downloads/1 shows `Expires: n days` when the download has been *expired* for n days
+
+## [0.62.0] - 2026-05-08
+
 ### Added
 
-- Autoselect playground, first step towards new autocompletes #3519
+- Collection layout task, with preliminary vizualization
+- Autoselect playground task, first step towards new "autocompletes" #3519
 - Distribution absence inference and mapping endpoints #4896
 - `subject_otu_id` and `object_otu_id` to biological associations `/api/v1/biological_associations/basic` endpoint
 - Filters: Copy to clipboard button for API Url [#4852]
@@ -65,6 +78,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Add extra protections to prevent saving data with associated data from a different project [#4881] [#4895]
 - Unions of Gazetteers may not always include the shapes the union was made of (off by tiny slivers); that could still be an issue with some unions that have already been created [#4823]
 - Improve matching in the Author match modal from the New Source task: now matches on initials, maiden names, alternate values [#4847]
+- CSD: Ctrl/Alt + T shortcut is not passing taxon_name_id parameter to new taxon name task
 
 [#3519]: https://github.com/SpeciesFileGroup/taxonworks/issues/3519
 [#1856]: https://github.com/SpeciesFileGroup/taxonworks/issues/1856
@@ -6273,7 +6287,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.61.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.62.0...development
+[0.62.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.61.0...v0.62.0
 [0.61.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.60.0...v0.61.0
 [0.60.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.59.0...v0.60.0
 [0.59.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.58.0...v0.59.0

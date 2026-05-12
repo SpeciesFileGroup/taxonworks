@@ -59,13 +59,6 @@
                 class="horizontal-right-content"
                 >‹ Id
               </span>
-              <span
-                v-if="navigation.previousIdentifier"
-                @click="loadAssessionCode(navigation.previousIdentifier)"
-                class="link cursor-pointer horizontal-right-content"
-                >‹ Identifier</span
-              >
-              <span v-else>‹ Identifier</span>
             </li>
             <li>
               <span
@@ -79,13 +72,6 @@
                 class="horizontal-left-content"
                 >Id ›</span
               >
-              <span
-                v-if="navigation.nextIdentifier"
-                @click="loadAssessionCode(navigation.nextIdentifier)"
-                class="link cursor-pointer horizontal-left-content"
-                >Identifier ›</span
-              >
-              <span v-else>Identifier ›</span>
             </li>
           </ul>
         </div>

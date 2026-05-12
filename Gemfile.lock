@@ -193,7 +193,7 @@ GEM
       csl (~> 2.0)
       observer (< 1.0)
     climate_control (1.2.0)
-    closure_tree (9.6.1)
+    closure_tree (9.7.0)
       activerecord (>= 7.2.0)
       with_advisory_lock (>= 7.5.0)
       zeitwerk (~> 2.7)

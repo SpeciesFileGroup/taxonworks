@@ -280,7 +280,10 @@ function handleRadialCreate({ slice, item }) {
 <style scoped>
 #collection-object-form {
   display: grid;
-  grid-template-columns: repeat(3, minmax(250px, 1fr));
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(min(100%, max(500px, calc((100% - 1em) / 3))), 1fr)
+  );
   gap: 0.5em;
   grid-auto-flow: dense;
 }
@@ -291,14 +294,7 @@ function handleRadialCreate({ slice, item }) {
   gap: 0.5em;
 }
 
-.column-validation {
-  grid-column: 3 / 4;
-}
-
-.row-1-3 {
-  grid-column: 1 / 3;
-}
 .row-item {
-  grid-column: 1 / 4;
+  grid-column: 1 / -1;
 }
 </style>

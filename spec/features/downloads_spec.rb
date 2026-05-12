@@ -36,6 +36,11 @@ describe 'Downloads', type: :feature, group: [:downloads] do
             expect(page).to have_content('Status: Ready to download')
           end
 
+          it 'displays Expires label, not Expired' do
+            expect(page).to have_content('Expires:')
+            expect(page).to_not have_content('Expired:')
+          end
+
           it 'allows file to be downloaded', js: true do
             click_button('Download')
             expect(Features::Downloads::download_content).to eq(File.read(download.file_path))
@@ -68,6 +73,11 @@ describe 'Downloads', type: :feature, group: [:downloads] do
 
         it 'displays status expired' do
           expect(page).to have_content('Status: Download has expired and cannot be downloaded')
+        end
+
+        it 'displays Expired label, not Expires' do
+          expect(page).to have_content('Expired:')
+          expect(page).to_not have_content('Expires:')
         end
 
         it 'does not have a download link', js: true do

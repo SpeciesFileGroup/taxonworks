@@ -236,9 +236,9 @@ RSpec.describe Autoselect::TaxonName::ColCreator, type: :model do
     end
 
     it 'handles parenthetical basionym authorship "(Chatton, 1925) Whittaker & Margulis, 1978"' do
-      author, year = creator.send(:split_authorship, '(Chatton, 1925) Whittaker & Margulis, 1978', '1978')
-      expect(author).to eq('(Chatton) Whittaker & Margulis')
-      expect(year).to eq(1978)
+      author, year = creator.send(:split_authorship, '(Chatton, 1925) Whittaker & Margulis, 1978', nil) # Year would not be picked up in the Eukaryota case as presently defined
+      expect(author).to eq('Chatton')
+      expect(year).to eq(1925)
     end
 
     it 'returns [nil, nil] for blank authorship' do

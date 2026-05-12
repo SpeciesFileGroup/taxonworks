@@ -64,7 +64,10 @@
           </tr>
 
           <!-- Target row — always last, always checked, always disabled -->
-          <tr class="col-confirm-modal__row--target">
+          <tr
+            class="col-confirm-modal__row--target"
+            :class="{ 'col-confirm-modal__row--exact': ext.target_taxonworks_id }"
+          >
             <td>
               <input
                 type="checkbox"
@@ -74,7 +77,7 @@
             </td>
             <td>{{ ext.col_rank }}</td>
             <td>{{ ext.col_name }}</td>
-            <td>—</td>
+            <td>{{ ext.target_taxonworks_id ? ext.col_name : '—' }}</td>
             <td>{{ ext.col_authorship ?? '—' }}</td>
             <td>
               <a
@@ -91,8 +94,16 @@
       </table>
 
       <p class="col-confirm-modal__note">
-        Checked names without a TaxonWorks match will be created as Protonyms
-        with Catalogue of Life identifiers.
+        <template v-if="nothingToCreate">
+          All names already exist in TaxonWorks. Click Select to use the existing record.
+        </template>
+        <template v-else-if="cannotCreate">
+          Rank <em>{{ ext.col_rank }}</em> is not supported in TaxonWorks and cannot be created.
+        </template>
+        <template v-else>
+          Checked names without a TaxonWorks match will be created as Protonyms
+          with Catalogue of Life identifiers.
+        </template>
       </p>
     </template>
 
@@ -100,12 +111,12 @@
       <div class="col-confirm-modal__footer">
         <VBtn
           ref="confirmBtn"
-          color="create"
-          :disabled="isCreating"
-          @click="doCreate"
-          @keydown.enter.prevent="doCreate"
+          :color="nothingToCreate ? 'default' : 'create'"
+          :disabled="isCreating || cannotCreate"
+          @click="doConfirm"
+          @keydown.enter.prevent="doConfirm"
         >
-          {{ isCreating ? 'Creating…' : 'Create' }}
+          {{ nothingToCreate ? 'Select' : (isCreating ? 'Creating…' : 'Create') }}
         </VBtn>
         <button
           class="button circle-button btn-undo button-default"
@@ -149,6 +160,24 @@ const checkedNames = ref(
   )
 )
 
+// True when nothing needs to be created: target already exists, no ancestor rows are
+// checked for creation, and this is a direct TaxonName result (not an OTU hook).
+const nothingToCreate = computed(
+  () =>
+    !ext.value.hook &&
+    checkedNames.value.size === 0 &&
+    !!ext.value.target_taxonworks_id
+)
+
+// True when the target rank is unsupported by TaxonWorks AND no ancestor rows are
+// checked — clicking Create would create nothing, so the button should be disabled.
+const cannotCreate = computed(
+  () =>
+    !nothingToCreate.value &&
+    checkedNames.value.size === 0 &&
+    !!ext.value.target_rank_unknown
+)
+
 function toggleRow(colName) {
   if (checkedNames.value.has(colName)) {
     checkedNames.value.delete(colName)
@@ -172,6 +201,17 @@ const errorColName = ref(null)
 onMounted(() => {
   nextTick(() => confirmBtn.value?.$el?.focus())
 })
+
+function doConfirm() {
+  if (nothingToCreate.value) {
+    emit('confirm', {
+      id: ext.value.target_taxonworks_id,
+      global_id: ext.value.target_global_id ?? null
+    })
+    return
+  }
+  doCreate()
+}
 
 async function doCreate() {
   if (isCreating.value) return
