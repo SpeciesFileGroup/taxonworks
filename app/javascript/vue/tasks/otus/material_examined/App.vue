@@ -1,6 +1,14 @@
 <template>
   <div class="material-examined-task">
-    <NestingOrderForm v-model="nestingOrder" />
+    <div class="me-controls">
+      <NestingOrderForm v-model="nestingOrder" />
+      <label class="todo-toggle">
+        <input
+          v-model="todoMode"
+          type="checkbox"
+        > TODO mode
+      </label>
+    </div>
 
     <div
       v-if="!results.length && !isLoading"
@@ -46,6 +54,25 @@
       >
         No DwC occurrences found for {{ result.label }}.
       </p>
+
+      <div
+        v-if="result.todo_items && result.todo_items.length"
+        class="todo-list"
+      >
+        <h4 class="todo-list-heading">TODO</h4>
+        <ul>
+          <li
+            v-for="item in result.todo_items"
+            :key="item.url"
+          >
+            <a
+              :href="item.url"
+              target="_blank"
+              rel="noopener"
+            >{{ item.label }}</a>
+          </li>
+        </ul>
+      </div>
     </template>
 
     <VSpinner
@@ -69,9 +96,10 @@ import { DEFAULT_NESTING_ORDER } from './constants/nestingVariables.js'
 
 const PREVIEW_URL = '/tasks/otus/material_examined/preview'
 
-const isLoading   = ref(false)
-const results     = ref([])
+const isLoading    = ref(false)
+const results      = ref([])
 const nestingOrder = ref([...DEFAULT_NESTING_ORDER])
+const todoMode     = ref(false)
 
 let currentParams = null
 
@@ -94,7 +122,8 @@ async function loadPreview(params) {
   try {
     const response = await AjaxCall('post', PREVIEW_URL, {
       ...params,
-      order: nestingOrder.value
+      order: nestingOrder.value,
+      todo: todoMode.value
     })
     results.value = response.body.results || []
   } catch (e) {
@@ -105,9 +134,11 @@ async function loadPreview(params) {
 }
 
 watch(nestingOrder, () => {
-  if (currentParams) {
-    loadPreview(currentParams)
-  }
+  if (currentParams) loadPreview(currentParams)
+})
+
+watch(todoMode, () => {
+  if (currentParams) loadPreview(currentParams)
 })
 
 const initialParams = getInitialParams()
@@ -142,6 +173,44 @@ if (initialParams) {
 
 .dwc-filter-link {
   font-size: 0.85em;
+}
+
+.me-controls {
+  display: flex;
+  align-items: flex-start;
+  gap: 1em;
+  flex-wrap: wrap;
+  margin-bottom: 0.6em;
+}
+
+.todo-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.35em;
+  font-size: 0.9em;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.todo-list {
+  margin-top: 0.8em;
+}
+
+.todo-list-heading {
+  margin: 0 0 0.3em;
+  font-size: 0.9em;
+  text-transform: uppercase;
+  color: #666;
+  letter-spacing: 0.04em;
+}
+
+.todo-list ul {
+  margin: 0;
+  padding-left: 1.2em;
+}
+
+.todo-list li {
+  font-size: 0.9em;
 }
 
 .material-examined-html {

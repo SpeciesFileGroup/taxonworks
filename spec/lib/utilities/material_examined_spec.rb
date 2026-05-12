@@ -30,7 +30,7 @@ describe Utilities::MaterialExamined do
 
     specify 'single record' do
       expect(render(base)).to eq(
-        '**PARATYPE** (1) **United States**: **Illinois**: **Champaign**: vii, 1 INHS 714075 **Adult** **♂**: (INHS)'
+        '**PARATYPE** (1) **United States**: **Illinois**: **Champaign**: vii, 1 INHS 714075 Adult **♂**: (INHS)'
       )
     end
 
@@ -40,7 +40,7 @@ describe Utilities::MaterialExamined do
 
       specify 'collapses to identifier range, sums individualCount' do
         expect(render(base, r2)).to eq(
-          '**PARATYPE** (2) **United States**: **Illinois**: **Champaign**: vii, 2 INHS 714075-6 **Adult** **♂**: (INHS)'
+          '**PARATYPE** (2) **United States**: **Illinois**: **Champaign**: vii, 2 INHS 714075-6 Adult **♂**: (INHS)'
         )
       end
 
@@ -49,7 +49,7 @@ describe Utilities::MaterialExamined do
 
         specify 'total reflects individualCount sum, not record count' do
           expect(render(base, r2)).to eq(
-            '**PARATYPE** (7) **United States**: **Illinois**: **Champaign**: vii, 7 INHS 714075-6 **Adult** **♂**: (INHS)'
+            '**PARATYPE** (7) **United States**: **Illinois**: **Champaign**: vii, 7 INHS 714075-6 Adult **♂**: (INHS)'
           )
         end
 
@@ -58,7 +58,7 @@ describe Utilities::MaterialExamined do
 
           specify 'different sex breaks range collapse' do
             expect(render(base, r2)).to eq(
-              '**PARATYPE** (7) **United States**: **Illinois**: **Champaign**: vii, 7 INHS 714075 **Adult** **♂**: (INHS); INHS 714076 **Adult** **♀**: (INHS)'
+              '**PARATYPE** (7) **United States**: **Illinois**: **Champaign**: vii, 7 INHS 714075 Adult **♂**: (INHS); INHS 714076 Adult **♀**: (INHS)'
             )
           end
 
@@ -67,7 +67,7 @@ describe Utilities::MaterialExamined do
 
             specify 'different stage and sex, no range collapse' do
               expect(render(base, r2)).to eq(
-                '**PARATYPE** (7) **United States**: **Illinois**: **Champaign**: vii, 7 INHS 714075 **Adult** **♂**: (INHS); INHS 714076 **Juvenile** **♀**: (INHS)'
+                '**PARATYPE** (7) **United States**: **Illinois**: **Champaign**: vii, 7 INHS 714075 Adult **♂**: (INHS); INHS 714076 Juvenile **♀**: (INHS)'
               )
             end
           end
@@ -81,7 +81,7 @@ describe Utilities::MaterialExamined do
 
       specify 'non-consecutive identifiers are not collapsed' do
         expect(render(base, r3)).to eq(
-          '**PARATYPE** (2) **United States**: **Illinois**: **Champaign**: vii, 2 INHS 714075 **Adult** **♂**: (INHS); INHS 714078 **Adult** **♂**: (INHS)'
+          '**PARATYPE** (2) **United States**: **Illinois**: **Champaign**: vii, 2 INHS 714075 Adult **♂**: (INHS); INHS 714078 Adult **♂**: (INHS)'
         )
       end
 
@@ -90,7 +90,7 @@ describe Utilities::MaterialExamined do
 
         specify 'total still sums individualCount across non-consecutive identifiers' do
           expect(render(base, r3)).to eq(
-            '**PARATYPE** (7) **United States**: **Illinois**: **Champaign**: vii, 7 INHS 714075 **Adult** **♂**: (INHS); INHS 714078 **Adult** **♂**: (INHS)'
+            '**PARATYPE** (7) **United States**: **Illinois**: **Champaign**: vii, 7 INHS 714075 Adult **♂**: (INHS); INHS 714078 Adult **♂**: (INHS)'
           )
         end
 
@@ -99,7 +99,7 @@ describe Utilities::MaterialExamined do
 
           specify 'different sex, non-consecutive identifiers' do
             expect(render(base, r3)).to eq(
-              '**PARATYPE** (7) **United States**: **Illinois**: **Champaign**: vii, 7 INHS 714075 **Adult** **♂**: (INHS); INHS 714078 **Adult** **♀**: (INHS)'
+              '**PARATYPE** (7) **United States**: **Illinois**: **Champaign**: vii, 7 INHS 714075 Adult **♂**: (INHS); INHS 714078 Adult **♀**: (INHS)'
             )
           end
 
@@ -108,7 +108,7 @@ describe Utilities::MaterialExamined do
 
             specify 'different stage and sex, non-consecutive identifiers' do
               expect(render(base, r3)).to eq(
-                '**PARATYPE** (7) **United States**: **Illinois**: **Champaign**: vii, 7 INHS 714075 **Adult** **♂**: (INHS); INHS 714078 **Juvenile** **♀**: (INHS)'
+                '**PARATYPE** (7) **United States**: **Illinois**: **Champaign**: vii, 7 INHS 714075 Adult **♂**: (INHS); INHS 714078 Juvenile **♀**: (INHS)'
               )
             end
           end
@@ -127,7 +127,7 @@ describe Utilities::MaterialExamined do
       order = [:country, :state, :county, :month_range, :total,
                :identifier_namespace, :identifier, :stage, :sex, :repository]
       expect(render(base, order:)).to eq(
-        '**United States**: **Illinois**: **Champaign**: vii, 1 INHS 714075 **Adult** **♂**: (INHS)'
+        '**United States**: **Illinois**: **Champaign**: vii, 1 INHS 714075 Adult **♂**: (INHS)'
       )
     end
 
@@ -135,7 +135,7 @@ describe Utilities::MaterialExamined do
       order = [:type_status, :country, :state, :county, :total, :month_range,
                :identifier_namespace, :identifier, :stage, :sex, :repository]
       expect(render(base, order:)).to eq(
-        '**PARATYPE** (1) **United States**: **Illinois**: **Champaign**: 1 vii, INHS 714075 **Adult** **♂**: (INHS)'
+        '**PARATYPE** (1) **United States**: **Illinois**: **Champaign**: 1 vii, INHS 714075 Adult **♂**: (INHS)'
       )
     end
 
@@ -143,7 +143,7 @@ describe Utilities::MaterialExamined do
       order = [:type_status, :country, :state, :county, :month_range,
                :identifier_namespace, :identifier, :total, :stage, :sex, :repository]
       expect(render(base, order:)).to eq(
-        '**PARATYPE** (1) **United States**: **Illinois**: **Champaign**: vii, INHS 714075 1 **Adult** **♂**: (INHS)'
+        '**PARATYPE** (1) **United States**: **Illinois**: **Champaign**: vii, INHS 714075 1 Adult **♂**: (INHS)'
       )
     end
   end
@@ -158,7 +158,7 @@ describe Utilities::MaterialExamined do
       order = [:type_status, :country, :state, :county, :total,
                :identifier_namespace, :identifier, :stage, :sex, :repository]
       expect(render(base, order:)).to eq(
-        '**PARATYPE** (1) **United States**: **Illinois**: **Champaign**: 1 INHS 714075 **Adult** **♂**: (INHS)'
+        '**PARATYPE** (1) **United States**: **Illinois**: **Champaign**: 1 INHS 714075 Adult **♂**: (INHS)'
       )
     end
 
@@ -174,7 +174,7 @@ describe Utilities::MaterialExamined do
       order = [:type_status, :country, :state, :county, :month_range, :total,
                :stage, :sex, :repository]
       expect(render(base, order:)).to eq(
-        '**PARATYPE** (1) **United States**: **Illinois**: **Champaign**: vii, 1 **Adult** **♂**: (INHS)'
+        '**PARATYPE** (1) **United States**: **Illinois**: **Champaign**: vii, 1 Adult **♂**: (INHS)'
       )
     end
   end
@@ -201,6 +201,70 @@ describe Utilities::MaterialExamined do
 
     specify 'counties are sorted alphabetically within their state' do
       expect(result.index('Champaign')).to be < result.index('Ogle')
+    end
+  end
+
+  # ---------------------------------------------------------------------------
+  # TODO mode
+  # ---------------------------------------------------------------------------
+  describe 'todo mode' do
+    def render_todo(*records, **kwargs)
+      Utilities::MaterialExamined.new(records, todo: true, **kwargs)
+    end
+
+    context 'blank sex field' do
+      let(:r) { rec('sex' => '', 'occurrenceID' => 'r-todo-sex') }
+
+      specify 'renders [TODO] in place of blank sex' do
+        result = render_todo(r).render
+        expect(result).to include('[TODO]')
+      end
+
+      specify 'populates todo_occurrence_ids' do
+        renderer = render_todo(r)
+        renderer.render
+        expect(renderer.todo_occurrence_ids).to include('r-todo-sex')
+      end
+    end
+
+    context 'blank month field' do
+      let(:r) { rec('month' => '', 'eventDate' => '', 'occurrenceID' => 'r-todo-month') }
+
+      specify 'renders [TODO] in place of blank month' do
+        result = render_todo(r).render
+        expect(result).to include('[TODO]')
+      end
+
+      specify 'populates todo_occurrence_ids' do
+        renderer = render_todo(r)
+        renderer.render
+        expect(renderer.todo_occurrence_ids).to include('r-todo-month')
+      end
+    end
+
+    context 'blank sex and blank month on separate records' do
+      let(:r_sex)   { rec('sex' => '',    'occurrenceID' => 'r-todo-sex',   'catalogNumber' => 'INHS 1') }
+      let(:r_month) { rec('month' => '',  'eventDate' => '', 'occurrenceID' => 'r-todo-month', 'catalogNumber' => 'INHS 2') }
+
+      specify 'both [TODO] values appear in output' do
+        result = render_todo(r_sex, r_month).render
+        expect(result.scan('[TODO]').length).to be >= 2
+      end
+
+      specify 'both occurrence ids are collected' do
+        renderer = render_todo(r_sex, r_month)
+        renderer.render
+        expect(renderer.todo_occurrence_ids).to include('r-todo-sex', 'r-todo-month')
+      end
+    end
+
+    context 'non-todo mode leaves blank fields invisible' do
+      let(:r) { rec('sex' => '', 'month' => '', 'eventDate' => '') }
+
+      specify 'does not render [TODO]' do
+        result = render(r)
+        expect(result).not_to include('[TODO]')
+      end
     end
   end
 

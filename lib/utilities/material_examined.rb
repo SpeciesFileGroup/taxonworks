@@ -31,7 +31,7 @@ module Utilities
       sex:                  ->(r) { SEX_SYMBOLS.fetch(normalize_sex(r['sex']), r['sex'].to_s.strip) },
       stage:                ->(r) { r['lifeStage'].to_s.strip },
       repository:           ->(r) { r['institutionCode'].to_s.strip },
-      month_range:          ->(r) { extract_month(r).to_s },
+      month_range:          ->(r) { m = extract_month(r); m.positive? ? m.to_s : '' },
       # :total is a passthrough — handled before grouping in render_group;
       # the lambda is never called but must exist for controller key validation.
       total:                ->(_r) { '' }
@@ -61,11 +61,17 @@ module Utilities
     # @param occurrences [Array<Hash>] DwC occurrence records (string keys)
     # @param order [Array<Symbol>] nesting order using keys from LOOP_VARIABLES
     # @param augmentations [Hash] occurrence-level additions keyed by occurrenceID
-    def initialize(occurrences, order: DEFAULT_ORDER, augmentations: {})
-      @occurrences   = occurrences
-      @order         = order
-      @augmentations = augmentations
+    # @param todo [Boolean] when true, blank active-field values render as "[TODO]"
+    #   and todo_occurrence_ids is populated for downstream link generation
+    def initialize(occurrences, order: DEFAULT_ORDER, augmentations: {}, todo: false)
+      @occurrences        = occurrences
+      @order              = order
+      @augmentations      = augmentations
+      @todo               = todo
+      @todo_occurrence_ids = []
     end
+
+    attr_reader :todo_occurrence_ids
 
     # @return [String] Markdown-formatted material examined text
     def render
@@ -198,6 +204,10 @@ module Utilities
       grouped = {}
       records.each do |r|
         val = extractor.call(r)
+        if val.empty? && @todo
+          val = '[TODO]'
+          @todo_occurrence_ids << r['occurrenceID']
+        end
         (grouped[val] ||= []) << r
       end
 
@@ -233,7 +243,7 @@ module Utilities
         parts = grouped.filter_map { |val, group_records|
           inner = render_group(group_records, rest)
           next nil if val.empty? && inner.empty?
-          val.empty? ? inner : (inner.empty? ? "**#{val}**" : "**#{val}** #{inner}")
+          val.empty? ? inner : (inner.empty? ? val : "#{val} #{inner}")
         }
         parts.reject(&:empty?).join('; ')
       elsif key == :sex
@@ -312,13 +322,26 @@ module Utilities
       parts = []
 
       # Records with no extractable month — rendered last, no month label
-      unknown_recs = grouped['0'].to_a + grouped[''].to_a
+      unknown_recs = grouped[''].to_a
       unknown_recs = nil if unknown_recs.empty?
 
       numeric = {}
+      labeled = {}
       grouped.each do |val, recs|
+        next if val.empty?
         m = val.to_i
-        numeric[m] = recs if m.positive?
+        if m.positive?
+          numeric[m] = recs
+        else
+          labeled[val] = recs  # e.g. '[TODO]'
+        end
+      end
+
+      # Non-numeric literal labels (e.g. '[TODO]') — rendered before numeric months
+      labeled.each do |label, recs|
+        content = render_group(recs, rest)
+        next if content.empty?
+        parts << "#{label}, #{content}"
       end
 
       unless numeric.empty?

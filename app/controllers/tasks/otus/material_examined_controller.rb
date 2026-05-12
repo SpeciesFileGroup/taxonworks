@@ -8,14 +8,23 @@ class Tasks::Otus::MaterialExaminedController < ApplicationController
 
   # POST /tasks/otus/material_examined/preview.json
   def preview
-    otu_ids = params[:otu_id].to_a.first(MAX_OTUS).map(&:to_i).uniq.compact
+    otu_ids = Array.wrap(params[:otu_id]).first(MAX_OTUS).map(&:to_i).uniq.compact
     order   = parse_order_param
+    todo    = ActiveModel::Type::Boolean.new.cast(params[:todo])
 
     results = otu_ids.map do |otu_id|
-      otu = ::Otu.where(project_id: sessions_current_project_id).find(otu_id)
-      text = ::Export::Helpers::MaterialExamined.render_for_otu(otu, order:)
-      html = text.empty? ? '' : MARKDOWN_HTML.render(text)
-      { otu_id: otu.id, label: helpers.label_for_otu(otu), text:, html: }
+      otu      = ::Otu.where(project_id: sessions_current_project_id).find(otu_id)
+      renderer = ::Export::Helpers::MaterialExamined.renderer_for_otu(otu, order:, todo:)
+      text     = renderer.render
+      html     = text.empty? ? '' : MARKDOWN_HTML.render(text)
+
+      todo_items = renderer.todo_occurrence_ids.uniq.filter_map do |occ_id|
+        aug = renderer.augmentations[occ_id]
+        next unless aug&.dig(:edit_link)
+        { label: aug[:label], url: aug[:edit_link] }
+      end
+
+      { otu_id: otu.id, label: helpers.label_for_otu(otu), text:, html:, todo_items: }
     end
 
     render json: { results: }
