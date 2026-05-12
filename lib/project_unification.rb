@@ -149,7 +149,7 @@ module ProjectUnification
         klass   = entry[:model].constantize
         target  = klass.find(entry[:target_id])
         renamed = klass.find(entry[:renamed_id])
-        result  = target.unify(renamed)
+        result  = target.unify(renamed, cutoff: 1000)
         next if result[:result][:unified]
         @results[:errors] << {
           model: entry[:model],
