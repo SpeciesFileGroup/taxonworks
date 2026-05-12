@@ -428,10 +428,11 @@ module Utilities
     # When :total is in the order the count was already shown upstream, so only
     # augmentation labels are emitted here. Without :total the count is shown.
     def render_leaf(records)
-      labels = records.filter_map { |r|
+      show_labels = order.include?(:identifier) || order.include?(:identifier_namespace)
+      labels = show_labels ? records.filter_map { |r|
         aug = augmentations[r['occurrenceID']]
         aug&.dig(:label)
-      }
+      } : []
 
       if order.include?(:total)
         labels.empty? ? '' : "(#{labels.join('; ')})"

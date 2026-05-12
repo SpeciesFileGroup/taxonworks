@@ -22,7 +22,6 @@
       :key="result.otu_id"
     >
       <h2
-        v-if="results.length > 1"
         class="otu-label"
       >
         {{ result.label }}

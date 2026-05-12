@@ -50,7 +50,7 @@ module Export
           occ_id = dwc.occurrenceID
           next if occ_id.blank?
           hash[occ_id] = {
-            label:     dwc.catalogNumber.presence || occ_id,
+            label:     dwc.catalogNumber.presence,
             edit_link: edit_link_for(dwc)
           }
         end

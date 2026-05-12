@@ -21,7 +21,7 @@ class Tasks::Otus::MaterialExaminedController < ApplicationController
       todo_items = renderer.todo_occurrence_ids.uniq.filter_map do |occ_id|
         aug = renderer.augmentations[occ_id]
         next unless aug&.dig(:edit_link)
-        { label: aug[:label], url: aug[:edit_link] }
+        { label: aug[:label] || occ_id, url: aug[:edit_link] }
       end
 
       { otu_id: otu.id, label: helpers.label_for_otu(otu), text:, html:, todo_items: }
