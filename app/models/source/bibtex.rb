@@ -684,6 +684,7 @@ class Source::Bibtex < Source
         self.identifiers.build(type: 'Identifier::Global::Issn', identifier: value)
       end
     else
+      return if value.blank?
       # Do some work to assign a Serial if possible
       # Check for Journal by ISSN
       s = Serial.where(name: journal).first

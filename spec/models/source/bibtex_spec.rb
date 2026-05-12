@@ -199,6 +199,16 @@ describe Source::Bibtex, type: :model, group: :sources do
     expect(src.serial_id).to eq(issn_serial.id)
   end
 
+  specify '#update with explicit serial_id and nil issn preserves provided serial_id' do
+    s1 = FactoryBot.create(:valid_serial)
+    s2 = FactoryBot.create(:valid_serial)
+    src = FactoryBot.create(:valid_source_bibtex, journal: s1.name, serial: s1)
+
+    src.update(serial_id: s2.id, issn: nil)
+
+    expect(src.reload.serial_id).to eq(s2.id)
+  end
+
   specify '.new_from_bibtex without create project source' do
     citation_string =  %q{@Article{Park2021a,
         author = {Kyu-Tek Park AND J. B. Heppner},
