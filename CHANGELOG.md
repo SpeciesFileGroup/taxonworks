@@ -20,6 +20,10 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Taxon Pages Biological Associations returns no results
 - error on /api/v1/dwc_occurrences
 - /downloads/1 shows `Expires: n days` when the download has been *expired* for n days
+- New Source can fail to update a serial when the serial being updated to has no issn [#4921]
+- In New Source, an issn value never overrides the serial selected by the user
+
+[#4921]: https://github.com/SpeciesFileGroup/taxonworks/issues/4921
 
 [#2325]: https://github.com/SpeciesFileGroup/taxonworks/issues/2325
 
