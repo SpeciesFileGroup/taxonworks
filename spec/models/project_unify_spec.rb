@@ -1175,6 +1175,54 @@ RSpec.describe Project, '#unify', type: :model do
       end
     end
 
+    context 'name and definition conflict with different target CVTs (multi-target)' do
+      # source_cvt.name matches target_a, source_cvt.definition matches target_b.
+      # find_conflicting_target_cvts returns two distinct targets so sole_target is
+      # nil and auto-resolution must not proceed.
+      let!(:source_cvt) do
+        FactoryBot.create(:valid_keyword,
+          name: 'Shared Name',
+          definition: 'Shared definition text here',
+          project: source_project)
+      end
+      let!(:target_a) do
+        FactoryBot.create(:valid_keyword,
+          name: 'Shared Name',
+          definition: 'Target A only definition text',
+          project: target_project)
+      end
+      let!(:target_b) do
+        FactoryBot.create(:valid_keyword,
+          name: 'Target B name only',
+          definition: 'Shared definition text here',
+          project: target_project)
+      end
+
+      it 'reports a CVT conflict' do
+        result = target_project.unify(source_project, preview: false, confirm: true, user_id: user.id)
+        expect(result[:conflicts].map { |c| c[:model] }).to include('ControlledVocabularyTerm')
+      end
+
+      it 'does not unify' do
+        result = target_project.unify(source_project, preview: false, confirm: true, user_id: user.id)
+        expect(result[:unified]).to be false
+      end
+
+      it 'reports the conflicting target CVT for each field' do
+        result = target_project.unify(source_project, preview: false, confirm: true, user_id: user.id)
+        cvt_conflict = result[:conflicts].find { |c| c[:model] == 'ControlledVocabularyTerm' }
+        expect(cvt_conflict[:target_cvts][:name][:id]).to eq(target_a.id)
+        expect(cvt_conflict[:target_cvts][:definition][:id]).to eq(target_b.id)
+      end
+
+      it 'preserves the source CVT (transaction rolled back)' do
+        source_id = source_cvt.id
+        target_project.unify(source_project, preview: false, confirm: true, user_id: user.id)
+        expect(ControlledVocabularyTerm.exists?(source_id)).to be true
+        expect(source_cvt.reload.project_id).to eq(source_project.id)
+      end
+    end
+
     context 'on_model_migrated progress callback' do
       let!(:source_cvt) { FactoryBot.create(:valid_keyword, project: source_project) }
 

@@ -309,9 +309,11 @@ module ProjectUnification
           record.save!
           stats[:migrated] += 1
         elsif uniqueness_error?(record)
-          target_cvt = find_conflicting_target_cvt(record)
+          target_cvts = find_conflicting_target_cvts(record)
+          unique_targets = target_cvts.values.uniq(&:id)
+          sole_target = unique_targets.first if unique_targets.one?
 
-          if target_cvt && target_cvt.type == record.type && cvts_semantically_equivalent?(record, target_cvt)
+          if sole_target && sole_target.type == record.type && cvts_semantically_equivalent?(record, sole_target)
             record.errors.details.each do |field, errors|
               next unless errors.any? { |e| e[:error] == :taken }
               case field
@@ -329,9 +331,10 @@ module ProjectUnification
             stats[:merge_registry] << {
               model: record.class.name,
               renamed_id: record.id,
-              target_id: target_cvt.id
+              target_id: sole_target.id
             }
           else
+            primary_target = sole_target || unique_targets.first
             stats[:conflicts] << {
               id: record.id,
               model: klass.name,
@@ -345,15 +348,26 @@ module ProjectUnification
                 uri: record.uri,
                 uri_relation: record.uri_relation
               },
-              target_cvt: target_cvt ? {
-                id: target_cvt.id,
+              target_cvt: primary_target && {
+                id: primary_target.id,
                 project_id: target_project_id,
-                cvt_type: target_cvt.type,
-                name: target_cvt.name,
-                definition: target_cvt.definition,
-                uri: target_cvt.uri,
-                uri_relation: target_cvt.uri_relation
-              } : nil
+                cvt_type: primary_target.type,
+                name: primary_target.name,
+                definition: primary_target.definition,
+                uri: primary_target.uri,
+                uri_relation: primary_target.uri_relation
+              },
+              target_cvts: target_cvts.transform_values { |cvt|
+                {
+                  id: cvt.id,
+                  project_id: target_project_id,
+                  cvt_type: cvt.type,
+                  name: cvt.name,
+                  definition: cvt.definition,
+                  uri: cvt.uri,
+                  uri_relation: cvt.uri_relation
+                }
+              }
             }
           end
         else
@@ -377,10 +391,33 @@ module ProjectUnification
         (record.uri.blank? || record.uri == target_cvt.uri)
     end
 
-    def find_conflicting_target_cvt(record)
-      ControlledVocabularyTerm.find_by(type: record.type, name: record.name, project_id: target_project_id) ||
-        ControlledVocabularyTerm.find_by(definition: record.definition, project_id: target_project_id) ||
-        (record.uri.present? ? ControlledVocabularyTerm.find_by(uri: record.uri, uri_relation: record.uri_relation, project_id: target_project_id) : nil)
+    # Returns a hash of { field_sym => ControlledVocabularyTerm } for each field on
+    # +record+ that conflicts with an existing CVT in the target project.  Each field
+    # may identify a *different* target CVT; callers must check whether all entries
+    # resolve to the same record before attempting auto-resolution.
+    def find_conflicting_target_cvts(record)
+      matches = {}
+
+      name_match = ControlledVocabularyTerm.find_by(
+        type: record.type, name: record.name, project_id: target_project_id
+      )
+      matches[:name] = name_match if name_match
+
+      if record.definition.present?
+        definition_match = ControlledVocabularyTerm.find_by(
+          definition: record.definition, project_id: target_project_id
+        )
+        matches[:definition] = definition_match if definition_match
+      end
+
+      if record.uri.present?
+        uri_match = ControlledVocabularyTerm.find_by(
+          uri: record.uri, uri_relation: record.uri_relation, project_id: target_project_id
+        )
+        matches[:uri] = uri_match if uri_match
+      end
+
+      matches
     end
 
     # Returns a name that does not conflict with any CVT of the same type in the target project.
