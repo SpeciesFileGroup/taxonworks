@@ -12,6 +12,14 @@
 module Utilities
   class MaterialExamined
 
+    MONTH_ROMAN = %w[i ii iii iv v vi vii viii ix x xi xii].freeze
+
+    SEX_SYMBOLS = {
+      'male'          => '♂',
+      'female'        => '♀',
+      'gynandromorph' => '♂♀'
+    }.freeze
+
     # Lambdas that extract a grouping value from a DwC occurrence hash.
     LOOP_VARIABLES = {
       type_status:          ->(r) { r['typeStatus'].to_s.strip },
@@ -20,25 +28,25 @@ module Utilities
       county:               ->(r) { r['county'].to_s.strip },
       identifier_namespace: ->(r) { catalog_namespace(r['catalogNumber']) },
       identifier:           ->(r) { catalog_identifier(r['catalogNumber']) },
-      sex:                  ->(r) { r['sex'].to_s.strip },
+      sex:                  ->(r) { SEX_SYMBOLS.fetch(normalize_sex(r['sex']), r['sex'].to_s.strip) },
       stage:                ->(r) { r['lifeStage'].to_s.strip },
-      repository:           ->(r) { r['institutionCode'].to_s.strip }
+      repository:           ->(r) { r['institutionCode'].to_s.strip },
+      month_range:          ->(r) { extract_month(r).to_s },
+      # :total is a passthrough — handled before grouping in render_group;
+      # the lambda is never called but must exist for controller key validation.
+      total:                ->(_r) { '' }
     }.freeze
 
-    # Default nesting order for loops.
-    # :repository groups by institutionCode first so the institution appears once
-    # as a bold header. :identifier then shows just the numeric part of catalogNumber
-    # within that group (no namespace prefix needed).
-    # :identifier_namespace is intentionally absent from the default; add it to a
-    # custom order when catalog-number prefixes differ across specimens in the same
-    # repository group.
     DEFAULT_ORDER = [
       :type_status,
       :country, :state, :county,
-      :repository,
+      :month_range,
+      :total,
+      :identifier_namespace,
       :identifier,
+      :stage,
       :sex,
-      :stage
+      :repository
     ].freeze
 
     # Sort position for primary type designations
@@ -79,7 +87,7 @@ module Utilities
       end
     end
 
-    # --- class-level catalog number helpers (used by LOOP_VARIABLES lambdas) ---
+    # --- class-level helpers (used by LOOP_VARIABLES lambdas) ---
 
     # Returns the namespace portion of a catalogNumber string.
     # e.g. "USNM 1234" => "USNM", "MCZ:Ent:12345" => "MCZ:Ent", "1234" => ""
@@ -105,11 +113,39 @@ module Utilities
       (m = s.match(/(\d+)\z/)) ? m[1] : s
     end
 
+    # Normalises a raw DwC sex string to a SEX_SYMBOLS key.
+    # Handles case, plurals ('females' → 'female'), and gynandromorph variants
+    # ('Gynandromorphic', 'gynandomorph', 'gynandromorphs', …).
+    def self.normalize_sex(value)
+      s = value.to_s.strip.downcase
+      # Gynandromorph and its common variants (gynandomorph misspelling, -ic, -s, …)
+      return 'gynandromorph' if s.match?(/\Agyn(andro|ando)/)
+      # Strip trailing plural 's' for 'males' / 'females'
+      s = s.delete_suffix('s') if s.length > 3
+      s
+    end
+
+    # Returns the month (1–12) from a DwC record, or 0 if absent/invalid.
+    # Reads the integer `month` field first; falls back to parsing `eventDate`.
+    def self.extract_month(record)
+      m = record['month'].to_i
+      return m if (1..12).cover?(m)
+
+      date_str = record['eventDate'].to_s
+      if (md = date_str.match(/\A\d{4}-(\d{2})/))
+        m2 = md[1].to_i
+        return m2 if (1..12).cover?(m2)
+      end
+      0
+    end
+
     private
 
-    # Delegate to class methods so lambdas in LOOP_VARIABLES can call them.
+    # Delegates to class methods so lambdas in LOOP_VARIABLES can call them.
     def catalog_namespace(val) = self.class.catalog_namespace(val)
     def catalog_identifier(val) = self.class.catalog_identifier(val)
+    def normalize_sex(val)      = self.class.normalize_sex(val)
+    def extract_month(r)        = self.class.extract_month(r)
 
     def sort_by_type_status(records)
       records.sort_by { |r| type_status_sort_key(r['typeStatus'].to_s.downcase.strip) }
@@ -148,36 +184,74 @@ module Utilities
       key  = keys.first
       rest = keys[1..]
 
+      # :total injects the summed individualCount at this nesting position and
+      # continues rendering the remaining keys. render_leaf suppresses its own
+      # count whenever :total appears anywhere in the order, avoiding duplication.
+      if key == :total
+        inner = render_group(records, rest)
+        total = total_specimens(records)
+        return inner.empty? ? total.to_s : "#{total} #{inner}"
+      end
+
       extractor = LOOP_VARIABLES[key]
 
-      # Preserve insertion order so geography is rendered in sorted order.
       grouped = {}
       records.each do |r|
         val = extractor.call(r)
         (grouped[val] ||= []) << r
       end
 
+      grouped = grouped.sort.to_h if %i[country state county].include?(key)
+
       if key == :identifier
         render_identifier_group(grouped, rest)
+      elsif key == :month_range
+        render_month_group(grouped, rest)
       elsif key == :identifier_namespace && rest.first == :identifier
-        # Paired namespace+identifier: render as "NAMESPACE NUMBER-RANGE [content]"
-        # rather than "**NAMESPACE**: NUMBER-RANGE [content]" to keep them together.
-        parts = grouped.map { |ns_val, group_records|
+        # Paired namespace+identifier: "NAMESPACE NUMBER-RANGE [content]"
+        parts = grouped.filter_map { |ns_val, group_records|
           id_extractor = LOOP_VARIABLES[:identifier]
           id_grouped = {}
           group_records.each do |r|
             id_val = id_extractor.call(r)
             (id_grouped[id_val] ||= []) << r
           end
-          render_identifier_group(id_grouped, rest[1..], namespace: ns_val)
+          result = render_identifier_group(id_grouped, rest[1..], namespace: ns_val)
+          result.empty? ? nil : result
         }
-        parts.compact.join('; ')
-      else
-        parts = grouped.map { |val, group_records|
+        parts.join('; ')
+      elsif key == :repository
+        # Show "(CODEN)" even when inner is empty — value still meaningful without sub-detail.
+        parts = grouped.filter_map { |val, group_records|
           inner = render_group(group_records, rest)
+          next nil if val.empty? && inner.empty?
+          val.empty? ? inner : (inner.empty? ? "(#{val})" : "(#{val}): #{inner}")
+        }
+        parts.reject(&:empty?).join('; ')
+      elsif key == :stage
+        # Show stage label even when inner is empty.
+        parts = grouped.filter_map { |val, group_records|
+          inner = render_group(group_records, rest)
+          next nil if val.empty? && inner.empty?
+          val.empty? ? inner : (inner.empty? ? "**#{val}**" : "**#{val}** #{inner}")
+        }
+        parts.reject(&:empty?).join('; ')
+      elsif key == :sex
+        # Show sex symbol even when inner is empty.
+        parts = grouped.filter_map { |val, group_records|
+          inner = render_group(group_records, rest)
+          next nil if val.empty? && inner.empty?
+          val.empty? ? inner : (inner.empty? ? "**#{val}**" : "**#{val}**: #{inner}")
+        }
+        parts.reject(&:empty?).join('; ')
+      else
+        # Geographic and other grouping levels: skip entirely when inner is empty.
+        parts = grouped.filter_map { |val, group_records|
+          inner = render_group(group_records, rest)
+          next nil if inner.empty?
           val.empty? ? inner : "**#{val}**: #{inner}"
         }
-        parts.compact.join('; ')
+        parts.join('; ')
       end
     end
 
@@ -201,7 +275,8 @@ module Utilities
       other.each do |val, recs|
         inner = render_group(recs, rest)
         label = val.empty? ? ns_prefix.strip : "#{ns_prefix}#{val}"
-        parts << (label.empty? ? inner : "#{label} #{inner}")
+        entry = label.empty? ? inner : (inner.empty? ? label : "#{label} #{inner}")
+        parts << entry unless entry.empty?
       end
 
       # Numeric identifiers — group by inner content, then detect consecutive runs
@@ -215,16 +290,72 @@ module Utilities
           (by_content[rendered[n]] ||= []) << n
         end
 
-        by_content.each do |inner, ids|
+        by_content.each do |_inner, ids|
           consecutive_runs(ids).each do |run|
+            run_records    = run.flat_map { |n| numeric[n] }
+            combined_inner = render_group(run_records, rest)
             num_label = run.length == 1 ? run.first.to_s : range_label(run.first, run.last)
             label     = "#{ns_prefix}#{num_label}"
-            parts << "#{label} #{inner}"
+            parts << (combined_inner.empty? ? label : "#{label} #{combined_inner}")
           end
         end
       end
 
       parts.compact.join('; ')
+    end
+
+    # Renders the :month_range level with consecutive-month detection.
+    # Months are represented as integers ("1"–"12") and rendered as Roman numerals.
+    # Consecutive months sharing the same inner content collapse to a range,
+    # e.g. months 8 and 9 → "viii–ix". Output preserves chronological order.
+    def render_month_group(grouped, rest)
+      parts = []
+
+      # Records with no extractable month — rendered last, no month label
+      unknown_recs = grouped['0'].to_a + grouped[''].to_a
+      unknown_recs = nil if unknown_recs.empty?
+
+      numeric = {}
+      grouped.each do |val, recs|
+        m = val.to_i
+        numeric[m] = recs if m.positive?
+      end
+
+      unless numeric.empty?
+        rendered = numeric.transform_values { |recs| render_group(recs, rest) }
+        sorted   = numeric.keys.sort
+
+        # Walk sorted months, collapsing consecutive runs with identical inner content
+        i = 0
+        while i < sorted.length
+          start_m = sorted[i]
+          content  = rendered[start_m]
+          j = i + 1
+          j += 1 while j < sorted.length &&
+                        sorted[j] == sorted[j - 1] + 1 &&
+                        rendered[sorted[j]] == content
+          next if content.empty?
+          label = roman_month_range(start_m, sorted[j - 1])
+          parts << "#{label}, #{content}"
+          i = j
+        end
+      end
+
+      if unknown_recs
+        inner = render_group(unknown_recs, rest)
+        parts << inner unless inner.empty?
+      end
+
+      parts.join('; ')
+    end
+
+    # Formats a month range as Roman numerals with an en-dash separator.
+    # roman_month_range(8, 9) => "viii–ix"
+    # roman_month_range(7, 7) => "vii"
+    def roman_month_range(start_month, end_month)
+      start_label = MONTH_ROMAN[start_month - 1]
+      return start_label if start_month == end_month
+      "#{start_label}–#{MONTH_ROMAN[end_month - 1]}"
     end
 
     # Splits a sorted array of integers into runs of consecutive numbers.
@@ -270,17 +401,21 @@ module Utilities
       records.sum { |r| [r['individualCount'].to_i, 1].max }
     end
 
-    # Renders the leaf node: specimen count plus optional labels from augmentations.
+    # Renders the leaf node.
+    # When :total is in the order the count was already shown upstream, so only
+    # augmentation labels are emitted here. Without :total the count is shown.
     def render_leaf(records)
-      count = total_specimens(records)
-
       labels = records.filter_map { |r|
         aug = augmentations[r['occurrenceID']]
         aug&.dig(:label)
       }
 
-      label_part = labels.empty? ? '' : " #{labels.join('; ')}"
-      "(#{count}#{label_part})"
+      if order.include?(:total)
+        labels.empty? ? '' : "(#{labels.join('; ')})"
+      else
+        count = total_specimens(records)
+        labels.empty? ? "(#{count})" : "#{count} (#{labels.join('; ')})"
+      end
     end
   end
 end

@@ -1,5 +1,7 @@
 <template>
   <div class="material-examined-task">
+    <NestingOrderForm v-model="nestingOrder" />
+
     <div
       v-if="!results.length && !isLoading"
       class="feedback"
@@ -27,7 +29,7 @@
             title="Copy Markdown to clipboard"
           />
           <a
-            :href="`/tasks/dwc_occurrences/filter?otu_id[]=${result.otu_id}`"
+            :href="`/tasks/dwc_occurrences/filter?per=50&attribute_name[]=otu_id&attribute_value[]=${result.otu_id}&attribute_value_negator[]=false&attribute_value_type[]=exact&attribute_combine_logic[]=&page=1&paginate=true`"
             target="_blank"
             rel="noopener"
             class="dwc-filter-link"
@@ -56,17 +58,22 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import qs from 'qs'
 import AjaxCall from '@/helpers/ajaxCall'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import ButtonClipboard from '@/components/ui/Button/ButtonClipboard.vue'
 import { LinkerStorage } from '@/shared/Filter/utils'
+import NestingOrderForm from './components/NestingOrderForm.vue'
+import { DEFAULT_NESTING_ORDER } from './constants/nestingVariables.js'
 
 const PREVIEW_URL = '/tasks/otus/material_examined/preview'
 
-const isLoading = ref(false)
-const results = ref([])
+const isLoading   = ref(false)
+const results     = ref([])
+const nestingOrder = ref([...DEFAULT_NESTING_ORDER])
+
+let currentParams = null
 
 function getInitialParams() {
   const urlParams = qs.parse(window.location.search, {
@@ -85,7 +92,10 @@ async function loadPreview(params) {
   results.value = []
 
   try {
-    const response = await AjaxCall('post', PREVIEW_URL, { ...params })
+    const response = await AjaxCall('post', PREVIEW_URL, {
+      ...params,
+      order: nestingOrder.value
+    })
     results.value = response.body.results || []
   } catch (e) {
     console.error('Material examined preview failed:', e)
@@ -94,8 +104,15 @@ async function loadPreview(params) {
   }
 }
 
+watch(nestingOrder, () => {
+  if (currentParams) {
+    loadPreview(currentParams)
+  }
+})
+
 const initialParams = getInitialParams()
 if (initialParams) {
+  currentParams = initialParams
   loadPreview(initialParams)
 }
 </script>
