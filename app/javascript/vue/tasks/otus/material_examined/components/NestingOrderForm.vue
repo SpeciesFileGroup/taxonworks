@@ -22,7 +22,9 @@
                   class="nesting-remove"
                   title="Remove"
                   @click="removeItem(element)"
-                >&#x2715;</button>
+                >
+                  &#x2715;
+                </button>
               </div>
             </template>
           </draggable>
@@ -44,7 +46,9 @@
                   class="nesting-add"
                   title="Add"
                   @click="addItem(element)"
-                >&#x2b;</button>
+                >
+                  &#x2b;
+                </button>
               </div>
             </template>
           </draggable>
@@ -56,21 +60,28 @@
           type="button"
           class="button button-submit"
           @click="apply"
-        >Apply</button>
+        >
+          Apply
+        </button>
         <button
           type="button"
           class="button normal-input button-default"
           @click="reset"
-        >Reset to default</button>
+        >
+          Reset to default
+        </button>
       </div>
     </div>
   </details>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import Draggable from 'vuedraggable'
-import { NESTING_VARIABLES, DEFAULT_NESTING_ORDER } from '../constants/nestingVariables.js'
+import {
+  NESTING_VARIABLES,
+  DEFAULT_NESTING_ORDER
+} from '../constants/nestingVariables.js'
 
 const props = defineProps({
   modelValue: {
@@ -83,35 +94,38 @@ const emit = defineEmits(['update:modelValue'])
 
 function buildActive(order) {
   return order
-    .map(k => NESTING_VARIABLES.find(v => v.key === k))
+    .map((k) => NESTING_VARIABLES.find((v) => v.key === k))
     .filter(Boolean)
 }
 
 function buildAvailable(order) {
-  return NESTING_VARIABLES.filter(v => !order.includes(v.key))
+  return NESTING_VARIABLES.filter((v) => !order.includes(v.key))
 }
 
-const activeOrder  = ref(buildActive(props.modelValue))
+const activeOrder = ref(buildActive(props.modelValue))
 const availableItems = ref(buildAvailable(props.modelValue))
 
 function removeItem(item) {
-  activeOrder.value = activeOrder.value.filter(v => v.key !== item.key)
+  activeOrder.value = activeOrder.value.filter((v) => v.key !== item.key)
   availableItems.value = NESTING_VARIABLES.filter(
-    v => !activeOrder.value.some(a => a.key === v.key)
+    (v) => !activeOrder.value.some((a) => a.key === v.key)
   )
 }
 
 function addItem(item) {
   activeOrder.value = [...activeOrder.value, item]
-  availableItems.value = availableItems.value.filter(v => v.key !== item.key)
+  availableItems.value = availableItems.value.filter((v) => v.key !== item.key)
 }
 
 function apply() {
-  emit('update:modelValue', activeOrder.value.map(v => v.key))
+  emit(
+    'update:modelValue',
+    activeOrder.value.map((v) => v.key)
+  )
 }
 
 function reset() {
-  activeOrder.value   = buildActive(DEFAULT_NESTING_ORDER)
+  activeOrder.value = buildActive(DEFAULT_NESTING_ORDER)
   availableItems.value = buildAvailable(DEFAULT_NESTING_ORDER)
   emit('update:modelValue', [...DEFAULT_NESTING_ORDER])
 }
@@ -204,8 +218,12 @@ function reset() {
   line-height: 1;
 }
 
-.nesting-remove:hover { color: #c00; }
-.nesting-add:hover    { color: #080; }
+.nesting-remove:hover {
+  color: #c00;
+}
+.nesting-add:hover {
+  color: #080;
+}
 
 .nesting-actions {
   display: flex;
