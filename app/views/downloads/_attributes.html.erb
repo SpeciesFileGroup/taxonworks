@@ -14,8 +14,8 @@
 </p>
 
 <p>
-  <strong>Expires:</strong>
-  <%= distance_of_time_in_words Time.now - @download.expires %>
+  <strong><%= @download.expired? ? 'Expired' : 'Expires' %>:</strong>
+  <%= @download.expired? ? "#{time_ago_in_words(@download.expires)} ago" : "in #{time_ago_in_words(@download.expires)}" %>
 </p>
 
 <p>
