@@ -120,9 +120,7 @@ watch(
   () => props.otu,
   async (newOtu) => {
     if (newOtu) {
-      isLoading.value = true
       await loadMapData(newOtu.id, props.taxonName?.rank_string)
-      isLoading.value = false
     }
   },
   { immediate: true }

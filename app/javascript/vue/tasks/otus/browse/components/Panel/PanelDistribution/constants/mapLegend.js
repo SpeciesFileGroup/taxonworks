@@ -10,7 +10,7 @@ import {
 
 export const MAP_LEGEND = {
   [MAP_SHAPE_ASSERTED_DISTRIBUTION_ABSENT]: {
-    label: 'Asserted absent',
+    label: 'Absent',
     background: 'bg-asserted-distribution-absent'
   },
   [MAP_SHAPE_AGGREGATE]: {

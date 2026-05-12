@@ -1,5 +1,5 @@
 import { Otu, CachedMap } from '@/routes/endpoints'
-import { ref, onBeforeMount, computed } from 'vue'
+import { ref, computed } from 'vue'
 import {
   MAP_SHAPE_AGGREGATE,
   MAP_SHAPE_ASSERTED_DISTRIBUTION_ABSENT,
@@ -12,10 +12,6 @@ import {
   setPopupAndIconToFeatures,
   addAggregateDataToFeature
 } from '../utils/index.js'
-
-function hasAbsent(arr) {
-  return arr.some((feature) => feature.properties.is_absent)
-}
 
 function sortFeaturesByType(arr, reference) {
   const referenceMap = new Map()
@@ -44,16 +40,31 @@ function isRankInSpeciesGroups(rank) {
   ].includes(rankGroup)
 }
 
+async function loadAbsentFeatures(otuId) {
+  try {
+    const { body } = await Otu.geoJsonDistributionAbsent(otuId)
+    const features = (body.features || []).map((feature) => ({
+      ...feature,
+      properties: {
+        ...feature.properties,
+        is_absent: true,
+        base: [feature.properties.base],
+        target: [feature.properties.target]
+      }
+    }))
+
+    return setPopupAndIconToFeatures(features)
+  } catch {
+    return []
+  }
+}
+
 async function loadAggregateMap(otuId) {
   try {
     const { body } = await Otu.geoJsonDistribution(otuId)
     const { features, shapeTypes } = removeDuplicateShapes(
       sortFeaturesByType(body.features, Object.keys(MAP_LEGEND))
     )
-
-    if (hasAbsent(features)) {
-      shapeTypes.unshift(MAP_SHAPE_ASSERTED_DISTRIBUTION_ABSENT)
-    }
 
     return {
       shapeTypes,
@@ -98,13 +109,21 @@ export default () => {
     isLoading.value = true
 
     try {
-      const data = isSpeciesGroup
-        ? await loadAggregateMap(otuId)
-        : await loadGeoJSONDistribution(otuId)
+      const [data, absentFeatures] = await Promise.all([
+        isSpeciesGroup
+          ? loadAggregateMap(otuId)
+          : loadGeoJSONDistribution(otuId),
+        loadAbsentFeatures(otuId)
+      ])
 
-      shapeTypes.value = data.shapeTypes
-      geojson.value = data.features
-      cachedMap.value = data.cachedMap
+      const baseShapeTypes = data?.shapeTypes ?? []
+      const baseFeatures = data?.features ?? []
+
+      shapeTypes.value = absentFeatures.length
+        ? [MAP_SHAPE_ASSERTED_DISTRIBUTION_ABSENT, ...baseShapeTypes]
+        : baseShapeTypes
+      geojson.value = [...baseFeatures, ...absentFeatures]
+      cachedMap.value = data?.cachedMap
     } catch {
     } finally {
       isLoading.value = false
