@@ -6,7 +6,8 @@
         <input
           v-model="todoMode"
           type="checkbox"
-        > TODO mode
+        />
+        TODO mode
       </label>
     </div>
 
@@ -14,7 +15,10 @@
       v-if="!results.length && !isLoading"
       class="feedback"
     >
-      <p>No OTUs selected. Open this task from the OTU filter radial linker or OTU navigator.</p>
+      <p>
+        No OTUs selected. Open this task from the OTU filter radial linker or
+        OTU navigator.
+      </p>
     </div>
 
     <template
@@ -41,7 +45,8 @@
             target="_blank"
             rel="noopener"
             class="dwc-filter-link"
-          >DwcOccurrences</a>
+            >DwcOccurrences</a
+          >
         </div>
         <div
           class="material-examined-html"
@@ -69,7 +74,8 @@
               :href="item.url"
               target="_blank"
               rel="noopener"
-            >{{ item.label }}</a>
+              >{{ item.label }}</a
+            >
           </li>
         </ul>
       </div>
@@ -96,10 +102,10 @@ import { DEFAULT_NESTING_ORDER } from './constants/nestingVariables.js'
 
 const PREVIEW_URL = '/tasks/otus/material_examined/preview'
 
-const isLoading    = ref(false)
-const results      = ref([])
+const isLoading = ref(false)
+const results = ref([])
 const nestingOrder = ref([...DEFAULT_NESTING_ORDER])
-const todoMode     = ref(false)
+const todoMode = ref(false)
 
 let currentParams = null
 
