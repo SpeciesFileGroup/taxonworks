@@ -7,6 +7,10 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ## [unreleased]
 
+### Added
+
+- Preview material examined task [#2325]
+
 ### Changed
 
 - Allow catalog and record number identifiers on field occurrences
@@ -16,6 +20,8 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Taxon Pages Biological Associations returns no results
 - error on /api/v1/dwc_occurrences
 - /downloads/1 shows `Expires: n days` when the download has been *expired* for n days
+
+[#2325]: https://github.com/SpeciesFileGroup/taxonworks/issues/2325
 
 ## [0.62.0] - 2026-05-08
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_24_134946) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_11_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -2500,6 +2500,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_24_134946) do
   add_foreign_key "dataset_record_fields", "projects"
   add_foreign_key "dataset_records", "import_datasets"
   add_foreign_key "dataset_records", "projects"
+  add_foreign_key "depictions", "images"
   add_foreign_key "depictions", "sled_images"
   add_foreign_key "descriptors", "projects"
   add_foreign_key "descriptors", "users", column: "created_by_id"
