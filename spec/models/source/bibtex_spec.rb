@@ -209,6 +209,18 @@ describe Source::Bibtex, type: :model, group: :sources do
     expect(src.reload.serial_id).to eq(s2.id)
   end
 
+  specify '#update with explicit serial_id and issn that would match a different serial, serial_id wins' do
+    issn = '1175-5326'
+    issn_serial = FactoryBot.create(:valid_serial,
+      identifiers_attributes: [{ type: 'Identifier::Global::Issn', identifier: issn }])
+    explicit_serial = FactoryBot.create(:valid_serial)
+    src = FactoryBot.create(:valid_source_bibtex)
+
+    src.update(serial_id: explicit_serial.id, issn:)
+
+    expect(src.reload.serial_id).to eq(explicit_serial.id)
+  end
+
   specify '.new_from_bibtex without create project source' do
     citation_string =  %q{@Article{Park2021a,
         author = {Kyu-Tek Park AND J. B. Heppner},
