@@ -68,8 +68,8 @@ namespace :tw do
 
       if !preview
         puts "WARNING: This is NOT a preview. Data will be permanently migrated!"
-        puts "Press Ctrl+C within 5 seconds to cancel..."
-        sleep 5
+        puts "Press Ctrl+C within 10 seconds to cancel..."
+        sleep 10
         puts ""
       end
 
@@ -96,7 +96,6 @@ namespace :tw do
           source_project,
           root_taxon_name_id: root_id,
           preview: preview,
-          confirm: !preview,
           user_id: user_id,
           on_model_migrated: on_progress,
           skip_cached_rebuild: false
