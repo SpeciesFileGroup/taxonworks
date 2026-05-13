@@ -364,18 +364,24 @@ class Project < ApplicationRecord
 
   # Merge another project into this project
   #
-  # Merges all data from project_to_remove into this project, handling validation
+  # Merges all data from project_to_merge into this project, handling validation
   # conflicts, maintaining data integrity, and preserving complex relationships.
   #
-  # After successful merge, project_to_remove will be empty (except its Root TaxonName).
+  # After successful merge, project_to_merge will be empty (except its Root
+  # TaxonName).
   #
-  # @param project_to_remove [Project] The project to merge from (will be emptied of data)
-  # @param root_taxon_name_id [Integer, nil] Optional ID of TaxonName in this project
-  #   to use as parent for merged TaxonName hierarchy. If nil, uses this project's root.
-  # @param preview [Boolean] If true, performs dry-run and rolls back all changes (default: true)
-  # @param skip_cached_rebuild [Boolean] If true, skips rebuilding cached fields (default: false)
+  # @param project_to_merge [Project] The project to merge from (will be emptied
+  #   of data)
+  # @param root_taxon_name_id [Integer, nil] Optional ID of TaxonName in this
+  #   project to use as parent for merged TaxonName hierarchy. If nil, uses this
+  #   project's root.
+  # @param preview [Boolean] If true, performs dry-run and rolls back all
+  #   changes (default: true)
+  # @param skip_cached_rebuild [Boolean] If true, skips rebuilding cached fields
+  #   (default: false)
   #
-  # @return [Hash] Detailed results including statistics, errors, and per-model details
+  # @return [Hash] Detailed results including statistics, errors, and per-model
+  #   details
   #
   # @example Basic merge with preview
   #   result = target_project.unify(source_project, preview: true)
@@ -388,11 +394,14 @@ class Project < ApplicationRecord
   #     preview: false
   #   )
   #
-  def unify(project_to_remove, root_taxon_name_id: nil, preview: true, user_id: nil, on_model_migrated: nil, skip_cached_rebuild: false)
+  def unify(
+    project_to_merge, root_taxon_name_id: nil, preview: true, user_id: nil,
+    on_model_migrated: nil, skip_cached_rebuild: false
+  )
     raise ArgumentError, 'user_id is required for unification (needed to set updated_by_id on migrated records)' if user_id.nil?
 
     service = ProjectUnification::Service.new(
-      project_to_remove,
+      project_to_merge,
       self,
       {
         root_taxon_name_id: root_taxon_name_id,

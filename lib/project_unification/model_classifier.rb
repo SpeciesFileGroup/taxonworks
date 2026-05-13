@@ -1,10 +1,10 @@
 # Classifies models by their uniqueness validation complexity
-# to determine optimal migration strategy during project unification
+# to determine optimal migration strategy during project unification.
 #
 module ProjectUnification
   class ModelClassifier
-    # Fast track: Simple uniqueness on project_id only - can use bulk SQL UPDATE
-    # Includes all Annotation models which don't need validation
+    # Fast track: Simple uniqueness on project_id only - can use bulk SQL UPDATE.
+    # Includes all Annotation models which don't need validation.
     FAST_TRACK = %w[
       ProjectSource
       RangedLotCategory
@@ -24,7 +24,7 @@ module ProjectUnification
       ProtocolRelationship
     ].freeze
 
-    # Medium track: Moderate complexity - need validation checks before UPDATE
+    # Medium track: Moderate complexity - need validation checks before UPDATE.
     MEDIUM_TRACK = %w[
       ObservationMatrix
       ControlledVocabularyTerm
@@ -33,7 +33,7 @@ module ProjectUnification
       TaxonNameClassification
     ].freeze
 
-    # Slow track: High complexity - require per-record validation
+    # Slow track: High complexity - require per-record validation.
     SLOW_TRACK = %w[
       ImportAttribute
       InternalAttribute
@@ -41,7 +41,7 @@ module ProjectUnification
       TaxonDetermination
     ].freeze
 
-    # Special handling required - custom migration logic
+    # Special handling required - custom migration logic.
     SPECIAL_HANDLING = %w[
       TaxonName
       CollectingEvent
@@ -49,7 +49,7 @@ module ProjectUnification
       Document
     ].freeze
 
-    # Cached tables - use direct SQL update without validation
+    # Cached tables - use direct SQL update without validation.
     CACHED_TABLES = %w[
       CachedMap
       CachedMapItem
@@ -59,13 +59,13 @@ module ProjectUnification
     # Never migrate these
     EXCLUDED = %w[ProjectMember].freeze
 
-    # Models that have uniqueness validations but don't explicitly scope to project_id
-    # These are handled based on business logic - most can be fast-tracked
+    # Models that have uniqueness validations but don't explicitly scope to
+    #   project_id.
+    # These are handled based on business logic - most can be fast-tracked.
     IMPLICIT_SCOPE = %w[
       TypeMaterial
       CharacterState
       BiocurationClassification
-      Tag
       OtuRelationship
       Content
       SledImage
@@ -78,7 +78,8 @@ module ProjectUnification
     ].freeze
 
     # @param model_class [Class] ActiveRecord model class
-    # @return [Symbol] :fast, :medium, :slow, :special, :cached, :implicit, or :excluded
+    # @return [Symbol] :fast, :medium, :slow, :special, :cached, :implicit, or
+    #   :excluded
     def self.track_for(model_class)
       name = model_class.name
 
@@ -93,8 +94,8 @@ module ProjectUnification
       # Check if table name starts with 'cached_' for dynamic cached tables
       return :cached if model_class.table_name.to_s.start_with?('cached_')
 
-      # Default to implicit for models not explicitly categorized
-      # These are typically safe to bulk update
+      # Default to implicit for models not explicitly categorized -
+      # these are typically safe to bulk update.
       :implicit
     end
 

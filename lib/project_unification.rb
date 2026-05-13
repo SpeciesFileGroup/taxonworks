@@ -15,12 +15,16 @@ module ProjectUnification
     # @param source_project [Project] Project to merge from (will be emptied)
     # @param target_project [Project] Project to merge into (receives all data)
     # @param options [Hash]
-    # @option options [Integer] :root_taxon_name_id Optional target parent for TaxonName hierarchy
-    # @option options [Boolean] :preview If true, rolls back all changes (default: true)
-    # @option options [Integer] :user_id ID of the user performing the unification; required so that
-    #   updated_by_id is set correctly on all migrated records (including during preview, since
-    #   record.valid? triggers before_validation callbacks)
-    # @option options [Boolean] :skip_cached_rebuild Skip rebuilding cached fields (default: false)
+    # @option options [Integer] :root_taxon_name_id Optional target parent for
+    #   TaxonName hierarchy
+    # @option options [Boolean] :preview If true, rolls back all changes
+    #   (default: true)
+    # @option options [Integer] :user_id ID of the user performing the
+    #   unification; required so that updated_by_id is set correctly on all
+    #   migrated records (including during preview, since record.valid? triggers
+    #   before_validation callbacks)
+    # @option options [Boolean] :skip_cached_rebuild Skip rebuilding cached
+    #   fields (default: false)
     def initialize(source_project, target_project, options = {})
       @source_project = source_project
       @target_project = target_project
@@ -52,17 +56,19 @@ module ProjectUnification
 
       validate_prerequisites!
 
-      # Capture ambient Current state so we can restore it after (important when
-      # called from a request context, not just a rake task where they'd be nil).
-      saved_user_id    = Current.user_id
+      # Capture ambient Current state so we can restore it after (important if
+      # called from a request context; from a rake task they'd both be nil).
+      saved_user_id = Current.user_id
       saved_project_id = Current.project_id
 
       # Migration must run under the provided user so that updated_by_id is set
-      # correctly on every record. project_id is cleared so that find_or_create_by
-      # calls in callbacks cannot accidentally scope to the caller's ambient project.
-      Current.user_id    = @options[:user_id]
+      # correctly on every record. project_id is cleared so that
+      # find_or_create_by calls in callbacks cannot accidentally scope to the
+      # caller's ambient project.
+      Current.user_id = @options[:user_id]
       Current.project_id = nil
 
+      # Allows for cross-project saves
       Thread.current[:tw_project_unification] = true
 
       Project.transaction do
@@ -71,10 +77,10 @@ module ProjectUnification
         @results[:unified] = @results[:errors].empty? && @results[:conflicts].empty?
 
         if @options[:preview] || @results[:errors].any? || @results[:conflicts].any?
-          @results[:rollback_performed] = true
           raise ActiveRecord::Rollback
         end
       rescue ActiveRecord::Rollback
+        @results[:rollback_performed] = true
         raise
       rescue StandardError => e
         @results[:errors] << {
@@ -95,7 +101,7 @@ module ProjectUnification
       @results
     ensure
       Thread.current[:tw_project_unification] = nil
-      Current.user_id    = saved_user_id
+      Current.user_id = saved_user_id
       Current.project_id = saved_project_id
     end
 
@@ -112,25 +118,30 @@ module ProjectUnification
           raise ArgumentError, 'root_taxon_name_id must belong to target project'
         end
       end
+
+      if @options[:user_id]
+        unless User.find_by(id: @options[:user_id])
+          raise ArgumentError, 'user_id must be a valid user'
+        end
+      end
     end
 
     def run_migration
       migrator = ProjectUnification::Migrator.new(
-        source_project.id,
-        target_project.id,
+        source_project_id: source_project.id,
+        target_project_id: target_project.id,
         @options
       )
 
       migration_results = migrator.migrate_all
 
-      @results[:statistics]     = migration_results[:statistics]
+      @results[:statistics] = migration_results[:statistics]
       @results[:details_by_model] = migration_results[:details_by_model]
       @results[:conflicts].concat(migration_results[:conflicts])
       @results[:errors].concat(migration_results[:errors])
 
-      # Phase 2: unify renamed CVTs (and any other renamed records) with their
-      # target counterparts.  Both sides are now in the target project, so
-      # Shared::Unify works without cross-project restrictions.
+      # Run unify on records that need it - both sides are now in the target
+      # project, so Shared::Unify works without cross-project restrictions.
       run_cleanup(migration_results[:merge_registry] || [])
 
       # Rebuild cached fields unless skipped

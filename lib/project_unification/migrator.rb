@@ -1,20 +1,20 @@
-# Handles the actual data migration between projects
+# Handles the actual data migration between projects.
 #
-# Processes models in MANIFEST order, applying different strategies
+# Processes models in *reverse* MANIFEST order, applying different strategies
 # based on validation complexity (fast/medium/slow tracks).
 #
 module ProjectUnification
   class Migrator
     attr_reader :source_project_id, :target_project_id, :options
 
-    def initialize(source_project_id, target_project_id, options = {})
+    def initialize(source_project_id:, target_project_id:, options = {})
       @source_project_id = source_project_id
       @target_project_id = target_project_id
       @options = options
       @on_model_migrated = options[:on_model_migrated]
     end
 
-    # Migrate all models from source to target project
+    # Migrate all models from source to target project.
     # @return [Hash] Migration results with statistics and errors
     def migrate_all
       results = {
@@ -33,12 +33,12 @@ module ProjectUnification
         merge_registry: []
       }
 
-      # Process in MANIFEST order (dependencies first).
+      # Process in reverse MANIFEST order (dependencies last).
       # Note: We reverse because MANIFEST is in deletion order.
-      # ControlledVocabularyTerm is skipped here and handled last — after all
-      # FK-bearing rows are in the target project — so rename-on-conflict leaves
-      # no dangling cross-project references.
       Project::MANIFEST.reverse.each do |model_name|
+        # ControlledVocabularyTerm is skipped here and handled last — after all
+        # FK-bearing rows are in the target project — so rename-on-conflict
+        # leaves no dangling cross-project references.
         next if model_name == 'ControlledVocabularyTerm'
 
         klass = model_name.safe_constantize
@@ -106,7 +106,7 @@ module ProjectUnification
 
     private
 
-    # Fast track: Bulk SQL UPDATE for simple cases
+    # Fast track: Bulk SQL UPDATE for simple cases.
     def process_fast_track(klass)
       return nil unless klass.where(project_id: source_project_id).exists?
 
@@ -135,7 +135,7 @@ module ProjectUnification
       }
     end
 
-    # Medium track: Batch processing with validation
+    # Medium track: Batch processing with validation.
     def process_medium_track(klass)
       stats = { track: :medium, migrated: 0, destroyed: 0, conflicts: [], errors: [] }
 
@@ -150,15 +150,17 @@ module ProjectUnification
           if record.valid?
             record.save!(validate: false)
             stats[:migrated] += 1
-          elsif uniqueness_error?(record) && record.respond_to?(:handle_unify_conflict)
-            apply_conflict_handler(record, stats, save_with_validation: false)
           elsif uniqueness_error?(record)
-            stats[:conflicts] << {
-              id: record.id,
-              model: klass.name,
-              conflict_fields: conflict_fields(record),
-              errors: record.errors.full_messages
-            }
+            if record.respond_to?(:handle_unify_conflict)
+              apply_conflict_handler(record, stats, save_with_validation: false)
+            else
+              stats[:conflicts] << {
+                id: record.id,
+                model: klass.name,
+                conflict_fields: conflict_fields(record),
+                errors: record.errors.full_messages
+              }
+            end
           else
             stats[:errors] << {
               id: record.id,
@@ -178,7 +180,7 @@ module ProjectUnification
       stats
     end
 
-    # Slow track: Per-record processing with custom handlers
+    # Slow track: Per-record processing with custom handlers.
     def process_slow_track(klass)
       stats = { track: :slow, migrated: 0, destroyed: 0, conflicts: [], errors: [] }
 
@@ -192,15 +194,17 @@ module ProjectUnification
         if record.valid?
           record.save!
           stats[:migrated] += 1
-        elsif uniqueness_error?(record) && record.respond_to?(:handle_unify_conflict)
-          apply_conflict_handler(record, stats, save_with_validation: true)
         elsif uniqueness_error?(record)
-          stats[:conflicts] << {
-            id: record.id,
-            model: klass.name,
-            conflict_fields: conflict_fields(record),
-            errors: record.errors.full_messages
-          }
+          if record.respond_to?(:handle_unify_conflict)
+            apply_conflict_handler(record, stats, save_with_validation: true)
+          else
+            stats[:conflicts] << {
+              id: record.id,
+              model: klass.name,
+              conflict_fields: conflict_fields(record),
+              errors: record.errors.full_messages
+            }
+          end
         else
           stats[:errors] << {
             id: record.id,
@@ -219,7 +223,7 @@ module ProjectUnification
       stats
     end
 
-    # Process cached tables with direct SQL update
+    # Process cached tables with direct SQL update.
     def process_cached_table(klass)
       handler = ProjectUnification::SpecialHandlers::CachedTablesHandler.new(
         source_project_id,
@@ -229,7 +233,7 @@ module ProjectUnification
       handler.migrate
     end
 
-    # Special handling for models that need custom logic
+    # Special handling for models that need custom logic.
     def process_special_handling(klass)
       result = case klass.name
                when 'TaxonName'

@@ -11,7 +11,8 @@ module ProjectUnification
     # and why:
     #
     #   AnatomicalPart     cached_otu_id: OTU primary keys are unchanged by the
-    #                        bulk project_id update; moved TNRs form a
+    #                        bulk project_id update; moved
+    #                        TaxonNameRelationships form a
     #                        self-contained subtree so current_otu resolves
     #                        identically post-unification.
     #                      cached: derives from name/uri_label, project-independent.
@@ -45,8 +46,9 @@ module ProjectUnification
     # TaxonName is the only model that needs rebuilding: its cached fields
     # (cached_html, cached_valid_taxon_name_id, cached_is_valid, etc.) depend on
     # the hierarchy and TaxonNameRelationships, both of which are restructured
-    # during unification. TaxonName#set_cached queries live TNR state directly,
-    # so rebuilding TaxonName also picks up all TNR contributions.
+    # during unification. TaxonName#set_cached queries live
+    # TaxonNameRelationship state directly, so rebuilding TaxonName also picks
+    # up all TaxonNameRelationship contributions.
     MODELS_WITH_CACHED_FIELDS = %w[
       TaxonName
     ].freeze

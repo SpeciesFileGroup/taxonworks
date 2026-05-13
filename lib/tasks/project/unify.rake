@@ -53,6 +53,12 @@ namespace :tw do
         exit 1
       end
 
+      # We don't require user to be a member of the target project.
+      if user_id && !User.exists?(id: user_id)
+        puts "Error: USER #{user_id} does not exist!"
+        exit 1
+      end
+
       puts "=" * 80
       puts "PROJECT UNIFICATION"
       puts "=" * 80
