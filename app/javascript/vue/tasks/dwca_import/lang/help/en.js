@@ -5,7 +5,7 @@ import dwcTerms from '../../const/dwcTerms'
 function makeList(arr) {
   return `
   <ul>
-    ${arr.map((item) => `<li>${item}</li>`).join('')}
+    ${arr.map((item) => `<li>${Array.isArray(item) ? item.join(', ') : item}</li>`).join('')}
   </ul>
   `
 }
@@ -41,11 +41,11 @@ const helpData = {
         <li>Spreadsheet (XLS, XLSX and ODS supported)</li>
       </ul>
       <p>
-        Required columns for occurrence data:
+        For occurrence data, the dataset must include every field in at least one of the following sets:
           ${makeList(TW.constants.DWC_OCCURRENCES_MINIMUM_FIELD_SET)}
       </p>
       <p>
-        Required columns for checklist data:
+        For checklist data, the dataset must contain all fields from at least one of the following sets:
           ${makeList(TW.constants.DWC_CHECKLIST_MINIMUM_FIELD_SET)}
       </p>
       `
