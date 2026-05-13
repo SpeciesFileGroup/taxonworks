@@ -354,5 +354,172 @@ module ProjectUnification
                 .where.not("document_file_file_name ILIKE '%.prj' OR document_file_file_name ILIKE '%.cpg'")
       end
     end
+
+    # Handler for ControlledVocabularyTerm with rename-on-conflict and merge registry.
+    #
+    # When a source CVT conflicts on name/definition/uri with a target CVT, and the
+    # two are semantically equivalent, the source is renamed with a sentinel suffix
+    # so it can be saved, then registered for Phase 2 collapse via Shared::Unify.
+    # The sentinel is deliberately conspicuous — if Phase 2 cleanup ever fails the
+    # user can find orphaned records by searching "UNIFICATION TO PROJECT".
+    class ControlledVocabularyTermHandler
+      attr_reader :source_project_id, :target_project_id
+
+      SENTINEL_PREFIX = 'UNIFICATION TO PROJECT'
+
+      def initialize(source_project_id, target_project_id, options = {})
+        @source_project_id = source_project_id
+        @target_project_id = target_project_id
+      end
+
+      def migrate
+        stats = { track: :special, model: 'ControlledVocabularyTerm', migrated: 0,
+                  conflicts: [], errors: [], merge_registry: [] }
+        sentinel = "#{SENTINEL_PREFIX} #{target_project_id}"
+
+        records = ControlledVocabularyTerm.where(project_id: source_project_id)
+        return stats unless records.exists?
+
+        records.find_each do |record|
+          record.no_cached = true if record.respond_to?(:no_cached=)
+          record.project_id = target_project_id
+
+          if record.valid?
+            record.save!
+            stats[:migrated] += 1
+          elsif uniqueness_error?(record)
+            target_cvts  = find_conflicting_target_cvts(record)
+            unique_targets = target_cvts.values.uniq(&:id)
+            sole_target  = unique_targets.first if unique_targets.one?
+
+            if sole_target && sole_target.type == record.type && cvts_semantically_equivalent?(record, sole_target)
+              record.errors.details.each do |field, errors|
+                next unless errors.any? { |e| e[:error] == :taken }
+                case field
+                when :name       then record.name       = unique_cvt_name(record.name, record.type, sentinel)
+                when :definition then record.definition  = unique_cvt_definition(record.definition, sentinel)
+                when :uri        then record.uri         = unique_cvt_uri(record.uri, record.uri_relation, sentinel)
+                end
+              end
+
+              record.save!
+              stats[:migrated] += 1
+              stats[:merge_registry] << { model: record.class.name, renamed_id: record.id, target_id: sole_target.id }
+            else
+              primary_target = sole_target || unique_targets.first
+              stats[:conflicts] << {
+                id: record.id,
+                model: 'ControlledVocabularyTerm',
+                conflict_fields: conflict_fields(record),
+                errors: record.errors.full_messages,
+                source_cvt: {
+                  project_id: source_project_id,
+                  cvt_type: record.type,
+                  name: record.name,
+                  definition: record.definition,
+                  uri: record.uri,
+                  uri_relation: record.uri_relation
+                },
+                target_cvt: primary_target && {
+                  id: primary_target.id,
+                  project_id: target_project_id,
+                  cvt_type: primary_target.type,
+                  name: primary_target.name,
+                  definition: primary_target.definition,
+                  uri: primary_target.uri,
+                  uri_relation: primary_target.uri_relation
+                },
+                target_cvts: target_cvts.transform_values { |cvt|
+                  { id: cvt.id, project_id: target_project_id, cvt_type: cvt.type,
+                    name: cvt.name, definition: cvt.definition, uri: cvt.uri, uri_relation: cvt.uri_relation }
+                }
+              }
+            end
+          else
+            stats[:errors] << { id: record.id, model: 'ControlledVocabularyTerm',
+                                error: record.errors.full_messages.join('; ') }
+          end
+        rescue => e
+          stats[:errors] << { id: record.id, model: 'ControlledVocabularyTerm', error: e.message }
+        end
+
+        stats
+      end
+
+      private
+
+      def uniqueness_error?(record)
+        record.errors.details.values.flatten.any? { |e| e[:error] == :taken }
+      end
+
+      def conflict_fields(record)
+        record.errors.details
+          .select { |_, details| details.any? { |d| d[:error] == :taken } }
+          .keys
+      end
+
+      def cvts_semantically_equivalent?(record, target_cvt)
+        record.name == target_cvt.name &&
+          record.definition == target_cvt.definition &&
+          record.uri_relation == target_cvt.uri_relation &&
+          (record.uri.blank? || record.uri == target_cvt.uri)
+      end
+
+      def find_conflicting_target_cvts(record)
+        matches = {}
+
+        name_match = ControlledVocabularyTerm.find_by(
+          type: record.type, name: record.name, project_id: target_project_id
+        )
+        matches[:name] = name_match if name_match
+
+        if record.definition.present?
+          definition_match = ControlledVocabularyTerm.find_by(
+            definition: record.definition, project_id: target_project_id
+          )
+          matches[:definition] = definition_match if definition_match
+        end
+
+        if record.uri.present?
+          uri_match = ControlledVocabularyTerm.find_by(
+            uri: record.uri, uri_relation: record.uri_relation, project_id: target_project_id
+          )
+          matches[:uri] = uri_match if uri_match
+        end
+
+        matches
+      end
+
+      def unique_cvt_name(original_name, cvt_type, sentinel)
+        candidate = "#{original_name} [#{sentinel}]"
+        counter = 2
+        while ControlledVocabularyTerm.exists?(type: cvt_type, name: candidate, project_id: target_project_id)
+          candidate = "#{original_name} [#{sentinel} #{counter}]"
+          counter += 1
+        end
+        candidate
+      end
+
+      def unique_cvt_definition(original_definition, sentinel)
+        candidate = "#{original_definition} [#{sentinel}]"
+        counter = 2
+        while ControlledVocabularyTerm.exists?(definition: candidate, project_id: target_project_id)
+          candidate = "#{original_definition} [#{sentinel} #{counter}]"
+          counter += 1
+        end
+        candidate
+      end
+
+      def unique_cvt_uri(original_uri, uri_relation, sentinel)
+        no_space_sentinel = sentinel.tr(' ', '-')
+        candidate = "#{original_uri}/#{no_space_sentinel}"
+        counter = 2
+        while ControlledVocabularyTerm.exists?(uri: candidate, uri_relation: uri_relation, project_id: target_project_id)
+          candidate = "#{original_uri}/#{no_space_sentinel}-#{counter}"
+          counter += 1
+        end
+        candidate
+      end
+    end
   end
 end

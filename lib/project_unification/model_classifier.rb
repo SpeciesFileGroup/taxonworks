@@ -28,7 +28,6 @@ module ProjectUnification
     # Per-record validation required to detect uniqueness conflicts against target.
     SLOW_TRACK = %w[
       ObservationMatrix
-      ControlledVocabularyTerm
       PinboardItem
       ObservationMatrixColumn
       TaxonNameClassification
@@ -56,6 +55,7 @@ module ProjectUnification
       CollectingEvent
       Image
       Document
+      ControlledVocabularyTerm
     ].freeze
 
     # Cached tables - use direct SQL update without validation.
