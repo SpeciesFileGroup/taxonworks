@@ -42,11 +42,11 @@ const helpData = {
       </ul>
       <p>
         Required columns for occurrence data:
-          ${makeList(TW.constants.DWC_OCCURRENCES_MINIMUN_FIELD_SET)}
+          ${makeList(TW.constants.DWC_OCCURRENCES_MINIMUM_FIELD_SET)}
       </p>
       <p>
         Required columns for checklist data:
-          ${makeList(TW.constants.DWC_CHECKLIST_MINIMUN_FIELD_SET)}
+          ${makeList(TW.constants.DWC_CHECKLIST_MINIMUM_FIELD_SET)}
       </p>
       `
     }
