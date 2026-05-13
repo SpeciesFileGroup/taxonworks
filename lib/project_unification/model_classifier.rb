@@ -24,12 +24,12 @@ module ProjectUnification
       BiologicalAssociationIndex
       TaxonNameClassification
       TaxonNameRelationship
+      PinboardItem
     ].freeze
 
     # Per-record validation required to detect uniqueness conflicts against target.
     SLOW_TRACK = %w[
       ObservationMatrix
-      PinboardItem
       ObservationMatrixColumn
       ImportAttribute
       InternalAttribute
