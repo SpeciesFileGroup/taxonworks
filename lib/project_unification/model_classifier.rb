@@ -9,6 +9,7 @@ module ProjectUnification
       ProjectSource
       RangedLotCategory
       OtuPageLayout
+      Container
       Tag
       Note
       Citation
