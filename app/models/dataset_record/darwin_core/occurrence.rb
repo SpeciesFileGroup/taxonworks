@@ -259,11 +259,11 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         self.metadata.delete('error_data')
 
         if otu_id = get_otu_id
-          otu = Otu.find_by(id: otu_id)
+          otu = Otu.find_by(id: otu_id, project_id: Current.project_id)
           raise DarwinCore::InvalidData.new({ 'TW:TaxonDetermination:otu_id' => ["OTU with id #{otu_id} not found"] }) unless otu
-          unless innermost_protonym = otu.taxon_name
-            raise DarwinCore::InvalidData.new({ 'typeStatus' => ['cannot process typeStatus if taxon determination OTU has no nomenclature'] }) if get_field_value(:typeStatus)
-          end
+
+          innermost_otu = otu
+          innermost_protonym = otu.taxon_name
         else
           names, origins = parse_taxon_class
           strategy = self.import_dataset.restrict_to_existing_nomenclature? ? ImportProtonym.match_existing : ImportProtonym.create_if_not_exists
