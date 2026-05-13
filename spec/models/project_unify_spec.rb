@@ -50,7 +50,7 @@ RSpec.describe Project, '#unify', type: :model do
         result = target_project.unify(source_project, preview: false, user_id: user.id)
 
         expect(result[:statistics][:records_migrated]).to be >= 10
-        expect(result[:statistics][:implicit_track_count]).to be > 0
+        expect(result[:statistics][:slow_track_count]).to be > 0
       end
     end
   end

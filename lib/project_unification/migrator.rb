@@ -1,8 +1,26 @@
 # Handles the actual data migration between projects.
 #
-# Processes models in *reverse* MANIFEST order, applying different strategies
-# based on validation complexity (fast/medium/slow tracks).
+# Processes models in *reverse* MANIFEST order using two strategies:
+#   fast  — bulk SQL UPDATE, no per-record validation
+#   slow  — per-record valid? to detect target-project uniqueness conflicts,
+#            then save!(validate: false) on success
 #
+# !! A note on somewhat implicit assumptions as we move objects one at a time
+# from source to target project:
+# * we run in reverse manifest order: that means that when we validate-save in
+#   the target project, any validations that check that FK values are in the
+#   same project will pass (aside from the global one we've disabled during
+#   unify, are there any such??)
+# * when we validate a moved object, some data is still in the source project,
+#   so validations like "are there any other objects in this project with this
+#   data?" are not seeing all of the data they should - this should be okay
+#   because the object is assumed to have already passed that validation in the
+#   source project. (If there was bad data in the source, it could stay bad in
+#   the target for this reason.)
+# * Validations like "make sure all of the children of this object are in the
+#   same project" WOULD FAIL when children hadn't been moved to the target
+#   project yet. Which is to say !! this system is not bullet proof !!, there
+#   are implicit assumptions about how existing validations behave.
 module ProjectUnification
   class Migrator
     attr_reader :source_project_id, :target_project_id, :options
@@ -22,7 +40,6 @@ module ProjectUnification
           models_processed: 0,
           records_migrated: 0,
           fast_track_count: 0,
-          medium_track_count: 0,
           slow_track_count: 0,
           special_track_count: 0,
           errors_encountered: 0
@@ -33,8 +50,12 @@ module ProjectUnification
         merge_registry: []
       }
 
-      # Process in reverse MANIFEST order (dependencies last).
-      # Note: We reverse because MANIFEST is in deletion order.
+      # MANIFEST is ordered for deletion: FK children appear before FK parents so
+      # children can be deleted without violating FK constraints. For migration we
+      # need the opposite — parents must arrive in the target project before their
+      # children, so that when a child calls valid? with project_id = target_project_id
+      # any same-project validator on its FK will find the parent already there.
+      # Reversing MANIFEST gives us that order cheaply.
       Project::MANIFEST.reverse.each do |model_name|
         # ControlledVocabularyTerm is skipped here and handled last — after all
         # FK-bearing rows are in the target project — so rename-on-conflict
@@ -52,8 +73,6 @@ module ProjectUnification
         model_result = case track
                        when :fast
                          process_fast_track(klass)
-                       when :medium, :implicit
-                         process_medium_track(klass)
                        when :slow
                          process_slow_track(klass)
                        when :cached
@@ -135,52 +154,8 @@ module ProjectUnification
       }
     end
 
-    # Medium track: Batch processing with validation.
-    def process_medium_track(klass)
-      stats = { track: :medium, migrated: 0, destroyed: 0, conflicts: [], errors: [] }
-
-      records = klass.where(project_id: source_project_id)
-      return nil unless records.exists?
-
-      records.find_in_batches(batch_size: 500) do |batch|
-        batch.each do |record|
-          record.no_cached = true if record.respond_to?(:no_cached=)
-          record.project_id = target_project_id
-
-          if record.valid?
-            record.save!(validate: false)
-            stats[:migrated] += 1
-          elsif uniqueness_error?(record)
-            if record.respond_to?(:handle_unify_conflict)
-              apply_conflict_handler(record, stats, save_with_validation: false)
-            else
-              stats[:conflicts] << {
-                id: record.id,
-                model: klass.name,
-                conflict_fields: conflict_fields(record),
-                errors: record.errors.full_messages
-              }
-            end
-          else
-            stats[:errors] << {
-              id: record.id,
-              model: klass.name,
-              error: record.errors.full_messages.join('; ')
-            }
-          end
-        rescue => e
-          stats[:errors] << {
-            id: record.id,
-            model: klass.name,
-            error: e.message
-          }
-        end
-      end
-
-      stats
-    end
-
-    # Slow track: Per-record processing with custom handlers.
+    # Slow track: per-record valid? to detect uniqueness conflicts, then save
+    # without re-running validations.
     def process_slow_track(klass)
       stats = { track: :slow, migrated: 0, destroyed: 0, conflicts: [], errors: [] }
 
@@ -192,11 +167,11 @@ module ProjectUnification
         record.project_id = target_project_id
 
         if record.valid?
-          record.save!
+          record.save!(validate: false)
           stats[:migrated] += 1
         elsif uniqueness_error?(record)
           if record.respond_to?(:handle_unify_conflict)
-            apply_conflict_handler(record, stats, save_with_validation: true)
+            apply_conflict_handler(record, stats)
           else
             stats[:conflicts] << {
               id: record.id,
@@ -277,13 +252,13 @@ module ProjectUnification
     #   nil / false  -> handler did not persist; caller should save! the record
     #   true         -> handler persisted via update_columns; skip save!
     #   :destroyed   -> handler destroyed the source record (merged into target); skip save!
-    def apply_conflict_handler(record, stats, save_with_validation:)
+    def apply_conflict_handler(record, stats)
       result = record.handle_unify_conflict(target_project_id)
 
       if result == :destroyed
         stats[:destroyed] += 1
       else
-        record.save!(validate: save_with_validation) unless result
+        record.save! unless result
         stats[:migrated] += 1
       end
     end

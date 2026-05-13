@@ -39,9 +39,7 @@ module ProjectUnification
     def detect_uniqueness_conflicts
       conflicts = {}
 
-      # Check medium and slow track models for potential uniqueness violations
-      models_to_check = ProjectUnification::ModelClassifier::MEDIUM_TRACK +
-                        ProjectUnification::ModelClassifier::SLOW_TRACK
+      models_to_check = ProjectUnification::ModelClassifier::SLOW_TRACK
 
       models_to_check.each do |model_name|
         klass = model_name.safe_constantize
@@ -156,7 +154,6 @@ module ProjectUnification
         total_records: 0,
         affected_models: 0,
         fast_track_count: 0,
-        medium_track_count: 0,
         slow_track_count: 0,
         special_count: 0
       }
@@ -176,8 +173,6 @@ module ProjectUnification
         case track
         when :fast
           stats[:fast_track_count] += count
-        when :medium
-          stats[:medium_track_count] += count
         when :slow
           stats[:slow_track_count] += count
         when :special
