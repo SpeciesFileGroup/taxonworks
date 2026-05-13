@@ -6,7 +6,6 @@
 Rails.application.config.to_prepare do
   require Rails.root.join('lib', 'project_unification.rb')
   require Rails.root.join('lib', 'project_unification', 'model_classifier.rb')
-  require Rails.root.join('lib', 'project_unification', 'validator.rb')
   require Rails.root.join('lib', 'project_unification', 'migrator.rb')
   require Rails.root.join('lib', 'project_unification', 'taxon_name_handler.rb')
   require Rails.root.join('lib', 'project_unification', 'cached_rebuilder.rb')

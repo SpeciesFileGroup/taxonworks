@@ -152,15 +152,16 @@ class TaxonDetermination < ApplicationRecord
   end
 
   # Called by the project unification migrator when changing project_id produces a
-  # position conflict.  acts_as_list resets position to 1 on scope changes, so
-  # multiple TDs on the same CO all try to claim position 1, conflicting with
-  # each other rather than with any pre-existing TD in the target project.
+  # position conflict.  The conflict is always acts_as_list interference: the first
+  # TD for a given CO goes through save!(validate: false), which still fires
+  # callbacks — acts_as_list sees the scope change and resets position to 1
+  # (add_new_at: :top).  Every subsequent TD for that CO then finds position 1
+  # occupied and lands here.
   #
   # We bypass acts_as_list entirely via update_columns and restore the record's
-  # original position.  If that position is already occupied (by an earlier-ID
-  # sibling that was processed first by find_each and "stole" it), we bump the
-  # squatter to the end of the list to make room — preserving the semantically
-  # important position-1 accepted determination.
+  # original position.  If that position is already occupied (by the earlier-ID
+  # sibling that was reset to 1 by acts_as_list), we bump it to the end to make
+  # room — preserving the semantically important position-1 accepted determination.
   #
   # @param target_project_id [Integer]
   # @return [true] signals the migrator that the record is already persisted

@@ -23,6 +23,8 @@ module ProjectUnification
       Attribution
       Conveyance
       ProtocolRelationship
+      DwcOccurrence
+      BiologicalAssociationIndex
     ].freeze
 
     # Per-record validation required to detect uniqueness conflicts against target.
