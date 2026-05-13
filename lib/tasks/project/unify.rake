@@ -67,7 +67,7 @@ namespace :tw do
       puts ""
 
       if !preview
-        puts "WARNING: This is NOT a preview. Data will be permanently migrated!"
+        puts Rainbow("WARNING: This is NOT a preview. Data will be permanently migrated!").red.bright
         puts "Press Ctrl+C within 10 seconds to cancel..."
         sleep 10
         puts ""
@@ -84,9 +84,9 @@ namespace :tw do
         parts = []
         parts << "#{migrated} migrated"    if migrated  > 0
         parts << "#{destroyed} destroyed"  if destroyed > 0
-        parts << "#{conflicts} conflict(s)" if conflicts > 0
-        parts << "#{errors} error(s)"      if errors    > 0
-        parts << '(empty)'                 if parts.empty?
+        parts << Rainbow("#{conflicts} conflict(s)").yellow if conflicts > 0
+        parts << Rainbow("#{errors} error(s)").red          if errors    > 0
+        parts << '(empty)'                                  if parts.empty?
         duration = model_result[:duration] ? "  #{model_result[:duration]}s" : ''
         $stdout.puts "  #{model_name.ljust(34)}  #{track.to_s.ljust(10)}  #{parts.join(', ')}#{duration}"
       }
@@ -111,16 +111,16 @@ namespace :tw do
 
       if preview
         if result[:errors].empty? && result[:conflicts].empty?
-          puts "✓ Preview completed - no conflicts or errors (changes rolled back)"
+          puts Rainbow("✓ Preview completed - no conflicts or errors (changes rolled back)").green
         elsif result[:conflicts].any?
-          puts "✗ Preview completed - #{result[:conflicts].length} conflict(s) must be resolved before migrating"
+          puts Rainbow("✗ Preview completed - #{result[:conflicts].length} conflict(s) must be resolved before migrating").red
         else
-          puts "✗ Preview completed with errors"
+          puts Rainbow("✗ Preview completed with errors").red
         end
       elsif result[:unified]
-        puts "✓ Unification completed successfully!"
+        puts Rainbow("✓ Unification completed successfully!").green.bright
       else
-        puts "✗ Unification failed"
+        puts Rainbow("✗ Unification failed").red.bright
       end
 
       puts "\nStatistics:"
@@ -135,12 +135,12 @@ namespace :tw do
       puts "  Duration:            #{result[:duration_seconds]}s"
 
       if result[:conflicts].any?
-        puts "\nConflicts requiring manual resolution:"
+        puts Rainbow("\nConflicts requiring manual resolution:").yellow.bright
         result[:conflicts].each_with_index do |conflict, i|
           fields = Array(conflict[:conflict_fields]).join(', ')
 
           if (src = conflict[:source_cvt])
-            puts "  #{i + 1}. [#{conflict[:model]}] '#{src[:name]}' (#{src[:cvt_type]}, ID #{conflict[:id]}, source project #{src[:project_id]})"
+            puts Rainbow("  #{i + 1}. [#{conflict[:model]}] '#{src[:name]}' (#{src[:cvt_type]}, ID #{conflict[:id]}, source project #{src[:project_id]})").yellow
             puts "       Conflicting field(s): #{fields}"
             puts "       Source definition: #{src[:definition]}"
             puts "       Source uri:        #{src[:uri]} [#{src[:uri_relation]}]" if src[:uri].present?
@@ -149,18 +149,18 @@ namespace :tw do
               puts "       Target definition: #{tgt[:definition]}"
               puts "       Target uri:        #{tgt[:uri]} [#{tgt[:uri_relation]}]" if tgt[:uri].present?
             end
-            puts "       Resolution: edit the name, definition, or uri of one CVT in TaxonWorks before retrying"
+            puts Rainbow("       Resolution: edit the name, definition, or uri of one CVT in TaxonWorks before retrying").yellow
           else
-            puts "  #{i + 1}. [#{conflict[:model]}] ID #{conflict[:id]} - field(s): #{fields}"
+            puts Rainbow("  #{i + 1}. [#{conflict[:model]}] ID #{conflict[:id]} - field(s): #{fields}").yellow
             puts "       #{conflict[:errors].first}" if conflict[:errors].any?
           end
         end
       end
 
       if result[:errors].any?
-        puts "\nErrors encountered:"
+        puts Rainbow("\nErrors encountered:").red.bright
         result[:errors].each_with_index do |error, i|
-          puts "  #{i + 1}. [#{error[:model]}] #{error[:error]}"
+          puts Rainbow("  #{i + 1}. [#{error[:model]}] #{error[:error]}").red
         end
       end
 
