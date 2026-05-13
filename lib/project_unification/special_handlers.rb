@@ -147,7 +147,56 @@ module ProjectUnification
       end
     end
 
-    # Handler for Image with fingerprint-based deduplication
+    # Handler for ProjectSource with duplicate detection.
+    #
+    # ProjectSource is a denormalized index of "sources cited in this project",
+    # maintained automatically by Citation#after_create via find_or_create_by.
+    # When a source_id already exists in the target project's project_sources,
+    # the source record is redundant — delete it and bulk-update the rest.
+    # delete_all bypasses the before_destroy :check_for_use callback (which would
+    # block deletion while citations still reference the source in the source project).
+    class ProjectSourceHandler
+      attr_reader :source_project_id, :target_project_id
+
+      def initialize(source_project_id, target_project_id, options = {})
+        @source_project_id = source_project_id
+        @target_project_id = target_project_id
+      end
+
+      def migrate
+        conflict_ids = find_conflict_ids
+
+        ProjectSource.where(id: conflict_ids).delete_all if conflict_ids.any?
+
+        migrated = ProjectSource.where(project_id: source_project_id)
+                                .update_all(project_id: target_project_id)
+
+        {
+          track: :special,
+          model: 'ProjectSource',
+          migrated: migrated,
+          duplicates_deleted: conflict_ids.size,
+          errors: []
+        }
+      rescue => e
+        {
+          track: :special,
+          model: 'ProjectSource',
+          migrated: 0,
+          errors: [{ error: e.message, backtrace: e.backtrace.first(3) }]
+        }
+      end
+
+      private
+
+      def find_conflict_ids
+        ProjectSource.where(project_id: source_project_id)
+                     .where(source_id: ProjectSource.where(project_id: target_project_id).select(:source_id))
+                     .pluck(:id)
+      end
+    end
+
+    # Handler for Image with fingerprint-based deduplication.
     # Handler for Image with fingerprint-based deduplication.
     #
     # Phase 1 (migrate): source images whose fingerprint collides with a target

@@ -499,6 +499,29 @@ RSpec.describe Project, '#unify', type: :model do
       expect(ps.project_id).to eq(target_project.id)
     end
 
+    describe 'ProjectSource deduplication' do
+      it 'deletes the source ProjectSource when the same source is already in the target project' do
+        shared_source = FactoryBot.create(:valid_source)
+        source_ps = FactoryBot.create(:project_source, project: source_project, source: shared_source)
+        target_ps = FactoryBot.create(:project_source, project: target_project, source: shared_source)
+
+        target_project.unify(source_project, preview: false, user_id: user.id)
+
+        expect(ProjectSource.exists?(source_ps.id)).to be false
+        expect(ProjectSource.exists?(target_ps.id)).to be true
+        expect(ProjectSource.where(project_id: target_project.id, source_id: shared_source.id).count).to eq(1)
+      end
+
+      it 'migrates a non-conflicting source ProjectSource to the target project' do
+        unique_source = FactoryBot.create(:valid_source)
+        ps = FactoryBot.create(:project_source, project: source_project, source: unique_source)
+
+        target_project.unify(source_project, preview: false, user_id: user.id)
+
+        expect(ps.reload.project_id).to eq(target_project.id)
+      end
+    end
+
     it 'tracks duration in results' do
       result = target_project.unify(source_project, preview: true, user_id: user.id)
 
