@@ -6,6 +6,7 @@
 #
 module ProjectUnification
   class ModelClassifier
+    # These will never fail, at least not directly, because they're update_all.
     FAST_TRACK = %w[
       Container
       Tag
@@ -25,14 +26,16 @@ module ProjectUnification
       TaxonNameClassification
       TaxonNameRelationship
       PinboardItem
+      ImportAttribute
+      InternalAttribute
     ].freeze
 
-    # Per-record validation required to detect uniqueness conflicts against target.
+    # Per-record validation required to detect uniqueness conflicts against
+    # target. Any validation conflicts here are reported to the user and the
+    # unify fails.
     SLOW_TRACK = %w[
       ObservationMatrix
       ObservationMatrixColumn
-      ImportAttribute
-      InternalAttribute
       TaxonDetermination
       TypeMaterial
       CharacterState
