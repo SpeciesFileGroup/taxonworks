@@ -7,7 +7,7 @@ module ProjectUnification
   class Migrator
     attr_reader :source_project_id, :target_project_id, :options
 
-    def initialize(source_project_id:, target_project_id:, options = {})
+    def initialize(source_project_id:, target_project_id:, options: {})
       @source_project_id = source_project_id
       @target_project_id = target_project_id
       @options = options

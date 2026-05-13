@@ -130,7 +130,7 @@ module ProjectUnification
       migrator = ProjectUnification::Migrator.new(
         source_project_id: source_project.id,
         target_project_id: target_project.id,
-        @options
+        options: @options
       )
 
       migration_results = migrator.migrate_all
@@ -153,14 +153,14 @@ module ProjectUnification
     end
 
     # Iterate the merge registry produced by Phase 1 and call Shared::Unify#unify
-    # on each pair.  Failures are collected as errors (not raised) so one bad pair
+    # on each pair. Failures are collected as errors (not raised) so one bad pair
     # does not abort the remaining cleanup.
     def run_cleanup(merge_registry)
       merge_registry.each do |entry|
-        klass   = entry[:model].constantize
-        target  = klass.find(entry[:target_id])
+        klass = entry[:model].constantize
+        target = klass.find(entry[:target_id])
         renamed = klass.find(entry[:renamed_id])
-        result  = target.unify(renamed, cutoff: 1000)
+        result = target.unify(renamed, cutoff: 1000)
         next if result[:result][:unified]
         @results[:errors] << {
           model: entry[:model],
