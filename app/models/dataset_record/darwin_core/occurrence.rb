@@ -71,6 +71,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   DWC_CLASSIFICATION_TERMS = %w{kingdom phylum class order superfamily family subfamily tribe subtribe}.freeze # genus, subgenus, specificEpithet and infraspecificEpithet are extracted from scientificName
   PARSE_DETAILS_KEYS = %i(uninomial genus species infraspecies).freeze
 
+  OTU_ID_INCOMPATIBLE_FIELDS = DWC_CLASSIFICATION_TERMS + %w{higherClassification identificationQualifier nomenclaturalCode scientificName scientificNameAuthorship typeStatus}.freeze
+
   ACCEPTED_ATTRIBUTES = {
     CollectionObject: %I(
       buffered_collecting_event buffered_determinations buffered_other_labels
@@ -241,20 +243,28 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       DatasetRecord.transaction(requires_new: true) do
         self.metadata.delete('error_data')
 
-        names, origins = parse_taxon_class
-        strategy = self.import_dataset.restrict_to_existing_nomenclature? ? ImportProtonym.match_existing : ImportProtonym.create_if_not_exists
-
-        innermost_otu = nil
-        innermost_protonym = names.inject(project.root_taxon_name) do |parent, name|
-          otu_attributes = name.delete(:otu_attributes)
-
-          unless name[:rank_class] || otu_attributes.present?
-            name[:rank_class] = parent.predicted_child_rank(name[:name])&.to_s
-            name.delete(:rank_class) unless name[:rank_class] && /::FamilyGroup::/ =~ name[:rank_class]
+        if otu_id = get_field_value('TW:TaxonDetermination:otu_id')
+          otu = Otu.find_by(id: otu_id)
+          raise DarwinCore::InvalidData.new({ 'TW:TaxonDetermination:otu_id' => ["OTU with id #{otu_id} not found"] }) unless otu
+          unless innermost_protonym = otu.taxon_name
+            raise DarwinCore::InvalidData.new({ 'typeStatus' => ['cannot process typeStatus if taxon determination OTU has no nomenclature'] }) if get_field_value(:typeStatus)
           end
+        else
+          names, origins = parse_taxon_class
+          strategy = self.import_dataset.restrict_to_existing_nomenclature? ? ImportProtonym.match_existing : ImportProtonym.create_if_not_exists
 
-          strategy.execute(origins, parent, name).tap do |protonym|
-            innermost_otu = Otu.find_or_create_by!({taxon_name: protonym}.merge!(otu_attributes)) if otu_attributes
+          innermost_otu = nil
+          innermost_protonym = names.inject(project.root_taxon_name) do |parent, name|
+            otu_attributes = name.delete(:otu_attributes)
+
+            unless name[:rank_class] || otu_attributes.present?
+              name[:rank_class] = parent.predicted_child_rank(name[:name])&.to_s
+              name.delete(:rank_class) unless name[:rank_class] && /::FamilyGroup::/ =~ name[:rank_class]
+            end
+
+            strategy.execute(origins, parent, name).tap do |protonym|
+              innermost_otu = Otu.find_or_create_by!({taxon_name: protonym}.merge!(otu_attributes)) if otu_attributes
+            end
           end
         end
 
