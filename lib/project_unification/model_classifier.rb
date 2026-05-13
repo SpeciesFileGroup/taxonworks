@@ -7,7 +7,6 @@
 module ProjectUnification
   class ModelClassifier
     FAST_TRACK = %w[
-      RangedLotCategory
       OtuPageLayout
       Container
       Tag
@@ -55,6 +54,7 @@ module ProjectUnification
       TaxonName
       CollectingEvent
       ProjectSource
+      RangedLotCategory
       Image
       Document
       ControlledVocabularyTerm

@@ -193,6 +193,7 @@ module ProjectUnification
                       when 'TaxonName'             then ProjectUnification::TaxonNameHandler
                       when 'CollectingEvent'        then ProjectUnification::SpecialHandlers::CollectingEventHandler
                       when 'ProjectSource'          then ProjectUnification::SpecialHandlers::ProjectSourceHandler
+                      when 'RangedLotCategory'      then ProjectUnification::SpecialHandlers::RangedLotCategoryHandler
                       when 'Image'                  then ProjectUnification::SpecialHandlers::ImageHandler
                       when 'Document'               then ProjectUnification::SpecialHandlers::DocumentHandler
                       when 'ControlledVocabularyTerm' then ProjectUnification::SpecialHandlers::ControlledVocabularyTermHandler

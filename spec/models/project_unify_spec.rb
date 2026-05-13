@@ -697,6 +697,38 @@ RSpec.describe Project, '#unify', type: :model do
     end
   end
 
+  describe 'RangedLotCategory deduplication' do
+    let!(:source_rlc) { FactoryBot.create(:valid_ranged_lot_category, name: 'Adults', project: source_project) }
+    let!(:target_rlc) { FactoryBot.create(:valid_ranged_lot_category, name: 'Adults', project: target_project) }
+
+    it 'deletes the sentinel and preserves the target category' do
+      target_project.unify(source_project, preview: false, user_id: user.id)
+
+      expect(RangedLotCategory.exists?(source_rlc.id)).to be false
+      expect(RangedLotCategory.exists?(target_rlc.id)).to be true
+      expect(RangedLotCategory.where(project_id: target_project.id, name: 'Adults').count).to eq(1)
+    end
+
+    context 'when the source category has associated ranged lots' do
+      let!(:source_co) { FactoryBot.create(:valid_specimen, project: source_project) }
+      let!(:ranged_lot) do
+        FactoryBot.create(:valid_ranged_lot, ranged_lot_category: source_rlc, project: source_project)
+      end
+
+      it 'reroutes ranged lots to the target category' do
+        target_project.unify(source_project, preview: false, user_id: user.id)
+
+        expect(ranged_lot.reload.ranged_lot_category).to eq(target_rlc)
+      end
+
+      it 'destroys the sentinel category' do
+        target_project.unify(source_project, preview: false, user_id: user.id)
+
+        expect(RangedLotCategory.exists?(source_rlc.id)).to be false
+      end
+    end
+  end
+
   describe 'Image deduplication' do
     # valid_image always uploads the same tiny.png file, so fingerprints match.
     # Uniqueness is scoped to project_id, so two projects may each hold it.
