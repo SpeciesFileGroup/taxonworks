@@ -22,6 +22,8 @@ module ProjectUnification
       ProtocolRelationship
       DwcOccurrence
       BiologicalAssociationIndex
+      TaxonNameClassification
+      TaxonNameRelationship
     ].freeze
 
     # Per-record validation required to detect uniqueness conflicts against target.
@@ -29,10 +31,8 @@ module ProjectUnification
       ObservationMatrix
       PinboardItem
       ObservationMatrixColumn
-      TaxonNameClassification
       ImportAttribute
       InternalAttribute
-      TaxonNameRelationship
       TaxonDetermination
       TypeMaterial
       CharacterState
