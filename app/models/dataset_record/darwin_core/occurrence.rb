@@ -89,6 +89,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       time_end_hour time_end_minute time_end_second time_start_hour time_start_minute time_start_second
       verbatim_collectors verbatim_date verbatim_datum verbatim_elevation verbatim_geolocation_uncertainty verbatim_habitat
       verbatim_latitude verbatim_locality verbatim_longitude verbatim_method verbatim_field_number
+    ).to_set.freeze,
+
+    TaxonDetermination: %I(
+      otu_id
     ).to_set.freeze
   }.freeze
 
@@ -230,11 +234,22 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       get_tw_data_attribute_fields_for('CollectingEvent') +
       get_tw_fields_for('CollectionObject') +
       get_tw_fields_for('CollectingEvent') +
+      get_tw_fields_for('TaxonDetermination') +
       get_tw_tag_fields_for('CollectionObject') +
       get_tw_tag_fields_for('CollectingEvent')
     ).map { |f| get_field_mapping(f[:field]) }.compact
 
     (super + project_dwc_data_attributes + tw_namespaces + tw_data).uniq.sort
+  end
+
+  def ignored_fields
+    if get_otu_id
+      OTU_ID_INCOMPATIBLE_FIELDS.map { |f| get_field_mapping(f) }.compact
+    end
+  end
+
+  def get_otu_id
+    get_field_value('TW:TaxonDetermination:otu_id')
   end
 
   def import(dwc_data_attributes = {})
@@ -243,7 +258,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       DatasetRecord.transaction(requires_new: true) do
         self.metadata.delete('error_data')
 
-        if otu_id = get_field_value('TW:TaxonDetermination:otu_id')
+        if otu_id = get_otu_id
           otu = Otu.find_by(id: otu_id)
           raise DarwinCore::InvalidData.new({ 'TW:TaxonDetermination:otu_id' => ["OTU with id #{otu_id} not found"] }) unless otu
           unless innermost_protonym = otu.taxon_name
@@ -280,6 +295,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
         attributes.deep_merge!(parse_tw_collection_object_attributes)
         attributes.deep_merge!(parse_tw_collecting_event_attributes)
+
+        parse_tw_taxon_determination_attributes # Just for verification.
 
         append_dwc_attributes(dwc_data_attributes['CollectionObject'], attributes[:specimen])
         append_dwc_attributes(dwc_data_attributes['CollectingEvent'], attributes[:collecting_event])
@@ -1348,11 +1365,13 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # identificationQualifier: [Mapped 1:1 with otu name parse_taxon_class]
 
     # typeStatus: [Type material only if scientific name matches scientificName and type term is recognized by TW vocabulary]
-    if (type_status = get_field_value(:typeStatus))
-      type_material = parse_typestatus(type_status, taxon_protonym)
-      if type_material.nil? && self.import_dataset.require_type_material_success?
-        # generic error message, nothing more specific provided
-        raise DarwinCore::InvalidData.new({ "typeStatus": ['Unprocessable typeStatus information'] })
+    unless get_otu_id.present?
+      if (type_status = get_field_value(:typeStatus))
+        type_material = parse_typestatus(type_status, taxon_protonym)
+        if type_material.nil? && self.import_dataset.require_type_material_success?
+          # generic error message, nothing more specific provided
+          raise DarwinCore::InvalidData.new({ "typeStatus": ['Unprocessable typeStatus information'] })
+        end
       end
     end
 
@@ -1761,6 +1780,25 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     {
       collecting_event: attributes
+    }
+  end
+
+  def parse_tw_taxon_determination_attributes
+
+    attributes = {}
+
+    get_tw_fields_for('TaxonDetermination').each do |attribute|
+      value = get_field_value(attribute[:field])
+      if value
+        if !ACCEPTED_ATTRIBUTES[:TaxonDetermination].include?(attribute[:name])
+          raise DarwinCore::InvalidData.new({ attribute[:field] => ["#{attribute[:name]} is not a valid TaxonDetermination attribute"] })
+        end
+        attributes[attribute[:name]] = value
+      end
+    end
+
+    {
+      taxon_determination: attributes
     }
   end
 

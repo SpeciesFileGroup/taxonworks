@@ -5,7 +5,10 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
   has_many :extension_records, foreign_key: 'import_dataset_id', class_name: 'DatasetRecord::DarwinCore::Extension'
 
   # TODO: Can occurrenceID requirement be dropped? Should other fields be added here?
-  MINIMUM_FIELD_SET = ['occurrenceID', 'scientificName', 'basisOfRecord'].freeze
+  MINIMUM_FIELD_SETS = [
+      ['occurrenceID', 'scientificName', 'basisOfRecord'],
+      ['occurrenceID', 'TW:TaxonDetermination:otu_id', 'basisOfRecord']
+  ].freeze
 
   validate :source, :check_field_set
 

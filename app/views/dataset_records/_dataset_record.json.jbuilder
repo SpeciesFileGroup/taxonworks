@@ -5,3 +5,4 @@ json.metadata do
   json.imported_objects dataset_record.metadata["imported_objects"] if dataset_record.metadata["imported_objects"]
 end
 json.data_fields dataset_record.data_fields
+json.ignored_fields dataset_record.ignored_fields if dataset_record.ignored_fields

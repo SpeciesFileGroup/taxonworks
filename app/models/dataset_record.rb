@@ -47,6 +47,10 @@ class DatasetRecord < ApplicationRecord
     @data_fields
   end
 
+  def ignored_fields
+    # Subclasses may re-implement to inform which fields are ignored by this particular record
+  end
+
   def get_data_field(index)
     self.data_fields[index]
   end
