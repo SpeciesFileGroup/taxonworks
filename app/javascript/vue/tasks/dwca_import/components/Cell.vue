@@ -20,6 +20,7 @@
   <td
     v-else
     style="height: 40px"
+    :class="{ 'cell-ignore': disabled }"
     @click="setEditMode"
   >
     <div class="dwc-table-cell">
