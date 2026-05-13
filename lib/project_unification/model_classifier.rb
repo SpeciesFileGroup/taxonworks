@@ -7,7 +7,6 @@
 module ProjectUnification
   class ModelClassifier
     FAST_TRACK = %w[
-      OtuPageLayout
       Container
       Tag
       Note
@@ -55,6 +54,7 @@ module ProjectUnification
       CollectingEvent
       ProjectSource
       RangedLotCategory
+      OtuPageLayout
       Image
       Document
       ControlledVocabularyTerm

@@ -729,6 +729,43 @@ RSpec.describe Project, '#unify', type: :model do
     end
   end
 
+  describe 'OtuPageLayout deduplication' do
+    # valid_otu_page_layout always uses name 'My Layout', so two in different
+    # projects will collide on name + project_id.
+    let!(:source_layout) { FactoryBot.create(:valid_otu_page_layout, project: source_project) }
+    let!(:target_layout) { FactoryBot.create(:valid_otu_page_layout, project: target_project) }
+
+    it 'destroys the sentinel and preserves the target layout' do
+      target_project.unify(source_project, preview: false, user_id: user.id)
+
+      expect(OtuPageLayout.exists?(source_layout.id)).to be false
+      expect(OtuPageLayout.exists?(target_layout.id)).to be true
+      expect(OtuPageLayout.where(project_id: target_project.id, name: 'My Layout').count).to eq(1)
+    end
+
+    context 'when the source layout has sections' do
+      let!(:source_topic) { FactoryBot.create(:valid_topic, project: source_project) }
+      let!(:source_section) do
+        FactoryBot.create(:valid_otu_page_layout_section,
+          otu_page_layout: source_layout,
+          topic: source_topic,
+          project: source_project)
+      end
+
+      it 'reroutes sections to the target layout' do
+        target_project.unify(source_project, preview: false, user_id: user.id)
+
+        expect(source_section.reload.otu_page_layout).to eq(target_layout)
+      end
+
+      it 'destroys the sentinel layout' do
+        target_project.unify(source_project, preview: false, user_id: user.id)
+
+        expect(OtuPageLayout.exists?(source_layout.id)).to be false
+      end
+    end
+  end
+
   describe 'Image deduplication' do
     # valid_image always uploads the same tiny.png file, so fingerprints match.
     # Uniqueness is scoped to project_id, so two projects may each hold it.
