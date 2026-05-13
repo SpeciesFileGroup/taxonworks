@@ -152,20 +152,37 @@ module ProjectUnification
       end
     end
 
-    # Iterate the merge registry produced by Phase 1 and call Shared::Unify#unify
-    # on each pair. Failures are collected as errors (not raised) so one bad pair
-    # does not abort the remaining cleanup.
+    # Iterate the merge registry produced by Phase 1 and collapse each sentinel
+    # record into its canonical target. Failures are collected as errors (not
+    # raised) so one bad pair does not abort the remaining cleanup.
+    #
+    # Image / Document: cleanup_sentinel re-routes associations then destroys
+    #   the sentinel record (same logic as the old Phase 1 destroy, deferred so
+    #   all data is in the target project before any merging occurs).
+    #
+    # Everything else (CVTs): Shared::Unify#unify handles the collapse.
     def run_cleanup(merge_registry)
       merge_registry.each do |entry|
-        klass = entry[:model].constantize
-        target = klass.find(entry[:target_id])
-        renamed = klass.find(entry[:renamed_id])
-        result = target.unify(renamed, cutoff: 1000)
-        next if result[:result][:unified]
-        @results[:errors] << {
-          model: entry[:model],
-          error: "Post-migration unify failed for #{entry[:model]} ID #{entry[:renamed_id]}: #{result[:result][:message]}"
-        }
+        case entry[:model]
+        when 'Image'
+          handler = ProjectUnification::SpecialHandlers::ImageHandler.new(nil, target_project.id)
+          handler.cleanup_sentinel(entry[:renamed_id], entry[:target_id])
+        when 'Document'
+          handler = ProjectUnification::SpecialHandlers::DocumentHandler.new(nil, target_project.id)
+          handler.cleanup_sentinel(entry[:renamed_id], entry[:target_id])
+        else
+          klass   = entry[:model].constantize
+          target  = klass.find(entry[:target_id])
+          renamed = klass.find(entry[:renamed_id])
+          result  = target.unify(renamed, cutoff: 1000)
+          next if result[:result][:unified]
+          @results[:errors] << {
+            model: entry[:model],
+            error: "Post-migration unify failed for #{entry[:model]} ID #{entry[:renamed_id]}: #{result[:result][:message]}"
+          }
+        end
+      rescue => e
+        @results[:errors] << { model: entry[:model], error: e.message }
       end
     end
   end

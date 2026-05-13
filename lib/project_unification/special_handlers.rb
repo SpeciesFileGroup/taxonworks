@@ -148,8 +148,21 @@ module ProjectUnification
     end
 
     # Handler for Image with fingerprint-based deduplication
+    # Handler for Image with fingerprint-based deduplication.
+    #
+    # Phase 1 (migrate): source images whose fingerprint collides with a target
+    # image have their fingerprint replaced with a per-record sentinel string so
+    # the bulk SQL update can move them without a uniqueness conflict.  They are
+    # registered in merge_registry for Phase 2.
+    #
+    # Phase 2 (cleanup_sentinel, called from Service#run_cleanup): once all data
+    # is in the target project, re-route Depictions and annotations from the
+    # sentinel image to the canonical target image, then destroy the sentinel.
+    # This mirrors the CVT sentinel approach and keeps Phase 1 free of destroys.
     class ImageHandler
       include ProjectUnification::AnnotationRerouter
+
+      SENTINEL_PREFIX = 'UNIFICATION TO PROJECT'
 
       attr_reader :source_project_id, :target_project_id
 
@@ -163,63 +176,54 @@ module ProjectUnification
           track: :special,
           model: 'Image',
           migrated: 0,
-          destroyed: 0,
           duplicates_found: [],
-          errors: []
+          errors: [],
+          merge_registry: []
         }
 
-        # Find duplicates by fingerprint
-        duplicates = find_duplicate_fingerprints
-
-        # Re-route Depictions off source images before destroying them.
-        # Image has dependent: :restrict_with_error, so destroy silently
-        # fails if any Depictions remain — leaving a duplicate fingerprint
-        # in the target project after the bulk SQL update that follows.
-        duplicates.each do |dup|
+        find_duplicate_fingerprints.each do |dup|
           source_image = Image.find_by(id: dup['source_id'])
           next unless source_image
 
-          reroute_depictions(source_image.id, dup['target_id'])
-          reroute_annotations(source_image, dup['target_id'])
-
-          if source_image.destroy
-            result[:destroyed] += 1
-            result[:duplicates_found] << {
-              source_id: dup['source_id'],
-              target_id: dup['target_id'],
-              fingerprint: dup['image_file_fingerprint']
-            }
-          else
-            result[:errors] << {
-              model: 'Image',
-              id: source_image.id,
-              error: source_image.errors.full_messages.join('; ')
-            }
-          end
+          source_image.update_columns(
+            image_file_fingerprint: "#{SENTINEL_PREFIX} #{target_project_id} #{source_image.id}"
+          )
+          result[:duplicates_found] << {
+            source_id: dup['source_id'],
+            target_id: dup['target_id'],
+            fingerprint: dup['image_file_fingerprint']
+          }
+          result[:merge_registry] << {
+            model: 'Image',
+            renamed_id: source_image.id,
+            target_id: dup['target_id']
+          }
         end
 
-        # Update remaining images with direct SQL (no validation)
-        migrated_count = update_remaining_images
-        result[:migrated] = migrated_count
-
+        result[:migrated] = update_remaining_images
         result
       rescue => e
         {
           track: :special,
           model: 'Image',
           migrated: 0,
-          destroyed: 0,
-          errors: [{
-            error: e.message,
-            backtrace: e.backtrace.first(3)
-          }]
+          errors: [{ error: e.message, backtrace: e.backtrace.first(3) }]
         }
+      end
+
+      # Phase 2: re-route all associations from the sentinel image to the
+      # canonical target image, then destroy the sentinel.
+      # Called by Service#run_cleanup after the full migration transaction.
+      def cleanup_sentinel(renamed_id, target_id)
+        source_image = Image.find(renamed_id)
+        reroute_depictions(source_image.id, target_id)
+        reroute_annotations(source_image, target_id)
+        source_image.destroy!
       end
 
       private
 
       def find_duplicate_fingerprints
-        # Find images in source that have same fingerprint as images in target
         sql = <<-SQL
           SELECT
             s.id as source_id,
@@ -269,11 +273,11 @@ module ProjectUnification
     end
 
     # Handler for Document with fingerprint-based deduplication.
-    # Mirrors ImageHandler: re-routes Documentation records off duplicate
-    # source Documents before destroying them, preventing cross-project
-    # document_id references after the fast-track Documentation bulk update.
+    # Mirrors ImageHandler — see its comment for the Phase 1 / Phase 2 design.
     class DocumentHandler
       include ProjectUnification::AnnotationRerouter
+
+      SENTINEL_PREFIX = 'UNIFICATION TO PROJECT'
 
       attr_reader :source_project_id, :target_project_id
 
@@ -287,29 +291,26 @@ module ProjectUnification
           track: :special,
           model: 'Document',
           migrated: 0,
-          destroyed: 0,
           duplicates_found: [],
-          errors: []
+          errors: [],
+          merge_registry: []
         }
 
         duplicate_pairs.each do |source_document, target_id|
-          reroute_documentation(source_document.id, target_id)
-          reroute_annotations(source_document, target_id)
-
-          if source_document.destroy
-            result[:destroyed] += 1
-            result[:duplicates_found] << {
-              source_id: source_document.id,
-              target_id: target_id,
-              fingerprint: source_document.document_file_fingerprint
-            }
-          else
-            result[:errors] << {
-              model: 'Document',
-              id: source_document.id,
-              error: source_document.errors.full_messages.join('; ')
-            }
-          end
+          original_fingerprint = source_document.document_file_fingerprint
+          source_document.update_columns(
+            document_file_fingerprint: "#{SENTINEL_PREFIX} #{target_project_id} #{source_document.id}"
+          )
+          result[:duplicates_found] << {
+            source_id: source_document.id,
+            target_id: target_id,
+            fingerprint: original_fingerprint
+          }
+          result[:merge_registry] << {
+            model: 'Document',
+            renamed_id: source_document.id,
+            target_id: target_id
+          }
         end
 
         result[:migrated] = Document.where(project_id: source_project_id)
@@ -320,9 +321,17 @@ module ProjectUnification
           track: :special,
           model: 'Document',
           migrated: 0,
-          destroyed: 0,
           errors: [{ error: e.message, backtrace: e.backtrace.first(3) }]
         }
+      end
+
+      # Phase 2: re-route Documentation and annotations from the sentinel
+      # document to the canonical target document, then destroy the sentinel.
+      def cleanup_sentinel(renamed_id, target_id)
+        source_document = Document.find(renamed_id)
+        reroute_documentation(source_document.id, target_id)
+        reroute_annotations(source_document, target_id)
+        source_document.destroy!
       end
 
       private

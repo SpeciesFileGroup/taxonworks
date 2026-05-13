@@ -43,12 +43,8 @@ module ProjectUnification
     #   Source             cached_author_string, cached_nomenclature_date:
     #                        community data, not project-scoped.
     #
-    # TaxonName is the only model that needs rebuilding: its cached fields
-    # (cached_html, cached_valid_taxon_name_id, cached_is_valid, etc.) depend on
-    # the hierarchy and TaxonNameRelationships, both of which are restructured
-    # during unification. TaxonName#set_cached queries live
-    # TaxonNameRelationship state directly, so rebuilding TaxonName also picks
-    # up all TaxonNameRelationship contributions.
+    # TODO: the only model we're rebuilding cached_* values on is TaxonName, and
+    # it probably isn't needed there either. Confirm.
     MODELS_WITH_CACHED_FIELDS = %w[
       TaxonName
     ].freeze

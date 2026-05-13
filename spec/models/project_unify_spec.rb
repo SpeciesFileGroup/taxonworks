@@ -710,11 +710,11 @@ RSpec.describe Project, '#unify', type: :model do
         expect(depiction.image).to eq(target_image)
       end
 
-      it 'reports the destroyed image in results' do
+      it 'reports the detected duplicate in results' do
         result = target_project.unify(source_project, preview: false, user_id: user.id)
 
         image_result = result[:details_by_model]['Image']
-        expect(image_result[:destroyed]).to eq(1)
+        expect(image_result[:duplicates_found].length).to eq(1)
       end
     end
 
@@ -746,6 +746,11 @@ RSpec.describe Project, '#unify', type: :model do
 
         expect(Depiction.exists?(source_depiction.id)).to be false
         expect(Depiction.exists?(target_depiction.id)).to be true
+      end
+
+      it 'destroys the source image' do
+        target_project.unify(source_project, preview: false, user_id: user.id)
+        expect(Image.exists?(source_image.id)).to be false
       end
     end
 
@@ -798,11 +803,11 @@ RSpec.describe Project, '#unify', type: :model do
         expect(documentation.document).to eq(target_document)
       end
 
-      it 'reports the destroyed document in results' do
+      it 'reports the detected duplicate in results' do
         result = target_project.unify(source_project, preview: false, user_id: user.id)
 
         doc_result = result[:details_by_model]['Document']
-        expect(doc_result[:destroyed]).to eq(1)
+        expect(doc_result[:duplicates_found].length).to eq(1)
       end
     end
 
@@ -817,8 +822,8 @@ RSpec.describe Project, '#unify', type: :model do
   end
 
   describe 'Image annotation rerouting' do
-    # When a source Image is destroyed as a fingerprint-duplicate, AnnotationRerouter
-    # must move all annotations to the target Image before the destroy.
+    # When a source Image is a fingerprint-duplicate, Phase 2 cleanup_sentinel
+    # re-routes all annotations to the target Image before destroying the sentinel.
     let!(:source_image) { FactoryBot.create(:valid_image, project_id: source_project.id) }
     let!(:target_image) { FactoryBot.create(:valid_image, project_id: target_project.id) }
 
@@ -892,6 +897,11 @@ RSpec.describe Project, '#unify', type: :model do
         expect(Citation.exists?(source_citation.id)).to be false
       end
     end
+
+    it 'destroys the source image' do
+      target_project.unify(source_project, preview: false, user_id: user.id)
+      expect(Image.exists?(source_image.id)).to be false
+    end
   end
 
   describe 'Document annotation rerouting' do
@@ -926,6 +936,11 @@ RSpec.describe Project, '#unify', type: :model do
         note.reload
         expect(note.note_object).to eq(target_document)
       end
+    end
+
+    it 'destroys the source document' do
+      target_project.unify(source_project, preview: false, user_id: user.id)
+      expect(Document.exists?(source_document.id)).to be false
     end
   end
 
