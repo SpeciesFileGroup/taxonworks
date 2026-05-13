@@ -22,17 +22,11 @@ module Shared::ProjectUnification
   #
   # @param target_project_id [Integer] The ID of the target project
   #
-  # @return [nil, false]  handler did not persist — migrator will call save!
-  # @return [true]        handler persisted via update_columns — migrator skips save!, counts as migrated
-  # @return [:destroyed]  handler destroyed self (merged into existing target record) — counts as destroyed
+  # @return [nil, false] handler did not persist — migrator will call save!
+  # @return [true] handler persisted via update_columns — migrator skips
+  #                save!, counts as migrated
+  # @return [:destroyed] handler destroyed self (merged into existing target
+  #                      record) — counts as destroyed
   def handle_unify_conflict(target_project_id)
-  end
-
-  module ClassMethods
-    # Override to specify custom unification strategy for this model
-    # @return [Symbol] :fast, :medium, :slow, or :skip
-    def unification_track
-      nil # Uses ModelClassifier default
-    end
   end
 end
