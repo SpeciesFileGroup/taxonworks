@@ -133,12 +133,7 @@ module ProjectUnification
       }
     end
 
-    # Slow track: validate in batches to detect uniqueness conflicts, bulk-update
-    # each safe batch, and handle conflicts individually.
-    #
-    # Batching keeps the in-memory safe_ids array bounded and lets each batch's
-    # UPDATE run immediately, so later batches validate against the already-
-    # migrated DB state (catching any edge-case within-source duplicates).
+    # Slow track: validate each project reassignment, fail on conflict.
     def process_slow_track(klass)
       stats = { track: :slow, migrated: 0, destroyed: 0, conflicts: [], errors: [] }
 
@@ -146,7 +141,7 @@ module ProjectUnification
       return nil unless records.exists?
 
       records.find_in_batches do |batch|
-        safe_ids         = []
+        safe_ids = []
         conflict_records = []
 
         batch.each do |record|
@@ -168,7 +163,11 @@ module ProjectUnification
           stats[:errors] << { id: record.id, model: klass.name, error: e.message }
         end
 
-        stats[:migrated] += klass.where(id: safe_ids).update_all(project_id: target_project_id) if safe_ids.any?
+        if safe_ids.any?
+          stats[:migrated] += klass
+            .where(id: safe_ids)
+            .update_all(project_id: target_project_id)
+        end
 
         conflict_records.each do |record|
           if record.respond_to?(:handle_unify_conflict)
@@ -192,9 +191,9 @@ module ProjectUnification
     # Process cached tables with direct SQL update.
     def process_cached_table(klass)
       handler = ProjectUnification::SpecialHandlers::CachedTablesHandler.new(
-        source_project_id,
-        target_project_id,
-        klass.table_name
+        source_project_id:,
+        target_project_id:,
+        klass:
       )
       handler.migrate
     end
@@ -202,21 +201,22 @@ module ProjectUnification
     # Special handling for models that need custom logic.
     def process_special_handling(klass)
       handler_class = case klass.name
-                      when 'TaxonName'             then ProjectUnification::TaxonNameHandler
-                      when 'CollectingEvent'        then ProjectUnification::SpecialHandlers::CollectingEventHandler
-                      when 'ProjectSource'          then ProjectUnification::SpecialHandlers::ProjectSourceHandler
-                      when 'RangedLotCategory'      then ProjectUnification::SpecialHandlers::RangedLotCategoryHandler
-                      when 'OtuPageLayout'          then ProjectUnification::SpecialHandlers::OtuPageLayoutHandler
-                      when 'Image'                  then ProjectUnification::SpecialHandlers::ImageHandler
-                      when 'Document'               then ProjectUnification::SpecialHandlers::DocumentHandler
-                      when 'ControlledVocabularyTerm' then ProjectUnification::SpecialHandlers::ControlledVocabularyTermHandler
-                      else raise NotImplementedError, "No special handler defined for #{klass.name}"
-                      end
+      when 'TaxonName' then ProjectUnification::TaxonNameHandler
+      when 'CollectingEvent' then ProjectUnification::SpecialHandlers::CollectingEventHandler
+      when 'ProjectSource' then ProjectUnification::SpecialHandlers::ProjectSourceHandler
+      when 'RangedLotCategory' then ProjectUnification::SpecialHandlers::RangedLotCategoryHandler
+      when 'OtuPageLayout' then ProjectUnification::SpecialHandlers::OtuPageLayoutHandler
+      when 'Image' then ProjectUnification::SpecialHandlers::ImageHandler
+      when 'Document' then ProjectUnification::SpecialHandlers::DocumentHandler
+      when 'ControlledVocabularyTerm' then ProjectUnification::SpecialHandlers::ControlledVocabularyTermHandler
+      else raise NotImplementedError, "No special handler defined for #{klass.name}"
+      end
 
-      handler_class.new(source_project_id, target_project_id, options).migrate
+      handler_class.new(source_project_id:, target_project_id:, options:).migrate
     end
 
-    # Dispatch to handle_unify_conflict and update stats based on its return value.
+    # Dispatch to handle_unify_conflict and update stats based on its return
+    # value.
     #
     # handle_unify_conflict return convention:
     #   nil / false  -> handler did not persist; caller should save! the record

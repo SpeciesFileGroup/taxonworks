@@ -218,15 +218,20 @@ end
 
 ## Performance
 
-Expected durations based on testing:
+Expected durations based on a real run (245k records, ~13k slow-track): **~4.5 minutes**.
 
-- **< 1,000 records**: 30 seconds
-- **1,000 - 10,000 records**: 1-5 minutes
-- **10,000 - 100,000 records**: 5-30 minutes
-- **100,000+ records**: 30+ minutes
+Duration is dominated by **slow-track** models (per-record validation: TypeMaterial,
+TaxonDetermination, BiocurationClassification, CitationTopic). Fast-track and cached
+models with 100k+ records complete in seconds. Projects with large slow-track counts
+will take proportionally longer.
+
+Rough estimates:
+
+- **< 5,000 slow-track records**: under 2 minutes
+- **5,000 - 20,000 slow-track records**: 2-10 minutes
+- **20,000+ slow-track records**: 10+ minutes
 
 Optimize by:
-- Using `skip_cached_rebuild: true` during testing
 - Running during low-traffic periods
 - Monitoring database performance
 
@@ -245,6 +250,7 @@ Optimize by:
 - **Root TaxonName conflict**: Source root becomes child of target root
 - **Large datasets** may require extended processing time
 - **Conflict detection is point-in-time**: Each record is validated at the moment it is processed, against the partially-migrated state of the database. A record that passes validation mid-migration could theoretically become invalid once a later-processed associated model is also moved. In practice this is guarded against by MANIFEST processing order (dependencies before dependents), and analysis of current TaxonWorks validations has not identified a concrete path where this occurs. However it is a known structural limitation of the approach.
+- **CachedMap ancestors**: The cached maps for TaxonName ancestors of the target project's root will be stale after unification — they are not rebuilt because CachedRebuilder only operates within the target project. Any OTU/TaxonName nodes above the target root that gain new descendants via the merge will have incorrect cached map coverage until their caches are separately rebuilt.
 
 ## Testing
 

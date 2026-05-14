@@ -5,32 +5,23 @@
 #
 module ProjectUnification
   module SpecialHandlers
-    # Handler for cached_* tables - no validation needed, just SQL update
+    # Handler for cached_* tables - no validation needed, just bulk update.
     class CachedTablesHandler
-      attr_reader :source_project_id, :target_project_id, :table_name
+      attr_reader :source_project_id, :target_project_id, :klass
 
-      def initialize(source_project_id, target_project_id, table_name)
+      def initialize(source_project_id:, target_project_id:, klass:)
         @source_project_id = source_project_id
         @target_project_id = target_project_id
-        @table_name = table_name
+        @klass = klass
       end
 
       def migrate
-        count = count_records
-
-        if count > 0
-          sql = ActiveRecord::Base.sanitize_sql_array([
-            "UPDATE #{table_name} SET project_id = ? WHERE project_id = ?",
-            target_project_id,
-            source_project_id
-          ])
-
-          ActiveRecord::Base.connection.execute(sql)
-        end
+        migrated = klass.where(project_id: source_project_id)
+                        .update_all(project_id: target_project_id)
 
         {
           track: :cached,
-          migrated: count,
+          migrated: migrated,
           method: :direct_sql,
           errors: []
         }
@@ -39,22 +30,8 @@ module ProjectUnification
           track: :cached,
           migrated: 0,
           method: :direct_sql,
-          errors: [{
-            error: e.message,
-            backtrace: e.backtrace.first(3)
-          }]
+          errors: [{ error: e.message, backtrace: e.backtrace.first(3) }]
         }
-      end
-
-      private
-
-      def count_records
-        sql = ActiveRecord::Base.sanitize_sql_array([
-          "SELECT COUNT(*) FROM #{table_name} WHERE project_id = ?",
-          source_project_id
-        ])
-
-        ActiveRecord::Base.connection.select_value(sql).to_i
       end
     end
 
@@ -67,7 +44,7 @@ module ProjectUnification
     class CollectingEventHandler
       attr_reader :source_project_id, :target_project_id
 
-      def initialize(source_project_id, target_project_id, options = {})
+      def initialize(source_project_id:, target_project_id:, options: {})
         @source_project_id = source_project_id
         @target_project_id = target_project_id
       end
@@ -84,11 +61,11 @@ module ProjectUnification
         }
 
         if duplicates.any?
-          duplicates.each do |dup|
+          duplicates.each do |label|
             result[:conflicts] << {
               model: 'CollectingEvent',
-              conflict_fields: { verbatim_label: dup['verbatim_label'] },
-              errors: ["verbatim_label '#{dup['verbatim_label']}' already exists in the target project — resolve manually before retrying"]
+              conflict_fields: { verbatim_label: label },
+              errors: ["verbatim_label '#{label}' already exists in the target project — resolve manually before retrying"]
             }
           end
           return result
@@ -109,32 +86,16 @@ module ProjectUnification
       private
 
       def detect_verbatim_label_duplicates
-        sql = <<-SQL
-          SELECT s.verbatim_label, COUNT(*) as count
-          FROM collecting_events s
-          INNER JOIN collecting_events t
-            ON s.verbatim_label = t.verbatim_label
-            AND s.verbatim_label IS NOT NULL
-          WHERE s.project_id = #{source_project_id}
-            AND t.project_id = #{target_project_id}
-          GROUP BY s.verbatim_label
-        SQL
-
-        ActiveRecord::Base.connection.exec_query(sql).to_a
+        CollectingEvent.where(project_id: source_project_id)
+                       .where.not(verbatim_label: nil)
+                       .where(verbatim_label: CollectingEvent.where(project_id: target_project_id).select(:verbatim_label))
+                       .distinct
+                       .pluck(:verbatim_label)
       end
 
       def migrate_with_sql
-        count = CollectingEvent.where(project_id: source_project_id).count
-        return 0 if count == 0
-
-        sql = ActiveRecord::Base.sanitize_sql_array([
-          "UPDATE collecting_events SET project_id = ? WHERE project_id = ?",
-          target_project_id,
-          source_project_id
-        ])
-
-        result = ActiveRecord::Base.connection.execute(sql)
-        result.cmd_tuples || count
+        CollectingEvent.where(project_id: source_project_id)
+                       .update_all(project_id: target_project_id)
       end
     end
 
@@ -149,7 +110,7 @@ module ProjectUnification
     class ProjectSourceHandler
       attr_reader :source_project_id, :target_project_id
 
-      def initialize(source_project_id, target_project_id, options = {})
+      def initialize(source_project_id:, target_project_id:, options: {})
         @source_project_id = source_project_id
         @target_project_id = target_project_id
       end
@@ -201,7 +162,7 @@ module ProjectUnification
       SENTINEL_PREFIX = 'UNIFICATION TO PROJECT'
       attr_reader :source_project_id, :target_project_id
 
-      def initialize(source_project_id, target_project_id, options = {})
+      def initialize(source_project_id:, target_project_id:, options: {})
         @source_project_id = source_project_id
         @target_project_id = target_project_id
       end
@@ -266,7 +227,7 @@ module ProjectUnification
       SENTINEL_PREFIX = 'UNIFICATION TO PROJECT'
       attr_reader :source_project_id, :target_project_id
 
-      def initialize(source_project_id, target_project_id, options = {})
+      def initialize(source_project_id:, target_project_id:, options: {})
         @source_project_id = source_project_id
         @target_project_id = target_project_id
       end
@@ -329,7 +290,7 @@ module ProjectUnification
 
       attr_reader :source_project_id, :target_project_id
 
-      def initialize(source_project_id, target_project_id, options = {})
+      def initialize(source_project_id:, target_project_id:, options: {})
         @source_project_id = source_project_id
         @target_project_id = target_project_id
       end
@@ -344,26 +305,25 @@ module ProjectUnification
           merge_registry: []
         }
 
-        find_duplicate_fingerprints.each do |dup|
-          source_image = Image.find_by(id: dup['source_id'])
-          next unless source_image
-
+        duplicate_pairs.each do |source_image, target_id|
+          original_fingerprint = source_image.image_file_fingerprint
           source_image.update_columns(
             image_file_fingerprint: "#{SENTINEL_PREFIX} #{target_project_id} #{source_image.id}"
           )
           result[:duplicates_found] << {
-            source_id: dup['source_id'],
-            target_id: dup['target_id'],
-            fingerprint: dup['image_file_fingerprint']
+            source_id: source_image.id,
+            target_id: target_id,
+            fingerprint: original_fingerprint
           }
           result[:merge_registry] << {
             model: 'Image',
             renamed_id: source_image.id,
-            target_id: dup['target_id']
+            target_id: target_id
           }
         end
 
-        result[:migrated] = update_remaining_images
+        result[:migrated] = Image.where(project_id: source_project_id)
+                                 .update_all(project_id: target_project_id)
         result
       rescue => e
         {
@@ -376,35 +336,15 @@ module ProjectUnification
 
       private
 
-      def find_duplicate_fingerprints
-        sql = <<-SQL
-          SELECT
-            s.id as source_id,
-            t.id as target_id,
-            s.image_file_fingerprint
-          FROM images s
-          INNER JOIN images t
-            ON s.image_file_fingerprint = t.image_file_fingerprint
-            AND s.image_file_fingerprint IS NOT NULL
-          WHERE s.project_id = #{source_project_id}
-            AND t.project_id = #{target_project_id}
-        SQL
+      def duplicate_pairs
+        target_by_fingerprint = Image.where(project_id: target_project_id)
+                                     .where.not(image_file_fingerprint: nil)
+                                     .pluck(:image_file_fingerprint, :id)
+                                     .to_h
 
-        ActiveRecord::Base.connection.exec_query(sql).to_a
-      end
-
-      def update_remaining_images
-        count = Image.where(project_id: source_project_id).count
-        return 0 if count == 0
-
-        sql = ActiveRecord::Base.sanitize_sql_array([
-          "UPDATE images SET project_id = ? WHERE project_id = ?",
-          target_project_id,
-          source_project_id
-        ])
-
-        result = ActiveRecord::Base.connection.execute(sql)
-        result.cmd_tuples || count
+        Image.where(project_id: source_project_id)
+             .where(image_file_fingerprint: target_by_fingerprint.keys)
+             .map { |img| [img, target_by_fingerprint[img.image_file_fingerprint]] }
       end
     end
 
@@ -415,7 +355,7 @@ module ProjectUnification
 
       attr_reader :source_project_id, :target_project_id
 
-      def initialize(source_project_id, target_project_id, options = {})
+      def initialize(source_project_id:, target_project_id:, options: {})
         @source_project_id = source_project_id
         @target_project_id = target_project_id
       end
@@ -493,7 +433,7 @@ module ProjectUnification
 
       SENTINEL_PREFIX = 'UNIFICATION TO PROJECT'
 
-      def initialize(source_project_id, target_project_id, options = {})
+      def initialize(source_project_id:, target_project_id:, options: {})
         @source_project_id = source_project_id
         @target_project_id = target_project_id
       end

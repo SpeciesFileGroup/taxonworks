@@ -10,7 +10,7 @@ module ProjectUnification
   class TaxonNameHandler
     attr_reader :source_project_id, :target_project_id, :options
 
-    def initialize(source_project_id, target_project_id, options = {})
+    def initialize(source_project_id:, target_project_id:, options: {})
       @source_project_id = source_project_id
       @target_project_id = target_project_id
       @options = options
@@ -55,6 +55,11 @@ module ProjectUnification
 
           # Rebuild only target_parent's subtree — all source names now hang off it.
           # TaxonName.rebuild! is O(all projects); instance rebuild! is O(moved subtree).
+          #
+          # Ancestors of target_parent are correctly handled: closure_tree's instance
+          # rebuild! seeds each node's ancestor entries by copying rows where
+          # descendant_id = parent_id, which already includes all ancestors above
+          # target_parent. No separate rebuild of those nodes is needed.
           target_parent.rebuild!
           stats[:closure_tree_rebuilt] = true
         end
