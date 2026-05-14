@@ -22,10 +22,11 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - /downloads/1 shows `Expires: n days` when the download has been *expired* for n days
 - New Source can fail to update a serial when the serial being updated to has no issn [#4921]
 - In New Source, an issn value never overrides the serial selected by the user
+- Filter CO: Biological associations facet doesn't work with the `without` option [#4926]
 
 [#4921]: https://github.com/SpeciesFileGroup/taxonworks/issues/4921
-
 [#2325]: https://github.com/SpeciesFileGroup/taxonworks/issues/2325
+[#4926]: https://github.com/SpeciesFileGroup/taxonworks/issues/4926
 
 ## [0.62.0] - 2026-05-08
 
