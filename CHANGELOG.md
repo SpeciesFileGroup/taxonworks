@@ -23,9 +23,11 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - New Source can fail to update a serial when the serial being updated to has no issn [#4921]
 - In New Source, an issn value never overrides the serial selected by the user
 - Filter CO: Biological associations facet doesn't work with the `without` option [#4926]
+ Sqed images are automatically processed when created [#3178]
 
 [#4921]: https://github.com/SpeciesFileGroup/taxonworks/issues/4921
 [#2325]: https://github.com/SpeciesFileGroup/taxonworks/issues/2325
+[#3178]: https://github.com/SpeciesFileGroup/taxonworks/issues/3178
 [#4926]: https://github.com/SpeciesFileGroup/taxonworks/issues/4926
 
 ## [0.62.0] - 2026-05-08
