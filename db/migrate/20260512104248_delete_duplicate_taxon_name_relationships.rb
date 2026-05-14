@@ -118,6 +118,9 @@ class DeleteDuplicateTaxonNameRelationships < ActiveRecord::Migration[8.1]
         WHERE rn > 1
       SQL
 
+      citations_moved   = 0
+      citations_deleted = 0
+
       duplicate_rows.each do |row|
         duplicate_id = row['id'].to_i
         survivor_id  = row['survivor_id'].to_i
@@ -125,7 +128,7 @@ class DeleteDuplicateTaxonNameRelationships < ActiveRecord::Migration[8.1]
         # Move citations whose (source_id, pages) pair does not already exist on the survivor.
         # Checking source_id alone would incorrectly skip citations with the same source but
         # different pages — those are distinct per the model's uniqueness validation.
-        execute(<<~SQL)
+        citations_moved += execute(<<~SQL).cmd_tuples
           UPDATE citations
           SET citation_object_id = #{survivor_id}
           WHERE citation_object_type = 'TaxonNameRelationship'
@@ -138,14 +141,17 @@ class DeleteDuplicateTaxonNameRelationships < ActiveRecord::Migration[8.1]
             )
         SQL
 
-        execute(<<~SQL)
+        citations_deleted += execute(<<~SQL).cmd_tuples
           DELETE FROM citations
           WHERE citation_object_type = 'TaxonNameRelationship'
             AND citation_object_id = #{duplicate_id}
         SQL
       end
 
-      execute(<<~SQL)
+      say "Moved #{citations_moved} citations to surviving taxon_name_relationships"
+      say "Deleted #{citations_deleted} conflicting citations from duplicate taxon_name_relationships"
+
+      tnr_result = execute(<<~SQL)
         DELETE FROM taxon_name_relationships
         WHERE id IN (
           SELECT id FROM (
@@ -168,6 +174,7 @@ class DeleteDuplicateTaxonNameRelationships < ActiveRecord::Migration[8.1]
           WHERE rn > 1
         )
       SQL
+      say "Deleted #{tnr_result.cmd_tuples} duplicate taxon_name_relationships"
     end
   end
 

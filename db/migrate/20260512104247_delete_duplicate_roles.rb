@@ -8,7 +8,7 @@ class DeleteDuplicateRoles < ActiveRecord::Migration[8.1]
   # We keep the lowest-id record in each group and delete the rest.
   def up
     transaction do
-      execute(<<~SQL)
+      result = execute(<<~SQL)
         DELETE FROM roles
         WHERE id IN (
           SELECT id FROM (
@@ -23,6 +23,7 @@ class DeleteDuplicateRoles < ActiveRecord::Migration[8.1]
           WHERE rn > 1
         )
       SQL
+      say "Deleted #{result.cmd_tuples} duplicate roles"
     end
   end
 

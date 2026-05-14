@@ -77,7 +77,7 @@ module ProjectUnification
                        when :special
                          process_special_handling(klass)
                        else
-                         next
+                         raise NotImplementedError, "Unknown track #{track.inspect} for #{klass.name}"
                        end
 
         if model_result
