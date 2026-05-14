@@ -72,25 +72,32 @@ module ProjectUnification
       DatasetRecord
       OtuPageLayoutSection
       TaxonDetermination
+      BiocurationClassification
+      CharacterState
+      GeneAttribute
+      LoanItem
+      ObservationMatrixColumn
+      DerivedCollectionObject
+      TypeMaterial
+      OtuRelationship
+      Content
+      SledImage
+      CitationTopic
+      BiologicalAssociationsBiologicalAssociationsGraph
     ].freeze
 
     # Per-record validation required to detect uniqueness conflicts against
     # target. Conflicts are reported to the user and the unify fails — the user
     # must resolve (e.g. rename) before retrying.
+    #
+    # !! If any model here uses acts_as_list, its positions can be reshuffled by
+    # acts_as_list callbacks when save! fires during conflict handling. Fast-track
+    # models avoid this entirely (update_all bypasses callbacks). If a slow-track
+    # model has position-sensitive semantics, it may need a handle_unify_conflict
+    # that bypasses acts_as_list via update_columns — see the now-removed
+    # TaxonDetermination#handle_unify_conflict for the pattern.
     SLOW_TRACK = %w[
       ObservationMatrix
-      ObservationMatrixColumn
-      TypeMaterial
-      CharacterState
-      BiocurationClassification
-      OtuRelationship
-      Content
-      SledImage
-      LoanItem
-      GeneAttribute
-      DerivedCollectionObject
-      CitationTopic
-      BiologicalAssociationsBiologicalAssociationsGraph
       ImportDataset
     ].freeze
 
