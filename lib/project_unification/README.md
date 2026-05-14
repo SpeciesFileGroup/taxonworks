@@ -6,10 +6,9 @@ Safely merge all data from one TaxonWorks project into another.
 
 The Project Unification system provides a robust, transaction-safe way to consolidate data from multiple projects. It handles:
 
-- **67+ data models** with varying complexity
+- **All project-scoped models** with varying complexity
 - **Uniqueness validation conflicts** through categorized processing tracks
 - **TaxonName hierarchies** with closure_tree preservation
-- **Cached field rebuilding** for performance
 - **Preview mode** for risk-free testing
 - **Detailed reporting** of all operations
 
@@ -65,20 +64,6 @@ rake tw:project:unify SOURCE_PROJECT_ID=5 TARGET_PROJECT_ID=3 PREVIEW=false
 rake tw:project:unify SOURCE_PROJECT_ID=5 TARGET_PROJECT_ID=3 ROOT_TAXON_NAME_ID=123 PREVIEW=false
 ```
 
-### Analyze Conflicts
-
-```bash
-# Check for potential conflicts before unifying
-rake tw:project:preview_conflicts SOURCE_PROJECT_ID=5 TARGET_PROJECT_ID=3
-```
-
-### Project Statistics
-
-```bash
-# See what data exists in a project
-rake tw:project:project_stats PROJECT_ID=5
-```
-
 ## Architecture
 
 ### Processing Tracks
@@ -86,7 +71,6 @@ rake tw:project:project_stats PROJECT_ID=5
 Models are categorized by validation complexity:
 
 #### Fast Track (Bulk SQL UPDATE)
-- Image
 - ProjectSource
 - RangedLotCategory
 - OtuPageLayout
@@ -94,27 +78,15 @@ Models are categorized by validation complexity:
 
 **Processing**: Single SQL UPDATE statement per model
 
-#### Medium Track (Batch with Validation)
-- ObservationMatrix
-- ControlledVocabularyTerm
-- CollectingEvent
-- Note
-- ~12 models with moderate uniqueness constraints
-
-**Processing**: Batch iteration with validation, automatic deduplication
-
 #### Slow Track (Per-Record Processing)
-- ImportAttribute
-- InternalAttribute
-- TaxonNameRelationship
-- TaxonDetermination
-- AlternateValue
-- Citation
+- ObservationMatrix
+ -ImportDataset
 
-**Processing**: Individual record validation, custom conflict handlers
+**Processing**: Batch iteration with validation, custom conflict handlers
 
 #### Special Handling
 - **TaxonName**: Custom hierarchy merging with closure_tree rebuild
+- many others
 
 ### Module Structure
 
@@ -218,30 +190,30 @@ end
 
 ## Performance
 
-Expected durations based on a real run (245k records, ~13k slow-track): **~4.5 minutes**.
+Production timings (two real runs):
 
-Duration is dominated by **slow-track** models (per-record validation: TypeMaterial,
-TaxonDetermination, BiocurationClassification, CitationTopic). Fast-track and cached
-models with 100k+ records complete in seconds. Projects with large slow-track counts
-will take proportionally longer.
+| Project | Records | TaxonNames | Duration |
+|---|---|---|---|
+| Zoraptera → Small Polyneoptera (64→65) | 5,244 | 176 | ~3 min |
+| Isoptera → Cockroach SF (4→48) | 244,721 | 6,293 | ~11 min |
 
-Rough estimates:
+The primary bottleneck is **TaxonName** (special handling — closure_tree hierarchy
+rebuild scales with subtree size, not just count). Fast-track and cached models, even
+with 100k+ records, complete in seconds. The slow track is limited to ObservationMatrix
+and ImportDataset, which are rarely large.
 
-- **< 5,000 slow-track records**: under 2 minutes
-- **5,000 - 20,000 slow-track records**: 2-10 minutes
-- **20,000+ slow-track records**: 10+ minutes
+Rough estimates by TaxonName count:
 
-Optimize by:
-- Running during low-traffic periods
-- Monitoring database performance
+- **< 500 TaxonNames**: under 2 minutes
+- **500 - 2,000 TaxonNames**: 2-5 minutes
+- **2,000 - 7,000 TaxonNames**: 5-12 minutes
+- **7,000+ TaxonNames**: 12+ minutes
 
 ## Safety Features
 
 1. **Transaction-based**: All changes rolled back on error
 2. **Preview mode**: Test without persisting changes
-3. **Validation**: Pre-flight conflict detection
-4. **Detailed logging**: Full audit trail of operations
-5. **Error recovery**: Automatic rollback on failures
+3. **Error recovery**: Automatic rollback on failures
 
 ## Limitations
 
@@ -259,27 +231,3 @@ Run the comprehensive test suite:
 ```bash
 bundle exec rspec spec/models/project_unify_spec.rb
 ```
-
-## Troubleshooting
-
-### "Cannot unify a project with itself"
-- Ensure source and target project IDs are different
-
-### "root_taxon_name_id must belong to target project"
-- Verify the custom root TaxonName exists in the target project
-
-### Validation Errors
-- Run preview mode first to identify conflicts
-- Check error details in result[:errors]
-- Consider custom conflict handlers for problematic models
-
-### Performance Issues
-- Use skip_cached_rebuild during testing
-- Process smaller projects first
-- Monitor database I/O and connections
-
-## Support
-
-For issues or questions:
-- GitHub Issues: https://github.com/SpeciesFileGroup/taxonworks/issues
-- Tag issues with `project-unification`
