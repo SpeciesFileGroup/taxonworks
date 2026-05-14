@@ -70,6 +70,7 @@ module ProjectUnification
       Download
       DatasetRecordField
       DatasetRecord
+      OtuPageLayoutSection
     ].freeze
 
     # Per-record validation required to detect uniqueness conflicts against
@@ -90,7 +91,6 @@ module ProjectUnification
       DerivedCollectionObject
       CitationTopic
       BiologicalAssociationsBiologicalAssociationsGraph
-      OtuPageLayoutSection
       ImportDataset
     ].freeze
 
