@@ -71,7 +71,7 @@ module ProjectUnification
       Current.project_id = nil
 
       # Allows for cross-project saves
-      Thread.current[:tw_project_unification] = true
+      Utilities::ThreadStore[:tw_project_unification] = true
 
       Project.transaction do
         run_migration
@@ -102,7 +102,7 @@ module ProjectUnification
 
       @results
     ensure
-      Thread.current[:tw_project_unification] = nil
+      Utilities::ThreadStore[:tw_project_unification] = nil
       Current.user_id = saved_user_id
       Current.project_id = saved_project_id
     end

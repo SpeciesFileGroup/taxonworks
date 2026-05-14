@@ -116,10 +116,10 @@ module ProjectUnification
 
     # Temporarily disable cached field callbacks for performance
     def disable_cached_callbacks
-      Thread.current[:tw_taxon_name_no_cached] = true
+      TaxonName.no_cached_thread = true
       yield
     ensure
-      Thread.current[:tw_taxon_name_no_cached] = nil
+      TaxonName.no_cached_thread = nil
     end
   end
 end

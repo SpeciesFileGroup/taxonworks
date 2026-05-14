@@ -97,7 +97,7 @@ module Housekeeping::Projects
   private
 
   def project_foreign_keys_are_in_same_project
-    return if Thread.current[:tw_project_unification]
+    return if Utilities::ThreadStore[:tw_project_unification]
     return unless project_id.present?
 
     self.class.reflect_on_all_associations(:belongs_to).each do |reflection|

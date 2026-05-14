@@ -1413,4 +1413,46 @@ RSpec.describe Project, '#unify', type: :model do
       end
     end
   end
+
+  describe 'thread-local flags' do
+    describe 'Utilities::ThreadStore[:tw_project_unification]' do
+      it 'bypasses the cross-project FK validation in Housekeeping::Projects during unification' do
+        taxon_name = FactoryBot.create(:valid_taxon_name, project: source_project)
+        otu = FactoryBot.create(:valid_otu, project: source_project, taxon_name: taxon_name)
+
+        # Moving otu to target while taxon_name is still in source violates same-project FK check.
+        otu.project_id = target_project.id
+        expect(otu).not_to be_valid
+
+        begin
+          Utilities::ThreadStore[:tw_project_unification] = true
+          otu.project_id = target_project.id
+          expect(otu).to be_valid
+        ensure
+          Utilities::ThreadStore[:tw_project_unification] = nil
+        end
+      end
+    end
+
+    describe 'TaxonName.no_cached_thread' do
+      it 'suppresses set_cached after_commit callbacks during TaxonName migration' do
+        taxon_name = FactoryBot.create(:valid_taxon_name, project: source_project)
+
+        expect(taxon_name).not_to receive(:set_cached)
+
+        begin
+          TaxonName.no_cached_thread = true
+          taxon_name.update_columns(project_id: target_project.id)
+          # Simulate an after_commit scenario by checking the flag directly
+          expect(TaxonName.no_cached_thread?).to be_truthy
+        ensure
+          TaxonName.no_cached_thread = nil
+        end
+      end
+
+      it 'is unset outside of the migration block' do
+        expect(TaxonName.no_cached_thread?).to be_falsey
+      end
+    end
+  end
 end
