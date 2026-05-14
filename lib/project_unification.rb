@@ -165,8 +165,8 @@ module ProjectUnification
 
         # TODO: this pre-step should live in Image#unify (or a before_unify hook)
         # so that any image merge handles it, not just project unification.
-        # Image has dependent: :restrict_with_error on depictions, so unify rolls
-        # back if any Depiction (on community data like Person) can't be
+        # Image has dependent: :restrict_with_error on depictions, so unify
+        # rolls back if any Depiction (on community data like Person) can't be
         # rerouted due to a uniqueness conflict.
         if entry[:model] == 'Image'
           renamed.depictions.find_each do |sentinel_dep|

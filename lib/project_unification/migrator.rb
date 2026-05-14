@@ -133,22 +133,44 @@ module ProjectUnification
       }
     end
 
-    # Slow track: per-record valid? to detect uniqueness conflicts, then save
-    # without re-running validations.
+    # Slow track: validate in batches to detect uniqueness conflicts, bulk-update
+    # each safe batch, and handle conflicts individually.
+    #
+    # Batching keeps the in-memory safe_ids array bounded and lets each batch's
+    # UPDATE run immediately, so later batches validate against the already-
+    # migrated DB state (catching any edge-case within-source duplicates).
     def process_slow_track(klass)
       stats = { track: :slow, migrated: 0, destroyed: 0, conflicts: [], errors: [] }
 
       records = klass.where(project_id: source_project_id)
       return nil unless records.exists?
 
-      records.find_each do |record|
-        record.no_cached = true if record.respond_to?(:no_cached=)
-        record.project_id = target_project_id
+      records.find_in_batches do |batch|
+        safe_ids         = []
+        conflict_records = []
 
-        if record.valid?
-          record.save!(validate: false)
-          stats[:migrated] += 1
-        elsif uniqueness_error?(record)
+        batch.each do |record|
+          record.no_cached = true if record.respond_to?(:no_cached=)
+          record.project_id = target_project_id
+
+          if record.valid?
+            safe_ids << record.id
+          elsif uniqueness_error?(record)
+            conflict_records << record
+          else
+            stats[:errors] << {
+              id: record.id,
+              model: klass.name,
+              error: record.errors.full_messages.join('; ')
+            }
+          end
+        rescue => e
+          stats[:errors] << { id: record.id, model: klass.name, error: e.message }
+        end
+
+        stats[:migrated] += klass.where(id: safe_ids).update_all(project_id: target_project_id) if safe_ids.any?
+
+        conflict_records.each do |record|
           if record.respond_to?(:handle_unify_conflict)
             apply_conflict_handler(record, stats)
           else
@@ -159,19 +181,9 @@ module ProjectUnification
               errors: record.errors.full_messages
             }
           end
-        else
-          stats[:errors] << {
-            id: record.id,
-            model: klass.name,
-            error: record.errors.full_messages.join('; ')
-          }
+        rescue => e
+          stats[:errors] << { id: record.id, model: klass.name, error: e.message }
         end
-      rescue => e
-        stats[:errors] << {
-          id: record.id,
-          model: klass.name,
-          error: e.message
-        }
       end
 
       stats
