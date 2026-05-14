@@ -58,7 +58,12 @@ module ProjectUnification
       end
     end
 
-    # Handler for CollectingEvent with verbatim_label duplicate detection
+    # Handler for CollectingEvent with verbatim_label conflict detection.
+    #
+    # Unlike Image/Document/CVT, conflicting CEs cannot be automatically merged
+    # — they may have different data beyond the verbatim_label. The conflict is
+    # surfaced to the user (blocking the migration) so they can resolve it
+    # manually (rename or merge the CEs) before retrying.
     class CollectingEventHandler
       attr_reader :source_project_id, :target_project_id
 
@@ -74,35 +79,36 @@ module ProjectUnification
           track: :special,
           model: 'CollectingEvent',
           migrated: 0,
-          method: duplicates.any? ? :validation : :direct_sql,
-          verbatim_label_duplicates: duplicates,
+          conflicts: [],
           errors: []
         }
 
-        if duplicates.empty?
-          result[:migrated] = migrate_with_sql
-        else
-          result[:note] = "#{duplicates.size} verbatim_label duplicates found, using validation"
-          migrate_with_validation(result)
+        if duplicates.any?
+          duplicates.each do |dup|
+            result[:conflicts] << {
+              model: 'CollectingEvent',
+              conflict_fields: { verbatim_label: dup['verbatim_label'] },
+              errors: ["verbatim_label '#{dup['verbatim_label']}' already exists in the target project — resolve manually before retrying"]
+            }
+          end
+          return result
         end
 
+        result[:migrated] = migrate_with_sql
         result
       rescue => e
         {
           track: :special,
           model: 'CollectingEvent',
           migrated: 0,
-          errors: [{
-            error: e.message,
-            backtrace: e.backtrace.first(3)
-          }]
+          conflicts: [],
+          errors: [{ error: e.message, backtrace: e.backtrace.first(3) }]
         }
       end
 
       private
 
       def detect_verbatim_label_duplicates
-        # Find verbatim_labels that exist in both source and target projects
         sql = <<-SQL
           SELECT s.verbatim_label, COUNT(*) as count
           FROM collecting_events s
@@ -129,21 +135,6 @@ module ProjectUnification
 
         result = ActiveRecord::Base.connection.execute(sql)
         result.cmd_tuples || count
-      end
-
-      def migrate_with_validation(result)
-        CollectingEvent.where(project_id: source_project_id).find_each do |ce|
-          ce.project_id = target_project_id
-          if ce.save
-            result[:migrated] += 1
-          else
-            result[:errors] << {
-              id: ce.id,
-              model: 'CollectingEvent',
-              error: ce.errors.full_messages.join('; ')
-            }
-          end
-        end
       end
     end
 
