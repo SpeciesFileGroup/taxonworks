@@ -6,7 +6,10 @@
 #
 module ProjectUnification
   class ModelClassifier
-    # These will never fail, at least not directly, because they're update_all.
+    # Bulk SQL UPDATE — no per-record validation. Safe only when the model has
+    # no project-scoped uniqueness validators, OR when every such validator's
+    # scope includes a FK to a project-specific model (making cross-project
+    # collisions impossible). See model_classifier_spec.rb for the tripwire.
     FAST_TRACK = %w[
       Container
       Tag
@@ -28,11 +31,50 @@ module ProjectUnification
       PinboardItem
       ImportAttribute
       InternalAttribute
+      News
+      Observation
+      TaggedSectionKeyword
+      Role
+      Label
+      Protocol
+      SqedDepiction
+      CollectionObjectObservation
+      AnatomicalPart
+      AssertedDistribution
+      BiologicalRelationshipType
+      BiologicalAssociation
+      BiologicalRelationship
+      BiologicalAssociationsGraph
+      CollectionProfile
+      ContainerItem
+      PublicContent
+      Gazetteer
+      GazetteerImport
+      Georeference
+      Lead
+      LeadItem
+      Loan
+      Sound
+      CommonName
+      OriginRelationship
+      Sequence
+      SequenceRelationship
+      Extract
+      ObservationMatrixColumnItem
+      ObservationMatrixRow
+      ObservationMatrixRowItem
+      FieldOccurrence
+      CollectionObject
+      Otu
+      Descriptor
+      Download
+      DatasetRecordField
+      DatasetRecord
     ].freeze
 
     # Per-record validation required to detect uniqueness conflicts against
-    # target. Any validation conflicts here are reported to the user and the
-    # unify fails.
+    # target. Conflicts are reported to the user and the unify fails — the user
+    # must resolve (e.g. rename) before retrying.
     SLOW_TRACK = %w[
       ObservationMatrix
       ObservationMatrixColumn
@@ -49,6 +91,7 @@ module ProjectUnification
       CitationTopic
       BiologicalAssociationsBiologicalAssociationsGraph
       OtuPageLayoutSection
+      ImportDataset
     ].freeze
 
     # Special handling required - custom migration logic.
@@ -80,12 +123,12 @@ module ProjectUnification
 
       return :excluded if EXCLUDED.include?(name)
       return :cached if CACHED_TABLES.include?(name)
+      return :cached if model_class.table_name.to_s.start_with?('cached_')
       return :special if SPECIAL_HANDLING.include?(name)
       return :fast if FAST_TRACK.include?(name)
       return :slow if SLOW_TRACK.include?(name)
-      return :cached if model_class.table_name.to_s.start_with?('cached_')
 
-      :slow
+      raise ArgumentError, "#{name} is not classified in ModelClassifier — add it to the appropriate track"
     end
 
     # @return [Hash] Statistics about model distribution

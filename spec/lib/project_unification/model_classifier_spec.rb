@@ -1,6 +1,29 @@
 require 'rails_helper'
 
 describe ProjectUnification::ModelClassifier do
+  # Every model in Project::MANIFEST that has a project_id column must be
+  # explicitly classified. The classifier raises on unknown models, but this
+  # spec catches the failure early with a clear message rather than surfacing
+  # it mid-migration.
+  describe 'coverage' do
+    it 'classifies every Project::MANIFEST model that has project_id' do
+      unclassified = Project::MANIFEST.select do |name|
+        klass = name.constantize rescue nil
+        next false unless klass&.respond_to?(:column_names)
+        next false unless klass.column_names.include?('project_id')
+        begin
+          ProjectUnification::ModelClassifier.track_for(klass)
+          false
+        rescue ArgumentError
+          true
+        end
+      end
+
+      expect(unclassified).to be_empty,
+        "These MANIFEST models have project_id but are not in ModelClassifier: #{unclassified.join(', ')}"
+    end
+  end
+
   # Fast-track models are bulk-updated with a single SQL UPDATE — no per-record
   # validation runs. A project-scoped uniqueness validator is safe for fast-track
   # only if every non-project_id column in its scope is a FK to a project-specific
