@@ -10,6 +10,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ### Added
 
 - Preview material examined task [#2325]
+- Add Filter CO/FO to CE radial navigator [#4925]
 
 ### Changed
 
@@ -28,6 +29,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4921]: https://github.com/SpeciesFileGroup/taxonworks/issues/4921
 [#2325]: https://github.com/SpeciesFileGroup/taxonworks/issues/2325
 [#3178]: https://github.com/SpeciesFileGroup/taxonworks/issues/3178
+[#4925]: https://github.com/SpeciesFileGroup/taxonworks/issues/4925
 [#4926]: https://github.com/SpeciesFileGroup/taxonworks/issues/4926
 
 ## [0.62.0] - 2026-05-08

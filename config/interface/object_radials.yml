@@ -88,6 +88,8 @@ CollectingEvent:
     - browse_collecting_events_task
     - new_collecting_event_task
     - filter_collecting_events_task
+    - filter_collection_objects_task
+    - filter_field_occurrences_task
     - comprehensive_collection_object_task
     - new_field_occurrence_task
     - unify_objects_task
