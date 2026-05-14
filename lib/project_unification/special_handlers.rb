@@ -316,20 +316,15 @@ module ProjectUnification
     end
 
     # Handler for Image with fingerprint-based deduplication.
-    # Handler for Image with fingerprint-based deduplication.
     #
     # Phase 1 (migrate): source images whose fingerprint collides with a target
     # image have their fingerprint replaced with a per-record sentinel string so
-    # the bulk SQL update can move them without a uniqueness conflict.  They are
+    # the bulk SQL update can move them without a uniqueness conflict. They are
     # registered in merge_registry for Phase 2.
     #
-    # Phase 2 (cleanup_sentinel, called from Service#run_cleanup): once all data
-    # is in the target project, re-route Depictions and annotations from the
-    # sentinel image to the canonical target image, then destroy the sentinel.
-    # This mirrors the CVT sentinel approach and keeps Phase 1 free of destroys.
+    # Phase 2: handled by the generic Service#run_cleanup, which calls
+    # target.unify(sentinel) to re-route all associations and destroy the sentinel.
     class ImageHandler
-      include ProjectUnification::AnnotationRerouter
-
       SENTINEL_PREFIX = 'UNIFICATION TO PROJECT'
 
       attr_reader :source_project_id, :target_project_id
@@ -379,16 +374,6 @@ module ProjectUnification
         }
       end
 
-      # Phase 2: re-route all associations from the sentinel image to the
-      # canonical target image, then destroy the sentinel.
-      # Called by Service#run_cleanup after the full migration transaction.
-      def cleanup_sentinel(renamed_id, target_id)
-        source_image = Image.find(renamed_id)
-        reroute_depictions(source_image.id, target_id)
-        reroute_annotations(source_image, target_id)
-        source_image.destroy!
-      end
-
       private
 
       def find_duplicate_fingerprints
@@ -406,23 +391,6 @@ module ProjectUnification
         SQL
 
         ActiveRecord::Base.connection.exec_query(sql).to_a
-      end
-
-      # Re-point Depictions from source_image to target_image.
-      # Depictions that would duplicate an existing (target_image, depiction_object)
-      # pair are destroyed rather than re-pointed.
-      def reroute_depictions(source_image_id, target_image_id)
-        Depiction.where(image_id: source_image_id).find_each do |depiction|
-          if Depiction.exists?(
-            image_id: target_image_id,
-            depiction_object_type: depiction.depiction_object_type,
-            depiction_object_id: depiction.depiction_object_id
-          )
-            depiction.destroy
-          else
-            depiction.update_column(:image_id, target_image_id)
-          end
-        end
       end
 
       def update_remaining_images
@@ -443,8 +411,6 @@ module ProjectUnification
     # Handler for Document with fingerprint-based deduplication.
     # Mirrors ImageHandler — see its comment for the Phase 1 / Phase 2 design.
     class DocumentHandler
-      include ProjectUnification::AnnotationRerouter
-
       SENTINEL_PREFIX = 'UNIFICATION TO PROJECT'
 
       attr_reader :source_project_id, :target_project_id
@@ -493,24 +459,7 @@ module ProjectUnification
         }
       end
 
-      # Phase 2: re-route Documentation and annotations from the sentinel
-      # document to the canonical target document, then destroy the sentinel.
-      def cleanup_sentinel(renamed_id, target_id)
-        source_document = Document.find(renamed_id)
-        reroute_documentation(source_document.id, target_id)
-        reroute_annotations(source_document, target_id)
-        source_document.destroy!
-      end
-
       private
-
-      # Re-point all Documentation from source_document to target_document.
-      # Documentation has no uniqueness constraint on (document_id, object),
-      # so update_all is sufficient.
-      def reroute_documentation(source_document_id, target_document_id)
-        Documentation.where(document_id: source_document_id)
-                     .update_all(document_id: target_document_id)
-      end
 
       # Returns [[source_document, target_id], ...] for documents whose
       # fingerprint matches one in the target project. Excludes .prj/.cpg

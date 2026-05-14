@@ -5,11 +5,13 @@
 # complex relationships like TaxonName hierarchies.
 #
 # @example Basic usage
-#   service = ProjectUnification.new(source_project, target_project)
+#   service = ProjectUnification.new(source_project:, target_project:)
 #   result = service.unify(preview: true)
 #
 module ProjectUnification
   class Service
+    UNIFY_CUTOFF = 1000
+
     attr_reader :source_project, :target_project, :options, :results
 
     # @param source_project [Project] Project to merge from (will be emptied)
@@ -25,7 +27,7 @@ module ProjectUnification
     #   before_validation callbacks)
     # @option options [Boolean] :skip_cached_rebuild Skip rebuilding cached
     #   fields (default: false)
-    def initialize(source_project, target_project, options = {})
+    def initialize(source_project:, target_project:, options: {})
       @source_project = source_project
       @target_project = target_project
       @options = {
@@ -155,27 +157,30 @@ module ProjectUnification
     # Iterate the merge registry produced by Phase 1 and collapse each sentinel
     # record into its canonical target. Failures are collected as errors (not
     # raised) so one bad pair does not abort the remaining cleanup.
-    #
-    # Image / Document: cleanup_sentinel re-routes associations then destroys
-    #   the sentinel record (same logic as the old Phase 1 destroy, deferred so
-    #   all data is in the target project before any merging occurs).
-    #
-    # Everything else (CVTs): Shared::Unify#unify handles the collapse.
     def run_cleanup(merge_registry)
       merge_registry.each do |entry|
-        case entry[:model]
-        when 'Image'
-          handler = ProjectUnification::SpecialHandlers::ImageHandler.new(nil, target_project.id)
-          handler.cleanup_sentinel(entry[:renamed_id], entry[:target_id])
-        when 'Document'
-          handler = ProjectUnification::SpecialHandlers::DocumentHandler.new(nil, target_project.id)
-          handler.cleanup_sentinel(entry[:renamed_id], entry[:target_id])
-        else
-          klass   = entry[:model].constantize
-          target  = klass.find(entry[:target_id])
-          renamed = klass.find(entry[:renamed_id])
-          result  = target.unify(renamed, cutoff: 1000)
-          next if result[:result][:unified]
+        klass   = entry[:model].constantize
+        target  = klass.find(entry[:target_id])
+        renamed = klass.find(entry[:renamed_id])
+
+        # TODO: this pre-step should live in Image#unify (or a before_unify hook)
+        # so that any image merge handles it, not just project unification.
+        # Image has dependent: :restrict_with_error on depictions, so unify rolls
+        # back if any Depiction (on community data like Person) can't be
+        # rerouted due to a uniqueness conflict.
+        if entry[:model] == 'Image'
+          renamed.depictions.find_each do |sentinel_dep|
+            target_dep = Depiction.find_by(
+              image_id: target.id,
+              depiction_object_type: sentinel_dep.depiction_object_type,
+              depiction_object_id:   sentinel_dep.depiction_object_id
+            )
+            target_dep.unify(sentinel_dep, cutoff: UNIFY_CUTOFF) if target_dep
+          end
+        end
+
+        result = target.unify(renamed, cutoff: UNIFY_CUTOFF)
+        unless result[:result][:unified]
           @results[:errors] << {
             model: entry[:model],
             error: "Post-migration unify failed for #{entry[:model]} ID #{entry[:renamed_id]}: #{result[:result][:message]}"

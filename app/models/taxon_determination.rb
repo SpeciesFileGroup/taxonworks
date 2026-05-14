@@ -151,17 +151,18 @@ class TaxonDetermination < ApplicationRecord
     ::Queries.union(DwcOccurrence, [co, fo])
   end
 
-  # Called by the project unification migrator when changing project_id produces a
-  # position conflict.  The conflict is always acts_as_list interference: the first
-  # TD for a given CO goes through save!(validate: false), which still fires
-  # callbacks — acts_as_list sees the scope change and resets position to 1
-  # (add_new_at: :top).  Every subsequent TD for that CO then finds position 1
-  # occupied and lands here.
+  # Called by the project unification migrator when changing project_id produces
+  # a position conflict. The conflict is always acts_as_list interference: the
+  # first TaxonDetermination for a given object goes through
+  # save!(validate: false), which still fires callbacks — acts_as_list sees the
+  # scope change and resets position to 1 (add_new_at: :top). Subsequent
+  # positions may land here depending on which position they're trying to claim.
   #
   # We bypass acts_as_list entirely via update_columns and restore the record's
-  # original position.  If that position is already occupied (by the earlier-ID
+  # original position. If that position is already occupied (by the earlier-ID
   # sibling that was reset to 1 by acts_as_list), we bump it to the end to make
-  # room — preserving the semantically important position-1 accepted determination.
+  # room — preserving the semantically important position-1 accepted
+  # determination.
   #
   # @param target_project_id [Integer]
   # @return [true] signals the migrator that the record is already persisted

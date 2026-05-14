@@ -810,25 +810,20 @@ RSpec.describe Project, '#unify', type: :model do
       end
     end
 
-    context 'when both source and target already depict the same object with matching images' do
-      let!(:target_otu) { FactoryBot.create(:valid_otu, project: target_project) }
+    context 'when both source and target already depict the same Person with matching images' do
+      # Person has no project_id (community data), so both projects can naturally
+      # create a Depiction of the same Person record — this is the realistic path
+      # to a Depiction conflict during image deduplication.
+      let!(:person) { FactoryBot.create(:valid_person) }
 
       let!(:source_depiction) do
-        Depiction.create!(
-          image: source_image,
-          depiction_object: source_otu,
-          project_id: source_project.id
-        )
+        Depiction.create!(image: source_image, depiction_object: person,
+                          project_id: source_project.id)
       end
 
       let!(:target_depiction) do
-        # Intentionally cross-project: same depiction_object_id in target triggers
-        # the duplicate-detection path in reroute_depictions. Use validate: false
-        # since the FK validation would otherwise reject source_otu in target_project.
-        d = Depiction.new(image: target_image, depiction_object: source_otu,
-                          project_id: target_project.id, by: user)
-        d.save!(validate: false)
-        d
+        Depiction.create!(image: target_image, depiction_object: person,
+                          project_id: target_project.id)
       end
 
       it 'destroys the redundant source Depiction rather than creating a duplicate' do
@@ -843,6 +838,40 @@ RSpec.describe Project, '#unify', type: :model do
       it 'destroys the source image' do
         target_project.unify(source_project, preview: false, user_id: user.id)
         expect(Image.exists?(source_image.id)).to be false
+      end
+    end
+
+    context 'when the conflicting source Depiction carries annotations' do
+      let!(:person) { FactoryBot.create(:valid_person) }
+
+      let!(:source_depiction) do
+        Depiction.create!(image: source_image, depiction_object: person,
+                          project_id: source_project.id)
+      end
+
+      let!(:target_depiction) do
+        Depiction.create!(image: target_image, depiction_object: person,
+                          project_id: target_project.id)
+      end
+
+      let!(:keyword) { FactoryBot.create(:valid_keyword, project: source_project) }
+      let!(:source_tag) do
+        Tag.create!(tag_object: source_depiction, keyword: keyword,
+                    project_id: source_project.id, by: user)
+      end
+
+      it 'reroutes the Tag from the source Depiction to the target Depiction' do
+        target_project.unify(source_project, preview: false, user_id: user.id)
+
+        expect { source_tag.reload }.not_to raise_error
+        expect(source_tag.reload.tag_object).to eq(target_depiction)
+      end
+
+      it 'destroys the source image and the conflicting source Depiction' do
+        target_project.unify(source_project, preview: false, user_id: user.id)
+
+        expect(Image.exists?(source_image.id)).to be false
+        expect(Depiction.exists?(source_depiction.id)).to be false
       end
     end
 

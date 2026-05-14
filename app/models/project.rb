@@ -401,9 +401,9 @@ class Project < ApplicationRecord
     raise ArgumentError, 'user_id is required for unification (needed to set updated_by_id on migrated records)' if user_id.nil?
 
     service = ProjectUnification::Service.new(
-      project_to_merge,
-      self,
-      {
+      source_project: project_to_merge,
+      target_project: self,
+      options: {
         root_taxon_name_id: root_taxon_name_id,
         preview: preview,
         user_id: user_id,
