@@ -374,10 +374,12 @@ class ImportDataset::DarwinCore < ImportDataset
         end
       end
 
-      missing_headers = self.class::MINIMUM_FIELD_SET - headers
+      minimum_sets = self.class::MINIMUM_FIELD_SETS
 
-      missing_headers.each do |header|
-        errors.add(:source, "required field #{header} missing.")
+      unless minimum_sets.any? { |s| (s - headers).empty? }
+        puts minimum_sets
+        allowed_sets = minimum_sets.map { |a| "{#{a.join(", ")}}" }.join("; ")
+        errors.add(:source, "dataset does not have any of the minimum field sets required: #{allowed_sets}")
       end
     end
   end

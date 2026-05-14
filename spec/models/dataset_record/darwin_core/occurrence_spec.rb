@@ -633,6 +633,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
   end
 
   context 'when import an occurrence with a type material matching a synonym of the current taxon name' do
+    # TODO: Verify typeStatus prioritize selected/created nomenclature instead of searching everywhere
     before :all do
       DatabaseCleaner.start
 
@@ -1885,6 +1886,54 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
         expect(d.notes.count).to eq(1)
         expect(d.notes.first.text).to eq('identification note')
       end
+    end
+  end
+
+  context 'when importing a specimen with a TW:TaxonDetermination:otu_id' do
+    after(:all) { DatabaseCleaner.clean }
+
+    before :all do
+      init_housekeeping
+
+      @import_dataset = prepare_occurrence_tsv(
+        'taxon_determination_otu_id.tsv',
+        import_settings: { 'restrict_to_existing_nomenclature' => false })
+
+      Otu.create!(id: 123456, taxon_name: FactoryBot.create(:iczn_species))
+      Otu.create!(id: 654321, name: 'No nomenclature OTU')
+
+      @imported = @import_dataset.import(5000, 100)
+    end
+
+    let!(:results) { @imported }
+    let(:errored_data) {results.select { |r| r.status == 'Errored' }.map { |r| r.metadata.dig('error_data', 'messages') } }
+
+    it 'should leave imported valid records only' do
+      tally = results.map(&:status).tally
+
+      expect(tally['Imported']).to eq(4)
+      expect(tally['Errored']).to eq(2)
+      expect(results.count).to eq(6)
+    end
+
+    it 'should associate the correct OTU' do
+      expect(Otu.find(123456).taxon_determinations.count).to eq(2)
+    end
+
+    it 'should create determination with nomenclature when otu_id is not present' do
+      expect(Protonym.joins(otus: :taxon_determinations).where(name: 'andeanus').count).to eq(1)
+    end
+
+    it 'should not create type material even when OTU has nomenclature' do
+      expect(TypeMaterial.count).to eq(0)
+    end
+
+    it 'should not create nomenclature when otu_id is present' do
+      expect(Protonym.where(name: 'laevis').count).to eq(0)
+    end
+
+    it 'should not import if otu_id is present but not found' do
+      expect(errored_data).to include({'TW:TaxonDetermination:otu_id' => ['OTU with id 999999 not found']})
     end
   end
   end
