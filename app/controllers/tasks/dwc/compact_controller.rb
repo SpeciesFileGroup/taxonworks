@@ -13,7 +13,7 @@ class Tasks::Dwc::CompactController < ApplicationController
 
     scope = q.all
       .where(project_id: sessions_current_project_id)
-      .select(::DwcOccurrence.target_columns)
+      .select(::DwcOccurrence.api_columns)
       .limit(MAX_ROWS)
 
     tempfile = ::Export::CSV.copy_table(scope)

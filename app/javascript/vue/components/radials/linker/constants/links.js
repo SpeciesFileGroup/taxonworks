@@ -218,3 +218,9 @@ export const TASK_COMPACT_DWC = {
   queryParam: true,
   saveQuery: true,
 };
+
+export const TASK_MATERIAL_EXAMINED = {
+  label: "Material examined preview",
+  link: "/tasks/otus/material_examined",
+  saveQuery: true,
+};

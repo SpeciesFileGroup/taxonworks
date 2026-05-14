@@ -2499,6 +2499,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_12_104248) do
   add_foreign_key "dataset_record_fields", "projects"
   add_foreign_key "dataset_records", "import_datasets"
   add_foreign_key "dataset_records", "projects"
+  add_foreign_key "depictions", "images"
   add_foreign_key "depictions", "sled_images"
   add_foreign_key "descriptors", "projects"
   add_foreign_key "descriptors", "users", column: "created_by_id"
