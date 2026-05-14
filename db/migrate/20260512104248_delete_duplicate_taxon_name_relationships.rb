@@ -122,16 +122,20 @@ class DeleteDuplicateTaxonNameRelationships < ActiveRecord::Migration[8.1]
         duplicate_id = row['id'].to_i
         survivor_id  = row['survivor_id'].to_i
 
-        existing_sources = execute(
-          "SELECT source_id FROM citations WHERE citation_object_type = 'TaxonNameRelationship' AND citation_object_id = #{survivor_id}"
-        ).map { |r| r['source_id'].to_i }
-
+        # Move citations whose (source_id, pages) pair does not already exist on the survivor.
+        # Checking source_id alone would incorrectly skip citations with the same source but
+        # different pages — those are distinct per the model's uniqueness validation.
         execute(<<~SQL)
           UPDATE citations
           SET citation_object_id = #{survivor_id}
           WHERE citation_object_type = 'TaxonNameRelationship'
             AND citation_object_id = #{duplicate_id}
-            AND source_id NOT IN (#{(existing_sources + [-1]).join(', ')})
+            AND (source_id, COALESCE(pages, '')) NOT IN (
+              SELECT source_id, COALESCE(pages, '')
+              FROM citations
+              WHERE citation_object_type = 'TaxonNameRelationship'
+                AND citation_object_id = #{survivor_id}
+            )
         SQL
 
         execute(<<~SQL)
