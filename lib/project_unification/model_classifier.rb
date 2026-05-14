@@ -71,6 +71,7 @@ module ProjectUnification
       DatasetRecordField
       DatasetRecord
       OtuPageLayoutSection
+      TaxonDetermination
     ].freeze
 
     # Per-record validation required to detect uniqueness conflicts against
@@ -79,7 +80,6 @@ module ProjectUnification
     SLOW_TRACK = %w[
       ObservationMatrix
       ObservationMatrixColumn
-      TaxonDetermination
       TypeMaterial
       CharacterState
       BiocurationClassification
