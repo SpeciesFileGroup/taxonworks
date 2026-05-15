@@ -10,6 +10,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ### Added
 
 - Preview material examined task [#2325]
+- Unify projects (a rake task, not runnable from the UI) [#4445]
 
 ### Changed
 
@@ -26,6 +27,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4921]: https://github.com/SpeciesFileGroup/taxonworks/issues/4921
 
 [#2325]: https://github.com/SpeciesFileGroup/taxonworks/issues/2325
+[#4445]: https://github.com/SpeciesFileGroup/taxonworks/issues/4445
 
 ## [0.62.0] - 2026-05-08
 
