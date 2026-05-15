@@ -15,6 +15,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ### Changed
 
 - Allow catalog and record number identifiers on field occurrences
+- Updated Ruby gems
 
 ### Fixed
 
