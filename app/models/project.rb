@@ -362,6 +362,59 @@ class Project < ApplicationRecord
     save!
   end
 
+  # Merge another project into this project
+  #
+  # Merges all data from project_to_merge into this project, handling validation
+  # conflicts, maintaining data integrity, and preserving complex relationships.
+  #
+  # After successful merge, project_to_merge will be empty (except its Root
+  # TaxonName).
+  #
+  # @param project_to_merge [Project] The project to merge from (will be emptied
+  #   of data)
+  # @param root_taxon_name_id [Integer, nil] Optional ID of TaxonName in this
+  #   project to use as parent for merged TaxonName hierarchy. If nil, uses this
+  #   project's root.
+  # @param preview [Boolean] If true, performs dry-run and rolls back all
+  #   changes (default: true)
+  # @param skip_cached_rebuild [Boolean] If true, skips rebuilding cached fields
+  #   (default: false)
+  #
+  # @return [Hash] Detailed results including statistics, errors, and per-model
+  #   details
+  #
+  # @example Basic merge with preview
+  #   result = target_project.unify(source_project, preview: true)
+  #   puts result[:statistics][:total_records]
+  #
+  # @example Actual merge with custom TaxonName root
+  #   genus = target_project.taxon_names.find_by(name: 'Aus')
+  #   result = target_project.unify(source_project,
+  #     root_taxon_name_id: genus.id,
+  #     preview: false
+  #   )
+  #
+  def unify(
+    project_to_merge, root_taxon_name_id: nil, preview: true, user_id: nil,
+    on_model_migrated: nil, skip_cached_rebuild: false
+  )
+    raise ArgumentError, 'user_id is required for unification (needed to set updated_by_id on migrated records)' if user_id.nil?
+
+    service = ProjectUnification::Service.new(
+      source_project: project_to_merge,
+      target_project: self,
+      options: {
+        root_taxon_name_id: root_taxon_name_id,
+        preview: preview,
+        user_id: user_id,
+        skip_cached_rebuild: skip_cached_rebuild,
+        on_model_migrated: on_model_migrated
+      }
+    )
+
+    service.unify
+  end
+
   def complete_dwc_download_predicates
     prefs = complete_dwc_download_predicates_and_internal_values.dup
     return {} unless prefs.present?
