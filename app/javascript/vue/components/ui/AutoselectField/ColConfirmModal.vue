@@ -54,7 +54,7 @@
             <td>
               <a
                 v-if="row.col_id"
-                :href="`https://www.catalogueoflife.org/data/taxon/${row.col_id}`"
+                :href="clbTaxonUrl(row.dataset_id, row.col_id)"
                 target="_blank"
                 rel="noopener noreferrer"
                 >{{ row.col_id }}</a
@@ -82,7 +82,7 @@
             <td>
               <a
                 v-if="ext.col_key"
-                :href="`https://www.catalogueoflife.org/data/taxon/${ext.col_key}`"
+                :href="clbTaxonUrl(ext.col_dataset_id, ext.col_key)"
                 target="_blank"
                 rel="noopener noreferrer"
                 >{{ ext.col_key }}</a
@@ -177,6 +177,15 @@ const cannotCreate = computed(
     checkedNames.value.size === 0 &&
     !!ext.value.target_rank_unknown
 )
+
+// Returns a Checklistbank web URL including dataset context, falling back to
+// the legacy catalogueoflife.org path when no dataset_id is available.
+function clbTaxonUrl(datasetId, taxonId) {
+  if (datasetId) {
+    return `https://www.checklistbank.org/dataset/${datasetId}/taxon/${taxonId}`
+  }
+  return `https://www.catalogueoflife.org/data/taxon/${taxonId}`
+}
 
 function toggleRow(colName) {
   if (checkedNames.value.has(colName)) {

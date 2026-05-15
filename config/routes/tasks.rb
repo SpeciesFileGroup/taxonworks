@@ -832,6 +832,11 @@ scope :tasks do
       post 'download', action: 'download', as: 'download_otus_filter_result' # nested/large URIs
     end
 
+    scope :material_examined, controller: 'tasks/otus/material_examined' do
+      get '/', action: :index, as: 'material_examined_otus_task'
+      post :preview, defaults: { format: :json }
+    end
+
   end
 
   scope :people do

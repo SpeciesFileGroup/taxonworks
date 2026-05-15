@@ -549,7 +549,7 @@ class OtusController < ApplicationController
   private
 
   def autoselect_params
-    params.permit(:show_info).to_h.symbolize_keys
+    params.permit(:show_info, :dataset_id).to_h.symbolize_keys
   end
 
   def autoselect_col_create_params

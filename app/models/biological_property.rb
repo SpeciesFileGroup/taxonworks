@@ -2,7 +2,7 @@
 class BiologicalProperty < ControlledVocabularyTerm
   include Shared::BiologicalAssociationIndexHooks
 
-  has_many :biological_relationship_types
+  has_many :biological_relationship_types, inverse_of: :biological_property
   has_many :biological_relationships, through: :biological_relationship_types
 
   # @return [ActiveRecord::Relation]

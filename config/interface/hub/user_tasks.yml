@@ -62,6 +62,15 @@ filter_otus_task:
     - filters
   status: prototype
   description: 'Find OTUs by nomenclature, geography and author.'
+material_examined_otus_task:
+  hub: true
+  name: 'Material examined preview'
+  related:
+  categories:
+    - otu
+    - collection_object
+  status: prototype
+  description: 'Preview material examined section rendered from DarwinCore occurrence data.'
 comprehensive_collection_object_task:
   hub: true
   name: 'Comprehensive specimen digitization'

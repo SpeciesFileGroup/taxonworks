@@ -64,6 +64,7 @@ class SqedDepiction < ApplicationRecord
   end
 
   after_save :recalculate, if: -> { rebuild }
+  after_create_commit :enqueue_preprocess
 
   def self.is_containable?
     false
@@ -75,6 +76,10 @@ class SqedDepiction < ApplicationRecord
 
   def recalculate
     preprocess(true)
+  end
+
+  def enqueue_preprocess
+    SqedDepictionPreprocessJob.perform_later(sqed_depiction_id: id)
   end
 
   def extraction_metadata

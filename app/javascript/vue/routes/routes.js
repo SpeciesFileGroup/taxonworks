@@ -67,6 +67,7 @@ const RouteNames = {
     '/tasks/controlled_vocabularies/biocuration/build_collection',
   ManageControlledVocabularyTask: '/tasks/controlled_vocabularies/manage',
   MatchCollectionObject: '/tasks/collection_objects/match',
+  MaterialExamined: '/tasks/otus/material_examined',
   MatchOtuByTaxonName: '/tasks/otus/match_by_taxon_name',
   MatrixRowCoder: '/tasks/observation_matrices/row_coder/index',
   NewAssertedDistribution:

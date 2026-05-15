@@ -33,10 +33,11 @@ module Autoselect
 
         # @param term [String]
         # @param project_id [Integer, nil]
+        # @param dataset_id [String, nil] CoL dataset ID from user preferences; falls back to default when nil
         # @return [Array<OpenStruct>] pseudo-records with _col_extension including hook metadata
-        def call(term:, operator: nil, project_id: nil, user_id: nil, **_kwargs)
+        def call(term:, operator: nil, project_id: nil, user_id: nil, dataset_id: nil, **_kwargs)
           taxon_name_level = ::Autoselect::TaxonName::Levels::CatalogueOfLife.new
-          col_records = taxon_name_level.call(term:, operator:, project_id:, user_id:)
+          col_records = taxon_name_level.call(term:, operator:, project_id:, user_id:, dataset_id:)
 
           col_records.map do |record|
             extension = record._col_extension.merge(

@@ -74,6 +74,8 @@ class ControlledVocabularyTerm < ApplicationRecord
     true
   end
 
+  private
+
   # @return [Object]
   def uri_relation_is_a_skos_relation
     if uri.present? && uri_relation.present?

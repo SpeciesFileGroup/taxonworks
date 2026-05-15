@@ -473,6 +473,50 @@ describe 'Shared::Unify', type: :model do
     expect(b.destroyed?).to be_truthy
   end
 
+  specify 'unifies Image — reroutes Depictions to the surviving image' do
+    a = FactoryBot.create(:valid_image)
+    b = Image.create!(
+      image_file: Rack::Test::UploadedFile.new(Spec::Support::Utilities::Files.generate_tiny_random_sized_png(
+        file_name: 'foo.png',
+      ), 'image/png'),
+    )
+    depiction = FactoryBot.create(:valid_depiction, image: b, depiction_object: o1)
+
+    a.unify(b)
+
+    expect(b.destroyed?).to be_truthy
+    expect(depiction.reload.image).to eq(a)
+  end
+
+  specify 'unifies Document' do
+    a = FactoryBot.create(:valid_document)
+    b = Document.create!(
+      document_file: Rack::Test::UploadedFile.new(
+        Spec::Support::Utilities::Files.generate_pdf(file_name: 'doc_b.pdf', pages: 2),
+        'application/pdf'
+      )
+    )
+
+    a.unify(b)
+    expect(b.destroyed?).to be_truthy
+  end
+
+  specify 'unifies Document — reroutes Documentation to the surviving document' do
+    a = FactoryBot.create(:valid_document)
+    b = Document.create!(
+      document_file: Rack::Test::UploadedFile.new(
+        Spec::Support::Utilities::Files.generate_pdf(file_name: 'doc_b.pdf', pages: 2),
+        'application/pdf'
+      )
+    )
+    documentation = Documentation.create!(document: b, documentation_object: o1)
+
+    a.unify(b)
+
+    expect(b.destroyed?).to be_truthy
+    expect(documentation.reload.document).to eq(a)
+  end
+
   specify 'unifies Georeference' do
     a = FactoryBot.create(:valid_georeference)
     b = FactoryBot.create(:valid_georeference)
