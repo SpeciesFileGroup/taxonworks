@@ -970,10 +970,15 @@ module Queries
 
       def biological_associations_facet
         return nil if biological_associations.nil?
-        a = ::CollectionObject.joins(:biological_associations)
-        b = ::CollectionObject.joins(:related_biological_associations)
 
-        referenced_klass_union([a, b])
+        if biological_associations
+          a = ::CollectionObject.joins(:biological_associations)
+          b = ::CollectionObject.joins(:related_biological_associations)
+
+          referenced_klass_union([a, b])
+        else
+          ::CollectionObject.where.missing(:biological_associations, :related_biological_associations)
+        end
       end
 
       # TODO: turn into UNION!

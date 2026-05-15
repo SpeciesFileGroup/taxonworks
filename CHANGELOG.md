@@ -11,10 +11,13 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 - Preview material examined task [#2325]
 - Unify projects (a rake task, not runnable from the UI) [#4445]
+- Add Filter CO/FO to CE radial navigator [#4925]
+- `TW:TaxonDetermination:otu_id` DwC occurrence importer field for direct OTU mapping
 
 ### Changed
 
 - Allow catalog and record number identifiers on field occurrences
+- Updated Ruby gems
 
 ### Fixed
 
@@ -23,11 +26,15 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - /downloads/1 shows `Expires: n days` when the download has been *expired* for n days
 - New Source can fail to update a serial when the serial being updated to has no issn [#4921]
 - In New Source, an issn value never overrides the serial selected by the user
+- Filter CO: Biological associations facet doesn't work with the `without` option [#4926]
+- Sqed images are automatically processed when created [#3178]
 
 [#4921]: https://github.com/SpeciesFileGroup/taxonworks/issues/4921
-
 [#2325]: https://github.com/SpeciesFileGroup/taxonworks/issues/2325
 [#4445]: https://github.com/SpeciesFileGroup/taxonworks/issues/4445
+[#3178]: https://github.com/SpeciesFileGroup/taxonworks/issues/3178
+[#4925]: https://github.com/SpeciesFileGroup/taxonworks/issues/4925
+[#4926]: https://github.com/SpeciesFileGroup/taxonworks/issues/4926
 
 ## [0.62.0] - 2026-05-08
 
