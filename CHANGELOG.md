@@ -7,7 +7,9 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ## [unreleased]
 
-\-
+### Fixed
+
+- Browse taxon name: Sometimes the page can't be scrolled when the taxon has a large hierarchy tree
 
 ## [0.63.0] - 2026-05-15
 
