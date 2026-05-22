@@ -23,8 +23,23 @@
             in
             <a
               :href="`${RouteNames.NomenclatureBySource}?source_id=${item.source.id}`"
-              >{{ item.label }}</a
+              v-html="item.label"
+            />
+            <VBadge
+              class="d-inline margin-xsmall-left margin-xsmall-right"
+              color="purple"
+              rounded
+              >{{ item.type }}</VBadge
             >
+            <div
+              class="pill topic d-inline"
+              :style="{
+                backgroundColor: topic.css_color
+              }"
+              v-for="topic in item.topics"
+            >
+              {{ topic.name }}
+            </div>
           </li>
         </ul>
       </div>
@@ -59,8 +74,8 @@ import { Otu } from '@/routes/endpoints'
 import { computed, ref, watch } from 'vue'
 import { RouteNames } from '@/routes/routes'
 import VSkeleton from '@/components/ui/VSkeleton/VSkeleton.vue'
-import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
+import VBadge from '@/components/ui/VBadge/VBadge.vue'
 import { getUnique } from '@/helpers'
 
 const props = defineProps({
@@ -109,10 +124,11 @@ const list = computed(() => {
 
         return {
           id: c.id,
-          //label: `${o.otu.label} in <a href="${RouteNames.NomenclatureBySource}?source_id=${c.source.id}">${citation}</a>`,
+          type: c.citation_object_type,
           label: citation,
           otu: o.otu,
-          source: c.source
+          source: c.source,
+          topics: c.topics
         }
       })
   })

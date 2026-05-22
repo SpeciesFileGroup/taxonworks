@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-row gap-small middle margin-medium-top"
+    class="flex flex-row gap-small middle margin-small-top"
     v-if="shapeTypes.length"
   >
     <div
