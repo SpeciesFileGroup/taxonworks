@@ -11,6 +11,9 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 - Browse taxon name: Sometimes the page can't be scrolled when the taxon has a large hierarchy tree
 - DwC Import: Disabled and Ignored cells have the same color
+- New taxon name: The scroll bar is missing in the right column [#4932]
+
+[#4932]: https://github.com/SpeciesFileGroup/taxonworks/issues/4932
 
 ## [0.63.0] - 2026-05-15
 
