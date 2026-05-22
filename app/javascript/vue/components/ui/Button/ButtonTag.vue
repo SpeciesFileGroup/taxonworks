@@ -37,11 +37,13 @@
     v-else
     circle
     color="disabled"
+    title="Select a default keyword from pinboard."
   >
     <VIcon
       color="white"
       name="label"
       x-small
+      title="Select a default keyword from pinboard."
     />
   </VBtn>
 </template>

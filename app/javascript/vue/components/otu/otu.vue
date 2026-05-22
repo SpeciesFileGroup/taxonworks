@@ -9,6 +9,7 @@
       @contextmenu.prevent="openApp(true)"
     >
       <VIcon
+        :title="redirect ? 'Browse OTUs' : 'OTU quick forms'"
         :name="redirect ? 'radialOtuRedirect' : 'radialObject'"
         x-small
       />

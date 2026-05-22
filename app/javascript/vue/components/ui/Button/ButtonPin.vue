@@ -2,6 +2,7 @@
   <VBtn
     circle
     :color="pin ? 'destroy' : 'create'"
+    :title="pin ? 'Unpin from Pinboard' : 'Pin to Pinboard'"
     @click="pin ? deletePin() : createPin()"
   >
     <VIcon

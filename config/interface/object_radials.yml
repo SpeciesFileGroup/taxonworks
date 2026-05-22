@@ -88,6 +88,8 @@ CollectingEvent:
     - browse_collecting_events_task
     - new_collecting_event_task
     - filter_collecting_events_task
+    - filter_collection_objects_task
+    - filter_field_occurrences_task
     - comprehensive_collection_object_task
     - new_field_occurrence_task
     - unify_objects_task
@@ -164,6 +166,7 @@ Image:
     - filter_images_task
     - unify_objects_task
     - browse_images_task
+    - sqed_depiction_breakdown_todo_map_task
   config:
     recent: false
   new: new_image_task
@@ -204,6 +207,7 @@ Otu:
   tasks:
     - browse_otus_task
     - filter_otus_task
+    - material_examined_otus_task
     - comprehensive_collection_object_task
     - new_field_occurrence_task
     - edit_biological_associations_graph_task

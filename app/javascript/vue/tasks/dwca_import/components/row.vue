@@ -17,10 +17,13 @@
     >
       <cell-component
         v-if="settings.ignoredColumns || !isIgnored(index)"
-        :class="isIgnored(index) && 'cell-ignore'"
+        :class="{
+          'cell-ignore': isDisabled(index),
+          'cell-disabled': isImported
+        }"
         :cell="row.data_fields[index]"
         :cell-index="index"
-        :disabled="isProcessing || isImported"
+        :disabled="isProcessing || isImported || isDisabled(index)"
         @update="updateRecord"
       />
     </template>
@@ -87,6 +90,10 @@ export default {
 
     isIgnored(index) {
       return !this.dataset.metadata?.core_records_mapped_fields?.includes(index)
+    },
+
+    isDisabled(index) {
+      return this.row?.ignored_fields?.includes(index)
     }
   }
 }
