@@ -10,6 +10,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ### Fixed
 
 - Browse taxon name: Sometimes the page can't be scrolled when the taxon has a large hierarchy tree
+- DwC Import: Disabled and Ignored cells have the same color
 
 ## [0.63.0] - 2026-05-15
 
@@ -29,7 +30,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 - Taxon Pages Biological Associations returns no results
 - error on /api/v1/dwc_occurrences
-- /downloads/1 shows `Expires: n days` when the download has been *expired* for n days
+- /downloads/1 shows `Expires: n days` when the download has been _expired_ for n days
 - New Source can fail to update a serial when the serial being updated to has no issn [#4921]
 - In New Source, an issn value never overrides the serial selected by the user
 - Filter CO: Biological associations facet doesn't work with the `without` option [#4926]

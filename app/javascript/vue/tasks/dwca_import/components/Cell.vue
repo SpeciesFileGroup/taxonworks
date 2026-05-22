@@ -19,8 +19,8 @@
   </td>
   <td
     v-else
+    v-bind="attrs"
     style="height: 40px"
-    :class="{ 'cell-ignore': disabled }"
     @click="setEditMode"
   >
     <div class="dwc-table-cell">
@@ -30,17 +30,19 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick } from 'vue'
+import { ref, watch, nextTick, useAttrs } from 'vue'
 
 const props = defineProps({
   cell: {
     type: [String],
     default: undefined
   },
+
   cellIndex: {
     type: Number,
     required: true
   },
+
   disabled: {
     type: Boolean,
     default: false
@@ -49,6 +51,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update'])
 
+const attrs = useAttrs()
 const isEditing = ref(false)
 const initialText = ref()
 const currentText = ref()
