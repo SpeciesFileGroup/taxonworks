@@ -8,13 +8,6 @@ class LoansController < ApplicationController
   # GET /loans
   # GET /loans.json
   def index
-    @recent_objects = Loan.includes(:loan_items, :identifiers).recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
-  end
-
-  # GET /loans
-  # GET /loans.json
-  def index
     respond_to do |format|
       format.html do
         @recent_objects = Loan.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
