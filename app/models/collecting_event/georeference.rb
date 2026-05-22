@@ -164,29 +164,6 @@ module CollectingEvent::Georeference
     }
   end
 
-  # Override unify to preserve georeference preference order after the standard merge.
-  #
-  # Both ordered ID lists are captured before super runs so the re-sort does not
-  # depend on any assumptions about how unify iterates or how acts_as_list repositions
-  # records during the move. After super, all georeferences belong to self; we assign
-  # explicit positions so that:
-  #   - self's original georeferences come first (in their original order), and
-  #   - remove_object's georeferences follow (in their original order).
-  def unify(remove_object, **kwargs)
-    existing_ids = georeferences.order(:position).pluck(:id)
-    incoming_ids = remove_object.georeferences.order(:position).pluck(:id)
-
-    result = super
-
-    if result.dig(:result, :unified) != false && incoming_ids.any?
-      (existing_ids + incoming_ids).each_with_index do |gid, idx|
-        ::Georeference.where(id: gid).update_all(position: idx + 1)
-      end
-    end
-
-    result
-  end
-
   # @return [Symbol, nil]
   #   Prioritizes and identifies the source of the latitude/longitude values that
   #   will be calculated for DWCA and primary display

@@ -813,6 +813,72 @@ describe 'Shared::Unify', type: :model do
     expect(error[:exception]).to eq('ActiveRecord::InvalidForeignKey')
     expect(error[:message]).to match(/ForeignKey|foreign key|PG::/i)
   end
+
+  #
+  # acts_as_list position ordering — general fix in Shared::Unify
+  #
+  # These specs cover the generic re-sort added to Shared::Unify for has_many
+  # associations on acts_as_list models.  After a unify, the surviving object's
+  # existing records should keep their original relative order, immediately followed
+  # by the removed object's records in their original order.
+  #
+
+  context 'collector role order during unify' do
+    # Use CollectingEvent + Collector so that roles carry a project_id and are
+    # moved by the unify merge loop (SourceAuthor roles on the community Source
+    # model have nil project_id and are filtered out by the project-scope guard).
+    let(:ce1) { FactoryBot.create(:valid_collecting_event) }
+    let(:ce2) { FactoryBot.create(:valid_collecting_event) }
+    let(:person1) { FactoryBot.create(:valid_person) }
+    let(:person2) { FactoryBot.create(:valid_person) }
+    let(:person3) { FactoryBot.create(:valid_person) }
+    let(:person4) { FactoryBot.create(:valid_person) }
+
+    # Bottom-insertion: each new role appends to the end, so creation order = position order.
+    let!(:role_ce1_a) { Collector.create!(person: person1, role_object: ce1) }
+    let!(:role_ce1_b) { Collector.create!(person: person2, role_object: ce1) }
+    let!(:role_ce2_a) { Collector.create!(person: person3, role_object: ce2) }
+    let!(:role_ce2_b) { Collector.create!(person: person4, role_object: ce2) }
+
+    before { ce1.unify(ce2) }
+
+    specify 'ce2 is destroyed' do
+      expect(ce2.destroyed?).to be_truthy
+    end
+
+    specify 'all four collector roles are on ce1' do
+      expect(ce1.collector_roles.reload.count).to eq(4)
+    end
+
+    specify 'ce1 original collectors retain their relative order, followed by ce2 collectors in their original order' do
+      ordered_ids = ce1.collector_roles.reload.order(:position).pluck(:id)
+      expect(ordered_ids).to eq([role_ce1_a.id, role_ce1_b.id, role_ce2_a.id, role_ce2_b.id])
+    end
+  end
+
+  context 'depiction order during unify' do
+    # Reuses o1 and o2 from the top-level lets.
+    # Bottom-insertion: each new depiction appends to the end, so creation order = position order.
+    let!(:dep_o1_a) { FactoryBot.create(:valid_depiction, depiction_object: o1) }
+    let!(:dep_o1_b) { FactoryBot.create(:valid_depiction, depiction_object: o1) }
+    let!(:dep_o2_a) { FactoryBot.create(:valid_depiction, depiction_object: o2) }
+    let!(:dep_o2_b) { FactoryBot.create(:valid_depiction, depiction_object: o2) }
+
+    before { o1.unify(o2) }
+
+    specify 'o2 is destroyed' do
+      expect(o2.destroyed?).to be_truthy
+    end
+
+    specify 'all four depictions are on o1' do
+      expect(o1.depictions.reload.count).to eq(4)
+    end
+
+    specify 'o1 depictions retain their relative order, followed by o2 depictions in their original order' do
+      ordered_ids = o1.depictions.reload.order(:position).pluck(:id)
+      expect(ordered_ids).to eq([dep_o1_a.id, dep_o1_b.id, dep_o2_a.id, dep_o2_b.id])
+    end
+  end
 end
 
 class TestUnify < ApplicationRecord

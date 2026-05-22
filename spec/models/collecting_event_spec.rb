@@ -782,6 +782,69 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
         expect(ce1.reload.geo_locate_georeferences.map(&:id)).to include(geo_locate.id)
       end
     end
+
+    context 'identifier positions' do
+      # Identifiers use acts_as_list (add_new_at: :top), so position 1 is preferred.
+      # add_new_at: :top means the last-created identifier lands at position 1.
+      # All contexts verify the invariant: existing ce1 identifiers in their original
+      # order, followed by ce2's identifiers in their original order.
+      let(:ns) { FactoryBot.create(:valid_namespace) }
+
+      context 'when only the removed CE has identifiers' do
+        # create secondary first (pos 2), then preferred (pos 1) via add_new_at: :top
+        let!(:id_ce2_secondary) { Identifier::Local::Event.create!(identifier_object: ce2, namespace: ns, identifier: 'CE2-B') }
+        let!(:id_ce2_preferred) { Identifier::Local::Event.create!(identifier_object: ce2, namespace: ns, identifier: 'CE2-A') }
+
+        specify 'ce2 preferred becomes ce1 preferred' do
+          ce1.unify(ce2)
+          expect(ce1.reload.identifiers.order(:position).first.id).to eq(id_ce2_preferred.id)
+        end
+
+        specify 'ce2 secondary is last' do
+          ce1.unify(ce2)
+          expect(ce1.reload.identifiers.order(:position).last.id).to eq(id_ce2_secondary.id)
+        end
+      end
+
+      context 'when both CEs have an identifier' do
+        let!(:id_ce1) { Identifier::Local::Event.create!(identifier_object: ce1, namespace: ns, identifier: 'CE1-A') }
+        before        { Identifier::Local::Event.create!(identifier_object: ce2, namespace: ns, identifier: 'CE2-A') }
+
+        specify "ce1's original identifier remains preferred after unify" do
+          ce1.unify(ce2)
+          expect(ce1.reload.identifiers.order(:position).first.id).to eq(id_ce1.id)
+        end
+      end
+
+      context 'when both CEs have multiple identifiers' do
+        # ce1: create B first (pos 2), then A (pos 1) — A is preferred
+        let!(:id_ce1_secondary) { Identifier::Local::Event.create!(identifier_object: ce1, namespace: ns, identifier: 'CE1-B') }
+        let!(:id_ce1_preferred) { Identifier::Local::Event.create!(identifier_object: ce1, namespace: ns, identifier: 'CE1-A') }
+        # ce2: create D first (pos 2), then C (pos 1) — C is preferred
+        let!(:id_ce2_secondary) { Identifier::Local::Event.create!(identifier_object: ce2, namespace: ns, identifier: 'CE2-D') }
+        let!(:id_ce2_preferred) { Identifier::Local::Event.create!(identifier_object: ce2, namespace: ns, identifier: 'CE2-C') }
+
+        specify 'ce1 preferred remains at position 1' do
+          ce1.unify(ce2)
+          expect(ce1.reload.identifiers.order(:position).first.id).to eq(id_ce1_preferred.id)
+        end
+
+        specify 'ce1 secondary remains at position 2' do
+          ce1.unify(ce2)
+          expect(ce1.reload.identifiers.order(:position).second.id).to eq(id_ce1_secondary.id)
+        end
+
+        specify 'ce2 preferred is appended at position 3' do
+          ce1.unify(ce2)
+          expect(ce1.reload.identifiers.order(:position).third.id).to eq(id_ce2_preferred.id)
+        end
+
+        specify 'ce2 secondary is last at position 4' do
+          ce1.unify(ce2)
+          expect(ce1.reload.identifiers.order(:position).last.id).to eq(id_ce2_secondary.id)
+        end
+      end
+    end
   end
 
   context 'concerns' do
