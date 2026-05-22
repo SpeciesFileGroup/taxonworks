@@ -34,14 +34,13 @@
             <li
               v-for="dataset in clbResults"
               :key="dataset.key"
-              class="d-flex gap-small cursor-pointer padding-xsmall"
+              class="d-flex flex-column gap-xsmall cursor-pointer padding-xsmall"
               @click="selectClbDataset(dataset)"
             >
-              <span class="font-bold line-nowrap">{{ dataset.key }}</span>
-              <span
-                v-if="dataset.alias"
-                class="line-nowrap"
-              >{{ dataset.alias }}</span>
+              <div class="d-flex align-items-center">
+                <span class="font-bold line-nowrap">#{{ dataset.key }}</span>
+                <span v-if="dataset.alias" class="line-nowrap"> ({{ dataset.alias }})</span>
+              </div>
               <span class="ellipsis">{{ dataset.title }}</span>
             </li>
           </ul>
