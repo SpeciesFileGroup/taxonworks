@@ -26,7 +26,7 @@
     "parse-dms": "0.0.5",
     "pdfjs-dist": "5.7.284",
     "pinia": "^3.0.4",
-    "qs": "^6.15.1",
+    "qs": "^6.15.2",
     "shakapacker": "10.0.0",
     "three": "^0.184.0",
     "v-network-graph": "^0.9.22",
