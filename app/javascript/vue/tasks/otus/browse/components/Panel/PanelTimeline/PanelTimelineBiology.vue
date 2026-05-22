@@ -52,6 +52,7 @@
             class="margin-small-bottom"
           >
             <div class="flex-row gap-small middle">
+              <RadialAnnotator :global-id="source.global_id" />
               <RadialNavigator :global-id="source.global_id" />
               <label>
                 <input
@@ -75,6 +76,7 @@ import { computed, ref, watch } from 'vue'
 import { RouteNames } from '@/routes/routes'
 import VSkeleton from '@/components/ui/VSkeleton/VSkeleton.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VBadge from '@/components/ui/VBadge/VBadge.vue'
 import { getUnique } from '@/helpers'
 
