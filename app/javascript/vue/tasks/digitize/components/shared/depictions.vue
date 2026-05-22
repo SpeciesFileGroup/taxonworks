@@ -152,7 +152,7 @@ function addedfile() {
 }
 
 function removeDepiction(depiction) {
-  if (window.confirm('Are you sure want to proceed?')) {
+  if (window.confirm('Are you sure you want to proceed?')) {
     Depiction.destroy(depiction.id).then(() => {
       TW.workbench.alert.create('Depiction was successfully deleted.', 'notice')
       figuresList.value.splice(

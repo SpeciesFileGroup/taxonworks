@@ -107,7 +107,7 @@ fieldOcurrenceStore.$onAction(({ name, after }) => {
 })
 
 function removeDepiction(depiction) {
-  if (window.confirm('Are you sure want to proceed?')) {
+  if (window.confirm('Are you sure you want to proceed?')) {
     depictionStore.remove(depiction)
   }
 }

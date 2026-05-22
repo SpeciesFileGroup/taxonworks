@@ -72,7 +72,7 @@ Otu.where({ taxon_name_id: store.taxonName.id }).then(({ body }) => {
 function removeTaxonDetermination(td) {
   if (
     window.confirm(
-      `You're trying to delete this record. Are you sure want to proceed?`
+      `You're trying to delete this record. Are you sure you want to proceed?`
     )
   ) {
     store.removeTaxonDetermination(td)

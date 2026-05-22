@@ -198,7 +198,7 @@ function resetInputs() {
 function removeCharacter(index) {
   if (
     window.confirm(
-      "You're trying to delete this record. Are you sure want to proceed?"
+      "You're trying to delete this record. Are you sure you want to proceed?"
     )
   ) {
     const item = list.value[index]

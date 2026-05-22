@@ -75,7 +75,7 @@ function sending(file, xhr, formData) {
 }
 
 function removeDepiction(depiction) {
-  if (window.confirm('Are you sure want to proceed?')) {
+  if (window.confirm('Are you sure you want to proceed?')) {
     depictionStore.destroy(depiction)
   }
 }

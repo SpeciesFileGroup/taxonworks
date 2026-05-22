@@ -159,7 +159,7 @@ function reset() {
 function removeTypeMaterial(item) {
   if (
     window.confirm(
-      `You're trying to delete this record. Are you sure want to proceed?`
+      `You're trying to delete this record. Are you sure you want to proceed?`
     )
   ) {
     store.remove(item)

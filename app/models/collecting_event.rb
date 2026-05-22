@@ -305,7 +305,7 @@ class CollectingEvent < ApplicationRecord
     :sv_minimally_check_for_a_label,
     set: :minimally_check_for_a_label,
     name: 'Minimally check for a label',
-    description: 'At least one label type, or field notes, should be provided')
+    description: 'At least one of label type or field notes should be provided')
 
   soft_validate(
     :sv_missing_georeference,

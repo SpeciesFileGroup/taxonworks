@@ -6,7 +6,7 @@
         type="checkbox"
         v-model="inputValue"
       />
-      Convert result to their valid names
+      Convert results to their valid names
     </label>
   </FacetContainer>
 </template>

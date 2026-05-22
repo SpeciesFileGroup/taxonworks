@@ -515,7 +515,7 @@ class TaxonName < ApplicationRecord
     :sv_missing_confidence_level,
     set: :missing_fields,
     name: 'Missing confidence level',
-    description: 'To remaind that the taxon spelling have to be compared to the original source' )
+    description: 'A reminder that the taxon spelling has to be compared to the original source' )
 
   soft_validate(
     :sv_missing_original_publication,

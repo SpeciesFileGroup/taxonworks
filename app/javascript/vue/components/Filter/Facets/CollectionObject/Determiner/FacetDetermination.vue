@@ -5,7 +5,7 @@
       <h4>Otu</h4>
       <autocomplete
         url="/otus/autocomplete"
-        placeholder="Select an otu"
+        placeholder="Select an OTU"
         param="term"
         label="label_html"
         clear-after
