@@ -25,8 +25,8 @@ describe 'Otus', type: :feature do
         it_behaves_like 'a_data_model_with_standard_index'
 
         specify 'that it has an AJAX autocomplete box', js: true do
-          select_text = 'Select an OTU'
-          expect(page).to have_field(select_text) # TODO: inflect
+          select_text = 'Select an otu'
+          expect(page).to have_field(select_text)
           fill_in(select_text, with: 'a')
         end
 
