@@ -649,6 +649,141 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
 
   end
 
+  context '#unify' do
+    let(:ce1) { FactoryBot.create(:valid_collecting_event) }
+    let(:ce2) { FactoryBot.create(:valid_collecting_event) }
+
+    # CollectingEvent overrides unify_relations to force the :georeferences association
+    # back into merge_relations (it would otherwise be excluded by the class_name: rule).
+    # CollectingEvent also overrides unify to re-sort positions after the standard merge:
+    # existing ce1 georeferences retain their relative order, then removed CE's georeferences
+    # follow in their original position order.
+
+    context 'when the removed CE has a georeference' do
+      before { Georeference::Wkt.create!(wkt: 'POINT (10 10)', collecting_event: ce2) }
+
+      specify 'does not raise' do
+        expect { ce1.unify(ce2) }.not_to raise_error
+      end
+
+      specify 'the removed CE is destroyed' do
+        ce1.unify(ce2)
+        expect(ce2.destroyed?).to be_truthy
+      end
+    end
+
+    context 'when the target CE also has a georeference' do
+      let!(:georef1) { Georeference::Wkt.create!(wkt: 'POINT (10 10)', collecting_event: ce1) }
+
+      before { Georeference::Wkt.create!(wkt: 'POINT (20 20)', collecting_event: ce2) }
+
+      specify 'does not raise' do
+        expect { ce1.unify(ce2) }.not_to raise_error
+      end
+
+      specify 'the target CE retains its original georeference as preferred' do
+        ce1.unify(ce2)
+        expect(ce1.reload.preferred_georeference.id).to eq(georef1.id)
+      end
+
+      specify 'the moved georeference is positioned after the existing one' do
+        ce1.unify(ce2)
+        expect(ce1.reload.georeferences.order(:position).last.geographic_item.geo_object.to_s).to include('20.0 20.0')
+      end
+
+      specify 'geographic_name_classification_method is :preferred_georeference' do
+        ce1.unify(ce2)
+        expect(ce1.reload.send(:geographic_name_classification_method)).to eq(:preferred_georeference)
+      end
+    end
+
+    context 'when the target CE has no georeference and the removed CE has two' do
+      # acts_as_list uses add_new_at: :top, so the last-created georeference lands at
+      # position 1 (preferred). Create georef_secondary first so it ends up at position 2,
+      # then create georef_preferred so it ends up at position 1 (the preferred).
+      # After unify, both move to ce1 and the original preferred from ce2 (georef_preferred)
+      # should become the preferred for ce1.
+      let!(:georef_secondary) { Georeference::Wkt.create!(wkt: 'POINT (20 20)', collecting_event: ce2) }
+      let!(:georef_preferred) { Georeference::Wkt.create!(wkt: 'POINT (10 10)', collecting_event: ce2) }
+
+      specify 'does not raise' do
+        expect { ce1.unify(ce2) }.not_to raise_error
+      end
+
+      specify 'the target CE gains two georeferences' do
+        ce1.unify(ce2)
+        expect(ce1.reload.georeferences.count).to eq(2)
+      end
+
+      specify "ce2's preferred georeference becomes ce1's preferred georeference" do
+        ce1.unify(ce2)
+        expect(ce1.reload.preferred_georeference.id).to eq(georef_preferred.id)
+      end
+
+      specify 'geographic_name_classification_method is :preferred_georeference' do
+        ce1.unify(ce2)
+        expect(ce1.reload.send(:geographic_name_classification_method)).to eq(:preferred_georeference)
+      end
+    end
+
+    context 'when both CEs have georeferences' do
+      # Exercises both halves of the re-sort simultaneously: ce1's existing preferred
+      # must stay at position 1, and ce2's two georefs must follow in their original order.
+      # add_new_at: :top means last-created lands at position 1.
+      let!(:georef_ce1) { Georeference::Wkt.create!(wkt: 'POINT (1 1)', collecting_event: ce1) }
+      # ce2: create secondary first (pos 2), then preferred (pos 1)
+      let!(:georef_ce2_secondary) { Georeference::Wkt.create!(wkt: 'POINT (30 30)', collecting_event: ce2) }
+      let!(:georef_ce2_preferred) { Georeference::Wkt.create!(wkt: 'POINT (20 20)', collecting_event: ce2) }
+
+      specify 'does not raise' do
+        expect { ce1.unify(ce2) }.not_to raise_error
+      end
+
+      specify 'the target CE has all three georeferences' do
+        ce1.unify(ce2)
+        expect(ce1.reload.georeferences.count).to eq(3)
+      end
+
+      specify "ce1's original georeference remains preferred" do
+        ce1.unify(ce2)
+        expect(ce1.reload.preferred_georeference.id).to eq(georef_ce1.id)
+      end
+
+      specify "ce2's preferred georeference is appended second" do
+        ce1.unify(ce2)
+        expect(ce1.reload.georeferences.order(:position).second.id).to eq(georef_ce2_preferred.id)
+      end
+
+      specify "ce2's secondary georeference is appended last" do
+        ce1.unify(ce2)
+        expect(ce1.reload.georeferences.order(:position).last.id).to eq(georef_ce2_secondary.id)
+      end
+    end
+
+    context 'georeference subtype associations excluded from merge_relations' do
+      # verbatim_data_georeference (has_one) and geo_locate_georeferences (has_many,
+      # dependent: :destroy) are excluded from merge_relations by the class_name: rule.
+      # They are moved as part of the base :georeferences association instead.
+      # If the move didn't happen, ce2's destruction would cascade-delete these records
+      # via their own dependent: :destroy. The specs below fail under that regression.
+
+      specify 'VerbatimData georeference is moved to the target CE and accessible via has_one' do
+        ce2_with_coords = FactoryBot.create(:valid_collecting_event,
+          verbatim_latitude: '40.0',
+          verbatim_longitude: '-88.0')
+        vd = Georeference::VerbatimData.create!(collecting_event: ce2_with_coords)
+        ce1.unify(ce2_with_coords)
+        expect(ce1.reload.verbatim_data_georeference&.id).to eq(vd.id)
+      end
+
+      specify 'GeoLocate georeference survives ce2 destruction and is accessible on ce1' do
+        geo_locate = FactoryBot.create(:valid_georeference_geo_locate, collecting_event: ce2)
+        ce1.unify(ce2)
+        expect(ce1.reload.geo_locate_georeferences.map(&:id)).to include(geo_locate.id)
+      end
+    end
+  end
+
   context 'concerns' do
     it_behaves_like 'citations'
     it_behaves_like 'data_attributes'

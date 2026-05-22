@@ -153,6 +153,40 @@ module CollectingEvent::Georeference
     nil
   end
 
+  # The primary :georeferences association carries class_name: '::Georeference' (required
+  # for the full namespace reference), which causes inferred_relations to exclude it from
+  # unify — the same rule that drops convenience subtype aliases like geo_locate_georeferences.
+  # Force it back in explicitly so georeferences are moved to the target CE during unify
+  # rather than being silently dropped when the removed CE is destroyed.
+  def unify_relations
+    ApplicationEnumeration.klass_reflections(self.class, :has_many).select { |r|
+      r.name == :georeferences
+    }
+  end
+
+  # Override unify to preserve georeference preference order after the standard merge.
+  #
+  # Both ordered ID lists are captured before super runs so the re-sort does not
+  # depend on any assumptions about how unify iterates or how acts_as_list repositions
+  # records during the move. After super, all georeferences belong to self; we assign
+  # explicit positions so that:
+  #   - self's original georeferences come first (in their original order), and
+  #   - remove_object's georeferences follow (in their original order).
+  def unify(remove_object, **kwargs)
+    existing_ids = georeferences.order(:position).pluck(:id)
+    incoming_ids = remove_object.georeferences.order(:position).pluck(:id)
+
+    result = super
+
+    if result.dig(:result, :unified) != false && incoming_ids.any?
+      (existing_ids + incoming_ids).each_with_index do |gid, idx|
+        ::Georeference.where(id: gid).update_all(position: idx + 1)
+      end
+    end
+
+    result
+  end
+
   # @return [Symbol, nil]
   #   Prioritizes and identifies the source of the latitude/longitude values that
   #   will be calculated for DWCA and primary display
