@@ -15,6 +15,17 @@ json.pages @taxon_name.origin_citation&.pages
 json.original_citation @taxon_name.source&.cached
 json.global_id @taxon_name.to_global_id.to_s
 
+if extend_response_with('type_taxon_name_relationship')
+  if @taxon_name.is_a?(Protonym) && (ttnr = @taxon_name.type_taxon_name_relationship)
+    json.type_taxon_name_relationship do
+      json.object_taxon_name full_taxon_name_tag(ttnr.object_taxon_name)
+      json.subject_taxon_name full_taxon_name_tag(ttnr.subject_taxon_name)
+      json.subject_status ttnr.subject_status_tag
+      json.valid_subject_otu_id ttnr.subject_taxon_name.valid_taxon_name&.otus&.first&.id
+    end
+  end
+end
+
 json.descorator_status taxon_name_decorator_status(@taxon_name)
 
 json.parent do

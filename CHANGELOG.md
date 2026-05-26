@@ -7,6 +7,10 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ## [unreleased]
 
+### Added
+
+- `type_taxon_name_relationship` support to the extend[] parameter in `inventory/summary.json`
+
 ### Fixed
 
 - Browse taxon name: Sometimes the page can't be scrolled when the taxon has a large hierarchy tree
