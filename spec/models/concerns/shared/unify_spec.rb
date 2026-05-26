@@ -1022,6 +1022,41 @@ describe 'Shared::Unify', type: :model do
       "  #{uncovered.join("\n  ")}"
   end
 
+  # Linting spec — catches missing inverse_of: on destructive relations for
+  # models that are actually exposed for unification (UNIFIABLE_MODELS).
+  #
+  # used_inferred_relations requires inverse_of: to be present so it can
+  # reassign the FK during the merge loop. A relation that passes
+  # inferred_relations but lacks inverse_of: is silently dropped from
+  # merge_relations, so its records are destroyed with the removed object
+  # instead of being moved to the survivor.
+  #
+  # Scoped to UNIFIABLE_MODELS (config/initializers/constants/model/unify.rb)
+  # to avoid false positives from models that are never unified in practice.
+  specify 'no relation in inferred_relations with dependent: :destroy is missing inverse_of: on unifiable models' do
+    uncovered = []
+
+    UNIFIABLE_MODELS.each do |name|
+      klass = name.safe_constantize
+      expect(klass).not_to be_nil, "UNIFIABLE_MODELS contains '#{name}' but it cannot be constantized"
+
+      instance = klass.new
+      expect(instance).to be_a(ApplicationRecord), "UNIFIABLE_MODELS contains '#{name}' but instantiation failed"
+
+      instance.inferred_relations.each do |r|
+        next unless [:destroy, :delete_all].include?(r.options[:dependent])
+        next if r.options[:inverse_of].present?
+
+        uncovered << "#{name}##{r.name} (dependent: :#{r.options[:dependent]})"
+      end
+    end
+
+    expect(uncovered).to be_empty,
+      "Relations in inferred_relations with dependent: :destroy/:delete_all but missing inverse_of:.\n" \
+      "Add inverse_of: to the relation so unify can move records to the survivor:\n" \
+      "  #{uncovered.join("\n  ")}"
+  end
+
 end
 
 class TestUnify < ApplicationRecord
