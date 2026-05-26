@@ -560,6 +560,45 @@ describe 'Shared::Unify', type: :model do
     expect(b.destroyed?).to be_truthy
   end
 
+  specify 'unifying Descriptors moves observation_matrix_column_items to the surviving descriptor' do
+    om = FactoryBot.create(:valid_observation_matrix)
+    d1 = FactoryBot.create(:valid_descriptor)
+    d2 = FactoryBot.create(:valid_descriptor)
+    col_item = ObservationMatrixColumnItem::Single::Descriptor.create!(observation_matrix: om, descriptor: d2)
+
+    d1.unify(d2)
+
+    expect(d2.destroyed?).to be_truthy
+    expect(ObservationMatrixColumnItem.where(id: col_item.id).exists?).to be(true)
+    expect(col_item.reload.descriptor_id).to eq(d1.id)
+  end
+
+  specify 'unifying Keywords moves observation_matrix_column_items to the surviving keyword' do
+    om = FactoryBot.create(:valid_observation_matrix)
+    k1 = FactoryBot.create(:valid_keyword)
+    k2 = FactoryBot.create(:valid_keyword)
+    col_item = ObservationMatrixColumnItem::Dynamic::Tag.create!(observation_matrix: om, controlled_vocabulary_term: k2)
+
+    k1.unify(k2)
+
+    expect(k2.destroyed?).to be_truthy
+    expect(ObservationMatrixColumnItem.where(id: col_item.id).exists?).to be(true)
+    expect(col_item.reload.controlled_vocabulary_term_id).to eq(k1.id)
+  end
+
+  specify 'unifying Keywords moves observation_matrix_row_items to the surviving keyword' do
+    om = FactoryBot.create(:valid_observation_matrix)
+    k1 = FactoryBot.create(:valid_keyword)
+    k2 = FactoryBot.create(:valid_keyword)
+    row_item = ObservationMatrixRowItem::Dynamic::Tag.create!(observation_matrix: om, observation_object: k2)
+
+    k1.unify(k2)
+
+    expect(k2.destroyed?).to be_truthy
+    expect(ObservationMatrixRowItem.where(id: row_item.id).exists?).to be(true)
+    expect(row_item.reload.observation_object_id).to eq(k1.id)
+  end
+
   # !! Can unify *across* Descriptors as well
   specify 'unifies CharacterState' do
     a = FactoryBot.create(:valid_character_state)
@@ -908,6 +947,81 @@ describe 'Shared::Unify', type: :model do
       expect(ordered_ids).to eq([dep_o1_a.id, dep_o1_b.id, dep_o2_a.id, dep_o2_b.id])
     end
   end
+
+  specify 'unifying TaxonNames moves observation_matrix_row_items to the surviving taxon name' do
+    om = FactoryBot.create(:valid_observation_matrix)
+    t1 = FactoryBot.create(:valid_taxon_name)
+    t2 = FactoryBot.create(:valid_taxon_name)
+    row_item = ObservationMatrixRowItem::Dynamic::TaxonName.create!(observation_matrix: om, observation_object: t2)
+    t1.unify(t2)
+    expect(t2.destroyed?).to be_truthy
+    expect(ObservationMatrixRowItem.where(id: row_item.id).exists?).to be(true)
+    expect(row_item.reload.observation_object_id).to eq(t1.id)
+  end
+
+  # Linting spec — catches the class_name: exclusion bug before it ships.
+  #
+  # inferred_relations drops any has_many/has_one that carries class_name:
+  # (the rule exists to skip convenience subtype aliases and through relations).
+  # When a *canonical* relation uses class_name: (e.g. because the target is a
+  # namespaced class), it is silently excluded from merge_relations, so records
+  # are destroyed with the removed object instead of being moved to the survivor.
+  #
+  # This spec flags every has_many/has_one that:
+  #   1. has class_name: (excluded by inferred_relations)
+  #   2. has dependent: :destroy or :delete_all (data loss on destroy)
+  #   3. is NOT in used_inferred_relations (not already handled)
+  #   4. is NOT covered by a relation that IS in used_inferred_relations and
+  #      shares the same foreign key — which would mean a base relation moves
+  #      the same records (e.g. :roles covers :collector_roles, :editor_roles, …)
+  #
+  specify 'no has_many/has_one with class_name: and dependent: destroy goes unhandled during unify' do
+    uncovered = []
+
+    ApplicationEnumeration.data_models.each do |klass|
+      instance = klass.new rescue next
+
+      used_names  = instance.used_inferred_relations.map(&:name).to_set
+      used_by_fk  = instance.used_inferred_relations
+                             .group_by { |r| [r.foreign_key.to_s, r.options[:as]] }
+
+      [:has_many, :has_one].each do |rel_type|
+        ApplicationEnumeration.klass_reflections(klass, rel_type).each do |r|
+          next unless r.options[:class_name].present?
+          next unless [:destroy, :delete_all].include?(r.options[:dependent])
+          next if r.name.to_s.match(/related/)
+          next if used_names.include?(r.name)
+
+          # Role subtypes (Collector, Verifier, …) are covered by the base :roles
+          # relation added by HasRoles on models like CollectingEvent.
+          # Person is a special case: it uses its own merge_with/hard_merge path
+          # rather than Shared::Unify, so its role subtype relations never enter
+          # the unify merge loop at all.
+          target_klass = r.options[:class_name].sub(/\A::/, '').safe_constantize
+          next if target_klass && target_klass.ancestors.include?(Role)
+
+          # ActiveStorage attachments are managed by Rails internals / custom
+          # after_destroy hooks, not by the unify merge loop.
+          next if r.options[:class_name].to_s.include?('ActiveStorage')
+
+          # A base relation in used_inferred_relations with the same FK covers
+          # these records (e.g. :roles covers :collector_roles).
+          covered = used_by_fk[[r.foreign_key.to_s, r.options[:as]]].present?
+
+          uncovered << "#{klass}##{r.name} " \
+                       "(class_name: #{r.options[:class_name]}, " \
+                       "dependent: :#{r.options[:dependent]})" unless covered
+        end
+      end
+    end
+
+    expect(uncovered).to be_empty,
+      "has_many/has_one with class_name: and dependent: :destroy excluded from " \
+      "unify merge_relations with no covering base relation.\n" \
+      "Add the relation to unify_relations or ensure a covering base relation exists:\n" \
+      "  #{uncovered.join("\n  ")}"
+  end
+
 end
 
 class TestUnify < ApplicationRecord
