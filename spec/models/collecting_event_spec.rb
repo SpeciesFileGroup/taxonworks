@@ -783,6 +783,43 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
       end
     end
 
+    context 'when ce1 has a geographic_area that does not contain ce2s georeference' do
+      # ce1's geographic area is a small box from (0,0) to (5,5).
+      # ce2's georeference is at POINT(10 10), outside that box.
+      # The unify should fail entirely: unified=false, ce2 and its georef survive.
+      let(:earth) { FactoryBot.create(:earth_geographic_area) }
+      let(:ga_shape) {
+        GeographicItem.create!(geography: 'POLYGON((0 0 0, 0 5 0, 5 5 0, 5 0 0, 0 0 0))')
+      }
+      let!(:ga) {
+        gat = GeographicAreaType.find_or_create_by!(name: 'Test')
+        a = GeographicArea.create!(
+          name: 'Small area',
+          data_origin: 'Test Data',
+          geographic_area_type: gat,
+          parent: earth)
+        GeographicAreasGeographicItem.create!(geographic_item: ga_shape, geographic_area: a)
+        a
+      }
+      let(:ce1_with_ga) { FactoryBot.create(:valid_collecting_event, geographic_area: ga) }
+      let!(:georef_outside) { Georeference::Wkt.create!(wkt: 'POINT (10 10)', collecting_event: ce2) }
+
+      specify 'unify returns unified: false' do
+        result = ce1_with_ga.unify(ce2)
+        expect(result[:result][:unified]).to be(false)
+      end
+
+      specify 'ce2 is not destroyed' do
+        ce1_with_ga.unify(ce2)
+        expect(CollectingEvent.where(id: ce2.id).exists?).to be(true)
+      end
+
+      specify 'ce2s georeference is not destroyed' do
+        ce1_with_ga.unify(ce2)
+        expect(Georeference.where(id: georef_outside.id).exists?).to be(true)
+      end
+    end
+
     context 'identifier positions' do
       # Identifiers use acts_as_list (add_new_at: :top), so position 1 is preferred.
       # add_new_at: :top means the last-created identifier lands at position 1.

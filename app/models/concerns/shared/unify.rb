@@ -181,7 +181,7 @@ module Shared::Unify
       if cutoff_hit = s[:result][:total_related] > cutoff
         s[:result][:unified] = false
         s[:result][:message] = "Related cutoff threshold (> #{cutoff}) hit, unify is not yet allowed on these objects."
-      else
+      elsif s[:result][:unified] != false
 
         begin
           o.reload # reset all in-memory has_many caches that would prevent destroy
@@ -221,7 +221,7 @@ module Shared::Unify
 
       # after_unify # potential hooks, appear not to be required
 
-      if preview || cutoff_hit
+      if preview || cutoff_hit || s[:result][:unified] == false
         raise ActiveRecord::Rollback
       end
     end
