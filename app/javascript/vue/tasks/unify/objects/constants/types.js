@@ -1,3 +1,11 @@
+// UI configuration for each unifiable model type.
+//
+// !! WARNING !!
+// The list of *active* unifiable models is maintained server-side in
+// config/initializers/constants/model/unify.rb and served by GET /unify/types.
+// When a new model is added there, a corresponding entry MUST be added here
+// or it will appear in the model selector but have no UI configuration,
+// causing a runtime error.
 import {
   ASSERTED_DISTRIBUTION,
   BIOLOGICAL_ASSOCIATION,
