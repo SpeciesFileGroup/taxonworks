@@ -975,11 +975,17 @@ describe 'Shared::Unify', type: :model do
   #      shares the same foreign key — which would mean a base relation moves
   #      the same records (e.g. :roles covers :collector_roles, :editor_roles, …)
   #
+  # Scoped to UNIFIABLE_MODELS (config/initializers/constants/model/unify.rb)
+  # to avoid false positives from models that are never unified in practice.
   specify 'no has_many/has_one with class_name: and dependent: destroy goes unhandled during unify' do
     uncovered = []
 
-    ApplicationEnumeration.data_models.each do |klass|
-      instance = klass.new rescue next
+    UNIFIABLE_MODELS.each do |name|
+      klass = name.safe_constantize
+      expect(klass).not_to be_nil, "UNIFIABLE_MODELS contains '#{name}' but it cannot be constantized"
+
+      instance = klass.new
+      expect(instance).to be_a(ApplicationRecord), "UNIFIABLE_MODELS contains '#{name}' but instantiation failed"
 
       used_names  = instance.used_inferred_relations.map(&:name).to_set
       used_by_fk  = instance.used_inferred_relations

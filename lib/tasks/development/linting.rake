@@ -4,21 +4,30 @@ namespace :tw do
   namespace :development do
     namespace :linting do
 
-      # Useful when inspecting whether data models can take advantage of the `linting` method.
+      # Reports relations on unifiable models (UNIFIABLE_MODELS) that are in
+      # inferred_relations but lack inverse_of:, causing them to be silently
+      # dropped from merge_relations during unify.
       # rake tw:development:linting:inverse_of_preventing_unify
       desc 'inverse_of preventing unify'
       task inverse_of_preventing_unify: [:environment] do |t|
 
         r = {}
 
-        ApplicationEnumeration.data_models.sort{|a,b| a.name <=> b.name}.each do |m|
-          r[m.name] = m.new.inferred_relations.inject({}){|hsh, r| hsh[r.name] = r.options[:inverse_of]; hsh} 
+        UNIFIABLE_MODELS.each do |name|
+          m = name.safe_constantize
+          next unless m
+          r[m.name] = m.new.inferred_relations.inject({}){|hsh, r| hsh[r.name] = r.options[:inverse_of]; hsh}
         end
+        any = false
         r.keys.each do |k|
           r[k].each do |i,j|
-            puts Rainbow("#{k} - #{i} : |#{j}|").red if j.nil?
+            if j.nil?
+              puts Rainbow("#{k} - #{i} : |#{j}|").red
+              any = true
+            end
           end
         end
+        puts Rainbow('All good').green unless any
       end
 
       desc 'check some nomenclatural constants for consistency'
