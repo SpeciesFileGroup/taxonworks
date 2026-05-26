@@ -338,8 +338,9 @@ module Shared::Unify
     # we don't know how to handle this with confidence.
     if object.errors.details.keys.include?(relation.options[:inverse_of])
 
-      # object can't be updated, move its annotations to self
-      unless deduplicate_update_target(object)
+      # object can't be updated, move its annotations to self.
+      dedup_result = deduplicate_update_target(object)
+      unless dedup_result && dedup_result[:result][:unified]
         result[:result][:unified] = false
         result[:details][n][:unmerged] += 1
         result[:details][n][:errors] ||= []

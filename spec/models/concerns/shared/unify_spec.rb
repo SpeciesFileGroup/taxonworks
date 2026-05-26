@@ -772,6 +772,35 @@ describe 'Shared::Unify', type: :model do
     expect( b[:details]['Asserted distributions'].dig(:deduplicated)).to eq(1)
   end
 
+  context 'when the nested unify inside deduplicate_update_target fails' do
+    let(:om) { ObservationMatrix.create!(name: 'BugTest') }
+    let!(:row1) { FactoryBot.create(:valid_observation_matrix_row, observation_object: o1, observation_matrix: om) }
+    let!(:row2) { FactoryBot.create(:valid_observation_matrix_row, observation_object: o2, observation_matrix: om) }
+
+    before do
+      # At time of writing there are no second-level model associations that
+      # could return {unified: false} from the secondary unify call, but there's
+      # no reason that might not happen in the future.
+      allow_any_instance_of(ObservationMatrixRow).to receive(:unify)
+        .and_return({result: {unified: false, message: 'nested failure'}, details: {}})
+    end
+
+    specify 'unify returns unified: false' do
+      result = o1.unify(o2)
+      expect(result[:result][:unified]).to be(false)
+    end
+
+    specify 'o2 is not destroyed' do
+      o1.unify(o2)
+      expect(Otu.where(id: o2.id).exists?).to be(true)
+    end
+
+    specify 'details report unmerged count of 1 (not deduplicated)' do
+      result = o1.unify(o2)
+      expect(result[:details]['Observation matrix rows'][:unmerged]).to eq(1)
+    end
+  end
+
   # Generalize to all annotations.
   #
   # If unify would create two identical citations anywhere
