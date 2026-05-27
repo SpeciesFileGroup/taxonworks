@@ -272,7 +272,7 @@ function processEXIF(allMetaData) {
 }
 
 function removeDepiction(depiction) {
-  if (!depiction.id || window.confirm('Are you sure want to proceed?')) {
+  if (!depiction.id || window.confirm('Are you sure you want to proceed?')) {
     storeDepiction.remove(depiction)
   }
 }

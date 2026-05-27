@@ -25,7 +25,7 @@ export default (citation) => {
   }
 
   const removeCitation = () => {
-    if (window.confirm('You\'re about to delete this citation record. Are you sure want to proceed?')) {
+    if (window.confirm('You\'re about to delete this citation record. Are you sure you want to proceed?')) {
       store.dispatch(ActionNames.RemoveCitation, {
         citationId: citation.id,
         type: citation.citation_object_type

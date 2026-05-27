@@ -553,7 +553,7 @@ class GeographicArea < ApplicationRecord
     queries.each do |q|
       names = q.strip.split(':')
       names.reverse! if invert
-      names.collect { |s| s.strip }
+      names.map!(&:strip)
       r = GeographicArea.with_name_and_parent_names(names)
       r = r.joins(:geographic_items) if has_shape
       result[q] = r

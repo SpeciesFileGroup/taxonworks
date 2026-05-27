@@ -93,7 +93,7 @@ const selectLoanItems = computed({
 function deleteItem(item) {
   if (
     window.confirm(
-      "You're trying to delete a record. Are you sure want to proceed?"
+      "You're trying to delete a record. Are you sure you want to proceed?"
     )
   ) {
     store.dispatch(ActionNames.DeleteLoanItem, item.id)

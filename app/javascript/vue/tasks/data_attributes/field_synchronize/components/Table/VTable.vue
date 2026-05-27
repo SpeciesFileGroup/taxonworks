@@ -11,6 +11,7 @@
             Refresh
           </VBtn>
         </td>
+        <th />
         <th
           v-if="attributes.length"
           :colspan="attributes.length"
@@ -52,7 +53,14 @@
           v-for="attr in attributes"
           :key="attr"
         >
-          <div class="flex-separate middle gap-medium">
+          <div class="flex-separate middle gap-small">
+            <VIcon
+              v-if="noEditable.includes(attr)"
+              name="attention"
+              color="attention"
+              small
+              title="This attribute is not editable"
+            />
             <a
               :href="`${RouteNames.ProjectVocabulary}?limit=100&model=${model}&attribute=${attr}`"
               >{{ attr }}</a

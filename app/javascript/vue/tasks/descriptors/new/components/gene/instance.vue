@@ -13,7 +13,7 @@
           {{ item.label }}
         </label>
       </li>
-    </ul> 
+    </ul>
     <primer-component
       class="separate-top"
       :title="title"
@@ -76,7 +76,7 @@
           Close parentheses.
         </span>
         <span v-if="!validateExpression">
-          Logical operators needs sequence on the other side.
+          Logical operators need a sequence on the other side.
         </span>
       </div>
     </div>

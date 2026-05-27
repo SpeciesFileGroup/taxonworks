@@ -18,6 +18,7 @@
         :value="item.attributes[attribute]"
         class="full_width"
         :disabled="disabled"
+        :class="{ 'bg-muted': disabled }"
         @change="
           (e) =>
             saveChanges({

@@ -94,7 +94,7 @@ onBeforeMount(() => {
 function removeCollectingEvent(index) {
   if (
     window.confirm(
-      "You're trying to delete this record. Are you sure want to proceed?"
+      "You're trying to delete this record. Are you sure you want to proceed?"
     )
   ) {
     CollectingEvent.destroy(collectingEvents.value[index].id).then(() => {

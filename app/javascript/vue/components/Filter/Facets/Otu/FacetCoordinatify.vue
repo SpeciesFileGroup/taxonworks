@@ -6,7 +6,7 @@
         type="checkbox"
         v-model="params.coordinatify"
       />
-      Expand result to include cooridinate OTUs
+      Expand result to include coordinate OTUs
     </label>
   </FacetContainer>
 </template>

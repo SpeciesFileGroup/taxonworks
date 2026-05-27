@@ -1,6 +1,6 @@
 <template>
   <div class="middle">
-    <span class="margin-small-right">Disagnosable:</span>
+    <span class="margin-small-right">Diagnosable:</span>
 
     <tippy
       animation="scale"
