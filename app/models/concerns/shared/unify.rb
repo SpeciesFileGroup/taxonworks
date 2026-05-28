@@ -145,12 +145,11 @@ module Shared::Unify
           s[:result][:total_related] += t
           next if s[:result][:total_related] > cutoff
 
-          # For acts_as_list associations, snapshot both sides before moving so the
-          # re-sort below is independent of how acts_as_list positions inserted records.
-          # Result is always: self's existing records in their original order,
-          # followed by remove_object's records in their original order.
+          # For acts_as_list associations, snapshot both sides before moving so
+          # the re-sort below is independent of how acts_as_list positions
+          # inserted records.
           related_class = i.klass
-          is_list_association = related_class.ancestors.include?(ActiveRecord::Acts::List::InstanceMethods)
+          is_list_association = related_class.respond_to?(:acts_as_list_options)
           if is_list_association
             existing_ordered_ids = self.send(r.name).order(:position).pluck(:id)
             incoming_ordered_ids = i.order(:position).pluck(:id)

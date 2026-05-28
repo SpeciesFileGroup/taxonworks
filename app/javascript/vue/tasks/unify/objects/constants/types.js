@@ -1,8 +1,8 @@
 // UI configuration for each unifiable model type.
 //
 // !! WARNING !!
-// The list of *active* unifiable models is maintained server-side in
-// config/initializers/constants/model/unify.rb and served by GET /unify/types.
+// The list of active unifiable models is maintained server-side in
+// config/initializers/constants/model/unify.rb.
 // When a new model is added there, a corresponding entry MUST be added here
 // or it will appear in the model selector but have no UI configuration,
 // causing a runtime error.
@@ -13,9 +13,7 @@ import {
   COLLECTING_EVENT,
   COLLECTION_OBJECT,
   CONTAINER,
-  // CONTENT,
   CONTROLLED_VOCABULARY_TERM,
-  //  DEPICTION,
   CHARACTER_STATE,
   DESCRIPTOR,
   EXTRACT,
@@ -32,10 +30,9 @@ import {
   TAXON_NAME,
   TYPE_MATERIAL,
   TOPIC,
-  REPOSITORY,
-  PEOPLE
+  REPOSITORY
 } from '@/constants'
-import { ControlledVocabularyTerm, People } from '@/routes/endpoints'
+import { ControlledVocabularyTerm } from '@/routes/endpoints'
 
 export const TYPE_LINKS = {
   [ASSERTED_DISTRIBUTION]: {

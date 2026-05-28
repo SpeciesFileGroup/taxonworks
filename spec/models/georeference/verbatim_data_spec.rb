@@ -90,15 +90,14 @@ describe Georeference::VerbatimData, type: :model, group: [:geo, :georeferences]
       georef1  # acts_as_list adds at top: becomes position 1, georef2 shifts to 2
     end
 
-    specify 'the remaining georeference becomes preferred' do
-      georef1.destroy!
-      expect(c.reload.preferred_georeference.id).to eq(georef2.id)
-    end
-
     specify 'geographic_name_classification_method returns :preferred_georeference' do
       georef1.destroy!
       expect(c.reload.send(:geographic_name_classification_method)).to eq(:preferred_georeference)
-      expect(c.preferred_georeference.id).to eq(georef2.id)
+    end
+
+    specify 'the remaining georeference becomes preferred' do
+      georef1.destroy!
+      expect(c.reload.preferred_georeference.id).to eq(georef2.id)
     end
   end
 

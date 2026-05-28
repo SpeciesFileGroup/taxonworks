@@ -15,7 +15,7 @@ namespace :tw do
 
         UNIFIABLE_MODELS.each do |name|
           m = name.safe_constantize
-          next unless m
+          raise "UNIFIABLE_MODELS contains '#{name}' but it cannot be constantized" if m.nil?
           r[m.name] = m.new.inferred_relations.inject({}){|hsh, r| hsh[r.name] = r.options[:inverse_of]; hsh}
         end
         any = false
