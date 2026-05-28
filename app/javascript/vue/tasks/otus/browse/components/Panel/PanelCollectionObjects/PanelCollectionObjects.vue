@@ -48,7 +48,11 @@
               v-text="item[attr]"
             />
             <td>
-              <PanelCollectionObjectsDepictions :depictions="item.depictions" />
+              <PanelCollectionObjectsDepictions
+                :count="item.depictions"
+                :object-type="COLLECTION_OBJECT"
+                :object-id="item.id"
+              />
             </td>
           </tr>
         </tbody>
@@ -60,7 +64,7 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue'
-import { CollectionObject, Citation, Depiction } from '@/routes/endpoints'
+import { CollectionObject, Citation } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
 import { getPagination } from '@/helpers'
 import { COLLECTION_OBJECT } from '@/constants'
@@ -70,7 +74,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import VPagination from '@/components/pagination.vue'
-import PanelCollectionObjectsDepictions from './PanelCollectionObjectsDepictions.vue'
+import PanelCollectionObjectsDepictions from '../../Shared/ModalDepictions.vue'
 
 const DWC_ATTRIBUTES = [
   'catalogNumber',
@@ -149,20 +153,13 @@ async function listParser(items) {
       .join('; ')
   }
 
-  const depictions = (
-    await Depiction.where({
-      depiction_object_id: items.map((item) => item.id),
-      depiction_object_type: COLLECTION_OBJECT
-    })
-  ).body
-
   return items.map((item) => ({
+    ...item.dwc_occurrence,
     id: item.id,
     globalId: item.global_id,
-    ...item.dwc_occurrence,
     repository: item.repository?.object_label,
     citation: getCitations(citations, item.id),
-    depictions: depictions.filter((d) => d.depiction_object_id === item.id)
+    depictions: item.dwc_occurrence?.associatedMedia?.split('|')?.length || 0
   }))
 }
 

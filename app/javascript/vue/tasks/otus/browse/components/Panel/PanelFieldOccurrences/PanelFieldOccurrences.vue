@@ -48,7 +48,11 @@
               v-text="item[attr]"
             />
             <td>
-              <PanelFieldOccurrencesDepictions :depictions="item.depictions" />
+              <PanelFieldOccurrencesDepictions
+                :count="item.depictions"
+                :object-type="FIELD_OCCURRENCE"
+                :object-id="item.id"
+              />
             </td>
           </tr>
         </tbody>
@@ -60,7 +64,7 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-import { FieldOccurrence, Citation, Depiction } from '@/routes/endpoints'
+import { FieldOccurrence, Citation } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
 import { getPagination } from '@/helpers'
 import { FIELD_OCCURRENCE } from '@/constants'
@@ -69,7 +73,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import VPagination from '@/components/pagination.vue'
-import PanelFieldOccurrencesDepictions from './PanelFieldOccurrencesDepictions.vue'
+import PanelFieldOccurrencesDepictions from '../../Shared/ModalDepictions.vue'
 
 const DWC_ATTRIBUTES = [
   'catalogNumber',
@@ -117,13 +121,6 @@ async function listParser(items) {
     })
   ).body
 
-  const depictions = (
-    await Depiction.where({
-      depiction_object_id: items.map((item) => item.id),
-      depiction_object_type: FIELD_OCCURRENCE
-    })
-  ).body
-
   const getCitations = (citations, objectId) => {
     return citations
       .filter((item) => item.citation_object_id === objectId)
@@ -132,12 +129,12 @@ async function listParser(items) {
   }
 
   return items.map((item) => ({
+    ...item.dwc_occurrence,
     id: item.id,
     globalId: item.global_id,
-    ...item.dwc_occurrence,
     repository: item.repository?.object_label,
     citation: getCitations(citations, item.id),
-    depictions: depictions.filter((d) => d.depiction_object_id === item.id)
+    depictions: item.dwc_occurrence?.associatedMedia?.split('|')?.length || 0
   }))
 }
 
