@@ -1,0 +1,21 @@
+.tippy-box {
+  background-color: var(--tooltip-bg-color);
+  color: var(--tooltip-text-color);
+  font-size: var(--font-size-xs);
+}
+
+.tippy-box[data-placement^='top'] > .tippy-arrow::before {
+  border-top-color: var(--tooltip-bg-color);
+}
+
+.tippy-box[data-placement^='bottom'] > .tippy-arrow::before {
+  border-bottom-color: var(--tooltip-bg-color);
+}
+
+.tippy-box[data-placement^='left'] > .tippy-arrow::before {
+  border-left-color: var(--tooltip-bg-color);
+}
+
+.tippy-box[data-placement^='right'] > .tippy-arrow::before {
+  border-right-color: var(--tooltip-bg-color);
+}

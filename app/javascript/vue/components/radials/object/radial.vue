@@ -39,7 +39,11 @@
               >
                 <div class="flex-separate middle">
                   <h2 class="capitalize view-title">
-                    {{ currentAnnotator ? currentAnnotator.replaceAll('_', ' ') : '' }}
+                    {{
+                      currentAnnotator
+                        ? currentAnnotator.replaceAll('_', ' ')
+                        : ''
+                    }}
                   </h2>
                   <div
                     :id="headerRightTargetId"
@@ -76,7 +80,6 @@
       @click="openRadialMenu()"
     >
       <VIcon
-        :title="buttonTitle"
         name="radialObject"
         x-small
       />

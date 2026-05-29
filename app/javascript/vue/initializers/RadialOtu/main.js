@@ -9,7 +9,7 @@ function init(element) {
     const props = {
       id,
       globalId,
-      buttonTitle: 'OTU quick forms',
+      buttonTitle: 'OTU Quick forms',
       buttonClass: 'btn-hexagon-w button-default'
     }
     const app = createApp(RadialOtu, props)

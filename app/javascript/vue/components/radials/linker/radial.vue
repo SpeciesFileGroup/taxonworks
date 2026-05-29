@@ -31,7 +31,6 @@
       @click="openRadialMenu()"
     >
       <VIcon
-        :title="title"
         name="chain"
         x-small
       />

@@ -76,7 +76,7 @@ $default-padding: 2em;
   display: none;
   font-weight: 300;
   position: absolute;
-  font-size: $font_small;
+  font-size: var(--font-size-xs);
   white-space: nowrap;
   padding: $standard_padding * 0.5;
   background-color: $color-help-description;

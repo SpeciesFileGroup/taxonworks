@@ -108,13 +108,13 @@
         >
           Save and new
         </VBtn>
-        <div
-          class="cursor-pointer"
+        <VBtn
+          color="primary"
+          medium
           @click="resetStore"
         >
-          <span data-icon="reset" />
-          <span>Reset</span>
-        </div>
+          New
+        </VBtn>
       </div>
       <ConfirmationModal ref="confirmationModalRef" />
     </div>
