@@ -8,7 +8,7 @@ let instance = null
 
 function destroyDelegate() {
   if (instance) {
-    instance.destroy()
+    instance?.forEach((tippy) => tippy.destroy())
     instance = null
   }
 }
