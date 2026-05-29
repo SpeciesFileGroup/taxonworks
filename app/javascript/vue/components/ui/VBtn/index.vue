@@ -8,6 +8,7 @@
       :is="tag"
       v-bind="buttonAttributes"
       type="button"
+      :aria-label="title"
       @click="$emit('click', $event)"
     >
       <slot />
@@ -19,6 +20,7 @@
     :is="tag"
     v-bind="buttonAttributes"
     type="button"
+    :aria-label="title"
     v-tippy="tippyOptions"
     @click="$emit('click', $event)"
   >

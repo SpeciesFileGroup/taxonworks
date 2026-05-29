@@ -43,7 +43,6 @@
       color="white"
       name="confidence"
       x-small
-      title="Select a default confidence level from pinboard"
     />
   </VBtn>
 </template>
