@@ -48,7 +48,9 @@
                 v-if="getVisiblePropertiesCount(key, getDynamicColumns(key))"
                 scope="colgroup"
                 class="cell-left-border"
-                :colspan="getVisiblePropertiesCount(key, getDynamicColumns(key))"
+                :colspan="
+                  getVisiblePropertiesCount(key, getDynamicColumns(key))
+                "
               >
                 {{ humanize(key) }}
               </th>
@@ -126,7 +128,6 @@
               >
                 <VIcon
                   name="clip"
-                  title="Copy column to clipboard"
                   x-small
                 />
               </VBtn>
@@ -138,7 +139,6 @@
               >
                 <VIcon
                   name="alphabeticalSort"
-                  title="Sort alphabetically"
                   x-small
                 />
               </VBtn>
@@ -197,7 +197,6 @@
                   >
                     <VIcon
                       name="clip"
-                      title="Copy column to clipboard"
                       x-small
                     />
                   </VBtn>
@@ -209,7 +208,6 @@
                   >
                     <VIcon
                       name="alphabeticalSort"
-                      title="Sort alphabetically"
                       x-small
                     />
                   </VBtn>
@@ -264,7 +262,6 @@
                   >
                     <VIcon
                       name="clip"
-                      title="Copy column to clipboard"
                       x-small
                     />
                   </VBtn>
@@ -276,7 +273,6 @@
                   >
                     <VIcon
                       name="alphabeticalSort"
-                      title="Sort alphabetically"
                       x-small
                     />
                   </VBtn>

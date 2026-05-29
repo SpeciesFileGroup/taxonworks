@@ -10,7 +10,6 @@
       small
       color="white"
       name="pin"
-      :title="buttonTitle"
     />
   </VBtn>
 </template>
@@ -47,9 +46,12 @@ const buttonTitle = computed(() =>
 const pinnedLlabel = ref(null)
 const pinnedId = ref(null)
 
-watch(() => props.section, () => {
-  if (props.section) loadPinnedObject()
-})
+watch(
+  () => props.section,
+  () => {
+    if (props.section) loadPinnedObject()
+  }
+)
 
 onBeforeMount(() => {
   loadPinnedObject()

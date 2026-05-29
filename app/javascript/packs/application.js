@@ -28,6 +28,7 @@ import 'tippy.js/dist/tippy.css'
 
 import '../vanilla/initializers/copyTable.js'
 import '../vanilla/initializers/stickyNavbar.js'
+import '../vanilla/initializers/tippy.js'
 import '../vanilla/views/navbar/header.js'
 import '../vanilla/views/news/systemHeaderBar.js'
 import '../vanilla/views/project_members/new.js'

@@ -11,6 +11,10 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 - `type_taxon_name_relationship` support to the extend[] parameter in `inventory/summary.json`
 
+### Changed
+
+- Use Tippy instead of native button tooltips to improve how button information is displayed. [#4946]
+
 ### Fixed
 
 - Browse taxon name: Sometimes the page can't be scrolled when the taxon has a large hierarchy tree
@@ -18,6 +22,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - New taxon name: The scroll bar is missing in the right column [#4932]
 
 [#4932]: https://github.com/SpeciesFileGroup/taxonworks/issues/4932
+[#4946]: https://github.com/SpeciesFileGroup/taxonworks/issues/4946
 
 ## [0.63.0] - 2026-05-15
 

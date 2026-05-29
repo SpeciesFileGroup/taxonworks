@@ -1,6 +1,9 @@
 <template>
-  <div title="Lock / Unlock">
-    <label class="switch-lock">
+  <div>
+    <label
+      class="switch-lock"
+      v-tippy="{ content: 'Lock / Unlock', placement: 'bottom' }"
+    >
       <input
         v-bind="props"
         v-model="checked"
@@ -15,6 +18,8 @@
 </template>
 
 <script setup>
+import { directive as vTippy } from 'vue-tippy'
+
 defineOptions({
   name: 'VLock'
 })

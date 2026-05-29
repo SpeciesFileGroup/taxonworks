@@ -1,11 +1,25 @@
 <template>
+  <span
+    v-if="disabled"
+    class="v-btn-tippy-wrapper"
+    v-tippy="tippyOptions"
+  >
+    <component
+      :is="tag"
+      v-bind="buttonAttributes"
+      type="button"
+      @click="$emit('click', $event)"
+    >
+      <slot />
+    </component>
+  </span>
+
   <component
+    v-else
     :is="tag"
-    :class="buttonClasses"
-    :disabled="disabled"
-    :download="download"
-    :href="href"
+    v-bind="buttonAttributes"
     type="button"
+    v-tippy="tippyOptions"
     @click="$emit('click', $event)"
   >
     <slot />
@@ -13,11 +27,16 @@
 </template>
 
 <script>
+import { directive } from 'vue-tippy'
 import mixinSizes from '../mixins/sizes.js'
 import mixinColor from '../mixins/colors.js'
 
 export default {
   name: 'VBtn',
+
+  directives: {
+    tippy: directive
+  },
 
   mixins: [mixinSizes, mixinColor],
 
@@ -50,6 +69,11 @@ export default {
     color: {
       type: String,
       default: 'default'
+    },
+
+    title: {
+      type: String,
+      default: ''
     }
   },
 
@@ -75,7 +99,29 @@ export default {
         isLink ? 'btn-link' : 'btn',
         this.buttonSize
       ]
+    },
+
+    buttonAttributes() {
+      return {
+        class: this.buttonClasses,
+        disabled: this.disabled,
+        download: this.download,
+        href: this.href
+      }
+    },
+
+    tippyOptions() {
+      return {
+        content: this.title,
+        placement: 'bottom'
+      }
     }
   }
 }
 </script>
+
+<style scoped>
+.v-btn-tippy-wrapper {
+  display: inline-flex;
+}
+</style>

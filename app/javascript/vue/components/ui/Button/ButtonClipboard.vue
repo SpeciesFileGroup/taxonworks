@@ -2,17 +2,16 @@
   <VBtn
     circle
     color="primary"
+    :title="copied ? 'Copied!' : title"
     :class="copied && 'pulse-primary'"
     @click="handleClick"
   >
     <IconCheckmark
       v-if="copied"
       class="w-4 h-4"
-      title="Copied!"
     />
     <VIcon
       v-else
-      title="Copy to clipboard"
       name="clip"
       x-small
       class="icon"
