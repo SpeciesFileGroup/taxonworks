@@ -145,26 +145,14 @@ module Shared::Unify
           s[:result][:total_related] += t
           next if s[:result][:total_related] > cutoff
 
-          # For acts_as_list associations, snapshot both sides before moving so
-          # the re-sort below is independent of how acts_as_list positions
-          # inserted records.
-          related_class = i.klass
-          is_list_association = related_class.respond_to?(:acts_as_list_options)
-          if is_list_association
-            existing_ordered_ids = self.send(r.name).order(:position).pluck(:id)
-            incoming_ordered_ids = i.order(:position).pluck(:id)
-          end
+          list_state = snapshot_list_order(r, i)
 
           i.find_each do |j|
             j.update(r.options[:inverse_of] => self)
             log_unify_result(j, r, s)
           end
 
-          if is_list_association
-            (existing_ordered_ids + incoming_ordered_ids).each_with_index do |id, idx|
-              related_class.where(id:).update_all(position: idx + 1)
-            end
-          end
+          restore_list_order(list_state) if list_state
 
         when :has_one, :belongs_to
           i = o.send(r.name)
@@ -375,6 +363,28 @@ module Shared::Unify
         deduplicated: 0
       }
     )
+  end
+
+  # Snapshot the current position order on both sides of a has_many before
+  # records are re-parented, so the restore below is independent of how
+  # acts_as_list repositions records during update.
+  # Returns nil when the association does not use acts_as_list.
+  def snapshot_list_order(relation, incoming)
+    related_class = incoming.klass
+    return nil unless related_class.respond_to?(:acts_as_list_options)
+    {
+      klass: related_class,
+      existing_ids: send(relation.name).order(:position).pluck(:id),
+      incoming_ids: incoming.order(:position).pluck(:id)
+    }
+  end
+
+  # Re-apply the pre-merge position order captured by snapshot_list_order,
+  # appending incoming records after the surviving object's existing records.
+  def restore_list_order(state)
+    (state[:existing_ids] + state[:incoming_ids]).each_with_index do |id, idx|
+      state[:klass].where(id:).update_all(position: idx + 1)
+    end
   end
 
 end
