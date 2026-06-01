@@ -670,7 +670,8 @@ const headerEmptyColspan = computed(() => {
   return n
 })
 
-const ascending = ref(false)
+const ascending = ref(true)
+const sortedColumn = ref(null)
 const lastRadialOpenedRow = ref(null)
 const handyScrollRef = useTemplateRef('handyScrollRef')
 const theadRef = useTemplateRef('theadRef')
@@ -740,11 +741,17 @@ function getValue(item, property) {
 }
 
 function sortTable(sortProperty) {
+  if (sortedColumn.value === sortProperty) {
+    ascending.value = !ascending.value
+  } else {
+    sortedColumn.value = sortProperty
+    ascending.value = true
+  }
+
   emit(
     'onSort',
     sortArray(props.list, sortProperty, ascending.value, { stripHtml: true })
   )
-  ascending.value = !ascending.value
 }
 
 function scrollToTop() {
