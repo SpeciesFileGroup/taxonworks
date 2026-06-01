@@ -2,7 +2,7 @@
   <div>
     <label
       class="switch-lock"
-      v-tippy="{ content: 'Lock / Unlock', placement: 'bottom' }"
+      v-tooltip="{ content: 'Lock / Unlock', placement: 'bottom' }"
     >
       <input
         v-bind="props"
@@ -18,7 +18,7 @@
 </template>
 
 <script setup>
-import { directive as vTippy } from 'vue-tippy'
+import { vTooltip } from '@/directives'
 
 defineOptions({
   name: 'VLock'

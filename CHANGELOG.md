@@ -14,7 +14,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ### Changed
 
-- Use Tippy instead of native button tooltips to improve how button information is displayed. [#4946]
+- Use floating-ui instead of native button tooltips to improve how button information is displayed. [#4946]
 
 ### Fixed
 

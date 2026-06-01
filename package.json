@@ -3,6 +3,8 @@
   "private": true,
   "dependencies": {
     "@dagrejs/dagre": "^3.0.0",
+    "@floating-ui/dom": "^1.7.6",
+    "@floating-ui/vue": "^1.1.11",
     "@fontsource/ibm-plex-sans": "^5.2.8",
     "@geoman-io/leaflet-geoman-free": "^2.19.3",
     "@json2csv/plainjs": "^7.0.6",
@@ -30,7 +32,6 @@
     "three": "^0.184.0",
     "v-network-graph": "^0.9.22",
     "vue": "^3.5.35",
-    "vue-tippy": "^6.7.1",
     "vuedraggable": "^4.1.0",
     "vuewordcloud": "^19.0.0",
     "vuex": "^4.1.0",

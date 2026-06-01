@@ -4,13 +4,8 @@
       legend="Click to edit verbatim"
       v-model="verbatimName"
     />
-    <tippy
+    <VTooltip
       v-if="verbatimName"
-      animation="scale"
-      placement="bottom"
-      size="small"
-      inertia
-      arrow
       content="Verbatim representations are for display purposes only, only use them as a last resort. Legitimate reasons may include gender agreement errors. You should likely create a new name and treat it as a misspelling or low level synonym. Creating a new name gives you more power and flexibility in downstream search and display. Do NOT use this to include comon, or temporary names whose use was not intended to be governed by a code of nomenclature"
     >
       <v-icon
@@ -19,13 +14,13 @@
         color="attention"
         small
       />
-    </tippy>
+    </VTooltip>
   </div>
 </template>
 
 <script setup>
 import { computed } from 'vue'
-import { Tippy } from 'vue-tippy'
+import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import EditInPlace from '@/components/editInPlace.vue'
 

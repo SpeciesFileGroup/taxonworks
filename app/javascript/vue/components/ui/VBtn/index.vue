@@ -2,7 +2,7 @@
   <span
     v-if="disabled"
     class="v-btn-tippy-wrapper"
-    v-tippy="tippyOptions"
+    v-tooltip="tooltipOptions"
   >
     <component
       :is="tag"
@@ -21,7 +21,7 @@
     v-bind="buttonAttributes"
     type="button"
     :aria-label="title"
-    v-tippy="tippyOptions"
+    v-tooltip="tooltipOptions"
     @click="$emit('click', $event)"
   >
     <slot />
@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import { directive } from 'vue-tippy'
+import { vTooltip } from '@/directives'
 import mixinSizes from '../mixins/sizes.js'
 import mixinColor from '../mixins/colors.js'
 
@@ -37,7 +37,7 @@ export default {
   name: 'VBtn',
 
   directives: {
-    tippy: directive
+    tooltip: vTooltip
   },
 
   mixins: [mixinSizes, mixinColor],
@@ -112,7 +112,7 @@ export default {
       }
     },
 
-    tippyOptions() {
+    tooltipOptions() {
       return {
         content: this.title,
         placement: 'bottom'

@@ -52,21 +52,13 @@
       >
         <template v-if="!hideRows.includes(rIndex)">
           <div class="observation-cell">
-            <tippy
-              animation="scale"
-              placement="bottom"
-              size="small"
-              arrow-size="small"
-              inertia
-              arrow
-              content="Hide"
-            >
+            <VTooltip content="Hide">
               <input
                 type="checkbox"
                 v-model="hideRows"
                 :value="rIndex"
               />
-            </tippy>
+            </VTooltip>
           </div>
           <div class="otu-cell padding-small gap-small">
             <cell-link
@@ -113,14 +105,14 @@ import CellDepiction from './CellDepiction.vue'
 import CellLink from '../CellLink.vue'
 
 import { GetterNames } from '../../store/getters/getters'
-import { Tippy } from 'vue-tippy'
+import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
 
 export default {
   components: {
     FilterLanguage,
     FilterRank,
     SpinnerComponent,
-    Tippy,
+    VTooltip,
     CellDepiction,
     CellHeader,
     RadialObject,

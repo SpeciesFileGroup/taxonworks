@@ -54,7 +54,7 @@
             <VBtn
               color="primary"
               class="circle-button"
-              v-tippy="{ content: 'Reset (Alt/Ctrl + R)', placement: 'bottom' }"
+              v-tooltip="{ content: 'Reset (Alt/Ctrl + R)', placement: 'bottom' }"
               @click="emit('reset')"
             >
               <VIcon
@@ -172,7 +172,7 @@ import {
   nextTick,
   reactive
 } from 'vue'
-import { directive as vTippy } from 'vue-tippy'
+import { vTooltip } from '@/directives'
 import { useHotkey } from '@/composables'
 import FilterDownload from './FilterDownload.vue'
 import FilterJsonRequestPanel from './FilterJsonRequestPanel.vue'

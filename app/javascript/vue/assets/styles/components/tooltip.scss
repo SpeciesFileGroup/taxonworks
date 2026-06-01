@@ -1,0 +1,36 @@
+.tw-tooltip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10003;
+  width: max-content;
+  max-width: 350px;
+  padding: calc(var(--spacing-default) * 0.3) calc(var(--spacing-default) * 0.6);
+  border-radius: var(--border-radius-xsmall);
+  background-color: var(--tooltip-bg-color);
+  color: var(--tooltip-text-color);
+  font-size: var(--font-size-xs);
+  font-weight: 300;
+  line-height: 1.4;
+  box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.92);
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+
+  &[data-show] {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  &__arrow {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background-color: var(--tooltip-arrow-color);
+    transform: rotate(45deg);
+    z-index: -1;
+  }
+}

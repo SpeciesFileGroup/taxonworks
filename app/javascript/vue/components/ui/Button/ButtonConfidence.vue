@@ -1,12 +1,6 @@
 <template>
   <div v-if="keywordId && !isLoading">
-    <tippy
-      animation="scale"
-      placement="bottom"
-      size="small"
-      inertia
-      arrow
-    >
+    <VTooltip>
       <template #content>
         <p>
           {{ confidenceItem ? 'Remove' : 'Create' }} confidence:
@@ -31,7 +25,7 @@
           x-small
         />
       </VBtn>
-    </tippy>
+    </VTooltip>
   </div>
   <VBtn
     v-else
@@ -50,7 +44,7 @@
 <script setup>
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
-import { Tippy } from 'vue-tippy'
+import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
 import { Confidence } from '@/routes/endpoints'
 import { watch, onBeforeMount, onBeforeUnmount, ref } from 'vue'
 import { CONTROLLED_VOCABULARY_TERM } from '@/constants'

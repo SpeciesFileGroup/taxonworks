@@ -92,7 +92,6 @@ import { IDENTIFIER_UNKNOWN } from '@/constants'
 import { Identifier } from '@/routes/endpoints'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import { Tippy } from 'vue-tippy'
 import {
   IDENTIFIER_LOCAL_RECORD_NUMBER,
   IDENTIFIER_LOCAL_FIELD_NUMBER
@@ -121,7 +120,6 @@ export default {
     SelectType,
     NamespaceComponent,
     IdentifierComponent,
-    Tippy,
     BlockLayout,
     VBtn,
     VIcon

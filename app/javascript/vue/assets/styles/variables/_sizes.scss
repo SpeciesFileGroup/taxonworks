@@ -12,6 +12,13 @@ $tw-input-sizes: (
   --border-radius-small: 0.375rem;
   --border-radius-medium: 0.5rem;
   --border-radius-large: 0.75rem;
+
+  --spacing-xsmall: 0.25rem; /* 4px */
+  --spacing-small: 0.5rem; /* 8px */
+  --spacing-medium: 0.75rem; /* 12px */
+  --spacing-default: 1rem; /* 16px */
+  --spacing-large: 1.5rem; /* 24px */
+  --spacing-xlarge: 2rem; /* 32px */
 }
 
 :export {

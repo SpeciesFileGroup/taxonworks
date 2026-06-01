@@ -1,6 +1,6 @@
 <template>
   <div
-    v-tippy="{
+    v-tooltip="{
       content: title,
       placement: 'bottom'
     }"
@@ -21,7 +21,7 @@
 </template>
 
 <script setup>
-import { directive as vTippy } from 'vue-tippy'
+import { vTooltip } from '@/directives'
 import { computed } from 'vue'
 
 const props = defineProps({
