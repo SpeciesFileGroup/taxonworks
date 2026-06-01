@@ -10,6 +10,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ### Added
 
 - `type_taxon_name_relationship` support to the extend[] parameter in `inventory/summary.json`
+- Quick Forms: Pagination to Biological associations slice
 
 ### Changed
 
