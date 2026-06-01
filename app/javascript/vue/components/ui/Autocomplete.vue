@@ -412,6 +412,13 @@ export default {
       if (this.getRequest) {
         clearTimeout(this.getRequest)
       }
+
+      if (this.type.length < Number(this.min) || this.type.trim() === '') {
+        this.spinner = false
+        return
+      }
+
+      this.spinner = true
       this.getRequest = setTimeout(() => {
         this.update()
       }, this.time)
@@ -419,6 +426,7 @@ export default {
 
     update() {
       if (this.type.length < Number(this.min) || this.type.trim() === '') {
+        this.spinner = false
         return
       }
 
@@ -430,17 +438,20 @@ export default {
         )
         this.searchEnd = true
         this.showList = true
+        this.spinner = false
         this.$nextTick(this.updateDropdownPosition)
       } else {
-        this.spinner = true
         this.controller?.abort()
-        this.controller = new AbortController()
+        const controller = new AbortController()
+        this.controller = controller
 
         AjaxCall('get', this.ajaxUrl(), {
           headers: this.headers,
-          signal: this.controller.signal
+          signal: controller.signal
         })
           .then(({ body }) => {
+            if (this.controller !== controller) return
+
             this.json = this.getNested(body, this.nested)
             if (this.excludedIds) {
               this.json = this.json.filter(
@@ -454,7 +465,9 @@ export default {
           })
           .catch(() => {})
           .finally(() => {
-            this.spinner = false
+            if (this.controller === controller) {
+              this.spinner = false
+            }
           })
       }
     },
