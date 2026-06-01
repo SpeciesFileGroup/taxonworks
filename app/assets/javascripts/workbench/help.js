@@ -14,8 +14,9 @@ TW.workbench = TW.workbench || {}
 TW.workbench.help = TW.workbench.help || {}
 
 Object.assign(TW.workbench.help, {
-  _scrollHandlers: [],
-  _resizeHandlers: [],
+  _bubbles: [],
+  _repositionHandler: null,
+  _repositionRafId: null,
   _mousetrapBound: false,
 
   init() {
@@ -50,15 +51,7 @@ Object.assign(TW.workbench.help, {
 
   teardown() {
     this.removeEvents()
-
-    this._scrollHandlers.forEach((fn) =>
-      window.removeEventListener('scroll', fn)
-    )
-    this._resizeHandlers.forEach((fn) =>
-      window.removeEventListener('resize', fn)
-    )
-    this._scrollHandlers = []
-    this._resizeHandlers = []
+    this.removeRepositionListeners()
 
     if (this.elementBackground && this._backgroundClickHandler) {
       this.elementBackground.removeEventListener(
@@ -104,7 +97,6 @@ Object.assign(TW.workbench.help, {
 
   attachMouseEvent(bubbleElement) {
     bubbleElement.addEventListener('mouseenter', (event) => {
-      const elementLegend = document.querySelector('.help-legend')
       const element = event.target
       const position = this.getOffset(element)
 
@@ -117,7 +109,7 @@ Object.assign(TW.workbench.help, {
 
       this.elementLegend.innerHTML = element.getAttribute('data-legend')
 
-      const containerLegend = this.getWidth(elementLegend)
+      const containerLegend = this.getWidth(this.elementLegend)
       const distanceRight = window.innerWidth - position.left
 
       if (containerLegend > distanceRight) {
@@ -139,15 +131,11 @@ Object.assign(TW.workbench.help, {
       this.hideAllExcept(element.getAttribute('data-bubble-id'))
     })
 
-    bubbleElement.addEventListener('mouseleave', (event) => {
-      const element = event.target
-
-      if (element.classList.contains('help-bubble-tip')) {
-        this.elementLegend.textContent = ''
-        this.elementLegend.classList.remove('help-legend__active')
-        this.elementLegend.style.maxWidth = ''
-        this.showAll('.help-bubble-tip')
-      }
+    bubbleElement.addEventListener('mouseleave', () => {
+      this.elementLegend.textContent = ''
+      this.elementLegend.classList.remove('help-legend__active')
+      this.elementLegend.style.maxWidth = ''
+      this.showAll('.help-bubble-tip')
     })
   },
 
@@ -177,47 +165,117 @@ Object.assign(TW.workbench.help, {
 
   addBubbleTips(selector) {
     ;[...document.querySelectorAll(selector)].forEach((el, i) => {
-      const bubbleCreated = el.querySelector('.help-bubble-tip')
+      const bubble = this.makeBubble({ label: i + 1, targetElement: el })
 
-      if (!bubbleCreated) {
-        const bubble = this.makeBubble({ label: i + 1, targetElement: el })
-
-        document.body.append(bubble)
-      } else {
-        this.attachMouseEvent(bubbleCreated)
-      }
+      document.body.append(bubble)
     })
+
+    this.addRepositionListeners()
+    this.repositionBubbles()
   },
 
   makeBubble({ label, targetElement }) {
     const legend = targetElement.getAttribute('data-help')
     const bubble = document.createElement('div')
 
-    const updateBubblePosition = () => {
-      if (!document.body.contains(targetElement)) return
-
-      const { left, top } = this.getOffset(targetElement)
-
-      bubble.style.position = 'absolute'
-      bubble.style.top = `${top}px`
-      bubble.style.left = `${left}px`
-    }
-
-    window.addEventListener('scroll', updateBubblePosition)
-    window.addEventListener('resize', updateBubblePosition)
-    this._scrollHandlers.push(updateBubblePosition)
-    this._resizeHandlers.push(updateBubblePosition)
-
-    updateBubblePosition()
-
+    bubble.style.position = 'absolute'
     bubble.setAttribute('data-legend', legend)
     bubble.classList.add('help-bubble-tip')
     bubble.setAttribute('data-bubble-id', label)
     bubble.textContent = label
 
+    this._bubbles.push({
+      bubble,
+      targetElement,
+      clipAncestors: this.getClipAncestors(targetElement)
+    })
     this.attachMouseEvent(bubble)
 
     return bubble
+  },
+
+  getClipAncestors(element) {
+    const ancestors = []
+    let parent = element.parentElement
+
+    while (parent && parent !== document.body) {
+      const { overflow, overflowX, overflowY } = getComputedStyle(parent)
+      const clips = [overflow, overflowX, overflowY].some(
+        (value) => value && value !== 'visible'
+      )
+
+      if (clips) {
+        ancestors.push(parent)
+      }
+
+      parent = parent.parentElement
+    }
+
+    return ancestors
+  },
+
+  isAnchorVisible(targetRect, clipAncestors) {
+    return clipAncestors.every((ancestor) => {
+      const bounds = ancestor.getBoundingClientRect()
+
+      return (
+        targetRect.left >= bounds.left &&
+        targetRect.left <= bounds.right &&
+        targetRect.top >= bounds.top &&
+        targetRect.top <= bounds.bottom
+      )
+    })
+  },
+
+  repositionBubbles() {
+    this._bubbles.forEach(({ bubble, targetElement, clipAncestors }) => {
+      if (!document.body.contains(targetElement)) {
+        bubble.style.display = 'none'
+        return
+      }
+
+      const targetRect = targetElement.getBoundingClientRect()
+
+      if (!this.isAnchorVisible(targetRect, clipAncestors)) {
+        bubble.style.display = 'none'
+        return
+      }
+
+      bubble.style.display = ''
+      bubble.style.top = `${targetRect.top + window.scrollY}px`
+      bubble.style.left = `${targetRect.left + window.scrollX}px`
+    })
+  },
+
+  addRepositionListeners() {
+    if (this._repositionHandler) return
+
+    this._repositionHandler = () => {
+      if (this._repositionRafId) return
+
+      this._repositionRafId = window.requestAnimationFrame(() => {
+        this._repositionRafId = null
+        this.repositionBubbles()
+      })
+    }
+
+    window.addEventListener('scroll', this._repositionHandler, true)
+    window.addEventListener('resize', this._repositionHandler)
+  },
+
+  removeRepositionListeners() {
+    if (this._repositionHandler) {
+      window.removeEventListener('scroll', this._repositionHandler, true)
+      window.removeEventListener('resize', this._repositionHandler)
+      this._repositionHandler = null
+    }
+
+    if (this._repositionRafId) {
+      window.cancelAnimationFrame(this._repositionRafId)
+      this._repositionRafId = null
+    }
+
+    this._bubbles = []
   },
 
   toggleHelp() {
@@ -264,15 +322,7 @@ Object.assign(TW.workbench.help, {
       element.classList.remove('help-tip')
     })
 
-    this._scrollHandlers.forEach((fn) =>
-      window.removeEventListener('scroll', fn)
-    )
-    this._resizeHandlers.forEach((fn) =>
-      window.removeEventListener('resize', fn)
-    )
-    this._scrollHandlers = []
-    this._resizeHandlers = []
-
+    this.removeRepositionListeners()
     this.removeAllElements('.help-bubble-tip')
   },
 
@@ -311,14 +361,8 @@ Object.assign(TW.workbench.help, {
     if (this.toggleEvent) {
       const el = document.querySelector('.help-button')
 
-      el.removeEventListener('click', this.toggleEvent)
+      el?.removeEventListener('click', this.toggleEvent)
     }
-  }
-})
-
-document.addEventListener('turbolinks:load', function () {
-  if (document.querySelectorAll('[data-help]').length) {
-    TW.workbench.help.init()
   }
 })
 
