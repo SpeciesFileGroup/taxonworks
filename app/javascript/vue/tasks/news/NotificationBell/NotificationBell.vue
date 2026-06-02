@@ -3,8 +3,13 @@
     class="notification-bell"
     ref="notificationBell"
   >
-    <div
-      class="cursor-pointer h-5"
+    <VBtn
+      color="white"
+      class="cursor-pointer"
+      title="Notifications"
+      variant="ghost"
+      large
+      circle
       @click="() => (isNotificationListVisible = !isNotificationListVisible)"
     >
       <svg
@@ -27,7 +32,7 @@
         class="notification-total"
         v-text="totalNewNotifications.length"
       />
-    </div>
+    </VBtn>
     <NotificationList
       v-if="isNotificationListVisible"
       :loading="isLoading"
@@ -43,6 +48,7 @@ import { News } from '@/routes/endpoints'
 import { useClickOutside } from '@/composables'
 import { getCurrentProjectId, getCurrentUserId } from '@/helpers'
 import NotificationList from './components/NotificationList.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 defineOptions({
   name: 'NotificationBell'

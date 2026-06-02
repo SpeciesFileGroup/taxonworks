@@ -199,9 +199,9 @@ module Workbench::SessionsHelper
   # @param [String]
   def favorite_page_link(kind, name)
     if favorites?(kind, name)
-      link_to('Unfavorite page', unfavorite_page_path(kind:, name:), method: :post, remote: true, id: "unfavorite_link_#{kind}-#{name}", class: :unfavorite_link, title: 'Remove from favorites')
+      link_to('Unfavorite page', unfavorite_page_path(kind:, name:), method: :post, remote: true, id: "unfavorite_link_#{kind}-#{name}", class: :unfavorite_link, 'data-tooltip-content': 'Remove from favorites')
     else
-      link_to('Favorite page', favorite_page_path(kind:, name:), method: :post, remote: true, id: "favorite_link_#{kind}-#{name}", class: :favourite_link, title: 'Add to favorites')
+      link_to('Favorite page', favorite_page_path(kind:, name:), method: :post, remote: true, id: "favorite_link_#{kind}-#{name}", class: :favourite_link, 'data-tooltip-content': 'Add to favorites')
     end
   end
 

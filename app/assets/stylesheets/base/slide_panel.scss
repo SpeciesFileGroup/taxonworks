@@ -11,7 +11,7 @@ $default-padding: 2em;
 }
 
 .slide-panel {
-  z-index: 1000;
+  z-index: 2203;
   right: -400px;
   top: 0px;
   position: fixed;
@@ -115,7 +115,6 @@ $default-padding: 2em;
 }
 
 .slide-panel-show {
-  z-index: 2103;
   right: 0px;
   transition: right 0.5s ease;
 

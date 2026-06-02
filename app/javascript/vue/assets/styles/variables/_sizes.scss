@@ -1,4 +1,5 @@
 $tw-input-sizes: (
+  'xxSmall': '8px',
   'xSmall': '12px',
   'small': '16px',
   'default': '24px',
@@ -21,8 +22,8 @@ $tw-input-sizes: (
   --spacing-xlarge: 2rem; /* 32px */
 }
 
-:export {
-  @each $key, $value in $tw-input-sizes {
-    --#{$key}: #{$value};
+@each $key, $value in $tw-input-sizes {
+  :root {
+    --size-#{$key}: #{$value};
   }
 }
