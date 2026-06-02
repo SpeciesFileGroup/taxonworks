@@ -67,14 +67,14 @@ function loadClassForExt() {
   }
 
   .missing {
-    background-color: var(--error);
+    background-color: var(--color-error);
   }
 
   .added {
-    background-color: var(--create);
+    background-color: var(--color-create);
   }
 
   .optional {
-    background-color: var(--attention);
+    background-color: var(--color-attention);
   }
 </style>

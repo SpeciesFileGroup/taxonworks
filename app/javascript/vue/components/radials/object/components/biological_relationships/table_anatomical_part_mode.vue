@@ -208,8 +208,8 @@ function uriPillTitle(item) {
 }
 
 .uri-pill {
-  background-color: var(--color-secondary-primary);
-  border-color: var(--color-secondary-primary);
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
   color: var(--color-white);
 }
 

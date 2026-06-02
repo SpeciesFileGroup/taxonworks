@@ -21,6 +21,10 @@
     font-weight: $font_light;
     position: relative;
 
+    #panel-title {
+      border-bottom: 2px solid var(--border-color);
+    }
+
     #search-filter {
       width: 100%;
       box-sizing: border-box;

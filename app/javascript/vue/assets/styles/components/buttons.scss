@@ -61,7 +61,7 @@ a.btn:hover {
 @each $key, $value in $tw-colors {
   .btn-#{$key} {
     background-color: var(--color-#{$key});
-    color: white;
+    color: var(--color-on-#{$key});
   }
 }
 
@@ -81,7 +81,11 @@ a.btn:hover {
     color: var(--color-#{$key});
 
     &:hover {
-      background-color: color-mix(in srgb, var(--color-#{$key}) 12%, transparent);
+      background-color: color-mix(
+        in srgb,
+        var(--color-#{$key}) 12%,
+        transparent
+      );
       opacity: 1;
     }
   }
@@ -106,7 +110,7 @@ a.btn:hover {
 
     &:hover {
       background-color: var(--color-#{$key});
-      color: white;
+      color: var(--color-on-#{$key});
       opacity: 1;
     }
   }

@@ -104,18 +104,18 @@
 
 .pulse-blue,
 .pulse-primary {
-  box-shadow: 0 0 0 0 var(--primary);
+  box-shadow: 0 0 0 0 var(--color-primary);
   animation: pulse-blue 2s infinite;
 }
 
 .pulse-destroy {
-  box-shadow: 0 0 0 0 var(--destroy);
+  box-shadow: 0 0 0 0 var(--color-destroy);
   animation: pulse-red 2s infinite;
 }
 
 .pulse-update,
 .pulse-create {
-  box-shadow: 0 0 0 0 var(--create);
+  box-shadow: 0 0 0 0 var(--color-create);
   animation: pulse-green 2s infinite;
 }
 
