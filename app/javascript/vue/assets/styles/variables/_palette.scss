@@ -30,6 +30,8 @@
 
   --focus-ring: #64748b;
 
+  --color-neutral: var(--gray-500);
+
   --tooltip-text-color: var(--white);
   --tooltip-bg-color: #444;
   --tooltip-arrow-color: var(--tooltip-bg-color);
@@ -111,8 +113,8 @@
   --badge-red-bg: color-mix(in srgb, var(--red-500) 15%, transparent);
   --badge-red-color: var(--red-500);
 
-  --badge-default-bg: color-mix(in srgb, var(--gray-500) 15%, transparent);
-  --badge-default-color: var(--gray-500);
+  --badge-default-bg: color-mix(in srgb, var(--color-neutral) 15%, transparent);
+  --badge-default-color: var(--color-neutral);
 
   --badge-purple-bg: color-mix(in srgb, var(--violet-500) 15%, transparent);
   --badge-purple-color: var(--violet-500);
@@ -205,13 +207,7 @@
   --color-status-included: #10b981;
   --color-status-included-glow: rgba(16, 185, 129, 0.5);
 
-  --badge-warning-bg: color-mix(in srgb, var(--red-500) 28%, transparent);
-  --badge-green-bg: color-mix(in srgb, var(--emerald-500) 28%, transparent);
-  --badge-blue-bg: color-mix(in srgb, var(--blue-500) 28%, transparent);
-  --badge-yellow-bg: color-mix(in srgb, var(--amber-500) 28%, transparent);
-  --badge-red-bg: color-mix(in srgb, var(--red-500) 28%, transparent);
-  --badge-default-bg: color-mix(in srgb, var(--gray-400) 28%, transparent);
-  --badge-purple-bg: color-mix(in srgb, var(--violet-500) 28%, transparent);
+  --color-neutral: var(--gray-400);
 
   --color-soft-success-bg: color-mix(
     in srgb,
@@ -254,7 +250,6 @@ $tw-dark-colors: (
 $tw-colors: (
   'focus': #e3e8e3,
   'active': #f1f5f9,
-  /* aligned with --color-primary; accessible link text (~4.9:1 on white) */
   'link': #3676ab,
   'attention': #ffda44,
   'background': #f7f8fc,
