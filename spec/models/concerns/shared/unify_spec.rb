@@ -710,6 +710,19 @@ describe 'Shared::Unify', type: :model do
     expect(o1.taxon_determinations.reload.count).to eq(1)
   end
 
+  specify 'unify handles duplicate tags when both objects share the same keyword' do
+    k = FactoryBot.create(:valid_keyword)
+    Tag.create!(tag_object: o1, keyword: k)
+    Tag.create!(tag_object: o2, keyword: k)
+
+    result = o1.unify(o2)
+
+    expect(result[:result][:unified]).to be_truthy
+    expect(o2.destroyed?).to be_truthy
+    expect(o1.tags.reload.count).to eq(1)
+    expect(o1.tags.first.keyword).to eq(k)
+  end
+
   specify '#identical' do
     ad1 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o1)
     ad2 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o2, asserted_distribution_shape: ad1.asserted_distribution_shape)

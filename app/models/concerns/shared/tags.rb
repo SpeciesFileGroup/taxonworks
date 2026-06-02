@@ -14,21 +14,6 @@ module Shared::Tags
     scope :without_tags, -> { includes(:tags).where(tags: {id: nil}) }
 
     accepts_nested_attributes_for :tags, reject_if: :reject_tags, allow_destroy: true
-
-    # TODO: This should be a Tag validation!? (this is nested keywords)
-    validate :identical_nested_attribute_tags_are_prevented
-
-    protected
-
-    def identical_nested_attribute_tags_are_prevented
-      a = []
-      tags.each do |t|
-        i = t.keyword&.id || t.keyword_id
-        errors.add(:base, 'identical keyword attempt') if a.include?(id: i)
-        # t.keyword.attributes cannot be used, because the updated_at is truncated after save. The date is returned in different format.
-        a.push(id: i)
-      end
-    end
   end
 
   # @return [Boolean]
