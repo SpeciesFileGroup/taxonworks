@@ -23,6 +23,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - New taxon name: The scroll bar is missing in the right column [#4932]
 - Sometimes, the autocomplete spinner doesn't appear [#4946]
 - Reset sort direction when sorting by a different column in filter table
+- DwC importer crashing when staging data with NUL chars
 
 [#4932]: https://github.com/SpeciesFileGroup/taxonworks/issues/4932
 [#4946]: https://github.com/SpeciesFileGroup/taxonworks/issues/4946
