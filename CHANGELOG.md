@@ -15,6 +15,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ### Changed
 
 - Use floating-ui instead of native button tooltips to improve how button information is displayed. [#4946]
+- Dropped support for legacy MS Excel format (xls, not xlsx) in DwC importer
 
 ### Fixed
 

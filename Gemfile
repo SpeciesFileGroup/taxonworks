@@ -26,7 +26,6 @@ gem 'tzinfo-data', '~> 1.2019'
 gem 'psych', '~> 5.1'
 gem 'rmagick', '~> 6.0'
 gem 'roo', '~> 3.0'
-gem 'roo-xls', '~> 2.0'
 
 gem 'csv', '~> 3.2'
 

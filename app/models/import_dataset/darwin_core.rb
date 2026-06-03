@@ -49,7 +49,7 @@ class ImportDataset::DarwinCore < ImportDataset
           table.read { |data, errors| raise 'Errors found when reading data' unless errors.empty? }
         end
       else
-        if path =~ /\.(xlsx?|ods)\z/i
+        if path =~ /\.(xlsx|ods)\z/i
           headers = CSV.parse(Roo::Spreadsheet.open(path).to_csv, headers: true, header_converters: lambda {|f| f.strip}).headers
         else
           col_sep = default_if_absent(params.dig(:import_settings, :col_sep), "\t")
@@ -257,7 +257,7 @@ class ImportDataset::DarwinCore < ImportDataset
         records[:extensions][type] = get_dwc_records(extension)
         headers[:extensions][type] = get_dwc_headers(extension)
       end
-    elsif path =~ /\.(csv|txt|tsv|xlsx?|ods)\z/i
+    elsif path =~ /\.(csv|txt|tsv|xlsx|ods)\z/i
       # only strip whitespace on the headers with lambda functions because whitespace is stripped from the data elsewhere
       if path =~ /\.(csv|txt|tsv)\z/i
         records[:core] = CSV.read(path, headers: true, col_sep: get_col_sep, quote_char: get_quote_char, encoding: 'bom|utf-8', header_converters: lambda {|f| f&.strip})
@@ -367,7 +367,7 @@ class ImportDataset::DarwinCore < ImportDataset
       if source.staged_path =~ /\.zip\z/i
         headers = get_dwc_headers(::DarwinCore.new(source.staged_path).core)
       else
-        if source.staged_path =~ /\.(xlsx?|ods)\z/i
+        if source.staged_path =~ /\.(xlsx|ods)\z/i
           headers = CSV.parse(Roo::Spreadsheet.open(source.staged_path).to_csv, headers: true).headers
         else
           headers = CSV.read(source.staged_path, headers: true, col_sep: get_col_sep, quote_char: get_quote_char, encoding: 'bom|utf-8').headers
