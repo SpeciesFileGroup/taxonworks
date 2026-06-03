@@ -320,6 +320,16 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         expect(s1.cached_html).to eq('<i>Aus aus</i> [sic]')
       end
 
+      specify 'destroy misspelling relationship clears cached_misspelling' do
+        r3 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2,
+                               type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
+        s1.reload
+        expect(s1.cached_misspelling).to be_truthy
+        r3.destroy!
+        s1.reload
+        expect(s1.cached_misspelling).to be_falsey
+      end
+
       specify 'fixing synonym linked to another synonym' do
         r3 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2,
                                type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
