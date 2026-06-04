@@ -10,15 +10,18 @@
         placeholder="Type a source..."
         display="label"
         clear-after
+        :disabled="isSaving"
         @getItem="({ id }) => setSource({ id, pages: citation?.pages })"
       />
       <ButtonPinned
         label="source"
         type="Source"
         section="Sources"
+        :disabled="isSaving"
         @get-item="({ id }) => setSource({ id, pages: citation?.pages })"
       />
       <FormCitationClone
+        :disabled="isSaving"
         @clone="(c) => setSource({ id: c.source_id, pages: c.pages })"
       />
     </div>
@@ -94,8 +97,11 @@ const taxon = computed({
 })
 
 const isAutosaveActive = computed(() => store.getters[GetterNames.GetAutosave])
+const isSaving = computed(() => store.getters[GetterNames.GetSaving])
 
 function setSource({ id, pages }) {
+  if (isSaving.value) return
+
   const payload = {
     id,
     pages: pages || null

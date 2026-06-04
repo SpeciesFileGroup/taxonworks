@@ -1,6 +1,6 @@
 <template>
   <VBtn
-    :disabled="!pinnedId"
+    :disabled="disabled || !pinnedId"
     circle
     color="primary"
     :title="buttonTitle"
@@ -32,6 +32,11 @@ const props = defineProps({
   type: {
     type: String,
     required: true
+  },
+
+  disabled: {
+    type: Boolean,
+    default: false
   }
 })
 
