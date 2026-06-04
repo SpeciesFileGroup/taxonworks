@@ -1,5 +1,6 @@
 import ActionNames from './actionNames'
 import { MutationNames } from '../mutations/mutations'
+import { watch } from 'vue'
 import { EVENT_SMART_SELECTOR_UPDATE } from '@/constants/index.js'
 import { CollectionObject } from '@/routes/endpoints'
 import { useIdentifierStore, useTaxonDeterminationStore } from '../pinia'
@@ -30,6 +31,28 @@ function makeCOArgs(id) {
     objectId: id,
     objectType: COLLECTION_OBJECT
   }
+}
+
+function waitForDepictions(state, timeout = 30000) {
+  return new Promise((resolve) => {
+    if (!state.settings.pendingDepictions) return resolve()
+
+    const timeoutId = setTimeout(() => {
+      stop()
+      resolve()
+    }, timeout)
+
+    const stop = watch(
+      () => state.settings.pendingDepictions,
+      (pending) => {
+        if (!pending) {
+          clearTimeout(timeoutId)
+          stop()
+          resolve()
+        }
+      }
+    )
+  })
 }
 
 export default async (
@@ -73,6 +96,8 @@ export default async (
     ]
 
     const promises = await Promise.allSettled(actions)
+
+    await waitForDepictions(state)
 
     const allSaved = promises.every((item) => item.status == 'fulfilled')
 

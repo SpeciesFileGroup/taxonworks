@@ -24,6 +24,7 @@ export default ({ dispatch, state }) => {
   state.container = undefined
   state.containerItems = []
   state.depictions = []
+  state.settings.pendingDepictions = 0
   state.determinations = []
   state.materialTypes = []
   state.typeSpecimens = []

@@ -6,6 +6,8 @@
       @vdropzone-file-added="addedfile"
       @vdropzone-success="success"
       @vdropzone-error="error"
+      @vdropzone-removed-file="updatePendingDepictions"
+      @vdropzone-queue-complete="updatePendingDepictions"
       ref="dropzoneRef"
       :id="`depiction-${DROPZONE_ID}`"
       url="/depictions"
@@ -52,6 +54,7 @@
 
 <script setup>
 import ActionNames from '../../store/actions/actionNames'
+import { MutationNames } from '../../store/mutations/mutations'
 import ImageViewer from '@/components/ui/ImageViewer/ImageViewer.vue'
 import VDropzone from '@/components/dropzone.vue'
 import ZoomImage from './zoomImage.vue'
@@ -124,7 +127,14 @@ watch(
 function success(file, response) {
   figuresList.value.push(response)
   dropzoneRef.value.removeFile(file)
+  updatePendingDepictions()
   emit('create', response)
+}
+
+function updatePendingDepictions() {
+  const activeFiles = dropzoneRef.value?.getDropzone().getActiveFiles() || []
+
+  store.commit(MutationNames.SetPendingDepictions, activeFiles.length)
 }
 
 function sending(file, xhr, formData) {
@@ -133,6 +143,7 @@ function sending(file, xhr, formData) {
 }
 
 function addedfile() {
+  updatePendingDepictions()
   if (!props.objectValue.id && !creatingType.value) {
     creatingType.value = true
     store.dispatch(ActionNames[props.actionSave], props.objectValue).then(
@@ -165,6 +176,7 @@ function removeDepiction(depiction) {
 }
 
 function error(event) {
+  updatePendingDepictions()
   TW.workbench.alert.create(
     `There was an error uploading the image: ${event.xhr.responseText}`,
     'error'
