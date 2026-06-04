@@ -183,13 +183,27 @@ describe Queries::Source::Filter, type: :model, group: [:sources, :filter] do
     expect(query.all.map(&:id)).to contain_exactly( *(all_source_ids - [s1.id]) )
   end
 
-  specify '#documents 1' do
+  specify '#documents true, returns sources with documentation in this project' do
     FactoryBot.create(:valid_documentation, documentation_object: s1)
     query.documents = true
     expect(query.all.map(&:id)).to contain_exactly(s1.id)
   end
 
-  specify '#documents 2' do
+  specify '#documents false, returns sources without documentation in this project' do
+    query.documents = false
+    expect(query.all.map(&:id)).to contain_exactly( *all_source_ids )
+  end
+
+  specify '#documents true, excludes sources whose documentation is only in other projects' do
+    other_project = FactoryBot.create(:valid_project)
+    FactoryBot.create(:valid_documentation, documentation_object: s1, project_id: other_project.id)
+    query.documents = true
+    expect(query.all.map(&:id)).to contain_exactly()
+  end
+
+  specify '#documents false, includes sources whose documentation is only in other projects' do
+    other_project = FactoryBot.create(:valid_project)
+    FactoryBot.create(:valid_documentation, documentation_object: s1, project_id: other_project.id)
     query.documents = false
     expect(query.all.map(&:id)).to contain_exactly( *all_source_ids )
   end

@@ -430,13 +430,19 @@ module Queries
       def document_facet
         return nil if documents.nil?
 
-        if documents
-          ::Source.joins(:documents, :project_sources).where(project_sources: {project_id:}).distinct
-        else
-          a = ::Source.where.missing(:documents).distinct
-          b = ::Source.joins(:project_sources).where(project_sources: {project_id: }).where.missing(:documentation).distinct
+        project_sources_with_docs = ::Source
+          .joins(:documentation)
+          .where(documentation: { project_id: })
+          .distinct
 
-          ::Source.from("((#{a.to_sql}) UNION (#{b.to_sql})) as sources")
+        # We treat sources with docs in other projects as though they don't
+        # exist, which matches the user's experience. If we ever decide to
+        # expose docs from other projects then we may want to change this.
+        if documents
+          project_sources_with_docs
+        else
+          ::Source
+            .where.not(id: project_sources_with_docs.select(:id))
         end
       end
 
