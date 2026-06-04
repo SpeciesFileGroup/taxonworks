@@ -25,7 +25,9 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Sometimes, the autocomplete spinner doesn't appear [#4946]
 - Reset sort direction when sorting by a different column in filter table
 - DwC importer crashing when staging data with NUL chars
+- Biological relationship facet in Filter OTU [#4929]
 
+[#4929]: https://github.com/SpeciesFileGroup/taxonworks/issues/4929
 [#4932]: https://github.com/SpeciesFileGroup/taxonworks/issues/4932
 [#4946]: https://github.com/SpeciesFileGroup/taxonworks/issues/4946
 
