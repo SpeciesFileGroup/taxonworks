@@ -27,7 +27,9 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - DwC importer crashing when staging data with NUL chars
 - Biological relationship facet in Filter OTU [#4929]
 - CSD: Sometimes, not all images are created when the user clicks on "Save and New"
+- CSD: CSD: Delete buttons in the Determinations list don't not work when the panel is locked and the task is reset [#4928]
 
+[#4928]: https://github.com/SpeciesFileGroup/taxonworks/issues/4928
 [#4929]: https://github.com/SpeciesFileGroup/taxonworks/issues/4929
 [#4932]: https://github.com/SpeciesFileGroup/taxonworks/issues/4932
 [#4946]: https://github.com/SpeciesFileGroup/taxonworks/issues/4946
