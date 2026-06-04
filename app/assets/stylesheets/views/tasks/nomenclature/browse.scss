@@ -1,11 +1,14 @@
-.dark {
-  #browse-nomenclature-taxon-name {
-    background-color: color-mix(
-      in srgb,
-      var(--taxon-name-invalid-color) 10%,
-      transparent
-    );
-  }
+#browse-nomenclature-taxon-name {
+  border-top-left-radius: var(--border-radius-large);
+  border-top-right-radius: var(--border-radius-large);
+}
+
+#browse-nomenclature-taxon-name.invalid {
+  background-color: color-mix(
+    in srgb,
+    var(--taxon-name-invalid-color) 15%,
+    transparent
+  );
 }
 
 .browse-view {

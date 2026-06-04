@@ -54,7 +54,7 @@
     </div>
 
         <div class="panel full_width">
-          <div id="browse-nomenclature-taxon-name" class="content subtitle filter middle">
+          <div id="browse-nomenclature-taxon-name" class="content subtitle filter middle <%= @taxon_name.is_valid? ? '' : 'invalid' %>">
             <h3 class="item center_text">
               <%= tag.span(rank_tag(@taxon_name), class: :subtle) -%>
               <%= tag.span(full_taxon_name_tag(@taxon_name), class: :name) -%>
