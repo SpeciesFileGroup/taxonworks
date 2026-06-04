@@ -24,6 +24,7 @@
         :disabled="isSaving"
         @clone="(c) => setSource({ id: c.source_id, pages: c.pages })"
       />
+      <a :href="RouteNames.NewSource">Add new source</a>
     </div>
     <hr class="divisor" />
     <div v-if="citation">
@@ -80,6 +81,8 @@ import PdfButton from '@/components/ui/Button/ButtonPdf'
 import CitationPages from '../citationPages.vue'
 import SoftValidation from '@/components/soft_validations/objectValidation.vue'
 import FormCitationClone from '@/components/Form/FormCitation/FormCitationClone.vue'
+
+import { RouteNames } from '@/routes/routes.js'
 
 const autocomplete = ref(null)
 
