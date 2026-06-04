@@ -102,7 +102,10 @@ function setSource({ id, pages }) {
   }
 
   store.dispatch(ActionNames.ChangeTaxonSource, payload)
-  store.dispatch(ActionNames.UpdateTaxonName, taxon.value)
+  store.dispatch(ActionNames.UpdateTaxonName, taxon.value).catch((errors) => {
+    const message = errors?.origin_citation?.[0] || 'Origin citation could not be saved.'
+    TW.workbench.alert.create(message, 'error')
+  })
 }
 
 function addPages(citation) {

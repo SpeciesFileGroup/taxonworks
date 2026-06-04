@@ -52,9 +52,10 @@ module Shared::Citations
     }
 
     accepts_nested_attributes_for :citations, reject_if: :reject_citations, allow_destroy: true
-    accepts_nested_attributes_for :origin_citation, reject_if: :reject_citations, allow_destroy: true
+    accepts_nested_attributes_for :origin_citation, reject_if: :reject_origin_citation_attributes, allow_destroy: true
 
     validate :origin_citation_source_id, if: -> { !new_record? }
+    validate :no_origin_citation_conflict
 
     # !! use validate: true in associations settings to trigger this as needed
     # Required to trigger validate callbacks, which in turn set user_id related housekeeping
@@ -126,12 +127,34 @@ module Shared::Citations
 
   protected
 
+  # The New Taxon Name task doesn't use a spinner when saves are sent, so it's
+  # known that we can occasionally get duplicate origin citation requests. We
+  # accept that as the price of keeping the task speedy for the user and
+  # silently drop the duplicate here to compensate.
+  def reject_origin_citation_attributes(attributed)
+    if attributed['id'].blank? && origin_citation.present?
+      if origin_citation.source_id.to_s == attributed['source_id'].to_s &&
+         origin_citation.pages.presence == attributed['pages'].presence
+        return true
+      else
+        # This will be caught and reported as an error in validations.
+        @origin_citation_conflict = true
+        return true
+      end
+    end
+    reject_citations(attributed)
+  end
+
   def reject_citations(attributed)
     if (attributed['source_id'].blank? && attributed['source'].blank?)
       return true if new_record?
       return true if attributed['pages'].blank?
     end
     false
+  end
+
+  def no_origin_citation_conflict
+    errors.add(:origin_citation, 'already exists for this object') if @origin_citation_conflict
   end
 
 end

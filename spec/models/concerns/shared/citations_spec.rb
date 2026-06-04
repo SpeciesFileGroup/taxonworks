@@ -66,6 +66,51 @@ describe 'Citations', type: :model, group: [:nomenclature, :citations] do
         expect(t.citations.first.is_original?).to be_falsey
       end
 
+      specify 'origin_citation_attributes without an id creates when none exists' do
+        t = TestCitable.create
+        expect {
+          t.update!(origin_citation_attributes: {source_id: source.id, is_original: true})
+        }.to change(Citation, :count).by(1)
+      end
+
+      context 'duplicate origin_citation_attributes (race condition)' do
+        let(:s2) { FactoryBot.create(:valid_source_bibtex, year: 2000) }
+
+        before do
+          class_with_citations.save!
+          class_with_citations.update!(origin_citation_attributes: {source_id: source.id, is_original: true, pages: '1'})
+        end
+
+        specify 'a create without an id when source differs returns a validation error' do
+          result = class_with_citations.update(origin_citation_attributes: {source_id: s2.id, is_original: true})
+          expect(result).to be false
+          expect(class_with_citations.errors[:origin_citation]).to be_present
+        end
+
+        specify 'a create without an id when source differs does not create a new citation' do
+          expect {
+            class_with_citations.update(origin_citation_attributes: {source_id: s2.id, is_original: true})
+          }.not_to change(Citation, :count)
+        end
+
+        specify 'a duplicate create without an id is silently dropped' do
+          expect {
+            class_with_citations.update!(origin_citation_attributes: {source_id: source.id, is_original: true, pages: '1'})
+          }.not_to change(Citation, :count)
+        end
+
+        specify 'the existing origin citation is preserved' do
+          class_with_citations.update!(origin_citation_attributes: {source_id: source.id, is_original: true, pages: '1'})
+          expect(class_with_citations.reload.origin_citation.source_id).to eq(source.id)
+        end
+
+        specify 'an update with an id is not dropped' do
+          id = class_with_citations.origin_citation.id
+          class_with_citations.update!(origin_citation_attributes: {id:, source_id: s2.id, is_original: true})
+          expect(class_with_citations.reload.origin_citation.source_id).to eq(s2.id)
+        end
+      end
+
       context 'with a is_original citation' do
         before do
           citation.is_original = true
