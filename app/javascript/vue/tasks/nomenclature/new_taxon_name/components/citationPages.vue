@@ -1,49 +1,55 @@
 <template>
   <input
+    v-model="inputValue"
     type="text"
-    :disabled="!isCitationExist"
-    class="pages"
+    :disabled="disabled || !isCitationExist"
+    class="w-20"
+    placeholder="Pages"
     @input="updatePages(false)"
     @blur="updatePages(true)"
-    :value="pages"
-    placeholder="Pages">
+  />
 </template>
 
-<script>
-export default {
-  props: ['citation'],
-  computed: {
-    pages () {
-      return this.citation?.origin_citation ? this.citation.origin_citation.pages : ''
-    },
-    isCitationExist () {
-      return this.citation?.origin_citation
-    }
+<script setup>
+import { computed, ref, watch } from 'vue'
+
+const props = defineProps({
+  citation: {
+    type: Object,
+    default: undefined
   },
-  methods: {
-    updatePages (immediate) {
-      if (!this.citation?.origin_citation) return
-      const eventName = immediate ? 'save' : 'setPages'
-      const item = this.citation
-      const newCitation = {
-        id: (item?.origin_citation ? item.origin_citation.id : null),
-        source_id: (item?.origin_citation ? item.origin_citation.source.id : null),
-        pages: this.$el.value
-      }
-      if (this.isCitationExist) {
-        this.$emit(eventName, newCitation)
-      }
-    }
+  disabled: {
+    type: Boolean,
+    default: false
+  }
+})
+
+const emit = defineEmits(['save', 'setPages'])
+
+const pages = computed(() => props.citation?.pages ?? '')
+
+const isCitationExist = computed(() => Boolean(props.citation))
+
+const inputValue = ref(pages.value)
+
+watch(pages, (value) => {
+  inputValue.value = value
+})
+
+const updatePages = (immediate) => {
+  if (props.disabled || !props.citation || inputValue.value === pages.value)
+    return
+
+  const eventName = immediate ? 'save' : 'setPages'
+  const item = props.citation
+  const newCitation = {
+    id: item?.id ?? null,
+    source_id: item?.source?.id ?? null,
+    pages: inputValue.value
+  }
+
+  if (isCitationExist.value) {
+    emit(eventName, newCitation)
   }
 }
 </script>
-
-<style scoped>
-.pages {
-  margin-left: 8px;
-  width: 70px;
-}
-.pages:disabled {
-  background-color: #F5F5F5;
-}
-</style>

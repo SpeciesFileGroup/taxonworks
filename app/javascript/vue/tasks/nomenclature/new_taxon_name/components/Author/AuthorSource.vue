@@ -28,7 +28,7 @@
     </div>
     <hr class="divisor" />
     <div v-if="citation">
-      <div class="flex-separate middle">
+      <div class="flex-separate middle gap-small">
         <p>
           <span
             class="break_words"
@@ -43,9 +43,10 @@
         </p>
         <div class="horizontal-left-content gap-small">
           <CitationPages
+            :citation="citation"
+            :disabled="isSaving"
             @setPages="addPages"
             @save="triggerSave"
-            :citation="taxon"
           />
           <PdfButton
             v-if="citation.hasOwnProperty('target_document')"
