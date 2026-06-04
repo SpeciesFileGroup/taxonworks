@@ -29,7 +29,12 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - DwC importer crashing when staging data with NUL chars
 - Biological relationship facet in Filter OTU [#4929]
 - CSD: Sometimes, not all images are created when the user clicks on "Save and New"
+<<<<<<< HEAD
 - CSD: Delete buttons in the Determinations list don't not work when the panel is locked and the task is reset [#4928]
+=======
+- CSD: Delete buttons in the Determinations list don't work when the panel is locked and the task is reset [#4928]
+- No result for Collecting Events tab of the Collection Summary task for some combinations of parameters
+>>>>>>> 202a0795b6 (Fix PG alias conflict in CO Summary collecting_events partial)
 
 [#4928]: https://github.com/SpeciesFileGroup/taxonworks/issues/4928
 [#4929]: https://github.com/SpeciesFileGroup/taxonworks/issues/4929
