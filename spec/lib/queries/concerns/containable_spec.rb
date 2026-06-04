@@ -41,7 +41,9 @@ describe 'Queries::Concerns::Containable', type: :model do
       i = FactoryBot.build(:valid_identifier_local)
       c.identifiers << i
 
-      Specimen.create! # not this
+      # A dwc uuid identifier could contain i's identifier value, so don't
+      # create one here!
+      Specimen.create!(no_dwc_occurrence: true) # not this
 
       qco.identifier = i.identifier
       expect(qco.all).to contain_exactly(s)
