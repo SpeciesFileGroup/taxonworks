@@ -13,6 +13,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Quick Forms: Pagination to Biological associations slice
 - CSD: Added a button to load the associated CO when the identifier is already in use by another CO
 - Ctrl+v to paste images and documents in "Drop [image/doc] here"
+- New descriptors: character states' thumbnails [#4796]
 
 ### Changed
 
@@ -34,6 +35,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - CSD: Delete buttons in the Determinations list don't work when the panel is locked and the task is reset [#4928]
 - No result for Collecting Events tab of the Collection Summary task for some combinations of parameters
 
+[#4796]: https://github.com/SpeciesFileGroup/taxonworks/issues/4796
 [#4909]: https://github.com/SpeciesFileGroup/taxonworks/issues/4909
 [#4928]: https://github.com/SpeciesFileGroup/taxonworks/issues/4928
 [#4929]: https://github.com/SpeciesFileGroup/taxonworks/issues/4929
