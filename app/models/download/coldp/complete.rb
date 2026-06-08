@@ -1,14 +1,11 @@
 # One per (project, otu_id) pair. Each corresponds to a COLDP profile.
 # The `request` column stores the otu_id to distinguish per-profile downloads.
 class Download::Coldp::Complete < Download::Coldp
+  include Shared::CompleteDownload
+
   attribute :name, default: -> { "coldp_complete_#{DateTime.now}.zip" }
   attribute :description, default: 'A ColDP archive of the complete TaxonWorks export for a given OTU'
   attribute :filename, default: -> { "coldp_complete_#{DateTime.now}.zip" }
-  attribute :expires, default: -> { 1.month.from_now }
-  attribute :is_public, default: -> { 1 }
-
-  before_save :sync_expires_with_preferences
-  after_save :build, unless: :ready?
 
   validates :type, uniqueness: {
     scope: [:project_id, :request],
@@ -18,39 +15,29 @@ class Download::Coldp::Complete < Download::Coldp
     }
   }
 
-  def self.api_buildable?
-    true
+  def self.complete_download_required_params
+    [:otu_id]
   end
 
-  # @return [Download] the complete download to be served
-  def self.process_complete_download_request(project, otu_id)
-    download = Download.where(
-      type: 'Download::Coldp::Complete',
-      project_id: project.id,
-      request: otu_id.to_s
-    ).first
+  def self.complete_download_lookup_params(params)
+    { request: params[:otu_id].to_s }
+  end
 
-    return nil if download.nil?
+  def self.complete_download_access_authorized?(project, params)
+    profile = project.coldp_profile_for(params[:otu_id].to_i)
+    !!(profile && profile['is_public'])
+  end
 
-    if download.ready?
-      profile = project.coldp_profile_for(otu_id.to_i)
-      max_age = profile&.fetch('max_age', nil)
-      download_age = Time.current - download.created_at
-      by_id = Current.user_id || profile&.fetch('default_user_id', nil)
+  def self.complete_download_max_age(project, params)
+    project.coldp_profile_for(params[:otu_id].to_i)&.fetch('max_age', nil)
+  end
 
-      if max_age && download_age.to_f / 1.day > max_age
-        Download::Coldp::PupalComplete.create(
-          by: by_id,
-          project_id: project.id,
-          request: otu_id.to_s
-        )
-      end
+  def self.complete_download_default_user_id(project, params)
+    project.coldp_profile_for(params[:otu_id].to_i)&.fetch('default_user_id', nil)
+  end
 
-      download.increment!(:times_downloaded)
-      return download
-    else
-      raise TaxonWorks::Error, 'The existing download is not ready yet'
-    end
+  def self.project_api_access_token_destroyed
+    Download::Coldp::Complete.destroy_all
   end
 
   private
@@ -75,9 +62,5 @@ class Download::Coldp::Complete < Download::Coldp
     return if max_age.nil?
 
     self.expires = Time.zone.now + max_age.to_f.days + 7.days + 1.day
-  end
-
-  def self.project_api_access_token_destroyed
-    Download::Coldp::Complete.destroy_all
   end
 end

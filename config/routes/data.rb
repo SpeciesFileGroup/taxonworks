@@ -816,22 +816,26 @@ resources :projects, only: [] do
       post :set_default_user, defaults: {format: :json}
     end
 
-    scope :coldp_export_preferences, controller: 'tasks/projects/coldp_export_preferences' do
-      get :preferences, defaults: {format: :json}
-      post :save_profile, defaults: {format: :json}
-      post :save_coldp_settings, defaults: {format: :json}
-      delete :destroy_profile, defaults: {format: :json}
-      post :validate_metadata, defaults: {format: :json}
-      get :controlled_vocabulary_status, defaults: {format: :json}
-      post :create_missing_predicates, defaults: {format: :json}
-      post :create_predicate, defaults: {format: :json}
-      get :missing_otus_count, defaults: {format: :json}
-      get :checklistbank_citation, defaults: {format: :json}
-      get :checklistbank_issues, defaults: {format: :json}
-      get :fetch_clb_metadata, defaults: {format: :json}
-      get :search_datasets, defaults: {format: :json}
-      get :issue_vocab, defaults: {format: :json}
+    scope :coldp_export_preferences, controller: 'tasks/projects/coldp_export_preferences', defaults: {format: :json} do
+      get :preferences
+
+      get :controlled_vocabulary_status
+      post :create_missing_predicates
+      post :create_predicate
+      get :missing_otus_count
+      get :checklistbank_citation
+      get :checklistbank_issues
+      get :fetch_clb_metadata
+      get :search_datasets
+      get :issue_vocab
     end
+  end
+
+  scope module: 'tasks/projects' do
+    resources :coldp_profiles, only: [:create, :update, :destroy], param: :otu_id, defaults: {format: :json} do
+      patch :validate, on: :collection
+    end
+    resource :coldp_settings, only: [:update], defaults: {format: :json}
   end
 
   collection do

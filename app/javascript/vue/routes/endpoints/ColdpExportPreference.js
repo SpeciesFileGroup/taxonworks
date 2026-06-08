@@ -4,17 +4,20 @@ export const ColdpExportPreference = {
   preferences: (id) =>
     AjaxCall('get', `/projects/${id}/coldp_export_preferences/preferences.json`),
 
-  saveProfile: (id, params) =>
-    AjaxCall('post', `/projects/${id}/coldp_export_preferences/save_profile.json`, params),
+  createProfile: (id, params) =>
+    AjaxCall('post', `/projects/${id}/coldp_profiles.json`, params),
 
-  destroyProfile: (id, params) =>
-    AjaxCall('delete', `/projects/${id}/coldp_export_preferences/destroy_profile.json`, { params }),
+  updateProfile: (id, otuId, params) =>
+    AjaxCall('patch', `/projects/${id}/coldp_profiles/${otuId}.json`, params),
 
-  saveColdpSettings: (id, params) =>
-    AjaxCall('post', `/projects/${id}/coldp_export_preferences/save_coldp_settings.json`, params),
+  destroyProfile: (id, otuId) =>
+    AjaxCall('delete', `/projects/${id}/coldp_profiles/${otuId}.json`),
 
-  validateMetadata: (id, params) =>
-    AjaxCall('post', `/projects/${id}/coldp_export_preferences/validate_metadata.json`, params),
+  validateProfile: (id, params) =>
+    AjaxCall('patch', `/projects/${id}/coldp_profiles/validate.json`, params),
+
+  updateSettings: (id, params) =>
+    AjaxCall('patch', `/projects/${id}/coldp_settings.json`, params),
 
   controlledVocabularyStatus: (id) =>
     AjaxCall('get', `/projects/${id}/coldp_export_preferences/controlled_vocabulary_status.json`),

@@ -131,7 +131,7 @@ async function fetchClbMetadata() {
 
 async function validateMetadata() {
   try {
-    const { body } = await ColdpExportPreference.validateMetadata(
+    const { body } = await ColdpExportPreference.validateProfile(
       props.projectId,
       { metadata_yaml: props.metadataYaml }
     )

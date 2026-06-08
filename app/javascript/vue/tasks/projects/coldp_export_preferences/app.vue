@@ -95,6 +95,7 @@ const profiles = ref([])
 const selectedProfileIndex = ref(0)
 const projectToken = ref(null)
 const coldpSettings = ref({})
+const persistedOtuIds = ref(new Set())
 
 const currentProfile = computed(() =>
   profiles.value.length > 0 ? profiles.value[selectedProfileIndex.value] : null
@@ -121,6 +122,7 @@ onBeforeMount(() => {
     .then(({ body }) => {
       profiles.value = body.profiles || []
       coldpSettings.value = body.coldp_settings || {}
+      persistedOtuIds.value = new Set(profiles.value.map(p => p.otu_id))
     })
     .catch(() => {})
     .finally(() => (isLoading.value = false))
@@ -154,10 +156,15 @@ function saveCurrentProfile() {
 
   isLoading.value = true
 
-  ColdpExportPreference.saveProfile(projectId, profile)
+  const request = persistedOtuIds.value.has(profile.otu_id)
+    ? ColdpExportPreference.updateProfile(projectId, profile.otu_id, profile)
+    : ColdpExportPreference.createProfile(projectId, profile)
+
+  request
     .then(({ body }) => {
       profiles.value = body.profiles || []
       coldpSettings.value = body.coldp_settings || {}
+      persistedOtuIds.value = new Set(profiles.value.map(p => p.otu_id))
       // Reselect the same profile by otu_id
       const idx = profiles.value.findIndex(p => p.otu_id === profile.otu_id)
       selectedProfileIndex.value = idx >= 0 ? idx : 0
@@ -185,9 +192,10 @@ function deleteProfile() {
   if (!confirm('Delete this profile? This cannot be undone.')) return
 
   isLoading.value = true
-  ColdpExportPreference.destroyProfile(projectId, { otu_id: profile.otu_id })
+  ColdpExportPreference.destroyProfile(projectId, profile.otu_id)
     .then(({ body }) => {
       profiles.value = body.profiles || []
+      persistedOtuIds.value = new Set(profiles.value.map(p => p.otu_id))
       selectedProfileIndex.value = Math.max(0, selectedProfileIndex.value - 1)
       TW.workbench.alert.create('Profile deleted.', 'notice')
     })

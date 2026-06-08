@@ -12,60 +12,6 @@ class Tasks::Projects::ColdpExportPreferencesController < ApplicationController
     render json: @project.coldp_preferences_for_vue(sessions_current_user)
   end
 
-  def save_profile
-    profile_attrs = params.permit(
-      :otu_id, :checklistbank_dataset_id, :is_public,
-      :default_user_id, :max_age, :metadata_yaml,
-      :maintain_metadata_in_checklistbank, :base_url,
-      :fossil_extinct, :default_lifezone
-    ).to_h
-
-    if @project.save_coldp_profile(profile_attrs)
-      render json: @project.coldp_preferences_for_vue(sessions_current_user)
-    else
-      render json: { error: @project.errors.full_messages.join('; ').presence || 'Failed to save profile' },
-        status: :unprocessable_content
-    end
-  end
-
-  def save_coldp_settings
-    attrs = params.permit(:col_publication_reminder).to_h
-
-    if @project.save_coldp_settings(attrs)
-      render json: @project.coldp_preferences_for_vue(sessions_current_user)
-    else
-      render json: { error: @project.errors.full_messages.join('; ').presence || 'Failed to save settings' },
-        status: :unprocessable_content
-    end
-  end
-
-  def destroy_profile
-    otu_id = params.permit(:otu_id)[:otu_id].to_i
-
-    if @project.destroy_coldp_profile(otu_id)
-      render json: @project.coldp_preferences_for_vue(sessions_current_user)
-    else
-      render json: { error: @project.errors.full_messages.join('; ').presence || 'Failed to destroy profile' },
-        status: :unprocessable_content
-    end
-  end
-
-  def validate_metadata
-    metadata_yaml = params.permit(:metadata_yaml)[:metadata_yaml]
-
-    if metadata_yaml.blank?
-      render json: { errors: [] }
-      return
-    end
-
-    begin
-      YAML.safe_load(metadata_yaml)
-      render json: { errors: [] }
-    rescue Psych::SyntaxError => e
-      render json: { errors: [e.message] }
-    end
-  end
-
   def controlled_vocabulary_status
     render json: ::Export::Coldp.controlled_vocabulary_status(@project)
   end
@@ -85,12 +31,7 @@ class Tasks::Projects::ColdpExportPreferencesController < ApplicationController
 
   def missing_otus_count
     otu_id = params.permit(:otu_id)[:otu_id].to_i
-    otu = Otu.where(project_id: @project.id).find(otu_id)
-    taxon_name = otu.taxon_name
-
-    valid_without = taxon_name.nil? ? 0 : taxon_name.self_and_descendants.that_is_valid.without_otus.count
-
-    render json: { valid_without: valid_without }
+    render json: { valid_without: @project.coldp_missing_otus_count(otu_id) }
   end
 
   def fetch_clb_metadata
@@ -123,13 +64,7 @@ class Tasks::Projects::ColdpExportPreferencesController < ApplicationController
 
   def search_datasets
     query = params.permit(:q)[:q]
-
-    if query.blank?
-      render json: []
-      return
-    end
-
-    render json: Vendor::Colrapi::Dashboard.search_datasets(query)
+    render json: query.blank? ? [] : Vendor::Colrapi::Dashboard.search_datasets(query)
   rescue Colrapi::Error => e
     render_colrapi_error(e)
   end
