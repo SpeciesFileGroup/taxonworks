@@ -13,6 +13,7 @@
       url="/depictions"
       use-custom-dropzone-options
       :dropzone-options="dropzoneConfig"
+      prioritize-paste
     />
 
     <VPagination
