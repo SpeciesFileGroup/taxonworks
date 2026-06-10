@@ -34,6 +34,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - CSD: Sometimes, not all images are created when the user clicks on "Save and New"
 - CSD: Delete buttons in the Determinations list don't work when the panel is locked and the task is reset [#4928]
 - No result for Collecting Events tab of the Collection Summary task for some combinations of parameters
+- Print labels: In some cases, labels are cut off in preview mode. [#4959]
 
 [#4796]: https://github.com/SpeciesFileGroup/taxonworks/issues/4796
 [#4909]: https://github.com/SpeciesFileGroup/taxonworks/issues/4909
@@ -41,6 +42,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4929]: https://github.com/SpeciesFileGroup/taxonworks/issues/4929
 [#4932]: https://github.com/SpeciesFileGroup/taxonworks/issues/4932
 [#4946]: https://github.com/SpeciesFileGroup/taxonworks/issues/4946
+[#4959]: https://github.com/SpeciesFileGroup/taxonworks/issues/4959
 
 ## [0.63.0] - 2026-05-15
 
