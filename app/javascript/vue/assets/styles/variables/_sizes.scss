@@ -14,12 +14,16 @@ $tw-input-sizes: (
   --border-radius-medium: 0.5rem;
   --border-radius-large: 0.75rem;
 
-  --spacing-xsmall: 0.25rem; /* 4px */
-  --spacing-small: 0.5rem; /* 8px */
-  --spacing-medium: 0.75rem; /* 12px */
-  --spacing-default: 1rem; /* 16px */
-  --spacing-large: 1.5rem; /* 24px */
-  --spacing-xlarge: 2rem; /* 32px */
+  --spacing-none: 0;
+  --spacing-xxs: 0.25rem; /* 4px */
+  --spacing-xs: 0.5rem; /* 8px */
+  --spacing-sm: 0.75rem; /* 12px */
+  --spacing-md: 1rem; /* 16px */
+  --spacing-lg: 1.25rem; /* 20px */
+  --spacing-xl: 1.5rem; /* 24px */
+  --spacing-2xl: 2rem; /* 32px */
+  --spacing-3xl: 3rem; /* 48px */
+  --spacing-4xl: 4rem; /* 64px */
 }
 
 @each $key, $value in $tw-input-sizes {
