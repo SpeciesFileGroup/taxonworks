@@ -14,6 +14,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - CSD: Added a button to load the associated CO when the identifier is already in use by another CO
 - Ctrl+v to paste images and documents in "Drop [image/doc] here"
 - New descriptors: character states' thumbnails [#4796]
+- Project usage count for authors in Match Author task of New Source [#4943]
 
 ### Changed
 
@@ -41,6 +42,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4928]: https://github.com/SpeciesFileGroup/taxonworks/issues/4928
 [#4929]: https://github.com/SpeciesFileGroup/taxonworks/issues/4929
 [#4932]: https://github.com/SpeciesFileGroup/taxonworks/issues/4932
+[#4943]: https://github.com/SpeciesFileGroup/taxonworks/issues/4943
 [#4946]: https://github.com/SpeciesFileGroup/taxonworks/issues/4946
 [#4959]: https://github.com/SpeciesFileGroup/taxonworks/issues/4959
 
