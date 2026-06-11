@@ -15,6 +15,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Ctrl+v to paste images and documents in "Drop [image/doc] here"
 - New descriptors: character states' thumbnails [#4796]
 - Project usage count for authors in Match Author task of New Source [#4943]
+- extend[]=descendants option for api/v1/taxon_names/123/monograph endpoint (limited to 2500 results or fewer) [#4860]
 
 ### Changed
 
@@ -41,6 +42,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 [#4796]: https://github.com/SpeciesFileGroup/taxonworks/issues/4796
 [#4909]: https://github.com/SpeciesFileGroup/taxonworks/issues/4909
+[#4860]: https://github.com/SpeciesFileGroup/taxonworks/issues/4860
 [#4928]: https://github.com/SpeciesFileGroup/taxonworks/issues/4928
 [#4929]: https://github.com/SpeciesFileGroup/taxonworks/issues/4929
 [#4932]: https://github.com/SpeciesFileGroup/taxonworks/issues/4932
