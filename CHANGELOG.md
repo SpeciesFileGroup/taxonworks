@@ -16,6 +16,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - New descriptors: character states' thumbnails [#4796]
 - Project usage count for authors in Match Author task of New Source [#4943]
 - extend[]=descendants option for api/v1/taxon_names/123/monograph endpoint (limited to 2500 results or fewer) [#4860]
+- Data Attributes facet to Filter anatomical parts, contents, descriptors, extracts, loans, and sounds tasks [#4940]
 
 ### Changed
 
@@ -46,6 +47,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4928]: https://github.com/SpeciesFileGroup/taxonworks/issues/4928
 [#4929]: https://github.com/SpeciesFileGroup/taxonworks/issues/4929
 [#4932]: https://github.com/SpeciesFileGroup/taxonworks/issues/4932
+[#4940]: https://github.com/SpeciesFileGroup/taxonworks/issues/4940
 [#4943]: https://github.com/SpeciesFileGroup/taxonworks/issues/4943
 [#4946]: https://github.com/SpeciesFileGroup/taxonworks/issues/4946
 [#4958]: https://github.com/SpeciesFileGroup/taxonworks/issues/4958

@@ -4,6 +4,7 @@ module Queries
       ATTRIBUTES = ::Loan.core_attributes.map(&:to_sym).freeze
 
       include Queries::Concerns::Attributes
+      include Queries::Concerns::DataAttributes
       include Queries::Concerns::Notes
       include Queries::Concerns::Tags
       include Queries::Helpers
@@ -149,6 +150,7 @@ module Queries
         @gift = boolean_param(params, :gift)
 
         set_attributes_params(params)
+        set_data_attributes_params(params)
         set_notes_params(params)
         set_tags_params(params)
       end

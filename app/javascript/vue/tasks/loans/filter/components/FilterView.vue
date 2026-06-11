@@ -44,6 +44,7 @@
     param="date_closed"
     v-model="params"
   />
+  <FacetDataAttribute v-model="params" />
   <FacetUsers v-model="params" />
   <FacetNotes v-model="params" />
   <FacetWith
@@ -76,6 +77,7 @@ import FacetDateRange from '@/components/Filter/Facets/shared/FacetDateRange.vue
 import FacetLoanItemStatus from './Facet/FacetLoanItemStatus.vue'
 import FacetOtu from '@/components/Filter/Facets/Otu/FacetOtu.vue'
 import FacetPerson from './Facet/FacetPerson.vue'
+import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute/FacetDataAttribute.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 
 const WITH_PARAMS = [

@@ -19,6 +19,7 @@
     v-model="params"
   />
   <FacetNotes v-model="params" />
+  <FacetDataAttribute v-model="params" />
   <FacetUsers v-model="params" />
   <FacetWith
     v-for="param in WITH_PARAMS"
@@ -41,6 +42,7 @@ import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetSoundName from '@/components/Filter/Facets/shared/FacetText.vue'
 import FacetConveyanceObjectType from '@/components/Filter/Facets/Conveyance/FacetConveyanceObjectType.vue'
 import FacetCollectingEvent from '@/tasks/biological_associations/filter/components/Facet/FacetCollectingEvent.vue'
+import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute/FacetDataAttribute.vue'
 import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
 
 const props = defineProps({
