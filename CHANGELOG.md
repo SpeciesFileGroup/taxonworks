@@ -37,6 +37,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - CSD: Delete buttons in the Determinations list don't work when the panel is locked and the task is reset [#4928]
 - No result for Collecting Events tab of the Collection Summary task for some combinations of parameters
 - Print labels: In some cases, labels are cut off in preview mode. [#4959]
+- alt+h and alt+? not working outside of text inputs
 
 [#4796]: https://github.com/SpeciesFileGroup/taxonworks/issues/4796
 [#4909]: https://github.com/SpeciesFileGroup/taxonworks/issues/4909

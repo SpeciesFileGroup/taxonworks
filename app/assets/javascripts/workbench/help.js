@@ -17,7 +17,6 @@ Object.assign(TW.workbench.help, {
   _bubbles: [],
   _repositionHandler: null,
   _repositionRafId: null,
-  _mousetrapBound: false,
 
   init() {
     const helpAttributes = document.querySelectorAll('[data-help]')
@@ -33,13 +32,6 @@ Object.assign(TW.workbench.help, {
 
     if (helpAttributes.length) {
       this.glowHelpButton()
-    }
-
-    if (!this._mousetrapBound) {
-      Mousetrap.bind('alt+shift+/', () => {
-        this.toggleHelp()
-      })
-      this._mousetrapBound = true
     }
 
     this.handleEvents()
