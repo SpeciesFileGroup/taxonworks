@@ -748,8 +748,24 @@ module Queries
       # @return Scope
       def type_metadata_facet
         return nil if type_metadata.nil?
-        subquery = ::TypeMaterial.where(::TypeMaterial.arel_table[:protonym_id].eq(::TaxonName.arel_table[:id])).arel.exists
-        ::TaxonName.where(type_metadata ? subquery : subquery.not)
+
+        # Species type information is stored in TypeMaterial
+        type_material_exists = ::TypeMaterial
+          .where(::TypeMaterial.arel_table[:protonym_id].eq(::TaxonName.arel_table[:id]))
+          .arel.exists
+
+        # Genus type species and family type genus are stored as Typification relationships
+        # where the taxon name is the object (the name that has the type designation)
+        typification_rel_exists = ::TaxonNameRelationship
+          .where(::TaxonNameRelationship.arel_table[:object_taxon_name_id].eq(::TaxonName.arel_table[:id]))
+          .where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
+          .arel.exists
+
+        if type_metadata
+          ::TaxonName.where(type_material_exists.or(typification_rel_exists))
+        else
+          ::TaxonName.where(type_material_exists.not.and(typification_rel_exists.not))
+        end
       end
 
       # @return Scope

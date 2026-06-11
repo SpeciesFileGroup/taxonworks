@@ -21,6 +21,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Use floating-ui instead of native button tooltips to improve how button information is displayed. [#4946]
 - Dropped support for legacy MS Excel format (xls, not xlsx) in DwC importer
 - New Taxon Name: The source section is now disabled while a taxon name is being saved. [#4909]
+- The With/Without Type Information facet in Filter Taxon Names now returns higher ranks with/without a type [#4958]
 
 ### Fixed
 
@@ -44,6 +45,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4932]: https://github.com/SpeciesFileGroup/taxonworks/issues/4932
 [#4943]: https://github.com/SpeciesFileGroup/taxonworks/issues/4943
 [#4946]: https://github.com/SpeciesFileGroup/taxonworks/issues/4946
+[#4958]: https://github.com/SpeciesFileGroup/taxonworks/issues/4958
 [#4959]: https://github.com/SpeciesFileGroup/taxonworks/issues/4959
 
 ## [0.63.0] - 2026-05-15

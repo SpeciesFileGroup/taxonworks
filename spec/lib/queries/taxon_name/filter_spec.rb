@@ -296,6 +296,44 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     expect(query.all.map(&:id)).to contain_exactly(root.id, genus.id, original_genus.id)
   end
 
+  specify '#type_metadata 5 - genus with type species' do
+    TaxonNameRelationship::Typification::Genus.create!(
+      subject_taxon_name: species,
+      object_taxon_name: genus
+    )
+    query.type_metadata = true
+    expect(query.all.map(&:id)).to contain_exactly(genus.id)
+  end
+
+  specify '#type_metadata 6 - genus without type species' do
+    TaxonNameRelationship::Typification::Genus.create!(
+      subject_taxon_name: species,
+      object_taxon_name: genus
+    )
+    query.type_metadata = false
+    expect(query.all.map(&:id)).to contain_exactly(root.id, original_genus.id, species.id)
+  end
+
+  specify '#type_metadata 7 - family with type genus' do
+    family = Protonym.create!(name: 'Erasmoneuridae', rank_class: Ranks.lookup(:iczn, 'family'), parent: root)
+    TaxonNameRelationship::Typification::Family.create!(
+      subject_taxon_name: genus,
+      object_taxon_name: family
+    )
+    query.type_metadata = true
+    expect(query.all.map(&:id)).to contain_exactly(family.id)
+  end
+
+  specify '#type_metadata 8 - family without type genus' do
+    family = Protonym.create!(name: 'Erasmoneuridae', rank_class: Ranks.lookup(:iczn, 'family'), parent: root)
+    TaxonNameRelationship::Typification::Family.create!(
+      subject_taxon_name: genus,
+      object_taxon_name: family
+    )
+    query.type_metadata = false
+    expect(query.all.map(&:id)).to contain_exactly(root.id, original_genus.id, species.id, genus.id)
+  end
+
   specify '#taxon_name_classification[]' do
     TaxonNameClassification::Iczn::Available.create!(taxon_name: genus)
     query.taxon_name_classification = ['TaxonNameClassification::Iczn::Available']
