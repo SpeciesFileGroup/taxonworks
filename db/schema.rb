@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_12_104248) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_12_182026) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1394,6 +1394,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_12_104248) do
     t.integer "created_by_id", null: false
     t.text "description"
     t.boolean "is_public"
+    t.boolean "is_virtual"
     t.text "link_out"
     t.string "link_out_text"
     t.bigint "observation_matrix_id"

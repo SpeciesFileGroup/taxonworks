@@ -8,6 +8,29 @@ RSpec.describe Lead, type: :model do
 
   let(:lead) { FactoryBot.create(:valid_lead) }
 
+  specify '#is_virtual true means text is not required' do
+    l = Lead.new(
+      parent: lead,
+      text: nil,
+      is_virtual: true,
+      otu: FactoryBot.create(:valid_otu)
+    )
+    expect(l.valid?).to be_truthy
+  end
+
+  specify '#is_virtual and many OTUs on lead' do
+    %w{A B C D E}.each do |n|
+      l = Lead.create!(
+        parent: lead,
+        text: nil,
+        is_virtual: true,
+        otu: FactoryBot.create(:valid_otu, name: n)
+      )
+    end
+
+    expect(lead.reload.children.size).to eq(5)
+  end
+
   specify '#destroy_children destroys when one child' do
     FactoryBot.create(:valid_lead, parent: lead)
     lead.reload.destroy_children

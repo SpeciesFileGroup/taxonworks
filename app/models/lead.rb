@@ -84,7 +84,9 @@ class Lead < ApplicationRecord
   validate :node_parent_doesnt_have_redirect
   validate :root_has_no_redirect
   validate :redirect_isnt_ancestor_or_self
+  
   validates :text, uniqueness: { scope: [:otu_id, :parent_id], unless: -> { otu_id.nil? } }
+  validates :text, presence: true, unless: -> { is_virtual || parent_id.nil? } 
 
   def future
     redirect_id.blank? ? all_children : redirect.all_children
