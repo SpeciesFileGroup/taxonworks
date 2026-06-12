@@ -1,0 +1,11 @@
+<%#
+  Sub-navigation / breadcrumb shared across Administration subpages.
+  Pass `section:` with the current section label.
+%>
+<nav class="administration-nav">
+  <div class="breadcrumb">
+    <%= link_to 'Administration', administration_path %>
+    <span class="separator" data-icon="arrowRight" aria-hidden="true"></span>
+    <span class="current"><%= section %></span>
+  </div>
+</nav>

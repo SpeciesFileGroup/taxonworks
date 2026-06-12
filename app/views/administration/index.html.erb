@@ -1,81 +1,324 @@
-<h1>Administration</h1>
+<div id="administration">
+  <div class="container-xl mx-auto">
+    <header class="administration-header">
+      <div class="administration-avatar">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+      </div>
+      <div class="administration-titles">
+        <h1>Administration</h1>
+        <p class="administration-subtitle">Manage projects, users, and system data</p>
+      </div>
+    </header>
 
-<div class="flexbox panels-container">
-  <div class="item panel separate-left separate-right">
-    <div class="title nav-line">
-      <div><span data-icon="folders"></span><span>Projects</span></div>
+    <div class="kpi-hero">
+      <%= link_to list_projects_path, class: 'kpi-card' do -%>
+        <span class="kpi-value"><%= number_with_delimiter(@project_count) -%></span>
+        <span class="kpi-label">Projects</span>
+        <span class="kpi-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z"></path>
+          </svg>
+        </span>
+      <% end -%>
+
+      <%= link_to users_path, class: 'kpi-card' do -%>
+        <span class="kpi-value"><%= number_with_delimiter(@user_count) -%></span>
+        <span class="kpi-label">Users</span>
+        <span class="kpi-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </span>
+      <% end -%>
+
+      <%= link_to user_activity_path, class: 'kpi-card', data: { turbolinks: false } do -%>
+        <span class="kpi-value"><%= number_with_delimiter(@users_active_today) -%></span>
+        <span class="kpi-label">Active today</span>
+        <span class="kpi-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+          </svg>
+        </span>
+      <% end -%>
     </div>
 
-    <nav class="content">
-      <em> To add a project member view that project. </em>
+    <div class="panel-grid">
+      <div class="tw-card">
+        <div class="tw-card-header">
+          <span class="card-icon-chip">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z"></path>
+            </svg>
+          </span>
+          <h2 class="tw-card-title">Projects</h2>
+        </div>
+        <div class="tw-card-body">
+          <ul class="action-list no_bullets">
+            <li>
+              <%= link_to new_project_path, class: 'action-item' do -%>
+                <span class="action-title">New</span>
+                <span class="action-desc">Create a project</span>
+              <% end -%>
+            </li>
+            <li>
+              <%= link_to list_projects_path, class: 'action-item' do -%>
+                <span class="action-title">List</span>
+                <span class="action-desc">Browse all projects</span>
+              <% end -%>
+            </li>
+          </ul>
+        </div>
+      </div>
 
-      <ul class="no_bullets list list-arrow">
-        <%= content_tag(:li, link_to("New", new_project_path)) -%>
-        <%= content_tag(:li, link_to("Projects overview", projects_path)) -%>
-      </ul>
-    </nav>
-  </div>
+      <div class="tw-card">
+        <div class="tw-card-header">
+          <span class="card-icon-chip">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </span>
+          <h2 class="tw-card-title">Users</h2>
+        </div>
+        <div class="tw-card-body">
+          <ul class="action-list no_bullets">
+            <li>
+              <%= link_to signup_path, class: 'action-item' do -%>
+                <span class="action-title">New</span>
+                <span class="action-desc">Add a single user</span>
+              <% end -%>
+            </li>
+            <li>
+              <%= link_to batch_add_users_task_path, class: 'action-item', data: { turbolinks: false } do -%>
+                <span class="action-title">Batch add new</span>
+                <span class="action-desc">Add many users at once</span>
+              <% end -%>
+            </li>
+            <li>
+              <%= link_to users_path, class: 'action-item' do -%>
+                <span class="action-title">List</span>
+                <span class="action-desc">Browse all users</span>
+              <% end -%>
+            </li>
+            <li>
+              <%= link_to user_activity_path, class: 'action-item', data: { turbolinks: false } do -%>
+                <span class="action-title">Activity</span>
+                <span class="action-desc">Logins and active time</span>
+              <% end -%>
+            </li>
+          </ul>
+        </div>
+      </div>
 
-  <div class="item panel separate-left separate-right">
-    <div class="title nav-line">
-      <div><span data-icon="users"></span><span>Users</span></div>
-    </div>
+      <div class="panel-stack">
+        <div class="tw-card">
+          <div class="tw-card-header">
+            <span class="card-icon-chip">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+            </span>
+            <h2 class="tw-card-title">Communication</h2>
+          </div>
+          <div class="tw-card-body">
+            <ul class="action-list no_bullets">
+              <li>
+                <%= link_to new_news_task_path, class: 'action-item' do -%>
+                  <span class="action-title">New News</span>
+                  <span class="action-desc">Post a news item</span>
+                <% end -%>
+              </li>
+            </ul>
+          </div>
+        </div>
 
-    <div class="content">
-      <ul class="no_bullets list list-arrow">
-        <li>
-          <%= content_tag(:span, '', data: { icon: "new" }) %>
-          <%= link_to("New", signup_path) %>
-        </li>
+        <div class="tw-card maintenance">
+          <div class="tw-card-header">
+            <span class="card-icon-chip">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+              </svg>
+            </span>
+            <h2 class="tw-card-title">Maintenance</h2>
+          </div>
+          <div class="tw-card-body">
+            <ul class="action-list no_bullets">
+              <li>
+                <%= link_to data_reindex_path, class: 'action-item', data: { turbolinks: false } do -%>
+                  <span class="action-title">Reindex</span>
+                  <span class="action-desc">Rebuild search indexes</span>
+                <% end -%>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
 
-        <li>
-          <%= content_tag(:span, '', data: { icon: "new" }) %>
-          <%= link_to("Batch add new", batch_add_users_task_path, data: { turbolinks: false }) %>
-        </li>
+      <div class="tw-card">
+        <div class="tw-card-header">
+          <span class="card-icon-chip">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m5.231 13.481L15 17.25m-4.5-15H5.625c-.621 0-1.125.504-1.125 1.125v16.5c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Zm3.75 11.625a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/>
+            </svg>
+          </span>
+          <h2 class="tw-card-title">Data</h2>
+        </div>
+        <div class="tw-card-body">
+          <ul class="action-list no_bullets">
+            <li>
+              <%= link_to data_overview_path, class: 'action-item', data: { turbolinks: false } do -%>
+                <span class="action-title">Overview</span>
+                <span class="action-desc">Records by type over time</span>
+              <% end -%>
+            </li>
+            <li>
+              <%= link_to administrator_year_in_review_task_path, class: 'action-item', data: { turbolinks: false } do -%>
+                <span class="action-title">Year in review</span>
+                <span class="action-desc">Annual data summary</span>
+              <% end -%>
+            </li>
+            <li>
+              <%= link_to project_classification_task_path, class: 'action-item', data: { turbolinks: false } do -%>
+                <span class="action-title">Project classification</span>
+                <span class="action-desc">Classification coverage</span>
+              <% end -%>
+            </li>
+            <li>
+              <%= link_to administration_data_health_task_path, class: 'action-item', data: { turbolinks: false } do -%>
+                <span class="action-title">Health</span>
+                <span class="action-desc">Integrity checks and queues</span>
+              <% end -%>
+            </li>
+            <li>
+              <%= link_to cached_maps_status_path, class: 'action-item', data: { turbolinks: false } do -%>
+                <span class="action-title">Cached Map Status</span>
+                <span class="action-desc">Distribution map cache</span>
+              <% end -%>
+            </li>
+          </ul>
+        </div>
+      </div>
 
-        <li>
-          <%= content_tag(:span, '', data: { icon: "list" }) %>
-          <%= link_to("List", users_path) %>
-        </li>
+      
 
-        <li>
-          <%= content_tag(:span, '', data: { icon: "list" }) %>
-          <%= link_to("Activity", user_activity_path, data: { turbolinks: false }) %>
-        </li>
-      </ul>
-    </div>
-  </div>
+      <div class="tw-card">
+        <div class="tw-card-header">
+          <span class="card-icon-chip">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+            </svg>
+          </span>
+          <h2 class="tw-card-title">Recent activity</h2>
+        </div>
+        <div class="tw-card-body">
+          <div class="activity-block">
+            <span class="activity-heading">New users</span>
+            <ul class="activity-list no_bullets">
+              <% @recent_users.each do |user| -%>
+                <li class="activity-item">
+                  <span class="activity-name"><%= user_link(user) -%></span>
+                  <span class="activity-time"><%= time_ago_in_words(user.created_at) -%> ago</span>
+                </li>
+              <% end -%>
+            </ul>
+          </div>
 
-  <div class="item panel separate-left separate-right">
-    <div class="title nav-line">
-      <div><span data-icon="users"></span><span>Communication</span></div>
-    </div>
+          <div class="activity-block">
+            <span class="activity-heading">Recently seen</span>
+            <ul class="activity-list no_bullets">
+              <% if @recently_seen_users.any? -%>
+                <% @recently_seen_users.each do |user| -%>
+                  <li class="activity-item">
+                    <span class="activity-name"><%= user_link(user) -%></span>
+                    <span class="activity-time"><%= time_ago_in_words(user.last_seen_at) -%> ago</span>
+                  </li>
+                <% end -%>
+              <% else -%>
+                <li class="activity-item"><em class="activity-empty">No recent activity.</em></li>
+              <% end -%>
+            </ul>
+          </div>
+        </div>
+      </div>
 
-    <div class="content">
-      <ul class="no_bullets list list-arrow">
-        <li>
-          <%= content_tag(:span, '', data: { icon: "new" }) %>
-          <%= link_to("New News", new_news_task_path) %>
-        </li>
-      </ul>
-    </div>
-  </div>
+<div class="tw-card">
+        <div class="tw-card-header">
+          <span class="card-icon-chip">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"/>
+            </svg>
+          </span>
+          <h2 class="tw-card-title">System overview</h2>
+        </div>
+        <div class="tw-card-body">
+          <div class="info-list">
+            <% if taxonworks_version_tag.present? -%>
+              <div class="info-list-item">
+                <span class="info-list-label">Version</span>
+                <span class="info-list-value"><%= taxonworks_version_tag -%></span>
+              </div>
+            <% end -%>
 
-  <div class="item panel separate-left separate-right">
-    <div class="title nav-line">
-      <div><span data-icon="openFolder"></span><span>Data</span></div>
-    </div>
+            <div class="info-list-item">
+              <span class="info-list-label">Environment</span>
+              <span class="badge badge-<%= current_environment -%>"><%= current_environment -%></span>
+            </div>
 
-    <div class="content">
-      <ul class="no_bullets list list-arrow">
-        <%= content_tag(:li, link_to("Overview", data_overview_path, data: { turbolinks: false })) -%>
-        <%= content_tag(:li, link_to("Year in review", administrator_year_in_review_task_path, data: { turbolinks: false })) -%>
-        <%= content_tag(:li, link_to("Project classification", project_classification_task_path, data: { turbolinks: false })) -%>
-        <%= content_tag(:li, link_to("Health", administration_data_health_task_path, data: { turbolinks: false })) -%>
-        <%= content_tag(:li, link_to("Cached Map Status", cached_maps_status_path, data: { turbolinks: false })) -%>
+            <% if Settings.sandbox_mode? -%>
+              <div class="info-list-item">
+                <span class="info-list-label">Sandbox</span>
+                <span class="info-list-value status-pill warn"><%= sandbox_warning_tag -%></span>
+              </div>
+            <% end -%>
 
-        <%= content_tag(:li, link_to("Reindex", data_reindex_path, data: { turbolinks: false })) -%>
-      </ul>
+            <div class="info-list-item">
+              <span class="info-list-label">Server time</span>
+              <span class="info-list-value"><%= @server_time.strftime('%Y-%m-%d %H:%M %Z') -%></span>
+            </div>
+
+            <div class="info-list-item">
+              <span class="info-list-label">Cached maps</span>
+              <span class="info-list-value"><%= number_with_delimiter(@cached_map_count) -%></span>
+            </div>
+
+            <div class="info-list-item">
+              <span class="info-list-label">Jobs queued</span>
+              <span class="info-list-value"><%= number_with_delimiter(@queued_jobs_count) -%></span>
+            </div>
+
+            <% if @running_jobs_count.positive? -%>
+              <div class="info-list-item">
+                <span class="info-list-label">Jobs running</span>
+                <span class="status-pill active"><%= number_with_delimiter(@running_jobs_count) -%></span>
+              </div>
+            <% end -%>
+
+            <div class="info-list-item">
+              <span class="info-list-label">Jobs failed</span>
+              <% if @failed_jobs_count.zero? -%>
+                <span class="status-pill ok">0</span>
+              <% else -%>
+                <span class="status-pill warn"><%= number_with_delimiter(@failed_jobs_count) -%></span>
+              <% end -%>
+            </div>
+
+            <% if @last_job_failure_at.present? -%>
+              <div class="info-list-item">
+                <span class="info-list-label">Last failure</span>
+                <span class="info-list-value"><%= time_ago_in_words(@last_job_failure_at) -%> ago</span>
+              </div>
+            <% end -%>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

@@ -3,7 +3,6 @@
   border-radius: var(--border-radius-medium);
   box-shadow: var(--panel-shadow);
   overflow: hidden;
-  margin-bottom: var(--spacing-md);
 }
 
 .tw-card-header {
@@ -26,6 +25,23 @@
   margin: 0;
   font-size: var(--font-size-base);
   font-weight: 600;
+
+  svg {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+}
+
+.card-icon-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--border-radius-small);
+  background-color: var(--color-soft-primary-bg, var(--bg-muted));
+  color: var(--color-primary);
 
   svg {
     width: 1.125rem;
@@ -77,10 +93,13 @@
 
 .token-input {
   flex: 1;
+  display: flex;
+  align-items: center;
+  height: var(--size-medium);
   background-color: var(--bg-color);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-medium);
-  padding: var(--spacing-xs) var(--spacing-md);
+  padding: 0 var(--spacing-md);
   color: var(--text-color);
   font-family: monospace;
   font-size: var(--font-size-sm);
@@ -90,8 +109,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: var(--size-medium);
+  height: var(--size-medium);
   padding: var(--spacing-xs);
   background-color: var(--color-primary);
   border: 1px solid var(--color-primary);
@@ -99,6 +118,10 @@
   color: var(--color-on-primary);
   cursor: pointer;
   transition: background-color 0.2s;
+
+  &:hover {
+    opacity: 0.8;
+  }
 }
 
 .token-warning {
@@ -111,7 +134,13 @@
   border: 1px solid var(--color-soft-warning-border);
   border-radius: var(--border-radius-medium);
   color: var(--color-warning);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
+
+  svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
 }
 
 .code-block {

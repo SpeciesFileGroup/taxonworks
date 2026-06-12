@@ -5,6 +5,17 @@ class AdministrationController < ApplicationController
   before_action :require_administrator_sign_in
 
   def index
+    @project_count = Project.count
+    @user_count = User.count
+    @users_active_today = User.where('last_seen_at > ?', 1.day.ago).count
+    @cached_map_count = CachedMap.count
+    @queued_jobs_count = Delayed::Job.where(locked_at: nil, failed_at: nil).count
+    @running_jobs_count = Delayed::Job.where.not(locked_at: nil).where(failed_at: nil).count
+    @failed_jobs_count = Delayed::Job.where.not(failed_at: nil).count
+    @last_job_failure_at = Delayed::Job.where.not(failed_at: nil).maximum(:failed_at)
+    @server_time = Time.current
+    @recent_users = User.order(created_at: :desc).limit(5)
+    @recently_seen_users = User.where.not(last_seen_at: nil).order(last_seen_at: :desc).limit(5)
   end
 
   def news

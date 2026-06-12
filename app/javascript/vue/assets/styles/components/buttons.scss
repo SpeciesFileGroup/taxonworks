@@ -5,6 +5,9 @@
   text-align: center;
   white-space: nowrap;
   vertical-align: middle;
+  // Links (.btn-link, rendered as <a>) inherit the page font-size instead of
+  // the global button { font-size } rule; set it here so buttons and links match.
+  font-size: var(--font-size-xs);
   padding-left: 0.9em;
   padding-right: 0.9em;
 }
@@ -17,6 +20,8 @@ a.btn:hover {
   @extend .btn;
   display: flex;
   align-items: center;
+  // flex collapses the markup whitespace between icon and text, so add a gap
+  gap: var(--spacing-xxs);
 }
 
 @each $key, $value in $tw-input-sizes {

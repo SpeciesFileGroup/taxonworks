@@ -1,5 +1,5 @@
 <div id="user-profile">
-  <div class="container">
+  <div class="container-xl mx-auto">
     <div class="profile-header">
       <div class="profile-info">
         <%= user_avatar(@user) -%>
@@ -14,7 +14,7 @@
         </div>
       </div>
 
-      <%= link_to edit_user_path(@user), class: "button btn btn-primary edit-btn" do %>
+      <%= link_to edit_user_path(@user), class: "button btn-primary btn-link btn-medium-size edit-btn" do %>
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
           <path d="m15 5 4 4"/>
@@ -25,61 +25,55 @@
 
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-header">
-          <div class="stat-icon blue">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            </svg>
-          </div>
-          <span class="stat-label">Role</span>
-        </div>
-        <div class="stat-value"><%= @user.is_administrator? ? 'Administrator' : 'User' -%></div>
+        <span class="stat-value"><%= @user.is_administrator? ? 'Administrator' : 'User' -%></span>
+        <span class="stat-label">Role</span>
+        <span class="stat-watermark">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </span>
       </div>
 
       <div class="stat-card">
-        <div class="stat-header">
-          <div class="stat-icon blue">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-            </svg>
-          </div>
-          <span class="stat-label">Time active</span>
-        </div>
-        <div class="stat-value"><%= user_time_active(@user) -%></div>
+        <span class="stat-value"><%= user_time_active(@user) -%></span>
+        <span class="stat-label">Time active</span>
+        <span class="stat-watermark">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </span>
       </div>
+
       <div class="stat-card">
-        <div class="stat-header">
-          <div class="stat-icon blue">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>
-            </svg>
-          </div>
-          <span class="stat-label">Sign in count</span>
-        </div>
-        <div class="stat-value"><%= @user.sign_in_count -%></div>
+        <span class="stat-value"><%= @user.sign_in_count -%></span>
+        <span class="stat-label">Sign in count</span>
+        <span class="stat-watermark">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>
+          </svg>
+        </span>
       </div>
+
       <div class="stat-card">
-        <div class="stat-header">
-          <div class="stat-icon blue">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-            </svg>
-          </div>
-          <span class="stat-label">Member since</span>
-        </div>
-        <div class="stat-value"><%= @user.created_at.strftime("%Y-%m-%d") -%></div>
+        <span class="stat-value"><%= @user.created_at.strftime("%Y-%m-%d") -%></span>
+        <span class="stat-label">Member since</span>
+        <span class="stat-watermark">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+        </span>
       </div>
     </div>
 
     <div class="profile-grid">
       <div class="tw-card">
         <div class="tw-card-header">
-          <h2 class="tw-card-title">
+          <span class="card-icon-chip">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
             </svg>
-            User Profile
-          </h2>
+          </span>
+          <h2 class="tw-card-title">User Profile</h2>
         </div>
         <div class="tw-card-body">
           <div class="info-grid">
@@ -117,12 +111,12 @@
 
       <div class="tw-card">
         <div class="tw-card-header">
-          <h2 class="tw-card-title">
+          <span class="card-icon-chip">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
             </svg>
-            Session History
-          </h2>
+          </span>
+          <h2 class="tw-card-title">Session History</h2>
         </div>
         <div class="tw-card-body">
           <div class="session-item current">
@@ -132,7 +126,7 @@
             </div>
             <div class="session-right">
               <div class="session-date"><%= @user.current_sign_in_at.strftime("%B %d, %Y at %I:%M %p") if @user.current_sign_in_at %></div>
-              <div class="session-ip">IP: ::1</div>
+              <div class="session-ip">IP: <%= @user.current_sign_in_ip %></div>
             </div>
           </div>
           <div class="session-item previous">
@@ -142,7 +136,7 @@
             </div>
             <div class="session-right">
               <div class="session-date"><%= @user.last_sign_in_at.strftime("%B %d, %Y at %I:%M %p") if @user.last_sign_in_at %></div>
-              <div class="session-ip">IP: ::1</div>
+              <div class="session-ip">IP: <%= @user.last_sign_in_ip %></div>
             </div>
           </div>
         </div>
@@ -152,22 +146,22 @@
   <% if @user.api_access_token %>
     <div class="tw-card">
       <div class="tw-card-header">
-        <h2 class="tw-card-title">
+        <span class="card-icon-chip">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
           </svg>
-          API Access Token
-        </h2>
+        </span>
+        <h2 class="tw-card-title">API Access Token</h2>
       </div>
       <div class="tw-card-body">
         <div class="token-container">
           <input type="password" class="token-input" value="<%= @user.api_access_token %>" readonly id="tokenInput">
-          <button class="button token-btn" id="toggle-token-btn" title="Show/Hide">
+          <button class="token-btn" id="toggle-token-btn" title="Show/Hide">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
             </svg>
           </button>
-          <button class="button token-btn" id="copy-token-btn" title="Copy to clipboard">
+          <button class="token-btn" id="copy-token-btn" title="Copy to clipboard">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
             </svg>
@@ -186,12 +180,12 @@
 
  <div class="tw-card">
       <div class="tw-card-header">
-        <h2 class="tw-card-title">
+        <span class="card-icon-chip">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" />
           </svg>
-          Preferences
-        </h2>
+        </span>
+        <h2 class="tw-card-title">Preferences</h2>
       </div>
       <div class="tw-card-body">
         <div class="preferences-grid">
@@ -234,12 +228,14 @@
     <% if sessions_current_user.is_administrator? %>
       <div class="admin-card">
         <div class="tw-card-header flex-row flex-separate">
-          <h2 class="tw-card-title">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            </svg>
-            Administration
-          </h2>
+          <div class="middle gap-small">
+            <span class="card-icon-chip">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </span>
+            <h2 class="tw-card-title">Administration</h2>
+          </div>
           <span class="admin-badge">Not visible to user</span>
         </div>
         <div class="tw-card-body">

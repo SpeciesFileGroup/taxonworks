@@ -1,15 +1,15 @@
 #project-profile,
 #project-members-new,
 #project-new {
-  max-width: 1480px;
-  min-width: 1280px;
-  margin: 2rem auto;
+  max-width: var(--container-xl);
+  margin: 0 auto;
+  padding: var(--spacing-md) 0;
 
   .project-header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    margin-bottom: 32px;
+    margin-bottom: var(--spacing-lg);
   }
 
   .project-info {
@@ -27,21 +27,16 @@
   }
 
   .project-avatar {
-    width: 80px;
-    height: 80px;
+    width: 56px;
+    height: 56px;
     background: var(--color-primary);
     border-radius: 25%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.75rem;
+    font-size: 1.25rem;
     font-weight: 600;
     color: white;
-  }
-
-  .card-icon {
-    width: 1.125rem;
-    height: 1.125rem;
   }
 
   .project-title {
@@ -94,11 +89,13 @@
   .left-column {
     display: flex;
     flex-direction: column;
+    gap: var(--spacing-md);
   }
 
   .right-column {
     display: flex;
     flex-direction: column;
+    gap: var(--spacing-md);
   }
 
   .card-header-members {
@@ -130,7 +127,8 @@
   }
 
   #input-search {
-    padding: 0.5rem 1rem;
+    height: var(--size-medium);
+    padding: 0 0.75rem;
     font-size: 0.75rem;
     border-radius: var(--border-radius-medium);
   }

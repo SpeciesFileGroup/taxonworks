@@ -1,0 +1,380 @@
+// Styles for the server-rendered Administration views
+// (app/views/administration/*). Scoped under #administration so they
+// never leak into other server-rendered pages. Mirrors the modern
+// dashboard card patterns (see views/dashboard/dashboard.scss).
+#administration {
+  padding: var(--spacing-md) 0;
+
+  // Page header mirrors the users/projects pattern: avatar + title + subtitle.
+  .administration-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .administration-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    border-radius: 25%;
+    background-color: var(--color-primary);
+    color: white;
+
+    svg {
+      width: 28px;
+      height: 28px;
+    }
+  }
+
+  .administration-titles h1 {
+    margin: 0;
+  }
+
+  .administration-subtitle {
+    margin: var(--spacing-xxs) 0 0;
+    font-size: var(--font-size-sm);
+    color: var(--text-muted-color);
+  }
+
+  // Environment badge (mirrors the dashboard badge, scoped here).
+  .badge {
+    padding: var(--spacing-xxs) var(--spacing-sm);
+    border-radius: 9999px;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    text-transform: capitalize;
+    background-color: var(--bg-muted);
+    color: var(--text-muted-color);
+  }
+
+  .badge-development {
+    background-color: var(--badge-yellow-bg);
+    color: var(--badge-yellow-color);
+  }
+
+  .badge-production {
+    background-color: var(--badge-green-bg);
+    color: var(--badge-green-color);
+  }
+
+  // --- Sub navigation / breadcrumb -----------------------------------------
+  .administration-nav {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    font-size: var(--font-size-sm);
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-xxs);
+      color: var(--text-muted-color);
+
+      a {
+        text-decoration: none;
+      }
+
+      .separator {
+        color: var(--text-muted-color);
+      }
+
+      .current {
+        color: var(--text-color);
+        font-weight: 600;
+      }
+    }
+  }
+
+  // --- KPI hero: the at-a-glance metrics are the page's focal point --------
+  .kpi-hero {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+  }
+
+  .kpi-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xxs);
+    padding: var(--spacing-lg);
+    overflow: hidden;
+    background-color: var(--bg-foreground);
+    border-radius: var(--border-radius-medium);
+    box-shadow: var(--panel-shadow);
+    color: var(--text-color);
+    text-decoration: none;
+    transition: box-shadow 0.15s, transform 0.15s;
+
+    &:hover {
+      box-shadow: var(--panel-shadow-hover, 0 4px 12px rgba(0, 0, 0, 0.12));
+      transform: translateY(-1px);
+    }
+  }
+
+  // Deliberately large: the metric is the hero (compact density still applies
+  // to every other control on the page).
+  .kpi-value {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .kpi-label {
+    font-size: var(--font-size-xs);
+    color: var(--text-muted-color);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  // Faint primary watermark in the corner — character without clutter.
+  .kpi-icon {
+    position: absolute;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+    color: var(--color-primary);
+    opacity: 0.3;
+
+    svg {
+      width: 2rem;
+      height: 2rem;
+    }
+  }
+
+  // --- Panel grid: every cell (hubs + the comm/maintenance stack + status +
+  //     activity) shares one grid so rows stay aligned. Six cells fill three
+  //     columns evenly. Cards stretch to the row height (default align-items:
+  //     stretch) so there is no empty space below them.
+  .panel-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: var(--spacing-md);
+  }
+
+  @media (min-width: 600px) {
+    .panel-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .panel-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  // Two short cards (Communication + Maintenance) share one grid cell and split
+  // its height between them, keeping the grid balanced at six cells.
+  .panel-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+
+    > .tw-card {
+      flex: 1;
+    }
+  }
+
+  // Cards fill the height the grid hands them; the body grows to take the slack.
+  .panel-grid > .tw-card,
+  .panel-stack > .tw-card {
+    display: flex;
+    flex-direction: column;
+
+    .tw-card-body {
+      flex: 1;
+    }
+  }
+
+  // Two-line actions: a title plus a muted description, so each card reads as
+  // a set of described commands rather than a flat link list.
+  .action-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xxs);
+  }
+
+  .action-item {
+    display: flex;
+    flex-direction: column;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius-small);
+    text-decoration: none;
+    transition: background-color 0.15s;
+
+    &:hover {
+      background-color: var(--bg-hover);
+    }
+  }
+
+  .action-title {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--color-link);
+  }
+
+  .action-desc {
+    font-size: var(--font-size-xs);
+    color: var(--text-muted-color);
+  }
+
+  .tw-card.maintenance .card-icon-chip {
+    background-color: var(--color-soft-warning-bg);
+    color: var(--color-warning);
+  }
+
+  .info-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+
+  .info-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-xs) var(--spacing-md);
+    background-color: var(--bg-muted);
+    border-radius: var(--border-radius-medium);
+  }
+
+  .info-list-label {
+    font-size: var(--font-size-sm);
+   color: var(--text-muted-color);
+  }
+
+  .info-list-value {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+
+    a {
+      text-decoration: none;
+    }
+  }
+
+  // Health pills: ok (green) / warn (amber) / active (primary). Semantic.
+  .status-pill {
+    padding: var(--spacing-xxs) var(--spacing-sm);
+    border-radius: 9999px;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+
+    &.ok {
+      background-color: var(--badge-green-bg);
+      color: var(--badge-green-color);
+    }
+
+    &.warn {
+      background-color: var(--color-soft-warning-bg);
+      color: var(--color-warning);
+    }
+
+    &.active {
+      background-color: var(--color-soft-primary-bg, var(--bg-muted));
+      color: var(--color-primary);
+    }
+  }
+
+  // --- Recent activity card ------------------------------------------------
+  .activity-block + .activity-block {
+    margin-top: var(--spacing-md);
+  }
+
+  .activity-heading {
+    display: block;
+    margin-bottom: var(--spacing-xs);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted-color);
+  }
+
+  .activity-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xxs);
+  }
+
+  .activity-item {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+    font-size: var(--font-size-sm);
+
+    a {
+      text-decoration: none;
+    }
+  }
+
+  .activity-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .activity-time {
+    flex-shrink: 0;
+    font-size: var(--font-size-xs);
+    color: var(--text-muted-color);
+  }
+
+  .activity-empty {
+    font-size: var(--font-size-sm);
+    color: var(--text-muted-color);
+  }
+
+  // --- Section layout for the report/health pages -------------------------
+  .administration-section {
+    margin-bottom: var(--spacing-lg);
+
+    .section-title {
+      margin: 0 0 var(--spacing-sm);
+      font-size: var(--font-size-base);
+      font-weight: 600;
+    }
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--spacing-md);
+  }
+
+  // Wrapper for charts so widths/heights live in a class, not inline styles
+  .chart-box {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .chart-box.fixed {
+    width: 420px;
+    max-width: 100%;
+  }
+
+  // Chart.js canvas needs an explicit height (maintainAspectRatio: false)
+  .user-activity-canvas {
+    height: 280px;
+  }
+
+  // Danger zone: destructive maintenance actions live together, clearly marked
+  .danger-zone {
+    border: 1px solid var(--color-soft-danger-border);
+    border-radius: var(--border-radius-medium);
+    padding: var(--spacing-md);
+
+    .section-title {
+      color: var(--color-danger);
+    }
+  }
+}

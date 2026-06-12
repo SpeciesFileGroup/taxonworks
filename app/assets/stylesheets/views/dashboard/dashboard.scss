@@ -18,6 +18,10 @@
     }
   }
 
+  .flex-col {
+    gap: var(--spacing-md);
+  }
+
   .project-list {
     list-style: none;
     display: flex;
@@ -90,12 +94,11 @@
 
   .info-list-label {
     font-size: var(--font-size-sm);
-    color: var(--text-color);
+    color: var(--text-muted-color);
   }
 
   .info-list-value {
     font-size: var(--font-size-sm);
-    font-weight: 600;
   }
 
   .badge {
