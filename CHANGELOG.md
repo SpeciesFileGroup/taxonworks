@@ -24,6 +24,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Dropped support for legacy MS Excel format (xls, not xlsx) in DwC importer
 - New Taxon Name: The source section is now disabled while a taxon name is being saved. [#4909]
 - The With/Without Type Information facet in Filter Taxon Names now returns higher ranks with/without a type [#4958]
+- Updated Ruby gems
 
 ### Fixed
 
