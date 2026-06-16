@@ -88,12 +88,9 @@ class ProjectsController < ApplicationController
 
   def select
     set_project
-    if authorize_project_selection(sessions_current_user, @project)
-      sessions_select_project(@project)
-      redirect_to go_to # see def go_to for unprotected redirect mitigation
-    else
-      redirect_to root_path, notice: 'You are not a member of that project!'
-    end
+
+    sessions_select_project(@project)
+    redirect_to go_to # see def go_to for unprotected redirect mitigation
   end
 
   def settings_for
@@ -141,6 +138,8 @@ class ProjectsController < ApplicationController
   private
 
   def set_project
+    @user = User.find((is_administrator? || own_id) ? params[:id] : nil)
+    @recent_object = @user
     @project = Project.find(params[:id])
     @recent_object = @project
   end

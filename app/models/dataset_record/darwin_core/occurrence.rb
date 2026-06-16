@@ -123,6 +123,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         break protonym unless protonym.nil?
 
         potential_protonyms = Protonym.where(name.slice(:rank_class).merge({ field => name[:name], :parent => parent }))
+        byebug unless potential_protonyms.count == 0
 
         # if multiple potential protonyms, this is a homonym situation
         if potential_protonyms.count > 1
