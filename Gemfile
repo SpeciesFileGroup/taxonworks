@@ -51,8 +51,7 @@ gem 'responders', '~> 3.0' # Used?!
 gem 'addressable', '~> 2.8'
 
 # Email
-# gem 'exception_notification', github: 'smartinez87/exception_notification', ref: '60e158888bbff96f7a9ae00ae97305cdd33726e9' #'~> 4.5'
-gem 'exception_notification', github: 'kmcphillips/exception_notification', ref: '4787f7c5f502f3f8299f344e470e491c7d813b32' # '~> 5.0.1'
+gem 'exception_notification', '~> 5.0', '>= 5.0.1'
 
 # Models
 gem 'bcrypt', '~> 3.1.11'
