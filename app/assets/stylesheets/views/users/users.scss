@@ -69,8 +69,6 @@
     margin-bottom: var(--spacing-md);
   }
 
-  // Stat cards mirror the Administration KPI hero: a prominent value, a muted
-  // uppercase label, and a faint icon watermark in the corner.
   .stat-card {
     position: relative;
     display: flex;
@@ -83,7 +81,6 @@
     padding: var(--spacing-lg);
   }
 
-  // .stat-icon stays the inline chip used by the project-members form.
   .stat-icon {
     width: 32px;
     height: 32px;
@@ -402,6 +399,108 @@
 
 #user-profile {
   padding: var(--spacing-md) 0;
+}
+
+#user-new,
+#project-new {
+  padding: var(--spacing-md) 0;
+
+  .form-page-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .form-page-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    border-radius: 25%;
+    background-color: var(--color-primary);
+    color: white;
+
+    svg {
+      width: 28px;
+      height: 28px;
+    }
+  }
+
+  .form-page-titles h1 {
+    margin: 0;
+  }
+
+  .form-page-subtitle {
+    margin: var(--spacing-xxs) 0 0;
+    font-size: var(--font-size-sm);
+    color: var(--text-muted-color);
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  .card-header-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+  }
+
+  .card-header-left {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+  }
+
+  .card-header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-xs);
+  }
+
+  #user-projects-filter {
+    height: var(--size-medium);
+    padding: 0 0.75rem;
+    font-size: var(--font-size-xs);
+    border-radius: var(--border-radius-medium);
+  }
+
+  .user-form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
+
+  .user-form-grid--split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+
+  .user-form-column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    min-width: 0;
+  }
+
+  @media (max-width: 768px) {
+    .user-form-grid--split {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .actions input {
+    padding: 0.5rem 1rem;
+  }
 }
 
 #user-profile > .container-xl > .tw-card {

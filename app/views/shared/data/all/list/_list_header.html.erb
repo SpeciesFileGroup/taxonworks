@@ -5,10 +5,6 @@
     </div>      
     <div class="navigation-controls"> 
       <div class="navigation-bar-left">
-      <div class="page-navigator">
-        <span> <%= link_to_previous_page(objects, '‹ Back') {|a| '‹ Back'} %> </span>
-        <span> <%= link_to_next_page(objects, 'Next ›') {|a| 'Next ›'} %> </span>    
-      </div>
       <%= paginate objects %>
       </div>
       <div class="navigation-bar-right">

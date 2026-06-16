@@ -1,0 +1,20 @@
+.project-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  background-color: var(--color-primary);
+  border-radius: 25%;
+  color: white;
+  font-size: 1.25rem;
+  font-weight: 600;
+
+  &--small {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--border-radius-small);
+    font-size: 10px;
+  }
+}

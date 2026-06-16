@@ -201,4 +201,12 @@ module ProjectsHelper
         .join
   end
 
+  # Initials badge for a project. Mirrors `user_avatar`; styled by the
+  # `.project-avatar` component (see base/avatars.scss).
+  def project_avatar(project, size = :default)
+    content_tag(:div, project_initials(project),
+                class: ['project-avatar', "project-avatar--#{size}"],
+                title: project&.name)
+  end
+
 end

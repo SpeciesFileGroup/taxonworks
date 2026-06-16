@@ -233,6 +233,7 @@ class TWAutocomplete {
     this._renderMenu()
     this._isOpen = true
     this.input.setAttribute('aria-expanded', 'true')
+    this._bindReposition()
     if (this.options.open) this.options.open.call(this)
     if (this.options.autoFocus) {
       this._selectedIndex = 0
@@ -248,24 +249,50 @@ class TWAutocomplete {
     this._menu.innerHTML = ''
     this._isOpen = false
     this.input.setAttribute('aria-expanded', 'false')
+    this._unbindReposition()
     if (this.options.close) this.options.close.call(this)
+  }
+
+  _bindReposition() {
+    if (this._repositionHandler) return
+    this._repositionHandler = () => {
+      if (this._repositionFrame) return
+      this._repositionFrame = window.requestAnimationFrame(() => {
+        this._repositionFrame = null
+        if (!this._isOpen) return
+        this._renderMenu()
+        if (this._selectedIndex > -1) this._highlightIndex(this._selectedIndex)
+      })
+    }
+    window.addEventListener('scroll', this._repositionHandler, true)
+    window.addEventListener('resize', this._repositionHandler)
+  }
+
+  _unbindReposition() {
+    if (!this._repositionHandler) return
+    window.removeEventListener('scroll', this._repositionHandler, true)
+    window.removeEventListener('resize', this._repositionHandler)
+    this._repositionHandler = null
+    if (this._repositionFrame) {
+      window.cancelAnimationFrame(this._repositionFrame)
+      this._repositionFrame = null
+    }
   }
 
   _renderMenu() {
     this._ensureAppendToPositioned()
 
+    const isBody = this._appendTo === document.body
+
     const rect = this.input.getBoundingClientRect()
-    const appendRect = this._appendTo.getBoundingClientRect()
 
-    const scrollTop =
-      this._appendTo === document.body
-        ? window.pageYOffset
-        : this._appendTo.scrollTop
+    const appendRect = isBody
+      ? { top: 0, left: 0, width: document.documentElement.clientWidth }
+      : this._appendTo.getBoundingClientRect()
 
-    const scrollLeft =
-      this._appendTo === document.body
-        ? window.pageXOffset
-        : this._appendTo.scrollLeft
+    const scrollTop = isBody ? window.pageYOffset : this._appendTo.scrollTop
+
+    const scrollLeft = isBody ? window.pageXOffset : this._appendTo.scrollLeft
 
     let left = rect.left - appendRect.left + scrollLeft
     let top = rect.bottom - appendRect.top + scrollTop
@@ -388,6 +415,7 @@ class TWAutocomplete {
 
   destroy() {
     this.close()
+    this._unbindReposition()
     this.input.removeEventListener('input', this._onInput)
     this.input.removeEventListener('keydown', this._onKeyDown)
     this.input.removeEventListener('blur', this._onBlur)

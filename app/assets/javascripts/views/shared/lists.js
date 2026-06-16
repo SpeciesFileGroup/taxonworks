@@ -105,8 +105,8 @@ Object.assign(TW.views.shared.list, {
       'Go to previous page',
       'Lists',
       function () {
-        if ($('.page-navigator a[rel="previous"]').length > 0) {
-          location.href = $('.page-navigator a[rel="previous"]').attr('href')
+        if ($('.pagination a[rel="prev"]').length > 0) {
+          location.href = $('.pagination a[rel="prev"]').attr('href')
         }
       }
     )
@@ -116,8 +116,8 @@ Object.assign(TW.views.shared.list, {
       'Go to next page',
       'Lists',
       function () {
-        if ($('.page-navigator a[rel="next"]').length > 0) {
-          location.href = $('.page-navigator a[rel="next"]').attr('href')
+        if ($('.pagination a[rel="next"]').length > 0) {
+          location.href = $('.pagination a[rel="next"]').attr('href')
         }
       }
     )

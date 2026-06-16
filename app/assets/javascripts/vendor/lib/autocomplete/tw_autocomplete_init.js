@@ -41,7 +41,7 @@ function tw_autocomplete_init(inputEl, options = {}) {
         .catch(() => respond([]))
     },
     minLength: 1,
-    appendTo: inputEl.parentElement,
+    appendTo: document.body,
     open() {
       inputEl.classList.remove('ui-autocomplete-loading')
     },

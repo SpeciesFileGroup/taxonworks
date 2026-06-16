@@ -32,8 +32,10 @@ import '../vanilla/views/navbar/header.js'
 import '../vanilla/views/news/systemHeaderBar.js'
 import '../vanilla/views/project_members/new.js'
 import '../vanilla/views/projects/new.js'
+import '../vanilla/views/projects/list.js'
 import '../vanilla/views/projects/show.js'
 import '../vanilla/views/users/show.js'
+import '../vanilla/views/users/form.js'
 
 import '../vue/data/downloads/index.js'
 

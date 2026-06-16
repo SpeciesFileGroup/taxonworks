@@ -1,11 +1,6 @@
-// Styles for the server-rendered Administration views
-// (app/views/administration/*). Scoped under #administration so they
-// never leak into other server-rendered pages. Mirrors the modern
-// dashboard card patterns (see views/dashboard/dashboard.scss).
 #administration {
   padding: var(--spacing-md) 0;
 
-  // Page header mirrors the users/projects pattern: avatar + title + subtitle.
   .administration-header {
     display: flex;
     align-items: center;
@@ -32,6 +27,7 @@
 
   .administration-titles h1 {
     margin: 0;
+    font-size: var(--font-size-2xl);
   }
 
   .administration-subtitle {
@@ -40,7 +36,6 @@
     color: var(--text-muted-color);
   }
 
-  // Environment badge (mirrors the dashboard badge, scoped here).
   .badge {
     padding: var(--spacing-xxs) var(--spacing-sm);
     border-radius: 9999px;
@@ -61,7 +56,6 @@
     color: var(--badge-green-color);
   }
 
-  // --- Sub navigation / breadcrumb -----------------------------------------
   .administration-nav {
     display: flex;
     align-items: center;
@@ -90,7 +84,6 @@
     }
   }
 
-  // --- KPI hero: the at-a-glance metrics are the page's focal point --------
   .kpi-hero {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -118,8 +111,6 @@
     }
   }
 
-  // Deliberately large: the metric is the hero (compact density still applies
-  // to every other control on the page).
   .kpi-value {
     font-size: var(--font-size-2xl);
     font-weight: 700;
@@ -133,7 +124,6 @@
     letter-spacing: 0.05em;
   }
 
-  // Faint primary watermark in the corner — character without clutter.
   .kpi-icon {
     position: absolute;
     top: var(--spacing-md);
@@ -147,10 +137,6 @@
     }
   }
 
-  // --- Panel grid: every cell (hubs + the comm/maintenance stack + status +
-  //     activity) shares one grid so rows stay aligned. Six cells fill three
-  //     columns evenly. Cards stretch to the row height (default align-items:
-  //     stretch) so there is no empty space below them.
   .panel-grid {
     display: grid;
     grid-template-columns: repeat(1, 1fr);
@@ -169,8 +155,6 @@
     }
   }
 
-  // Two short cards (Communication + Maintenance) share one grid cell and split
-  // its height between them, keeping the grid balanced at six cells.
   .panel-stack {
     display: flex;
     flex-direction: column;
@@ -181,7 +165,6 @@
     }
   }
 
-  // Cards fill the height the grid hands them; the body grows to take the slack.
   .panel-grid > .tw-card,
   .panel-stack > .tw-card {
     display: flex;
@@ -192,8 +175,6 @@
     }
   }
 
-  // Two-line actions: a title plus a muted description, so each card reads as
-  // a set of described commands rather than a flat link list.
   .action-list {
     list-style: none;
     display: flex;
@@ -260,7 +241,6 @@
     }
   }
 
-  // Health pills: ok (green) / warn (amber) / active (primary). Semantic.
   .status-pill {
     padding: var(--spacing-xxs) var(--spacing-sm);
     border-radius: 9999px;
@@ -283,7 +263,6 @@
     }
   }
 
-  // --- Recent activity card ------------------------------------------------
   .activity-block + .activity-block {
     margin-top: var(--spacing-md);
   }
@@ -334,7 +313,6 @@
     color: var(--text-muted-color);
   }
 
-  // --- Section layout for the report/health pages -------------------------
   .administration-section {
     margin-bottom: var(--spacing-lg);
 
@@ -351,7 +329,6 @@
     gap: var(--spacing-md);
   }
 
-  // Wrapper for charts so widths/heights live in a class, not inline styles
   .chart-box {
     width: 100%;
     min-width: 0;
@@ -362,12 +339,10 @@
     max-width: 100%;
   }
 
-  // Chart.js canvas needs an explicit height (maintainAspectRatio: false)
   .user-activity-canvas {
     height: 280px;
   }
 
-  // Danger zone: destructive maintenance actions live together, clearly marked
   .danger-zone {
     border: 1px solid var(--color-soft-danger-border);
     border-radius: var(--border-radius-medium);

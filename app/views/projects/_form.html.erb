@@ -1,7 +1,7 @@
 <%= form_for(@project) do |f| %>
   <%= render 'shared/errors', object: @project %>
 
-  <div class="tw-card margin-large-top">
+  <div class="tw-card">
     <div class="tw-card-header">
       <span class="card-icon-chip">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -14,7 +14,7 @@
     <div class="tw-card-body">
       <div class="field">
         <%= f.label :name %><br>
-        <%= f.text_field :name, required: true, minlength: 1, class: 'w-96' %>
+        <%= f.text_field :name, required: true, minlength: 1, autofocus: true, class: 'w-96' %>
       </div>
 
       <div class="field">
