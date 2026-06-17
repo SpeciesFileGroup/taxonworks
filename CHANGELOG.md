@@ -25,6 +25,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - New Taxon Name: The source section is now disabled while a taxon name is being saved. [#4909]
 - The With/Without Type Information facet in Filter Taxon Names now returns higher ranks with/without a type [#4958]
 - Updated Ruby gems
+- Jobs from 'default' jobs queue are now processed in docker deployment image (ActiveStorage uses this queue)
 
 ### Fixed
 
