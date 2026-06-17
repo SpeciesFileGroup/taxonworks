@@ -158,15 +158,15 @@
 
     .filter-status {
       margin: 0;
-      display: flex;
-      flex-flow: row wrap;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: var(--spacing-xs);
-      align-items: center;
     }
 
     .status-chip {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: var(--spacing-xs);
       padding: var(--spacing-xs) var(--spacing-sm);
       border: 1px solid var(--border-color);
