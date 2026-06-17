@@ -77,8 +77,7 @@ export default defineStore('verbatimAuthorYearSource', {
     async loadPreviewTaxonNames(author, year) {
       try {
         const response = await TaxonName.where({
-          author: author,
-          author_exact: true,
+          verbatim_author: author,
           year: year,
           citations: false
         })
@@ -106,8 +105,7 @@ export default defineStore('verbatimAuthorYearSource', {
       try {
         // Get TaxonName IDs
         const taxonNamesResponse = await TaxonName.where({
-          author: author,
-          author_exact: true,
+          verbatim_author: author,
           year: year,
           citations: false
         })

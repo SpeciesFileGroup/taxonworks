@@ -177,8 +177,7 @@ function sortBy(column) {
 
 function filterUrl(author, year) {
   const params = new URLSearchParams({
-    author: author,
-    author_exact: true,
+    verbatim_author: author,
     year: year
   })
   return `${RouteNames.FilterNomenclature}?${params.toString()}`
