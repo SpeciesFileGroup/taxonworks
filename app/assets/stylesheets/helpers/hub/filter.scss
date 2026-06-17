@@ -29,7 +29,15 @@
     .filter-body {
       display: flex;
       flex-direction: column;
-      padding: var(--spacing-lg);
+      padding: var(--spacing-md);
+    }
+
+    .tw-card-header {
+      padding: var(--spacing-md);
+
+      .reset {
+        margin-left: auto;
+      }
     }
 
     .search-row {
@@ -37,16 +45,6 @@
       align-items: center;
       gap: var(--spacing-xs);
       padding: 0;
-
-      .reset {
-        flex-shrink: 0;
-        width: var(--size-large);
-        padding: 0;
-        border-radius: var(--border-radius-medium);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-      }
     }
 
     #search-filter {
