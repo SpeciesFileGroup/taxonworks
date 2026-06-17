@@ -15,7 +15,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Ctrl+v to paste images and documents in "Drop [image/doc] here"
 - New descriptors: character states' thumbnails [#4796]
 - Project usage count for authors in Match Author task of New Source [#4943]
-- extend[]=descendants option for api/v1/taxon_names/123/monograph endpoint (limited to 2500 results or fewer) [#4860]
+- extend[]=descendants option for api/v1/taxon_names/123/monograph endpoint (defaults to 50 results, use page= and per= paging params to get more) [#4860]
 - Data Attributes facet to Filter anatomical parts, contents, descriptors, extracts, loans, and sounds tasks [#4940]
 
 ### Changed
@@ -24,6 +24,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Dropped support for legacy MS Excel format (xls, not xlsx) in DwC importer
 - New Taxon Name: The source section is now disabled while a taxon name is being saved. [#4909]
 - The With/Without Type Information facet in Filter Taxon Names now returns higher ranks with/without a type [#4958]
+- Updated Ruby gems
 
 ### Fixed
 

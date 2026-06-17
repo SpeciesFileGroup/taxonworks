@@ -3,6 +3,7 @@ class TaxonNamesController < ApplicationController
 
   before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse, :original_combination, :catalog, :api_show, :api_summary, :api_catalog]
   after_action -> { set_pagination_headers(:taxon_names) }, only: [:index, :api_index, :origin_citation], if: :json_request?
+  after_action -> { set_pagination_headers(:descendants_scope) }, only: [:api_monograph], if: -> { json_request? && @descendants_scope }
 
   # GET /taxon_names
   # GET /taxon_names.json
@@ -304,6 +305,16 @@ class TaxonNamesController < ApplicationController
 
   # GET /api/v1/taxon_names/:id/monograph
   def api_monograph
+    if helpers.extend_response_with('descendants')
+      @descendants_scope = TaxonName.with_project_id(sessions_current_project_id)
+        .find(params[:id])
+        .descendants
+        .order('taxon_names.id')
+        .page(params[:page])
+        .per(params[:per])
+    else
+      @taxon_name_scope = TaxonName.with_project_id(sessions_current_project_id).where(id: params[:id])
+    end
     render '/taxon_names/api/v1/monograph'
   end
 
