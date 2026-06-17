@@ -35,7 +35,7 @@ export const ATTRIBUTES_BY_TYPE = {
   citations: {
     citation_object_type: 'Object type',
     'annotated_object.object_tag': 'Object',
-    'source.cached': 'Source',
+    'source.object_tag': 'Source',
     pages: 'Pages',
     is_original: 'Original',
     created_by: 'Created by',

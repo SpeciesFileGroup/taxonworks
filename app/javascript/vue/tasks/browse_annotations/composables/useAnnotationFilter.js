@@ -103,7 +103,7 @@ export default function useAnnotationFilter() {
 
   const filterState = useFilter(serviceProxy, {
     listParser,
-    initParameters: { extend: ['annotated_object'] }
+    initParameters: { extend: ['annotated_object', 'source'] }
   })
 
   const currentAttributes = computed(() =>

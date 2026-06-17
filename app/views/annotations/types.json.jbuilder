@@ -60,4 +60,13 @@ json.set! :types do
     json.used_on klass_and_labels(ar)
   end
 
+  json.set! :citations do
+    json.label 'Citations'
+    json.klass 'Citation'
+    json.url citations_url
+    json.total Citation.where(project_id: sessions_current_project_id).count
+    ar = Citation.where(project_id: sessions_current_project_id).select(:citation_object_type).distinct.order(:citation_object_type).pluck(:citation_object_type)
+    json.used_on klass_and_labels(ar)
+  end
+
 end

@@ -18,6 +18,12 @@
     :target="firstSelectedObjectType"
   />
 
+  <FacetSource
+    v-if="annotationType === 'citations'"
+    v-model="params"
+    klass="Citation"
+  />
+
   <FacetHousekeeping v-model="params" />
 </template>
 
@@ -26,6 +32,7 @@ import { computed, ref } from 'vue'
 import FacetAnnotationType from './FacetAnnotationType.vue'
 import FacetAnnotationFor from './FacetAnnotationFor.vue'
 import FacetObjectType from './FacetObjectType.vue'
+import FacetSource from '@/components/Filter/Facets/shared/FacetSource.vue'
 import FacetHousekeeping from '@/components/Filter/Facets/shared/FacetHousekeeping/FacetHousekeeping.vue'
 
 const OBJECT_TYPE_PARAM = {
