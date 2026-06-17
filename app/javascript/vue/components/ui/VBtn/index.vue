@@ -61,7 +61,7 @@ const props = defineProps({
   variant: {
     type: String,
     default: 'solid',
-    validator: (value) => ['solid', 'ghost', 'outline'].includes(value)
+    validator: (value) => ['solid', 'ghost', 'outline', 'tonal'].includes(value)
   },
 
   color: {

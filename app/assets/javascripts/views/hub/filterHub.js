@@ -109,7 +109,9 @@ FilterHub.prototype.handleEvents = function (that) {
     const elementFilter = element.getAttribute('data-filter-category')
     const cards = [...that.arrayData, ...that.arrayTasks]
     const isResetButton = elementFilter === 'reset'
-    const isActive = element.classList.contains('activated')
+    const isActive =
+      element.classList.contains('activated') ||
+      element.classList.contains('selected')
     const isCategoryButton = element.classList.contains('navigation-item')
 
     if (!isCategoryButton && !isActive) {
@@ -122,6 +124,17 @@ FilterHub.prototype.handleEvents = function (that) {
       cards.forEach((element) => {
         element.changeFilter('data-category-' + elementFilter)
       })
+    }
+
+    const statusChips = document.querySelectorAll(
+      '#filter .filter-status .status-chip'
+    )
+    if (element.classList.contains('status-chip')) {
+      statusChips.forEach((chip) => chip.classList.remove('selected'))
+      
+      if (!isActive) element.classList.add('selected')
+    } else if (isResetButton) {
+      statusChips.forEach((chip) => chip.classList.remove('selected'))
     }
   }
 
@@ -169,9 +182,10 @@ FilterHub.prototype.handleEvents = function (that) {
     }
   }
 
-  document
-    .querySelector('#filter .switch input')
-    .addEventListener('click', that.resetAllStatusCards.bind(this))
+  const statusSwitch = document.querySelector('#filter .switch input')
+  if (statusSwitch) {
+    statusSwitch.addEventListener('click', that.resetAllStatusCards.bind(this))
+  }
 }
 
 FilterHub.prototype.resetAllStatusCards = function () {

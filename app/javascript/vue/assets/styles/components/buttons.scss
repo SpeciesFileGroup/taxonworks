@@ -5,8 +5,6 @@
   text-align: center;
   white-space: nowrap;
   vertical-align: middle;
-  // Links (.btn-link, rendered as <a>) inherit the page font-size instead of
-  // the global button { font-size } rule; set it here so buttons and links match.
   font-size: var(--font-size-xs);
   padding-left: 0.9em;
   padding-right: 0.9em;
@@ -20,7 +18,6 @@ a.btn:hover {
   @extend .btn;
   display: flex;
   align-items: center;
-  // flex collapses the markup whitespace between icon and text, so add a gap
   gap: var(--spacing-xxs);
 }
 
@@ -116,6 +113,29 @@ a.btn:hover {
     &:hover {
       background-color: var(--color-#{$key});
       color: var(--color-on-#{$key});
+      opacity: 1;
+    }
+  }
+}
+
+.btn-tonal {
+  background-color: color-mix(in srgb, var(--text-color) 10%, transparent);
+  color: var(--text-color);
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--text-color) 16%, transparent);
+    opacity: 1;
+  }
+}
+
+@each $key, $value in $tw-colors {
+  .btn-tonal.btn-#{$key} {
+    background-color: color-mix(in srgb, var(--color-#{$key}) 12%, transparent);
+    color: var(--color-#{$key});
+
+    &:hover {
+      background-color: color-mix(in srgb, var(--color-#{$key}) 20%, transparent);
+      color: var(--color-#{$key});
       opacity: 1;
     }
   }

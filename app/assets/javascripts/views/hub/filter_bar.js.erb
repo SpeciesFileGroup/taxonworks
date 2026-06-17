@@ -7,29 +7,6 @@ Object.assign(TW.workbench.hub.filter_hub, {
 
   init: function () {
     const filter = document.getElementById('filter');
-    
-    if (!filter.hasAttribute('icons-loaded')) {
-      filter.setAttribute('icons-loaded', 'true');
-      const icons = {
-        nomenclature: "<%= asset_path("new.svg") %>",
-        source: "<%= asset_path("book.svg") %>",
-        collection_object: "<%= asset_path("bug.svg") %>",
-        collecting_event: "<%= asset_path("geo_location.svg") %>",
-        biology: "<%= asset_path("biology.svg") %>",
-        matrix: "<%= asset_path("matrix.svg") %>",
-        dna: "<%= asset_path("helix.svg") %>",
-        image: "<%= asset_path("image.svg") %>"
-      }
-
-      Object.entries(icons).forEach(([category, path]) => {
-        document.querySelectorAll(`[data-filter-category="${category}"]`).forEach(el => {
-          const img = document.createElement('img')
-          img.src = path
-          el.prepend(img)
-        })
-      })
-    }
-  
 
     function deactivateBackgroundColorLink(selector) {
       document.querySelectorAll(selector).forEach(el => {
@@ -52,7 +29,11 @@ Object.assign(TW.workbench.hub.filter_hub, {
     filter.querySelectorAll('[data-filter-category]').forEach(el => {
       el.addEventListener('click', function () {
         const parent = this.parentElement;
-        if (!parent.classList.contains('navigation-controls-type')) {
+
+        if (
+          !parent.classList.contains('navigation-controls-type') &&
+          !parent.classList.contains('filter-status')
+        ) {
           const category = this.getAttribute('data-filter-category');
           changeBackgroundColorLink(`[data-filter-category="${category}"]`);
         }

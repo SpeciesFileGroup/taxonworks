@@ -1,42 +1,46 @@
 <div id="filter">
   <div class="flexbox">
     <div class="item item2">
-      <div class="panel">
-        <div class="flex-separate content middle" id="panel-title">
-          <span class="filter-title">FILTER CARDS</span>
-          <div data-filter-category="reset" class="reset" data-help="Remove filters, show everything.">
-            <span data-filter-category="reset" class="small-icon" data-icon="reset"></span>
-            <span data-filter-category="reset">Reset</span>
+      <div class="panel tw-card filter-card">
+        <div class="filter-body">
+          <div class="search-row" data-help="Choose only those options that contain the provided text in the title or description.">
+            <input type="text" placeholder="Search by name..." class="item mousetrap" id="search-filter" autofocus="true">
+            <button type="button" class="button btn-tonal btn-primary btn-large-size reset" data-filter-category="reset" data-tooltip-content="Clear all filters" data-tooltip-placement="bottom" aria-label="Clear all filters">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                <path d="M3 3v5h5"/>
+              </svg>
+            </button>
           </div>
-        </div>
 
-        <div class="content" data-help="Choose only those options that contain the provided text in the title or description.">
-          <input type="text" placeholder="Filter cards by text description" class="item mousetrap" id="search-filter" autofocus="true">
-        </div>
-        <span class="content filter-title">CATEGORIES</span>
-        <div class="navigation-controls navigation-controls-type separate-bottom">
-          <div data-filter-category="filters" data-favorite="true" class="navigation-item">Filters</div>
-          <div data-filter-category="browse" data-favorite="true" class="navigation-item">Browse</div>
-          <div data-filter-category="new" data-favorite="true" class="navigation-item">New</div>
-        </div>
-        <div class="navigation-controls separate-bottom flex-wrap-row">
-          <% UserTasks::CATEGORIES.each do |c| -%>
-            <%= content_tag(:div, c.humanize, 'data-filter-category' => c, 'data-favorite' => true, 'class' => 'navigation-item') -%>
-          <% end %>
-        </div>
-        <span class="content filter-title">STATUS</span>
+          <span class="filter-title">Categories</span>
+          <div class="navigation-controls navigation-controls-type">
+            <div data-filter-category="filters" data-favorite="true" class="navigation-item">Filters</div>
+            <div data-filter-category="browse" data-favorite="true" class="navigation-item">Browse</div>
+            <div data-filter-category="new" data-favorite="true" class="navigation-item">New</div>
+          </div>
+          <div class="navigation-controls flex-wrap-row">
+            <% UserTasks::CATEGORIES.each do |c| -%>
+              <%= content_tag(:div, 'data-filter-category' => c, 'data-favorite' => true, 'class' => 'navigation-item') do -%>
+                <%= hub_category_icon(c) %><%= c.humanize %><span class="category-count"><%= hub_category_card_count(c) %></span>
+              <% end -%>
+            <% end %>
+          </div>
 
-        <div class="filter-status" data-help="Show only those features whose interfaces and functionality are at a certain level of completion. Red: expect major change; Yellow: functionality is more or less stable, form may change; Green: form and functionality are stable.">
-          <label class="switch">
-            <input type="checkbox" data-switch="false">
-            <div class="slider"></div>
-          </label>
-          <div class="status-name">Status</div>
-          <div class="filter-category">
-            <div class="status unknown" data-filter-category="unknown"></div>
-            <div class="status prototype" data-filter-category="prototype"></div>
-            <div class="status stable" data-filter-category="stable"></div>
-            <div class="status complete" data-filter-category="complete"></div>
+          <span class="filter-title">Status</span>
+          <div class="filter-status" data-help="Show only those features whose interfaces and functionality are at a certain level of completion. Red: expect major change; Yellow: functionality is more or less stable, form may change; Green: form and functionality are stable.">
+            <button type="button" class="status-chip" data-filter-category="unknown" title="Unknown">
+              <span class="status unknown"></span>Unknown
+            </button>
+            <button type="button" class="status-chip" data-filter-category="prototype" title="Prototype">
+              <span class="status prototype"></span>Prototype
+            </button>
+            <button type="button" class="status-chip" data-filter-category="stable" title="Stable">
+              <span class="status stable"></span>Stable
+            </button>
+            <button type="button" class="status-chip" data-filter-category="complete" title="Complete">
+              <span class="status complete"></span>Complete
+            </button>
           </div>
         </div>
       </div>

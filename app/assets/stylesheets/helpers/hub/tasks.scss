@@ -1,7 +1,3 @@
-// Styling particular to the hub controller and views
-// NOTE: #task_carrousel is a typo for "carousel", but the ID is referenced
-// across multiple JS files and views — do not rename without updating all references.
-
 @keyframes task-card-show {
   0% {
     opacity: 0;
@@ -48,8 +44,7 @@
     width: 420px;
     max-height: 180px;
     min-height: 160px;
-    border-top-right-radius: var(--border-radius-large);
-    border-bottom-right-radius: var(--border-radius-large);
+    border-radius: var(--border-radius-large);
     background-color: var(--panel-bg-color);
     color: var(--text-color);
     box-shadow: rgba(36, 37, 38, 0.08) 4px 4px 15px 0px;
@@ -85,6 +80,10 @@
       .task_header {
         transition: opacity 0.5s ease;
         opacity: 1;
+
+        .categories svg {
+          stroke: #fff;
+        }
       }
     }
   }
@@ -127,6 +126,8 @@
     flex-direction: column;
     align-items: center;
     border-bottom: 1px solid var(--border-color);
+    border-top-left-radius: var(--border-radius-large);
+    border-bottom-left-radius: var(--border-radius-large);
 
     .status:first-letter {
       text-transform: uppercase;
@@ -137,9 +138,23 @@
       width: 20px;
       height: 20px;
       min-height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       background-repeat: no-repeat;
       background-size: 14px;
       background-position: center;
+
+      &:has(svg) {
+        background-image: none !important;
+      }
+
+      svg {
+        width: 14px;
+        height: 14px;
+        stroke: var(--text-color);
+        fill: none;
+      }
     }
 
     .source {
@@ -230,7 +245,7 @@
     order: -1;
     min-height: 42px;
     min-width: 450px;
-    padding: 4px 8px;
+    padding: var(--spacing-sm);
     background-color: var(--panel-bg-color);
     border-radius: var(--border-radius-medium);
 
@@ -275,17 +290,17 @@
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
+    gap: var(--spacing-xs);
 
     .task-nav-item {
       background-color: var(--border-color);
       border-radius: var(--border-radius-xsmall);
-      width: 15px;
-      height: 15px;
-      margin: 5px;
+      width: 16px;
+      height: 16px;
       cursor: pointer;
 
       &.active {
-        background-color: $default_text;
+        background-color: var(--text-color);
       }
     }
   }

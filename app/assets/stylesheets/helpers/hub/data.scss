@@ -1,4 +1,3 @@
-// Styling particular to the hub controller and views
 :root {
   --data-shared-bg: #e5d2be;
   --data-application-defined-bg: #c38a8a;
@@ -6,7 +5,7 @@
 
 .dark {
   .card-categories svg {
-    fill: var(--text-color);
+    stroke: var(--text-color);
   }
 }
 
@@ -182,6 +181,8 @@
       padding: 6px;
       width: 14px;
       height: 14px;
+      fill: none;
+      stroke: currentColor;
     }
   }
 
