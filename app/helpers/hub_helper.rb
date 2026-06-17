@@ -57,14 +57,6 @@ module HubHelper
                 'stroke-linejoin' => 'round', class: 'category-icon')
   end
 
-  def hub_category_card_count(category)
-    task_count = UserTasks.hub_tasks(category).count
-    data_count = Hub::Data::BY_NAME.values.count do |data|
-      !data.hide && data.categories.include?(category)
-    end
-    task_count + data_count
-  end
-
   def data_card(data)
     content_tag(:div, class: 'data_card') do  
       content_tag(:div, '') +

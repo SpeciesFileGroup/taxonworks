@@ -12,10 +12,83 @@ Object.assign(TW.views.hub.filter, {
     this.filterHubTask = new FilterHub()
     this.loadCategoriesIcons()
     this.handleEvents()
+    this.bindCategoryCounts()
+    this.updateCategoryCounts()
 
     if (element) {
       this.resizeTaskCarrousel()
     }
+  },
+
+  // Compute the count next to each category from the cards currently in the DOM
+  // (so it works per-view, including the Favorites tab's mixed task/data cards)
+  // that match every active filter: the search text, the selected status, the
+  // active scope, and any active category. Run on init and on every filter
+  // change; the count spans are rendered empty server-side.
+  updateCategoryCounts() {
+    const filter = document.querySelector('#filter')
+    if (!filter) return
+
+    const searchEl = document.querySelector('#search-filter')
+    const search = (searchEl ? searchEl.value : '').trim().toLowerCase()
+
+    // Active filters: categories/scope toggle `.activated`, status uses
+    // `.selected`. A card must carry all of them to be counted.
+    const activeFilters = [
+      ...filter.querySelectorAll('[data-filter-category].activated'),
+      ...filter.querySelectorAll('.status-chip.selected')
+    ]
+      .map((el) => el.getAttribute('data-filter-category'))
+      .filter((category) => category && category !== 'reset')
+
+    const items = [
+      ...filter.querySelectorAll(
+        '.flex-wrap-row .navigation-item[data-filter-category]'
+      )
+    ]
+    const categories = items.map((item) =>
+      item.getAttribute('data-filter-category')
+    )
+    const counts = {}
+    categories.forEach((category) => (counts[category] = 0))
+
+    document.querySelectorAll('.data_card, .task_card').forEach((card) => {
+      if (search && !card.textContent.toLowerCase().includes(search)) return
+
+      const matchesActive = activeFilters.every((category) =>
+        card.querySelector(`[data-category-${category}="true"]`)
+      )
+      if (!matchesActive) return
+
+      categories.forEach((category) => {
+        if (card.querySelector(`[data-category-${category}="true"]`)) {
+          counts[category]++
+        }
+      })
+    })
+
+    items.forEach((item) => {
+      const span = item.querySelector('.category-count')
+      if (span) {
+        span.textContent = counts[item.getAttribute('data-filter-category')]
+      }
+    })
+  },
+
+  bindCategoryCounts() {
+    const filter = document.querySelector('#filter')
+    if (!filter) return
+
+    const recount = () => this.updateCategoryCounts()
+
+    const searchEl = document.querySelector('#search-filter')
+    if (searchEl) searchEl.addEventListener('input', recount)
+
+    // Status / scope / reset clicks update their state synchronously; defer so
+    // we read the post-click state (e.g. the newly selected status chip).
+    filter.querySelectorAll('[data-filter-category]').forEach((el) => {
+      el.addEventListener('click', () => setTimeout(recount, 0))
+    })
   },
 
   resizeTaskCarrousel() {
@@ -90,6 +163,27 @@ Object.assign(TW.views.hub.filter, {
       ]
 
       cards.forEach((el) => el.insertAdjacentHTML('beforeend', icon))
+    })
+
+    const lucide = (paths) =>
+      '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" ' +
+      'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+      'stroke-linecap="round" stroke-linejoin="round" class="category-icon">' +
+      paths +
+      '</svg>'
+
+    const scopeIcons = {
+      filters: lucide(
+        '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>'
+      ),
+      browse: lucide('<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>'),
+      new: lucide('<path d="M5 12h14"/><path d="M12 5v14"/>')
+    }
+
+    Object.entries(scopeIcons).forEach(([category, icon]) => {
+      document
+        .querySelectorAll(`.task_card [data-category-${category}="true"]`)
+        .forEach((el) => el.insertAdjacentHTML('beforeend', icon))
     })
   }
 })

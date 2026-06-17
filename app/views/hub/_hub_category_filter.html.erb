@@ -4,7 +4,7 @@
       <div class="panel tw-card filter-card">
         <div class="filter-body">
           <div class="search-row" data-help="Choose only those options that contain the provided text in the title or description.">
-            <input type="text" placeholder="Search by name..." class="item mousetrap" id="search-filter" autofocus="true">
+            <input type="text" placeholder="Search by name..." class="item mousetrap" id="search-filter" autocomplete="off" autofocus="true">
             <button type="button" class="button btn-tonal btn-primary btn-large-size reset" data-filter-category="reset" data-tooltip-content="Clear all filters" data-tooltip-placement="bottom" aria-label="Clear all filters">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
@@ -22,7 +22,7 @@
           <div class="navigation-controls flex-wrap-row">
             <% UserTasks::CATEGORIES.each do |c| -%>
               <%= content_tag(:div, 'data-filter-category' => c, 'data-favorite' => true, 'class' => 'navigation-item') do -%>
-                <%= hub_category_icon(c) %><%= c.humanize %><span class="category-count"><%= hub_category_card_count(c) %></span>
+                <%= hub_category_icon(c) %><%= c.humanize %><span class="category-count"></span>
               <% end -%>
             <% end %>
           </div>

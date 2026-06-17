@@ -47,7 +47,7 @@
     border-radius: var(--border-radius-large);
     background-color: var(--panel-bg-color);
     color: var(--text-color);
-    box-shadow: rgba(36, 37, 38, 0.08) 4px 4px 15px 0px;
+    box-shadow: var(--panel-shadow);
     transition:
       transform 0.3s ease,
       box-shadow 0.3s ease;
@@ -67,7 +67,7 @@
     }
 
     &:hover {
-      box-shadow: 0px 3px 5px 0px rgba(0, 0, 0, 0.3);
+      box-shadow: var(--panel-shadow-hover);
       transition:
         background-color 0.5s ease,
         transform 0.3s ease,
@@ -141,13 +141,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background-repeat: no-repeat;
-      background-size: 14px;
-      background-position: center;
-
-      &:has(svg) {
-        background-image: none !important;
-      }
 
       svg {
         width: 14px;
@@ -155,50 +148,6 @@
         stroke: var(--text-color);
         fill: none;
       }
-    }
-
-    .source {
-      background-image: image-url('book.svg');
-    }
-
-    .collecting_event {
-      background-image: image-url('geo_location.svg');
-    }
-
-    .filters {
-      background-image: image-url('filter.svg');
-    }
-
-    .new {
-      background-image: image-url('pencil.svg');
-    }
-
-    .biology {
-      background-image: image-url('biology.svg');
-    }
-
-    .taxon_name {
-      background-image: image-url('new.svg');
-    }
-
-    .collection_object {
-      background-image: image-url('bug.svg');
-    }
-
-    .nomenclature {
-      background-image: image-url('new.svg');
-    }
-
-    .matrix {
-      background-image: image-url('matrix.svg');
-    }
-
-    .dna {
-      background-image: image-url('helix.svg');
-    }
-
-    .image {
-      background-image: image-url('image.svg');
     }
   }
 
