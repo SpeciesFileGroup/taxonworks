@@ -1,4 +1,5 @@
 import {
+  FILTER_CITATION,
   FILTER_COLLECTING_EVENT,
   FILTER_COLLECTION_OBJECT,
   FILTER_CONTENT,
@@ -10,6 +11,7 @@ import {
 } from '../constants/filterLinks'
 
 export const Image = [
+  FILTER_CITATION,
   FILTER_COLLECTING_EVENT,
   FILTER_COLLECTION_OBJECT,
   FILTER_CONTENT,

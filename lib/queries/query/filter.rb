@@ -43,6 +43,7 @@ module Queries
       asserted_distribution: [:source, :otu, :biological_association, :taxon_name, :dwc_occurrence, :observation],
       biological_association: [:source, :collecting_event, :otu, :collection_object, :field_occurrence, :taxon_name, :asserted_distribution, :anatomical_part],
       biological_associations_graph: [:biological_association, :source],
+      citation: [:anatomical_part, :asserted_distribution, :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :field_occurrence, :image, :observation, :otu, :sound, :source, :taxon_name, :taxon_name_relationship],
       collecting_event: [:source, :collection_object, :field_occurrence, :biological_association, :otu, :image, :taxon_name, :dwc_occurrence],
       collection_object: [:source, :loan, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation, :dwc_occurrence, :anatomical_part],
       content: [:source, :otu, :taxon_name, :image],
@@ -95,6 +96,7 @@ module Queries
       asserted_distribution_query: '::Queries::AssertedDistribution::Filter',
       biological_association_query: '::Queries::BiologicalAssociation::Filter',
       biological_associations_graph_query: '::Queries::BiologicalAssociationsGraph::Filter',
+      citation_query: '::Queries::Citation::Filter',
       collecting_event_query: '::Queries::CollectingEvent::Filter',
       collection_object_query: '::Queries::CollectionObject::Filter',
       content_query: '::Queries::Content::Filter',
@@ -164,6 +166,9 @@ module Queries
 
     # @return [Query::BiologicalAssociationsGraph::Filter, nil]
     attr_accessor :biological_associations_graph_query
+
+    # @return [Query::Citation::Filter, nil]
+    attr_accessor :citation_query
 
     # @return [Query::ControlledVocabularyTerm::Filter, nil]
     attr_accessor :controlled_vocabulary_term_query

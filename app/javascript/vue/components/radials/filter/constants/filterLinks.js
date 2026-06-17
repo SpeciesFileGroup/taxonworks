@@ -91,3 +91,10 @@ export const FILTER_ANATOMICAL_PART = {
   label: 'AnatomicalParts',
   link: '/tasks/anatomical_parts/filter'
 }
+export const FILTER_CITATION = {
+  label: 'Citations',
+  link: '/tasks/annotations/filter',
+  params: {
+    annotation_type: 'citations'
+  }
+}
