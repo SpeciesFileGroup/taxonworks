@@ -1171,6 +1171,7 @@ taxon_name_reclassifier_task:
   name: 'Taxon name reclassifier'
   related:
   categories:
+    - nomenclature
   status: prototype
   description: 'Drag-drop to change the parents of TaxonNames.'
 new_news_task:
@@ -1186,6 +1187,7 @@ browse_news_task:
   name: 'Browse News'
   related:
   categories:
+    - browse
   status: prototype
   description: "A Newspaper summarizing this project's current news."
 dichotomous_key_task:
@@ -1200,6 +1202,8 @@ browse_images_task:
   name: 'Browse images'
   related:
   categories:
+    - image
+    - browse
   status: prototype
   description: 'Browse and explore images in this project, including their depictions and related objects, and take measurements by drawing lines on images.'
 verbatim_author_year_source_task:
