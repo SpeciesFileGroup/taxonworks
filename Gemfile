@@ -125,14 +125,14 @@ gem 'wahwah', '~> 1.6.6'
 
 # "Bio" and SFG gems
 gem 'taxonifi', '~> 0.6.1'
-gem 'sqed', '~>0.8.3'
+gem 'sqed', '~> 0.8.3'
 gem 'dwc_agent', '~> 3.0'
 gem 'dwc-archive', github: 'LocoDelAssembly/dwc-archive', branch: 'overhaul', require: 'dwc_archive' # '~> 1.1', '>= 1.1.2'
 gem 'biodiversity', '~> 6.0'
 gem 'ruby-units', '~> 4.1.0', require: 'ruby_units/namespaced'
 
-gem 'colrapi', '~>0.1.1'
-gem 'hookkaido', '0.1.0'
+gem 'colrapi', '~> 0.1.1'
+gem 'hookkaido', '~> 0.1.1'
 
 gem 'nasturtium'
 
