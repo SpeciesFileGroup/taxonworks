@@ -147,3 +147,10 @@ export const FILTER_DOCUMENTATION = {
     annotation_type: 'documentation'
   }
 }
+export const FILTER_DATA_ATTRIBUTE = {
+  label: 'Data attributes',
+  link: '/tasks/annotations/filter',
+  params: {
+    annotation_type: 'data_attributes'
+  }
+}
