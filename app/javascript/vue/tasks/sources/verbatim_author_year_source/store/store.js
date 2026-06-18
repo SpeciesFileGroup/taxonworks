@@ -53,7 +53,9 @@ export default defineStore('verbatimAuthorYearSource', {
           isPending: false,
           pendingStage: null,
           progressCurrent: 0,
-          progressTotal: 0
+          progressTotal: 0,
+          citedTaxonNameIds: [],
+          citedSourceId: null
         }))
 
         this.maxCount = response.body.max_count
@@ -152,6 +154,8 @@ export default defineStore('verbatimAuthorYearSource', {
 
         // Mark as complete
         row.isCited = true
+        row.citedTaxonNameIds = ids
+        row.citedSourceId = sourceId
 
         TW.workbench.alert.create(
           'Citations created and taxon names updated',
