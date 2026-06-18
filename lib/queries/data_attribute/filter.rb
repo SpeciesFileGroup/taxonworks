@@ -101,37 +101,33 @@ module Queries
         controlled_vocabulary_term_id.empty? ? nil : table[:controlled_vocabulary_term_id].in(controlled_vocabulary_term_id)
       end
 
-      # Replaces things like `otu_query_facet)
-      def from_filter_facet(query, project_ids = [])
-        return nil if query.nil?
-        t = "query_#{query.table.name}_da"
+      def collecting_event_query_facet
+        polymorphic_annotation_object_query_facet(collecting_event_query, 'CollectingEvent', 'query_ce_da')
+      end
 
-        k = query.referenced_klass.name
+      def collection_object_query_facet
+        polymorphic_annotation_object_query_facet(collection_object_query, 'CollectionObject', 'query_co_da')
+      end
 
-        q = query
+      def field_occurrence_query_facet
+        polymorphic_annotation_object_query_facet(field_occurrence_query, 'FieldOccurrence', 'query_fo_da')
+      end
 
-        if !project_ids.empty?
-          q = q.all.select(:id).where(project_id: project_ids)
-        else
-          q = q.all.select(:id)
-        end
+      def otu_query_facet
+        polymorphic_annotation_object_query_facet(otu_query, 'Otu', 'query_otu_da')
+      end
 
-        #s = "WITH #{t} AS (" + q.to_sql + ') ' +
-        s = ::DataAttribute
-          .with(t => q)
-          .joins("JOIN #{t} as #{t}1 on data_attributes.attribute_subject_id = #{t}1.id AND data_attributes.attribute_subject_type = '" + k + "'")
-          .to_sql
-
-        ::DataAttribute.from('(' + s + ') as data_attributes').distinct
+      def taxon_name_query_facet
+        polymorphic_annotation_object_query_facet(taxon_name_query, 'TaxonName', 'query_tn_da')
       end
 
       def merge_clauses
         [
-          from_filter_facet(otu_query, project_id),
-          from_filter_facet(taxon_name_query, project_id),
-          from_filter_facet(collecting_event_query, project_id),
-          from_filter_facet(collection_object_query, project_id),
-          from_filter_facet(field_occurrence_query, project_id),
+          collecting_event_query_facet,
+          collection_object_query_facet,
+          field_occurrence_query_facet,
+          otu_query_facet,
+          taxon_name_query_facet,
         ]
       end
 
