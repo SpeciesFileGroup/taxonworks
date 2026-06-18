@@ -98,3 +98,52 @@ export const FILTER_CITATION = {
     annotation_type: 'citations'
   }
 }
+export const FILTER_TAG = {
+  label: 'Tags',
+  link: '/tasks/annotations/filter',
+  params: {
+    annotation_type: 'tags'
+  }
+}
+export const FILTER_NOTE = {
+  label: 'Notes',
+  link: '/tasks/annotations/filter',
+  params: {
+    annotation_type: 'notes'
+  }
+}
+export const FILTER_CONFIDENCE = {
+  label: 'Confidences',
+  link: '/tasks/annotations/filter',
+  params: {
+    annotation_type: 'confidences'
+  }
+}
+export const FILTER_IDENTIFIER = {
+  label: 'Identifiers',
+  link: '/tasks/annotations/filter',
+  params: {
+    annotation_type: 'identifiers'
+  }
+}
+export const FILTER_ALTERNATE_VALUE = {
+  label: 'Alternate values',
+  link: '/tasks/annotations/filter',
+  params: {
+    annotation_type: 'alternate_values'
+  }
+}
+export const FILTER_ATTRIBUTION = {
+  label: 'Attributions',
+  link: '/tasks/annotations/filter',
+  params: {
+    annotation_type: 'attributions'
+  }
+}
+export const FILTER_DOCUMENTATION = {
+  label: 'Documentation',
+  link: '/tasks/annotations/filter',
+  params: {
+    annotation_type: 'documentation'
+  }
+}

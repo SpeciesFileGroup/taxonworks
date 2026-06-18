@@ -69,4 +69,22 @@ json.set! :types do
     json.used_on klass_and_labels(ar)
   end
 
+  json.set! :identifiers do
+    json.label 'Identifiers'
+    json.klass 'Identifier'
+    json.url identifiers_url
+    json.total Identifier.where(project_id: sessions_current_project_id).count
+    ar = Identifier.where(project_id: sessions_current_project_id).select(:identifier_object_type).distinct.order(:identifier_object_type).pluck(:identifier_object_type)
+    json.used_on klass_and_labels(ar)
+  end
+
+  json.set! :documentation do
+    json.label 'Documentation'
+    json.klass 'Documentation'
+    json.url documentation_index_url
+    json.total Documentation.where(project_id: sessions_current_project_id).count
+    ar = Documentation.where(project_id: sessions_current_project_id).select(:documentation_object_type).distinct.order(:documentation_object_type).pluck(:documentation_object_type)
+    json.used_on klass_and_labels(ar)
+  end
+
 end

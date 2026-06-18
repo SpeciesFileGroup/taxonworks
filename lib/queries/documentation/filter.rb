@@ -62,6 +62,21 @@ module Queries
         ]
       end
 
+      def collecting_event_query_facet
+        polymorphic_annotation_object_query_facet(collecting_event_query, 'CollectingEvent', 'query_ce_doc')
+      end
+
+      def descriptor_query_facet
+        polymorphic_annotation_object_query_facet(descriptor_query, 'Descriptor', 'query_d_doc')
+      end
+
+      def merge_clauses
+        [
+          collecting_event_query_facet,
+          descriptor_query_facet
+        ]
+      end
+
     end
   end
 end

@@ -113,6 +113,26 @@ module Queries
         ]
       end
 
+      def descriptor_query_facet
+        polymorphic_annotation_object_query_facet(descriptor_query, 'Descriptor', 'query_d_av')
+      end
+
+      def otu_query_facet
+        polymorphic_annotation_object_query_facet(otu_query, 'Otu', 'query_otu_av')
+      end
+
+      def taxon_name_query_facet
+        polymorphic_annotation_object_query_facet(taxon_name_query, 'TaxonName', 'query_tn_av')
+      end
+
+      def merge_clauses
+        [
+          descriptor_query_facet,
+          otu_query_facet,
+          taxon_name_query_facet
+        ]
+      end
+
     end
   end
 end

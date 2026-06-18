@@ -186,74 +186,64 @@ module Queries
         ]
       end
 
-      # Helper for facets that match citations whose polymorphic
-      # citation_object resolves to a model in a nested subquery.
-      def citation_object_query_facet(query, klass_name, cte_name)
-        return nil if query.nil?
-        ::Citation
-          .with(cte_name.to_sym => query.all)
-          .joins("JOIN #{cte_name} ON #{cte_name}.id = citations.citation_object_id AND citations.citation_object_type = '#{klass_name}'")
-          .distinct
-      end
-
       def anatomical_part_query_facet
-        citation_object_query_facet(anatomical_part_query, 'AnatomicalPart', 'query_ap_c')
+        polymorphic_annotation_object_query_facet(anatomical_part_query, 'AnatomicalPart', 'query_ap_c')
       end
 
       def asserted_distribution_query_facet
-        citation_object_query_facet(asserted_distribution_query, 'AssertedDistribution', 'query_ad_c')
+        polymorphic_annotation_object_query_facet(asserted_distribution_query, 'AssertedDistribution', 'query_ad_c')
       end
 
       def biological_association_query_facet
-        citation_object_query_facet(biological_association_query, 'BiologicalAssociation', 'query_ba_c')
+        polymorphic_annotation_object_query_facet(biological_association_query, 'BiologicalAssociation', 'query_ba_c')
       end
 
       def collecting_event_query_facet
-        citation_object_query_facet(collecting_event_query, 'CollectingEvent', 'query_ce_c')
+        polymorphic_annotation_object_query_facet(collecting_event_query, 'CollectingEvent', 'query_ce_c')
       end
 
       def collection_object_query_facet
-        citation_object_query_facet(collection_object_query, 'CollectionObject', 'query_co_c')
+        polymorphic_annotation_object_query_facet(collection_object_query, 'CollectionObject', 'query_co_c')
       end
 
       def content_query_facet
-        citation_object_query_facet(content_query, 'Content', 'query_cnt_c')
+        polymorphic_annotation_object_query_facet(content_query, 'Content', 'query_cnt_c')
       end
 
       def descriptor_query_facet
-        citation_object_query_facet(descriptor_query, 'Descriptor', 'query_d_c')
+        polymorphic_annotation_object_query_facet(descriptor_query, 'Descriptor', 'query_d_c')
       end
 
       def extract_query_facet
-        citation_object_query_facet(extract_query, 'Extract', 'query_ex_c')
+        polymorphic_annotation_object_query_facet(extract_query, 'Extract', 'query_ex_c')
       end
 
       def field_occurrence_query_facet
-        citation_object_query_facet(field_occurrence_query, 'FieldOccurrence', 'query_fo_c')
+        polymorphic_annotation_object_query_facet(field_occurrence_query, 'FieldOccurrence', 'query_fo_c')
       end
 
       def image_query_facet
-        citation_object_query_facet(image_query, 'Image', 'query_im_c')
+        polymorphic_annotation_object_query_facet(image_query, 'Image', 'query_im_c')
       end
 
       def observation_query_facet
-        citation_object_query_facet(observation_query, 'Observation', 'query_obs_c')
+        polymorphic_annotation_object_query_facet(observation_query, 'Observation', 'query_obs_c')
       end
 
       def otu_query_facet
-        citation_object_query_facet(otu_query, 'Otu', 'query_otu_c')
+        polymorphic_annotation_object_query_facet(otu_query, 'Otu', 'query_otu_c')
       end
 
       def sound_query_facet
-        citation_object_query_facet(sound_query, 'Sound', 'query_snd_c')
+        polymorphic_annotation_object_query_facet(sound_query, 'Sound', 'query_snd_c')
       end
 
       def taxon_name_query_facet
-        citation_object_query_facet(taxon_name_query, 'TaxonName', 'query_tn_c')
+        polymorphic_annotation_object_query_facet(taxon_name_query, 'TaxonName', 'query_tn_c')
       end
 
       def taxon_name_relationship_query_facet
-        citation_object_query_facet(taxon_name_relationship_query, 'TaxonNameRelationship', 'query_tnr_c')
+        polymorphic_annotation_object_query_facet(taxon_name_relationship_query, 'TaxonNameRelationship', 'query_tnr_c')
       end
 
       # Source has a direct FK (citations.source_id), not a polymorphic join.

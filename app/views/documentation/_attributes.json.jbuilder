@@ -9,4 +9,10 @@ json.document do
   json.partial! '/shared/data/all/metadata', object: documentation.document
 end
 
+if extend_response_with('annotated_object')
+  json.annotated_object do
+    json.partial! '/shared/data/all/metadata', object: metamorphosize_if(documentation.documentation_object), extensions: false
+  end
+end
+
 

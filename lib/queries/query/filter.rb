@@ -39,29 +39,36 @@ module Queries
     # !! model is not referencened in this constant.
     #
     SUBQUERIES = {
+      alternate_value: [:descriptor, :otu, :taxon_name],
       anatomical_part: [:collection_object, :field_occurrence, :otu, :observation, :extract, :sound, :biological_association],
       asserted_distribution: [:source, :otu, :biological_association, :taxon_name, :dwc_occurrence, :observation],
+      attribution: [:content, :image, :sound],
       biological_association: [:source, :collecting_event, :otu, :collection_object, :field_occurrence, :taxon_name, :asserted_distribution, :anatomical_part],
       biological_associations_graph: [:biological_association, :source],
       citation: [:anatomical_part, :asserted_distribution, :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :field_occurrence, :image, :observation, :otu, :sound, :source, :taxon_name, :taxon_name_relationship],
       collecting_event: [:source, :collection_object, :field_occurrence, :biological_association, :otu, :image, :taxon_name, :dwc_occurrence],
       collection_object: [:source, :loan, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation, :dwc_occurrence, :anatomical_part],
+      confidence: [:anatomical_part, :asserted_distribution, :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :field_occurrence, :observation, :otu, :sound, :taxon_name],
       content: [:source, :otu, :taxon_name, :image],
       conveyance: [:sound],
       controlled_vocabulary_term: [:data_attribute],
       data_attribute: [:collection_object, :collecting_event, :field_occurrence, :taxon_name, :otu],
+      documentation: [:collecting_event, :descriptor],
       dwc_occurrence: [:asserted_distribution, :collection_object, :collecting_event, :field_occurrence, :otu],
       depiction: [:image],
       descriptor: [:source, :observation, :otu],
       extract: [:source, :otu, :collection_object, :observation, :anatomical_part],
       field_occurrence: [:collecting_event, :otu, :biological_association, :dwc_occurrence, :image, :observation, :taxon_name, :anatomical_part], # [:source, :otu, :collecting_event, :biological_association, :observation, :taxon_name, :extract],
+      identifier: [:anatomical_part, :asserted_distribution, :biological_association, :collecting_event, :collection_object, :descriptor, :extract, :field_occurrence, :image, :observation, :otu, :sound, :taxon_name],
       image: [:content, :collection_object, :collecting_event, :field_occurrence, :otu, :observation, :source, :taxon_name ],
       loan: [:collection_object, :otu],
+      note: [:anatomical_part, :asserted_distribution, :biological_association, :collecting_event, :collection_object, :descriptor, :field_occurrence, :image, :observation, :otu, :sound, :taxon_name, :taxon_name_relationship],
       observation: [:asserted_distribution, :collection_object, :descriptor, :extract, :field_occurrence, :image, :otu, :sound, :source, :taxon_name, :anatomical_part],
       otu: [:asserted_distribution, :biological_association, :collection_object, :dwc_occurrence, :field_occurrence, :collecting_event, :content, :descriptor, :extract, :image, :loan, :observation, :source, :taxon_name, :anatomical_part, :sound ],
       person: [],
       source: [:asserted_distribution,  :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :image, :observation, :otu, :taxon_name, :taxon_name_relationship],
       sound: [:observation, :anatomical_part, :otu, :taxon_name],
+      tag: [:anatomical_part, :asserted_distribution, :biological_association, :collecting_event, :collection_object, :descriptor, :extract, :field_occurrence, :image, :observation, :otu, :sound, :taxon_name],
       taxon_name: [:asserted_distribution, :biological_association, :collection_object, :collecting_event, :image, :otu, :source, :taxon_name_relationship, :sound],
       taxon_name_relationship: [:taxon_name, :source],
     }.freeze
@@ -92,13 +99,16 @@ module Queries
     # to have a list somewhere else anyways to further restrict allowed classes.
     #
     FILTER_QUERIES = {
+      alternate_value_query: '::Queries::AlternateValue::Filter',
       anatomical_part_query: '::Queries::AnatomicalPart::Filter',
       asserted_distribution_query: '::Queries::AssertedDistribution::Filter',
+      attribution_query: '::Queries::Attribution::Filter',
       biological_association_query: '::Queries::BiologicalAssociation::Filter',
       biological_associations_graph_query: '::Queries::BiologicalAssociationsGraph::Filter',
       citation_query: '::Queries::Citation::Filter',
       collecting_event_query: '::Queries::CollectingEvent::Filter',
       collection_object_query: '::Queries::CollectionObject::Filter',
+      confidence_query: '::Queries::Confidence::Filter',
       content_query: '::Queries::Content::Filter',
       controlled_vocabulary_term_query: '::Queries::ControlledVocabularyTerm::Filter',
       conveyance_query: '::Queries::Conveyance::Filter',
@@ -106,16 +116,20 @@ module Queries
       depiction_query: '::Queries::Depiction::Filter',
       descriptor_query: '::Queries::Descriptor::Filter',
       document_query: '::Queries::Document::Filter',
+      documentation_query: '::Queries::Documentation::Filter',
       dwc_occurrence_query: '::Queries::DwcOccurrence::Filter',
       extract_query: '::Queries::Extract::Filter',
       field_occurrence_query: '::Queries::FieldOccurrence::Filter',
+      identifier_query: '::Queries::Identifier::Filter',
       image_query: '::Queries::Image::Filter',
       loan_query: '::Queries::Loan::Filter',
+      note_query: '::Queries::Note::Filter',
       observation_query: '::Queries::Observation::Filter',
       otu_query: '::Queries::Otu::Filter',
       person_query: '::Queries::Person::Filter',
       sound_query: '::Queries::Sound::Filter',
       source_query: '::Queries::Source::Filter',
+      tag_query: '::Queries::Tag::Filter',
       taxon_name_query: '::Queries::TaxonName::Filter',
       taxon_name_relationship_query: '::Queries::TaxonNameRelationship::Filter',
     }.freeze
@@ -229,6 +243,27 @@ module Queries
 
     # @return [Query::Sound::Filter, nil]
     attr_accessor :sound_query
+
+    # @return [Query::AlternateValue::Filter, nil]
+    attr_accessor :alternate_value_query
+
+    # @return [Query::Attribution::Filter, nil]
+    attr_accessor :attribution_query
+
+    # @return [Query::Confidence::Filter, nil]
+    attr_accessor :confidence_query
+
+    # @return [Query::Documentation::Filter, nil]
+    attr_accessor :documentation_query
+
+    # @return [Query::Identifier::Filter, nil]
+    attr_accessor :identifier_query
+
+    # @return [Query::Note::Filter, nil]
+    attr_accessor :note_query
+
+    # @return [Query::Tag::Filter, nil]
+    attr_accessor :tag_query
 
     # @return Boolean
     #   Applies an order on updated.
@@ -690,6 +725,26 @@ module Queries
     def project_id_facet
       return nil if project_id.empty?
       table[:project_id].in(project_id)
+    end
+
+    # Shared helper for polymorphic annotator filters (Tag, Note, Citation,
+    # Identifier, AlternateValue, Confidence, Attribution, Documentation,
+    # DataAttribute, Depiction). Filters this filter's annotator table to
+    # rows whose polymorphic FK pair resolves to a record in the nested
+    # subquery typed as `target_klass_name`.
+    #
+    # `nested_query` — the typed subquery (e.g. taxon_name_query).
+    # `target_klass_name` — the class string stored in <annotator>_object_type
+    #   (e.g. 'TaxonName', 'Otu', 'CollectionObject').
+    # `cte_name` — must be unique per facet to avoid CTE name collisions
+    #   when multiple facets compose.
+    def polymorphic_annotation_object_query_facet(nested_query, target_klass_name, cte_name)
+      return nil if nested_query.nil?
+      klass = referenced_klass
+      klass
+        .with(cte_name.to_sym => nested_query.all)
+        .joins("JOIN #{cte_name} ON #{cte_name}.id = #{klass.table_name}.#{klass.annotator_id} AND #{klass.table_name}.#{klass.annotator_type} = '#{target_klass_name}'")
+        .distinct
     end
 
     def object_global_id_facet

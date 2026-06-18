@@ -73,6 +73,76 @@ module Queries
         ]
       end
 
+      def anatomical_part_query_facet
+        polymorphic_annotation_object_query_facet(anatomical_part_query, 'AnatomicalPart', 'query_ap_cf')
+      end
+
+      def asserted_distribution_query_facet
+        polymorphic_annotation_object_query_facet(asserted_distribution_query, 'AssertedDistribution', 'query_ad_cf')
+      end
+
+      def biological_association_query_facet
+        polymorphic_annotation_object_query_facet(biological_association_query, 'BiologicalAssociation', 'query_ba_cf')
+      end
+
+      def collecting_event_query_facet
+        polymorphic_annotation_object_query_facet(collecting_event_query, 'CollectingEvent', 'query_ce_cf')
+      end
+
+      def collection_object_query_facet
+        polymorphic_annotation_object_query_facet(collection_object_query, 'CollectionObject', 'query_co_cf')
+      end
+
+      def content_query_facet
+        polymorphic_annotation_object_query_facet(content_query, 'Content', 'query_cnt_cf')
+      end
+
+      def descriptor_query_facet
+        polymorphic_annotation_object_query_facet(descriptor_query, 'Descriptor', 'query_d_cf')
+      end
+
+      def extract_query_facet
+        polymorphic_annotation_object_query_facet(extract_query, 'Extract', 'query_ex_cf')
+      end
+
+      def field_occurrence_query_facet
+        polymorphic_annotation_object_query_facet(field_occurrence_query, 'FieldOccurrence', 'query_fo_cf')
+      end
+
+      def observation_query_facet
+        polymorphic_annotation_object_query_facet(observation_query, 'Observation', 'query_obs_cf')
+      end
+
+      def otu_query_facet
+        polymorphic_annotation_object_query_facet(otu_query, 'Otu', 'query_otu_cf')
+      end
+
+      def sound_query_facet
+        polymorphic_annotation_object_query_facet(sound_query, 'Sound', 'query_snd_cf')
+      end
+
+      def taxon_name_query_facet
+        polymorphic_annotation_object_query_facet(taxon_name_query, 'TaxonName', 'query_tn_cf')
+      end
+
+      def merge_clauses
+        [
+          anatomical_part_query_facet,
+          asserted_distribution_query_facet,
+          biological_association_query_facet,
+          collecting_event_query_facet,
+          collection_object_query_facet,
+          content_query_facet,
+          descriptor_query_facet,
+          extract_query_facet,
+          field_occurrence_query_facet,
+          observation_query_facet,
+          otu_query_facet,
+          sound_query_facet,
+          taxon_name_query_facet
+        ]
+      end
+
     end
   end
 end
