@@ -25,6 +25,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - New Taxon Name: The source section is now disabled while a taxon name is being saved. [#4909]
 - The With/Without Type Information facet in Filter Taxon Names now returns higher ranks with/without a type [#4958]
 - Updated Ruby gems
+- Jobs from 'default' jobs queue are now processed in docker deployment image (ActiveStorage uses this queue)
 
 ### Fixed
 
@@ -41,6 +42,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - No result for Collecting Events tab of the Collection Summary task for some combinations of parameters
 - Print labels: In some cases, labels are cut off in preview mode. [#4959]
 - alt+h and alt+? not working outside of text inputs
+- Include Anatomical Part object info in anatomical part labels and tags [#4970]
 
 [#4796]: https://github.com/SpeciesFileGroup/taxonworks/issues/4796
 [#4909]: https://github.com/SpeciesFileGroup/taxonworks/issues/4909
@@ -53,6 +55,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4946]: https://github.com/SpeciesFileGroup/taxonworks/issues/4946
 [#4958]: https://github.com/SpeciesFileGroup/taxonworks/issues/4958
 [#4959]: https://github.com/SpeciesFileGroup/taxonworks/issues/4959
+[#4970]: https://github.com/SpeciesFileGroup/taxonworks/issues/4970
 
 ## [0.63.0] - 2026-05-15
 
