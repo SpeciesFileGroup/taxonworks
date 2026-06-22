@@ -7,6 +7,12 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ## [unreleased]
 
+### Fixed
+
+- Filters: Sort buttons do not reset their state when the table content changes
+
+## [0.63.1] - 2026-06-22
+
 ### Added
 
 - `type_taxon_name_relationship` support to the extend[] parameter in `inventory/summary.json`
@@ -6358,7 +6364,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.63.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.63.1...development
+[0.63.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.63.0...v0.63.1
 [0.63.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.62.0...v0.63.0
 [0.62.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.61.0...v0.62.0
 [0.61.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.60.0...v0.61.0
