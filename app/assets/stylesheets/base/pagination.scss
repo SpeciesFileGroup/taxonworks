@@ -54,9 +54,9 @@
   }
 
   .current {
-    background-color: var(--text-color);
-    border-color: var(--text-color);
-    color: var(--bg-foreground);
+    background-color: var(--bg-active);
+    border-color: var(--border-active);
+    color: var(--color-primary);
     font-weight: 600;
     position: relative;
     z-index: 1;

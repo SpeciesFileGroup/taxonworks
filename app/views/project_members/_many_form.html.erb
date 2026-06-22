@@ -6,11 +6,9 @@
   <div class="tw-card">
     <div class="tw-card-body flex-separate middle">
       <div class="flex-row gap-medium">
-        <div class="stat-icon blue">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-          </svg>
-        </div>
+        <span class="card-icon-chip">
+          <%= icon('shield') %>
+        </span>
 
         <div>
           <div class="tw-card-title">Project administrator</div>
@@ -33,32 +31,19 @@
   <div class="tw-card ">
     <div class="tw-card-header card-header-members">
       <div class="card-header-left">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="card-icon">
-          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-          <circle cx="9" cy="7" r="4"></circle>
-          <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
-          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-        </svg>
+        <span class="card-icon-chip">
+          <%= icon('users') %>
+        </span>
         <h2 class="tw-card-title">Users</h2>
       </div>
       <div class="card-header-actions">
         <input type="text" id="input-search" class="normal-input" autofocus="true" placeholder="Search a user...">
-        <%= link_to signup_path, class: 'button btn btn-primary' do -%>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-            <circle cx="9" cy="7" r="4"></circle>
-            <line x1="19" x2="19" y1="8" y2="14"></line>
-            <line x1="22" x2="16" y1="11" y2="11"></line>
-          </svg>
+        <%= link_to signup_path, class: 'button btn-primary btn-link btn-medium-size' do -%>
+          <%= icon('user-plus') %>
           Add new user
         <% end %>
-        <%= button_tag type: :submit, class: "btn button btn-create" do %>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-            <circle cx="9" cy="7" r="4"></circle>
-            <line x1="19" x2="19" y1="8" y2="14"></line>
-            <line x1="22" x2="16" y1="11" y2="11"></line>
-          </svg>
+        <%= button_tag type: :submit, class: "button btn-create btn-link btn-medium-size" do %>
+          <%= icon('user-plus') %>
           Add project member(s)
         <% end %>
       </div>

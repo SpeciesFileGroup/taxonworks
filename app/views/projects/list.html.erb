@@ -1,33 +1,7 @@
-<div id="project-list">
+<div id="project-list" class="tw-list">
   <div class="container-xl mx-auto">
     <div class="tw-card">
-      <div class="tw-card-header card-header-list">
-        <div class="card-header-left">
-          <span class="card-icon-chip">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z"></path>
-            </svg>
-          </span>
-          <h2 class="tw-card-title">All projects</h2>
-        </div>
-        <div class="card-header-actions">
-          <input type="text" id="input-search" class="normal-input" autofocus placeholder="Filter projects on this page...">
-          <%= link_to new_project_path, class: 'button btn-primary btn-link btn-medium-size' do -%>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M5 12h14"/>
-              <path d="M12 5v14"/>
-            </svg>
-            New project
-          <% end -%>
-        </div>
-      </div>
-
-      <div class="list-meta">
-        <p class="list-subtitle"><%= page_entries_info @projects %></p>
-        <div class="list-pagination">
-          <%= paginate @projects %>
-        </div>
-      </div>
+      <%= render 'list_controls', position: 'top', show_actions: true %>
 
       <div class="tw-card-body card-content-table">
         <div class="overflow-x-auto">
@@ -47,17 +21,14 @@
               <% @projects.each do |project| %>
                 <%= content_tag(:tr, class: :contextMenuCells) do -%>
                   <td class="avatar-col"><%= project_avatar(project, :small) %></td>
-                  <td><%= link_to(project.name, project_path(project), class: 'project-name') %></td>
+                  <td><%= link_to(project.name, project_path(project), class: 'list-link') %></td>
                   <td><%= project.project_members.count %></td>
                   <td>
                     <% if project.api_access_token.present? -%>
                       <span class="token-cell">
                         <code class="token-code"><%= project.api_access_token %></code>
                         <button type="button" class="token-copy" title="Copy token" data-token="<%= project.api_access_token %>">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
-                            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
-                          </svg>
+                          <%= icon('copy', size: 14) %>
                         </button>
                       </span>
                     <% end -%>
@@ -71,11 +42,7 @@
         </div>
       </div>
 
-      <div class="list-footer">
-        <div class="list-pagination">
-          <%= paginate @projects %>
-        </div>
-      </div>
+      <%= render 'list_controls', position: 'bottom' %>
     </div>
   </div>
 </div>

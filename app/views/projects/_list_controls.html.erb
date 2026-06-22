@@ -1,0 +1,15 @@
+<div class="list-controls list-controls-<%= position %>">
+  <div class="list-pagination">
+    <%= paginate @projects %>
+  </div>
+  <p class="list-subtitle"><%= page_entries_info @projects %></p>
+  <% if local_assigns[:show_actions] -%>
+    <div class="footer-actions">
+      <input type="text" class="normal-input list-filter-input" placeholder="Filter projects on this page...">
+      <%= link_to new_project_path, class: 'button btn-primary btn-link btn-medium-size' do -%>
+        <%= icon('new') %>
+        New project
+      <% end -%>
+    </div>
+  <% end -%>
+</div>

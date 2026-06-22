@@ -2,23 +2,12 @@
   <div class="flexbox">
     <div class="item item2">
       <div class="panel tw-card filter-card">
-        <div class="tw-card-header">
-          <span class="card-icon-chip">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
-            </svg>
-          </span>
-          <h2 class="tw-card-title">Filter</h2>
-          <button type="button" class="button btn-ghost btn-medium-circle reset" data-filter-category="reset" data-tooltip-content="Clear all filters" data-tooltip-placement="bottom" aria-label="Clear all filters">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
-              <path d="M3 3v5h5"/>
-            </svg>
-          </button>
-        </div>
         <div class="filter-body">
           <div class="search-row">
-            <input type="text" placeholder="Search by name..." class="item mousetrap" id="search-filter" autocomplete="off" autofocus="true" data-help="Filter cards that contain the provided text in the title.">
+            <input type="text" placeholder="Filter by card name..." class="item mousetrap" id="search-filter" autocomplete="off" autofocus="true" data-help="Filter cards that contain the provided text in the title.">
+            <button type="button" class="button btn-outline reset" data-filter-category="reset" data-tooltip-content="Clear all filters" data-tooltip-placement="bottom" aria-label="Clear all filters">
+              <%= icon('rotate-ccw') %>
+            </button>
           </div>
 
           <span class="filter-title" data-help="Filter cards by category.">Categories</span>

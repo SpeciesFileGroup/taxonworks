@@ -133,7 +133,7 @@ describe 'Users', type: :feature do
         }
 
         it 'should list users' do
-          expect(page).to have_selector('h1', text: 'Users')
+          expect(page).to have_selector('#user-list .list-table')
         end
       end
     end
@@ -146,7 +146,7 @@ describe 'Users', type: :feature do
           visit users_path
         }
         it 'should list users' do
-          expect(page).to have_selector('h1', text: 'Users')
+          expect(page).to have_selector('#user-list .list-table')
           expect(page).to have_content("#{@user.email}")
           expect(page).to have_link('Administration')
         end

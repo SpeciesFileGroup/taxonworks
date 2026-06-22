@@ -6,17 +6,14 @@
   <div class="tw-card">
     <div class="tw-card-header">
       <span class="card-icon-chip">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-          <circle cx="12" cy="7" r="4"/>
-        </svg>
+        <%= icon('user') %>
       </span>
       <h2 class="tw-card-title">Account</h2>
     </div>
     <div class="tw-card-body">
       <div class="field">
         <%= f.label :name %><br>
-        <%= f.text_field :name, class: 'w-96' %>
+        <%= f.text_field :name, class: 'w-96', autofocus: @user.new_record? %>
       </div>
 
       <div class="field">
@@ -52,10 +49,7 @@
   <div class="tw-card">
     <div class="tw-card-header">
       <span class="card-icon-chip">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-        </svg>
+        <%= icon('link') %>
       </span>
       <h2 class="tw-card-title">Identity</h2>
     </div>
@@ -78,9 +72,7 @@
     <div class="tw-card">
       <div class="tw-card-header">
         <span class="card-icon-chip">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-          </svg>
+          <%= icon('shield') %>
         </span>
         <h2 class="tw-card-title">Permissions</h2>
       </div>
@@ -96,9 +88,7 @@
   <div class="tw-card">
     <div class="tw-card-header">
       <span class="card-icon-chip">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
-        </svg>
+        <%= icon('key') %>
       </span>
       <h2 class="tw-card-title">API Access Token</h2>
     </div>
@@ -125,9 +115,7 @@
       <div class="tw-card-header card-header-list">
         <div class="card-header-left">
           <span class="card-icon-chip">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z"/>
-            </svg>
+            <%= icon('folder') %>
           </span>
           <h2 class="tw-card-title">Add to projects</h2>
         </div>
@@ -136,8 +124,8 @@
         </div>
       </div>
       <div class="tw-card-body card-content-table">
-        <div class="overflow-x-auto">
-          <table class="members-table tablesorter">
+        <div class="members-scroll">
+          <table class="members-table ">
             <thead>
               <tr>
                 <th class="th-center">Add</th>

@@ -1,23 +1,42 @@
-<h1> Users </h1>
-<% if @users.empty? %>
-  <p>No users found.</p>
-<% else %>
-  <table class="table-striped">
-    <tr>
-      <th>Name</th>
-      <th>email</th>
-      <th>administrator</th>
-      <th>Projects</th>
-      <th></th>
-    </tr>
-    <% @users.each do |user| %>
-      <tr>
-        <td><%= link_to user.name, user_path(user) %></td>
-        <td><%= user.email %></td>
-        <td><%= content_tag(:span, user.is_administrator?, class: user.is_administrator? ? 'passed' : nil) %></td>
-        <td><%= h(user.projects.order(:name).collect { |p| p.name }.join('; ')).html_safe %></td>
-        <td><span class="disabled"> Destroy </span>
-    <% end %>
-  </table>
-<% end %>
+<div id="user-list" class="tw-list">
+  <div class="container-xl mx-auto">
+    <div class="tw-card">
+      <%= render 'list_controls', position: 'top', show_actions: true %>
 
+      <div class="tw-card-body card-content-table">
+        <div class="overflow-x-auto">
+          <table class="list-table tablesorter">
+            <thead>
+              <tr>
+                <th class="avatar-col"></th>
+                <%= fancy_th_tag(name: 'Name') -%>
+                <%= fancy_th_tag(name: 'Email') -%>
+                <%= fancy_th_tag(name: 'Administrator') -%>
+                <%= fancy_th_tag(name: 'Projects') -%>
+              </tr>
+            </thead>
+            <tbody>
+              <% @users.each do |user| %>
+                <%= content_tag(:tr, class: :contextMenuCells) do -%>
+                  <td class="avatar-col"><%= user_avatar(user, :small) %></td>
+                  <td><%= link_to(user.name, user_path(user), class: 'list-link') %></td>
+                  <td><%= user.email %></td>
+                  <td>
+                    <% if user.is_administrator? -%>
+                      <span class="admin-badge">Admin</span>
+                    <% else -%>
+                      <span class="subtle">&mdash;</span>
+                    <% end -%>
+                  </td>
+                  <td><%= user.projects.count %></td>
+                <% end %>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <%= render 'list_controls', position: 'bottom' %>
+    </div>
+  </div>
+</div>

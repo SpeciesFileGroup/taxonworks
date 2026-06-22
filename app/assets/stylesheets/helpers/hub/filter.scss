@@ -1,7 +1,6 @@
 .dark {
   #hub {
-    img,
-    .favourite_link {
+    img {
       filter: invert(1);
     }
   }
@@ -32,19 +31,23 @@
       padding: var(--spacing-md);
     }
 
-    .tw-card-header {
-      padding: var(--spacing-md);
-
-      .reset {
-        margin-left: auto;
-      }
-    }
-
     .search-row {
       display: flex;
       align-items: center;
       gap: var(--spacing-xs);
       padding: 0;
+
+      .reset {
+        display: inline-flex;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: center;
+        width: var(--size-large);
+        height: var(--size-large);
+        padding: 0;
+        border-radius: var(--border-radius-medium);
+        color: var(--text-muted-color);
+      }
     }
 
     #search-filter {

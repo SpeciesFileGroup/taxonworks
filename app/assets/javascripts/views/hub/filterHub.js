@@ -65,6 +65,21 @@ FilterHub.prototype.handleEvents = function (that) {
     })
   })
 
+  searchFilter.addEventListener('keydown', function (event) {
+    if (event.key !== 'Tab' || event.shiftKey) return
+
+    const firstCard = [
+      ...document.querySelectorAll(
+        '#task_carrousel .task_card a[tabindex="0"], [data-section] .card-container a[tabindex="0"]'
+      )
+    ].find((link) => link.offsetParent !== null)
+
+    if (firstCard) {
+      event.preventDefault()
+      firstCard.focus()
+    }
+  })
+
   const resetButtons = document.querySelectorAll('.reset-all-filters')
   resetButtons.forEach((btn) =>
     btn.addEventListener('click', function () {

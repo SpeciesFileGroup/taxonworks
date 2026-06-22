@@ -1,0 +1,12 @@
+<div class="list-controls list-controls-<%= position %>">
+  <p class="list-subtitle"><%= pluralize(@users.size, 'user') %></p>
+  <% if local_assigns[:show_actions] -%>
+    <div class="footer-actions">
+      <input type="text" class="normal-input list-filter-input" placeholder="Filter users...">
+      <%= link_to signup_path, class: 'button btn-primary btn-link btn-medium-size' do -%>
+        <%= icon('new') %>
+        New user
+      <% end -%>
+    </div>
+  <% end -%>
+</div>

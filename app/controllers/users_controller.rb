@@ -9,7 +9,7 @@ class UsersController < ApplicationController
 
   # GET /users
   def index
-    @users = User.all.order(:name, :email)
+    @users = User.order(:name, :email)
   end
 
   # GET /signup
@@ -204,7 +204,7 @@ class UsersController < ApplicationController
     # Administrators can add users to ANY project
     # Project administrators can only add users to projects they administer
     @available_projects = if is_administrator?
-      Project.order(:name)
+                            Project.order(:name)
     else
       sessions_current_user&.administered_projects&.order(:name) || []
     end

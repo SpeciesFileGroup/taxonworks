@@ -1,10 +1,3 @@
-function copyToken(e) {
-  const token = e.currentTarget.dataset.token
-
-  navigator.clipboard.writeText(token)
-  TW.workbench.alert.create('API token copied to clipboard', 'notice')
-}
-
 function initialize() {
   const table = document.querySelector('.list-table')
   const inputs = [...document.querySelectorAll('.list-filter-input')]
@@ -16,6 +9,7 @@ function initialize() {
   function filterTable(e) {
     const lowerSearch = e.target.value.toLowerCase()
 
+    // Keep the top and bottom filter inputs in sync.
     inputs.forEach((input) => {
       if (input !== e.target) input.value = e.target.value
     })
@@ -32,15 +26,10 @@ function initialize() {
     input.removeEventListener('input', filterTable)
     input.addEventListener('input', filterTable)
   })
-
-  table.querySelectorAll('.token-copy').forEach((button) => {
-    button.removeEventListener('click', copyToken)
-    button.addEventListener('click', copyToken)
-  })
 }
 
 document.addEventListener('turbolinks:load', () => {
-  if (document.querySelector('#project-list')) {
+  if (document.querySelector('#user-list')) {
     initialize()
   }
 })

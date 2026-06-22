@@ -36,6 +36,7 @@ import '../vanilla/views/projects/list.js'
 import '../vanilla/views/projects/show.js'
 import '../vanilla/views/users/show.js'
 import '../vanilla/views/users/form.js'
+import '../vanilla/views/users/index.js'
 
 import '../vue/data/downloads/index.js'
 

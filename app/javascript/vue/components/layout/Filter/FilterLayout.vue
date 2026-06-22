@@ -54,6 +54,7 @@
             <VBtn
               color="primary"
               class="circle-button"
+              circle
               v-tooltip="{ content: 'Reset (Alt/Ctrl + R)', placement: 'bottom' }"
               @click="emit('reset')"
             >

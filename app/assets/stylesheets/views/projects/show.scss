@@ -34,6 +34,12 @@
     margin-bottom: 4px;
   }
 
+  .project-subtitle {
+    margin: var(--spacing-xxs) 0 0;
+    font-size: var(--font-size-sm);
+    color: var(--text-muted-color);
+  }
+
   .btn-full:last-child {
     margin-bottom: 0;
   }
@@ -123,11 +129,15 @@
 
   .members-table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     font-size: 13px;
   }
 
   .members-table th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
     padding: 0 1rem;
     text-align: left;
     font-size: 11px;
@@ -138,6 +148,11 @@
     background-color: var(--bg-muted);
     border-bottom: 1px solid var(--border-color);
     white-space: nowrap;
+  }
+
+  .members-scroll {
+    max-height: 806px;
+    overflow: auto;
   }
 
   .th-center {

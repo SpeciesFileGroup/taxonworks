@@ -9,6 +9,10 @@ module Workbench::NavigationHelper
 
   NOT_DATA_PATHS = %w{/project /administration /user}.freeze
 
+  def model_action_icon(name)
+    content_tag(:span, icon(name), class: 'svg-icon', data: { icon: name })
+  end
+
   def class_navigation_json(klass)
     k = klass
     b = {}
@@ -120,10 +124,10 @@ module Workbench::NavigationHelper
 
   def new_for_model_link(model)
     content = safe_join([
-      content_tag(:span, '', class: 'icon', data: { icon: 'new' }),
-      'New'], 
+      model_action_icon('new'),
+      'New'],
     '')
-    
+
     if NO_NEW_FORMS.include?(model.name)
       nil
     elsif model.name == 'ProjectSource'
@@ -135,8 +139,8 @@ module Workbench::NavigationHelper
 
   def list_for_model_link(model)
     content = safe_join([
-      content_tag(:span, '', class: 'icon', data: { icon: 'list'}),
-      'List'], 
+      model_action_icon('list'),
+      'List'],
     '')
 
     has_records = model.has_attribute?(:project_id) ? model.where(project_id: sessions_current_project_id).exists?  : model.any?
@@ -145,7 +149,7 @@ module Workbench::NavigationHelper
       link_to(content, list_path_for_model(model))
     else
       content_tag(:span, safe_join([
-        content_tag(:span, '', data: { icon: :list }),
+        model_action_icon('list'),
         content_tag(:span, "No #{model.name} to list")
       ], ''), class: :disabled)
     end
@@ -153,8 +157,8 @@ module Workbench::NavigationHelper
 
   def download_for_model_link(model)
     content = safe_join([
-      content_tag(:span, '', class: 'icon', data: { icon: :download }),
-      'Download'], 
+      model_action_icon('download'),
+      'Download'],
     '')
 
     if self.controller.respond_to?(:download)
@@ -239,8 +243,8 @@ module Workbench::NavigationHelper
 
   def batch_load_link
     content = safe_join([
-      content_tag(:span, '', class: 'icon', data: { icon: 'batch' }),
-      'Batch load'], 
+      model_action_icon('batch'),
+      'Batch load'],
     '')
 
     if self.controller.respond_to?(:batch_load)

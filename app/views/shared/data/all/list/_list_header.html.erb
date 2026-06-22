@@ -1,15 +1,10 @@
-<div id="nav-list" class="panels-container margin-medium-bottom">  
-  <div class="panel column-big separate-right" data-help="Use the left and right buttoms to hide or show columns groups">
-    <div class="title nav-line <%= @hub_model_metadata.combined_css if @hub_model_metadata %>">
-      <span><%= page_entries_info objects %></span>
-    </div>      
-    <div class="navigation-controls"> 
-      <div class="navigation-bar-left">
-      <%= paginate objects %>
-      </div>
-      <div class="navigation-bar-right">
-        <%= download_for_model_link(@hub_model_metadata.klass) if @hub_model_metadata %>
-      </div>
-    </div>       
+<div id="nav-list" class="list-header <%= @hub_model_metadata.combined_css if @hub_model_metadata %>">
+  <div class="list-pagination">
+    <%= paginate objects %>
+  </div>
+  <span class="list-count"><%= page_entries_info objects %></span>
+  <div class="list-actions">
+    <%= new_for_model_link(@hub_model_metadata.klass) if @hub_model_metadata %>
+    <%= download_for_model_link(@hub_model_metadata.klass) if @hub_model_metadata %>
   </div>
 </div>

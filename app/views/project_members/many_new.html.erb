@@ -1,7 +1,15 @@
 <div id="project-members-new">
-  <div class="margin-large-bottom">
-    <h1>New project member</h1>
-    <div><%= @project_member.project.name %></div>
-  </div>
+  <header class="project-header">
+    <div class="project-info">
+      <div class="project-avatar">
+        <%= icon('user-plus', size: 28) %>
+      </div>
+      <div class="project-details">
+        <h1 class="project-title">New project member</h1>
+        <p class="project-subtitle"><%= @project_member.project.name %></p>
+      </div>
+    </div>
+  </header>
+
   <%= render 'many_form' %>
 </div>

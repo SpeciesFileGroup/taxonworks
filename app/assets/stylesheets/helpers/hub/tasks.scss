@@ -100,11 +100,12 @@
 
   .fav-link {
     position: absolute;
-    inset-inline-end: 14px;
-    top: 12px;
+    inset-inline-end: 6px;
+    top: var(--spacing-sm);
+    right: var(--spacing-sm);
 
     a {
-      padding: 8px;
+      padding: 0;
       border-radius: 100%;
     }
 

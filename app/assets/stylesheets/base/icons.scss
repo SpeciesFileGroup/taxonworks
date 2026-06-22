@@ -9,6 +9,10 @@
   [data-icon='blue_wrench'] {
     filter: invert(0);
   }
+
+  .svg-icon[data-icon] {
+    filter: none;
+  }
 }
 
 [data-icon] {
@@ -18,6 +22,19 @@
   padding-left: 20px;
   min-height: 16px;
   align-items: center;
+}
+
+.svg-icon[data-icon] {
+  margin-right: var(--spacing-xs);
+  padding-left: 0;
+  min-height: 0;
+  background-image: none;
+
+  svg {
+    width: 14px;
+    height: 14px;
+    vertical-align: -0.125em;
+  }
 }
 
 .center-icon {

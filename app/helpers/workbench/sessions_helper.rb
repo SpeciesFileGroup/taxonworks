@@ -194,14 +194,15 @@ module Workbench::SessionsHelper
     ]
   end
 
-  # TODO: NOT here
-  # @param [String]
-  # @param [String]
+  def favorite_star_icon(filled:)
+    icon('favorite-star', fill: filled ? 'currentColor' : 'none')
+  end
+
   def favorite_page_link(kind, name)
     if favorites?(kind, name)
-      link_to('Unfavorite page', unfavorite_page_path(kind:, name:), method: :post, remote: true, id: "unfavorite_link_#{kind}-#{name}", class: :unfavorite_link, 'data-tooltip-content': 'Remove from favorites')
+      link_to(favorite_star_icon(filled: true), unfavorite_page_path(kind:, name:), method: :post, remote: true, id: "unfavorite_link_#{kind}-#{name}", class: :unfavorite_link, 'aria-label': 'Remove from favorites', 'data-tooltip-content': 'Remove from favorites')
     else
-      link_to('Favorite page', favorite_page_path(kind:, name:), method: :post, remote: true, id: "favorite_link_#{kind}-#{name}", class: :favourite_link, 'data-tooltip-content': 'Add to favorites')
+      link_to(favorite_star_icon(filled: false), favorite_page_path(kind:, name:), method: :post, remote: true, id: "favorite_link_#{kind}-#{name}", class: :favourite_link, 'aria-label': 'Add to favorites', 'data-tooltip-content': 'Add to favorites')
     end
   end
 

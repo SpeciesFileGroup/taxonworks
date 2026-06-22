@@ -13,10 +13,12 @@
 
   --bg-color: #f7f8fc;
   --bg-foreground: var(--white);
-  --bg-muted: var(--slate-50);
+  --bg-muted: var(--slate-100);
   --bg-action: var(--slate-200);
   --bg-hover: var(--slate-100);
-  --border-color: #d5d5d5;
+  --bg-active: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  --border-active: color-mix(in srgb, var(--color-primary) 35%, transparent);
+  --border-color: var(--slate-300);
   --button-disabled-bg-color: #ececec;
   --button-disabled-text-color: #595959;
   --button-default-bg-color: #dddcdc;
@@ -26,8 +28,9 @@
   --panel-shadow: rgba(36, 37, 38, 0.08) 4px 4px 15px 0px;
   --panel-shadow-hover: rgba(36, 37, 38, 0.18) 0px 6px 18px 0px;
   --panel-border-color: var(--slate-200);
-  --text-color: var(--black);
+  --text-color: var(--slate-900);
   --text-muted-color: var(--gray-500);
+  --muted-foreground: var(--gray-500);
 
   --focus-ring: #64748b;
 
@@ -145,23 +148,24 @@
   --btn-radial-background: #eeeeee;
   --btn-radial-color: var(--color-primary);
 
-  --bg-action: var(--black);
-  --bg-hover: var(--black);
-  --bg-color: #242424;
-  --bg-foreground: #333333;
-  --bg-muted: #1b1b1b;
-  --border-color: #5b5b5b;
+  --bg-color: #0d1117;
+  --bg-muted: #161b22;
+  --bg-foreground: #1b2128;
+  --bg-hover: #21262d;
+  --bg-action: #2d333b;
+  --border-color: #30363d;
   --button-disabled-bg-color: #555555;
   --button-disabled-text-color: #aaaaaa;
-  --button-default-bg-color: #3a3a3a;
-  --input-bg-color: #2b2b2b;
-  --input-bg-disabled: #242424;
-  --panel-bg-color: #333333;
+  --button-default-bg-color: #2d333b;
+  --input-bg-color: #0d1117;
+  --input-bg-disabled: #161b22;
+  --panel-bg-color: #1b2128;
   --panel-shadow: rgba(0, 0, 0, 0.25) 4px 4px 15px 0px;
   --panel-shadow-hover: rgba(0, 0, 0, 0.45) 0px 6px 18px 0px;
-  --panel-border-color: #28292c;
-  --text-color: var(--white);
-  --text-muted-color: #c6c6c6;
+  --panel-border-color: #21262d;
+  --text-color: #e6edf3;
+  --text-muted-color: #8b949e;
+  --muted-foreground: #8b949e;
 
   --focus-ring: #94a3b8;
 
@@ -176,9 +180,9 @@
 
   --soft-validation-bg-color: #37332f;
 
-  --table-row-bg-even: #333333;
-  --table-row-bg-odd: #444444;
-  --table-row-bg-hover: var(--black);
+  --table-row-bg-even: #1b2128;
+  --table-row-bg-odd: #20262e;
+  --table-row-bg-hover: #262c34;
 
   --feedback-primary-text-color: #b6cfff;
   --feedback-primary-bg-color: #234079;

@@ -1,113 +1,137 @@
-var TW = TW || {}
-TW.views = TW.views || {}
-TW.views.shared = TW.views.shared || {}
-TW.views.shared.list = TW.views.shared.list || {}
+;(function () {
+  window.TW = window.TW || {}
+  TW.views = TW.views || {}
+  TW.views.shared = TW.views.shared || {}
+  TW.views.shared.list = TW.views.shared.list || {}
 
-Object.assign(TW.views.shared.list, {
-  init: function () {
-    var animationTime = 250
+  function init() {
+    addActionsHeader()
+    addColumnsDropdown()
+    wrapTableInCard()
+    initRowDoubleClick()
+    initPaginationShortcuts()
+    orderLists()
+  }
 
-    function showAll() {
-      $('th, td').not('.table-options').show(animationTime)
-      $('[data-filter-active]').attr('data-filter-active', 'true')
-      $('[data-group]').find('[data-icon]').attr('data-icon', 'show')
-    }
+  function wrapTableInCard() {
+    var table = document.querySelector('#main .tablesorter')
+    if (!table) return
 
-    $('div').on('click', '.reset[showAll]', function () {
-      showAll()
+    var parent = table.parentNode
+    if (parent.classList && parent.classList.contains('tw-card')) return
+
+    var card = document.createElement('div')
+    card.className = 'tw-card table-card'
+    parent.insertBefore(card, table)
+    card.appendChild(table)
+  }
+
+  function initRowDoubleClick() {
+    document.querySelectorAll('tbody tr').forEach(function (row) {
+      row.addEventListener('dblclick', function () {
+        var link = row.querySelector('a[data-show]')
+        if (link) location.href = link.getAttribute('href')
+      })
     })
+  }
 
-    $('div').on(
-      'click',
-      '#displayOptions .navigation-item[data-group]',
-      function (event) {
-        event.stopImmediatePropagation()
-        $.each(
-          $('table th[data-group="' + $(this).attr('data-group') + '"]'),
-          function (key, value) {
-            toggleColumn($(value))
-          }
+  function addColumnsDropdown() {
+    var table = document.querySelector('#main .tablesorter')
+    var actions = document.querySelector('#nav-list .list-actions')
+    if (!table || !actions || document.querySelector('#displayOptions')) return
+
+    var groups = uniqueGroups(table)
+    if (groups.length === 0) return
+
+    var items = groups
+      .map(function (group) {
+        return (
+          '<label class="columns-menu-item" data-group="' +
+          group +
+          '"><input type="checkbox" class="columns-checkbox" checked>' +
+          '<span class="col-label">' +
+          group +
+          '</span></label>'
         )
-        if ($(this).attr('data-filter-active') === 'true') {
-          $(this).attr('data-filter-active', 'false')
-          $(this).find('[data-icon]').attr('data-icon', 'hide')
-        } else {
-          $(this).attr('data-filter-active', 'true')
-          $(this).find('[data-icon]').attr('data-icon', 'show')
-        }
-      }
+      })
+      .join('')
+
+    actions.insertAdjacentHTML(
+      'afterbegin',
+      '<div id="displayOptions" class="columns-dropdown" data-help="Show or hide column groups.">' +
+        '<button type="button" class="columns-toggle button btn-outline btn-medium-size">Columns</button>' +
+        '<div class="columns-menu">' +
+        items +
+        '</div></div>'
     )
 
-    var dataList = $.grep(
-      $('table th').map(function () {
-        return $(this).attr('data-group')
-      }),
-      function (value) {
-        return value != 'null'
-      }
-    )
+    wireColumnsDropdown()
+  }
 
-    displayList = unique(dataList)
-
-    if (displayList.length > 0) {
-      $('#nav-list').append(createDivDisplay())
-    }
-
-    function createDivDisplay() {
-      var injectionHtml =
-        '<div id="displayOptions" class="panel column-small separate-left" data-help="Click on the buttoms to show or hide columns groups."><div class="title action-line cursor-pointer">Display<div class="small-icon reset" data-filter-active="true" showAll><span data-icon="reset"></span>Reset</div></div><div class="navigation-controls">'
-      $.each(displayList, function (i, value) {
-        injectionHtml += createOptionDisplay(value)
-      })
-      injectionHtml += '</div></div>'
-      return injectionHtml
-    }
-
-    function createOptionDisplay(value) {
-      return (
-        '<div class="navigation-item" data-group="' +
-        value +
-        '" data-filter-active="true"><a><span data-icon="show"></span>' +
-        value +
-        '</a></div>'
-      )
-    }
-
-    function unique(list) {
-      var result = []
-      $.each(list, function (i, e) {
-        if ($.inArray(e, result) == -1) result.push(e)
-      })
-      return result
-    }
-
-    $('tbody tr').dblclick(function () {
-      if ($(this).find('[data-show] a').length > 0) {
-        location.href = $(this).find('[data-show] a').attr('href')
+  function uniqueGroups(table) {
+    var groups = []
+    table.querySelectorAll('thead th[data-group]').forEach(function (th) {
+      var group = th.getAttribute('data-group')
+      if (group && group !== 'null' && groups.indexOf(group) === -1) {
+        groups.push(group)
       }
     })
+    return groups
+  }
 
-    function toggleColumn(elementObject) {
-      $(
-        elementObject
-          .parents('table')
-          .find('td:nth-child(' + ($(elementObject).index() + 1) + ')')
-      ).toggle(250)
-      $(
-        elementObject
-          .parents('table')
-          .find('th:nth-child(' + ($(elementObject).index() + 1) + ')')
-      ).toggle(250)
+  function wireColumnsDropdown() {
+    var dropdown = document.querySelector('#displayOptions')
+    if (!dropdown) return
+
+    var table = document.querySelector('#main .tablesorter')
+
+    dropdown
+      .querySelector('.columns-toggle')
+      .addEventListener('click', function (event) {
+        event.stopPropagation()
+        dropdown.classList.toggle('open')
+      })
+
+    dropdown.querySelectorAll('.columns-checkbox').forEach(function (checkbox) {
+      checkbox.addEventListener('change', function () {
+        var group = checkbox.closest('[data-group]').getAttribute('data-group')
+        setGroupVisible(table, group, checkbox.checked)
+      })
+    })
+
+    document.removeEventListener('click', closeColumnsMenuOnOutsideClick)
+    document.addEventListener('click', closeColumnsMenuOnOutsideClick)
+  }
+
+  function closeColumnsMenuOnOutsideClick(event) {
+    var dropdown = document.querySelector('#displayOptions')
+    if (dropdown && !dropdown.contains(event.target)) {
+      dropdown.classList.remove('open')
     }
+  }
 
+  function setGroupVisible(table, group, show) {
+    if (!table) return
+    table
+      .querySelectorAll('thead th[data-group="' + group + '"]')
+      .forEach(function (th) {
+        var column = th.cellIndex + 1
+        table
+          .querySelectorAll('tr > :nth-child(' + column + ')')
+          .forEach(function (cell) {
+            cell.style.display = show ? '' : 'none'
+          })
+      })
+  }
+
+  function initPaginationShortcuts() {
     TW.workbench.keyboard.createShortcut(
       'left',
       'Go to previous page',
       'Lists',
       function () {
-        if ($('.pagination a[rel="prev"]').length > 0) {
-          location.href = $('.pagination a[rel="prev"]').attr('href')
-        }
+        var prev = document.querySelector('.pagination a[rel="prev"]')
+        if (prev) location.href = prev.getAttribute('href')
       }
     )
 
@@ -116,84 +140,48 @@ Object.assign(TW.views.shared.list, {
       'Go to next page',
       'Lists',
       function () {
-        if ($('.pagination a[rel="next"]').length > 0) {
-          location.href = $('.pagination a[rel="next"]').attr('href')
-        }
+        var next = document.querySelector('.pagination a[rel="next"]')
+        if (next) location.href = next.getAttribute('href')
       }
     )
-
-    initContextMenus()
-    headerTableOptions()
-    orderLists()
-
-    function orderLists() {
-      $('table').tablesorter({
-        widgets: ['zebra']
-      })
-    }
-
-    function initContextMenus() {
-      $.contextMenu('destroy', '.contextMenuCells')
-      $.contextMenu({
-        selector: '.contextMenuCells',
-        autoHide: true,
-        callback: function (key, options) {
-          var m = 'clicked: ' + key
-
-          switch (key) {
-            case 'show':
-              location.href = $(this).find('[data-show] a').attr('href')
-              break
-            case 'edit':
-              location.href = $(this).find('[data-edit] a').attr('href')
-              break
-            case 'pin':
-              $(this).find('[data-pin] a').click()
-              break
-            case 'delete':
-              $(this).find('[data-delete] a').click()
-              break
-          }
-        },
-        items: {
-          show: { name: 'Show', icon: 'show' },
-          sep1: '---------',
-          edit: { name: 'Edit', icon: 'edit' },
-          pin: { name: 'Pin/Unpin', icon: 'pin' },
-          delete: { name: 'Delete', icon: 'delete' }
-        }
-      })
-    }
-
-    function headerTableOptions() {
-      $.contextMenu('destroy', 'thead th')
-      $.contextMenu({
-        selector: 'thead th',
-        autoHide: true,
-        callback: function (key, options) {
-          var m = 'clicked: ' + key
-
-          switch (key) {
-            case 'delete':
-              toggleColumn(options.$trigger)
-              break
-            case 'show':
-              showAll(options.$trigger)
-              break
-          }
-        },
-        items: {
-          delete: { name: 'Delete', icon: 'delete' },
-          sep1: '---------',
-          show: { name: 'Show All', icon: 'show' }
-        }
-      })
-    }
   }
-})
 
-$(document).on('turbolinks:load', function () {
-  if ($('#main .tablesorter').length) {
-    TW.views.shared.list.init()
+  function addActionsHeader() {
+    document.querySelectorAll('#main .tablesorter').forEach(function (table) {
+      var headerRow = table.querySelector('thead tr')
+      if (
+        headerRow &&
+        table.querySelector('tbody .row-actions') &&
+        !table.querySelector('.row-actions-th')
+      ) {
+        headerRow.insertAdjacentHTML(
+          'beforeend',
+          '<th class="row-actions-th sorter-false"></th>'
+        )
+      }
+    })
   }
-})
+
+  function orderLists() {
+    var jq = window.jQuery
+    if (!jq) return
+
+    document.querySelectorAll('table').forEach(function (table) {
+      var options = { widgets: ['zebra'] }
+
+      if (table.querySelector('.row-actions-th')) {
+        var lastIndex = table.querySelectorAll('thead th').length - 1
+        options.headers = {}
+        options.headers[lastIndex] = { sorter: false }
+      }
+
+      jq(table).tablesorter(options)
+    })
+  }
+
+  document.addEventListener('turbolinks:load', function () {
+    if (document.querySelector('#main .tablesorter')) init()
+  })
+
+  TW.views.shared.list.init = init
+})()
