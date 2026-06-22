@@ -2,7 +2,8 @@
   <VBtn
     :class="['margin-small-left', isFocus && 'button-focus--active']"
     circle
-    :color="isFocus ? 'disabled' : 'primary'"
+    color="primary"
+    :variant="isFocus ? 'tonal' : 'solid'"
     title="Focus this protonym"
     @click="toggleFocus"
   >

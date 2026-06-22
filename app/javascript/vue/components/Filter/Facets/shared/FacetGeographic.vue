@@ -4,7 +4,7 @@
 
     <VSwitch
       v-if="Object.values(TABS).length > 0"
-      class="separate-bottom"
+      class="capitalize"
       v-model="view"
       :options="Object.values(TABS)"
     />

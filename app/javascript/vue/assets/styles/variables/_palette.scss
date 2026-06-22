@@ -16,7 +16,7 @@
   --bg-muted: var(--slate-100);
   --bg-action: var(--slate-200);
   --bg-hover: var(--slate-100);
-  --bg-active: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  --bg-active: var(--color-soft-primary-bg);
   --border-active: color-mix(in srgb, var(--color-primary) 35%, transparent);
   --border-color: var(--slate-300);
   --button-disabled-bg-color: #ececec;
@@ -83,6 +83,12 @@
   --color-soft-success-bg: color-mix(
     in srgb,
     var(--emerald-500) 8%,
+    transparent
+  );
+
+  --color-soft-primary-bg: color-mix(
+    in srgb,
+    var(--color-primary) 12%,
     transparent
   );
 
@@ -218,6 +224,11 @@
   --color-soft-success-bg: color-mix(
     in srgb,
     var(--emerald-500) 16%,
+    transparent
+  );
+  --color-soft-primary-bg: color-mix(
+    in srgb,
+    var(--color-primary) 12%,
     transparent
   );
   --color-soft-warning-bg: color-mix(

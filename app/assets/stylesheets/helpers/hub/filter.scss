@@ -109,7 +109,7 @@
       }
 
       .navigation-item.activated {
-        background-color: color-mix(in srgb, var(--color-primary) 12%, transparent) !important;
+        background-color: var(--color-soft-primary-bg) !important;
         border-radius: var(--border-radius-small);
         color: var(--color-primary);
         font-weight: 500;
@@ -188,7 +188,7 @@
 
     .status-chip.selected {
       opacity: 1;
-      background-color: color-mix(in srgb, var(--color-primary) 12%, transparent);
+      background-color: var(--color-soft-primary-bg);
       border-color: color-mix(in srgb, var(--color-primary) 35%, transparent);
       color: var(--color-primary);
     }
@@ -202,7 +202,7 @@
     }
 
     .activated {
-      background-color: color-mix(in srgb, var(--color-primary) 12%, transparent) !important;
+      background-color: var(--color-soft-primary-bg) !important;
       color: var(--color-primary);
       opacity: 1 !important;
     }

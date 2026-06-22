@@ -141,6 +141,10 @@ a.btn:hover {
   }
 }
 
+.btn-tonal.btn-primary {
+  background-color: var(--color-soft-primary-bg);
+}
+
 .btn-transparent {
   background-color: transparent;
 }

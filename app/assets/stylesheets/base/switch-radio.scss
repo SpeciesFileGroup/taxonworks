@@ -1,6 +1,12 @@
 .switch-radio {
   display: flex;
-  overflow: hidden;
+  width: fit-content;
+  max-width: 100%;
+  gap: var(--spacing-xxs);
+  padding: var(--spacing-xxs);
+  border-radius: var(--border-radius-medium);
+  background-color: var(--bg-color);
+
   .switch-title {
     margin-bottom: 6px;
   }
@@ -15,44 +21,33 @@
   }
 
   label {
-    float: left;
-  }
-
-  label {
-    display: inline-block;
-    min-width: 60px;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 12px;
-    background-color: var(--color-primary);
-    color: #ffffff;
-    border-right: 1px solid rgba(0, 0, 0, 0.2);
-    font-weight: normal;
     text-align: center;
-    padding: 6px 14px;
+    background-color: transparent;
+    color: var(--text-muted-color);
+    border: 0;
+    border-radius: var(--border-radius-small);
+    font-weight: normal;
+    padding: var(--spacing-xxs) var(--spacing-sm);
     transition: all 0.1s ease-in-out;
   }
 
   label:hover {
     cursor: pointer;
+    color: var(--text-color);
   }
 
   input:checked + label {
-    box-shadow: 0 1px 1px 0px rgba(0, 0, 0, 0.2) inset;
-    background-color: var(--button-disabled-bg-color);
-    color: var(--button-disabled-text-color);
-    border: 1px solid var(--border-color);
+    background-color: var(--color-soft-primary-bg);
+    color: var(--color-primary);
+    font-weight: 500;
   }
 
   input:focus + label {
-    border: 1px solid var(--color-primary);
-    box-shadow: 0 0px 5px 1px var(--color-primary) inset;
-  }
-
-  label:first-of-type {
-    border-left: 1px solid rgba(0, 0, 0, 0.2);
-    border-radius: 3px 0 0 3px;
-  }
-
-  label:last-of-type {
-    border-radius: 0 3px 3px 0;
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 25%, transparent);
   }
 }
