@@ -7,7 +7,9 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ## [unreleased]
 
-\-
+### Fixed
+
+- Filters: Sort buttons do not reset their state when the table content changes
 
 ## [0.63.1] - 2026-06-22
 
