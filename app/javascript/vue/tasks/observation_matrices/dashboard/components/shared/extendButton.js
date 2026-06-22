@@ -96,7 +96,7 @@ export default {
       Promise.allSettled(promises).then(() => {
         if (promises.length) {
           TW.workbench.alert.create(
-            'Rows was successfully added to matrix.',
+            'Rows were successfully added to the matrix.',
             'notice'
           )
         }

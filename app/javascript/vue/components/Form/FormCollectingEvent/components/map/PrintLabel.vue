@@ -19,7 +19,7 @@
         </button>
       </div>
       <label
-        >Que to print
+        >Queue to print
         <input
           class="que-input"
           type="number"

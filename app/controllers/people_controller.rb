@@ -126,8 +126,7 @@ class PeopleController < ApplicationController
     people = Queries::Person::Filter.new(author_match_params).all.to_a
 
     @people = Utilities::PersonNameMatch.sort_by_match(people, first_name, last_name)
-
-    render :index
+    @project_use_counts = Person.project_use_counts(@people.map(&:id), sessions_current_project_id)
   end
 
   # GET /people/download

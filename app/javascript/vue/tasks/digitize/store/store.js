@@ -21,6 +21,7 @@ function makeInitialState() {
       lastChange: 0,
       lastSave: 0,
       loading: false,
+      pendingDepictions: 0,
       saveIdentifier: true,
       saving: false,
       locked: {

@@ -105,7 +105,7 @@ function success(file, response) {
 }
 
 function removeImage(image) {
-  if (window.confirm('Are you sure want to proceed?')) {
+  if (window.confirm('Are you sure you want to proceed?')) {
     emit('delete', image)
   }
 }

@@ -1,8 +1,11 @@
 <template>
   <svg
+    ref="root"
     xmlns="http://www.w3.org/2000/svg"
-    :width="width || elementSize"
-    :height="height || elementSize"
+    :style="{
+      width: width || elementSize,
+      height: height || elementSize
+    }"
     :viewBox="viewbox"
     :aria-labelledby="name"
     role="presentation"
@@ -11,7 +14,7 @@
       :id="name"
       lang="en"
     >
-      {{ showTitle }}
+      {{ title }}
     </title>
     <g
       ref="svggroup"
@@ -27,111 +30,102 @@
   </svg>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { onVisible } from '@/helpers/observable.js'
-import mixinSizes from '../mixins/sizes.js'
-import mixinColors from '../mixins/colors.js'
+import { useSizes, useColors, sizeProps, colorProps } from '@/composables'
 import * as Icons from './icons.js'
 
-export default {
-  name: 'VIcon',
+defineOptions({ name: 'VIcon' })
 
-  mixins: [mixinSizes, mixinColors],
+const props = defineProps({
+  ...sizeProps,
+  ...colorProps,
 
-  props: {
-    disabled: {
-      type: Boolean,
-      default: false
-    },
-
-    name: {
-      type: String,
-      required: true
-    },
-
-    title: {
-      type: String,
-      default: undefined
-    },
-
-    width: {
-      type: String,
-      default: undefined
-    },
-
-    height: {
-      type: String,
-      default: undefined
-    }
+  disabled: {
+    type: Boolean,
+    default: false
   },
 
-  data() {
-    return {
-      viewbox: '0 0 12 12'
-    }
+  name: {
+    type: String,
+    required: true
   },
 
-  computed: {
-    iconPaths() {
-      return Icons[this.name]?.paths || []
-    },
-
-    showTitle() {
-      return this.title
-    }
+  title: {
+    type: String,
+    default: undefined
   },
 
-  watch: {
-    name: {
-      handler() {
-        this.$nextTick(() => {
-          this.viewbox = this.getViewboxSize()
-        })
-      }
-    }
+  width: {
+    type: String,
+    default: undefined
   },
 
-  mounted() {
-    this.$nextTick(() => {
-      this.viewbox = this.getViewboxSize()
-    })
+  height: {
+    type: String,
+    default: undefined
+  }
+})
 
-    const { observer } = onVisible(this.$el, (visible) => {
-      if (visible) {
-        this.$nextTick(() => {
-          this.viewbox = this.getViewboxSize()
-        })
-      }
-    })
+const { elementSize } = useSizes(props)
+const { selectedColor } = useColors(props)
 
-    this.observer = observer
-  },
+const viewbox = ref('0 0 12 12')
+const root = ref(null)
+const svggroup = ref(null)
 
-  unmounted() {
-    this.observer?.disconnect()
-  },
+let observer
 
-  methods: {
-    getViewboxSize() {
-      const refGroup = this.$refs.svggroup
+const iconPaths = computed(() => Icons[props.name]?.paths || [])
 
-      if (refGroup) {
-        const groupSize = refGroup.getBBox()
-        const strokePaths = this.iconPaths
-          .map((path) => path['stroke-width'])
-          .filter((stroke) => stroke)
-        const strokeWidth = strokePaths.length ? Math.max(...strokePaths) : 0
+function getViewboxSize() {
+  const refGroup = svggroup.value
 
-        return [
-          groupSize.x - strokeWidth / 2,
-          groupSize.y - strokeWidth / 2,
-          groupSize.width + strokeWidth,
-          groupSize.height + strokeWidth
-        ].join(' ')
-      } else {
-        return '0 0 12 12'
-      }
-    }
+  if (refGroup) {
+    const groupSize = refGroup.getBBox()
+    const strokePaths = iconPaths.value
+      .map((path) => path['stroke-width'])
+      .filter((stroke) => stroke)
+    const strokeWidth = strokePaths.length ? Math.max(...strokePaths) : 0
+
+    return [
+      groupSize.x - strokeWidth / 2,
+      groupSize.y - strokeWidth / 2,
+      groupSize.width + strokeWidth,
+      groupSize.height + strokeWidth
+    ].join(' ')
+  } else {
+    return '0 0 12 12'
   }
 }
+
+watch(
+  () => props.name,
+  () => {
+    nextTick(() => {
+      viewbox.value = getViewboxSize()
+    })
+  }
+)
+
+onMounted(() => {
+  nextTick(() => {
+    viewbox.value = getViewboxSize()
+  })
+
+  const { observer: visibilityObserver } = onVisible(root.value, (visible) => {
+    if (visible) {
+      nextTick(() => {
+        viewbox.value = getViewboxSize()
+      })
+    }
+  })
+
+  observer = visibilityObserver
+})
+
+onUnmounted(() => {
+  observer?.disconnect()
+})
 </script>

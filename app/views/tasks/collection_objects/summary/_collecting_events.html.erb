@@ -13,7 +13,7 @@
 
   <tr>
     <td> Collection objects without collecting events </td>
-    <td> <%= objects_without_collecting_events = @collection_objects.where.missing(:collecting_event).count -%> </td>
+    <td> <%= objects_without_collecting_events = @collection_objects.where(collecting_event_id: nil).count -%> </td>
     <td> <%= (100.0 * (objects_without_collecting_events.to_f / collection_object_count.to_f)).round(2) -%> </td>
   </tr>
 

@@ -11,13 +11,8 @@
       </div>
       <span v-else> New </span>
       <div class="horizontal-right-content gap-small">
-        <tippy
+        <VTooltip
           v-if="unsavedChanges"
-          animation="scale"
-          placement="bottom"
-          size="small"
-          inertia
-          arrow
           content="You have unsaved changes."
         >
           <VIcon
@@ -25,7 +20,7 @@
             color="attention"
             small
           />
-        </tippy>
+        </VTooltip>
 
         <button
           type="button"
@@ -48,7 +43,7 @@
 
 <script setup>
 import { GetterNames } from '../store/getters/getters'
-import { Tippy } from 'vue-tippy'
+import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
 import { useStore } from 'vuex'
 import { ref, computed } from 'vue'
 import { useHotkey } from '@/composables'

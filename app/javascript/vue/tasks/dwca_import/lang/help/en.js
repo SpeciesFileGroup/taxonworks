@@ -38,7 +38,7 @@ const helpData = {
       <ul>
         <li>Darwin Core Archive (DwC-A) ZIP file with meta.xml and data files inside (preferred)</li>
         <li>Tab-separated values text file (TXT, TSV)</li>
-        <li>Spreadsheet (XLS, XLSX and ODS supported)</li>
+        <li>Spreadsheet (XLSX and ODS supported)</li>
       </ul>
       <p>
         For occurrence data, the dataset must include every field in at least one of the following sets:

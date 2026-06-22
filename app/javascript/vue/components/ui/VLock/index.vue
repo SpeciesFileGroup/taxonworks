@@ -1,6 +1,9 @@
 <template>
-  <div title="Lock / Unlock">
-    <label class="switch-lock">
+  <div>
+    <label
+      class="switch-lock"
+      v-tooltip="{ content: 'Lock / Unlock', placement: 'bottom' }"
+    >
       <input
         v-bind="props"
         v-model="checked"
@@ -15,6 +18,8 @@
 </template>
 
 <script setup>
+import { vTooltip } from '@/directives'
+
 defineOptions({
   name: 'VLock'
 })

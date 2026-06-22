@@ -34,7 +34,7 @@ export default {
       if (total > this.maxItemsWarning) {
         if (
           window.confirm(
-            `You're trying to create ${total} items. Are you sure want to proceed?`
+            `You're trying to create ${total} items. Are you sure you want to proceed?`
           )
         ) {
           this.$store.dispatch(ActionNames.CreateBatchLoad, object)

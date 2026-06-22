@@ -30,7 +30,7 @@ class ProjectMembersController < ApplicationController
     respond_to do |format|
       if @project_member.save
         format.html { redirect_to project_path(@project_member.project),
-                      notice: "User #{@project_member.user.name}' was successfully added to #{@project_member.project.name}." }
+                      notice: "User #{@project_member.user.name} was successfully added to #{@project_member.project.name}." }
       else
         set_available_users
         format.html { render action: 'new' }

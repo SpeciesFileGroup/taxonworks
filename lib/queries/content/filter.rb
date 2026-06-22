@@ -4,6 +4,7 @@ module Queries
 
       include Queries::Concerns::Citations
       include Queries::Concerns::Confidences
+      include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
 
       PARAMS = [
@@ -41,8 +42,9 @@ module Queries
         @topic_id = params[:topic_id]
         @content_id = params[:content_id]
 
-        set_confidences_params(params) 
+        set_confidences_params(params)
         set_citations_params(params)
+        set_data_attributes_params(params)
         set_depiction_params(params)
       end
 

@@ -1,6 +1,10 @@
 import { ref, onMounted, onUnmounted, isRef } from 'vue'
 
-export function useStickyBelow(rootRef, elementRef, offsetRef = '.navbar-fixed-top') {
+export function useStickyBelow(
+  rootRef,
+  elementRef,
+  offsetRef = '.navbar-fixed-top'
+) {
   const navbarOffset = ref(0)
   const isFixed = ref(false)
 
@@ -34,11 +38,15 @@ export function useStickyBelow(rootRef, elementRef, offsetRef = '.navbar-fixed-t
       elementRef.value.style.width = ''
       elementRef.value.style.position = ''
       elementRef.value.style.top = ''
+      elementRef.value.style.maxHeight = ''
+      elementRef.value.style.overflowY = ''
       isFixed.value = false
     }
 
     if (isFixed.value) {
       elementRef.value.style.top = `${navbarOffset.value}px`
+      elementRef.value.style.maxHeight = `calc(100vh - ${navbarOffset.value}px)`
+      elementRef.value.style.overflowY = 'auto'
     }
   }
 

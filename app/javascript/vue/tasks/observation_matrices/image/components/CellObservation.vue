@@ -242,7 +242,7 @@ function setObservationDragged(event) {
 function removeDepiction(depiction) {
   if (
     window.confirm(
-      "You're trying to delete this record. Are you sure want to proceed?"
+      "You're trying to delete this record. Are you sure you want to proceed?"
     )
   ) {
     store.commit(MutationNames.SetIsSaving, true)

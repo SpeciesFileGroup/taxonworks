@@ -28,7 +28,7 @@
           <autocomplete
             class="float_right separate-left separate-right autocomplete-search-bar"
             url="/otus/autocomplete"
-            placeholder="Search a otu"
+            placeholder="Search for an OTU"
             param="term"
             clear-after
             @getItem="loadOtu"

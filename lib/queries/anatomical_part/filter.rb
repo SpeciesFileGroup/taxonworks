@@ -3,6 +3,7 @@ module Queries
     class Filter < Query::Filter
       include Queries::Concerns::Tags
       include Queries::Concerns::Citations
+      include Queries::Concerns::DataAttributes
       include Queries::Concerns::PreparationTypes
 
       PARAMS = [
@@ -81,6 +82,7 @@ module Queries
         @uri_label_exact = boolean_param(params, :uri_label_exact)
 
         set_citations_params(params)
+        set_data_attributes_params(params)
         set_tags_params(params)
         set_preparation_types_params(params)
       end

@@ -15,8 +15,8 @@
   escape: false}) -%>
 
 <input autocomplete="off"
-       title="Find and select a <%= object_name -%>. You must click or tab off a row to choose the item."
-       placeholder="Select a <%= object_name -%>"
+       title="Find and select <%= Utilities::Strings.a_label(object_name) -%>. You must click or tab off a row to choose the item."
+       placeholder="Select <%= Utilities::Strings.a_label(object_name) -%>"
        class="tw-autocomplete <%= css_class -%> mousetrap"
        id="<%= tag_id %>"
        <%= ('autofocus="autofocus"').html_safe if !autofocus.nil? -%>

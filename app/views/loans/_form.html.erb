@@ -1,5 +1,5 @@
-<%= content_tag(:span, 'An new loan task exists and should be used.', class: [:feedback, 'feedback-warning']) %>
-<%= link_to('New/edit loan task', edit_loan_task_path(loan_id: @loan&.id )) %></p>
+<%= content_tag(:span, 'A new loan task exists and should be used.', class: [:feedback, 'feedback-warning']) %>
+<%= link_to('New/edit loan task', edit_loan_task_path(loan_id: @loan&.id )) %>
 
 <%= render 'shared/errors', object: @loan %>
 
@@ -105,10 +105,10 @@
        <% total = 0 %>
        <% [Otu, CollectionObject, Container].each do |c| -%>
          <% count = c.joins(:tags).where(tags: {keyword: k}).count %>
-         <% if count > 0 %> 
-           <%= c.name -%> : <%= count -%> 
-           <%= button_tag(:add, class: :add_by_class_button, data: {keyword_id: k.id, klass: c.name, loan_id: @loan.id }) -%> 
-           <%= button_tag(:clear, class: :clear_by_class_button, data: {keyword_id: k.id, klass: c.name, loan_id: @loan.id }) -%> <br/> 
+         <% if count > 0 %>
+           <%= c.name -%> : <%= count -%>
+           <%= button_tag(:add, class: :add_by_class_button, data: {keyword_id: k.id, klass: c.name, loan_id: @loan.id }) -%>
+           <%= button_tag(:clear, class: :clear_by_class_button, data: {keyword_id: k.id, klass: c.name, loan_id: @loan.id }) -%> <br/>
            <% total += count %>
          <% end %>
 
@@ -124,7 +124,7 @@
        <%= group -%>
      <% end %>
 
-     <%= render "/loan_items/loan_item_selector", f: f, loan: @loan %>  
+     <%= render "/loan_items/loan_item_selector", f: f, loan: @loan %>
    </div>
 
   </div>

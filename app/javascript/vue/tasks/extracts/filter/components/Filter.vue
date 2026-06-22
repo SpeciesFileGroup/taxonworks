@@ -27,6 +27,7 @@
     :target="EXTRACT"
   />
   <FacetIdentifiers v-model="params" />
+  <FacetDataAttribute v-model="params" />
   <FacetProtocol v-model="params" />
   <FacetUsers v-model="params" />
   <FacetWith
@@ -55,6 +56,7 @@ import FacetVerbatimAnatomical from '@/components/Filter/Facets/Extract/FacetVer
 import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchIdentifiers.vue'
 import FacetTags from '@/components/Filter/Facets/shared/FacetTags.vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
+import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute/FacetDataAttribute.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.vue'
 

@@ -1,14 +1,6 @@
 <template>
   <div v-if="sourceId">
-    <tippy
-      v-if="!created"
-      animation="scale"
-      placement="bottom"
-      size="small"
-      arrow-size="small"
-      inertia
-      arrow
-    >
+    <VTooltip v-if="!created">
       <template #content>
         <span
           >Create citation with:
@@ -19,17 +11,9 @@
         class="circle-button button-submit btn-citation"
         @click="createCitation()"
       />
-    </tippy>
+    </VTooltip>
 
-    <tippy
-      v-else
-      animation="scale"
-      placement="bottom"
-      size="small"
-      arrow-size="small"
-      inertia
-      arrow
-    >
+    <VTooltip v-else>
       <template #content>
         <span
           >Remove citation:
@@ -40,7 +24,7 @@
         class="circle-button btn-delete btn-citation"
         @click="deleteCitation()"
       />
-    </tippy>
+    </VTooltip>
   </div>
   <div
     v-else
@@ -50,11 +34,11 @@
 
 <script>
 import { Citation } from '@/routes/endpoints'
-import { Tippy } from 'vue-tippy'
+import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
 
 export default {
   components: {
-    Tippy
+    VTooltip
   },
 
   props: {

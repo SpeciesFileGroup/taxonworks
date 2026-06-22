@@ -13,6 +13,7 @@ import setPreparationType from './setPreparationType'
 import resetStore from './resetStore'
 
 import setDepictions from './setDepictions'
+import setPendingDepictions from './setPendingDepictions'
 
 import setBiocurations from './setBiocurations'
 import addBiocuration from './addBiocuration'
@@ -52,6 +53,7 @@ const MutationNames = {
   ResetStore: 'resetStore',
 
   SetDepictions: 'setDepictions',
+  SetPendingDepictions: 'setPendingDepictions',
 
   SetPreparationType: 'setPreparationType',
 
@@ -94,6 +96,7 @@ const MutationFunctions = {
   [MutationNames.ResetStore]: resetStore,
 
   [MutationNames.SetDepictions]: setDepictions,
+  [MutationNames.SetPendingDepictions]: setPendingDepictions,
 
   [MutationNames.SetBiocurations]: setBiocurations,
   [MutationNames.AddBiocuration]: addBiocuration,

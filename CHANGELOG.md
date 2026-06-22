@@ -9,6 +9,58 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 \-
 
+## [0.63.1] - 2026-06-22
+
+### Added
+
+- `type_taxon_name_relationship` support to the extend[] parameter in `inventory/summary.json`
+- Quick Forms: Pagination to Biological associations slice
+- CSD: Added a button to load the associated CO when the identifier is already in use by another CO
+- Ctrl+v to paste images and documents in "Drop [image/doc] here"
+- New descriptors: character states' thumbnails [#4796]
+- Project usage count for authors in Match Author task of New Source [#4943]
+- extend[]=descendants option for api/v1/taxon_names/123/monograph endpoint (defaults to 50 results, use page= and per= paging params to get more) [#4860]
+- Data Attributes facet to Filter anatomical parts, contents, descriptors, extracts, loans, and sounds tasks [#4940]
+
+### Changed
+
+- Use floating-ui instead of native button tooltips to improve how button information is displayed. [#4946]
+- Dropped support for legacy MS Excel format (xls, not xlsx) in DwC importer
+- New Taxon Name: The source section is now disabled while a taxon name is being saved. [#4909]
+- The With/Without Type Information facet in Filter Taxon Names now returns higher ranks with/without a type [#4958]
+- Updated Ruby gems
+- Jobs from 'default' jobs queue are now processed in docker deployment image (ActiveStorage uses this queue)
+
+### Fixed
+
+- Browse taxon name: Sometimes the page can't be scrolled when the taxon has a large hierarchy tree
+- Browse taxon name: header always uses the "invalid" background color in dark mode
+- DwC Import: Disabled and Ignored cells have the same color
+- New taxon name: The scroll bar is missing in the right column [#4932]
+- Sometimes, the autocomplete spinner doesn't appear [#4946]
+- Reset sort direction when sorting by a different column in filter table
+- DwC importer crashing when staging data with NUL chars
+- Biological relationship facet in Filter OTU [#4929]
+- CSD: Sometimes, not all images are created when the user clicks on "Save and New"
+- CSD: Delete buttons in the Determinations list don't work when the panel is locked and the task is reset [#4928]
+- No result for Collecting Events tab of the Collection Summary task for some combinations of parameters
+- Print labels: In some cases, labels are cut off in preview mode. [#4959]
+- alt+h and alt+? not working outside of text inputs
+- Include Anatomical Part object info in anatomical part labels and tags [#4970]
+
+[#4796]: https://github.com/SpeciesFileGroup/taxonworks/issues/4796
+[#4909]: https://github.com/SpeciesFileGroup/taxonworks/issues/4909
+[#4860]: https://github.com/SpeciesFileGroup/taxonworks/issues/4860
+[#4928]: https://github.com/SpeciesFileGroup/taxonworks/issues/4928
+[#4929]: https://github.com/SpeciesFileGroup/taxonworks/issues/4929
+[#4932]: https://github.com/SpeciesFileGroup/taxonworks/issues/4932
+[#4940]: https://github.com/SpeciesFileGroup/taxonworks/issues/4940
+[#4943]: https://github.com/SpeciesFileGroup/taxonworks/issues/4943
+[#4946]: https://github.com/SpeciesFileGroup/taxonworks/issues/4946
+[#4958]: https://github.com/SpeciesFileGroup/taxonworks/issues/4958
+[#4959]: https://github.com/SpeciesFileGroup/taxonworks/issues/4959
+[#4970]: https://github.com/SpeciesFileGroup/taxonworks/issues/4970
+
 ## [0.63.0] - 2026-05-15
 
 ### Added
@@ -27,7 +79,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 - Taxon Pages Biological Associations returns no results
 - error on /api/v1/dwc_occurrences
-- /downloads/1 shows `Expires: n days` when the download has been *expired* for n days
+- /downloads/1 shows `Expires: n days` when the download has been _expired_ for n days
 - New Source can fail to update a serial when the serial being updated to has no issn [#4921]
 - In New Source, an issn value never overrides the serial selected by the user
 - Filter CO: Biological associations facet doesn't work with the `without` option [#4926]
@@ -6310,7 +6362,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.63.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.63.1...development
+[0.63.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.63.0...v0.63.1
 [0.63.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.62.0...v0.63.0
 [0.62.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.61.0...v0.62.0
 [0.61.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.60.0...v0.61.0

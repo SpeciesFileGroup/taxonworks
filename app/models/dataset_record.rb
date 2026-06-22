@@ -81,14 +81,17 @@ class DatasetRecord < ApplicationRecord
   end
 
   def field_db_attributes(position, value)
-    {
-      position: position,
-      value: value,
-      dataset_record_id: id,
-      project_id: project_id,
-      import_dataset_id: import_dataset_id,
-      encoded_dataset_record_type: DatasetRecordField.encode_record_type(self.class)
-    } if value
+    if value
+      value = value.delete("\u0000") if value.is_a?(String)
+      {
+        position: position,
+        value: value,
+        dataset_record_id: id,
+        project_id: project_id,
+        import_dataset_id: import_dataset_id,
+        encoded_dataset_record_type: DatasetRecordField.encode_record_type(self.class)
+      }
+    end
   end
 
   def fields_db_attributes

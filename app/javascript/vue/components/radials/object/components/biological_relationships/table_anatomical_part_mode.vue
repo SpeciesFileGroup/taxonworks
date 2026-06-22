@@ -109,7 +109,7 @@ const emit = defineEmits(['delete'])
 function deleteItem(item) {
   if (
     window.confirm(
-      "You're trying to delete this record. Are you sure want to proceed?"
+      "You're trying to delete this record. Are you sure you want to proceed?"
     )
   ) {
     emit('delete', item)
@@ -208,8 +208,8 @@ function uriPillTitle(item) {
 }
 
 .uri-pill {
-  background-color: var(--color-secondary-primary);
-  border-color: var(--color-secondary-primary);
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
   color: var(--color-white);
 }
 

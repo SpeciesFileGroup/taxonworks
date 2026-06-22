@@ -10,21 +10,25 @@
         placeholder="Type a source..."
         display="label"
         clear-after
+        :disabled="isSaving"
         @getItem="({ id }) => setSource({ id, pages: citation?.pages })"
       />
       <ButtonPinned
         label="source"
         type="Source"
         section="Sources"
+        :disabled="isSaving"
         @get-item="({ id }) => setSource({ id, pages: citation?.pages })"
       />
       <FormCitationClone
+        :disabled="isSaving"
         @clone="(c) => setSource({ id: c.source_id, pages: c.pages })"
       />
+      <a :href="RouteNames.NewSource">Add new source</a>
     </div>
     <hr class="divisor" />
     <div v-if="citation">
-      <div class="flex-separate middle">
+      <div class="flex-separate middle gap-small">
         <p>
           <span
             class="break_words"
@@ -39,9 +43,10 @@
         </p>
         <div class="horizontal-left-content gap-small">
           <CitationPages
+            :citation="citation"
+            :disabled="isSaving"
             @setPages="addPages"
             @save="triggerSave"
-            :citation="taxon"
           />
           <PdfButton
             v-if="citation.hasOwnProperty('target_document')"
@@ -78,6 +83,8 @@ import CitationPages from '../citationPages.vue'
 import SoftValidation from '@/components/soft_validations/objectValidation.vue'
 import FormCitationClone from '@/components/Form/FormCitation/FormCitationClone.vue'
 
+import { RouteNames } from '@/routes/routes.js'
+
 const autocomplete = ref(null)
 
 let autosave = null
@@ -94,8 +101,11 @@ const taxon = computed({
 })
 
 const isAutosaveActive = computed(() => store.getters[GetterNames.GetAutosave])
+const isSaving = computed(() => store.getters[GetterNames.GetSaving])
 
 function setSource({ id, pages }) {
+  if (isSaving.value) return
+
   const payload = {
     id,
     pages: pages || null
@@ -129,7 +139,7 @@ function triggerSave(citation) {
 function removeSource(id) {
   if (
     window.confirm(
-      "You're trying to delete this record. Are you sure want to proceed?"
+      "You're trying to delete this record. Are you sure you want to proceed?"
     )
   ) {
     store.dispatch(ActionNames.RemoveSource, id)

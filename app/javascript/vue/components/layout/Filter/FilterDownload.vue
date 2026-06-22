@@ -29,7 +29,6 @@
         <VIcon
           name="download"
           x-small
-          :title="selectedDownloadItem.label"
         />
       </VBtn>
     </component>

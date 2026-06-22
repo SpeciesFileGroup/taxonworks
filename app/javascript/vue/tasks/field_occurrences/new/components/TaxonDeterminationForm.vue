@@ -73,7 +73,7 @@ function removeDetermination(determination) {
   } else if (
     !determination.id ||
     window.confirm(
-      "You're trying to delete this record. Are you sure want to proceed?"
+      "You're trying to delete this record. Are you sure you want to proceed?"
     )
   ) {
     determinationStore.remove(determination)

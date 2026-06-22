@@ -53,7 +53,6 @@
       @click="openRadialMenu()"
     >
       <VIcon
-        :title="buttonTitle"
         name="radialNavigator"
         x-small
       />

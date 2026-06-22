@@ -1,12 +1,6 @@
 <template>
   <div v-if="keywordId && !isLoading">
-    <Tippy
-      animation="scale"
-      placement="bottom"
-      size="small"
-      inertia
-      arrow
-    >
+    <VTooltip>
       <template #content>
         <p>
           {{ tagItem ? 'Remove' : 'Create' }} tag:
@@ -31,23 +25,25 @@
           x-small
         />
       </VBtn>
-    </Tippy>
+    </VTooltip>
   </div>
   <VBtn
     v-else
     circle
     color="disabled"
+    title="Select a default keyword from pinboard."
   >
     <VIcon
       color="white"
       name="label"
       x-small
+      title="Select a default keyword from pinboard."
     />
   </VBtn>
 </template>
 
 <script setup>
-import { Tippy } from 'vue-tippy'
+import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
 import { Tag } from '@/routes/endpoints'
 import { ref, watch, onBeforeMount, onBeforeUnmount } from 'vue'
 import { getPagination } from '@/helpers'

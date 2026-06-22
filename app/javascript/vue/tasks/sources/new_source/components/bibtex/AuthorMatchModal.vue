@@ -84,6 +84,10 @@
                       x-small
                     />
                   </a>
+                  <span
+                    class="use-count"
+                    :title="`${person.use_count} project ${person.use_count === 1 ? 'use' : 'uses'}`"
+                  >{{ person.use_count }} {{ person.use_count === 1 ? 'use' : 'uses' }}</span>
                 </div>
               </div>
               <div
@@ -371,16 +375,31 @@ async function searchMatches(row, claimedRoleIds) {
     }
   }
 
+  // Preserves the backend's name-group order (e.g. exact matches before fuzzy),
+  // but within each group of identically-named people sorts by project use count descending.
+  const sortByUsage = (matches) => {
+    const groupOrder = {}
+    matches.forEach((p) => {
+      const key = p.cached || p.name || ''
+      if (!(key in groupOrder)) groupOrder[key] = Object.keys(groupOrder).length
+    })
+    return [...matches].sort((a, b) => {
+      const groupDiff = groupOrder[a.cached || a.name || ''] - groupOrder[b.cached || b.name || '']
+      if (groupDiff !== 0) return groupDiff
+      return (b.use_count || 0) - (a.use_count || 0)
+    })
+  }
+
   const handleResult = (people) => {
     if (!firstReturned) {
       firstReturned = true
-      row.matches = people
+      row.matches = sortByUsage(people)
       row.isSearching = false
       claimExistingRole(people)
     } else {
       const existingIds = new Set(row.matches.map((p) => p.id))
       const incoming = people.filter((p) => !existingIds.has(p.id))
-      row.matches = [...row.matches, ...incoming]
+      row.matches = sortByUsage([...row.matches, ...incoming])
       row.isFuzzySearchPending = false
       claimExistingRole(incoming)
     }
@@ -498,6 +517,11 @@ td {
 .fuzzy-pending {
   color: var(--text-muted-color);
   font-size: 0.85em;
+}
+
+.use-count {
+  font-size: 0.8em;
+  color: var(--text-muted-color);
 }
 
 .create-cell {

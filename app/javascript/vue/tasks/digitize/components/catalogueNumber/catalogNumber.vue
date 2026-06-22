@@ -1,5 +1,5 @@
 <template>
-  <div class="overflow-x-auto">
+  <div class="panel content overflow-x-auto">
     <h2>Catalog number</h2>
     <div class="flex-wrap-column middle align-start full_width">
       <div class="separate-right full_width">
@@ -102,7 +102,10 @@
             Increment
           </label>
           <VIcon
-            v-if="store.identifier.namespaceId"
+            v-if="
+              store.identifier.namespaceId &&
+              !store.identifier.identifier?.length
+            "
             name="attention"
             color="attention"
             small
@@ -116,23 +119,20 @@
           style="color: red"
           >Namespace is needed.</span
         >
-        <template v-if="store.existingIdentifiers.length">
-          <span class="text-error-color">
-            Identifier already exists, and it won't be saved:
-          </span>
-          <a
-            :href="store.existingIdentifiers[0].identifier_object.object_url"
-            v-html="store.existingIdentifiers[0].identifier_object.object_tag"
-          />
-        </template>
+        <ExistingIdentifier
+          :existing-identifiers="store.existingIdentifiers"
+          @load="confirmAndLoad"
+        />
       </div>
     </div>
   </div>
+  <ConfirmationModal ref="confirmationModalRef" />
 </template>
 
 <script setup>
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations.js'
+import { ActionNames } from '../../store/actions/actions.js'
 import { IDENTIFIER_LOCAL_CATALOG_NUMBER } from '@/constants/index.js'
 import { Namespace } from '@/routes/endpoints'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
@@ -142,6 +142,8 @@ import LockComponent from '@/components/ui/VLock/index.vue'
 import WidgetNamespace from '@/components/ui/Widget/WidgetNamespace.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import ConfirmationModal from '@/components/ConfirmationModal.vue'
+import ExistingIdentifier from '../shared/ExistingIdentifier.vue'
 import { useIdentifierStore } from '../../store/pinia/identifiers'
 
 import { computed, ref, watch } from 'vue'
@@ -156,6 +158,7 @@ const coStore = useStore()
 const namespace = ref([])
 const widgetNamespaceRef = ref()
 const smartSelectorRef = ref()
+const confirmationModalRef = ref()
 
 const coId = computed(
   () => coStore.getters[GetterNames.GetCollectionObject]?.id
@@ -232,6 +235,22 @@ function setNamespace({ id }) {
   store.identifier.namespaceId = id
   store.identifier.isUnsaved = true
   checkIdentifier()
+}
+
+async function confirmAndLoad(collectionObjectId) {
+  const ok = await confirmationModalRef.value.show({
+    title: 'Load collection object',
+    message:
+      'Loading will discard unsaved changes in the current form. Continue?',
+    okButton: 'Load',
+    cancelButton: 'Cancel',
+    typeButton: 'default'
+  })
+
+  if (ok) {
+    coStore.dispatch(ActionNames.ResetWithDefault)
+    coStore.dispatch(ActionNames.LoadDigitalization, collectionObjectId)
+  }
 }
 </script>
 

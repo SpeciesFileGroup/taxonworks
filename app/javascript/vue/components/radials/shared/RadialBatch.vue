@@ -65,7 +65,6 @@
       >
         <VIcon
           :name="icon"
-          :title="title"
           x-small
         />
       </VBtn>

@@ -20,7 +20,7 @@ Object.assign(TW.workbench.pinboard, {
   createPinboardItem(pinObject) {
     const template = document.createElement('template')
     template.innerHTML = `
-      <li 
+      <li
         class="slide-panel-category-item"
         data-insert="false"
         data-pinboard-object-id="${pinObject.pinned_object_id}"
@@ -58,8 +58,8 @@ Object.assign(TW.workbench.pinboard, {
               }?pinboard_item%5Bis_inserted%5D=true">
               Make default
             </a>
-          </div> 
-        </div> 
+          </div>
+        </div>
       </li>'
       `.trim()
 
@@ -139,7 +139,7 @@ Object.assign(TW.workbench.pinboard, {
       .querySelector('meta[name="csrf-token"]')
       .getAttribute('content')
     const headers = { 'X-CSRF-Token': CSRFToken }
-    const dialogMessage = `You're trying to destroy all pinboard items of ${section} section. Are you sure want to proceed?`
+    const dialogMessage = `You're trying to destroy all pinboard items of ${section} section. Are you sure you want to proceed?`
 
     if (window.confirm(dialogMessage)) {
       fetch(`/pinboard_items/clear?klass=${type}`, { method: 'POST', headers })

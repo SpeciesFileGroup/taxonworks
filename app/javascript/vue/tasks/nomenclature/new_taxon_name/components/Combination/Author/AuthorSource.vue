@@ -132,7 +132,7 @@ const setSource = ({ id, pages }) => {
 const removeSource = () => {
   if (
     window.confirm(
-      "You're trying to delete this record. Are you sure want to proceed?"
+      "You're trying to delete this record. Are you sure you want to proceed?"
     )
   ) {
     const citationId = combination.value.origin_citation_attributes.id

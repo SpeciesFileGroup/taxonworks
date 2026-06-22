@@ -26,7 +26,7 @@ $color-secondary-2-0: #9da7ab; /* Main Secondary color (2) */
 $color-secondary-2-1: #fcfcfc;
 $color-secondary-2-2: #d0d3d5;
 $color-secondary-2-3: #788990;
-$color-secondary-2-4: #5d9ece; // !! This is obviously modified to be more blue, original value is different //
+$color-secondary-2-4: #3676ab; // unified with --color-primary; accessible as link/foreground (~4.9:1 on white)
 
 // gray-green (do)
 $color-complement-0: #c1d2c1; /* Main Complement color */
@@ -80,7 +80,6 @@ $default_text: #000; // black, not gray
 $navigation_background: #f5f5f5;
 $soft_background: #fafafa;
 $disable_background: #fafafa;
-$viewpoert_background: $background_gray;
 $hub_background: #fafafa;
 $navigation_focus_color: $color-secondary-2-0;
 $navigation_focus_background: $color-secondary-2-4;

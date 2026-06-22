@@ -119,7 +119,7 @@ export function useIdentifierStore(type) {
       remove() {
         if (
           window.confirm(
-            `You're trying to delete this identifier. Are you sure want to proceed?`
+            `You're trying to delete this identifier. Are you sure you want to proceed?`
           )
         ) {
           Identifier.destroy(this.identifier.id)

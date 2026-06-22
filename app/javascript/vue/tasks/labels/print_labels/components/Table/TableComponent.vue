@@ -165,13 +165,13 @@ export default {
     },
 
     removeRow (label) {
-      if (window.confirm("You're trying to delete this label. Are you sure want to proceed?")) {
+      if (window.confirm("You're trying to delete this label. Are you sure you want to proceed?")) {
         this.$emit('onRemove', label.id)
       }
     },
 
     deleteLabels () {
-      if (window.confirm("You're trying to delete this label(s). Are you sure want to proceed?")) {
+      if (window.confirm("You're trying to delete this label(s). Are you sure you want to proceed?")) {
         this.$emit('onRemoveAll')
       }
     },

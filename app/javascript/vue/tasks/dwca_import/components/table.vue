@@ -288,6 +288,10 @@ export default {
     background-color: var(--soft-validation-bg-color);
   }
 
+  .cell-disabled {
+    background-color: var(--bg-muted);
+  }
+
   tr:hover {
     td.cell-ignore {
       background-color: inherit;

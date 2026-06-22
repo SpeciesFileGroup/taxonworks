@@ -32,20 +32,13 @@
               v-for="(error, index) in list.soft_validations"
               :key="index"
             >
-              <tippy
-                animation="scale"
-                placement="bottom"
-                size="small"
-                inertia
-                arrow
-                :content="error.description"
-              >
+              <VTooltip :content="error.description">
                 <VIcon
                   name="attention"
                   color="attention"
                   x-small
                 />
-              </tippy>
+              </VTooltip>
 
               <button
                 v-if="error.fixable"
@@ -67,13 +60,8 @@
                 v-for="(resolution, rIndex) in error.resolution"
                 :key="rIndex"
               >
-                <tippy
+                <VTooltip
                   class="d-inline-block"
-                  animation="scale"
-                  placement="bottom"
-                  size="small"
-                  inertia
-                  arrow
                   content="Fixable here (may leave page)"
                 >
                   <a :href="resolution">
@@ -82,7 +70,7 @@
                       data-icon="blue_wrench"
                     />
                   </a>
-                </tippy>
+                </VTooltip>
               </template>
             </li>
           </ul>
@@ -98,7 +86,7 @@
 
 <script setup>
 import { SoftValidation } from '@/routes/endpoints'
-import { Tippy } from 'vue-tippy'
+import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
 import { computed } from 'vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 

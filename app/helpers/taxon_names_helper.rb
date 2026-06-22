@@ -150,7 +150,7 @@ module TaxonNamesHelper
   def taxon_name_short_status(taxon_name)
     if taxon_name.is_combination?
       n = taxon_name.finest_protonym
-      s = ['This name is subsequent combination of']
+      s = ['This name is a subsequent combination of']
       if n.is_valid?
         s += [
           link_to(original_taxon_name_tag(n), browse_nomenclature_task_path(taxon_name_id: n.id)),

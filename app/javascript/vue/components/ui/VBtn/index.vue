@@ -1,81 +1,119 @@
 <template>
+  <span
+    v-if="disabled"
+    class="v-btn-tooltip-wrapper"
+    v-tooltip="tooltipOptions"
+  >
+    <component
+      :is="tag"
+      v-bind="buttonAttributes"
+      :type="tag === 'button' ? 'button' : undefined"
+      :aria-label="title"
+      @click="emit('click', $event)"
+    >
+      <slot />
+    </component>
+  </span>
+
   <component
+    v-else
     :is="tag"
-    :class="buttonClasses"
-    :disabled="disabled"
-    :download="download"
-    :href="href"
-    type="button"
-    @click="$emit('click', $event)"
+    v-bind="buttonAttributes"
+    :type="tag === 'button' ? 'button' : undefined"
+    :aria-label="title"
+    v-tooltip="tooltipOptions"
+    @click="emit('click', $event)"
   >
     <slot />
   </component>
 </template>
 
-<script>
-import mixinSizes from '../mixins/sizes.js'
-import mixinColor from '../mixins/colors.js'
+<script setup>
+import { computed } from 'vue'
+import { vTooltip } from '@/directives'
+import { useSizes, sizeProps } from '@/composables'
 
-export default {
-  name: 'VBtn',
+defineOptions({ name: 'VBtn' })
 
-  mixins: [mixinSizes, mixinColor],
+const props = defineProps({
+  ...sizeProps,
 
-  props: {
-    disabled: {
-      type: Boolean,
-      default: false
-    },
-
-    download: {
-      type: [String, Boolean],
-      default: undefined
-    },
-
-    href: {
-      type: String,
-      default: undefined
-    },
-
-    circle: {
-      type: Boolean,
-      default: false
-    },
-
-    pill: {
-      type: Boolean,
-      default: false
-    },
-
-    color: {
-      type: String,
-      default: 'default'
-    }
+  disabled: {
+    type: Boolean,
+    default: false
   },
 
-  emits: ['click'],
+  download: {
+    type: [String, Boolean],
+    default: undefined
+  },
 
-  computed: {
-    tag() {
-      return this.href ? 'a' : 'button'
-    },
+  href: {
+    type: String,
+    default: undefined
+  },
 
-    buttonSize() {
-      return this.circle
-        ? `btn-${this.semanticSize}-circle`
-        : `btn-${this.semanticSize}-size`
-    },
+  circle: {
+    type: Boolean,
+    default: false
+  },
 
-    buttonClasses() {
-      const isLink = !!this.href
+  variant: {
+    type: String,
+    default: 'solid',
+    validator: (value) => ['solid', 'ghost', 'outline'].includes(value)
+  },
 
-      return [
-        'button',
-        `btn-${this.color}`,
-        isLink ? 'btn-link' : 'btn',
-        this.buttonSize
-      ]
-    }
+  color: {
+    type: String,
+    default: 'default'
+  },
+
+  title: {
+    type: String,
+    default: ''
   }
-}
+})
+
+const emit = defineEmits(['click'])
+
+const { semanticSize } = useSizes(props)
+
+const tag = computed(() => (props.href ? 'a' : 'button'))
+
+const buttonSize = computed(() =>
+  props.circle
+    ? `btn-${semanticSize.value}-circle`
+    : `btn-${semanticSize.value}-size`
+)
+
+const buttonClasses = computed(() => {
+  const isLink = !!props.href
+
+  return [
+    'button',
+    `btn-${props.color}`,
+    isLink ? 'btn-link' : 'btn',
+    buttonSize.value,
+    { [`btn-${props.variant}`]: props.variant !== 'solid' }
+  ]
+})
+
+const buttonAttributes = computed(() => ({
+  class: buttonClasses.value,
+  disabled: props.disabled,
+  download: props.download,
+  href: props.href
+}))
+
+const tooltipOptions = computed(() => ({
+  content: props.title,
+  placement: 'bottom'
+}))
 </script>
+
+<style scoped>
+.v-btn-tooltip-wrapper {
+  display: inline-flex;
+}
+</style>

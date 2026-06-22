@@ -9,7 +9,6 @@
   >
     <VIcon
       name="merge"
-      title="Unify objects"
       x-small
     />
   </VBtn>

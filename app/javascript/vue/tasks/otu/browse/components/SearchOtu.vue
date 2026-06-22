@@ -3,7 +3,7 @@
     <autocomplete
       class="full_width"
       url="/otus/autocomplete"
-      placeholder="Search a otu"
+      placeholder="Search for an OTU"
       param="term"
       autofocus
       clear-after

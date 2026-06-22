@@ -464,7 +464,7 @@ collection_object_summary_task:
   categories:
     - collection_object
   status: prototype
-  description: 'Summary statistics for the collection(s) managed in this project'
+  description: 'Summary statistics for the collection(s) managed in this project.'
 browse_collecting_events_task:
   hub: true
   name: 'Browse collecting events'
@@ -499,7 +499,7 @@ export_basic_nomenclature_task:
   categories:
     - nomenclature
   status: prototype
-  description: 'Download (also generate for API) a CSV table of the nomenclature with just the name, and a subset of the hierarchy'
+  description: 'Download (also generate for API) a CSV table of the nomenclature with just the name, and a subset of the hierarchy.'
 match_nomenclature_task:
   hub: true
   name: 'Match taxon names'
@@ -648,7 +648,7 @@ object_graph_task:
   related:
   categories:
   status: prototype
-  description: 'Visualize how dat are related to each other in a dynamic (force-directed) graph.  Navigate throughout the graph.'
+  description: 'Visualize how data are related to each other in a dynamic (force-directed) graph.  Navigate throughout the graph.'
 batch_add_users_task:
   hub: false
   name: 'Administration: Batch add users'
@@ -723,7 +723,7 @@ taxon_name_merge_task:
   categories:
     - nomenclature
   status: prototype
-  description: 'Basic tools that faclitate merging taxon names.'
+  description: 'Basic tools that facilitate merging taxon names.'
 paper_catalog_generator_task:
   hub: true
   name: 'Paper catalog preview'
@@ -732,7 +732,7 @@ paper_catalog_generator_task:
     - nomenclature
     - export
   status: prototype
-  description: 'Experimenting with rendering nomenclature as a paper catalog'
+  description: 'Experimenting with rendering nomenclature as a paper catalog.'
 freeform_digitize_task:
   hub: true
   name: 'Task - freeform digitize'
@@ -788,7 +788,7 @@ filter_loans_task:
     - filters
     - loan
   status: prototype
-  description: 'Filter loans'
+  description: 'Filter loans.'
 filter_observations_task:
   hub: true
   name: 'Filter observations'
@@ -797,7 +797,7 @@ filter_observations_task:
     - filters
     - matrix
   status: prototype
-  description: 'Create sets of observations. See also the observation matrix hub and multi-key interfaces. '
+  description: 'Create sets of observations. See also the observation matrix hub and multi-key interfaces.'
 filter_contents_task:
   hub: true
   name: 'Filter contents'
@@ -837,7 +837,7 @@ geographic_area_usage_task:
   related:
   categories:
   status: prototype
-  description: 'Summarize this projects geographic area usage'
+  description: "Summarize this project's geographic area usage."
 taxon_name_stats_task:
   hub: false
   name: 'Taxon names stats'
@@ -919,14 +919,14 @@ week_in_review_task:
   categories:
     - metadata
   status: prototype
-  description: 'A quick look dashboard of past activity'
+  description: 'A quick look dashboard of past activity.'
 field_synchronize_task:
   hub: false
   name: 'Field synchronize'
   related:
   categories:
   status: prototype
-  description: 'Batch edit or synchronize the values in one or two fields or data-attribute'
+  description: 'Batch edit or synchronize the values in one or two fields or data-attributes.'
 collecting_events_spatial_summary_task:
   hub: false
   name: 'Collecting Event Spatial Summary'
@@ -1151,26 +1151,27 @@ project_dwc_export_preferences_task:
   related:
   categories:
   status: prototype
-  description: Set preferences for Darwin Core Archive complete project downloads
+  description: 'Set preferences for Darwin Core Archive complete project downloads.'
 select_ontologies_task:
   hub: false
   name: 'Select anatomical part ontologies'
   related:
   categories:
   status: prototype
-  description: 'Select OSL ontologies that can be used to find term uris for anatomical parts'
+  description: 'Select OSL ontologies that can be used to find term uris for anatomical parts.'
 edit_anatomical_part_task:
   hub: false
   name: 'Edit anatomical part'
   related:
   categories:
   status: prototype
-  description: 'Edit anatomical part'
+  description: 'Edit anatomical part.'
 taxon_name_reclassifier_task:
   hub: true
   name: 'Taxon name reclassifier'
   related:
   categories:
+    - nomenclature
   status: prototype
   description: 'Drag-drop to change the parents of TaxonNames.'
 new_news_task:
@@ -1186,6 +1187,7 @@ browse_news_task:
   name: 'Browse News'
   related:
   categories:
+    - browse
   status: prototype
   description: "A Newspaper summarizing this project's current news."
 dichotomous_key_task:
@@ -1194,12 +1196,14 @@ dichotomous_key_task:
   related:
   categories:
   status: prototype
-  description: 'Interactive dichotomous key interface'
+  description: 'Interactive dichotomous key interface.'
 browse_images_task:
   hub: true
   name: 'Browse images'
   related:
   categories:
+    - image
+    - browse
   status: prototype
   description: 'Browse and explore images in this project, including their depictions and related objects, and take measurements by drawing lines on images.'
 verbatim_author_year_source_task:
@@ -1244,14 +1248,14 @@ new_ba_task:
     - biology
     - new
   status: prototype
-  description: 'Create, edit, and cite biological associations, with support for anatomical parts and asserted distributions'
+  description: 'Create, edit, and cite biological associations, with support for anatomical parts and asserted distributions.'
 collection_layout_task:
   hub: true
   name: 'Collection layout'
   related:
   categories:
   status: prototype
-  description: 'Rapidly create and visualize a physical collection layout (Building, Rooms, Cabinets, Drawers)'
+  description: 'Rapidly create and visualize a physical collection layout (Building, Rooms, Cabinets, Drawers).'
 index_autoselects_task:
   hub: true
   name: 'Autoselect playground'
@@ -1259,7 +1263,7 @@ index_autoselects_task:
   categories:
     - debugging
   status: prototype
-  description: 'Interactive development playground for testing Autoselect field behavior across models'
+  description: 'Interactive development playground for testing Autoselect field behavior across models.'
 collection_visualization_task:
   hub: true
   name: 'Collection visualization'
@@ -1268,4 +1272,4 @@ collection_visualization_task:
   categories:
     - collection objects
   status: prototype
-  description: 'Visualize a collection hierarchy using treemap and other views'
+  description: 'Visualize a collection hierarchy using treemap and other views.'

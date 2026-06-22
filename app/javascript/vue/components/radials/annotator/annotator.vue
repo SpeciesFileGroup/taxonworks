@@ -70,7 +70,6 @@
       @click="displayAnnotator()"
     >
       <VIcon
-        :title="buttonTitle"
         name="radialAnnotator"
         x-small
       />
