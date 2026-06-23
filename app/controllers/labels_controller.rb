@@ -59,6 +59,7 @@ class LabelsController < ApplicationController
   def update
     respond_to do |format|
       if @label.update(label_params)
+        @label = @label.becomes(@label.type.constantize)
         format.html { redirect_to @label, notice: 'Label was successfully updated.' }
         format.json { render :show, status: :ok, location: @label.metamorphosize }
       else
