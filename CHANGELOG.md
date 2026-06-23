@@ -7,9 +7,16 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ## [unreleased]
 
+### Added
+
+- Radial annotator: Add pagination to citations slice [#4964]
+
 ### Fixed
 
 - Filters: Sort buttons do not reset their state when the table content changes
+- Notification sound triggers multiple times when there is more than one notification. [#4964]
+
+[#4964]: https://github.com/SpeciesFileGroup/taxonworks/issues/4964
 
 ## [0.63.1] - 2026-06-22
 
