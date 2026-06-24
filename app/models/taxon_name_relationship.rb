@@ -476,7 +476,8 @@ class TaxonNameRelationship < ApplicationRecord
     # TODO: this should completely be replaced with Taxonname logic.
     TaxonName.transaction do # Why?
       if is_invalidating?
-        t = subject_taxon_name
+        t = TaxonName.find_by(id: subject_taxon_name_id)
+        return true unless t
 
         if TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY.include?(type_name)
           t.update_columns(

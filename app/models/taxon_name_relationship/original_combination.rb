@@ -75,8 +75,8 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
   protected
 
   def set_cached_names_for_taxon_names
-    object_taxon_name.reload
-    object_taxon_name.update_cached_original_combinations
+    t = TaxonName.find_by(id: object_taxon_name_id)
+    t&.update_cached_original_combinations
   end
 
   def sv_validate_priority
