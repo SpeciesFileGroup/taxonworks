@@ -884,6 +884,61 @@ describe 'Shared::Unify', type: :model do
     expect(Citation.all.size).to eq(1)
   end
 
+  specify 'unifies TaxonNames when both have the same OriginalCombination relationship type' do
+    genus = FactoryBot.create(:relationship_genus)
+    keep = FactoryBot.create(:relationship_species)
+    destroy = FactoryBot.create(:relationship_species)
+
+    r_keep = FactoryBot.create(:taxon_name_relationship,
+      type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus',
+      subject_taxon_name: genus, object_taxon_name: keep)
+    r_destroy = FactoryBot.create(:taxon_name_relationship,
+      type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus',
+      subject_taxon_name: genus, object_taxon_name: destroy)
+
+    keep.unify(destroy)
+
+    expect(destroy.destroyed?).to be_truthy
+    expect(TaxonNameRelationship.find_by(id: r_destroy.id)).to be_nil
+    expect(TaxonNameRelationship.find_by(id: r_keep.id)).not_to be_nil
+  end
+
+  specify 'unifies TaxonNames with duplicate OriginalCombination - counts as deduplicated in result' do
+    genus = FactoryBot.create(:relationship_genus)
+    keep = FactoryBot.create(:relationship_species)
+    destroy = FactoryBot.create(:relationship_species)
+
+    FactoryBot.create(:taxon_name_relationship,
+      type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus',
+      subject_taxon_name: genus, object_taxon_name: keep)
+    FactoryBot.create(:taxon_name_relationship,
+      type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus',
+      subject_taxon_name: genus, object_taxon_name: destroy)
+
+    result = keep.unify(destroy)
+
+    expect(result[:details]['Related taxon name relationships'][:deduplicated]).to eq(1)
+  end
+
+  specify 'unifies TaxonNames when both are subjects of the same TNR to the same object' do
+    keep = FactoryBot.create(:relationship_species)
+    destroy = FactoryBot.create(:relationship_species)
+    valid_name = FactoryBot.create(:relationship_species)
+
+    r_keep = FactoryBot.create(:taxon_name_relationship,
+      type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective',
+      subject_taxon_name: keep, object_taxon_name: valid_name)
+    r_destroy = FactoryBot.create(:taxon_name_relationship,
+      type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective',
+      subject_taxon_name: destroy, object_taxon_name: valid_name)
+
+    keep.unify(destroy)
+
+    expect(destroy.destroyed?).to be_truthy
+    expect(TaxonNameRelationship.find_by(id: r_destroy.id)).to be_nil
+    expect(TaxonNameRelationship.find_by(id: r_keep.id)).not_to be_nil
+  end
+
   specify 'InvalidForeignKey error' do
     keep = FactoryBot.create(:valid_topic)
     remove = FactoryBot.create(:valid_topic)

@@ -302,6 +302,15 @@ module Shared::Unify
   # objects issues by moving annotations from the
   # would-be duplicate to an identical existing record.
   #
+  # @param object [ActiveRecord::Base] a record in another table that has a FK
+  #   pointing to the remove_object (DESTROY) being unified away; the unify loop
+  #   just attempted to flip that FK to self (KEEP) and the attempted update is
+  #   reflected in object's in-memory state even if the save failed
+  # @param relation [ActiveRecord::Reflection] the has_many/has_one reflection
+  #   on self (KEEP) for the association being processed;
+  #   relation.options[:inverse_of] is the belongs_to on object's class whose FK
+  #   we tried to flip
+  # @param result [Hash] the running unify result accumulator
   # @return result Hash
   def log_unify_result(object, relation, result)
     n = relation.name.to_s.humanize
@@ -323,7 +332,8 @@ module Shared::Unify
     # Here we check to see that the error is related
     # to the object being unified, if not,
     # we don't know how to handle this with confidence.
-    if object.errors.details.keys.include?(relation.options[:inverse_of])
+    inv = relation.options[:inverse_of]
+    if object.errors.details.keys.include?(inv) || object.errors.details.keys.include?(:"#{inv}_id")
 
       # object can't be updated, move its annotations to self.
       dedup_result = deduplicate_update_target(object)
@@ -335,10 +345,9 @@ module Shared::Unify
       else # We unified and destroyed the duplicate
         result[:details][n][:deduplicated] += 1
       end
-
-      # THere are no errors we can fix, ensure we have a fresh copy
-      # of the object and check for validity.
     else
+      # There are no errors we can fix, ensure we have a fresh copy of the
+      # object and check for validity.
       object.reload
       if object.invalid?
         result[:result][:unified] = false
