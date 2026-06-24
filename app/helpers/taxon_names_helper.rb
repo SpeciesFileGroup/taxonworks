@@ -709,7 +709,7 @@ module TaxonNamesHelper
       .children
       .where(type: 'Protonym')
       .sort_by { |a|
-        [RANKS.index(a.rank_string), a.cached, a.cached_author_year || '']
+        [RANKS.index(a.rank_string) || RANKS.length, a.cached || '', a.cached_author_year || '']
       }
       .map { |child| taxonomic_tree_node(child, include_count) }
   end
