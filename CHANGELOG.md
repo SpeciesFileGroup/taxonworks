@@ -12,6 +12,10 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Radial annotator: Add pagination to citations slice [#4964]
 - In the TaxonName verbatim author/year task, add a Source selector as an option when citing, and add a modal for assigning page numbers to source-only citations that get added to names
 
+### Changed
+
+- Upgraded postresql client to version 18
+
 ### Fixed
 
 - Filters: Sort buttons do not reset their state when the table content changes
