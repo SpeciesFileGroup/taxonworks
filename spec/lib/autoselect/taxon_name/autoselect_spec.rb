@@ -267,4 +267,33 @@ RSpec.describe Autoselect::TaxonName::Levels::CatalogueOfLife do
       end
     end
   end
+
+  context 'info status styling' do
+    def info_html_for(status)
+      record = OpenStruct.new(_col_extension: { col_status: status })
+      level.record_info_html(record)
+    end
+
+    it 'renders an accepted status with the neutral info style' do
+      html = info_html_for('accepted')
+      expect(html).to include('feedback-info')
+      expect(html).not_to include('feedback-warning')
+      expect(html).to include('accepted')
+    end
+
+    it 'renders a non-accepted status (synonym) with the warning style' do
+      html = info_html_for('synonym')
+      expect(html).to include('feedback-warning')
+      expect(html).not_to include('feedback-info')
+      expect(html).to include('synonym')
+    end
+
+    it 'is case-insensitive when matching accepted' do
+      expect(info_html_for('Accepted')).to include('feedback-info')
+    end
+
+    it 'treats ambiguous synonym as non-accepted' do
+      expect(info_html_for('ambiguous synonym')).to include('feedback-warning')
+    end
+  end
 end
