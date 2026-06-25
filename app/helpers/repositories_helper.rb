@@ -18,11 +18,12 @@ module RepositoriesHelper
   end
 
   def repository_autocomplete_tag(repository)
-    [repository.name,
-     tag.span(repository.acronym, class: [:feedback, 'feedback-thin', 'feedback-secondary']),
-     repository.url.present? ? tag.span(repository.url, class: [:feedback, 'feedback-thin']) : nil,
-     (repository.is_index_herbariorum ? tag.span('Herbarium', class: [:feedback, 'feedback-info', 'feedback-thin']) : nil),
-     repository_usage_tag(repository)
+    [
+      tag.span(repository.acronym, class: [:feedback, 'feedback-thin', 'feedback-secondary']),
+      repository.name,
+      repository.url.present? ? tag.span(repository.url, class: [:feedback, 'feedback-thin']) : nil,
+      (repository.is_index_herbariorum ? tag.span('Herbarium', class: [:feedback, 'feedback-info', 'feedback-thin']) : nil),
+      repository_usage_tag(repository)
     ].compact.join(' ').html_safe
   end
 
@@ -33,7 +34,7 @@ module RepositoriesHelper
 
     total = (repository.respond_to?(:use_count) ? repository.use_count : repository.collection_objects.count)  
     total_current = repository.current_collection_objects.count
-  
+
     a = total + total_current 
     b = total_in_project + total_current_in_project
 
