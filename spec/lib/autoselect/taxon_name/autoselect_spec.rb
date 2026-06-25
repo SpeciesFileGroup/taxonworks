@@ -219,4 +219,52 @@ RSpec.describe Autoselect::TaxonName::Levels::CatalogueOfLife do
       expect(results.first.cached).to eq('Homo sapiens')
     end
   end
+
+  context 'label rendering with author and year' do
+    let(:record) {
+      OpenStruct.new(
+        cached: 'Homo sapiens',
+        _col_extension: { col_authorship: 'Linnaeus, 1758' }
+      )
+    }
+
+    it 'record_label appends the authorship (author and year)' do
+      expect(level.record_label(record)).to eq('Homo sapiens Linnaeus, 1758')
+    end
+
+    it 'record_label_html includes the name and authorship' do
+      html = level.record_label_html(record)
+      expect(html).to include('Homo sapiens')
+      expect(html).to include('Linnaeus, 1758')
+    end
+
+    context 'recombination (CoL authorship carries a leading parenthetical)' do
+      let(:record) {
+        OpenStruct.new(
+          cached: 'Aus bus',
+          _col_extension: { col_authorship: '(Chatton, 1925) Whittaker & Margulis, 1978' }
+        )
+      }
+
+      it 'record_label shows only the original author+year, parenthesized' do
+        expect(level.record_label(record)).to eq('Aus bus (Chatton, 1925)')
+      end
+
+      it 'record_label_html shows only the original author+year, parenthesized' do
+        expect(level.record_label_html(record)).to eq('Aus bus (Chatton, 1925)')
+      end
+    end
+
+    context 'when no authorship is available' do
+      let(:record) { OpenStruct.new(cached: 'Homo', _col_extension: { col_authorship: nil }) }
+
+      it 'record_label is just the name' do
+        expect(level.record_label(record)).to eq('Homo')
+      end
+
+      it 'record_label_html is just the name' do
+        expect(level.record_label_html(record)).to eq('Homo')
+      end
+    end
+  end
 end
