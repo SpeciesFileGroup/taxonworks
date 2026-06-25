@@ -47,8 +47,11 @@
     <VBtn
       v-if="showBottom"
       :title="buttonTitle"
-      color="radial"
+      variant="tonal"
+      color="primary"
+      icon
       circle
+      bordered
       :disabled="disabled"
       @click="openRadialMenu()"
     >
@@ -65,6 +68,7 @@ import DEFINED_TASKS from './constants/definedTasks.js'
 import RadialMenu from '@/components/radials/RadialMenu.vue'
 import Spinner from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import IconNavigation from '@/components/Icon/IconNavigation.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import Icons from './images/icons.js'
 import DestroyConfirmation from './components/DestroyConfirmation'

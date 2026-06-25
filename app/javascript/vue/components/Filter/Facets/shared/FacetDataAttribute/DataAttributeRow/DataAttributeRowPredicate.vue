@@ -7,7 +7,9 @@
       <span v-html="predicate.name" />
       <VBtn
         color="primary"
-        circle
+        icon
+        medium
+        variant="tonal"
         @click="() => (predicate = null)"
       >
         <VIcon
@@ -20,6 +22,7 @@
       v-else
       color="primary"
       medium
+      variant="tonal"
       @click="() => (isModalVisible = true)"
     >
       Select predicate

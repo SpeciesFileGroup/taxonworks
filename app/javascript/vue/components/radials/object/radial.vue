@@ -74,8 +74,11 @@
     <VBtn
       v-if="showBottom"
       :title="buttonTitle"
-      color="radial"
       circle
+      variant="tonal"
+      color="primary"
+      bordered
+      icon
       :disabled="disabled"
       @click="openRadialMenu()"
     >

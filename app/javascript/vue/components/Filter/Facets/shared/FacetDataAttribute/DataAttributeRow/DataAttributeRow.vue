@@ -10,13 +10,12 @@
       <VBtn
         v-if="removeButton"
         color="primary"
-        circle
+        icon
+        medium
+        variant="tonal"
         @click="() => emit('remove')"
       >
-        <VIcon
-          name="trash"
-          x-small
-        />
+        <IconTrash class="w-4 h-4" />
       </VBtn>
     </div>
 
@@ -29,13 +28,12 @@
         <DataAttributeRowLogic v-model="dataAttribute.logic" />
         <VBtn
           color="primary"
-          circle
+          icon
+          medium
+          variant="tonal"
           @click="() => emit('add')"
         >
-          <VIcon
-            name="plus"
-            x-small
-          />
+          <IconPlus class="w-4 h-4" />
         </VBtn>
       </div>
     </div>
@@ -55,8 +53,9 @@ import DataAttributeRowLogic from './DataAttributeRowLogic.vue'
 import DataAttributeRowTypeSelector from './DataAttributeRowType.vue'
 import DataAttributeRowNegatorSelector from './DataAttributeRowNegator.vue'
 import DataAttributeRowPredicateSelector from './DataAttributeRowPredicate.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconPlus from '@/components/Icon/IconPlus.vue'
 
 const DISABLED_VALUE_ON = ['any', 'no']
 

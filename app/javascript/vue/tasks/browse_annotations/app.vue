@@ -36,15 +36,7 @@
         />
       </template>
       <template #nav-settings-start>
-        <VToggle
-          title="Hide/show non-frozen columns"
-          @click="() => (hideFrozen = !hideFrozen)"
-        >
-          <VIcon
-            :name="hideFrozen ? 'contract' : 'expand'"
-            x-small
-          />
-        </VToggle>
+        <HideUnfrozenColumnsToggle v-model="hideFrozen" />
       </template>
     </FilterLayout>
     <VSpinner
@@ -61,8 +53,7 @@ import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterView from './components/FilterView.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
-import VToggle from '@/components/ui/VToggle.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import HideUnfrozenColumnsToggle from '@/components/Filter/Table/HideUnfrozenColumnsToggle.vue'
 import useAnnotationFilter from './composables/useAnnotationFilter.js'
 import { ref } from 'vue'
 

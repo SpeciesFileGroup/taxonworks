@@ -50,18 +50,19 @@
               />
             </template>
             <slot name="nav-query-right" />
-            <span class="separate-left separate-right">|</span>
+            <span>|</span>
             <VBtn
               color="primary"
-              class="circle-button"
-              circle
-              v-tooltip="{ content: 'Reset (Alt/Ctrl + R)', placement: 'bottom' }"
+              variant="tonal"
+              icon
+              medium
+              v-tooltip="{
+                content: 'Reset (Alt/Ctrl + R)',
+                placement: 'bottom'
+              }"
               @click="emit('reset')"
             >
-              <VIcon
-                name="reset"
-                x-small
-              />
+              <IconReset class="w-4 h-4" />
             </VBtn>
           </div>
         </div>
@@ -117,14 +118,14 @@
               />
             </template>
             <slot name="nav-right" />
-            <span class="separate-left separate-right">|</span>
+            <span>|</span>
             <FilterDownload
               :list="selectedItems"
               :csv-options="csvOptions"
               :extend-download="extendDownload"
               :only-extend-download="onlyExtendDownload"
             />
-            <span class="separate-left separate-right">|</span>
+            <span>|</span>
             <slot name="nav-settings-start" />
             <FilterSettings
               v-model:filter="preferences.activeFilter"
@@ -182,7 +183,7 @@ import PaginationCount from '@/components/pagination/PaginationCount'
 import NavBar from '@/components/layout/NavBar.vue'
 import platformKey from '@/helpers/getPlatformKey'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconReset from '@/components/Icon/IconReset.vue'
 import RadialFilter from '@/components/radials/filter/radial.vue'
 import ModalNestedParameters from '@/components/Filter/ModalNestedParameters.vue'
 import RadialLinker from '@/components/radials/linker/radial.vue'

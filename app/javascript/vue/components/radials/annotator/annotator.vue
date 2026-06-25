@@ -62,7 +62,10 @@
     <VBtn
       v-if="showBottom"
       circle
-      color="radial"
+      color="primary"
+      variant="tonal"
+      icon
+      bordered
       :title="buttonTitle"
       :class="[pulse ? 'pulse-blue' : '']"
       :disabled="disabled"

@@ -55,15 +55,7 @@
         />
       </template>
       <template #nav-settings-start>
-        <VToggle
-          title="Hide/show non-frozen columns"
-          @click="() => (hideFrozen = !hideFrozen)"
-        >
-          <VIcon
-            :name="hideFrozen ? 'contract' : 'expand'"
-            x-small
-          />
-        </VToggle>
+        <HideUnfrozenColumnsToggle v-model="hideFrozen" />
       </template>
     </FilterLayout>
     <VSpinner
@@ -83,8 +75,7 @@ import useFilter from '@/shared/Filter/composition/useFilter.js'
 import RadialMatrix from '@/components/radials/matrix/radial.vue'
 import RadialOtu from '@/components/radials/otu/radial.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
-import VToggle from '@/components/ui/VToggle.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import HideUnfrozenColumnsToggle from '@/components/Filter/Table/HideUnfrozenColumnsToggle.vue'
 import { ATTRIBUTES } from './constants/attributes'
 import { listParser } from './utils/listParser'
 import { OTU } from '@/constants/index.js'

@@ -7,7 +7,7 @@
     title="Layout settings"
     @click="isModalVisible = !isModalVisible"
   >
-    <IconEye class="w-4 h-4" />
+    <IconSettings class="w-4 h-4" />
   </VBtn>
   <VModal
     v-if="isModalVisible"
@@ -56,8 +56,7 @@
 import { computed, ref } from 'vue'
 import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
-import IconEye from '@/components/Icon/IconEye.vue'
+import IconSettings from '@/components/Icon/IconSettings.vue'
 
 const props = defineProps({
   filter: {

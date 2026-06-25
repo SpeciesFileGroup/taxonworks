@@ -22,14 +22,12 @@
         >
           <span v-html="otu.object_tag" />
           <VBtn
-            circle
+            icon
+            variant="tonal"
             color="primary"
             @click="removeOtu(index)"
           >
-            <VIcon
-              name="trash"
-              x-small
-            />
+            <IconTrash class="w-4 h-4" />
           </VBtn>
         </li>
       </ul>
@@ -67,7 +65,7 @@ import Autocomplete from '@/components/ui/Autocomplete'
 import FacetPeople from '../../shared/FacetPeople.vue'
 import FacetCurrentDetermination from '@/components/Filter/Facets/shared/FacetCurrentDetermination.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import { DETERMINER_SELECTOR } from '@/constants/index.js'
 import { Otu } from '@/routes/endpoints'
 import { ref, computed, watch, onBeforeMount } from 'vue'
