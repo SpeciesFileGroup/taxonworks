@@ -1,21 +1,20 @@
 <template>
   <VBtn
     :disabled="disabled || !pinnedId"
-    circle
+    medium
+    variant="tonal"
     color="primary"
+    icon
     :title="buttonTitle"
     @click="sendDefault"
   >
-    <VIcon
-      small
-      color="white"
-      name="pin"
-    />
+    <IconPin class="w-4 h-4" />
   </VBtn>
 </template>
+
 <script setup>
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconPin from '@/components/Icon/IconPin.vue'
 import { computed, ref, onBeforeMount, onBeforeUnmount, watch } from 'vue'
 
 const props = defineProps({

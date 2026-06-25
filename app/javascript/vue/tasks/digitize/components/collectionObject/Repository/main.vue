@@ -1,7 +1,7 @@
 <template>
   <div class="overflow-x-auto">
-    <h2>Repository</h2>
-    <div class="horizontal-right-content">
+    <div class="flex-separate middle">
+      <h2>Repository</h2>
       <switch-component
         :options="switchOptions"
         v-model="isCurrent"

@@ -10,11 +10,9 @@
       v-if="copied"
       class="w-4 h-4"
     />
-    <VIcon
+    <IconCopy
       v-else
-      name="clip"
-      x-small
-      class="icon"
+      class="w-4 h-4"
     />
   </VBtn>
 </template>
@@ -22,8 +20,8 @@
 <script setup>
 import { ref } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
 import IconCheckmark from '@/components/Icon/IconCheckmark.vue'
+import IconCopy from '@/components/Icon/IconCopy.vue'
 
 const props = defineProps({
   text: {

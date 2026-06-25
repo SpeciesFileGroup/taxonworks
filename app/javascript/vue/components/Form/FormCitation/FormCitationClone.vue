@@ -2,10 +2,13 @@
   <VBtn
     color="primary"
     medium
+    icon
+    variant="tonal"
     :disabled="disabled"
+    :title="label"
     @click="setLastCitation"
   >
-    {{ label }}
+    <IconBookCopy class="w-4 h-4" />
   </VBtn>
 </template>
 
@@ -13,6 +16,7 @@
 import { Citation } from '@/routes/endpoints'
 import { getCurrentUserId } from '@/helpers/user'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import IconBookCopy from '@/components/Icon/IconBookCopy.vue'
 
 defineProps({
   label: {

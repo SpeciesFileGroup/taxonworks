@@ -2,49 +2,67 @@
   <div>
     <div>
       <label class="separate-bottom"><b>Start date</b></label>
-      <div class="horizontal-left-content separate-bottom align-end">
+      <div class="horizontal-left-content separate-bottom align-end gap-small">
         <date-fields
           v-model:year="collectingEvent.start_date_year"
           v-model:month="collectingEvent.start_date_month"
           v-model:day="collectingEvent.start_date_day"
-          @change="() => { collectingEvent.isUnsaved = true }"
+          @change="
+            () => {
+              collectingEvent.isUnsaved = true
+            }
+          "
         />
         <date-now
           v-model:year="collectingEvent.start_date_year"
           v-model:month="collectingEvent.start_date_month"
           v-model:day="collectingEvent.start_date_day"
-          @click="() => { collectingEvent.isUnsaved = true }"
+          @click="
+            () => {
+              collectingEvent.isUnsaved = true
+            }
+          "
         />
       </div>
     </div>
     <div>
       <label class="separate-bottom"><b>End date</b></label>
-      <div class="horizontal-left-content separate-bottom align-end">
+      <div class="horizontal-left-content separate-bottom align-end gap-small">
         <date-fields
           v-model:year="collectingEvent.end_date_year"
           v-model:month="collectingEvent.end_date_month"
           v-model:day="collectingEvent.end_date_day"
-          @change="() => { collectingEvent.isUnsaved = true }"
+          @change="
+            () => {
+              collectingEvent.isUnsaved = true
+            }
+          "
         />
         <date-now
           v-model:year="collectingEvent.end_date_year"
           v-model:month="collectingEvent.end_date_month"
           v-model:day="collectingEvent.end_date_day"
-          @click="() => { collectingEvent.isUnsaved = true }"
+          @click="
+            () => {
+              collectingEvent.isUnsaved = true
+            }
+          "
         />
-        <button
-          type="button"
-          class="button normal-input button-default margin-small-left"
+        <VBtn
+          medium
+          color="primary"
+          variant="tonal"
           @click="cloneDate"
         >
           Clone
-        </button>
+        </VBtn>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import VBtn from '@/components/ui/VBtn/index.vue'
 import DateFields from '@/components/ui/Date/DateFields.vue'
 import DateNow from '@/components/ui/Date/DateToday.vue'
 

@@ -1,14 +1,12 @@
 <template>
-  <div class="horizontal-left-content align-end">
+  <div class="horizontal-left-content align-end gap-small">
     <div
       v-for="(field, index) in inputFields"
       :key="field.property"
-      class="margin-small-right"
       :class="{ 'label-above': !inline }"
     >
       <label
         v-if="!placeholder"
-        :class="{ 'margin-small-right': inline }"
         class="capitalize"
       >
         {{ field.property }}

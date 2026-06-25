@@ -1,14 +1,18 @@
 <template>
   <VBtn
-    circle
+    icon
+    variant="tonal"
     :color="pin ? 'destroy' : 'create'"
     :title="pin ? 'Unpin from Pinboard' : 'Pin to Pinboard'"
     @click="pin ? deletePin() : createPin()"
   >
-    <VIcon
-      small
-      color="white"
-      name="pin"
+    <IconPinoff
+      v-if="pin"
+      class="w-4 h-4"
+    />
+    <IconPin
+      v-else
+      class="w-4 h-4"
     />
   </VBtn>
 </template>
@@ -18,6 +22,8 @@ import { PinboardItem } from '@/routes/endpoints'
 import { ref, watch, onBeforeUnmount, onBeforeMount } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconPin from '@/components/Icon/IconPin.vue'
+import IconPinoff from '@/components/Icon/IconPinOff.vue'
 
 const props = defineProps({
   pinObject: {

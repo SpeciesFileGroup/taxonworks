@@ -22,14 +22,14 @@
         class="rounded-tl-none rounded-bl-none"
         medium
         color="primary"
+        bordered
+        icon
+        variant="tonal"
         :title="selectedDownloadItem.label"
         :disabled="!list.length"
         @click="action"
       >
-        <VIcon
-          name="download"
-          x-small
-        />
+        <IconDownload class="w-4 h-4" />
       </VBtn>
     </component>
   </div>
@@ -40,7 +40,7 @@ import { ref, computed } from 'vue'
 import { flatten } from '@json2csv/transforms'
 import { decodeBasicEntities } from '@/helpers'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconDownload from '@/components/Icon/IconDownload.vue'
 import csvButton from '@/components/csvButton.vue'
 import DOMPurify from 'dompurify'
 

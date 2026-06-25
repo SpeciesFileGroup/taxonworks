@@ -6,19 +6,18 @@
     />
     <VBtn
       color="primary"
-      circle
+      icon
+      variant="tonal"
       title="Copy column to clipboard"
       @click.stop="emit('copy')"
     >
-      <VIcon
-        name="clip"
-        x-small
-      />
+      <IconCopy class="w-3 h-3" />
     </VBtn>
     <VBtn
       title="Sort alphabetically"
       color="primary"
-      circle
+      icon
+      variant="tonal"
       @click.stop="emit('sort')"
     >
       <VIcon
@@ -41,6 +40,7 @@
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VLock from '@/components/ui/VLock/index.vue'
+import IconCopy from '@/components/Icon/IconCopy.vue'
 
 defineProps({
   columnKey: {

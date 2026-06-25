@@ -43,6 +43,20 @@ a.btn:hover {
   }
 }
 
+@each $key, $value in $tw-input-sizes {
+  .btn-#{$key}-icon {
+    height: #{$value};
+    width: #{$value};
+    min-width: #{$value};
+    min-height: #{$value};
+    border-radius: var(--border-radius-small);
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+  }
+}
+
 .btn-radial {
   background-color: var(--btn-radial-background);
   color: var(--btn-radial-color);
@@ -147,4 +161,20 @@ a.btn:hover {
 
 .btn-transparent {
   background-color: transparent;
+}
+
+.btn-bordered {
+  border: 1px solid var(--border-color);
+}
+
+@each $key, $value in $tw-colors {
+  .btn-bordered.btn-#{$key} {
+    border: 1px solid color-mix(in srgb, var(--color-#{$key}) 35%, transparent);
+  }
+}
+
+/* Disabled overrides every variant/color, including their :hover states */
+.btn:disabled,
+.btn:disabled:hover {
+  color: var(--button-disabled-text-color);
 }

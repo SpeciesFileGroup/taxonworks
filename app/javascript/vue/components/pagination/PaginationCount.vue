@@ -25,6 +25,7 @@
       <select
         v-else
         v-model="per"
+        class="rounded-tr-none rounded-br-none"
         @change="(e) => emit('change', per)"
       >
         <option
@@ -40,13 +41,13 @@
         v-if="custom"
         class="rounded-tl-none rounded-bl-none"
         color="primary"
+        variant="tonal"
+        icon
         medium
+        bordered
         @click="toggleMode"
       >
-        <VIcon
-          name="pencil"
-          x-small
-        />
+        <IconPencil class="w-4 h-4" />
       </VBtn>
     </div>
     records per page.
@@ -56,7 +57,7 @@
 <script setup>
 import { computed, onBeforeMount, ref, useTemplateRef, nextTick } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconPencil from '@/components/Icon/IconPencil.vue'
 
 const props = defineProps({
   pagination: {

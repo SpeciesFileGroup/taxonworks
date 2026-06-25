@@ -58,6 +58,16 @@ const props = defineProps({
     default: false
   },
 
+  icon: {
+    type: Boolean,
+    default: false
+  },
+
+  bordered: {
+    type: Boolean,
+    default: false
+  },
+
   variant: {
     type: String,
     default: 'solid',
@@ -81,11 +91,12 @@ const { semanticSize } = useSizes(props)
 
 const tag = computed(() => (props.href ? 'a' : 'button'))
 
-const buttonSize = computed(() =>
-  props.circle
-    ? `btn-${semanticSize.value}-circle`
-    : `btn-${semanticSize.value}-size`
-)
+const buttonSize = computed(() => {
+  if (props.circle) return `btn-${semanticSize.value}-circle`
+  if (props.icon) return `btn-${semanticSize.value}-icon`
+
+  return `btn-${semanticSize.value}-size`
+})
 
 const buttonClasses = computed(() => {
   const isLink = !!props.href
@@ -95,7 +106,8 @@ const buttonClasses = computed(() => {
     `btn-${props.color}`,
     isLink ? 'btn-link' : 'btn',
     buttonSize.value,
-    { [`btn-${props.variant}`]: props.variant !== 'solid' }
+    { [`btn-${props.variant}`]: props.variant !== 'solid' },
+    { 'btn-bordered': props.bordered }
   ]
 })
 

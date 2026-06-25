@@ -1,11 +1,12 @@
 <template>
-  <v-btn
+  <VBtn
     color="primary"
     medium
+    variant="tonal"
     @click="setTime"
   >
     Now
-  </v-btn>
+  </VBtn>
 </template>
 
 <script setup>

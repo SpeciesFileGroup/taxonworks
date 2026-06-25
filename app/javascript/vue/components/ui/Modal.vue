@@ -29,13 +29,13 @@
               <VBtn
                 circle
                 color="primary"
+                variant="ghost"
                 title="Close (escape key)"
                 v-bind="buttonClose"
                 @click="() => emit('close')"
               >
-                <VIcon
-                  name="close"
-                  xx-small
+                <IconClose
+                  class="w-4 h-4"
                   title="Close (escape key)"
                 />
               </VBtn>
@@ -57,7 +57,7 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 import { ModalEventStack } from '@/utils'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconClose from '@/components/Icon/IconClose.vue'
 
 defineProps({
   buttonClose: {

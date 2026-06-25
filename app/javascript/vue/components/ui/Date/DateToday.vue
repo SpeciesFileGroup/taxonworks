@@ -1,11 +1,12 @@
 <template>
-  <v-btn
+  <VBtn
     color="primary"
     medium
+    variant="tonal"
     @click="emitActualDate"
   >
     Today
-  </v-btn>
+  </VBtn>
 </template>
 
 <script setup>
