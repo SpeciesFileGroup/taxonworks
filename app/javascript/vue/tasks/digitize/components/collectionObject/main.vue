@@ -14,12 +14,12 @@
           v-if="collectionObject.id"
           class="horizontal-left-content gap-small"
         >
+          <ButtonTag :global-id="collectionObject.global_id" />
           <RadialAnnotator
             :global-id="collectionObject.global_id"
             @delete="handleRadialDestroy"
             @create="handleRadialCreate"
           />
-          <ButtonTag :global-id="collectionObject.global_id" />
           <RadialObject :global-id="collectionObject.global_id" />
           <RadialNavigation :global-id="collectionObject.global_id" />
         </div>

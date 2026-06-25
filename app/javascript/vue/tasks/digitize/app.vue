@@ -1,23 +1,6 @@
 <template>
   <div id="vue-all-in-one">
-    <div class="flex-separate middle">
-      <h1>Comprehensive specimen digitization</h1>
-      <ul class="context-menu">
-        <li>
-          <SettingsCollectionObject />
-        </li>
-        <li>
-          <label v-help.sections.global.reorderFields>
-            <input
-              type="checkbox"
-              v-model="settings.sortable"
-            />
-            Reorder fields
-          </label>
-        </li>
-      </ul>
-    </div>
-    <spinner-component
+    <VSpinner
       v-if="saving || loading"
       full-screen
       :logo-size="{ width: '100px', height: '100px' }"
@@ -47,8 +30,7 @@ import { useStore } from 'vuex'
 import TaskHeader from './components/taskHeader/main.vue'
 import CollectionObject from './components/collectionObject/main.vue'
 import CollectingEventLayout from './components/collectingEvent/main.vue'
-import SettingsCollectionObject from './components/settings/SettingCollectionObject.vue'
-import SpinnerComponent from '@/components/ui/VSpinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import useCollectingEventStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
 import platformKey from '@/helpers/getPlatformKey.js'
 import LeftColumn from './components/LeftColumn.vue'

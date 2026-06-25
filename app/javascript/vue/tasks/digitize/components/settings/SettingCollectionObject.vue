@@ -1,10 +1,13 @@
 <template>
   <v-btn
+    icon
     color="primary"
+    variant="tonal"
     medium
+    title="Layout settings"
     @click="showModal = true"
   >
-    Layout settings
+    <IconSettings class="w-4 h-4" />
   </v-btn>
   <v-modal
     v-if="showModal"
@@ -37,6 +40,17 @@
           </label>
         </li>
       </ul>
+      <h3 class="separate-top">Behavior</h3>
+      <label
+        v-help.sections.global.reorderFields
+        class="middle horizontal-left-content gap-small"
+      >
+        <input
+          type="checkbox"
+          v-model="settings.sortable"
+        />
+        Reorder fields
+      </label>
     </template>
   </v-modal>
 </template>
@@ -45,6 +59,7 @@
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 import { GetterNames } from '../../store/getters/getters'
+import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions'
 import {
   COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_CITATIONS,
@@ -59,6 +74,7 @@ import {
 } from '@/tasks/digitize/const/layout'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VModal from '@/components/ui/Modal.vue'
+import IconSettings from '@/components/Icon/IconSettings.vue'
 
 const LAYOUT_SETTING = {
   [COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_ATTRIBUTES]: 'Attributes',
@@ -76,5 +92,13 @@ const store = useStore()
 const preferences = computed(
   () => store.getters[GetterNames.GetPreferences]?.layout || {}
 )
+const settings = computed({
+  get() {
+    return store.getters[GetterNames.GetSettings]
+  },
+  set(value) {
+    store.commit(MutationNames.SetSettings, value)
+  }
+})
 const showModal = ref(false)
 </script>

@@ -124,6 +124,7 @@
   </VModal>
   <div class="horizontal-left-content middle">
     <select
+      class="rounded-tr-none rounded-br-none"
       v-model="currentLayout"
       @change="emit('select')"
     >
@@ -144,6 +145,9 @@
         'Customize layout: Properties can be toggled on or off by clicking the checkboxes. You can also reorder them by dragging. Also, columns can be rearranged by dragging them left or right.'
       "
       title="Customize layout"
+      icon
+      bordered
+      variant="tonal"
       @click="openLayoutPreferences"
     >
       <VIcon

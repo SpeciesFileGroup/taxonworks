@@ -21,7 +21,6 @@
 import { PinboardItem } from '@/routes/endpoints'
 import { ref, watch, onBeforeUnmount, onBeforeMount } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
 import IconPin from '@/components/Icon/IconPin.vue'
 import IconPinoff from '@/components/Icon/IconPinOff.vue'
 

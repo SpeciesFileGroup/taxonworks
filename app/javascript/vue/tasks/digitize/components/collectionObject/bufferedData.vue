@@ -1,24 +1,23 @@
 <template>
-  <div
-    v-help.sections.collectionObject.buffered
-    class="buffered"
-  >
+  <div v-help.sections.collectionObject.buffered>
     <h2>Buffered</h2>
-    <buffered-field
-      title="Buffered determinations"
-      v-model="collectionObject.buffered_determinations"
-      v-model:lock="locked.collection_object.buffered_determinations"
-    />
-    <buffered-field
-      title="Buffered collecting event"
-      v-model="collectionObject.buffered_collecting_event"
-      v-model:lock="locked.collection_object.buffered_collecting_event"
-    />
-    <buffered-field
-      title="Buffered other labels"
-      v-model="collectionObject.buffered_other_labels"
-      v-model:lock="locked.collection_object.buffered_other_labels"
-    />
+    <div class="buffered">
+      <buffered-field
+        title="Buffered determinations"
+        v-model="collectionObject.buffered_determinations"
+        v-model:lock="locked.collection_object.buffered_determinations"
+      />
+      <buffered-field
+        title="Buffered collecting event"
+        v-model="collectionObject.buffered_collecting_event"
+        v-model:lock="locked.collection_object.buffered_collecting_event"
+      />
+      <buffered-field
+        title="Buffered other labels"
+        v-model="collectionObject.buffered_other_labels"
+        v-model:lock="locked.collection_object.buffered_other_labels"
+      />
+    </div>
   </div>
 </template>
 

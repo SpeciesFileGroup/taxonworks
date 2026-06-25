@@ -2,16 +2,17 @@
   <div v-if="keywordId && !isLoading">
     <VTooltip>
       <template #content>
-        <p>
+        <span>
           {{ tagItem ? 'Remove' : 'Create' }} tag:
           {{ getDefaultKeywordElement().firstChild.firstChild.textContent }}.
           <br />
           {{ showCount ? `Used already on ${totalUsed} objects.` : '' }}
-        </p>
+        </span>
       </template>
 
       <VBtn
-        circle
+        icon
+        variant="tonal"
         :color="tagItem ? 'destroy' : 'create'"
         @click="
           () => {
@@ -19,26 +20,25 @@
           }
         "
       >
-        <VIcon
-          color="white"
-          name="label"
-          x-small
+        <IconTagX
+          v-if="tagItem"
+          class="w-4 h-4"
+        />
+        <IconTagPlus
+          v-else
+          class="w-4 h-4"
         />
       </VBtn>
     </VTooltip>
   </div>
   <VBtn
     v-else
-    circle
+    variant="tonal"
+    icon
     color="disabled"
     title="Select a default keyword from pinboard."
   >
-    <VIcon
-      color="white"
-      name="label"
-      x-small
-      title="Select a default keyword from pinboard."
-    />
+    <IconTag class="w-4 h-4" />
   </VBtn>
 </template>
 
@@ -49,7 +49,9 @@ import { ref, watch, onBeforeMount, onBeforeUnmount } from 'vue'
 import { getPagination } from '@/helpers'
 import { CONTROLLED_VOCABULARY_TERM } from '@/constants'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTagPlus from '@/components/Icon/IconTagPlus.vue'
+import IconTagX from '@/components/Icon/IconTagX.vue'
+import IconTag from '@/components/Icon/IconTag.vue'
 
 const props = defineProps({
   globalId: {

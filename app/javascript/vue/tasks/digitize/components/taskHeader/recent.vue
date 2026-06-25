@@ -3,6 +3,7 @@
     <VBtn
       medium
       color="primary"
+      variant="tonal"
       @click="isModalVisible = true"
     >
       Recent

@@ -31,11 +31,7 @@
             v-if="collectionObject?.dwc_occurrence?.rebuild_set"
             class="horizontal-left-content gap-small middle text-warning-color"
           >
-            <VIcon
-              name="attention"
-              small
-              color="warning"
-            />
+            <IconWarning class="w-5 h-5" />
             DwcOccurrence re-index is pending.
           </div>
         </template>
@@ -75,24 +71,23 @@
             </li>
           </ul>
         </div>
-        <VTooltip v-if="hasChanges">
+        <VTooltip
+          v-if="hasChanges"
+          class="middle"
+        >
           <template #content>
-            <p>You have unsaved changes.</p>
+            <span>You have unsaved changes.</span>
           </template>
-          <VIcon
-            name="attention"
-            color="attention"
-            title="You have unsaved changes."
-            small
-          />
+          <IconWarning class="w-5 h-5 text-attention-color" />
         </VTooltip>
+        <SettingsCollectionObject />
         <RecentComponent @selected="loadCollectionObject($event)" />
         <VBtn
+          color="primary"
           medium
-          color="create"
-          @click="saveDigitalization"
+          @click="resetStore"
         >
-          Save
+          New
         </VBtn>
         <VBtn
           medium
@@ -102,11 +97,11 @@
           Save and new
         </VBtn>
         <VBtn
-          color="primary"
           medium
-          @click="resetStore"
+          color="create"
+          @click="saveDigitalization"
         >
-          New
+          Save
         </VBtn>
       </div>
       <ConfirmationModal ref="confirmationModalRef" />
@@ -126,12 +121,13 @@ import { RouteNames } from '@/routes/routes.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import RecentComponent from './recent.vue'
+import SettingsCollectionObject from '../settings/SettingCollectionObject.vue'
 import platformKey from '@/helpers/getPlatformKey.js'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import NavBar from '@/components/layout/NavBar'
 import AjaxCall from '@/helpers/ajaxCall'
 import SoftValidation from './softValidation'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconWarning from '@/components/Icon/IconWarning.vue'
 import useCollectingEventStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
 import useBiologicalAssociationStore from '@/components/Form/FormBiologicalAssociation/store/biologicalAssociations.js'
 import useBiocurationStore from '@/tasks/field_occurrences/new/store/biocurations.js'

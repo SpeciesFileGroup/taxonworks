@@ -1,44 +1,42 @@
 <template>
   <div>
-    <div>
+    <div class="flex-col gap-small">
       <div
         v-for="group in biocurationsGroups"
         :key="group.id"
       >
         <label>{{ group.name }}</label>
         <br />
-        <template
-          v-for="item in group.list"
-          :key="item.id"
-        >
-          <VBtn
-            v-if="!isInList(item.id)"
-            color="primary"
-            medium
-            :class="[
-              'btn-pill-left',
-              'margin-small-right',
-              'margin-small-bottom',
-              disabled && 'biocuration-toggle-button__disabled'
-            ]"
-            @click="() => !disabled && emit('add', item)"
+        <div class="biocuration-toggle-group">
+          <template
+            v-for="item in group.list"
+            :key="item.id"
           >
-            {{ item.name }}
-          </VBtn>
-          <VBtn
-            v-else
-            medium
-            :class="[
-              'btn-pill-left',
-              'margin-small-right',
-              'margin-small-bottom',
-              disabled && 'biocuration-toggle-button__disabled'
-            ]"
-            @click="() => !disabled && emit('remove', item)"
-          >
-            {{ item.name }}
-          </VBtn>
-        </template>
+            <VBtn
+              v-if="!isInList(item.id)"
+              variant="ghost"
+              bordered
+              medium
+              :class="[
+                'biocuration-toggle__option',
+                disabled && 'biocuration-toggle-button__disabled'
+              ]"
+              @click="() => !disabled && emit('add', item)"
+            >
+              {{ item.name }}
+            </VBtn>
+            <VBtn
+              v-else
+              color="primary"
+              variant="tonal"
+              medium
+              :class="[disabled && 'biocuration-toggle-button__disabled']"
+              @click="() => !disabled && emit('remove', item)"
+            >
+              {{ item.name }}
+            </VBtn>
+          </template>
+        </div>
       </div>
     </div>
   </div>
@@ -77,6 +75,22 @@ function isInList(id) {
 .total-input {
   width: 50px;
 }
+
+.biocuration-toggle-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xxs);
+  width: fit-content;
+  max-width: 100%;
+  padding: var(--spacing-xxs);
+  border-radius: var(--border-radius-medium);
+  background-color: var(--bg-color);
+}
+
+.biocuration-toggle__option {
+  color: var(--text-muted-color);
+}
+
 .biocuration-toggle-button__disabled {
   opacity: 0.5;
 }

@@ -1,13 +1,14 @@
 <template>
   <div>
-    <button
-      type="button"
-      class="button normal-input button-default"
+    <VBtn
+      medium
+      color="primary"
+      variant="tonal"
       @click="setModalState(true)"
     >
       Accession metadata
-    </button>
-    <modal-component
+    </VBtn>
+    <VModal
       v-if="showModal"
       @close="setModalState(false)"
     >
@@ -50,58 +51,52 @@
           Save
         </button>
       </template>
-    </modal-component>
+    </VModal>
   </div>
 </template>
 
-<script>
-import ModalComponent from '@/components/ui/Modal'
+<script setup>
+import VModal from '@/components/ui/Modal'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import { ActionNames } from '../../store/actions/actions'
+import { useStore } from 'vuex'
+import { ref } from 'vue'
 
-export default {
-  components: { ModalComponent },
+const store = useStore()
+const showModal = ref(false)
+const unsaved = ref(false)
 
-  props: {
-    collectionObject: {
-      type: Object,
-      required: true
-    }
-  },
-
-  data() {
-    return {
-      showModal: false,
-      unsaved: false
-    }
-  },
-
-  methods: {
-    saveAccession() {
-      this.$store
-        .dispatch(ActionNames.SaveCollectionObject, this.collectionObject)
-        .then(() => {
-          TW.workbench.alert.create(
-            'Collection object was successfully saved.',
-            'notice'
-          )
-          this.unsaved = false
-        })
-    },
-
-    checkUnsaved() {
-      if (
-        this.unsaved &&
-        window.confirm('You have unsaved changes. Do you want to save it?')
-      ) {
-        this.saveAccession()
-      }
-    },
-
-    setModalState(value) {
-      this.checkUnsaved()
-      this.showModal = value
-    }
+const props = defineProps({
+  collectionObject: {
+    type: Object,
+    required: true
   }
+})
+
+function saveAccession() {
+  store
+    .dispatch(ActionNames.SaveCollectionObject, props.collectionObject)
+    .then(() => {
+      TW.workbench.alert.create(
+        'Collection object was successfully saved.',
+        'notice'
+      )
+      unsaved.value = false
+    })
+}
+
+function checkUnsaved() {
+  if (
+    unsaved.value &&
+    window.confirm('You have unsaved changes. Do you want to save it?')
+  ) {
+    saveAccession()
+  }
+}
+
+function setModalState(value) {
+  checkUnsaved()
+  showModal.value = value
 }
 </script>
 

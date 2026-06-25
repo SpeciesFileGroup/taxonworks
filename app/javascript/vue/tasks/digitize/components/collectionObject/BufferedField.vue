@@ -15,6 +15,7 @@
         />
         <v-btn
           type="button"
+          variant="tonal"
           @click="setInline(inputText || '')"
           color="primary"
         >

@@ -1,5 +1,5 @@
 <template>
-  <table class="vue-table table-striped">
+  <table class="vue-table">
     <thead>
       <tr>
         <th>Total</th>
@@ -31,7 +31,7 @@
         <td class="lock-biocuration">
           <VLock v-model="locked.biocuration" />
         </td>
-        <td>
+        <td class="padding-small-top padding-small-bottom">
           <FormBiocuration
             v-model="biocurationStore.list"
             :biocurations-groups="biocurationStore.biocurationGroups"
@@ -47,28 +47,26 @@
             <AccessionMetadata :collection-object="collectionObject" />
             <RadialAnnotator :global-id="collectionObject.global_id" />
             <VBtn
-              circle
+              icon
               color="create"
+              variant="tonal"
+              title="You're editing this collection object"
               disabled
             >
-              <VIcon
-                name="pencil"
-                x-small
-              />
+              <IconPencil class="w-4 h-4" />
             </VBtn>
             <VPin
               type="CollectionObject"
               :object-id="collectionObject.id"
             />
             <VBtn
-              circle
+              icon
               color="destroy"
+              variant="tonal"
+              title="Destroy collection object"
               @click="removeCO(collectionObject.id)"
             >
-              <VIcon
-                name="trash"
-                x-small
-              />
+              <IconTrash class="w-4 h-4" />
             </VBtn>
           </div>
         </td>
@@ -93,7 +91,7 @@
             />
           </td>
           <td />
-          <td>
+          <td class="padding-small-top padding-small-bottom">
             <FormBiocuration
               disabled
               :modelValue="biocurations.filter((b) => b.objectId === item.id)"
@@ -105,28 +103,27 @@
               <AccessionMetadata :collection-object="item" />
               <RadialAnnotator :global-id="item.global_id" />
               <VBtn
-                circle
+                icon
                 color="primary"
+                variant="tonal"
+                title="Edit collection object"
                 @click="setCO(item)"
               >
-                <VIcon
-                  name="pencil"
-                  x-small
-                />
+                <IconPencil class="w-4 h-4" />
               </VBtn>
+
               <VPin
                 type="CollectionObject"
                 :object-id="item.id"
               />
               <VBtn
-                circle
+                icon
                 color="destroy"
+                variant="tonal"
+                title="Destroy collection object"
                 @click="removeCO(item.id)"
               >
-                <VIcon
-                  name="trash"
-                  x-small
-                />
+                <IconTrash class="w-4 h-4" />
               </VBtn>
             </div>
           </td>
@@ -147,11 +144,12 @@ import { BiocurationClassification } from '@/routes/endpoints'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VPin from '@/components/ui/Button/ButtonPin.vue'
 import VLock from '@/components/ui/VLock/index.vue'
-import AccessionMetadata from './accession'
+import AccessionMetadata from './accession.vue'
 import FormBiocuration from '@/components/Form/FormBiocuration.vue'
 import useBiocurationStore from '@/tasks/field_occurrences/new/store/biocurations.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
+import IconPencil from '@/components/Icon/IconPencil.vue'
 import { randomUUID } from '@/helpers'
 
 const store = useStore()
@@ -244,6 +242,12 @@ onBeforeMount(() => {
 }
 .vue-table {
   min-width: 100%;
+}
+.vue-table tbody td {
+  border-bottom: 1px solid var(--border-color);
+}
+.vue-table tbody tr:last-child td {
+  border-bottom: 0;
 }
 .lock-biocuration {
   width: 30px;

@@ -1,7 +1,7 @@
 <template>
   <div class="three_quarter_width margin-medium-left">
     <spinner-component v-if="isLoading" />
-    <table class="full_width">
+    <table class="full_width table-striped">
       <thead>
         <tr>
           <th class="w-2">
@@ -42,16 +42,14 @@
             <div class="horizontal-right-content gap-small">
               <VBtn
                 color="primary"
-                circle
+                variant="tonal"
+                icon
+                title="Edit"
                 @click="editItem(index)"
               >
-                <VIcon
-                  name="pencil"
-                  x-small
-                />
+                <IconPencil class="w-4 h-4" />
               </VBtn>
-              <PinComponent
-                class="button button-circle"
+              <VPin
                 v-if="item.id"
                 :object-id="item.id"
                 :section="`${item.type}s`"
@@ -59,13 +57,12 @@
               />
               <VBtn
                 color="destroy"
-                circle
+                variant="tonal"
+                icon
+                title="Delete"
                 @click="emit('remove', item)"
               >
-                <VIcon
-                  name="trash"
-                  x-small
-                />
+                <IconTrash class="w-4 h-4" />
               </VBtn>
             </div>
           </td>
@@ -81,9 +78,10 @@ import { ref, watch } from 'vue'
 import { sortArray } from '@/helpers'
 import { CONTROLLED_VOCABULARY_TERM } from '@/constants'
 import SpinnerComponent from '@/components/ui/VSpinner.vue'
-import PinComponent from '@/components/ui/Button/ButtonPin.vue'
+import VPin from '@/components/ui/Button/ButtonPin.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconPencil from '@/components/Icon/IconPencil.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import ButtonUnify from '@/components/ui/Button/ButtonUnify.vue'
 
 const props = defineProps({
