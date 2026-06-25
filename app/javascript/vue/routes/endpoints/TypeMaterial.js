@@ -45,5 +45,5 @@ export const TypeMaterial = {
   types: () => AjaxCall('get', `/${model}/type_types.json`),
 
   dashboardReport: (params) =>
-    AjaxCall('get', '/tasks/type_materials/dashboard/report.json', { params })
+    AjaxCall('post', '/tasks/type_materials/dashboard/report.json', params)
 }
