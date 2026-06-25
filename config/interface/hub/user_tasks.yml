@@ -1273,3 +1273,13 @@ collection_visualization_task:
     - collection objects
   status: prototype
   description: 'Visualize a collection hierarchy using treemap and other views.'
+
+type_material_dashboard_task:
+  hub: true
+  name: 'Type material dashboard'
+  related:
+  categories:
+    - collection_object
+    - nomenclature
+  status: prototype
+  description: 'Overview of type material catalog completeness: TypeMaterial coverage of species-group names, with visualizations.'

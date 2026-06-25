@@ -42,5 +42,8 @@ const permitParams = {
 export const TypeMaterial = {
   ...baseCRUD(model, permitParams),
 
-  types: () => AjaxCall('get', `/${model}/type_types.json`)
+  types: () => AjaxCall('get', `/${model}/type_types.json`),
+
+  dashboardReport: (params) =>
+    AjaxCall('get', '/tasks/type_materials/dashboard/report.json', { params })
 }

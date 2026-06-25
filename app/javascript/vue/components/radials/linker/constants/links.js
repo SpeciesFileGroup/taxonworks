@@ -224,3 +224,10 @@ export const TASK_MATERIAL_EXAMINED = {
   link: "/tasks/otus/material_examined",
   saveQuery: true,
 };
+
+export const TASK_TYPE_MATERIAL_DASHBOARD = {
+  label: "Type material dashboard",
+  link: "/tasks/type_materials/dashboard",
+  queryParam: true,
+  saveQuery: true,
+};

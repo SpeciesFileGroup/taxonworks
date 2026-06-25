@@ -1,4 +1,11 @@
 scope :tasks do
+  scope :type_materials do
+    scope :dashboard, controller: 'tasks/type_materials/dashboard' do
+      get '/', action: :index, as: 'type_material_dashboard_task'
+      get :report, defaults: {format: :json}
+    end
+  end
+
   scope :debugging do
     scope :autoselects, controller: 'tasks/debugging/autoselects' do
       get :index, as: 'index_autoselects_task'

@@ -12,6 +12,7 @@ import {
   TASK_PROJECT_VOCABULARY,
   TASK_SIMPLEMAPPR,
   TASK_COLLECTION_OBJECT_MEDIA_EXTENSION,
+  TASK_TYPE_MATERIAL_DASHBOARD,
 } from "../constants/links";
 
 export const CollectionObject = {
@@ -28,6 +29,7 @@ export const CollectionObject = {
     TASK_MULTI_UPDATE,
     TASK_NEW_CONTAINER,
     TASK_SIMPLEMAPPR,
+    TASK_TYPE_MATERIAL_DASHBOARD,
   ],
   ids: [
     TASK_COLLECTION_OBJECT_MATCH,
@@ -43,5 +45,6 @@ export const CollectionObject = {
     TASK_NEW_CONTAINER,
     TASK_PROJECT_VOCABULARY,
     TASK_SIMPLEMAPPR,
+    TASK_TYPE_MATERIAL_DASHBOARD,
   ],
 };
