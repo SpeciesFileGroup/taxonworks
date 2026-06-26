@@ -49,9 +49,10 @@
         </template>
       </VModal>
       <VBtn
-        class="circle-button"
         circle
-        color="radial"
+        variant="tonal"
+        color="primary"
+        bordered
         :title="title"
         :disabled="
           disabled ||

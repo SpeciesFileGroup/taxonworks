@@ -56,10 +56,11 @@
         </template>
       </VModal>
       <VBtn
-        class="circle-button"
         :title="title"
         circle
-        color="radial"
+        variant="tonal"
+        color="primary"
+        bordered
         :disabled="disabled || (!ids.length && !Object.keys(params).length)"
         @click="openRadialBatch"
       >

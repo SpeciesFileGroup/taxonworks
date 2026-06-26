@@ -37,7 +37,9 @@
 
       <VBtn
         title="Radial navigator"
-        color="radial"
+        variant="tonal"
+        color="primary"
+        bordered
         circle
         :disabled="disabled"
         @click="openRadialMenu()"

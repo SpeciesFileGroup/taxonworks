@@ -25,8 +25,9 @@
       </template>
     </modal>
     <VBtn
-      class="circle-button"
-      color="radial"
+      variant="tonal"
+      color="primary"
+      bordered
       title="Radial label"
       circle
       :disabled="disabled"

@@ -40,7 +40,9 @@
         class="circle-button"
         title="Radial OTU"
         circle
-        color="radial"
+        variant="tonal"
+        color="primary"
+        bordered
         :disabled="disabled || (!ids.length && !Object.keys(params).length)"
         @click="isModalVisible = true"
       >

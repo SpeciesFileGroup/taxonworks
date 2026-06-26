@@ -32,12 +32,12 @@ const props = defineProps({
 
   onColor: {
     type: String,
-    default: 'var(--color-toggle-active)'
+    default: 'var(--color-primary)'
   },
 
   offColor: {
     type: String,
-    default: 'var(--badge-blue-bg)'
+    default: 'var(--bg-muted)'
   },
 
   title: {
@@ -128,6 +128,8 @@ const checked = computed({
 
         .switch-icon {
           transform: translate(18px, 0);
+          color: var(--color-primary);
+          opacity: 1;
           &:after {
             transform: rotate(0deg) translate(0px, 0);
           }

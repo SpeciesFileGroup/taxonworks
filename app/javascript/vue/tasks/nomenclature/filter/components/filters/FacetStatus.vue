@@ -2,7 +2,7 @@
   <FacetContainer>
     <h3>Status</h3>
     <smart-selector
-      class="separate-bottom"
+      class="capitalize"
       :options="options"
       v-model="view"
     />
@@ -197,9 +197,8 @@ export default {
             ...statusList?.latinized?.tree
           }
           for (const keyType in statusList[key].common) {
-            statusList[key].common[
-              keyType
-            ].name = `${statusList[key].common[keyType].name} (${key})`
+            statusList[key].common[keyType].name =
+              `${statusList[key].common[keyType].name} (${key})`
           }
           newList.common = {
             ...newList.common,

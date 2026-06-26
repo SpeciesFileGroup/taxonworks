@@ -3,7 +3,7 @@
     <h3>In relationship</h3>
 
     <VSwitch
-      class="separate-bottom"
+      class="capitalize"
       :options="Object.values(OPTIONS)"
       v-model="view"
     />
@@ -122,8 +122,8 @@ const relationshipSelected = ref([])
 const mergeLists = ref({})
 const display = ref('subject_status_tag')
 
-const nomenclatureCode = computed(
-  () => params.value.nomenclature_code?.toLowerCase()
+const nomenclatureCode = computed(() =>
+  params.value.nomenclature_code?.toLowerCase()
 )
 
 watch(params, (newVal) => {
@@ -132,16 +132,17 @@ watch(params, (newVal) => {
   }
 })
 
-watch(relationshipSelected,
+watch(
+  relationshipSelected,
   (newVal) => {
     params.value.taxon_name_relationship_type_subject = newVal
-      .filter((r) => (r.subject_object == SUBJECT_OBJECT.subject))
+      .filter((r) => r.subject_object == SUBJECT_OBJECT.subject)
       .map((r) => r.type)
     params.value.taxon_name_relationship_type_object = newVal
-      .filter((r) => (r.subject_object == SUBJECT_OBJECT.object))
+      .filter((r) => r.subject_object == SUBJECT_OBJECT.object)
       .map((r) => r.type)
     params.value.taxon_name_relationship_type_either = newVal
-      .filter((r) => (r.subject_object == SUBJECT_OBJECT.either))
+      .filter((r) => r.subject_object == SUBJECT_OBJECT.either)
       .map((r) => r.type)
   },
   { deep: true }
@@ -161,9 +162,12 @@ onMounted(() => {
 
     const queryParams = URLParamsToJSON(location.href)
     const relationshipLists = {
-      [SUBJECT_OBJECT.subject]: queryParams.taxon_name_relationship_type_subject || [],
-      [SUBJECT_OBJECT.object]: queryParams.taxon_name_relationship_type_object || [],
-      [SUBJECT_OBJECT.either]: queryParams.taxon_name_relationship_type_either || []
+      [SUBJECT_OBJECT.subject]:
+        queryParams.taxon_name_relationship_type_subject || [],
+      [SUBJECT_OBJECT.object]:
+        queryParams.taxon_name_relationship_type_object || [],
+      [SUBJECT_OBJECT.either]:
+        queryParams.taxon_name_relationship_type_either || []
     }
     Object.keys(relationshipLists).forEach((subject_object) => {
       const relationshipsList = relationshipLists[subject_object]
@@ -178,9 +182,7 @@ onMounted(() => {
 })
 
 function merge() {
-  const relationships = JSON.parse(
-    JSON.stringify(relationshipsList.value)
-  )
+  const relationships = JSON.parse(JSON.stringify(relationshipsList.value))
   const newList = {
     all: {},
     common: {},
@@ -194,16 +196,11 @@ function merge() {
     newList.all = Object.assign(newList.all, relationships[key].all)
     newList.tree = Object.assign(newList.tree, relationships[key].tree)
     for (const keyType in relationships[key].common) {
-      relationships[key].common[
-        keyType
-      ].name =
+      relationships[key].common[keyType].name =
         `${relationships[key].common[keyType][display.value]} (${key})`
       relationships[key].common[keyType].type = keyType
     }
-    newList.common = Object.assign(
-      newList.common,
-      relationships[key].common
-    )
+    newList.common = Object.assign(newList.common, relationships[key].common)
   })
   getTreeList(newList.tree, newList.all)
   addName(newList.all)
@@ -243,21 +240,18 @@ function filterAlreadyPicked(type) {
 
 function addName(list) {
   for (const key in list) {
-    Object.defineProperty(
-      list[key], 'name', { writable: true, value: list[key][display.value] }
-    )
+    Object.defineProperty(list[key], 'name', {
+      writable: true,
+      value: list[key][display.value]
+    })
   }
 }
 
 function addType(list) {
   for (const key in list) {
-    Object.defineProperty(
-      list[key], 'type', { writable: true, value: key }
-    )
+    Object.defineProperty(list[key], 'type', { writable: true, value: key })
   }
 }
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>
