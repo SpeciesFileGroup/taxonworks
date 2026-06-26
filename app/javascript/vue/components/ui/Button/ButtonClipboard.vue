@@ -1,18 +1,19 @@
 <template>
   <VBtn
-    circle
+    icon
     color="primary"
+    variant="tonal"
     :title="copied ? 'Copied!' : title"
     :class="copied && 'pulse-primary'"
     @click="handleClick"
   >
     <IconCheckmark
       v-if="copied"
-      class="w-4 h-4"
+      class="w-3 h-3"
     />
     <IconCopy
       v-else
-      class="w-4 h-4"
+      class="w-3 h-3"
     />
   </VBtn>
 </template>

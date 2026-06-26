@@ -103,7 +103,9 @@
     box-shadow: var(--panel-shadow);
     color: var(--text-color);
     text-decoration: none;
-    transition: box-shadow 0.15s, transform 0.15s;
+    transition:
+      box-shadow 0.15s,
+      transform 0.15s;
 
     &:hover {
       box-shadow: var(--panel-shadow-hover, 0 4px 12px rgba(0, 0, 0, 0.12));
@@ -207,7 +209,7 @@
   }
 
   .tw-card.maintenance .card-icon-chip {
-    background-color: var(--color-soft-warning-bg);
+    // background-color: var(--color-soft-warning-bg);
     color: var(--color-warning);
   }
 
@@ -229,7 +231,7 @@
 
   .info-list-label {
     font-size: var(--font-size-sm);
-   color: var(--text-muted-color);
+    color: var(--text-muted-color);
   }
 
   .info-list-value {
