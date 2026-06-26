@@ -2,13 +2,11 @@
   <VBtn
     circle
     color="primary"
+    variant="ghost"
     title="Taxonomic tree options"
     @click="() => (isModalVisible = true)"
   >
-    <VIcon
-      name="hamburger"
-      x-small
-    />
+    <IconMenu class="w-4 h-4" />
   </VBtn>
   <VModal
     v-if="isModalVisible"
@@ -52,7 +50,7 @@
 <script setup>
 import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconMenu from '@/components/Icon/IconMenu.vue'
 import { useUserPreferences } from '@/composables'
 import { ref, watch } from 'vue'
 

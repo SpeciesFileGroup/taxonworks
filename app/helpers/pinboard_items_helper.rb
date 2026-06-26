@@ -2,9 +2,9 @@ module PinboardItemsHelper
 
   def pin_item_to_pinboard_link(object, user)
     if !object.pinned?(user, sessions_current_project_id)
-      link_to('',  pinboard_items_path(pinboard_item: { pinned_object_id: object.id, pinned_object_type: object.metamorphosize.class.name, is_inserted: true }), data: { "pin-button-item-id": object.id, "tooltip-content": 'Pin to Pinboard', "tooltip-placement": 'bottom' }, class: 'navigation-item pin-button', remote: true, method: :post)
+      link_to(icon('pin'),  pinboard_items_path(pinboard_item: { pinned_object_id: object.id, pinned_object_type: object.metamorphosize.class.name, is_inserted: true }), data: { "pin-button-item-id": object.id, "tooltip-content": 'Pin to Pinboard', "tooltip-placement": 'bottom' }, class: 'button btn-create btn btn-default-icon btn-tonal', remote: true, method: :post)
     else
-      link_to('', pinboard_item_path(get_pinboard_item_from_object(object, user)), class: 'unpin-button', data: { "pin-button-item-id": object.id, "tooltip-content": 'Unpin from Pinboard', "tooltip-placement": 'bottom' }, method: :delete, remote: true)
+      link_to(icon('pin-off'), pinboard_item_path(get_pinboard_item_from_object(object, user)), class: 'button btn-destroy btn btn-default-icon btn-tonal', data: { "pin-button-item-id": object.id, "tooltip-content": 'Unpin from Pinboard', "tooltip-placement": 'bottom' }, method: :delete, remote: true)
     end
   end
 

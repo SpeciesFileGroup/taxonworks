@@ -26,13 +26,14 @@
     </VModal>
     <VBtn
       circle
-      color="radial"
+      color="primary"
+      variant="tonal"
+      bordered
       title="Radial annotator"
       :disabled="otus.length === 0"
       @click="() => (isModalVisible = true)"
     >
       <VIcon
-        :title="buttonTitle"
         name="radialAnnotator"
         x-small
       />

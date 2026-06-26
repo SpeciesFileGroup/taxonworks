@@ -2,42 +2,36 @@
   <div v-if="keywordId && !isLoading">
     <VTooltip>
       <template #content>
-        <p>
+        <span>
           {{ confidenceItem ? 'Remove' : 'Create' }} confidence:
           {{ getDefaultConfidenceElement().firstChild.firstChild.textContent }}.
           <br />
           {{ totalUsed ? `Used already  on ${totalUsed} objects` : '' }}
-        </p>
+        </span>
       </template>
 
       <VBtn
-        circle
+        icon
         :color="confidenceItem ? 'destroy' : 'create'"
+        variant="tonal"
         @click="
           () => {
             confidenceItem ? deleteConfidence() : createConfidence()
           }
         "
       >
-        <VIcon
-          color="white"
-          name="confidence"
-          x-small
-        />
+        <IconSquareCheckBig class="w-4 h-4" />
       </VBtn>
     </VTooltip>
   </div>
   <VBtn
     v-else
-    circle
+    icon
+    disabled
     color="disabled"
     title="Select a default confidence level from pinboard"
   >
-    <VIcon
-      color="white"
-      name="confidence"
-      x-small
-    />
+    <IconSquareCheckBig class="w-4 h-4" />
   </VBtn>
 </template>
 
@@ -45,6 +39,7 @@
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
+import IconSquareCheckBig from '@/components/Icon/IconSquareCheckBig.vue'
 import { Confidence } from '@/routes/endpoints'
 import { watch, onBeforeMount, onBeforeUnmount, ref } from 'vue'
 import { CONTROLLED_VOCABULARY_TERM } from '@/constants'

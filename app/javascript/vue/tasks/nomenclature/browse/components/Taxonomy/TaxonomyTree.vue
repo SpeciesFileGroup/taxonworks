@@ -2,15 +2,28 @@
   <li :style="rainbowStyle">
     <VBtn
       v-if="!taxon.leaf"
-      :style="[rainbow && { backgroundColor: 'var(--taxonomic-tree-border)' }]"
+      :style="[
+        rainbow && {
+          backgroundColor: 'var(--taxonomic-tree-border)',
+          color: 'white'
+        }
+      ]"
       circle
+      icon
       small
+      variant="tonal"
       color="primary"
       :disabled="isLoading"
       @click="toggle"
     >
-      <span v-if="taxon.isLoaded && taxon.isExpanded">-</span>
-      <span v-else>+</span>
+      <IconMinus
+        v-if="taxon.isLoaded && taxon.isExpanded"
+        class="w-3 h-3"
+      />
+      <IconPlus
+        v-else
+        class="w-3 h-3"
+      />
     </VBtn>
     <span
       v-if="currentId === taxon.id"
@@ -90,6 +103,8 @@ import { RouteNames } from '@/routes/routes'
 import { TAXON_NAME } from '@/constants'
 import TaxonomyTree from './TaxonomyTree.vue'
 import TaxonomySynonyms from './TaxonomySynonyms.vue'
+import IconPlus from '@/components/Icon/IconPlus.vue'
+import IconMinus from '@/components/Icon/IconMinus.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
 const props = defineProps({
