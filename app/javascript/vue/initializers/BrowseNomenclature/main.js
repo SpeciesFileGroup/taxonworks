@@ -20,7 +20,7 @@ function initFocusButtons() {
 
     container.setAttribute('data-focus-button', true)
 
-    el.appendChild(container)
+    el.prepend(container)
 
     app.mount(container)
   })

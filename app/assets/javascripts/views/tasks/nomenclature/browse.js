@@ -97,7 +97,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
           const icon = document.createElement('span')
 
           icon.setAttribute('data-icon', 'ok')
-          element.prepend(icon)
+          element.append(icon)
         }
       })
 

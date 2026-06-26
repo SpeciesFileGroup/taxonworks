@@ -12,8 +12,8 @@ module TaxonNames
     def nomenclature_catalog_li_tag(nomenclature_catalog_item, reference_taxon_name, target = :browse_nomenclature_task_path)
       content_tag(
         :li,
-        (content_tag(:span, nomenclature_line_tag(nomenclature_catalog_item, reference_taxon_name, target)) + ' ' + radial_annotator(nomenclature_catalog_item.object)).html_safe,
-        class: [:history__record, :middle, :inline],
+        safe_join([radial_annotator(nomenclature_catalog_item.object), ' ', nomenclature_line_tag(nomenclature_catalog_item, reference_taxon_name, target)]),
+        class: [:history__record, :middle, :inline, 'gap-xsmall'],
         data: nomenclature_catalog_li_tag_data_attributes(nomenclature_catalog_item)
       )
     end
@@ -164,7 +164,7 @@ module TaxonNames
         #history_pages(c)
       ].compact.join.html_safe
 
-      unless body.blank?
+      if body.present?
         content_tag(:em, ': ') + link_to(content_tag(:span, body, title: strip_tags(c.source.cached), class: :history__subject_original_citation), send(:nomenclature_by_source_task_path, source_id: c.source.id) )
       end
       #    content_tag(:span, body, class: :history__subject_original_citation) unless body.blank?
@@ -210,7 +210,7 @@ module TaxonNames
 
     def taxon_name_synonym_li(syn)
       label = [
-        content_tag(:span, "= "),
+        content_tag(:span, '= '),
         link_to(full_original_taxon_name_tag(syn) || taxon_name_tag(syn), browse_nomenclature_task_path(taxon_name_id: syn.id))
       ].compact.join.html_safe
 
