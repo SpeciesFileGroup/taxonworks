@@ -44,17 +44,21 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import VBtn from "@/components/ui/VBtn/index.vue";
+import { useDropzonePasteManager } from "@/composables/useDropzonePasteManager";
 
 const MAX_ROWS = 1000;
 
 const emit = defineEmits(["submit"]);
 
+const { registerPaster, unregisterPaster } = useDropzonePasteManager();
+
 const nameText = ref("");
 const isDragging = ref(false);
 const csvParsedData = ref(null);
 const fileInfo = ref(null);
+let pasteZone = null;
 
 const lines = computed(() => nameText.value.split("\n").map((l) => l.trim()));
 
@@ -69,18 +73,41 @@ function submit() {
     });
 }
 
+function loadFile(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => parseCSV(e.target.result, file.name);
+    reader.readAsText(file);
+}
+
 function handleFileDrop(event) {
     isDragging.value = false;
     const file = event.dataTransfer?.files?.[0];
     if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        const text = e.target.result;
-        parseCSV(text, file.name);
-    };
-    reader.readAsText(file);
+    loadFile(file);
 }
+
+function handleFilePaste(event) {
+    const items = event.clipboardData?.items;
+    if (!items) return;
+
+    for (const item of items) {
+        if (item.kind !== "file") continue;
+        const file = item.getAsFile();
+        if (!file) continue;
+        event.preventDefault();
+        loadFile(file);
+        return;
+    }
+}
+
+onMounted(() => {
+    pasteZone = { handler: handleFilePaste, prioritize: false };
+    registerPaster(pasteZone);
+});
+
+onBeforeUnmount(() => {
+    unregisterPaster(pasteZone);
+});
 
 function parseCSV(text, fileName) {
     const lines = text.split(/\r?\n/).filter((l) => l.trim());
