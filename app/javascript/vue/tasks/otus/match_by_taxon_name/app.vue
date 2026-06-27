@@ -27,6 +27,7 @@
               <VBtn
                 circle
                 color="primary"
+                title="Reset task"
                 @click="reset"
               >
                 <VIcon

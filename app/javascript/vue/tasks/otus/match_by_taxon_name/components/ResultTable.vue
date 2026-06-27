@@ -11,10 +11,10 @@
         </th>
         <th />
         <th>scientificName <ButtonClipboard :text="columnClipboardText('scientificName')" title="Copy scientificName column" /></th>
-        <th>Match <ButtonClipboard :text="columnClipboardText('match')" title="Copy match column" /></th>
+        <th data-help="Override the string used for matching. Leave blank to match using the scientificName value as-is.">Match <ButtonClipboard :text="columnClipboardText('match')" title="Copy match column" /></th>
         <th>TaxonName <ButtonClipboard :text="columnClipboardText('taxonName')" title="Copy TaxonName column" /></th>
         <th />
-        <th>Refine</th>
+        <th data-help="Manually search for and select a TaxonName, overriding the automatic match result. Use this to fix incorrect or ambiguous matches.">Refine</th>
         <th>OTU <ButtonClipboard :text="columnClipboardText('otuLabel')" title="Copy OTU column" /></th>
         <th>OTU id <ButtonClipboard :text="columnClipboardText('otuId')" title="Copy OTU id column" /></th>
         <th />
