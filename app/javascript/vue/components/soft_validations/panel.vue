@@ -152,7 +152,11 @@ function getFixPresent(list) {
   border-left: 4px solid var(--color-warning);
 }
 .soft-validation-box {
-  background-color: var(--soft-validation-bg-color);
+  background-color: var(--panel-bg-color);
+  background-image: linear-gradient(
+    var(--soft-validation-bg-color),
+    var(--soft-validation-bg-color)
+  );
   color: var(--text-color);
   .body {
     padding: 12px;

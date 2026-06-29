@@ -48,7 +48,7 @@
 
   --button-shadow: 0px 1px 2px 0px var(--border-color);
 
-  --soft-validation-bg-color: #fff9f9;
+  --soft-validation-bg-color: rgba(255, 70, 70, 0.035);
 
   --table-row-bg-hover: var(--slate-100);
 
@@ -184,7 +184,7 @@
 
   --button-shadow: none;
 
-  --soft-validation-bg-color: #37332f;
+  --soft-validation-bg-color: rgba(255, 180, 130, 0.07);
 
   --table-row-bg-even: #1b2128;
   --table-row-bg-odd: #20262e;
