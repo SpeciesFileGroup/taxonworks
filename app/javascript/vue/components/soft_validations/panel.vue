@@ -33,11 +33,7 @@
               :key="index"
             >
               <VTooltip :content="error.description">
-                <VIcon
-                  name="attention"
-                  color="attention"
-                  x-small
-                />
+                <IconWarning class="w-4 h-4 text-attention-color" />
               </VTooltip>
 
               <button
@@ -88,7 +84,7 @@
 import { SoftValidation } from '@/routes/endpoints'
 import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
 import { computed } from 'vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconWarning from '@/components/Icon/IconWarning.vue'
 
 const props = defineProps({
   validations: {

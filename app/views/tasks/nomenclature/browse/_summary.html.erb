@@ -1,7 +1,7 @@
 <div id="summary-panel" class="panel fullSize content separate-bottom">
   <h2> Summary </h2>
   <p>
-    <%= taxon_name_short_status(@taxon_name) -%><br>
+    <%= taxon_name_short_status(@taxon_name) -%>
     <span data-taxon-type="<%= @taxon_name.type -%>">The record is for a <%= @taxon_name.type -%>.</span>
     <%= content_tag(:span, taxon_name_latinization_tag(@taxon_name)) -%><br>
     There are <%= @data.names.count -%> names referenced in this entry.

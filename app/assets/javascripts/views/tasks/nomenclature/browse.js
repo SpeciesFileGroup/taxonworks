@@ -69,16 +69,8 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
 
     document.querySelector('.edit-taxon-name').setAttribute('href', editTaskUrl)
 
-    document.querySelector('.filter .open').addEventListener('click', (e) => {
-      e.target.classList.toggle('filter-button-open')
-    })
-
-    function toggleElementState(element, isVisible) {
-      if (isVisible) {
-        element.classList.add('d-none')
-      } else {
-        element.classList.remove('d-none')
-      }
+    function setElementVisible(element, isVisible) {
+      element.classList.toggle('d-none', !isVisible)
     }
 
     if (
@@ -93,11 +85,12 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
       ]
 
       validElements.forEach((element) => {
-        if (!element.querySelector('[data-icon="ok"]')) {
-          const icon = document.createElement('span')
+        if (!element.querySelector('.v-badge')) {
+          const badge = document.createElement('span')
 
-          icon.setAttribute('data-icon', 'ok')
-          element.append(icon)
+          badge.classList.add('v-badge', 'v-badge--green')
+          badge.textContent = 'Valid'
+          element.append(badge)
         }
       })
 
@@ -125,72 +118,69 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
       element.classList.add('d-none')
     })
 
-    document
-      .querySelector('#filterBrowse_button')
-      .addEventListener('click', () => {
-        document.querySelector('#filterBrowse').classList.toggle('active')
-      })
-
-    const filterButtons = [
-      ...document.querySelectorAll(
-        '#filterBrowse [data-filter], #filterBrowse [data-filter-row]'
-      )
+    const filterDropdown = document.querySelector('#browseFilter')
+    const filterItems = [
+      ...filterDropdown.querySelectorAll('[data-filter], [data-filter-row]')
     ]
-    const resetButton = document.querySelector(
-      '#filterBrowse [data-filter-reset]'
-    )
+    const resetButton = filterDropdown.querySelector('[data-filter-reset]')
 
-    resetButton.addEventListener('click', () => {
-      filterButtons.forEach((filterElement) => {
-        const elements = [
-          ...document.querySelectorAll(
-            filterElement.getAttribute('data-filter')
-          ),
-          ...document.querySelectorAll(
-            filterElement.getAttribute('data-filter-row')
-          )
-        ]
-        const icon = filterElement.querySelector('[data-icon]')
+    function applyFilterItem(item) {
+      const checkbox = item.querySelector('.columns-checkbox')
+      const filterSelector =
+        item.getAttribute('data-filter') || item.getAttribute('data-filter-row')
 
-        filterElement.classList.remove('active')
-
-        icon.setAttribute('data-icon', 'show')
-
-        const rows = [...document.querySelectorAll('.history__record')]
-        const event = new CustomEvent('history-focus-button', {
-          detail: {
-            focus: false
-          }
-        })
-
-        document.dispatchEvent(event)
-
-        rows.forEach((r) => {
-          r.classList.remove('hidden-taxon')
-          r.classList.remove('d-none')
-        })
-        elements.forEach((element) => {
-          element.classList.remove('d-none')
-        })
+      document.querySelectorAll(filterSelector).forEach((node) => {
+        setElementVisible(node, checkbox.checked)
       })
+    }
+
+    filterDropdown
+      .querySelector('.columns-toggle')
+      .addEventListener('click', (event) => {
+        event.stopPropagation()
+        filterDropdown.classList.toggle('open')
+      })
+
+    // Close on outside click. The document persists across turbolinks loads,
+    // so reuse a single handler reference to avoid stacking listeners.
+    const namespace = TW.views.tasks.nomenclature.browse
+
+    if (namespace.closeFilterOnOutsideClick) {
+      document.removeEventListener('click', namespace.closeFilterOnOutsideClick)
+    }
+
+    namespace.closeFilterOnOutsideClick = (event) => {
+      const dropdown = document.querySelector('#browseFilter')
+      if (dropdown && !dropdown.contains(event.target)) {
+        dropdown.classList.remove('open')
+      }
+    }
+
+    document.addEventListener('click', namespace.closeFilterOnOutsideClick)
+
+    filterItems.forEach((item) => {
+      item
+        .querySelector('.columns-checkbox')
+        .addEventListener('change', () => applyFilterItem(item))
     })
 
-    filterButtons.forEach((element) => {
-      element.addEventListener('click', () => {
-        const childElement = element.querySelector('[data-icon]')
-        const isVisible = childElement.getAttribute('data-icon') === 'show'
-        const filterSelector =
-          element.getAttribute('data-filter') ||
-          element.getAttribute('data-filter-row')
-        const filterElements = [...document.querySelectorAll(filterSelector)]
+    resetButton.addEventListener('click', () => {
+      filterItems.forEach((item) => {
+        const checkbox = item.querySelector('.columns-checkbox')
 
-        element.classList.toggle('active')
+        // Restore the initial markup state (rows visible, annotations hidden).
+        checkbox.checked = checkbox.defaultChecked
+        applyFilterItem(item)
+      })
 
-        childElement.setAttribute('data-icon', isVisible ? 'hide' : 'show')
+      const event = new CustomEvent('history-focus-button', {
+        detail: { focus: false }
+      })
 
-        filterElements.forEach((node) => {
-          toggleElementState(node, isVisible)
-        })
+      document.dispatchEvent(event)
+
+      document.querySelectorAll('.history__record').forEach((row) => {
+        row.classList.remove('hidden-taxon')
       })
     })
 

@@ -1,42 +1,48 @@
 <div
-  id="filterBrowse"
-  class="">
+  id="browseFilter"
+  class="columns-dropdown"
+  data-help="Show or hide timeline rows and annotations.">
 
-  <div class="navigation-controls filter">
+  <button type="button" class="columns-toggle button btn-outline btn-medium-size" title="Show or hide timeline rows and annotations">
+    Display
+  </button>
 
-    <div class="navigation-item" data-filter-row='[data-history-is-subsequent="true"]'>
-      <span><span data-icon="show" class="small-icon"></span>History</span>
-    </div>  
+  <div class="columns-menu">
 
-    <div class="navigation-item" data-filter-row='[data-history-origin="combination"]'>
-      <span><span data-icon="show" class="small-icon"></span>Combinations</span>
-    </div>  
+    <label class="columns-menu-item" data-filter-row='[data-history-is-subsequent="true"]'>
+      <input type="checkbox" class="columns-checkbox" checked>
+      <span class="col-label">History</span>
+    </label>
 
-    <div class="navigation-item" data-filter-row='[data-history-origin="taxon_name_relationship"]'>
-      <span><span data-icon="show" class="small-icon"></span>Relationships</span>
-    </div>  
+    <label class="columns-menu-item" data-filter-row='[data-history-origin="combination"]'>
+      <input type="checkbox" class="columns-checkbox" checked>
+      <span class="col-label">Combinations</span>
+    </label>
 
-    <div class="navigation-item" data-filter-row=".history__type_information">
-      <span><span data-icon="show" class="small-icon"></span>Type information</span>
-    </div> 
+    <label class="columns-menu-item" data-filter-row='[data-history-origin="taxon_name_relationship"]'>
+      <input type="checkbox" class="columns-checkbox" checked>
+      <span class="col-label">Relationships</span>
+    </label>
+
+    <label class="columns-menu-item" data-filter-row=".history__type_information">
+      <input type="checkbox" class="columns-checkbox" checked>
+      <span class="col-label">Type information</span>
+    </label>
+
+    <label class="columns-menu-item" data-filter=".soft_validation_anchor">
+      <input type="checkbox" class="columns-checkbox">
+      <span class="col-label">Validation</span>
+    </label>
+
+    <label class="columns-menu-item" data-filter=".history__origin">
+      <input type="checkbox" class="columns-checkbox">
+      <span class="col-label">Origin</span>
+    </label>
+
+    <button type="button" class="columns-menu-item filter-reset" data-filter-reset="reset">
+      <%= icon('rotate-ccw') %>
+      <span class="col-label">Reset</span>
+    </button>
+
   </div>
-
-
-  <div class="navigation-controls filter">
-
-    <div class="navigation-item active" data-filter=".soft_validation_anchor">
-      <span><span data-icon="hide" class="small-icon"></span>Validation</span>
-    </div>  
-
-    <div class="navigation-item active" data-filter=".history__origin">
-      <span><span data-icon="hide" class="small-icon"></span>Origin</span>
-    </div>  
-  </div>
-
-  <div class="navigation-controls filter">
-    <div class="navigation-item" data-filter-reset="reset">
-      <span><span data-icon="reset" class="small-icon"></span>Reset</span>
-    </div>
-  </div>
-
 </div>
