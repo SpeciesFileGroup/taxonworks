@@ -142,6 +142,27 @@ function subtractArrays(a, b) {
   return a.filter((e) => !bSet.has(e))
 }
 
+// JSON:API sort format: 'key,-key2' (no prefix = asc, '-' prefix = desc).
+function serializeSortKeys(sortKeys) {
+  if (!Array.isArray(sortKeys) || !sortKeys.length) return undefined
+  return sortKeys
+    .map(({ key, dir }) => (dir === 'desc' ? `-${key}` : key))
+    .join(',')
+}
+
+function parseSortParam(value) {
+  if (!value) return []
+  const raw = Array.isArray(value) ? value : String(value).split(',')
+  return raw
+    .map((s) => String(s).trim())
+    .filter(Boolean)
+    .map((entry) => {
+      if (entry.startsWith('-')) return { key: entry.slice(1), dir: 'desc' }
+      if (entry.startsWith('+')) return { key: entry.slice(1), dir: 'asc' }
+      return { key: entry, dir: 'asc' }
+    })
+}
+
 export {
   chunkArray,
   getUnique,
@@ -150,5 +171,7 @@ export {
   addToArray,
   removeFromArray,
   intersectArrays,
-  subtractArrays
+  subtractArrays,
+  serializeSortKeys,
+  parseSortParam
 }

@@ -37,13 +37,14 @@
       <template #table>
         <FilterList
           v-model="selectedIds"
+          v-model:sort-keys="sortKeys"
+          :backend-sort="true"
           :attributes="ATTRIBUTES"
           :header-groups="HEADERS"
           :list="list"
           :hide-unfrozen="hideFrozen"
           :preference-key="`tasks::filters::${BIOLOGICAL_ASSOCIATION}`"
           radial-object
-          @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
@@ -81,7 +82,8 @@ import { listParser } from './utils/listParser'
 import { BIOLOGICAL_ASSOCIATION } from '@/constants/index.js'
 import { BiologicalAssociation } from '@/routes/endpoints'
 import { ATTRIBUTES } from './constants/attributes.js'
-import { ref } from 'vue'
+import { serializeSortKeys, parseSortParam } from '@/helpers/arrays.js'
+import { ref, watch } from 'vue'
 
 const hideFrozen = ref(false)
 
@@ -122,6 +124,29 @@ const {
   sortedSelectedIds,
   urlRequest
 } = useFilter(BiologicalAssociation, { listParser, initParameters: { extend } })
+
+const sortKeys = ref(parseSortParam(parameters.value.sort))
+
+// Sort changes coming from the table -> update query param + re-fetch.
+watch(
+  sortKeys,
+  (next) => {
+    const sortString = serializeSortKeys(next)
+    if (sortString === parameters.value.sort) return
+    parameters.value.sort = sortString
+    makeFilterRequest({ ...parameters.value, extend, page: 1 })
+  },
+  { deep: true }
+)
+
+// URL/external changes to parameters.sort -> hydrate the table.
+watch(
+  () => parameters.value.sort,
+  (next) => {
+    if (next === serializeSortKeys(sortKeys.value)) return
+    sortKeys.value = parseSortParam(next)
+  }
+)
 </script>
 
 <script>

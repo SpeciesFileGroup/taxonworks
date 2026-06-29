@@ -81,6 +81,9 @@
               :column-key="attr"
               :filtered="!!filterValues[attr]"
               v-model:freeze="freezeColumn"
+              :sort-index="sortIndexFor(attr)"
+              :sort-dir="sortDirFor(attr)"
+              :show-sort-index="sortKeys.length > 1"
               @copy="
                 () =>
                   copyColumnToClipboard(
@@ -92,7 +95,7 @@
                     )
                   )
               "
-              @sort="() => sortTable(attr)"
+              @sort="(opts) => sortTable(attr, opts)"
               @clear="() => delete filterValues[attr]"
             />
           </th>
@@ -112,6 +115,9 @@
                 :column-key="`${key}.${property}`"
                 :filtered="!!filterValues[`${key}.${property}`]"
                 v-model:freeze="freezeColumn"
+                :sort-index="sortIndexFor(`${key}.${property}`)"
+                :sort-dir="sortDirFor(`${key}.${property}`)"
+                :show-sort-index="sortKeys.length > 1"
                 @copy="
                   () =>
                     copyColumnToClipboard(
@@ -121,7 +127,7 @@
                         .join('\n')
                     )
                 "
-                @sort="() => sortTable(`${key}.${property}`)"
+                @sort="(opts) => sortTable(`${key}.${property}`, opts)"
                 @clear="() => delete filterValues[`${key}.${property}`]"
               />
             </th>
@@ -345,6 +351,11 @@ const props = defineProps({
   preferenceKey: {
     type: String,
     default: null
+  },
+
+  backendSort: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -352,6 +363,7 @@ const emit = defineEmits([
   'remove',
   'onSort',
   'update:modelValue',
+  'update:sortKeys',
   'mouseover:row',
   'mouseout:body'
 ])
@@ -420,8 +432,10 @@ const headerEmptyColspan = computed(() => {
   return n
 })
 
-const ascending = ref(true)
-const sortedColumn = ref(null)
+const sortKeys = defineModel('sortKeys', {
+  type: Array,
+  default: () => []
+})
 const lastRadialOpenedRow = ref(null)
 const handyScrollRef = useTemplateRef('handyScrollRef')
 const theadRef = useTemplateRef('theadRef')
@@ -523,18 +537,59 @@ function setColumnFilter(item, key, property) {
   updateSelectedIdsByFilter()
 }
 
-function sortTable(sortProperty) {
-  if (sortedColumn.value === sortProperty) {
-    ascending.value = !ascending.value
+function sortIndexFor(key) {
+  const i = sortKeys.value.findIndex((s) => s.key === key)
+  return i === -1 ? null : i
+}
+
+function sortDirFor(key) {
+  return sortKeys.value.find((s) => s.key === key)?.dir ?? null
+}
+
+// Cycle: empty -> asc -> desc -> removed.
+// Shift-click appends to the current sort list and cycles within it.
+// Plain click replaces the list with the clicked column.
+function sortTable(sortProperty, { shiftKey } = {}) {
+  let next
+  if (shiftKey) {
+    next = [...sortKeys.value]
+    const idx = next.findIndex((s) => s.key === sortProperty)
+    if (idx === -1) {
+      next.push({ key: sortProperty, dir: 'asc' })
+    } else if (next[idx].dir === 'asc') {
+      next[idx] = { key: sortProperty, dir: 'desc' }
+    } else {
+      next.splice(idx, 1)
+    }
   } else {
-    sortedColumn.value = sortProperty
-    ascending.value = true
+    const current = sortKeys.value
+    if (current.length === 1 && current[0].key === sortProperty) {
+      if (current[0].dir === 'asc') {
+        next = [{ key: sortProperty, dir: 'desc' }]
+      } else {
+        next = []
+      }
+    } else {
+      next = [{ key: sortProperty, dir: 'asc' }]
+    }
   }
 
-  emit(
-    'onSort',
-    sortArray(props.list, sortProperty, ascending.value, { stripHtml: true })
-  )
+  sortKeys.value = next
+
+  if (props.backendSort) {
+    // Parent watches sortKeys (v-model) and re-fetches.
+    return
+  }
+
+  // Client-side: apply only the first key (preserve legacy single-column behavior).
+  if (next.length) {
+    emit(
+      'onSort',
+      sortArray(props.list, next[0].key, next[0].dir === 'asc', {
+        stripHtml: true
+      })
+    )
+  }
 }
 
 function scrollToTop() {
