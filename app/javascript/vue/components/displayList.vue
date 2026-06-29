@@ -45,38 +45,36 @@
         />
         <VBtn
           v-if="edit"
-          circle
+          icon
           color="primary"
+          variant="tonal"
           @click="$emit('edit', Object.assign({}, item))"
         >
-          <VIcon
-            name="pencil"
-            x-small
-          />
+          <IconPencil class="w-4 h-4" />
         </VBtn>
 
         <VBtn
           v-if="remove"
-          circle
+          icon
           :color="softDelete ? 'primary' : 'destroy'"
+          variant="tonal"
           @click="deleteItem(item, index)"
         >
-          <VIcon
-            name="trash"
-            x-small
-          />
+          <IconTrash class="w-4 h-4" />
         </VBtn>
       </div>
     </li>
   </transition-group>
 </template>
+
 <script>
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/navigation/radial.vue'
 import SoftValidation from '@/components/soft_validations/objectValidation.vue'
 import PdfButton from '@/components/ui/Button/ButtonPdf.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from './Icon/IconTrash.vue'
+import IconPencil from './Icon/IconPencil.vue'
 
 export default {
   components: {
@@ -84,7 +82,8 @@ export default {
     SoftValidation,
     PdfButton,
     VBtn,
-    VIcon
+    IconTrash,
+    IconPencil
   },
 
   props: {
@@ -245,7 +244,9 @@ export default {
 
   .list-complete-item {
     justify-content: space-between;
-    transition: all 0.5s, opacity 0.2s;
+    transition:
+      all 0.5s,
+      opacity 0.2s;
     margin: 0px;
     padding: 1em 0;
     border: 0px;

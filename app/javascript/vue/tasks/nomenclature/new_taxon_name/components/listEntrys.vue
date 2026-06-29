@@ -26,16 +26,16 @@
             <span v-html="'&nbsp;'" />
           </template>
         </span>
-        <div class="list-controls">
+        <div class="horizontal-right-content middle gap-small">
           <a
             :href="`/sources/${item.origin_citation.source_id}/edit`"
             target="_blank"
             v-if="getCitation(item)"
             v-html="getCitation(item)"
           />
-          <radial-annotator
-            @close="update()"
+          <RadialAnnotator
             :global-id="item.global_id"
+            @close="update()"
           />
           <span
             type="button"
@@ -44,29 +44,41 @@
             v-if="getCitation(item)"
             @click="removeCitation(item)"
           />
-          <span
+          <VBtn
             v-if="edit"
-            type="button"
-            class="circle-button btn-edit"
+            icon
+            color="primary"
+            variant="tonal"
             @click="$emit('edit', item)"
-          />
-          <span
-            type="button"
-            class="circle-button btn-delete"
+          >
+            <IconPencil class="w-4 h-4" />
+          </VBtn>
+          <VBtn
+            icon
+            color="destroy"
+            variant="tonal"
             @click="remove(item)"
-            >Remove
-          </span>
+          >
+            <IconTrash class="w-4 h-4" />
+          </VBtn>
         </div>
       </li>
     </transition-group>
   </div>
 </template>
+
 <script>
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
+import IconPencil from '@/components/Icon/IconPencil.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 export default {
   components: {
-    RadialAnnotator
+    RadialAnnotator,
+    VBtn,
+    IconPencil,
+    IconTrash
   },
   props: {
     list: {

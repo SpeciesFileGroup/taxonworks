@@ -57,10 +57,14 @@
             type="annotations"
             :global-id="citation.source.global_id"
           />
-          <span
-            class="circle-button btn-delete"
+          <VBtn
+            icon
+            color="destroy"
+            variant="tonal"
             @click="removeSource(taxon.origin_citation.id)"
-          />
+          >
+            <IconTrash class="w-4 h-4" />
+          </VBtn>
         </div>
       </div>
     </div>
@@ -82,6 +86,8 @@ import PdfButton from '@/components/ui/Button/ButtonPdf'
 import CitationPages from '../citationPages.vue'
 import SoftValidation from '@/components/soft_validations/objectValidation.vue'
 import FormCitationClone from '@/components/Form/FormCitation/FormCitationClone.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 
 import { RouteNames } from '@/routes/routes.js'
 
