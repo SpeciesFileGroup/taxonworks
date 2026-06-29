@@ -160,15 +160,15 @@ function applyModifiers(name) {
   return result.trim()
 }
 
-function computeMatchStrings() {
+function computeMatchStrings(matchAll = false) {
   const hasActiveModifier = modifiers.value.some((m) => m.active && m.pattern)
 
   rows.value.forEach((row) => {
     if (row.isEmpty) return
 
-    if (hasActiveModifier && row.selected) {
+    if (hasActiveModifier && (row.selected || matchAll)) {
       row.matchString = applyModifiers(row.scientificName)
-    } else if (!row.selected) {
+    } else if (!row.selected && !matchAll) {
       // Don't change matchString for unselected rows
     } else {
       row.matchString = ''
@@ -177,7 +177,7 @@ function computeMatchStrings() {
 }
 
 async function runMatch({ matchAll = false } = {}) {
-  computeMatchStrings()
+  computeMatchStrings(matchAll)
   syncAllDuplicates()
 
   const checkedRows = rows.value.filter((r) => r.selected && !r.isEmpty)
