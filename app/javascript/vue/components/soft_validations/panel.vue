@@ -11,24 +11,31 @@
         v-for="(section, index) in validationSections"
         :key="index"
       >
-        <div>
-          <h3>
-            <span v-if="section.title">{{ section.title }}</span>
-            <button
+        <div class="soft-validation-section">
+          <div
+            v-if="section.title || getFixPresent(section.list).length"
+            class="soft-validation-section__header"
+          >
+            <h4
+              v-if="section.title"
+              class="soft-validation-section__title"
+            >
+              {{ section.title }}
+            </h4>
+            <VBtn
               v-if="getFixPresent(section.list).length"
-              type="button"
-              class="button button-submit margin-small-left"
+              color="create"
               @click="runFix(getFixPresent(section.list))"
             >
-              <span>Fix all</span>
-            </button>
-          </h3>
+              Fix all
+            </VBtn>
+          </div>
           <ul
             v-for="list in section.list"
             class="no_bullets"
           >
             <li
-              class="horizontal-left-content align-start gap-small"
+              class="soft-validation-item"
               v-for="(error, index) in list.soft_validations"
               :key="index"
             >
@@ -36,43 +43,52 @@
                 <IconWarning class="w-4 h-4 text-attention-color" />
               </VTooltip>
 
-              <button
-                v-if="error.fixable"
-                type="button"
-                class="button button-submit"
-                @click="
-                  runFix([
-                    {
-                      global_id: list.instance.global_id,
-                      only_methods: [error.soft_validation_method]
-                    }
-                  ])
-                "
-              >
-                Fix
-              </button>
-              <span v-html="error.message" />
-              <template
-                v-for="(resolution, rIndex) in error.resolution"
-                :key="rIndex"
-              >
-                <VTooltip
-                  class="d-inline-block"
-                  content="Fixable here (may leave page)"
+              <span
+                class="soft-validation-item__message"
+                v-html="error.message"
+              />
+
+              <div class="soft-validation-item__actions">
+                <template
+                  v-for="(resolution, rIndex) in error.resolution"
+                  :key="rIndex"
                 >
-                  <a :href="resolution">
-                    <span
-                      class="small-icon icon-without-space"
-                      data-icon="blue_wrench"
-                    />
-                  </a>
-                </VTooltip>
-              </template>
+                  <VTooltip
+                    class="d-inline-block"
+                    content="Fixable here (may leave page)"
+                  >
+                    <a
+                      class="btn btn-default-icon btn-primary btn-tonal"
+                      :href="resolution"
+                    >
+                      <span
+                        class="small-icon icon-without-space"
+                        data-icon="blue_wrench"
+                      />
+                    </a>
+                  </VTooltip>
+                </template>
+                <VBtn
+                  v-if="error.fixable"
+                  color="create"
+                  variant="tonal"
+                  @click="
+                    runFix([
+                      {
+                        global_id: list.instance.global_id,
+                        only_methods: [error.soft_validation_method]
+                      }
+                    ])
+                  "
+                >
+                  Fix
+                </VBtn>
+              </div>
             </li>
           </ul>
           <hr
             v-if="index !== validationSections.length - 1"
-            class="divisor"
+            class="divisor soft-validation-divisor"
           />
         </div>
       </template>
@@ -83,6 +99,7 @@
 <script setup>
 import { SoftValidation } from '@/routes/endpoints'
 import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import { computed } from 'vue'
 import IconWarning from '@/components/Icon/IconWarning.vue'
 
@@ -130,7 +147,7 @@ function getFixPresent(list) {
     .filter((item) => item.only_methods.length)
 }
 </script>
-<style lang="scss" scope>
+<style lang="scss" scoped>
 .soft-validation-box.validation-warning {
   border-left: 4px solid var(--color-warning);
 }
@@ -148,19 +165,59 @@ function getFixPresent(list) {
     margin: 0px;
     padding: 0px;
   }
-  li {
-    margin-top: 12px;
-  }
-  li:first-letter {
+}
+
+.soft-validation-title {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  margin: 0;
+}
+
+.soft-validation-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-xs);
+  margin-bottom: 8px;
+}
+
+.soft-validation-section__title {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-muted-color);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+.soft-validation-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-xs);
+  margin-top: 12px;
+}
+
+.soft-validation-item__message {
+  flex: 1;
+  min-width: 0;
+
+  &:first-letter {
     text-transform: capitalize;
   }
-  hr {
-    height: 1px;
-    color: #f5f5f5;
-    background: #f5f5f5;
-    font-size: 0;
-    margin: 15px;
-    border: 0;
-  }
+}
+
+.soft-validation-item__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.soft-validation-divisor {
+  height: 1px;
+  background: var(--border-color);
+  border: 0;
+  margin: 12px 0;
 }
 </style>
