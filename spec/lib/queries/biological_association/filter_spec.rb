@@ -552,4 +552,41 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
     expect(query.new(biological_associations_graph_id: [g.id]).all.map(&:id)).to contain_exactly(ba1.id)
   end
 
+  context 'sort param' do
+    specify 'sort=id orders ascending by id' do
+      q = query.new(sort: 'id')
+      expect(q.all.map(&:id)).to eq([ba1.id, ba2.id, ba3.id])
+    end
+
+    specify 'sort=-id orders descending by id' do
+      q = query.new(sort: '-id')
+      expect(q.all.map(&:id)).to eq([ba3.id, ba2.id, ba1.id])
+    end
+
+    specify 'sort=-updated_at orders by updated_at desc' do
+      # touch ba1 last so it becomes the most recently updated
+      ba3.touch
+      ba2.touch
+      ba1.touch
+      q = query.new(sort: '-updated_at')
+      expect(q.all.map(&:id)).to eq([ba1.id, ba2.id, ba3.id])
+    end
+
+    specify 'unknown sort keys are ignored' do
+      q = query.new(sort: 'no_such_column,-id')
+      expect(q.all.map(&:id)).to eq([ba3.id, ba2.id, ba1.id])
+    end
+
+    specify 'sort works alongside filter facets' do
+      q = query.new(biological_relationship_id: [r1.id], sort: '-id')
+      expect(q.all.map(&:id)).to eq([ba2.id, ba1.id])
+    end
+
+    specify 'sort param survives via ActionController::Parameters' do
+      p = ActionController::Parameters.new(sort: '-id')
+      q = query.new(p)
+      expect(q.all.map(&:id)).to eq([ba3.id, ba2.id, ba1.id])
+    end
+  end
+
 end

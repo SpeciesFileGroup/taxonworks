@@ -269,6 +269,19 @@ module Queries
     #
     attr_accessor :order_by
 
+    # @return [String, Array<String>, nil]
+    # Multi-column sort param, JSON:API format.
+    #
+    #   sort=-updated_at,object.family,-object.genus
+    #
+    # Each column is one entry, optionally prefixed with `-` for descending
+    # or `+`/none for ascending. Comma-separated when sent as a single string;
+    # also accepts an Array of such strings.
+    #
+    # Column keys must be present in subclass's `.sortable_columns` whitelist;
+    # unknown keys are silently ignored.
+    attr_accessor :sort
+
     # @return Hash
     #  the parsed/permitted params
     #   that were used to on initialize() only!!
@@ -320,6 +333,7 @@ module Queries
       @page = query_params[:page]
 
       @order_by = query_params[:order_by]
+      @sort = query_params[:sort]
 
       @roll_call = false
 
@@ -342,6 +356,43 @@ module Queries
     def order_by
       return nil if @order_by.blank?
       @order_by.to_sym
+    end
+
+    # @return [Array<Hash>] structured form of the `sort` param.
+    #   e.g. [{ key: 'updated_at', dir: :desc }, { key: 'id', dir: :asc }]
+    def order_by_columns
+      return [] if @sort.blank?
+      Array(@sort)
+        .flat_map { |s| s.to_s.split(',') }
+        .map(&:strip)
+        .reject(&:blank?)
+        .map do |entry|
+          case entry[0]
+          when '-'
+            { key: entry[1..], dir: :desc }
+          when '+'
+            { key: entry[1..], dir: :asc }
+          else
+            { key: entry, dir: :asc }
+          end
+        end
+    end
+
+    # Subclasses override to whitelist sortable columns. Each entry is
+    #   'column.key' => ->(query, dir) { query.order(...) }
+    # Unknown keys received in `sort` are silently ignored.
+    def self.sortable_columns
+      {}
+    end
+
+    # @return [ActiveRecord::Relation]
+    def apply_sortable_columns(q)
+      order_by_columns.each do |c|
+        spec = self.class.sortable_columns[c[:key]]
+        next if spec.nil?
+        q = spec.call(q, c[:dir])
+      end
+      q
     end
 
     def object_global_id
@@ -634,7 +685,7 @@ module Queries
           page:,
           # This shouldn't be here, but see order_by processing for identifiers
           # in #all.
-          ordered: order_by.present?
+          ordered: order_by.present? || order_by_columns.any?
         }
       else
         { paginate: false }
@@ -910,6 +961,8 @@ module Queries
       # See lib/queries/concerns/identifiers.rb
       if order_by
         q = match_identifier_order_by(q)
+      elsif order_by_columns.any?
+        q = apply_sortable_columns(q)
       end
 
       if recent

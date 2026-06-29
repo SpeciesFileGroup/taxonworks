@@ -72,6 +72,16 @@ module Queries
         :any_global_id
       ]
 
+      # PR 1: direct columns only. Joined/taxonomy columns (e.g. object.family)
+      # are deferred to a follow-up — they require careful join handling.
+      def self.sortable_columns
+        {
+          'id'         => ->(q, dir) { q.order(id: dir) },
+          'updated_at' => ->(q, dir) { q.order(updated_at: dir) },
+          'created_at' => ->(q, dir) { q.order(created_at: dir) },
+        }
+      end
+
       # @return Boolean, nil
       #  if true then return relationships *excluding*
       # those listed in biological_relationship_id

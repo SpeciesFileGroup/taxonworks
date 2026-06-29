@@ -135,6 +135,70 @@ describe Queries::Query::Filter, type: [:model] do
         expect(query.all.count).to eq 3
       end
     end
+
+    context 'multi-column sort param (JSON:API)' do
+      let(:f) { ::Queries::Otu::Filter.new({}) }
+
+      specify 'returns [] when sort is blank' do
+        f.sort = nil
+        expect(f.order_by_columns).to eq([])
+      end
+
+      specify 'parses a single ascending column with no prefix' do
+        f.sort = 'updated_at'
+        expect(f.order_by_columns).to eq([{ key: 'updated_at', dir: :asc }])
+      end
+
+      specify 'parses a single descending column with - prefix' do
+        f.sort = '-updated_at'
+        expect(f.order_by_columns).to eq([{ key: 'updated_at', dir: :desc }])
+      end
+
+      specify 'parses a comma-separated list preserving order' do
+        f.sort = '-object.family,object.genus,-updated_at'
+        expect(f.order_by_columns).to eq([
+          { key: 'object.family', dir: :desc },
+          { key: 'object.genus', dir: :asc },
+          { key: 'updated_at', dir: :desc }
+        ])
+      end
+
+      specify 'accepts an Array as well as a String' do
+        f.sort = ['-updated_at', 'id']
+        expect(f.order_by_columns).to eq([
+          { key: 'updated_at', dir: :desc },
+          { key: 'id', dir: :asc }
+        ])
+      end
+
+      specify 'tolerates explicit + prefix as ascending' do
+        f.sort = '+id'
+        expect(f.order_by_columns).to eq([{ key: 'id', dir: :asc }])
+      end
+
+      specify 'strips whitespace and drops blanks' do
+        f.sort = ' -updated_at , , id '
+        expect(f.order_by_columns).to eq([
+          { key: 'updated_at', dir: :desc },
+          { key: 'id', dir: :asc }
+        ])
+      end
+
+      specify 'paging_state marks query as ordered when sort present' do
+        f.sort = '-updated_at'
+        f.paginate = true
+        f.page = 1
+        f.per = 10
+        expect(f.paging_state[:ordered]).to be_truthy
+      end
+
+      specify 'does not interfere with legacy order_by token' do
+        f.sort = nil
+        f.order_by = 'match_identifiers'
+        expect(f.order_by).to eq(:match_identifiers)
+        expect(f.order_by_columns).to eq([])
+      end
+    end
   end
 
   context 'venn param preservation' do
