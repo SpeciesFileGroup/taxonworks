@@ -61,10 +61,7 @@
                       class="btn btn-default-icon btn-primary btn-tonal"
                       :href="resolution"
                     >
-                      <span
-                        class="small-icon icon-without-space"
-                        data-icon="blue_wrench"
-                      />
+                      <IconWrench class="w-4 h-4" />
                     </a>
                   </VTooltip>
                 </template>
@@ -102,6 +99,7 @@ import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import { computed } from 'vue'
 import IconWarning from '@/components/Icon/IconWarning.vue'
+import IconWrench from '@/components/Icon/IconWrench.vue'
 
 const props = defineProps({
   validations: {
@@ -213,7 +211,7 @@ function getFixPresent(list) {
 .soft-validation-item__actions {
   display: inline-flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-xxs);
   margin-left: auto;
   flex-shrink: 0;
 }
