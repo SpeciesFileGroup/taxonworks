@@ -20,6 +20,7 @@
                 color="primary"
                 medium
                 :disabled="!rows.length"
+                data-help="Re-matches all rows using current settings. To re-match only specific rows, check their checkboxes — each checked row auto-matches immediately using current settings and auto-updates when settings are changed."
                 @click="runMatch({ matchAll: true })"
               >
                 Match
