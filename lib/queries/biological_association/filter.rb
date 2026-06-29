@@ -72,13 +72,59 @@ module Queries
         :any_global_id
       ]
 
-      # PR 1: direct columns only. Joined/taxonomy columns (e.g. object.family)
-      # are deferred to a follow-up — they require careful join handling.
       def self.sortable_columns
         {
-          'id'         => ->(q, dir) { q.order(id: dir) },
-          'updated_at' => ->(q, dir) { q.order(updated_at: dir) },
-          'created_at' => ->(q, dir) { q.order(created_at: dir) },
+          'id'                       => ->(q, dir) { q.order(id: dir) },
+          'updated_at'               => ->(q, dir) { q.order(updated_at: dir) },
+          'created_at'               => ->(q, dir) { q.order(created_at: dir) },
+          'biological_relationship'  => sort_by_relationship_name,
+          'subject_taxonomy_order'   => sort_by_taxonomy(side: 'subject', rank: 'Order'),
+          'subject_taxonomy_family'  => sort_by_taxonomy(side: 'subject', rank: 'Family'),
+          'subject_taxonomy_genus'   => sort_by_taxonomy(side: 'subject', rank: 'Genus'),
+          'object_taxonomy_order'    => sort_by_taxonomy(side: 'object',  rank: 'Order'),
+          'object_taxonomy_family'   => sort_by_taxonomy(side: 'object',  rank: 'Family'),
+          'object_taxonomy_genus'    => sort_by_taxonomy(side: 'object',  rank: 'Genus'),
+        }
+      end
+
+      def self.sort_by_relationship_name
+        ->(q, dir) {
+          q
+            .joins('LEFT JOIN biological_relationships AS sort_br ON sort_br.id = biological_associations.biological_relationship_id')
+            .order(Arel.sql("sort_br.name #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
+        }
+      end
+
+      # Walk the closure-tree ancestry of the OTU's taxon name to the ancestor at the
+      # given rank, then ORDER BY that ancestor's name. Rows whose side is not an Otu
+      # (polymorphic) or whose taxon has no ancestor at that rank sort to the end.
+      #
+      # Uses LATERAL JOIN so the per-row subquery returns at most one ancestor (the
+      # one whose rank_class matches), avoiding the row multiplication you'd get from
+      # a plain LEFT JOIN through taxon_name_hierarchies.
+      def self.sort_by_taxonomy(side:, rank:)
+        rank_class_like = "%::#{rank}"
+        suffix = "#{side}_#{rank.downcase}"
+        lat_alias = "sort_tax_#{suffix}"
+        side_id   = "biological_association_#{side}_id"
+        side_type = "biological_association_#{side}_type"
+
+        ->(q, dir) {
+          q
+            .joins(<<~SQL.squish)
+              LEFT JOIN LATERAL (
+                SELECT tn.name AS name
+                FROM otus o
+                JOIN taxon_name_hierarchies tnh ON tnh.descendant_id = o.taxon_name_id
+                JOIN taxon_names tn
+                  ON tn.id = tnh.ancestor_id
+                  AND tn.rank_class LIKE '#{rank_class_like}'
+                WHERE o.id = biological_associations.#{side_id}
+                  AND biological_associations.#{side_type} = 'Otu'
+                LIMIT 1
+              ) AS #{lat_alias} ON true
+            SQL
+            .order(Arel.sql("#{lat_alias}.name #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
         }
       end
 

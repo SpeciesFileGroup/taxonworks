@@ -587,6 +587,113 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
       q = query.new(p)
       expect(q.all.map(&:id)).to eq([ba3.id, ba2.id, ba1.id])
     end
+
+    context 'derived columns' do
+      let(:r_alpha) { FactoryBot.create(:valid_biological_relationship, name: 'alpha rel') }
+      let(:r_zeta)  { FactoryBot.create(:valid_biological_relationship, name: 'zeta rel') }
+
+      specify 'sort=biological_relationship orders by relationship name' do
+        ba_z = BiologicalAssociation.create!(
+          biological_association_subject: o1,
+          biological_association_object: o2,
+          biological_relationship: r_zeta
+        )
+        ba_a = BiologicalAssociation.create!(
+          biological_association_subject: o1,
+          biological_association_object: o2,
+          biological_relationship: r_alpha
+        )
+
+        q = query.new(
+          biological_association_id: [ba_a.id, ba_z.id],
+          sort: 'biological_relationship'
+        )
+        expect(q.all.map(&:id)).to eq([ba_a.id, ba_z.id])
+
+        q = query.new(
+          biological_association_id: [ba_a.id, ba_z.id],
+          sort: '-biological_relationship'
+        )
+        expect(q.all.map(&:id)).to eq([ba_z.id, ba_a.id])
+      end
+
+      context 'taxonomy sorts' do
+        let!(:fam_xulidae) {
+          Protonym.create!(name: 'Xulidae', rank_class: Ranks.lookup(:iczn, :family), parent: root)
+        }
+        let!(:fam_aulidae) {
+          Protonym.create!(name: 'Aulidae', rank_class: Ranks.lookup(:iczn, :family), parent: root)
+        }
+        let!(:gen_zus) {
+          Protonym.create!(name: 'Zus', rank_class: Ranks.lookup(:iczn, :genus), parent: fam_xulidae)
+        }
+        let!(:gen_aus) {
+          Protonym.create!(name: 'Aus', rank_class: Ranks.lookup(:iczn, :genus), parent: fam_aulidae)
+        }
+
+        let!(:otu_zus) { Otu.create!(name: 'zus_otu', taxon_name: gen_zus) }
+        let!(:otu_aus) { Otu.create!(name: 'aus_otu', taxon_name: gen_aus) }
+
+        let!(:ba_zus_obj) {
+          BiologicalAssociation.create!(
+            biological_association_subject: o1,
+            biological_association_object: otu_zus,
+            biological_relationship: r1
+          )
+        }
+        let!(:ba_aus_obj) {
+          BiologicalAssociation.create!(
+            biological_association_subject: o1,
+            biological_association_object: otu_aus,
+            biological_relationship: r1
+          )
+        }
+
+        specify 'sort=object_taxonomy_genus orders BAs by object OTU genus name' do
+          q = query.new(
+            biological_association_id: [ba_zus_obj.id, ba_aus_obj.id],
+            sort: 'object_taxonomy_genus'
+          )
+          expect(q.all.map(&:id)).to eq([ba_aus_obj.id, ba_zus_obj.id])
+        end
+
+        specify 'sort=-object_taxonomy_family orders BAs by object family desc' do
+          q = query.new(
+            biological_association_id: [ba_zus_obj.id, ba_aus_obj.id],
+            sort: '-object_taxonomy_family'
+          )
+          expect(q.all.map(&:id)).to eq([ba_zus_obj.id, ba_aus_obj.id])
+        end
+
+        specify 'multi-key sort: family asc, then genus desc' do
+          # same family for both, differentiate via genus
+          gen_bus = Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: fam_aulidae)
+          otu_bus = Otu.create!(name: 'bus_otu', taxon_name: gen_bus)
+          ba_bus = BiologicalAssociation.create!(
+            biological_association_subject: o1,
+            biological_association_object: otu_bus,
+            biological_relationship: r1
+          )
+
+          q = query.new(
+            biological_association_id: [ba_zus_obj.id, ba_aus_obj.id, ba_bus.id],
+            sort: 'object_taxonomy_family,-object_taxonomy_genus'
+          )
+          # Aulidae before Xulidae; within Aulidae: Bus desc-before-Aus
+          expect(q.all.map(&:id)).to eq([ba_bus.id, ba_aus_obj.id, ba_zus_obj.id])
+        end
+
+        specify 'BAs whose object is not an OTU sort to the end' do
+          # ba3 has Specimen (o3) as object
+          q = query.new(
+            biological_association_id: [ba3.id, ba_aus_obj.id],
+            sort: 'object_taxonomy_genus'
+          )
+          # OTU-backed row first, polymorphic-non-OTU row last (NULLS LAST)
+          expect(q.all.map(&:id)).to eq([ba_aus_obj.id, ba3.id])
+        end
+      end
+    end
   end
 
 end
