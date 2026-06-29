@@ -19,7 +19,7 @@
                 type="button"
                 class="normal-input button button-default"
                 name="rankSelected"
-                @click=";(rankClass = child.rank_class), (showModal = false)"
+                @click=";((rankClass = child.rank_class), (showModal = false))"
                 :value="child.rank_class"
               >
                 {{ child.name }}
@@ -52,26 +52,28 @@
           </template>
         </ul>
       </template>
-      <button
-        type="button"
-        class="button normal-input button-default"
+      <VBtn
+        color="primary"
+        variant="tonal"
         @click="showModal = true"
       >
         Show all
-      </button>
+      </VBtn>
     </div>
   </div>
 </template>
 <script>
 import Modal from '@/components/ui/Modal.vue'
 import childOfParent from '../helpers/childOfParent'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { TaxonName } from '@/routes/endpoints'
 
 export default {
   components: {
-    Modal
+    Modal,
+    VBtn
   },
   computed: {
     taxon() {

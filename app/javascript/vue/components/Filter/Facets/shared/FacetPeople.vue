@@ -4,7 +4,7 @@
       <h3>{{ title }}</h3>
       <VSwitch
         v-if="toggle"
-        v-model="isPeopleView"
+        v-model="peopleView"
         :options="switchOptions"
       />
     </div>
@@ -48,13 +48,13 @@
 </template>
 
 <script setup>
-import VSwitch from '@/tasks/observation_matrices/new/components/Matrix/switch.vue'
+import VSwitch from '@/components/ui/VSwitch.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import DisplayList from '@/components/displayList.vue'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import { People } from '@/routes/endpoints'
 import { URLParamsToJSON } from '@/helpers/url/parse.js'
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 const props = defineProps({
   paramAll: {
@@ -98,6 +98,14 @@ const emit = defineEmits(['toggle'])
 const list = ref([])
 const switchOptions = ref(['People', 'Name'])
 const isPeopleView = ref(true)
+
+const peopleView = computed({
+  get: () =>
+    isPeopleView.value ? switchOptions.value[0] : switchOptions.value[1],
+  set: (value) => {
+    isPeopleView.value = value === switchOptions.value[0]
+  }
+})
 
 watch(
   params,

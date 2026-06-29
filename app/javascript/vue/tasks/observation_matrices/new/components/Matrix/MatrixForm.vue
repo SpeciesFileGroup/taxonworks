@@ -36,11 +36,12 @@
         <hr class="divisor" />
         <div>
           <VSwitch
-            class="margin-small-bottom"
+            class="margin-small-bottom capitalize"
             :options="Object.values(MATRIX_VIEW)"
             v-model="matrixView"
           />
           <VSwitch
+            class="capitalize"
             :options="Object.values(MATRIX_MODE)"
             v-model="matrixMode"
           />
@@ -58,7 +59,7 @@ import { ActionNames } from '../../store/actions/actions'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 import MatrixParent from './MatrixParent.vue'
-import VSwitch from './switch.vue'
+import VSwitch from '@/components/ui/VSwitch.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 
@@ -76,22 +77,12 @@ const matrix = computed({
 })
 
 const matrixView = computed({
-  get: () => store.getters[GetterNames.GetMatrixView] === MATRIX_VIEW.Column,
-
-  set(value) {
-    store.commit(
-      MutationNames.SetMatrixView,
-      value ? MATRIX_VIEW.Column : MATRIX_VIEW.Row
-    )
-  }
+  get: () => store.getters[GetterNames.GetMatrixView],
+  set: (value) => store.commit(MutationNames.SetMatrixView, value)
 })
 
 const matrixMode = computed({
-  get: () => store.getters[GetterNames.GetMatrixMode] === MATRIX_MODE.Fixed,
-  set: (value) =>
-    store.commit(
-      MutationNames.SetMatrixMode,
-      value ? MATRIX_MODE.Fixed : MATRIX_MODE.Dynamic
-    )
+  get: () => store.getters[GetterNames.GetMatrixMode],
+  set: (value) => store.commit(MutationNames.SetMatrixMode, value)
 })
 </script>

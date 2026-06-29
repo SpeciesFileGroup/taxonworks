@@ -6,7 +6,6 @@
         url="/taxon_names/autocomplete"
         label="label_html"
         min="2"
-        @getItem="parentSelected($event.id)"
         display="label"
         :add-params="{
           'type[]': 'Protonym',
@@ -14,6 +13,7 @@
         }"
         :send-label="parent.object_label"
         param="term"
+        @getItem="(item) => parentSelected(item.id)"
       />
       <default-taxon
         type="TaxonName"
@@ -22,16 +22,14 @@
       />
       <VBtn
         color="primary"
-        circle
+        icon
+        medium
+        variant="tonal"
         :disabled="!parent"
         title="Edit parent"
         @click="loadParent"
       >
-        <VIcon
-          name="pencil"
-          title="Edit parent"
-          x-small
-        />
+        <IconPencil class="w-4 h-4" />
       </VBtn>
       <div
         v-if="parent && !parent.cached_is_valid"
@@ -86,13 +84,15 @@ import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
 import { TaxonName } from '@/routes/endpoints'
+import IconPencil from '@/components/Icon/IconPencil.vue'
 
 export default {
   components: {
     Autocomplete,
     DefaultTaxon,
     VBtn,
-    VIcon
+    VIcon,
+    IconPencil
   },
 
   computed: {

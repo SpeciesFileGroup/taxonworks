@@ -72,10 +72,7 @@
       @contextmenu.prevent="loadContextMenu"
       @click="displayAnnotator()"
     >
-      <VIcon
-        name="radialAnnotator"
-        x-small
-      />
+      <IconRadialAnnotator class="w-4 h-4" />
     </VBtn>
     <div
       v-if="metadataCount && showCount"
@@ -103,7 +100,6 @@ import RadialMenu from '@/components/radials/RadialMenu.vue'
 import VModal from '@/components/ui/Modal.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
 import Icons from './images/icons.js'
 import ContextMenu from './components/contextMenu'
 import {
@@ -116,6 +112,7 @@ import {
   GEOGRAPHIC_AREA,
   NAMESPACE
 } from '@/constants/modelTypes.js'
+import IconRadialAnnotator from '@/components/Icon/IconRadialAnnotator.vue'
 
 const MIDDLE_RADIAL_BUTTON = 'circleButton'
 

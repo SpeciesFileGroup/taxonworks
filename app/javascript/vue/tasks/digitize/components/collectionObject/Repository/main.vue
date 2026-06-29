@@ -2,9 +2,9 @@
   <div class="overflow-x-auto">
     <div class="flex-separate middle">
       <h2>Repository</h2>
-      <switch-component
+      <VSwitch
         :options="switchOptions"
-        v-model="isCurrent"
+        v-model="repositoryView"
       />
     </div>
     <RepositorySelector
@@ -26,14 +26,14 @@
 import { GetterNames } from '../../../store/getters/getters.js'
 import { MutationNames } from '../../../store/mutations/mutations.js'
 import extendCO from '../mixins/extendCO.js'
-import SwitchComponent from '@/tasks/observation_matrices/new/components/Matrix/switch.vue'
+import VSwitch from '@/components/ui/VSwitch.vue'
 import RepositorySelector from './RepositorySelector.vue'
 
 export default {
   mixins: [extendCO],
 
   components: {
-    SwitchComponent,
+    VSwitch,
     RepositorySelector
   },
 
@@ -45,6 +45,15 @@ export default {
   },
 
   computed: {
+    repositoryView: {
+      get() {
+        return this.isCurrent ? this.switchOptions[0] : this.switchOptions[1]
+      },
+      set(value) {
+        this.isCurrent = value === this.switchOptions[0]
+      }
+    },
+
     locked: {
       get() {
         return this.$store.getters[GetterNames.GetLocked]

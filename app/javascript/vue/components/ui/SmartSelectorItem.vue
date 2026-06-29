@@ -3,11 +3,11 @@
     v-if="item"
     class="middle flex-separate gap-small"
   >
-    <p
+    <span
       v-if="label"
       v-html="item[label]"
     />
-    <p
+    <span
       v-else
       v-html="item"
     />
@@ -15,13 +15,11 @@
       <slot name="options-left" />
       <VBtn
         color="primary"
-        circle
+        icon
+        variant="tonal"
         @click="emit('unset')"
       >
-        <VIcon
-          name="trash"
-          x-small
-        />
+        <IconTrash class="w-4 h-4" />
       </VBtn>
       <slot name="options-right" />
     </div>
@@ -29,7 +27,7 @@
 </template>
 <script setup>
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 
 defineProps({
   item: {

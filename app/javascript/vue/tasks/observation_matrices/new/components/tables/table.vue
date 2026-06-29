@@ -37,25 +37,31 @@
           </td>
           <td>
             <div class="horizontal-left-content gap-small">
-              <a
+              <RadialNavigator :global-id="getValue(element, globalIdPath)" />
+              <VBtn
                 v-if="code"
-                type="button"
+                icon
+                color="primary"
+                variant="tonal"
                 target="_blank"
-                class="circle-button btn-row-coder"
                 :title="row ? 'Matrix row coder' : 'Matrix column coder'"
                 :href="
                   row
                     ? `/tasks/observation_matrices/row_coder/index?observation_matrix_row_id=${element.id}`
                     : `/tasks/observation_matrices/matrix_column_coder/index?observation_matrix_column_id=${element.id}`
                 "
-              />
-              <radial-object :global-id="getValue(element, globalIdPath)" />
-              <span
+              >
+                <IconRowMatrix class="w-4 h-4" />
+              </VBtn>
+              <VBtn
                 v-if="filterRemove(element)"
-                class="circle-button btn-delete"
+                icon
+                color="destroy"
+                variant="tonal"
                 @click="deleteItem(element)"
-                >Remove
-              </span>
+              >
+                <IconTrash class="w-4 h-4" />
+              </VBtn>
               <span
                 v-else
                 class="empty-option"
@@ -74,135 +80,120 @@
   </div>
 </template>
 
-<script>
-import RadialObject from '@/components/radials/navigation/radial.vue'
+<script setup>
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import Draggable from 'vuedraggable'
 import ObjectValidation from '@/components/soft_validations/objectValidation.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import IconRowMatrix from '@/components/Icon/IconRowMatrix.vue'
 import { GetterNames } from '../../store/getters/getters'
+import { useStore } from 'vuex'
+import { computed, ref, watch } from 'vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 
-export default {
-  components: {
-    Draggable,
-    RadialObject,
-    ObjectValidation
+const props = defineProps({
+  list: {
+    type: Array,
+    required: true
   },
 
-  props: {
-    list: {
-      type: Array,
-      required: true
-    },
-
-    row: {
-      type: Boolean,
-      default: true
-    },
-
-    matrixId: {
-      type: Number,
-      required: true
-    },
-
-    code: {
-      type: Boolean,
-      default: false
-    },
-
-    attributes: {
-      type: Array,
-      required: true
-    },
-
-    header: {
-      type: Array,
-      required: true
-    },
-
-    filterRemove: {
-      type: Function,
-      default: () => true
-    },
-
-    edit: {
-      type: Boolean,
-      default: false
-    },
-
-    globalIdPath: {
-      type: Array,
-      required: true
-    },
-
-    warningMessage: {
-      type: String,
-      default: undefined
-    }
+  row: {
+    type: Boolean,
+    default: true
   },
 
-  emits: ['order', 'delete'],
-
-  computed: {
-    matrix() {
-      return this.$store.getters[GetterNames.GetMatrix]
-    },
-
-    sortable() {
-      return this.$store.getters[GetterNames.GetSettings].sortable
-    },
-
-    enableSoftValidation() {
-      return this.$store.getters[GetterNames.GetSettings].softValidations
-    }
+  matrixId: {
+    type: Number,
+    required: true
   },
 
-  data() {
-    return {
-      newList: []
-    }
+  code: {
+    type: Boolean,
+    default: false
   },
 
-  watch: {
-    list: {
-      handler(newVal) {
-        this.newList = newVal
-      },
-      immediate: true
-    }
+  attributes: {
+    type: Array,
+    required: true
   },
 
-  methods: {
-    deleteItem(item) {
-      if (
-        window.confirm(
-          this.warningMessage
-            ? this.warningMessage
-            : "You're trying to delete this record. Are you sure you want to proceed?"
-        )
-      ) {
-        this.$emit('delete', item)
-      }
-    },
+  header: {
+    type: Array,
+    required: true
+  },
 
-    onSortable() {
-      const ids = this.newList.map((object) => object.id)
-      this.$emit('order', ids)
-    },
+  filterRemove: {
+    type: Function,
+    default: () => true
+  },
 
-    getValue(object, attributes) {
-      if (Array.isArray(attributes)) {
-        let obj = object
+  edit: {
+    type: Boolean,
+    default: false
+  },
 
-        for (let i = 0; i < attributes.length; i++) {
-          if (obj.hasOwnProperty(attributes[i])) {
-            obj = obj[attributes[i]]
-          } else {
-            return null
-          }
-        }
-        return obj
-      }
-      return object[attributes]
-    }
+  globalIdPath: {
+    type: Array,
+    required: true
+  },
+
+  warningMessage: {
+    type: String,
+    default: undefined
   }
+})
+
+const emit = defineEmits(['order', 'delete'])
+
+const store = useStore()
+
+const matrix = computed(() => store.getters[GetterNames.GetMatrix])
+
+const sortable = computed(() => store.getters[GetterNames.GetSettings].sortable)
+
+const enableSoftValidation = computed(
+  () => store.getters[GetterNames.GetSettings].softValidations
+)
+
+const newList = ref([])
+
+watch(
+  () => props.list,
+  (newVal) => {
+    newList.value = newVal
+  },
+  { immediate: true }
+)
+
+function deleteItem(item) {
+  if (
+    window.confirm(
+      props.warningMessage ||
+        "You're trying to delete this record. Are you sure you want to proceed?"
+    )
+  ) {
+    emit('delete', item)
+  }
+}
+
+function onSortable() {
+  const ids = newList.value.map((object) => object.id)
+  emit('order', ids)
+}
+
+function getValue(object, attributes) {
+  if (Array.isArray(attributes)) {
+    let obj = object
+
+    for (let i = 0; i < attributes.length; i++) {
+      if (obj.hasOwnProperty(attributes[i])) {
+        obj = obj[attributes[i]]
+      } else {
+        return null
+      }
+    }
+    return obj
+  }
+  return object[attributes]
 }
 </script>

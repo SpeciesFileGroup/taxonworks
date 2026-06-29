@@ -5,8 +5,8 @@
     </template>
     <template #body>
       <div class="width-30">
-        <VToggle
-          v-model="isMatch"
+        <VSwitch
+          v-model="matchView"
           :options="OPTIONS"
         />
         <VAutocomplete
@@ -35,7 +35,8 @@ import BlockLayout from '@/components/layout/BlockLayout.vue'
 import { TaxonName } from '@/routes/endpoints'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
-import VToggle from '@/tasks/observation_matrices/new/components/Matrix/switch.vue'
+import VSwitch from '@/components/ui/VSwitch.vue'
+import { computed } from 'vue'
 
 const isMatch = defineModel('match', {
   type: Boolean,
@@ -48,6 +49,13 @@ const taxonName = defineModel({
 })
 
 const OPTIONS = ['Match', 'Select']
+
+const matchView = computed({
+  get: () => (isMatch.value ? OPTIONS[0] : OPTIONS[1]),
+  set: (value) => {
+    isMatch.value = value === OPTIONS[0]
+  }
+})
 
 function loadTaxonName({ id }) {
   TaxonName.find(id).then(({ body }) => {

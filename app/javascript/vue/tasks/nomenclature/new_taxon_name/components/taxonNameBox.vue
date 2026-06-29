@@ -58,7 +58,7 @@
                 :taxon-name="taxon.object_tag"
                 @create:otu="(e) => (otu = e)"
               />
-              <RadialObject :global-id="taxon.global_id" />
+              <RadialNavigator :global-id="taxon.global_id" />
             </div>
             <div class="horizontal-right-content margin-small-top gap-small">
               <PinObject
@@ -70,13 +70,11 @@
               <VBtn
                 v-if="taxon.id"
                 color="destroy"
-                circle
+                icon
+                variant="tonal"
                 @click="isModalVisible = true"
               >
-                <VIcon
-                  name="trash"
-                  x-small
-                />
+                <IconTrash class="w-4 h-4" />
               </VBtn>
             </div>
           </div>
@@ -95,14 +93,14 @@
 <script setup>
 import OtuRadial from '@/components/otu/otu.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
-import RadialObject from '@/components/radials/navigation/radial.vue'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import DefaultConfidence from '@/components/ui/Button/ButtonConfidence.vue'
 import PinObject from '@/components/ui/Button/ButtonPin.vue'
 import Modal from '@/components/ui/Modal.vue'
 import platformKey from '@/helpers/getPlatformKey'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import { useHotkey } from '@/composables'
 import { TaxonName } from '@/routes/endpoints'
 import { GetterNames } from '../store/getters/getters'

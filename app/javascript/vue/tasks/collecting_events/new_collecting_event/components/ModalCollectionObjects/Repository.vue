@@ -2,9 +2,9 @@
   <div>
     <h3>Repository</h3>
     <div class="horizontal-right-content">
-      <VToggle
+      <VSwitch
         :options="switchOptions"
-        v-model="currentRepository"
+        v-model="repositoryView"
       />
     </div>
     <fieldset class="fieldset">
@@ -36,9 +36,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import SmartSelector from '@/components/ui/SmartSelector'
-import VToggle from '@/tasks/observation_matrices/new/components/Matrix/switch.vue'
+import VSwitch from '@/components/ui/VSwitch.vue'
 
 const switchOptions = ref(['Current', 'Repository'])
 
@@ -51,6 +51,14 @@ const repository = ref()
 const currentRepository = defineModel('current', {
   type: Boolean,
   default: false
+})
+
+const repositoryView = computed({
+  get: () =>
+    currentRepository.value ? switchOptions.value[0] : switchOptions.value[1],
+  set: (value) => {
+    currentRepository.value = value === switchOptions.value[0]
+  }
 })
 
 function setRepository(data) {

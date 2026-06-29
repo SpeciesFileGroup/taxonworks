@@ -11,9 +11,9 @@
           Current only
         </label>
       </div>
-      <VToggle
-        v-model="isExcept"
-        :options="['Not used in project', 'Used in project']"
+      <VSwitch
+        v-model="projectUsage"
+        :options="PROJECT_USAGE_OPTIONS"
       />
     </div>
     <div>
@@ -41,8 +41,10 @@ import { ref, computed, watch, onBeforeMount } from 'vue'
 import { User } from '@/routes/endpoints'
 import { getCurrentUserId } from '@/helpers/user.js'
 import { getCurrentProjectId } from '@/helpers/project.js'
-import VToggle from '@/tasks/observation_matrices/new/components/Matrix/switch.vue'
+import VSwitch from '@/components/ui/VSwitch.vue'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+
+const PROJECT_USAGE_OPTIONS = ['Not used in project', 'Used in project']
 
 const props = defineProps({
   modelValue: {
@@ -68,6 +70,14 @@ const currentProjectId = Number(getCurrentProjectId())
 const projectIds = ref([])
 const projects = ref([])
 const isExcept = ref(false)
+
+const projectUsage = computed({
+  get: () =>
+    isExcept.value ? PROJECT_USAGE_OPTIONS[0] : PROJECT_USAGE_OPTIONS[1],
+  set: (value) => {
+    isExcept.value = value === PROJECT_USAGE_OPTIONS[0]
+  }
+})
 
 const currentProjectOnly = computed({
   get: () =>

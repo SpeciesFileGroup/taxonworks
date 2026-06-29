@@ -10,9 +10,13 @@
       @click="openApp()"
       @contextmenu.prevent="openApp(true)"
     >
-      <VIcon
-        :name="redirect ? 'radialOtuRedirect' : 'radialObject'"
-        x-small
+      <IconRadialOtuRedirect
+        v-if="redirect"
+        class="w-4 h-4"
+      />
+      <IconQuickForms
+        v-else
+        class="w-4 h-4"
       />
     </VBtn>
     <VModal
@@ -62,6 +66,8 @@ import Spinner from '@/components/ui/VSpinner.vue'
 import OtuRadial from '@/components/radials/object/radial.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconRadialOtuRedirect from '@/components/Icon/IconRadialOtuRedirect.vue'
+import IconQuickForms from '@/components/Icon/IconQuickForms.vue'
 import { Otu, TaxonName } from '@/routes/endpoints'
 import { computed, ref, watch, useTemplateRef, nextTick } from 'vue'
 import { RouteNames } from '@/routes/routes'

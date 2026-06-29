@@ -3,8 +3,8 @@
     <div class="flex-separate middle">
       <h3>{{ title }}</h3>
       <VSwitch
-        v-model="isPeopleView"
-        :options="['People', 'Organizations']"
+        v-model="peopleView"
+        :options="PEOPLE_VIEW_OPTIONS"
       />
     </div>
     <div>
@@ -54,13 +54,15 @@
 </template>
 
 <script setup>
-import VSwitch from '@/tasks/observation_matrices/new/components/Matrix/switch.vue'
+import VSwitch from '@/components/ui/VSwitch.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import DisplayList from '@/components/displayList.vue'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import { Organization, People } from '@/routes/endpoints'
 import { URLParamsToJSON } from '@/helpers/url/parse.js'
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+
+const PEOPLE_VIEW_OPTIONS = ['People', 'Organizations']
 
 const props = defineProps({
   paramAll: {
@@ -101,6 +103,14 @@ const params = defineModel({
 
 const list = ref([])
 const isPeopleView = ref(true)
+
+const peopleView = computed({
+  get: () =>
+    isPeopleView.value ? PEOPLE_VIEW_OPTIONS[0] : PEOPLE_VIEW_OPTIONS[1],
+  set: (value) => {
+    isPeopleView.value = value === PEOPLE_VIEW_OPTIONS[0]
+  }
+})
 
 watch(
   params,

@@ -7,10 +7,9 @@
           v-model="view"
         />
 
-        <!--TODO: update VToggle so (Union == true) can be on the left.-->
-        <VToggle
+        <VSwitch
           v-if="showMap"
-          v-model="previewOperationIsUnion"
+          v-model="previewOperation"
           :options="['Union', 'Intersection']"
         />
       </div>
@@ -40,7 +39,6 @@
 import DisplayList from './DisplayList.vue'
 import Leaflet from './Leaflet.vue'
 import VSwitch from '@/components/ui/VSwitch'
-import VToggle from '@/tasks/observation_matrices/new/components/Matrix/switch.vue'
 import { computed, ref, watch } from 'vue'
 
 const PRESAVE_OPTIONS = {
@@ -63,6 +61,13 @@ const props = defineProps({
 const emit = defineEmits(['deleteShape', 'previewing', 'operationIsUnion'])
 
 const previewOperationIsUnion = defineModel({ type: Boolean, default: true })
+
+const previewOperation = computed({
+  get: () => (previewOperationIsUnion.value ? 'Union' : 'Intersection'),
+  set: (value) => {
+    previewOperationIsUnion.value = value === 'Union'
+  }
+})
 
 const view = ref(PRESAVE_OPTIONS.Preview)
 
