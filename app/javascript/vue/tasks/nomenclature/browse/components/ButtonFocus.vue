@@ -1,23 +1,25 @@
 <template>
   <VBtn
-    :class="['margin-small-left', isFocus && 'button-focus--active']"
-    circle
+    v-if="protonym"
+    :class="{ 'button-focus--active': isFocus }"
+    icon
     color="primary"
-    :variant="isFocus ? 'tonal' : 'solid'"
-    title="Focus this protonym"
+    variant="tonal"
+    :title="isFocus ? 'Remove focus from this protonym' : 'Focus this protonym'"
     @click="toggleFocus"
   >
-    <VIcon
-      name="focus"
-      x-small
-    />
+    <IconFocus class="w-4 h-4" />
   </VBtn>
+  <div
+    v-else
+    class="empty-focus-container"
+  ></div>
 </template>
 
 <script setup>
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconFocus from '@/components/Icon/IconFocus.vue'
 
 const CSS_CLASSES = ['d-none', 'hidden-taxon']
 const EVENT_NAME = 'history-focus-button'
@@ -26,6 +28,11 @@ const props = defineProps({
   objectId: {
     type: Array,
     required: true
+  },
+
+  protonym: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -86,7 +93,13 @@ function toggleFocus() {
 </script>
 
 <style scoped>
+.empty-focus-container {
+  width: 24px;
+  height: 24px;
+}
+
 .button-focus--active {
-  box-shadow: 0 2px 2px 0px rgba(0, 0, 0, 0.2) inset;
+  background-color: var(--bg-active);
+  border: 2px solid var(--border-active);
 }
 </style>

@@ -166,13 +166,16 @@ module SourcesHelper
     t.push [':', topic_list_tag(topics).html_safe] if topics.present?
 
     content_tag(:div, 
-      t.flatten.compact.join(' ').html_safe + 
       content_tag(:div,
-        content_tag(:div, 
-          radial_annotator(source) + 
-          radial_navigation_tag(source), class: 'flex-row gap-small'
-        ), class: 'd-inline-block margin-small-left')
-      )
+        safe_join([ 
+          radial_annotator(source),
+          radial_navigation_tag(source)
+        ]),
+        class: 'flex-row gap-xsmall'
+      ) +
+      t.flatten.compact.join(' ').html_safe,
+      class: 'inline gap-small'
+    )
   end
 
 

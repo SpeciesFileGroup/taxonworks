@@ -6,16 +6,17 @@ import ButtonFocus from '@/tasks/nomenclature/browse/components/ButtonFocus.vue'
 import './taxonomy.js'
 
 function initFocusButtons() {
-  const elements = [
-    ...document.querySelectorAll('[data-history-origin="protonym"]')
-  ]
+  const elements = [...document.querySelectorAll('[data-history-origin]')]
 
   elements.forEach((el) => {
     const container =
       el.querySelector('[data-focus-button]') || document.createElement('div')
+
+    const isProtonym = el.getAttribute('data-history-origin') == 'protonym'
     const objectId = el.getAttribute('data-history-protonym-id')
     const app = createApp(ButtonFocus, {
-      objectId: objectId.split(',')
+      objectId: objectId.split(','),
+      protonym: isProtonym
     })
 
     container.setAttribute('data-focus-button', true)
