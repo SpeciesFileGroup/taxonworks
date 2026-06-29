@@ -15,6 +15,7 @@
         v-model="rankGroup"
         :options="options"
         item-key="id"
+        handle=".handle"
         :group="options.group"
         :animation="options.animation"
         :filter="options.filter"
@@ -28,6 +29,12 @@
             class="horizontal-left-content middle gap-small"
             v-if="!element.value"
           >
+            <span
+              class="handle drag-handle drag-handle--create"
+              title="Press and hold to drag input"
+            >
+              <IconGripVertical class="w-4 h-4" />
+            </span>
             <autocomplete
               :ref="(el) => setAutocompleteRef(el, index)"
               url="/taxon_names/autocomplete"
@@ -42,24 +49,17 @@
               }"
               param="term"
             />
-            <VBtn
-              color="create"
-              circle
-              class="handle"
-              title="Press and hold to drag input"
-            >
-              <VIcon
-                title="Press and hold to drag input"
-                color="white"
-                name="scrollV"
-                small
-              />
-            </VBtn>
           </div>
           <div
             class="original-combination-item horizontal-left-content middle gap-small"
             v-else
           >
+            <span
+              class="handle drag-handle drag-handle--create"
+              title="Press and hold to drag input"
+            >
+              <IconGripVertical class="w-4 h-4" />
+            </span>
             <div>
               <span
                 class="vue-autocomplete-input normal-input combination middle"
@@ -67,19 +67,6 @@
                 <span v-html="element.value.subject_object_tag" />
               </span>
             </div>
-            <VBtn
-              color="create"
-              circle
-              class="handle"
-              title="Press and hold to drag input"
-            >
-              <VIcon
-                title="Press and hold to drag input"
-                color="white"
-                name="scrollV"
-                small
-              />
-            </VBtn>
 
             <RadialAnnotator :global-id="element.value.global_id" />
             <span
@@ -99,16 +86,14 @@ import { ActionNames } from '../store/actions/actions'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import Draggable from 'vuedraggable'
-import VIcon from '@/components/ui/VIcon/index.vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
+import IconGripVertical from '@/components/Icon/IconGripVertical.vue'
 
 export default {
   components: {
     RadialAnnotator,
     Autocomplete,
     Draggable,
-    VBtn,
-    VIcon
+    IconGripVertical
   },
 
   props: {

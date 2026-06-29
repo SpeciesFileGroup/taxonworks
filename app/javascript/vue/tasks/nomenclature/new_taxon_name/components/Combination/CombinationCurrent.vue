@@ -16,6 +16,7 @@
           class="flex-wrap-column"
           :list="taxonNameList"
           item-key="id"
+          handle=".handle"
           :group="{
             name: groupName,
             put: false,
@@ -24,25 +25,19 @@
           :animation="150"
         >
           <template #item="{ element }">
-            <div class="horizontal-left-content middle item-draggable">
+            <div class="horizontal-left-content middle item-draggable gap-small">
+              <span
+                class="handle drag-handle drag-handle--primary"
+                title="Press and hold to drag input"
+              >
+                <IconGripVertical class="w-4 h-4" />
+              </span>
               <input
                 type="text"
                 class="normal-input current-taxon"
                 :value="element.taxon.object_label"
                 disabled
               />
-              <VBtn
-                class="margin-small-left"
-                color="primary"
-                circle
-                title="Press and hold to drag input"
-              >
-                <VIcon
-                  color="white"
-                  name="scrollV"
-                  small
-                />
-              </VBtn>
             </div>
           </template>
         </draggable>
@@ -59,7 +54,7 @@ import { GetterNames } from '../../store/getters/getters.js'
 import { TaxonName } from '@/routes/endpoints'
 import Draggable from 'vuedraggable'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconGripVertical from '@/components/Icon/IconGripVertical.vue'
 
 const props = defineProps({
   combinationRanks: {

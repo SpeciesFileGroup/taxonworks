@@ -13,7 +13,7 @@
         class="original-combination-picker"
         v-if="taxon.id"
       >
-        <div class="horizontal-left-content">
+        <div class="horizontal-left-content align-start">
           <div class="button-current separate-right">
             <v-btn
               v-if="!existOriginalCombination"
@@ -29,6 +29,7 @@
               class="flex-wrap-column margin-medium-bottom"
               v-model="taxonOriginal"
               item-key="id"
+              handle=".handle"
               :group="{
                 name: 'combination',
                 put: isGenus,
@@ -41,25 +42,18 @@
                 <div
                   class="horizontal-left-content middle item-draggable gap-small"
                 >
+                  <span
+                    class="handle drag-handle drag-handle--create"
+                    title="Press and hold to drag input"
+                  >
+                    <IconGripVertical class="w-4 h-4" />
+                  </span>
                   <input
                     type="text"
                     class="normal-input current-taxon"
                     :value="element.value.subject_object_tag"
                     disabled
                   />
-                  <VBtn
-                    color="create"
-                    circle
-                    class="handle"
-                    title="Press and hold to drag input"
-                  >
-                    <VIcon
-                      title="Press and hold to drag input"
-                      color="white"
-                      name="scrollV"
-                      small
-                    />
-                  </VBtn>
                 </div>
               </template>
             </draggable>
@@ -132,7 +126,7 @@ import Draggable from 'vuedraggable'
 import OriginalCombination from './originalCombination.vue'
 import BlockLayout from '@/components/layout/BlockLayout'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconGripVertical from '@/components/Icon/IconGripVertical.vue'
 import {
   originalCombinationType,
   combinationIcnType
@@ -143,8 +137,8 @@ export default {
     Draggable,
     OriginalCombination,
     BlockLayout,
-    VIcon,
-    VBtn
+    VBtn,
+    IconGripVertical
   },
 
   data() {
@@ -304,10 +298,6 @@ export default {
   .original-combination-name {
     margin-right: 35px;
     width: 400px;
-  }
-  .handle {
-    background-position: center;
-    padding: 0px;
   }
 }
 </style>

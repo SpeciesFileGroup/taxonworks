@@ -82,6 +82,34 @@
   cursor: grabbing;
 }
 
+.drag-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  color: var(--text-muted-color);
+  cursor: grab;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+// Color encodes the side effect of dragging the item:
+// --create -> dragging persists/creates-updates a record
+// --primary -> composer-only action (no immediate persistence)
+.drag-handle--create {
+  color: var(--color-create);
+}
+
+.drag-handle--primary {
+  color: var(--color-primary);
+}
+
 [data-icon='biology'] {
   background-image: image-url('biology.svg');
 }

@@ -27,15 +27,18 @@
       title="Validation passed."
       class="cursor-pointer"
     />
-    <v-icon
+    <VBtn
       v-else-if="validations.length"
-      small
-      name="attention"
       color="attention"
-      class="cursor-pointer"
-      @click="setModalView(true)"
+      variant="ghost"
+      small
       title="Click to show soft validations"
-    />
+    >
+      <IconWarning
+        class="w-4 h-4 cursor-pointer"
+        @click="setModalView(true)"
+      />
+    </VBtn>
     <modal-component
       v-if="showModal"
       @close="setModalView(false)"
@@ -71,11 +74,13 @@
 import ModalComponent from '@/components/ui/Modal.vue'
 import { SoftValidation } from '@/routes/endpoints'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconWarning from '@/components/Icon/IconWarning.vue'
 
 export default {
   components: {
     ModalComponent,
-    VIcon
+    VIcon,
+    IconWarning
   },
 
   props: {

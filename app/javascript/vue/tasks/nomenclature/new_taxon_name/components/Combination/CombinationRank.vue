@@ -16,14 +16,21 @@
         :options="options"
         :group="group"
         item-key="rank"
+        handle=".handle"
         @update="onUpdate"
         @add="onAdd"
       >
         <template #item="{ element, index }">
           <div
-            class="horizontal-left-content middle"
+            class="horizontal-left-content middle gap-small"
             v-if="!element.taxon"
           >
+            <span
+              class="handle drag-handle drag-handle--primary"
+              title="Press and hold to drag input"
+            >
+              <IconGripVertical class="w-4 h-4" />
+            </span>
             <Autocomplete
               :ref="(el) => setAutocompleteRef(el, index)"
               url="/taxon_names/autocomplete"
@@ -38,23 +45,17 @@
               @get-item="(item) => setTaxon(index, item)"
               param="term"
             />
-            <VBtn
-              color="primary"
-              circle
-              title="Press and hold to drag input"
-              class="margin-small-left"
-            >
-              <VIcon
-                color="white"
-                name="scrollV"
-                small
-              />
-            </VBtn>
           </div>
           <div
             class="original-combination-item horizontal-left-content middle gap-small"
             v-else
           >
+            <span
+              class="handle drag-handle drag-handle--primary"
+              title="Press and hold to drag input"
+            >
+              <IconGripVertical class="w-4 h-4" />
+            </span>
             <div>
               <span
                 class="vue-autocomplete-input normal-input combination middle"
@@ -62,16 +63,6 @@
                 <span v-html="element.taxon.object_label" />
               </span>
             </div>
-            <VBtn
-              color="primary"
-              circle
-              title="Press and hold to drag input"
-            >
-              <VIcon
-                name="scrollV"
-                small
-              />
-            </VBtn>
             <RadialAnnotator :global-id="element.taxon.global_id" />
             <span
               class="circle-button btn-delete"
@@ -88,8 +79,7 @@
 import Draggable from 'vuedraggable'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconGripVertical from '@/components/Icon/IconGripVertical.vue'
 import { ref, watch, watchPostEffect, computed } from 'vue'
 import { TaxonName } from '@/routes/endpoints'
 
