@@ -26,7 +26,7 @@ module Match
   module Otu
     class TaxonName
 
-      MAX_NAMES = 1000
+      MAX_NAMES = 3000
       MATCHABLE_COLUMNS = [
         :cached, :cached_secondary_homonym, :cached_primary_homonym
       ].freeze

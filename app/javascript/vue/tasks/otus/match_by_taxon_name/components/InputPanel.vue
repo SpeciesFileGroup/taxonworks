@@ -3,7 +3,7 @@
     <h3>Provide names</h3>
     <p class="subtle">
       Paste names (one per line) or drag &amp; drop a CSV file with a
-      <code>scientificName</code> column. Maximum 1,000 rows.
+      <code>scientificName</code> column. Maximum 3,000 rows.
     </p>
 
     <div
@@ -19,6 +19,13 @@
         placeholder="Paste names here, one per line, or drag a CSV file..."
         rows="12"
       />
+    </div>
+
+    <div
+      v-if="rawNonEmptyCount > MAX_ROWS"
+      class="truncation-warning margin-small-top"
+    >
+      More than {{ MAX_ROWS.toLocaleString() }} rows provided; only the first {{ MAX_ROWS.toLocaleString() }} will be processed.
     </div>
 
     <div class="flex-row flex-separate margin-small-top">
@@ -50,8 +57,7 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import { useDropzonePasteManager } from '@/composables/useDropzonePasteManager'
-
-const MAX_ROWS = 1000
+import { MAX_ROWS } from '../constants.js'
 
 const emit = defineEmits(['submit'])
 
@@ -65,9 +71,11 @@ let pasteZone = null
 
 const lines = computed(() => nameText.value.split('\n').map((l) => l.trim()))
 
-const nonEmptyCount = computed(() => lines.value.filter(Boolean).length)
+const rawNonEmptyCount = computed(() => lines.value.filter(Boolean).length)
 
-const lineCount = computed(() => lines.value.length)
+const nonEmptyCount = computed(() => Math.min(rawNonEmptyCount.value, MAX_ROWS))
+
+const lineCount = computed(() => nameText.value.trim() ? Math.min(lines.value.length, MAX_ROWS) : 0)
 
 function submit() {
   emit('submit', {
@@ -136,7 +144,8 @@ function parseCSV(text, fileName) {
   const names = []
   const csvRows = []
 
-  dataLines.slice(0, MAX_ROWS).forEach((line) => {
+  // One over MAX_ROWS so nonEmptyCount exceeds MAX_ROWS and the truncation warning fires.
+  dataLines.slice(0, MAX_ROWS + 1).forEach((line) => {
     const fields = parseCsvLine(line, delimiter)
     const name = fields[scientificNameIndex]?.trim()
 
@@ -157,7 +166,7 @@ function parseCSV(text, fileName) {
 
   fileInfo.value = {
     name: fileName,
-    rowCount: names.length
+    rowCount: Math.min(names.length, MAX_ROWS)
   }
 
   nameText.value = names.join('\n')
@@ -217,6 +226,15 @@ function parseCsvLine(line, delimiter) {
 
 .subtle {
   color: #888;
+  font-size: 0.85em;
+}
+
+.truncation-warning {
+  color: #8a6d3b;
+  background-color: #fcf8e3;
+  border: 1px solid #faebcc;
+  border-radius: 4px;
+  padding: 6px 10px;
   font-size: 0.85em;
 }
 </style>

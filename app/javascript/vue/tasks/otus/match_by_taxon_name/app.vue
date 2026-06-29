@@ -82,12 +82,11 @@ import InputPanel from './components/InputPanel.vue'
 import ResultTable from './components/ResultTable.vue'
 import SummaryBar from './components/SummaryBar.vue'
 import MatchOptionsPanel from './components/MatchOptionsPanel.vue'
+import { MAX_ROWS } from './constants.js'
 
 defineOptions({
   name: 'MatchOtuByTaxonName'
 })
-
-const MAX_ROWS = 1000
 
 const stage = ref('input')
 const isProcessing = ref(false)
@@ -115,7 +114,10 @@ const modifiers = ref([
   { active: false, pattern: '', replacement: '' }
 ])
 
-function handleDataSubmit({ names, csv }) {
+async function handleDataSubmit({ names, csv }) {
+  isProcessing.value = true
+  await new Promise((resolve) => setTimeout(resolve, 0))
+
   csvData.value = csv
 
   rows.value = names.slice(0, MAX_ROWS).map((name, index) => {
@@ -138,9 +140,8 @@ function handleDataSubmit({ names, csv }) {
 
   stage.value = 'results'
 
-  nextTick(() => {
-    runMatch({ matchAll: true })
-  })
+  await nextTick()
+  runMatch({ matchAll: true })
 }
 
 function applyModifiers(name) {
