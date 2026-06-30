@@ -37,7 +37,6 @@
 
 <script setup>
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
 import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
 import IconSquareCheckBig from '@/components/Icon/IconSquareCheckBig.vue'
 import { Confidence } from '@/routes/endpoints'

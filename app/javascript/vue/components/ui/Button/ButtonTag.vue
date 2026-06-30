@@ -36,6 +36,7 @@
     variant="tonal"
     icon
     color="disabled"
+    disabled
     title="Select a default keyword from pinboard."
   >
     <IconTag class="w-4 h-4" />

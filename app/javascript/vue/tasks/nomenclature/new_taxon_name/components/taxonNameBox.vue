@@ -42,14 +42,6 @@
           />
           <div class="flex-wrap-column">
             <div class="horizontal-right-content gap-small">
-              <RadialAnnotator :global-id="taxon.global_id" />
-              <OtuRadial
-                :object-id="taxon.id"
-                :redirect="false"
-                :klass="otu ? OTU : TAXON_NAME"
-                :otu="otu"
-                @create:otu="(e) => (otu = e)"
-              />
               <OtuRadial
                 ref="otuRadialRef"
                 :object-id="taxon.id"
@@ -58,6 +50,14 @@
                 :taxon-name="taxon.object_tag"
                 @create:otu="(e) => (otu = e)"
               />
+              <OtuRadial
+                :object-id="taxon.id"
+                :redirect="false"
+                :klass="otu ? OTU : TAXON_NAME"
+                :otu="otu"
+                @create:otu="(e) => (otu = e)"
+              />
+              <RadialAnnotator :global-id="taxon.global_id" />
               <RadialNavigator :global-id="taxon.global_id" />
             </div>
             <div class="horizontal-right-content margin-small-top gap-small">

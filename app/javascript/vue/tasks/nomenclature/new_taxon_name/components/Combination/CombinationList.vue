@@ -22,33 +22,24 @@
           <span v-html="combination.object_label" />
         </label>
         <div class="horizontal-left-content gap-xsmall middle">
-          <default-confidence
-            class="circle-button"
-            :global-id="combination.global_id"
-          />
-          <radial-annotator :global-id="combination.global_id" />
-          <v-btn
-            class="circle-button"
-            circle
+          <RadialAnnotator :global-id="combination.global_id" />
+          <DefaultConfidence :global-id="combination.global_id" />
+          <VBtn
+            icon
             color="update"
+            variant="tonal"
             @click="emit('edit', combination)"
           >
-            <v-icon
-              x-small
-              name="pencil"
-            />
-          </v-btn>
-          <v-btn
-            class="circle-button"
-            circle
+            <IconPencil class="w-4 h-4" />
+          </VBtn>
+          <VBtn
+            icon
             color="destroy"
+            variant="tonal"
             @click="deleteCombination(combination)"
           >
-            <v-icon
-              x-small
-              name="trash"
-            />
-          </v-btn>
+            <IconTrash class="w-4 h-4" />
+          </VBtn>
         </div>
       </li>
     </ul>
@@ -56,17 +47,14 @@
       <h3>Preferred name</h3>
       <div class="flex-separate middle">
         <span v-html="currentCombination.subject_object_tag" />
-        <v-btn
-          class="circle-button"
-          circle
+        <VBtn
+          icon
           color="destroy"
+          variant="tonal"
           @click="destroyRelationship"
         >
-          <v-icon
-            x-small
-            name="trash"
-          />
-        </v-btn>
+          <IconTrash class="w-4 h-4" />
+        </VBtn>
       </div>
     </div>
     <v-confirmation ref="confirmationModal" />
@@ -80,12 +68,13 @@ import { ActionNames } from '../../store/actions/actions.js'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import DefaultConfidence from '@/components/ui/Button/ButtonConfidence.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
 import VConfirmation from '@/components/ConfirmationModal.vue'
 import {
   TAXON_RELATIONSHIP_CURRENT_COMBINATION,
   NOMENCLATURE_CODE_BOTANY
 } from '@/constants/index.js'
+import IconPencil from '@/components/Icon/IconPencil.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 
 const props = defineProps({
   list: {
