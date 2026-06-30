@@ -16,6 +16,10 @@
     top: 50%;
     transform: translateY(-50%);
     flex-shrink: 0;
+
+    &.open {
+      z-index: 1100;
+    }
   }
 }
 

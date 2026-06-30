@@ -111,7 +111,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
     }
 
     const validationElements = [
-      ...document.querySelectorAll('[data-icon="attention"][data-global-id]')
+      ...document.querySelectorAll('.soft_validation_anchor')
     ]
 
     validationElements.forEach((element) => {

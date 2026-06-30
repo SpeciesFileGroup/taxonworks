@@ -1,12 +1,14 @@
 <template>
   <ul
     v-if="inPlace"
-    class="no_bullets soft_validation list"
+    class="no_bullets"
   >
     <li
       v-for="(validation, index) in validations"
       :key="index"
+      class="flex-row gap-small middle padding-small-top padding-small-bottom"
     >
+      <IconWarning class="w-4 h-4 text-attention-color" />
       <span v-html="validation" />
     </li>
   </ul>
@@ -53,11 +55,7 @@
             :key="index"
           >
             <span>
-              <v-icon
-                small
-                name="attention"
-                color="attention"
-              />
+              <IconWarning class="w-4 h-4" />
               <span
                 class="margin-small-left"
                 v-html="validation"
@@ -75,11 +73,13 @@ import ModalComponent from '@/components/ui/Modal.vue'
 import { SoftValidation } from '@/routes/endpoints'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import IconWarning from '@/components/Icon/IconWarning.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 export default {
   components: {
     ModalComponent,
     VIcon,
+    VBtn,
     IconWarning
   },
 

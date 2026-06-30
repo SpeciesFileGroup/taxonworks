@@ -3,7 +3,9 @@
     v-if="isModalVisible"
     @close="() => (isModalVisible = false)"
   >
-    <template #header>Validations</template>
+    <template #header>
+      <h3 class="margin-remove-bottom">Validations</h3>
+    </template>
     <template #body>
       <SoftValidations
         :global-id="globalId"
@@ -34,10 +36,8 @@ onBeforeUnmount(() =>
   elements.forEach((el) => el.removeEventListener('click', handleClick))
 )
 
-function handleClick(e) {
-  const el = e.target
-
-  globalId.value = el.getAttribute('data-global-id')
+function handleClick() {
+  globalId.value = this.getAttribute('data-global-id')
   isModalVisible.value = true
 }
 </script>

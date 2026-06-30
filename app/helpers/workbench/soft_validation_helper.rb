@@ -7,10 +7,14 @@ module Workbench::SoftValidationHelper
   #  to get JSON back
   def soft_validation_alert_tag(object)
     content_tag(
-      :span, '',
-      id: object_id_string(object, 'soft_validation'), 'title' => 'Click to view validations',
-      class: [:soft_validation_anchor],
-      data: { icon: 'attention', global_id: URI.encode_www_form_component( object.to_global_id.to_s) }
+      :span, icon('warning'),
+      id: object_id_string(object, 'soft_validation'),
+      class: [:soft_validation_anchor, 'text-attention-color'],
+      data: { 
+        'tooltip-content': 'Click to view validations', 
+        'tooltip-placement': 'bottom',
+        global_id: URI.encode_www_form_component( object.to_global_id.to_s) 
+      }
     )
   end
 
