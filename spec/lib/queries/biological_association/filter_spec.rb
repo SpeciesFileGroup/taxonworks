@@ -693,6 +693,154 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
           expect(q.all.map(&:id)).to eq([ba_aus_obj.id, ba3.id])
         end
       end
+
+      context 'object_tag sorts (polymorphic)' do
+        let!(:gen_zus) {
+          Protonym.create!(name: 'Zus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
+        }
+        let!(:gen_aus) {
+          Protonym.create!(name: 'Aus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
+        }
+        let!(:otu_zus) { Otu.create!(name: nil, taxon_name: gen_zus) }
+        let!(:otu_aus) { Otu.create!(name: nil, taxon_name: gen_aus) }
+
+        let!(:ba_obj_zus) {
+          BiologicalAssociation.create!(
+            biological_association_subject: o1,
+            biological_association_object: otu_zus,
+            biological_relationship: r1
+          )
+        }
+        let!(:ba_obj_aus) {
+          BiologicalAssociation.create!(
+            biological_association_subject: o1,
+            biological_association_object: otu_aus,
+            biological_relationship: r1
+          )
+        }
+
+        specify 'sort=object_object_tag orders OTU objects by taxon_name.cached' do
+          q = query.new(
+            biological_association_id: [ba_obj_zus.id, ba_obj_aus.id],
+            sort: 'object_object_tag'
+          )
+          expect(q.all.map(&:id)).to eq([ba_obj_aus.id, ba_obj_zus.id])
+        end
+
+        specify 'sort=-object_object_tag desc' do
+          q = query.new(
+            biological_association_id: [ba_obj_zus.id, ba_obj_aus.id],
+            sort: '-object_object_tag'
+          )
+          expect(q.all.map(&:id)).to eq([ba_obj_zus.id, ba_obj_aus.id])
+        end
+
+        specify 'falls back to otus.name when taxon_name is absent' do
+          otu_no_tn = Otu.create!(name: 'Mus', taxon_name: nil)
+          ba_no_tn = BiologicalAssociation.create!(
+            biological_association_subject: o1,
+            biological_association_object: otu_no_tn,
+            biological_relationship: r1
+          )
+          # 'Aus' (cached) < 'Mus' (name) < 'Zus' (cached)
+          q = query.new(
+            biological_association_id: [ba_obj_zus.id, ba_obj_aus.id, ba_no_tn.id],
+            sort: 'object_object_tag'
+          )
+          expect(q.all.map(&:id)).to eq([ba_obj_aus.id, ba_no_tn.id, ba_obj_zus.id])
+        end
+
+        specify 'sort=subject_object_tag works symmetrically' do
+          ba_subj_zus = BiologicalAssociation.create!(
+            biological_association_subject: otu_zus,
+            biological_association_object: o1,
+            biological_relationship: r1
+          )
+          ba_subj_aus = BiologicalAssociation.create!(
+            biological_association_subject: otu_aus,
+            biological_association_object: o1,
+            biological_relationship: r1
+          )
+          q = query.new(
+            biological_association_id: [ba_subj_zus.id, ba_subj_aus.id],
+            sort: 'subject_object_tag'
+          )
+          expect(q.all.map(&:id)).to eq([ba_subj_aus.id, ba_subj_zus.id])
+        end
+
+        specify 'CollectionObject objects sort by buffered_collecting_event' do
+          co_a = Specimen.create!(buffered_collecting_event: 'Adirondacks')
+          co_z = Specimen.create!(buffered_collecting_event: 'Zion')
+          ba_co_a = BiologicalAssociation.create!(
+            biological_association_subject: o1,
+            biological_association_object: co_a,
+            biological_relationship: r1
+          )
+          ba_co_z = BiologicalAssociation.create!(
+            biological_association_subject: o1,
+            biological_association_object: co_z,
+            biological_relationship: r1
+          )
+          q = query.new(
+            biological_association_id: [ba_co_z.id, ba_co_a.id],
+            sort: 'object_object_tag'
+          )
+          expect(q.all.map(&:id)).to eq([ba_co_a.id, ba_co_z.id])
+        end
+      end
+
+      context 'biological_property sorts' do
+        let(:prop_alpha) { FactoryBot.create(:valid_biological_property, name: 'Alpha property') }
+        let(:prop_zeta)  { FactoryBot.create(:valid_biological_property, name: 'Zeta property') }
+        let(:br_a) { FactoryBot.create(:valid_biological_relationship, name: 'br_a') }
+        let(:br_z) { FactoryBot.create(:valid_biological_relationship, name: 'br_z') }
+
+        before do
+          # br_a -> subject:Alpha, object:Zeta
+          # br_z -> subject:Zeta, object:Alpha
+          FactoryBot.create(:valid_biological_relationship_subject_type,
+            biological_relationship: br_a, biological_property: prop_alpha)
+          FactoryBot.create(:valid_biological_relationship_object_type,
+            biological_relationship: br_a, biological_property: prop_zeta)
+          FactoryBot.create(:valid_biological_relationship_subject_type,
+            biological_relationship: br_z, biological_property: prop_zeta)
+          FactoryBot.create(:valid_biological_relationship_object_type,
+            biological_relationship: br_z, biological_property: prop_alpha)
+        end
+
+        let!(:ba_a_subj) {
+          BiologicalAssociation.create!(
+            biological_association_subject: o1,
+            biological_association_object: o2,
+            biological_relationship: br_a
+          )
+        }
+        let!(:ba_z_subj) {
+          BiologicalAssociation.create!(
+            biological_association_subject: o1,
+            biological_association_object: o2,
+            biological_relationship: br_z
+          )
+        }
+
+        specify 'sort=biological_property_subject orders by the SubjectType property' do
+          q = query.new(
+            biological_association_id: [ba_z_subj.id, ba_a_subj.id],
+            sort: 'biological_property_subject'
+          )
+          # ba_a_subj has Alpha, ba_z_subj has Zeta
+          expect(q.all.map(&:id)).to eq([ba_a_subj.id, ba_z_subj.id])
+        end
+
+        specify 'sort=biological_property_object uses the ObjectType property' do
+          q = query.new(
+            biological_association_id: [ba_z_subj.id, ba_a_subj.id],
+            sort: 'biological_property_object'
+          )
+          # ba_z_subj has Alpha as object, ba_a_subj has Zeta as object — reversed
+          expect(q.all.map(&:id)).to eq([ba_z_subj.id, ba_a_subj.id])
+        end
+      end
     end
   end
 

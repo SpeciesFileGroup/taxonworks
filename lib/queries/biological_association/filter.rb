@@ -84,6 +84,10 @@ module Queries
           'object_taxonomy_order'    => sort_by_taxonomy(side: 'object',  rank: 'Order'),
           'object_taxonomy_family'   => sort_by_taxonomy(side: 'object',  rank: 'Family'),
           'object_taxonomy_genus'    => sort_by_taxonomy(side: 'object',  rank: 'Genus'),
+          'subject_object_tag'         => sort_by_object_tag(side: 'subject'),
+          'object_object_tag'          => sort_by_object_tag(side: 'object'),
+          'biological_property_subject' => sort_by_biological_property(side: 'subject'),
+          'biological_property_object'  => sort_by_biological_property(side: 'object'),
         }
       end
 
@@ -92,6 +96,72 @@ module Queries
           q
             .joins('LEFT JOIN biological_relationships AS sort_br ON sort_br.id = biological_associations.biological_relationship_id')
             .order(Arel.sql("sort_br.name #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
+        }
+      end
+
+      # Sort by the name of the BiologicalProperty associated with this BA's
+      # biological_relationship for the given side. If a relationship has multiple
+      # properties on a side, picks the alphabetically first.
+      def self.sort_by_biological_property(side:)
+        brt_type = side == 'subject' ?
+          'BiologicalRelationshipType::BiologicalRelationshipSubjectType' :
+          'BiologicalRelationshipType::BiologicalRelationshipObjectType'
+        lat_alias = "sort_prop_#{side}"
+
+        ->(q, dir) {
+          q
+            .joins(<<~SQL.squish)
+              LEFT JOIN LATERAL (
+                SELECT cvt.name AS name
+                FROM biological_relationship_types brt
+                JOIN controlled_vocabulary_terms cvt ON cvt.id = brt.biological_property_id
+                WHERE brt.biological_relationship_id = biological_associations.biological_relationship_id
+                  AND brt.type = '#{brt_type}'
+                ORDER BY cvt.name
+                LIMIT 1
+              ) AS #{lat_alias} ON true
+            SQL
+            .order(Arel.sql("#{lat_alias}.name #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
+        }
+      end
+
+      # Polymorphic sort: dispatch on biological_association_<side>_type and resolve
+      # a per-type display column. Uses LATERAL so the per-row subquery returns one
+      # row regardless of which type branch fires.
+      def self.sort_by_object_tag(side:)
+        side_id   = "biological_association_#{side}_id"
+        side_type = "biological_association_#{side}_type"
+        lat_alias = "sort_objtag_#{side}"
+
+        ->(q, dir) {
+          q
+            .joins(<<~SQL.squish)
+              LEFT JOIN LATERAL (
+                SELECT CASE biological_associations.#{side_type}
+                  WHEN 'Otu' THEN (
+                    SELECT COALESCE(tn.cached, o.name)
+                    FROM otus o
+                    LEFT JOIN taxon_names tn ON tn.id = o.taxon_name_id
+                    WHERE o.id = biological_associations.#{side_id}
+                    LIMIT 1
+                  )
+                  WHEN 'CollectionObject' THEN (
+                    SELECT buffered_collecting_event
+                    FROM collection_objects
+                    WHERE id = biological_associations.#{side_id}
+                    LIMIT 1
+                  )
+                  WHEN 'AnatomicalPart' THEN (
+                    SELECT cached
+                    FROM anatomical_parts
+                    WHERE id = biological_associations.#{side_id}
+                    LIMIT 1
+                  )
+                  ELSE NULL
+                END AS tag
+              ) AS #{lat_alias} ON true
+            SQL
+            .order(Arel.sql("#{lat_alias}.tag #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
         }
       end
 
