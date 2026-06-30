@@ -116,6 +116,8 @@ const modifiers = ref([
 
 async function handleDataSubmit({ names, csv }) {
   isProcessing.value = true
+  // Give the browser enough time to paint the spinner before it gets bogged
+  // down in processing.
   await new Promise((resolve) => setTimeout(resolve, 0))
 
   csvData.value = csv
@@ -140,7 +142,6 @@ async function handleDataSubmit({ names, csv }) {
 
   stage.value = 'results'
 
-  await nextTick()
   runMatch({ matchAll: true })
 }
 
