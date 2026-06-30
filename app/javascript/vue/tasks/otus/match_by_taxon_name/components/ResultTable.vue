@@ -16,7 +16,7 @@
         <th />
         <th data-help="Manually search for and select a TaxonName, overriding the automatic match result. Use this to fix incorrect or ambiguous matches.">Refine</th>
         <th>OTU <ButtonClipboard :text="columnClipboardText('otuLabel')" title="Copy OTU column" /></th>
-        <th>OTU id <ButtonClipboard :text="columnClipboardText('otuId')" title="Copy OTU id column" /></th>
+        <th class="line-nowrap">OTU id <ButtonClipboard :text="columnClipboardText('otuId')" title="Copy OTU id column" /></th>
         <th />
         <th>Set</th>
       </tr>
