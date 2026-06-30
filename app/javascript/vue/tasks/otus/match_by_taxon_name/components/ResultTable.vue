@@ -10,13 +10,13 @@
           />
         </th>
         <th />
-        <th>scientificName</th>
-        <th>Match</th>
-        <th>TaxonName</th>
+        <th>scientificName <ButtonClipboard :text="columnClipboardText('scientificName')" title="Copy scientificName column" /></th>
+        <th data-help="Override the string used for matching. Leave blank to match using the scientificName value as-is.">Match <ButtonClipboard :text="columnClipboardText('match')" title="Copy match column" /></th>
+        <th>TaxonName <ButtonClipboard :text="columnClipboardText('taxonName')" title="Copy TaxonName column" /></th>
         <th />
-        <th>Refine</th>
-        <th>OTU</th>
-        <th>OTU id</th>
+        <th data-help="Manually search for and select a TaxonName, overriding the automatic match result. Use this to fix incorrect or ambiguous matches.">Refine</th>
+        <th>OTU <ButtonClipboard :text="columnClipboardText('otuLabel')" title="Copy OTU column" /></th>
+        <th class="line-nowrap">OTU id <ButtonClipboard :text="columnClipboardText('otuId')" title="Copy OTU id column" /></th>
         <th />
         <th>Set</th>
       </tr>
@@ -235,6 +235,7 @@ import VIcon from '@/components/ui/VIcon/index.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
+import ButtonClipboard from '@/components/ui/Button/ButtonClipboard.vue'
 
 const props = defineProps({
   rows: {
@@ -310,6 +311,29 @@ function openContext(row) {
   if (row.csvRow) {
     contextRow.value = row
   }
+}
+
+function columnClipboardText(field) {
+  const values = props.rows.map((row) => {
+    switch (field) {
+      case 'scientificName':
+        return row.scientificName || ''
+      case 'match':
+        return row.matchString || row.scientificName || ''
+      case 'taxonName':
+        return row.taxonName?.cached || ''
+      case 'otuLabel': {
+        const otu = row.otus.find((o) => o.id === row.selectedOtuId)
+        return otu?.object_label || otu?.name || ''
+      }
+      case 'otuId':
+        return row.selectedOtuId != null ? String(row.selectedOtuId) : ''
+      default:
+        return ''
+    }
+  })
+
+  return values.join('\n')
 }
 </script>
 
