@@ -75,12 +75,13 @@
       <template #table>
         <TableResults
           v-model="selectedIds"
+          v-model:sort-keys="sortKeys"
+          :backend-sort="true"
           :list="list"
           :layout="currentLayout"
           :hide-unfrozen="hideFrozen"
           :preference-key="`tasks::filters::${COLLECTION_OBJECT}`"
           radial-object
-          @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
@@ -118,13 +119,14 @@ import TableLayoutSelector from '@/components/Filter/Table/TableLayoutSelector.v
 import RadialLoan from '@/components/radials/loan/radial.vue'
 import RadialMatrix from '@/components/radials/matrix/radial.vue'
 import RadialCollectionObject from '@/components/radials/co/radial.vue'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { CollectionObject } from '@/routes/endpoints'
 import { COLLECTION_OBJECT } from '@/constants/index.js'
 import { useTableLayoutConfiguration } from '@/components/Filter/composables/useTableLayoutConfiguration.js'
 import { LAYOUTS } from './constants/layouts.js'
 import { listParser } from './utils/listParser.js'
 import { useCSVOptions, useFilter } from '@/shared/Filter/composition'
+import { serializeSortKeys, parseSortParam } from '@/helpers/arrays.js'
 
 const extend = [
   'dwc_occurrence',
@@ -188,6 +190,27 @@ function removeCOFromList(ids) {
   list.value = list.value.filter((item) => !ids.includes(item.id))
   selectedIds.value = selectedIds.value.filter((id) => !ids.includes(id))
 }
+
+const sortKeys = ref(parseSortParam(parameters.value.sort))
+
+watch(
+  sortKeys,
+  (next) => {
+    const sortString = serializeSortKeys(next)
+    if (sortString === parameters.value.sort) return
+    parameters.value.sort = sortString
+    makeFilterRequest({ ...parameters.value, extend, exclude, page: 1 })
+  },
+  { deep: true }
+)
+
+watch(
+  () => parameters.value.sort,
+  (next) => {
+    if (next === serializeSortKeys(sortKeys.value)) return
+    sortKeys.value = parseSortParam(next)
+  }
+)
 </script>
 
 <script>

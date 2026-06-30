@@ -770,4 +770,118 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     end
 
   end
+
+  context 'sort param' do
+    let!(:s_a) {
+      s = FactoryBot.create(:valid_specimen)
+      s.update_columns(total: 1, buffered_collecting_event: 'A_label')
+      s
+    }
+    let!(:s_z) {
+      s = FactoryBot.create(:valid_specimen)
+      s.update_columns(total: 9, buffered_collecting_event: 'Z_label')
+      s
+    }
+
+    specify 'sort=collection_object.total orders by direct column ascending' do
+      q = Queries::CollectionObject::Filter.new(
+        collection_object_id: [s_z.id, s_a.id], sort: 'collection_object.total'
+      )
+      expect(q.all.map(&:id)).to eq([s_a.id, s_z.id])
+    end
+
+    specify 'sort=-collection_object.buffered_collecting_event desc' do
+      q = Queries::CollectionObject::Filter.new(
+        collection_object_id: [s_a.id, s_z.id],
+        sort: '-collection_object.buffered_collecting_event'
+      )
+      expect(q.all.map(&:id)).to eq([s_z.id, s_a.id])
+    end
+
+    context 'belongs_to: repository.name' do
+      let!(:repo_alpha) { FactoryBot.create(:valid_repository, name: 'Alpha museum') }
+      let!(:repo_zeta)  { FactoryBot.create(:valid_repository, name: 'Zeta museum') }
+
+      specify do
+        s_a.update!(repository: repo_zeta)
+        s_z.update!(repository: repo_alpha)
+        q = Queries::CollectionObject::Filter.new(
+          collection_object_id: [s_a.id, s_z.id], sort: 'repository.name'
+        )
+        expect(q.all.map(&:id)).to eq([s_z.id, s_a.id])
+      end
+    end
+
+    context 'belongs_to: collecting_event.verbatim_locality' do
+      let!(:ce_a) { FactoryBot.create(:valid_collecting_event, verbatim_locality: 'Adirondacks') }
+      let!(:ce_z) { FactoryBot.create(:valid_collecting_event, verbatim_locality: 'Zion') }
+
+      specify do
+        s_a.update!(collecting_event: ce_z)
+        s_z.update!(collecting_event: ce_a)
+        q = Queries::CollectionObject::Filter.new(
+          collection_object_id: [s_a.id, s_z.id], sort: 'collecting_event.verbatim_locality'
+        )
+        expect(q.all.map(&:id)).to eq([s_z.id, s_a.id])
+      end
+    end
+
+    context 'polymorphic has_one: dwc_occurrence.scientificName' do
+      specify do
+        DwcOccurrence.create!(
+          dwc_occurrence_object: s_a, scientificName: 'Zus eus', basisOfRecord: 'PreservedSpecimen'
+        )
+        DwcOccurrence.create!(
+          dwc_occurrence_object: s_z, scientificName: 'Aus dus', basisOfRecord: 'PreservedSpecimen'
+        )
+        q = Queries::CollectionObject::Filter.new(
+          collection_object_id: [s_a.id, s_z.id], sort: 'dwc_occurrence.scientificName'
+        )
+        expect(q.all.map(&:id)).to eq([s_z.id, s_a.id])
+      end
+    end
+
+    context 'taxon_determinations.otu_name (primary determination)' do
+      let(:root) { FactoryBot.create(:root_taxon_name) }
+      let(:tn_a) { Protonym.create!(name: 'Aus', rank_class: Ranks.lookup(:iczn, :genus), parent: root) }
+      let(:tn_z) { Protonym.create!(name: 'Zus', rank_class: Ranks.lookup(:iczn, :genus), parent: root) }
+      let!(:otu_a) { Otu.create!(name: 'aus_otu', taxon_name: tn_a) }
+      let!(:otu_z) { Otu.create!(name: 'zus_otu', taxon_name: tn_z) }
+
+      specify 'picks the lowest-position determination as primary' do
+        TaxonDetermination.create!(taxon_determination_object: s_a, otu: otu_z, position: 1)
+        TaxonDetermination.create!(taxon_determination_object: s_a, otu: otu_a, position: 2)
+        TaxonDetermination.create!(taxon_determination_object: s_z, otu: otu_a, position: 1)
+        q = Queries::CollectionObject::Filter.new(
+          collection_object_id: [s_a.id, s_z.id], sort: 'taxon_determinations.otu_name'
+        )
+        # s_z's primary is aus_otu < s_a's primary is zus_otu
+        expect(q.all.map(&:id)).to eq([s_z.id, s_a.id])
+      end
+    end
+
+    context 'identifiers.cached (aggregated)' do
+      let!(:ns) { FactoryBot.create(:valid_namespace) }
+
+      specify 'sorts by the alphabetically first identifier per CO' do
+        Identifier::Local::CatalogNumber.create!(
+          identifier_object: s_a, namespace: ns, identifier: '999'
+        )
+        Identifier::Local::CatalogNumber.create!(
+          identifier_object: s_z, namespace: ns, identifier: '001'
+        )
+        q = Queries::CollectionObject::Filter.new(
+          collection_object_id: [s_a.id, s_z.id], sort: 'identifiers.cached'
+        )
+        expect(q.all.map(&:id)).to eq([s_z.id, s_a.id])
+      end
+    end
+
+    specify 'unknown sort key ignored' do
+      q = Queries::CollectionObject::Filter.new(
+        collection_object_id: [s_a.id, s_z.id], sort: 'no_such_column'
+      )
+      expect(q.all.map(&:id)).to contain_exactly(s_a.id, s_z.id)
+    end
+  end
 end

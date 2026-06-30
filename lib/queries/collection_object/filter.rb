@@ -12,6 +12,7 @@ module Queries
       include Queries::Concerns::Depictions
       include Queries::Concerns::Notes
       include Queries::Concerns::Protocols
+      include Queries::Concerns::Sortable
       include Queries::Concerns::Tags
 
       PARAMS = [
@@ -81,6 +82,146 @@ module Queries
         taxon_name_id: [],
       ].inject([{}]) { |ary, k| k.is_a?(Hash) ? ary.last.merge!(k) : ary.unshift(k); ary }.freeze
 
+      # Column groups visible in the filter table UI. Mirrors the *_PROPERTIES
+      # constants in app/javascript/vue/shared/Filter/constants/.
+      SORTABLE_DIRECT_COLUMNS = %w[
+        id total type buffered_collecting_event buffered_determinations
+        buffered_other_labels accessioned_at deaccession_reason deaccessioned_at
+      ].freeze
+
+      SORTABLE_REPOSITORY_COLUMNS = %w[
+        name url acronym status institutional_LSID is_index_herbariorum
+      ].freeze
+
+      SORTABLE_COLLECTING_EVENT_COLUMNS = %w[
+        id verbatim_label verbatim_locality cached_level0_geographic_name
+        cached_level1_geographic_name cached_level2_geographic_name
+        verbatim_longitude verbatim_latitude verbatim_geolocation_uncertainty
+        verbatim_field_number verbatim_collectors verbatim_method geographic_area_id
+        minimum_elevation maximum_elevation elevation_precision field_notes
+        md5_of_verbatim_label start_date_year start_date_month start_date_day
+        end_date_year end_date_month end_date_day verbatim_elevation verbatim_habitat
+        verbatim_datum time_start_hour time_start_minute time_start_second
+        time_end_hour time_end_minute time_end_second verbatim_date group formation
+        member lithology max_ma min_ma meta_prioritize_geographic_area
+      ].freeze
+
+      SORTABLE_DWC_OCCURRENCE_COLUMNS = %w[
+        occurrenceID basisOfRecord catalogNumber otherCatalogNumbers individualCount
+        preparations lifeStage sex caste country stateProvince county eventDate eventTime
+        year month day startDayOfYear endDayOfYear fieldNumber maximumElevationInMeters
+        minimumElevationInMeters samplingProtocol habitat verbatimElevation
+        verbatimEventDate verbatimLocality waterBody minimumDepthInMeters
+        maximumDepthInMeters verbatimDepth identifiedBy identifiedByID dateIdentified
+        nomenclaturalCode kingdom phylum dwcClass order higherClassification superfamily
+        family subfamily tribe subtribe genus specificEpithet infraspecificEpithet
+        scientificName scientificNameAuthorship taxonRank previousIdentifications
+        typeStatus institutionCode institutionID recordedBy recordedByID
+        verbatimCoordinates verbatimLatitude verbatimLongitude decimalLatitude
+        decimalLongitude footprintWKT coordinateUncertaintyInMeters geodeticDatum
+        georeferenceProtocol georeferenceRemarks georeferenceSources georeferencedBy
+        georeferencedDate verbatimSRS occurrenceStatus associatedMedia occurrenceRemarks
+      ].freeze
+
+      SORTABLE_TAXON_DETERMINATION_COLUMNS = %w[
+        otu_id otu_name position year_made month_made day_made print_label
+      ].freeze
+
+      def self.sortable_columns
+        cols = {
+          # Direct collection_object.* columns
+        }
+
+        SORTABLE_DIRECT_COLUMNS.each do |c|
+          cols["collection_object.#{c}"] = sort_by_direct_column("collection_objects.#{c}")
+        end
+
+        SORTABLE_REPOSITORY_COLUMNS.each do |c|
+          cols["repository.#{c}"] = sort_by_belongs_to_column(
+            joined_table: 'repositories', joined_column: c,
+            fk_expr: 'collection_objects.repository_id',
+            alias_prefix: "sort_repo_#{c}"
+          )
+          cols["current_repository.#{c}"] = sort_by_belongs_to_column(
+            joined_table: 'repositories', joined_column: c,
+            fk_expr: 'collection_objects.current_repository_id',
+            alias_prefix: "sort_crepo_#{c}"
+          )
+        end
+
+        SORTABLE_COLLECTING_EVENT_COLUMNS.each do |c|
+          cols["collecting_event.#{c}"] = sort_by_belongs_to_column(
+            joined_table: 'collecting_events', joined_column: c,
+            fk_expr: 'collection_objects.collecting_event_id',
+            alias_prefix: "sort_ce_#{c}"
+          )
+        end
+
+        SORTABLE_DWC_OCCURRENCE_COLUMNS.each do |c|
+          cols["dwc_occurrence.#{c}"] = sort_by_polymorphic_has_one_column(
+            joined_table: 'dwc_occurrences',
+            joined_column: "\"#{c}\"",
+            owner_id_col: 'dwc_occurrence_object_id',
+            owner_type_col: 'dwc_occurrence_object_type',
+            owner_type_value: 'CollectionObject',
+            parent_id_expr: 'collection_objects.id',
+            alias_prefix: "sort_dwc_#{c.downcase}"
+          )
+        end
+
+        # taxon_determinations.* uses the primary (lowest-position) determination
+        # for each CO. Single LATERAL serves all td columns via per-column wrapping.
+        SORTABLE_TAXON_DETERMINATION_COLUMNS.each do |c|
+          # `otu_name` is joined through otus; the rest are direct td columns.
+          if c == 'otu_name'
+            cols["taxon_determinations.otu_name"] = ->(q, dir) {
+              q.joins(<<~SQL.squish)
+                LEFT JOIN LATERAL (
+                  SELECT o.name AS otu_name
+                  FROM taxon_determinations td
+                  LEFT JOIN otus o ON o.id = td.otu_id
+                  WHERE td.taxon_determination_object_id = collection_objects.id
+                    AND td.taxon_determination_object_type = 'CollectionObject'
+                  ORDER BY td.position
+                  LIMIT 1
+                ) AS sort_td_otu_name ON true
+              SQL
+              .order(Arel.sql("sort_td_otu_name.otu_name #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
+            }
+          else
+            cols["taxon_determinations.#{c}"] = ->(q, dir) {
+              lat = "sort_td_#{c}"
+              q.joins(<<~SQL.squish)
+                LEFT JOIN LATERAL (
+                  SELECT #{c} AS val
+                  FROM taxon_determinations
+                  WHERE taxon_determination_object_id = collection_objects.id
+                    AND taxon_determination_object_type = 'CollectionObject'
+                  ORDER BY position
+                  LIMIT 1
+                ) AS #{lat} ON true
+              SQL
+              .order(Arel.sql("#{lat}.val #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
+            }
+          end
+        end
+
+        # identifiers.cached aggregates many identifiers per CO. Sort by the
+        # alphabetically first identifier; rows with no identifier sort last.
+        cols['identifiers.cached'] = ->(q, dir) {
+          q.joins(<<~SQL.squish)
+            LEFT JOIN LATERAL (
+              SELECT MIN(cached) AS cached
+              FROM identifiers
+              WHERE identifier_object_id = collection_objects.id
+                AND identifier_object_type = 'CollectionObject'
+            ) AS sort_ident ON true
+          SQL
+          .order(Arel.sql("sort_ident.cached #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
+        }
+
+        cols
+      end
 
       # @return [Array]
       #   of ImportDataset ids
