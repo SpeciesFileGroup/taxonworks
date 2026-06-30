@@ -9,6 +9,7 @@ module Queries
       include Queries::Concerns::Depictions
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Geo
+      include Queries::Concerns::Sortable
 
       PARAMS = [
         :anatomical_part_id,
@@ -125,77 +126,28 @@ module Queries
         }
       end
 
-      # Polymorphic sort: dispatch on biological_association_<side>_type and resolve
-      # a per-type display column. Uses LATERAL so the per-row subquery returns one
-      # row regardless of which type branch fires.
+      # Polymorphic sort across all of BA's subject/object types.
       def self.sort_by_object_tag(side:)
-        side_id   = "biological_association_#{side}_id"
-        side_type = "biological_association_#{side}_type"
-        lat_alias = "sort_objtag_#{side}"
-
-        ->(q, dir) {
-          q
-            .joins(<<~SQL.squish)
-              LEFT JOIN LATERAL (
-                SELECT CASE biological_associations.#{side_type}
-                  WHEN 'Otu' THEN (
-                    SELECT COALESCE(tn.cached, o.name)
-                    FROM otus o
-                    LEFT JOIN taxon_names tn ON tn.id = o.taxon_name_id
-                    WHERE o.id = biological_associations.#{side_id}
-                    LIMIT 1
-                  )
-                  WHEN 'CollectionObject' THEN (
-                    SELECT buffered_collecting_event
-                    FROM collection_objects
-                    WHERE id = biological_associations.#{side_id}
-                    LIMIT 1
-                  )
-                  WHEN 'AnatomicalPart' THEN (
-                    SELECT cached
-                    FROM anatomical_parts
-                    WHERE id = biological_associations.#{side_id}
-                    LIMIT 1
-                  )
-                  ELSE NULL
-                END AS tag
-              ) AS #{lat_alias} ON true
-            SQL
-            .order(Arel.sql("#{lat_alias}.tag #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
-        }
+        sort_by_polymorphic_object_tag(
+          id_expr:   "biological_associations.biological_association_#{side}_id",
+          type_expr: "biological_associations.biological_association_#{side}_type",
+          alias_prefix: "sort_objtag_#{side}"
+        )
       end
 
-      # Walk the closure-tree ancestry of the OTU's taxon name to the ancestor at the
-      # given rank, then ORDER BY that ancestor's name. Rows whose side is not an Otu
-      # (polymorphic) or whose taxon has no ancestor at that rank sort to the end.
-      #
-      # Uses LATERAL JOIN so the per-row subquery returns at most one ancestor (the
-      # one whose rank_class matches), avoiding the row multiplication you'd get from
-      # a plain LEFT JOIN through taxon_name_hierarchies.
+      # Walks the closure-tree ancestry of the OTU's taxon name to the ancestor at
+      # the given rank. Constrained to BA rows whose `<side>_type = 'Otu'`; other
+      # polymorphic types yield NULL and sort to the end.
       def self.sort_by_taxonomy(side:, rank:)
-        rank_class_like = "%::#{rank}"
-        suffix = "#{side}_#{rank.downcase}"
-        lat_alias = "sort_tax_#{suffix}"
-        side_id   = "biological_association_#{side}_id"
-        side_type = "biological_association_#{side}_type"
-
-        ->(q, dir) {
-          q
-            .joins(<<~SQL.squish)
-              LEFT JOIN LATERAL (
-                SELECT tn.name AS name
-                FROM otus o
-                JOIN taxon_name_hierarchies tnh ON tnh.descendant_id = o.taxon_name_id
-                JOIN taxon_names tn
-                  ON tn.id = tnh.ancestor_id
-                  AND tn.rank_class LIKE '#{rank_class_like}'
-                WHERE o.id = biological_associations.#{side_id}
-                  AND biological_associations.#{side_type} = 'Otu'
-                LIMIT 1
-              ) AS #{lat_alias} ON true
-            SQL
-            .order(Arel.sql("#{lat_alias}.name #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
-        }
+        sort_by_otu_taxonomy(
+          rank: rank,
+          otu_id_expr: <<~SQL.squish,
+            CASE WHEN biological_associations.biological_association_#{side}_type = 'Otu'
+                 THEN biological_associations.biological_association_#{side}_id
+            END
+          SQL
+          alias_prefix: "sort_tax_#{side}_#{rank.downcase}"
+        )
       end
 
       # @return Boolean, nil
