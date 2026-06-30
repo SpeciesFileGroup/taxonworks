@@ -15,6 +15,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ### Changed
 
 - Upgraded postresql client to version 18
+- Names limit in the Match OTUs to Taxon Names task is now 3k, up from 1k
 
 ### Fixed
 
@@ -22,6 +23,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Notification sound triggers multiple times when there is more than one notification. [#4964]
 - Error when changing the type of a label from qrcode/barcode to text
 - DwC occurrences importer not checking existing nomenclature date data correctly when matching on author/year
+- Regexes are applied when the user clicks the 'Match' button in the Match OTUs to Taxon Names task
 
 [#4964]: https://github.com/SpeciesFileGroup/taxonworks/issues/4964
 
