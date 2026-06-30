@@ -139,7 +139,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             potential_protonyms_narrowed = potential_protonyms_narrowed.where(cached_author:)
 
             if name[:year_of_publication]
-              potential_protonyms_narrowed = potential_protonyms_narrowed.where(year_of_publication: name[:year_of_publication])
+              potential_protonyms_narrowed = potential_protonyms_narrowed.published_in_year(name[:year_of_publication])
             end
 
             # if only one result, everything's ok. Safe to take it as the protonym
@@ -175,7 +175,14 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             end
           end
 
-          potential_protonyms = Protonym.where(name.slice(:rank_class, :year_of_publication).merge({ field => name[:name], cached_author: }).compact).with_ancestor(parent)
+          potential_protonyms = Protonym.where(name.slice(:rank_class).merge({ field => name[:name], cached_author: }).compact).with_ancestor(parent).then do |q|
+            if name[:year_of_publication]
+              q.published_in_year(name[:year_of_publication])
+            else
+              q
+            end
+          end
+
           if potential_protonyms.count > 1
             return parent
           end
@@ -1327,7 +1334,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         end
 
         if type_year.present?
-          wildcard_original_protonym = wildcard_original_protonym.where(year_of_publication: type_year)
+          wildcard_original_protonym = wildcard_original_protonym.published_in_year(type_year)
         end
 
         if wildcard_original_protonym.count == 1
