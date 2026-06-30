@@ -49,6 +49,7 @@
             <VBtn
               color="primary"
               medium
+              variant="tonal"
               @click="resetForm"
             >
               New
@@ -163,6 +164,8 @@ function resetForm() {
 }
 
 defineExpose({
-  focus() { nameInput.value?.focus() }
+  focus() {
+    nameInput.value?.focus()
+  }
 })
 </script>

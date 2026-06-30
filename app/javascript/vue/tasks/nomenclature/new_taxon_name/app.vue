@@ -6,17 +6,6 @@
     <div class="flex-separate middle">
       <h1>{{ taxon.id ? 'Edit' : 'New' }} taxon name</h1>
       <div class="horizontal-right-content middle">
-        <label
-          v-help.section.navbar.autosave
-          class="horizontal-left-content middle margin-medium-right"
-        >
-          <input
-            type="checkbox"
-            v-model="isAutosaveActive"
-          />
-          Autosave
-        </label>
-
         <autocomplete
           v-if="!taxon.id"
           class="autocomplete-search-bar"
@@ -41,12 +30,19 @@
             v-if="isLoading"
           />
           <template
-            v-for="({ component, title, isAvailableFor }, index) in SectionComponents"
+            v-for="(
+              { component, title, isAvailableFor }, index
+            ) in SectionComponents"
             :key="title"
           >
             <component
               v-if="isAvailableFor(taxon)"
-              :ref="el => { if (el) sectionRefs[index] = el; else delete sectionRefs[index] }"
+              :ref="
+                (el) => {
+                  if (el) sectionRefs[index] = el
+                  else delete sectionRefs[index]
+                }
+              "
               class="margin-medium-bottom"
               :is="component"
             />
@@ -80,8 +76,6 @@ defineOptions({
   name: 'NewTaxonName'
 })
 
-const KEY_STORAGE_AUTOSAVE = 'task::NewTaxonName::Autosave'
-
 const store = useStore()
 const sectionRefs = {}
 
@@ -99,14 +93,6 @@ const shortcuts = ref([
 useHotkey(shortcuts.value)
 
 const taxon = computed(() => store.getters[GetterNames.GetTaxon])
-
-const isAutosaveActive = useUserPreference(KEY_STORAGE_AUTOSAVE, true)
-
-watch(
-  isAutosaveActive,
-  (value) => store.commit(MutationNames.SetAutosave, value),
-  { immediate: true }
-)
 
 onMounted(() => {
   const urlParams = new URLSearchParams(window.location.search)
@@ -198,7 +184,9 @@ function loadTaxon(taxon) {
 function focusSectionComponent(index) {
   const component = sectionRefs[index]
   if (!component) return
-  component.$el?.querySelector('a[name]')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  component.$el
+    ?.querySelector('a[name]')
+    ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   component.focus?.()
 }
 

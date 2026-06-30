@@ -21,10 +21,13 @@
               :href="`${RouteNames.BrowseNomenclature}?taxon_name_id=${relationshipsCreated[0].subject_taxon_name_id}`"
             />
           </span>
-          <span
-            class="button circle-button btn-undo button-default"
-            @click="editType = undefined"
-          />
+          <VBtn
+            icon
+            medium
+            @click="() => (editType = undefined)"
+          >
+            <IconReset class="w-4 h-4" />
+          </VBtn>
         </div>
         <QuickTaxonName
           ref="quickTaxonName"
@@ -162,6 +165,7 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import showForThisGroup from '../helpers/showForThisGroup'
 import { useHotkey } from '@/composables'
+import IconReset from '@/components/Icon/IconReset.vue'
 
 const TAB = {
   common: 'Common',
@@ -368,6 +372,8 @@ function switchComprehensive() {
 }
 
 defineExpose({
-  focus() { quickTaxonName.value?.focus() }
+  focus() {
+    quickTaxonName.value?.focus()
+  }
 })
 </script>

@@ -44,7 +44,7 @@
                 >
                   <span
                     class="handle drag-handle drag-handle--create"
-                    title="Press and hold to drag input"
+                    v-tooltip="'Press and hold to drag input'"
                   >
                     <IconGripVertical class="w-4 h-4" />
                   </span>
@@ -109,10 +109,14 @@
               class="original-combination-name"
               v-html="taxon.original_combination"
             />
-            <span
-              class="circle-button btn-delete"
+            <VBtn
+              icon
+              color="destroy"
+              variant="tonal"
               @click="removeAllCombinations()"
-            />
+            >
+              <IconTrash class="w-4 h-4" />
+            </VBtn>
           </div>
         </div>
       </div>
@@ -127,10 +131,12 @@ import OriginalCombination from './originalCombination.vue'
 import BlockLayout from '@/components/layout/BlockLayout'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import IconGripVertical from '@/components/Icon/IconGripVertical.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import {
   originalCombinationType,
   combinationIcnType
 } from '../const/combinationTypes'
+import { vTooltip } from '@/directives'
 
 export default {
   components: {
@@ -138,7 +144,12 @@ export default {
     OriginalCombination,
     BlockLayout,
     VBtn,
+    IconTrash,
     IconGripVertical
+  },
+
+  directives: {
+    tooltip: vTooltip
   },
 
   data() {

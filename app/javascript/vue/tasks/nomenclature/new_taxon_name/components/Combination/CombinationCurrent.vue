@@ -1,6 +1,6 @@
 <template>
   <div class="original-combination-picker">
-    <div class="horizontal-left-content">
+    <div class="horizontal-left-content align-start">
       <div class="button-current separate-right">
         <VBtn
           medium
@@ -25,10 +25,12 @@
           :animation="150"
         >
           <template #item="{ element }">
-            <div class="horizontal-left-content middle item-draggable gap-small">
+            <div
+              class="horizontal-left-content middle item-draggable gap-small margin-small-bottom"
+            >
               <span
                 class="handle drag-handle drag-handle--primary"
-                title="Press and hold to drag input"
+                v-tooltip="'Press and hold to drag input'"
               >
                 <IconGripVertical class="w-4 h-4" />
               </span>
@@ -41,9 +43,9 @@
             </div>
           </template>
         </draggable>
+        <hr class="divisor" />
       </div>
     </div>
-    <hr class="divisor" />
   </div>
 </template>
 
@@ -55,6 +57,7 @@ import { TaxonName } from '@/routes/endpoints'
 import Draggable from 'vuedraggable'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import IconGripVertical from '@/components/Icon/IconGripVertical.vue'
+import { vTooltip } from '@/directives'
 
 const props = defineProps({
   combinationRanks: {

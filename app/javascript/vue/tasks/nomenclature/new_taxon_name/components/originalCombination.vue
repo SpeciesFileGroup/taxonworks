@@ -31,7 +31,7 @@
           >
             <span
               class="handle drag-handle drag-handle--create"
-              title="Press and hold to drag input"
+              v-tooltip="'Press and hold to drag input'"
             >
               <IconGripVertical class="w-4 h-4" />
             </span>
@@ -56,7 +56,7 @@
           >
             <span
               class="handle drag-handle drag-handle--create"
-              title="Press and hold to drag input"
+              v-tooltip="'Press and hold to drag input'"
             >
               <IconGripVertical class="w-4 h-4" />
             </span>
@@ -69,10 +69,14 @@
             </div>
 
             <RadialAnnotator :global-id="element.value.global_id" />
-            <span
-              class="circle-button btn-delete"
+            <VBtn
+              icon
+              color="destroy"
+              variant="tonal"
               @click="removeCombination(element.value, index)"
-            />
+            >
+              <IconTrash class="w-4 h-4" />
+            </VBtn>
           </div>
         </template>
       </draggable>
@@ -87,13 +91,22 @@ import Autocomplete from '@/components/ui/Autocomplete.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import Draggable from 'vuedraggable'
 import IconGripVertical from '@/components/Icon/IconGripVertical.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
+import { vTooltip } from '@/directives'
 
 export default {
   components: {
     RadialAnnotator,
     Autocomplete,
     Draggable,
-    IconGripVertical
+    IconGripVertical,
+    IconTrash,
+    VBtn
+  },
+
+  directives: {
+    tooltip: vTooltip
   },
 
   props: {

@@ -71,24 +71,30 @@
                   />
                 </td>
                 <td>
-                  <div class="horizontal-left-content gap-xsmall">
-                    <span
-                      class="circle-button btn-edit"
+                  <div class="horizontal-left-content gap-small">
+                    <RadialAnnotator :global-id="child.global_id" />
+                    <VBtn
+                      icon
+                      color="primary"
+                      variant="tonal"
+                      title="Edit taxon name"
                       @click="loadTaxon(child.id)"
-                    />
-                    <radial-annotator :global-id="child.global_id" />
+                    >
+                      <IconPencil class="w-4 h-4" />
+                    </VBtn>
                   </div>
                 </td>
               </tr>
             </tbody>
           </table>
-          <button
-            class="button normal-input button-submit"
+          <VBtn
+            medium
+            color="update"
             :disabled="!selected.length"
             @click="confirmSave"
           >
             Save
-          </button>
+          </VBtn>
         </div>
       </template>
     </block-layout>
@@ -134,6 +140,8 @@ import BlockLayout from '@/components/layout/BlockLayout'
 import VModal from '@/components/ui/Modal'
 import SpinnerComponent from '@/components/ui/VSpinner'
 import Autocomplete from '@/components/ui/Autocomplete'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import IconPencil from '@/components/Icon/IconPencil.vue'
 
 export default {
   components: {
@@ -141,7 +149,9 @@ export default {
     RadialAnnotator,
     SpinnerComponent,
     Autocomplete,
-    BlockLayout
+    BlockLayout,
+    IconPencil,
+    VBtn
   },
   computed: {
     taxon() {

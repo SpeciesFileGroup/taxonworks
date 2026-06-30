@@ -48,6 +48,7 @@
           icon
           color="primary"
           variant="tonal"
+          title="Edit item"
           @click="$emit('edit', Object.assign({}, item))"
         >
           <IconPencil class="w-4 h-4" />
@@ -57,6 +58,7 @@
           v-if="remove"
           icon
           :color="softDelete ? 'primary' : 'destroy'"
+          :title="softDelete ? 'Remove item' : 'Delete record'"
           variant="tonal"
           @click="deleteItem(item, index)"
         >
@@ -248,9 +250,14 @@ export default {
       all 0.5s,
       opacity 0.2s;
     margin: 0px;
-    padding: 1em 0;
+    padding: var(--spacing-md) 0;
     border: 0px;
     border-bottom: 1px solid var(--border-color);
+  }
+
+  .list-complete-item:last-child {
+    border-bottom: 0px;
+    padding-bottom: 0px;
   }
 
   .list-complete-enter,

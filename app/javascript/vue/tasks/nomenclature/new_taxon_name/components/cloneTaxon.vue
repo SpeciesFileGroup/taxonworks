@@ -2,9 +2,8 @@
   <div>
     <VBtn
       color="primary"
-      class="navbar-button"
-      medium
       :disabled="!taxon.id || isSaving"
+      medium
       @click="() => (isModalVisible = true)"
     >
       Clone
@@ -49,14 +48,14 @@
         />
       </template>
       <template #footer>
-        <button
-          type="button"
-          class="button normal-input button-submit"
+        <VBtn
+          color="create"
+          medium
           :disabled="checkInput"
           @click="cloneTaxon()"
         >
           Clone
-        </button>
+        </VBtn>
       </template>
     </VModal>
   </div>

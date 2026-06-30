@@ -36,14 +36,16 @@
             }"
             param="term"
           />
-          <button
+          <VBtn
             v-if="showParentButton"
-            type="button"
-            class="button normal-input button-default margin-small-left"
+            medium
+            color="primary"
+            variant="tonal"
+            class="margin-small-left"
             @click="setInsertaeSedis"
           >
             Set to parent
-          </button>
+          </VBtn>
         </div>
       </div>
       <template v-else>
@@ -74,11 +76,7 @@
         </div>
       </template>
       <list-entrys
-        @update="loadTaxonRelationships"
-        @addCitation="setRelationship"
-        @delete="removeRelationship"
         :edit="true"
-        @edit="editRelationship"
         :list="GetRelationshipsCreated"
         :display="[
           'subject_status_tag',
@@ -88,10 +86,15 @@
             param: 'object_taxon_name_id'
           }
         ]"
+        @update="loadTaxonRelationships"
+        @addCitation="setRelationship"
+        @delete="removeRelationship"
+        @edit="editRelationship"
       />
     </template>
   </block-layout>
 </template>
+
 <script>
 import { ActionNames } from '../store/actions/actions'
 import { GetterNames } from '../store/getters/getters'
@@ -99,12 +102,14 @@ import { MutationNames } from '../store/mutations/mutations'
 import BlockLayout from '@/components/layout/BlockLayout'
 import ListEntrys from './listEntrys.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 export default {
   components: {
     ListEntrys,
     Autocomplete,
-    BlockLayout
+    BlockLayout,
+    VBtn
   },
   computed: {
     taxonLabel() {

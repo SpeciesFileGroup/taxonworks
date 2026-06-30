@@ -12,24 +12,18 @@
       @get-item="selectTaxon"
       @get-input="name = $event"
     />
-    <button
-      type="button"
-      class="button normal-input button-default margin-small-left"
-      @click="
-        () => {
-          isModalVisible = true
-        }
-      "
+    <VBtn
+      medium
+      color="primary"
+      variant="tonal"
+      class="margin-small-left"
+      @click="() => (isModalVisible = true)"
     >
       New
-    </button>
+    </VBtn>
     <VModal
       v-if="isModalVisible"
-      @close="
-        () => {
-          isModalVisible = false
-        }
-      "
+      @close="() => (isModalVisible = false)"
     >
       <template #header>
         <h3>Create new {{ group }} taxon name</h3>
@@ -57,14 +51,14 @@
         </div>
       </template>
       <template #footer>
-        <button
-          type="button"
-          class="button normal-input button-submit"
+        <VBtn
+          medium
+          color="create"
           :disabled="!checkInput"
           @click="create()"
         >
           Create
-        </button>
+        </VBtn>
       </template>
     </VModal>
   </div>
@@ -77,6 +71,7 @@ import { GetterNames } from '../store/getters/getters'
 import { TaxonName } from '@/routes/endpoints'
 import VAutocomplete from '@/components/ui/Autocomplete'
 import VModal from '@/components/ui/Modal'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const CONFIRMATION_WORD = 'CREATE'
 
@@ -94,7 +89,9 @@ const store = useStore()
 const autocomplete = ref(null)
 
 defineExpose({
-  focus() { autocomplete.value?.setFocus() }
+  focus() {
+    autocomplete.value?.setFocus()
+  }
 })
 
 const ranksList = ref([])

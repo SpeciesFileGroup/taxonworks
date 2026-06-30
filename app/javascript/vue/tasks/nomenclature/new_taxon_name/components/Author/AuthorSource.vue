@@ -24,9 +24,17 @@
         :disabled="isSaving"
         @clone="(c) => setSource({ id: c.source_id, pages: c.pages })"
       />
-      <a :href="RouteNames.NewSource">Add new source</a>
+      <VBtn
+        color="primary"
+        variant="tonal"
+        icon
+        medium
+        :href="RouteNames.NewSource"
+        title="Add new source"
+      >
+        <IconBookPlus class="w-4 h-4" />
+      </VBtn>
     </div>
-    <hr class="divisor" />
     <div v-if="citation">
       <div class="flex-separate middle gap-small">
         <p>
@@ -52,11 +60,11 @@
             v-if="citation.hasOwnProperty('target_document')"
             :pdf="citation.target_document"
           />
-          <RadialObject :global-id="citation.source.global_id" />
           <RadialAnnotator
             type="annotations"
             :global-id="citation.source.global_id"
           />
+          <RadialObject :global-id="citation.source.global_id" />
           <VBtn
             icon
             color="destroy"
@@ -90,6 +98,7 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 
 import { RouteNames } from '@/routes/routes.js'
+import IconBookPlus from '@/components/Icon/IconBookPlus.vue'
 
 const autocomplete = ref(null)
 

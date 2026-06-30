@@ -1,6 +1,6 @@
 <template>
   <div>
-    <modal
+    <VModal
       v-if="isModalVisible"
       @close="() => (isModalVisible = false)"
     >
@@ -14,23 +14,24 @@
         </div>
       </template>
       <template #footer>
-        <button
+        <VBtn
           id="confirm-create-newtaxonname"
+          color="primary"
+          medium
           @click="reloadPage()"
-          type="button"
-          class="normal-input button button-default"
         >
           New
-        </button>
+        </VBtn>
       </template>
-    </modal>
-    <button
-      type="button"
-      class="normal-input button button-default"
+    </VModal>
+    <VBtn
+      color="primary"
+      medium
+      variant="tonal"
       @click="createNew()"
     >
       New
-    </button>
+    </VBtn>
   </div>
 </template>
 <script setup>
@@ -38,9 +39,10 @@ import { GetterNames } from '../store/getters/getters'
 import { RouteNames } from '@/routes/routes'
 import { computed, ref, watch, nextTick } from 'vue'
 import { useStore } from 'vuex'
-import Modal from '@/components/ui/Modal.vue'
-import PlatformKey from '@/helpers/getPlatformKey'
 import { useHotkey } from '@/composables'
+import VModal from '@/components/ui/Modal.vue'
+import PlatformKey from '@/helpers/getPlatformKey'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const store = useStore()
 

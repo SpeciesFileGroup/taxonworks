@@ -27,7 +27,7 @@
           >
             <span
               class="handle drag-handle drag-handle--primary"
-              title="Press and hold to drag input"
+              v-tooltip="'Press and hold to drag input'"
             >
               <IconGripVertical class="w-4 h-4" />
             </span>
@@ -52,7 +52,7 @@
           >
             <span
               class="handle drag-handle drag-handle--primary"
-              title="Press and hold to drag input"
+              v-tooltip="'Press and hold to drag input'"
             >
               <IconGripVertical class="w-4 h-4" />
             </span>
@@ -64,10 +64,14 @@
               </span>
             </div>
             <RadialAnnotator :global-id="element.taxon.global_id" />
-            <span
-              class="circle-button btn-delete"
+            <VBtn
+              icon
+              color="destroy"
+              variant="tonal"
               @click="removeTaxonFromCombination(index)"
-            />
+            >
+              <IconTrash class="w-4 h-4" />
+            </VBtn>
           </div>
         </template>
       </Draggable>
@@ -82,6 +86,9 @@ import Autocomplete from '@/components/ui/Autocomplete.vue'
 import IconGripVertical from '@/components/Icon/IconGripVertical.vue'
 import { ref, watch, watchPostEffect, computed } from 'vue'
 import { TaxonName } from '@/routes/endpoints'
+import { vTooltip } from '@/directives'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 
 const props = defineProps({
   options: {

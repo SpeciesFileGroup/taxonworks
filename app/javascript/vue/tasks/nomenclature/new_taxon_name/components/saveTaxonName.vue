@@ -1,11 +1,12 @@
 <template>
-  <button
-    type="button"
+  <VBtn
+    medium
+    color="create"
     :disabled="!validateInfo || isSaving"
     @click="saveTaxon"
   >
     {{ taxon.id ? 'Save' : 'Create' }}
-  </button>
+  </VBtn>
 </template>
 
 <script setup>
@@ -13,8 +14,9 @@ import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
-import platformKey from '@/helpers/getPlatformKey'
 import { useHotkey } from '@/composables'
+import platformKey from '@/helpers/getPlatformKey'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const store = useStore()
 

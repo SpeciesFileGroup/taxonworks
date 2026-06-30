@@ -17,27 +17,34 @@
         </template>
       </ul>
       <div class="horizontal-center-content gap-small">
-        <SaveTaxonName
-          class="normal-input button button-submit navbar-button"
-        />
-        <CloneTaxonName v-help.section.navbar.clone />
-        <button
-          type="button"
+        <TaskSettings />
+        <VBtn
+          medium
+          icon
+          color="primary"
+          variant="tonal"
+          :disabled="!taxon.id"
           title="Create a child of this taxon name"
           v-help.section.navbar.sisterIcon
           @click="createNew(taxon.id)"
-          :disabled="!taxon.id"
-          class="button normal-input button-default btn-create-child button-new-icon"
-        />
-        <button
-          type="button"
-          @click="createNew(parentId)"
+        >
+          <IconAddChildrenNode class="w-4 h-4" />
+        </VBtn>
+        <VBtn
+          icon
+          medium
+          color="primary"
+          variant="tonal"
           :disabled="!parentId"
           title="Create a new taxon name with the same parent"
           v-help.section.navbar.childIcon
-          class="button normal-input button-default btn-create-sister button-new-icon"
-        />
+          @click="createNew(parentId)"
+        >
+          <IconAddSiblingNode class="w-4 h-4" />
+        </VBtn>
         <CreateNewButton />
+        <CloneTaxonName v-help.section.navbar.clone />
+        <SaveTaxonName />
       </div>
     </div>
     <Autosave
@@ -53,11 +60,15 @@ import CreateNewButton from './createNewButton.vue'
 import CloneTaxonName from './cloneTaxon'
 import NavBar from '@/components/layout/NavBar'
 import Autosave from './autosave'
+import TaskSettings from './TaskSettings.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import { SectionComponents } from '../const/components'
 import { GetterNames } from '../store/getters/getters'
 import { RouteNames } from '@/routes/routes'
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
+import IconAddSiblingNode from '@/components/Icon/IconAddSiblingNode.vue'
+import IconAddChildrenNode from '@/components/Icon/IconAddChildrenNode.vue'
 
 const emit = defineEmits(['section-clicked'])
 const store = useStore()

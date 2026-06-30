@@ -79,8 +79,9 @@
           {{ currentCombination.id ? 'Update' : 'Create' }}
         </VBtn>
         <VBtn
-          color="primary"
           medium
+          color="primary"
+          variant="tonal"
           @click="newCombination"
         >
           New
@@ -321,6 +322,8 @@ watch(currentCombinationId, async (newId) => {
 })
 
 defineExpose({
-  focus() { citationComponent.value?.focus() }
+  focus() {
+    citationComponent.value?.focus()
+  }
 })
 </script>
