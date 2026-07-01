@@ -89,11 +89,17 @@ watch(
 )
 
 onBeforeMount(() => {
-  const ids = params.value?.person_id?.map((p) => p.id) || []
+  // person_id comes in as objects `{id, ...}` from in-page selection but as
+  // raw integers when hydrated from URL params. Handle both.
+  const ids =
+    params.value?.person_id?.map((p) =>
+      typeof p === 'object' ? p.id : p
+    ) || []
 
   ids.forEach((id) => {
+    if (id == null) return
     People.find(id).then(({ body }) => {
-      addToArray(people, body)
+      addToArray(people.value, body)
     })
   })
 })
