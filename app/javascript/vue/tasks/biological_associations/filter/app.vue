@@ -49,6 +49,10 @@
         />
       </template>
       <template #nav-settings-start>
+        <SortPanel
+          v-model:sort-keys="sortKeys"
+          :labels="sortLabels"
+        />
         <VToggle
           title="Hide/show non-frozen columns"
           @click="() => (hideFrozen = !hideFrozen)"
@@ -77,13 +81,14 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 import VToggle from '@/components/ui/VToggle.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
+import SortPanel from '@/components/Filter/Table/SortPanel.vue'
 import RadialBiologicalAssociation from '@/components/radials/BiologicalAssociation/radial.vue'
 import { listParser } from './utils/listParser'
 import { BIOLOGICAL_ASSOCIATION } from '@/constants/index.js'
 import { BiologicalAssociation } from '@/routes/endpoints'
 import { ATTRIBUTES } from './constants/attributes.js'
 import { serializeSortKeys, parseSortParam } from '@/helpers/arrays.js'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 const hideFrozen = ref(false)
 
@@ -126,6 +131,17 @@ const {
 } = useFilter(BiologicalAssociation, { listParser, initParameters: { extend } })
 
 const sortKeys = ref(parseSortParam(parameters.value.sort))
+
+const sortLabels = computed(() => {
+  const map = {}
+  for (const [key, label] of Object.entries(ATTRIBUTES)) {
+    let side = null
+    if (key.startsWith('subject_') || key.endsWith('_subject')) side = 'Subject'
+    else if (key.startsWith('object_') || key.endsWith('_object')) side = 'Object'
+    map[key] = side ? `${side} · ${label}` : label
+  }
+  return map
+})
 
 // Sort changes coming from the table -> update query param + re-fetch.
 watch(

@@ -86,6 +86,10 @@
         />
       </template>
       <template #nav-settings-start>
+        <SortPanel
+          v-model:sort-keys="sortKeys"
+          :labels="sortLabels"
+        />
         <VToggle
           title="Hide/show non-frozen columns"
           @click="() => (hideFrozen = !hideFrozen)"
@@ -110,6 +114,7 @@
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/filter.vue'
 import TableResults from '@/components/Filter/Table/TableResults.vue'
+import SortPanel from '@/components/Filter/Table/SortPanel.vue'
 import DwcDownload from './components/dwcDownload.vue'
 import DeleteCollectionObjects from './components/DeleteCollectionObjects.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
@@ -127,6 +132,7 @@ import { LAYOUTS } from './constants/layouts.js'
 import { listParser } from './utils/listParser.js'
 import { useCSVOptions, useFilter } from '@/shared/Filter/composition'
 import { serializeSortKeys, parseSortParam } from '@/helpers/arrays.js'
+import { humanize } from '@/helpers/strings.js'
 
 const extend = [
   'dwc_occurrence',
@@ -192,6 +198,20 @@ function removeCOFromList(ids) {
 }
 
 const sortKeys = ref(parseSortParam(parameters.value.sort))
+
+const sortLabels = computed(() => {
+  const map = {}
+  const properties = currentLayout.value?.properties || {}
+  for (const [group, cols] of Object.entries(properties)) {
+    if (Array.isArray(cols)) {
+      const groupLabel = humanize(group)
+      for (const col of cols) {
+        map[`${group}.${col}`] = `${groupLabel} · ${col}`
+      }
+    }
+  }
+  return map
+})
 
 watch(
   sortKeys,
