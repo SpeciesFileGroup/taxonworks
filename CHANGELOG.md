@@ -24,6 +24,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Error when changing the type of a label from qrcode/barcode to text
 - DwC occurrences importer not checking existing nomenclature date data correctly when matching on author/year
 - Regexes are applied when the user clicks the 'Match' button in the Match OTUs to Taxon Names task
+- "Is absent" checkbox does not display the value saved in session storage when citation form is loaded
 
 [#4964]: https://github.com/SpeciesFileGroup/taxonworks/issues/4964
 
