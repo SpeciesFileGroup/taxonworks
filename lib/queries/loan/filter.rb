@@ -6,6 +6,7 @@ module Queries
       include Queries::Concerns::Attributes
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Notes
+      include Queries::Concerns::Sortable
       include Queries::Concerns::Tags
       include Queries::Helpers
 
@@ -44,6 +45,68 @@ module Queries
         role: [],
         taxon_name_id: [],
       ].freeze
+
+      SORTABLE_DIRECT_COLUMNS = %w[
+        id lender_address date_requested request_method date_sent date_received
+        date_return_expected is_gift recipient_address recipient_email
+        recipient_phone recipient_country supervisor_email supervisor_phone
+        date_closed recipient_honorific updated_at created_at
+      ].freeze
+
+      def self.sortable_columns
+        cols = {}
+
+        SORTABLE_DIRECT_COLUMNS.each do |c|
+          cols[c] = sort_by_direct_column("loans.#{c}")
+        end
+
+        # created_by / updated_by display as user name; sort by users.name.
+        cols['created_by'] = sort_by_belongs_to_column(
+          joined_table: 'users', joined_column: 'name',
+          fk_expr: 'loans.created_by_id',
+          alias_prefix: 'sort_created_by'
+        )
+        cols['updated_by'] = sort_by_belongs_to_column(
+          joined_table: 'users', joined_column: 'name',
+          fk_expr: 'loans.updated_by_id',
+          alias_prefix: 'sort_updated_by'
+        )
+
+        # identifiers aggregate: sort by alphabetically first identifier cached.
+        cols['identifiers'] = ->(q, dir) {
+          q.joins(<<~SQL.squish)
+            LEFT JOIN LATERAL (
+              SELECT MIN(cached) AS cached
+              FROM identifiers
+              WHERE identifier_object_id = loans.id
+                AND identifier_object_type = 'Loan'
+            ) AS sort_ident ON true
+          SQL
+          .order(Arel.sql("sort_ident.cached #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
+        }
+
+        # recipient_name / supervisor_name aggregate people through the loan
+        # role tables; sort by the alphabetically first person's cached name.
+        %w[recipient supervisor].each do |role|
+          cols["#{role}_name"] = ->(q, dir) {
+            lat = "sort_#{role}_name"
+            role_type = "Loan#{role.capitalize}"
+            q.joins(<<~SQL.squish)
+              LEFT JOIN LATERAL (
+                SELECT MIN(people.cached) AS name
+                FROM roles
+                JOIN people ON people.id = roles.person_id
+                WHERE roles.role_object_id = loans.id
+                  AND roles.role_object_type = 'Loan'
+                  AND roles.type = '#{role_type}'
+              ) AS #{lat} ON true
+            SQL
+            .order(Arel.sql("#{lat}.name #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
+          }
+        end
+
+        cols
+      end
 
       # @return [Boolean, nil]
       attr_accessor :gift

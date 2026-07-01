@@ -197,5 +197,35 @@ describe Queries::Loan::Filter, type: :model, group: [:geo, :collection_objects,
     expect(q.all).to contain_exactly(l2)
   end
 
+  context 'sort param' do
+    let!(:l_a) { FactoryBot.create(:valid_loan, recipient_email: 'aaa@x') }
+    let!(:l_z) { FactoryBot.create(:valid_loan, recipient_email: 'zzz@x') }
+
+    def sorted_ids(sort_key)
+      Queries::Loan::Filter.new(sort: sort_key)
+        .all.where(id: [l_a.id, l_z.id]).pluck(:id)
+    end
+
+    specify 'sort=recipient_email direct column' do
+      expect(sorted_ids('recipient_email')).to eq([l_a.id, l_z.id])
+    end
+
+    specify 'sort=-recipient_email desc' do
+      expect(sorted_ids('-recipient_email')).to eq([l_z.id, l_a.id])
+    end
+
+    specify 'sort=recipient_name aggregates through recipient roles' do
+      p_alpha = Person.create!(last_name: 'Alpha')
+      p_zeta  = Person.create!(last_name: 'Zeta')
+      LoanRecipient.create!(role_object: l_a, person: p_zeta)
+      LoanRecipient.create!(role_object: l_z, person: p_alpha)
+
+      expect(sorted_ids('recipient_name')).to eq([l_z.id, l_a.id])
+    end
+
+    specify 'unknown sort key ignored' do
+      expect(sorted_ids('no_such_column')).to contain_exactly(l_a.id, l_z.id)
+    end
+  end
 
 end

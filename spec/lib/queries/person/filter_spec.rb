@@ -522,4 +522,30 @@ describe Queries::Person::Filter, type: :model, group: :people do
       expect(query.all.map(&:id)).to contain_exactly(p2.id)
     end
   end
+
+  context 'sort param' do
+    let!(:ps_a) { Person.create!(last_name: 'Aardvark', first_name: 'Zoe') }
+    let!(:ps_z) { Person.create!(last_name: 'Zebra', first_name: 'Alice') }
+
+    def sorted_ids(sort_key)
+      Queries::Person::Filter.new(sort: sort_key)
+        .all.where(id: [ps_a.id, ps_z.id]).pluck(:id)
+    end
+
+    specify 'sort=last_name orders alphabetically' do
+      expect(sorted_ids('last_name')).to eq([ps_a.id, ps_z.id])
+    end
+
+    specify 'sort=first_name orders alphabetically' do
+      expect(sorted_ids('first_name')).to eq([ps_z.id, ps_a.id])
+    end
+
+    specify 'sort=-last_name desc' do
+      expect(sorted_ids('-last_name')).to eq([ps_z.id, ps_a.id])
+    end
+
+    specify 'unknown sort key ignored' do
+      expect(sorted_ids('no_such_column')).to contain_exactly(ps_a.id, ps_z.id)
+    end
+  end
 end
