@@ -8,6 +8,7 @@ module Queries
       include Queries::Concerns::Attributes
       include Queries::Concerns::Empty
       include Queries::Concerns::Notes
+      include Queries::Concerns::Sortable
       include Queries::Concerns::Tags
 
       PARAMS = [
@@ -49,6 +50,22 @@ module Queries
         taxon_name_id: [],
         topic_id: [],
       ].freeze
+
+      def self.sortable_columns
+        {
+          'id'         => sort_by_direct_column('sources.id'),
+          'cached'     => sort_by_direct_column('sources.cached'),
+          'year'       => sort_by_direct_column('sources.year'),
+          'type'       => sort_by_direct_column('sources.type'),
+          'updated_at' => sort_by_direct_column('sources.updated_at'),
+          'created_at' => sort_by_direct_column('sources.created_at'),
+          'serial'     => sort_by_belongs_to_column(
+            joined_table: 'serials', joined_column: 'name',
+            fk_expr: 'sources.serial_id',
+            alias_prefix: 'sort_serial'
+          )
+        }
+      end
 
       # @project_id from Queries::Query
       #   used in context of in_project when provided
