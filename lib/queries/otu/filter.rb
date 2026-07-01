@@ -6,6 +6,7 @@ module Queries
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
       include Queries::Concerns::Geo
+      include Queries::Concerns::Sortable
       include Queries::Concerns::Tags
       include Queries::Concerns::Notes
       include Queries::Concerns::Confidences
@@ -66,6 +67,42 @@ module Queries
       #
       # !! This param is not like the others. !!  See parallel in TaxonName filter 'validify'.
       attr_accessor :coordinatify
+
+      def self.sortable_columns
+        {
+          'id'                    => sort_by_direct_column('otus.id'),
+          'updated_at'            => sort_by_direct_column('otus.updated_at'),
+          'created_at'            => sort_by_direct_column('otus.created_at'),
+          'otu'                   => sort_by_display_name,
+          'otu_taxonomy_order'    => sort_by_otu_taxonomy(
+            rank: 'Order',
+            otu_id_expr: 'otus.id',
+            alias_prefix: 'sort_otu_taxonomy_order'
+          ),
+          'otu_taxonomy_family'   => sort_by_otu_taxonomy(
+            rank: 'Family',
+            otu_id_expr: 'otus.id',
+            alias_prefix: 'sort_otu_taxonomy_family'
+          ),
+          'otu_taxonomy_genus'    => sort_by_otu_taxonomy(
+            rank: 'Genus',
+            otu_id_expr: 'otus.id',
+            alias_prefix: 'sort_otu_taxonomy_genus'
+          )
+        }
+      end
+
+      # OTU's display value (otu_tag) is essentially the taxon_name.cached
+      # falling back to otu.name -- match that in SQL.
+      def self.sort_by_display_name
+        ->(q, dir) {
+          q
+            .joins('LEFT JOIN taxon_names AS sort_tn_otu ON sort_tn_otu.id = otus.taxon_name_id')
+            .order(Arel.sql(
+              "COALESCE(sort_tn_otu.cached, otus.name) #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"
+            ))
+        }
+      end
 
       # @param name [String, Array]
       # @return Array

@@ -978,4 +978,63 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     end
   end
 =end
+
+  context 'sort param' do
+    let(:root) { FactoryBot.create(:root_taxon_name) }
+
+    let!(:fam_xus)  {
+      Protonym.create!(name: 'Xulidae', rank_class: Ranks.lookup(:iczn, :family), parent: root)
+    }
+    let!(:fam_aus)  {
+      Protonym.create!(name: 'Aulidae', rank_class: Ranks.lookup(:iczn, :family), parent: root)
+    }
+    let!(:gen_zzz)  {
+      Protonym.create!(name: 'Zzz', rank_class: Ranks.lookup(:iczn, :genus), parent: fam_xus)
+    }
+    let!(:gen_bbb)  {
+      Protonym.create!(name: 'Bbb', rank_class: Ranks.lookup(:iczn, :genus), parent: fam_aus)
+    }
+
+    let!(:otu_zzz) { Otu.create!(name: nil, taxon_name: gen_zzz) }
+    let!(:otu_bbb) { Otu.create!(name: nil, taxon_name: gen_bbb) }
+
+    specify 'sort=otu_taxonomy_genus orders by ancestor genus name' do
+      q = Queries::Otu::Filter.new(
+        otu_id: [otu_zzz.id, otu_bbb.id], sort: 'otu_taxonomy_genus'
+      )
+      expect(q.all.map(&:id)).to eq([otu_bbb.id, otu_zzz.id])
+    end
+
+    specify 'sort=-otu_taxonomy_family orders by ancestor family desc' do
+      q = Queries::Otu::Filter.new(
+        otu_id: [otu_zzz.id, otu_bbb.id], sort: '-otu_taxonomy_family'
+      )
+      expect(q.all.map(&:id)).to eq([otu_zzz.id, otu_bbb.id])
+    end
+
+    specify 'multi-key sort: family asc, then genus desc' do
+      # OTU in Aulidae with genus Ccc, tests that within-family ties
+      # are broken by the second key.
+      gen_ccc = Protonym.create!(name: 'Ccc', rank_class: Ranks.lookup(:iczn, :genus), parent: fam_aus)
+      otu_ccc = Otu.create!(name: nil, taxon_name: gen_ccc)
+
+      q = Queries::Otu::Filter.new(
+        otu_id: [otu_zzz.id, otu_bbb.id, otu_ccc.id],
+        sort: 'otu_taxonomy_family,-otu_taxonomy_genus'
+      )
+      # Aus family (Ccc, Bbb by desc genus), then Xus family (Zzz)
+      expect(q.all.map(&:id)).to eq([otu_ccc.id, otu_bbb.id, otu_zzz.id])
+    end
+
+    specify 'sort=otu uses taxon_name.cached with otus.name fallback' do
+      otu_no_tn = Otu.create!(name: 'Mus', taxon_name: nil)
+      q = Queries::Otu::Filter.new(
+        otu_id: [otu_zzz.id, otu_bbb.id, otu_no_tn.id],
+        sort: 'otu'
+      )
+      # taxon_names.cached is the full-name cached string; genus name at least
+      # starts with the genus letter, so Bbb < Mus < Zzz.
+      expect(q.all.map(&:id)).to eq([otu_bbb.id, otu_no_tn.id, otu_zzz.id])
+    end
+  end
   end
