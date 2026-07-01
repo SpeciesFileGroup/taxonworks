@@ -33,9 +33,37 @@ export default function useFilterView({
   const unsavedViewChanges = ref(false)
   const sortKeys = ref(parseSortParam(parameters.value.sort))
 
+  // When hydration (from pref or URL) sets sortKeys programmatically we
+  // want the display + `parameters.sort` to reflect it, but we don't want
+  // to fire an automatic fetch -- users usually want to configure filter
+  // facets before requesting data, so an eager refetch wastes a round-trip.
+  // Set this flag right before a programmatic sortKeys assignment; the
+  // sortKeys watcher will still update `parameters.sort` but skip the
+  // makeFilterRequest call.
+  let suppressNextFetch = false
+
+  function hydrateSortKeysFromPref(pref) {
+    suppressNextFetch = true
+    sortKeys.value = JSON.parse(JSON.stringify(pref))
+  }
+
   onMounted(() => {
     if (!parameters.value.sort && sortKeysPref.value?.length) {
-      sortKeys.value = [...sortKeysPref.value]
+      hydrateSortKeysFromPref(sortKeysPref.value)
+    }
+  })
+
+  // Handle async pref load (cold-start, no sessionStorage cache). Fires
+  // once when the pref becomes non-empty. Skipped if the URL supplied a
+  // sort or the user has already touched sortKeys.
+  let asyncHydrated = false
+  watch(sortKeysPref, (pref) => {
+    if (asyncHydrated) return
+    asyncHydrated = true
+    if (parameters.value.sort) return
+    if (sortKeys.value?.length) return
+    if (pref?.length) {
+      hydrateSortKeysFromPref(pref)
     }
   })
 
@@ -44,8 +72,15 @@ export default function useFilterView({
     sortKeys,
     (next) => {
       const sortString = serializeSortKeys(next)
-      if (sortString === parameters.value.sort) return
+      if (sortString === parameters.value.sort) {
+        suppressNextFetch = false
+        return
+      }
       parameters.value.sort = sortString
+      if (suppressNextFetch) {
+        suppressNextFetch = false
+        return
+      }
       const payload = { ...parameters.value, extend, page: 1 }
       if (exclude !== undefined) payload.exclude = exclude
       makeFilterRequest(payload)
