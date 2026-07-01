@@ -10,12 +10,12 @@
           />
         </th>
         <th />
-        <th>scientificName <ButtonClipboard :text="columnClipboardText('scientificName')" title="Copy scientificName column" /></th>
-        <th data-help="Override the string used for matching. Leave blank to match using the scientificName value as-is.">Match <ButtonClipboard :text="columnClipboardText('match')" title="Copy match column" /></th>
-        <th>TaxonName <ButtonClipboard :text="columnClipboardText('taxonName')" title="Copy TaxonName column" /></th>
+        <th class="line-nowrap">scientificName <ButtonClipboard :text="columnClipboardText('scientificName')" title="Copy scientificName column" /></th>
+        <th class="line-nowrap" data-help="Override the string used for matching. Leave blank to match using the scientificName value as-is.">Match <ButtonClipboard :text="columnClipboardText('match')" title="Copy match column" /></th>
+        <th class="line-nowrap">TaxonName <ButtonClipboard :text="columnClipboardText('taxonName')" title="Copy TaxonName column" /></th>
         <th />
         <th data-help="Manually search for and select a TaxonName, overriding the automatic match result. Use this to fix incorrect or ambiguous matches.">Refine</th>
-        <th>OTU <ButtonClipboard :text="columnClipboardText('otuLabel')" title="Copy OTU column" /></th>
+        <th class="line-nowrap">OTU <ButtonClipboard :text="columnClipboardText('otuLabel')" title="Copy OTU column" /></th>
         <th class="line-nowrap">OTU id <ButtonClipboard :text="columnClipboardText('otuId')" title="Copy OTU id column" /></th>
         <th />
         <th>Set</th>
