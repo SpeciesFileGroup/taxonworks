@@ -10,6 +10,7 @@ module Queries
       include Queries::Concerns::Notes
       include Queries::Concerns::Notes
       include Queries::Concerns::Protocols
+      include Queries::Concerns::Sortable
       include Queries::Concerns::Tags
       include Queries::Concerns::Geo
 
@@ -49,6 +50,21 @@ module Queries
         sound_id: [],
         taxon_name_id: [],
       ].freeze
+
+      def self.sortable_columns
+        {
+          'id'                 => sort_by_direct_column('observations.id'),
+          'object_tag'         => sort_by_direct_column('observations.cached'),
+          'type_label'         => sort_by_direct_column('observations.type'),
+          'updated_at'         => sort_by_direct_column('observations.updated_at'),
+          'created_at'         => sort_by_direct_column('observations.created_at'),
+          'observation_object' => sort_by_polymorphic_object_tag(
+            id_expr:   'observations.observation_object_id',
+            type_expr: 'observations.observation_object_type',
+            alias_prefix: 'sort_obs_object'
+          )
+        }
+      end
 
       # @return Array
       attr_accessor :observation_id

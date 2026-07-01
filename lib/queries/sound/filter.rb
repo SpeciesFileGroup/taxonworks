@@ -5,6 +5,7 @@ module Queries
       include Queries::Concerns::Citations
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Notes
+      include Queries::Concerns::Sortable
 
       PARAMS = [
         :conveyance_object_type,
@@ -25,6 +26,15 @@ module Queries
         otu_id: [],
         otu_scope: [],
       ].freeze
+
+      def self.sortable_columns
+        {
+          'id'         => sort_by_direct_column('sounds.id'),
+          'name'       => sort_by_direct_column('sounds.name'),
+          'updated_at' => sort_by_direct_column('sounds.updated_at'),
+          'created_at' => sort_by_direct_column('sounds.created_at')
+        }
+      end
 
       # @return [Array]
       attr_accessor :collecting_event_id

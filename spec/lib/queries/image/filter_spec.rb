@@ -654,4 +654,36 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
       expect(q.all.map(&:id)).to contain_exactly(i3.id)
     end
   end
+
+  context 'sort param' do
+    # Two different image factories so image_file_fingerprint (which is
+    # unique and derived from file content) doesn't collide.
+    let!(:img_a) {
+      FactoryBot.create(:valid_image).tap { |i|
+        i.update_columns(user_file_name: 'aardvark.jpg')
+      }
+    }
+    let!(:img_z) {
+      FactoryBot.create(:weird_image).tap { |i|
+        i.update_columns(user_file_name: 'zebra.jpg')
+      }
+    }
+
+    def sorted_ids(sort_key)
+      Queries::Image::Filter.new(sort: sort_key)
+        .all.where(id: [img_a.id, img_z.id]).pluck(:id)
+    end
+
+    specify 'sort=user_file_name orders alphabetically' do
+      expect(sorted_ids('user_file_name')).to eq([img_a.id, img_z.id])
+    end
+
+    specify 'sort=-user_file_name desc' do
+      expect(sorted_ids('-user_file_name')).to eq([img_z.id, img_a.id])
+    end
+
+    specify 'unknown sort key ignored' do
+      expect(sorted_ids('no_such_column')).to contain_exactly(img_a.id, img_z.id)
+    end
+  end
 end

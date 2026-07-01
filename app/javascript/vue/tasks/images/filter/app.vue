@@ -35,8 +35,18 @@
         <ListComponent
           v-model="selectedIds"
           :list="list"
-          @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"
+        />
+      </template>
+      <template #nav-settings-start>
+        <SortPanel
+          v-model:sort-keys="sortKeys"
+          :labels="SORT_LABELS"
+          :sortable-keys="sortableKeys"
+        />
+        <SaveViewButton
+          v-if="hasUnsavedChanges"
+          @save="saveViewAsDefault"
         />
       </template>
     </FilterLayout>
@@ -56,9 +66,26 @@ import ListComponent from './components/list'
 import SelectAll from '@/tasks/collection_objects/filter/components/selectAll.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
+import useFilterView from '@/shared/Filter/composition/useFilterView.js'
+import SortPanel from '@/components/Filter/Table/SortPanel.vue'
+import SaveViewButton from '@/components/Filter/Table/SaveViewButton.vue'
 import DepictionList from './components/DepictionList.vue'
 import { IMAGE } from '@/constants/index.js'
 import { Image } from '@/routes/endpoints'
+
+// Images render as a gallery (no column headers), so sort options are only
+// reachable through the SortPanel picker. Keep the label map here.
+const SORT_LABELS = {
+  id: 'ID',
+  user_file_name: 'User file name',
+  image_file_file_name: 'File name',
+  image_file_file_size: 'File size',
+  image_file_content_type: 'Content type',
+  height: 'Height',
+  width: 'Width',
+  updated_at: 'Updated at',
+  created_at: 'Created at'
+}
 
 const {
   append,
@@ -71,8 +98,21 @@ const {
   resetFilter,
   selectedIds,
   sortedSelectedIds,
-  urlRequest
-} = useFilter(Image)
+  urlRequest,
+  sortableKeys
+} = useFilter(Image, {
+  sortableColumnsResource: 'images'
+})
+
+const {
+  sortKeys,
+  hasUnsavedChanges,
+  saveViewAsDefault
+} = useFilterView({
+  parameters,
+  makeFilterRequest,
+  objectType: IMAGE
+})
 </script>
 
 <script>

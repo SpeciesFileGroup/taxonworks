@@ -34,20 +34,33 @@
       </template>
       <template #table>
         <FilterList
+          ref="filterListRef"
           v-model="selectedIds"
+          v-model:sort-keys="sortKeys"
+          v-model:hide-unfrozen="hideFrozen"
+          v-model:unsaved-view-changes="unsavedViewChanges"
+          :backend-sort="true"
+          :sortable-keys="sortableKeys"
           :attributes="ATTRIBUTES"
           :list="list"
-          :hide-unfrozen="hideFrozen"
           :preference-key="`tasks::filters::${OBSERVATION}`"
           radial-object
-          @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
       <template #nav-settings-start>
+        <SortPanel
+          v-model:sort-keys="sortKeys"
+          :labels="ATTRIBUTES"
+          :sortable-keys="sortableKeys"
+        />
+        <SaveViewButton
+          v-if="hasUnsavedChanges"
+          @save="saveViewAsDefault"
+        />
         <VToggle
-          title="Hide/show non-frozen columns"
-          @click="() => (hideFrozen = !hideFrozen)"
+          v-model="hideFrozen"
+          title="Hide non-frozen columns"
         >
           <VIcon
             :name="hideFrozen ? 'contract' : 'expand'"
@@ -69,11 +82,14 @@
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterView from './components/FilterView.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
+import SortPanel from '@/components/Filter/Table/SortPanel.vue'
+import SaveViewButton from '@/components/Filter/Table/SaveViewButton.vue'
 import RadialMatrix from '@/components/radials/matrix/radial.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VToggle from '@/components/ui/VToggle.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
+import useFilterView from '@/shared/Filter/composition/useFilterView.js'
 import { listParser } from './utils/listParser'
 import { ATTRIBUTES } from './constants/attributes'
 import { Observation } from '@/routes/endpoints'
@@ -94,8 +110,26 @@ const {
   resetFilter,
   selectedIds,
   sortedSelectedIds,
-  urlRequest
-} = useFilter(Observation, { listParser, initParameters: { extend } })
+  urlRequest,
+  sortableKeys
+} = useFilter(Observation, {
+  listParser,
+  initParameters: { extend },
+  sortableColumnsResource: 'observations'
+})
+
+const {
+  sortKeys,
+  unsavedViewChanges,
+  hasUnsavedChanges,
+  filterListRef,
+  saveViewAsDefault
+} = useFilterView({
+  parameters,
+  makeFilterRequest,
+  objectType: OBSERVATION,
+  extend
+})
 </script>
 
 <script>

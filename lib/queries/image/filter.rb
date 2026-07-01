@@ -4,6 +4,7 @@ module Queries
       include Queries::Concerns::Tags
       include Queries::Concerns::Citations
       include Queries::Concerns::Notes
+      include Queries::Concerns::Sortable
 
       PARAMS = [
         :biocuration_class_id,
@@ -62,6 +63,20 @@ module Queries
         source_id: [],
         taxon_name_id: [],
       ].freeze
+
+      def self.sortable_columns
+        {
+          'id'                      => sort_by_direct_column('images.id'),
+          'user_file_name'          => sort_by_direct_column('images.user_file_name'),
+          'image_file_file_name'    => sort_by_direct_column('images.image_file_file_name'),
+          'image_file_file_size'    => sort_by_direct_column('images.image_file_file_size'),
+          'image_file_content_type' => sort_by_direct_column('images.image_file_content_type'),
+          'height'                  => sort_by_direct_column('images.height'),
+          'width'                   => sort_by_direct_column('images.width'),
+          'updated_at'              => sort_by_direct_column('images.updated_at'),
+          'created_at'              => sort_by_direct_column('images.created_at')
+        }
+      end
 
       # @return [Array]
       #   images depicting collecting_object

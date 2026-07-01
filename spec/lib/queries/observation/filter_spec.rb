@@ -61,4 +61,30 @@ describe Queries::Observation::Filter, type: :model, group: [:observation_matrix
     expect(q.all.map(&:id)).to contain_exactly( o.id )
   end
 
+  context 'sort param' do
+    let!(:obs_a) {
+      FactoryBot.create(:valid_observation).tap { |o| o.update_columns(cached: 'Alpha note') }
+    }
+    let!(:obs_z) {
+      FactoryBot.create(:valid_observation).tap { |o| o.update_columns(cached: 'Zeta note') }
+    }
+
+    def sorted_ids(sort_key)
+      Queries::Observation::Filter.new(sort: sort_key)
+        .all.where(id: [obs_a.id, obs_z.id]).pluck(:id)
+    end
+
+    specify 'sort=object_tag orders by observations.cached' do
+      expect(sorted_ids('object_tag')).to eq([obs_a.id, obs_z.id])
+    end
+
+    specify 'sort=-object_tag desc' do
+      expect(sorted_ids('-object_tag')).to eq([obs_z.id, obs_a.id])
+    end
+
+    specify 'unknown sort key ignored' do
+      expect(sorted_ids('no_such_column')).to contain_exactly(obs_a.id, obs_z.id)
+    end
+  end
+
 end
