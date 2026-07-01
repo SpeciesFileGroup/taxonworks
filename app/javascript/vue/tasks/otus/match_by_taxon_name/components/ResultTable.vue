@@ -2,7 +2,7 @@
   <table class="table-striped full_width">
     <thead>
       <tr>
-        <th>
+        <th data-help="Check rows to restrict option changes and regex application to only those rows. When none are checked, all rows are affected.">
           <input
             type="checkbox"
             :checked="allSelected"
@@ -45,9 +45,6 @@
                   field: 'selected',
                   value: e.target.checked
                 })
-                if (e.target.checked) {
-                  emit('update-selection')
-                }
               }
             "
           />
@@ -80,18 +77,17 @@
           <input
             v-if="isActionable(row)"
             type="text"
-            class="normal-input match-input"
-            :value="row.matchString"
+            :class="['normal-input', 'match-input', { 'match-input-user': !!row.userMatchString }]"
+            :value="row.userMatchString || row.regexMatchString"
             placeholder="(uses scientificName)"
             @change="
-              emit('update-row', {
-                index: row.index,
-                field: 'matchString',
-                value: $event.target.value
-              })
+              (e) => {
+                emit('update-row', { index: row.index, field: 'userMatchString', value: e.target.value })
+                emit('match-row', { index: row.index })
+              }
             "
           />
-          <span v-else>{{ row.matchString }}</span>
+          <span v-else>{{ row.userMatchString || row.regexMatchString }}</span>
         </td>
 
         <!-- TaxonName -->
@@ -253,7 +249,7 @@ const emit = defineEmits([
   'update-row',
   'create-otu',
   'scroll-to-row',
-  'update-selection'
+  'match-row'
 ])
 
 const contextRow = ref(null)
@@ -278,7 +274,6 @@ function toggleSelectAll(checked) {
       })
     }
   })
-  emit('update-selection', checked)
 }
 
 function browseTaxonNameUrl(id) {
@@ -286,7 +281,7 @@ function browseTaxonNameUrl(id) {
 }
 
 function effectiveName(row) {
-  return row.matchString || row.scientificName
+  return row.userMatchString || row.regexMatchString || row.scientificName
 }
 
 function firstUniqueIndex(row) {
@@ -319,7 +314,7 @@ function columnClipboardText(field) {
       case 'scientificName':
         return row.scientificName || ''
       case 'match':
-        return row.matchString || row.scientificName || ''
+        return row.userMatchString || row.regexMatchString || row.scientificName || ''
       case 'taxonName':
         return row.taxonName?.cached || ''
       case 'otuLabel': {
@@ -340,6 +335,10 @@ function columnClipboardText(field) {
 <style scoped>
 .match-input {
   width: 200px;
+}
+
+.match-input-user {
+  background-color: #e8f4fd;
 }
 
 .cell-ambiguous {

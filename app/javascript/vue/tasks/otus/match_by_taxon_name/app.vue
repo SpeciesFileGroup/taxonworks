@@ -17,15 +17,6 @@
           <div class="panel content">
             <div class="flex-row flex-separate middle">
               <VBtn
-                color="primary"
-                medium
-                :disabled="!rows.length"
-                data-help="Re-matches all rows using current settings. To re-match only specific rows, check their checkboxes — each checked row auto-matches immediately using current settings and auto-updates when settings are changed."
-                @click="runMatch({ matchAll: true })"
-              >
-                Match
-              </VBtn>
-              <VBtn
                 circle
                 color="primary"
                 title="Reset task"
@@ -46,7 +37,7 @@
             v-model:resolve-synonyms="resolveSynonyms"
             v-model:modifiers="modifiers"
             @clear-all="clearAllMatches"
-            @update-options="runMatch"
+            @update-options="handleOptionsChange"
           />
         </div>
 
@@ -63,7 +54,7 @@
               @update-row="handleRowUpdate"
               @create-otu="handleCreateOtu"
               @scroll-to-row="scrollToRow"
-              @update-selection="() => runMatch()"
+              @match-row="handleMatchRow"
             />
           </div>
         </div>
@@ -127,7 +118,8 @@ async function handleDataSubmit({ names, csv }) {
     return {
       index,
       scientificName: isEmpty ? '' : name,
-      matchString: '',
+      regexMatchString: '',
+      userMatchString: '',
       taxonName: null,
       taxonNameId: null,
       otus: [],
@@ -142,7 +134,7 @@ async function handleDataSubmit({ names, csv }) {
 
   stage.value = 'results'
 
-  runMatch({ matchAll: true })
+  handleOptionsChange()
 }
 
 function applyModifiers(name) {
@@ -162,36 +154,38 @@ function applyModifiers(name) {
   return result.trim()
 }
 
-function computeMatchStrings(matchAll = false) {
+function scopedRows() {
+  const checked = rows.value.filter((r) => r.selected && !r.isEmpty)
+  return checked.length ? checked : rows.value.filter((r) => !r.isEmpty)
+}
+
+function applyModifiersToRows(targetRows) {
   const hasActiveModifier = modifiers.value.some((m) => m.active && m.pattern)
-
-  rows.value.forEach((row) => {
-    if (row.isEmpty) return
-
-    if (hasActiveModifier && (row.selected || matchAll)) {
-      row.matchString = applyModifiers(row.scientificName)
-    } else if (!row.selected && !matchAll) {
-      // Don't change matchString for unselected rows
-    } else {
-      row.matchString = ''
-    }
+  targetRows.forEach((row) => {
+    row.regexMatchString = hasActiveModifier ? applyModifiers(row.scientificName) : ''
   })
 }
 
-async function runMatch({ matchAll = false } = {}) {
-  computeMatchStrings(matchAll)
-  syncAllDuplicates()
+async function handleOptionsChange() {
+  const target = scopedRows()
+  applyModifiersToRows(target)
+  await matchRows(target)
+}
 
-  const checkedRows = rows.value.filter((r) => r.selected && !r.isEmpty)
-  const selectedRows = matchAll
-    ? rows.value.filter((r) => !r.isEmpty)
-    : checkedRows
-  if (!selectedRows.length) return
+async function handleMatchRow({ index }) {
+  const row = rows.value[index]
+  if (!row || row.isEmpty) return
+  await matchRows([row])
+}
+
+async function matchRows(targetRows) {
+  syncAllDuplicates()
+  if (!targetRows.length) return
 
   const nameMap = new Map()
 
-  selectedRows.forEach((row) => {
-    const effectiveName = row.matchString || row.scientificName
+  targetRows.forEach((row) => {
+    const effectiveName = row.userMatchString || row.regexMatchString || row.scientificName
     if (!nameMap.has(effectiveName)) {
       nameMap.set(effectiveName, [])
     }
@@ -253,8 +247,8 @@ function handleRowUpdate({ index, field, value }) {
     }
 
     syncDuplicateRows(row)
-  } else if (field === 'matchString') {
-    row.matchString = value
+  } else if (field === 'userMatchString') {
+    row.userMatchString = value
   } else if (field === 'selected') {
     row.selected = value
   } else if (field === 'selectedOtuId') {
@@ -307,14 +301,17 @@ async function handleCreateOtu({ index }) {
   }
 }
 
+function effectiveName(row) {
+  return row.userMatchString || row.regexMatchString || row.scientificName
+}
+
 function syncDuplicateRows(sourceRow) {
-  const sourceName = sourceRow.matchString || sourceRow.scientificName
+  const sourceName = effectiveName(sourceRow)
 
   rows.value.forEach((row) => {
     if (row.index === sourceRow.index) return
 
-    const rowName = row.matchString || row.scientificName
-    if (rowName === sourceName) {
+    if (effectiveName(row) === sourceName) {
       row.taxonName = sourceRow.taxonName
       row.taxonNameId = sourceRow.taxonNameId
       row.otus = sourceRow.otus
@@ -333,7 +330,7 @@ function syncAllDuplicates() {
   rows.value.forEach((row) => {
     if (row.isEmpty) return
 
-    const name = row.matchString || row.scientificName
+    const name = effectiveName(row)
     if (!seen.has(name)) {
       seen.set(name, row)
     } else {
@@ -357,7 +354,8 @@ function clearAllMatches() {
     row.selectedOtuId = null
     row.ambiguous = false
     row.matched = false
-    row.matchString = ''
+    row.regexMatchString = ''
+    row.userMatchString = ''
   })
 }
 
