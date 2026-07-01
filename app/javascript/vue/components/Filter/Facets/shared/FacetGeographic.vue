@@ -56,14 +56,12 @@
               />
             </span>
             <VBtn
-              circle
+              icon
+              variant="tonal"
               color="primary"
               @click="removeShape(index)"
             >
-              <VIcon
-                x-small
-                name="trash"
-              />
+              <IconTrash class="w-4 h-4" />
             </VBtn>
           </li>
         </ul>
@@ -106,6 +104,7 @@ import RadialFilterAttribute from '@/components/radials/linker/RadialFilterAttri
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import { GeographicArea, Gazetteer } from '@/routes/endpoints'
 import { computed, ref, watch, onBeforeMount } from 'vue'
 

@@ -171,7 +171,7 @@ module TaxonNamesHelper
     else
       if taxon_name.is_valid? # taxon_name.unavailable_or_invalid?
         content_tag(:span, safe_join([
-          icon('warning', class: 'text-attention-color'),
+          icon('check', class: 'text-create-color'),
           content_tag(:span, 'This name is valid/accepted.', data: { status: :valid })
         ], ''), class: :brief_status, data: { status: :valid })
       else
