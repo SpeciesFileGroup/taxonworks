@@ -26,9 +26,11 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - DwC occurrences importer not checking existing nomenclature date data correctly when matching on author/year
 - Regexes are applied when the user clicks the 'Match' button in the Match OTUs to Taxon Names task
 - "Is absent" checkbox does not display the value saved in session storage when citation form is loaded
+- Include citations on the OTU itself in addition to associated objects, for the endpoint /api/v1/otus/:id/inventory/citations [#4983]
 
 [#4964]: https://github.com/SpeciesFileGroup/taxonworks/issues/4964
 [#4978]: https://github.com/SpeciesFileGroup/taxonworks/issues/4978
+[#4983]: https://github.com/SpeciesFileGroup/taxonworks/issues/4983
 
 ## [0.63.1] - 2026-06-22
 
