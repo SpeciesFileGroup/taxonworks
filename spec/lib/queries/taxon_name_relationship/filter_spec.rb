@@ -83,4 +83,39 @@ describe Queries::TaxonNameRelationship::Filter, type: :model, group: [:nomencla
   #   expect(query.all.map(&:id)).to contain_exactly(species.id)
   # end
 
+  context 'sort param' do
+    specify 'sort=subject orders by subject taxon_name.cached' do
+      # r1 subject: s1 (sua under Bidae); r2 subject: g1 (Aus)
+      q = Queries::TaxonNameRelationship::Filter.new(
+        taxon_name_relationship_id: [r1.id, r2.id], sort: 'subject'
+      )
+      # 'Aus' < 'Bidae sua' → r2 first (Aus is r2's subject)
+      expect(q.all.map(&:id)).to eq([r2.id, r1.id])
+    end
+
+    specify 'sort=object orders by object taxon_name.cached' do
+      # r1 object: f1 (Bidae); r2 object: g2 (Sua)
+      q = Queries::TaxonNameRelationship::Filter.new(
+        taxon_name_relationship_id: [r1.id, r2.id], sort: 'object'
+      )
+      # 'Bidae' < 'Sua' → r1 first
+      expect(q.all.map(&:id)).to eq([r1.id, r2.id])
+    end
+
+    specify 'sort=relationship orders by type' do
+      q = Queries::TaxonNameRelationship::Filter.new(
+        taxon_name_relationship_id: [r1.id, r2.id], sort: 'relationship'
+      )
+      # 'TaxonNameRelationship::Iczn::...' < 'TaxonNameRelationship::SourceClassifiedAs'
+      expect(q.all.map(&:id)).to eq([r2.id, r1.id])
+    end
+
+    specify 'unknown sort key ignored' do
+      q = Queries::TaxonNameRelationship::Filter.new(
+        taxon_name_relationship_id: [r1.id, r2.id], sort: 'no_such_column'
+      )
+      expect(q.all.map(&:id)).to contain_exactly(r1.id, r2.id)
+    end
+  end
+
 end
