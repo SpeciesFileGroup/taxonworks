@@ -8,6 +8,7 @@ module Queries
       include Queries::Concerns::Depictions
       include Queries::Concerns::Notes
       include Queries::Concerns::Protocols
+      include Queries::Concerns::Sortable
       include Queries::Concerns::Tags
 
       PARAMS = [
@@ -48,6 +49,92 @@ module Queries
         otu_id: [],
         taxon_name_id: [],
       ].inject([{}]) { |ary, k| k.is_a?(Hash) ? ary.last.merge!(k) : ary.unshift(k); ary }.freeze
+
+      # Column groups visible in the filter table UI. Mirrors the *_PROPERTIES
+      # constants in app/javascript/vue/shared/Filter/constants/.
+      SORTABLE_DIRECT_COLUMNS = %w[id total is_absent].freeze
+
+      SORTABLE_COLLECTING_EVENT_COLUMNS = ::Queries::CollectionObject::Filter::SORTABLE_COLLECTING_EVENT_COLUMNS
+
+      SORTABLE_DWC_OCCURRENCE_COLUMNS = ::Queries::CollectionObject::Filter::SORTABLE_DWC_OCCURRENCE_COLUMNS
+
+      SORTABLE_TAXON_DETERMINATION_COLUMNS = ::Queries::CollectionObject::Filter::SORTABLE_TAXON_DETERMINATION_COLUMNS
+
+      def self.sortable_columns
+        cols = {}
+
+        SORTABLE_DIRECT_COLUMNS.each do |c|
+          cols["field_occurrence.#{c}"] = sort_by_direct_column("field_occurrences.#{c}")
+        end
+
+        SORTABLE_COLLECTING_EVENT_COLUMNS.each do |c|
+          cols["collecting_event.#{c}"] = sort_by_belongs_to_column(
+            joined_table: 'collecting_events', joined_column: c,
+            fk_expr: 'field_occurrences.collecting_event_id',
+            alias_prefix: "sort_ce_#{c}"
+          )
+        end
+
+        SORTABLE_DWC_OCCURRENCE_COLUMNS.each do |c|
+          cols["dwc_occurrence.#{c}"] = sort_by_polymorphic_has_one_column(
+            joined_table: 'dwc_occurrences',
+            joined_column: "\"#{c}\"",
+            owner_id_col: 'dwc_occurrence_object_id',
+            owner_type_col: 'dwc_occurrence_object_type',
+            owner_type_value: 'FieldOccurrence',
+            parent_id_expr: 'field_occurrences.id',
+            alias_prefix: "sort_dwc_#{c.downcase}"
+          )
+        end
+
+        SORTABLE_TAXON_DETERMINATION_COLUMNS.each do |c|
+          if c == 'otu_name'
+            cols["taxon_determinations.otu_name"] = ->(q, dir) {
+              q.joins(<<~SQL.squish)
+                LEFT JOIN LATERAL (
+                  SELECT o.name AS otu_name
+                  FROM taxon_determinations td
+                  LEFT JOIN otus o ON o.id = td.otu_id
+                  WHERE td.taxon_determination_object_id = field_occurrences.id
+                    AND td.taxon_determination_object_type = 'FieldOccurrence'
+                  ORDER BY td.position
+                  LIMIT 1
+                ) AS sort_td_otu_name ON true
+              SQL
+              .order(Arel.sql("sort_td_otu_name.otu_name #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
+            }
+          else
+            cols["taxon_determinations.#{c}"] = ->(q, dir) {
+              lat = "sort_td_#{c}"
+              q.joins(<<~SQL.squish)
+                LEFT JOIN LATERAL (
+                  SELECT #{c} AS val
+                  FROM taxon_determinations
+                  WHERE taxon_determination_object_id = field_occurrences.id
+                    AND taxon_determination_object_type = 'FieldOccurrence'
+                  ORDER BY position
+                  LIMIT 1
+                ) AS #{lat} ON true
+              SQL
+              .order(Arel.sql("#{lat}.val #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
+            }
+          end
+        end
+
+        cols['identifiers.cached'] = ->(q, dir) {
+          q.joins(<<~SQL.squish)
+            LEFT JOIN LATERAL (
+              SELECT MIN(cached) AS cached
+              FROM identifiers
+              WHERE identifier_object_id = field_occurrences.id
+                AND identifier_object_type = 'FieldOccurrence'
+            ) AS sort_ident ON true
+          SQL
+          .order(Arel.sql("sort_ident.cached #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
+        }
+
+        cols
+      end
 
       # @return [Array]
       #   of ImportDataset ids
