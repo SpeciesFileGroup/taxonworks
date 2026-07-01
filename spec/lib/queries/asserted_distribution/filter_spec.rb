@@ -504,4 +504,40 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
     end
   end
 
+  context 'sort param' do
+    let(:root) { FactoryBot.create(:root_taxon_name) }
+    let!(:otu_a) { Otu.create!(name: nil, taxon_name: Protonym.create!(
+      name: 'Aardvark', rank_class: Ranks.lookup(:iczn, :genus), parent: root)) }
+    let!(:otu_z) { Otu.create!(name: nil, taxon_name: Protonym.create!(
+      name: 'Zebra', rank_class: Ranks.lookup(:iczn, :genus), parent: root)) }
+
+    let!(:ad_a) { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: otu_a) }
+    let!(:ad_z) { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: otu_z) }
+
+    def sorted_ids(sort_key)
+      Queries::AssertedDistribution::Filter.new(sort: sort_key)
+        .all.where(id: [ad_a.id, ad_z.id]).pluck(:id)
+    end
+
+    specify 'sort=object_object_tag orders by OTU taxon_name.cached' do
+      expect(sorted_ids('object_object_tag')).to eq([ad_a.id, ad_z.id])
+    end
+
+    specify 'sort=-object_object_tag desc' do
+      expect(sorted_ids('-object_object_tag')).to eq([ad_z.id, ad_a.id])
+    end
+
+    specify 'sort=asserted_distribution_shape orders by shape name' do
+      # both use valid_asserted_distribution which uses GeographicArea shapes;
+      # rename to force alphabetical difference
+      ad_a.asserted_distribution_shape.update_columns(name: 'Alpha area')
+      ad_z.asserted_distribution_shape.update_columns(name: 'Zeta area')
+      expect(sorted_ids('asserted_distribution_shape')).to eq([ad_a.id, ad_z.id])
+    end
+
+    specify 'unknown sort key ignored' do
+      expect(sorted_ids('no_such_column')).to contain_exactly(ad_a.id, ad_z.id)
+    end
+  end
+
 end
