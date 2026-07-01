@@ -36,14 +36,16 @@
       </template>
       <template #table>
         <FilterList
+          ref="filterListRef"
           v-model="selectedIds"
           v-model:sort-keys="sortKeys"
+          v-model:unsaved-view-changes="unsavedViewChanges"
           :backend-sort="true"
           :sortable-keys="sortableKeys"
           :attributes="ATTRIBUTES"
           :header-groups="HEADERS"
           :list="list"
-          :hide-unfrozen="hideFrozen"
+          v-model:hide-unfrozen="hideFrozen"
           :preference-key="`tasks::filters::${BIOLOGICAL_ASSOCIATION}`"
           radial-object
           @remove="({ index }) => list.splice(index, 1)"
@@ -55,9 +57,13 @@
           :labels="sortLabels"
           :sortable-keys="sortableKeys"
         />
+        <SaveViewButton
+          v-if="hasUnsavedChanges"
+          @save="saveViewAsDefault"
+        />
         <VToggle
-          title="Hide/show non-frozen columns"
-          @click="() => (hideFrozen = !hideFrozen)"
+          v-model="hideFrozen"
+          title="Hide non-frozen columns"
         >
           <VIcon
             :name="hideFrozen ? 'contract' : 'expand'"
@@ -84,13 +90,15 @@ import VToggle from '@/components/ui/VToggle.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
 import SortPanel from '@/components/Filter/Table/SortPanel.vue'
+import SaveViewButton from '@/components/Filter/Table/SaveViewButton.vue'
 import RadialBiologicalAssociation from '@/components/radials/BiologicalAssociation/radial.vue'
 import { listParser } from './utils/listParser'
 import { BIOLOGICAL_ASSOCIATION } from '@/constants/index.js'
 import { BiologicalAssociation } from '@/routes/endpoints'
 import { ATTRIBUTES } from './constants/attributes.js'
 import { serializeSortKeys, parseSortParam } from '@/helpers/arrays.js'
-import { computed, ref, watch } from 'vue'
+import { useUserPreference } from '@/composables'
+import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
 
 const hideFrozen = ref(false)
 
@@ -137,7 +145,46 @@ const {
   sortableColumnsResource: 'biological_associations'
 })
 
+const sortKeysPref = useUserPreference(
+  `tasks::filters::${BIOLOGICAL_ASSOCIATION}::sortKeys`,
+  []
+)
+const filterListRef = useTemplateRef('filterListRef')
+const unsavedViewChanges = ref(false)
+
 const sortKeys = ref(parseSortParam(parameters.value.sort))
+
+// If the URL has no sort, fall back to the user's saved default.
+onMounted(() => {
+  if (!parameters.value.sort && sortKeysPref.value?.length) {
+    sortKeys.value = [...sortKeysPref.value]
+  }
+})
+
+function sortKeysEqual(a, b) {
+  if (!Array.isArray(a) || !Array.isArray(b)) return false
+  if (a.length !== b.length) return false
+  for (let i = 0; i < a.length; i++) {
+    if (a[i]?.key !== b[i]?.key || a[i]?.dir !== b[i]?.dir) return false
+  }
+  return true
+}
+
+const hasUnsavedSortChanges = computed(() =>
+  !sortKeysEqual(sortKeys.value, sortKeysPref.value ?? [])
+)
+
+const hasUnsavedChanges = computed(
+  () => hasUnsavedSortChanges.value || unsavedViewChanges.value
+)
+
+function saveViewAsDefault() {
+  filterListRef.value?.saveViewAsDefault()
+  // Deep-clone to strip Vue reactive proxies. BroadcastChannel.postMessage
+  // (used inside useUserPreferences) uses structuredClone, which can't
+  // clone Vue proxies.
+  sortKeysPref.value = JSON.parse(JSON.stringify(sortKeys.value))
+}
 
 const sortLabels = computed(() => {
   const map = {}

@@ -388,10 +388,57 @@ const hideUnfrozen = defineModel('hideUnfrozen', {
   default: false
 })
 
-const freezeColumn = props.preferenceKey
+// Session state for freeze / hide. Distinct from pref-backed refs below --
+// URL fragment + user changes flow into these without touching the user's
+// saved default. `saveViewAsDefault()` copies the current session state to
+// the pref refs, which persists to the server.
+const freezeColumn = ref([])
+const freezeColumnPref = props.preferenceKey
   ? useUserPreference(`${props.preferenceKey}::freezeColumn`, [])
   : ref([])
+const hideUnfrozenPref = props.preferenceKey
+  ? useUserPreference(`${props.preferenceKey}::hideUnfrozen`, false)
+  : ref(false)
 const freezeColumnLeftPosition = ref({})
+
+// URL fragment sync for view state: `#freeze=key1,key2&hide=true`.
+// Fragment stays out of the query string so it doesn't hit the server or
+// consume the (already tight) GET budget. On mount, URL fragment overrides
+// user pref. Any subsequent change updates both fragment and pref.
+function readViewStateFromFragment() {
+  const hash = window.location.hash.slice(1)
+  if (!hash) return { freeze: null, hide: null }
+  const params = new URLSearchParams(hash)
+  const rawFreeze = params.get('freeze')
+  return {
+    freeze:
+      rawFreeze == null
+        ? null
+        : rawFreeze.split(',').map((s) => s.trim()).filter(Boolean),
+    hide: params.get('hide') === 'true' ? true : null
+  }
+}
+
+function writeViewStateToFragment({ freeze, hide }) {
+  const hash = window.location.hash.slice(1)
+  const params = new URLSearchParams(hash)
+  if (freeze !== undefined) {
+    if (freeze && freeze.length) params.set('freeze', freeze.join(','))
+    else params.delete('freeze')
+  }
+  if (hide !== undefined) {
+    if (hide) params.set('hide', 'true')
+    else params.delete('hide')
+  }
+  const next = params.toString()
+  const nextHash = next ? `#${next}` : ''
+  if (window.location.hash === nextHash) return
+  history.replaceState(
+    null,
+    '',
+    `${window.location.pathname}${window.location.search}${nextHash}`
+  )
+}
 
 function isColumnVisible(key) {
   return !hideUnfrozen.value || freezeColumn.value.includes(key)
@@ -622,7 +669,45 @@ onMounted(() => {
     })
     tableResizeObserver.observe(tableRef.value)
   }
+
+  // Initial view state: URL fragment > user pref > default.
+  const fromFragment = readViewStateFromFragment()
+  freezeColumn.value =
+    fromFragment.freeze ?? freezeColumnPref.value ?? []
+  hideUnfrozen.value =
+    fromFragment.hide ?? hideUnfrozenPref.value ?? false
 })
+
+// Handle async pref load (cold-start with no sessionStorage cache). Only
+// applies once, and only if the URL fragment didn't supply an override.
+let freezeAsyncHydrated = false
+let hideAsyncHydrated = false
+watch(freezeColumnPref, (pref) => {
+  if (freezeAsyncHydrated) return
+  freezeAsyncHydrated = true
+  const fromFragment = readViewStateFromFragment()
+  if (fromFragment.freeze == null && pref?.length) {
+    freezeColumn.value = [...pref]
+  }
+})
+watch(hideUnfrozenPref, (pref) => {
+  if (hideAsyncHydrated) return
+  hideAsyncHydrated = true
+  const fromFragment = readViewStateFromFragment()
+  if (fromFragment.hide == null && pref === true) {
+    hideUnfrozen.value = pref
+  }
+})
+
+watch(
+  freezeColumn,
+  (next) => writeViewStateToFragment({ freeze: next }),
+  { deep: true }
+)
+
+watch(hideUnfrozen, (next) =>
+  writeViewStateToFragment({ hide: next })
+)
 
 onBeforeUnmount(() => {
   tableResizeObserver?.disconnect()
@@ -672,8 +757,47 @@ watch(
   { deep: true }
 )
 
+// Copies current session view state (freeze + hide) into the user's saved
+// preferences. Called by the SaveViewButton at the filter task level, which
+// also saves sort separately since that state lives in the parent.
+function saveViewAsDefault() {
+  // Deep-clone to strip Vue reactive proxies before persisting.
+  freezeColumnPref.value = JSON.parse(JSON.stringify(freezeColumn.value))
+  hideUnfrozenPref.value = hideUnfrozen.value
+}
+
+// Compare current freeze/hide session state against pref; drives the
+// "unsaved changes" model that the parent uses to show/hide the Save button.
+const unsavedViewChanges = defineModel('unsavedViewChanges', {
+  type: Boolean,
+  default: false
+})
+
+function arraysEqual(a, b) {
+  if (a === b) return true
+  if (!Array.isArray(a) || !Array.isArray(b)) return false
+  if (a.length !== b.length) return false
+  for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false
+  return true
+}
+
+watch(
+  [freezeColumn, hideUnfrozen, freezeColumnPref, hideUnfrozenPref],
+  ([fz, hd, fzPref, hdPref]) => {
+    if (!props.preferenceKey) {
+      unsavedViewChanges.value = false
+      return
+    }
+    const freezeDirty = !arraysEqual(fz, fzPref ?? [])
+    const hideDirty = hd !== (hdPref ?? false)
+    unsavedViewChanges.value = freezeDirty || hideDirty
+  },
+  { deep: true, immediate: true }
+)
+
 defineExpose({
-  clearFilterValues
+  clearFilterValues,
+  saveViewAsDefault
 })
 </script>
 

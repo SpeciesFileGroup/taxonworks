@@ -74,13 +74,15 @@
       </template>
       <template #table>
         <TableResults
+          ref="filterListRef"
           v-model="selectedIds"
           v-model:sort-keys="sortKeys"
+          v-model:unsaved-view-changes="unsavedViewChanges"
           :backend-sort="true"
           :sortable-keys="sortableKeys"
           :list="list"
           :layout="currentLayout"
-          :hide-unfrozen="hideFrozen"
+          v-model:hide-unfrozen="hideFrozen"
           :preference-key="`tasks::filters::${COLLECTION_OBJECT}`"
           radial-object
           @remove="({ index }) => list.splice(index, 1)"
@@ -92,9 +94,13 @@
           :labels="sortLabels"
           :sortable-keys="sortableKeys"
         />
+        <SaveViewButton
+          v-if="hasUnsavedChanges"
+          @save="saveViewAsDefault"
+        />
         <VToggle
-          title="Hide/show non-frozen columns"
-          @click="() => (hideFrozen = !hideFrozen)"
+          v-model="hideFrozen"
+          title="Hide non-frozen columns"
         >
           <VIcon
             :name="hideFrozen ? 'contract' : 'expand'"
@@ -117,6 +123,7 @@ import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/filter.vue'
 import TableResults from '@/components/Filter/Table/TableResults.vue'
 import SortPanel from '@/components/Filter/Table/SortPanel.vue'
+import SaveViewButton from '@/components/Filter/Table/SaveViewButton.vue'
 import DwcDownload from './components/dwcDownload.vue'
 import DeleteCollectionObjects from './components/DeleteCollectionObjects.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
@@ -126,7 +133,8 @@ import TableLayoutSelector from '@/components/Filter/Table/TableLayoutSelector.v
 import RadialLoan from '@/components/radials/loan/radial.vue'
 import RadialMatrix from '@/components/radials/matrix/radial.vue'
 import RadialCollectionObject from '@/components/radials/co/radial.vue'
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { useUserPreference } from '@/composables'
 import { CollectionObject } from '@/routes/endpoints'
 import { COLLECTION_OBJECT } from '@/constants/index.js'
 import { useTableLayoutConfiguration } from '@/components/Filter/composables/useTableLayoutConfiguration.js'
@@ -201,7 +209,45 @@ function removeCOFromList(ids) {
   selectedIds.value = selectedIds.value.filter((id) => !ids.includes(id))
 }
 
+const sortKeysPref = useUserPreference(
+  `tasks::filters::${COLLECTION_OBJECT}::sortKeys`,
+  []
+)
+const filterListRef = useTemplateRef('filterListRef')
+const unsavedViewChanges = ref(false)
+
 const sortKeys = ref(parseSortParam(parameters.value.sort))
+
+onMounted(() => {
+  if (!parameters.value.sort && sortKeysPref.value?.length) {
+    sortKeys.value = [...sortKeysPref.value]
+  }
+})
+
+function sortKeysEqual(a, b) {
+  if (!Array.isArray(a) || !Array.isArray(b)) return false
+  if (a.length !== b.length) return false
+  for (let i = 0; i < a.length; i++) {
+    if (a[i]?.key !== b[i]?.key || a[i]?.dir !== b[i]?.dir) return false
+  }
+  return true
+}
+
+const hasUnsavedSortChanges = computed(() =>
+  !sortKeysEqual(sortKeys.value, sortKeysPref.value ?? [])
+)
+
+const hasUnsavedChanges = computed(
+  () => hasUnsavedSortChanges.value || unsavedViewChanges.value
+)
+
+function saveViewAsDefault() {
+  filterListRef.value?.saveViewAsDefault()
+  // Deep-clone to strip Vue reactive proxies. BroadcastChannel.postMessage
+  // (used inside useUserPreferences) uses structuredClone, which can't
+  // clone Vue proxies.
+  sortKeysPref.value = JSON.parse(JSON.stringify(sortKeys.value))
+}
 
 const sortLabels = computed(() => {
   const map = {}
