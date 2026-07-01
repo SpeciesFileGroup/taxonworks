@@ -96,9 +96,8 @@ import { listParser } from './utils/listParser'
 import { BIOLOGICAL_ASSOCIATION } from '@/constants/index.js'
 import { BiologicalAssociation } from '@/routes/endpoints'
 import { ATTRIBUTES } from './constants/attributes.js'
-import { serializeSortKeys, parseSortParam } from '@/helpers/arrays.js'
-import { useUserPreference } from '@/composables'
-import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
+import useFilterView from '@/shared/Filter/composition/useFilterView.js'
+import { computed, ref } from 'vue'
 
 const hideFrozen = ref(false)
 
@@ -145,46 +144,18 @@ const {
   sortableColumnsResource: 'biological_associations'
 })
 
-const sortKeysPref = useUserPreference(
-  `tasks::filters::${BIOLOGICAL_ASSOCIATION}::sortKeys`,
-  []
-)
-const filterListRef = useTemplateRef('filterListRef')
-const unsavedViewChanges = ref(false)
-
-const sortKeys = ref(parseSortParam(parameters.value.sort))
-
-// If the URL has no sort, fall back to the user's saved default.
-onMounted(() => {
-  if (!parameters.value.sort && sortKeysPref.value?.length) {
-    sortKeys.value = [...sortKeysPref.value]
-  }
+const {
+  sortKeys,
+  unsavedViewChanges,
+  hasUnsavedChanges,
+  filterListRef,
+  saveViewAsDefault
+} = useFilterView({
+  parameters,
+  makeFilterRequest,
+  objectType: BIOLOGICAL_ASSOCIATION,
+  extend
 })
-
-function sortKeysEqual(a, b) {
-  if (!Array.isArray(a) || !Array.isArray(b)) return false
-  if (a.length !== b.length) return false
-  for (let i = 0; i < a.length; i++) {
-    if (a[i]?.key !== b[i]?.key || a[i]?.dir !== b[i]?.dir) return false
-  }
-  return true
-}
-
-const hasUnsavedSortChanges = computed(() =>
-  !sortKeysEqual(sortKeys.value, sortKeysPref.value ?? [])
-)
-
-const hasUnsavedChanges = computed(
-  () => hasUnsavedSortChanges.value || unsavedViewChanges.value
-)
-
-function saveViewAsDefault() {
-  filterListRef.value?.saveViewAsDefault()
-  // Deep-clone to strip Vue reactive proxies. BroadcastChannel.postMessage
-  // (used inside useUserPreferences) uses structuredClone, which can't
-  // clone Vue proxies.
-  sortKeysPref.value = JSON.parse(JSON.stringify(sortKeys.value))
-}
 
 const sortLabels = computed(() => {
   const map = {}
@@ -196,27 +167,6 @@ const sortLabels = computed(() => {
   }
   return map
 })
-
-// Sort changes coming from the table -> update query param + re-fetch.
-watch(
-  sortKeys,
-  (next) => {
-    const sortString = serializeSortKeys(next)
-    if (sortString === parameters.value.sort) return
-    parameters.value.sort = sortString
-    makeFilterRequest({ ...parameters.value, extend, page: 1 })
-  },
-  { deep: true }
-)
-
-// URL/external changes to parameters.sort -> hydrate the table.
-watch(
-  () => parameters.value.sort,
-  (next) => {
-    if (next === serializeSortKeys(sortKeys.value)) return
-    sortKeys.value = parseSortParam(next)
-  }
-)
 </script>
 
 <script>

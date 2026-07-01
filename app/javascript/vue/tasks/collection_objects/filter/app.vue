@@ -133,15 +133,14 @@ import TableLayoutSelector from '@/components/Filter/Table/TableLayoutSelector.v
 import RadialLoan from '@/components/radials/loan/radial.vue'
 import RadialMatrix from '@/components/radials/matrix/radial.vue'
 import RadialCollectionObject from '@/components/radials/co/radial.vue'
-import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
-import { useUserPreference } from '@/composables'
+import { computed, ref } from 'vue'
+import useFilterView from '@/shared/Filter/composition/useFilterView.js'
 import { CollectionObject } from '@/routes/endpoints'
 import { COLLECTION_OBJECT } from '@/constants/index.js'
 import { useTableLayoutConfiguration } from '@/components/Filter/composables/useTableLayoutConfiguration.js'
 import { LAYOUTS } from './constants/layouts.js'
 import { listParser } from './utils/listParser.js'
 import { useCSVOptions, useFilter } from '@/shared/Filter/composition'
-import { serializeSortKeys, parseSortParam } from '@/helpers/arrays.js'
 import { humanize } from '@/helpers/strings.js'
 
 const extend = [
@@ -209,45 +208,19 @@ function removeCOFromList(ids) {
   selectedIds.value = selectedIds.value.filter((id) => !ids.includes(id))
 }
 
-const sortKeysPref = useUserPreference(
-  `tasks::filters::${COLLECTION_OBJECT}::sortKeys`,
-  []
-)
-const filterListRef = useTemplateRef('filterListRef')
-const unsavedViewChanges = ref(false)
-
-const sortKeys = ref(parseSortParam(parameters.value.sort))
-
-onMounted(() => {
-  if (!parameters.value.sort && sortKeysPref.value?.length) {
-    sortKeys.value = [...sortKeysPref.value]
-  }
+const {
+  sortKeys,
+  unsavedViewChanges,
+  hasUnsavedChanges,
+  filterListRef,
+  saveViewAsDefault
+} = useFilterView({
+  parameters,
+  makeFilterRequest,
+  objectType: COLLECTION_OBJECT,
+  extend,
+  exclude
 })
-
-function sortKeysEqual(a, b) {
-  if (!Array.isArray(a) || !Array.isArray(b)) return false
-  if (a.length !== b.length) return false
-  for (let i = 0; i < a.length; i++) {
-    if (a[i]?.key !== b[i]?.key || a[i]?.dir !== b[i]?.dir) return false
-  }
-  return true
-}
-
-const hasUnsavedSortChanges = computed(() =>
-  !sortKeysEqual(sortKeys.value, sortKeysPref.value ?? [])
-)
-
-const hasUnsavedChanges = computed(
-  () => hasUnsavedSortChanges.value || unsavedViewChanges.value
-)
-
-function saveViewAsDefault() {
-  filterListRef.value?.saveViewAsDefault()
-  // Deep-clone to strip Vue reactive proxies. BroadcastChannel.postMessage
-  // (used inside useUserPreferences) uses structuredClone, which can't
-  // clone Vue proxies.
-  sortKeysPref.value = JSON.parse(JSON.stringify(sortKeys.value))
-}
 
 const sortLabels = computed(() => {
   const map = {}
@@ -263,24 +236,6 @@ const sortLabels = computed(() => {
   return map
 })
 
-watch(
-  sortKeys,
-  (next) => {
-    const sortString = serializeSortKeys(next)
-    if (sortString === parameters.value.sort) return
-    parameters.value.sort = sortString
-    makeFilterRequest({ ...parameters.value, extend, exclude, page: 1 })
-  },
-  { deep: true }
-)
-
-watch(
-  () => parameters.value.sort,
-  (next) => {
-    if (next === serializeSortKeys(sortKeys.value)) return
-    sortKeys.value = parseSortParam(next)
-  }
-)
 </script>
 
 <script>

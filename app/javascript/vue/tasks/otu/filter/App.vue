@@ -95,8 +95,7 @@ import FilterList from '@/components/Filter/Table/TableResults.vue'
 import SortPanel from '@/components/Filter/Table/SortPanel.vue'
 import SaveViewButton from '@/components/Filter/Table/SaveViewButton.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
-import { serializeSortKeys, parseSortParam } from '@/helpers/arrays.js'
-import { useUserPreference } from '@/composables'
+import useFilterView from '@/shared/Filter/composition/useFilterView.js'
 import RadialMatrix from '@/components/radials/matrix/radial.vue'
 import RadialOtu from '@/components/radials/otu/radial.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
@@ -106,7 +105,7 @@ import { ATTRIBUTES } from './constants/attributes'
 import { listParser } from './utils/listParser'
 import { OTU } from '@/constants/index.js'
 import { Otu } from '@/routes/endpoints'
-import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { computed, ref } from 'vue'
 import csvDownload from './components/csvDownload.vue'
 import DwcChecklistDownload from './components/dwcChecklistDownload.vue'
 
@@ -132,61 +131,18 @@ const {
   sortableColumnsResource: 'otus'
 })
 
-const sortKeysPref = useUserPreference(
-  `tasks::filters::${OTU}::sortKeys`,
-  []
-)
-const filterListRef = useTemplateRef('filterListRef')
-const unsavedViewChanges = ref(false)
-
-const sortKeys = ref(parseSortParam(parameters.value.sort))
-
-onMounted(() => {
-  if (!parameters.value.sort && sortKeysPref.value?.length) {
-    sortKeys.value = [...sortKeysPref.value]
-  }
-})
-
-watch(
+const {
   sortKeys,
-  (next) => {
-    const sortString = serializeSortKeys(next)
-    if (sortString === parameters.value.sort) return
-    parameters.value.sort = sortString
-    makeFilterRequest({ ...parameters.value, extend, page: 1 })
-  },
-  { deep: true }
-)
-
-watch(
-  () => parameters.value.sort,
-  (next) => {
-    if (next === serializeSortKeys(sortKeys.value)) return
-    sortKeys.value = parseSortParam(next)
-  }
-)
-
-function sortKeysEqual(a, b) {
-  if (!Array.isArray(a) || !Array.isArray(b)) return false
-  if (a.length !== b.length) return false
-  for (let i = 0; i < a.length; i++) {
-    if (a[i]?.key !== b[i]?.key || a[i]?.dir !== b[i]?.dir) return false
-  }
-  return true
-}
-
-const hasUnsavedSortChanges = computed(() =>
-  !sortKeysEqual(sortKeys.value, sortKeysPref.value ?? [])
-)
-
-const hasUnsavedChanges = computed(
-  () => hasUnsavedSortChanges.value || unsavedViewChanges.value
-)
-
-function saveViewAsDefault() {
-  filterListRef.value?.saveViewAsDefault()
-  sortKeysPref.value = JSON.parse(JSON.stringify(sortKeys.value))
-}
+  unsavedViewChanges,
+  hasUnsavedChanges,
+  filterListRef,
+  saveViewAsDefault
+} = useFilterView({
+  parameters,
+  makeFilterRequest,
+  objectType: OTU,
+  extend
+})
 
 const extendDownload = computed(() => [
   {
