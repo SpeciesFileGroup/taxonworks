@@ -84,6 +84,7 @@
               :sort-index="sortIndexFor(attr)"
               :sort-dir="sortDirFor(attr)"
               :show-sort-index="sortKeys.length > 1"
+              :sortable="isSortable(attr)"
               @copy="
                 () =>
                   copyColumnToClipboard(
@@ -118,6 +119,7 @@
                 :sort-index="sortIndexFor(`${key}.${property}`)"
                 :sort-dir="sortDirFor(`${key}.${property}`)"
                 :show-sort-index="sortKeys.length > 1"
+                :sortable="isSortable(`${key}.${property}`)"
                 @copy="
                   () =>
                     copyColumnToClipboard(
@@ -356,6 +358,14 @@ const props = defineProps({
   backendSort: {
     type: Boolean,
     default: false
+  },
+
+  // When non-null, only columns whose key appears in this array show a
+  // sort button. Frontend gating that mirrors the backend whitelist.
+  // Null means "gating disabled" -- all sort buttons show (legacy behavior).
+  sortableKeys: {
+    type: Array,
+    default: null
   }
 })
 
@@ -544,6 +554,13 @@ function sortIndexFor(key) {
 
 function sortDirFor(key) {
   return sortKeys.value.find((s) => s.key === key)?.dir ?? null
+}
+
+// null = gating disabled, everything sortable. Otherwise, only keys in the
+// list are sortable (matches the backend's sortable_columns whitelist).
+function isSortable(key) {
+  if (props.sortableKeys == null) return true
+  return props.sortableKeys.includes(key)
 }
 
 // Cycle: empty -> asc -> desc -> removed.

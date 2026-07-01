@@ -6,9 +6,13 @@ import {
 import { getParametersFromSession } from '../utils'
 import { sortArrayByReference } from '@/helpers'
 import getPagination from '@/helpers/getPagination'
+import ajaxCall from '@/helpers/ajaxCall'
 import qs from 'qs'
 
-export default function (service, { listParser, initParameters = {} } = {}) {
+export default function (
+  service,
+  { listParser, initParameters = {}, sortableColumnsResource } = {}
+) {
   const DEFAULT_PER = 50
   const DEFAULT_PARAMETERS = {
     paginate: true
@@ -23,7 +27,8 @@ export default function (service, { listParser, initParameters = {} } = {}) {
     list: [],
     isLoading: false,
     initParameters,
-    urlRequest: ''
+    urlRequest: '',
+    sortableKeys: null // null = not yet loaded / not applicable; array = loaded
   })
 
   const sortedSelectedIds = computed(() =>
@@ -146,6 +151,16 @@ export default function (service, { listParser, initParameters = {} } = {}) {
     Object.assign(state.parameters, urlParameters)
 
     localStorage.removeItem(STORAGE_FILTER_QUERY_KEY)
+
+    if (sortableColumnsResource) {
+      ajaxCall('get', `/queries/${sortableColumnsResource}/sortable_columns.json`)
+        .then((response) => {
+          state.sortableKeys = Array.isArray(response.body) ? response.body : []
+        })
+        .catch(() => {
+          state.sortableKeys = []
+        })
+    }
 
     if (Object.keys(urlParameters).length) {
       makeFilterRequest({

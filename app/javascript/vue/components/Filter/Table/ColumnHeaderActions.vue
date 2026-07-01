@@ -16,6 +16,7 @@
       />
     </VBtn>
     <VBtn
+      v-if="sortable"
       :color="sortDir ? 'toggle-active' : 'primary'"
       :title="sortTitle"
       circle
@@ -71,6 +72,11 @@ const props = defineProps({
   showSortIndex: {
     type: Boolean,
     default: false
+  },
+
+  sortable: {
+    type: Boolean,
+    default: true
   }
 })
 

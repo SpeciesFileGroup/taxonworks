@@ -201,6 +201,19 @@ describe Queries::Query::Filter, type: [:model] do
     end
   end
 
+  context 'sortable_columns_index' do
+    specify 'returns keys of sortable_columns as a flat array' do
+      expect(::Queries::BiologicalAssociation::Filter.sortable_columns_index)
+        .to include('id', 'updated_at', 'biological_relationship',
+                    'subject_taxonomy_family', 'object_object_tag')
+    end
+
+    specify 'defaults to empty array when subclass has not overridden' do
+      # Base class returns {} for sortable_columns
+      expect(::Queries::Query::Filter.sortable_columns_index).to eq([])
+    end
+  end
+
   context 'venn param preservation' do
     specify 'venn params are preserved in filter params hash' do
       v = 'http://127.0.0.1:3000/otus/filter.json?name=Ant'

@@ -17,6 +17,13 @@ resource :hub, controller: 'hub', only: [] do # "only: [:index]" no longer valid
   get 'tasks', defaults: {format: :json}
 end
 
+scope :queries, controller: :queries do
+  get ':resource/sortable_columns',
+    action: :sortable_columns,
+    as: :query_sortable_columns,
+    defaults: { format: :json }
+end
+
 scope :metadata, controller: 'metadata' do
   post :vocabulary, defaults: {format: :json}
   get :data_models, defaults: {format: :json}

@@ -39,6 +39,7 @@
           v-model="selectedIds"
           v-model:sort-keys="sortKeys"
           :backend-sort="true"
+          :sortable-keys="sortableKeys"
           :attributes="ATTRIBUTES"
           :header-groups="HEADERS"
           :list="list"
@@ -52,6 +53,7 @@
         <SortPanel
           v-model:sort-keys="sortKeys"
           :labels="sortLabels"
+          :sortable-keys="sortableKeys"
         />
         <VToggle
           title="Hide/show non-frozen columns"
@@ -127,8 +129,13 @@ const {
   resetFilter,
   selectedIds,
   sortedSelectedIds,
-  urlRequest
-} = useFilter(BiologicalAssociation, { listParser, initParameters: { extend } })
+  urlRequest,
+  sortableKeys
+} = useFilter(BiologicalAssociation, {
+  listParser,
+  initParameters: { extend },
+  sortableColumnsResource: 'biological_associations'
+})
 
 const sortKeys = ref(parseSortParam(parameters.value.sort))
 

@@ -77,6 +77,7 @@
           v-model="selectedIds"
           v-model:sort-keys="sortKeys"
           :backend-sort="true"
+          :sortable-keys="sortableKeys"
           :list="list"
           :layout="currentLayout"
           :hide-unfrozen="hideFrozen"
@@ -89,6 +90,7 @@
         <SortPanel
           v-model:sort-keys="sortKeys"
           :labels="sortLabels"
+          :sortable-keys="sortableKeys"
         />
         <VToggle
           title="Hide/show non-frozen columns"
@@ -170,10 +172,12 @@ const {
   resetFilter,
   selectedIds,
   sortedSelectedIds,
-  urlRequest
+  urlRequest,
+  sortableKeys
 } = useFilter(CollectionObject, {
   initParameters: { extend, exclude },
-  listParser
+  listParser,
+  sortableColumnsResource: 'collection_objects'
 })
 
 const csvOptions = useCSVOptions({ layout: currentLayout, list })

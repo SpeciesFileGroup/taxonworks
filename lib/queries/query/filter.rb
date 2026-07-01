@@ -385,6 +385,13 @@ module Queries
       {}
     end
 
+    # The flat list of keys the frontend can use to sort. Exposed via
+    # QueriesController#sortable_columns so the UI can hide sort buttons
+    # for columns that aren't backend-sortable.
+    def self.sortable_columns_index
+      sortable_columns.keys
+    end
+
     # @return [ActiveRecord::Relation]
     def apply_sortable_columns(q)
       order_by_columns.each do |c|

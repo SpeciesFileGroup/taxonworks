@@ -137,6 +137,13 @@ const props = defineProps({
   labels: {
     type: Object,
     default: () => ({})
+  },
+
+  // Optional whitelist from the backend. When non-null, only labels whose
+  // key appears in this array are surfaced in the picker.
+  sortableKeys: {
+    type: Array,
+    default: null
   }
 })
 
@@ -155,8 +162,10 @@ useClickOutside(wrapperRef, () => {
 
 const availableToAdd = computed(() => {
   const activeKeys = new Set(sortKeys.value.map((s) => s.key))
+  const allowed = props.sortableKeys ? new Set(props.sortableKeys) : null
   return Object.entries(props.labels)
     .filter(([key]) => !activeKeys.has(key))
+    .filter(([key]) => allowed == null || allowed.has(key))
     .map(([key, label]) => ({ key, label }))
     .sort((a, b) => a.label.localeCompare(b.label))
 })
