@@ -11,7 +11,7 @@
         </th>
         <th />
         <th class="line-nowrap">scientificName <ButtonClipboard :text="columnClipboardText('scientificName')" title="Copy scientificName column" /></th>
-        <th class="line-nowrap" data-help="Override the string used for matching. Leave blank to match using the scientificName value as-is.">Match <ButtonClipboard :text="columnClipboardText('match')" title="Copy match column" /></th>
+        <th class="line-nowrap" data-help="Override the string used for matching. Leave blank to match using the scientificName value as-is. Highlighted in blue when you have typed a custom value. Regex modifiers (left panel) write to this field automatically.">Match <ButtonClipboard :text="columnClipboardText('match')" title="Copy match column" /></th>
         <th class="line-nowrap">TaxonName <ButtonClipboard :text="columnClipboardText('taxonName')" title="Copy TaxonName column" /></th>
         <th />
         <th data-help="Manually search for and select a TaxonName, overriding the automatic match result. Use this to fix incorrect or ambiguous matches.">Refine</th>

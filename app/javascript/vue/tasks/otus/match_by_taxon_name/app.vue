@@ -347,6 +347,15 @@ function syncAllDuplicates() {
 }
 
 function clearAllMatches() {
+  scopeTaxonName.value = null
+  levenshteinDistance.value = 0
+  tryWithoutSubgenus.value = false
+  resolveSynonyms.value = false
+  modifiers.value = [
+    { active: false, pattern: '^(\\S*\\s+\\S*).*', replacement: '$1' },
+    { active: false, pattern: '', replacement: '' }
+  ]
+
   rows.value.forEach((row) => {
     row.taxonName = null
     row.taxonNameId = null
@@ -357,6 +366,8 @@ function clearAllMatches() {
     row.regexMatchString = ''
     row.userMatchString = ''
   })
+
+  handleOptionsChange()
 }
 
 function scrollToRow(index) {

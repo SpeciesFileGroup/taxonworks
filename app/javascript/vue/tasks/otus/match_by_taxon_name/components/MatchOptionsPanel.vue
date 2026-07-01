@@ -4,9 +4,10 @@
       <h3>Match options</h3>
       <VBtn
         color="primary"
+        title="Reset all options and match strings to defaults and re-run matching"
         @click="emit('clear-all')"
       >
-        Clear all matches
+        Restart
       </VBtn>
     </div>
 
