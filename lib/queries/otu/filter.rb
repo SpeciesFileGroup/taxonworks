@@ -93,14 +93,19 @@ module Queries
       end
 
       # OTU's display value (otu_tag) is essentially the taxon_name.cached
-      # falling back to otu.name -- match that in SQL.
+      # falling back to otu.name. Use a scalar subquery so we don't add a
+      # second `taxon_names` alias to the outer FROM -- callers like the
+      # OTU controller chain `.order(:cached, 'otus.name')` after `.all`,
+      # and having taxon_names in the FROM twice makes bare `cached`
+      # ambiguous.
       def self.sort_by_display_name
         ->(q, dir) {
-          q
-            .joins('LEFT JOIN taxon_names AS sort_tn_otu ON sort_tn_otu.id = otus.taxon_name_id')
-            .order(Arel.sql(
-              "COALESCE(sort_tn_otu.cached, otus.name) #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"
-            ))
+          q.order(Arel.sql(<<~SQL.squish))
+            COALESCE(
+              (SELECT tn.cached FROM taxon_names tn WHERE tn.id = otus.taxon_name_id),
+              otus.name
+            ) #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST
+          SQL
         }
       end
 
