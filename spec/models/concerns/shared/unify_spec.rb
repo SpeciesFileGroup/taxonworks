@@ -304,6 +304,7 @@ describe 'Shared::Unify', type: :model do
 
     expect(b.destroyed?).to be_truthy
     expect(BiocurationClassification.all.reload.size).to eq(1)
+    expect(e[:details]['Biocuration classifications'][:deduplicated]).to eq(1)
   end
 
   specify 'sums BiocurationClassifications when classes differ' do
@@ -882,6 +883,57 @@ describe 'Shared::Unify', type: :model do
 
     expect(o2.destroyed?).to be_truthy
     expect(Citation.all.size).to eq(1)
+    expect(b[:details]['Asserted distributions'][:deduplicated]).to eq(1)
+  end
+
+  # log_unify_result resets a duplicate Citation's `is_original` to false
+  # *before* attempting deduplication (to clear the separate is_original
+  # uniqueness conflict). But `is_original` is not excluded from #identical's
+  # comparison, so that reset makes the duplicate look different from the
+  # surviving Citation it should be matched against -- #identical then finds
+  # no match, deduplicate_update_target gives up, and the duplicate Citation
+  # (and anything annotating it) is only removed as a side effect of ad2's
+  # own destroy cascade, silently losing whatever was attached to it.
+  specify 'would-be duplicate citations do not halt unify - preserves Notes on the removed duplicate' do
+    s = FactoryBot.create(:valid_source)
+
+    ad1 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o1, source: s)
+    ad2 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o2, asserted_distribution_shape: ad1.asserted_distribution_shape, source: s)
+
+    n = FactoryBot.create(:valid_note, note_object: ad2.citations.first)
+
+    o1.unify(o2)
+
+    expect(Citation.all.size).to eq(1)
+    expect(n.reload.note_object).to eq(Citation.first)
+  end
+
+  specify 'would-be duplicate citations do not halt unify - preserves Tags on the removed duplicate' do
+    s = FactoryBot.create(:valid_source)
+    k = FactoryBot.create(:valid_keyword)
+
+    ad1 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o1, source: s)
+    ad2 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o2, asserted_distribution_shape: ad1.asserted_distribution_shape, source: s)
+
+    t = Tag.create!(tag_object: ad2.citations.first, keyword: k)
+
+    o1.unify(o2)
+
+    expect(Citation.all.size).to eq(1)
+    expect(t.reload.tag_object).to eq(Citation.first)
+  end
+
+  specify 'would-be duplicate citations do not halt unify - records deduplication result' do
+    s = FactoryBot.create(:valid_source)
+
+    ad1 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o1, source: s)
+    ad2 = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: o2, asserted_distribution_shape: ad1.asserted_distribution_shape, source: s)
+
+    b = ad1.unify(ad2)
+
+    expect(ad2.destroyed?).to be_truthy
+    expect(Citation.all.size).to eq(1)
+    expect(b[:details]['Citations'][:deduplicated]).to eq(1)
   end
 
   specify 'unifies TaxonNames when both have the same OriginalCombination relationship type' do
