@@ -471,12 +471,12 @@ class TaxonNameRelationship < ApplicationRecord
 
   # OriginalCombination has a replacement method.
   def set_cached_names_for_taxon_names
-    return true unless subject_taxon_name_id_previously_changed? || destroyed?
+    return true unless subject_taxon_name_id_previously_changed? || object_taxon_name_id_previously_changed? || destroyed?
 
     # TODO: this should completely be replaced with Taxonname logic.
     TaxonName.transaction do # Why?
       if is_invalidating?
-        t = TaxonName.find_by(id: subject_taxon_name_id)
+        t = subject_taxon_name
         return true unless t
 
         if TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY.include?(type_name)

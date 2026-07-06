@@ -939,6 +939,56 @@ describe 'Shared::Unify', type: :model do
     expect(TaxonNameRelationship.find_by(id: r_keep.id)).not_to be_nil
   end
 
+  # Aus bus (destroy) and Cus dus (keep) both exist, and some other name is
+  # a Synonym *of* Aus bus (i.e. Aus bus is the *object* of that TNR, and
+  # Aus bus's id is cached on the synonym's cached_valid_taxon_name_id).
+  # keep.unify(destroy) moves destroy's taxon_name_relationships (including
+  # the synonym TNR) over to keep, then destroys Aus bus. The synonym's
+  # cached_valid_taxon_name_id, however, still points at the now-destroyed
+  # Aus bus, so anything that resolves #valid_taxon_name off the synonym
+  # blows up trying to load a name that no longer exists.
+  specify 'unifies TaxonNames - synonym cached_valid_taxon_name_id follows the object of a Synonym relationship' do
+    keep = FactoryBot.create(:relationship_species)    # Cus dus
+    destroy = FactoryBot.create(:relationship_species) # Aus bus
+    synonym = FactoryBot.create(:relationship_species)  # something else, synonym of Aus bus
+
+    FactoryBot.create(:taxon_name_relationship,
+      type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective',
+      subject_taxon_name: synonym, object_taxon_name: destroy)
+
+    expect(synonym.reload.cached_valid_taxon_name_id).to eq(destroy.id)
+
+    keep.unify(destroy)
+
+    expect(destroy.destroyed?).to be_truthy
+    expect(synonym.reload.cached_valid_taxon_name_id).to eq(keep.id)
+    expect(synonym.valid_taxon_name).to eq(keep)
+  end
+
+  # Same shape, opposite side of the TNR: here Aus bus (destroy) is itself the
+  # *subject* (a Synonym) of a relationship pointing to some unrelated valid
+  # name, rather than being the object another name is a synonym of.
+  # keep.unify(destroy) moves that relationship's subject_taxon_name over to
+  # Cus dus (keep), which should itself pick up destroy's cached_valid_taxon_name_id.
+  specify 'unifies TaxonNames - keep picks up cached_valid_taxon_name_id when it becomes the subject of a Synonym relationship' do
+    keep = FactoryBot.create(:relationship_species)       # Cus dus
+    destroy = FactoryBot.create(:relationship_species)    # Aus bus, a synonym
+    valid_name = FactoryBot.create(:relationship_species) # the name Aus bus is a synonym of
+
+    FactoryBot.create(:taxon_name_relationship,
+      type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective',
+      subject_taxon_name: destroy, object_taxon_name: valid_name)
+
+    expect(destroy.reload.cached_valid_taxon_name_id).to eq(valid_name.id)
+    expect(keep.reload.cached_valid_taxon_name_id).to eq(keep.id)
+
+    keep.unify(destroy)
+
+    expect(destroy.destroyed?).to be_truthy
+    expect(keep.reload.cached_valid_taxon_name_id).to eq(valid_name.id)
+    expect(keep.valid_taxon_name).to eq(valid_name)
+  end
+
   specify 'InvalidForeignKey error' do
     keep = FactoryBot.create(:valid_topic)
     remove = FactoryBot.create(:valid_topic)
