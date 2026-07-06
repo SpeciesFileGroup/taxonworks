@@ -345,9 +345,9 @@ module Shared::Unify
       else # We unified and destroyed the duplicate
         result[:details][n][:deduplicated] += 1
       end
-    else
-      # There are no errors we can fix, ensure we have a fresh copy of the
-      # object and check for validity.
+    elsif object.errors.any?
+      # There are unrelated errors we can not fix, ensure we have a fresh
+      # copy of the object and check for validity.
       object.reload
       if object.invalid?
         result[:result][:unified] = false
@@ -357,6 +357,12 @@ module Shared::Unify
       else
         result[:details][n][:merged] += 1
       end
+    else
+      # The update succeeded outright. Do not reload: reload clears the
+      # in-memory dirty-tracking (`saved_changes`/`_previously_changed?`)
+      # that object's own deferred `after_commit` callbacks may depend on
+      # to decide whether to recompute cached values (e.g. TaxonNameRelationship).
+      result[:details][n][:merged] += 1
     end
 
     result
