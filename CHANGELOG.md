@@ -17,6 +17,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 - Upgraded postresql client to version 18
 - Names limit in the Match OTUs to Taxon Names task is now 3k, up from 1k
+- Move the list of unifiable types to Ruby (no user-facing changes)
 
 ### Fixed
 
@@ -27,7 +28,12 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Regexes are applied when the user clicks the 'Match' button in the Match OTUs to Taxon Names task
 - "Is absent" checkbox does not display the value saved in session storage when citation form is loaded
 - Include citations on the OTU itself in addition to associated objects, for the endpoint /api/v1/otus/:id/inventory/citations [#4983]
+- Collecting Events with Georeferences raise an error when attempting to destroy [#4937]
+- Unify fixes related to: Georeferences when Collecting Events are unified, matrix columns when descriptors are unified, and dynamix matrix rows/columns when dynamic data are unified [#4944]
+- Unify now preserves list order of associated data: e.g. if two Collection Objects are unified, the kept object has its original list of Taxon Determinations in the same order, followed by the Taxon Determinations of the destroyed Collection Object in their original order
 
+[#4937]: https://github.com/SpeciesFileGroup/taxonworks/issues/4937
+[#4944]: https://github.com/SpeciesFileGroup/taxonworks/issues/4944
 [#4964]: https://github.com/SpeciesFileGroup/taxonworks/issues/4964
 [#4978]: https://github.com/SpeciesFileGroup/taxonworks/issues/4978
 [#4983]: https://github.com/SpeciesFileGroup/taxonworks/issues/4983
