@@ -3,28 +3,37 @@
     version="1.1"
     xmlns="http://www.w3.org/2000/svg"
     xmlns:xlink="http://www.w3.org/1999/xlink"
-    x="0px"
-    y="0px"
-    fill="currentColor"
-    viewBox="0 0 111.32 111.32"
-    xml:space="preserve"
+    fill="none"
+    stroke-width="2"
+    stroke="currentColor"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    viewBox="0 0 24 24"
   >
+    <path d="M5.5,12v4.2c0,1.2,1,2.2,2.2,2.2H12" />
     <circle
-      cx="23.73"
-      cy="23.38"
-      r="23.38"
+      cx="5.6"
+      cy="5.6"
+      r="3.6"
     />
     <circle
-      cx="87.44"
-      cy="87.94"
-      r="23.38"
+      cx="18.4"
+      cy="18.4"
+      r="3.6"
     />
-    <path
-      d="M82.56,46.75V29.87H65.54V18.21h17.02V1.33H93.9v16.88h17.06v11.66H93.9v16.88H82.56z"
-    />
-    <path
-      d="M57.72,79.68H31.27V53.28c-2.42,0.61-4.93,0.97-7.54,0.97c-2.71,0-5.33-0.39-7.84-1.04v41.85h41.53
-			c-0.54-2.29-0.86-4.66-0.86-7.12C56.56,85.07,56.98,82.31,57.72,79.68z"
-    />
+    <g>
+      <line
+        x1="18.5"
+        y1="2.1"
+        x2="18.5"
+        y2="9"
+      />
+      <line
+        x1="22"
+        y1="5.5"
+        x2="15"
+        y2="5.5"
+      />
+    </g>
   </svg>
 </template>

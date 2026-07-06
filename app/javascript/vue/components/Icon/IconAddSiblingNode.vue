@@ -3,42 +3,44 @@
     version="1.1"
     xmlns="http://www.w3.org/2000/svg"
     xmlns:xlink="http://www.w3.org/1999/xlink"
-    x="0px"
-    y="0px"
-    fill="currentColor"
-    viewBox="0 0 111.32 111.32"
-    xml:space="preserve"
+    fill="none"
+    stroke-width="2"
+    stroke="currentColor"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    viewBox="0 0 24 24"
   >
     <circle
       class="st0"
-      cx="49.44"
-      cy="24.95"
-      r="20.95"
+      cx="10.8"
+      cy="5.6"
+      r="3.6"
     />
     <circle
       class="st0"
-      cx="49.44"
-      cy="83.49"
-      r="20.95"
+      cx="10.8"
+      cy="18.4"
+      r="3.6"
     />
-    <path
-      class="st0"
-      d="M85.64,74.39V59.26H70.39V48.81h15.25V33.68h10.17v15.13h15.29v10.45H95.81v15.13H85.64z"
-    />
-    <rect
-      x="0.21"
-      y="17.68"
-      class="st0"
-      width="13.79"
-      height="72.7"
-    />
-    <path
-      class="st0"
-      d="M21.57,24.95c0-2.52,0.36-4.95,0.99-7.27H0.21v13.79h22.15C21.87,29.37,21.57,27.2,21.57,24.95z"
-    />
-    <path
-      class="st0"
-      d="M22.46,76.6H0.21v13.79h22.25c-0.56-2.21-0.89-4.51-0.89-6.89C21.57,81.11,21.9,78.81,22.46,76.6z"
+    <g>
+      <line
+        class="st0"
+        x1="18.5"
+        y1="8.5"
+        x2="18.5"
+        y2="15.5"
+      />
+      <line
+        class="st0"
+        x1="22"
+        y1="12"
+        x2="15"
+        y2="12"
+      />
+    </g>
+    <polyline
+      class="st1"
+      points="4,5.6 2,5.6 2,18.4 4,18.4 "
     />
   </svg>
 </template>
