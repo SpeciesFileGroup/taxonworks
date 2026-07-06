@@ -40,6 +40,12 @@ class Citation < ApplicationRecord
 
   attr_accessor :no_cached
 
+  # unify's dedup logic resets is_original to false on a would-be duplicate
+  # before comparing it to the surviving Citation via #identical; if
+  # is_original weren't ignored here that reset would make the two look
+  # different and the duplicate would never be matched.
+  IGNORE_IDENTICAL = [:is_original].freeze
+
   polymorphic_annotates('citation_object')
 
   # belongs_to :source, inverse_of: :origin_citations

@@ -333,7 +333,7 @@ module Shared::Unify
     # to the object being unified, if not,
     # we don't know how to handle this with confidence.
     inv = relation.options[:inverse_of]
-    if object.errors.details.keys.include?(inv) || object.errors.details.keys.include?(:"#{inv}_id")
+    if error_related_to_relation?(object, inv)
 
       # object can't be updated, move its annotations to self.
       dedup_result = deduplicate_update_target(object)
@@ -368,6 +368,23 @@ module Shared::Unify
     result
   end
 
+  # @return [Boolean]
+  #   true when `object`'s save failed because of the relation we just tried
+  #   to flip (`inv`/`inv_id`) -- either Rails reported the error directly on
+  #   that association/column, or a uniqueness validator *scoped by* that
+  #   association/column reported its error on a different attribute (e.g.
+  #   `validates_uniqueness_of :source_id, scope: [:citation_object_id, ...]`
+  #   reports on :source_id, not :citation_object_id, when a Citation can't
+  #   be moved onto an object that already has an identical one).
+  def error_related_to_relation?(object, inv)
+    return true if object.errors.details.keys.include?(inv) || object.errors.details.keys.include?(:"#{inv}_id")
+
+    fk = :"#{inv}_id"
+    object.class.validators.grep(ActiveRecord::Validations::UniquenessValidator).any? do |v|
+      Array(v.options[:scope]).any? { |s| s == inv || s == fk } &&
+        v.attributes.any? { |a| object.errors.details.key?(a) }
+    end
+  end
 
   def stub_unify_result(result, relation_name, attempted)
     result[:details].merge!(
