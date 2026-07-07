@@ -28,36 +28,46 @@
 
     <div class="horizontal-right-content middle" id="session_nav">
 
-<div class="horizontal-right-content middle gap-medium">
-      <div 
-        class="slide-panel-circle-icon slide-panel-circle-icon-pinboard"
-        data-control-slide-panel="pinboard"
-        data-tooltip-content="Pinboard (F1)"
-        data-tooltip-placement="bottom"></div>
-      <div 
-        class="slide-panel-circle-icon slide-panel-circle-icon-pdf"
-        data-control-slide-panel="pdfviewer"
-        data-tooltip-content="PDF Document viewer (F2)"
-        data-tooltip-placement="bottom">
-      </div>
-      <div
-        class="slide-panel-circle-icon slide-panel-circle-icon-clipboard"
-        data-control-slide-panel="clipboard"
-        data-tooltip-content="Clipboard (F3)"
-        data-tooltip-placement="bottom">
-      </div>
-      <div 
-        class="slide-panel-circle-icon help-button"
-        data-tooltip-content="Help"
-        data-tooltip-placement="bottom">
-      </div>
-</div>
-      <span class="padding-medium-left padding-small-right"> | </span>
+      <div class="horizontal-right-content middle gap-xsmall">
+        <button
+          type="button" 
+          class="button btn-white btn btn-large-circle btn-ghost cursor-pointer"
+          data-control-slide-panel="pinboard"
+          data-tooltip-content="Pinboard (F1)"
+          data-tooltip-placement="bottom">
+          <%= icon('pin', size: 18) %>
+        </button>
+        <button
+          type="button" 
+          class="button btn-white btn btn-large-circle btn-ghost cursor-pointer"
+          data-control-slide-panel="pdfviewer"
+          data-tooltip-content="PDF Document viewer (F2)"
+          data-tooltip-placement="bottom">
+          <%= icon('book-text', size: 18) %>
+        </button>
+        <button
+          type="button"
+          class="button btn-white btn btn-large-circle btn-ghost cursor-pointer"
+          data-control-slide-panel="clipboard"
+          data-tooltip-content="Clipboard (F3)"
+          data-tooltip-placement="bottom">
+          <%= icon('paperclip', size: 18) %>
+        </button>
 
-      <% if sessions_project_selected? %>
-      <div id="vue-bell-notifications"></div>
-      <% end %>
+        <% if sessions_project_selected? %>
+          <div id="vue-bell-notifications"></div>
+        <% end %>
+      </div>
 
+      <span class="padding-small-left padding-small-right"> | </span>
+
+        <button
+          type="button" 
+          class="button btn-white btn btn-large-circle btn-ghost cursor-pointer help-button"
+          data-tooltip-content="Help"
+          data-tooltip-placement="bottom">
+          <%= icon('help', size: 18) %>
+        </button>
       
       <div class="dropdown header-dropdown-menu">
         <button
@@ -66,9 +76,7 @@
           data-tooltip-content="Menu"
           data-tooltip-placement="bottom"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none"  stroke-width="1.5" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-          </svg>
+           <%= icon('hamburger', size: 18) %>
         </button>
         <div class="dropdown-content header-dropdown-menu">
           <ul class='no_bullets'>

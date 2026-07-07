@@ -92,6 +92,10 @@ $default-padding: 2em;
 }
 
 .slide-panel-circle-icon {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
   position: relative;
   width: 32px;
   height: 32px;
@@ -175,15 +179,12 @@ $default-padding: 2em;
 
 .slide-panel-circle-icon-clipboard {
   background-color: #004b77;
-  background-image: image-url('paper-clips.svg');
 }
 
 .slide-panel-circle-icon-pdf {
   background-color: #770000;
-  background-image: image-url('b_book.svg');
 }
 
 .slide-panel-circle-icon-pinboard {
   background-color: $category-header-color;
-  background-image: image-url('b_pin.svg');
 }

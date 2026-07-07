@@ -1,15 +1,5 @@
 .help-button {
   user-select: none;
-  cursor: pointer;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background-color: #ff8f00;
-  background-image: image-url('help.svg');
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 16px;
-  transition: all 0.3s ease;
 }
 
 .help-button:hover {
@@ -23,7 +13,7 @@
 }
 
 .help-button-present {
-  animation: shining 0.5s infinite alternate;
+  //animation: shining 0.5s infinite alternate;
 }
 
 .help-button-active {

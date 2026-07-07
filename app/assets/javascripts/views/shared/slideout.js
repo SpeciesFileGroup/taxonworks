@@ -51,8 +51,8 @@ Object.assign(TW.views.shared.slideout, {
   },
 
   togglePanel(e) {
-    const element = e.target
-    const attr = element.getAttribute('data-control-slide-panel')
+    const element = e.target.closest('[data-control-slide-panel]')
+    const attr = element?.getAttribute('data-control-slide-panel')
 
     if (attr) {
       const panelElement = document.querySelector(`[data-panel-name="${attr}"]`)

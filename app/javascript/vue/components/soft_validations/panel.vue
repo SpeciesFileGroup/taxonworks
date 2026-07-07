@@ -49,6 +49,22 @@
               />
 
               <div class="soft-validation-item__actions">
+                <VBtn
+                  v-if="error.fixable"
+                  color="create"
+                  variant="tonal"
+                  @click="
+                    runFix([
+                      {
+                        global_id: list.instance.global_id,
+                        only_methods: [error.soft_validation_method]
+                      }
+                    ])
+                  "
+                >
+                  Fix
+                </VBtn>
+
                 <template
                   v-for="(resolution, rIndex) in error.resolution"
                   :key="rIndex"
@@ -65,21 +81,6 @@
                     </a>
                   </VTooltip>
                 </template>
-                <VBtn
-                  v-if="error.fixable"
-                  color="create"
-                  variant="tonal"
-                  @click="
-                    runFix([
-                      {
-                        global_id: list.instance.global_id,
-                        only_methods: [error.soft_validation_method]
-                      }
-                    ])
-                  "
-                >
-                  Fix
-                </VBtn>
               </div>
             </li>
           </ul>
