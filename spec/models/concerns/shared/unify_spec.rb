@@ -1418,9 +1418,52 @@ describe 'Shared::Unify', type: :model do
       "  #{uncovered.join("\n  ")}"
   end
 
+  # log_unify_result no longer tries to guess whether a failed move "looks"
+  # relation-related before attempting dedup -- it just always tries
+  # (#identical won't match unless there's a genuine duplicate). What matters
+  # is what happens when that attempt does NOT pan out (no match, or a match
+  # was found but the nested merge failed): this must be reported as
+  # unmerged, not treated as safe to reload-and-recheck. See the georeference
+  # ("ce1 has a geographic_area that does not contain ce2s georeference") and
+  # ObservationMatrixRow ("when the nested unify inside deduplicate_update_
+  # target fails") specs above for the real scenarios this protects: the
+  # object, reverted to its old parent, is often perfectly *valid* there --
+  # but that parent is about to be destroyed, so "valid in its old spot" is
+  # not the same as "the requested move succeeded", and reporting merged
+  # would be silently wrong regardless of whether a dependent: :destroy
+  # cascade happens to clean it up afterward.
+  describe 'log_unify_result reports unmerged (not merged) when a dedup attempt does not pan out' do
+    let(:helper) { TestUnify.new }
+    let(:relation) { OpenStruct.new(name: :test_relation, options: { inverse_of: :integer }) }
+    let(:result) { { result: { unified: nil }, details: {} } }
+
+    specify 'even though the object, reloaded, is perfectly valid on its own' do
+      obj = TestUnifyIdenticalCapable.create!(string: 'a-value')
+      obj.errors.add(:string, :taken) # simulate: the attempted move failed, for any reason
+
+      helper.send(:stub_unify_result, result, 'Test relation', 1)
+      helper.send(:log_unify_result, obj, relation, result, TestUnify.new)
+
+      expect(result[:details]['Test relation'][:unmerged]).to eq(1)
+      expect(result[:details]['Test relation'][:merged]).to eq(0)
+      expect(result[:result][:unified]).to be(false)
+    end
+  end
+
 end
 
 class TestUnify < ApplicationRecord
   include FakeTable
   include Shared::Unify
+end
+
+# Like TestUnify, but also includes Shared::IsData for #identical, which
+# deduplicate_update_target needs -- kept separate from TestUnify so the
+# plain helper class doesn't pick up Shared::IsData's broader behavior
+# (callbacks, extra validations) just for tests that call private methods
+# via `send` without persisting anything.
+class TestUnifyIdenticalCapable < ApplicationRecord
+  include FakeTable
+  include Shared::Unify
+  include Shared::IsData
 end
