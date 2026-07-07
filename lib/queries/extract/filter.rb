@@ -8,6 +8,7 @@ module Queries
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::DateRanges
       include Queries::Concerns::Protocols
+      include Queries::Concerns::Sortable
       include Queries::Concerns::Tags
       include Queries::Helpers
 
@@ -31,6 +32,96 @@ module Queries
         repository_id: [],
         taxon_name_id: [],
       ].freeze
+
+      def self.sortable_columns
+        {
+          'id'                        => sort_by_direct_column('extracts.id'),
+          'verbatim_anatomical_origin' => sort_by_direct_column('extracts.verbatim_anatomical_origin'),
+          'date'                      => sort_by_direct_column('extracts.year_made'),
+          'updated_at'                => sort_by_direct_column('extracts.updated_at'),
+          'created_at'                => sort_by_direct_column('extracts.created_at'),
+          # Upstream (origin) OTUs. `related_origin_relationships` are
+          # relationships where the extract is `new_object`, so origin OTUs
+          # are `old_object` with `old_object_type = 'Otu'`.
+          'otus' => ->(q, dir) {
+            q.joins(<<~SQL.squish)
+              LEFT JOIN LATERAL (
+                SELECT MIN(COALESCE(tn.cached, o.name)) AS name
+                FROM origin_relationships orl
+                LEFT JOIN otus o ON o.id = orl.old_object_id
+                  AND orl.old_object_type = 'Otu'
+                LEFT JOIN taxon_names tn ON tn.id = o.taxon_name_id
+                WHERE orl.new_object_id = extracts.id
+                  AND orl.new_object_type = 'Extract'
+              ) AS sort_ex_otus ON true
+            SQL
+            .order(Arel.sql("sort_ex_otus.name #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
+          },
+          # identifiers aggregate: MIN(cached) polymorphic on Extract.
+          'identifiers' => ->(q, dir) {
+            q.joins(<<~SQL.squish)
+              LEFT JOIN LATERAL (
+                SELECT MIN(cached) AS cached
+                FROM identifiers
+                WHERE identifier_object_id = extracts.id
+                  AND identifier_object_type = 'Extract'
+              ) AS sort_ex_ident ON true
+            SQL
+            .order(Arel.sql("sort_ex_ident.cached #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
+          },
+          # Upstream origin types (Otu / CollectionObject / AnatomicalPart /
+          # Extract). Sort by the alphabetically-first old_object_type.
+          'originsType' => ->(q, dir) {
+            q.joins(<<~SQL.squish)
+              LEFT JOIN LATERAL (
+                SELECT MIN(old_object_type) AS type
+                FROM origin_relationships
+                WHERE new_object_id = extracts.id
+                  AND new_object_type = 'Extract'
+              ) AS sort_ex_origin_type ON true
+            SQL
+            .order(Arel.sql("sort_ex_origin_type.type #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
+          },
+          # Upstream origin labels (mirrors views/extracts/_attributes: uses
+          # `label_for(old_object)`). Approximates label_for via CASE on
+          # old_object_type -- Otu, CollectionObject, AnatomicalPart. Extract
+          # (self-origin) has no cached label; falls through to NULL.
+          'origins' => ->(q, dir) {
+            q.joins(<<~SQL.squish)
+              LEFT JOIN LATERAL (
+                SELECT MIN(
+                  CASE orl.old_object_type
+                  WHEN 'Otu' THEN (
+                    SELECT COALESCE(tn.cached, o.name)
+                    FROM otus o
+                    LEFT JOIN taxon_names tn ON tn.id = o.taxon_name_id
+                    WHERE o.id = orl.old_object_id
+                    LIMIT 1
+                  )
+                  WHEN 'CollectionObject' THEN (
+                    SELECT buffered_collecting_event
+                    FROM collection_objects
+                    WHERE id = orl.old_object_id
+                    LIMIT 1
+                  )
+                  WHEN 'AnatomicalPart' THEN (
+                    SELECT cached
+                    FROM anatomical_parts
+                    WHERE id = orl.old_object_id
+                    LIMIT 1
+                  )
+                  ELSE NULL
+                  END
+                ) AS label
+                FROM origin_relationships orl
+                WHERE orl.new_object_id = extracts.id
+                  AND orl.new_object_type = 'Extract'
+              ) AS sort_ex_origins ON true
+            SQL
+            .order(Arel.sql("sort_ex_origins.label #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
+          }
+        }
+      end
 
       # @return [Array of Repository#id]
       attr_accessor :repository_id

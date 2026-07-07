@@ -15,8 +15,21 @@ module Queries
       }.map(&:to_sym).freeze
 
       include Queries::Helpers
+      include Queries::Concerns::Sortable
       include Queries::Concerns::Users
       include Queries::Concerns::Attributes
+
+      # DwcOccurrence uses camelCase columns matching DwC terms. Whitelist all
+      # writable/scalar DwC columns plus id/timestamps.
+      SORTABLE_COLUMNS = (::DwcOccurrence.column_names - %w[
+        project_id created_by_id updated_by_id rebuild_set
+      ]).freeze
+
+      def self.sortable_columns
+        SORTABLE_COLUMNS.each_with_object({}) do |col, h|
+          h[col] = sort_by_direct_column(%Q("dwc_occurrences"."#{col}"))
+        end
+      end
 
       PARAMS = [
         *Queries::Concerns::Attributes.params,

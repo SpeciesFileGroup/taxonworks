@@ -16,8 +16,68 @@ module Queries
       include Queries::Concerns::Geo
       include Queries::Concerns::Notes
       include Queries::Concerns::Protocols
+      include Queries::Concerns::Sortable
       include Queries::Concerns::Tags
       include Queries::Helpers
+
+      # Frontend TableLayoutSelector emits column keys as
+      # "<section>.<column>" (e.g. "collecting_event.verbatim_locality"),
+      # so backend keys must match. Whitelist direct scalar columns; skip
+      # identifiers/roles (aggregate/derived) unless we add explicit sorts
+      # later.
+      def self.sortable_columns
+        cols = %w[
+          id
+          verbatim_label
+          verbatim_locality
+          verbatim_field_number
+          verbatim_collectors
+          verbatim_method
+          verbatim_habitat
+          verbatim_datum
+          verbatim_date
+          verbatim_elevation
+          verbatim_latitude
+          verbatim_longitude
+          verbatim_geolocation_uncertainty
+          cached
+          cached_level0_geographic_name
+          cached_level1_geographic_name
+          cached_level2_geographic_name
+          minimum_elevation
+          maximum_elevation
+          elevation_precision
+          field_notes
+          md5_of_verbatim_label
+          start_date_year
+          start_date_month
+          start_date_day
+          end_date_year
+          end_date_month
+          end_date_day
+          time_start_hour
+          time_start_minute
+          time_start_second
+          time_end_hour
+          time_end_minute
+          time_end_second
+          group
+          formation
+          member
+          lithology
+          max_ma
+          min_ma
+          created_at
+          updated_at
+        ]
+        cols.each_with_object({}) do |col, h|
+          lambda_sort = sort_by_direct_column("collecting_events.#{col}")
+          # Register both forms so the SortPanel picker (bare key) and the
+          # column header sort button (layout-prefixed key) both work.
+          h[col] = lambda_sort
+          h["collecting_event.#{col}"] = lambda_sort
+        end
+      end
 
       # This list of params are those that only occur
       # in this CollectingEvent filter. For those

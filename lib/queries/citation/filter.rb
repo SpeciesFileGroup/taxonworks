@@ -5,7 +5,26 @@ module Queries
       include Queries::Helpers
 
       include Concerns::Polymorphic
+      include Queries::Concerns::Sortable
       polymorphic_klass(::Citation)
+
+      def self.sortable_columns
+        {
+          'id'                   => sort_by_direct_column('citations.id'),
+          'citation_object_type' => sort_by_direct_column('citations.citation_object_type'),
+          'pages'                => sort_by_direct_column('citations.pages'),
+          'is_original'          => sort_by_direct_column('citations.is_original'),
+          'created_at'           => sort_by_direct_column('citations.created_at'),
+          'updated_at'           => sort_by_direct_column('citations.updated_at'),
+          'created_by'           => sort_by_direct_column('citations.created_by_id'),
+          'source.cached'        => sort_by_belongs_to_column(
+            joined_table: 'sources',
+            joined_column: 'cached',
+            fk_expr: 'citations.source_id',
+            alias_prefix: 'sort_citation_source'
+          )
+        }
+      end
 
       PARAMS = [
         *::Citation.related_foreign_keys.map(&:to_sym),

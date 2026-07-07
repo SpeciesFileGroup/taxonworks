@@ -75,6 +75,26 @@ describe ::Queries::Content::Filter, type: :model do
     expect(query.all.map(&:id)).to contain_exactly()
   end
 
+  context 'sort param' do
+    let!(:c_a) { FactoryBot.create(:valid_content, text: 'Alpha text') }
+    let!(:c_z) { FactoryBot.create(:valid_content, text: 'Zeta text') }
 
+    def sorted_ids(sort_key)
+      Queries::Content::Filter.new(sort: sort_key)
+        .all.where(id: [c_a.id, c_z.id]).pluck(:id)
+    end
+
+    specify 'sort=text orders alphabetically' do
+      expect(sorted_ids('text')).to eq([c_a.id, c_z.id])
+    end
+
+    specify 'sort=-text desc' do
+      expect(sorted_ids('-text')).to eq([c_z.id, c_a.id])
+    end
+
+    specify 'unknown sort key ignored' do
+      expect(sorted_ids('no_such_column')).to contain_exactly(c_a.id, c_z.id)
+    end
+  end
 
 end

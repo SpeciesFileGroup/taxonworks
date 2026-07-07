@@ -1,5 +1,6 @@
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
+import ajaxCall from '@/helpers/ajaxCall'
 import qs from 'qs'
 import {
   Tag,
@@ -27,6 +28,21 @@ const SERVICES = {
   attributions: Attribution,
   depictions: Depiction,
   documentation: Documentation
+}
+
+// annotationType (frontend key) -> backend resource for
+// /queries/:resource/sortable_columns.json
+const SORTABLE_RESOURCE_BY_TYPE = {
+  tags: 'tags',
+  notes: 'notes',
+  confidences: 'confidences',
+  data_attributes: 'data_attributes',
+  citations: 'citations',
+  identifiers: 'identifiers',
+  alternate_values: 'alternate_values',
+  attributions: 'attributions',
+  depictions: 'depictions',
+  documentation: 'documentation'
 }
 
 function getNestedValue(obj, path) {
@@ -110,6 +126,33 @@ export default function useAnnotationFilter() {
     annotationType.value ? ATTRIBUTES_BY_TYPE[annotationType.value] || {} : {}
   )
 
+  const sortableKeys = ref(null)
+
+  // Refetch the backend sortable-columns whitelist whenever the user picks a
+  // different annotation type. Each backend filter class has its own list.
+  watch(
+    annotationType,
+    (nextType) => {
+      if (!nextType) {
+        sortableKeys.value = null
+        return
+      }
+      const resource = SORTABLE_RESOURCE_BY_TYPE[nextType]
+      if (!resource) {
+        sortableKeys.value = []
+        return
+      }
+      ajaxCall('get', `/queries/${resource}/sortable_columns.json`)
+        .then((response) => {
+          sortableKeys.value = Array.isArray(response.body) ? response.body : []
+        })
+        .catch(() => {
+          sortableKeys.value = []
+        })
+    },
+    { immediate: true }
+  )
+
   function translateParameters(params) {
     const translated = { ...params }
 
@@ -129,6 +172,7 @@ export default function useAnnotationFilter() {
     annotationType,
     annotationTypes,
     currentAttributes,
-    setAnnotationType
+    setAnnotationType,
+    sortableKeys
   }
 }

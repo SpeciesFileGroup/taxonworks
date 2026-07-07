@@ -124,4 +124,51 @@ describe Queries::Extract::Filter, type: :model, group: [:dna, :collection_objec
     expect(q.all.pluck(:id)).to contain_exactly(e.id)
   end
 
+  context 'sort param' do
+    let!(:e_a) {
+      FactoryBot.create(:valid_extract, verbatim_anatomical_origin: 'Alpha origin', year_made: 2001)
+    }
+    let!(:e_z) {
+      FactoryBot.create(:valid_extract, verbatim_anatomical_origin: 'Zeta origin', year_made: 1999)
+    }
+
+    def sorted_ids(sort_key)
+      Queries::Extract::Filter.new(sort: sort_key)
+        .all.where(id: [e_a.id, e_z.id]).pluck(:id)
+    end
+
+    specify 'sort=verbatim_anatomical_origin orders alphabetically' do
+      expect(sorted_ids('verbatim_anatomical_origin')).to eq([e_a.id, e_z.id])
+    end
+
+    specify 'sort=date orders by year_made' do
+      expect(sorted_ids('date')).to eq([e_z.id, e_a.id])
+    end
+
+    specify 'unknown sort key ignored' do
+      expect(sorted_ids('no_such_column')).to contain_exactly(e_a.id, e_z.id)
+    end
+
+    specify 'sort=originsType orders by first origin type' do
+      # e_a upstream = CollectionObject, e_z upstream = Otu
+      OriginRelationship.create!(old_object: Specimen.create!, new_object: e_a)
+      OriginRelationship.create!(old_object: Otu.create!(name: 'zzz'), new_object: e_z)
+      expect(sorted_ids('originsType')).to eq([e_a.id, e_z.id])
+      expect(sorted_ids('-originsType')).to eq([e_z.id, e_a.id])
+    end
+
+    specify 'sort=otus orders by first origin otu name' do
+      OriginRelationship.create!(old_object: Otu.create!(name: 'Alpha otu'), new_object: e_a)
+      OriginRelationship.create!(old_object: Otu.create!(name: 'Zeta otu'), new_object: e_z)
+      expect(sorted_ids('otus')).to eq([e_a.id, e_z.id])
+    end
+
+    specify 'sort=origins orders by first origin label (polymorphic)' do
+      # e_a: origin Otu named 'A otu', e_z: origin Otu named 'Z otu'
+      OriginRelationship.create!(old_object: Otu.create!(name: 'A otu'), new_object: e_a)
+      OriginRelationship.create!(old_object: Otu.create!(name: 'Z otu'), new_object: e_z)
+      expect(sorted_ids('origins')).to eq([e_a.id, e_z.id])
+    end
+  end
+
 end

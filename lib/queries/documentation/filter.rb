@@ -3,7 +3,24 @@ module Queries
     class Filter < Query::Filter
 
       include Concerns::Polymorphic
+      include Queries::Concerns::Sortable
       polymorphic_klass(::Documentation)
+
+      def self.sortable_columns
+        {
+          'id'                        => sort_by_direct_column('documentation.id'),
+          'documentation_object_type' => sort_by_direct_column('documentation.documentation_object_type'),
+          'created_at'                => sort_by_direct_column('documentation.created_at'),
+          'updated_at'                => sort_by_direct_column('documentation.updated_at'),
+          'created_by'                => sort_by_direct_column('documentation.created_by_id'),
+          'document.object_tag'       => sort_by_belongs_to_column(
+            joined_table: 'documents',
+            joined_column: 'document_file_file_name',
+            fk_expr: 'documentation.document_id',
+            alias_prefix: 'sort_documentation_doc'
+          )
+        }
+      end
 
       PARAMS = [
         *::Documentation.related_foreign_keys.map(&:to_sym), 

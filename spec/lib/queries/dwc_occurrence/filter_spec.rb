@@ -62,9 +62,31 @@ describe Queries::DwcOccurrence::Filter, type: :model, group: [:dwc_occurrence] 
     n = FactoryBot.create(:iczn_family)
     t.otu.update!(taxon_name: n.parent.parent)
     query.empty_rank = [ 'genus', 'specificEpithet' ]
-    
+
     perform_enqueued_jobs
     expect(query.all).to contain_exactly(s.dwc_occurrence)
+  end
+
+  context 'sort param' do
+    let!(:s_a) { Specimen.create!.tap { |s| perform_enqueued_jobs; s.dwc_occurrence.update_column(:catalogNumber, 'AAA-1') } }
+    let!(:s_z) { Specimen.create!.tap { |s| perform_enqueued_jobs; s.dwc_occurrence.update_column(:catalogNumber, 'ZZZ-9') } }
+
+    def sorted_ids(sort_key)
+      Queries::DwcOccurrence::Filter.new(sort: sort_key)
+        .all.where(id: [s_a.dwc_occurrence.id, s_z.dwc_occurrence.id]).pluck(:id)
+    end
+
+    specify 'sort=catalogNumber orders alphabetically' do
+      expect(sorted_ids('catalogNumber')).to eq([s_a.dwc_occurrence.id, s_z.dwc_occurrence.id])
+    end
+
+    specify 'sort=-catalogNumber reverses order' do
+      expect(sorted_ids('-catalogNumber')).to eq([s_z.dwc_occurrence.id, s_a.dwc_occurrence.id])
+    end
+
+    specify 'unknown sort key ignored' do
+      expect(sorted_ids('no_such_column')).to contain_exactly(s_a.dwc_occurrence.id, s_z.dwc_occurrence.id)
+    end
   end
 
 end

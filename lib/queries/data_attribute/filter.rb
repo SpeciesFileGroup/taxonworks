@@ -3,7 +3,26 @@ module Queries
     class Filter < Query::Filter
 
       include Concerns::Polymorphic
+      include Queries::Concerns::Sortable
       polymorphic_klass(::DataAttribute)
+
+      def self.sortable_columns
+        {
+          'id'                     => sort_by_direct_column('data_attributes.id'),
+          'attribute_subject_type' => sort_by_direct_column('data_attributes.attribute_subject_type'),
+          'value'                  => sort_by_direct_column('data_attributes.value'),
+          'type'                   => sort_by_direct_column('data_attributes.type'),
+          'created_at'             => sort_by_direct_column('data_attributes.created_at'),
+          'updated_at'             => sort_by_direct_column('data_attributes.updated_at'),
+          'created_by'             => sort_by_direct_column('data_attributes.created_by_id'),
+          'controlled_vocabulary_term.name' => sort_by_belongs_to_column(
+            joined_table: 'controlled_vocabulary_terms',
+            joined_column: 'name',
+            fk_expr: 'data_attributes.controlled_vocabulary_term_id',
+            alias_prefix: 'sort_da_cvt'
+          )
+        }
+      end
 
       PARAMS = [
         *::DataAttribute.related_foreign_keys.map(&:to_sym),

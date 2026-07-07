@@ -3,7 +3,20 @@ module Queries
 
     class Filter < Query::Filter
       include Concerns::Polymorphic
+      include Queries::Concerns::Sortable
       polymorphic_klass(::Attribution)
+
+      def self.sortable_columns
+        {
+          'id'                      => sort_by_direct_column('attributions.id'),
+          'attribution_object_type' => sort_by_direct_column('attributions.attribution_object_type'),
+          'copyright_year'          => sort_by_direct_column('attributions.copyright_year'),
+          'license'                 => sort_by_direct_column('attributions.license'),
+          'created_at'              => sort_by_direct_column('attributions.created_at'),
+          'updated_at'              => sort_by_direct_column('attributions.updated_at'),
+          'created_by'              => sort_by_direct_column('attributions.created_by_id')
+        }
+      end
 
       PARAMS = [
         *::Attribution.related_foreign_keys.map(&:to_sym),

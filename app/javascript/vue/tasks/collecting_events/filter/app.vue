@@ -68,22 +68,35 @@
       </template>
       <template #table>
         <FilterList
+          ref="filterListRef"
           v-model="selectedIds"
+          v-model:sort-keys="sortKeys"
+          v-model:hide-unfrozen="hideFrozen"
+          v-model:unsaved-view-changes="unsavedViewChanges"
+          :backend-sort="true"
+          :sortable-keys="sortableKeys"
           :layout="currentLayout"
           :list="list"
-          :hide-unfrozen="hideFrozen"
           :preference-key="`tasks::filters::${COLLECTING_EVENT}`"
           :radial-object="false"
           @mouseover:row="setRowHover"
           @mouseout:body="() => (rowHover = null)"
-          @on-sort="($event) => (list = $event)"
           @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
       <template #nav-settings-start>
+        <SortPanel
+          v-model:sort-keys="sortKeys"
+          :labels="SORT_LABELS"
+          :sortable-keys="sortableKeys"
+        />
+        <SaveViewButton
+          v-if="hasUnsavedChanges"
+          @save="saveViewAsDefault"
+        />
         <VToggle
+          v-model="hideFrozen"
           title="Hide/show non-frozen columns"
-          @click="() => (hideFrozen = !hideFrozen)"
         >
           <VIcon
             :name="hideFrozen ? 'contract' : 'expand'"
@@ -105,8 +118,11 @@ import FloatMap from '@/components/ui/map/FloatMap.vue'
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import { useFilter, useCSVOptions } from '@/shared/Filter/composition'
+import useFilterView from '@/shared/Filter/composition/useFilterView.js'
 import RadialCollectingEvent from '@/components/radials/ce/radial.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
+import SortPanel from '@/components/Filter/Table/SortPanel.vue'
+import SaveViewButton from '@/components/Filter/Table/SaveViewButton.vue'
 import TableLayoutSelector from '@/components/Filter/Table/TableLayoutSelector.vue'
 import VToggle from '@/components/ui/VToggle.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
@@ -114,6 +130,7 @@ import { listParser } from './utils/listParser.js'
 import { COLLECTING_EVENT } from '@/constants/index.js'
 import { computed, ref, reactive, onMounted, onBeforeMount } from 'vue'
 import { sortArray } from '@/helpers/arrays'
+import { humanize } from '@/helpers/strings'
 import { CollectingEvent } from '@/routes/endpoints'
 import { LAYOUTS } from './constants/layouts.js'
 import { useTableLayoutConfiguration } from '@/components/Filter/composables/useTableLayoutConfiguration.js'
@@ -177,10 +194,41 @@ const {
   resetFilter,
   selectedIds,
   sortedSelectedIds,
-  urlRequest
+  urlRequest,
+  sortableKeys
 } = useFilter(CollectingEvent, {
   listParser,
-  initParameters: { extend }
+  initParameters: { extend },
+  sortableColumnsResource: 'collecting_events'
+})
+
+const {
+  sortKeys,
+  unsavedViewChanges,
+  hasUnsavedChanges,
+  filterListRef,
+  saveViewAsDefault
+} = useFilterView({
+  parameters,
+  makeFilterRequest,
+  objectType: COLLECTING_EVENT,
+  extend
+})
+
+// Layouts are user-picked so no fixed ATTRIBUTES map exists; humanize each
+// backend-declared sortable key for the SortPanel picker. The backend
+// registers both bare and layout-prefixed forms so column header buttons
+// work in all layouts -- for the picker we prefer the prefixed form and
+// humanize just the column portion.
+const SORT_LABELS = computed(() => {
+  const keys = sortableKeys.value || []
+  const prefixed = keys.filter((k) => k.includes('.'))
+  const source = prefixed.length ? prefixed : keys
+  return source.reduce((acc, key) => {
+    const bare = key.includes('.') ? key.split('.').slice(1).join('.') : key
+    acc[key] = humanize(bare)
+    return acc
+  }, {})
 })
 
 const csvOptions = useCSVOptions({ layout: currentLayout, list })

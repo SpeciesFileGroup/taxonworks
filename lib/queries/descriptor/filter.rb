@@ -7,6 +7,7 @@ module Queries
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
       include Queries::Concerns::Notes
+      include Queries::Concerns::Sortable
       include Queries::Concerns::Tags
 
       include Queries::Helpers
@@ -24,6 +25,28 @@ module Queries
         descriptor_type: [],
         observation_matrix_id: [],
       ].freeze
+
+      def self.sortable_columns
+        cols = {}
+        %w[
+          id name short_name description default_unit type description_name
+          key_name weight updated_at created_at
+        ].each do |c|
+          cols[c] = sort_by_direct_column("descriptors.#{c}")
+        end
+        # character_states is a has_many count/aggregate; sort by count.
+        cols['character_states'] = ->(q, dir) {
+          q.joins(<<~SQL.squish)
+            LEFT JOIN LATERAL (
+              SELECT COUNT(*) AS n
+              FROM character_states
+              WHERE character_states.descriptor_id = descriptors.id
+            ) AS sort_desc_cs ON true
+          SQL
+          .order(Arel.sql("sort_desc_cs.n #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
+        }
+        cols
+      end
 
       # @param name [String, Symbol]
       #   matches against name, short_name, description, description_name, key_name

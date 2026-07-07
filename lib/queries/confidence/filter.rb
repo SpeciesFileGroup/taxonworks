@@ -2,7 +2,24 @@ module Queries
   module Confidence
     class Filter < Query::Filter
       include Concerns::Polymorphic
+      include Queries::Concerns::Sortable
       polymorphic_klass(::Confidence)
+
+      def self.sortable_columns
+        {
+          'id'                     => sort_by_direct_column('confidences.id'),
+          'confidence_object_type' => sort_by_direct_column('confidences.confidence_object_type'),
+          'created_at'             => sort_by_direct_column('confidences.created_at'),
+          'updated_at'             => sort_by_direct_column('confidences.updated_at'),
+          'created_by'             => sort_by_direct_column('confidences.created_by_id'),
+          'confidence_level.object_tag' => sort_by_belongs_to_column(
+            joined_table: 'controlled_vocabulary_terms',
+            joined_column: 'name',
+            fk_expr: 'confidences.confidence_level_id',
+            alias_prefix: 'sort_confidence_level'
+          )
+        }
+      end
 
       PARAMS = [
         *::Confidence.related_foreign_keys.map(&:to_sym),

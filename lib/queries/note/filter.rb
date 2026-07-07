@@ -3,7 +3,19 @@ module Queries
     class Filter < Query::Filter
 
       include Concerns::Polymorphic
+      include Queries::Concerns::Sortable
       polymorphic_klass(::Note)
+
+      def self.sortable_columns
+        {
+          'id'               => sort_by_direct_column('notes.id'),
+          'note_object_type' => sort_by_direct_column('notes.note_object_type'),
+          'text'             => sort_by_direct_column('notes.text'),
+          'created_at'       => sort_by_direct_column('notes.created_at'),
+          'updated_at'       => sort_by_direct_column('notes.updated_at'),
+          'created_by'       => sort_by_direct_column('notes.created_by_id')
+        }
+      end
 
       PARAMS = [
         *::Note.related_foreign_keys.map(&:to_sym),

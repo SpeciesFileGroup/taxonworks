@@ -5,6 +5,19 @@ module Queries
       include Queries::Concerns::Citations
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::PreparationTypes
+      include Queries::Concerns::Sortable
+
+      def self.sortable_columns
+        {
+          'id'           => sort_by_direct_column('anatomical_parts.id'),
+          'name'         => sort_by_direct_column('anatomical_parts.name'),
+          'uri'          => sort_by_direct_column('anatomical_parts.uri'),
+          'uri_label'    => sort_by_direct_column('anatomical_parts.uri_label'),
+          'is_material'  => sort_by_direct_column('anatomical_parts.is_material'),
+          'updated_at'   => sort_by_direct_column('anatomical_parts.updated_at'),
+          'created_at'   => sort_by_direct_column('anatomical_parts.created_at')
+        }
+      end
 
       PARAMS = [
         :anatomical_part_id,

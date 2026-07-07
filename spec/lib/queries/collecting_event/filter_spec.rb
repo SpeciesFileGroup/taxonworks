@@ -257,4 +257,23 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
       expect(query.all.map(&:id)).to contain_exactly(ce1.id, ce2.id)
     end
   end
+
+  context 'sort param' do
+    def sorted_ids(sort_key)
+      Queries::CollectingEvent::Filter.new(sort: sort_key)
+        .all.where(id: [ce1.id, ce2.id]).pluck(:id)
+    end
+
+    specify 'sort=verbatim_locality orders alphabetically' do
+      expect(sorted_ids('verbatim_locality')).to eq([ce1.id, ce2.id])
+    end
+
+    specify 'sort=start_date_year descending puts newer first' do
+      expect(sorted_ids('-start_date_year')).to eq([ce1.id, ce2.id])
+    end
+
+    specify 'unknown sort key ignored' do
+      expect(sorted_ids('no_such_column')).to contain_exactly(ce1.id, ce2.id)
+    end
+  end
 end

@@ -29,16 +29,24 @@
           v-if="annotationType"
           :list="list"
           :attributes="currentAttributes"
-          :hide-unfrozen="hideFrozen"
+          :backend-sort="true"
+          :sortable-keys="sortableKeys"
           v-model="selectedIds"
-          @on-sort="list = $event"
+          v-model:sort-keys="sortKeys"
+          v-model:hide-unfrozen="hideFrozen"
           @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
       <template #nav-settings-start>
+        <SortPanel
+          v-if="annotationType"
+          v-model:sort-keys="sortKeys"
+          :labels="currentAttributes"
+          :sortable-keys="sortableKeys"
+        />
         <VToggle
+          v-model="hideFrozen"
           title="Hide/show non-frozen columns"
-          @click="() => (hideFrozen = !hideFrozen)"
         >
           <VIcon
             :name="hideFrozen ? 'contract' : 'expand'"
@@ -60,11 +68,13 @@
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterView from './components/FilterView.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
+import SortPanel from '@/components/Filter/Table/SortPanel.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VToggle from '@/components/ui/VToggle.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import useAnnotationFilter from './composables/useAnnotationFilter.js'
-import { ref } from 'vue'
+import { serializeSortKeys, parseSortParam } from '@/helpers/arrays.js'
+import { ref, watch } from 'vue'
 
 defineOptions({
   name: 'FilterAnnotations'
@@ -86,8 +96,30 @@ const {
   urlRequest,
   annotationType,
   currentAttributes,
-  setAnnotationType
+  setAnnotationType,
+  sortableKeys
 } = useAnnotationFilter()
+
+const sortKeys = ref(parseSortParam(parameters.value.sort))
+
+// User clicks a column header (or edits SortPanel) -> update the URL param
+// and re-request the current page from the server.
+watch(
+  sortKeys,
+  (next) => {
+    const sortString = serializeSortKeys(next)
+    if (sortString === parameters.value.sort) return
+    parameters.value.sort = sortString
+    if (!annotationType.value) return
+    makeFilterRequest({
+      ...parameters.value,
+      annotation_type: annotationType.value,
+      extend: ['annotated_object'],
+      page: 1
+    })
+  },
+  { deep: true }
+)
 
 function handleFilter() {
   if (!annotationType.value) return
@@ -102,11 +134,15 @@ function handleFilter() {
 
 function handleReset() {
   setAnnotationType(null)
+  sortKeys.value = []
   resetFilter()
 }
 
 function onAnnotationTypeChange(typeKey) {
   setAnnotationType(typeKey)
+  // Sort keys are per-type -- clear when switching to avoid sending a key
+  // the new backend doesn't recognize.
+  sortKeys.value = []
   parameters.value = { per: parameters.value.per }
 }
 </script>
