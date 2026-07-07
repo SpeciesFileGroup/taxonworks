@@ -11,15 +11,11 @@
           @close="closeModal()"
         >
           <template #header>
-            <span class="flex-separate middle">
-              <span v-html="title" />
-              <b
-                v-if="metadata"
-                class="margin-large-left"
-              >
-                {{ metadata.object_type }}
-              </b>
-            </span>
+            <RadialHeader
+              :object-type="metadata?.object_type"
+              :object-id="metadata?.object_id"
+              :title="title"
+            />
           </template>
           <template #body>
             <div class="flex-separate">
@@ -102,6 +98,7 @@ import VModal from '@/components/ui/Modal.vue'
 import SpinnerComponent from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import RadialHeader from '../shared/RadialHeader.vue'
 import makeRequest from '@/helpers/ajaxCall'
 import Icons from './images/icons.js'
 import { useShortcuts } from '@/components/radials/composables'

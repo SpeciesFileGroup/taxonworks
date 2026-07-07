@@ -13,7 +13,7 @@
     <!-- Scope to TaxonName -->
     <div class="flex-col gap-medium">
       <div class="field margin-medium-bottom">
-        <label>Scope to TaxonName</label>
+        <label data-help="Limit matches to names within this taxon's subtree.">Restrict matches to children of</label>
 
         <Autocomplete
           url="/taxon_names/autocomplete"
@@ -46,7 +46,7 @@
 
       <!-- Try without subgenus -->
       <div class="field margin-medium-bottom">
-        <label class="middle">
+        <label class="middle" data-help="When a name fails to match, also tries matching against stored names stripped of their subgenus (e.g. input 'Aus cus' will match a stored name 'Aus (Bus) cus').">
           <input
             type="checkbox"
             :checked="tryWithoutSubgenus"
@@ -97,7 +97,7 @@
 
       <!-- Modifiers -->
       <div class="field">
-        <label>Modifiers</label>
+        <label data-help="Regex find-and-replace rules applied to the match string before searching. Each active row is applied in sequence.">Modifiers</label>
         <div class="modifier-header">
           <span />
           <span class="subtle">Replace this</span>
