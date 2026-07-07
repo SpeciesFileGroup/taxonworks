@@ -43,6 +43,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Can't unify two Taxon Names when they have the same relationship type from/to a same third Taxon Name [#4971]
 - A "successful" unify between two Taxon Names, one of which has a synonym, can leave the synonym in an unusable state [#4971]
 - Unify of two Asserted Distributions with the "same" Citation can cause loss of annotation data from the citation that gets destroyed [#4971]
+- Unify blocked by "duplicate" is_original citations now works [#4971]
 - Monograph facilitator: Determination label is not visible in Safari browser
 - Checklist importer crashing on empty `originalNameUsageID` in some cases
 - Source and Repository autocompletes sometimes miss results, repository usage counts were sometimes wrong [#4990]

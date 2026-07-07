@@ -90,15 +90,18 @@ module Shared::Unify
   # Override to prepare an object for its own destruction by unify, e.g. to
   # flag a validation on a still-alive parent that would otherwise block the
   # destroy (see Citation, whose citation_object may require at least one
-  # citation -- moot once citation_object is itself confirmed to be the
+  # citation - moot once citation_object is itself confirmed to be the
   # record actually being destroyed).
   #
-  # @param on_behalf_of [ActiveRecord::Base, nil] the record actually being
-  #   destroyed by this destroy's ultimate cause: when this destroy is
-  #   happening inside deduplicate_update_target, that's the enclosing
-  #   #unify call's remove_object (deduplicate_update_target's remove_object
-  #   is always this level's own parent); nil for a top-level #unify call
-  #   with no enclosing dedup.
+  # @param on_behalf_of [ActiveRecord::Base, nil]
+  #   Normally nil (a plain, top-level #unify call destroys remove_object for
+  #   its own sake). Set only when this destroy is happening because
+  #   deduplicate_update_target found a duplicate and is merging it away --
+  #   in that case it's the parent (remove_object) of the #unify call that
+  #   triggered the merge. Hooks use it to recognize "the thing I'd
+  #   otherwise need to protect is about to be destroyed anyway, for an
+  #   unrelated reason" -- see Citation, which skips its at-least-one-
+  #   citation guard when its own citation_object is on_behalf_of.
   def prepare_for_unify_destroy(on_behalf_of)
   end
 
@@ -306,8 +309,7 @@ module Shared::Unify
   end
 
   # @param object [ActiveRecord::Base] see log_unify_result
-  # @param o [ActiveRecord::Base] see log_unify_result -- object's real
-  #   parent, passed through as on_behalf_of (see #unify)
+  # @param o [ActiveRecord::Base] see log_unify_result - object's real parent
   def deduplicate_update_target(object, o)
     i = object.identical
 
@@ -339,8 +341,7 @@ module Shared::Unify
   #   we tried to flip
   # @param result [Hash] the running unify result accumulator
   # @param o [ActiveRecord::Base] the remove_object of the enclosing #unify
-  #   call -- object's real parent, passed through to deduplicate_update_target
-  # @return result Hash
+  #   call - object's real parent
   def log_unify_result(object, relation, result, o)
     n = relation.name.to_s.humanize
 
@@ -356,25 +357,20 @@ module Shared::Unify
       object.save
     end
 
-    # If the attempted move failed, it may be because an identical record
-    # already exists on self (a duplicate) -- try to find and merge into it.
-    # #identical won't match unless there's a genuine duplicate, so this is
-    # safe to attempt for *any* validation failure, not just the ones that
-    # look like a uniqueness conflict.
-    #
-    # !! If the attempt doesn't pan out (no identical match, or a match was
-    # found but merging into it failed), report unmerged directly -- do NOT
-    # reload object and treat "valid in its old, unmoved position" as good
-    # enough to call merged. It's tempting (object reverted to a position it
-    # was already valid in, so what's the harm), but it's wrong: it silently
-    # leaves object attached to remove_object, which is about to be
-    # destroyed, while reporting success. Whether that's later caught by a
-    # cascade delete or leaves an orphan varies per relation and isn't
-    # something to gamble on here -- the honest answer is that the requested
-    # move could not be completed, so the record needs to be reported
-    # unmerged and the failure needs to be surfaced.
     if object.errors.any?
+      # If the attempted move failed, it may be because an identical record
+      # already exists on self (a duplicate) - try to find and merge into it.
+      # #identical won't match unless there's a genuine duplicate, so this is
+      # safe to attempt for *any* validation failure, not just the ones that
+      # look like a uniqueness conflict.
       dedup_result = deduplicate_update_target(object, o)
+      # object was never reloaded here unless deduplicate_update_target found
+      # a single identical match (in which case success/failure is decided by
+      # the nested unify's own result, not object's own validity) -- so in
+      # the "no match" case object is still exactly as invalid as it was when
+      # `object.errors.any?` was checked above. There's no state in between
+      # where it could have become valid, so there's nothing to re-check.
+      # TODO: followup on the other review recommendations
       if dedup_result && dedup_result[:result][:unified]
         result[:details][n][:deduplicated] += 1
       else

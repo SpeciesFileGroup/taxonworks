@@ -75,6 +75,10 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
   protected
 
   def set_cached_names_for_taxon_names
+    # object_taxon_name.reload raises RecordNotFound if the taxon name it
+    # pointed to was destroyed elsewhere in the same unify chain (e.g. as the
+    # duplicate being merged away); find_by + safe navigation degrades to a
+    # no-op instead of crashing the after_commit.
     t = TaxonName.find_by(id: object_taxon_name_id)
     t&.update_cached_original_combinations
   end

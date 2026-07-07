@@ -471,54 +471,60 @@ class TaxonNameRelationship < ApplicationRecord
 
   # OriginalCombination has a replacement method.
   def set_cached_names_for_taxon_names
+    # This is called via an unrestricted after_commit, which fires on
+    # destroy as well as create/update. _previously_changed? only reflects
+    # attribute changes from this record's own last save, and a plain
+    # destroy doesn't go through one -- without `|| destroyed?`, destroying
+    # a relationship (e.g. removing a synonym) would leave the taxon names
+    # it affected with stale cached values.
     return true unless subject_taxon_name_id_previously_changed? || object_taxon_name_id_previously_changed? || destroyed?
+
+    return true unless is_invalidating?
 
     # TODO: this should completely be replaced with Taxonname logic.
     TaxonName.transaction do # Why?
-      if is_invalidating?
-        t = subject_taxon_name
-        return true unless t
+      t = subject_taxon_name
+      return true unless t
 
-        if TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY.include?(type_name)
-          t.update_columns(
-            cached_misspelling: t.get_cached_misspelling,
-            cached_author_year: t.get_author_and_year,
-            cached_nomenclature_date: t.nomenclature_date,
-            cached_original_combination: t.get_original_combination,
-            cached_original_combination_html: t.get_original_combination_html)
-        end
-
-        if type_name =~/Misapplication/
-          t.update_columns(
-            cached_author_year: t.get_author_and_year,
-            cached_nomenclature_date: t.nomenclature_date)
-        end
-
-        vn = t.get_valid_taxon_name
-
-        # !! NO set cached should do this from TN side of things,
-        # !! Not here
-
-        n = t.get_full_name
-
+      if TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY.include?(type_name)
         t.update_columns(
-          cached: n,
-          cached_html: t.get_full_name_html(n), # OK to force reload here, otherwise we need an exception in #set_cached
+          cached_misspelling: t.get_cached_misspelling,
+          cached_author_year: t.get_author_and_year,
+          cached_nomenclature_date: t.nomenclature_date,
+          cached_original_combination: t.get_original_combination,
+          cached_original_combination_html: t.get_original_combination_html)
+      end
+
+      if type_name =~/Misapplication/
+        t.update_columns(
+          cached_author_year: t.get_author_and_year,
+          cached_nomenclature_date: t.nomenclature_date)
+      end
+
+      vn = t.get_valid_taxon_name
+
+      # !! NO set cached should do this from TN side of things,
+      # !! Not here
+
+      n = t.get_full_name
+
+      t.update_columns(
+        cached: n,
+        cached_html: t.get_full_name_html(n), # OK to force reload here, otherwise we need an exception in #set_cached
+        cached_valid_taxon_name_id: vn.id,
+        cached_is_valid: !t.unavailable_or_invalid?)
+
+      t.combination_list_self.each do |c|
+        c.update_column(:cached_valid_taxon_name_id, vn.id)
+      end
+
+      vn.list_of_invalid_taxon_names.each do |s|
+        s.update_columns(
           cached_valid_taxon_name_id: vn.id,
-          cached_is_valid: !t.unavailable_or_invalid?)
+          cached_is_valid: !s.unavailable_or_invalid?)
 
-        t.combination_list_self.each do |c|
+        s.combination_list_self.each do |c|
           c.update_column(:cached_valid_taxon_name_id, vn.id)
-        end
-
-        vn.list_of_invalid_taxon_names.each do |s|
-          s.update_columns(
-            cached_valid_taxon_name_id: vn.id,
-            cached_is_valid: !s.unavailable_or_invalid?)
-
-          s.combination_list_self.each do |c|
-            c.update_column(:cached_valid_taxon_name_id, vn.id)
-          end
         end
       end
     end

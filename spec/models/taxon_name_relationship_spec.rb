@@ -312,6 +312,25 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         expect(g2.cached_is_valid).to be_truthy
       end
 
+      # The `|| destroyed?` in set_cached_names_for_taxon_names's guard exists
+      # for this case specifically: `_previously_changed?` only reflects
+      # attribute changes from the record's *own* last save, and a plain
+      # destroy doesn't go through an update. Right after .create! that flag
+      # happens to still read true (left over from creation), which would
+      # mask a missing `destroyed?` guard -- reloading r1 first clears it, so
+      # this only passes if destroy on its own re-triggers the cache update.
+      specify 'for cached_valid_taxon_name_id, destroyed after previously_changed? has already reset' do
+        r1 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name: g2, object_taxon_name: g1)
+        r1.reload
+        expect(r1.subject_taxon_name_id_previously_changed?).to be_falsey
+        g2.reload
+        expect(g2.cached_valid_taxon_name_id).to eq(g1.id)
+        r1.destroy!
+        g2.reload
+        expect(g2.cached_valid_taxon_name_id).to eq(g2.id)
+        expect(g2.cached_is_valid).to be_truthy
+      end
+
       specify 'create misspelling relationship' do
         r3 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2,
                                type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
