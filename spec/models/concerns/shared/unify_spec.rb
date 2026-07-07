@@ -936,6 +936,32 @@ describe 'Shared::Unify', type: :model do
     expect(b[:details]['Citations'][:deduplicated]).to eq(1)
   end
 
+  # Citation#prepare_for_unify_destroy only flags citation_object.
+  # ignore_citation_restriction when on_behalf_of equals citation_object --
+  # i.e. when citation_object is itself confirmed to be the record actually
+  # being destroyed. citation1 and citation2 here are on two entirely
+  # unrelated AssertedDistributions (neither is being unified with the
+  # other) that merely happen to share a source and pages. Calling
+  # Citation#unify directly (bypassing the deduplicate_update_target context
+  # that would supply the real on_behalf_of) must not destroy citation2 and
+  # leave ad2 -- untouched, still fully alive -- with zero citations despite
+  # requiring one.
+  specify 'unify does not destroy a required citation for an unrelated, untouched citation_object' do
+    s = FactoryBot.create(:valid_source)
+    ad1 = FactoryBot.create(:valid_asserted_distribution, source: s)
+    ad2 = FactoryBot.create(:valid_asserted_distribution, source: s)
+
+    citation1 = ad1.citations.first
+    citation2 = ad2.citations.first
+    citation1.update!(pages: '5')
+    citation2.update!(pages: '5')
+
+    citation1.unify(citation2)
+
+    expect(citation2.destroyed?).to be_falsey
+    expect(ad2.reload.citations.count).to eq(1)
+  end
+
   specify 'unifies TaxonNames when both have the same OriginalCombination relationship type' do
     genus = FactoryBot.create(:relationship_genus)
     keep = FactoryBot.create(:relationship_species)

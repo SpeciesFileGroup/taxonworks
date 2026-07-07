@@ -87,6 +87,21 @@ module Shared::Unify
     []
   end
 
+  # Override to prepare an object for its own destruction by unify, e.g. to
+  # flag a validation on a still-alive parent that would otherwise block the
+  # destroy (see Citation, whose citation_object may require at least one
+  # citation -- moot once citation_object is itself confirmed to be the
+  # record actually being destroyed).
+  #
+  # @param on_behalf_of [ActiveRecord::Base, nil] the record actually being
+  #   destroyed by this destroy's ultimate cause: when this destroy is
+  #   happening inside deduplicate_update_target, that's the enclosing
+  #   #unify call's remove_object (deduplicate_update_target's remove_object
+  #   is always this level's own parent); nil for a top-level #unify call
+  #   with no enclosing dedup.
+  def prepare_for_unify_destroy(on_behalf_of)
+  end
+
   # See header.
   #
   # @return Hash
@@ -111,7 +126,11 @@ module Shared::Unify
   # @param target_project_id [Integer]
   #   required when self is_community?, scopes operations to target project only
   #
-  def unify(remove_object, only: [], except: [], preview: false, cutoff: 250, target_project_id: nil)
+  # @param on_behalf_of [ActiveRecord::Base, nil]
+  #   see Shared::Unify#prepare_for_unify_destroy; set internally by
+  #   deduplicate_update_target, not intended to be passed by other callers
+  #
+  def unify(remove_object, only: [], except: [], preview: false, cutoff: 250, target_project_id: nil, on_behalf_of: nil)
     s = {
       result: { unified: nil, total_related: 0, target_project_id:},
       details: {},
@@ -149,7 +168,7 @@ module Shared::Unify
 
           i.find_each do |j|
             j.update(r.options[:inverse_of] => self)
-            log_unify_result(j, r, s)
+            log_unify_result(j, r, s, o)
           end
 
           restore_list_order(list_state) if list_state
@@ -160,7 +179,7 @@ module Shared::Unify
             stub_unify_result(s, n, 1)
 
             i.update(r.options[:inverse_of] => self)
-            log_unify_result(i, r, s)
+            log_unify_result(i, r, s, o)
           end
         end
       end
@@ -174,6 +193,7 @@ module Shared::Unify
           o.reload # reset all in-memory has_many caches that would prevent destroy
 
           unless only.any? || except.any?
+            o.prepare_for_unify_destroy(on_behalf_of)
             o.destroy!
           end
 
@@ -285,13 +305,20 @@ module Shared::Unify
     s
   end
 
-  def deduplicate_update_target(object)
+  # @param object [ActiveRecord::Base] see log_unify_result
+  # @param o [ActiveRecord::Base] see log_unify_result -- object's real
+  #   parent, passed through as on_behalf_of (see #unify)
+  def deduplicate_update_target(object, o)
     i = object.identical
 
     # There is exactly 1 match, merge is unambiguous
     if i.size == 1
       j = i.first
-      j.unify(object.reload)
+      # object's own FK is still dirty from the failed update attempt (it
+      # points at self/KEEP, not o); reload so the nested unify below moves
+      # object's actual remaining relations, not phantom ones based on that
+      # dirty state.
+      j.unify(object.reload, on_behalf_of: o)
     else
       # Merge would be ambiguous, there are multiple matches
       return false
@@ -311,8 +338,10 @@ module Shared::Unify
   #   relation.options[:inverse_of] is the belongs_to on object's class whose FK
   #   we tried to flip
   # @param result [Hash] the running unify result accumulator
+  # @param o [ActiveRecord::Base] the remove_object of the enclosing #unify
+  #   call -- object's real parent, passed through to deduplicate_update_target
   # @return result Hash
-  def log_unify_result(object, relation, result)
+  def log_unify_result(object, relation, result, o)
     n = relation.name.to_s.humanize
 
     # Handle an edge case, preserve Citations that
@@ -336,7 +365,7 @@ module Shared::Unify
     if error_related_to_relation?(object, inv)
 
       # object can't be updated, move its annotations to self.
-      dedup_result = deduplicate_update_target(object)
+      dedup_result = deduplicate_update_target(object, o)
       unless dedup_result && dedup_result[:result][:unified]
         result[:result][:unified] = false
         result[:details][n][:unmerged] += 1

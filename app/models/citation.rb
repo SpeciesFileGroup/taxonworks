@@ -140,6 +140,17 @@ class Citation < ApplicationRecord
     BiologicalAssociationIndex.where(biological_association_id: citation_object_id)
   end
 
+  # See Shared::Unify#prepare_for_unify_destroy. citation_object may require
+  # at least one citation (Shared::CitationRequired), but that's moot if
+  # citation_object is itself confirmed to be the record actually being
+  # destroyed (on_behalf_of) -- it's not losing its last citation, it's going
+  # away entirely.
+  def prepare_for_unify_destroy(on_behalf_of)
+    return unless on_behalf_of == citation_object
+
+    citation_object.ignore_citation_restriction = true if citation_object.respond_to?(:ignore_citation_restriction)
+  end
+
   protected
 
   def add_source_to_project
