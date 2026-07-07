@@ -157,6 +157,8 @@ onMounted(() => {
 })
 
 watch([() => props.isPublic, () => props.otuId], () => {
+  completeDownload.value = null
+  pupalDownload.value = null
   if (props.isPublic && props.otuId) refreshStatus()
 })
 
@@ -195,9 +197,13 @@ async function createDownload() {
     if (response.ok) {
       TW.workbench.alert.create('Download already exists and is ready', 'notice')
     } else {
-      const data = await response.json()
+      const data = await response.json().catch(() => ({}))
       if (data.status) {
         TW.workbench.alert.create(data.status, 'notice')
+      } else if (data.error) {
+        TW.workbench.alert.create(data.error, 'error')
+      } else {
+        TW.workbench.alert.create(`Download creation failed (${response.status})`, 'error')
       }
     }
 

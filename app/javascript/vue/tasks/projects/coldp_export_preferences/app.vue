@@ -22,11 +22,11 @@
   />
 
   <CompleteDownloadControl
-    v-if="currentProfile"
-    :is-public="currentProfile.is_public || false"
+    v-if="savedCurrentProfile"
+    :is-public="savedCurrentProfile.is_public || false"
     :project-token="projectToken || ''"
-    :max-age="currentProfile.max_age || null"
-    :otu-id="currentProfile.otu_id"
+    :max-age="savedCurrentProfile.max_age || null"
+    :otu-id="savedCurrentProfile.otu_id"
   />
 
   <div
@@ -37,6 +37,7 @@
       <ConfigurationPanel
         :profile="currentProfile"
         :project-token="projectToken"
+        :saved-is-public="savedCurrentProfile?.is_public || false"
         @update:profile="updateCurrentProfile"
         @save="saveCurrentProfile"
       />
@@ -72,7 +73,7 @@
     v-else-if="!currentProfile"
     class="panel padding-large margin-large-top"
   >
-    <p>No profiles configured. Click "+ Add" to create a ColDP export profile.</p>
+    <p>No profiles configured. Click "New" to create a ColDP export profile.</p>
   </div>
 </template>
 
@@ -92,6 +93,7 @@ import DatasetCitation from './components/DatasetCitation.vue'
 const projectId = Number(getCurrentProjectId())
 const isLoading = ref(false)
 const profiles = ref([])
+const savedProfiles = ref([])
 const selectedProfileIndex = ref(0)
 const projectToken = ref(null)
 const coldpSettings = ref({})
@@ -100,6 +102,14 @@ const persistedOtuIds = ref(new Set())
 const currentProfile = computed(() =>
   profiles.value.length > 0 ? profiles.value[selectedProfileIndex.value] : null
 )
+
+// The last server-persisted version of the current profile. Panels that depend
+// on saved state (e.g., is_public gating the download panel) read from here so
+// unsaved local edits don't flip them.
+const savedCurrentProfile = computed(() => {
+  if (!currentProfile.value?.otu_id) return null
+  return savedProfiles.value.find(p => p.otu_id === currentProfile.value.otu_id) || null
+})
 
 // The dataset ID as last persisted on the server, so that
 // child components don't fire API calls on every keystroke.
@@ -121,6 +131,7 @@ onBeforeMount(() => {
   ColdpExportPreference.preferences(projectId)
     .then(({ body }) => {
       profiles.value = body.profiles || []
+      savedProfiles.value = JSON.parse(JSON.stringify(profiles.value))
       coldpSettings.value = body.coldp_settings || {}
       persistedOtuIds.value = new Set(profiles.value.map(p => p.otu_id))
     })
@@ -163,6 +174,7 @@ function saveCurrentProfile() {
   request
     .then(({ body }) => {
       profiles.value = body.profiles || []
+      savedProfiles.value = JSON.parse(JSON.stringify(profiles.value))
       coldpSettings.value = body.coldp_settings || {}
       persistedOtuIds.value = new Set(profiles.value.map(p => p.otu_id))
       // Reselect the same profile by otu_id
@@ -195,6 +207,7 @@ function deleteProfile() {
   ColdpExportPreference.destroyProfile(projectId, profile.otu_id)
     .then(({ body }) => {
       profiles.value = body.profiles || []
+      savedProfiles.value = JSON.parse(JSON.stringify(profiles.value))
       persistedOtuIds.value = new Set(profiles.value.map(p => p.otu_id))
       selectedProfileIndex.value = Math.max(0, selectedProfileIndex.value - 1)
       TW.workbench.alert.create('Profile deleted.', 'notice')

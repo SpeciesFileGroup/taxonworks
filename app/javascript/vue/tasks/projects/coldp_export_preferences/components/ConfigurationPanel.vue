@@ -65,10 +65,27 @@
       </div>
 
       <div class="field margin-medium-top">
+        <label>Default download creator</label>
+        <Autocomplete
+          url="/users/autocomplete"
+          label="label_html"
+          min="2"
+          placeholder="Select a user"
+          param="term"
+          :send-label="userLabel"
+          @getItem="setDefaultUser"
+        />
+        <div class="small_type">
+          Required to allow public API downloads (used when no session user is available).
+        </div>
+      </div>
+
+      <div class="field margin-medium-top">
         <label>
           <input
             type="checkbox"
             :checked="profile.is_public"
+            :disabled="isPublicDisabled"
             @change="emit('update:profile', {
               ...profile,
               is_public: $event.target.checked
@@ -76,6 +93,19 @@
           />
           Is Public
         </label>
+        <div
+          v-if="isPublicDisabledByNoToken"
+          class="feedback-warning padding-xsmall margin-small-top"
+        >
+          A project token must be set to make this profile public. Set one in the
+          <a :href="`/projects/${projectId}/edit`">project settings</a>.
+        </div>
+        <div
+          v-if="isPublicDisabledByNoDefaultUser"
+          class="feedback-warning padding-xsmall margin-small-top"
+        >
+          A default download creator must be set to make this profile public.
+        </div>
       </div>
 
       <div class="field margin-medium-top">
@@ -125,19 +155,6 @@
         <div class="small_type">
           Applied to all taxa in the export. Per-taxon data attributes (controlled vocabulary) take precedence when present.
         </div>
-      </div>
-
-      <div class="field margin-medium-top">
-        <label>Default download creator</label>
-        <Autocomplete
-          url="/users/autocomplete"
-          label="label_html"
-          min="2"
-          placeholder="Select a user"
-          param="term"
-          :send-label="userLabel"
-          @getItem="setDefaultUser"
-        />
       </div>
 
       <div class="field margin-medium-top">
@@ -199,8 +216,18 @@ const props = defineProps({
   projectToken: {
     type: String,
     default: ''
+  },
+  savedIsPublic: {
+    type: Boolean,
+    default: false
   }
 })
+
+const isPublicDisabledByNoToken = computed(() => !props.projectToken)
+const isPublicDisabledByNoDefaultUser = computed(() => !props.profile.default_user_id)
+const isPublicDisabled = computed(() =>
+  !props.profile.is_public && (isPublicDisabledByNoToken.value || isPublicDisabledByNoDefaultUser.value)
+)
 
 const emit = defineEmits(['update:profile', 'save'])
 

@@ -13,9 +13,7 @@ class Tasks::Projects::ColdpProfilesController < ApplicationController
   end
 
   def update
-    attrs = profile_params.merge('otu_id' => params[:otu_id])
-
-    if @project.update_coldp_profile(attrs)
+    if @project.update_coldp_profile(profile_params)
       render json: @project.coldp_preferences_for_vue(sessions_current_user)
     else
       render_project_error('Failed to update profile')

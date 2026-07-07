@@ -15,7 +15,10 @@
         <template v-else-if="counts">
           <p class="small_type margin-small-bottom">
             Valid names without an associated OTU will appear as "bare names" in ChecklistBank and will not be placed in the taxonomic classification.
-            Use <a :href="synchronizeOtusPath">Synchronize taxon names to OTUs</a> to fix.
+            Use <a
+              :href="synchronizeOtusPath"
+              target="_blank"
+            >Synchronize taxon names to OTUs</a> to fix.
           </p>
 
           <table class="vue-table">
@@ -23,7 +26,10 @@
               <tr>
                 <td>Valid names without OTU</td>
                 <td>
-                  <a :href="synchronizeOtusPath">
+                  <a
+                    :href="synchronizeOtusPath"
+                    target="_blank"
+                  >
                     {{ counts.valid_without.toLocaleString() }}
                   </a>
                 </td>

@@ -46,14 +46,7 @@ class Download::Coldp::Complete < Download::Coldp
     otu = Otu.where(project_id:).find_by(id: request.to_i)
     raise TaxonWorks::Error, "OTU #{request} not found" unless otu
 
-    profile = project.coldp_profile_for(request.to_i) || {}
-    prefer_unlabelled = profile.fetch('prefer_unlabelled_otus', false)
-
-    ::ColdpCreateDownloadJob.perform_later(
-      otu,
-      self,
-      prefer_unlabelled_otus: prefer_unlabelled
-    )
+    ::ColdpCreateDownloadJob.perform_later(otu, self, prefer_unlabelled_otus: false)
   end
 
   def sync_expires_with_preferences

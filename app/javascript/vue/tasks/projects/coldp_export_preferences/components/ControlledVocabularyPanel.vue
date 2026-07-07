@@ -2,6 +2,10 @@
   <div class="panel padding-large">
     <h2>Controlled Vocabulary</h2>
     <div class="margin-medium-left">
+      <p class="small_type margin-small-bottom">
+        Controlled vocabulary terms are shared across the entire project, not per profile. Creating a missing term here makes it available to every ColDP profile in this project.
+      </p>
+
       <VSpinner v-if="isLoading" />
 
       <template v-else-if="status.length > 0">

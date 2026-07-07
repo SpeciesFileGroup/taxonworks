@@ -36,8 +36,10 @@ module Shared::CompleteDownload
 
       max_age = complete_download_max_age(project, params)
       if max_age && (Time.current - download.created_at).to_f / 1.day > max_age
-        by_id = Current.user_id || complete_download_default_user_id(project, params)
-        pupal_class.create(by: by_id, project: project, **complete_download_lookup_params(params))
+        unless pupal_class.find_existing(project, params)
+          by_id = Current.user_id || complete_download_default_user_id(project, params)
+          pupal_class.create!(by: by_id, project: project, **complete_download_lookup_params(params))
+        end
       end
 
       download.increment!(:times_downloaded)
