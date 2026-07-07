@@ -356,35 +356,32 @@ module Shared::Unify
       object.save
     end
 
-    # One degree of seperation issue
+    # If the attempted move failed, it may be because an identical record
+    # already exists on self (a duplicate) -- try to find and merge into it.
+    # #identical won't match unless there's a genuine duplicate, so this is
+    # safe to attempt for *any* validation failure, not just the ones that
+    # look like a uniqueness conflict.
     #
-    # Here we check to see that the error is related
-    # to the object being unified, if not,
-    # we don't know how to handle this with confidence.
-    inv = relation.options[:inverse_of]
-    if error_related_to_relation?(object, inv)
-
-      # object can't be updated, move its annotations to self.
+    # !! If the attempt doesn't pan out (no identical match, or a match was
+    # found but merging into it failed), report unmerged directly -- do NOT
+    # reload object and treat "valid in its old, unmoved position" as good
+    # enough to call merged. It's tempting (object reverted to a position it
+    # was already valid in, so what's the harm), but it's wrong: it silently
+    # leaves object attached to remove_object, which is about to be
+    # destroyed, while reporting success. Whether that's later caught by a
+    # cascade delete or leaves an orphan varies per relation and isn't
+    # something to gamble on here -- the honest answer is that the requested
+    # move could not be completed, so the record needs to be reported
+    # unmerged and the failure needs to be surfaced.
+    if object.errors.any?
       dedup_result = deduplicate_update_target(object, o)
-      unless dedup_result && dedup_result[:result][:unified]
-        result[:result][:unified] = false
-        result[:details][n][:unmerged] += 1
-        result[:details][n][:errors] ||= []
-        result[:details][n][:errors].push( {id: object.id, message: object.errors.full_messages.join('; ')} )
-      else # We unified and destroyed the duplicate
+      if dedup_result && dedup_result[:result][:unified]
         result[:details][n][:deduplicated] += 1
-      end
-    elsif object.errors.any?
-      # There are unrelated errors we can not fix, ensure we have a fresh
-      # copy of the object and check for validity.
-      object.reload
-      if object.invalid?
+      else
         result[:result][:unified] = false
         result[:details][n][:unmerged] += 1
         result[:details][n][:errors] ||= []
         result[:details][n][:errors].push( {id: object.id, message: object.errors.full_messages.join('; ')} )
-      else
-        result[:details][n][:merged] += 1
       end
     else
       # The update succeeded outright. Do not reload: reload clears the
@@ -395,24 +392,6 @@ module Shared::Unify
     end
 
     result
-  end
-
-  # @return [Boolean]
-  #   true when `object`'s save failed because of the relation we just tried
-  #   to flip (`inv`/`inv_id`) -- either Rails reported the error directly on
-  #   that association/column, or a uniqueness validator *scoped by* that
-  #   association/column reported its error on a different attribute (e.g.
-  #   `validates_uniqueness_of :source_id, scope: [:citation_object_id, ...]`
-  #   reports on :source_id, not :citation_object_id, when a Citation can't
-  #   be moved onto an object that already has an identical one).
-  def error_related_to_relation?(object, inv)
-    return true if object.errors.details.keys.include?(inv) || object.errors.details.keys.include?(:"#{inv}_id")
-
-    fk = :"#{inv}_id"
-    object.class.validators.grep(ActiveRecord::Validations::UniquenessValidator).any? do |v|
-      Array(v.options[:scope]).any? { |s| s == inv || s == fk } &&
-        v.attributes.any? { |a| object.errors.details.key?(a) }
-    end
   end
 
   def stub_unify_result(result, relation_name, attempted)
