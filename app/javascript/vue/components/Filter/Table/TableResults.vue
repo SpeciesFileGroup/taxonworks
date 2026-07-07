@@ -72,7 +72,7 @@
             />
           </th>
           <th
-            v-for="(_, attr) in attributes"
+            v-for="attr in orderedAttributeKeys"
             :key="attr"
             v-show="isColumnVisible(attr)"
             v-bind="freezeBindings(attr)"
@@ -106,7 +106,7 @@
             :key="key"
           >
             <th
-              v-for="(property, pIndex) in getColumns(key, properties)"
+              v-for="(property, pIndex) in orderedLayoutColumns(key, properties)"
               :key="property"
               v-show="isColumnVisible(`${key}.${property}`)"
               :class="{ 'cell-left-border': pIndex === 0 }"
@@ -157,14 +157,23 @@
             v-bind="freezeBindings(FIXED_COLUMNS.Radial)"
           />
           <th
-            v-for="(title, attr) in attributes"
+            v-for="attr in orderedAttributeKeys"
             :key="attr"
             v-show="isColumnVisible(attr)"
             :data-th-column="attr"
+            :class="[
+              'draggable-column-header',
+              { 'draggable-column-header-dragging': draggedColumnKey === attr }
+            ]"
             v-bind="freezeBindings(attr)"
+            draggable="true"
+            @dragstart="(e) => onColumnDragStart(e, attr)"
+            @dragover="(e) => onColumnDragOver(e, attr)"
+            @drop="(e) => onColumnDrop(e, attr)"
+            @dragend="onColumnDragEnd"
           >
             <div class="horizontal-left-content gap-small">
-              <span>{{ title }}</span>
+              <span>{{ attributes[attr] }}</span>
             </div>
           </th>
 
@@ -173,12 +182,21 @@
             :key="key"
           >
             <th
-              v-for="(property, pIndex) in getColumns(key, properties)"
+              v-for="(property, pIndex) in orderedLayoutColumns(key, properties)"
               :key="property"
               v-show="isColumnVisible(`${key}.${property}`)"
-              :class="{ 'cell-left-border': pIndex === 0 }"
+              :class="[
+                'draggable-column-header',
+                { 'cell-left-border': pIndex === 0 },
+                { 'draggable-column-header-dragging': draggedColumnKey === `${key}.${property}` }
+              ]"
               :data-th-column="`${key}.${property}`"
               v-bind="freezeBindings(`${key}.${property}`)"
+              draggable="true"
+              @dragstart="(e) => onColumnDragStart(e, `${key}.${property}`)"
+              @dragover="(e) => onColumnDragOver(e, `${key}.${property}`)"
+              @drop="(e) => onColumnDrop(e, `${key}.${property}`)"
+              @dragend="onColumnDragEnd"
             >
               <div class="horizontal-left-content gap-small">
                 <span>{{ property }}</span>
@@ -243,7 +261,7 @@
           </td>
           <template v-if="attributes">
             <td
-              v-for="(_, attr) in attributes"
+              v-for="attr in orderedAttributeKeys"
               :key="attr"
               v-show="isColumnVisible(attr)"
               :name="attr"
@@ -272,7 +290,7 @@
             :key="key"
           >
             <td
-              v-for="(property, pIndex) in getColumns(key, properties)"
+              v-for="(property, pIndex) in orderedLayoutColumns(key, properties)"
               :key="property"
               v-show="isColumnVisible(`${key}.${property}`)"
               v-html="renderItem(item, key, property)"
@@ -401,25 +419,42 @@ const hideUnfrozenPref = props.preferenceKey
   : ref(false)
 const freezeColumnLeftPosition = ref({})
 
+// Column reorder state. For attributes mode entries are bare attribute keys
+// (e.g. 'name'); for layout mode entries are composite keys
+// ('collecting_event.verbatim_locality'). A single flat array works because
+// no table mixes both modes. Reordering across layout sections is not
+// supported -- see drag handlers.
+const columnOrder = ref([])
+const columnOrderPref = props.preferenceKey
+  ? useUserPreference(`${props.preferenceKey}::columnOrder`, [])
+  : ref([])
+const draggedColumnKey = ref(null)
+let draggedColumnSection = null
+
 // URL fragment sync for view state: `#freeze=key1,key2&hide=true`.
 // Fragment stays out of the query string so it doesn't hit the server or
 // consume the (already tight) GET budget. On mount, URL fragment overrides
 // user pref. Any subsequent change updates both fragment and pref.
 function readViewStateFromFragment() {
   const hash = window.location.hash.slice(1)
-  if (!hash) return { freeze: null, hide: null }
+  if (!hash) return { freeze: null, hide: null, order: null }
   const params = new URLSearchParams(hash)
   const rawFreeze = params.get('freeze')
+  const rawOrder = params.get('order')
   return {
     freeze:
       rawFreeze == null
         ? null
         : rawFreeze.split(',').map((s) => s.trim()).filter(Boolean),
-    hide: params.get('hide') === 'true' ? true : null
+    hide: params.get('hide') === 'true' ? true : null,
+    order:
+      rawOrder == null
+        ? null
+        : rawOrder.split(',').map((s) => s.trim()).filter(Boolean)
   }
 }
 
-function writeViewStateToFragment({ freeze, hide }) {
+function writeViewStateToFragment({ freeze, hide, order }) {
   const hash = window.location.hash.slice(1)
   const params = new URLSearchParams(hash)
   if (freeze !== undefined) {
@@ -430,6 +465,10 @@ function writeViewStateToFragment({ freeze, hide }) {
     if (hide) params.set('hide', 'true')
     else params.delete('hide')
   }
+  if (order !== undefined) {
+    if (order && order.length) params.set('order', order.join(','))
+    else params.delete('order')
+  }
   const next = params.toString()
   const nextHash = next ? `#${next}` : ''
   if (window.location.hash === nextHash) return
@@ -438,6 +477,80 @@ function writeViewStateToFragment({ freeze, hide }) {
     '',
     `${window.location.pathname}${window.location.search}${nextHash}`
   )
+}
+
+const orderedAttributeKeys = computed(() => {
+  const known = Object.keys(props.attributes || {})
+  if (!columnOrder.value.length) return known
+  const inOrder = columnOrder.value.filter((k) => known.includes(k))
+  const missing = known.filter((k) => !inOrder.includes(k))
+  return [...inOrder, ...missing]
+})
+
+// Reorder columns within a single layout section. Cross-section reordering
+// isn't supported -- sections group semantically distinct data types.
+function orderedLayoutColumns(sectionKey, properties) {
+  const raw = getColumns(sectionKey, properties)
+  if (!columnOrder.value.length) return raw
+  const prefix = `${sectionKey}.`
+  const inOrder = columnOrder.value
+    .filter((k) => k.startsWith(prefix))
+    .map((k) => k.slice(prefix.length))
+    .filter((k) => raw.includes(k))
+  const missing = raw.filter((k) => !inOrder.includes(k))
+  return [...inOrder, ...missing]
+}
+
+// Flatten current visible column order across attributes + layout sections
+// into a single array of the same key shape stored in columnOrder. Used as
+// the working list when reorder-in-place a dragged column.
+function currentFlatColumnOrder() {
+  if (props.layout?.properties) {
+    return Object.entries(props.layout.properties).flatMap(([k, ps]) =>
+      orderedLayoutColumns(k, ps).map((p) => `${k}.${p}`)
+    )
+  }
+  return orderedAttributeKeys.value
+}
+
+function onColumnDragStart(e, key) {
+  draggedColumnKey.value = key
+  draggedColumnSection = key.includes('.') ? key.split('.')[0] : null
+  e.dataTransfer.effectAllowed = 'move'
+  // Firefox requires data to be set to initiate a drag.
+  try { e.dataTransfer.setData('text/plain', key) } catch (_) {}
+}
+
+function onColumnDragOver(e, key) {
+  if (!draggedColumnKey.value) return
+  const targetSection = key.includes('.') ? key.split('.')[0] : null
+  if (targetSection !== draggedColumnSection) return
+  e.preventDefault()
+  e.dataTransfer.dropEffect = 'move'
+}
+
+function onColumnDrop(e, key) {
+  const dragged = draggedColumnKey.value
+  draggedColumnKey.value = null
+  if (!dragged || dragged === key) return
+  const targetSection = key.includes('.') ? key.split('.')[0] : null
+  if (targetSection !== draggedColumnSection) return
+  e.preventDefault()
+
+  const flat = currentFlatColumnOrder()
+  const next = [...flat]
+  const fromIdx = next.indexOf(dragged)
+  const toIdx = next.indexOf(key)
+  if (fromIdx === -1 || toIdx === -1) return
+  const [item] = next.splice(fromIdx, 1)
+  next.splice(toIdx, 0, item)
+  columnOrder.value = next
+  writeViewStateToFragment({ order: next })
+}
+
+function onColumnDragEnd() {
+  draggedColumnKey.value = null
+  draggedColumnSection = null
 }
 
 function isColumnVisible(key) {
@@ -676,12 +789,15 @@ onMounted(() => {
     fromFragment.freeze ?? freezeColumnPref.value ?? []
   hideUnfrozen.value =
     fromFragment.hide ?? hideUnfrozenPref.value ?? false
+  columnOrder.value =
+    fromFragment.order ?? columnOrderPref.value ?? []
 })
 
 // Handle async pref load (cold-start with no sessionStorage cache). Only
 // applies once, and only if the URL fragment didn't supply an override.
 let freezeAsyncHydrated = false
 let hideAsyncHydrated = false
+let orderAsyncHydrated = false
 watch(freezeColumnPref, (pref) => {
   if (freezeAsyncHydrated) return
   freezeAsyncHydrated = true
@@ -696,6 +812,14 @@ watch(hideUnfrozenPref, (pref) => {
   const fromFragment = readViewStateFromFragment()
   if (fromFragment.hide == null && pref === true) {
     hideUnfrozen.value = pref
+  }
+})
+watch(columnOrderPref, (pref) => {
+  if (orderAsyncHydrated) return
+  orderAsyncHydrated = true
+  const fromFragment = readViewStateFromFragment()
+  if (fromFragment.order == null && pref?.length && !columnOrder.value.length) {
+    columnOrder.value = [...pref]
   }
 })
 
@@ -757,13 +881,14 @@ watch(
   { deep: true }
 )
 
-// Copies current session view state (freeze + hide) into the user's saved
-// preferences. Called by the SaveViewButton at the filter task level, which
-// also saves sort separately since that state lives in the parent.
+// Copies current session view state (freeze + hide + order) into the user's
+// saved preferences. Called by the SaveViewButton at the filter task level,
+// which also saves sort separately since that state lives in the parent.
 function saveViewAsDefault() {
   // Deep-clone to strip Vue reactive proxies before persisting.
   freezeColumnPref.value = JSON.parse(JSON.stringify(freezeColumn.value))
   hideUnfrozenPref.value = hideUnfrozen.value
+  columnOrderPref.value = JSON.parse(JSON.stringify(columnOrder.value))
 }
 
 // Compare current freeze/hide session state against pref; drives the
@@ -782,15 +907,16 @@ function arraysEqual(a, b) {
 }
 
 watch(
-  [freezeColumn, hideUnfrozen, freezeColumnPref, hideUnfrozenPref],
-  ([fz, hd, fzPref, hdPref]) => {
+  [freezeColumn, hideUnfrozen, columnOrder, freezeColumnPref, hideUnfrozenPref, columnOrderPref],
+  ([fz, hd, ord, fzPref, hdPref, ordPref]) => {
     if (!props.preferenceKey) {
       unsavedViewChanges.value = false
       return
     }
     const freezeDirty = !arraysEqual(fz, fzPref ?? [])
     const hideDirty = hd !== (hdPref ?? false)
-    unsavedViewChanges.value = freezeDirty || hideDirty
+    const orderDirty = !arraysEqual(ord, ordPref ?? [])
+    unsavedViewChanges.value = freezeDirty || hideDirty || orderDirty
   },
   { deep: true, immediate: true }
 )
@@ -902,6 +1028,18 @@ thead .freeze {
   th {
     font-weight: 700;
   }
+}
+
+.draggable-column-header {
+  cursor: grab;
+}
+
+.draggable-column-header:active {
+  cursor: grabbing;
+}
+
+.draggable-column-header-dragging {
+  opacity: 0.4;
 }
 
 :deep(.handy-scroll) {
