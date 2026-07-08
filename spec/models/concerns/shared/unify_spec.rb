@@ -287,6 +287,17 @@ describe 'Shared::Unify', type: :model do
     expect(r[:result][:message]).to include('cutoff')
   end
 
+   specify 'does not unify non-community objects from different projects' do
+    other_project = FactoryBot.create(:valid_project)
+    b = FactoryBot.create(:valid_otu, project: other_project)
+
+    r = o1.unify(b)
+
+    expect(r[:result][:unified]).to be(false)
+    expect(r[:result][:message]).to include('different project')
+    expect(b.destroyed?).to be_falsey
+  end
+
   specify 'handles BiocurationClassifications when identical' do
     a = FactoryBot.create(:valid_specimen)
     b = FactoryBot.create(:valid_specimen)
