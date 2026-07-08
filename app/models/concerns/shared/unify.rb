@@ -293,7 +293,7 @@ module Shared::Unify
 
     if !is_community?
       if project_id != remove_object.project_id
-        s.merge!(
+        s[:result].merge!(
           unified: false,
           message: 'Danger, objects come from different projects.')
       end
