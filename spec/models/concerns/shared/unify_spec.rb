@@ -973,6 +973,46 @@ describe 'Shared::Unify', type: :model do
     expect(ad2.reload.citations.count).to eq(1)
   end
 
+  # TaxonDetermination has the identical "must have at least one" before_destroy
+  # guard shape as Citation (Shared::TaxonDeterminationRequired's
+  # ignore_taxon_determination_restriction mirrors Shared::CitationRequired's
+  # ignore_citation_restriction, and FieldOccurrence#requires_taxon_determination?
+  # is unconditionally true, just like Citation's requirement), but only
+  # Citation was given a prepare_for_unify_destroy override in this branch.
+  # This spec sets up the *same shape* of scenario as the Citation dedup specs
+  # above (two objects, each with a matching/duplicate related record) to
+  # confirm the TaxonDetermination gap does not currently bite -- but for a
+  # different reason than "it's fixed":
+  #
+  # TaxonDetermination's only uniqueness validator is on :position, scoped by
+  # (taxon_determination_object_id/type, project_id). Unlike Citation's
+  # source/pages uniqueness, this validator can never survive
+  # log_unify_result's generic "reset position to nil and retry" fixup:
+  # acts_as_list's add_new_at: :top callback (before_update :check_scope)
+  # treats a nilled position as "insert at top" and always finds room by
+  # shifting every other record in the scope down, so the retry always
+  # succeeds. That means object.errors is always empty by the time
+  # log_unify_result would otherwise reach for deduplicate_update_target --
+  # dedup, and therefore the missing prepare_for_unify_destroy path, is never
+  # actually exercised here. The "duplicate" determination is just merged in
+  # as an ordinary (undeduped) second record, not destroyed and not blocked.
+  specify 'unify does not attempt (and so does not need to guard) dedup of a duplicate TaxonDetermination on a FieldOccurrence' do
+    fo1 = FactoryBot.create(:valid_field_occurrence)
+    fo2 = FactoryBot.create(:valid_field_occurrence)
+    otu = FactoryBot.create(:valid_otu)
+
+    fo1.taxon_determinations.first.update!(otu:)
+    fo2.taxon_determinations.first.update!(otu:)
+
+    result = fo1.unify(fo2)
+
+    expect(result[:result][:unified]).to be(true)
+    expect(result[:details]['Taxon determinations'][:merged]).to eq(1)
+    expect(result[:details]['Taxon determinations'][:deduplicated]).to eq(0)
+    expect(fo2.destroyed?).to be_truthy
+    expect(fo1.taxon_determinations.reload.count).to eq(2)
+  end
+
   specify 'unifies TaxonNames when both have the same OriginalCombination relationship type' do
     genus = FactoryBot.create(:relationship_genus)
     keep = FactoryBot.create(:relationship_species)
