@@ -518,6 +518,12 @@ class TaxonNameRelationship < ApplicationRecord
         c.update_column(:cached_valid_taxon_name_id, vn.id)
       end
 
+      # TODO: this fires per-relationship via after_commit, and each firing
+      # redoes this full pass over every synonym of vn, not just the one
+      # relationship that changed. Merging a TaxonName with N synonym
+      # relationships triggers N callbacks, each doing O(N) work here --
+      # O(N^2) total for the whole merge. Would need batching/debouncing the
+      # cache rebuild to a single pass after all relationship moves land.
       vn.list_of_invalid_taxon_names.each do |s|
         s.update_columns(
           cached_valid_taxon_name_id: vn.id,

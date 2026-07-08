@@ -139,8 +139,7 @@ module Shared::Unify
       details: {},
     }
 
-    o = remove_object
-    pre_validate(o, s)
+    pre_validate(remove_object, s)
     return s if s[:result][:unified] == false
     pid = s[:result][:target_project_id]
 
@@ -153,7 +152,7 @@ module Shared::Unify
         case ::ApplicationEnumeration.relationship_type(r)
 
         when :has_many
-          i = o.send(r.name)
+          i = remove_object.send(r.name)
 
           unless ::ApplicationEnumeration.relation_targets_community?(r)
             i = i.where(project_id: pid)
@@ -171,18 +170,18 @@ module Shared::Unify
 
           i.find_each do |j|
             j.update(r.options[:inverse_of] => self)
-            log_unify_result(j, r, s, o)
+            log_unify_result(j, r, s, remove_object)
           end
 
           restore_list_order(list_state) if list_state
 
         when :has_one, :belongs_to
-          i = o.send(r.name)
+          i = remove_object.send(r.name)
           if !i.nil?
             stub_unify_result(s, n, 1)
 
             i.update(r.options[:inverse_of] => self)
-            log_unify_result(i, r, s, o)
+            log_unify_result(i, r, s, remove_object)
           end
         end
       end
@@ -193,11 +192,11 @@ module Shared::Unify
       elsif s[:result][:unified] != false
 
         begin
-          o.reload # reset all in-memory has_many caches that would prevent destroy
+          remove_object.reload # reset all in-memory has_many caches that would prevent destroy
 
           unless only.any? || except.any?
-            o.prepare_for_unify_destroy(on_behalf_of)
-            o.destroy!
+            remove_object.prepare_for_unify_destroy(on_behalf_of)
+            remove_object.destroy!
           end
 
         rescue ActiveRecord::InvalidForeignKey => e
@@ -207,7 +206,7 @@ module Shared::Unify
             Object: {
               errors: [
                 {
-                  id: o.id,
+                  id: remove_object.id,
                   exception: e.class.name,
                   message: e.message
                 }
@@ -309,18 +308,18 @@ module Shared::Unify
   end
 
   # @param object [ActiveRecord::Base] see log_unify_result
-  # @param o [ActiveRecord::Base] see log_unify_result - object's real parent
-  def deduplicate_update_target(object, o)
+  # @param enclosing_remove_object [ActiveRecord::Base] see log_unify_result - object's real parent
+  def deduplicate_update_target(object, enclosing_remove_object)
     i = object.identical
 
     # There is exactly 1 match, merge is unambiguous
     if i.size == 1
       j = i.first
       # object's own FK is still dirty from the failed update attempt (it
-      # points at self/KEEP, not o); reload so the nested unify below moves
-      # object's actual remaining relations, not phantom ones based on that
-      # dirty state.
-      j.unify(object.reload, on_behalf_of: o)
+      # points at self/KEEP, not enclosing_remove_object); reload so the
+      # nested unify below moves object's actual remaining relations, not
+      # phantom ones based on that dirty state.
+      j.unify(object.reload, on_behalf_of: enclosing_remove_object)
     else
       # Merge would be ambiguous, there are multiple matches
       return false
@@ -340,9 +339,9 @@ module Shared::Unify
   #   relation.options[:inverse_of] is the belongs_to on object's class whose FK
   #   we tried to flip
   # @param result [Hash] the running unify result accumulator
-  # @param o [ActiveRecord::Base] the remove_object of the enclosing #unify
-  #   call - object's real parent
-  def log_unify_result(object, relation, result, o)
+  # @param enclosing_remove_object [ActiveRecord::Base] the remove_object of
+  #   the enclosing #unify call - object's real parent
+  def log_unify_result(object, relation, result, enclosing_remove_object)
     n = relation.name.to_s.humanize
 
     # Handle an edge case, preserve Citations that
@@ -363,14 +362,13 @@ module Shared::Unify
       # #identical won't match unless there's a genuine duplicate, so this is
       # safe to attempt for *any* validation failure, not just the ones that
       # look like a uniqueness conflict.
-      dedup_result = deduplicate_update_target(object, o)
+      dedup_result = deduplicate_update_target(object, enclosing_remove_object)
       # object was never reloaded here unless deduplicate_update_target found
       # a single identical match (in which case success/failure is decided by
       # the nested unify's own result, not object's own validity) -- so in
       # the "no match" case object is still exactly as invalid as it was when
       # `object.errors.any?` was checked above. There's no state in between
       # where it could have become valid, so there's nothing to re-check.
-      # TODO: followup on the other review recommendations
       if dedup_result && dedup_result[:result][:unified]
         result[:details][n][:deduplicated] += 1
       else
