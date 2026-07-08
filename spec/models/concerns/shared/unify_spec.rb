@@ -1017,6 +1017,30 @@ describe 'Shared::Unify', type: :model do
     expect(TaxonNameRelationship.find_by(id: r_keep.id)).not_to be_nil
   end
 
+  # A relation move can fail validation for reasons that have nothing to do
+  # with duplication. Here, unifying moves a SourceClassifiedAs relationship
+  # onto an ICN (botanical) name, but its subject is an ICZN (zoological)
+  # name -- TaxonNameRelationship#validate_subject_and_object_share_code, a
+  # plain `validate` callback, not a uniqueness check, correctly rejects
+  # relating names from different nomenclatural codes. That must be reported
+  # unmerged (and destroy/its relationship must survive), not treated as a
+  # duplicate-worthy failure or silently merged.
+  specify 'unifying does not report merged for a relation whose move fails a non-uniqueness validation' do
+    destroy = FactoryBot.create(:relationship_family) # ICZN
+    subject_name = FactoryBot.create(:relationship_genus, parent: destroy) # ICZN, shares code with destroy
+    keep = FactoryBot.create(:icn_family) # different nomenclatural code
+
+    r = TaxonNameRelationship::SourceClassifiedAs.create!(subject_taxon_name: subject_name, object_taxon_name: destroy)
+
+    result = keep.unify(destroy)
+
+    expect(result[:result][:unified]).to be(false)
+    expect(result[:details]['Related taxon name relationships'][:unmerged]).to eq(1)
+    expect(result[:details]['Related taxon name relationships'][:merged]).to eq(0)
+    expect(destroy.reload.destroyed?).to be_falsey
+    expect(r.reload.object_taxon_name_id).to eq(destroy.id)
+  end
+
   # Aus bus (destroy) and Cus dus (keep) both exist, and some other name is
   # a Synonym *of* Aus bus (i.e. Aus bus is the *object* of that TNR, and
   # Aus bus's id is cached on the synonym's cached_valid_taxon_name_id).
