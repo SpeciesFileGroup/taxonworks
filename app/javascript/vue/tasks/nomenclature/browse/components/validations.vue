@@ -1,6 +1,6 @@
 <template>
   <SoftValidations
-    class="margin-medium-bottom full_width"
+    class="full_width"
     :validations="validations"
   />
 </template>

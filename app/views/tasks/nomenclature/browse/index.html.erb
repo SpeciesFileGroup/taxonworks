@@ -87,12 +87,15 @@
 
 
         <div id="third-column">
-          <div class="flex-wrap-row">
+          <div class="flex-wrap-row gap-medium">
             <%= render "summary" %>
             <%= render "soft_validation" %>
             <%= annotations_summary_tag(@taxon_name) %>
-            <div class="panel content fullSize">
-              <div class="attributes">
+            <div class="tw-card fullSize">
+              <div class="tw-card-header">
+                <h2 class="tw-card-title">Housekeeping</h2>
+              </div>
+              <div class="tw-card-body attributes">
                 <%= render(partial: '/shared/data/all/show/housekeeping', locals: {object: @taxon_name}) -%>
               </div>
             </div>

@@ -4,14 +4,15 @@
       v-if="!taxon.leaf"
       :style="[
         rainbow && {
-          backgroundColor: 'var(--taxonomic-tree-border)',
-          color: 'white'
+          borderColor: 'var(--taxonomic-tree-border)',
+          color: 'var(--taxonomic-tree-border)'
         }
       ]"
+      class="taxonomy-tree-button"
       circle
       icon
       small
-      variant="tonal"
+      variant="outline"
       color="primary"
       :disabled="isLoading"
       @click="toggle"
@@ -219,3 +220,18 @@ function expandNode(taxonId) {
     })
 }
 </script>
+
+<style scoped>
+.taxonomy-tree-button {
+  border-width: 2px !important;
+  background-color: var(--bg-foreground) !important;
+
+  svg {
+    stroke-width: 3px;
+  }
+}
+
+.taxonomy-tree-button:hover {
+  color: var(--color-primary) !important;
+}
+</style>

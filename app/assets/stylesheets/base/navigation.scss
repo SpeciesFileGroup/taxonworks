@@ -9,7 +9,9 @@
   svg {
     width: 18px;
     height: 18px;
-    transition: stroke 0.2s ease, fill 0.2s ease;
+    transition:
+      stroke 0.2s ease,
+      fill 0.2s ease;
   }
 }
 
@@ -35,7 +37,9 @@
 a,
 .link {
   text-decoration: none;
-  transition: background-color 0.4s ease, color 0.4s ease;
+  transition:
+    background-color 0.4s ease,
+    color 0.4s ease;
   color: var(--color-link);
 
   &:hover {
@@ -54,7 +58,7 @@ a,
   position: relative;
   box-shadow: var(--panel-shadow);
   background-color: var(--panel-bg-color);
-  height: 45px;
+  height: 46px;
   padding-right: $standard_margin;
   .hub-project {
     position: relative;
@@ -125,7 +129,9 @@ a,
     border-radius: 100%;
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
 
-    transition: background-size 0.3s ease, background-color 0.3s ease,
+    transition:
+      background-size 0.3s ease,
+      background-color 0.3s ease,
       opacity 0.5s ease;
   }
 
@@ -139,7 +145,9 @@ a,
   .hub-project:hover {
     .hub_link {
       opacity: 1;
-      transition: background-size 0.3s ease, background-color 0.3s ease,
+      transition:
+        background-size 0.3s ease,
+        background-color 0.3s ease,
         opacity 0.5s ease;
       background-size: 40px;
       color: $default_text;
