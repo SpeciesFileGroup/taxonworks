@@ -37,6 +37,7 @@
     color="primary"
     circle
     :disabled="isEmpty"
+    v-tooltip="{ content: 'View nested parameters', placement: 'bottom' }"
     @click="isModalVisible = true"
   >
     <VIcon
@@ -51,6 +52,7 @@ import { ref, computed } from 'vue'
 import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam'
 import { FILTER_ROUTES } from '@/routes/routes'
 import { isDeepEqual } from '@/helpers/objects'
+import { vTooltip } from '@/directives'
 import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'

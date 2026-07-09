@@ -28,6 +28,7 @@
         :dropzone-options="DROPZONE_CONFIGURATION"
         @vdropzone-sending="sending"
         @vdropzone-success="success"
+        prioritize-paste
       />
     </div>
 

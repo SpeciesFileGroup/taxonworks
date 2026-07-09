@@ -15,6 +15,7 @@
           v-model="rolesAttributes"
           :role-type="ROLE_ATTRIBUTION_COPYRIGHT_HOLDER"
           :organization="view === OPTIONS.Organization"
+          :autofocus="false"
         />
       </div>
       <div class="field label-above">

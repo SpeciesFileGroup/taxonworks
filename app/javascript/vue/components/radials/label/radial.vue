@@ -33,7 +33,6 @@
       @click="openRadialMenu()"
     >
       <VIcon
-        title="Radial label"
         name="label"
         x-small
       />

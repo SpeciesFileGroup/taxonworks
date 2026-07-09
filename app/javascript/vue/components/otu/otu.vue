@@ -1,7 +1,7 @@
 <template>
   <div class="otu-radial">
     <VBtn
-      :title="redirect ? 'Browse OTUs' : 'OTU quick forms'"
+      :title="redirect ? 'Browse OTUs' : 'OTU Quick forms'"
       :color="emptyList ? 'create' : redirect ? 'primary' : 'radial'"
       :disabled="!loaded"
       circle
@@ -9,7 +9,7 @@
       @contextmenu.prevent="openApp(true)"
     >
       <VIcon
-        :title="redirect ? 'Browse OTUs' : 'OTU quick forms'"
+        :title="redirect ? 'Browse OTUs' : 'OTU Quick forms'"
         :name="redirect ? 'radialOtuRedirect' : 'radialObject'"
         x-small
       />

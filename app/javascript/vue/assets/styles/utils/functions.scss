@@ -1,3 +1,49 @@
-@function tw-color($key: 'primary') {
-  @return map-get($scotch-colors, $key);
+@use 'sass:color';
+@use 'sass:math';
+@use 'sass:meta';
+
+// The following helpers were authored primarily by Claude.
+// `on-color()` returns an accessible foreground (text) color for a given
+// background, picking whichever of dark/white yields the higher WCAG contrast
+// ratio. It is driven by relative luminance (WCAG 2.x), not by HSL lightness,
+// so it behaves correctly for tricky hues like orange/red where lightness is
+// misleading.
+
+// Linearize a single 0–255 sRGB channel (WCAG relative-luminance step).
+@function _channel-to-linear($value) {
+  $c: math.div($value, 255);
+
+  @if $c <= 0.03928 {
+    @return math.div($c, 12.92);
+  }
+
+  @return math.pow(math.div($c + 0.055, 1.055), 2.4);
+}
+
+// Relative luminance (0–1) of a color, per WCAG.
+@function relative-luminance($input-color) {
+  $r: _channel-to-linear(color.channel($input-color, 'red', $space: rgb));
+  $g: _channel-to-linear(color.channel($input-color, 'green', $space: rgb));
+  $b: _channel-to-linear(color.channel($input-color, 'blue', $space: rgb));
+
+  @return 0.2126 * $r + 0.7152 * $g + 0.0722 * $b;
+}
+
+// Accessible foreground color for a given background.
+// Non-color values (e.g. the `var(--…)` string entries in the color maps)
+// fall back to white, which the consuming components override anyway.
+@function on-color($background-color, $dark: #1a1a1a, $light: #ffffff) {
+  @if meta.type-of($background-color) != color {
+    @return $light;
+  }
+
+  $luminance: relative-luminance($background-color);
+  $contrast-with-light: math.div(1.05, $luminance + 0.05);
+  $contrast-with-dark: math.div($luminance + 0.05, 0.05);
+
+  @if $contrast-with-dark >= $contrast-with-light {
+    @return $dark;
+  }
+
+  @return $light;
 }

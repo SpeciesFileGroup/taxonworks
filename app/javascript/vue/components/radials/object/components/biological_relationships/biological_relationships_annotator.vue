@@ -49,7 +49,9 @@
       <h3 v-html="metadata.object_tag" />
 
       <AnatomicalPartToggleFieldset
-        v-if="withAnatomicalPartCreation && props.objectType !== 'AnatomicalPart'"
+        v-if="
+          withAnatomicalPartCreation && props.objectType !== 'AnatomicalPart'
+        "
         v-model="enableSubjectAnatomicalPart"
         label="Subject anatomical part"
         hint="Enable to create a subject anatomical part"
@@ -58,7 +60,8 @@
           v-if="subjectNeedsTaxonDetermination"
           class="margin-small-top"
         >
-          The origin of an anatomical part requires a taxon determination on this {{ props.objectType }}.
+          The origin of an anatomical part requires a taxon determination on
+          this {{ props.objectType }}.
         </div>
 
         <TaxonDeterminationOtu
@@ -67,7 +70,9 @@
         />
 
         <CreateAnatomicalPart
-          v-if="!subjectNeedsTaxonDetermination || subjectTaxonDeterminationOtuId"
+          v-if="
+            !subjectNeedsTaxonDetermination || subjectTaxonDeterminationOtuId
+          "
           :key="`subject-${subjectPartKey}`"
           class="margin-small-top margin-small-bottom"
           :include-is-material="props.objectType === 'FieldOccurrence'"
@@ -81,9 +86,7 @@
       >
         <span
           v-html="
-            flip
-              ? biologicalRelationship.inverted_name
-              : relatedObjectLabel
+            flip ? biologicalRelationship.inverted_name : relatedObjectLabel
           "
         />
 
@@ -165,7 +168,9 @@
         :enabled="enableRelatedAnatomicalPart"
         :related-object="relatedObject"
         :related-needs-taxon-determination="relatedNeedsTaxonDetermination"
-        v-model:related-taxon-determination-otu-id="relatedTaxonDeterminationOtuId"
+        v-model:related-taxon-determination-otu-id="
+          relatedTaxonDeterminationOtuId
+        "
         :related-part-key="relatedPartKey"
         @change="setRelatedAnatomicalPart"
       />
@@ -182,12 +187,25 @@
       </button>
     </div>
 
+    <VPagination
+      v-if="pagination.totalPages > 1"
+      class="separate-top"
+      :pagination="pagination"
+      @next-page="({ page }) => loadList(page)"
+    />
+
     <TableList
       class="separate-top margin-large-bottom"
       :list="list"
       :metadata="metadata"
       @edit="editBiologicalRelationship"
       @delete="removeItem"
+    />
+
+    <VPagination
+      v-if="pagination.totalPages > 1"
+      :pagination="pagination"
+      @next-page="({ page }) => loadList(page)"
     />
 
     <AnatomicalPartSubjectSummary
@@ -214,9 +232,11 @@ import LockComponent from '@/components/ui/VLock/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import FormCitation from '@/components/Form/FormCitation.vue'
+import VPagination from '@/components/pagination.vue'
 import makeEmptyCitation from '../../helpers/makeEmptyCitation.js'
 import DisplayList from '@/components/displayList.vue'
 import { convertType } from '@/helpers/types'
+import { getPagination } from '@/helpers'
 import {
   BiologicalAssociation,
   BiologicalRelationship
@@ -284,6 +304,9 @@ const relatedObject = ref()
 const biologicalRelationship = ref()
 const citation = ref(makeEmptyCitation())
 const flip = ref(false)
+const pagination = ref({})
+
+const PER_PAGE = 50
 
 const lock = reactive({
   source: false,
@@ -318,9 +341,7 @@ const validateFields = computed(() => {
 })
 
 const displayRelated = computed(() => {
-  return (
-    relatedObject.value?.object_tag || relatedObject.value?.label_html
-  )
+  return relatedObject.value?.object_tag || relatedObject.value?.label_html
 })
 
 const relatedObjectLabel = computed(
@@ -396,14 +417,7 @@ onBeforeMount(() => {
     }
   }
 
-  BiologicalAssociation.where({
-    biological_association_subject_id: props.objectId,
-    biological_association_subject_type: props.objectType,
-    extend: EXTEND_PARAMS,
-    recent: true
-  }).then(({ body }) => {
-    list.value = body
-  })
+  loadList()
 
   // The withAnatomicalPartCreation watcher fires after session state is set, loading the AP mode list if
   // needed.
@@ -414,6 +428,19 @@ onBeforeMount(() => {
   }
 })
 
+function loadList(page = 1) {
+  BiologicalAssociation.where({
+    biological_association_subject_id: props.objectId,
+    biological_association_subject_type: props.objectType,
+    extend: EXTEND_PARAMS,
+    recent: true,
+    per: PER_PAGE,
+    page
+  }).then((response) => {
+    list.value = response.body
+    pagination.value = getPagination(response)
+  })
+}
 
 function reset() {
   if (!lock.relationship) {
@@ -465,11 +492,21 @@ async function saveAssociation() {
     extend: EXTEND_PARAMS
   }
 
-  const saveRequest = createdBiologicalAssociation.value
-    ? BiologicalAssociation.update(
-        createdBiologicalAssociation.value.id,
-        payload
-      )
+  let targetId = createdBiologicalAssociation.value?.id
+
+  if (!targetId && !withAnatomicalPartCreation.value) {
+    const { body } = await BiologicalAssociation.where({
+      biological_relationship_id: biologicalRelationship.value.id,
+      ...subjectObjectIds
+    })
+
+    if (body.length) {
+      targetId = body[0].id
+    }
+  }
+
+  const saveRequest = targetId
+    ? BiologicalAssociation.update(targetId, payload)
     : BiologicalAssociation.create(payload)
 
   saveRequest

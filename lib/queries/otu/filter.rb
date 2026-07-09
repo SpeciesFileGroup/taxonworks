@@ -17,6 +17,8 @@ module Queries
         :asserted_distributions,
         :biological_association_id,
         :biological_associations,
+        :biological_relationship_id,
+        :exclude_taxon_name_relationship,
         :collecting_event_id,
         :collection_objects,
         :common_names,
@@ -39,6 +41,7 @@ module Queries
         :with_name,
         :wkt,
 
+        biological_relationship_id: [],
         collecting_event_id: [],
         descriptor_id: [],
         geo_shape_id: [],
@@ -119,6 +122,19 @@ module Queries
       # Altered by historical_determinations.
       attr_accessor :biological_association_id
 
+      # @param biological_relationship_id [Integer, Array]
+      # @return Array
+      #   one or more biological_relationship_id
+      # Finds all OTUs that are related to a BiologicalAssociation
+      # with the given BiologicalRelationship.
+      # See also exclude_taxon_name_relationship.
+      attr_accessor :biological_relationship_id
+
+      # @param exclude_taxon_name_relationship [Boolean]
+      # When true, finds OTUs that are NOT related to a BiologicalAssociation
+      # with any of the given biological_relationship_id values.
+      attr_accessor :exclude_taxon_name_relationship
+
       # @param wkt [String]
       #  A Spatial area in WKT format
       attr_accessor :wkt
@@ -190,6 +206,8 @@ module Queries
         @asserted_distributions = boolean_param(params, :asserted_distributions)
         @biological_association_id = params[:biological_association_id]
         @biological_associations = boolean_param(params, :biological_associations)
+        @biological_relationship_id = params[:biological_relationship_id]
+        @exclude_taxon_name_relationship = boolean_param(params, :exclude_taxon_name_relationship)
         @collecting_event_id = params[:collecting_event_id]
         @collection_objects = boolean_param(params, :collection_objects)
         @common_names = boolean_param(params, :common_names)
@@ -246,6 +264,10 @@ module Queries
 
       def biological_association_id
         [@biological_association_id].flatten.compact
+      end
+
+      def biological_relationship_id
+        [@biological_relationship_id].flatten.compact
       end
 
       def name_facet
@@ -441,6 +463,46 @@ module Queries
         query = referenced_klass_union([q1, q2, q3, q4])
 
         ::Otu.from("(#{query.to_sql}) as otus").distinct
+      end
+
+      def biological_relationship_id_facet
+        return nil if biological_relationship_id.empty?
+
+        q1 = ::Otu.joins(:biological_associations)
+          .where(biological_associations: { biological_relationship_id:, biological_association_subject_type: 'Otu' })
+
+        q2 = ::Otu.joins(:related_biological_associations)
+          .where(related_biological_associations: { biological_relationship_id: })
+
+        q3 = ::Otu.joins(collection_objects: [:biological_associations])
+          .where(biological_associations: { biological_relationship_id:, biological_association_subject_type: 'CollectionObject' })
+          .where(taxon_determinations: { position: 1 })
+
+        q4 = ::Otu.joins(collection_objects: [:related_biological_associations])
+          .where(related_biological_associations: { biological_relationship_id: })
+          .where(taxon_determinations: { position: 1 })
+
+        q5 = ::Otu.joins(field_occurrences: [:biological_associations])
+          .where(biological_associations: { biological_relationship_id:, biological_association_subject_type: 'FieldOccurrence' })
+          .where(taxon_determinations: { position: 1 })
+
+        q6 = ::Otu.joins(field_occurrences: [:related_biological_associations])
+          .where(related_biological_associations: { biological_relationship_id: })
+          .where(taxon_determinations: { position: 1 })
+
+        q7 = ::Otu.joins(anatomical_parts: [:biological_associations])
+          .where(biological_associations: { biological_relationship_id:, biological_association_subject_type: 'AnatomicalPart' })
+
+        q8 = ::Otu.joins(anatomical_parts: [:related_biological_associations])
+          .where(related_biological_associations: { biological_relationship_id: })
+
+        matched = ::Otu.from("(#{referenced_klass_union([q1, q2, q3, q4, q5, q6, q7, q8]).to_sql}) as otus").distinct
+
+        if exclude_taxon_name_relationship
+          ::Otu.where.not(id: matched)
+        else
+          matched
+        end
       end
 
       def otu_geo_facet
@@ -744,6 +806,7 @@ module Queries
 
           biological_association_id_facet,
           biological_associations_facet,
+          biological_relationship_id_facet,
           collecting_event_id_facet,
           collection_objects_facet,
           common_names_facet,

@@ -33,26 +33,16 @@
             v-for="(properties, key) in layout?.properties"
             :key="key"
           >
-            <template v-if="Array.isArray(properties)">
-              <th
-                v-if="getVisiblePropertiesCount(key, properties)"
-                :colspan="getVisiblePropertiesCount(key, properties)"
-                scope="colgroup"
-                class="cell-left-border"
-              >
-                {{ humanize(key) }}
-              </th>
-            </template>
-            <template v-else>
-              <th
-                v-if="getVisiblePropertiesCount(key, getDynamicColumns(key))"
-                scope="colgroup"
-                class="cell-left-border"
-                :colspan="getVisiblePropertiesCount(key, getDynamicColumns(key))"
-              >
-                {{ humanize(key) }}
-              </th>
-            </template>
+            <th
+              v-if="getVisiblePropertiesCount(key, getColumns(key, properties))"
+              :colspan="
+                getVisiblePropertiesCount(key, getColumns(key, properties))
+              "
+              scope="colgroup"
+              class="cell-left-border"
+            >
+              {{ humanize(key) }}
+            </th>
           </template>
 
           <td
@@ -64,12 +54,7 @@
         <tr>
           <th
             v-show="isColumnVisible(FIXED_COLUMNS.Checkbox)"
-            :class="[{ freeze: freezeColumn.includes(FIXED_COLUMNS.Checkbox) }]"
-            :style="
-              freezeColumn.includes(FIXED_COLUMNS.Checkbox) && {
-                left: freezeColumnLeftPosition[FIXED_COLUMNS.Checkbox]
-              }
-            "
+            v-bind="freezeBindings(FIXED_COLUMNS.Checkbox)"
           >
             <VLock
               :value="FIXED_COLUMNS.Checkbox"
@@ -79,12 +64,7 @@
           <th
             v-if="radialObject || radialAnnotator || radialNavigator"
             v-show="isColumnVisible(FIXED_COLUMNS.Radial)"
-            :class="[{ freeze: freezeColumn.includes(FIXED_COLUMNS.Radial) }]"
-            :style="
-              freezeColumn.includes(FIXED_COLUMNS.Radial) && {
-                left: freezeColumnLeftPosition[FIXED_COLUMNS.Radial]
-              }
-            "
+            v-bind="freezeBindings(FIXED_COLUMNS.Radial)"
           >
             <VLock
               :value="FIXED_COLUMNS.Radial"
@@ -92,225 +72,68 @@
             />
           </th>
           <th
-            v-for="(title, attr) in attributes"
+            v-for="(_, attr) in attributes"
             :key="attr"
             v-show="isColumnVisible(attr)"
-            :class="[{ freeze: freezeColumn.includes(attr) }]"
-            :style="
-              freezeColumn.includes(attr) && {
-                left: freezeColumnLeftPosition[attr]
-              }
-            "
+            v-bind="freezeBindings(attr)"
           >
-            <div class="horizontal-left-content gap-small">
-              <VLock
-                :value="attr"
-                v-model="freezeColumn"
-              />
-
-              <VBtn
-                color="primary"
-                circle
-                title="Copy column to clipboard"
-                @click.stop="
-                  () =>
-                    copyColumnToClipboard(
-                      sanitizeHtml(
-                        list
-                          .filter(rowHasCurrentValues)
-                          .map((item) => item[attr])
-                          .join('\n')
-                      )
+            <ColumnHeaderActions
+              :column-key="attr"
+              :filtered="!!filterValues[attr]"
+              v-model:freeze="freezeColumn"
+              @copy="
+                () =>
+                  copyColumnToClipboard(
+                    sanitizeHtml(
+                      list
+                        .filter(rowHasCurrentValues)
+                        .map((item) => item[attr])
+                        .join('\n')
                     )
-                "
-              >
-                <VIcon
-                  name="clip"
-                  title="Copy column to clipboard"
-                  x-small
-                />
-              </VBtn>
-              <VBtn
-                title="Sort alphabetically"
-                color="primary"
-                circle
-                @click.stop="() => sortTable(attr)"
-              >
-                <VIcon
-                  name="alphabeticalSort"
-                  title="Sort alphabetically"
-                  x-small
-                />
-              </VBtn>
-              <VBtn
-                v-if="filterValues[attr]"
-                color="toggle-active"
-                circle
-                @click.stop="
-                  () => {
-                    delete filterValues[attr]
-                  }
-                "
-              >
-                X
-              </VBtn>
-            </div>
+                  )
+              "
+              @sort="() => sortTable(attr)"
+              @clear="() => delete filterValues[attr]"
+            />
           </th>
 
           <template
-            v-for="(propertiesList, key) in layout?.properties"
+            v-for="(properties, key) in layout?.properties"
             :key="key"
           >
-            <template v-if="Array.isArray(propertiesList)">
-              <th
-                v-for="(property, pIndex) in propertiesList"
-                :key="property"
-                v-show="isColumnVisible(`${key}.${property}`)"
-                :class="{
-                  'cell-left-border': pIndex === 0,
-                  freeze: freezeColumn.includes(`${key}.${property}`)
-                }"
-                :style="
-                  freezeColumn.includes(`${key}.${property}`) && {
-                    left: freezeColumnLeftPosition[`${key}.${property}`]
-                  }
+            <th
+              v-for="(property, pIndex) in getColumns(key, properties)"
+              :key="property"
+              v-show="isColumnVisible(`${key}.${property}`)"
+              :class="{ 'cell-left-border': pIndex === 0 }"
+              v-bind="freezeBindings(`${key}.${property}`)"
+            >
+              <ColumnHeaderActions
+                :column-key="`${key}.${property}`"
+                :filtered="!!filterValues[`${key}.${property}`]"
+                v-model:freeze="freezeColumn"
+                @copy="
+                  () =>
+                    copyColumnToClipboard(
+                      props.list
+                        .filter(rowHasCurrentValues)
+                        .map((item) => renderItem(item, key, property))
+                        .join('\n')
+                    )
                 "
-              >
-                <div class="horizontal-left-content gap-small">
-                  <VLock
-                    :value="`${key}.${property}`"
-                    v-model="freezeColumn"
-                  />
-                  <VBtn
-                    color="primary"
-                    circle
-                    title="Copy column to clipboard"
-                    @click.stop="
-                      () =>
-                        copyColumnToClipboard(
-                          props.list
-                            .filter(rowHasCurrentValues)
-                            .map((item) => renderItem(item, key, property))
-                            .join('\n')
-                        )
-                    "
-                  >
-                    <VIcon
-                      name="clip"
-                      title="Copy column to clipboard"
-                      x-small
-                    />
-                  </VBtn>
-                  <VBtn
-                    title="Sort alphabetically"
-                    color="primary"
-                    circle
-                    @click.stop="() => sortTable(`${key}.${property}`)"
-                  >
-                    <VIcon
-                      name="alphabeticalSort"
-                      title="Sort alphabetically"
-                      x-small
-                    />
-                  </VBtn>
-                  <VBtn
-                    v-if="filterValues[`${key}.${property}`]"
-                    color="toggle-active"
-                    circle
-                    @click.stop="
-                      () => {
-                        delete filterValues[`${key}.${property}`]
-                      }
-                    "
-                  >
-                    X
-                  </VBtn>
-                </div>
-              </th>
-            </template>
-            <template v-else>
-              <th
-                v-for="(property, pIndex) in getDynamicColumns(key)"
-                :key="property"
-                v-show="isColumnVisible(`${key}.${property}`)"
-                :class="{
-                  'cell-left-border': pIndex === 0,
-                  freeze: freezeColumn.includes(`${key}.${property}`)
-                }"
-                :style="
-                  freezeColumn.includes(`${key}.${property}`) && {
-                    left: freezeColumnLeftPosition[`${key}.${property}`]
-                  }
-                "
-              >
-                <div class="horizontal-left-content gap-small">
-                  <VLock
-                    :value="`${key}.${property}`"
-                    v-model="freezeColumn"
-                  />
-                  <VBtn
-                    color="primary"
-                    circle
-                    title="Copy column to clipboard"
-                    @click.stop="
-                      () =>
-                        copyColumnToClipboard(
-                          props.list
-                            .filter(rowHasCurrentValues)
-                            .map((item) => renderItem(item, key, property))
-                            .join('\n')
-                        )
-                    "
-                  >
-                    <VIcon
-                      name="clip"
-                      title="Copy column to clipboard"
-                      x-small
-                    />
-                  </VBtn>
-                  <VBtn
-                    title="Sort alphabetically"
-                    color="primary"
-                    circle
-                    @click.stop="() => sortTable(`${key}.${property}`)"
-                  >
-                    <VIcon
-                      name="alphabeticalSort"
-                      title="Sort alphabetically"
-                      x-small
-                    />
-                  </VBtn>
-                  <VBtn
-                    v-if="filterValues[`${key}.${property}`]"
-                    color="primary"
-                    circle
-                    @click.stop="
-                      () => {
-                        delete filterValues[`${key}.${property}`]
-                      }
-                    "
-                  >
-                    X
-                  </VBtn>
-                </div>
-              </th>
-            </template>
+                @sort="() => sortTable(`${key}.${property}`)"
+                @clear="() => delete filterValues[`${key}.${property}`]"
+              />
+            </th>
           </template>
         </tr>
 
         <tr class="header-row-attributes">
           <th
             v-show="isColumnVisible(FIXED_COLUMNS.Checkbox)"
-            :class="[
-              'w-2',
-              { freeze: freezeColumn.includes(FIXED_COLUMNS.Checkbox) }
-            ]"
+            class="w-2"
             :data-th-column="FIXED_COLUMNS.Checkbox"
-            :style="
-              freezeColumn.includes(FIXED_COLUMNS.Checkbox) && {
-                left: freezeColumnLeftPosition[FIXED_COLUMNS.Checkbox]
-              }
-            "
+            v-bind="freezeBindings(FIXED_COLUMNS.Checkbox)"
           >
             <input
               v-model="selectIds"
@@ -321,28 +144,16 @@
           <th
             v-if="radialObject || radialAnnotator || radialNavigator"
             v-show="isColumnVisible(FIXED_COLUMNS.Radial)"
-            :class="[
-              'w-2',
-              { freeze: freezeColumn.includes(FIXED_COLUMNS.Radial) }
-            ]"
+            class="w-2"
             :data-th-column="FIXED_COLUMNS.Radial"
-            :style="
-              freezeColumn.includes(FIXED_COLUMNS.Radial) && {
-                left: freezeColumnLeftPosition[FIXED_COLUMNS.Radial]
-              }
-            "
+            v-bind="freezeBindings(FIXED_COLUMNS.Radial)"
           />
           <th
             v-for="(title, attr) in attributes"
             :key="attr"
             v-show="isColumnVisible(attr)"
-            :class="{ freeze: freezeColumn.includes(attr) }"
-            :style="
-              freezeColumn.includes(attr) && {
-                left: freezeColumnLeftPosition[attr]
-              }
-            "
             :data-th-column="attr"
+            v-bind="freezeBindings(attr)"
           >
             <div class="horizontal-left-content gap-small">
               <span>{{ title }}</span>
@@ -350,51 +161,21 @@
           </th>
 
           <template
-            v-for="(propertiesList, key) in layout?.properties"
+            v-for="(properties, key) in layout?.properties"
             :key="key"
           >
-            <template v-if="Array.isArray(propertiesList)">
-              <th
-                v-for="(property, pIndex) in propertiesList"
-                :key="property"
-                v-show="isColumnVisible(`${key}.${property}`)"
-                :class="{
-                  'cell-left-border': pIndex === 0,
-                  freeze: freezeColumn.includes(`${key}.${property}`)
-                }"
-                :data-th-column="`${key}.${property}`"
-                :style="
-                  freezeColumn.includes(`${key}.${property}`) && {
-                    left: freezeColumnLeftPosition[`${key}.${property}`]
-                  }
-                "
-              >
-                <div class="horizontal-left-content gap-small">
-                  <span>{{ property }}</span>
-                </div>
-              </th>
-            </template>
-            <template v-else>
-              <th
-                v-for="(property, pIndex) in getDynamicColumns(key)"
-                :key="property"
-                v-show="isColumnVisible(`${key}.${property}`)"
-                :class="{
-                  'cell-left-border': pIndex === 0,
-                  freeze: freezeColumn.includes(`${key}.${property}`)
-                }"
-                :data-th-column="`${key}.${property}`"
-                :style="
-                  freezeColumn.includes(`${key}.${property}`) && {
-                    left: freezeColumnLeftPosition[`${key}.${property}`]
-                  }
-                "
-              >
-                <div class="horizontal-left-content gap-small">
-                  <span>{{ property }}</span>
-                </div>
-              </th>
-            </template>
+            <th
+              v-for="(property, pIndex) in getColumns(key, properties)"
+              :key="property"
+              v-show="isColumnVisible(`${key}.${property}`)"
+              :class="{ 'cell-left-border': pIndex === 0 }"
+              :data-th-column="`${key}.${property}`"
+              v-bind="freezeBindings(`${key}.${property}`)"
+            >
+              <div class="horizontal-left-content gap-small">
+                <span>{{ property }}</span>
+              </div>
+            </th>
           </template>
         </tr>
       </thead>
@@ -411,12 +192,7 @@
         >
           <td
             v-show="isColumnVisible(FIXED_COLUMNS.Checkbox)"
-            :class="{ freeze: freezeColumn.includes(FIXED_COLUMNS.Checkbox) }"
-            :style="
-              freezeColumn.includes(FIXED_COLUMNS.Checkbox) && {
-                left: freezeColumnLeftPosition[FIXED_COLUMNS.Checkbox]
-              }
-            "
+            v-bind="freezeBindings(FIXED_COLUMNS.Checkbox)"
           >
             <input
               v-model="ids"
@@ -427,12 +203,7 @@
           <td
             v-if="radialObject || radialAnnotator || radialNavigator"
             v-show="isColumnVisible(FIXED_COLUMNS.Radial)"
-            :class="{ freeze: freezeColumn.includes(FIXED_COLUMNS.Radial) }"
-            :style="
-              freezeColumn.includes(FIXED_COLUMNS.Radial) && {
-                left: freezeColumnLeftPosition[FIXED_COLUMNS.Radial]
-              }
-            "
+            v-bind="freezeBindings(FIXED_COLUMNS.Radial)"
           >
             <div class="horizontal-right-content gap-small">
               <slot
@@ -469,12 +240,7 @@
               v-show="isColumnVisible(attr)"
               :name="attr"
               :value="item[attr]"
-              :class="{ freeze: freezeColumn.includes(attr) }"
-              :style="
-                freezeColumn.includes(attr) && {
-                  left: freezeColumnLeftPosition[attr]
-                }
-              "
+              v-bind="freezeBindings(attr)"
               @dblclick="
                 () => {
                   filterValues[attr] = item[attr]
@@ -497,66 +263,15 @@
             v-for="(properties, key) in layout?.properties"
             :key="key"
           >
-            <template v-if="!Array.isArray(properties)">
-              <template v-if="properties?.show">
-                <td
-                  v-for="(value, property, dIndex) in item[key]"
-                  :key="property"
-                  v-show="isColumnVisible(`${key}.${property}`)"
-                  :class="{
-                    'cell-left-border': dIndex === 0,
-                    freeze: freezeColumn.includes(`${key}.${property}`)
-                  }"
-                  :style="
-                    freezeColumn.includes(`${key}.${property}`) && {
-                      left: freezeColumnLeftPosition[`${key}.${property}`]
-                    }
-                  "
-                  @dblclick="
-                    () => {
-                      scrollToTop()
-                      filterValues[`${key}.${property}`] = Array.isArray(
-                        item[key]
-                      )
-                        ? item[key].map((obj) => obj[property])
-                        : item[key][property]
-
-                      updateSelectedIdsByFilter()
-                    }
-                  "
-                  v-text="value"
-                />
-              </template>
-            </template>
-            <template v-else>
-              <td
-                v-for="(property, pIndex) in properties"
-                :key="property"
-                v-show="isColumnVisible(`${key}.${property}`)"
-                v-html="renderItem(item, key, property)"
-                :class="{
-                  'cell-left-border': pIndex === 0,
-                  freeze: freezeColumn.includes(`${key}.${property}`)
-                }"
-                :style="
-                  freezeColumn.includes(`${key}.${property}`) && {
-                    left: freezeColumnLeftPosition[`${key}.${property}`]
-                  }
-                "
-                @dblclick="
-                  () => {
-                    scrollToTop()
-                    filterValues[`${key}.${property}`] = Array.isArray(
-                      item[key]
-                    )
-                      ? item[key].map((obj) => obj[property])
-                      : item[key][property]
-
-                    updateSelectedIdsByFilter()
-                  }
-                "
-              />
-            </template>
+            <td
+              v-for="(property, pIndex) in getColumns(key, properties)"
+              :key="property"
+              v-show="isColumnVisible(`${key}.${property}`)"
+              v-html="renderItem(item, key, property)"
+              :class="{ 'cell-left-border': pIndex === 0 }"
+              v-bind="freezeBindings(`${key}.${property}`)"
+              @dblclick="() => setColumnFilter(item, key, property)"
+            />
           </template>
         </tr>
       </tbody>
@@ -579,8 +294,7 @@ import { vResizeColumn } from '@/directives/resizeColumn.js'
 import { humanize } from '@/helpers/strings'
 import { sanitizeHtml } from '@/helpers'
 import { useUserPreference } from '@/composables'
-import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import ColumnHeaderActions from './ColumnHeaderActions.vue'
 import VLock from '@/components/ui/VLock/index.vue'
 import RadialNavigation from '@/components/radials/navigation/radial.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
@@ -665,98 +379,13 @@ function getVisiblePropertiesCount(key, properties) {
   return properties.filter((p) => isColumnVisible(`${key}.${p}`)).length
 }
 
-const headerEmptyColspan = computed(() => {
-  const hasRadial =
-    props.radialObject || props.radialAnnotator || props.radialNavigator
-  let n = 0
-  if (isColumnVisible(FIXED_COLUMNS.Checkbox)) n++
-  if (hasRadial && isColumnVisible(FIXED_COLUMNS.Radial)) n++
-  return n
-})
+function freezeBindings(key) {
+  const isFrozen = freezeColumn.value.includes(key)
 
-const ascending = ref(false)
-const lastRadialOpenedRow = ref(null)
-const handyScrollRef = useTemplateRef('handyScrollRef')
-const theadRef = useTemplateRef('theadRef')
-const tableRef = useTemplateRef('element')
-let tableResizeObserver = null
-const isLayoutConfig = computed(() => !!Object.keys(props.layout || {}).length)
-
-const filteredIds = computed(() =>
-  props.list.filter(rowHasCurrentValues).map((item) => item.id)
-)
-
-const selectIds = computed({
-  get: () =>
-    filteredIds.value.length === props.modelValue.length &&
-    filteredIds.value.length > 0,
-  set: (value) => emit('update:modelValue', value ? [...filteredIds.value] : [])
-})
-
-const ids = computed({
-  get: () => props.modelValue,
-  set: (value) => emit('update:modelValue', value)
-})
-
-const filterValues = ref({})
-
-function copyColumnToClipboard(text) {
-  navigator.clipboard
-    .writeText(text)
-    .then(() => {
-      TW.workbench.alert.create('Copied to clipboard', 'notice')
-    })
-    .catch(() => {})
-}
-
-function rowHasCurrentValues(item) {
-  return Object.entries(filterValues.value).every(([properties, value]) => {
-    const itemValue = getValue(item, properties)
-
-    return Array.isArray(itemValue)
-      ? itemValue.some((i) => value.includes(i))
-      : itemValue === value
-  })
-}
-
-function renderItem(item, listType, property) {
-  const value = item[listType]
-
-  return Array.isArray(value)
-    ? value.map((obj) => obj[property]).join('; ')
-    : value && value[property]
-}
-
-function getDynamicColumns(type) {
-  const [item] = props.list
-
-  return props.layout.properties[type].show && item
-    ? Object.keys(item[type])
-    : []
-}
-
-function getValue(item, property) {
-  const properties = property.split('.')
-
-  return properties.reduce((acc, curr) => {
-    return Array.isArray(acc) ? acc.map((item) => item?.[curr]) : acc?.[curr]
-  }, item)
-}
-
-function sortTable(sortProperty) {
-  emit(
-    'onSort',
-    sortArray(props.list, sortProperty, ascending.value, { stripHtml: true })
-  )
-  ascending.value = !ascending.value
-}
-
-function scrollToTop() {
-  document.getElementById('horizontally-scrollable')?.scrollTo(0, 0)
-}
-
-function clearFilterValues() {
-  filterValues.value = {}
+  return {
+    class: { freeze: isFrozen },
+    style: isFrozen ? { left: freezeColumnLeftPosition.value[key] } : undefined
+  }
 }
 
 function generateFreezeColumnLeftPosition() {
@@ -782,12 +411,76 @@ function generateFreezeColumnLeftPosition() {
   freezeColumnLeftPosition.value = sizes
 }
 
+const headerEmptyColspan = computed(() => {
+  const hasRadial =
+    props.radialObject || props.radialAnnotator || props.radialNavigator
+  let n = 0
+  if (isColumnVisible(FIXED_COLUMNS.Checkbox)) n++
+  if (hasRadial && isColumnVisible(FIXED_COLUMNS.Radial)) n++
+  return n
+})
+
+const ascending = ref(true)
+const sortedColumn = ref(null)
+const lastRadialOpenedRow = ref(null)
+const handyScrollRef = useTemplateRef('handyScrollRef')
+const theadRef = useTemplateRef('theadRef')
+const tableRef = useTemplateRef('element')
+let tableResizeObserver = null
+const isLayoutConfig = computed(() => !!Object.keys(props.layout || {}).length)
+
+const filterValues = ref({})
+
+function getValue(item, property) {
+  const properties = property.split('.')
+
+  return properties.reduce((acc, curr) => {
+    return Array.isArray(acc) ? acc.map((item) => item?.[curr]) : acc?.[curr]
+  }, item)
+}
+
+function rowHasCurrentValues(item) {
+  return Object.entries(filterValues.value).every(([properties, value]) => {
+    const itemValue = getValue(item, properties)
+
+    return Array.isArray(itemValue)
+      ? itemValue.some((i) => value.includes(i))
+      : itemValue === value
+  })
+}
+
+const filteredIds = computed(() =>
+  props.list.filter(rowHasCurrentValues).map((item) => item.id)
+)
+
+function clearFilterValues() {
+  filterValues.value = {}
+}
+
+function resetSort() {
+  sortedColumn.value = null
+  ascending.value = true
+}
+
+const selectIds = computed({
+  get: () =>
+    filteredIds.value.length === props.modelValue.length &&
+    filteredIds.value.length > 0,
+  set: (value) => emit('update:modelValue', value ? [...filteredIds.value] : [])
+})
+
+const ids = computed({
+  get: () => props.modelValue,
+  set: (value) => emit('update:modelValue', value)
+})
+
 function updateSelectedIdsByFilter() {
   ids.value = ids.value.filter((id) => filteredIds.value.includes(id))
 }
 
 function computeHeaderRowTops() {
   if (!theadRef.value) return
+
   let cumulative = 0
   ;[...theadRef.value.querySelectorAll('tr')].forEach((row, index) => {
     theadRef.value.style.setProperty(
@@ -796,6 +489,61 @@ function computeHeaderRowTops() {
     )
     cumulative += row.getBoundingClientRect().height
   })
+}
+
+function copyColumnToClipboard(text) {
+  navigator.clipboard
+    .writeText(text)
+    .then(() => {
+      TW.workbench.alert.create('Copied to clipboard', 'notice')
+    })
+    .catch(() => {})
+}
+
+function renderItem(item, listType, property) {
+  const value = item[listType]
+
+  return Array.isArray(value)
+    ? value.map((obj) => obj[property]).join('; ')
+    : value && value[property]
+}
+
+function getDynamicColumns(type) {
+  const [item] = props.list
+
+  return props.layout.properties[type].show && item
+    ? Object.keys(item[type])
+    : []
+}
+
+function getColumns(key, properties) {
+  return Array.isArray(properties) ? properties : getDynamicColumns(key)
+}
+
+function setColumnFilter(item, key, property) {
+  scrollToTop()
+  filterValues.value[`${key}.${property}`] = Array.isArray(item[key])
+    ? item[key].map((obj) => obj[property])
+    : item[key][property]
+  updateSelectedIdsByFilter()
+}
+
+function sortTable(sortProperty) {
+  if (sortedColumn.value === sortProperty) {
+    ascending.value = !ascending.value
+  } else {
+    sortedColumn.value = sortProperty
+    ascending.value = true
+  }
+
+  emit(
+    'onSort',
+    sortArray(props.list, sortProperty, ascending.value, { stripHtml: true })
+  )
+}
+
+function scrollToTop() {
+  document.getElementById('horizontally-scrollable')?.scrollTo(0, 0)
 }
 
 onMounted(() => {
@@ -826,10 +574,12 @@ watch(
 
       if (!hasSameIds) {
         clearFilterValues()
+        resetSort()
         scrollToTop()
       }
     } else {
       clearFilterValues()
+      resetSort()
     }
   },
   { immediate: true }

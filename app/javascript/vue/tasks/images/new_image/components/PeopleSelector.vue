@@ -16,6 +16,7 @@
           v-model="rolesAttributes"
           :role-type="roleType"
           :organization="view === OPTIONS.Organization"
+          :autofocus="false"
         />
       </div>
     </template>

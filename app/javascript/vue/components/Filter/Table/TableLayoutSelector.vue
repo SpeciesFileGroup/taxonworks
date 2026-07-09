@@ -143,6 +143,7 @@
       v-help="
         'Customize layout: Properties can be toggled on or off by clicking the checkboxes. You can also reorder them by dragging. Also, columns can be rearranged by dragging them left or right.'
       "
+      title="Customize layout"
       @click="openLayoutPreferences"
     >
       <VIcon

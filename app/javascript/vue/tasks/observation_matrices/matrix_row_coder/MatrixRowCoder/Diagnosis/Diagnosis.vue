@@ -2,13 +2,7 @@
   <div class="middle">
     <span class="margin-small-right">Diagnosable:</span>
 
-    <tippy
-      animation="scale"
-      placement="bottom"
-      size="small"
-      inertia
-      arrow
-    >
+    <VTooltip>
       <v-icon
         small
         :color="isDiagnosable ? 'green' : 'attention'"
@@ -17,7 +11,7 @@
       <template #content>
         {{ diagnosisMessage }}
       </template>
-    </tippy>
+    </VTooltip>
 
     <v-btn
       class="margin-small-left"
@@ -35,13 +29,13 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import { ActionNames } from '../../store/actions/actions'
 import { GetterNames } from '../../store/getters/getters'
-import { Tippy } from 'vue-tippy'
+import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
 
 export default {
   components: {
     VBtn,
     VIcon,
-    Tippy
+    VTooltip
   },
 
   computed: {

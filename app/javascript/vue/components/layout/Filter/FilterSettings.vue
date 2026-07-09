@@ -3,6 +3,7 @@
     color="primary"
     class="circle-button"
     circle
+    title="Layout settings"
     @click="isModalVisible = !isModalVisible"
   >
     <VIcon

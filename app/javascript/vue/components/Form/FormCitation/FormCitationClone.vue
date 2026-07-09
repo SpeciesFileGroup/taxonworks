@@ -2,6 +2,7 @@
   <VBtn
     color="primary"
     medium
+    :disabled="disabled"
     @click="setLastCitation"
   >
     {{ label }}
@@ -17,6 +18,11 @@ defineProps({
   label: {
     type: String,
     default: 'Clone last citation'
+  },
+
+  disabled: {
+    type: Boolean,
+    default: false
   }
 })
 

@@ -49,6 +49,7 @@ module Queries
         :type_metadata,
         :validify,
         :validity,
+        :verbatim_author,
         :verbatim_name,
         :year,
         :year_end,
@@ -172,6 +173,10 @@ module Queries
       # name is returned
       # !! This param is not like the others. !!
       attr_accessor :validify
+
+      # @param verbatim_author [String]
+      #   Exact match against verbatim_author.
+      attr_accessor :verbatim_author
 
       # @oparams verbatim_name  ['true', True, nil]
       # @return Boolean
@@ -402,6 +407,7 @@ module Queries
         @type_metadata = boolean_param(params, :type_metadata)
         @validify = boolean_param(params, :validify)
         @validity = boolean_param(params, :validity)
+        @verbatim_author = params[:verbatim_author]
         @verbatim_name = boolean_param(params, :verbatim_name)
 
         @year = params[:year]
@@ -748,8 +754,24 @@ module Queries
       # @return Scope
       def type_metadata_facet
         return nil if type_metadata.nil?
-        subquery = ::TypeMaterial.where(::TypeMaterial.arel_table[:protonym_id].eq(::TaxonName.arel_table[:id])).arel.exists
-        ::TaxonName.where(type_metadata ? subquery : subquery.not)
+
+        # Species type information is stored in TypeMaterial
+        type_material_exists = ::TypeMaterial
+          .where(::TypeMaterial.arel_table[:protonym_id].eq(::TaxonName.arel_table[:id]))
+          .arel.exists
+
+        # Genus type species and family type genus are stored as Typification relationships
+        # where the taxon name is the object (the name that has the type designation)
+        typification_rel_exists = ::TaxonNameRelationship
+          .where(::TaxonNameRelationship.arel_table[:object_taxon_name_id].eq(::TaxonName.arel_table[:id]))
+          .where("taxon_name_relationships.type LIKE 'TaxonNameRelationship::Typification::%'")
+          .arel.exists
+
+        if type_metadata
+          ::TaxonName.where(type_material_exists.or(typification_rel_exists))
+        else
+          ::TaxonName.where(type_material_exists.not.and(typification_rel_exists.not))
+        end
       end
 
       # @return Scope
@@ -851,6 +873,11 @@ module Queries
         else
           table[:cached_is_available].eq(false)
         end
+      end
+
+      def verbatim_author_facet
+        return nil if verbatim_author.blank?
+        table[:verbatim_author].eq(verbatim_author)
       end
 
       def verbatim_name_facet
@@ -997,6 +1024,7 @@ module Queries
           taxon_name_type_facet,
           validity_facet,
           availability_facet,
+          verbatim_author_facet,
           verbatim_name_facet,
           with_nomenclature_code,
           with_nomenclature_group,

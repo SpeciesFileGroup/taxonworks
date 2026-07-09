@@ -1,16 +1,15 @@
 #keyShortcuts {
   .legend {
-    z-index: 2101;
+    z-index: 2202;
     display: block;
     position: fixed;
     top: -60px;
-    right: 166px;
+    right: 190px;
     cursor: pointer;
     font-size: $font_small;
     box-shadow: var(--panel-shadow);
     background-color: var(--bg-foreground);
     padding: $standard_padding;
-    padding-right: 40px;
     border-radius: 3px;
     transition: all 0.5s ease;
   }

@@ -145,10 +145,14 @@ module Shared::Unify
           s[:result][:total_related] += t
           next if s[:result][:total_related] > cutoff
 
+          list_state = snapshot_list_order(r, i)
+
           i.find_each do |j|
             j.update(r.options[:inverse_of] => self)
             log_unify_result(j, r, s)
           end
+
+          restore_list_order(list_state) if list_state
 
         when :has_one, :belongs_to
           i = o.send(r.name)
@@ -164,7 +168,7 @@ module Shared::Unify
       if cutoff_hit = s[:result][:total_related] > cutoff
         s[:result][:unified] = false
         s[:result][:message] = "Related cutoff threshold (> #{cutoff}) hit, unify is not yet allowed on these objects."
-      else
+      elsif s[:result][:unified] != false
 
         begin
           o.reload # reset all in-memory has_many caches that would prevent destroy
@@ -204,7 +208,7 @@ module Shared::Unify
 
       # after_unify # potential hooks, appear not to be required
 
-      if preview || cutoff_hit
+      if preview || cutoff_hit || s[:result][:unified] == false
         raise ActiveRecord::Rollback
       end
     end
@@ -321,8 +325,9 @@ module Shared::Unify
     # we don't know how to handle this with confidence.
     if object.errors.details.keys.include?(relation.options[:inverse_of])
 
-      # object can't be updated, move its annotations to self
-      unless deduplicate_update_target(object)
+      # object can't be updated, move its annotations to self.
+      dedup_result = deduplicate_update_target(object)
+      unless dedup_result && dedup_result[:result][:unified]
         result[:result][:unified] = false
         result[:details][n][:unmerged] += 1
         result[:details][n][:errors] ||= []
@@ -358,6 +363,28 @@ module Shared::Unify
         deduplicated: 0
       }
     )
+  end
+
+  # Snapshot the current position order on both sides of a has_many before
+  # records are re-parented, so the restore below is independent of how
+  # acts_as_list repositions records during update.
+  # Returns nil when the association does not use acts_as_list.
+  def snapshot_list_order(relation, incoming)
+    related_class = incoming.klass
+    return nil unless related_class.respond_to?(:acts_as_list_options)
+    {
+      klass: related_class,
+      existing_ids: send(relation.name).order(:position).pluck(:id),
+      incoming_ids: incoming.order(:position).pluck(:id)
+    }
+  end
+
+  # Re-apply the pre-merge position order captured by snapshot_list_order,
+  # appending incoming records after the surviving object's existing records.
+  def restore_list_order(state)
+    (state[:existing_ids] + state[:incoming_ids]).each_with_index do |id, idx|
+      state[:klass].where(id:).update_all(position: idx + 1)
+    end
   end
 
 end

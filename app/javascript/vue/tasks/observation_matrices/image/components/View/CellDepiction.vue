@@ -4,14 +4,8 @@
       v-for="depiction in depictions"
       :key="depiction.id"
     >
-      <Tippy
-        animation="scale"
-        placement="bottom"
-        size="small"
-        arrow-size="small"
-        inertia
-        arrow
-        :trigger="!!depiction.source_cached ? 'mouseenter focus' : 'manual'"
+      <VTooltip
+        :disabled="!depiction.source_cached"
         :content="depiction.source_cached"
       >
         <ImageViewer :depiction="depiction">
@@ -39,20 +33,20 @@
             </div>
           </template>
         </ImageViewer>
-      </Tippy>
+      </VTooltip>
     </div>
   </div>
 </template>
 
 <script>
-import { Tippy } from 'vue-tippy'
+import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
 import ImageViewer from '@/components/ui/ImageViewer/ImageViewer.vue'
 import CellLink from '../CellLink'
 
 export default {
   components: {
     ImageViewer,
-    Tippy,
+    VTooltip,
     CellLink
   },
 

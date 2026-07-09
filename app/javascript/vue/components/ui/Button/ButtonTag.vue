@@ -1,12 +1,6 @@
 <template>
   <div v-if="keywordId && !isLoading">
-    <Tippy
-      animation="scale"
-      placement="bottom"
-      size="small"
-      inertia
-      arrow
-    >
+    <VTooltip>
       <template #content>
         <p>
           {{ tagItem ? 'Remove' : 'Create' }} tag:
@@ -31,7 +25,7 @@
           x-small
         />
       </VBtn>
-    </Tippy>
+    </VTooltip>
   </div>
   <VBtn
     v-else
@@ -49,7 +43,7 @@
 </template>
 
 <script setup>
-import { Tippy } from 'vue-tippy'
+import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
 import { Tag } from '@/routes/endpoints'
 import { ref, watch, onBeforeMount, onBeforeUnmount } from 'vue'
 import { getPagination } from '@/helpers'

@@ -15,7 +15,7 @@
         />
         <v-btn
           type="button"
-          @click="setInline(inputText)"
+          @click="setInline(inputText || '')"
           color="primary"
         >
           Trim

@@ -94,6 +94,11 @@ textarea {
   box-sizing: border-box;
   background-color: var(--input-bg-color);
   min-height: $normal-input-size;
+
+  &:disabled {
+    color: var(--button-disabled-text-color);
+    background-color: var(--input-bg-disabled);
+  }
 }
 
 input[type='checkbox'],

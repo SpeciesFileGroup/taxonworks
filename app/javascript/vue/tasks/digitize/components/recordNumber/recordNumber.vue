@@ -1,5 +1,5 @@
 <template>
-  <div class="overflow-x-auto">
+  <div class="panel content overflow-x-auto">
     <h2>Record number</h2>
     <div class="flex-wrap-column middle align-start full_width">
       <div class="separate-right full_width">
@@ -89,6 +89,7 @@
           <input
             type="text"
             id="record-number-identifier-field"
+            :class="{ 'validate-identifier': store.existingIdentifiers.length }"
             v-model="store.identifier.identifier"
             @input="identifierChanged"
           />
@@ -101,7 +102,10 @@
           </label>
 
           <VIcon
-            v-if="store.identifier.namespaceId"
+            v-if="
+              store.identifier.namespaceId &&
+              !store.identifier.identifier?.length
+            "
             name="attention"
             color="attention"
             small
@@ -116,9 +120,14 @@
         >
           Namespace is needed.
         </span>
+        <ExistingIdentifier
+          :existing-identifiers="store.existingIdentifiers"
+          @load="confirmAndLoad"
+        />
       </div>
     </div>
   </div>
+  <ConfirmationModal ref="confirmationModalRef" />
 </template>
 
 <script setup>
@@ -128,18 +137,29 @@ import { useStore } from 'vuex'
 import { Namespace } from '@/routes/endpoints'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations.js'
+import { ActionNames } from '../../store/actions/actions.js'
 import { IDENTIFIER_LOCAL_RECORD_NUMBER } from '@/constants/index.js'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VLock from '@/components/ui/VLock/index.vue'
 import WidgetNamespace from '@/components/ui/Widget/WidgetNamespace.vue'
+import ConfirmationModal from '@/components/ConfirmationModal.vue'
+import ExistingIdentifier from '../shared/ExistingIdentifier.vue'
 
 const store = useIdentifierStore(IDENTIFIER_LOCAL_RECORD_NUMBER)()
 const coStore = useStore()
 const namespace = ref(null)
 const smartSelectorRef = ref()
 const widgetNamespaceRef = ref()
+const confirmationModalRef = ref()
+
+const DELAY = 1000
+let checkRequest = undefined
+
+const coId = computed(
+  () => coStore.getters[GetterNames.GetCollectionObject]?.id
+)
 
 const settings = computed({
   get() {
@@ -148,6 +168,10 @@ const settings = computed({
   set(value) {
     coStore.commit(MutationNames.SetSettings, value)
   }
+})
+
+watch(coId, () => {
+  store.existingIdentifiers = []
 })
 
 watch(
@@ -164,6 +188,17 @@ watch(
 
 function identifierChanged() {
   store.identifier.isUnsaved = true
+  checkIdentifier()
+}
+
+function checkIdentifier() {
+  clearTimeout(checkRequest)
+
+  if (store.identifier.identifier) {
+    checkRequest = setTimeout(store.checkExistingIdentifiers, DELAY)
+  } else {
+    store.existingIdentifiers = []
+  }
 }
 
 function handleTabChange(tab) {
@@ -175,6 +210,23 @@ function handleTabChange(tab) {
 function setNamespace({ id }) {
   store.identifier.namespaceId = id
   store.identifier.isUnsaved = true
+  checkIdentifier()
+}
+
+async function confirmAndLoad(collectionObjectId) {
+  const ok = await confirmationModalRef.value.show({
+    title: 'Load collection object',
+    message:
+      'Loading will discard unsaved changes in the current form. Continue?',
+    okButton: 'Load',
+    cancelButton: 'Cancel',
+    typeButton: 'submit'
+  })
+
+  if (ok) {
+    coStore.dispatch(ActionNames.ResetWithDefault)
+    coStore.dispatch(ActionNames.LoadDigitalization, collectionObjectId)
+  }
 }
 </script>
 

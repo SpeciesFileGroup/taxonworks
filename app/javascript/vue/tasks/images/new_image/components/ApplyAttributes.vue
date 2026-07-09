@@ -14,12 +14,9 @@
     <div class="horizontal-left-content items-stretch">
       <div class="separate-right full_width">
         <div class="horizontal-left-content">
-          <input
-            class="input-apply"
-            disabled="true"
-            :value="tagsLabel"
-            type="text"
-          />
+          <div class="input-apply">
+            {{ tagsLabel }}
+          </div>
           <button
             type="button"
             :disabled="!tags.length || !areImagesCreated"
@@ -30,12 +27,9 @@
           </button>
         </div>
         <div class="horizontal-left-content margin-small-top">
-          <input
-            class="input-apply"
-            disabled="true"
-            :value="showSource"
-            type="text"
-          />
+          <div class="input-apply">
+            {{ showSource }}
+          </div>
           <button
             type="button"
             :disabled="!source || !areImagesCreated"
@@ -46,12 +40,9 @@
           </button>
         </div>
         <div class="horizontal-left-content margin-small-top">
-          <input
-            class="input-apply"
-            disabled="true"
-            :value="showPeopleAndLicense"
-            type="text"
-          />
+          <div class="input-apply">
+            {{ showPeopleAndLicense }}
+          </div>
           <button
             type="button"
             :disabled="!validateAttr || !areImagesCreated"
@@ -62,12 +53,9 @@
           </button>
         </div>
         <div class="horizontal-left-content margin-small-top">
-          <input
-            class="input-apply"
-            disabled="true"
-            :value="objectsForDepictions"
-            type="text"
-          />
+          <div class="input-apply">
+            {{ objectsForDepictions }}
+          </div>
           <button
             type="button"
             :disabled="
@@ -80,12 +68,9 @@
           </button>
         </div>
         <div class="horizontal-left-content margin-small-top">
-          <input
-            class="input-apply"
-            disabled="true"
-            :value="showPixelToCm"
-            type="text"
-          />
+          <div class="input-apply">
+            {{ showPixelToCm }}
+          </div>
           <button
             type="button"
             :disabled="!pixels || !areImagesCreated"
@@ -327,6 +312,9 @@ export default {
 .input-apply {
   width: 100%;
   font-size: 110%;
+  padding: 0.25rem 0.5rem;
   color: var(--text-color);
+  border-radius: var(--border-radius-xsmall);
+  border: 1px solid var(--border-color);
 }
 </style>

@@ -20,6 +20,7 @@
                 color="primary"
                 medium
                 :disabled="!rows.length"
+                data-help="Re-matches all rows using current settings. To re-match only specific rows, check their checkboxes — each checked row auto-matches immediately using current settings and auto-updates when settings are changed."
                 @click="runMatch({ matchAll: true })"
               >
                 Match
@@ -27,6 +28,7 @@
               <VBtn
                 circle
                 color="primary"
+                title="Reset task"
                 @click="reset"
               >
                 <VIcon
@@ -80,12 +82,11 @@ import InputPanel from './components/InputPanel.vue'
 import ResultTable from './components/ResultTable.vue'
 import SummaryBar from './components/SummaryBar.vue'
 import MatchOptionsPanel from './components/MatchOptionsPanel.vue'
+import { MAX_ROWS } from './constants.js'
 
 defineOptions({
   name: 'MatchOtuByTaxonName'
 })
-
-const MAX_ROWS = 1000
 
 const stage = ref('input')
 const isProcessing = ref(false)
@@ -113,7 +114,12 @@ const modifiers = ref([
   { active: false, pattern: '', replacement: '' }
 ])
 
-function handleDataSubmit({ names, csv }) {
+async function handleDataSubmit({ names, csv }) {
+  isProcessing.value = true
+  // Give the browser enough time to paint the spinner before it gets bogged
+  // down in processing.
+  await new Promise((resolve) => setTimeout(resolve, 0))
+
   csvData.value = csv
 
   rows.value = names.slice(0, MAX_ROWS).map((name, index) => {
@@ -136,9 +142,7 @@ function handleDataSubmit({ names, csv }) {
 
   stage.value = 'results'
 
-  nextTick(() => {
-    runMatch({ matchAll: true })
-  })
+  runMatch({ matchAll: true })
 }
 
 function applyModifiers(name) {
@@ -158,15 +162,15 @@ function applyModifiers(name) {
   return result.trim()
 }
 
-function computeMatchStrings() {
+function computeMatchStrings(matchAll = false) {
   const hasActiveModifier = modifiers.value.some((m) => m.active && m.pattern)
 
   rows.value.forEach((row) => {
     if (row.isEmpty) return
 
-    if (hasActiveModifier && row.selected) {
+    if (hasActiveModifier && (row.selected || matchAll)) {
       row.matchString = applyModifiers(row.scientificName)
-    } else if (!row.selected) {
+    } else if (!row.selected && !matchAll) {
       // Don't change matchString for unselected rows
     } else {
       row.matchString = ''
@@ -175,7 +179,7 @@ function computeMatchStrings() {
 }
 
 async function runMatch({ matchAll = false } = {}) {
-  computeMatchStrings()
+  computeMatchStrings(matchAll)
   syncAllDuplicates()
 
   const checkedRows = rows.value.filter((r) => r.selected && !r.isEmpty)

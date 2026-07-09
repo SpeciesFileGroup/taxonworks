@@ -95,6 +95,7 @@ end
 scope :unify, controller: :unify do
   match '/', action: :unify, via: :post
   get :metadata, defaults: {format: :json}
+  get :types, defaults: {format: :json}
 end
 
 resources :users, except: :new do

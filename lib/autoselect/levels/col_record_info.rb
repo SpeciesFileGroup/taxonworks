@@ -19,7 +19,10 @@ module Autoselect
         parts = []
 
         if (status = col_ext[:col_status].presence)
-          parts << "<span class=\"feedback feedback-thin feedback-info\">#{ERB::Util.html_escape(status)}</span>"
+          # Anything other than an accepted name (synonym, ambiguous synonym, misapplied, …)
+          # gets a more aggressive alert style to draw attention to the nomenclatural caveat.
+          status_modifier = status.to_s.casecmp?('accepted') ? 'feedback-info' : 'feedback-warning'
+          parts << "<span class=\"feedback feedback-thin #{status_modifier}\">#{ERB::Util.html_escape(status)}</span>"
         end
 
         if (rank = col_ext[:col_rank].presence)

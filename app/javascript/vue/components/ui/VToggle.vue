@@ -1,5 +1,10 @@
 <template>
-  <div :title="title">
+  <div
+    v-tooltip="{
+      content: title,
+      placement: 'bottom'
+    }"
+  >
     <label class="v-toggle-switch">
       <input
         v-model="checked"
@@ -16,6 +21,7 @@
 </template>
 
 <script setup>
+import { vTooltip } from '@/directives'
 import { computed } from 'vue'
 
 const props = defineProps({

@@ -296,6 +296,44 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     expect(query.all.map(&:id)).to contain_exactly(root.id, genus.id, original_genus.id)
   end
 
+  specify '#type_metadata 5 - genus with type species' do
+    TaxonNameRelationship::Typification::Genus.create!(
+      subject_taxon_name: species,
+      object_taxon_name: genus
+    )
+    query.type_metadata = true
+    expect(query.all.map(&:id)).to contain_exactly(genus.id)
+  end
+
+  specify '#type_metadata 6 - genus without type species' do
+    TaxonNameRelationship::Typification::Genus.create!(
+      subject_taxon_name: species,
+      object_taxon_name: genus
+    )
+    query.type_metadata = false
+    expect(query.all.map(&:id)).to contain_exactly(root.id, original_genus.id, species.id)
+  end
+
+  specify '#type_metadata 7 - family with type genus' do
+    family = Protonym.create!(name: 'Erasmoneuridae', rank_class: Ranks.lookup(:iczn, 'family'), parent: root)
+    TaxonNameRelationship::Typification::Family.create!(
+      subject_taxon_name: genus,
+      object_taxon_name: family
+    )
+    query.type_metadata = true
+    expect(query.all.map(&:id)).to contain_exactly(family.id)
+  end
+
+  specify '#type_metadata 8 - family without type genus' do
+    family = Protonym.create!(name: 'Erasmoneuridae', rank_class: Ranks.lookup(:iczn, 'family'), parent: root)
+    TaxonNameRelationship::Typification::Family.create!(
+      subject_taxon_name: genus,
+      object_taxon_name: family
+    )
+    query.type_metadata = false
+    expect(query.all.map(&:id)).to contain_exactly(root.id, original_genus.id, species.id, genus.id)
+  end
+
   specify '#taxon_name_classification[]' do
     TaxonNameClassification::Iczn::Available.create!(taxon_name: genus)
     query.taxon_name_classification = ['TaxonNameClassification::Iczn::Available']
@@ -617,6 +655,38 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     query.author = 'Fit'
     query.author_exact = true
     expect(query.all.map(&:id)).to contain_exactly()
+  end
+
+  specify '#verbatim_author matches exact stored value without parens' do
+    query.verbatim_author = 'Fitch & Say'
+    expect(query.all.map(&:id)).to contain_exactly(species.id)
+  end
+
+  specify '#verbatim_author does not match when parens differ' do
+    query.verbatim_author = '(Fitch & Say)'
+    expect(query.all.map(&:id)).to contain_exactly()
+  end
+
+  context '#verbatim_author with parens' do
+    let!(:parenthesized) {
+      Protonym.create!(
+        name: 'obscura',
+        rank_class: Ranks.lookup(:iczn, 'species'),
+        parent: genus,
+        verbatim_author: '(Fitch & Say)',
+        year_of_publication: 1800,
+      )
+    }
+
+    specify 'matches exact value with parens' do
+      query.verbatim_author = '(Fitch & Say)'
+      expect(query.all.map(&:id)).to contain_exactly(parenthesized.id)
+    end
+
+    specify 'does not match bare author when stored value has parens' do
+      query.verbatim_author = 'Fitch & Say'
+      expect(query.all.map(&:id)).to contain_exactly(species.id)
+    end
   end
 
   specify '#year' do

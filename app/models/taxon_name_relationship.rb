@@ -480,7 +480,7 @@ class TaxonNameRelationship < ApplicationRecord
 
         if TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY.include?(type_name)
           t.update_columns(
-            cached_misspelling: true,
+            cached_misspelling: t.get_cached_misspelling,
             cached_author_year: t.get_author_and_year,
             cached_nomenclature_date: t.nomenclature_date,
             cached_original_combination: t.get_original_combination,
