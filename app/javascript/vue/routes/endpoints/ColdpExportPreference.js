@@ -37,8 +37,8 @@ export const ColdpExportPreference = {
   checklistbankIssues: (id, params) =>
     AjaxCall('get', `/projects/${id}/coldp_export_preferences/checklistbank_issues.json`, { params }),
 
-  fetchClbMetadata: (id, params) =>
-    AjaxCall('get', `/projects/${id}/coldp_export_preferences/fetch_clb_metadata.json`, { params }),
+  fetchChecklistbankMetadata: (id, params) =>
+    AjaxCall('get', `/projects/${id}/coldp_export_preferences/fetch_checklistbank_metadata.json`, { params }),
 
   searchDatasets: (id, params) =>
     AjaxCall('get', `/projects/${id}/coldp_export_preferences/search_datasets.json`, { params }),

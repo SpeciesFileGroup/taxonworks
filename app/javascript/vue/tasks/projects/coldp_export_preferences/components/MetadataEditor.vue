@@ -47,7 +47,7 @@
           <VBtn
             v-if="checklistbankDatasetId"
             :disabled="isFetching"
-            @click="fetchClbMetadata"
+            @click="fetchChecklistbankMetadata"
             color="primary"
             class="margin-small-right"
           >
@@ -112,10 +112,10 @@ const localYaml = computed({
 
 const isFetching = ref(false)
 
-async function fetchClbMetadata() {
+async function fetchChecklistbankMetadata() {
   isFetching.value = true
   try {
-    const { body } = await ColdpExportPreference.fetchClbMetadata(
+    const { body } = await ColdpExportPreference.fetchChecklistbankMetadata(
       props.projectId,
       { checklistbank_dataset_id: props.checklistbankDatasetId }
     )

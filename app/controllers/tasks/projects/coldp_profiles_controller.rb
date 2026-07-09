@@ -5,6 +5,7 @@ class Tasks::Projects::ColdpProfilesController < ApplicationController
   before_action :set_project
 
   def create
+    params.require(:otu_id)
     if @project.create_coldp_profile(profile_params)
       render json: @project.coldp_preferences_for_vue(sessions_current_user)
     else
@@ -45,7 +46,7 @@ class Tasks::Projects::ColdpProfilesController < ApplicationController
       :otu_id, :checklistbank_dataset_id, :is_public,
       :default_user_id, :max_age, :metadata_yaml,
       :maintain_metadata_in_checklistbank, :base_url,
-      :fossil_extinct, :default_lifezone
+      :fossil_extinct, :default_lifezone, :prefer_unlabelled_otus
     ).to_h
   end
 

@@ -24,8 +24,8 @@
             v-model="clbSearchQuery"
             placeholder="Search ChecklistBank datasets..."
             class="full_width"
-            @input="onClbInput"
-            @keydown.delete="onClbBackspace"
+            @input="onChecklistbankInput"
+            @keydown.delete="onChecklistbankBackspace"
           />
           <ul
             v-if="clbResults.length > 0 && clbSearchOpen"
@@ -35,7 +35,7 @@
               v-for="dataset in clbResults"
               :key="dataset.key"
               class="d-flex flex-column gap-xsmall cursor-pointer padding-xsmall"
-              @click="selectClbDataset(dataset)"
+              @click="selectChecklistbankDataset(dataset)"
             >
               <div class="d-flex align-items-center">
                 <span class="font-bold line-nowrap">#{{ dataset.key }}</span>
@@ -123,6 +123,24 @@
         <div class="small_type">
           Automatically sets extinct on taxa whose name is classified as fossil.
           Per-taxon data attributes (controlled vocabulary) take precedence when present.
+        </div>
+      </div>
+
+      <div class="field margin-medium-top">
+        <label>
+          <input
+            type="checkbox"
+            :checked="profile.prefer_unlabelled_otus !== false"
+            @change="emit('update:profile', {
+              ...profile,
+              prefer_unlabelled_otus: $event.target.checked
+            })"
+          />
+          Prefer unlabelled OTUs
+        </label>
+        <div class="small_type">
+          When a taxon name has multiple OTUs, prefer the OTU without a value in
+          the OTU <b>name</b> field.
         </div>
       </div>
 
@@ -252,7 +270,7 @@ onMounted(() => {
     fetchUserLabel(props.profile.default_user_id)
   }
   if (props.profile.checklistbank_dataset_id) {
-    fetchClbDatasetLabel(props.profile.checklistbank_dataset_id)
+    fetchChecklistbankDatasetLabel(props.profile.checklistbank_dataset_id)
   }
 })
 
@@ -297,11 +315,11 @@ async function fetchUserLabel(userId) {
   }
 }
 
-function clbDisplayLabel(dataset) {
+function checklistbankDisplayLabel(dataset) {
   return [dataset.key || dataset, dataset.alias, dataset.title].filter(Boolean).join(' - ')
 }
 
-function onClbInput() {
+function onChecklistbankInput() {
   // If user starts typing over a selected dataset, clear the selection
   if (props.profile.checklistbank_dataset_id) {
     clbSelectedLabel.value = ''
@@ -328,27 +346,27 @@ function onClbInput() {
   }, 300)
 }
 
-function onClbBackspace() {
+function onChecklistbankBackspace() {
   if (clbSearchQuery.value === '' && props.profile.checklistbank_dataset_id) {
     clbSelectedLabel.value = ''
     emit('update:profile', { ...props.profile, checklistbank_dataset_id: null })
   }
 }
 
-function selectClbDataset(dataset) {
-  clbSelectedLabel.value = clbDisplayLabel(dataset)
+function selectChecklistbankDataset(dataset) {
+  clbSelectedLabel.value = checklistbankDisplayLabel(dataset)
   clbSearchQuery.value = clbSelectedLabel.value
   clbResults.value = []
   clbSearchOpen.value = false
   emit('update:profile', { ...props.profile, checklistbank_dataset_id: dataset.key })
 }
 
-function fetchClbDatasetLabel(datasetId) {
+function fetchChecklistbankDatasetLabel(datasetId) {
   ColdpExportPreference.searchDatasets(projectId, { q: String(datasetId) })
     .then(({ body }) => {
       const match = (body || []).find(d => d.key === datasetId)
       if (match) {
-        clbSelectedLabel.value = clbDisplayLabel(match)
+        clbSelectedLabel.value = checklistbankDisplayLabel(match)
         clbSearchQuery.value = clbSelectedLabel.value
       } else {
         clbSearchQuery.value = String(datasetId)

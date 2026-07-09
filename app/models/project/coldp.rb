@@ -155,7 +155,10 @@ class Project
         'maintain_metadata_in_checklistbank' => attrs['maintain_metadata_in_checklistbank'] == true || attrs['maintain_metadata_in_checklistbank'] == 'true',
         'base_url' => attrs['base_url'].to_s,
         'fossil_extinct' => attrs['fossil_extinct'] == true || attrs['fossil_extinct'] == 'true',
-        'default_lifezone' => attrs['default_lifezone'].presence
+        'default_lifezone' => attrs['default_lifezone'].presence,
+        'prefer_unlabelled_otus' => attrs.key?('prefer_unlabelled_otus') ?
+          (attrs['prefer_unlabelled_otus'] == true || attrs['prefer_unlabelled_otus'] == 'true') :
+          true
       }
     end
 

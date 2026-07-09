@@ -825,7 +825,7 @@ resources :projects, only: [] do
       get :missing_otus_count
       get :checklistbank_citation
       get :checklistbank_issues
-      get :fetch_clb_metadata
+      get :fetch_checklistbank_metadata
       get :search_datasets
       get :issue_vocab
     end

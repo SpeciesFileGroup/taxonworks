@@ -148,7 +148,8 @@ function addProfile() {
     max_age: 6.0,
     metadata_yaml: '',
     maintain_metadata_in_checklistbank: false,
-    base_url: ''
+    base_url: '',
+    prefer_unlabelled_otus: true
   })
   selectedProfileIndex.value = profiles.value.length - 1
 }

@@ -34,7 +34,7 @@ class Tasks::Projects::ColdpExportPreferencesController < ApplicationController
     render json: { valid_without: @project.coldp_missing_otus_count(otu_id) }
   end
 
-  def fetch_clb_metadata
+  def fetch_checklistbank_metadata
     dataset_id = permitted_checklistbank_dataset_id
     return render_missing_dataset_id if dataset_id.blank?
 

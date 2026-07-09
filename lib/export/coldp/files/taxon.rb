@@ -11,7 +11,7 @@ module Export::Coldp::Files::Taxon
   IRI_MAP = {
     extinct: 'https://api.checklistbank.org/datapackage#Taxon.extinct',                         # 1,0
     temporal_range_end: 'https://api.checklistbank.org/datapackage#Taxon.temporal_range_end',   # from https://api.checklistbank.org/vocab/geotime
-    temporal_range_start: 'https://api.checklistbank.org/datapackage#Taxon.temporal_range_end', # from https://api.checklistbank.org/vocab/geotime
+    temporal_range_start: 'https://api.checklistbank.org/datapackage#Taxon.temporal_range_start', # from https://api.checklistbank.org/vocab/geotime
     lifezone: 'https://api.checklistbank.org/datapackage#Taxon.lifezone',                       # from https://api.checklistbank.org/vocab/lifezone
     remarks: 'https://github.com/catalogueoflife/coldp#Taxon.remarks',
     namePhrase: 'https://github.com/catalogueoflife/coldp#Taxon.namePhrase',

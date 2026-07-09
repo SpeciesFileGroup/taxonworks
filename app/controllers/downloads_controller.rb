@@ -156,7 +156,9 @@ class DownloadsController < ApplicationController
   end
 
   def complete_download_params
-    params.permit(*@complete_download_class.complete_download_required_params).to_h.symbolize_keys
+    required = @complete_download_class.complete_download_required_params
+    required.each { |key| params.require(key) }
+    params.permit(*required).to_h.symbolize_keys
   end
 
 
