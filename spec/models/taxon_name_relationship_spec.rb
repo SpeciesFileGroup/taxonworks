@@ -343,6 +343,26 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         expect(g2.cached_is_valid).to be_truthy
       end
 
+      # set_cached_names_for_taxon_names's after_commit is deferred, so it
+      # can run after subject_taxon_name was destroyed elsewhere in the same
+      # unify chain. If subject_taxon_name was already memoized on r1 before
+      # that happened, the belongs_to reader returns the stale,
+      # no-longer-persisted instance rather than nil -- reproduced here by
+      # memoizing g2 on r1, destroying r1 itself (satisfying the FK on
+      # taxon_name_relationships.subject_taxon_name_id) and then g2, and
+      # invoking the callback again as the deferred after_commit would.
+      # Mirrors the identical fix on
+      # TaxonNameRelationship::OriginalCombination#set_cached_names_for_taxon_names.
+      specify 'does not raise when subject_taxon_name is memoized but its row is gone by the time the callback runs' do
+        r1 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name: g2, object_taxon_name: g1)
+        r1.subject_taxon_name # memoize g2 on r1's association cache
+
+        r1.destroy! # satisfies the FK, fires the callback once normally (g2 still exists here)
+        g2.destroy!
+
+        expect { r1.send(:set_cached_names_for_taxon_names) }.not_to raise_error
+      end
+
       specify 'create misspelling relationship' do
         r3 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2,
                                type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
