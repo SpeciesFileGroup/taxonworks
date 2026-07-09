@@ -31,6 +31,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Collecting Events with Georeferences raise an error when attempting to destroy [#4937]
 - Unify fixes related to: Georeferences when Collecting Events are unified, matrix columns when descriptors are unified, and dynamix matrix rows/columns when dynamic data are unified [#4944]
 - Unify now preserves list order of associated data: e.g. if two Collection Objects are unified, the kept object has its original list of Taxon Determinations in the same order, followed by the Taxon Determinations of the destroyed Collection Object in their original order
+- Monograph facilitator: Determination label is not visible in Safari browser
 
 [#4937]: https://github.com/SpeciesFileGroup/taxonworks/issues/4937
 [#4944]: https://github.com/SpeciesFileGroup/taxonworks/issues/4944
