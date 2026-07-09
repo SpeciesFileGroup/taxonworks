@@ -145,6 +145,19 @@ class Citation < ApplicationRecord
   # citation_object is itself confirmed to be the record actually being
   # destroyed (on_behalf_of) -- it's not losing its last citation, it's going
   # away entirely.
+  # TODO: ignore_citation_restriction is plain in-memory state, not covered
+  # by the transaction -- if the surrounding unify call later rolls back
+  # (preview: true always does; so could a later failure in the same merge),
+  # the DB reverts but this flag stays true on whatever in-memory
+  # citation_object instance we set it on. Only matters if a caller reuses
+  # that same instance afterward (a script/console/rake task previewing
+  # several unifies, say), not a per-request web flow. Shared::CitationRequired's
+  # own before_destroy already has the identical property for a plain
+  # (non-unify) destroy, so this isn't a new kind of gap, just a new path to
+  # it. A real fix would add a symmetric "cleanup" hook to Shared::Unify,
+  # called in an ensure right after the destroy attempt, so this flag only
+  # stays true for the duration of that attempt rather than however long
+  # the caller holds the object.
   def prepare_for_unify_destroy(on_behalf_of)
     return unless on_behalf_of == citation_object
 

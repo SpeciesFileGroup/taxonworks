@@ -279,6 +279,18 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         expect(s1.cached_primary_homonym).to eq('Bus aus')
       end
 
+      # OriginalCombination#set_cached_names_for_taxon_names refreshes
+      # object_taxon_name via #reload rather than a separately-fetched
+      # TaxonName instance, so the already-memoized association on the
+      # relationship itself reflects the update -- checked here through r,
+      # not a freshly-fetched s1, to catch a regression back to a separate
+      # instance the relationship's own association would never see.
+      specify 'object_taxon_name association is refreshed in place, not left stale' do
+        r = TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g1, object_taxon_name: s1)
+        r.update!(subject_taxon_name: g2)
+        expect(r.object_taxon_name.cached_primary_homonym).to eq('Bus aus')
+      end
+
       specify 'for cached_classified_as' do
         r2 = FactoryBot.build(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: family, type: 'TaxonNameRelationship::SourceClassifiedAs')
         r2.save!
