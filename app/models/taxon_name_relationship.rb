@@ -486,6 +486,15 @@ class TaxonNameRelationship < ApplicationRecord
       t = subject_taxon_name
       return true unless t
 
+      # t may have been destroyed elsewhere in the same unify chain (e.g. as
+      # the duplicate being merged away) by the time this deferred
+      # after_commit fires. If t was already memoized before that happened,
+      # the belongs_to reader above returns a stale, no-longer-persisted
+      # instance rather than nil -- reload to force a fresh check (see the
+      # identical fix/rationale on
+      # TaxonNameRelationship::OriginalCombination#set_cached_names_for_taxon_names).
+      t.reload
+
       if TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY.include?(type_name)
         t.update_columns(
           cached_misspelling: t.get_cached_misspelling,
@@ -535,6 +544,8 @@ class TaxonNameRelationship < ApplicationRecord
       end
     end
 
+    true
+  rescue ActiveRecord::RecordNotFound
     true
   end
 
