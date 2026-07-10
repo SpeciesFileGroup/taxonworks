@@ -93,10 +93,11 @@
             <%= annotations_summary_tag(@taxon_name) %>
             <div class="tw-card fullSize">
               <div class="tw-card-header">
+                <span class="card-icon-chip"><%= icon('history') %></span>
                 <h2 class="tw-card-title">Housekeeping</h2>
               </div>
-              <div class="tw-card-body attributes">
-                <%= render(partial: '/shared/data/all/show/housekeeping', locals: {object: @taxon_name}) -%>
+              <div class="tw-card-body">
+                <%= render(partial: '/shared/data/all/show/housekeeping_grid', locals: {object: @taxon_name}) -%>
               </div>
             </div>
           </div>

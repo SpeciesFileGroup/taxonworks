@@ -66,6 +66,7 @@
 }
 
 .info-label {
+  margin: 0;
   color: var(--text-muted-color);
   font-size: var(--font-size-xs);
   text-transform: uppercase;
@@ -73,6 +74,7 @@
 }
 
 .info-value {
+  margin: 0;
   font-size: var(--font-size-sm);
 
   &.link {

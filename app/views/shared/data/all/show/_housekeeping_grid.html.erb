@@ -1,0 +1,21 @@
+<div class="info-grid">
+  <div class="info-item">
+    <span class="info-label">Created by</span>
+    <span class="info-value"><%= object_tag(object.creator) %></span>
+  </div>
+
+  <div class="info-item">
+    <span class="info-label">Created at</span>
+    <span class="info-value"><%= object.created_at.to_formatted_s(:long) -%></span>
+  </div>
+
+  <div class="info-item">
+    <span class="info-label">Updated by</span>
+    <span class="info-value"><%= object_tag(object.updater) %></span>
+  </div>
+
+  <div class="info-item">
+    <span class="info-label">Updated at</span>
+    <span class="info-value"><%= object.updated_at.to_formatted_s(:long) -%></span>
+  </div>
+</div>
