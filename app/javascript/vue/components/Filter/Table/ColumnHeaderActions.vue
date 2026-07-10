@@ -28,10 +28,11 @@
     <VBtn
       v-if="filtered"
       color="toggle-active"
-      circle
+      icon
+      title="Clear column filter"
       @click.stop="emit('clear')"
     >
-      X
+      <IconClose class="w-3 h-3" />
     </VBtn>
   </div>
 </template>
@@ -41,6 +42,7 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VLock from '@/components/ui/VLock/index.vue'
 import IconCopy from '@/components/Icon/IconCopy.vue'
+import IconClose from '@/components/Icon/IconClose.vue'
 
 defineProps({
   columnKey: {

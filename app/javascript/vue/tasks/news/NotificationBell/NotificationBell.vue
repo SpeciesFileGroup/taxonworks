@@ -94,14 +94,16 @@ onBeforeMount(() => {
 
 .notification-total {
   position: absolute;
-  bottom: 0px;
-  right: -2px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  bottom: 18px;
+  right: 4px;
   width: 12px;
   height: 12px;
   font-size: 8px;
   border-radius: 100%;
   text-align: center;
-  vertical-align: center;
   background-color: var(--color-error);
 }
 </style>
