@@ -1,12 +1,21 @@
 <template>
   <div
     v-if="validationSections.length"
-    class="panel content soft-validation-box validation-warning"
+    class="tw-card soft-validation-box validation-warning"
   >
-    <div class="header flex-separate">
-      <h3>Soft Validation</h3>
+    <div class="tw-card-header">
+      <span class="card-icon-chip soft-validation-chip">
+        <IconWarning />
+      </span>
+      <h2 class="tw-card-title">Soft validation</h2>
+      <VBadge
+        class="soft-validation-count"
+        color="yellow"
+      >
+        {{ validationCount }}
+      </VBadge>
     </div>
-    <div class="body overflow-y-auto">
+    <div class="tw-card-body overflow-y-auto">
       <template
         v-for="(section, index) in validationSections"
         :key="index"
@@ -40,7 +49,7 @@
               :key="index"
             >
               <VTooltip :content="error.description">
-                <IconWarning class="w-4 h-4 text-attention-color" />
+                <IconWarning class="w-4 h-4 soft-validation-item__icon" />
               </VTooltip>
 
               <span
@@ -98,6 +107,7 @@
 import { SoftValidation } from '@/routes/endpoints'
 import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VBadge from '@/components/ui/VBadge/VBadge.vue'
 import { computed } from 'vue'
 import IconWarning from '@/components/Icon/IconWarning.vue'
 import IconWrench from '@/components/Icon/IconWrench.vue'
@@ -111,6 +121,15 @@ const props = defineProps({
 
 const validationSections = computed(() =>
   Object.values(props.validations).filter((item) => item.list.length)
+)
+
+const validationCount = computed(() =>
+  validationSections.value.reduce(
+    (total, section) =>
+      total +
+      section.list.reduce((acc, item) => acc + item.soft_validations.length, 0),
+    0
+  )
 )
 
 function runFix(fixItems) {
@@ -147,33 +166,41 @@ function getFixPresent(list) {
 }
 </script>
 <style lang="scss" scoped>
-.soft-validation-box.validation-warning {
-  border-left: 4px solid var(--color-warning);
-}
 .soft-validation-box {
-  background-color: var(--panel-bg-color);
-  background-image: linear-gradient(
-    var(--soft-validation-bg-color),
-    var(--soft-validation-bg-color)
-  );
-  color: var(--text-color);
-  .body {
-    padding: 12px;
+  display: flex;
+  flex-direction: column;
+
+  &.validation-warning {
+    // Half-strength --color-soft-warning-bg, keeping its light/dark variants
+    --soft-validation-tint: color-mix(
+      in srgb,
+      var(--color-soft-warning-bg) 50%,
+      transparent
+    );
+
+    border-left: 4px solid var(--color-warning);
+    background-image: linear-gradient(
+      var(--soft-validation-tint),
+      var(--soft-validation-tint)
+    );
   }
-  .header {
-    padding-left: 12px;
-    padding-right: 12px;
-  }
+
   ul {
-    margin: 0px;
-    padding: 0px;
+    margin: 0;
+    padding: 0;
   }
 }
 
-.soft-validation-title {
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  margin: 0;
+.soft-validation-chip {
+  color: var(--color-warning);
+}
+
+.soft-validation-count {
+  margin-left: auto;
+}
+
+.soft-validation-item__icon {
+  color: var(--color-warning);
 }
 
 .soft-validation-section__header {
@@ -181,7 +208,7 @@ function getFixPresent(list) {
   align-items: center;
   justify-content: space-between;
   gap: var(--spacing-xs);
-  margin-bottom: 8px;
+  margin-bottom: var(--spacing-xs);
 }
 
 .soft-validation-section__title {
@@ -197,7 +224,7 @@ function getFixPresent(list) {
   display: flex;
   align-items: flex-start;
   gap: var(--spacing-xs);
-  margin-top: 12px;
+  margin-top: var(--spacing-sm);
 }
 
 .soft-validation-item__message {
@@ -221,6 +248,6 @@ function getFixPresent(list) {
   height: 1px;
   background: var(--border-color);
   border: 0;
-  margin: 12px 0;
+  margin: var(--spacing-sm) 0;
 }
 </style>
