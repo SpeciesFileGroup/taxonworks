@@ -7,6 +7,14 @@ describe 'Shared::Unify', type: :model do
   let(:source) { FactoryBot.create(:valid_source) }
 
 
+  # Canary spec: Shared::Unify detects acts_as_list models via
+  # respond_to?(:acts_as_list_options). If the acts_as_list gem removes or
+  # renames that method the position re-sort in unify will silently stop
+  # working. This spec ensures the detection is checking live gem code.
+  specify 'acts_as_list exposes acts_as_list_options on list models' do
+    expect(Georeference).to respond_to(:acts_as_list_options)
+  end
+
   specify 'unifies Topics' do
     t1 = FactoryBot.create(:valid_topic)
     t2 = FactoryBot.create(:valid_topic)
@@ -560,6 +568,45 @@ describe 'Shared::Unify', type: :model do
     expect(b.destroyed?).to be_truthy
   end
 
+  specify 'unifying Descriptors moves observation_matrix_column_items to the surviving descriptor' do
+    om = FactoryBot.create(:valid_observation_matrix)
+    d1 = FactoryBot.create(:valid_descriptor)
+    d2 = FactoryBot.create(:valid_descriptor)
+    col_item = ObservationMatrixColumnItem::Single::Descriptor.create!(observation_matrix: om, descriptor: d2)
+
+    d1.unify(d2)
+
+    expect(d2.destroyed?).to be_truthy
+    expect(ObservationMatrixColumnItem.where(id: col_item.id).exists?).to be(true)
+    expect(col_item.reload.descriptor_id).to eq(d1.id)
+  end
+
+  specify 'unifying Keywords moves observation_matrix_column_items to the surviving keyword' do
+    om = FactoryBot.create(:valid_observation_matrix)
+    k1 = FactoryBot.create(:valid_keyword)
+    k2 = FactoryBot.create(:valid_keyword)
+    col_item = ObservationMatrixColumnItem::Dynamic::Tag.create!(observation_matrix: om, controlled_vocabulary_term: k2)
+
+    k1.unify(k2)
+
+    expect(k2.destroyed?).to be_truthy
+    expect(ObservationMatrixColumnItem.where(id: col_item.id).exists?).to be(true)
+    expect(col_item.reload.controlled_vocabulary_term_id).to eq(k1.id)
+  end
+
+  specify 'unifying Keywords moves observation_matrix_row_items to the surviving keyword' do
+    om = FactoryBot.create(:valid_observation_matrix)
+    k1 = FactoryBot.create(:valid_keyword)
+    k2 = FactoryBot.create(:valid_keyword)
+    row_item = ObservationMatrixRowItem::Dynamic::Tag.create!(observation_matrix: om, observation_object: k2)
+
+    k1.unify(k2)
+
+    expect(k2.destroyed?).to be_truthy
+    expect(ObservationMatrixRowItem.where(id: row_item.id).exists?).to be(true)
+    expect(row_item.reload.observation_object_id).to eq(k1.id)
+  end
+
   # !! Can unify *across* Descriptors as well
   specify 'unifies CharacterState' do
     a = FactoryBot.create(:valid_character_state)
@@ -785,6 +832,35 @@ describe 'Shared::Unify', type: :model do
     expect( b[:details]['Asserted distributions'].dig(:deduplicated)).to eq(1)
   end
 
+  context 'when the nested unify inside deduplicate_update_target fails' do
+    let(:om) { ObservationMatrix.create!(name: 'BugTest') }
+    let!(:row1) { FactoryBot.create(:valid_observation_matrix_row, observation_object: o1, observation_matrix: om) }
+    let!(:row2) { FactoryBot.create(:valid_observation_matrix_row, observation_object: o2, observation_matrix: om) }
+
+    before do
+      # At time of writing there are no second-level model associations that
+      # could return {unified: false} from the secondary unify call, but there's
+      # no reason that might not happen in the future.
+      allow_any_instance_of(ObservationMatrixRow).to receive(:unify)
+        .and_return({result: {unified: false, message: 'nested failure'}, details: {}})
+    end
+
+    specify 'unify returns unified: false' do
+      result = o1.unify(o2)
+      expect(result[:result][:unified]).to be(false)
+    end
+
+    specify 'o2 is not destroyed' do
+      o1.unify(o2)
+      expect(Otu.where(id: o2.id).exists?).to be(true)
+    end
+
+    specify 'details report unmerged count of 1 (not deduplicated)' do
+      result = o1.unify(o2)
+      expect(result[:details]['Observation matrix rows'][:unmerged]).to eq(1)
+    end
+  end
+
   # Generalize to all annotations.
   #
   # If unify would create two identical citations anywhere
@@ -826,6 +902,339 @@ describe 'Shared::Unify', type: :model do
     expect(error[:exception]).to eq('ActiveRecord::InvalidForeignKey')
     expect(error[:message]).to match(/ForeignKey|foreign key|PG::/i)
   end
+
+  specify 'unifying TaxonNames moves observation_matrix_row_items to the surviving taxon name' do
+    om = FactoryBot.create(:valid_observation_matrix)
+    t1 = FactoryBot.create(:valid_taxon_name)
+    t2 = FactoryBot.create(:valid_taxon_name)
+    row_item = ObservationMatrixRowItem::Dynamic::TaxonName.create!(observation_matrix: om, observation_object: t2)
+    t1.unify(t2)
+    expect(t2.destroyed?).to be_truthy
+    expect(ObservationMatrixRowItem.where(id: row_item.id).exists?).to be(true)
+    expect(row_item.reload.observation_object_id).to eq(t1.id)
+  end
+
+  context 'acts_as_list positions' do
+    let(:ns) { FactoryBot.create(:valid_namespace) }
+    let(:ce1) { FactoryBot.create(:valid_collecting_event) }
+    let(:ce2) { FactoryBot.create(:valid_collecting_event) }
+
+    context 'when only the removed CE has identifiers' do
+      let!(:id_ce2_secondary) { Identifier::Local::Event.create!(identifier_object: ce2, namespace: ns, identifier: 'CE2-B') }
+      let!(:id_ce2_preferred) { Identifier::Local::Event.create!(identifier_object: ce2, namespace: ns, identifier: 'CE2-A') }
+
+      specify 'ce2 preferred becomes ce1 preferred' do
+        ce1.unify(ce2)
+        expect(ce1.reload.identifiers.order(:position).first.id).to eq(id_ce2_preferred.id)
+      end
+
+      specify 'ce2 secondary is last' do
+        ce1.unify(ce2)
+        expect(ce1.reload.identifiers.order(:position).last.id).to eq(id_ce2_secondary.id)
+      end
+    end
+
+    context 'when both CEs have an identifier' do
+      let!(:id_ce1) { Identifier::Local::Event.create!(identifier_object: ce1, namespace: ns, identifier: 'CE1-A') }
+      before {
+        Identifier::Local::Event.create!(identifier_object: ce2, namespace: ns, identifier: 'CE2-A')
+      }
+
+      specify "ce1's original identifier remains preferred after unify" do
+        ce1.unify(ce2)
+        expect(ce1.reload.identifiers.order(:position).first.id).to eq(id_ce1.id)
+      end
+    end
+
+    context 'when both CEs have multiple identifiers' do
+      # ce1: create B first (pos 2), then A (pos 1) — A is preferred
+      let!(:id_ce1_secondary) { Identifier::Local::Event.create!(identifier_object: ce1, namespace: ns, identifier: 'CE1-B') }
+      let!(:id_ce1_preferred) { Identifier::Local::Event.create!(identifier_object: ce1, namespace: ns, identifier: 'CE1-A') }
+      # ce2: create D first (pos 2), then C (pos 1) — C is preferred
+      let!(:id_ce2_secondary) { Identifier::Local::Event.create!(identifier_object: ce2, namespace: ns, identifier: 'CE2-D') }
+      let!(:id_ce2_preferred) { Identifier::Local::Event.create!(identifier_object: ce2, namespace: ns, identifier: 'CE2-C') }
+
+      specify 'ce1 identifiers retain their order, followed by ce2 identifiers in their original order' do
+        ce1.unify(ce2)
+        expect(ce1.reload.identifiers.order(:position).pluck(:id)).to eq(
+          [id_ce1_preferred.id, id_ce1_secondary.id, id_ce2_preferred.id, id_ce2_secondary.id]
+        )
+      end
+    end
+
+    context 'collector role order during unify' do
+      let(:ce1) { FactoryBot.create(:valid_collecting_event) }
+      let(:ce2) { FactoryBot.create(:valid_collecting_event) }
+      let(:person1) { FactoryBot.create(:valid_person) }
+      let(:person2) { FactoryBot.create(:valid_person) }
+      let(:person3) { FactoryBot.create(:valid_person) }
+      let(:person4) { FactoryBot.create(:valid_person) }
+
+      # Bottom-insertion: each new role appends to the end, so creation order = position order.
+      let!(:role_ce1_a) { Collector.create!(person: person1, role_object: ce1) }
+      let!(:role_ce1_b) { Collector.create!(person: person2, role_object: ce1) }
+      let!(:role_ce2_a) { Collector.create!(person: person3, role_object: ce2) }
+      let!(:role_ce2_b) { Collector.create!(person: person4, role_object: ce2) }
+
+      before { ce1.unify(ce2) }
+
+      specify 'ce2 is destroyed' do
+        expect(ce2.destroyed?).to be_truthy
+      end
+
+      specify 'all four collector roles are on ce1' do
+        expect(ce1.collector_roles.reload.count).to eq(4)
+      end
+
+      specify 'ce1 original collectors retain their relative order, followed by ce2 collectors in their original order' do
+        ordered_ids = ce1.collector_roles.reload.order(:position).pluck(:id)
+        expect(ordered_ids).to eq([role_ce1_a.id, role_ce1_b.id, role_ce2_a.id, role_ce2_b.id])
+      end
+    end
+  end
+
+  context 'Georeferences on Collecting Events' do
+    let(:ce1) { FactoryBot.create(:valid_collecting_event) }
+    let(:ce2) { FactoryBot.create(:valid_collecting_event) }
+
+    context 'when the removed CE has a georeference' do
+      before { Georeference::Wkt.create!(wkt: 'POINT (10 10)', collecting_event: ce2) }
+
+      specify 'the removed CE is destroyed' do
+        ce1.unify(ce2)
+        expect(ce2.destroyed?).to be_truthy
+      end
+    end
+
+    context 'when the target CE also has a georeference' do
+      let!(:georef1) { Georeference::Wkt.create!(wkt: 'POINT (10 10)', collecting_event: ce1) }
+
+      before { Georeference::Wkt.create!(wkt: 'POINT (20 20)', collecting_event: ce2) }
+
+      specify 'the target CE retains its original georeference as preferred' do
+        ce1.unify(ce2)
+        expect(ce1.reload.preferred_georeference.id).to eq(georef1.id)
+      end
+
+      specify 'the moved georeference is positioned after the existing one' do
+        ce1.unify(ce2)
+        expect(ce1.reload.georeferences.order(:position).last.geographic_item.geo_object.to_s).to include('20.0 20.0')
+      end
+
+      specify 'geographic_name_classification_method is :preferred_georeference' do
+        ce1.unify(ce2)
+        expect(ce1.reload.send(:geographic_name_classification_method)).to eq(:preferred_georeference)
+      end
+    end
+
+    context 'when the target CE has no georeference and the removed CE has two' do
+      let!(:georef_secondary) { Georeference::Wkt.create!(wkt: 'POINT (20 20)', collecting_event: ce2) }
+      let!(:georef_preferred) { Georeference::Wkt.create!(wkt: 'POINT (10 10)', collecting_event: ce2) }
+
+      specify 'the target CE gains two georeferences' do
+        ce1.unify(ce2)
+        expect(ce1.reload.georeferences.count).to eq(2)
+      end
+
+      specify "ce2's preferred georeference becomes ce1's preferred georeference" do
+        ce1.unify(ce2)
+        expect(ce1.reload.preferred_georeference.id).to eq(georef_preferred.id)
+      end
+
+      specify 'geographic_name_classification_method is :preferred_georeference' do
+        ce1.unify(ce2)
+        expect(ce1.reload.send(:geographic_name_classification_method)).to eq(:preferred_georeference)
+      end
+    end
+
+    context 'when both CEs have georeferences' do
+      let!(:georef_ce1) { Georeference::Wkt.create!(wkt: 'POINT (1 1)', collecting_event: ce1) }
+      # ce2: create secondary first (pos 2), then preferred (pos 1)
+      let!(:georef_ce2_secondary) { Georeference::Wkt.create!(wkt: 'POINT (30 30)', collecting_event: ce2) }
+      let!(:georef_ce2_preferred) { Georeference::Wkt.create!(wkt: 'POINT (20 20)', collecting_event: ce2) }
+
+      specify 'the target CE has all three georeferences' do
+        ce1.unify(ce2)
+        expect(ce1.reload.georeferences.count).to eq(3)
+      end
+
+      specify "ce1's georeferences retain their order, followed by ce2's in their original order, with ce1's first remaining preferred" do
+        ce1.unify(ce2)
+        ordered = ce1.reload.georeferences.order(:position)
+        expect(ordered.pluck(:id)).to eq([georef_ce1.id, georef_ce2_preferred.id, georef_ce2_secondary.id])
+        expect(ce1.preferred_georeference.id).to eq(georef_ce1.id)
+      end
+    end
+
+    context 'georeference subtype associations excluded from merge_relations' do
+      # verbatim_data_georeference (has_one) and geo_locate_georeferences
+      # (has_many, dependent: :destroy) are excluded from merge_relations by the
+      # class_name: rule.
+      # They are moved as part of the base :georeferences association instead.
+      # If the move didn't happen, ce2's destruction would cascade-delete these
+      # records via their own dependent: :destroy. The specs below fail under
+      # that regression.
+
+      specify 'VerbatimData georeference is moved to the target CE and accessible via has_one' do
+        ce2_with_coords = FactoryBot.create(:valid_collecting_event,
+          verbatim_latitude: '40.0',
+          verbatim_longitude: '-88.0')
+        vd = Georeference::VerbatimData.create!(collecting_event: ce2_with_coords)
+        ce1.unify(ce2_with_coords)
+        expect(ce1.reload.verbatim_data_georeference.id).to eq(vd.id)
+      end
+
+      specify 'GeoLocate georeference survives ce2 destruction and is accessible on ce1' do
+        geo_locate = FactoryBot.create(:valid_georeference_geo_locate, collecting_event: ce2)
+        ce1.unify(ce2)
+        expect(ce1.reload.geo_locate_georeferences.map(&:id)).to include(geo_locate.id)
+      end
+    end
+
+    context 'when ce1 has a geographic_area that does not contain ce2s georeference' do
+      # ce1's geographic area is a small box from (0,0) to (5,5).
+      # ce2's georeference is at POINT(10 10), outside that box.
+      # The unify should fail entirely: unified=false, ce2 and its georef survive.
+      let(:earth) { FactoryBot.create(:earth_geographic_area) }
+      let(:ga_shape) {
+        GeographicItem.create!(geography: 'POLYGON((0 0 0, 0 5 0, 5 5 0, 5 0 0, 0 0 0))')
+      }
+      let!(:ga) {
+        gat = GeographicAreaType.find_or_create_by!(name: 'Test')
+        a = GeographicArea.create!(
+          name: 'Small area',
+          data_origin: 'Test Data',
+          geographic_area_type: gat,
+          parent: earth)
+        GeographicAreasGeographicItem.create!(geographic_item: ga_shape, geographic_area: a)
+        a
+      }
+      let(:ce1_with_ga) { FactoryBot.create(:valid_collecting_event, geographic_area: ga) }
+      let!(:georef_outside) { Georeference::Wkt.create!(wkt: 'POINT (10 10)', collecting_event: ce2) }
+
+      specify 'unify returns unified: false' do
+        result = ce1_with_ga.unify(ce2)
+        expect(result[:result][:unified]).to be(false)
+      end
+
+      specify 'ce2 is not destroyed' do
+        ce1_with_ga.unify(ce2)
+        expect(CollectingEvent.where(id: ce2.id).exists?).to be(true)
+      end
+
+      specify 'ce2s georeference is not destroyed' do
+        ce1_with_ga.unify(ce2)
+        expect(Georeference.where(id: georef_outside.id).exists?).to be(true)
+      end
+    end
+  end
+
+  # Linting spec — catches the class_name: exclusion bug before it ships.
+  #
+  # inferred_relations drops any has_many/has_one that carries class_name:
+  # (the rule exists to skip convenience subtype aliases and through relations).
+  # When a *canonical* relation uses class_name: (e.g. because the target is a
+  # namespaced class), it is silently excluded from merge_relations, so records
+  # become untethered or are destroyed rather than being moved to the survivor.
+  #
+  # Legitimately excluded:
+  #   - dependent: :restrict_with_error — destroy fails gracefully
+  #   - through: relations — handled via their base relation
+  #   - cache FK relations — recalculated automatically, not manually reassigned
+  #   - closure_tree relations (:children, :ancestor_hierarchies, etc.) — gem-managed
+  #   - Role subtypes — covered by FK-match to the base :roles relation (HasRoles)
+  #   - ActiveStorage attachments — managed by Rails internals
+  #   - Relations already in used_inferred_relations or covered by FK match
+  #
+  specify 'no has_many/has_one with class_name: goes unhandled during unify' do
+    uncovered = []
+
+    UNIFIABLE_MODELS.each do |name|
+      klass = name.safe_constantize
+      expect(klass).not_to be_nil, "UNIFIABLE_MODELS contains '#{name}' but it cannot be constantized"
+
+      instance = klass.new
+      expect(instance).to be_a(ApplicationRecord), "UNIFIABLE_MODELS contains '#{name}' but instantiation failed"
+
+      used_names = instance.used_inferred_relations.map(&:name).to_set
+      used_by_fk = instance.used_inferred_relations
+        .group_by { |r| [r.foreign_key.to_s, r.options[:as]] }
+
+      [:has_many, :has_one].each do |rel_type|
+        ApplicationEnumeration.klass_reflections(klass, rel_type).each do |r|
+          next unless r.options[:class_name].present?
+          next if r.options[:dependent] == :restrict_with_error
+          next if r.options[:through].present?
+          next if r.foreign_key.to_s =~ /cache/
+          next if r.name.to_s.match(/related/) # unify handles these in this case
+          next if used_names.include?(r.name)
+          next if Shared::Unify::EXCLUDE_RELATIONS.include?(r.name.to_sym)
+
+          # closure_tree injects :children, :ancestor_hierarchies, and
+          # :descendant_hierarchies. These are gem-managed and auto-maintained;
+          # unify should not touch them.
+          next if klass.ancestors.include?(ClosureTree::Model) &&
+            %i[children ancestor_hierarchies descendant_hierarchies].include?(r.name)
+
+          # ActiveStorage attachments are managed by Rails internals / custom
+          # after_destroy hooks, not by the unify merge loop.
+          next if r.options[:class_name].to_s.include?('ActiveStorage')
+
+          # A base relation in used_inferred_relations with the same FK covers
+          # these records (e.g. :roles covers :collector_roles).
+          covered = used_by_fk[[r.foreign_key.to_s, r.options[:as]]].present?
+          next if covered
+
+          uncovered << "#{klass}##{r.name} " \
+                       "(class_name: #{r.options[:class_name]}, " \
+                       "dependent: #{r.options[:dependent].inspect})"
+        end
+      end
+    end
+
+    expect(uncovered).to be_empty,
+      "has_many/has_one with class_name: excluded from unify merge_relations with no covering base relation.\n" \
+      "Records in these relations will be untethered or destroyed rather than moved to the survivor.\n" \
+      "Add the relation to unify_relations or ensure a covering base relation exists:\n" \
+      "  #{uncovered.join("\n  ")}"
+  end
+
+  # Linting spec — catches missing inverse_of: on relations for models that
+  # are actually exposed for unification (UNIFIABLE_MODELS).
+  #
+  # used_inferred_relations requires inverse_of: to be present so it can
+  # reassign the FK during the merge loop. A relation that passes
+  # inferred_relations but lacks inverse_of: is silently dropped from
+  # merge_relations. Even if the relation is not dependent: :destroy, the
+  # records become untethered — pointing at the destroyed object or nullified —
+  # which is also data loss from the unify perspective.
+  # Only dependent: :restrict_with_error is safe to skip, as it causes the
+  # destroy to fail gracefully rather than silently losing data.
+  specify 'no relation in inferred_relations is missing inverse_of: on unifiable models' do
+    uncovered = []
+
+    UNIFIABLE_MODELS.each do |name|
+      klass = name.safe_constantize
+      expect(klass).not_to be_nil, "UNIFIABLE_MODELS contains '#{name}' but it cannot be constantized"
+
+      instance = klass.new
+      expect(instance).to be_a(ApplicationRecord), "UNIFIABLE_MODELS contains '#{name}' but instantiation failed"
+
+      instance.inferred_relations.each do |r|
+        next if r.options[:dependent] == :restrict_with_error
+        next if r.options[:inverse_of].present?
+
+        uncovered << "#{name}##{r.name} (dependent: #{r.options[:dependent].inspect})"
+      end
+    end
+
+    expect(uncovered).to be_empty,
+      "Relations in inferred_relations missing inverse_of: on unifiable models.\n" \
+      "Records in these relations will be untethered or destroyed rather than moved to the survivor.\n" \
+      "Add inverse_of: to the relation so unify can move records to the survivor:\n" \
+      "  #{uncovered.join("\n  ")}"
+  end
+
 end
 
 class TestUnify < ApplicationRecord

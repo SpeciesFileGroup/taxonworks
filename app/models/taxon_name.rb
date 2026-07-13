@@ -587,6 +587,15 @@ class TaxonName < ApplicationRecord
   #   SQL
   # end
 
+  # observation_matrix_row_items carries class_name: so inferred_relations drops it.
+  # Force it back so row items are moved to the surviving taxon name during unify
+  # rather than being destroyed with the removed one.
+  def unify_relations
+    ApplicationEnumeration.klass_reflections(self.class, :has_many).select { |r|
+      r.name == :observation_matrix_row_items
+    }
+  end
+
   # See attr_reader.
   def taxonomy(rebuild = false)
     if rebuild

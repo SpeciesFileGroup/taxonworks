@@ -643,10 +643,6 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
       perform_enqueued_jobs
       expect(s.dwc_occurrence.reload.eventDate).to match('2010')
     end
-
-
-
-
   end
 
   context 'concerns' do
