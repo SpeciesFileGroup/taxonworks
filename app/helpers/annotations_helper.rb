@@ -36,12 +36,10 @@ module AnnotationsHelper
     ].compact
 
     tag.div(class: %w{item tw-card}) do
-      tag.div(class: ['information-panel']) do
-        tag.div(tag.span(icon('notebook-text'), class: 'card-icon-chip') + tag.h2('Annotations', class: 'tw-card-title'), class: 'tw-card-header') +
-          tag.div(class: 'tw-card-body') do
-            ( v.count > 0 ?  tag.div(v.join.html_safe, class: :annotations_summary_list, 'data-annotator-list-object-id' => object.id) : tag.em('None'))
-          end
-      end
+      tag.div(tag.span(icon('notebook-text'), class: 'card-icon-chip') + tag.h2('Annotations', class: 'tw-card-title'), class: 'tw-card-header') +
+        tag.div(class: 'tw-card-body') do
+          ( v.count > 0 ?  tag.div(v.join.html_safe, class: :annotations_summary_list, 'data-annotator-list-object-id' => object.id) : tag.em('None'))
+        end
     end
 
     # depictions

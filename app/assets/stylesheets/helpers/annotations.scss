@@ -1,0 +1,28 @@
+.annotations_summary_list {
+  h3 {
+    margin: var(--spacing-lg) 0 var(--spacing-sm);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--text-muted-color);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  h3:first-child {
+    margin-top: 0;
+  }
+
+  ul {
+    margin: 0;
+    padding-left: var(--spacing-xl);
+    list-style: disc;
+  }
+
+  li {
+    margin-bottom: var(--spacing-xxs);
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
