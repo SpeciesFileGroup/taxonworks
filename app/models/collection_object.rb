@@ -139,7 +139,7 @@ class CollectionObject < ApplicationRecord
   belongs_to :preparation_type, inverse_of: :collection_objects
   belongs_to :ranged_lot_category, inverse_of: :ranged_lots
   belongs_to :repository, inverse_of: :collection_objects
-  belongs_to :current_repository, class_name: 'Repository', inverse_of: :collection_objects
+  belongs_to :current_repository, class_name: 'Repository', inverse_of: :current_collection_objects
 
   has_many :georeferences, through: :collecting_event
   has_many :geographic_items, through: :georeferences

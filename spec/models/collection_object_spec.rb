@@ -194,6 +194,19 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
           expect(collection_object.repository = FactoryBot.create(:valid_repository)).to be_truthy
         end
 
+        specify 'repository and current_repository are independent when both are set' do
+          home = FactoryBot.create(:valid_repository)
+          loaned_to = FactoryBot.create(:valid_repository, name: 'Loaned To', acronym: 'LOAN')
+
+          collection_object.total = 1
+          collection_object.repository = home
+          collection_object.current_repository = loaned_to
+          collection_object.save!
+
+          expect(collection_object.repository_id).to eq(home.id)
+          expect(collection_object.current_repository_id).to eq(loaned_to.id)
+        end
+
         specify 'collecting_event' do
           expect(collection_object.collecting_event = FactoryBot.create(:valid_collecting_event)).to be_truthy
         end
