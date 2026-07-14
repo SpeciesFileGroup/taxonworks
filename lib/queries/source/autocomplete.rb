@@ -305,9 +305,12 @@ module Queries
           if project_id.present? && scope && query_string.length > 3
             a = a.left_outer_joins(:citations)
               .left_outer_joins(:project_sources)
-              .select("sources.*, COUNT(citations.id) AS use_count, CASE WHEN project_sources.project_id IN (#{pr_id}) THEN project_sources.project_id ELSE NULL END AS in_project")
-              .where('citations.project_id IN (?) OR citations.project_id NOT IN (?) OR citations.project_id IS NULL', pr_id, pr_id)
-              .group('sources.id, citations.project_id, project_sources.project_id')
+              .select(
+                "sources.*, " \
+                "COUNT(DISTINCT citations.id) AS use_count, " \
+                "CASE WHEN COUNT(DISTINCT project_sources.id) FILTER (WHERE project_sources.project_id IN (#{pr_id})) > 0 THEN 1 ELSE NULL END AS in_project"
+              )
+              .group('sources.id')
               .order('in_project, use_count DESC')
           end
           a ||= q
