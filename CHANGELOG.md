@@ -33,12 +33,14 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Unify now preserves list order of associated data: e.g. if two Collection Objects are unified, the kept object has its original list of Taxon Determinations in the same order, followed by the Taxon Determinations of the destroyed Collection Object in their original order
 - Monograph facilitator: Determination label is not visible in Safari browser
 - Checklist importer crashing on empty `originalNameUsageID` in some cases
+- Source and Repository autocompletes sometimes miss results, repository usage counts were sometimes wrong [#4990]
 
 [#4937]: https://github.com/SpeciesFileGroup/taxonworks/issues/4937
 [#4944]: https://github.com/SpeciesFileGroup/taxonworks/issues/4944
 [#4964]: https://github.com/SpeciesFileGroup/taxonworks/issues/4964
 [#4978]: https://github.com/SpeciesFileGroup/taxonworks/issues/4978
 [#4983]: https://github.com/SpeciesFileGroup/taxonworks/issues/4983
+[#4990]: https://github.com/SpeciesFileGroup/taxonworks/issues/4990
 
 ## [0.63.1] - 2026-06-22
 
