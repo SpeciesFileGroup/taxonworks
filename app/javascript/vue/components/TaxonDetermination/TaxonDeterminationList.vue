@@ -25,7 +25,12 @@
       <template #item="{ element }">
         <tr>
           <td>
-            <div class="padding-small-top">
+            <div class="flex flex-row middle gap-small">
+              <IconGripVertical
+                class="w-4 h-4 handle text-primary-color cursor-grab"
+                v-tooltip="'Press and hold to drag taxon determination'"
+              />
+
               <a
                 v-if="element.id"
                 v-html="element.object_tag"
@@ -46,38 +51,20 @@
 
               <VBtn
                 color="primary"
-                circle
-                class="handle"
-                title="Press and hold to drag taxon determination"
-              >
-                <VIcon
-                  title="Press and hold to drag taxon determination"
-                  color="white"
-                  name="scrollV"
-                  small
-                />
-              </VBtn>
-
-              <VBtn
-                circle
-                color="primary"
+                icon
+                variant="tonal"
                 @click="emit('edit', element)"
               >
-                <v-icon
-                  x-small
-                  name="pencil"
-                />
+                <IconPencil class="w-4 h-4" />
               </VBtn>
 
               <VBtn
-                circle
+                icon
                 :color="element.id ? 'destroy' : 'primary'"
+                variant="tonal"
                 @click="emit('delete', element)"
               >
-                <VIcon
-                  x-small
-                  name="trash"
-                />
+                <IconTrash class="w-4 h-4" />
               </VBtn>
             </div>
           </td>
@@ -91,11 +78,14 @@
 import { computed } from 'vue'
 import { RouteNames } from '@/routes/routes'
 import { TaxonDetermination } from '@/routes/endpoints'
+import { vTooltip } from '@/directives/tooltip'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VLock from '@/components/ui/VLock/index.vue'
 import Draggable from 'vuedraggable'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconGripVertical from '@/components/Icon/IconGripVertical.vue'
+import IconPencil from '@/components/Icon/IconPencil.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 
 const props = defineProps({
   modelValue: {

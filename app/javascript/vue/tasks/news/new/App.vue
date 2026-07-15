@@ -4,56 +4,52 @@
       v-if="isSaving"
       legend="Saving..."
     />
-    <BlockLayout>
-      <template #header>
-        <h3>Create news</h3>
+    <TwCard title="Create news">
+      <template #icon>
+        <IconMegaphone />
       </template>
-      <template #options>
-        <div class="flex-row gap-small">
-          <VRecent
-            v-if="projectId"
-            project
-            title="Recent project news"
-            :service="News.where"
-            @edit="setNews"
-          />
-          <VRecent
-            v-if="isAdministrator"
-            title="Recent administration news"
-            :service="News.administration"
-            @edit="setNews"
-          />
-        </div>
+      <template #actions>
+        <VRecent
+          v-if="projectId"
+          project
+          title="Recent project news"
+          :service="News.where"
+          @edit="setNews"
+        />
+        <VRecent
+          v-if="isAdministrator"
+          title="Recent administration news"
+          :service="News.administration"
+          @edit="setNews"
+        />
       </template>
-      <template #body>
-        <VForm v-model="news" />
-        <div class="flex-row gap-small margin-medium-top">
-          <VBtn
-            color="create"
-            medium
-            :disabled="!isSaveAvailable"
-            @click="save"
-          >
-            {{ news.id ? 'Save' : 'Create' }}
-          </VBtn>
-          <VBtn
-            color="primary"
-            medium
-            @click="reset"
-          >
-            New
-          </VBtn>
-          <VBtn
-            v-if="news.id"
-            color="primary"
-            medium
-            @click="openBrowseNews"
-          >
-            Show
-          </VBtn>
-        </div>
+      <VForm v-model="news" />
+      <template #footer>
+        <VBtn
+          color="create"
+          medium
+          :disabled="!isSaveAvailable"
+          @click="save"
+        >
+          {{ news.id ? 'Save' : 'Create' }}
+        </VBtn>
+        <VBtn
+          color="primary"
+          medium
+          @click="reset"
+        >
+          New
+        </VBtn>
+        <VBtn
+          v-if="news.id"
+          color="primary"
+          medium
+          @click="openBrowseNews"
+        >
+          Show
+        </VBtn>
       </template>
-    </BlockLayout>
+    </TwCard>
   </div>
 </template>
 
@@ -65,7 +61,8 @@ import { makeNews, makeNewsPayload } from './adapters'
 import { usePopstateListener } from '@/composables'
 import { RouteNames } from '@/routes/routes'
 import { URLParamsToJSON, setParam } from '@/helpers'
-import BlockLayout from '@/components/layout/BlockLayout.vue'
+import TwCard from '@/components/layout/TwCard.vue'
+import IconMegaphone from '@/components/Icon/IconMegaphone.vue'
 import VForm from './components/Form.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'

@@ -1,7 +1,7 @@
 <template>
   <div class="overflow-x-auto">
     <div class="flex-separate middle">
-      <h2>Repository</h2>
+      <h2 class="tw-section-title">Repository</h2>
       <VSwitch
         :options="switchOptions"
         v-model="repositoryView"

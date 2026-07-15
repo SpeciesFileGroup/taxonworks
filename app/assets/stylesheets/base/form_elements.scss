@@ -89,7 +89,7 @@ textarea {
   padding: 0px;
   padding-left: $standard_padding * 0.9;
   padding-right: $standard_padding * 0.9;
-  border-radius: 4px;
+  border-radius: var(--border-radius-small);
   border: 1px solid var(--border-color);
   box-sizing: border-box;
   background-color: var(--input-bg-color);
@@ -110,7 +110,7 @@ input[type='submit'] {
   position: relative;
   cursor: pointer;
   font-weight: 500;
-  border-radius: 3px;
+  border-radius: var(--border-radius-small);
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-bottom: 2px solid rgba(0, 0, 0, 0.2);
 }
@@ -124,7 +124,7 @@ select {
   padding: $standard_padding * 0.5;
   padding-left: $standard_padding;
   padding-right: $standard_padding;
-  border-radius: var(--border-radius-xsmall);
+  border-radius: var(--border-radius-small);
   border: 1px solid var(--border-color);
   font-size: $font_tiny;
   min-height: $normal-input-size;

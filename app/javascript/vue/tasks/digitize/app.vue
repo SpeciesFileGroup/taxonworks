@@ -7,8 +7,8 @@
       :legend="saving ? 'Saving changes...' : 'Loading...'"
     />
     <task-header />
-    <collection-object class="separate-bottom" />
-    <div class="horizontal-left-content align-start separate-top main-panel">
+    <collection-object />
+    <div class="horizontal-left-content align-start main-panel">
       <LeftColumn
         class="separate-right left-section"
         :disabled="!settings.sortable"

@@ -92,16 +92,16 @@
         <VBtn
           medium
           color="create"
-          @click="saveAndNew"
+          @click="saveDigitalization"
         >
-          Save and new
+          Save
         </VBtn>
         <VBtn
           medium
           color="create"
-          @click="saveDigitalization"
+          @click="saveAndNew"
         >
-          Save
+          Save and new
         </VBtn>
       </div>
       <ConfirmationModal ref="confirmationModalRef" />

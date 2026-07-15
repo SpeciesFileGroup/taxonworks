@@ -4,7 +4,7 @@
     full-screen
     legend="Converting to field occurrence..."
   />
-  <div class="flexbox align-start">
+  <div class="flexbox align-start margin-medium-bottom">
     <BlockLayout :warning="!collectionObject.id">
       <template #header>
         <h3>Collection Object</h3>
@@ -53,7 +53,7 @@
             v-if="!layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_DEPICTIONS]"
             class="panel content column-depictions"
           >
-            <h2 class="flex-separate">Depictions</h2>
+            <h2 class="tw-section-title">Depictions</h2>
             <DepictionsComponent
               :object-value="collectionObject"
               object-type="CollectionObject"
@@ -72,14 +72,14 @@
             v-if="!layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_CITATIONS]"
             class="panel content column-citations"
           >
-            <h2 class="flex-separate">Citations</h2>
+            <h2 class="tw-section-title">Citations</h2>
             <CitationComponent />
           </div>
           <div
             v-if="!layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_ATTRIBUTES]"
             class="panel content column-attribute"
           >
-            <h2 class="flex-separate">Attributes</h2>
+            <h2 class="tw-section-title">Attributes</h2>
             <div>
               <VSpinner
                 v-if="!collectionObject.id"

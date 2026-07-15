@@ -1,6 +1,6 @@
 <template>
   <div v-help.sections.collectionObject.buffered>
-    <h2>Buffered</h2>
+    <h2 class="tw-section-title">Buffered</h2>
     <div class="buffered">
       <buffered-field
         title="Buffered determinations"

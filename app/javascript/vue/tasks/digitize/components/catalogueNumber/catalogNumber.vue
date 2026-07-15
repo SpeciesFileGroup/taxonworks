@@ -1,16 +1,13 @@
 <template>
   <div class="panel content overflow-x-auto">
-    <h2>Catalog number</h2>
+    <h2 class="tw-section-title">Catalog number</h2>
     <div class="flex-wrap-column middle align-start full_width">
       <div class="separate-right full_width">
         <div
           v-if="store.identifiers.length > 1"
           class="horizontal-left-content gap-small middle"
         >
-          <VIcon
-            name="attention"
-            color="attention"
-            small
+          <IconWarning class="w-4 h-4 text-warning-color" />
           />
           <span
             >More than one identifier exists! Use annotator to edit
@@ -56,24 +53,19 @@
               <VBtn
                 v-if="store.identifier.id"
                 color="destroy"
-                circle
+                icon
+                variant="tonal"
                 @click="store.remove"
               >
-                <VIcon
-                  name="trash"
-                  x-small
-                />
+                <IconTrash class="w-4 h-4" />
               </VBtn>
               <VBtn
                 v-else
                 color="primary"
-                circle
+                variant="tonal"
                 @click="() => (store.identifier.namespaceId = id)"
               >
-                <VIcon
-                  name="trash"
-                  x-small
-                />
+                <IconTrash class="w-4 h-4" />
               </VBtn>
             </div>
           </template>
@@ -101,15 +93,13 @@
             />
             Increment
           </label>
-          <VIcon
+          <IconWarning
             v-if="
               store.identifier.namespaceId &&
               !store.identifier.identifier?.length
             "
-            name="attention"
-            color="attention"
-            small
-            title="Namespace and identifier needs to be set to be saved."
+            class="w-4 h-4 text-warning-color"
+            v-tooltip="'Namespace and identifier needs to be set to be saved.'"
           />
         </div>
         <span
@@ -136,16 +126,16 @@ import { ActionNames } from '../../store/actions/actions.js'
 import { IDENTIFIER_LOCAL_CATALOG_NUMBER } from '@/constants/index.js'
 import { Namespace } from '@/routes/endpoints'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
-import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import validateIdentifier from '../../validations/namespace.js'
 import LockComponent from '@/components/ui/VLock/index.vue'
 import WidgetNamespace from '@/components/ui/Widget/WidgetNamespace.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import ExistingIdentifier from '../shared/ExistingIdentifier.vue'
+import IconWarning from '@/components/Icon/IconWarning.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import { useIdentifierStore } from '../../store/pinia/identifiers'
-
+import { vTooltip } from '@/directives/tooltip.js'
 import { computed, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 

@@ -1,23 +1,23 @@
 <template>
   <div>
-    <taxon-determination-otu
+    <TaxonDeterminationOtu
       v-model="taxonDetermination.otu_id"
       v-model:lock="lockOTU"
       @label="(label) => (otuLabel = label)"
     />
-    <taxon-determination-determiner
+    <TaxonDeterminationDeterminer
       v-model="taxonDetermination.roles_attributes"
       v-model:lock="lockDet"
     />
     <div
-      class="horizontal-left-content date-fields separate-bottom separate-top align-end"
+      class="horizontal-left-content date-fields separate-bottom separate-top align-end gap-small"
     >
-      <date-fields
+      <DateFields
         v-model:year="taxonDetermination.year_made"
         v-model:month="taxonDetermination.month_made"
         v-model:day="taxonDetermination.day_made"
       />
-      <date-now
+      <DateNow
         v-model:year="taxonDetermination.year_made"
         v-model:month="taxonDetermination.month_made"
         v-model:day="taxonDetermination.day_made"

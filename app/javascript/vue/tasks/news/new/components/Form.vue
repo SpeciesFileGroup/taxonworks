@@ -70,6 +70,7 @@
           :key="key"
           color="primary"
           medium
+          variant="tonal"
           @click="setOffset(key)"
         >
           {{ label }}
