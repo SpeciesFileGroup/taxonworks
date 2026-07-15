@@ -91,7 +91,7 @@ const clipboardText = computed(() =>
     CLIPBOARD_HEADERS.join('\t'),
     ...props.rows.map((row) => {
       const name = row.scientificName || ''
-      const match = row.matchString || row.scientificName || ''
+      const match = row.userMatchString || row.regexMatchString || row.scientificName || ''
       const otuId = row.selectedOtuId != null ? String(row.selectedOtuId) : ''
       return `${name}\t${match}\t${otuId}`
     })
