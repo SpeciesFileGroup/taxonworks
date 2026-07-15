@@ -51,11 +51,9 @@
 
 .tw-section-title {
   margin: var(--spacing-lg) 0 var(--spacing-sm);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-base);
   font-weight: 600;
-  color: var(--text-muted-color);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  color: var(--text-color);
 
   &:first-child {
     margin-top: 0;

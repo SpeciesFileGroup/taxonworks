@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <h2 class="tw-section-title flex-separate middle">
+  <div class="panel content">
+    <h2 class="tw-section-title flex-separate">
       {{
         collectionObjects.length > 1 ? 'Container details' : 'Object details'
       }}

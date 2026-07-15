@@ -7,7 +7,12 @@
         :class="{ 'margin-medium-right': index < lastColumn }"
         :key="key"
       >
-        <h2 v-if="TITLE_SECTION[key]">{{ TITLE_SECTION[key] }}</h2>
+        <h2
+          v-if="TITLE_SECTION[key]"
+          class="tw-section-title"
+        >
+          {{ TITLE_SECTION[key] }}
+        </h2>
         <draggable
           class="full_width"
           v-model="componentsOrder[key]"
@@ -18,7 +23,7 @@
           <template #item="{ element }">
             <component
               v-if="!exclude.includes(element)"
-              class="separate-bottom"
+              class="margin-small-bottom"
               v-model="store.collectingEvent"
               :components-order="componentsOrder"
               :is="VueComponents[element]"
