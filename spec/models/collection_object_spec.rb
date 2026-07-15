@@ -57,8 +57,7 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
 
     q = ::Queries::CollectionObject::Filter.new({collection_object_id: [ s1.id, s2.id ]})
 
-    allow_any_instance_of(QueryBatchRequest).to receive(:capped?).and_return(true)
-    allow_any_instance_of(QueryBatchRequest).to receive(:cap_reason).and_return('Update to more objects than allowed (1000) requested.')
+    allow_any_instance_of(QueryBatchRequest).to receive(:cap).and_return(1)
 
     params = {
       collection_object: {taxon_determinations_attributes: [{otu_id: o.id}]}
@@ -66,7 +65,9 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
 
     response = CollectionObject.batch_update(params)
 
-    expect(response.errors).to be_present
+    expect(response.cap).to eq(1)
+    expect(response.cap_reason).to eq('Update to more objects than allowed (1) requested.')
+    expect(response.errors).to eq({'Update to more objects than allowed (1) requested.' => 1})
     expect(TaxonDetermination.all.count).to eq(0)
   end
 

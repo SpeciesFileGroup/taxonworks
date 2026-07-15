@@ -162,16 +162,16 @@ function unsetTaxonName() {
 function getPluralizableTypes(codeTypes) {
   if (!codeTypes) return []
 
-  return Object.entries(codeTypes).reduce((list, [type, klass]) => {
-    if (klass === 'Lot') {
-      const singularType = type.replace(/s$/, '')
-
-      if (codeTypes[singularType] === 'Specimen') {
-        list.push(singularType, type)
-      }
+  return Object.keys(codeTypes).filter((type) => {
+    if (codeTypes[type] === 'Lot') {
+      return codeTypes[type.replace(/s$/, '')] === 'Specimen'
     }
 
-    return list
-  }, [])
+    if (codeTypes[type] === 'Specimen') {
+      return codeTypes[`${type}s`] === 'Lot'
+    }
+
+    return false
+  })
 }
 </script>

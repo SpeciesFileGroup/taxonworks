@@ -218,8 +218,6 @@ class CollectionObject < ApplicationRecord
     if request.capped?
       r = request.stub_response
       r.method = 'query_batch_update'
-      r.cap = request.cap
-      r.cap_reason = request.cap_reason
       r.errors[request.cap_reason] = 1
       return r
     end
