@@ -31,8 +31,8 @@
             event-send="autocompleteTaxonRelationshipSelected"
             placeholder="Search taxon name for the new classification..."
             :add-params="{
-              type: 'Protonym',
-              'nomenclature_group[]': ['Family', 'HigherClassification']
+              'type[]': 'Protonym',
+              nomenclature_group: ['Family', 'HigherClassification']
             }"
             param="term"
           />

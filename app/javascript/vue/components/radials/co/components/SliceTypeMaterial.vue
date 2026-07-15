@@ -16,7 +16,7 @@
         clear-after
         :add-params="{
           'type[]': 'Protonym',
-          'nomenclature_group[]': ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup']
+          nomenclature_group: ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup']
         }"
         @get-item="({ id }) => setTaxonName(id)"
       />
