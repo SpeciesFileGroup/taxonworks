@@ -19,6 +19,7 @@ import SlicePreparationType from './components/SlicePreparationType.vue'
 import SliceContainerItems from './components/SliceContainerItems.vue'
 import DwcSlice from './components/DwCSlice.vue'
 import SliceAccessions from './components/SliceAccessions.vue'
+import SliceTypeMaterial from './components/SliceTypeMaterial.vue'
 
 const SLICES = {
   'Add biocurations': SliceBiocurations,
@@ -28,7 +29,8 @@ const SLICES = {
   'Taxon determinations': SliceTaxonDetermination,
   Repository: SliceRepository,
   'Regenerate DwC': DwcSlice,
-  'Preparation type': SlicePreparationType
+  'Preparation type': SlicePreparationType,
+  'Type material': SliceTypeMaterial
 }
 
 defineOptions({

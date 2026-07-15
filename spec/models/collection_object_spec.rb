@@ -51,6 +51,41 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
     expect(TaxonDetermination.all.count).to eq(2)
   end
 
+  specify '.batch_update() rejects when the record count exceeds the cap' do
+    s1, s2 = Specimen.create!, Specimen.create!
+    o = FactoryBot.create(:valid_otu)
+
+    q = ::Queries::CollectionObject::Filter.new({collection_object_id: [ s1.id, s2.id ]})
+
+    allow_any_instance_of(QueryBatchRequest).to receive(:capped?).and_return(true)
+    allow_any_instance_of(QueryBatchRequest).to receive(:cap_reason).and_return('Update to more objects than allowed (1000) requested.')
+
+    params = {
+      collection_object: {taxon_determinations_attributes: [{otu_id: o.id}]}
+    }.merge(collection_object_query: q.params)
+
+    response = CollectionObject.batch_update(params)
+
+    expect(response.errors).to be_present
+    expect(TaxonDetermination.all.count).to eq(0)
+  end
+
+  specify '.batch_update() sets type_materials_attributes' do
+    s1, s2 = Specimen.create!, Specimen.create!
+    protonym = FactoryBot.create(:relationship_species)
+
+    q = ::Queries::CollectionObject::Filter.new({collection_object_id: [ s1.id, s2.id ]})
+
+    params = {
+      collection_object: {type_materials_attributes: [{protonym_id: protonym.id, type_type: 'paratype'}]}
+    }.merge(collection_object_query: q.params)
+
+    CollectionObject.batch_update(params)
+
+    expect(TypeMaterial.all.count).to eq(2)
+    expect(TypeMaterial.pluck(:type_type)).to eq(['paratype', 'paratype'])
+  end
+
   context 'dwc_occurrence' do
     let(:collection_object) { CollectionObject.new() }
     specify 'saves' do
