@@ -136,7 +136,7 @@ class TypeMaterial < ApplicationRecord
   end
 
   def sv_type_source
-    soft_validations.add(:base, 'Source is not selected neither for type nor for taxon') unless type_source
+    soft_validations.add(:base, 'No source is selected for either the type or the taxon') unless type_source
     if %w(paralectotype neotype lectotype paralectotypes).include?(type_type)
       if source.nil?
         soft_validations.add(:base, "Source for #{type_type} designation is not selected ") if source.nil?

@@ -8,16 +8,15 @@
     </div>
 
     <div>
-      <label>Taxon name</label>
+      <label>Species name</label>
       <VAutocomplete
         url="/taxon_names/autocomplete"
         param="term"
         label="label_html"
         clear-after
-        placeholder="Search a taxon name..."
         :add-params="{
           'type[]': 'Protonym',
-          'nomenclature_group[]': 'SpeciesGroup'
+          'nomenclature_group[]': ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup']
         }"
         @get-item="({ id }) => setTaxonName(id)"
       />
