@@ -210,12 +210,14 @@ async function matchRows(targetRows) {
       if (!matchedRows) return
 
       matchedRows.forEach((row) => {
-        row.taxonName = result.taxon_name
-        row.taxonNameId = result.taxon_name_id
-        row.otus = result.otus || []
-        row.selectedOtuId = result.otus?.length ? result.otus[0].id : null
-        row.ambiguous = result.ambiguous
-        row.matched = result.matched
+        applyMatchResult(row, {
+          taxonName: result.taxon_name,
+          taxonNameId: result.taxon_name_id,
+          otus: result.otus || [],
+          selectedOtuId: result.otus?.length ? result.otus[0].id : null,
+          ambiguous: result.ambiguous,
+          matched: result.matched
+        })
       })
     })
   } catch (e) {
@@ -235,12 +237,14 @@ function handleRowUpdate({ index, field, value }) {
   if (!row) return
 
   if (field === 'taxonName') {
-    row.taxonName = value
-    row.taxonNameId = value?.id || null
-    row.otus = []
-    row.selectedOtuId = null
-    row.ambiguous = false
-    row.matched = !!value
+    applyMatchResult(row, {
+      taxonName: value,
+      taxonNameId: value?.id || null,
+      otus: [],
+      selectedOtuId: null,
+      ambiguous: false,
+      matched: !!value
+    })
 
     if (value) {
       loadOtusForTaxonName(value.id, row)
@@ -305,6 +309,15 @@ function effectiveName(row) {
   return row.userMatchString || row.regexMatchString || row.scientificName
 }
 
+function applyMatchResult(row, source) {
+  row.taxonName = source.taxonName
+  row.taxonNameId = source.taxonNameId
+  row.otus = source.otus
+  row.selectedOtuId = source.selectedOtuId
+  row.ambiguous = source.ambiguous
+  row.matched = source.matched
+}
+
 function syncDuplicateRows(sourceRow) {
   const sourceName = effectiveName(sourceRow)
 
@@ -312,12 +325,7 @@ function syncDuplicateRows(sourceRow) {
     if (row.index === sourceRow.index) return
 
     if (effectiveName(row) === sourceName) {
-      row.taxonName = sourceRow.taxonName
-      row.taxonNameId = sourceRow.taxonNameId
-      row.otus = sourceRow.otus
-      row.selectedOtuId = sourceRow.selectedOtuId
-      row.ambiguous = sourceRow.ambiguous
-      row.matched = sourceRow.matched
+      applyMatchResult(row, sourceRow)
     }
   })
 }
@@ -335,12 +343,7 @@ function syncAllDuplicates() {
       seen.set(name, row)
     } else {
       const source = seen.get(name)
-      row.taxonName = source.taxonName
-      row.taxonNameId = source.taxonNameId
-      row.otus = source.otus
-      row.selectedOtuId = source.selectedOtuId
-      row.ambiguous = source.ambiguous
-      row.matched = source.matched
+      applyMatchResult(row, source)
       row.selected = false
     }
   })
@@ -365,6 +368,7 @@ function clearAllMatches() {
     row.matched = false
     row.regexMatchString = ''
     row.userMatchString = ''
+    row.selected = false
   })
 
   handleOptionsChange()
