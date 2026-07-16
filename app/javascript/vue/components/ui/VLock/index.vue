@@ -5,7 +5,7 @@
       v-tooltip="{ content: 'Lock / Unlock', placement: 'bottom' }"
     >
       <input
-        v-bind="props"
+        :value="value"
         v-model="checked"
         type="checkbox"
       />
@@ -18,18 +18,26 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { vTooltip } from '@/directives'
+import { useSizes, sizeProps } from '@/composables'
 
 defineOptions({
   name: 'VLock'
 })
 
 const props = defineProps({
+  ...sizeProps,
+
   value: {
     type: [String, Boolean],
     required: false
   }
 })
+
+const { semanticSize } = useSizes(props)
+
+const lockHeight = computed(() => `var(--size-${semanticSize.value})`)
 
 const checked = defineModel({
   type: [Array, Boolean],
@@ -42,17 +50,24 @@ $primary: #ffda44;
 $lightGrey: #99a3ba;
 
 .switch-lock {
+  --switch-lock-height: v-bind(lockHeight);
+  --switch-lock-width: calc(var(--switch-lock-height) * 12 / 7);
+  --switch-lock-knob-size: calc(var(--switch-lock-height) - 4px);
+  --switch-lock-travel: calc(
+    var(--switch-lock-width) - var(--switch-lock-knob-size) - 4px
+  );
+
   user-select: none;
-  height: 28px;
+  height: var(--switch-lock-height);
   display: block;
   position: relative;
   cursor: pointer;
   input {
     display: none;
     & + span {
-      padding-left: 50px;
-      min-height: 28px;
-      line-height: 28px;
+      padding-left: calc(var(--switch-lock-width) + 2px);
+      min-height: var(--switch-lock-height);
+      line-height: var(--switch-lock-height);
       display: block;
       color: var(--text-color);
       position: relative;
@@ -64,33 +79,35 @@ $lightGrey: #99a3ba;
         content: '';
         display: block;
         position: absolute;
-        border-radius: 12px;
       }
       &:before {
         top: 0;
         left: 0;
-        width: 48px;
-        height: 28px;
+        width: var(--switch-lock-width);
+        height: var(--switch-lock-height);
+        border-radius: calc(var(--switch-lock-height) / 2);
         background: var(--bg-color);
         transition: all 0.3s ease;
       }
       &:after {
-        width: 24px;
-        height: 24px;
+        width: var(--switch-lock-knob-size);
+        height: var(--switch-lock-knob-size);
+        border-radius: 50%;
         background: var(--panel-bg-color);
         top: 2px;
-        left: 3px;
+        left: 2px;
         box-shadow: 0 1px 3px rgba(#121621, 0.1);
         transition: all 0.45s ease;
       }
       em {
+        /* The padlock glyph is a fixed 8x12px drawing, centered on the knob */
         width: 8px;
         height: 7px;
         background: var(--text-color);
         opacity: 0.7;
         position: absolute;
-        left: 11px;
-        bottom: 8px;
+        left: calc(2px + (var(--switch-lock-knob-size) - 8px) / 2);
+        bottom: calc((var(--switch-lock-height) - 12px) / 2);
         border-radius: var(--border-radius-xsmall);
         display: block;
         z-index: 1;
@@ -162,10 +179,10 @@ $lightGrey: #99a3ba;
         }
         &:after {
           background: var(--panel-bg-color);
-          transform: translate(18px, 0);
+          transform: translate(var(--switch-lock-travel), 0);
         }
         em {
-          transform: translate(18px, 0);
+          transform: translate(var(--switch-lock-travel), 0);
           &:after {
             transform: rotate(0deg) translate(0px, 0);
           }

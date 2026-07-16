@@ -5,9 +5,8 @@
       v-model="freeze"
     />
     <VBtn
-      color="primary"
       icon
-      variant="tonal"
+      variant="outline"
       title="Copy column to clipboard"
       @click.stop="emit('copy')"
     >
@@ -15,9 +14,8 @@
     </VBtn>
     <VBtn
       title="Sort alphabetically"
-      color="primary"
       icon
-      variant="tonal"
+      variant="outline"
       @click.stop="emit('sort')"
     >
       <VIcon

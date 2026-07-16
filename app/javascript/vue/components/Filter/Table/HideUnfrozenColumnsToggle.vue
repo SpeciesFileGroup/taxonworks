@@ -1,5 +1,6 @@
 <template>
   <VToggle
+    medium
     title="Hide/show non-frozen columns"
     @click="() => (hideUnfrozen = !hideUnfrozen)"
   >
