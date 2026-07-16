@@ -397,7 +397,9 @@ function reset() {
 </script>
 
 <style scoped>
-:deep(.highlight-row) {
+/* Table cells paint their own (striped) background over the row's, so the
+   animation has to run on each td — animating the tr itself is invisible. */
+:deep(.highlight-row td) {
   animation: highlight-fade 2s ease-out;
 }
 

@@ -12,7 +12,7 @@
         <th />
         <th class="line-nowrap">scientificName <ButtonClipboard :text="columnClipboardText('scientificName')" title="Copy scientificName column" /></th>
         <th class="line-nowrap" data-help="Override the string used for matching. Leave blank to match using the scientificName value as-is. A manually-entered value shows a small dot. Regex modifiers (left panel) write to this field automatically.">Match <ButtonClipboard :text="columnClipboardText('match')" title="Copy match column" /></th>
-        <th class="line-nowrap">TaxonName <ButtonClipboard :text="columnClipboardText('taxonName')" title="Copy TaxonName column" /></th>
+        <th class="line-nowrap" data-help="A yellow cell indicates that there was more than one matching Taxon Name to choose from, so you may want to confirm the name selected - if the wrong name was selected you can select the correct one in the Refine column.">TaxonName <ButtonClipboard :text="columnClipboardText('taxonName')" title="Copy TaxonName column" /></th>
         <th />
         <th data-help="Manually search for and select a TaxonName, overriding the automatic match result. Use this to fix incorrect or ambiguous matches.">Refine</th>
         <th class="line-nowrap">OTU <ButtonClipboard :text="columnClipboardText('otuLabel')" title="Copy OTU column" /></th>
@@ -389,20 +389,28 @@ thead th {
   background-color: var(--badge-blue-color);
 }
 
+/* !important needed: .table-striped's tr:nth-of-type(even/odd) td rule has
+   higher specificity (2 classes/pseudo + 2 elements) than a single class here. */
 .cell-ambiguous {
-  background-color: #fcf8e3;
+  background-color: #fcf8e3 !important;
 }
 
 .row-disabled {
   opacity: 0.6;
 }
 
-.row-no-match {
+/* .table-striped sets a background directly on every td, and border-collapse
+   leaves tr no visible area of its own to paint into — so a tr-level
+   background-color (even with !important) is invisible; it must target td. */
+.row-no-match td {
   background-color: #fdf2f2 !important;
 }
 
-.row-empty {
+.row-empty td {
   background-color: #f5f5f5 !important;
+}
+
+.row-empty {
   opacity: 0.5;
 }
 
