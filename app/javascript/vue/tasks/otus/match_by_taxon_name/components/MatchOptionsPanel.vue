@@ -5,7 +5,7 @@
       <VBtn
         color="primary"
         title="Reset all options and match strings to defaults and re-run matching"
-        @click="emit('clear-all')"
+        @click="handleClearAll"
       >
         Restart
       </VBtn>
@@ -211,6 +211,11 @@ function debouncedUpdate() {
   debounceTimer = setTimeout(() => {
     emit('update-options')
   }, 500)
+}
+
+function handleClearAll() {
+  clearTimeout(debounceTimer)
+  emit('clear-all')
 }
 
 function handleScopeSelect(item) {

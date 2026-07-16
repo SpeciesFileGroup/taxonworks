@@ -90,6 +90,10 @@ const levenshteinDistance = ref(0)
 const tryWithoutSubgenus = ref(false)
 const resolveSynonyms = ref(false)
 
+// The scope the task was actually launched with (via ?taxon_name_id=), so
+// Restart/Reset can return to it instead of always clearing to no scope.
+const initialScopeTaxonName = ref(null)
+
 onMounted(() => {
   const urlParams = new URLSearchParams(window.location.search)
   const taxonNameId = urlParams.get('taxon_name_id')
@@ -97,6 +101,7 @@ onMounted(() => {
   if (taxonNameId) {
     TaxonName.find(taxonNameId).then(({ body }) => {
       scopeTaxonName.value = body
+      initialScopeTaxonName.value = body
     })
   }
 })
@@ -344,7 +349,7 @@ function syncAllDuplicates() {
 }
 
 function resetMatchOptions() {
-  scopeTaxonName.value = null
+  scopeTaxonName.value = initialScopeTaxonName.value
   levenshteinDistance.value = 0
   tryWithoutSubgenus.value = false
   resolveSynonyms.value = false
