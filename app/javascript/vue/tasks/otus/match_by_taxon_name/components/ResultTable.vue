@@ -159,7 +159,14 @@
         </td>
 
         <!-- OTU id -->
-        <td>{{ row.selectedOtuId || '' }}</td>
+        <td>
+          <a
+            v-if="row.selectedOtuId"
+            :href="browseOtuUrl(row.selectedOtuId)"
+            target="_blank"
+            >{{ row.selectedOtuId }}</a
+          >
+        </td>
 
         <!-- create OTU -->
         <td>
@@ -279,6 +286,10 @@ function toggleSelectAll(checked) {
 
 function browseTaxonNameUrl(id) {
   return `${RouteNames.BrowseNomenclature}?taxon_name_id=${id}`
+}
+
+function browseOtuUrl(id) {
+  return `${RouteNames.BrowseOtu}?otu_id=${id}`
 }
 
 // Maps effectiveName -> the index of its first occurrence in props.rows.
