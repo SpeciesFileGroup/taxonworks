@@ -281,9 +281,22 @@ function browseTaxonNameUrl(id) {
   return `${RouteNames.BrowseNomenclature}?taxon_name_id=${id}`
 }
 
+// Maps effectiveName -> the index of its first occurrence in props.rows.
+// Built once in O(n) instead of re-scanning all rows (O(n) per call) from
+// every isDuplicate/isActionable/activeRowIndex call site in the template.
+const firstIndexByEffectiveName = computed(() => {
+  const map = new Map()
+  props.rows.forEach((row) => {
+    const name = effectiveName(row)
+    if (!map.has(name)) {
+      map.set(name, row.index)
+    }
+  })
+  return map
+})
+
 function firstUniqueIndex(row) {
-  const name = effectiveName(row)
-  return props.rows.findIndex((r) => effectiveName(r) === name)
+  return firstIndexByEffectiveName.value.get(effectiveName(row))
 }
 
 function isDuplicate(row) {
