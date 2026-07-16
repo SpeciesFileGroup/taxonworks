@@ -139,7 +139,7 @@ class CollectionObject < ApplicationRecord
   belongs_to :preparation_type, inverse_of: :collection_objects
   belongs_to :ranged_lot_category, inverse_of: :ranged_lots
   belongs_to :repository, inverse_of: :collection_objects
-  belongs_to :current_repository, class_name: 'Repository', inverse_of: :collection_objects
+  belongs_to :current_repository, class_name: 'Repository', inverse_of: :current_collection_objects
 
   has_many :georeferences, through: :collecting_event
   has_many :geographic_items, through: :georeferences
@@ -149,6 +149,7 @@ class CollectionObject < ApplicationRecord
   has_many :type_materials, inverse_of: :collection_object, dependent: :restrict_with_error
 
   accepts_nested_attributes_for :collecting_event, allow_destroy: true, reject_if: :reject_collecting_event
+  accepts_nested_attributes_for :type_materials, reject_if: :reject_type_materials
 
   before_validation :assign_type_if_total_or_ranged_lot_category_id_provided
 
@@ -213,6 +214,13 @@ class CollectionObject < ApplicationRecord
     )
 
     request.cap = 1000
+
+    if request.capped?
+      r = request.stub_response
+      r.method = 'query_batch_update'
+      r.errors[request.cap_reason] = 1
+      return r
+    end
 
     query_batch_update(request)
   end
@@ -794,6 +802,10 @@ class CollectionObject < ApplicationRecord
       self.type = 'RangedLot'
     end
     true
+  end
+
+  def reject_type_materials(attributed)
+    attributed['protonym_id'].blank? || attributed['type_type'].blank?
   end
 
   def reject_collecting_event(attributed)
