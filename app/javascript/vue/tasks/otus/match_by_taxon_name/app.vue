@@ -75,12 +75,13 @@ import SummaryBar from './components/SummaryBar.vue'
 import MatchOptionsPanel from './components/MatchOptionsPanel.vue'
 import { MAX_ROWS, defaultModifiers } from './constants.js'
 import effectiveName from './utils/effectiveName.js'
+import sortOtus from './utils/sortOtus.js'
 
 defineOptions({
   name: 'MatchOtuByTaxonName'
 })
 
-const stage = ref('input')
+const stage = ref('input') // 'input' or 'results'
 const isProcessing = ref(false)
 const rows = ref([])
 const csvData = ref(null)
@@ -99,10 +100,12 @@ onMounted(() => {
   const taxonNameId = urlParams.get('taxon_name_id')
 
   if (taxonNameId) {
-    TaxonName.find(taxonNameId).then(({ body }) => {
-      scopeTaxonName.value = body
-      initialScopeTaxonName.value = body
-    })
+    TaxonName.find(taxonNameId)
+      .then(({ body }) => {
+        scopeTaxonName.value = body
+        initialScopeTaxonName.value = body
+      })
+      .catch(() => {})
   }
 })
 
@@ -212,12 +215,14 @@ async function matchRows(targetRows) {
       const matchedRows = nameMap.get(result.scientific_name)
       if (!matchedRows) return
 
+      const otus = sortOtus(result.otus || [])
+
       matchedRows.forEach((row) => {
         applyMatchResult(row, {
           taxonName: result.taxon_name,
           taxonNameId: result.taxon_name_id,
-          otus: result.otus || [],
-          selectedOtuId: result.otus?.length ? result.otus[0].id : null,
+          otus,
+          selectedOtuId: otus.length ? otus[0].id : null,
           ambiguous: result.ambiguous,
           matched: result.matched
         })
@@ -267,12 +272,12 @@ function handleRowUpdate({ index, field, value }) {
 async function loadOtusForTaxonName(taxonNameId, row) {
   try {
     const { body } = await TaxonName.otus(taxonNameId)
-    row.otus = body.map((o) => ({
+    row.otus = sortOtus(body.map((o) => ({
       id: o.id,
       name: o.name,
       taxon_name_id: o.taxon_name_id,
       object_label: o.object_label
-    }))
+    })))
     if (row.otus.length) {
       row.selectedOtuId = row.otus[0].id
     }
