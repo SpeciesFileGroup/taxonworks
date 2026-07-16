@@ -246,7 +246,7 @@ function handleRowUpdate({ index, field, value }) {
 
   if (field === 'taxonName') {
     applyMatchResult(row, {
-      taxonName: value,
+      taxonName: null,
       taxonNameId: value?.id || null,
       otus: [],
       selectedOtuId: null,
@@ -255,6 +255,9 @@ function handleRowUpdate({ index, field, value }) {
     })
 
     if (value) {
+      // The autocomplete result doesn't include cached_html (only label/label_html,
+      // meant for the dropdown itself), so re-fetch the full record for display.
+      loadTaxonName(value.id, row)
       loadOtusForTaxonName(value.id, row)
     }
 
@@ -266,6 +269,16 @@ function handleRowUpdate({ index, field, value }) {
   } else if (field === 'selectedOtuId') {
     row.selectedOtuId = value
     syncDuplicateRows(row)
+  }
+}
+
+async function loadTaxonName(taxonNameId, row) {
+  try {
+    const { body } = await TaxonName.find(taxonNameId)
+    row.taxonName = body
+    syncDuplicateRows(row)
+  } catch (e) {
+    console.error('Failed to load TaxonName:', e)
   }
 }
 
