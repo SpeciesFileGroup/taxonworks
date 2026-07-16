@@ -232,6 +232,7 @@ import Autocomplete from '@/components/ui/Autocomplete.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import ButtonClipboard from '@/components/ui/Button/ButtonClipboard.vue'
+import effectiveName from '../utils/effectiveName.js'
 
 const props = defineProps({
   rows: {
@@ -280,10 +281,6 @@ function browseTaxonNameUrl(id) {
   return `${RouteNames.BrowseNomenclature}?taxon_name_id=${id}`
 }
 
-function effectiveName(row) {
-  return row.userMatchString || row.regexMatchString || row.scientificName
-}
-
 function firstUniqueIndex(row) {
   const name = effectiveName(row)
   return props.rows.findIndex((r) => effectiveName(r) === name)
@@ -314,7 +311,7 @@ function columnClipboardText(field) {
       case 'scientificName':
         return row.scientificName || ''
       case 'match':
-        return row.userMatchString || row.regexMatchString || row.scientificName || ''
+        return effectiveName(row)
       case 'taxonName':
         return row.taxonName?.cached || ''
       case 'otuLabel': {

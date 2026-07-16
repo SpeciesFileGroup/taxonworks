@@ -40,6 +40,7 @@
 <script setup>
 import { computed } from 'vue'
 import ButtonClipboard from '@/components/ui/Button/ButtonClipboard.vue'
+import effectiveName from '../utils/effectiveName.js'
 
 const CLIPBOARD_HEADERS = ['scientificName', 'match', 'otuId']
 
@@ -91,7 +92,7 @@ const clipboardText = computed(() =>
     CLIPBOARD_HEADERS.join('\t'),
     ...props.rows.map((row) => {
       const name = row.scientificName || ''
-      const match = row.userMatchString || row.regexMatchString || row.scientificName || ''
+      const match = effectiveName(row)
       const otuId = row.selectedOtuId != null ? String(row.selectedOtuId) : ''
       return `${name}\t${match}\t${otuId}`
     })

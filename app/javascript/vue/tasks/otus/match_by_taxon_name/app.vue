@@ -74,6 +74,7 @@ import ResultTable from './components/ResultTable.vue'
 import SummaryBar from './components/SummaryBar.vue'
 import MatchOptionsPanel from './components/MatchOptionsPanel.vue'
 import { MAX_ROWS, defaultModifiers } from './constants.js'
+import effectiveName from './utils/effectiveName.js'
 
 defineOptions({
   name: 'MatchOtuByTaxonName'
@@ -182,11 +183,11 @@ async function matchRows(targetRows) {
   const nameMap = new Map()
 
   targetRows.forEach((row) => {
-    const effectiveName = row.userMatchString || row.regexMatchString || row.scientificName
-    if (!nameMap.has(effectiveName)) {
-      nameMap.set(effectiveName, [])
+    const name = effectiveName(row)
+    if (!nameMap.has(name)) {
+      nameMap.set(name, [])
     }
-    nameMap.get(effectiveName).push(row)
+    nameMap.get(name).push(row)
   })
 
   const uniqueNames = [...nameMap.keys()]
@@ -300,10 +301,6 @@ async function handleCreateOtu({ index }) {
     TW.workbench.alert.create('Failed to create OTU.', 'error')
     console.error(e)
   }
-}
-
-function effectiveName(row) {
-  return row.userMatchString || row.regexMatchString || row.scientificName
 }
 
 function applyMatchResult(row, source) {
