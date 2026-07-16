@@ -73,7 +73,7 @@ import InputPanel from './components/InputPanel.vue'
 import ResultTable from './components/ResultTable.vue'
 import SummaryBar from './components/SummaryBar.vue'
 import MatchOptionsPanel from './components/MatchOptionsPanel.vue'
-import { MAX_ROWS } from './constants.js'
+import { MAX_ROWS, defaultModifiers } from './constants.js'
 
 defineOptions({
   name: 'MatchOtuByTaxonName'
@@ -100,10 +100,7 @@ onMounted(() => {
   }
 })
 
-const modifiers = ref([
-  { active: false, pattern: '^(\\S*\\s+\\S*).*', replacement: '$1' },
-  { active: false, pattern: '', replacement: '' }
-])
+const modifiers = ref(defaultModifiers())
 
 async function handleDataSubmit({ names, csv }) {
   isProcessing.value = true
@@ -349,15 +346,16 @@ function syncAllDuplicates() {
   })
 }
 
-function clearAllMatches() {
+function resetMatchOptions() {
   scopeTaxonName.value = null
   levenshteinDistance.value = 0
   tryWithoutSubgenus.value = false
   resolveSynonyms.value = false
-  modifiers.value = [
-    { active: false, pattern: '^(\\S*\\s+\\S*).*', replacement: '$1' },
-    { active: false, pattern: '', replacement: '' }
-  ]
+  modifiers.value = defaultModifiers()
+}
+
+function clearAllMatches() {
+  resetMatchOptions()
 
   rows.value.forEach((row) => {
     row.taxonName = null
@@ -387,14 +385,7 @@ function reset() {
   stage.value = 'input'
   rows.value = []
   csvData.value = null
-  scopeTaxonName.value = null
-  levenshteinDistance.value = 0
-  tryWithoutSubgenus.value = false
-  resolveSynonyms.value = false
-  modifiers.value = [
-    { active: false, pattern: '^(\\S*\\s+\\S*).*', replacement: '$1' },
-    { active: false, pattern: '', replacement: '' }
-  ]
+  resetMatchOptions()
 }
 </script>
 
