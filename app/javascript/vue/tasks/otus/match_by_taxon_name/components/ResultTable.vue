@@ -135,7 +135,7 @@
         <td>
           <template v-if="row.otus.length">
             <div
-              v-for="otu in row.otus"
+              v-for="otu in sortedOtus(row)"
               :key="otu.id"
               class="horizontal-left-content gap-xsmall"
             >
@@ -290,6 +290,12 @@ function browseTaxonNameUrl(id) {
 
 function browseOtuUrl(id) {
   return `${RouteNames.BrowseOtu}?otu_id=${id}`
+}
+
+// Unnamed OTUs (relying on the taxon name for their label) are listed before
+// named ones, so an ambiguous match's more generic OTUs surface first.
+function sortedOtus(row) {
+  return [...row.otus].sort((a, b) => (a.name ? 1 : 0) - (b.name ? 1 : 0))
 }
 
 // Maps effectiveName -> the index of its first occurrence in props.rows.
