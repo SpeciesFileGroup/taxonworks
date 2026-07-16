@@ -35,6 +35,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Monograph facilitator: Determination label is not visible in Safari browser
 - Checklist importer crashing on empty `originalNameUsageID` in some cases
 - Source and Repository autocompletes sometimes miss results, repository usage counts were sometimes wrong [#4990]
+- OTU autocomplete sometimes returns unuseful results instead of an exact match, even when an exact match exists [#4994]
 
 [#4937]: https://github.com/SpeciesFileGroup/taxonworks/issues/4937
 [#4944]: https://github.com/SpeciesFileGroup/taxonworks/issues/4944
@@ -43,6 +44,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4978]: https://github.com/SpeciesFileGroup/taxonworks/issues/4978
 [#4983]: https://github.com/SpeciesFileGroup/taxonworks/issues/4983
 [#4990]: https://github.com/SpeciesFileGroup/taxonworks/issues/4990
+[#4994]: https://github.com/SpeciesFileGroup/taxonworks/issues/4994
 
 ## [0.63.1] - 2026-06-22
 
