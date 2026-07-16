@@ -47,7 +47,6 @@
             >
               <CitationTotal :source-id="store.source.id" />
               <VPin
-                class="circle-button"
                 type="Source"
                 :object-id="store.source.id"
               />
