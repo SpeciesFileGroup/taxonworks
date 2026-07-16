@@ -360,6 +360,12 @@ function columnClipboardText(field) {
 </script>
 
 <style scoped>
+thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
 .match-input {
   width: 200px;
 }
