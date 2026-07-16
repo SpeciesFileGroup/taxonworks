@@ -11,7 +11,7 @@
         </th>
         <th />
         <th class="line-nowrap">scientificName <ButtonClipboard :text="columnClipboardText('scientificName')" title="Copy scientificName column" /></th>
-        <th class="line-nowrap" data-help="Override the string used for matching. Leave blank to match using the scientificName value as-is. Highlighted in blue when you have typed a custom value. Regex modifiers (left panel) write to this field automatically.">Match <ButtonClipboard :text="columnClipboardText('match')" title="Copy match column" /></th>
+        <th class="line-nowrap" data-help="Override the string used for matching. Leave blank to match using the scientificName value as-is. A manually-entered value shows a small dot. Regex modifiers (left panel) write to this field automatically.">Match <ButtonClipboard :text="columnClipboardText('match')" title="Copy match column" /></th>
         <th class="line-nowrap">TaxonName <ButtonClipboard :text="columnClipboardText('taxonName')" title="Copy TaxonName column" /></th>
         <th />
         <th data-help="Manually search for and select a TaxonName, overriding the automatic match result. Use this to fix incorrect or ambiguous matches.">Refine</th>
@@ -74,20 +74,29 @@
 
         <!-- match -->
         <td>
-          <input
-            v-if="isActionable(row)"
-            type="text"
-            :class="['normal-input', 'match-input', { 'match-input-user': !!row.userMatchString }]"
-            :value="row.userMatchString || row.regexMatchString"
-            placeholder="(uses scientificName)"
-            @change="
-              (e) => {
-                emit('update-row', { index: row.index, field: 'userMatchString', value: e.target.value })
-                emit('match-row', { index: row.index })
-              }
-            "
-          />
-          <span v-else>{{ row.userMatchString || row.regexMatchString }}</span>
+          <div class="horizontal-left-content gap-xsmall">
+            <span class="match-icon-slot">
+              <span
+                v-if="row.userMatchString"
+                class="user-match-dot"
+                title="Manually entered — overrides the automatic scientificName-based match."
+              />
+            </span>
+            <input
+              v-if="isActionable(row)"
+              type="text"
+              class="normal-input match-input"
+              :value="row.userMatchString || row.regexMatchString"
+              placeholder="(uses scientificName)"
+              @change="
+                (e) => {
+                  emit('update-row', { index: row.index, field: 'userMatchString', value: e.target.value })
+                  emit('match-row', { index: row.index })
+                }
+              "
+            />
+            <span v-else>{{ row.userMatchString || row.regexMatchString }}</span>
+          </div>
         </td>
 
         <!-- TaxonName -->
@@ -164,8 +173,9 @@
             v-if="row.selectedOtuId"
             :href="browseOtuUrl(row.selectedOtuId)"
             target="_blank"
-            >{{ row.selectedOtuId }}</a
           >
+            {{ row.selectedOtuId }}
+          </a>
         </td>
 
         <!-- create OTU -->
@@ -370,8 +380,19 @@ thead th {
   width: 200px;
 }
 
-.match-input-user {
-  background-color: #e8f4fd;
+.match-icon-slot {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  width: var(--size-xSmall);
+}
+
+.user-match-dot {
+  display: inline-block;
+  width: var(--size-xxSmall);
+  height: var(--size-xxSmall);
+  border-radius: 50%;
+  background-color: var(--badge-blue-color);
 }
 
 .cell-ambiguous {
