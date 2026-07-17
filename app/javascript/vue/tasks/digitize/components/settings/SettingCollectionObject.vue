@@ -1,15 +1,15 @@
 <template>
-  <v-btn
+  <VBtn
     icon
-    color="primary"
-    variant="tonal"
     medium
+    variant="tonal"
+    color="primary"
     title="Layout settings"
     @click="showModal = true"
   >
     <IconSettings class="w-4 h-4" />
-  </v-btn>
-  <v-modal
+  </VBtn>
+  <VModal
     v-if="showModal"
     @close="showModal = false"
     :container-style="{ width: '500px' }"
@@ -52,7 +52,7 @@
         Reorder fields
       </label>
     </template>
-  </v-modal>
+  </VModal>
 </template>
 
 <script setup>

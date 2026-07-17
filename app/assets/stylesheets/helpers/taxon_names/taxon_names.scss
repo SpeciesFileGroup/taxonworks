@@ -1,3 +1,10 @@
+.history__record {
+  > div {
+    display: inline-block;
+    vertical-align: middle;
+  }
+}
+
 .history_record {
   .original_taxon_name {
     font-weight: 400;

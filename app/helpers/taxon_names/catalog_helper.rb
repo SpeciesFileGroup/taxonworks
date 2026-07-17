@@ -13,7 +13,7 @@ module TaxonNames
       content_tag(
         :li,
         safe_join([radial_annotator(nomenclature_catalog_item.object), ' ', nomenclature_line_tag(nomenclature_catalog_item, reference_taxon_name, target)]),
-        class: [:history__record, :middle, :inline, 'gap-xsmall'],
+        class: [:history__record],
         data: nomenclature_catalog_li_tag_data_attributes(nomenclature_catalog_item)
       )
     end

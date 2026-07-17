@@ -2,8 +2,8 @@
   <div>
     <VBtn
       medium
-      color="primary"
       variant="tonal"
+      color="primary"
       @click="isModalVisible = true"
     >
       Recent
@@ -66,14 +66,12 @@
               <td>{{ item.updated_at }}</td>
               <td>
                 <VBtn
-                  circle
+                  icon
                   color="primary"
+                  variant="tonal"
                   @click="() => sendCO(item)"
                 >
-                  <VIcon
-                    name="pencil"
-                    x-small
-                  />
+                  <IconPencil class="w-4 h-4" />
                 </VBtn>
               </td>
             </tr>
@@ -88,7 +86,7 @@
 import VModal from '@/components/ui/Modal'
 import VSpinner from '@/components/ui/VSpinner'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconPencil from '@/components/Icon/IconPencil.vue'
 import { CollectionObject } from '@/routes/endpoints'
 import { ref, watch } from 'vue'
 

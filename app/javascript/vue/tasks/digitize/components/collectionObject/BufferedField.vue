@@ -13,73 +13,42 @@
           v-model="locked"
           class="margin-small-bottom"
         />
-        <v-btn
+        <VBtn
           type="button"
+          color="primary"
           variant="tonal"
           @click="setInline(inputText || '')"
-          color="primary"
         >
           Trim
-        </v-btn>
+        </VBtn>
       </div>
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
 import LockComponent from '@/components/ui/VLock/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import { stringInline } from '@/helpers/strings'
 
-export default {
-  components: {
-    LockComponent,
-    VBtn
-  },
-
-  props: {
-    modelValue: {
-      type: String,
-      default: undefined
-    },
-
-    title: {
-      type: String,
-      required: true
-    },
-
-    lock: {
-      type: Boolean,
-      required: true
-    }
-  },
-
-  emits: ['update:modelValue', 'update:lock'],
-
-  computed: {
-    inputText: {
-      get() {
-        return this.modelValue
-      },
-      set(value) {
-        this.$emit('update:modelValue', value)
-      }
-    },
-
-    locked: {
-      get() {
-        return this.lock
-      },
-      set(value) {
-        this.$emit('update:lock', value)
-      }
-    }
-  },
-
-  methods: {
-    setInline(text) {
-      this.inputText = stringInline(text)
-    }
+const props = defineProps({
+  title: {
+    type: String,
+    required: true
   }
+})
+
+const inputText = defineModel({
+  type: String,
+  default: undefined
+})
+
+const locked = defineModel('lock', {
+  type: Boolean,
+  required: true
+})
+
+function setInline(text) {
+  inputText.value = stringInline(text)
 }
 </script>
