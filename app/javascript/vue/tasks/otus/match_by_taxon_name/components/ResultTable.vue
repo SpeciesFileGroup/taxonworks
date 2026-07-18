@@ -73,7 +73,7 @@
         </td>
 
         <!-- match -->
-        <td>
+        <td class="match-cell">
           <div class="horizontal-left-content gap-xsmall">
             <span class="match-icon-slot">
               <span
@@ -83,7 +83,7 @@
               />
             </span>
             <input
-              v-if="isActionable(row)"
+              v-if="!row.isEmpty"
               type="text"
               class="normal-input match-input"
               :value="row.userMatchString || row.regexMatchString"
@@ -395,7 +395,9 @@ thead th {
   background-color: #fcf8e3 !important;
 }
 
-.row-disabled {
+/* Dim everything but the Match cell — opacity compounds through descendants,
+   so dimming the tr itself would dim the still-editable Match input too. */
+.row-disabled > td:not(.match-cell) {
   opacity: 0.6;
 }
 
