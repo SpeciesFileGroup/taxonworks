@@ -9,6 +9,8 @@ module Queries
       include Queries::Concerns::Depictions
       include Queries::Concerns::Notes
       include Queries::Concerns::Sortable
+      include Queries::Concerns::SortResolver
+      include Queries::TaxonName::SortableFilterColumns
       include Queries::Concerns::Sounds
       include Queries::Concerns::Tags
 
@@ -77,36 +79,6 @@ module Queries
         type: [],
       ].freeze
 
-      def self.sortable_columns
-        {
-          'id'                        => sort_by_direct_column('taxon_names.id'),
-          'cached_html'               => sort_by_direct_column('taxon_names.cached'),
-          'cached_author_year'        => sort_by_direct_column('taxon_names.cached_author_year'),
-          'cached_nomenclature_date'  => sort_by_direct_column('taxon_names.cached_nomenclature_date'),
-          'original_combination'      => sort_by_direct_column('taxon_names.cached_original_combination'),
-          'cached_is_valid'           => sort_by_direct_column('taxon_names.cached_is_valid'),
-          'rank'                      => sort_by_direct_column('taxon_names.rank_class'),
-          'updated_at'                => sort_by_direct_column('taxon_names.updated_at'),
-          'created_at'                => sort_by_direct_column('taxon_names.created_at'),
-          # cached_valid_taxon_name_id points to self when the name is valid,
-          # in which case the frontend shows the Valid name column as blank.
-          # Match that in SQL by nulling out the self-referential case, so
-          # valid rows all sort to the end (NULLS LAST).
-          'valid_name'                => ->(q, dir) {
-            q
-              .joins('LEFT JOIN taxon_names AS sort_valid_name ON sort_valid_name.id = taxon_names.cached_valid_taxon_name_id')
-              .order(Arel.sql(
-                "CASE WHEN sort_valid_name.id = taxon_names.id THEN NULL ELSE sort_valid_name.cached END " \
-                "#{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"
-              ))
-          },
-          'parent'                    => sort_by_belongs_to_column(
-            joined_table: 'taxon_names', joined_column: 'cached',
-            fk_expr: 'taxon_names.parent_id',
-            alias_prefix: 'sort_parent'
-          )
-        }
-      end
 
       # @param ancestors [Boolean, 'true', 'false', nil]
       # @return Boolean

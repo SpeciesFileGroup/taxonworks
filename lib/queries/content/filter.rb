@@ -7,6 +7,8 @@ module Queries
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
       include Queries::Concerns::Sortable
+      include Queries::Concerns::SortResolver
+      include Queries::Content::SortableFilterColumns
 
       PARAMS = [
         :exact,
@@ -19,31 +21,6 @@ module Queries
         content_id: [],
       ].freeze
 
-      def self.sortable_columns
-        {
-          'id'         => sort_by_direct_column('contents.id'),
-          'text'       => sort_by_direct_column('contents.text'),
-          'updated_at' => sort_by_direct_column('contents.updated_at'),
-          'created_at' => sort_by_direct_column('contents.created_at'),
-          # OTU shows the taxon_name.cached fallback to otu.name; scalar
-          # subquery keeps the outer FROM clean.
-          'otu' => ->(q, dir) {
-            q.order(Arel.sql(<<~SQL.squish))
-              (
-                SELECT COALESCE(tn.cached, o.name)
-                FROM otus o LEFT JOIN taxon_names tn ON tn.id = o.taxon_name_id
-                WHERE o.id = contents.otu_id
-              ) #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST
-            SQL
-          },
-          # Topic is a controlled vocabulary term; sort by cvt.name.
-          'topic' => sort_by_belongs_to_column(
-            joined_table: 'controlled_vocabulary_terms', joined_column: 'name',
-            fk_expr: 'contents.topic_id',
-            alias_prefix: 'sort_content_topic'
-          )
-        }
-      end
 
       # @return [Boolean, nil]
       attr_accessor :exact

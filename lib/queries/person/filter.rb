@@ -5,6 +5,8 @@ module Queries
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Notes
       include Queries::Concerns::Sortable
+      include Queries::Concerns::SortResolver
+      include Queries::Person::SortableFilterColumns
       include Queries::Concerns::Tags
 
       PARAMS = [
@@ -41,18 +43,6 @@ module Queries
         without: [],
       ].freeze
 
-      def self.sortable_columns
-        {
-          'id'         => sort_by_direct_column('people.id'),
-          'first_name' => sort_by_direct_column('people.first_name'),
-          'last_name'  => sort_by_direct_column('people.last_name'),
-          'prefix'     => sort_by_direct_column('people.prefix'),
-          'suffix'     => sort_by_direct_column('people.suffix'),
-          'cached'     => sort_by_direct_column('people.cached'),
-          'updated_at' => sort_by_direct_column('people.updated_at'),
-          'created_at' => sort_by_direct_column('people.created_at')
-        }
-      end
 
       # @return [Array]
       attr_accessor :person_id

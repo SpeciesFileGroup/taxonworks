@@ -6,6 +6,8 @@ module Queries
       include Queries::Concerns::Citations
       include Queries::Concerns::Notes
       include Queries::Concerns::Sortable
+      include Queries::Concerns::SortResolver
+      include Queries::TaxonNameRelationship::SortableFilterColumns
       include Queries::Concerns::Verifiers
 
       PARAMS = [
@@ -26,24 +28,6 @@ module Queries
         taxon_name_relationship_type: [],
       ].freeze
 
-      def self.sortable_columns
-        {
-          'id'           => sort_by_direct_column('taxon_name_relationships.id'),
-          'relationship' => sort_by_direct_column('taxon_name_relationships.type'),
-          'updated_at'   => sort_by_direct_column('taxon_name_relationships.updated_at'),
-          'created_at'   => sort_by_direct_column('taxon_name_relationships.created_at'),
-          'subject'      => sort_by_belongs_to_column(
-            joined_table: 'taxon_names', joined_column: 'cached',
-            fk_expr: 'taxon_name_relationships.subject_taxon_name_id',
-            alias_prefix: 'sort_subj_tn'
-          ),
-          'object'       => sort_by_belongs_to_column(
-            joined_table: 'taxon_names', joined_column: 'cached',
-            fk_expr: 'taxon_name_relationships.object_taxon_name_id',
-            alias_prefix: 'sort_obj_tn'
-          )
-        }
-      end
 
       # @param ancestors [Boolean, nil]
       #   Operate on ancestors of taxon_name_ids if true

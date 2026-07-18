@@ -10,6 +10,8 @@ module Queries
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Geo
       include Queries::Concerns::Sortable
+      include Queries::Concerns::SortResolver
+      include Queries::BiologicalAssociation::SortableFilterColumns
 
       PARAMS = [
         :anatomical_part_id,
@@ -72,25 +74,6 @@ module Queries
       API_PARAM_EXCLUSIONS = [
         :any_global_id
       ]
-
-      def self.sortable_columns
-        {
-          'id'                       => ->(q, dir) { q.order(id: dir) },
-          'updated_at'               => ->(q, dir) { q.order(updated_at: dir) },
-          'created_at'               => ->(q, dir) { q.order(created_at: dir) },
-          'biological_relationship'  => sort_by_relationship_name,
-          'subject_taxonomy_order'   => sort_by_taxonomy(side: 'subject', rank: 'Order'),
-          'subject_taxonomy_family'  => sort_by_taxonomy(side: 'subject', rank: 'Family'),
-          'subject_taxonomy_genus'   => sort_by_taxonomy(side: 'subject', rank: 'Genus'),
-          'object_taxonomy_order'    => sort_by_taxonomy(side: 'object',  rank: 'Order'),
-          'object_taxonomy_family'   => sort_by_taxonomy(side: 'object',  rank: 'Family'),
-          'object_taxonomy_genus'    => sort_by_taxonomy(side: 'object',  rank: 'Genus'),
-          'subject_object_tag'         => sort_by_object_tag(side: 'subject'),
-          'object_object_tag'          => sort_by_object_tag(side: 'object'),
-          'biological_property_subject' => sort_by_biological_property(side: 'subject'),
-          'biological_property_object'  => sort_by_biological_property(side: 'object'),
-        }
-      end
 
       def self.sort_by_relationship_name
         ->(q, dir) {
