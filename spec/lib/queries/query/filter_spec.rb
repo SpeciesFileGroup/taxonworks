@@ -184,6 +184,12 @@ describe Queries::Query::Filter, type: [:model] do
         ])
       end
 
+      specify 'truncates to MAX_SORT_KEYS entries, silently dropping the rest' do
+        f.sort = (1..8).map { |n| "col#{n}" }.join(',')
+        expect(f.order_by_columns.length).to eq(Queries::Query::Filter::MAX_SORT_KEYS)
+        expect(f.order_by_columns.map { |c| c[:key] }).to eq(%w[col1 col2 col3 col4 col5])
+      end
+
       specify 'paging_state marks query as ordered when sort present' do
         f.sort = '-updated_at'
         f.paginate = true

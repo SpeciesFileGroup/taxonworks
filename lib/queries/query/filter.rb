@@ -279,8 +279,14 @@ module Queries
     # also accepts an Array of such strings.
     #
     # Column keys must be present in subclass's `.sortable_columns` whitelist;
-    # unknown keys are silently ignored.
+    # unknown keys are silently ignored. Only the first MAX_SORT_KEYS entries
+    # are honored; the rest are silently dropped (each key can independently
+    # add a join, so an unbounded count is an easy way to force an
+    # expensive query).
     attr_accessor :sort
+
+    # See `sort` above.
+    MAX_SORT_KEYS = 5
 
     # @return Hash
     #  the parsed/permitted params
@@ -358,7 +364,8 @@ module Queries
       @order_by.to_sym
     end
 
-    # @return [Array<Hash>] structured form of the `sort` param.
+    # @return [Array<Hash>] structured form of the `sort` param, truncated to
+    #   MAX_SORT_KEYS entries.
     #   e.g. [{ key: 'updated_at', dir: :desc }, { key: 'id', dir: :asc }]
     def order_by_columns
       return [] if @sort.blank?
@@ -366,6 +373,7 @@ module Queries
         .flat_map { |s| s.to_s.split(',') }
         .map(&:strip)
         .reject(&:blank?)
+        .first(MAX_SORT_KEYS)
         .map do |entry|
           case entry[0]
           when '-'
