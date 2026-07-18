@@ -7,7 +7,7 @@ module Queries::FieldOccurrence::SortableFilterColumns
   extend ActiveSupport::Concern
 
   class_methods do
-    def sortable_columns
+    def sortable_columns_uncached
       cols = {}
 
       sortable_direct_columns.each { |c, lam| cols["field_occurrence.#{c}"] = lam }

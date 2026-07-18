@@ -4,7 +4,7 @@ module Queries::Content::SortableFilterColumns
   extend ActiveSupport::Concern
 
   class_methods do
-    def sortable_columns
+    def sortable_columns_uncached
       cols = sortable_direct_columns
 
       # OTU shows the taxon_name.cached fallback to otu.name; a COALESCE

@@ -9,7 +9,7 @@ module Queries::CollectingEvent::SortableFilterColumns
     # CollectingEvent is embedded in another filter's table, and the bare
     # column name when it's the top-level filter -- register both forms for
     # every column so either usage's sort button works.
-    def sortable_columns
+    def sortable_columns_uncached
       direct = sortable_direct_columns
       cols = {}
       direct.each do |c, lam|

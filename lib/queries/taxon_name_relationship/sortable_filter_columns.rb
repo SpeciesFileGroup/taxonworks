@@ -4,7 +4,7 @@ module Queries::TaxonNameRelationship::SortableFilterColumns
   extend ActiveSupport::Concern
 
   class_methods do
-    def sortable_columns
+    def sortable_columns_uncached
       cols = sortable_direct_columns
 
       # `relationship` is the existing wire-format key for the STI `type`

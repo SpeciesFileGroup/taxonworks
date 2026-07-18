@@ -5,7 +5,7 @@ module Queries::Extract::SortableFilterColumns
 
   class_methods do
     # rubocop:disable Metrics/MethodLength
-    def sortable_columns
+    def sortable_columns_uncached
       cols = sortable_direct_columns
 
       # `date` is the existing wire-format key for year_made.

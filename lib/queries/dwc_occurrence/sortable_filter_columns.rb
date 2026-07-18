@@ -4,7 +4,7 @@ module Queries::DwcOccurrence::SortableFilterColumns
   extend ActiveSupport::Concern
 
   class_methods do
-    def sortable_columns
+    def sortable_columns_uncached
       # rebuild_set is internal bookkeeping, not a DwC term; id/project_id/
       # created_by_id/updated_by_id are already excluded by the FK-column
       # guardrail.

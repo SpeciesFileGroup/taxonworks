@@ -10,7 +10,7 @@ module Queries::BiologicalAssociation::SortableFilterColumns
   extend ActiveSupport::Concern
 
   class_methods do
-    def sortable_columns
+    def sortable_columns_uncached
       cols = sortable_direct_columns
 
       cols['biological_relationship'] = sort_by_relationship_name

@@ -16,7 +16,7 @@ module Queries::CollectionObject::SortableFilterColumns
   ].freeze
 
   class_methods do
-    def sortable_columns
+    def sortable_columns_uncached
       cols = {}
 
       sortable_direct_columns.each { |c, lam| cols["collection_object.#{c}"] = lam }

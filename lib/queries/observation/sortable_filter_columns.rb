@@ -4,7 +4,7 @@ module Queries::Observation::SortableFilterColumns
   extend ActiveSupport::Concern
 
   class_methods do
-    def sortable_columns
+    def sortable_columns_uncached
       cols = sortable_direct_columns
 
       # Existing wire-format keys that don't match the underlying column names.

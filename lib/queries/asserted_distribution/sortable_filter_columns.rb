@@ -10,7 +10,7 @@ module Queries::AssertedDistribution::SortableFilterColumns
 
   class_methods do
     # rubocop:disable Metrics/MethodLength
-    def sortable_columns
+    def sortable_columns_uncached
       cols = sortable_direct_columns
 
       # Existing wire-format key for the polymorphic object type column.

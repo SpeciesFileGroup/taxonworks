@@ -4,7 +4,7 @@ module Queries::Descriptor::SortableFilterColumns
   extend ActiveSupport::Concern
 
   class_methods do
-    def sortable_columns
+    def sortable_columns_uncached
       cols = sortable_direct_columns
 
       # character_states is a has_many count, not a value pulled from a

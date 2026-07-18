@@ -9,7 +9,7 @@ module Queries::Otu::SortableFilterColumns
   extend ActiveSupport::Concern
 
   class_methods do
-    def sortable_columns
+    def sortable_columns_uncached
       cols = sortable_direct_columns
 
       cols['otu'] = sort_by_display_name

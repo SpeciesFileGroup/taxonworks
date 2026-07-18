@@ -386,10 +386,21 @@ module Queries
         end
     end
 
-    # Subclasses override to whitelist sortable columns. Each entry is
+    # Subclasses override sortable_columns_uncached (not this method) to
+    # whitelist sortable columns. Each entry is
     #   'column.key' => ->(query, dir) { query.order(...) }
     # Unknown keys received in `sort` are silently ignored.
+    #
+    # Memoized per class: sortable_columns_uncached is a pure function of
+    # the class's own schema/associations (reflection, column_names), so
+    # it's the same for the lifetime of the class -- building it can cost
+    # several milliseconds for wide/joined filters (see SortResolver), and
+    # there's no reason to pay that more than once per class per process.
     def self.sortable_columns
+      @sortable_columns ||= sortable_columns_uncached
+    end
+
+    def self.sortable_columns_uncached
       {}
     end
 
@@ -402,8 +413,9 @@ module Queries
 
     # @return [ActiveRecord::Relation]
     def apply_sortable_columns(q)
+      columns = self.class.sortable_columns
       order_by_columns.each do |c|
-        spec = self.class.sortable_columns[c[:key]]
+        spec = columns[c[:key]]
         next if spec.nil?
         q = spec.call(q, c[:dir])
       end

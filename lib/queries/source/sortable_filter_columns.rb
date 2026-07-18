@@ -4,7 +4,7 @@ module Queries::Source::SortableFilterColumns
   extend ActiveSupport::Concern
 
   class_methods do
-    def sortable_columns
+    def sortable_columns_uncached
       cols = sortable_direct_columns
 
       # `belongs_to :serial` is only declared on Source::Bibtex, not the
