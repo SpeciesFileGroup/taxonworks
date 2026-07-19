@@ -107,7 +107,7 @@ function handleFilePaste(event) {
   for (const item of items) {
     if (item.kind !== 'file') continue
     const file = item.getAsFile()
-    if (!file) continue
+    if (!file?.size) continue // skip empty/phantom file entries some browsers report on an empty clipboard
     event.preventDefault()
     loadFile(file)
     return
