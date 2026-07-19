@@ -1,29 +1,30 @@
 <template>
-  <div>
+  <div class="pl-table-scroll">
     <table>
       <thead>
         <tr>
           <th>
-            <label class="horizontal-left-content middle">
-              <input
-                class="margin-small-right"
-                v-model="selectAll"
-                type="checkbox">
-              Select
-            </label>
+            <input
+              v-model="selectAll"
+              type="checkbox"
+              v-tooltip="'Select all'">
           </th>
           <th
             v-for="col in sortableColumns"
             :key="col.key"
             class="pl-sortable-th"
-            @click="sort(col.key)">{{ col.label }}<VBtn
-              class="sort-indicator"
-              circle
-              :color="currentSort === col.key ? 'primary' : 'muted'"
-            ><VIcon
-              name="alphabeticalSort"
-              x-small
-            /></VBtn></th>
+            @click="sort(col.key)">
+            <div class="pl-sortable-th-inner">
+              <span class="pl-sortable-th-label">{{ col.label }}</span><VBtn
+                class="sort-indicator"
+                circle
+                :color="currentSort === col.key ? 'primary' : 'muted'"
+              ><VIcon
+                name="alphabeticalSort"
+                x-small
+              /></VBtn>
+            </div>
+          </th>
           <th>Edit</th>
           <th>
             <button
@@ -48,7 +49,7 @@
               :value="item.id"
             >
           </td>
-          <td>
+          <td class="pl-label-cell">
             <div
               v-if="item.is_generated"
               v-html="item.label"
@@ -73,9 +74,13 @@
               v-model="item.is_printed"
               @change="updateLabel(item)">
           </td>
-          <td>{{ item.type }}</td>
+          <td class="pl-capped-cell">{{ shortType(item.type) }}</td>
           <td v-html="(item.hasOwnProperty('updated_by') ? item.updated_by : '')"/>
-          <td v-html="(item.hasOwnProperty('updated_on') ? item.updated_on : item.created_at)"/>
+          <td class="pl-capped-cell">
+            <span v-tooltip="item.hasOwnProperty('updated_on') ? item.updated_on : item.created_at">
+              {{ shortDate(item.hasOwnProperty('updated_on') ? item.updated_on : item.created_at) }}
+            </span>
+          </td>
           <td v-html="item.on"/>
           <td>
             <button
@@ -97,11 +102,16 @@
 <script>
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import { vTooltip } from '@/directives'
 
 export default {
   components: {
     VIcon,
     VBtn
+  },
+
+  directives: {
+    tooltip: vTooltip
   },
 
   props: {
@@ -178,6 +188,16 @@ export default {
       this.$emit('onEdit', label)
     },
 
+    // 'Label::Generated::UnitTrayHeader1' -> 'UnitTrayHeader1'
+    shortType (type) {
+      return type ? type.split('::').pop() : type
+    },
+
+    // '2026-07-18T20:53:12.500-05:00' -> '2026-07-18'
+    shortDate (value) {
+      return value ? value.split('T')[0] : value
+    },
+
     sort (s) {
       if (s === this.currentSort) {
         this.currentSortDir = (this.currentSortDir === 'asc' ? 'desc' : 'asc')
@@ -212,10 +232,54 @@ thead th {
   font-size: 13px;
 }
 
+/* Some cell content (a Ruby class name like Label::Generated::X, an ISO
+   timestamp) has no spaces to wrap at, so default wrapping can't help —
+   and `overflow-wrap` alone doesn't do anything either, since it only
+   breaks content that's already confined to a limited width; with no cap
+   here the table just keeps growing to fit the unbroken string instead of
+   wrapping it. Capping these columns gives overflow-wrap something to
+   actually act on. */
+.pl-capped-cell {
+  max-width: 200px;
+  overflow-wrap: break-word;
+}
+
+/* Label can be as wide as its content wants when there's room, but should
+   wrap (not force horizontal scroll) once space gets tight — down to a
+   300px floor. Below that floor there's nowhere left to shrink, so the
+   scroll wrapper below takes over instead. */
+.pl-label-cell {
+  min-width: 300px;
+}
+
+.pl-label-cell pre {
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+/* Fallback for when even the 300px floor doesn't fit the viewport. */
+.pl-table-scroll {
+  overflow-x: auto;
+}
+
 .pl-sortable-th {
   cursor: pointer;
   user-select: none;
-  white-space: nowrap;
+}
+
+/* Flex lives on this inner wrapper, not the <th> itself — setting
+   display: flex directly on a <th> overrides its default
+   display: table-cell and breaks the whole row's table layout. The label
+   can wrap to 2 lines here without dragging the button down onto its own
+   line with it, since the button is a fixed-size flex sibling rather than
+   part of the text's own line flow. */
+.pl-sortable-th-inner {
+  display: flex;
+  align-items: center;
+}
+
+.pl-sortable-th-label {
+  flex: 1;
 }
 
 .pl-sortable-th:hover {
@@ -223,6 +287,7 @@ thead th {
 }
 
 .sort-indicator {
+  flex-shrink: 0;
   margin-left: 0.35em;
   vertical-align: middle;
 }
