@@ -12,14 +12,18 @@
               Select
             </label>
           </th>
-          <th @click="sort('text')">Label</th>
-          <th @click="sort('total')">Total</th>
-          <th @click="sort('is_copy_edited')">Is copy edited</th>
-          <th @click="sort('is_printed')">Is printed</th>
-          <th @click="sort('type')">Type</th>
-          <th @click="sort('updated_by')">Updated by</th>
-          <th @click="sort('updated_at')">Updated at</th>
-          <th @click="sort('on')">On</th>
+          <th
+            v-for="col in sortableColumns"
+            :key="col.key"
+            class="pl-sortable-th"
+            @click="sort(col.key)">{{ col.label }}<VBtn
+              class="sort-indicator"
+              circle
+              :color="currentSort === col.key ? 'primary' : 'muted'"
+            ><VIcon
+              name="alphabeticalSort"
+              x-small
+            /></VBtn></th>
           <th>Edit</th>
           <th>
             <button
@@ -91,8 +95,15 @@
   </div>
 </template>
 <script>
+import VIcon from '@/components/ui/VIcon/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 export default {
+  components: {
+    VIcon,
+    VBtn
+  },
+
   props: {
     list: {
       type: Array,
@@ -147,8 +158,18 @@ export default {
 
   data () {
     return {
-      currentSort: 'label',
-      currentSortDir: 'asc'
+      currentSort: 'text',
+      currentSortDir: 'asc',
+      sortableColumns: [
+        { key: 'text', label: 'Label' },
+        { key: 'total', label: 'Total' },
+        { key: 'is_copy_edited', label: 'Is copy edited' },
+        { key: 'is_printed', label: 'Is printed' },
+        { key: 'type', label: 'Type' },
+        { key: 'updated_by', label: 'Updated by' },
+        { key: 'updated_at', label: 'Updated at' },
+        { key: 'on', label: 'On' }
+      ]
     }
   },
 
@@ -182,3 +203,27 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+/* The global `table th` rule (helpers/list/tables.scss) sets 12px, smaller
+   than TW's own $font_normal (13px) — bumping it here so the sort
+   indicator (sized relative to it) isn't fighting an already-tiny base. */
+thead th {
+  font-size: 13px;
+}
+
+.pl-sortable-th {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.pl-sortable-th:hover {
+  background-color: var(--table-row-bg-hover);
+}
+
+.sort-indicator {
+  margin-left: 0.35em;
+  vertical-align: middle;
+}
+</style>
