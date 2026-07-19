@@ -14,10 +14,12 @@
       @drop.prevent="handleFileDrop"
     >
       <textarea
+        ref="textareaRef"
         v-model="nameText"
         class="full_width"
         placeholder="Paste names here, one per line, or drag a CSV file..."
         rows="12"
+        @paste="handleTextareaPaste"
       />
     </div>
 
@@ -54,7 +56,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, useTemplateRef } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import { useDropzonePasteManager } from '@/composables/useDropzonePasteManager'
 import { MAX_ROWS } from '../constants.js'
@@ -67,6 +69,7 @@ const nameText = ref('')
 const isDragging = ref(false)
 const csvParsedData = ref(null)
 const fileInfo = ref(null)
+const textareaRef = useTemplateRef('textareaRef')
 let pasteZone = null
 
 const lines = computed(() => nameText.value.split('\n').map((l) => l.trim()))
@@ -99,7 +102,7 @@ function handleFileDrop(event) {
 
 function handleFilePaste(event) {
   const items = event.clipboardData?.items
-  if (!items) return
+  if (!items?.length) return // clipboard is empty, nothing to do
 
   for (const item of items) {
     if (item.kind !== 'file') continue
@@ -111,9 +114,20 @@ function handleFilePaste(event) {
   }
 }
 
+function handleTextareaPaste(event) {
+  const clipboardData = event.clipboardData
+  if (!clipboardData?.items?.length) return // clipboard is empty, nothing to do
+
+  const hasText = clipboardData.getData('text')?.trim()
+  if (hasText) return // gets handled natively
+
+  handleFilePaste(event)
+}
+
 onMounted(() => {
   pasteZone = { handler: handleFilePaste, prioritize: false }
   registerPaster(pasteZone)
+  textareaRef.value?.focus()
 })
 
 onBeforeUnmount(() => {
