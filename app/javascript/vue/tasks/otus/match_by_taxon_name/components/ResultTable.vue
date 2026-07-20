@@ -73,7 +73,7 @@
         </td>
 
         <!-- match -->
-        <td class="match-cell">
+        <td class="cell-interactive">
           <div class="horizontal-left-content gap-xsmall">
             <span class="match-icon-slot">
               <span
@@ -242,7 +242,8 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { RouteNames } from '@/routes/routes'
+import { OTU, TAXON_NAME } from '@/constants'
+import { makeBrowseUrl } from '@/helpers'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
@@ -295,11 +296,11 @@ function toggleSelectAll(checked) {
 }
 
 function browseTaxonNameUrl(id) {
-  return `${RouteNames.BrowseNomenclature}?taxon_name_id=${id}`
+  return makeBrowseUrl({ id, type: TAXON_NAME })
 }
 
 function browseOtuUrl(id) {
-  return `${RouteNames.BrowseOtu}?otu_id=${id}`
+  return makeBrowseUrl({ id, type: OTU })
 }
 
 // Maps effectiveName -> the index of its first occurrence in props.rows.
@@ -395,10 +396,17 @@ thead th {
   background-color: #fcf8e3 !important;
 }
 
-/* Dim everything but the Match cell — opacity compounds through descendants,
-   so dimming the tr itself would dim the still-editable Match input too. */
-.row-disabled > td:not(.match-cell) {
+/* Dim duplicate rows — opacity compounds through descendants, so dimming the
+   tr itself would dim still-interactive cells (e.g. the Match input) too.
+   Cells that must stay legible/interactive opt in via .cell-interactive
+   instead of being named here, so adding one doesn't require editing this
+   rule. */
+.row-disabled td {
   opacity: 0.6;
+}
+
+.row-disabled .cell-interactive {
+  opacity: 1;
 }
 
 /* .table-striped sets a background directly on every td, and border-collapse
