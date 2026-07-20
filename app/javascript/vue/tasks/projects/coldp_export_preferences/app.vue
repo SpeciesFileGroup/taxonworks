@@ -5,15 +5,32 @@
     :logo-size="{ width: '100px', height: '100px' }"
   />
 
-  <div class="panel content rounded-tl-none rounded-tr-none">
-    <ProfileSelector
-      :profiles="profiles"
-      :selected-index="selectedProfileIndex"
-      :is-saved="isCurrentProfileSaved"
-      @select="selectedProfileIndex = $event"
-      @add="addProfile"
-      @delete="deleteProfile"
-    />
+  <div class="panel">
+    <div
+      class="content rounded-tl-none rounded-tr-none horizontal-left-content gap-small"
+    >
+      <ProfileSelector
+        :profiles="profiles"
+        :selected-index="selectedProfileIndex"
+        :is-saved="isCurrentProfileSaved"
+        @select="selectedProfileIndex = $event"
+        @add="addProfile"
+        @delete="deleteProfile"
+      />
+
+      <span
+        v-if="hasUnsavedChanges"
+        class="horizontal-left-content gap-small middle text-warning-color"
+      >
+        <VIcon
+          name="attention"
+          small
+          color="warning"
+          title="Unsaved changes"
+        />
+        You have unsaved changes
+      </span>
+    </div>
   </div>
 
   <DatasetCitation
@@ -92,6 +109,7 @@ import { getCurrentProjectId } from '@/helpers/project.js'
 import { ColdpExportPreference, Project } from '@/routes/endpoints'
 import { onBeforeMount, ref, computed } from 'vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import ProfileSelector from './components/ProfileSelector.vue'
 import ConfigurationPanel from './components/ConfigurationPanel.vue'
 import MetadataEditor from './components/MetadataEditor.vue'
@@ -118,6 +136,15 @@ const isCurrentProfileSaved = computed(
     !!currentProfile.value?.otu_id &&
     persistedOtuIds.value.has(currentProfile.value.otu_id)
 )
+
+const hasUnsavedChanges = computed(() => {
+  const current = currentProfile.value
+  if (!current) return false
+  if (!isCurrentProfileSaved.value) return true
+
+  const saved = savedProfiles.value.find((p) => p.otu_id === current.otu_id)
+  return JSON.stringify(saved) !== JSON.stringify(current)
+})
 
 // The last server-persisted version of the current profile. Panels that depend
 // on saved state (e.g., is_public gating the download panel) read from here so

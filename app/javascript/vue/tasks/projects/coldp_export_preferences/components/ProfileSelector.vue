@@ -15,6 +15,7 @@
     </select>
 
     <VBtn
+      medium
       color="primary"
       @click="$emit('add')"
     >
@@ -23,6 +24,7 @@
 
     <VBtn
       v-if="profiles.length > 0"
+      medium
       :color="isSaved ? 'destroy' : 'primary'"
       @click="$emit('delete')"
     >

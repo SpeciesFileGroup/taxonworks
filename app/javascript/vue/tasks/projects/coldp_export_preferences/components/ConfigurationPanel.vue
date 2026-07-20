@@ -18,33 +18,13 @@
 
       <div class="field margin-medium-top">
         <label>ChecklistBank Dataset</label>
-        <div class="position-relative margin-small-top">
-          <input
-            type="text"
-            v-model="clbSearchQuery"
-            placeholder="Search ChecklistBank datasets..."
-            class="full_width"
-            @input="onChecklistbankInput"
-            @keydown.delete="onChecklistbankBackspace"
-          />
-          <ul
-            v-if="clbResults.length > 0 && clbSearchOpen"
-            class="vue-autocomplete-list"
-          >
-            <li
-              v-for="dataset in clbResults"
-              :key="dataset.key"
-              class="d-flex flex-column gap-xsmall cursor-pointer padding-xsmall"
-              @click="selectChecklistbankDataset(dataset)"
-            >
-              <div class="d-flex align-items-center">
-                <span class="font-bold line-nowrap">#{{ dataset.key }}</span>
-                <span v-if="dataset.alias" class="line-nowrap"> ({{ dataset.alias }})</span>
-              </div>
-              <span class="ellipsis">{{ dataset.title }}</span>
-            </li>
-          </ul>
-        </div>
+        <ChecklistbankDatasetSelect
+          :dataset-id="profile.checklistbank_dataset_id"
+          @update:dataset-id="emit('update:profile', {
+            ...profile,
+            checklistbank_dataset_id: $event
+          })"
+        />
       </div>
 
       <div class="field margin-medium-top">
@@ -220,9 +200,10 @@
 <script setup>
 import { computed, ref, watch, onMounted } from 'vue'
 import { getCurrentProjectId } from '@/helpers/project.js'
-import { Otu, User, ColdpExportPreference } from '@/routes/endpoints'
+import { Otu, User } from '@/routes/endpoints'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
+import ChecklistbankDatasetSelect from './ChecklistbankDatasetSelect.vue'
 
 const projectId = Number(getCurrentProjectId())
 
@@ -251,11 +232,6 @@ const emit = defineEmits(['update:profile', 'save'])
 
 const otuLabel = ref('')
 const userLabel = ref('')
-const clbSearchQuery = ref('')
-const clbResults = ref([])
-const clbSearchOpen = ref(false)
-const clbSelectedLabel = ref('')
-let clbSearchTimeout = null
 
 const publicUrl = computed(() => {
   if (!props.projectToken || !props.profile.otu_id || !props.profile.is_public) return null
@@ -268,9 +244,6 @@ onMounted(() => {
   }
   if (props.profile.default_user_id) {
     fetchUserLabel(props.profile.default_user_id)
-  }
-  if (props.profile.checklistbank_dataset_id) {
-    fetchChecklistbankDatasetLabel(props.profile.checklistbank_dataset_id)
   }
 })
 
@@ -313,67 +286,5 @@ async function fetchUserLabel(userId) {
   } catch {
     userLabel.value = `User ${userId}`
   }
-}
-
-function checklistbankDisplayLabel(dataset) {
-  return [dataset.key || dataset, dataset.alias, dataset.title].filter(Boolean).join(' - ')
-}
-
-function onChecklistbankInput() {
-  // If user starts typing over a selected dataset, clear the selection
-  if (props.profile.checklistbank_dataset_id) {
-    clbSelectedLabel.value = ''
-    emit('update:profile', { ...props.profile, checklistbank_dataset_id: null })
-  }
-
-  clearTimeout(clbSearchTimeout)
-  const query = clbSearchQuery.value.trim()
-
-  if (query.length < 2) {
-    clbResults.value = []
-    clbSearchOpen.value = false
-    return
-  }
-
-  clbSearchTimeout = setTimeout(async () => {
-    try {
-      const { body } = await ColdpExportPreference.searchDatasets(projectId, { q: query })
-      clbResults.value = body || []
-      clbSearchOpen.value = true
-    } catch {
-      clbResults.value = []
-    }
-  }, 300)
-}
-
-function onChecklistbankBackspace() {
-  if (clbSearchQuery.value === '' && props.profile.checklistbank_dataset_id) {
-    clbSelectedLabel.value = ''
-    emit('update:profile', { ...props.profile, checklistbank_dataset_id: null })
-  }
-}
-
-function selectChecklistbankDataset(dataset) {
-  clbSelectedLabel.value = checklistbankDisplayLabel(dataset)
-  clbSearchQuery.value = clbSelectedLabel.value
-  clbResults.value = []
-  clbSearchOpen.value = false
-  emit('update:profile', { ...props.profile, checklistbank_dataset_id: dataset.key })
-}
-
-function fetchChecklistbankDatasetLabel(datasetId) {
-  ColdpExportPreference.searchDatasets(projectId, { q: String(datasetId) })
-    .then(({ body }) => {
-      const match = (body || []).find(d => d.key === datasetId)
-      if (match) {
-        clbSelectedLabel.value = checklistbankDisplayLabel(match)
-        clbSearchQuery.value = clbSelectedLabel.value
-      } else {
-        clbSearchQuery.value = String(datasetId)
-      }
-    })
-    .catch(() => {
-      clbSearchQuery.value = String(datasetId)
-    })
 }
 </script>
