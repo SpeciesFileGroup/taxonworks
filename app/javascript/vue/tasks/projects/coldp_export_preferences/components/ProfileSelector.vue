@@ -1,5 +1,5 @@
 <template>
-  <div class="horizontal-left-content gap-small padding-medium">
+  <div class="horizontal-left-content gap-small">
     <span>Profile:</span>
     <select
       :value="selectedIndex"
@@ -23,12 +23,11 @@
 
     <VBtn
       v-if="profiles.length > 0"
-      color="destroy"
+      :color="isSaved ? 'destroy' : 'primary'"
       @click="$emit('delete')"
     >
       Delete
     </VBtn>
-
   </div>
 </template>
 
@@ -46,6 +45,10 @@ const props = defineProps({
     type: Number,
     required: true
   },
+  isSaved: {
+    type: Boolean,
+    default: false
+  }
 })
 
 defineEmits(['select', 'add', 'delete'])

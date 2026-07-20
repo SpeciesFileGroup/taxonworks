@@ -5,15 +5,16 @@
     :logo-size="{ width: '100px', height: '100px' }"
   />
 
-  <h1>ColDP export preferences</h1>
-
-  <ProfileSelector
-    :profiles="profiles"
-    :selected-index="selectedProfileIndex"
-    @select="selectedProfileIndex = $event"
-    @add="addProfile"
-    @delete="deleteProfile"
-  />
+  <div class="panel content rounded-tl-none rounded-tr-none">
+    <ProfileSelector
+      :profiles="profiles"
+      :selected-index="selectedProfileIndex"
+      :is-saved="isCurrentProfileSaved"
+      @select="selectedProfileIndex = $event"
+      @add="addProfile"
+      @delete="deleteProfile"
+    />
+  </div>
 
   <DatasetCitation
     v-if="savedChecklistbankDatasetId"
@@ -46,7 +47,6 @@
         :project-id="projectId"
         :otu-id="currentProfile.otu_id"
       />
-
     </div>
 
     <div class="flex-col gap-medium">
@@ -54,9 +54,20 @@
         :metadata-yaml="currentProfile.metadata_yaml || ''"
         :project-id="projectId"
         :checklistbank-dataset-id="savedChecklistbankDatasetId"
-        :maintain-metadata-in-checklistbank="currentProfile.maintain_metadata_in_checklistbank || false"
-        @update:metadata-yaml="(val) => updateCurrentProfile({ ...currentProfile, metadata_yaml: val })"
-        @update:maintain-metadata-in-checklistbank="(val) => updateCurrentProfile({ ...currentProfile, maintain_metadata_in_checklistbank: val })"
+        :maintain-metadata-in-checklistbank="
+          currentProfile.maintain_metadata_in_checklistbank || false
+        "
+        @update:metadata-yaml="
+          (val) =>
+            updateCurrentProfile({ ...currentProfile, metadata_yaml: val })
+        "
+        @update:maintain-metadata-in-checklistbank="
+          (val) =>
+            updateCurrentProfile({
+              ...currentProfile,
+              maintain_metadata_in_checklistbank: val
+            })
+        "
         @save="saveCurrentProfile"
       />
 
@@ -65,7 +76,6 @@
         :otu-id="currentProfile.otu_id"
         :dataset-id="savedChecklistbankDatasetId"
       />
-
     </div>
   </div>
 
@@ -103,12 +113,21 @@ const currentProfile = computed(() =>
   profiles.value.length > 0 ? profiles.value[selectedProfileIndex.value] : null
 )
 
+const isCurrentProfileSaved = computed(
+  () =>
+    !!currentProfile.value?.otu_id &&
+    persistedOtuIds.value.has(currentProfile.value.otu_id)
+)
+
 // The last server-persisted version of the current profile. Panels that depend
 // on saved state (e.g., is_public gating the download panel) read from here so
 // unsaved local edits don't flip them.
 const savedCurrentProfile = computed(() => {
   if (!currentProfile.value?.otu_id) return null
-  return savedProfiles.value.find(p => p.otu_id === currentProfile.value.otu_id) || null
+  return (
+    savedProfiles.value.find((p) => p.otu_id === currentProfile.value.otu_id) ||
+    null
+  )
 })
 
 // The dataset ID as last persisted on the server, so that
@@ -125,7 +144,7 @@ onBeforeMount(() => {
   isLoading.value = true
 
   Project.apiAccessToken(projectId)
-    .then(({ body }) => projectToken.value = body.api_access_token)
+    .then(({ body }) => (projectToken.value = body.api_access_token))
     .catch(() => {})
 
   ColdpExportPreference.preferences(projectId)
@@ -133,7 +152,7 @@ onBeforeMount(() => {
       profiles.value = body.profiles || []
       savedProfiles.value = JSON.parse(JSON.stringify(profiles.value))
       coldpSettings.value = body.coldp_settings || {}
-      persistedOtuIds.value = new Set(profiles.value.map(p => p.otu_id))
+      persistedOtuIds.value = new Set(profiles.value.map((p) => p.otu_id))
     })
     .catch(() => {})
     .finally(() => (isLoading.value = false))
@@ -177,9 +196,9 @@ function saveCurrentProfile() {
       profiles.value = body.profiles || []
       savedProfiles.value = JSON.parse(JSON.stringify(profiles.value))
       coldpSettings.value = body.coldp_settings || {}
-      persistedOtuIds.value = new Set(profiles.value.map(p => p.otu_id))
+      persistedOtuIds.value = new Set(profiles.value.map((p) => p.otu_id))
       // Reselect the same profile by otu_id
-      const idx = profiles.value.findIndex(p => p.otu_id === profile.otu_id)
+      const idx = profiles.value.findIndex((p) => p.otu_id === profile.otu_id)
       selectedProfileIndex.value = idx >= 0 ? idx : 0
       // Track the persisted dataset ID so CLB panels only render after save
       if (profile.otu_id) {
@@ -209,14 +228,13 @@ function deleteProfile() {
     .then(({ body }) => {
       profiles.value = body.profiles || []
       savedProfiles.value = JSON.parse(JSON.stringify(profiles.value))
-      persistedOtuIds.value = new Set(profiles.value.map(p => p.otu_id))
+      persistedOtuIds.value = new Set(profiles.value.map((p) => p.otu_id))
       selectedProfileIndex.value = Math.max(0, selectedProfileIndex.value - 1)
       TW.workbench.alert.create('Profile deleted.', 'notice')
     })
     .catch(() => {})
     .finally(() => (isLoading.value = false))
 }
-
 </script>
 
 <style scoped>
