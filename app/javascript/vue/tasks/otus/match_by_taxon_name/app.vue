@@ -245,23 +245,21 @@ function handleRowUpdate({ index, field, value }) {
   if (!row) return
 
   if (field === 'taxonName') {
-    applyMatchResult(row, {
-      taxonName: null,
-      taxonNameId: value?.id || null,
-      otus: [],
-      selectedOtuId: null,
-      ambiguous: false,
-      matched: !!value
-    })
-
     if (value) {
       // The autocomplete result doesn't include cached_html (only label/label_html,
       // meant for the dropdown itself), so re-fetch the full record for display.
-      loadTaxonName(value.id, row)
-      loadOtusForTaxonName(value.id, row)
+      refreshTaxonNameSelection(value.id, row)
+    } else {
+      applyMatchResult(row, {
+        taxonName: null,
+        taxonNameId: null,
+        otus: [],
+        selectedOtuId: null,
+        ambiguous: false,
+        matched: false
+      })
+      syncDuplicateRows(row)
     }
-
-    syncDuplicateRows(row)
   } else if (field === 'userMatchString') {
     row.userMatchString = value
   } else if (field === 'selected') {
@@ -272,32 +270,54 @@ function handleRowUpdate({ index, field, value }) {
   }
 }
 
-async function loadTaxonName(taxonNameId, row) {
+// Fetches the full TaxonName record (for cached_html, not present on the
+// autocomplete result) and its OTUs together, then applies both to the row
+// in one step and syncs duplicates once — the row's prior match stays on
+// screen, under the full-screen spinner, until the refetch settles, instead
+// of flashing blank/partial state while it loads or on failure.
+async function refreshTaxonNameSelection(taxonNameId, row) {
+  isProcessing.value = true
+
   try {
-    const { body } = await TaxonName.find(taxonNameId)
-    row.taxonName = body
+    const [taxonName, otus] = await Promise.all([
+      fetchTaxonName(taxonNameId),
+      fetchOtusForTaxonName(taxonNameId)
+    ])
+
+    applyMatchResult(row, {
+      taxonName,
+      taxonNameId,
+      otus,
+      selectedOtuId: otus.length ? otus[0].id : null,
+      ambiguous: false,
+      matched: true
+    })
+
     syncDuplicateRows(row)
   } catch (e) {
-    console.error('Failed to load TaxonName:', e)
+    TW.workbench.alert.create(
+      'Error loading TaxonName/OTU details. See console for details.',
+      'error'
+    )
+    console.error(e)
+  } finally {
+    isProcessing.value = false
   }
 }
 
-async function loadOtusForTaxonName(taxonNameId, row) {
-  try {
-    const { body } = await TaxonName.otus(taxonNameId)
-    row.otus = sortOtus(body.map((o) => ({
-      id: o.id,
-      name: o.name,
-      taxon_name_id: o.taxon_name_id,
-      object_label: o.object_label
-    })))
-    if (row.otus.length) {
-      row.selectedOtuId = row.otus[0].id
-    }
-    syncDuplicateRows(row)
-  } catch (e) {
-    console.error('Failed to load OTUs:', e)
-  }
+async function fetchTaxonName(taxonNameId) {
+  const { body } = await TaxonName.find(taxonNameId)
+  return body
+}
+
+async function fetchOtusForTaxonName(taxonNameId) {
+  const { body } = await TaxonName.otus(taxonNameId)
+  return sortOtus(body.map((o) => ({
+    id: o.id,
+    name: o.name,
+    taxon_name_id: o.taxon_name_id,
+    object_label: o.object_label
+  })))
 }
 
 async function handleCreateOtu({ index }) {
