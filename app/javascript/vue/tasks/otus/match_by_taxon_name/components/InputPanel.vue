@@ -19,7 +19,7 @@
         class="full_width"
         placeholder="Paste names here, one per line, or drag a CSV file..."
         rows="12"
-        @paste="handleTextareaPaste"
+        @paste="handlePaste"
       />
     </div>
 
@@ -100,9 +100,16 @@ function handleFileDrop(event) {
   loadFile(file)
 }
 
-function handleFilePaste(event) {
-  const items = event.clipboardData?.items
+function handlePaste(event) {
+  const clipboardData = event.clipboardData
+  const items = clipboardData?.items
   if (!items?.length) return // clipboard is empty, nothing to do
+
+  // Spreadsheet copies (e.g. Google Sheets) often also put an image
+  // snapshot of the selection on the clipboard as a file item. Prefer the
+  // plain text, when present, over any file item.
+  const hasText = clipboardData.getData('text')?.trim()
+  if (hasText) return // gets handled natively
 
   for (const item of items) {
     if (item.kind !== 'file') continue
@@ -114,18 +121,8 @@ function handleFilePaste(event) {
   }
 }
 
-function handleTextareaPaste(event) {
-  const clipboardData = event.clipboardData
-  if (!clipboardData?.items?.length) return // clipboard is empty, nothing to do
-
-  const hasText = clipboardData.getData('text')?.trim()
-  if (hasText) return // gets handled natively
-
-  handleFilePaste(event)
-}
-
 onMounted(() => {
-  pasteZone = { handler: handleFilePaste, prioritize: false }
+  pasteZone = { handler: handlePaste, prioritize: false }
   registerPaster(pasteZone)
   textareaRef.value?.focus()
 })

@@ -14,7 +14,7 @@
     <!-- Scope to TaxonName -->
     <div class="flex-col gap-medium">
       <div class="field margin-medium-bottom">
-        <label data-help="Limit matches to names within this taxon's subtree.">Restrict matches to children of</label>
+        <label>Restrict matches to children of</label>
 
         <Autocomplete
           url="/taxon_names/autocomplete"
