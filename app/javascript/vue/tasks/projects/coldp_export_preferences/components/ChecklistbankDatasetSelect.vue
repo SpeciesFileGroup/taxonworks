@@ -4,7 +4,7 @@
       type="text"
       v-model="searchQuery"
       placeholder="Search ChecklistBank datasets..."
-      class="full_width"
+      :class="['full_width', { 'vue-autocomplete-input-search': !isSearching }]"
       @input="onInput"
       @keydown.delete="onBackspace"
     />
