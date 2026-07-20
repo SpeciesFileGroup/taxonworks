@@ -31,6 +31,7 @@
           </div>
 
           <MatchOptionsPanel
+            class="sticky-panel"
             v-model:scope-taxon-name="scopeTaxonName"
             v-model:levenshtein-distance="levenshteinDistance"
             v-model:try-without-subgenus="tryWithoutSubgenus"
@@ -430,6 +431,19 @@ function reset() {
 </script>
 
 <style scoped>
+/* Stretched (rather than the row's default flex-start) so this column's own
+   box spans the full height of the results table next to it — giving
+   .sticky-panel room to stick throughout the scroll instead of scrolling
+   away as soon as this short column's natural content height passes. */
+.left-column {
+  align-self: stretch;
+}
+
+.sticky-panel {
+  position: sticky;
+  top: 0;
+}
+
 /* Table cells paint their own (striped) background over the row's, so the
    animation has to run on each td — animating the tr itself is invisible. */
 :deep(.highlight-row td) {
