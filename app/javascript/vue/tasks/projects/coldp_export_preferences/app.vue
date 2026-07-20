@@ -5,10 +5,8 @@
     :logo-size="{ width: '100px', height: '100px' }"
   />
 
-  <div class="panel">
-    <div
-      class="content rounded-tl-none rounded-tr-none horizontal-left-content gap-small"
-    >
+  <div class="panel rounded-tl-none rounded-tr-none">
+    <div class="content horizontal-left-content gap-small">
       <ProfileSelector
         :profiles="profiles"
         :selected-index="selectedProfileIndex"

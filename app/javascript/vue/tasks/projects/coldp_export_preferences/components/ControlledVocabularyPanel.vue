@@ -37,18 +37,18 @@
                 >{{ vocabNote(item.key) }}</span>
               </td>
               <td>
-                <span
+                <VBadge
                   v-if="item.exists"
-                  class="feedback-success padding-xsmall small_type"
+                  color="green"
                 >
                   Installed
-                </span>
-                <span
+                </VBadge>
+                <VBadge
                   v-else
-                  class="feedback-warning padding-xsmall small_type"
+                  color="yellow"
                 >
                   Missing
-                </span>
+                </VBadge>
               </td>
               <td>
                 <VBtn
@@ -91,6 +91,7 @@ import { ref, computed, reactive, onMounted, watch } from 'vue'
 import { ColdpExportPreference } from '@/routes/endpoints'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import VBadge from '@/components/ui/VBadge/VBadge.vue'
 
 // Maps IRI_MAP keys to their CLB vocab API endpoint and a human label.
 // Terms without a vocab endpoint get null.
