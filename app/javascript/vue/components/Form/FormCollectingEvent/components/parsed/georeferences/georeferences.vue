@@ -1,12 +1,13 @@
 <template>
   <div>
-    <button
-      type="button"
-      class="button normal-input button-default"
+    <VBtn
+      medium
+      color="primary"
+      variant="tonal"
       @click="isModalVisible = !isModalVisible"
     >
       Georeference ({{ count }})
-    </button>
+    </VBtn>
     <VBtn
       v-if="!isVerbatimCreated"
       class="margin-small-left"

@@ -19,8 +19,9 @@
   --bg-active: var(--color-soft-primary-bg);
   --border-active: color-mix(in srgb, var(--color-primary) 35%, transparent);
   --border-color: var(--slate-300);
-  --button-disabled-bg-color: #e8e8e8;
-  --button-disabled-text-color: #9e9e9e;
+  /* Alpha mixes of --text-color so both themes derive their disabled state */
+  --button-disabled-bg-color: color-mix(in srgb, var(--text-color) 10%, transparent);
+  --button-disabled-text-color: color-mix(in srgb, var(--text-color) 40%, transparent);
   --button-default-bg-color: var(--slate-300);
   --input-bg-disabled: #fafafa;
   --input-bg-color: var(--white);
@@ -160,8 +161,6 @@
   --bg-hover: #21262d;
   --bg-action: #2d333b;
   --border-color: #30363d;
-  --button-disabled-bg-color: #21262d;
-  --button-disabled-text-color: #6e7681;
   --button-default-bg-color: #2d333b;
   --input-bg-color: #0d1117;
   --input-bg-disabled: #161b22;

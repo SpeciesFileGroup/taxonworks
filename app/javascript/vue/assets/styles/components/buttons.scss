@@ -6,8 +6,9 @@
   white-space: nowrap;
   vertical-align: middle;
   font-size: var(--font-size-xs);
-  padding-left: 0.9em;
-  padding-right: 0.9em;
+  padding-left: var(--spacing-sm);
+  padding-right: var(--spacing-sm);
+  font-weight: 500;
 }
 
 a.btn:hover {
@@ -148,7 +149,11 @@ a.btn:hover {
     color: var(--color-#{$key});
 
     &:hover {
-      background-color: color-mix(in srgb, var(--color-#{$key}) 20%, transparent);
+      background-color: color-mix(
+        in srgb,
+        var(--color-#{$key}) 20%,
+        transparent
+      );
       color: var(--color-#{$key});
       opacity: 1;
     }
@@ -173,8 +178,27 @@ a.btn:hover {
   }
 }
 
-/* Disabled overrides every variant/color, including their :hover states */
-.btn:disabled,
-.btn:disabled:hover {
+/* Disabled overrides every variant/color, including their :hover states.
+   .button.btn outranks the (0,3,0) variant hover rules above via source order */
+.button.btn:disabled,
+.button.btn:disabled:hover {
   color: var(--button-disabled-text-color);
+  background-color: var(--button-disabled-bg-color);
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+/* Ghost and outline stay unfilled when disabled; they dim, not solidify */
+.button.btn-ghost:disabled,
+.button.btn-ghost:disabled:hover,
+.button.btn-outline:disabled,
+.button.btn-outline:disabled:hover {
+  background-color: transparent;
+}
+
+.button.btn-outline:disabled,
+.button.btn-outline:disabled:hover,
+.button.btn-bordered:disabled,
+.button.btn-bordered:disabled:hover {
+  border-color: color-mix(in srgb, var(--border-color) 60%, transparent);
 }

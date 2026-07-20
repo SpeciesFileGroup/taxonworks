@@ -3,20 +3,24 @@
     <label>Print label</label>
     <div class="flex-separate separate-bottom middle">
       <div>
-        <button
-          class="button normal-input button-default margin-small-right"
+        <VBtn
+          color="primary"
+          variant="tonal"
+          medium
+          class="margin-small-right"
           @click="generateLabel"
         >
           Generate
-        </button>
-        <button
-          class="button normal-input button-default"
-          type="button"
+        </VBtn>
+        <VBtn
+          color="primary"
+          variant="tonal"
+          medium
           :disabled="!isCopyAvailable"
           @click="copyLabel"
         >
           Copy verbatim label
-        </button>
+        </VBtn>
       </div>
       <label
         >Queue to print
@@ -57,6 +61,7 @@ import { parsedProperties } from '../../helpers/parsedProperties.js'
 import { verbatimProperties } from '../../helpers/verbatimProperties.js'
 import { sortArrayByArray } from '@/helpers/arrays.js'
 import { computed } from 'vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import useIdentifierStore from '../../store/identifier.js'
 import useStore from '../../store/label.js'
 import useGeoreferenceStore from '../../store/georeferences.js'

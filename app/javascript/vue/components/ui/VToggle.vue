@@ -40,7 +40,7 @@ const props = defineProps({
 
   offColor: {
     type: String,
-    default: 'var(--bg-color)'
+    default: 'var(--bg-muted)'
   },
 
   title: {
@@ -101,6 +101,8 @@ const checked = computed({
         left: 0;
         width: var(--v-toggle-width);
         height: var(--v-toggle-height);
+        box-sizing: border-box;
+        border: 1px solid var(--border-color);
         border-radius: calc(var(--v-toggle-height) / 2);
         background: var(--v-toggle-off-color);
         transition: all 0.3s ease;
@@ -134,6 +136,11 @@ const checked = computed({
       & + span {
         &:before {
           background: var(--v-toggle-on-color);
+          border-color: color-mix(
+            in srgb,
+            var(--v-toggle-on-color) 75%,
+            var(--text-color)
+          );
         }
         &:after {
           background: var(--panel-bg-color);

@@ -12,7 +12,7 @@
       <input
         v-if="inputMode"
         ref="customRef"
-        class="w-16"
+        class="w-16 rounded-tr-none rounded-br-none"
         type="number"
         v-model="customValue"
         @change="

@@ -50,7 +50,7 @@
         >
           <p v-html="collectingEvent.object_tag" />
           <div class="horizontal-left-content">
-            <div class="horizontal-left-content margin-small-right">
+            <div class="flex-row gap-small middle">
               <span v-if="collectingEvent.id"
                 >Sequential uses:
                 {{ subsequentialUses == 0 ? '-' : subsequentialUses }}</span
@@ -62,25 +62,28 @@
                 <RadialAnnotator :global-id="collectingEvent.global_id" />
                 <RadialObject :global-id="collectingEvent.global_id" />
                 <VPin
-                  class="circle-button"
                   :object-id="collectingEvent.id"
                   type="CollectingEvent"
                 />
-                <button
-                  type="button"
-                  class="button circle-button button-default btn-undo"
+                <VBtn
+                  icon
+                  color="primary"
+                  variant="tonal"
                   @click="() => collectingEventStore.reset()"
-                />
+                >
+                  <IconReset class="w-4 h-4" />
+                </VBtn>
               </div>
+
+              <VBtn
+                color="primary"
+                variant="tonal"
+                @click="openBrowse"
+              >
+                Browse
+              </VBtn>
+              <CloneForm @clone="(ce) => collectingEventStore.load(ce.id)" />
             </div>
-            <button
-              type="button"
-              class="button normal-input button-default margin-small-right"
-              @click="openBrowse"
-            >
-              Browse
-            </button>
-            <CloneForm @clone="(ce) => collectingEventStore.load(ce.id)" />
           </div>
         </div>
       </fieldset>
@@ -116,6 +119,8 @@ import VPin from '@/components/ui/Button/ButtonPin.vue'
 import platformKey from '@/helpers/getPlatformKey'
 import useCollectingEventStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
 import CloneForm from '@/tasks/collecting_events/new_collecting_event/components/CloneForm.vue'
+import IconReset from '@/components/Icon/IconReset.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const store = useStore()
 const collectingEventStore = useCollectingEventStore()

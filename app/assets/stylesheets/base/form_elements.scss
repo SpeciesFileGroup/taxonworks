@@ -116,8 +116,9 @@ input[type='submit'] {
 }
 
 input[type='submit'][disabled] {
-  opacity: 0.5;
-  background-color: var(--border-color);
+  color: var(--button-disabled-text-color);
+  background-color: var(--button-disabled-bg-color);
+  cursor: not-allowed;
 }
 
 select {

@@ -11,7 +11,6 @@
       />
       <span>
         <em></em>
-        <strong></strong>
       </span>
     </label>
   </div>
@@ -46,9 +45,6 @@ const checked = defineModel({
 </script>
 
 <style lang="scss">
-$primary: #ffda44;
-$lightGrey: #99a3ba;
-
 .switch-lock {
   --switch-lock-height: v-bind(lockHeight);
   --switch-lock-width: calc(var(--switch-lock-height) * 12 / 7);
@@ -85,8 +81,10 @@ $lightGrey: #99a3ba;
         left: 0;
         width: var(--switch-lock-width);
         height: var(--switch-lock-height);
+        box-sizing: border-box;
+        border: 1px solid var(--border-color);
         border-radius: calc(var(--switch-lock-height) / 2);
-        background: var(--bg-color);
+        background: var(--bg-muted);
         transition: all 0.3s ease;
       }
       &:after {
@@ -142,40 +140,16 @@ $lightGrey: #99a3ba;
           transform: rotate(-35deg) translate(0, 1px);
         }
       }
-      strong {
-        font-weight: normal;
-        position: relative;
-        display: block;
-        top: 1px;
-        &:before,
-        &:after {
-          font-size: 14px;
-          font-weight: 500;
-          display: block;
-          font-family: Arial;
-          -webkit-backface-visibility: hidden;
-        }
-        &:before {
-          content: '';
-          transition: all 0.3s ease 0.2s;
-        }
-        &:after {
-          content: '';
-          opacity: 0;
-          visibility: hidden;
-          position: absolute;
-          left: 0;
-          top: 0;
-          color: var(--color-toggle-active);
-          transition: all 0.3s ease;
-          transform: translate(2px, 0);
-        }
-      }
     }
     &:checked {
       & + span {
         &:before {
-          background: var(--color-toggle-active);
+          background: var(--color-attention);
+          border-color: color-mix(
+            in srgb,
+            var(--color-attention) 75%,
+            var(--text-color)
+          );
         }
         &:after {
           background: var(--panel-bg-color);
@@ -185,20 +159,6 @@ $lightGrey: #99a3ba;
           transform: translate(var(--switch-lock-travel), 0);
           &:after {
             transform: rotate(0deg) translate(0px, 0);
-          }
-        }
-        strong {
-          &:before {
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            transform: translate(-2px, 0);
-          }
-          &:after {
-            opacity: 1;
-            visibility: visible;
-            transform: translate(0, 0);
-            transition: all 0.3s ease 0.2s;
           }
         }
       }

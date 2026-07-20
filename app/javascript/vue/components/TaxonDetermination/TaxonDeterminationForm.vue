@@ -27,31 +27,31 @@
         v-model="lockTime"
       />
     </div>
-    <div class="flex-separate middle">
-      <button
+    <div class="flex-separate middle margin-small-top">
+      <VBtn
         v-if="createForm"
-        type="button"
         id="determination-add-button"
         :disabled="!taxonDetermination.otu_id"
-        class="button normal-input button-submit separate-top"
+        color="create"
+        medium
         @click="addDetermination"
       >
         {{
           taxonDetermination.id || taxonDetermination.uuid ? 'Update' : 'Create'
         }}
-      </button>
-      <button
+      </VBtn>
+      <VBtn
         v-else
-        type="button"
+        color="primary"
         id="determination-add-button"
+        medium
         :disabled="!taxonDetermination.otu_id"
-        class="button normal-input button-default separate-top"
         @click="addDetermination"
       >
         {{
           taxonDetermination.id || taxonDetermination.uuid ? 'Update' : 'Add'
         }}
-      </button>
+      </VBtn>
       <slot name="footer-right"></slot>
     </div>
   </div>
@@ -68,6 +68,7 @@ import DateFields from '@/components/ui/Date/DateFields.vue'
 import DateNow from '@/components/ui/Date/DateToday.vue'
 import makeTaxonDetermination from '@/factory/TaxonDetermination.js'
 import LockComponent from '@/components/ui/VLock/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const props = defineProps({
   createForm: {
