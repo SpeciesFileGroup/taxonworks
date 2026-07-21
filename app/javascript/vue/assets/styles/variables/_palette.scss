@@ -34,8 +34,12 @@
   --input-bg-disabled: #fafafa;
   --input-bg-color: var(--white);
   --panel-bg-color: var(--white);
-  --panel-shadow: rgba(36, 37, 38, 0.08) 4px 4px 15px 0px;
-  --panel-shadow-hover: rgba(36, 37, 38, 0.18) 0px 6px 18px 0px;
+  --panel-shadow:
+    0 1px 2px 0 color-mix(in srgb, var(--slate-900) 6%, transparent),
+    0 4px 12px 0 color-mix(in srgb, var(--slate-900) 8%, transparent);
+  --panel-shadow-hover:
+    0 2px 4px 0 color-mix(in srgb, var(--slate-900) 8%, transparent),
+    0 8px 20px 0 color-mix(in srgb, var(--slate-900) 14%, transparent);
   --panel-border-color: var(--slate-200);
   --text-color: var(--slate-900);
   --text-muted-color: var(--slate-500);
@@ -173,8 +177,9 @@
   --input-bg-color: #0d1117;
   --input-bg-disabled: #161b22;
   --panel-bg-color: #1b2128;
-  --panel-shadow: rgba(0, 0, 0, 0.25) 4px 4px 15px 0px;
-  --panel-shadow-hover: rgba(0, 0, 0, 0.45) 0px 6px 18px 0px;
+  --panel-shadow: 0 4px 12px 0 color-mix(in srgb, #01040a 30%, transparent);
+  --panel-shadow-hover: 0 8px 20px 0
+    color-mix(in srgb, #01040a 45%, transparent);
   --panel-border-color: #21262d;
   --text-color: #e6edf3;
   --text-muted-color: #8b949e;

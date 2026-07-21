@@ -1,5 +1,4 @@
 #new_taxon_name_task {
-
   .hardValidation {
     color: red;
     &::first-letter {
@@ -15,7 +14,7 @@
   .status-item span {
     display: inline-block;
   }
-  
+
   .status-item span::first-letter {
     text-transform: uppercase;
   }
@@ -32,7 +31,9 @@
     }
   }
 
-  .edit-content, .CodeMirror, .CodeMirror-scroll {
+  .edit-content,
+  .CodeMirror,
+  .CodeMirror-scroll {
     min-height: 150px;
   }
 
@@ -48,7 +49,8 @@
       vertical-align: middle;
       line-height: 40px;
     }
-    .row, .vue-autocomplete {
+    .row,
+    .vue-autocomplete {
       line-height: 40px;
       height: 40px;
     }
@@ -59,18 +61,12 @@
     .handle {
       width: 15px;
       background-position: center;
-
     }
     .item-draggable {
       display: flex;
       min-height: 40px;
       flex-direction: row;
     }
-  }
-
-  button:disabled {
-    background-color: transparent;
-    border-color: rgba(0, 0, 0, 0.2);
   }
 
   .tree-status {

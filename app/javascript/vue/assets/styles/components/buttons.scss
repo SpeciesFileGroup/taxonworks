@@ -11,10 +11,6 @@
   font-weight: 500;
 }
 
-a.btn:hover {
-  color: white;
-}
-
 .btn-link {
   @extend .btn;
   display: flex;
@@ -80,6 +76,17 @@ a.btn:hover {
     background-color: var(--color-#{$key});
     color: var(--color-on-#{$key});
   }
+}
+
+.button.btn:not(.btn-ghost):not(.btn-outline):not(.btn-tonal):not(
+    .btn-transparent
+  ):not(:disabled):hover,
+.button.btn-link:not(.btn-ghost):not(.btn-outline):not(.btn-tonal):not(
+    .btn-transparent
+  ):not(:disabled):hover {
+  opacity: 1;
+  box-shadow: inset 0 0 0 100vmax
+    color-mix(in srgb, var(--text-color) 10%, transparent);
 }
 
 .btn-ghost {
