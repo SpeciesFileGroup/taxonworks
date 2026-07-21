@@ -23,11 +23,8 @@
       <div class="horizontal-left-content gap-small">
         <default-pin
           v-if="pinSection"
-          v-show="isPinned"
           :section="pinSection"
           :type="pinType"
-          @pinned="() => (isPinned = true)"
-          @unpinned="() => (isPinned = false)"
           @get-id="getObject"
         />
         <slot name="tabs-right" />
@@ -341,7 +338,6 @@ const options = ref([])
 const lastSelected = ref()
 const elementSize = useOnResize(rootRef)
 const isLoading = ref(false)
-const isPinned = ref(false)
 const controller = ref(null)
 
 const listStyle = computed(() => {

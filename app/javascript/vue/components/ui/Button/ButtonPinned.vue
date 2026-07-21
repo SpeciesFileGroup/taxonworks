@@ -1,5 +1,6 @@
 <template>
   <VBtn
+    v-if="pinnedId || showWhenUnpinned"
     :disabled="disabled || !pinnedId"
     medium
     variant="tonal"
@@ -34,6 +35,13 @@ const props = defineProps({
   },
 
   disabled: {
+    type: Boolean,
+    default: false
+  },
+
+  // When false (default) the button is hidden unless an element is pinned;
+  // set true to keep it visible-but-disabled while nothing is pinned.
+  showWhenUnpinned: {
     type: Boolean,
     default: false
   }

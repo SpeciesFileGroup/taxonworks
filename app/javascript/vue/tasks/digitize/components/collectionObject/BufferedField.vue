@@ -16,7 +16,7 @@
         <VBtn
           type="button"
           color="primary"
-          variant="tonal"
+          variant="outline"
           @click="setInline(inputText || '')"
         >
           Trim

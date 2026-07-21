@@ -104,6 +104,8 @@
     var(--color-primary) 12%,
     transparent
   );
+  /* Text on a soft-primary fill: darkened primary for >=4.5:1 (WCAG AA) */
+  --color-on-soft-primary: color-mix(in srgb, var(--color-primary) 72%, black);
 
   --color-soft-warning-bg: color-mix(
     in srgb,
@@ -250,6 +252,8 @@
     var(--color-primary) 12%,
     transparent
   );
+  /* Lightened primary so selected text stays >=4.5:1 on the dark tint */
+  --color-on-soft-primary: color-mix(in srgb, var(--color-primary) 50%, white);
   --color-soft-warning-bg: color-mix(
     in srgb,
     var(--orange-500) 18%,

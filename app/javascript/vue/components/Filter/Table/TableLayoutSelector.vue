@@ -150,10 +150,7 @@
       variant="tonal"
       @click="openLayoutPreferences"
     >
-      <VIcon
-        name="pencil"
-        x-small
-      />
+      <IconPencil class="w-4 h-4" />
     </VBtn>
   </div>
 </template>
@@ -164,10 +161,10 @@ import { humanize } from '@/helpers/strings.js'
 import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VueDraggable from 'vuedraggable'
-import VIcon from '@/components/ui/VIcon/index.vue'
 import { sortArrayByArray } from '@/helpers'
 import IconRightLeft from '@/components/Icon/IconRightLeft.vue'
 import { vHelp } from '@/directives'
+import IconPencil from '@/components/Icon/IconPencil.vue'
 
 const props = defineProps({
   layouts: {

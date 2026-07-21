@@ -153,7 +153,8 @@
 @each $key, $value in $tw-colors {
   .btn-tonal.btn-#{$key} {
     background-color: color-mix(in srgb, var(--color-#{$key}) 12%, transparent);
-    color: var(--color-#{$key});
+    /* Darken (light theme) / lighten (dark theme) the accent for >=4.5:1 text */
+    color: color-mix(in srgb, var(--color-#{$key}) 60%, var(--text-color));
 
     &:hover {
       background-color: color-mix(
@@ -161,7 +162,6 @@
         var(--color-#{$key}) 20%,
         transparent
       );
-      color: var(--color-#{$key});
       opacity: 1;
     }
   }
