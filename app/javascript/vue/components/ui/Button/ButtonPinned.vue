@@ -39,7 +39,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['getId', 'getLabel', 'getItem'])
+const emit = defineEmits(['getId', 'getLabel', 'getItem', 'pinned', 'unpinned'])
 
 const buttonTitle = computed(() =>
   pinnedId.value
@@ -55,6 +55,18 @@ watch(
   () => {
     if (props.section) loadPinnedObject()
   }
+)
+
+watch(
+  pinnedId,
+  (id) => {
+    if (id) {
+      emit('pinned', { id, label: pinnedLlabel.value })
+    } else {
+      emit('unpinned')
+    }
+  },
+  { immediate: true }
 )
 
 onBeforeMount(() => {
