@@ -62,6 +62,40 @@ describe Queries::TaxonName::Autocomplete, type: :model do
     expect(query.autocomplete_exact_cached_original_combination.all).to include(species)
   end
 
+  specify '#autocomplete_exact_cached_name_and_author_year matches the full displayed label' do
+    query.terms = species.cached_name_and_author_year
+    expect(query.autocomplete_exact_cached_name_and_author_year.all).to include(species)
+  end
+
+  specify '#autocomplete_exact_cached_name_and_author_year is nil without a parsed authorship' do
+    query.terms = name # no author/year present
+    expect(query.autocomplete_exact_cached_name_and_author_year).to be_nil
+  end
+
+  specify '#autocomplete_exact_cached_name_and_author_year is nil without a parsed name' do
+    query.terms = 'Needham & Claassen, 1925' # author/year alone, no taxon name
+    expect(query.autocomplete_exact_cached_name_and_author_year).to be_nil
+  end
+
+  specify '#autocomplete_exact_cached_name_and_author_year normalizes " and " to " & "' do
+    expect(species.cached_author_year).to include(' & ') # guard: this spec needs a multi-author name
+
+    query.terms = species.cached_name_and_author_year.sub(' & ', ' and ')
+    expect(query.autocomplete_exact_cached_name_and_author_year.all).to include(species)
+  end
+
+  specify '#autocomplete finds the full name and author year label with exact: true' do
+    query.exact = true
+    query.terms = species.cached_name_and_author_year
+    expect(query.autocomplete.map(&:id)).to include(species.id)
+  end
+
+  specify '#autocomplete finds the full name and author year label with exact: false' do
+    query.exact = false
+    query.terms = species.cached_name_and_author_year
+    expect(query.autocomplete.map(&:id)).to include(species.id)
+  end
+
   specify '#autocomplete_cached_wildcard_whitespace open paren' do
     query.terms = 'Scaphoideus ('
     expect(query.autocomplete_cached_wildcard_whitespace.all).to be_truthy
@@ -82,8 +116,8 @@ describe Queries::TaxonName::Autocomplete, type: :model do
     expect(query.autocomplete).to be_truthy
   end
 
-  # These specs were not top, they are exact 
-  
+  # These specs were not top, they are exact
+
   # specify '#autocomplete_top_name 1' do
   #   query.terms = 'vulnerata'
   #   expect(query.autocomplete_top_name.first).to eq(species)
