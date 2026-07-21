@@ -20,8 +20,16 @@
   --border-active: color-mix(in srgb, var(--color-primary) 35%, transparent);
   --border-color: var(--slate-300);
   /* Alpha mixes of --text-color so both themes derive their disabled state */
-  --button-disabled-bg-color: color-mix(in srgb, var(--text-color) 10%, transparent);
-  --button-disabled-text-color: color-mix(in srgb, var(--text-color) 40%, transparent);
+  --button-disabled-bg-color: color-mix(
+    in srgb,
+    var(--text-color) 10%,
+    transparent
+  );
+  --button-disabled-text-color: color-mix(
+    in srgb,
+    var(--text-color) 40%,
+    transparent
+  );
   --button-default-bg-color: var(--slate-300);
   --input-bg-disabled: #fafafa;
   --input-bg-color: var(--white);
@@ -30,12 +38,12 @@
   --panel-shadow-hover: rgba(36, 37, 38, 0.18) 0px 6px 18px 0px;
   --panel-border-color: var(--slate-200);
   --text-color: var(--slate-900);
-  --text-muted-color: var(--gray-500);
-  --muted-foreground: var(--gray-500);
+  --text-muted-color: var(--slate-500);
+  --muted-foreground: var(--slate-500);
 
-  --focus-ring: #64748b;
+  --focus-ring: var(--slate-500);
 
-  --color-neutral: var(--gray-500);
+  --color-neutral: var(--slate-500);
 
   --tooltip-text-color: var(--white);
   --tooltip-bg-color: #444;
@@ -53,7 +61,7 @@
 
   --table-row-bg-hover: var(--slate-100);
 
-  --feedback-primary-text-color: #4c81eb;
+  --feedback-primary-text-color: #1e40af;
   --feedback-primary-bg-color: #b0caff;
   --feedback-primary-border-color: #6899fa;
 
@@ -74,11 +82,11 @@
 
   --code-tag-color: #116611;
   --code-attribute-color: #0077aa;
-  --code-string-color: var(--black);
+  --code-string-color: var(--slate-900);
   --code-error-color: #cc0000;
   --code-selection-color: #d7e4f7;
 
-  --badge-warning-color: var(--red-500);
+  --badge-warning-color: var(--red-700);
   --badge-warning-bg: color-mix(in srgb, var(--red-500) 15%, transparent);
 
   --color-soft-success-bg: color-mix(
@@ -105,30 +113,30 @@
   );
 
   --badge-green-bg: color-mix(in srgb, var(--emerald-500) 15%, transparent);
-  --badge-green-color: var(--emerald-500);
+  --badge-green-color: var(--emerald-700);
   --color-green-soft-shadow: color-mix(
     in srgb,
     var(--emerald-500) 50%,
     transparent
   );
 
-  --color-status-included: #60bf5e;
+  --color-status-included: var(--emerald-600);
   --color-status-included-glow: rgba(96, 191, 94, 0.4);
 
   --badge-blue-bg: color-mix(in srgb, var(--blue-500) 15%, transparent);
-  --badge-blue-color: var(--blue-500);
+  --badge-blue-color: var(--blue-700);
 
   --badge-yellow-bg: color-mix(in srgb, var(--amber-500) 15%, transparent);
-  --badge-yellow-color: var(--amber-500);
+  --badge-yellow-color: var(--amber-800);
 
   --badge-red-bg: color-mix(in srgb, var(--red-500) 15%, transparent);
-  --badge-red-color: var(--red-500);
+  --badge-red-color: var(--red-700);
 
   --badge-default-bg: color-mix(in srgb, var(--color-neutral) 15%, transparent);
   --badge-default-color: var(--color-neutral);
 
   --badge-purple-bg: color-mix(in srgb, var(--violet-500) 15%, transparent);
-  --badge-purple-color: var(--violet-500);
+  --badge-purple-color: var(--violet-700);
 
   --color-accent: #1f7e9a;
 
@@ -197,7 +205,7 @@
   --feedback-secondary-bg-color: #0f0f0f;
   --feedback-secondary-border-color: #788990;
 
-  --feedback-info-text-color: #4c81eb;
+  --feedback-info-text-color: #b6cfff;
   --feedback-info-bg-color: #2e3646;
   --feedback-info-border-color: #6899fa;
 
@@ -219,6 +227,13 @@
   --color-status-included-glow: rgba(16, 185, 129, 0.5);
 
   --color-neutral: var(--gray-400);
+
+  --badge-green-color: var(--emerald-400);
+  --badge-blue-color: var(--blue-400);
+  --badge-yellow-color: var(--amber-400);
+  --badge-red-color: var(--red-400);
+  --badge-purple-color: var(--violet-400);
+  --badge-warning-color: var(--red-400);
 
   --color-soft-success-bg: color-mix(
     in srgb,
@@ -338,5 +353,5 @@ select:focus-visible,
 textarea:focus-visible,
 summary:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 1px var(--focus-ring);
+  box-shadow: 0 0 0 2px var(--focus-ring);
 }
