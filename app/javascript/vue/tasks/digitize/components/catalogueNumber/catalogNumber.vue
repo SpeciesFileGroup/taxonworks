@@ -45,11 +45,10 @@
           </div>
           <template v-if="namespace">
             <hr class="divisor" />
-            <div class="middle margin-medium-top flex-separate">
-              <p
-                class="separate-right"
-                v-html="namespace.name"
-              />
+            <div
+              class="middle flex-separate gap-small padding-medium-top padding-medium-bottom"
+            >
+              <span v-html="namespace.name" />
               <VBtn
                 v-if="store.identifier.id"
                 color="destroy"
@@ -62,6 +61,7 @@
               <VBtn
                 v-else
                 color="primary"
+                icon
                 variant="tonal"
                 @click="() => (store.identifier.namespaceId = id)"
               >

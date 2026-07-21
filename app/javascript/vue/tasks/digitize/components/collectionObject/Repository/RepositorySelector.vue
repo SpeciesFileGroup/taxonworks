@@ -20,7 +20,8 @@
     </div>
     <template v-if="repositorySelected">
       <hr class="divisor" />
-      <smart-selector-item
+      <SmartSelectorItem
+        class="padding-medium-top padding-medium-bottom"
         :item="repositorySelected"
         @unset="setRepository(null)"
       />
@@ -28,69 +29,49 @@
   </fieldset>
 </template>
 
-<script>
+<script setup>
+import { ref, watch } from 'vue'
 import { Repository } from '@/routes/endpoints'
 import SmartSelector from '@/components/ui/SmartSelector'
 import LockComponent from '@/components/ui/VLock/index.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 
-export default {
-  components: {
-    SmartSelector,
-    LockComponent,
-    SmartSelectorItem
+const props = defineProps({
+  repositoryId: {
+    type: Number,
+    default: undefined
   },
 
-  props: {
-    repositoryId: {
-      type: Number,
-      default: undefined
-    },
-
-    lock: {
-      type: Boolean,
-      required: true
-    }
-  },
-
-  emits: ['update:lock', 'select'],
-
-  data() {
-    return {
-      repositorySelected: undefined
-    }
-  },
-
-  computed: {
-    locked: {
-      get() {
-        return this.lock
-      },
-      set(value) {
-        this.$emit('update:lock', value)
-      }
-    }
-  },
-
-  watch: {
-    repositoryId: {
-      handler(newVal) {
-        if (newVal) {
-          Repository.find(newVal).then((response) => {
-            this.repositorySelected = response.body
-          })
-        } else {
-          this.repositorySelected = undefined
-        }
-      },
-      immediate: true
-    }
-  },
-
-  methods: {
-    setRepository(repository) {
-      this.$emit('select', repository?.id || null)
-    }
+  lock: {
+    type: Boolean,
+    required: true
   }
+})
+
+const emit = defineEmits(['update:lock', 'select'])
+
+const repositorySelected = ref(undefined)
+
+const locked = defineModel('lock', {
+  type: Boolean,
+  required: true
+})
+
+watch(
+  () => props.repositoryId,
+  (newVal) => {
+    if (newVal) {
+      Repository.find(newVal).then((response) => {
+        repositorySelected.value = response.body
+      })
+    } else {
+      repositorySelected.value = undefined
+    }
+  },
+  { immediate: true }
+)
+
+function setRepository(repository) {
+  emit('select', repository?.id || null)
 }
 </script>
