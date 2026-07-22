@@ -624,6 +624,7 @@ scope :tasks do
 
     scope :filter, controller: 'tasks/biological_associations/filter' do
       get '/', action: :index, as: 'filter_biological_associations_task'
+      post 'download_index', action: 'download_index', as: 'download_biological_associations_index_filter_result'
     end
 
     scope :dot, controller: 'tasks/biological_associations/dot' do
