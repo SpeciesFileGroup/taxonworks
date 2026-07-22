@@ -307,7 +307,7 @@ browse_otus_task:
   description: 'Browse through brief summaries of data for an OTU, including ability to annotate and add related data.'
 new_descriptor_task:
   hub: true
-  name: 'New Descriptor'
+  name: 'New descriptor'
   related:
     - character_states
     - observations
@@ -339,7 +339,7 @@ unify_people_task:
   description: 'Find and merge identical/duplicate people removing redundancy.'
 observation_matrix_view_task:
   hub: true
-  name: 'View observation matrix'
+  name: 'Browse observation matrix'
   related:
   categories:
     - matrix
