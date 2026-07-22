@@ -363,6 +363,12 @@ resources :documents do
   end
 end
 
+resources :biological_association_indices, only: [] do
+  collection do
+    get 'download'
+  end
+end
+
 # TODO: these should default json?
 resources :dwc_occurrences, only: [:create] do
   collection do

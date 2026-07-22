@@ -15,6 +15,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - TypeMaterials slice to radial collection objects in Filter Collection Objects [#4974]
 - Taxon Name search now matches on full name + author_year strings, e.g. "Isocapnia crinita (Needham & Claassen, 1925)" [#4976]
 - Index option in the downloads dropdown in Filter Biological Associations - includes more data than the standard filter results download [#5017]
+- Biological Associations Index tsv download link from Project data overview and download [#5017]
 
 ### Changed
 
