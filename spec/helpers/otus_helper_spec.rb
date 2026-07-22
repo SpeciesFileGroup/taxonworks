@@ -7,6 +7,22 @@ describe OtusHelper, type: :helper do
     expect(helper.otu_tag(otu)).to eq(%(<span class="otu_tag"><span class="otu_tag_otu_name" title="#{otu.id}">voluptas</span></span>))
   end
 
+  specify '#otu_tag includes the authorship string of a linked taxon name' do
+    taxon_name = FactoryBot.create(:relationship_species)
+    taxon_name.update_columns(cached_html: '<i>Aus bus</i>', cached_author_year: '(Linnaeus, 1758)')
+    named_otu = Otu.create!(taxon_name:)
+
+    expect(helper.otu_tag(named_otu)).to include('(Linnaeus, 1758)')
+  end
+
+  specify '#otu_autoselect_tag includes the authorship string' do
+    taxon_name = FactoryBot.create(:relationship_species)
+    taxon_name.update_columns(cached_html: 'Aus bus', cached_author_year: '(Linnaeus, 1758)')
+    named_otu = Otu.create!(taxon_name:)
+
+    expect(helper.otu_autoselect_tag(named_otu)).to eq('Aus bus (Linnaeus, 1758)')
+  end
+
   specify '#otu_link' do
     expect(helper.otu_link(otu)).to have_link('voluptas')
   end
