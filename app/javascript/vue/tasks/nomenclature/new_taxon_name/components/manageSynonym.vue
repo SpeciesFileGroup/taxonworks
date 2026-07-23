@@ -114,7 +114,7 @@
           type="text"
           class="full_width"
           v-model="moveInput"
-          placeholder="Wirte MOVE to continue"
+          placeholder="Write MOVE to continue"
         />
       </template>
       <template #footer>

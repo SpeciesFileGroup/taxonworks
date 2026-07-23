@@ -4,6 +4,7 @@ const devServerConfig = require('./rules/devServer')
 const path = require('node:path')
 const rspack = require('@rspack/core')
 const rspackConfig = generateRspackConfig()
+const pdfjsDistPath = path.dirname(require.resolve('pdfjs-dist/package.json'))
 
 const customConfig = {
   lazyCompilation: false,
@@ -34,7 +35,29 @@ const customConfig = {
     environment: {
       asyncFunction: true
     }
-  }
+  },
+  plugins: [
+    new rspack.CopyRspackPlugin({
+      patterns: [
+        {
+          from: path.join(pdfjsDistPath, 'wasm'),
+          to: 'pdfjs/wasm'
+        },
+        {
+          from: path.join(pdfjsDistPath, 'iccs'),
+          to: 'pdfjs/iccs'
+        },
+        {
+          from: path.join(pdfjsDistPath, 'cmaps'),
+          to: 'pdfjs/cmaps'
+        },
+        {
+          from: path.join(pdfjsDistPath, 'standard_fonts'),
+          to: 'pdfjs/standard_fonts'
+        }
+      ]
+    })
+  ]
 }
 
 module.exports = merge(

@@ -11,7 +11,10 @@ headers to be used in the call. Using it will override the common headers
     </autocomplete>
 */
 <template>
-  <div class="vue-autocomplete">
+  <div
+    class="vue-autocomplete"
+    :data-help="helpText"
+  >
     <input
       type="text"
       ref="autofocus"
@@ -85,6 +88,7 @@ headers to be used in the call. Using it will override the common headers
 import { sanitizeHtml } from '@/helpers'
 import AjaxCall from '@/helpers/ajaxCall'
 import AutocompleteSpinner from './Autocomplete/AutocompleteSpinner.vue'
+import { AUTOCOMPLETE_HELP } from './Autocomplete/autocompleteHelp'
 import Qs from 'qs'
 
 export default {
@@ -230,6 +234,18 @@ export default {
       dropdownStyle: {},
       isFocus: false,
       items: []
+    }
+  },
+
+  computed: {
+    // TODO: a caller passing its own `data-help` attribute will silently
+    // overwrite this computed value (Vue attrs fallthrough is last-write-wins
+    // for plain attributes, unlike class/style/events). Merge instead of
+    // overwrite if one ever needs to.
+    helpText() {
+      const resource = this.url?.match(/\/([^/]+)\/autocomplete/)?.[1]
+
+      return resource && AUTOCOMPLETE_HELP[resource]
     }
   },
 

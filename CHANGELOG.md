@@ -14,12 +14,16 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Add object ID to Radial annotator/object/navigator header [#4978]
 - TypeMaterials slice to radial collection objects in Filter Collection Objects [#4974]
 - Taxon Name search now matches on full name + author_year strings, e.g. "Isocapnia crinita (Needham & Claassen, 1925)" [#4976]
+- Index option in the downloads dropdown in Filter Biological Associations - includes more data than the standard filter results download [#5017]
+- Biological Associations Index tsv download link from Project data overview and download [#5017]
+- Add help text on Geographic Area autocompletes explaining that searching for `washington un`, e.g., returns Washington state, United States (so does `WA` by the way!)
 
 ### Changed
 
 - Upgraded postresql client to version 18
 - Names limit in the Match OTUs to Taxon Names task is now 3k, up from 1k
 - Move the list of unifiable types to Ruby (no user-facing changes)
+- `View observation matrix` task is now `Browse observation matrix`
 
 ### Fixed
 
@@ -37,6 +41,8 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Checklist importer crashing on empty `originalNameUsageID` in some cases
 - Source and Repository autocompletes sometimes miss results, repository usage counts were sometimes wrong [#4990]
 - OTU autocomplete sometimes returns unuseful results instead of an exact match, even when an exact match exists [#4994]
+- Biological Association UUID sent to GBIF was bad data (not a UUID)
+- PDF viewer is not rendering pages [#5023]
 
 [#4937]: https://github.com/SpeciesFileGroup/taxonworks/issues/4937
 [#4944]: https://github.com/SpeciesFileGroup/taxonworks/issues/4944
@@ -47,6 +53,8 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4983]: https://github.com/SpeciesFileGroup/taxonworks/issues/4983
 [#4990]: https://github.com/SpeciesFileGroup/taxonworks/issues/4990
 [#4994]: https://github.com/SpeciesFileGroup/taxonworks/issues/4994
+[#5017]: https://github.com/SpeciesFileGroup/taxonworks/issues/5017
+[#5023]: https://github.com/SpeciesFileGroup/taxonworks/issues/5023
 
 ## [0.63.1] - 2026-06-22
 

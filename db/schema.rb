@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_11_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_22_190137) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -153,7 +153,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_11_000001) do
 
   create_table "biological_association_indices", force: :cascade do |t|
     t.bigint "biological_association_id", null: false
-    t.integer "biological_association_uuid"
+    t.string "biological_association_uuid"
     t.bigint "biological_relationship_id", null: false
     t.string "biological_relationship_uri"
     t.string "citation_year"
@@ -844,6 +844,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_11_000001) do
     t.index ["document_file_file_name"], name: "index_documents_on_document_file_file_name"
     t.index ["document_file_file_size"], name: "index_documents_on_document_file_file_size"
     t.index ["document_file_updated_at"], name: "index_documents_on_document_file_updated_at"
+    t.index ["project_id", "document_file_fingerprint"], name: "index_documents_on_project_id_and_fingerprint"
   end
 
   create_table "downloads", force: :cascade do |t|
@@ -1300,6 +1301,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_11_000001) do
     t.integer "width"
     t.index ["created_by_id"], name: "index_images_on_created_by_id"
     t.index ["image_file_content_type"], name: "index_images_on_image_file_content_type"
+    t.index ["image_file_fingerprint", "project_id"], name: "index_images_on_fingerprint_and_project_id"
     t.index ["project_id"], name: "index_images_on_project_id"
     t.index ["updated_by_id"], name: "index_images_on_updated_by_id"
   end
