@@ -4,16 +4,17 @@
       <h3>Match options</h3>
       <VBtn
         color="primary"
-        @click="emit('clear-all')"
+        title="Reset all options and match strings to defaults and re-run matching"
+        @click="handleClearAll"
       >
-        Clear all matches
+        Restart
       </VBtn>
     </div>
 
     <!-- Scope to TaxonName -->
     <div class="flex-col gap-medium">
       <div class="field margin-medium-bottom">
-        <label data-help="Limit matches to names within this taxon's subtree.">Restrict matches to children of</label>
+        <label>Restrict matches to children of</label>
 
         <Autocomplete
           url="/taxon_names/autocomplete"
@@ -210,6 +211,11 @@ function debouncedUpdate() {
   debounceTimer = setTimeout(() => {
     emit('update-options')
   }, 500)
+}
+
+function handleClearAll() {
+  clearTimeout(debounceTimer)
+  emit('clear-all')
 }
 
 function handleScopeSelect(item) {

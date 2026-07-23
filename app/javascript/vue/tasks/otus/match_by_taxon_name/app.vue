@@ -17,15 +17,6 @@
           <div class="panel content">
             <div class="flex-row flex-separate middle">
               <VBtn
-                color="primary"
-                medium
-                :disabled="!rows.length"
-                data-help="Re-matches all rows using current settings. To re-match only specific rows, check their checkboxes — each checked row auto-matches immediately using current settings and auto-updates when settings are changed."
-                @click="runMatch({ matchAll: true })"
-              >
-                Match
-              </VBtn>
-              <VBtn
                 circle
                 color="primary"
                 title="Reset task"
@@ -40,13 +31,14 @@
           </div>
 
           <MatchOptionsPanel
+            class="sticky-panel"
             v-model:scope-taxon-name="scopeTaxonName"
             v-model:levenshtein-distance="levenshteinDistance"
             v-model:try-without-subgenus="tryWithoutSubgenus"
             v-model:resolve-synonyms="resolveSynonyms"
             v-model:modifiers="modifiers"
             @clear-all="clearAllMatches"
-            @update-options="runMatch"
+            @update-options="handleOptionsChange"
           />
         </div>
 
@@ -63,7 +55,7 @@
               @update-row="handleRowUpdate"
               @create-otu="handleCreateOtu"
               @scroll-to-row="scrollToRow"
-              @update-selection="() => runMatch()"
+              @match-row="handleMatchRow"
             />
           </div>
         </div>
@@ -82,13 +74,15 @@ import InputPanel from './components/InputPanel.vue'
 import ResultTable from './components/ResultTable.vue'
 import SummaryBar from './components/SummaryBar.vue'
 import MatchOptionsPanel from './components/MatchOptionsPanel.vue'
-import { MAX_ROWS } from './constants.js'
+import { MAX_ROWS, defaultModifiers } from './constants.js'
+import effectiveName from './utils/effectiveName.js'
+import sortOtus from './utils/sortOtus.js'
 
 defineOptions({
   name: 'MatchOtuByTaxonName'
 })
 
-const stage = ref('input')
+const stage = ref('input') // 'input' or 'results'
 const isProcessing = ref(false)
 const rows = ref([])
 const csvData = ref(null)
@@ -98,21 +92,25 @@ const levenshteinDistance = ref(0)
 const tryWithoutSubgenus = ref(false)
 const resolveSynonyms = ref(false)
 
+// The scope the task was actually launched with (via ?taxon_name_id=), so
+// Restart/Reset can return to it instead of always clearing to no scope.
+const initialScopeTaxonName = ref(null)
+
 onMounted(() => {
   const urlParams = new URLSearchParams(window.location.search)
   const taxonNameId = urlParams.get('taxon_name_id')
 
   if (taxonNameId) {
-    TaxonName.find(taxonNameId).then(({ body }) => {
-      scopeTaxonName.value = body
-    })
+    TaxonName.find(taxonNameId)
+      .then(({ body }) => {
+        scopeTaxonName.value = body
+        initialScopeTaxonName.value = body
+      })
+      .catch(() => {})
   }
 })
 
-const modifiers = ref([
-  { active: false, pattern: '^(\\S*\\s+\\S*).*', replacement: '$1' },
-  { active: false, pattern: '', replacement: '' }
-])
+const modifiers = ref(defaultModifiers())
 
 async function handleDataSubmit({ names, csv }) {
   isProcessing.value = true
@@ -127,7 +125,8 @@ async function handleDataSubmit({ names, csv }) {
     return {
       index,
       scientificName: isEmpty ? '' : name,
-      matchString: '',
+      regexMatchString: '',
+      userMatchString: '',
       taxonName: null,
       taxonNameId: null,
       otus: [],
@@ -142,7 +141,7 @@ async function handleDataSubmit({ names, csv }) {
 
   stage.value = 'results'
 
-  runMatch({ matchAll: true })
+  handleOptionsChange()
 }
 
 function applyModifiers(name) {
@@ -162,40 +161,42 @@ function applyModifiers(name) {
   return result.trim()
 }
 
-function computeMatchStrings(matchAll = false) {
+function scopedRows() {
+  const checked = rows.value.filter((r) => r.selected && !r.isEmpty)
+  return checked.length ? checked : rows.value.filter((r) => !r.isEmpty)
+}
+
+function applyModifiersToRows(targetRows) {
   const hasActiveModifier = modifiers.value.some((m) => m.active && m.pattern)
-
-  rows.value.forEach((row) => {
-    if (row.isEmpty) return
-
-    if (hasActiveModifier && (row.selected || matchAll)) {
-      row.matchString = applyModifiers(row.scientificName)
-    } else if (!row.selected && !matchAll) {
-      // Don't change matchString for unselected rows
-    } else {
-      row.matchString = ''
-    }
+  targetRows.forEach((row) => {
+    row.regexMatchString = hasActiveModifier ? applyModifiers(row.scientificName) : ''
   })
 }
 
-async function runMatch({ matchAll = false } = {}) {
-  computeMatchStrings(matchAll)
-  syncAllDuplicates()
+async function handleOptionsChange() {
+  const target = scopedRows()
+  applyModifiersToRows(target)
+  await matchRows(target)
+}
 
-  const checkedRows = rows.value.filter((r) => r.selected && !r.isEmpty)
-  const selectedRows = matchAll
-    ? rows.value.filter((r) => !r.isEmpty)
-    : checkedRows
-  if (!selectedRows.length) return
+async function handleMatchRow({ index }) {
+  const row = rows.value[index]
+  if (!row || row.isEmpty) return
+  await matchRows([row])
+}
+
+async function matchRows(targetRows) {
+  syncAllDuplicates()
+  if (!targetRows.length) return
 
   const nameMap = new Map()
 
-  selectedRows.forEach((row) => {
-    const effectiveName = row.matchString || row.scientificName
-    if (!nameMap.has(effectiveName)) {
-      nameMap.set(effectiveName, [])
+  targetRows.forEach((row) => {
+    const name = effectiveName(row)
+    if (!nameMap.has(name)) {
+      nameMap.set(name, [])
     }
-    nameMap.get(effectiveName).push(row)
+    nameMap.get(name).push(row)
   })
 
   const uniqueNames = [...nameMap.keys()]
@@ -215,13 +216,17 @@ async function runMatch({ matchAll = false } = {}) {
       const matchedRows = nameMap.get(result.scientific_name)
       if (!matchedRows) return
 
+      const otus = sortOtus(result.otus || [])
+
       matchedRows.forEach((row) => {
-        row.taxonName = result.taxon_name
-        row.taxonNameId = result.taxon_name_id
-        row.otus = result.otus || []
-        row.selectedOtuId = result.otus?.length ? result.otus[0].id : null
-        row.ambiguous = result.ambiguous
-        row.matched = result.matched
+        applyMatchResult(row, {
+          taxonName: result.taxon_name,
+          taxonNameId: result.taxon_name_id,
+          otus,
+          selectedOtuId: otus.length ? otus[0].id : null,
+          ambiguous: result.ambiguous,
+          matched: result.matched
+        })
       })
     })
   } catch (e) {
@@ -241,20 +246,23 @@ function handleRowUpdate({ index, field, value }) {
   if (!row) return
 
   if (field === 'taxonName') {
-    row.taxonName = value
-    row.taxonNameId = value?.id || null
-    row.otus = []
-    row.selectedOtuId = null
-    row.ambiguous = false
-    row.matched = !!value
-
     if (value) {
-      loadOtusForTaxonName(value.id, row)
+      // The autocomplete result doesn't include cached_html (only label/label_html,
+      // meant for the dropdown itself), so re-fetch the full record for display.
+      refreshTaxonNameSelection(value.id, row)
+    } else {
+      applyMatchResult(row, {
+        taxonName: null,
+        taxonNameId: null,
+        otus: [],
+        selectedOtuId: null,
+        ambiguous: false,
+        matched: false
+      })
+      syncDuplicateRows(row)
     }
-
-    syncDuplicateRows(row)
-  } else if (field === 'matchString') {
-    row.matchString = value
+  } else if (field === 'userMatchString') {
+    row.userMatchString = value
   } else if (field === 'selected') {
     row.selected = value
   } else if (field === 'selectedOtuId') {
@@ -263,22 +271,54 @@ function handleRowUpdate({ index, field, value }) {
   }
 }
 
-async function loadOtusForTaxonName(taxonNameId, row) {
+// Fetches the full TaxonName record (for cached_html, not present on the
+// autocomplete result) and its OTUs together, then applies both to the row
+// in one step and syncs duplicates once — the row's prior match stays on
+// screen, under the full-screen spinner, until the refetch settles, instead
+// of flashing blank/partial state while it loads or on failure.
+async function refreshTaxonNameSelection(taxonNameId, row) {
+  isProcessing.value = true
+
   try {
-    const { body } = await TaxonName.otus(taxonNameId)
-    row.otus = body.map((o) => ({
-      id: o.id,
-      name: o.name,
-      taxon_name_id: o.taxon_name_id,
-      object_label: o.object_label
-    }))
-    if (row.otus.length) {
-      row.selectedOtuId = row.otus[0].id
-    }
+    const [taxonName, otus] = await Promise.all([
+      fetchTaxonName(taxonNameId),
+      fetchOtusForTaxonName(taxonNameId)
+    ])
+
+    applyMatchResult(row, {
+      taxonName,
+      taxonNameId,
+      otus,
+      selectedOtuId: otus.length ? otus[0].id : null,
+      ambiguous: false,
+      matched: true
+    })
+
     syncDuplicateRows(row)
   } catch (e) {
-    console.error('Failed to load OTUs:', e)
+    TW.workbench.alert.create(
+      'Error loading TaxonName/OTU details. See console for details.',
+      'error'
+    )
+    console.error(e)
+  } finally {
+    isProcessing.value = false
   }
+}
+
+async function fetchTaxonName(taxonNameId) {
+  const { body } = await TaxonName.find(taxonNameId)
+  return body
+}
+
+async function fetchOtusForTaxonName(taxonNameId) {
+  const { body } = await TaxonName.otus(taxonNameId)
+  return sortOtus(body.map((o) => ({
+    id: o.id,
+    name: o.name,
+    taxon_name_id: o.taxon_name_id,
+    object_label: o.object_label
+  })))
 }
 
 async function handleCreateOtu({ index }) {
@@ -307,20 +347,23 @@ async function handleCreateOtu({ index }) {
   }
 }
 
+function applyMatchResult(row, source) {
+  row.taxonName = source.taxonName
+  row.taxonNameId = source.taxonNameId
+  row.otus = source.otus
+  row.selectedOtuId = source.selectedOtuId
+  row.ambiguous = source.ambiguous
+  row.matched = source.matched
+}
+
 function syncDuplicateRows(sourceRow) {
-  const sourceName = sourceRow.matchString || sourceRow.scientificName
+  const sourceName = effectiveName(sourceRow)
 
   rows.value.forEach((row) => {
     if (row.index === sourceRow.index) return
 
-    const rowName = row.matchString || row.scientificName
-    if (rowName === sourceName) {
-      row.taxonName = sourceRow.taxonName
-      row.taxonNameId = sourceRow.taxonNameId
-      row.otus = sourceRow.otus
-      row.selectedOtuId = sourceRow.selectedOtuId
-      row.ambiguous = sourceRow.ambiguous
-      row.matched = sourceRow.matched
+    if (effectiveName(row) === sourceName) {
+      applyMatchResult(row, sourceRow)
     }
   })
 }
@@ -333,23 +376,28 @@ function syncAllDuplicates() {
   rows.value.forEach((row) => {
     if (row.isEmpty) return
 
-    const name = row.matchString || row.scientificName
+    const name = effectiveName(row)
     if (!seen.has(name)) {
       seen.set(name, row)
     } else {
       const source = seen.get(name)
-      row.taxonName = source.taxonName
-      row.taxonNameId = source.taxonNameId
-      row.otus = source.otus
-      row.selectedOtuId = source.selectedOtuId
-      row.ambiguous = source.ambiguous
-      row.matched = source.matched
+      applyMatchResult(row, source)
       row.selected = false
     }
   })
 }
 
+function resetMatchOptions() {
+  scopeTaxonName.value = initialScopeTaxonName.value
+  levenshteinDistance.value = 0
+  tryWithoutSubgenus.value = false
+  resolveSynonyms.value = false
+  modifiers.value = defaultModifiers()
+}
+
 function clearAllMatches() {
+  resetMatchOptions()
+
   rows.value.forEach((row) => {
     row.taxonName = null
     row.taxonNameId = null
@@ -357,8 +405,12 @@ function clearAllMatches() {
     row.selectedOtuId = null
     row.ambiguous = false
     row.matched = false
-    row.matchString = ''
+    row.regexMatchString = ''
+    row.userMatchString = ''
+    row.selected = false
   })
+
+  handleOptionsChange()
 }
 
 function scrollToRow(index) {
@@ -374,19 +426,27 @@ function reset() {
   stage.value = 'input'
   rows.value = []
   csvData.value = null
-  scopeTaxonName.value = null
-  levenshteinDistance.value = 0
-  tryWithoutSubgenus.value = false
-  resolveSynonyms.value = false
-  modifiers.value = [
-    { active: false, pattern: '^(\\S*\\s+\\S*).*', replacement: '$1' },
-    { active: false, pattern: '', replacement: '' }
-  ]
+  resetMatchOptions()
 }
 </script>
 
 <style scoped>
-:deep(.highlight-row) {
+/* Stretched (rather than the row's default flex-start) so this column's own
+   box spans the full height of the results table next to it — giving
+   .sticky-panel room to stick throughout the scroll instead of scrolling
+   away as soon as this short column's natural content height passes. */
+.left-column {
+  align-self: stretch;
+}
+
+.sticky-panel {
+  position: sticky;
+  top: 0;
+}
+
+/* Table cells paint their own (striped) background over the row's, so the
+   animation has to run on each td — animating the tr itself is invisible. */
+:deep(.highlight-row td) {
   animation: highlight-fade 2s ease-out;
 }
 
