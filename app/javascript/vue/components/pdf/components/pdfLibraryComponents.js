@@ -6,6 +6,12 @@ export {
   EventBus
 } from 'pdfjs-dist/web/pdf_viewer.mjs'
 
+const publicPath =
+  typeof __webpack_public_path__ !== 'undefined'
+    ? __webpack_public_path__
+    : '/packs/'
+const pdfjsAssetsUrl = `${publicPath}pdfjs/`
+
 function isPDFDocumentLoadingTask(obj) {
   return (
     typeof obj === 'object' &&
@@ -31,6 +37,12 @@ function createLoadingTask(src, options) {
   } else {
     throw new TypeError('invalid src type')
   }
+
+  source.wasmUrl = `${pdfjsAssetsUrl}wasm/`
+  source.iccUrl = `${pdfjsAssetsUrl}iccs/`
+  source.cMapUrl = `${pdfjsAssetsUrl}cmaps/`
+  source.cMapPacked = true
+  source.standardFontDataUrl = `${pdfjsAssetsUrl}standard_fonts/`
 
   const loadingTask = pdfjsLib.getDocument(source).promise
 

@@ -42,6 +42,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Source and Repository autocompletes sometimes miss results, repository usage counts were sometimes wrong [#4990]
 - OTU autocomplete sometimes returns unuseful results instead of an exact match, even when an exact match exists [#4994]
 - Biological Association UUID sent to GBIF was bad data (not a UUID)
+- PDF viewer is not rendering pages [#5023]
 
 [#4937]: https://github.com/SpeciesFileGroup/taxonworks/issues/4937
 [#4944]: https://github.com/SpeciesFileGroup/taxonworks/issues/4944
@@ -53,6 +54,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4990]: https://github.com/SpeciesFileGroup/taxonworks/issues/4990
 [#4994]: https://github.com/SpeciesFileGroup/taxonworks/issues/4994
 [#5017]: https://github.com/SpeciesFileGroup/taxonworks/issues/5017
+[#5023]: https://github.com/SpeciesFileGroup/taxonworks/issues/5023
 
 ## [0.63.1] - 2026-06-22
 
