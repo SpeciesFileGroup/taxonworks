@@ -17,6 +17,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Index option in the downloads dropdown in Filter Biological Associations - includes more data than the standard filter results download [#5017]
 - Biological Associations Index tsv download link from Project data overview and download [#5017]
 - Add help text on Geographic Area autocompletes explaining that searching for `washington un`, e.g., returns Washington state, United States (so does `WA` by the way!)
+- Add sort-column icons to the header row of the labels table in Print Labels
 
 ### Changed
 
@@ -24,6 +25,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Names limit in the Match OTUs to Taxon Names task is now 3k, up from 1k
 - Move the list of unifiable types to Ruby (no user-facing changes)
 - `View observation matrix` task is now `Browse observation matrix`
+- The Print Labels table wraps the text in its columns more, to fit the whole table on smaller screens
 
 ### Fixed
 

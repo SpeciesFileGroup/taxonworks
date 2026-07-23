@@ -15,14 +15,17 @@
             class="pl-sortable-th"
             @click="sort(col.key)">
             <div class="pl-sortable-th-inner">
-              <span class="pl-sortable-th-label">{{ col.label }}</span><VBtn
+              <span class="pl-sortable-th-label">{{ col.label }}</span>
+              <VBtn
                 class="sort-indicator"
                 circle
                 :color="currentSort === col.key ? 'primary' : 'muted'"
-              ><VIcon
-                name="alphabeticalSort"
-                x-small
-              /></VBtn>
+              >
+                <VIcon
+                  name="alphabeticalSort"
+                  x-small
+                />
+              </VBtn>
             </div>
           </th>
           <th>Edit</th>
@@ -135,11 +138,18 @@ export default {
 
   computed: {
     sortedList () {
+      const modifier = this.currentSortDir === 'desc' ? -1 : 1
+
+      // Relational operators don't compare null/undefined against strings
+      // consistently (e.g. null < 'foo' and null > 'foo' are both false),
+      // which breaks sort transitivity for columns like `type` where most
+      // rows are unset. Normalizing to '' first keeps every comparison
+      // well-defined.
       return this.list.slice(0).sort((a, b) => {
-        let modifier = 1
-        if (this.currentSortDir === 'desc') { modifier = -1 }
-        if (a[this.currentSort] < b[this.currentSort]) return -1 * modifier
-        if (a[this.currentSort] > b[this.currentSort]) return 1 * modifier
+        const valueA = a[this.currentSort] ?? ''
+        const valueB = b[this.currentSort] ?? ''
+        if (valueA < valueB) return -1 * modifier
+        if (valueA > valueB) return 1 * modifier
         return 0
       })
     },
