@@ -9,65 +9,155 @@ Object.assign(TW.workbench.alert, {
     error: '<%= asset_path("error.wav") %>'
   },
 
+  // How long each toast stays before auto-dismissing (ms). Errors linger.
+  duration: {
+    default: 6000,
+    error: 9000,
+    alert: 9000
+  },
+
+  // Cap on simultaneously visible toasts; oldest is dropped past this.
+  maxVisible: 4,
+
   init: function () {
     document.removeEventListener('click', this.removeMessage)
     document.addEventListener('click', this.removeMessage)
 
-    if(document.querySelectorAll('.alert.alert-alert').length) {
+    // Server-rendered flash messages are already in the DOM: move them into the
+    // stack and give them the same dismiss/hover behavior as JS toasts.
+    document.querySelectorAll('.alert:not([data-managed])').forEach((el) => {
+      this.register(el)
+    });
+
+    if (document.querySelectorAll('.alert.alert-alert, .alert.alert-error').length) {
       this.play('error');
     } else if (document.querySelectorAll('.alert').length) {
       this.play('default');
     }
+  },
 
+  stack: function () {
+    let stack = document.querySelector('.alert-stack');
+
+    if (!stack) {
+      stack = document.createElement('div');
+      stack.classList.add('alert-stack');
+      document.body.appendChild(stack);
+    }
+
+    return stack;
   },
 
   removeMessage: function (event) {
     const element = event.target;
 
     if (element && element.classList.contains('alert-close')) {
-      element.parentNode.remove()
+      TW.workbench.alert.dismiss(element.closest('.alert'));
     }
+  },
+
+  dismiss: function (element) {
+    if (!element || element.classList.contains('is-leaving')) return;
+
+    clearTimeout(element._dismissTimer);
+    element.classList.add('is-leaving');
+
+    const remove = () => element.remove();
+
+    element.addEventListener('animationend', remove, { once: true });
+    // Fallback in case the animation event does not fire.
+    setTimeout(remove, 300);
+  },
+
+  scheduleDismiss: function (element, type) {
+    const delay = this.duration[type] || this.duration.default;
+
+    const start = () => {
+      element._dismissTimer = setTimeout(() => this.dismiss(element), delay);
+    };
+
+    // Pause the countdown while the pointer is over the toast.
+    element.addEventListener('mouseenter', () => clearTimeout(element._dismissTimer));
+    element.addEventListener('mouseleave', start);
+
+    start();
+  },
+
+  // Wire dismiss behavior onto an existing .alert element and move it into the
+  // stack. Used for both server-rendered flashes and JS-created toasts.
+  register: function (element) {
+    if (element.dataset.managed) return;
+
+    element.dataset.managed = 'true';
+
+    let type = 'notice';
+    element.classList.forEach((name) => {
+      if (name.indexOf('alert-') === 0 && name !== 'alert-close') {
+        type = name.replace('alert-', '');
+      }
+    });
+
+    const assertive = type === 'error' || type === 'alert';
+    element.setAttribute('role', assertive ? 'alert' : 'status');
+    element.setAttribute('aria-live', assertive ? 'assertive' : 'polite');
+
+    if (!element.querySelector('.alert-close')) {
+      const close = document.createElement('button');
+      close.type = 'button';
+      close.classList.add('alert-close');
+      close.setAttribute('aria-label', 'Dismiss notification');
+      element.appendChild(close);
+    }
+
+    const stack = this.stack();
+    if (element.parentNode !== stack) {
+      stack.appendChild(element);
+    }
+
+    // Trim the stack to the most recent toasts.
+    const toasts = stack.querySelectorAll('.alert:not(.is-leaving)');
+    for (let i = 0; i < toasts.length - this.maxVisible; i++) {
+      this.dismiss(toasts[i]);
+    }
+
+    this.scheduleDismiss(element, type);
   },
 
   createMessage: function (noticeType, message) {
     const divContainer = document.createElement('div');
     const divMessage = document.createElement('div');
-    const divClose = document.createElement('div');
 
-    divMessage.innerHTML = message
+    divMessage.classList.add('message');
+    divMessage.innerHTML = message;
 
-    divClose.classList.add('alert-close');
     divContainer.classList.add('alert');
     divContainer.classList.add('alert-' + noticeType);
-
     divContainer.appendChild(divMessage);
-    divContainer.appendChild(divClose);
 
-    return divContainer
+    return divContainer;
   },
 
   create: function (text, type = 'notice') {
-    document.querySelectorAll(".alert[class*='alert-']").forEach(function (el) {
-      el.parentNode.removeChild(el)
-    });
-    document.querySelector("body").appendChild(this.createMessage(type, text));
+    const element = this.createMessage(type, text);
+    this.stack().appendChild(element);
+    this.register(element);
     this.play(type);
   },
 
   audio: {},
 
   play: function (type) {
-      if (document.hidden) return;
+    if (document.hidden) return;
 
-      if (!this.audio[type]) {
-        this.audio[type] = new Audio(this.audioFile[type] || this.audioFile.default);
-      }
+    if (!this.audio[type]) {
+      this.audio[type] = new Audio(this.audioFile[type] || this.audioFile.default);
+    }
 
-      const sound = this.audio[type];
+    const sound = this.audio[type];
 
-      if (!sound.paused) return;
+    if (!sound.paused) return;
 
-      sound.play().catch((e) => { console.log(e) });
+    sound.play().catch((e) => { console.log(e) });
   }
 });
 

@@ -1,7 +1,7 @@
 <template>
   <NavBar
     style="z-index: 1001"
-    :navbar-class="`panel content ${
+    :navbar-class="`panel border rounded-tl-none rounded-tr-none content ${
       collectionObject?.dwc_occurrence?.rebuild_set
         ? 'pending-dwc-regeneration'
         : ''

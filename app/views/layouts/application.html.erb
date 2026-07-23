@@ -45,11 +45,11 @@
     </nav>
 
     <div id="main">
-      <aside>
+      <aside class="alert-stack">
         <% flash.each do |key, value| %>
           <div class="alert alert-<%= key %>">
-            <div class="message"><%= value %></div> 
-            <div class="alert-close"></div>
+            <div class="message"><%= value %></div>
+            <button type="button" class="alert-close" aria-label="Dismiss notification"></button>
           </div>
         <% end %>
       </aside>

@@ -1,50 +1,116 @@
-.alert {
-  display: flex;
-  z-index: 999999;
+// Toast / flash notices.
+// Rendered two ways that share this markup:
+//   * Server-side flash (app/views/layouts/application.html.erb)
+//   * TW.workbench.alert (app/assets/javascripts/workbench/notices.js.erb)
+// Colors come from the semantic feedback-* tokens (see
+// app/javascript/vue/assets/styles/variables/_palette.scss), so both light and
+// dark themes are handled without local overrides.
+
+.alert-stack {
   position: fixed;
-  flex-direction: row;
-  margin: 0px;
-  align-items: center;
-  color: black;
+  bottom: 20px;
   left: 50%;
-  bottom: 0px;
-  transform: translate(-50%, 105%);
-  padding: $standard_padding;
-  border-top: none;
-  border-top-right-radius: 3px;
-  border-top-left-radius: 3px;
-  animation: alert-show 10s ease;
-
-  .alert-close {
-    margin-left: standard_padding;
-    position: relative;
-    margin-left: 40px;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    opacity: 0.5;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-image: image-url('close.svg');
-  }
-
-  .alert-close:hover {
-    cursor: pointer;
-    opacity: 1;
-  }
-
-  &.alert-notice {
-    box-shadow: 0px 0px 0px 1px $color-complement-3;
-    background: $color-complement-2;
-  }
-
-  &.alert-alert {
-    box-shadow: 0px 0px 0px 1px $color-primary-3;
-    background: $color-primary-2;
-  }
+  transform: translateX(-50%);
+  z-index: 999999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: #{"min(440px, calc(100vw - 32px))"};
+  // Let clicks pass through the gaps; individual toasts re-enable pointers.
+  pointer-events: none;
 }
 
-.alert-error {
-  box-shadow: 0px 0px 0px 1px $color-primary-3;
-  background: $color-primary-2;
+.alert {
+  --alert-accent: var(--feedback-info-text-color);
+  --alert-surface: var(--feedback-info-bg-color);
+  --alert-border: var(--feedback-info-border-color);
+
+  pointer-events: auto;
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 13px 15px;
+  color: var(--text-color);
+  background: var(--alert-surface);
+  border: 1px solid var(--alert-border);
+  border-left: 4px solid var(--alert-accent);
+  border-radius: var(--border-radius-medium);
+  box-shadow: var(--panel-shadow-hover);
+  font-size: var(--font-size-sm);
+  line-height: 1.45;
+  animation: toast-in 0.26s cubic-bezier(0.21, 1, 0.7, 1) both;
+
+  &.is-leaving {
+    animation: toast-out 0.18s ease forwards;
+  }
+
+  .message {
+    flex: 1 1 auto;
+    min-width: 0;
+    word-break: break-word;
+
+    a {
+      color: var(--alert-accent);
+    }
+
+    ul {
+      margin: 4px 0 0;
+      padding-left: 18px;
+    }
+  }
+
+  .alert-close {
+    flex: 0 0 auto;
+    width: 22px;
+    height: 22px;
+    margin: -2px -3px 0 4px;
+    padding: 0;
+    border: 0;
+    background-color: var(--text-muted-color);
+    border-radius: var(--border-radius-xsmall);
+    cursor: pointer;
+    opacity: 0.6;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z'/%3E%3C/svg%3E") center / 15px no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z'/%3E%3C/svg%3E") center / 15px no-repeat;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 2px var(--focus-ring);
+    }
+  }
+
+  // Rails `notice` and explicit success -> green check.
+  &.alert-notice,
+  &.alert-success {
+    --alert-accent: var(--feedback-success-text-color);
+    --alert-surface: var(--feedback-success-bg-color);
+    --alert-border: var(--feedback-success-border-color);
+  }
+
+  // Rails `alert` and explicit error -> red x.
+  &.alert-alert,
+  &.alert-error {
+    --alert-accent: var(--feedback-error-text-color);
+    --alert-surface: var(--feedback-error-bg-color);
+    --alert-border: var(--feedback-error-border-color);
+  }
+
+  &.alert-warning {
+    --alert-accent: var(--feedback-warning-text-color);
+    --alert-surface: var(--feedback-warning-bg-color);
+    --alert-border: var(--feedback-warning-border-color);
+  }
+
+  &.alert-info {
+    --alert-accent: var(--feedback-info-text-color);
+    --alert-surface: var(--feedback-info-bg-color);
+    --alert-border: var(--feedback-info-border-color);
+  }
 }
