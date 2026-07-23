@@ -201,7 +201,7 @@ GEM
     crack (1.0.1)
       bigdecimal
       rexml
-    crass (1.0.6)
+    crass (1.0.7)
     csl (2.2.1)
       forwardable (~> 1.3)
       namae (~> 1.2)
@@ -368,7 +368,7 @@ GEM
       parslet
     logical_query_parser (0.6.0)
       treetop (~> 1.6.8)
-    loofah (2.25.1)
+    loofah (2.25.2)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
     lumberjack (1.4.2)
