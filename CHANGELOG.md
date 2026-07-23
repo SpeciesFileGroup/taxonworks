@@ -26,6 +26,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Move the list of unifiable types to Ruby (no user-facing changes)
 - `View observation matrix` task is now `Browse observation matrix`
 - The Print Labels table wraps the text in its columns more, to fit the whole table on smaller screens
+- Updated Ruby gems
 
 ### Fixed
 
