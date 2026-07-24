@@ -16,13 +16,6 @@
             >
               Filter
             </VBtn>
-            <label>
-              <input
-                type="checkbox"
-                v-model="appendValue"
-              />
-              Append
-            </label>
             <ModalNestedParameters :parameters="parameters" />
             <slot name="nav-query-left" />
           </div>
@@ -131,6 +124,7 @@
               v-model:filter="preferences.activeFilter"
               v-model:url="preferences.activeJSONRequest"
               v-model:list="preferences.showTable"
+              v-model:append="appendValue"
             >
               <template #preferences-last>
                 <slot name="preferences-last" />

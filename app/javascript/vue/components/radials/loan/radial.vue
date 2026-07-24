@@ -5,7 +5,11 @@
     icon="picking"
     :slices="SLICES"
     :object-type="COLLECTION_OBJECT"
-  />
+  >
+    <template #icon>
+      <IconBox class="w-4 h-4" />
+    </template>
+  </RadialBatch>
 </template>
 
 <script setup>
@@ -15,6 +19,7 @@ import RadialBatch from '@/components/radials/shared/RadialBatch.vue'
 import AddSlice from './components/AddSlice.vue'
 import ReturnSlice from './components/ReturnSlice.vue'
 import ReturnAndAddSlice from './components/ReturnAndAddSlice.vue'
+import IconBox from '@/components/Icon/IconBox.vue'
 
 const SLICES = {
   Add: AddSlice,

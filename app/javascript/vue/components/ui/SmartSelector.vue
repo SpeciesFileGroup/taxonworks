@@ -1,6 +1,6 @@
 <template>
   <div ref="rootRef">
-    <div class="margin-small-bottom horizontal-left-content gap-small">
+    <div class="margin-xsmall-bottom horizontal-left-content gap-xsmall">
       <div class="horizontal-left-content">
         <VSpinner
           v-if="isLoading"

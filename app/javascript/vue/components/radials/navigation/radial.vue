@@ -52,10 +52,7 @@
       :disabled="disabled"
       @click="openRadialMenu()"
     >
-      <VIcon
-        name="radialNavigator"
-        x-small
-      />
+      <IconNavigation class="w-3.5 h-3.5" />
     </VBtn>
   </div>
 </template>
@@ -66,7 +63,6 @@ import RadialMenu from '@/components/radials/RadialMenu.vue'
 import Spinner from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import IconNavigation from '@/components/Icon/IconNavigation.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
 import Icons from './images/icons.js'
 import DestroyConfirmation from './components/DestroyConfirmation'
 import AllTasks from './components/allTasks.vue'

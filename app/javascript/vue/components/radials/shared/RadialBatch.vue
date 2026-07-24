@@ -64,10 +64,12 @@
         :disabled="disabled || (!ids.length && !Object.keys(params).length)"
         @click="openRadialBatch"
       >
-        <VIcon
-          :name="icon"
-          x-small
-        />
+        <slot name="icon">
+          <VIcon
+            :name="icon"
+            x-small
+          />
+        </slot>
       </VBtn>
     </div>
   </div>

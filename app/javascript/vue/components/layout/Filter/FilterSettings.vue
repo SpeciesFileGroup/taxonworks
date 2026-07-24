@@ -46,6 +46,15 @@
             Show list
           </label>
         </li>
+        <li>
+          <label>
+            <input
+              type="checkbox"
+              v-model="appendValue"
+            />
+            Append
+          </label>
+        </li>
         <slot name="preferences-last" />
       </ul>
     </template>
@@ -72,10 +81,20 @@ const props = defineProps({
   list: {
     type: Boolean,
     default: undefined
+  },
+
+  append: {
+    type: Boolean,
+    default: undefined
   }
 })
 
-const emit = defineEmits(['update:filter', 'update:url', 'update:list'])
+const emit = defineEmits([
+  'update:filter',
+  'update:url',
+  'update:list',
+  'update:append'
+])
 
 const isModalVisible = ref(false)
 
@@ -92,5 +111,10 @@ const activeUrl = computed({
 const activeList = computed({
   get: () => props.list,
   set: (value) => emit('update:list', value)
+})
+
+const appendValue = computed({
+  get: () => props.append,
+  set: (value) => emit('update:append', value)
 })
 </script>

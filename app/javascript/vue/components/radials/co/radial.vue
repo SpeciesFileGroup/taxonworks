@@ -4,7 +4,11 @@
     title="Radial collection object"
     :slices="SLICES"
     :object-type="COLLECTION_OBJECT"
-  />
+  >
+    <template #icon>
+      <IconBug class="w-3.5 h-3.5" />
+    </template>
+  </RadialBatch>
 </template>
 
 <script setup>
@@ -20,6 +24,7 @@ import SliceContainerItems from './components/SliceContainerItems.vue'
 import DwcSlice from './components/DwCSlice.vue'
 import SliceAccessions from './components/SliceAccessions.vue'
 import SliceTypeMaterial from './components/SliceTypeMaterial.vue'
+import IconBug from '@/components/Icon/IconBug.vue'
 
 defineOptions({
   name: 'RadialCollectionObject'

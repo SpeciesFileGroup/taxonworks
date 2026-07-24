@@ -61,10 +61,7 @@
         "
         @click="openRadialBatch"
       >
-        <VIcon
-          name="radialMassAnnotator"
-          x-small
-        />
+        <IconLayers class="w-3.5 h-3.5" />
       </VBtn>
     </div>
   </div>
@@ -74,13 +71,13 @@
 import RadialMenu from '@/components/radials/RadialMenu.vue'
 import VModal from '@/components/ui/Modal.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import IconLayers from '@/components/Icon/IconLayers.vue'
 import { useRadialBatch } from '@/components/radials/shared/useRadialBatch'
 import { RadialAnnotatorEventEmitter } from '@/utils/index.js'
 import { ANNOTATORS } from './constants/annotators.js'
 import { Metadata } from '@/routes/endpoints'
-import { computed, ref, onBeforeMount } from 'vue'
+import { ref, onBeforeMount } from 'vue'
 
 const EXCLUDE_PARAMETERS = ['per', 'page', 'extend']
 

@@ -31,10 +31,7 @@
       :disabled="disabled || !filterLinks.length || !hasParameters"
       @click="openRadialMenu()"
     >
-      <VIcon
-        name="chain"
-        x-small
-      />
+      <IconLink class="w-3.5 h-3.5" />
     </VBtn>
   </div>
 </template>
@@ -46,7 +43,7 @@ import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams.js'
 import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam.js'
 import { LinkerStorage } from '@/shared/Filter/utils'
 import RadialMenu from '@/components/radials/RadialMenu.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconLink from '@/components/Icon/IconLink.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import Modal from '@/components/ui/Modal.vue'
 import getFilterAttributes from './composition/getFilterAttributes'

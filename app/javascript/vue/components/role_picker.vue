@@ -38,7 +38,7 @@
           />
         </div>
         <div
-          class="flex-wrap-column separate-left"
+          class="flex-wrap-column"
           v-if="showCreateControls && searchPerson.length > 0"
         >
           <div class="flex-wrap-row gap-xsmall">
@@ -144,15 +144,12 @@
               @delete="() => removeFromList(index)"
             />
             <VBtn
-              circle
+              icon
               color="primary"
+              variant="tonal"
               @click="removePerson(index)"
             >
-              <VIcon
-                x-small
-                color="white"
-                name="trash"
-              />
+              <IconTrash class="w-4 h-4" />
             </VBtn>
           </div>
         </li>
@@ -167,9 +164,9 @@ import Draggable from 'vuedraggable'
 import DefaultPin from '@/components/ui/Button/ButtonPinned'
 import OrganizationPicker from '@/components/organizationPicker.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
+import IconTrash from './Icon/IconTrash.vue'
 import { sortArray } from '@/helpers/arrays'
 import { People } from '@/routes/endpoints'
 import { ref, watch, useTemplateRef } from 'vue'
@@ -475,6 +472,8 @@ function addOrganization(organization) {
 defineExpose({
   addPerson,
   addOrganization,
-  focus() { autocompleteRef.value?.setFocus() }
+  focus() {
+    autocompleteRef.value?.setFocus()
+  }
 })
 </script>

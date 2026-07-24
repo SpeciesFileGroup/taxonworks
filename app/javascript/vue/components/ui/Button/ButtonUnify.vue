@@ -1,22 +1,20 @@
 <template>
   <VBtn
-    circle
+    icon
     color="primary"
+    variant="tonal"
     :disabled="disabled"
     @click="() => openUnify(false)"
     @contextmenu="() => openUnify(true)"
     title="Unify objects"
   >
-    <VIcon
-      name="merge"
-      x-small
-    />
+    <IconCombine class="w-4 h-4" />
   </VBtn>
 </template>
 
 <script setup>
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconCombine from '@/components/Icon/IconCombine.vue'
 import { RouteNames } from '@/routes/routes'
 import { computed } from 'vue'
 import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams.js'

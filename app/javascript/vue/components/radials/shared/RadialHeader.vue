@@ -76,11 +76,11 @@ const modelBg = computed(() => {
 
 <style lang="scss" scoped>
 .model-tag {
-  padding: 5px 8px;
-  border-top-right-radius: 0.6rem;
-  border-bottom-right-radius: 0.6rem;
-  border: 1px solid var(--color-primary);
-  border-left: 12px solid var(--color-primary);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-small);
+  border: 1px solid var(--border-color);
+  border-left: 8px solid var(--color-primary);
+  box-shadow: var(--panel-shadow);
   line-height: 1.2rem;
 }
 

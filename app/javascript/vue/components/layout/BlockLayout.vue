@@ -103,8 +103,8 @@ watch(expanded, (newVal) => {
 
   .header {
     border-left: 4px solid green;
-    padding: 1em;
-    padding-left: 1.5em;
+    padding: var(--spacing-md);
+    padding-left: var(--spacing-lg);
     border-bottom: 1px solid var(--border-color);
 
     h3 {
@@ -113,9 +113,9 @@ watch(expanded, (newVal) => {
   }
 
   .body {
-    padding: 2em;
-    padding-top: 1em;
-    padding-bottom: 1em;
+    padding: var(--spacing-xl);
+    padding-top: var(--spacing-lg);
+    padding-bottom: var(--spacing-lg);
   }
 
   .taxonName-input,

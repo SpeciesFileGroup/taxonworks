@@ -6,8 +6,7 @@
     <template #body>
       <div class="margin-large-bottom">
         <VSwitch
-          class="separate-bottom"
-          full-width
+          class="margin-xsmall-bottom"
           :options="Object.values(OPTIONS)"
           v-model="view"
         />

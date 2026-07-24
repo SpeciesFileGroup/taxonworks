@@ -18,10 +18,7 @@
       variant="outline"
       @click.stop="emit('sort')"
     >
-      <VIcon
-        name="alphabeticalSort"
-        x-small
-      />
+      <IconAlphabeticalSort class="w-4 h-4" />
     </VBtn>
     <VBtn
       v-if="filtered"
@@ -37,10 +34,10 @@
 
 <script setup>
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
 import VLock from '@/components/ui/VLock/index.vue'
 import IconCopy from '@/components/Icon/IconCopy.vue'
 import IconClose from '@/components/Icon/IconClose.vue'
+import IconAlphabeticalSort from '@/components/Icon/IconAlphabeticalSort.vue'
 
 defineProps({
   columnKey: {

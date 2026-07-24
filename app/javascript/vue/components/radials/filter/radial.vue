@@ -29,10 +29,7 @@
       :disabled="isDisabled"
       @click="openRadialMenu()"
     >
-      <VIcon
-        name="funnel"
-        x-small
-      />
+      <IconFilter class="w-3.5 h-3.5" />
     </VBtn>
   </div>
 </template>
@@ -49,6 +46,7 @@ import RadialMenu from '@/components/radials/RadialMenu.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VModal from '@/components/ui/Modal.vue'
+import IconFilter from '@/components/Icon/IconFilter.vue'
 import Qs from 'qs'
 import { randomUUID } from '@/helpers'
 import * as FILTER_LINKS from './links'

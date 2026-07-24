@@ -2,18 +2,14 @@
   <div>
     <ConfirmationModal ref="confirmationModal" />
     <VBtn
-      class="circle-button"
       color="primary"
-      circle
+      icon
+      variant="tonal"
       :disabled="disabled"
       @click="openModal"
       title="Delete collection objects"
     >
-      <VIcon
-        name="trash"
-        title="Delete collection objects"
-        x-small
-      />
+      <IconTrash class="w-4 h-4" />
     </VBtn>
   </div>
 </template>
@@ -24,7 +20,7 @@ import { CollectionObject, Metadata } from '@/routes/endpoints'
 import { COLLECTION_OBJECT } from '@/constants/index'
 import { humanize } from '@/helpers/strings'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 
 const CONFIRM_WORD = 'DELETE'
@@ -71,10 +67,13 @@ function makeList(title, obj) {
   const entries = Object.entries(obj)
 
   return entries.length
-    ? `<h3>${title}</h3>` +
-        entries
+    ? `<h3>${title}</h3>
+      <ul>
+        ${entries
           .map(([type, count]) => `<li>${humanize(type)}: ${count}</li>`)
-          .join('')
+          .join('')}   
+      </ul>
+      `
     : ''
 }
 

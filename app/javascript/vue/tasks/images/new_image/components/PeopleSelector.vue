@@ -7,8 +7,7 @@
       <div class="margin-large-bottom">
         <VSwitch
           v-if="organization"
-          class="separate-bottom"
-          full-width
+          class="margin-xsmall-bottom"
           :options="Object.values(OPTIONS)"
           v-model="view"
         />

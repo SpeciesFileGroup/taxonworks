@@ -33,17 +33,17 @@
     </template>
   </VModal>
   <VBtn
+    v-if="nestedLevels.length"
     class="middle"
     color="primary"
-    circle
+    icon
+    medium
+    variant="tonal"
     :disabled="isEmpty"
     v-tooltip="{ content: 'View nested parameters', placement: 'bottom' }"
-    @click="isModalVisible = true"
+    @click="() => (isModalVisible = true)"
   >
-    <VIcon
-      x-small
-      name="arrowLeft"
-    />
+    <IconArrowLeft class="w-4 h-4" />
   </VBtn>
 </template>
 
@@ -55,7 +55,7 @@ import { isDeepEqual } from '@/helpers/objects'
 import { vTooltip } from '@/directives'
 import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconArrowLeft from '@/components/Icon/IconArrowLeft.vue'
 import qs from 'qs'
 
 const props = defineProps({

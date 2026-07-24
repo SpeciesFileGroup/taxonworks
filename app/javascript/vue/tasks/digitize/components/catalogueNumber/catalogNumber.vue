@@ -2,7 +2,7 @@
   <div class="panel content overflow-x-auto">
     <h2 class="tw-section-title">Catalog number</h2>
     <div class="flex-wrap-column middle align-start full_width">
-      <div class="separate-right full_width">
+      <div class="full_width margin-small-bottom">
         <div
           v-if="store.identifiers.length > 1"
           class="horizontal-left-content gap-small middle"

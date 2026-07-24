@@ -27,9 +27,10 @@
           </button>
         </div>
         <div class="horizontal-left-content margin-small-top">
-          <div class="input-apply">
-            {{ showSource }}
-          </div>
+          <div
+            class="input-apply"
+            v-html="showSource"
+          />
           <button
             type="button"
             :disabled="!source || !areImagesCreated"
