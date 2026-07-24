@@ -99,7 +99,7 @@ onBeforeMount(makeDeterminationFromParameters)
 </script>
 
 <style lang="scss">
-#taxon-determination-digitize {
+#taxon-determination-digitize ul {
   label {
     display: block;
   }

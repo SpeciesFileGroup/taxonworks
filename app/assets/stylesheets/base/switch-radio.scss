@@ -1,10 +1,12 @@
 .switch-radio {
+  --switch-size: var(--size-medium);
+  --switch-padding: 2px;
   display: flex;
   width: fit-content;
   max-width: 100%;
-  gap: var(--spacing-xxs);
-  padding: var(--spacing-xxs);
-  border-radius: var(--border-radius-medium);
+  gap: var(--switch-padding);
+  padding: var(--switch-padding);
+  border-radius: var(--border-radius-small);
   background-color: var(--bg-muted);
 
   .switch-title {
@@ -25,16 +27,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    height: calc(var(--switch-size) - (var(--switch-padding) * 2));
     font-size: 12px;
     text-align: center;
     color: var(--text-muted-color);
     background-color: transparent;
     border: 0;
-    /* Concentric with the 8px container minus its 4px padding */
     border-radius: var(--border-radius-xsmall);
-    /* Weight kept constant across states to avoid reflow on selection */
     font-weight: 500;
-    padding: var(--spacing-xxs) var(--spacing-sm);
+    padding: 0 var(--spacing-sm);
     transition:
       background-color 0.12s ease,
       color 0.12s ease;

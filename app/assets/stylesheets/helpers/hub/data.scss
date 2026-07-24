@@ -117,10 +117,15 @@
   }
 
   .data_card:hover {
-    transition: background-color 0.5s ease, box-shadow 0.5s ease;
+    transition:
+      background-color 0.5s ease,
+      box-shadow 0.5s ease;
     box-shadow: var(--panel-shadow-hover);
-    transition: background-color 0.5s ease, border 0.5s ease,
-      box-shadow 0.5s ease, transform 0.3s ease;
+    transition:
+      background-color 0.5s ease,
+      border 0.5s ease,
+      box-shadow 0.5s ease,
+      transform 0.3s ease;
     .filter_data {
       opacity: 1;
     }
@@ -141,7 +146,7 @@
   .data_card {
     position: relative;
     cursor: pointer;
-    width: 230px;
+    width: 240px;
     min-height: 26px;
     display: flex;
     flex-direction: row-reverse;
@@ -152,8 +157,11 @@
     padding: $standard_padding;
     padding-left: $standard_padding + 2.5;
     box-shadow: var(--panel-shadow);
-    transition: background-color 0.5s ease, border 0.3s ease,
-      box-shadow 0.3s ease, transform 0.3s ease;
+    transition:
+      background-color 0.5s ease,
+      border 0.3s ease,
+      box-shadow 0.3s ease,
+      transform 0.3s ease;
 
     a {
       color: var(--text-color);

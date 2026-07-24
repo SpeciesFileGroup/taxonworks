@@ -133,7 +133,7 @@
 }
 
 .content {
-  padding: $standard_padding;
+  padding: var(--spacing-lg);
   a {
     text-decoration: none;
   }

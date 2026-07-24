@@ -13,6 +13,5 @@
 }
 
 .dz-default {
-  font-size: $font_title * 1.5 !important;
-  font-weight: 300 !important;
+  font-size: var(--font-size-xl) !important;
 }

@@ -3,7 +3,7 @@
 body {
   background-color: var(--bg-color);
   color: var(--text-color);
-  font-family: 'IBM Plex Sans', sans-serif;
+  font-family: var(--font-family-base);
   font-size: 14px !important;
   margin: 0;
 }

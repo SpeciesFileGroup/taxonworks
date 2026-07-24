@@ -32,7 +32,9 @@
               @on-tab-selected="handleTabChange"
             >
               <template #tabs-right>
-                <VLock v-model="settings.locked.recordNumber" />
+                <div class="w-full horizontal-right-content">
+                  <VLock v-model="settings.locked.recordNumber" />
+                </div>
               </template>
             </SmartSelector>
             <WidgetNamespace

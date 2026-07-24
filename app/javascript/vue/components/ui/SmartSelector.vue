@@ -20,15 +20,13 @@
           :options="options"
         />
       </div>
-      <div class="horizontal-left-content gap-small">
-        <default-pin
-          v-if="pinSection"
-          :section="pinSection"
-          :type="pinType"
-          @get-id="getObject"
-        />
-        <slot name="tabs-right" />
-      </div>
+      <DefaultPin
+        v-if="pinSection"
+        :section="pinSection"
+        :type="pinType"
+        @get-id="getObject"
+      />
+      <slot name="tabs-right" />
     </div>
     <slot name="header" />
     <template v-if="!addTabs.includes(view)">

@@ -5,7 +5,6 @@
       <div>
         <VBtn
           color="primary"
-          variant="tonal"
           medium
           class="margin-small-right"
           @click="generateLabel"

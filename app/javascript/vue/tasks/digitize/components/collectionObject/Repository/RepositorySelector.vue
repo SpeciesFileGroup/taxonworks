@@ -14,7 +14,9 @@
         @selected="setRepository"
       >
         <template #tabs-right>
-          <lock-component v-model="locked" />
+          <div class="w-full horizontal-right-content">
+            <lock-component v-model="locked" />
+          </div>
         </template>
       </smart-selector>
     </div>

@@ -32,7 +32,9 @@
               @on-tab-selected="handleTabChange"
             >
               <template #tabs-right>
-                <lock-component v-model="locked.identifier" />
+                <div class="w-full horizontal-right-content">
+                  <lock-component v-model="locked.identifier" />
+                </div>
               </template>
             </SmartSelector>
             <WidgetNamespace

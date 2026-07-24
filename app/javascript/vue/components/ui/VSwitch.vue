@@ -1,5 +1,8 @@
 <template>
-  <div :class="{ 'switch-radio': true, 'wrap-switch': options.length >= wrap }">
+  <div
+    :class="{ 'switch-radio': true, 'wrap-switch': options.length >= wrap }"
+    :style="{ '--switch-size': `var(--size-${size})` }"
+  >
     <template
       v-for="(item, index) in options"
       :key="index"
@@ -62,6 +65,21 @@ export default {
       type: Number,
       default: 5
     },
+
+    size: {
+      type: String,
+      default: 'medium',
+      validator: (value) =>
+        [
+          'xxSmall',
+          'xSmall',
+          'small',
+          'default',
+          'medium',
+          'large',
+          'xLarge'
+        ].includes(value)
+    }
   },
 
   emits: ['update:modelValue', 'index'],
