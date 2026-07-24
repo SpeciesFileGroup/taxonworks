@@ -304,8 +304,6 @@ function browseOtuUrl(id) {
 }
 
 // Maps effectiveName -> the index of its first occurrence in props.rows.
-// Built once in O(n) instead of re-scanning all rows (O(n) per call) from
-// every isDuplicate/isActionable/activeRowIndex call site in the template.
 const firstIndexByEffectiveName = computed(() => {
   const map = new Map()
   props.rows.forEach((row) => {
@@ -391,16 +389,11 @@ thead th {
 }
 
 /* !important needed: .table-striped's tr:nth-of-type(even/odd) td rule has
-   higher specificity (2 classes/pseudo + 2 elements) than a single class here. */
+   higher specificity than a single class here. */
 .cell-ambiguous {
   background-color: #fcf8e3 !important;
 }
 
-/* Dim duplicate rows — opacity compounds through descendants, so dimming the
-   tr itself would dim still-interactive cells (e.g. the Match input) too.
-   Cells that must stay legible/interactive opt in via .cell-interactive
-   instead of being named here, so adding one doesn't require editing this
-   rule. */
 .row-disabled td {
   opacity: 0.6;
 }

@@ -65,7 +65,7 @@
 </template>
 
 <script setup>
-import { ref, nextTick, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { TaxonName, Otu } from '@/routes/endpoints'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
@@ -92,6 +92,8 @@ const levenshteinDistance = ref(0)
 const tryWithoutSubgenus = ref(false)
 const resolveSynonyms = ref(false)
 
+const modifiers = ref(defaultModifiers())
+
 // The scope the task was actually launched with (via ?taxon_name_id=), so
 // Restart/Reset can return to it instead of always clearing to no scope.
 const initialScopeTaxonName = ref(null)
@@ -109,8 +111,6 @@ onMounted(() => {
       .catch(() => {})
   }
 })
-
-const modifiers = ref(defaultModifiers())
 
 async function handleDataSubmit({ names, csv }) {
   isProcessing.value = true
@@ -271,11 +271,6 @@ function handleRowUpdate({ index, field, value }) {
   }
 }
 
-// Fetches the full TaxonName record (for cached_html, not present on the
-// autocomplete result) and its OTUs together, then applies both to the row
-// in one step and syncs duplicates once — the row's prior match stays on
-// screen, under the full-screen spinner, until the refetch settles, instead
-// of flashing blank/partial state while it loads or on failure.
 async function refreshTaxonNameSelection(taxonNameId, row) {
   isProcessing.value = true
 
@@ -297,7 +292,7 @@ async function refreshTaxonNameSelection(taxonNameId, row) {
     syncDuplicateRows(row)
   } catch (e) {
     TW.workbench.alert.create(
-      'Error loading TaxonName/OTU details. See console for details.',
+      'Error loading TaxonName/OTU details.',
       'error'
     )
     console.error(e)
@@ -307,12 +302,18 @@ async function refreshTaxonNameSelection(taxonNameId, row) {
 }
 
 async function fetchTaxonName(taxonNameId) {
-  const { body } = await TaxonName.find(taxonNameId)
+  const { body } = await TaxonName
+    .find(taxonNameId)
+    .catch(() => {})
+
   return body
 }
 
 async function fetchOtusForTaxonName(taxonNameId) {
-  const { body } = await TaxonName.otus(taxonNameId)
+  const { body } = await TaxonName
+    .otus(taxonNameId)
+    .catch(() => {})
+
   return sortOtus(body.map((o) => ({
     id: o.id,
     name: o.name,
@@ -326,9 +327,12 @@ async function handleCreateOtu({ index }) {
   if (!row?.taxonNameId) return
 
   try {
-    const { body } = await Otu.create({
-      otu: { taxon_name_id: row.taxonNameId }
-    })
+    const { body } = await Otu
+      .create({
+        otu: { taxon_name_id: row.taxonNameId }
+      })
+      .catch(() => {})
+
     const newOtu = {
       id: body.id,
       name: body.name,
@@ -418,7 +422,7 @@ function scrollToRow(index) {
   if (el) {
     el.scrollIntoView({ behavior: 'smooth', block: 'center' })
     el.classList.add('highlight-row')
-    setTimeout(() => el.classList.remove('highlight-row'), 2000)
+    setTimeout(() => el.classList.remove('highlight-row'), 2500)
   }
 }
 
@@ -447,7 +451,7 @@ function reset() {
 /* Table cells paint their own (striped) background over the row's, so the
    animation has to run on each td — animating the tr itself is invisible. */
 :deep(.highlight-row td) {
-  animation: highlight-fade 2s ease-out;
+  animation: highlight-fade 2.5s ease-out;
 }
 
 @keyframes highlight-fade {
