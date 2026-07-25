@@ -414,7 +414,7 @@ class TaxonNamesController < ApplicationController
   private
 
   def autoselect_col_create_params
-    params.permit(rows: [:col_name, :col_rank, :col_id, :dataset_id, :taxonworks_id, :col_authorship, :col_year])
+    params.permit(rows: [:col_name, :col_rank, :col_id, :dataset_id, :taxonworks_id, :col_authorship, :col_year, :col_status])
           .fetch(:rows, [])
           .map(&:to_h)
   end
