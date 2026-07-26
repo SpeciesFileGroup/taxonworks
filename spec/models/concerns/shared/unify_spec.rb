@@ -947,16 +947,17 @@ describe 'Shared::Unify', type: :model do
     expect(b[:details]['Citations'][:deduplicated]).to eq(1)
   end
 
-  # Citation#prepare_for_unify_destroy only flags citation_object.
-  # ignore_citation_restriction when on_behalf_of equals citation_object --
-  # i.e. when citation_object is itself confirmed to be the record actually
-  # being destroyed. citation1 and citation2 here are on two entirely
-  # unrelated AssertedDistributions (neither is being unified with the
-  # other) that merely happen to share a source and pages. Calling
-  # Citation#unify directly (bypassing the deduplicate_update_target context
-  # that would supply the real on_behalf_of) must not destroy citation2 and
-  # leave ad2 -- untouched, still fully alive -- with zero citations despite
-  # requiring one.
+  # Citation#prevent_if_required consults UnifyDestroyContext.objects_in_destroy
+  # (populated by Shared::Unify#unify, keyed by {id:, type:} rather than
+  # object reference, since citation_object may be a different in-memory
+  # instance than whatever unify holds - see UnifyDestroyContext) to decide
+  # whether citation_object is already slated for destruction regardless.
+  # citation1 and citation2 here are on two entirely unrelated
+  # AssertedDistributions (neither is being unified with the other, so ad2
+  # is never registered as being destroyed) that merely happen to share a
+  # source and pages. Calling Citation#unify directly must not destroy
+  # citation2 and leave ad2 -- untouched, still fully alive -- with zero
+  # citations despite requiring one.
   specify 'unify does not destroy a required citation for an unrelated, untouched citation_object' do
     s = FactoryBot.create(:valid_source)
     ad1 = FactoryBot.create(:valid_asserted_distribution, source: s)
@@ -973,17 +974,24 @@ describe 'Shared::Unify', type: :model do
     expect(ad2.reload.citations.count).to eq(1)
   end
 
-  # TaxonDetermination has the identical "must have at least one" before_destroy
-  # guard shape as Citation (Shared::TaxonDeterminationRequired's
-  # ignore_taxon_determination_restriction mirrors Shared::CitationRequired's
-  # ignore_citation_restriction, and FieldOccurrence#requires_taxon_determination?
-  # is unconditionally true, just like Citation's requirement), but only
-  # Citation was given a prepare_for_unify_destroy override in this branch.
-  # This spec sets up the *same shape* of scenario as the Citation dedup specs
-  # above (two objects, each with a matching/duplicate related record) to
-  # confirm the TaxonDetermination gap does not currently bite -- but for a
-  # different reason than "it's fixed":
-  #
+  # Same guard, same UnifyDestroyContext mechanism, on the other model that
+  # has the identical "must have at least one" before_destroy shape
+  # (Shared::TaxonDeterminationRequired mirrors Shared::CitationRequired, and
+  # FieldOccurrence#requires_taxon_determination? is unconditionally true,
+  # just like Citation's requirement).
+  specify 'unify does not destroy a required taxon determination for an unrelated, untouched taxon_determination_object' do
+    fo1 = FactoryBot.create(:valid_field_occurrence)
+    fo2 = FactoryBot.create(:valid_field_occurrence)
+
+    td1 = fo1.taxon_determinations.first
+    td2 = fo2.taxon_determinations.first
+
+    td1.unify(td2)
+
+    expect(td2.destroyed?).to be_falsey
+    expect(fo2.reload.taxon_determinations.count).to eq(1)
+  end
+
   # TaxonDetermination's only uniqueness validator is on :position, scoped by
   # (taxon_determination_object_id/type, project_id). Unlike Citation's
   # source/pages uniqueness, this validator can never survive
@@ -993,9 +1001,9 @@ describe 'Shared::Unify', type: :model do
   # shifting every other record in the scope down, so the retry always
   # succeeds. That means object.errors is always empty by the time
   # log_unify_result would otherwise reach for deduplicate_update_target --
-  # dedup, and therefore the missing prepare_for_unify_destroy path, is never
-  # actually exercised here. The "duplicate" determination is just merged in
-  # as an ordinary (undeduped) second record, not destroyed and not blocked.
+  # dedup is never actually exercised here, regardless of the guard fix
+  # above. The "duplicate" determination is just merged in as an ordinary
+  # (undeduped) second record, not destroyed and not blocked.
   specify 'unify does not attempt (and so does not need to guard) dedup of a duplicate TaxonDetermination on a FieldOccurrence' do
     fo1 = FactoryBot.create(:valid_field_occurrence)
     fo2 = FactoryBot.create(:valid_field_occurrence)
@@ -1517,7 +1525,7 @@ describe 'Shared::Unify', type: :model do
       obj.errors.add(:string, :taken) # simulate: the attempted move failed, for any reason
 
       helper.send(:stub_unify_result, result, 'Test relation', 1)
-      helper.send(:log_unify_result, obj, relation, result, TestUnify.new)
+      helper.send(:log_unify_result, obj, relation, result)
 
       expect(result[:details]['Test relation'][:unmerged]).to eq(1)
       expect(result[:details]['Test relation'][:merged]).to eq(0)

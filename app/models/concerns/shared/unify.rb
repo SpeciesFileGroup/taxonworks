@@ -87,24 +87,6 @@ module Shared::Unify
     []
   end
 
-  # Override to prepare an object for its own destruction by unify, e.g. to
-  # flag a validation on a still-alive parent that would otherwise block the
-  # destroy (see Citation, whose citation_object may require at least one
-  # citation - moot once citation_object is itself confirmed to be the
-  # record actually being destroyed).
-  #
-  # @param on_behalf_of [ActiveRecord::Base, nil]
-  #   Normally nil (a plain, top-level #unify call destroys remove_object for
-  #   its own sake). Set only when this destroy is happening because
-  #   deduplicate_update_target found a duplicate and is merging it away --
-  #   in that case it's the parent (remove_object) of the #unify call that
-  #   triggered the merge. Hooks use it to recognize "the thing I'd
-  #   otherwise need to protect is about to be destroyed anyway, for an
-  #   unrelated reason" -- see Citation, which skips its at-least-one-
-  #   citation guard when its own citation_object is on_behalf_of.
-  def prepare_for_unify_destroy(on_behalf_of)
-  end
-
   # See header.
   #
   # @return Hash
@@ -129,11 +111,7 @@ module Shared::Unify
   # @param target_project_id [Integer]
   #   required when self is_community?, scopes operations to target project only
   #
-  # @param on_behalf_of [ActiveRecord::Base, nil]
-  #   see Shared::Unify#prepare_for_unify_destroy; set internally by
-  #   deduplicate_update_target, not intended to be passed by other callers
-  #
-  def unify(remove_object, only: [], except: [], preview: false, cutoff: 250, target_project_id: nil, on_behalf_of: nil)
+  def unify(remove_object, only: [], except: [], preview: false, cutoff: 250, target_project_id: nil)
     s = {
       result: { unified: nil, total_related: 0, target_project_id:},
       details: {},
@@ -143,89 +121,106 @@ module Shared::Unify
     return s if s[:result][:unified] == false
     pid = s[:result][:target_project_id]
 
+    # Whether this call intends to fully destroy remove_object (as opposed
+    # to only:/except: moving some data between the two objects).
+    will_destroy = only.empty? && except.empty?
+    destroy_key = { id: remove_object.id, type: remove_object.class.base_class.name }
+
     self.class.transaction do
       # before_unify # potential hooks, appear not to be required
 
-      merge_relations(only:, except:).each do |r|
-        n = relation_label(r)
-
-        case ::ApplicationEnumeration.relationship_type(r)
-
-        when :has_many
-          i = remove_object.send(r.name)
-
-          unless ::ApplicationEnumeration.relation_targets_community?(r)
-            i = i.where(project_id: pid)
-          end
-
-          next unless i.any?
-
-          t = i.size
-          stub_unify_result(s, n, t)
-
-          s[:result][:total_related] += t
-          next if s[:result][:total_related] > cutoff
-
-          list_state = snapshot_list_order(r, i)
-
-          i.find_each do |j|
-            j.update(r.options[:inverse_of] => self)
-            log_unify_result(j, r, s, remove_object)
-          end
-
-          restore_list_order(list_state) if list_state
-
-        when :has_one, :belongs_to
-          i = remove_object.send(r.name)
-          if !i.nil?
-            stub_unify_result(s, n, 1)
-
-            i.update(r.options[:inverse_of] => self)
-            log_unify_result(i, r, s, remove_object)
-          end
-        end
+      # Record remove_object as committed-to-destruction *before* any related
+      # records are touched below, so "must have at least one X" guards on
+      # those related records (e.g. Citation, TaxonDetermination) can see,
+      # for the whole duration of this call (including any nested unify a
+      # dedup triggers), that it's already slated for destruction regardless
+      # of what happens to its individual annotations.
+      if will_destroy
+        UnifyDestroyContext.objects_in_destroy ||= Set.new
+        UnifyDestroyContext.objects_in_destroy << destroy_key
       end
 
-      if cutoff_hit = s[:result][:total_related] > cutoff
-        s[:result][:unified] = false
-        s[:result][:message] = "Related cutoff threshold (> #{cutoff}) hit, unify is not yet allowed on these objects."
-      elsif s[:result][:unified] != false
+      begin
+        merge_relations(only:, except:).each do |r|
+          n = relation_label(r)
 
-        begin
-          remove_object.reload # reset all in-memory has_many caches that would prevent destroy
+          case ::ApplicationEnumeration.relationship_type(r)
 
-          unless only.any? || except.any?
-            remove_object.prepare_for_unify_destroy(on_behalf_of)
-            remove_object.destroy!
+          when :has_many
+            i = remove_object.send(r.name)
+
+            unless ::ApplicationEnumeration.relation_targets_community?(r)
+              i = i.where(project_id: pid)
+            end
+
+            next unless i.any?
+
+            t = i.size
+            stub_unify_result(s, n, t)
+
+            s[:result][:total_related] += t
+            next if s[:result][:total_related] > cutoff
+
+            list_state = snapshot_list_order(r, i)
+
+            i.find_each do |j|
+              j.update(r.options[:inverse_of] => self)
+              log_unify_result(j, r, s)
+            end
+
+            restore_list_order(list_state) if list_state
+
+          when :has_one, :belongs_to
+            i = remove_object.send(r.name)
+            if !i.nil?
+              stub_unify_result(s, n, 1)
+
+              i.update(r.options[:inverse_of] => self)
+              log_unify_result(i, r, s)
+            end
           end
-
-        rescue ActiveRecord::InvalidForeignKey => e
-          # InvalidForeignKey comes from the DB adapter, so e has no `.record`.
-          s[:result][:unified] = false
-          s[:details].merge!(
-            Object: {
-              errors: [
-                {
-                  id: remove_object.id,
-                  exception: e.class.name,
-                  message: e.message
-                }
-              ]
-            }
-          )
-          raise ActiveRecord::Rollback
-        rescue ActiveRecord::RecordNotDestroyed => e
-          s[:result][:unified] = false
-          s[:details].merge!(
-            Object: {
-              errors: [
-                { id: e.record.id, message: e.record.errors.full_messages.join('; ') }
-              ]
-            }
-          )
-
-          raise ActiveRecord::Rollback
         end
+
+        if cutoff_hit = s[:result][:total_related] > cutoff
+          s[:result][:unified] = false
+          s[:result][:message] = "Related cutoff threshold (> #{cutoff}) hit, unify is not yet allowed on these objects."
+        elsif s[:result][:unified] != false
+
+          begin
+            remove_object.reload # reset all in-memory has_many caches that would prevent destroy
+
+            remove_object.destroy! if will_destroy
+
+          rescue ActiveRecord::InvalidForeignKey => e
+            # InvalidForeignKey comes from the DB adapter, so e has no `.record`.
+            s[:result][:unified] = false
+            s[:details].merge!(
+              Object: {
+                errors: [
+                  {
+                    id: remove_object.id,
+                    exception: e.class.name,
+                    message: e.message
+                  }
+                ]
+              }
+            )
+            raise ActiveRecord::Rollback
+          rescue ActiveRecord::RecordNotDestroyed => e
+            s[:result][:unified] = false
+            s[:details].merge!(
+              Object: {
+                errors: [
+                  { id: e.record.id, message: e.record.errors.full_messages.join('; ') }
+                ]
+              }
+            )
+
+            raise ActiveRecord::Rollback
+          end
+        end
+      ensure
+        UnifyDestroyContext.objects_in_destroy&.delete(destroy_key) if will_destroy
       end
 
       # after_unify # potential hooks, appear not to be required
@@ -308,18 +303,17 @@ module Shared::Unify
   end
 
   # @param object [ActiveRecord::Base] see log_unify_result
-  # @param enclosing_remove_object [ActiveRecord::Base] see log_unify_result - object's real parent
-  def deduplicate_update_target(object, enclosing_remove_object)
+  def deduplicate_update_target(object)
     i = object.identical
 
     # There is exactly 1 match, merge is unambiguous
     if i.size == 1
       j = i.first
       # object's own FK is still dirty from the failed update attempt (it
-      # points at self/KEEP, not enclosing_remove_object); reload so the
-      # nested unify below moves object's actual remaining relations, not
+      # points at self/KEEP, not its real enclosing remove_object); reload so
+      # the nested unify below moves object's actual remaining relations, not
       # phantom ones based on that dirty state.
-      j.unify(object.reload, on_behalf_of: enclosing_remove_object)
+      j.unify(object.reload)
     else
       # Merge would be ambiguous, there are multiple matches
       return false
@@ -339,9 +333,7 @@ module Shared::Unify
   #   relation.options[:inverse_of] is the belongs_to on object's class whose FK
   #   we tried to flip
   # @param result [Hash] the running unify result accumulator
-  # @param enclosing_remove_object [ActiveRecord::Base] the remove_object of
-  #   the enclosing #unify call - object's real parent
-  def log_unify_result(object, relation, result, enclosing_remove_object)
+  def log_unify_result(object, relation, result)
     n = relation.name.to_s.humanize
 
     # Handle an edge case, preserve Citations that
@@ -362,13 +354,7 @@ module Shared::Unify
       # #identical won't match unless there's a genuine duplicate, so this is
       # safe to attempt for *any* validation failure, not just the ones that
       # look like a uniqueness conflict.
-      dedup_result = deduplicate_update_target(object, enclosing_remove_object)
-      # object was never reloaded here unless deduplicate_update_target found
-      # a single identical match (in which case success/failure is decided by
-      # the nested unify's own result, not object's own validity) -- so in
-      # the "no match" case object is still exactly as invalid as it was when
-      # `object.errors.any?` was checked above. There's no state in between
-      # where it could have become valid, so there's nothing to re-check.
+      dedup_result = deduplicate_update_target(object)
       if dedup_result && dedup_result[:result][:unified]
         result[:details][n][:deduplicated] += 1
       else

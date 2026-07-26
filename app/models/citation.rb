@@ -140,30 +140,6 @@ class Citation < ApplicationRecord
     BiologicalAssociationIndex.where(biological_association_id: citation_object_id)
   end
 
-  # See Shared::Unify#prepare_for_unify_destroy. citation_object may require
-  # at least one citation (Shared::CitationRequired), but that's moot if
-  # citation_object is itself confirmed to be the record actually being
-  # destroyed (on_behalf_of) -- it's not losing its last citation, it's going
-  # away entirely.
-  # TODO: ignore_citation_restriction is plain in-memory state, not covered
-  # by the transaction -- if the surrounding unify call later rolls back
-  # (preview: true always does; so could a later failure in the same merge),
-  # the DB reverts but this flag stays true on whatever in-memory
-  # citation_object instance we set it on. Only matters if a caller reuses
-  # that same instance afterward (a script/console/rake task previewing
-  # several unifies, say), not a per-request web flow. Shared::CitationRequired's
-  # own before_destroy already has the identical property for a plain
-  # (non-unify) destroy, so this isn't a new kind of gap, just a new path to
-  # it. A real fix would add a symmetric "cleanup" hook to Shared::Unify,
-  # called in an ensure right after the destroy attempt, so this flag only
-  # stays true for the duration of that attempt rather than however long
-  # the caller holds the object.
-  def prepare_for_unify_destroy(on_behalf_of)
-    return unless on_behalf_of == citation_object
-
-    citation_object.ignore_citation_restriction = true if citation_object.respond_to?(:ignore_citation_restriction)
-  end
-
   protected
 
   def add_source_to_project
@@ -194,6 +170,14 @@ class Citation < ApplicationRecord
     # the parent instead, where everything 'just works'.
     return if marked_for_destruction?
     return if citation_object && citation_object.respond_to?(:ignore_citation_restriction) && citation_object.ignore_citation_restriction
+
+    # citation_object may not be the same in-memory instance that an
+    # enclosing Shared::Unify#unify call is destroying (e.g. loaded fresh via
+    # this belongs_to rather than the instance unify holds), so this checks
+    # by identity (id/type), not object reference - see UnifyDestroyContext.
+    return if citation_object && UnifyDestroyContext.objects_in_destroy&.include?(
+      { id: citation_object.id, type: citation_object.class.base_class.name }
+    )
 
     if citation_object.requires_citation? && citation_object.citations.count == 1
       errors.add(:base, 'at least one citation is required')

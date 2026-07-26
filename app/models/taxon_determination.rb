@@ -165,6 +165,13 @@ class TaxonDetermination < ApplicationRecord
     return if marked_for_destruction?
     return if taxon_determination_object && taxon_determination_object.respond_to?(:ignore_taxon_determination_restriction) && taxon_determination_object.ignore_taxon_determination_restriction
 
+    # taxon_determination_object may not be the same in-memory instance that
+    # an enclosing Shared::Unify#unify call is destroying, so this checks by
+    # identity (id/type), not object reference - see UnifyDestroyContext.
+    return if taxon_determination_object && UnifyDestroyContext.objects_in_destroy&.include?(
+      { id: taxon_determination_object.id, type: taxon_determination_object.class.base_class.name }
+    )
+
     if taxon_determination_object.requires_taxon_determination? &&
         taxon_determination_object.taxon_determinations.count == 1
       addendum = case taxon_determination_object.class.base_class.name
