@@ -87,6 +87,7 @@ class GeographicArea < ApplicationRecord
   has_many :asserted_distributions, as: :asserted_distribution_shape, inverse_of: :asserted_distribution_shape
   has_many :collecting_events, inverse_of: :geographic_area
   has_many :common_names, inverse_of: :geographic_area
+  has_many :organizations, inverse_of: :geographic_area
   has_many :geographic_areas_geographic_items, -> { ordered_by_data_origin }, dependent: :destroy, inverse_of: :geographic_area
   has_many :default_geographic_areas_geographic_items,
     -> { default_geographic_item_data }, class_name: 'GeographicAreasGeographicItem'

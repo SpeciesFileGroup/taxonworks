@@ -105,6 +105,7 @@ module ProjectUnification
     SPECIAL_HANDLING = %w[
       TaxonName
       CollectingEvent
+      ProjectOrganization
       ProjectSource
       RangedLotCategory
       OtuPageLayout

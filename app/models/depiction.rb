@@ -50,6 +50,10 @@
 #   @return [String, nil]
 #     Figure description, as in 'Figure 1. <caption>'
 #
+# @!attribute type
+#   @return [String, nil]
+#     The subclass of Depiction, nil for a plain Depiction (e.g. 'Depiction::Logo')
+#
 class Depiction < ApplicationRecord
   include Housekeeping
   include Shared::Tags
@@ -74,6 +78,11 @@ class Depiction < ApplicationRecord
   validates_presence_of :depiction_object
   validates_uniqueness_of :sled_image_id, scope: [:project_id, :sled_image_x_position, :sled_image_y_position], allow_nil: true, if: Proc.new {|n| !n.sled_image_id.nil?}
   validates_uniqueness_of :image_id, scope: [:depiction_object_type, :depiction_object_id] #, allow_nil: true, if: Proc.new {|n| !n.sled_image_id.nil?}
+
+  # The base class, and the subclasses, that can be assigned to #type
+  TYPES = %w{Depiction Depiction::Logo}.freeze
+
+  scope :logos, -> { where(type: 'Depiction::Logo') }
 
   before_validation :normalize_image
 

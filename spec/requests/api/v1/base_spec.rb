@@ -25,6 +25,40 @@ describe Api::V1::BaseController, type: :request do
 
   end
 
+  context 'organizations' do
+    let(:user) { FactoryBot.create(:valid_user, :user_valid_token) }
+    let!(:project) { FactoryBot.create(:valid_project, :project_valid_token, by: user, name: 'Something really new') }
+
+    let!(:organization) { Organization.create!(name: 'Some organization', by: user) }
+    let!(:project_organization) {
+      ProjectOrganization.create!(organization:, project:, by: user)
+    }
+
+    let!(:logo) {
+      Depiction::Logo.create!(
+        depiction_object: organization,
+        image: FactoryBot.create(:valid_svg_image, by: user, project:),
+        project:,
+        by: user
+      )
+    }
+
+    specify '#organizations' do
+      get '/api/v1/'
+      expect(JSON.parse(response.body).dig('open_projects', 0, 'organizations', 0)).to include({'name' => organization.name})
+    end
+
+    specify 'depictions are not included by default' do
+      get '/api/v1/'
+      expect(JSON.parse(response.body).dig('open_projects', 0, 'organizations', 0)).not_to include('depictions')
+    end
+
+    specify 'extend[]=depictions includes the logo' do
+      get '/api/v1/', params: {extend: ['depictions']}
+      expect(JSON.parse(response.body).dig('open_projects', 0, 'organizations', 0, 'depictions', 0)).to include({'type' => 'Depiction::Logo'})
+    end
+  end
+
   context 'Invalid path' do
     let(:path) { '/api/v1/this-path-does-not-exist' }
 

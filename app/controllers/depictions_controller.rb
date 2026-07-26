@@ -69,7 +69,7 @@ class DepictionsController < ApplicationController
   # POST /depictions
   # POST /depictions.json
   def create
-    @depiction = Depiction.new(depiction_params)
+    @depiction = depiction_class.new(depiction_params.except(:type))
     respond_to do |format|
       if @depiction.save
         format.html { redirect_to @depiction, notice: 'Depiction was successfully created.' }
@@ -84,8 +84,13 @@ class DepictionsController < ApplicationController
   # PATCH/PUT /depictions/1
   # PATCH/PUT /depictions/1.json
   def update
+    # Only when the request says so does the subclass change
+    if depiction_params.key?(:type) && depiction_class != @depiction.class
+      @depiction = @depiction.becomes!(depiction_class)
+    end
+
     respond_to do |format|
-      if @depiction.update(depiction_params)
+      if @depiction.update(depiction_params.except(:type))
         format.html { redirect_to @depiction, notice: 'Depiction was successfully updated.' }
         format.json { render :show, status: :ok, location: @depiction }
       else
@@ -148,10 +153,19 @@ class DepictionsController < ApplicationController
     @depiction = Depiction.where(project_id: sessions_current_project_id).find(params[:id])
   end
 
+  # @return [Class]
+  #   the requested Depiction class, the base class when none is provided
+  def depiction_class
+    t = depiction_params[:type]
+    return Depiction if t.blank?
+    raise ActionController::BadRequest, 'invalid depiction type' unless Depiction::TYPES.include?(t)
+    t.constantize
+  end
+
   def depiction_params
     params.require(:depiction).permit(
       :depiction_object_id, :depiction_object_type,
-      :annotated_global_entity, :caption,
+      :annotated_global_entity, :caption, :type,
       :is_metadata_depiction,
       :image_id,
       :figure_label,

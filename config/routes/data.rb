@@ -830,6 +830,10 @@ resources :projects, only: [] do
   end
 end
 
+resources :project_organizations, only: [:index, :show, :create, :destroy] do
+  concerns [:data_routes]
+end
+
 resources :project_sources, only: [:index, :create, :destroy] do
   collection do
     get 'download'

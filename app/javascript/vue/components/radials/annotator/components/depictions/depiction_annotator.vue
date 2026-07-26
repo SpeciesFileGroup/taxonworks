@@ -38,6 +38,13 @@
         />
         Is data depiction
       </label>
+      <label v-if="isLogoable">
+        <input
+          type="checkbox"
+          v-model="depictionIsLogo"
+        />
+        Is logo (SVG only)
+      </label>
       <MoveTo v-model="selectedObject" />
 
       <div>
@@ -114,6 +121,13 @@
         />
         Is data depiction
       </label>
+      <label v-if="isLogoable">
+        <input
+          type="checkbox"
+          v-model="isLogo"
+        />
+        Is logo (SVG only)
+      </label>
       <VPagination
         class="margin-large-top"
         :pagination="pagination"
@@ -189,10 +203,17 @@ const props = defineProps({
   }
 })
 
+// Objects that can be identified by a Logo
+const LOGOABLE_TYPES = ['Organization']
+
+const LOGO_TYPE = 'Depiction::Logo'
+const DEPICTION_TYPE = 'Depiction'
+
 const parameters = ref({})
 const depiction = ref()
 const pagination = ref({})
 const isDataDepiction = ref(false)
+const isLogo = ref(false)
 const selectedObject = ref()
 const filterList = ref([])
 const figureRef = ref(null)
@@ -202,6 +223,15 @@ const { list, addToList, removeFromList } = useSlice({
 })
 
 const updateObjectType = computed(() => selectedObject.value)
+
+const isLogoable = computed(() => LOGOABLE_TYPES.includes(props.objectType))
+
+const depictionIsLogo = computed({
+  get: () => depiction.value?.type === LOGO_TYPE,
+  set: (value) => {
+    depiction.value.type = value ? LOGO_TYPE : DEPICTION_TYPE
+  }
+})
 
 function success(file, response) {
   addToList(response)
@@ -214,6 +244,10 @@ function sending(file, xhr, formData) {
     decodeURIComponent(props.globalId)
   )
   formData.append('depiction[is_metadata_depiction]', isDataDepiction.value)
+
+  if (isLogoable.value) {
+    formData.append('depiction[type]', isLogo.value ? LOGO_TYPE : DEPICTION_TYPE)
+  }
 }
 
 function updateFigure() {
@@ -249,6 +283,10 @@ function createDepiction(image) {
     image_id: image.id,
     annotated_global_entity: props.globalId,
     is_metadata_depiction: isDataDepiction.value
+  }
+
+  if (isLogoable.value) {
+    depiction.type = isLogo.value ? LOGO_TYPE : DEPICTION_TYPE
   }
 
   Depiction.create({ depiction }).then(({ body }) => {

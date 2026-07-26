@@ -83,6 +83,10 @@ Core: # a Section
       - Person
     categories:
       - source
+  ProjectOrganization:
+    status: :prototype
+    related_models:
+      - Organization
   BiologicalAssociation:
     status: :prototype
     related_models:

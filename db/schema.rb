@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_22_190137) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_26_165536) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -759,6 +759,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_190137) do
     t.integer "sled_image_y_position"
     t.xml "svg_clip"
     t.string "svg_view_box"
+    t.string "type"
     t.datetime "updated_at", precision: nil, null: false
     t.integer "updated_by_id", null: false
     t.index ["created_by_id"], name: "index_depictions_on_created_by_id"
@@ -768,6 +769,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_190137) do
     t.index ["image_id"], name: "index_depictions_on_image_id"
     t.index ["project_id"], name: "index_depictions_on_project_id"
     t.index ["sled_image_id"], name: "index_depictions_on_sled_image_id"
+    t.index ["type"], name: "index_depictions_on_type"
     t.index ["updated_by_id"], name: "index_depictions_on_updated_by_id"
   end
 
@@ -1659,6 +1661,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_190137) do
     t.text "disambiguating_description"
     t.string "duns"
     t.string "email"
+    t.bigint "geographic_area_id"
     t.string "global_location_number"
     t.string "legal_name"
     t.string "name", null: false
@@ -1668,6 +1671,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_190137) do
     t.datetime "updated_at", precision: nil, null: false
     t.integer "updated_by_id", null: false
     t.index ["created_by_id"], name: "index_organizations_on_created_by_id"
+    t.index ["geographic_area_id"], name: "index_organizations_on_geographic_area_id"
     t.index ["name"], name: "index_organizations_on_name"
     t.index ["updated_by_id"], name: "index_organizations_on_updated_by_id"
   end
@@ -1824,6 +1828,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_190137) do
     t.index ["project_id"], name: "index_project_members_on_project_id"
     t.index ["updated_by_id"], name: "index_project_members_on_updated_by_id"
     t.index ["user_id"], name: "index_project_members_on_user_id"
+  end
+
+  create_table "project_organizations", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "created_by_id", null: false
+    t.bigint "organization_id", null: false
+    t.bigint "project_id", null: false
+    t.datetime "updated_at", null: false
+    t.integer "updated_by_id", null: false
+    t.index ["created_by_id"], name: "index_project_organizations_on_created_by_id"
+    t.index ["organization_id"], name: "index_project_organizations_on_organization_id"
+    t.index ["project_id", "organization_id"], name: "index_project_organizations_on_project_id_and_organization_id", unique: true
+    t.index ["project_id"], name: "index_project_organizations_on_project_id"
+    t.index ["updated_by_id"], name: "index_project_organizations_on_updated_by_id"
   end
 
   create_table "project_sources", id: :serial, force: :cascade do |t|
@@ -2615,6 +2633,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_190137) do
   add_foreign_key "observations", "projects"
   add_foreign_key "observations", "users", column: "created_by_id"
   add_foreign_key "observations", "users", column: "updated_by_id"
+  add_foreign_key "organizations", "geographic_areas"
   add_foreign_key "organizations", "geographic_areas", column: "area_served_id"
   add_foreign_key "organizations", "organizations", column: "department_id"
   add_foreign_key "organizations", "organizations", column: "parent_organization_id"
@@ -2652,6 +2671,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_190137) do
   add_foreign_key "project_members", "users", column: "created_by_id", name: "project_members_created_by_id_fkey"
   add_foreign_key "project_members", "users", column: "updated_by_id", name: "project_members_updated_by_id_fkey"
   add_foreign_key "project_members", "users", name: "project_members_user_id_fkey"
+  add_foreign_key "project_organizations", "organizations"
+  add_foreign_key "project_organizations", "projects"
+  add_foreign_key "project_organizations", "users", column: "created_by_id"
+  add_foreign_key "project_organizations", "users", column: "updated_by_id"
   add_foreign_key "project_sources", "projects", name: "project_sources_project_id_fkey"
   add_foreign_key "project_sources", "sources", name: "project_sources_source_id_fkey"
   add_foreign_key "project_sources", "users", column: "created_by_id", name: "project_sources_created_by_id_fkey"
