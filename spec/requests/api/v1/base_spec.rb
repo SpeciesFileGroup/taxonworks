@@ -34,10 +34,10 @@ describe Api::V1::BaseController, type: :request do
       ProjectOrganization.create!(organization:, project:, by: user)
     }
 
-    let!(:logo) {
-      Depiction::Logo.create!(
+    let!(:depiction) {
+      Depiction.create!(
         depiction_object: organization,
-        image: FactoryBot.create(:valid_svg_image, by: user, project:),
+        image: FactoryBot.create(:tiny_random_image, by: user, project:),
         project:,
         by: user
       )
@@ -53,9 +53,9 @@ describe Api::V1::BaseController, type: :request do
       expect(JSON.parse(response.body).dig('open_projects', 0, 'organizations', 0)).not_to include('depictions')
     end
 
-    specify 'extend[]=depictions includes the logo' do
+    specify 'extend[]=depictions includes the depiction' do
       get '/api/v1/', params: {extend: ['depictions']}
-      expect(JSON.parse(response.body).dig('open_projects', 0, 'organizations', 0, 'depictions', 0)).to include({'type' => 'Depiction::Logo'})
+      expect(JSON.parse(response.body).dig('open_projects', 0, 'organizations', 0, 'depictions', 0)).to include({'id' => depiction.id})
     end
   end
 

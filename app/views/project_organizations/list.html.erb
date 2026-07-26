@@ -4,7 +4,7 @@
   <thead>
   <tr>
     <%= fancy_th_tag(name: 'Organization') -%>
-    <%= fancy_th_tag(name: 'Logos') -%>
+    <%= fancy_th_tag(name: 'Depictions') -%>
     <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
     <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
@@ -14,7 +14,7 @@
   <% @project_organizations.each do |project_organization| %>
       <%= content_tag(:tr, class: :contextMenuCells) do -%>
           <td><%= organization_link(project_organization.organization) %></td>
-          <td><%= project_organization_logos_tag(project_organization) %></td>
+          <td><%= project_organization_depictions_tag(project_organization) %></td>
           <%= fancy_metadata_cells_tag(project_organization) -%>
       <% end %>
   <% end %>

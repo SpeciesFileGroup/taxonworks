@@ -1275,10 +1275,10 @@ collection_visualization_task:
   description: 'Visualize a collection hierarchy using treemap and other views.'
 
 project_organizations_task:
-  hub: true
+  hub: false
   name: 'Project organizations'
   related:
   categories:
     - project
   status: prototype
-  description: 'Add and remove the organizations, and their logos, that are associated with your project.'
+  description: 'Add and remove the organizations that are associated with your project.'

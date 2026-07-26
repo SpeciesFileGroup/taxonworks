@@ -1,4 +1,4 @@
-json.extract! depiction, :id, :type, :depiction_object_id, :depiction_object_type,
+json.extract! depiction, :id, :depiction_object_id, :depiction_object_type,
 :image_id,
 :caption, :figure_label, :is_metadata_depiction,
 :sled_image_id, :sled_image_x_position, :sled_image_y_position,

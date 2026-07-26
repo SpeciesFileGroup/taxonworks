@@ -2,8 +2,8 @@
   <div>
     <h1>Project organizations</h1>
     <p>
-      The organizations associated with this project. Logos are added to an
-      organization with the radial annotator, they must be SVG.
+      The organizations associated with this project. Images are added to an
+      organization with the radial annotator.
     </p>
 
     <div class="panel content separate-bottom">
@@ -55,7 +55,7 @@ function addOrganization(organization) {
   })
 }
 
-// Logos are added with the radial annotator, so the row is reloaded when it closes
+// Depictions are added with the radial annotator, so the row is reloaded when it closes
 function refreshProjectOrganization(projectOrganization) {
   ProjectOrganization.find(projectOrganization.id).then(({ body }) => {
     const index = projectOrganizations.value.findIndex(

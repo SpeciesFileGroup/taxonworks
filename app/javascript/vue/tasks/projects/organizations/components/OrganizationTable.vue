@@ -3,7 +3,7 @@
     <thead>
       <tr>
         <th>Organization</th>
-        <th>Logos</th>
+        <th>Depictions</th>
         <th class="w-2" />
       </tr>
     </thead>
@@ -20,10 +20,10 @@
         <td>
           <div class="horizontal-left-content gap-small">
             <img
-              v-for="logo in projectOrganization.logos"
-              :key="logo.id"
-              class="project-organization-logo"
-              :src="logo.image.image_file_url"
+              v-for="depiction in projectOrganization.depictions"
+              :key="depiction.id"
+              class="project-organization-depiction"
+              :src="depiction.image.alternatives.thumb.image_file_url"
               :alt="projectOrganization.organization.object_label"
             />
           </div>
@@ -68,7 +68,7 @@ const emit = defineEmits(['remove', 'refresh'])
 </script>
 
 <style scoped>
-.project-organization-logo {
+.project-organization-depiction {
   max-height: 40px;
   max-width: 120px;
 }

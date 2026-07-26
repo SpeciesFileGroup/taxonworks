@@ -7,6 +7,6 @@ json.organization do
   json.partial! '/organizations/attributes', organization: project_organization.organization
 end
 
-json.logos project_organization.logos do |logo|
-  json.partial! '/depictions/attributes', depiction: logo
+json.depictions project_organization.depictions do |depiction|
+  json.partial! '/depictions/attributes', depiction:
 end

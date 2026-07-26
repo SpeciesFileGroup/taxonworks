@@ -15,7 +15,7 @@ json.open_projects do
 
       if extend_response_with('depictions')
         json.depictions project_organization.depictions do |depiction|
-          json.extract! depiction, :id, :type, :caption, :figure_label
+          json.extract! depiction, :id, :caption, :figure_label
 
           json.image do
             json.id depiction.image.id

@@ -15,14 +15,14 @@ module ProjectOrganizationsHelper
   end
 
   # @return [String, nil]
-  #   the SVG logo(s) for the Organization, as used in this project
-  def project_organization_logos_tag(project_organization)
+  #   the Organization's depictions, as used in this project
+  def project_organization_depictions_tag(project_organization)
     return nil if project_organization.nil?
-    logos = project_organization.logos
-    return nil if logos.none?
+    depictions = project_organization.depictions
+    return nil if depictions.none?
 
-    logos.collect { |logo|
-      image_tag(logo.image.image_file.url, alt: project_organization_tag(project_organization), class: 'logo')
+    depictions.collect { |depiction|
+      depiction_tag(depiction, size: :thumb)
     }.join.html_safe
   end
 

@@ -17,9 +17,5 @@ FactoryBot.define do
       image_file {  Rack::Test::UploadedFile.new(Spec::Support::Utilities::Files.generate_tiny_random_png, 'image/png')   }
     end
 
-    factory :valid_svg_image do
-      image_file { Rack::Test::UploadedFile.new((Rails.root + 'spec/files/images/logo.svg'), 'image/svg+xml') }
-    end
-
   end
 end

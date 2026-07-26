@@ -759,7 +759,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_165536) do
     t.integer "sled_image_y_position"
     t.xml "svg_clip"
     t.string "svg_view_box"
-    t.string "type"
     t.datetime "updated_at", precision: nil, null: false
     t.integer "updated_by_id", null: false
     t.index ["created_by_id"], name: "index_depictions_on_created_by_id"
@@ -769,7 +768,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_165536) do
     t.index ["image_id"], name: "index_depictions_on_image_id"
     t.index ["project_id"], name: "index_depictions_on_project_id"
     t.index ["sled_image_id"], name: "index_depictions_on_sled_image_id"
-    t.index ["type"], name: "index_depictions_on_type"
     t.index ["updated_by_id"], name: "index_depictions_on_updated_by_id"
   end
 

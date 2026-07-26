@@ -28,10 +28,4 @@ class ProjectOrganization < ApplicationRecord
     )
   end
 
-  # @return [Scope]
-  #   the Logos depicting the Organization in this project
-  def logos
-    depictions.logos
-  end
-
 end

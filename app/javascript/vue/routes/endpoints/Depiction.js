@@ -3,7 +3,6 @@ import AjaxCall from '@/helpers/ajaxCall'
 
 const permitParams = {
   depiction: {
-    type: String,
     depiction_object_id: Number,
     depiction_object_type: String,
     annotated_global_entity: String,

@@ -51,7 +51,7 @@ RSpec.describe Organization, type: :model do
   context 'depictions' do
     specify 'an Organization can be depicted' do
       o = FactoryBot.create(:valid_organization)
-      d = FactoryBot.create(:valid_depiction_logo, depiction_object: o)
+      d = FactoryBot.create(:valid_depiction, depiction_object: o)
       expect(o.depictions.reload).to include(d)
     end
   end
