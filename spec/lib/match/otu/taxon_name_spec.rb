@@ -46,4 +46,32 @@ describe Match::Otu::TaxonName, type: :model do
       end
     end
   end
+
+  context 'ambiguous' do
+    context 'when multiple candidates share a cached name but resolve to the same valid taxon (e.g. a Combination alongside its own Protonym)' do
+      let!(:combination_like) do
+        Protonym.create!(name: 'dus', rank_class: Ranks.lookup(:iczn, :species), parent: genus).tap do |tn|
+          tn.update_columns(cached: valid_species.cached, cached_valid_taxon_name_id: valid_species.id)
+        end
+      end
+
+      specify 'is not flagged ambiguous' do
+        result = match(names: [valid_species.cached]).first
+        expect(result[:ambiguous]).to eq(false)
+      end
+    end
+
+    context 'when multiple candidates share a cached name but resolve to different valid taxa (true homonyms)' do
+      let!(:homonym) do
+        Protonym.create!(name: 'eus', rank_class: Ranks.lookup(:iczn, :species), parent: genus).tap do |tn|
+          tn.update_columns(cached: valid_species.cached)
+        end
+      end
+
+      specify 'is flagged ambiguous' do
+        result = match(names: [valid_species.cached]).first
+        expect(result[:ambiguous]).to eq(true)
+      end
+    end
+  end
 end

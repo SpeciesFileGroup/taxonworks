@@ -14,10 +14,12 @@
       @drop.prevent="handleFileDrop"
     >
       <textarea
+        ref="textareaRef"
         v-model="nameText"
         class="full_width"
         placeholder="Paste names here, one per line, or drag a CSV file..."
         rows="12"
+        @paste="handlePaste"
       />
     </div>
 
@@ -54,7 +56,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, useTemplateRef } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import { useDropzonePasteManager } from '@/composables/useDropzonePasteManager'
 import { MAX_ROWS } from '../constants.js'
@@ -67,6 +69,7 @@ const nameText = ref('')
 const isDragging = ref(false)
 const csvParsedData = ref(null)
 const fileInfo = ref(null)
+const textareaRef = useTemplateRef('textareaRef')
 let pasteZone = null
 
 const lines = computed(() => nameText.value.split('\n').map((l) => l.trim()))
@@ -97,14 +100,21 @@ function handleFileDrop(event) {
   loadFile(file)
 }
 
-function handleFilePaste(event) {
-  const items = event.clipboardData?.items
-  if (!items) return
+function handlePaste(event) {
+  const clipboardData = event.clipboardData
+  const items = clipboardData?.items
+  if (!items?.length) return // clipboard is empty, nothing to do
+
+  // Spreadsheet copies (e.g. Google Sheets) often also put an image
+  // snapshot of the selection on the clipboard as a file item. Prefer the
+  // plain text, when present, over any file item.
+  const hasText = clipboardData.getData('text')?.trim()
+  if (hasText) return // gets handled natively
 
   for (const item of items) {
     if (item.kind !== 'file') continue
     const file = item.getAsFile()
-    if (!file) continue
+    if (!file?.size) continue // skip empty/phantom file entries some browsers report on an empty clipboard
     event.preventDefault()
     loadFile(file)
     return
@@ -112,8 +122,9 @@ function handleFilePaste(event) {
 }
 
 onMounted(() => {
-  pasteZone = { handler: handleFilePaste, prioritize: false }
+  pasteZone = { handler: handlePaste, prioritize: false }
   registerPaster(pasteZone)
+  textareaRef.value?.focus()
 })
 
 onBeforeUnmount(() => {

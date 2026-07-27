@@ -91,9 +91,19 @@ module Match
           taxon_name_id: resolved.id,
           taxon_name: resolved,
           otus: otus,
-          ambiguous: ranked.length > 1,
+          ambiguous: genuinely_ambiguous?(ranked),
           matched: true
         }
+      end
+
+      # Multiple candidate rows aren't ambiguous if they all resolve to the
+      # same valid taxon (e.g. a Combination alongside its own Protonym) —
+      # ranking always picks correctly there. Only flag it when candidates
+      # point to genuinely different valid taxa (e.g. true homonyms).
+      # @param ranked [Array<TaxonName>]
+      # @return [Boolean]
+      def genuinely_ambiguous?(ranked)
+        ranked.map(&:cached_valid_taxon_name_id).uniq.length > 1
       end
 
       # @param name [String]
