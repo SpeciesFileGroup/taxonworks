@@ -22,7 +22,7 @@
 </template>
 
 <script setup>
-import OrganizationPicker from './components/OrganizationPicker.vue'
+import OrganizationPicker from '@/components/organizationPicker.vue'
 import OrganizationTable from './components/OrganizationTable.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import { ProjectOrganization } from '@/routes/endpoints'
