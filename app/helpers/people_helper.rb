@@ -19,13 +19,14 @@ module PeopleHelper
     link_to(person_tag(person), person.metamorphosize)
   end
 
-  def person_autocomplete_tag(person)
+  def person_autocomplete_tag(person, term = nil)
     return nil if person.nil?
-    [ person_tag(person),
+    s = [ person_tag(person),
       person_timeframe_tag(person),
       person_used_tag(person),
       person_project_membership_tag(person)
     ].compact.join(' ')
+    mark_tag(s, term)
   end
 
   def person_timeframe_tag(person)

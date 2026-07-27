@@ -20,8 +20,8 @@ module AnatomicalPartsHelper
     content_tag(:span, safe_join([anatomical_part.cached, ': ', origin_content || '']))
   end
 
-  def anatomical_part_autocomplete_tag(anatomical_part)
-    anatomical_part_tag(anatomical_part)
+  def anatomical_part_autocomplete_tag(anatomical_part, term = nil)
+    mark_tag(anatomical_part_tag(anatomical_part), term)
   end
 
   def label_for_anatomical_part(anatomical_part, depth: 0)
