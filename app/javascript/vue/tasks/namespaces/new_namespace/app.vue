@@ -1,7 +1,6 @@
 <template>
-  <div class="namespace">
-    <h1>{{ namespace.id ? 'Edit' : 'New' }} namespace</h1>
-    <v-navbar>
+  <div class="container-lg mx-auto margin-medium-top">
+    <VNavbar>
       <div class="flex-separate middle">
         <a
           v-if="namespace.id"
@@ -12,7 +11,8 @@
         <span v-else>{{ getPreview }}</span>
 
         <div>
-          <v-pin
+          <VPin
+            v-if="namespace.id"
             class="margin-small-right"
             type="Namespace"
             :object-id="namespace.id"
@@ -22,18 +22,18 @@
             :namespace="namespace"
             @onSave="setNamespace"
           />
-          <v-btn
+          <VBtn
             color="primary"
             medium
             @click="resetForm"
           >
             New
-          </v-btn>
+          </VBtn>
         </div>
       </div>
-    </v-navbar>
+    </VNavbar>
     <div class="namespace__layout">
-      <block-layout>
+      <BlockLayout>
         <template #header>
           <h3>Namespace</h3>
         </template>
@@ -42,8 +42,8 @@
             <namespace-form v-model="namespace" />
           </div>
         </template>
-      </block-layout>
-      <namespace-match
+      </BlockLayout>
+      <NamespaceMatch
         v-if="!namespace.id"
         :name="namespace.name"
         @onSelect="setNamespace"
@@ -113,13 +113,10 @@ export default {
 
 <style scoped lang="scss">
 .namespace {
-  margin: 0 auto;
-  max-width: 1240px;
-
   &__layout {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1em;
+    gap: 1rem;
   }
 }
 </style>
