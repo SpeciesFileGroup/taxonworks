@@ -56,7 +56,8 @@
                     </VBtn>
                     <VBtn
                       color="primary"
-                      circle
+                      icon
+                      variant="tonal"
                       title="Reload data attributes"
                       @click="
                         () => {
@@ -66,11 +67,7 @@
                         }
                       "
                     >
-                      <VIcon
-                        name="undo"
-                        x-small
-                        title="Reload data attributes"
-                      />
+                      <IconReset class="w-4 h-4" />
                     </VBtn>
 
                     <VBtn
@@ -182,7 +179,8 @@
 
                     <VBtn
                       color="primary"
-                      circle
+                      icon
+                      variant="tonal"
                       title="Reload column"
                       @click="
                         () => {
@@ -190,11 +188,7 @@
                         }
                       "
                     >
-                      <VIcon
-                        name="undo"
-                        x-small
-                        title="Reload data attributes"
-                      />
+                      <IconReset class="w-4 h-4" />
                     </VBtn>
 
                     <VBtn
@@ -308,6 +302,7 @@ import { sortArray } from '@/helpers/arrays.js'
 import useStore from '../store/store.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconReset from '@/components/Icon/IconReset.vue'
 import IconPencil from '@/components/Icon/IconPencil.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 import VirtualScroller from '@/components/ui/Table/VirtualScroller.vue'

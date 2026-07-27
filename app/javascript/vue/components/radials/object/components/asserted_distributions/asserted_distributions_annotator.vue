@@ -8,14 +8,12 @@
         <span v-html="editTitle" />
       </h3>
       <VBtn
-        circle
+        icon
+        variant="tonal"
         color="primary"
         @click="resetForm"
       >
-        <VIcon
-          name="undo"
-          small
-        />
+        <IconReset class="w-4 h-4" />
       </VBtn>
     </div>
     <h3 v-else>New asserted distribution</h3>
@@ -112,7 +110,7 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 import VMap from '@/components/ui/VMap/VMap.vue'
 import makeEmptyCitation from '../../helpers/makeEmptyCitation.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconReset from '@/components/Icon/IconReset.vue'
 import FormCitation from '@/components/Form/FormCitation.vue'
 import VBroadcast from '@/components/ui/VBroadcast/VBroadcast.vue'
 import sortArray from '@/helpers/sortArray'

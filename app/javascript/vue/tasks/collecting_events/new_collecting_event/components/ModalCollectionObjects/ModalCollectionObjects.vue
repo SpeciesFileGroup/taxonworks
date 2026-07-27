@@ -1,7 +1,7 @@
 <template>
   <div>
     <div>
-      <spinner-component
+      <VSpinner
         v-if="isLoading"
         legend="Loading"
         spinner-position="left"
@@ -14,16 +14,16 @@
           marginRight: '4px'
         }"
       />
-      <button
-        type="button"
-        class="button normal-input button-default"
+      <VBtn
+        medium
+        color="primary"
         :disabled="!ceId"
         @click="showModal = true"
       >
         Add/Current ({{ pagination.total || 0 }})
-      </button>
+      </VBtn>
     </div>
-    <modal-component
+    <VModal
       v-if="showModal"
       @close="showModal = false"
       transparent
@@ -39,7 +39,7 @@
       </template>
       <template #body>
         <div class="horizontal-left-content align-start">
-          <spinner-component
+          <VSpinner
             v-if="isLoading || isSaving"
             :legend="
               isSaving
@@ -178,8 +178,8 @@
                       v-if="item.global_id"
                       class="horizontal-left-content gap-small"
                     >
-                      <radial-annotator :global-id="item.global_id" />
-                      <radial-navigation :global-id="item.global_id" />
+                      <RadialAnnotator :global-id="item.global_id" />
+                      <RadialNavigation :global-id="item.global_id" />
                     </div>
                   </td>
                 </tr>
@@ -188,21 +188,21 @@
           </div>
         </div>
       </template>
-    </modal-component>
+    </VModal>
   </div>
 </template>
 
 <script setup>
 import {
-  COLLECTION_OBJECT,
   IDENTIFIER_LOCAL_CATALOG_NUMBER,
   IDENTIFIER_LOCAL_RECORD_NUMBER
 } from '@/constants/index.js'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import RadialNavigation from '@/components/radials/navigation/radial'
-import ModalComponent from '@/components/ui/Modal'
-import SpinnerComponent from '@/components/ui/VSpinner'
+import VModal from '@/components/ui/Modal'
+import VSpinner from '@/components/ui/VSpinner'
 import VPagination from '@/components/pagination.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 import BiocurationComponent from './Biocuration'
 import PreparationTypes from './PreparationTypes'
@@ -213,11 +213,7 @@ import LabelComponent from './Label'
 import TagComponent from './Tags'
 
 import incrementIdentifier from '@/tasks/digitize/helpers/incrementIdentifier.js'
-import {
-  BiocurationClassification,
-  CollectionObject,
-  TaxonDetermination
-} from '@/routes/endpoints'
+import { CollectionObject } from '@/routes/endpoints'
 import { ref, watch } from 'vue'
 import { getPagination } from '@/helpers'
 

@@ -12,13 +12,11 @@
         </VBtn>
         <VBtn
           color="primary"
-          circle
+          icon
+          variant="tonal"
           @click="resetFilter"
         >
-          <VIcon
-            name="reset"
-            x-small
-          />
+          <IconReset class="w-4 h-4" />
         </VBtn>
       </div>
     </div>
@@ -55,7 +53,7 @@ import FacetCombination from './filters/combinations.vue'
 import CombinationsFilter from './filters/combinations'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconReset from '@/components/Icon/IconReset.vue'
 import { TaxonName } from '@/routes/endpoints'
 import { URLParamsToJSON } from '@/helpers/url/parse.js'
 import { GetterNames } from '../store/getters/getters'
@@ -70,7 +68,7 @@ export default {
     FacetCombination,
     FacetWith,
     VBtn,
-    VIcon
+    IconReset
   },
 
   props: {

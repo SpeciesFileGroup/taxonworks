@@ -9,13 +9,11 @@
         <div class="header-buttons">
           <VBtn
             color="primary"
-            circle
+            icon
+            variant="tonal"
             @click="refresh()"
           >
-            <VIcon
-              name="reset"
-              x-small
-            />
+            <IconReset class="w-4 h-4" />
           </VBtn>
         </div>
         <div class="header-right">
@@ -87,7 +85,7 @@
 <script setup>
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconReset from '@/components/Icon/IconReset.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 import VSpinner from '@/components/ui/VSpinner'
 import { onMounted, ref } from 'vue'

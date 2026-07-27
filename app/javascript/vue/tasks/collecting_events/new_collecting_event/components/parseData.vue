@@ -1,12 +1,14 @@
 <template>
   <div>
-    <button
-      class="button normal-input button-default"
+    <VBtn
+      medium
+      color="primary"
+      variant="tonal"
       @click="() => setModalView(true)"
     >
       Parse from
-    </button>
-    <modal-component
+    </VBtn>
+    <VModal
       v-if="isModalVisible"
       @close="() => setModalView(false)"
       :container-style="{ width: '800px' }"
@@ -21,7 +23,7 @@
           @selected="parseData"
         />
       </template>
-    </modal-component>
+    </VModal>
   </div>
 </template>
 
@@ -29,8 +31,9 @@
 import { ref } from 'vue'
 import { COLLECTING_EVENT } from '@/constants'
 import { CollectingEvent } from '@/routes/endpoints'
-import ModalComponent from '@/components/ui/Modal'
+import VModal from '@/components/ui/Modal'
 import SmartSelector from '@/components/ui/SmartSelector'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const emit = defineEmits(['parse'])
 

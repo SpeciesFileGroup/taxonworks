@@ -71,17 +71,15 @@
                 />
                 <VBtn
                   color="primary"
-                  circle
+                  icon
+                  variant="tonal"
                   @click="
                     () => {
                       ceStore.reset()
                     }
                   "
                 >
-                  <VIcon
-                    name="undo"
-                    small
-                  />
+                  <IconReset class="w-4 h-4" />
                 </VBtn>
               </div>
             </div>
@@ -116,6 +114,7 @@ import useCEStore from '@/components/Form/FormCollectingEvent/store/collectingEv
 import useSettingStore from '../store/settings.js'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconReset from '@/components/Icon/IconReset.vue'
 import { ComponentMap } from '@/components/Form/FormCollectingEvent/const/components.js'
 import { COLLECTING_EVENT, FIELD_OCCURRENCE } from '@/constants'
 import { computed } from 'vue'

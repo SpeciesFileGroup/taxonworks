@@ -84,14 +84,12 @@
               <VBtn
                 v-if="defaultUser"
                 class="margin-small-left"
-                circle
+                icon
+                variant="tonal"
                 color="primary"
                 @click="() => (defaultUser = null)"
               >
-                <VIcon
-                  name="undo"
-                  small
-                />
+                <IconReset class="w-4 h-4" />
               </VBtn>
             </div>
 
@@ -294,7 +292,7 @@ import { computed, onBeforeMount, reactive, ref, toRaw } from 'vue'
 import { Project, User } from '@/routes/endpoints'
 import PredicateFilter from '@/components/Export/PredicateFilter.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconReset from '@/components/Icon/IconReset.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import EmlFileLoader from './components/EmlFileLoader.vue'

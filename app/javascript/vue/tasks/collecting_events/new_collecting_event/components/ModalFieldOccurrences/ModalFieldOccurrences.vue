@@ -14,14 +14,14 @@
           marginRight: '4px'
         }"
       />
-      <button
-        type="button"
-        class="button normal-input button-default"
+      <VBtn
+        medium
+        color="primary"
         :disabled="!ceId"
         @click="showModal = true"
       >
         Add/Current ({{ pagination.total || 0 }})
-      </button>
+      </VBtn>
     </div>
     <VModal
       v-if="showModal"
@@ -137,6 +137,7 @@ import RadialObject from '@/components/radials/object/radial.vue'
 import VModal from '@/components/ui/Modal'
 import VSpinner from '@/components/ui/VSpinner'
 import VPagination from '@/components/pagination.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 import BiocurationComponent from '../ModalCollectionObjects/Biocuration'
 import DeterminerComponent from '../ModalCollectionObjects/Determiner'

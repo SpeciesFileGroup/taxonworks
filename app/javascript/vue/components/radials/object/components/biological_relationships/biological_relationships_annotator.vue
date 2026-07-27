@@ -102,13 +102,11 @@
         <VBtn
           class="margin-small-left margin-small-right"
           color="primary"
-          circle
+          icon
+          variant="tonal"
           @click="unsetBiologicalRelationship"
         >
-          <VIcon
-            name="undo"
-            small
-          />
+          <IconReset class="w-4 h-4" />
         </VBtn>
         <LockComponent v-model="lock.relationship" />
       </h3>
@@ -127,13 +125,11 @@
         <VBtn
           class="margin-small-left"
           color="primary"
-          circle
+          icon
+          variant="tonal"
           @click="relatedObject = undefined"
         >
-          <VIcon
-            name="undo"
-            small
-          />
+          <IconReset class="w-4 h-4" />
         </VBtn>
       </h3>
       <h3
@@ -230,7 +226,7 @@ import TaxonDeterminationOtu from '@/components/TaxonDetermination/TaxonDetermin
 import useBiologicalAssociationAnatomicalParts from './composables/useBiologicalAssociationAnatomicalParts.js'
 import LockComponent from '@/components/ui/VLock/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconReset from '@/components/Icon/IconReset.vue'
 import FormCitation from '@/components/Form/FormCitation.vue'
 import VPagination from '@/components/pagination.vue'
 import makeEmptyCitation from '../../helpers/makeEmptyCitation.js'

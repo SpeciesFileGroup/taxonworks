@@ -14,15 +14,13 @@
           :list="Object.values(PANEL_NAME)"
         />
         <VBtn
-          circle
+          icon
+          variant="tonal"
           medium
           color="primary"
           @click="resetTask"
         >
-          <VIcon
-            name="reset"
-            x-small
-          />
+          <IconReset class="w-4 h-4" />
         </VBtn>
       </div>
     </div>
@@ -62,7 +60,7 @@ import PanelSqed from './components/Panel/PanelSqed/PanelSqed.vue'
 import LayoutSettings from './components/LayoutSettings.vue'
 import TableGrid from '@/components/layout/Table/TableGrid.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconReset from '@/components/Icon/IconReset.vue'
 import { PANEL_COMPONENTS, PANEL_NAME } from './const/layout'
 import { GetterNames } from './store/getters/getters.js'
 import { MutationNames } from './store/mutations/mutations.js'

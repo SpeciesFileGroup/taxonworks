@@ -39,13 +39,11 @@
             <RadialObject :global-id="selected.global_id" />
             <VBtn
               color="primary"
-              circle
+              icon
+              variant="tonal"
               @click="unset"
             >
-              <VIcon
-                small
-                name="undo"
-              />
+              <IconReset class="w-4 h-4" />
             </VBtn>
           </div>
         </div>
@@ -60,7 +58,7 @@ import { useSettingStore } from '../../store'
 import { Serial } from '@/routes/endpoints'
 import VLock from '@/components/ui/VLock/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconReset from '@/components/Icon/IconReset.vue'
 import SmartSelector from '@/components/ui/SmartSelector'
 import RadialObject from '@/components/radials/navigation/radial'
 

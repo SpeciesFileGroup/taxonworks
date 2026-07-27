@@ -18,16 +18,13 @@
 
           <VBtn
             color="primary"
-            circle
+            icon
+            variant="tonal"
             medium
             title="Reset"
             @click="reset"
           >
-            <VIcon
-              name="reset"
-              x-small
-              title="Reset"
-            />
+            <IconReset class="w-4 h-4" />
           </VBtn>
         </div>
       </div>
@@ -138,7 +135,7 @@
 <script setup>
 import AnatomicalPartsGraph from './components/AnatomicalPartsGraph.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconReset from '@/components/Icon/IconReset.vue'
 import IconDownload from '@/components/Icon/IconDownload.vue'
 import platformKey from '@/helpers/getPlatformKey'
 import { URLParamsToJSON } from '@/helpers/url/parse'

@@ -9,14 +9,12 @@
       <RadialNavigator :global-id="containerItem.objectGlobalId" />
       <VBtn
         v-if="!containerItem.id"
-        circle
+        icon
+        variant="tonal"
         color="primary"
         @click="unsetContainerObject"
       >
-        <VIcon
-          name="undo"
-          small
-        />
+        <IconReset class="w-4 h-4" />
       </VBtn>
     </div>
     <div v-else>
@@ -57,7 +55,7 @@ import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconReset from '@/components/Icon/IconReset.vue'
 
 const TYPES = {
   [COLLECTION_OBJECT]: {

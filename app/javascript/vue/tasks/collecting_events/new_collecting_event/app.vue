@@ -101,30 +101,32 @@
         <div class="panel content">
           <h3>Collection object</h3>
           <div class="horizontal-left-content gap-small">
+            <ModalCollectionObjects :ce-id="store.collectingEvent.id" />
             <VBtn
               color="primary"
               medium
+              variant="tonal"
               :disabled="!store.collectingEvent.id"
               @click="openComprehensive"
             >
               New
             </VBtn>
-            <ModalCollectionObjects :ce-id="store.collectingEvent.id" />
             <ParseData @parse="setParsedData" />
           </div>
         </div>
         <div class="panel content">
           <h3>Field occurrence</h3>
           <div class="horizontal-left-content gap-small">
+            <ModalFieldOccurrences :ce-id="store.collectingEvent.id" />
             <VBtn
               color="primary"
               medium
+              variant="tonal"
               :disabled="!store.collectingEvent.id"
               @click="openNewFieldOccurrence"
             >
               New
             </VBtn>
-            <ModalFieldOccurrences :ce-id="store.collectingEvent.id" />
           </div>
         </div>
         <RightSection @select="(e) => loadCollectingEvent(e.id)" />

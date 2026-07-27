@@ -18,14 +18,12 @@
               Match
             </VBtn>
             <VBtn
-              circle
+              icon
+              variant="tonal"
               color="primary"
               @click="reset"
             >
-              <VIcon
-                x-small
-                name="reset"
-              />
+              <IconReset class="w-4 h-4" />
             </VBtn>
           </div>
         </div>
@@ -113,7 +111,7 @@ import VNavbar from '@/components/layout/NavBar'
 import CSVButton from '@/components/csvButton.vue'
 import PanelStatus from './components/PanelStatus.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconReset from '@/components/Icon/IconReset.vue'
 import RadialFilter from '@/components/radials/filter/radial.vue'
 import { sanitizeHtml } from '@/helpers'
 

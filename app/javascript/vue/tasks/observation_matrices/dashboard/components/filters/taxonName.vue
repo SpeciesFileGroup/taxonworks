@@ -23,13 +23,11 @@
       <span v-html="taxon.object_tag" />
       <VBtn
         color="primary"
-        circle
+        icon
+        variant="tonal"
         @click="() => loadTaxon()"
       >
-        <VIcon
-          name="undo"
-          small
-        />
+        <IconReset class="w-4 h-4" />
       </VBtn>
     </div>
   </FacetContainer>
@@ -44,7 +42,7 @@ import { onMounted } from 'vue'
 import { useStore } from 'vuex'
 import { URLParamsToJSON } from '@/helpers/url/parse.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconReset from '@/components/Icon/IconReset.vue'
 
 const taxon = defineModel({
   type: Object,

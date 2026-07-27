@@ -15,15 +15,12 @@
             v-html="matrix.object_tag"
           />
           <v-btn
-            circle
+            icon
+            variant="tonal"
             color="primary"
             @click="matrix = undefined"
           >
-            <v-icon
-              small
-              name="undo"
-              color="white"
-            />
+            <IconReset class="w-4 h-4" />
           </v-btn>
         </div>
         <div
@@ -52,7 +49,7 @@
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconReset from '@/components/Icon/IconReset.vue'
 import DefaultPin from '@/components/ui/Button/ButtonPinned'
 import { ObservationMatrix } from '@/routes/endpoints'
 
@@ -62,7 +59,7 @@ export default {
     BlockLayout,
     DefaultPin,
     VBtn,
-    VIcon
+    IconReset
   },
 
   props: {

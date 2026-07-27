@@ -9,14 +9,12 @@
         <span v-html="citation.object_tag" />
       </h3>
       <VBtn
-        circle
+        icon
+        variant="tonal"
         color="primary"
         @click="() => (citation = newCitation())"
       >
-        <VIcon
-          name="undo"
-          small
-        />
+        <IconReset class="w-4 h-4" />
       </VBtn>
     </div>
     <h3 v-else>New citation</h3>
@@ -115,7 +113,7 @@ import CitationTopicForm from './CitationTopicForm.vue'
 import TopicPages from './TopicPages.vue'
 import HandleCitations from './handleOriginalModal'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconReset from '@/components/Icon/IconReset.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 import makeCitation from '@/factory/Citation'
 import VPagination from '@/components/pagination.vue'

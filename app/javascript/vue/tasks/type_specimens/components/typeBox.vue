@@ -32,16 +32,13 @@
             </div>
             <div class="horizontal-right-content gap-xsmall">
               <VBtn
-                circle
+                icon
+                variant="tonal"
                 color="primary"
                 title="Change taxon name"
                 @click="reset"
               >
-                <VIcon
-                  title="Change taxon name"
-                  name="undo"
-                  x-small
-                />
+                <IconReset class="w-4 h-4" />
               </VBtn>
               <VPin
                 type="TaxonName"
@@ -131,6 +128,7 @@ import VPin from '@/components/ui/Button/ButtonPin.vue'
 import OtuRadial from '@/components/otu/otu.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconReset from '@/components/Icon/IconReset.vue'
 import IconPencil from '@/components/Icon/IconPencil.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 

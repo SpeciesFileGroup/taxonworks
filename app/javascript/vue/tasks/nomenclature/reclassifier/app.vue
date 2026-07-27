@@ -8,13 +8,11 @@
       <li>
         <VBtn
           color="primary"
-          circle
+          icon
+          variant="tonal"
           @click="reset"
         >
-          <VIcon
-            name="reset"
-            x-small
-          />
+          <IconReset class="w-4 h-4" />
         </VBtn>
       </li>
     </ul>
@@ -106,7 +104,7 @@ import PanelTree from './components/Tree/PanelTree.vue'
 import UnifyWindow from './components/UnifyWindow.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconReset from '@/components/Icon/IconReset.vue'
 
 defineOptions({
   name: 'TaxonNameReclassifierApp'

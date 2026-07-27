@@ -4,7 +4,8 @@
       <div class="flex-separate middle full_width">
         <h1>New filename depicting image</h1>
         <VBtn
-          circle
+          icon
+          variant="tonal"
           color="primary"
           @click="
             () => {
@@ -13,10 +14,7 @@
             }
           "
         >
-          <VIcon
-            name="undo"
-            small
-          />
+          <IconReset class="w-4 h-4" />
         </VBtn>
       </div>
     </div>
@@ -35,7 +33,7 @@ import { ref } from 'vue'
 import UploadedImages from './components/UploadedImages.vue'
 import PanelImage from './components/PanelImage.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconReset from '@/components/Icon/IconReset.vue'
 
 const images = ref([])
 const error = ref([])

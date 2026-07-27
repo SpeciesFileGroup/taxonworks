@@ -18,14 +18,12 @@
               Match
             </VBtn>
             <VBtn
-              circle
+              icon
+              variant="tonal"
               color="primary"
               @click="reset"
             >
-              <VIcon
-                x-small
-                name="reset"
-              />
+              <IconReset class="w-4 h-4" />
             </VBtn>
           </div>
         </div>
@@ -168,7 +166,7 @@ import VCompare from './components/VCompare.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VNavbar from '@/components/layout/NavBar.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconReset from '@/components/Icon/IconReset.vue'
 import TableMatched from './components/Table/TableMatched.vue'
 import TableUnmatched from './components/Table/TableUnmatched.vue'
 import FacetMatchIdentifiers from '@/components/Filter/Facets/shared/FacetMatchIdentifiers.vue'

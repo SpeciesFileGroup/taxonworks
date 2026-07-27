@@ -12,11 +12,15 @@
         <li class="list-complete-item flex-separate middle">
           <span v-html="element.object_tag" />
           <div class="horizontal-left-content">
-            <span
-              class="circle-button btn-delete"
-              :class="{ 'button-default': !element.id }"
+            <VBtn
+              icon
+              color="primary"
+              variant="tonal"
+              title="Remove determination"
               @click="removeTaxonDetermination(index)"
-            />
+            >
+              <IconTrash class="w-4 h-4" />
+            </VBtn>
           </div>
         </li>
       </template>
@@ -27,6 +31,8 @@
 <script setup>
 import TaxonDeterminationForm from '@/components/TaxonDetermination/TaxonDeterminationForm.vue'
 import VDraggable from 'vuedraggable'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 
 const emit = defineEmits(['update:modelValue'])
 

@@ -87,14 +87,12 @@
               </VBtn>
               <VBtn
                 color="primary"
-                circle
+                icon
+                variant="tonal"
                 medium
                 @click="reset"
               >
-                <VIcon
-                  name="reset"
-                  x-small
-                />
+                <IconReset class="w-4 h-4" />
               </VBtn>
             </div>
             <ModalRelated
@@ -133,6 +131,7 @@ import BiologicalAssociationsGraph from './components/BiologicalAssociationsGrap
 import VNavbar from '@/components/layout/NavBar'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconReset from '@/components/Icon/IconReset.vue'
 import IconPencil from '@/components/Icon/IconPencil.vue'
 import IconDownload from '@/components/Icon/IconDownload.vue'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'

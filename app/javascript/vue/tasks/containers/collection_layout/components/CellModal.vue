@@ -20,14 +20,11 @@
             }}</span>
             <VBtn
               color="destroy"
-              circle
+              icon
+              variant="tonal"
               @click="$emit('unplace', occupant)"
             >
-              <VIcon
-                name="undo"
-                x-small
-                class="icon-unplace"
-              />
+              <IconReset class="w-4 h-4" />
             </VBtn>
           </div>
 
@@ -89,7 +86,7 @@
 import VModal from '@/components/ui/Modal.vue'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconReset from '@/components/Icon/IconReset.vue'
 import OccupantEditPanel from './OccupantEditPanel.vue'
 import { displayType } from '../utils/containerType'
 

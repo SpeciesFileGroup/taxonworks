@@ -7,14 +7,12 @@
     <template #options>
       <VBtn
         color="primary"
-        circle
+        icon
+        variant="tonal"
+        title="Reset"
         @click="resetFilter"
       >
-        <VIcon
-          name="reset"
-          x-small
-          title="Reset"
-        />
+        <IconReset class="w-4 h-4" />
       </VBtn>
     </template>
 
@@ -37,7 +35,7 @@
 import AssertedDistributionObjectPicker from '@/components/ui/SmartSelector/AssertedDistributionObjectPicker.vue'
 import ObjectLinks from './objectLinks.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconReset from '@/components/Icon/IconReset.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import { watch } from 'vue'
 import { AssertedDistribution } from '@/routes/endpoints'

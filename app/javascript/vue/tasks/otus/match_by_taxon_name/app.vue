@@ -17,15 +17,13 @@
           <div class="panel content">
             <div class="flex-row flex-separate middle">
               <VBtn
-                circle
+                icon
+                variant="tonal"
                 color="primary"
                 title="Reset task"
                 @click="reset"
               >
-                <VIcon
-                  x-small
-                  name="reset"
-                />
+                <IconReset class="w-4 h-4" />
               </VBtn>
             </div>
           </div>
@@ -69,7 +67,7 @@ import { ref, onMounted } from 'vue'
 import { TaxonName, Otu } from '@/routes/endpoints'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconReset from '@/components/Icon/IconReset.vue'
 import InputPanel from './components/InputPanel.vue'
 import ResultTable from './components/ResultTable.vue'
 import SummaryBar from './components/SummaryBar.vue'
