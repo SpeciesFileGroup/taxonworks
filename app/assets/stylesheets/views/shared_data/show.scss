@@ -78,7 +78,10 @@
 
 mark {
   font-weight: 700;
-  background-color: transparent;
+  color: var(--color-on-attention);
+  background-color: var(--color-attention);
+  padding: 0 0.2em;
+  border-radius: 0.15em;
   a {
     font-weight: 700;
   }
