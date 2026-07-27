@@ -5,6 +5,10 @@ module DocumentsHelper
     document.document_file_file_name
   end
 
+  def document_autocomplete_tag(document, term = nil)
+    mark_tag(document_tag(document), term)
+  end
+
   def document_link(document)
     return nil if document.nil?
     link_to(document_tag(document).html_safe, document)
