@@ -1,4 +1,4 @@
-# Basic, non model dependent helpers that inject HTML, 
+# Basic, non model dependent helpers that inject HTML,
 # these should all depend on Rails helpers, if they don't
 # they should go into Utilities
 module Workbench::HtmlHelper
@@ -19,7 +19,13 @@ module Workbench::HtmlHelper
     else
       t = Regexp.escape(term)
       string.split(/(<[^>]*>)/).map { |piece|
-        piece.start_with?('<') ? piece : piece.gsub(/(#{t})/i) { content_tag(:mark, $1) }
+        next piece if piece.start_with?('<')
+
+        # We split on the html entities content_tag could produce (though at
+        # time of writing these could also come from user input).
+        piece.split(/(&(?:amp|lt|gt|quot|\#39);)/).map { |chunk|
+          chunk.start_with?('&') ? chunk : chunk.gsub(/(#{t})/i) { content_tag(:mark, $1) }
+        }.join
       }.join
     end
 

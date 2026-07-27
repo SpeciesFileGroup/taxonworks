@@ -28,6 +28,14 @@ describe Workbench::HtmlHelper, type: :helper do
       .to eq('<span title="Catalog Number"><mark>ABC</mark>123</span>')
   end
 
+  specify '#mark_tag does not mark text inside an HTML entity' do
+    expect(helper.mark_tag('AT&amp;T', 'amp')).to eq('AT&amp;T')
+  end
+
+  specify '#mark_tag still marks visible text adjacent to an HTML entity' do
+    expect(helper.mark_tag('Smith &amp; term', 'term')).to eq('Smith &amp; <mark>term</mark>')
+  end
+
   specify '#mark_tag returns nil when the string is nil' do
     expect(helper.mark_tag(nil, 'term')).to be_nil
   end
