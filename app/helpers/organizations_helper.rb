@@ -7,7 +7,7 @@ module OrganizationsHelper
 
   def label_for_organization(organization)
     return nil if organization.nil?
-    organization_tag
+    organization_tag(organization)
   end
 
   def organization_link(organization)
