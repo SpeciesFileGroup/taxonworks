@@ -19,13 +19,19 @@
         </td>
         <td>
           <div class="horizontal-left-content gap-small">
-            <img
+            <ImageViewer
               v-for="depiction in projectOrganization.depictions"
+              :depiction="depiction"
               :key="depiction.id"
-              class="project-organization-depiction"
-              :src="depiction.image.alternatives.thumb.image_file_url"
-              :alt="projectOrganization.organization.object_label"
-            />
+            >
+              <template #default="{ url }">
+                <img
+                  class="project-organization-depiction"
+                  :src="url"
+                  :alt="projectOrganization.organization.object_label"
+                />
+              </template>
+            </ImageViewer>
           </div>
         </td>
         <td>
@@ -56,6 +62,7 @@
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import ImageViewer from '@/components/ui/ImageViewer/ImageViewer.vue'
 
 defineProps({
   projectOrganizations: {
@@ -71,5 +78,9 @@ const emit = defineEmits(['remove', 'refresh'])
 .project-organization-depiction {
   max-height: 40px;
   max-width: 120px;
+}
+
+.depiction-thumb-container {
+  margin: 0px;
 }
 </style>
