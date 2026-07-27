@@ -60,6 +60,11 @@ class TaxonNameRelationship < ApplicationRecord
   # After commit only fires if there are changes to the record.
   after_commit :set_cached_names_for_taxon_names, unless: -> {self.no_cached }
 
+  # See #set_cached_names_for_taxon_names: latches once per instance so a
+  # later save that leaves subject/object_taxon_name_id unchanged can't hide
+  # an earlier reassignment from that deferred after_commit.
+  before_save :flag_taxon_name_reassignment, if: -> { subject_taxon_name_id_changed? || object_taxon_name_id_changed? }
+
   # TODO: remove, it's required by STI
   validates_presence_of :type, message: 'Relationship type should be specified'
 
@@ -472,12 +477,11 @@ class TaxonNameRelationship < ApplicationRecord
   # OriginalCombination has a replacement method.
   def set_cached_names_for_taxon_names
     # This is called via an unrestricted after_commit, which fires on
-    # destroy as well as create/update. _previously_changed? only reflects
-    # attribute changes from this record's own last save, and a plain
-    # destroy doesn't go through one -- without `|| destroyed?`, destroying
-    # a relationship (e.g. removing a synonym) would leave the taxon names
-    # it affected with stale cached values.
-    return true unless subject_taxon_name_id_previously_changed? || object_taxon_name_id_previously_changed? || destroyed?
+    # destroy as well as create/update, and a plain destroy doesn't touch
+    # subject/object_taxon_name_id at all -- without `|| destroyed?`,
+    # destroying a relationship (e.g. removing a synonym) would leave the
+    # taxon names it affected with stale cached values.
+    return true unless @taxon_name_id_reassigned || destroyed?
 
     return true unless is_invalidating?
 
@@ -551,6 +555,10 @@ class TaxonNameRelationship < ApplicationRecord
 
   def is_invalidating?
     TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(type_name)
+  end
+
+  def flag_taxon_name_reassignment
+    @taxon_name_id_reassigned = true
   end
 
   def sv_validate_required_relationships
