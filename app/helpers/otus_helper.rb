@@ -52,6 +52,11 @@ module OtusHelper
     content_tag(:span, a.compact.join(' ').html_safe, class: :otu_tag)
   end
 
+  def otu_autocomplete_tag(otu, term = nil)
+    return nil if otu.nil?
+    mark_tag(otu_tag(otu), term)
+  end
+
   def label_for_otu(otu)
     return nil if otu.nil?
     [ label_for_taxon_name(otu.taxon_name),
