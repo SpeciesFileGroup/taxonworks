@@ -5,6 +5,11 @@ module OrganizationsHelper
     organization.name
   end
 
+  def label_for_organization(organization)
+    return nil if organization.nil?
+    organization_tag
+  end
+
   def organization_link(organization)
     return nil if organization.nil?
     link_to(organization_tag(organization), organization.metamorphosize).html_safe
