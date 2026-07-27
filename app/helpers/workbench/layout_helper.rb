@@ -49,9 +49,10 @@ module Workbench::LayoutHelper
 
   def issue_tracker_tag
     [
-      link_to(
-        'Issues', 
+      header_menu_link(
+        'Issues',
         'https://github.com/SpeciesFileGroup/taxonworks/issues',
+        'github',
         target: '_blank',
         class: 'issues-link',
         data: { 'curation-issue-tracker': sessions_current_project&.data_curation_issue_tracker_url }, rel: 'noopener'

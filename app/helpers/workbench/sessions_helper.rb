@@ -177,11 +177,19 @@ module Workbench::SessionsHelper
   # TODO: make this a non-controller method
   def session_header_links
     [
-      link_to('Dashboard', root_path),
+      header_menu_link('Dashboard', root_path, 'layout-dashboard'),
       content_tag(:div, '', id: 'vue-pinboard-navigator'),
       project_settings_link,
       issue_tracker_tag
     ]
+  end
+
+  # @return [String]
+  #   a link with a leading icon, as used in the header dropdown menus
+  def header_menu_link(label, path, icon_name, **options)
+    link_to(path, options) do
+      safe_join([icon(icon_name), content_tag(:span, label)])
+    end
   end
 
   def session_user_header_links
@@ -217,11 +225,11 @@ module Workbench::SessionsHelper
   end
 
   def project_settings_link
-    (sessions_project_selected? && is_superuser?) ? link_to('Project', project_path(sessions_current_project)) : nil
+    (sessions_project_selected? && is_superuser?) ? header_menu_link('Project', project_path(sessions_current_project), 'folder') : nil
   end
 
   def administration_link
-    sessions_current_user.is_administrator? ? link_to('Administration', administration_path) : nil
+    sessions_current_user.is_administrator? ? header_menu_link('Administration', administration_path, 'shield') : nil
   end
 
 end

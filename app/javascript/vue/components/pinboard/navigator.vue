@@ -1,10 +1,11 @@
 <template>
   <div class="dropdown-content-item">
     <div
-      class="cursor-pointer"
+      class="cursor-pointer horizontal-left-content gap-small"
       @click="openModal"
     >
-      Pinboard navigator
+      <IconCompass class="w-4 h-4" />
+      <span>Pinboard navigator</span>
     </div>
     <teleport to="body">
       <ModalNavigator
@@ -20,6 +21,7 @@ import { ref, onMounted } from 'vue'
 import { useHotkey } from '@/composables'
 import platformKey from '@/helpers/getPlatformKey.js'
 import ModalNavigator from './ModalNavigator.vue'
+import IconCompass from '@/components/Icon/IconCompass.vue'
 
 defineOptions({
   name: 'PinboardNavigator'

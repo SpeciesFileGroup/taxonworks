@@ -85,7 +85,7 @@
             <% if sessions_current_user.is_administrator? %>
               <li class="dropdown-content-divisor"></li>
               <li>
-                  <%= link_to('Administration', administration_path, class: 'padding-medium-top padding-small-bottom') -%>
+                  <%= header_menu_link('Administration', administration_path, 'shield', class: 'padding-medium-top padding-small-bottom') -%>
               </li>  
             <% end %>
 

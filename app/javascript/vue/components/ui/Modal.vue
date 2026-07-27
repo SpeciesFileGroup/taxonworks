@@ -27,7 +27,7 @@
                 <slot name="header"> default header </slot>
               </div>
               <VBtn
-                circle
+                icon
                 color="primary"
                 variant="ghost"
                 title="Close (escape key)"

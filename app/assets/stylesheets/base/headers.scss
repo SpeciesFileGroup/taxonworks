@@ -106,6 +106,12 @@
       border-radius: var(--border-radius-medium);
     }
 
+    a {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
     a:hover,
     .dropdown-content-item:hover {
       background-color: var(--bg-hover);
