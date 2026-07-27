@@ -25,15 +25,12 @@
         <radial-annotator :global-id="item.global_id" />
         <v-btn
           color="update"
-          circle
+          icon
+          variant="tonal"
+          title="Edit"
           @click="emit('edit', Object.assign({}, item))"
         >
-          <v-icon
-            x-small
-            title="Edit"
-            color="white"
-            name="pencil"
-          />
+          <IconPencil class="w-4 h-4" />
         </v-btn>
         <v-btn
           color="destroy"
@@ -54,7 +51,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import PlacementComponent from './placement.vue'
 import ConfidenceButton from '@/components/ui/Button/ButtonConfidence'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconPencil from '@/components/Icon/IconPencil.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 
 defineProps({

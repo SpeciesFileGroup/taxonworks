@@ -76,13 +76,11 @@
               <VBtn
                 v-if="!noEditable.includes(attr)"
                 color="primary"
-                circle
+                icon
+                variant="tonal"
                 @click="updateAttributeColumn({ title: attr })"
               >
-                <VIcon
-                  name="pencil"
-                  x-small
-                />
+                <IconPencil class="w-4 h-4" />
               </VBtn>
               <VBtn
                 color="primary"
@@ -112,7 +110,8 @@
               </VBtn>
               <VBtn
                 color="primary"
-                circle
+                icon
+                variant="tonal"
                 @click="
                   updatePredicateColumn({
                     title: predicate.name,
@@ -120,10 +119,7 @@
                   })
                 "
               >
-                <VIcon
-                  name="pencil"
-                  x-small
-                />
+                <IconPencil class="w-4 h-4" />
               </VBtn>
               <VBtn
                 color="primary"
@@ -302,6 +298,7 @@ import { isEmpty } from '@/helpers'
 import { RouteNames } from '@/routes/routes'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconPencil from '@/components/Icon/IconPencil.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import EditColumn from './EditColumn.vue'

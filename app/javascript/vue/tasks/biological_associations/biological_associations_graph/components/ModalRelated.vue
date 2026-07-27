@@ -36,13 +36,11 @@
                 <div class="horizontal-left-content middle gap-small">
                   <VBtn
                     color="primary"
-                    circle
+                    icon
+                    variant="tonal"
                     @click="emit('select:graph', item)"
                   >
-                    <VIcon
-                      name="pencil"
-                      x-small
-                    />
+                    <IconPencil class="w-4 h-4" />
                   </VBtn>
                   <RadialAnnotator :global-id="item.global_id" />
                 </div>
@@ -129,7 +127,7 @@
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconPencil from '@/components/Icon/IconPencil.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import { ref, onBeforeMount, computed } from 'vue'
 import {

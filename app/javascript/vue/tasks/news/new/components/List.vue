@@ -51,13 +51,11 @@
           <div class="flex-row gap-small">
             <VBtn
               color="primary"
-              circle
+              icon
+              variant="tonal"
               @click="() => emit('edit', item)"
             >
-              <VIcon
-                name="pencil"
-                x-small
-              />
+              <IconPencil class="w-4 h-4" />
             </VBtn>
             <VBtn
               color="destroy"
@@ -76,7 +74,7 @@
 
 <script setup>
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconPencil from '@/components/Icon/IconPencil.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 import VBadge from '@/components/ui/VBadge/VBadge.vue'
 import newsColors from '@/tasks/news/browse/constants/newsColors.js'

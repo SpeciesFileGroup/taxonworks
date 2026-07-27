@@ -59,14 +59,12 @@
               </VBtn>
             </template>
             <VBtn
-              circle
+              icon
+              variant="tonal"
               color="primary"
               @click="() => emit('edit', item)"
             >
-              <VIcon
-                x-small
-                name="pencil"
-              />
+              <IconPencil class="w-4 h-4" />
             </VBtn>
             <VBtn
               icon
@@ -88,6 +86,7 @@ import { computed } from 'vue'
 import { useContainerStore } from '../../store'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconPencil from '@/components/Icon/IconPencil.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 import FillContainerModal from './ContainerItemFill.vue'
 import UnplaceSelected from '../UnplaceSelected.vue'

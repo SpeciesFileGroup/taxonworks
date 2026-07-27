@@ -37,13 +37,11 @@
             <RadialAnnotator :global-id="conveyance.global_id" />
             <VBtn
               color="primary"
-              circle
+              icon
+              variant="tonal"
               @click="() => emit('select', conveyance)"
             >
-              <VIcon
-                name="pencil"
-                x-small
-              />
+              <IconPencil class="w-4 h-4" />
             </VBtn>
             <MoveAnnotation
               :annotation="conveyance"
@@ -67,7 +65,7 @@
 <script setup>
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconPencil from '@/components/Icon/IconPencil.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 import MoveAnnotation from '../shared/MoveAnnotation/MoveAnnotation.vue'
 

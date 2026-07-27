@@ -43,14 +43,11 @@
               />
               <VBtn
                 color="primary"
-                circle
+                icon
+                variant="tonal"
                 @click="store.dispatch(ActionNames.SetTypeMaterial, item)"
               >
-                <v-icon
-                  x-small
-                  name="pencil"
-                  color="white"
-                />
+                <IconPencil class="w-4 h-4" />
               </VBtn>
               <VBtn
                 color="destroy"
@@ -69,14 +66,11 @@
             <template v-else>
               <VBtn
                 color="primary"
-                circle
+                icon
+                variant="tonal"
                 @click="store.dispatch(ActionNames.SetTypeMaterial, item)"
               >
-                <v-icon
-                  x-small
-                  name="pencil"
-                  color="white"
-                />
+                <IconPencil class="w-4 h-4" />
               </VBtn>
               <VBtn
                 color="primary"
@@ -100,7 +94,7 @@ import { computed } from 'vue'
 import { GetterNames } from '../../store/getters/getters'
 import { ActionNames } from '../../store/actions/actions'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconPencil from '@/components/Icon/IconPencil.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 

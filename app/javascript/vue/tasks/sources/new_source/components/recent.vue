@@ -33,7 +33,7 @@
 import { ref, watch } from 'vue'
 import { Source } from '@/routes/endpoints'
 import { useSourceStore } from '../store'
-import TableList from '@/components/table_list'
+import TableList from '@/components/table_list.vue'
 import VSpinner from '@/components/ui/VSpinner'
 import VModal from '@/components/ui/Modal'
 import VBtn from '@/components/ui/VBtn/index.vue'

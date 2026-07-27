@@ -20,16 +20,13 @@
           </li>
           <li>
             <VBtn
-              circle
+              icon
+              variant="tonal"
               color="primary"
               title="Edit field occurrence"
               @click="openEditFieldOccurrence(store.fieldOccurrence.id)"
             >
-              <VIcon
-                x-small
-                title="Edit field occurrence"
-                name="pencil"
-              />
+              <IconPencil class="w-4 h-4" />
             </VBtn>
           </li>
           <li>
@@ -58,7 +55,7 @@ import { DEPICTION, IDENTIFIER } from '@/constants'
 import { RouteNames } from '@/routes/routes'
 import useStore from '../store/store.js'
 import VBtn from '@/components/ui/VBtn'
-import VIcon from '@/components/ui/VIcon'
+import IconPencil from '@/components/Icon/IconPencil.vue'
 import NavBar from '@/components/layout/NavBar.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'

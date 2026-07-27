@@ -32,16 +32,13 @@
           </li>
           <li>
             <VBtn
-              circle
+              icon
+              variant="tonal"
               color="submit"
               title="Edit on comprehensive task"
               @click="openComprehenseive(collectionObject.id)"
             >
-              <VIcon
-                x-small
-                title="Edit on comprehensive task"
-                name="pencil"
-              />
+              <IconPencil class="w-4 h-4" />
             </VBtn>
           </li>
           <li>
@@ -65,7 +62,7 @@ import { MutationNames } from '../store/mutations/mutations'
 import { DEPICTION, IDENTIFIER, COLLECTION_OBJECT } from '@/constants'
 import { RouteNames } from '@/routes/routes'
 import VBtn from '@/components/ui/VBtn'
-import VIcon from '@/components/ui/VIcon'
+import IconPencil from '@/components/Icon/IconPencil.vue'
 import NavBar from '@/components/layout/NavBar.vue'
 import CONavegation from './CONavegation.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'

@@ -25,13 +25,11 @@
                 >
                   <VBtn
                     color="primary"
-                    circle
+                    icon
+                    variant="tonal"
                     @click="() => graph.openGraphModal()"
                   >
-                    <VIcon
-                      name="pencil"
-                      x-small
-                    />
+                    <IconPencil class="w-4 h-4" />
                   </VBtn>
                   <RadialObject :global-id="currentGraph.globalId" />
                   <RadialAnnotator :global-id="currentGraph.globalId" />
@@ -135,6 +133,7 @@ import BiologicalAssociationsGraph from './components/BiologicalAssociationsGrap
 import VNavbar from '@/components/layout/NavBar'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconPencil from '@/components/Icon/IconPencil.vue'
 import IconDownload from '@/components/Icon/IconDownload.vue'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import setParam from '@/helpers/setParam.js'

@@ -42,16 +42,13 @@
                 @move="(e) => emit('move', e)"
               />
               <VBtn
-                circle
+                icon
+                variant="tonal"
                 color="primary"
                 title="Edit"
                 @click="$emit('edit', Object.assign({}, item))"
               >
-                <VIcon
-                  name="pencil"
-                  x-small
-                  title="Edit"
-                />
+                <IconPencil class="w-4 h-4" />
               </VBtn>
 
               <VBtn
@@ -78,7 +75,7 @@ import PdfButton from '@/components/ui/Button/ButtonPdf.vue'
 import SoftValidation from '@/components/soft_validations/objectValidation'
 import MoveAnnotation from '../shared/MoveAnnotation/MoveAnnotation.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconPencil from '@/components/Icon/IconPencil.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 
 defineProps({

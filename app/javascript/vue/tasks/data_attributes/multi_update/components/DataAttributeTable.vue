@@ -146,14 +146,12 @@
                   <div class="horizontal-right-content middle gap-small">
                     <VBtn
                       color="primary"
-                      circle
+                      icon
+                      variant="tonal"
                       title="Fill column"
                       @click="() => fillColumn(predicate)"
                     >
-                      <VIcon
-                        name="pencil"
-                        x-small
-                      />
+                      <IconPencil class="w-4 h-4" />
                     </VBtn>
 
                     <VBtn
@@ -310,6 +308,7 @@ import { sortArray } from '@/helpers/arrays.js'
 import useStore from '../store/store.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconPencil from '@/components/Icon/IconPencil.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 import VirtualScroller from '@/components/ui/Table/VirtualScroller.vue'
 import CopyToClipboard from './CopyToClipboard.vue'

@@ -45,11 +45,15 @@
                 v-if="navigator"
                 :global-id="item.global_id"
               />
-              <span
+              <VBtn
                 v-if="edit"
-                class="circle-button btn-edit"
+                icon
+                color="primary"
+                variant="tonal"
                 @click="emit('edit', Object.assign({}, item))"
-              />
+              >
+                <IconPencil class="w-4 h-4" />
+              </VBtn>
               <VBtn
                 v-if="destroy"
                 icon
@@ -73,6 +77,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import PdfComponent from '@/components/ui/Button/ButtonPdf'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
+import IconPencil from '@/components/Icon/IconPencil.vue'
 
 const props = defineProps({
   list: {
@@ -181,7 +186,9 @@ function deleteItem(item) {
 
 .list-complete-item {
   justify-content: space-between;
-  transition: all 0.5s, opacity 0.2s;
+  transition:
+    all 0.5s,
+    opacity 0.2s;
 }
 
 .list-complete-enter-active,

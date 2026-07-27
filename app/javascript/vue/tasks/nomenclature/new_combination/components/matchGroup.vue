@@ -19,14 +19,12 @@
           <div class="horizontal-left-content gap-small">
             <RadialAnnotator :global-id="taxon.global_id" />
             <VBtn
-              circle
+              icon
+              variant="tonal"
               color="primary"
               @click="() => openLink(taxon)"
             >
-              <VIcon
-                name="pencil"
-                x-small
-              />
+              <IconPencil class="w-4 h-4" />
             </VBtn>
           </div>
         </li>
@@ -41,7 +39,7 @@ import { computed } from 'vue'
 import { COMBINATION } from '@/constants'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconPencil from '@/components/Icon/IconPencil.vue'
 
 const props = defineProps({
   list: {

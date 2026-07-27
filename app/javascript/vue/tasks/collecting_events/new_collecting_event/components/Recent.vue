@@ -38,14 +38,12 @@
               <td>
                 <div class="horizontal-left-content gap-small">
                   <VBtn
-                    circle
+                    icon
+                    variant="tonal"
                     color="primary"
                     @click="() => selectCollectingEvent(item)"
                   >
-                    <VIcon
-                      name="pencil"
-                      x-small
-                    />
+                    <IconPencil class="w-4 h-4" />
                   </VBtn>
                   <VBtn
                     icon
@@ -69,7 +67,7 @@
 import VSpinner from '@/components/ui/VSpinner'
 import VModal from '@/components/ui/Modal'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconPencil from '@/components/Icon/IconPencil.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 import { CollectingEvent } from '@/routes/endpoints'
 import { ref, onBeforeMount } from 'vue'

@@ -36,7 +36,8 @@
             <td>
               <VBtn
                 color="primary"
-                circle
+                icon
+                variant="tonal"
                 @click="
                   () => {
                     emit('select', item)
@@ -44,10 +45,7 @@
                   }
                 "
               >
-                <VIcon
-                  name="pencil"
-                  x-small
-                />
+                <IconPencil class="w-4 h-4" />
               </VBtn>
             </td>
           </tr>
@@ -58,7 +56,7 @@
 </template>
 
 <script setup>
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconPencil from '@/components/Icon/IconPencil.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'

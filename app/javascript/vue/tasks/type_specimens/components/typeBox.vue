@@ -48,14 +48,12 @@
                 :object-id="store.taxonName.id"
               />
               <VBtn
-                circle
+                icon
+                variant="tonal"
                 color="primary"
                 :href="`${RouteNames.NewTaxonName}?taxon_name_id=${store.taxonName.id}`"
               >
-                <VIcon
-                  x-small
-                  name="pencil"
-                />
+                <IconPencil class="w-4 h-4" />
               </VBtn>
             </div>
           </div>
@@ -96,14 +94,12 @@
               <div class="horizontal-right-content gap-xsmall">
                 <RadialAnnotator :global-id="item.globalId" />
                 <VBtn
-                  circle
+                  icon
+                  variant="tonal"
                   color="primary"
                   @click="() => store.setTypeMaterial(item)"
                 >
-                  <VIcon
-                    name="pencil"
-                    x-small
-                  />
+                  <IconPencil class="w-4 h-4" />
                 </VBtn>
                 <VBtn
                   icon
@@ -135,6 +131,7 @@ import VPin from '@/components/ui/Button/ButtonPin.vue'
 import OtuRadial from '@/components/otu/otu.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconPencil from '@/components/Icon/IconPencil.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 
 const store = useStore()

@@ -119,14 +119,12 @@
             </div>
             <div class="horizontal-left-content middle gap-xsmall">
               <VBtn
-                circle
+                icon
+                variant="tonal"
                 color="update"
                 @click="editCharacter(index)"
               >
-                <VIcon
-                  name="pencil"
-                  x-small
-                />
+                <IconPencil class="w-4 h-4" />
               </VBtn>
               <RadialAnnotator
                 :global-id="element.global_id"
@@ -152,7 +150,7 @@
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import Draggable from 'vuedraggable'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconPencil from '@/components/Icon/IconPencil.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 import ButtonUnify from '@/components/ui/Button/ButtonUnify.vue'
 import ImageViewer from '@/components/ui/ImageViewer/ImageViewer.vue'

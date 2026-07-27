@@ -37,7 +37,8 @@
               <div class="horizontal-right-content gap-small">
                 <VBtn
                   color="primary"
-                  circle
+                  icon
+                  variant="tonal"
                   @click="
                     () => {
                       store.loadContainer(item.id)
@@ -45,10 +46,7 @@
                     }
                   "
                 >
-                  <VIcon
-                    name="pencil"
-                    x-small
-                  />
+                  <IconPencil class="w-4 h-4" />
                 </VBtn>
                 <VBtn
                   color="primary"
@@ -68,7 +66,7 @@
 <script setup>
 import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconPencil from '@/components/Icon/IconPencil.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import { CONTAINER_PARAMETERS } from '../constants'
 import { makeContainer } from '../adapters'

@@ -9,13 +9,11 @@
       <VBtn
         v-if="isEditAvailable"
         color="primary"
-        circle
+        icon
+        variant="tonal"
         :href="`${RouteNames.NewNews}?news_id=${props.news.id}`"
       >
-        <VIcon
-          name="pencil"
-          x-small
-        />
+        <IconPencil class="w-4 h-4" />
       </VBtn>
     </div>
     <div
@@ -40,7 +38,7 @@ import newsColors from '../../constants/newsColors'
 import NewsViewerBack from './NewsViewerBack.vue'
 import VBadge from '@/components/ui/VBadge/VBadge.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconPencil from '@/components/Icon/IconPencil.vue'
 import { RouteNames } from '@/routes/routes'
 
 const props = defineProps({

@@ -33,14 +33,12 @@
               <RadialAnnotator :global-id="item.global_id" />
               <RadialObject :global-id="item.global_id" />
               <VBtn
-                circle
+                icon
+                variant="tonal"
                 color="primary"
                 @click="emit('edit', Object.assign({}, item))"
               >
-                <VIcon
-                  name="pencil"
-                  x-small
-                />
+                <IconPencil class="w-4 h-4" />
               </VBtn>
 
               <VBtn
@@ -60,7 +58,7 @@
 </template>
 <script setup>
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconPencil from '@/components/Icon/IconPencil.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
