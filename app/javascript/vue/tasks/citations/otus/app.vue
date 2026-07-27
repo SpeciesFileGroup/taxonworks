@@ -1,5 +1,8 @@
 <template>
-  <div id="cite_otus">
+  <div
+    id="cite_otus"
+    class="margin-medium-top"
+  >
     <div class="flexbox gap-medium">
       <div class="flex-col gap-medium">
         <div class="flexbox">
