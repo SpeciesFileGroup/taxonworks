@@ -44,4 +44,21 @@ describe Workbench::HtmlHelper, type: :helper do
     expect(helper.mark_tag('term', 'term')).to be_html_safe
   end
 
+  specify '#mark_tag returns a non-html_safe string when html_safe: false' do
+    expect(helper.mark_tag('term', 'term', html_safe: false)).to_not be_html_safe
+  end
+
+  specify '#mark_tag with html_safe: false still marks the term' do
+    expect(helper.mark_tag('plain text term here', 'term', html_safe: false))
+      .to eq('plain text <mark>term</mark> here')
+  end
+
+  specify '#mark_tag with html_safe: false does not leak safety from a caller that keeps concatenating' do
+    # Guards against ActiveSupport::SafeBuffer#+ escaping later unsafe appends
+    # when the accumulator was seeded with an already-safe mark_tag result.
+    s = helper.mark_tag('term', 'term', html_safe: false)
+    s += ' ' + helper.content_tag(:span, 'x')
+    expect(s).to eq('<mark>term</mark> <span>x</span>')
+  end
+
 end
