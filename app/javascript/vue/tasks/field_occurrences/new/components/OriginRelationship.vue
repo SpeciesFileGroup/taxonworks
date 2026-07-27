@@ -79,14 +79,12 @@
               <td />
               <td class="w-2">
                 <VBtn
-                  circle
+                  icon
+                  variant="tonal"
                   :color="element.id ? 'destroy' : 'primary'"
                   @click="store.remove(element)"
                 >
-                  <VIcon
-                    name="trash"
-                    x-small
-                  />
+                  <IconTrash class="w-4 h-4" />
                 </VBtn>
               </td>
             </tr>
@@ -101,7 +99,7 @@
 import { ref, computed } from 'vue'
 import { randomUUID } from '@/helpers'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import useOriginRelationshipStore from '../store/originRelationships.js'
 import SmartSelector from '@/components/ui/SmartSelector'
 import VDraggable from 'vuedraggable'

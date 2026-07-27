@@ -47,16 +47,13 @@
           </VBtn>
 
           <VBtn
-            circle
+            icon
+            variant="tonal"
             medium
             color="destroy"
             @click="deleteDepiction()"
           >
-            <VIcon
-              x-small
-              color="white"
-              name="trash"
-            />
+            <IconTrash class="w-4 h-4" />
           </VBtn>
         </div>
       </div>
@@ -71,6 +68,7 @@ import { removeFromArray } from '@/helpers'
 import useContentStore from '../store/store.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 
 const props = defineProps({
   figure: {

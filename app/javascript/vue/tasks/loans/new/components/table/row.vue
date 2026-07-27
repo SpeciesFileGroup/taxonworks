@@ -50,13 +50,11 @@
         <radial-navigator :global-id="item.loan_item_object.global_id" />
         <VBtn
           color="destroy"
-          circle
+          icon
+          variant="tonal"
           @click="$emit('onDelete', item)"
         >
-          <VIcon
-            x-small
-            name="trash"
-          />
+          <IconTrash class="w-4 h-4" />
         </VBtn>
       </div>
     </td>
@@ -71,15 +69,15 @@ import PinComponent from '@/components/ui/Button/ButtonPin.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 
 export default {
   components: {
+    IconTrash,
     PinComponent,
     RadialAnnotator,
     RadialNavigator,
-    VBtn,
-    VIcon
+    VBtn
   },
 
   props: {

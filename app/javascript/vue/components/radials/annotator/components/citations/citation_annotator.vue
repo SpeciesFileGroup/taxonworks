@@ -85,14 +85,12 @@
             <td>
               <div class="horizontal-right-content">
                 <VBtn
-                  circle
+                  icon
+                  variant="tonal"
                   color="destroy"
                   @click="() => deleteTopic(item)"
                 >
-                  <VIcon
-                    x-small
-                    name="trash"
-                  />
+                  <IconTrash class="w-4 h-4" />
                 </VBtn>
               </div>
             </td>
@@ -118,6 +116,7 @@ import TopicPages from './TopicPages.vue'
 import HandleCitations from './handleOriginalModal'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import makeCitation from '@/factory/Citation'
 import VPagination from '@/components/pagination.vue'
 import { useSlice } from '@/components/radials/composables'

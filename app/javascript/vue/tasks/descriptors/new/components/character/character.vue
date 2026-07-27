@@ -134,13 +134,11 @@
               />
               <VBtn
                 color="destroy"
-                circle
+                icon
+                variant="tonal"
                 @click="removeCharacter(index)"
               >
-                <VIcon
-                  name="trash"
-                  x-small
-                />
+                <IconTrash class="w-4 h-4" />
               </VBtn>
             </div>
           </li>
@@ -155,6 +153,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import Draggable from 'vuedraggable'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import ButtonUnify from '@/components/ui/Button/ButtonUnify.vue'
 import ImageViewer from '@/components/ui/ImageViewer/ImageViewer.vue'
 import { useUserPreference } from '@/composables'

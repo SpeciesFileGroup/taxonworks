@@ -85,28 +85,22 @@
               <RadialAnnotator :global-id="item.global_id" />
               <PdfButton :pdf="item.document" />
               <VBtn
-                circle
-                class="circle-button"
+                icon
+                variant="tonal"
                 color="primary"
+                title="Download"
                 :download="item.document.object_tag"
                 :href="item.document.file_url"
               >
-                <VIcon
-                  color="white"
-                  x-small
-                  name="download"
-                />
+                <IconDownload class="w-4 h-4" />
               </VBtn>
               <VBtn
-                circle
-                class="circle-button"
+                icon
+                variant="tonal"
                 color="destroy"
                 @click="confirmDelete(item)"
               >
-                <VIcon
-                  name="trash"
-                  x-small
-                />
+                <IconTrash class="w-4 h-4" />
               </VBtn>
             </div>
           </td>
@@ -123,7 +117,8 @@ import Autocomplete from '@/components/ui/Autocomplete.vue'
 import Dropzone from '@/components/dropzone.vue'
 import PdfButton from '@/components/ui/Button/ButtonPdf.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
-import VIcon from '@/components/ui/VIcon/index'
+import IconTrash from '@/components/Icon/IconTrash.vue'
+import IconDownload from '@/components/Icon/IconDownload.vue'
 import VBtn from '@/components/ui/VBtn/index'
 import VSwitch from '@/components/ui/VSwitch.vue'
 

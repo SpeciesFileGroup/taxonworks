@@ -69,14 +69,12 @@
               />
             </VBtn>
             <VBtn
-              circle
+              icon
+              variant="tonal"
               :color="item.id ? 'destroy' : 'primary'"
               @click="() => removeItem(item)"
             >
-              <VIcon
-                x-small
-                name="trash"
-              />
+              <IconTrash class="w-4 h-4" />
             </VBtn>
           </div>
         </td>
@@ -90,6 +88,7 @@ import { computed } from 'vue'
 import { useContainerStore } from '../../store'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import FillContainerModal from './ContainerItemFill.vue'
 import UnplaceSelected from '../UnplaceSelected.vue'
 

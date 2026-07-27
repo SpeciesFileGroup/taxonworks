@@ -59,13 +59,11 @@
         <td>
           <VBtn
             color="destroy"
-            circle
+            icon
+            variant="tonal"
             @click="removeItem(item)"
           >
-            <VIcon
-              name="trash"
-              x-small
-            />
+            <IconTrash class="w-4 h-4" />
           </VBtn>
         </td>
         <td>
@@ -108,7 +106,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator'
 import CitationCount from './citationsCount'
 import SoftValidation from '@/components/soft_validations/objectValidation.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import { RouteNames } from '@/routes/routes'
 import { useStore } from '../store/store'
 import { Source } from '@/routes/endpoints'

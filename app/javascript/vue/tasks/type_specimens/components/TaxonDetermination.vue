@@ -11,13 +11,11 @@
           <span v-html="td.otu.object_tag" />
           <VBtn
             color="destroy"
-            circle
+            icon
+            variant="tonal"
             @click="removeTaxonDetermination(td)"
           >
-            <VIcon
-              name="trash"
-              x-small
-            />
+            <IconTrash class="w-4 h-4" />
           </VBtn>
         </li>
       </ul>
@@ -57,7 +55,7 @@ import { Otu } from '@/routes/endpoints'
 import { ref } from 'vue'
 import useStore from '../store/store.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 
 const store = useStore()
 const otus = ref([])

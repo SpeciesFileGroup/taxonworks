@@ -31,16 +31,14 @@
               </li>
               <li>
                 <v-btn
-                  circle
+                  icon
+                  variant="tonal"
                   :href="image.image_file_url"
                   :download="image.image_original_filename"
+                  title="Download"
                   color="primary"
                 >
-                  <v-icon
-                    x-small
-                    name="download"
-                    color="white"
-                  />
+                  <IconDownload class="w-4 h-4" />
                 </v-btn>
               </li>
               <li>
@@ -109,6 +107,7 @@ import RadialNavigation from '@/components/radials/navigation/radial.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconDownload from '@/components/Icon/IconDownload.vue'
 import DepictionList from './DepictionList.vue'
 
 const CONVERT_IMAGE_TYPES = ['image/tiff']

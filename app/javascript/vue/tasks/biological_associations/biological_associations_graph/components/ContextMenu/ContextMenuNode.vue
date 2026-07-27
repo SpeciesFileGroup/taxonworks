@@ -10,25 +10,21 @@
     <span v-else>{{ node.name }}</span>
     <div class="horizontal-right-content gap-xsmall">
       <VBtn
-        circle
+        icon
+        variant="tonal"
         color="primary"
         @click="() => emit('remove:node', { nodeId, destroy: false })"
       >
-        <VIcon
-          x-small
-          name="trash"
-        />
+        <IconTrash class="w-4 h-4" />
       </VBtn>
       <VBtn
-        circle
+        icon
+        variant="tonal"
         v-if="isSaved"
         color="destroy"
         @click="() => emit('remove:node', { nodeId, destroy: true })"
       >
-        <VIcon
-          x-small
-          name="trash"
-        />
+        <IconTrash class="w-4 h-4" />
       </VBtn>
     </div>
   </div>
@@ -59,7 +55,7 @@ import { computed } from 'vue'
 import { parseNodeId } from '../../utils'
 import { makeBrowseUrl } from '@/helpers'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 
 const props = defineProps({
   nodeId: {

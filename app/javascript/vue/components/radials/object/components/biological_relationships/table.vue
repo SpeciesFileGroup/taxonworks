@@ -44,14 +44,12 @@
               </VBtn>
 
               <VBtn
-                circle
+                icon
+                variant="tonal"
                 :color="softDelete ? 'primary' : 'destroy'"
                 @click="deleteItem(item, index)"
               >
-                <VIcon
-                  name="trash"
-                  x-small
-                />
+                <IconTrash class="w-4 h-4" />
               </VBtn>
             </div>
           </td>
@@ -63,6 +61,7 @@
 <script setup>
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
 import CitationCount from '../shared/citationsCount.vue'

@@ -101,15 +101,13 @@
           <span v-html="taxonRelation.object_tag" />
           <VBtn
             v-if="!editType"
-            circle
+            icon
+            variant="tonal"
             color="primary"
             title="Undo"
             @click="taxonRelation = undefined"
           >
-            <VIcon
-              name="trash"
-              x-small
-            />
+            <IconTrash class="w-4 h-4" />
           </VBtn>
         </div>
 
@@ -162,7 +160,7 @@ import VSwitch from '@/components/ui/VSwitch.vue'
 import BlockLayout from '@/components/layout/BlockLayout'
 import platformKey from '@/helpers/getPlatformKey.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import showForThisGroup from '../helpers/showForThisGroup'
 import { useHotkey } from '@/composables'
 import IconReset from '@/components/Icon/IconReset.vue'

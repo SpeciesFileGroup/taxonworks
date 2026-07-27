@@ -14,13 +14,11 @@
       </div>
       <VBtn
         color="primary"
-        circle
+        icon
+        variant="tonal"
         @click="() => list.splice(index, 1)"
       >
-        <VIcon
-          name="trash"
-          x-small
-        />
+        <IconTrash class="w-4 h-4" />
       </VBtn>
     </div>
   </div>
@@ -28,7 +26,7 @@
 
 <script setup>
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 
 const list = defineModel({
   type: Array,

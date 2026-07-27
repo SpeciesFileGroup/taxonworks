@@ -7,16 +7,13 @@
           <VBtn
             v-if="graph"
             color="primary"
-            circle
+            icon
+            variant="tonal"
             medium
             title="Download graph as SVG"
             @click="() => graph.downloadAsSvg()"
           >
-            <VIcon
-              name="download"
-              x-small
-              title="Download graph as SVG"
-            />
+            <IconDownload class="w-4 h-4" />
           </VBtn>
 
           <VBtn
@@ -142,6 +139,7 @@
 import AnatomicalPartsGraph from './components/AnatomicalPartsGraph.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconDownload from '@/components/Icon/IconDownload.vue'
 import platformKey from '@/helpers/getPlatformKey'
 import { URLParamsToJSON } from '@/helpers/url/parse'
 import { onMounted, ref } from 'vue'

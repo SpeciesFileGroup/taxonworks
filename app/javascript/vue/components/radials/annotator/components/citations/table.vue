@@ -55,16 +55,13 @@
               </VBtn>
 
               <VBtn
-                circle
+                icon
+                variant="tonal"
                 color="destroy"
                 title="Delete"
                 @click="deleteItem(item)"
               >
-                <VIcon
-                  name="trash"
-                  x-small
-                  title="Delete"
-                />
+                <IconTrash class="w-4 h-4" />
               </VBtn>
             </div>
           </td>
@@ -82,6 +79,7 @@ import SoftValidation from '@/components/soft_validations/objectValidation'
 import MoveAnnotation from '../shared/MoveAnnotation/MoveAnnotation.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 
 defineProps({
   list: {

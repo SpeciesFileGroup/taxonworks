@@ -54,18 +54,15 @@
               </VBtn>
               <VBtn
                 color="destroy"
-                circle
+                icon
+                variant="tonal"
                 @click="
                   warningMessage(() =>
                     store.dispatch(ActionNames.RemoveTypeMaterial, item)
                   )
                 "
               >
-                <v-icon
-                  x-small
-                  name="trash"
-                  color="white"
-                />
+                <IconTrash class="w-4 h-4" />
               </VBtn>
             </template>
 
@@ -83,14 +80,11 @@
               </VBtn>
               <VBtn
                 color="primary"
-                circle
+                icon
+                variant="tonal"
                 @click="store.dispatch(ActionNames.RemoveTypeMaterial, item)"
               >
-                <v-icon
-                  x-small
-                  name="trash"
-                  color="white"
-                />
+                <IconTrash class="w-4 h-4" />
               </VBtn>
             </template>
           </div>
@@ -107,6 +101,7 @@ import { GetterNames } from '../../store/getters/getters'
 import { ActionNames } from '../../store/actions/actions'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
 const store = useStore()

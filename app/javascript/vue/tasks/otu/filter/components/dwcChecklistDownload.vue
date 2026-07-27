@@ -76,15 +76,12 @@
               >
                 <span>{{ index + 1 }}. {{ topic.name }}</span>
                 <VBtn
-                  circle
+                  icon
+                  variant="tonal"
                   color="primary"
                   @click="removeTopic(index)"
                 >
-                  <VIcon
-                    x-small
-                    color="white"
-                    name="trash"
-                  />
+                  <IconTrash class="w-4 h-4" />
                 </VBtn>
               </li>
             </ul>
@@ -176,7 +173,7 @@ import { RouteNames } from '@/routes/routes.js'
 import { DwcChecklist } from '@/routes/endpoints'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import VModal from '@/components/ui/Modal.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import TopicList from '@/tasks/contents/editor/components/Topic/TopicList.vue'

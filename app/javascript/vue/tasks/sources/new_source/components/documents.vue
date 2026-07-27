@@ -59,34 +59,32 @@
                 @click="changeIsPublicState(item)"
               />
             </td>
-            <td :title="item.updated_at">{{ item.updated_at?.split('T')[0] }}</td>
+            <td :title="item.updated_at">
+              {{ item.updated_at?.split('T')[0] }}
+            </td>
             <td>
-              <div class="flex-wrap-row gap-xsmall">
+              <div
+                class="flex-col gap-xsmall padding-xsmall-bottom padding-xsmall-top"
+              >
                 <RadialAnnotator :global-id="item.global_id" />
                 <PdfButton :pdf="item.document" />
                 <VBtn
-                  circle
-                  class="circle-button"
+                  icon
+                  variant="tonal"
                   color="primary"
+                  title="Download"
                   :download="item.document.object_tag"
                   :href="item.document.file_url"
                 >
-                  <VIcon
-                    color="white"
-                    x-small
-                    name="download"
-                  />
+                  <IconDownload class="w-4 h-4" />
                 </VBtn>
                 <VBtn
-                  circle
+                  icon
+                  variant="tonal"
                   color="destroy"
                   @click="removeDocumentation(item)"
                 >
-                  <VIcon
-                    color="white"
-                    x-small
-                    name="trash"
-                  />
+                  <IconTrash class="w-4 h-4" />
                 </VBtn>
               </div>
             </td>
@@ -106,7 +104,8 @@ import RadialAnnotator from '@/components/radials/annotator/annotator'
 import VSwitch from '@/components/ui/VSwitch'
 import PickComponent from './documents/pick'
 import DropComponent from './documents/drop.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
+import IconDownload from '@/components/Icon/IconDownload.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
 const documentComponents = {

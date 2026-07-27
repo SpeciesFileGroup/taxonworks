@@ -29,15 +29,12 @@
         <div class="horizontal-left-content middle gap-small">
           <RadialAnnotator :global-id="descriptor.global_id" />
           <VBtn
-            circle
+            icon
+            variant="tonal"
             color="destroy"
             @click="() => (showModal = true)"
           >
-            <VIcon
-              name="trash"
-              color="white"
-              x-small
-            />
+            <IconTrash class="w-4 h-4" />
           </VBtn>
         </div>
       </div>
@@ -50,7 +47,7 @@
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import { ref } from 'vue'
 
 defineProps({

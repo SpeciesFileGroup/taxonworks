@@ -71,13 +71,11 @@
             <td>
               <VBtn
                 :color="extractId ? 'destroy' : 'primary'"
-                circle
+                icon
+                variant="tonal"
                 @click="() => removeIdentifier(index)"
               >
-                <VIcon
-                  name="trash"
-                  x-small
-                />
+                <IconTrash class="w-4 h-4" />
               </VBtn>
             </td>
           </tr>
@@ -104,7 +102,7 @@ import IdentifierComponent from './Identifiers/Identifier'
 import DisplayList from '@/components/displayList'
 import BlockLayout from '@/components/layout/BlockLayout'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import ActionNames from '../store/actions/actionNames'
 
 const EXCLUDE_IDENTIFIER_TYPES = [
@@ -116,13 +114,13 @@ export default {
   mixins: [componentExtend],
 
   components: {
+    IconTrash,
     DisplayList,
     SelectType,
     NamespaceComponent,
     IdentifierComponent,
     BlockLayout,
-    VBtn,
-    VIcon
+    VBtn
   },
 
   data() {

@@ -6,14 +6,12 @@
     <span v-html="item.object_tag" />
     <div class="horizontal-left-content middle gap-small">
       <VBtn
-        circle
+        icon
+        variant="tonal"
         color="primary"
         @click="() => emit('remove', item)"
       >
-        <VIcon
-          x-small
-          name="trash"
-        />
+        <IconTrash class="w-4 h-4" />
       </VBtn>
       <VLock v-model="lock" />
     </div>
@@ -23,7 +21,7 @@
 
 <script setup>
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import VLock from '@/components/ui/VLock/index.vue'
 
 defineProps({

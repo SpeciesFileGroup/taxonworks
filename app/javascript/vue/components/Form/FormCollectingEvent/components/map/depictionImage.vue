@@ -10,13 +10,11 @@
         >
           <VBtn
             :color="depiction.id ? 'destroy' : 'primary'"
-            circle
+            icon
+            variant="tonal"
             @click="deleteDepiction"
           >
-            <VIcon
-              name="trash"
-              x-small
-            />
+            <IconTrash class="w-4 h-4" />
           </VBtn>
         </div>
       </template>
@@ -26,7 +24,7 @@
 <script setup>
 import ImageViewer from '@/components/ui/ImageViewer/ImageViewer'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 
 const props = defineProps({
   depiction: {

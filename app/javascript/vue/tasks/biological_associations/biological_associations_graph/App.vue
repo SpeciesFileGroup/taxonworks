@@ -79,14 +79,13 @@
               <VBtn
                 v-if="graph"
                 color="primary"
-                circle
+                icon
+                variant="tonal"
                 medium
+                title="Download"
                 @click="() => graph.downloadAsSvg()"
               >
-                <VIcon
-                  name="download"
-                  x-small
-                />
+                <IconDownload class="w-4 h-4" />
               </VBtn>
               <VBtn
                 color="primary"
@@ -136,6 +135,7 @@ import BiologicalAssociationsGraph from './components/BiologicalAssociationsGrap
 import VNavbar from '@/components/layout/NavBar'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconDownload from '@/components/Icon/IconDownload.vue'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import setParam from '@/helpers/setParam.js'
 import { useHotkey } from '@/composables'

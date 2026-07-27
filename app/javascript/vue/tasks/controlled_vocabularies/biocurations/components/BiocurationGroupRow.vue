@@ -26,14 +26,11 @@
         />
         <v-btn
           color="destroy"
-          circle
+          icon
+          variant="tonal"
           @click="emit('delete', biocurationGroup)"
         >
-          <v-icon
-            color="white"
-            name="trash"
-            x-small
-          />
+          <IconTrash class="w-4 h-4" />
         </v-btn>
       </div>
     </td>
@@ -44,7 +41,7 @@
 import { computed } from 'vue'
 import BiocurationModal from './BiocurationModal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import useStore from '../composables/useStore'
 import makeTooltip from '../utils/makeTooltip.js'
 

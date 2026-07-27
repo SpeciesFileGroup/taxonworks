@@ -77,16 +77,13 @@
                     </li>
                     <li>
                       <v-btn
-                        circle
+                        icon
+                        variant="tonal"
                         :href="image.image_file_url"
                         :download="image.image_original_filename"
                         color="primary"
                       >
-                        <v-icon
-                          x-small
-                          name="download"
-                          color="white"
-                        />
+                        <IconDownload class="w-4 h-4" />
                       </v-btn>
                     </li>
                     <li>
@@ -173,6 +170,7 @@
 import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconDownload from '@/components/Icon/IconDownload.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import RadialNavigation from '@/components/radials/navigation/radial.vue'
 import ImageViewerAttributions from './ImageViewerAttributions.vue'

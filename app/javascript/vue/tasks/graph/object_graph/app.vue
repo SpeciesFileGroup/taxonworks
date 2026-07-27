@@ -22,7 +22,9 @@
             <li>
               <v-btn
                 color="primary"
-                circle
+                icon
+                variant="tonal"
+                title="Download"
                 @click="
                   () =>
                     downloadTextFile(
@@ -32,11 +34,7 @@
                     )
                 "
               >
-                <v-icon
-                  color="white"
-                  x-small
-                  name="download"
-                />
+                <IconDownload class="w-4 h-4" />
               </v-btn>
             </li>
             <li>
@@ -92,7 +90,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigation from '@/components/radials/navigation/radial.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconDownload from '@/components/Icon/IconDownload.vue'
 import VGraph from '@/components/ui/VGraph/VGraph.vue'
 import { downloadTextFile } from '@/helpers/files'
 

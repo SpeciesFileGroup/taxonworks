@@ -37,14 +37,12 @@
         <ConfidenceButton :global-id="citation.citation_object.global_id" />
         <RadialAnnotator :global-id="citation.citation_object.global_id" />
         <VBtn
-          circle
+          icon
+          variant="tonal"
           color="destroy"
           @click="removeCitation"
         >
-          <VIcon
-            x-small
-            name="trash"
-          />
+          <IconTrash class="w-4 h-4" />
         </VBtn>
       </div>
     </td>
@@ -55,7 +53,7 @@
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import ConfidenceButton from '@/components/ui/Button/ButtonConfidence.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import useRow from '../../composables/useRow.js'
 import { COMBINATION } from '@/constants/index.js'
 

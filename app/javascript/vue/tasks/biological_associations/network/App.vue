@@ -17,9 +17,11 @@
               </a>
             </li>
             <li>
-              <v-btn
+              <VBtn
                 color="primary"
-                circle
+                icon
+                variant="tonal"
+                title="Download"
                 @click="
                   () =>
                     downloadTextFile(
@@ -29,12 +31,8 @@
                     )
                 "
               >
-                <v-icon
-                  color="white"
-                  x-small
-                  name="download"
-                />
-              </v-btn>
+                <IconDownload class="w-4 h-4" />
+              </VBtn>
             </li>
           </ul>
         </div>
@@ -84,7 +82,7 @@ import { BiologicalAssociation } from '@/routes/endpoints'
 import { LinkerStorage } from '@/shared/Filter/utils'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconDownload from '@/components/Icon/IconDownload.vue'
 import VGraph from '@/components/ui/VGraph/VGraph.vue'
 import { getHexColorFromString } from '@/tasks/biological_associations/biological_associations_graph/utils/index.js'
 import qs from 'qs'

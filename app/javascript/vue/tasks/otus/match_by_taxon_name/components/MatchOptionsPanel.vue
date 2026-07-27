@@ -130,14 +130,12 @@
             @input="updateModifier(index, 'replacement', $event.target.value)"
           />
           <VBtn
-            circle
+            icon
+            variant="tonal"
             color="primary"
             @click="removeModifier(index)"
           >
-            <VIcon
-              x-small
-              name="trash"
-            />
+            <IconTrash class="w-4 h-4" />
           </VBtn>
         </div>
 
@@ -174,6 +172,7 @@
 <script setup>
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 
 const emit = defineEmits(['clear-all', 'update-options'])

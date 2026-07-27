@@ -71,13 +71,11 @@
               <td>
                 <VBtn
                   :color="item.id ? 'destroy' : 'primary'"
-                  circle
+                  icon
+                  variant="tonal"
                   @click="() => store.removeConfidence(index)"
                 >
-                  <VIcon
-                    name="trash"
-                    x-small
-                  />
+                  <IconTrash class="w-4 h-4" />
                 </VBtn>
               </td>
             </tr>
@@ -98,6 +96,7 @@ import BlockLayout from '@/components/layout/BlockLayout.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import VLock from '@/components/ui/VLock/index.vue'
 
 const allList = ref([])

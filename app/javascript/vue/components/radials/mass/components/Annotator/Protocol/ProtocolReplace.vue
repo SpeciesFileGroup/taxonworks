@@ -12,29 +12,25 @@
           <th class="half_width">
             Change
             <VBtn
-              circle
+              icon
+              variant="tonal"
               color="primary"
               :disabled="selected.length < 1"
               @click="() => selected.splice(0, 1)"
             >
-              <VIcon
-                name="trash"
-                x-small
-              />
+              <IconTrash class="w-4 h-4" />
             </VBtn>
           </th>
           <th class="half_width">
             To
             <VBtn
-              circle
+              icon
+              variant="tonal"
               color="primary"
               :disabled="!isFilled"
               @click="() => selected.splice(1, 1)"
             >
-              <VIcon
-                name="trash"
-                x-small
-              />
+              <IconTrash class="w-4 h-4" />
             </VBtn>
           </th>
           <th class="w-2">
@@ -71,7 +67,7 @@
 import { computed, ref } from 'vue'
 import ProtocolList from './ProtocolList.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 
 const props = defineProps({
   list: {

@@ -106,14 +106,12 @@
                   />
                 </VBtn>
                 <VBtn
-                  circle
+                  icon
+                  variant="tonal"
                   color="destroy"
                   @click="() => removeTypeMaterial(item)"
                 >
-                  <VIcon
-                    name="trash"
-                    x-small
-                  />
+                  <IconTrash class="w-4 h-4" />
                 </VBtn>
               </div>
             </td>
@@ -137,6 +135,7 @@ import VPin from '@/components/ui/Button/ButtonPin.vue'
 import OtuRadial from '@/components/otu/otu.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 
 const store = useStore()
 const depictionStore = useDepictionStore()

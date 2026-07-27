@@ -41,14 +41,12 @@
             </VBtn>
 
             <VBtn
-              circle
+              icon
+              variant="tonal"
               color="primary"
               @click="emit('delete', item)"
             >
-              <VIcon
-                x-small
-                name="trash"
-              />
+              <IconTrash class="w-4 h-4" />
             </VBtn>
           </div>
         </td>
@@ -63,6 +61,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VLock from '@/components/ui/VLock/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 
 const props = defineProps({
   list: {

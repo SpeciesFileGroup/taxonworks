@@ -22,14 +22,12 @@
           <li class="horizontal-left-content gap-xsmall">
             <span>{{ `${i + 1}. ${o.oid}: ${o.title}` }}</span>
             <VBtn
-              class="circle-button"
+              icon
+              variant="tonal"
               color="destroy"
               @click="removeOntology(o)"
             >
-              <VIcon
-                name="trash"
-                x-small
-              />
+              <IconTrash class="w-4 h-4" />
             </VBtn>
           </li>
         </template>
@@ -120,7 +118,7 @@
 
 <script setup>
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import { addToArray, intersectArrays, removeFromArray } from '@/helpers'
 import { AnatomicalPart } from '@/routes/endpoints'

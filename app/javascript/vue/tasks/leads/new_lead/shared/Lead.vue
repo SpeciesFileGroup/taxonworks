@@ -52,13 +52,11 @@
             <VBtn
               v-if="store.children.length > 2"
               color="destroy"
-              circle
+              icon
+              variant="tonal"
               @click="() => deleteSubTree()"
             >
-              <VIcon
-                x-small
-                name="trash"
-              />
+              <IconTrash class="w-4 h-4" />
             </VBtn>
           </div>
 
@@ -229,6 +227,7 @@ import OtuChooser from './OtuChooser.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import useStore from '../store/leadStore.js'
 

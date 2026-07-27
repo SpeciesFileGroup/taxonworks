@@ -18,14 +18,12 @@
         />
         <RadialNavigator :global-id="selected.global_id" />
         <VBtn
-          circle
+          icon
+          variant="tonal"
           color="primary"
           @click="() => (selected = null)"
         >
-          <VIcon
-            name="trash"
-            x-small
-          />
+          <IconTrash class="w-4 h-4" />
         </VBtn>
       </div>
     </div>
@@ -73,7 +71,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 
 const props = defineProps({
   title: {

@@ -58,13 +58,11 @@
               />
               <VBtn
                 :color="item.id ? 'destroy' : 'primary'"
-                circle
+                icon
+                variant="tonal"
                 @click="deleteItem(item)"
               >
-                <VIcon
-                  name="trash"
-                  x-small
-                />
+                <IconTrash class="w-4 h-4" />
               </VBtn>
             </div>
           </td>
@@ -79,7 +77,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import EditInPlace from '@/components/editInPlace'
 import VDate from '@/components/ui/Date/DateFields.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import { formatGeoJsonGeometryForDisplay } from '@/helpers/geojson'
 import { GEOREFERENCE_GEOLOCATE, GEOREFERENCE_WKT } from '@/constants/index.js'
 

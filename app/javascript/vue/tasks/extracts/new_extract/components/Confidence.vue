@@ -64,14 +64,12 @@
             <td v-html="item.label" />
             <td>
               <VBtn
-                circle
+                icon
+                variant="tonal"
                 :color="item.id ? 'destroy' : 'primary'"
                 @click="() => removeConfidence(item)"
               >
-                <VIcon
-                  name="trash"
-                  x-small
-                />
+                <IconTrash class="w-4 h-4" />
               </VBtn>
             </td>
           </tr>
@@ -93,7 +91,7 @@ import SmartSelector from '@/components/ui/SmartSelector'
 import VLock from '@/components/ui/VLock/index.vue'
 import BlockLayout from '@/components/layout/BlockLayout'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import ActionNames from '../store/actions/actionNames'
 import VModal from '@/components/ui/Modal.vue'
 

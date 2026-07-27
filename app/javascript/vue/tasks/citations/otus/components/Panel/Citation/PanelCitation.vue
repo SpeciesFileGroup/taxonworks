@@ -10,13 +10,11 @@
           <RadialAnnotator :global-id="store.selected.citation.global_id" />
           <VBtn
             color="destroy"
-            circle
+            icon
+            variant="tonal"
             @click="destroyCitation"
           >
-            <VIcon
-              name="trash"
-              x-small
-            />
+            <IconTrash class="w-4 h-4" />
           </VBtn>
         </div>
       </div>
@@ -32,7 +30,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import CitationTopics from './CitationTopics.vue'
 import useStore from '../../../store/store.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import { computed } from 'vue'
 
 const currentCitationLabel = computed(

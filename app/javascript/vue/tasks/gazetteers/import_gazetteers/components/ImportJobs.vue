@@ -68,13 +68,11 @@
                   <VBtn
                     v-if="completed(job)"
                     color="primary"
-                    circle
+                    icon
+                    variant="tonal"
                     @click="clearJob(job)"
                   >
-                    <VIcon
-                      name="trash"
-                      x-small
-                    />
+                    <IconTrash class="w-4 h-4" />
                   </VBtn>
                 </div>
               </td>
@@ -90,6 +88,7 @@
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import VSpinner from '@/components/ui/VSpinner'
 import { onMounted, ref } from 'vue'
 import { GazetteerImport } from '@/routes/endpoints'

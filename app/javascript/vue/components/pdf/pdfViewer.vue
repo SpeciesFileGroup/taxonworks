@@ -11,19 +11,15 @@
       <div class="flex-row middle gap-small">
         <VBtn
           v-if="state.documentUrl"
-          circle
+          icon
+          variant="tonal"
           title="Download PDF"
           :href="state.documentUrl"
           :data-pdf-source-id="state.sourceId"
           download=""
           color="transparent"
         >
-          <VIcon
-            class="text-white-color"
-            small
-            title="Download PDF"
-            name="download"
-          />
+          <IconDownload class="w-4 h-4 text-white-color" />
         </VBtn>
         <button
           type="button"
@@ -117,7 +113,7 @@ import ResizeHandle from '../resizeHandle'
 import IndexedDBStorage from '@/storage/indexddb.js'
 import VSpinner from '../ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconDownload from '@/components/Icon/IconDownload.vue'
 import { ajaxCall } from '@/helpers'
 import { getCurrentProjectId } from '@/helpers/project.js'
 import { getCurrentUserId } from '@/helpers/user.js'

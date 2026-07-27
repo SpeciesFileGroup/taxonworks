@@ -9,20 +9,18 @@
     <VBtn
       class="margin-small-left"
       color="primary"
-      circle
+      icon
+      variant="tonal"
       @click="emit('unset')"
     >
-      <VIcon
-        x-small
-        name="trash"
-      />
+      <IconTrash class="w-4 h-4" />
     </VBtn>
   </div>
 </template>
 
 <script setup>
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 
 defineProps({
   item: {

@@ -37,15 +37,12 @@
         </v-btn>
         <v-btn
           color="destroy"
-          circle
+          icon
+          variant="tonal"
+          title="Remove"
           @click="emit('delete', item)"
         >
-          <v-icon
-            x-small
-            title="Remove"
-            color="white"
-            name="trash"
-          />
+          <IconTrash class="w-4 h-4" />
         </v-btn>
       </div>
     </li>
@@ -58,6 +55,7 @@ import PlacementComponent from './placement.vue'
 import ConfidenceButton from '@/components/ui/Button/ButtonConfidence'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 
 defineProps({
   list: {

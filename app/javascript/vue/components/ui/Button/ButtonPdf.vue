@@ -2,14 +2,17 @@
   <VBtn
     v-if="pdf.document_file_content_type === PDF_CONTENT_TYPE"
     color="primary"
-    circle
-    class="pdf-button"
+    icon
+    variant="tonal"
     title="Open PDF"
     @click="loadPDF"
-  />
+  >
+    <IconPdf class="w-4 h-4" />
+  </VBtn>
 </template>
 
 <script setup>
+import IconPdf from '@/components/Icon/IconPdf.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
 const PDF_CONTENT_TYPE = 'application/pdf'

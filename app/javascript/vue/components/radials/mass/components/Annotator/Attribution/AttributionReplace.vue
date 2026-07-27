@@ -101,11 +101,12 @@
           >
             <span>{{ getRoleLabel(fromSelectedRole) }}</span>
             <VBtn
-              circle
+              icon
+              variant="tonal"
               color="primary"
               @click="fromRoleList = []"
             >
-              <VIcon name="trash" x-small />
+              <IconTrash class="w-4 h-4" />
             </VBtn>
           </div>
           <div
@@ -129,11 +130,12 @@
           >
             <span>{{ getRoleLabel(toSelectedRole) }}</span>
             <VBtn
-              circle
+              icon
+              variant="tonal"
               color="primary"
               @click="toRoleList = []"
             >
-              <VIcon name="trash" x-small />
+              <IconTrash class="w-4 h-4" />
             </VBtn>
           </div>
           <div
@@ -156,14 +158,12 @@
         <div class="list-complete-item flex-separate middle">
           <span>{{ roleReplacement.displayText }}</span>
           <VBtn
-            circle
+            icon
+            variant="tonal"
             color="primary"
             @click="removeRoleFromList"
           >
-            <VIcon
-              name="trash"
-              x-small
-            />
+            <IconTrash class="w-4 h-4" />
           </VBtn>
         </div>
       </div>
@@ -191,7 +191,7 @@ import {
 import LicenseInput from './licenseInput.vue'
 import PeopleSelector from '@/components/radials/annotator/components/attribution/PeopleSelector.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 
 const ROLE_TYPE_ORDER = [
   ROLE_ATTRIBUTION_CREATOR,

@@ -122,14 +122,12 @@
               <td class="radial-cell">
                 <VBtn
                   color="destroy"
-                  circle
+                  icon
+                  variant="tonal"
                   title="Delete data attribute"
                   @click="() => destroyDataAttribute(object, da)"
                 >
-                  <VIcon
-                    name="trash"
-                    x-small
-                  />
+                  <IconTrash class="w-4 h-4" />
                 </VBtn>
               </td>
             </tr>
@@ -150,7 +148,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import NavBar from '@/components/layout/NavBar.vue'
 
 defineOptions({

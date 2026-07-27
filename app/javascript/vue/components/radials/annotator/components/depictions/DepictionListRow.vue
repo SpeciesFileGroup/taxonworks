@@ -52,15 +52,12 @@
         </VBtn>
 
         <VBtn
-          class="circle-button"
           color="destroy"
-          circle
+          icon
+          variant="tonal"
           @click="confirmDelete"
         >
-          <VIcon
-            name="trash"
-            x-small
-          />
+          <IconTrash class="w-4 h-4" />
         </VBtn>
       </div>
     </td>
@@ -72,6 +69,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import EditInPlace from '@/components/editInPlace.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import MoveAnnotation from '../shared/MoveAnnotation/MoveAnnotation.vue'
 import { watch, ref } from 'vue'
 

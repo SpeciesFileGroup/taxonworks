@@ -19,13 +19,11 @@
         <radial-annotator :global-id="observation.global_id" />
         <v-btn
           color="destroy"
-          circle
+          icon
+          variant="tonal"
           @click="removeObservation"
         >
-          <v-icon
-            x-small
-            name="trash"
-          />
+          <IconTrash class="w-4 h-4" />
         </v-btn>
       </template>
     </div>
@@ -38,16 +36,16 @@ import { ActionNames } from '../../store/actions/actions'
 import UnitSelector from '../UnitSelector/UnitSelector.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import TimeFields from '../Time/TimeFields.vue'
 
 export default {
   components: {
+    IconTrash,
     UnitSelector,
     RadialAnnotator,
     TimeFields,
-    VBtn,
-    VIcon
+    VBtn
   },
 
   props: {

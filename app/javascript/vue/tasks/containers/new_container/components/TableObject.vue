@@ -38,13 +38,11 @@
             </VBtn>
             <VBtn
               color="primary"
-              circle
+              icon
+              variant="tonal"
               @click="() => objectStore.removeFromList(item)"
             >
-              <VIcon
-                name="trash"
-                x-small
-              />
+              <IconTrash class="w-4 h-4" />
             </VBtn>
           </div>
         </td>
@@ -66,6 +64,7 @@ import { makeContainerItem } from '../adapters'
 import { CONTAINER_PARAMETERS } from '../constants'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
 import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam'

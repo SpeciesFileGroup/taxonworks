@@ -1,23 +1,20 @@
 <template>
   <slot :action="downloadCSV">
     <VBtn
-      class="circle-button"
+      icon
+      variant="tonal"
       color="primary"
       :title="title"
       @click="downloadCSV"
     >
-      <VIcon
-        name="download"
-        x-small
-        :title="title"
-      />
+      <IconDownload class="w-4 h-4" />
     </VBtn>
   </slot>
 </template>
 
 <script setup>
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconDownload from '@/components/Icon/IconDownload.vue'
 import { Parser } from '@json2csv/plainjs'
 
 const props = defineProps({
