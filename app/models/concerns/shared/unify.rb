@@ -364,10 +364,6 @@ module Shared::Unify
         result[:details][n][:errors].push( {id: object.id, message: object.errors.full_messages.join('; ')} )
       end
     else
-      # The update succeeded outright. Do not reload: reload clears the
-      # in-memory dirty-tracking (`saved_changes`/`_previously_changed?`)
-      # that object's own deferred `after_commit` callbacks may depend on
-      # to decide whether to recompute cached values (e.g. TaxonNameRelationship).
       result[:details][n][:merged] += 1
     end
 

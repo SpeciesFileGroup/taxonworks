@@ -363,6 +363,29 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         expect { r1.send(:set_cached_names_for_taxon_names) }.not_to raise_error
       end
 
+      # set_cached_names_for_taxon_names relies on
+      # TaxonNameRelationship#flag_taxon_name_reassignment's ivar, not
+      # _previously_changed?, to notice a reassignment -- because #reload
+      # resets ordinary AR dirty-tracking back to whatever's in the DB, but
+      # leaves plain instance variables untouched. Reassign object_taxon_name,
+      # then reload that very same r1 instance (as unify's own dedup path
+      # does elsewhere in the same transaction) before letting the
+      # transaction close: the deferred after_commit still has to pick up
+      # the reassignment via the ivar, since _previously_changed? alone
+      # would already read false by the time it runs.
+      specify 'cached_valid_taxon_name_id updates after the reassigning instance is reloaded before commit' do
+        g3 = FactoryBot.create(:relationship_genus, name: 'Cus', parent: family)
+        r1 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name: g2, object_taxon_name: g1)
+        expect(g2.reload.cached_valid_taxon_name_id).to eq(g1.id)
+
+        TaxonNameRelationship.transaction do
+          r1.update(object_taxon_name: g3)
+          r1.reload
+        end
+
+        expect(g2.reload.cached_valid_taxon_name_id).to eq(g3.id)
+      end
+
       specify 'create misspelling relationship' do
         r3 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2,
                                type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
