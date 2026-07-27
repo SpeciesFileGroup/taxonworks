@@ -47,13 +47,13 @@ module CollectionObjectsHelper
       collection_object.id.to_s
   end
 
-  def collection_object_autocomplete_tag(collection_object)
+  def collection_object_autocomplete_tag(collection_object, term = nil)
     return nil if collection_object.nil?
     [
       collection_object_loan_tag(collection_object),
       collection_object_deaccession_tag(collection_object),
-      collection_object_identifier_tag(collection_object),
-      collection_object_taxon_determination_tag(collection_object)
+      collection_object_identifier_tag(collection_object, term),
+      collection_object_taxon_determination_tag(collection_object, term)
     ].join(' ').html_safe
   end
 
@@ -81,9 +81,10 @@ module CollectionObjectsHelper
     link_to('Verify', verify_accessions_task_path(by: priority.metamorphosize.class.name.tableize.singularize.to_sym, id: priority.to_param))
   end
 
-  def collection_object_identifier_tag(collection_object)
+  def collection_object_identifier_tag(collection_object, term = nil)
     return nil if collection_object.nil?
     t, i = collection_object_visualized_identifier(collection_object)
+    i = mark_tag(i, term)
 
     return content_tag(:span, i, class: [
       :feedback,
@@ -139,9 +140,10 @@ module CollectionObjectsHelper
     nil
   end
 
-  def collection_object_taxon_determination_tag(collection_object)
+  def collection_object_taxon_determination_tag(collection_object, term = nil)
     return nil if collection_object.nil?
     i = taxon_determination_tag(collection_object.taxon_determinations.order(:position).first)
+    i = mark_tag(i, term)
     return content_tag(:span, i, class: [:feedback, 'feedback-thin', 'feedback-secondary']) if i
     nil
   end
