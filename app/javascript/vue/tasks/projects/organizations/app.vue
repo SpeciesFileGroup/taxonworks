@@ -44,38 +44,46 @@ function loadProjectOrganizations() {
 }
 
 function addOrganization(organization) {
-  ProjectOrganization.create({
-    project_organization: { organization_id: organization.id }
-  }).then(({ body }) => {
-    projectOrganizations.value.push(body)
-    TW.workbench.alert.create(
-      'Organization was successfully added to the project.',
-      'notice'
-    )
-  })
+  ProjectOrganization
+    .create({
+      project_organization: { organization_id: organization.id }
+    })
+    .then(({ body }) => {
+      projectOrganizations.value.push(body)
+      TW.workbench.alert.create(
+        'Organization was successfully added to the project.',
+        'notice'
+      )
+    })
+    .catch(() => {})
 }
 
 // Depictions are added with the radial annotator, so the row is reloaded when it closes
 function refreshProjectOrganization(projectOrganization) {
-  ProjectOrganization.find(projectOrganization.id).then(({ body }) => {
-    const index = projectOrganizations.value.findIndex(
-      (item) => item.id === body.id
-    )
+  ProjectOrganization
+    .find(projectOrganization.id)
+    .then(({ body }) => {
+      const index = projectOrganizations.value.findIndex(
+        (item) => item.id === body.id
+      )
 
-    projectOrganizations.value[index] = body
-  })
+      projectOrganizations.value[index] = body
+    })
+    .catch(() => {})
 }
 
 function removeProjectOrganization(projectOrganization) {
-  ProjectOrganization.destroy(projectOrganization.id).then(() => {
-    projectOrganizations.value = projectOrganizations.value.filter(
-      (item) => item.id !== projectOrganization.id
-    )
-    TW.workbench.alert.create(
-      'Organization was successfully removed from the project.',
-      'notice'
-    )
-  })
+  ProjectOrganization
+    .destroy(projectOrganization.id).then(() => {
+      projectOrganizations.value = projectOrganizations.value.filter(
+        (item) => item.id !== projectOrganization.id
+      )
+      TW.workbench.alert.create(
+        'Organization was successfully removed from the project.',
+        'notice'
+      )
+    })
+    .catch(() => {})
 }
 
 onBeforeMount(loadProjectOrganizations)
