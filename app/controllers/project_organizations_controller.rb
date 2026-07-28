@@ -4,6 +4,8 @@ class ProjectOrganizationsController < ApplicationController
   before_action :set_project_organization, only: %i[show destroy]
   after_action -> { set_pagination_headers(:project_organizations) }, only: [:index], if: :json_request?
 
+  before_action :require_superuser_sign_in, only: [:destroy, :create]
+
   # GET /project_organizations
   # GET /project_organizations.json
   def index
