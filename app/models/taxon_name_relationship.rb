@@ -497,7 +497,13 @@ class TaxonNameRelationship < ApplicationRecord
       # instance rather than nil -- reload to force a fresh check (see the
       # identical fix/rationale on
       # TaxonNameRelationship::OriginalCombination#set_cached_names_for_taxon_names).
-      t.reload
+      # If the row is actually gone, reload raises RecordNotFound -- there's
+      # nothing left to update.
+      begin
+        t.reload
+      rescue ActiveRecord::RecordNotFound
+        return true
+      end
 
       if TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY.include?(type_name)
         t.update_columns(
@@ -548,8 +554,6 @@ class TaxonNameRelationship < ApplicationRecord
       end
     end
 
-    true
-  rescue ActiveRecord::RecordNotFound
     true
   end
 

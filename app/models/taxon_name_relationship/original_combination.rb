@@ -89,10 +89,13 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
     # afterward.
     return if object_taxon_name.nil?
 
-    object_taxon_name.reload
+    begin
+      object_taxon_name.reload
+    rescue ActiveRecord::RecordNotFound
+      return
+    end
+
     object_taxon_name.update_cached_original_combinations
-  rescue ActiveRecord::RecordNotFound
-    nil
   end
 
   def sv_validate_priority
