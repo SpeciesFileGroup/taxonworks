@@ -898,13 +898,13 @@ describe 'Shared::Unify', type: :model do
   end
 
   # log_unify_result resets a duplicate Citation's `is_original` to false
-  # *before* attempting deduplication (to clear the separate is_original
-  # uniqueness conflict). But `is_original` is not excluded from #identical's
-  # comparison, so that reset makes the duplicate look different from the
-  # surviving Citation it should be matched against -- #identical then finds
-  # no match, deduplicate_update_target gives up, and the duplicate Citation
-  # (and anything annotating it) is only removed as a side effect of ad2's
-  # own destroy cascade, silently losing whatever was attached to it.
+  # before attempting deduplication (to clear the separate is_original
+  # uniqueness conflict). Citation::IGNORE_IDENTICAL excludes is_original
+  # from #identical's comparison, so that reset doesn't stop the duplicate
+  # from still matching the surviving Citation - #identical finds it, and
+  # deduplicate_update_target moves its annotations (e.g. this Note) onto
+  # the survivor before destroying it, rather than losing them to ad2's own
+  # destroy cascade.
   specify 'would-be duplicate citations do not halt unify - preserves Notes on the removed duplicate' do
     s = FactoryBot.create(:valid_source)
 
@@ -953,11 +953,11 @@ describe 'Shared::Unify', type: :model do
   # instance than whatever unify holds - see UnifyDestroyContext) to decide
   # whether citation_object is already slated for destruction regardless.
   # citation1 and citation2 here are on two entirely unrelated
-  # AssertedDistributions (neither is being unified with the other, so ad2
-  # is never registered as being destroyed) that merely happen to share a
-  # source and pages. Calling Citation#unify directly must not destroy
-  # citation2 and leave ad2 -- untouched, still fully alive -- with zero
-  # citations despite requiring one.
+  # AssertedDistributions - neither ad1 nor ad2 is being unified with the
+  # other, so ad2 is never registered as being destroyed. Calling
+  # Citation#unify directly must not destroy citation2 and leave ad2 -
+  # untouched, still fully alive - with zero citations despite requiring
+  # one.
   specify 'unify does not destroy a required citation for an unrelated, untouched citation_object' do
     s = FactoryBot.create(:valid_source)
     ad1 = FactoryBot.create(:valid_asserted_distribution, source: s)
@@ -965,8 +965,6 @@ describe 'Shared::Unify', type: :model do
 
     citation1 = ad1.citations.first
     citation2 = ad2.citations.first
-    citation1.update!(pages: '5')
-    citation2.update!(pages: '5')
 
     citation1.unify(citation2)
 
@@ -1000,7 +998,7 @@ describe 'Shared::Unify', type: :model do
   # treats a nilled position as "insert at top" and always finds room by
   # shifting every other record in the scope down, so the retry always
   # succeeds. That means object.errors is always empty by the time
-  # log_unify_result would otherwise reach for deduplicate_update_target --
+  # log_unify_result would otherwise reach for deduplicate_update_target -
   # dedup is never actually exercised here, regardless of the guard fix
   # above. The "duplicate" determination is just merged in as an ordinary
   # (undeduped) second record, not destroyed and not blocked.
@@ -1021,7 +1019,7 @@ describe 'Shared::Unify', type: :model do
     expect(fo1.taxon_determinations.reload.count).to eq(2)
   end
 
-  specify 'unifies TaxonNames when both have the same OriginalCombination relationship type' do
+  specify 'unifies TaxonNames when both have an identical OriginalCombination relationship (same subject and type)' do
     genus = FactoryBot.create(:relationship_genus)
     keep = FactoryBot.create(:relationship_species)
     destroy = FactoryBot.create(:relationship_species)
@@ -1057,7 +1055,7 @@ describe 'Shared::Unify', type: :model do
     expect(result[:details]['Related taxon name relationships'][:deduplicated]).to eq(1)
   end
 
-  specify 'unifies TaxonNames when both are subjects of the same TNR to the same object' do
+  specify 'unifies TaxonNames when both are subjects of the same TaxonNameRelationship type to the same object' do
     keep = FactoryBot.create(:relationship_species)
     destroy = FactoryBot.create(:relationship_species)
     valid_name = FactoryBot.create(:relationship_species)
@@ -1079,7 +1077,7 @@ describe 'Shared::Unify', type: :model do
   # A relation move can fail validation for reasons that have nothing to do
   # with duplication. Here, unifying moves a SourceClassifiedAs relationship
   # onto an ICN (botanical) name, but its subject is an ICZN (zoological)
-  # name -- TaxonNameRelationship#validate_subject_and_object_share_code, a
+  # name - TaxonNameRelationship#validate_subject_and_object_share_code, a
   # plain `validate` callback, not a uniqueness check, correctly rejects
   # relating names from different nomenclatural codes. That must be reported
   # unmerged (and destroy/its relationship must survive), not treated as a
@@ -1105,9 +1103,10 @@ describe 'Shared::Unify', type: :model do
   # Aus bus's id is cached on the synonym's cached_valid_taxon_name_id).
   # keep.unify(destroy) moves destroy's taxon_name_relationships (including
   # the synonym TNR) over to keep, then destroys Aus bus. The synonym's
-  # cached_valid_taxon_name_id, however, still points at the now-destroyed
-  # Aus bus, so anything that resolves #valid_taxon_name off the synonym
-  # blows up trying to load a name that no longer exists.
+  # cached_valid_taxon_name_id must follow that move and end up pointing at
+  # keep, not the now-destroyed Aus bus - otherwise anything that resolves
+  # #valid_taxon_name off the synonym would blow up trying to load a name
+  # that no longer exists.
   specify 'unifies TaxonNames - synonym cached_valid_taxon_name_id follows the object of a Synonym relationship' do
     keep = FactoryBot.create(:relationship_species)    # Cus dus
     destroy = FactoryBot.create(:relationship_species) # Aus bus
@@ -1501,32 +1500,27 @@ describe 'Shared::Unify', type: :model do
       "  #{uncovered.join("\n  ")}"
   end
 
-  # log_unify_result no longer tries to guess whether a failed move "looks"
-  # relation-related before attempting dedup -- it just always tries
-  # (#identical won't match unless there's a genuine duplicate). What matters
-  # is what happens when that attempt does NOT pan out (no match, or a match
-  # was found but the nested merge failed): this must be reported as
-  # unmerged, not treated as safe to reload-and-recheck. See the georeference
-  # ("ce1 has a geographic_area that does not contain ce2s georeference") and
-  # ObservationMatrixRow ("when the nested unify inside deduplicate_update_
-  # target fails") specs above for the real scenarios this protects: the
-  # object, reverted to its old parent, is often perfectly *valid* there --
-  # but that parent is about to be destroyed, so "valid in its old spot" is
-  # not the same as "the requested move succeeded", and reporting merged
-  # would be silently wrong regardless of whether a dependent: :destroy
-  # cascade happens to clean it up afterward.
   describe 'log_unify_result reports unmerged (not merged) when a dedup attempt does not pan out' do
     let(:helper) { TestUnify.new }
-    let(:relation) { OpenStruct.new(name: :test_relation, options: { inverse_of: :integer }) }
+    let(:relation) { OpenStruct.new(name: :test_relation) }
     let(:result) { { result: { unified: nil }, details: {} } }
 
-    specify 'even though the object, reloaded, is perfectly valid on its own' do
+    specify 'trusts the error already on the object rather than reloading to recheck validity' do
       obj = TestUnifyIdenticalCapable.create!(string: 'a-value')
-      obj.errors.add(:string, :taken) # simulate: the attempted move failed, for any reason
+      # Fakes the aftermath of a failed relation move, without an actual
+      # failed .update: obj.errors now looks exactly like it would right
+      # after a failed save, but obj itself is still the one persisted,
+      # perfectly valid row - reloading it would clear this and show no
+      # error at all.
+      obj.errors.add(:string, :taken)
 
       helper.send(:stub_unify_result, result, 'Test relation', 1)
       helper.send(:log_unify_result, obj, relation, result)
 
+      # obj is the only row of its kind, so #identical (called internally
+      # by deduplicate_update_target) finds no match - there's no duplicate
+      # to merge into, so this must be reported as a failed move, not
+      # silently treated as merged-because-obj.reload-is-valid.
       expect(result[:details]['Test relation'][:unmerged]).to eq(1)
       expect(result[:details]['Test relation'][:merged]).to eq(0)
       expect(result[:result][:unified]).to be(false)
@@ -1541,7 +1535,7 @@ class TestUnify < ApplicationRecord
 end
 
 # Like TestUnify, but also includes Shared::IsData for #identical, which
-# deduplicate_update_target needs -- kept separate from TestUnify so the
+# deduplicate_update_target needs - kept separate from TestUnify so the
 # plain helper class doesn't pick up Shared::IsData's broader behavior
 # (callbacks, extra validations) just for tests that call private methods
 # via `send` without persisting anything.

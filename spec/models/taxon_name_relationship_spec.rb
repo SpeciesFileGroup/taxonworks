@@ -28,16 +28,16 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
     perform_enqueued_jobs
 
     expect(s.dwc_occurrence.reload.scientificName).to eq(t.cached_name_and_author_year)
-    
+
     r1 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: t, object_taxon_name: species, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
-   
+
     perform_enqueued_jobs
-   
+
     expect(s.dwc_occurrence.reload.scientificName).to eq(species.cached_name_and_author_year)
 
     # Back the other way
     r1.destroy!
-  
+
     perform_enqueued_jobs
     expect(s.dwc_occurrence.reload.scientificName).to eq(t.cached_name_and_author_year)
   end
@@ -282,11 +282,14 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       # OriginalCombination#set_cached_names_for_taxon_names refreshes
       # object_taxon_name via #reload rather than a separately-fetched
       # TaxonName instance, so the already-memoized association on the
-      # relationship itself reflects the update -- checked here through r,
+      # relationship itself reflects the update - checked here through r,
       # not a freshly-fetched s1, to catch a regression back to a separate
       # instance the relationship's own association would never see.
       specify 'object_taxon_name association is refreshed in place, not left stale' do
         r = TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g1, object_taxon_name: s1)
+        # Reassigns the original genus itself (Aus -> Bus), which is what
+        # set_cached_names_for_taxon_names's #reload+#update_cached_
+        # original_combinations recompute on s1's cached_primary_homonym.
         r.update!(subject_taxon_name: g2)
         expect(r.object_taxon_name.cached_primary_homonym).to eq('Bus aus')
       end
@@ -325,19 +328,24 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       end
 
       # The `|| destroyed?` in set_cached_names_for_taxon_names's guard exists
-      # for this case specifically: `_previously_changed?` only reflects
-      # attribute changes from the record's *own* last save, and a plain
-      # destroy doesn't go through an update. Right after .create! that flag
-      # happens to still read true (left over from creation), which would
-      # mask a missing `destroyed?` guard -- reloading r1 first clears it, so
-      # this only passes if destroy on its own re-triggers the cache update.
-      specify 'for cached_valid_taxon_name_id, destroyed after previously_changed? has already reset' do
+      # for a plain destroy performed through an instance that never itself
+      # reassigned subject/object_taxon_name - e.g. destroying a
+      # freshly-loaded copy of the relationship, as an ordinary "delete this
+      # relationship" flow would. flag_taxon_name_reassignment's ivar is only
+      # ever set to true by that instance's *own* before_save, so on a fresh
+      # instance it's still nil/false; without `|| destroyed?`, the
+      # after_commit would skip the cache update entirely. Using
+      # TaxonNameRelationship.find (not r1.reload) is essential here - r1
+      # itself already flagged the ivar true back when it was created, and
+      # #reload never clears that, so destroying r1 directly would pass even
+      # without the `destroyed?` guard.
+      specify 'destroyed via a freshly-loaded instance that never reassigned itself' do
         r1 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name: g2, object_taxon_name: g1)
-        r1.reload
-        expect(r1.subject_taxon_name_id_previously_changed?).to be_falsey
         g2.reload
         expect(g2.cached_valid_taxon_name_id).to eq(g1.id)
-        r1.destroy!
+
+        TaxonNameRelationship.find(r1.id).destroy!
+
         g2.reload
         expect(g2.cached_valid_taxon_name_id).to eq(g2.id)
         expect(g2.cached_is_valid).to be_truthy
@@ -347,7 +355,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       # can run after subject_taxon_name was destroyed elsewhere in the same
       # unify chain. If subject_taxon_name was already memoized on r1 before
       # that happened, the belongs_to reader returns the stale,
-      # no-longer-persisted instance rather than nil -- reproduced here by
+      # no-longer-persisted instance rather than nil - reproduced here by
       # memoizing g2 on r1, destroying r1 itself (satisfying the FK on
       # taxon_name_relationships.subject_taxon_name_id) and then g2, and
       # invoking the callback again as the deferred after_commit would.
@@ -355,17 +363,22 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
       # TaxonNameRelationship::OriginalCombination#set_cached_names_for_taxon_names.
       specify 'does not raise when subject_taxon_name is memoized but its row is gone by the time the callback runs' do
         r1 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name: g2, object_taxon_name: g1)
+        # Without this, the belongs_to reader would just re-query and return
+        # nil directly once g2 is gone below, short-circuiting at `return
+        # true unless t` before ever reaching the #reload this test targets.
         r1.subject_taxon_name # memoize g2 on r1's association cache
 
         r1.destroy! # satisfies the FK, fires the callback once normally (g2 still exists here)
-        g2.destroy!
+        g2.destroy! # g2's row is gone, but r1 still holds the stale memoized instance
 
+        # t.reload (on the stale memoized g2) raises RecordNotFound here -
+        # confirms it's rescued rather than propagating.
         expect { r1.send(:set_cached_names_for_taxon_names) }.not_to raise_error
       end
 
       # set_cached_names_for_taxon_names relies on
       # TaxonNameRelationship#flag_taxon_name_reassignment's ivar, not
-      # _previously_changed?, to notice a reassignment -- because #reload
+      # _previously_changed?, to notice a reassignment - because #reload
       # resets ordinary AR dirty-tracking back to whatever's in the DB, but
       # leaves plain instance variables untouched. Reassign object_taxon_name,
       # then reload that very same r1 instance (as unify's own dedup path
@@ -379,7 +392,11 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         expect(g2.reload.cached_valid_taxon_name_id).to eq(g1.id)
 
         TaxonNameRelationship.transaction do
+          # object_taxon_name_id_changed? on this save sets the ivar true.
           r1.update(object_taxon_name: g3)
+          # Wipes AR's own dirty-tracking (_previously_changed?) back to
+          # matching the just-saved row, but leaves the ivar untouched -
+          # that's the gap flag_taxon_name_reassignment exists to cover.
           r1.reload
         end
 

@@ -476,11 +476,6 @@ class TaxonNameRelationship < ApplicationRecord
 
   # OriginalCombination has a replacement method.
   def set_cached_names_for_taxon_names
-    # This is called via an unrestricted after_commit, which fires on
-    # destroy as well as create/update, and a plain destroy doesn't touch
-    # subject/object_taxon_name_id at all -- without `|| destroyed?`,
-    # destroying a relationship (e.g. removing a synonym) would leave the
-    # taxon names it affected with stale cached values.
     return true unless @taxon_name_id_reassigned || destroyed?
 
     return true unless is_invalidating?
@@ -494,10 +489,10 @@ class TaxonNameRelationship < ApplicationRecord
       # the duplicate being merged away) by the time this deferred
       # after_commit fires. If t was already memoized before that happened,
       # the belongs_to reader above returns a stale, no-longer-persisted
-      # instance rather than nil -- reload to force a fresh check (see the
+      # instance rather than nil - reload to force a fresh check (see the
       # identical fix/rationale on
       # TaxonNameRelationship::OriginalCombination#set_cached_names_for_taxon_names).
-      # If the row is actually gone, reload raises RecordNotFound -- there's
+      # If the row is actually gone, reload raises RecordNotFound - there's
       # nothing left to update.
       begin
         t.reload
@@ -540,7 +535,7 @@ class TaxonNameRelationship < ApplicationRecord
       # TODO: this fires per-relationship via after_commit, and each firing
       # redoes this full pass over every synonym of vn, not just the one
       # relationship that changed. Merging a TaxonName with N synonym
-      # relationships triggers N callbacks, each doing O(N) work here --
+      # relationships triggers N callbacks, each doing O(N) work here -
       # O(N^2) total for the whole merge. Would need batching/debouncing the
       # cache rebuild to a single pass after all relationship moves land.
       vn.list_of_invalid_taxon_names.each do |s|
