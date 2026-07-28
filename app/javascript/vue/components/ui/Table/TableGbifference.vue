@@ -70,11 +70,6 @@ watch(
   width: min-content;
 }
 
-.v-badge--default {
-  background-color: var(--badge-default-bg);
-  color: var(--badge-default-color);
-}
-
 .table-gbifference__remark--altered {
   background-color: var(--badge-yellow-bg);
   color: var(--badge-yellow-color);
