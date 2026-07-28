@@ -130,11 +130,9 @@ module Shared::Unify
       # before_unify # potential hooks, appear not to be required
 
       # Record remove_object as committed-to-destruction *before* any related
-      # records are touched below, so "must have at least one X" guards on
-      # those related records (e.g. Citation, TaxonDetermination) can see,
-      # for the whole duration of this call (including any nested unify a
-      # dedup triggers), that it's already slated for destruction regardless
-      # of what happens to its individual annotations.
+      # records are touched below, so those related records can see, for the
+      # whole duration of this call (including any nested unify a dedup
+      # triggers), that it's already slated for destruction.
       if will_destroy
         UnifyDestroyContext.objects_in_destroy ||= Set.new
         UnifyDestroyContext.objects_in_destroy << destroy_key
