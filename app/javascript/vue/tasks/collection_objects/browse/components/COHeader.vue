@@ -17,6 +17,17 @@
             <BrowseOTU :otu="otu" />
           </li>
           <li>
+            <VBtn
+              icon
+              variant="tonal"
+              color="primary"
+              title="Edit on comprehensive task"
+              @click="openComprehenseive(collectionObject.id)"
+            >
+              <IconPencil class="w-4 h-4" />
+            </VBtn>
+          </li>
+          <li>
             <RadialAnnotator
               :global-id="collectionObject.globalId"
               @create="handleRadialCreate"
@@ -27,20 +38,7 @@
           <li>
             <RadialObject :global-id="collectionObject.globalId" />
           </li>
-          <li>
-            <RadialFilter object-type="CollectionObject" />
-          </li>
-          <li>
-            <VBtn
-              icon
-              variant="tonal"
-              color="submit"
-              title="Edit on comprehensive task"
-              @click="openComprehenseive(collectionObject.id)"
-            >
-              <IconPencil class="w-4 h-4" />
-            </VBtn>
-          </li>
+
           <li>
             <RadialNavigator :global-id="collectionObject.globalId" />
           </li>
@@ -68,7 +66,6 @@ import CONavegation from './CONavegation.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
-import RadialFilter from '@/components/radials/linker/radial.vue'
 import RadialFilterAttribute from '@/components/radials/linker/RadialFilterAttribute.vue'
 import BrowseOTU from '@/components/otu/otu.vue'
 import DwcReindexWarning from './DwcReindexWarning.vue'

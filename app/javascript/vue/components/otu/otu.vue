@@ -4,7 +4,8 @@
       :title="redirect ? 'Browse OTUs' : 'OTU Quick forms'"
       :color="emptyList ? 'create' : 'primary'"
       :disabled="!loaded"
-      circle
+      :icon="redirect"
+      :circle="!redirect"
       :bordered="!redirect"
       variant="tonal"
       @click="openApp()"

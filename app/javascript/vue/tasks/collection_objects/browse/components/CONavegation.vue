@@ -1,37 +1,37 @@
 <template>
-  <div>
-    <VBtn  v-help.nav.previous
-      medium
+  <div class="flex-row gap-small middle">
+    <VBtn
+      v-help.nav.previous
+      icon
       color="primary"
+      variant="tonal"
+      title="Load previous collection object by ID"
       :disabled="!previousByCurrent"
       @click="loadCO(previousByCurrent)"
     >
-      <VIcon
-        x-small
-        name="arrowLeft"
-      />
+      <IconArrowLeft class="w-4 h-4" />
     </VBtn>
-    <VBtn v-help.nav.go
-      medium
-      class="margin-small-left margin-small-right"
+    <VBtn
+      v-help.nav.go
       color="primary"
+      variant="tonal"
       @click="isVisible = true"
       :disabled="!navigate.current_collection_object"
     >
-      Go
+      Navigate
     </VBtn>
-    <VBtn v-help.nav.next
-      medium
+    <VBtn
+      v-help.nav.next
+      icon
       color="primary"
+      variant="tonal"
+      title="Load next collection object by ID"
       :disabled="!nextByCurrent"
       @click="loadCO(nextByCurrent)"
     >
-      <VIcon
-        x-small
-        name="arrowRight"
-      />
+      <IconArrowRight class="w-4 h-4" />
     </VBtn>
-    <modal-component
+    <VModal
       v-if="isVisible"
       @close="isVisible = false"
       :container-style="{ width: '500px' }"
@@ -56,30 +56,30 @@
               :key="key"
             >
               <td>
-                <button
-                  type="button"
-                  class="button normal-input button-default"
+                <VBtn
+                  color="primary"
+                  variant="tonal"
                   :disabled="!navigate.previous_by[key]"
                   @click="loadCO(navigate.previous_by[key])"
                 >
                   {{ key.replaceAll('_', ' ') }}
-                </button>
+                </VBtn>
               </td>
               <td>
-                <button
-                  class="button normal-input button-default"
-                  type="button"
+                <VBtn
+                  color="primary"
+                  variant="tonal"
                   :disabled="!navigate.next_by[key]"
                   @click="loadCO(navigate.next_by[key])"
                 >
                   {{ key.replaceAll('_', ' ') }}
-                </button>
+                </VBtn>
               </td>
             </tr>
           </tbody>
         </table>
       </template>
-    </modal-component>
+    </VModal>
   </div>
 </template>
 
@@ -89,10 +89,11 @@ import { computed, ref } from 'vue'
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
 import { RouteNames } from '@/routes/routes'
-import ModalComponent from '@/components/ui/Modal'
+import VModal from '@/components/ui/Modal'
 import setParam from '@/helpers/setParam'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconArrowLeft from '@/components/Icon/IconArrowLeft.vue'
+import IconArrowRight from '@/components/Icon/IconArrowRight.vue'
 
 const store = useStore()
 

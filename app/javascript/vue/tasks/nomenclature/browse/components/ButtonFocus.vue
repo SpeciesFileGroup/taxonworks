@@ -1,7 +1,7 @@
 <template>
   <VBtn
     v-if="protonym"
-    :class="{ 'button-focus--active': isFocus }"
+    :class="[{ 'button-focus--active': isFocus }, 'margin-xsmall-right']"
     icon
     color="primary"
     variant="tonal"
@@ -66,12 +66,6 @@ function toggleFocus() {
     elements.forEach((el) => {
       CSS_CLASSES.forEach((c) => el.classList.remove(c))
     })
-
-    /*     const event = new CustomEvent(EVENT_NAME, {
-      detail: {
-        focus: false
-      }
-    }) */
 
     document.dispatchEvent(event)
 

@@ -11,7 +11,7 @@
       class="taxonomy-tree-button"
       circle
       icon
-      small
+      x-small
       variant="outline"
       color="primary"
       :disabled="isLoading"
