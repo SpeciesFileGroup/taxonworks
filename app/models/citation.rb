@@ -171,10 +171,10 @@ class Citation < ApplicationRecord
     return if marked_for_destruction?
     return if citation_object && citation_object.respond_to?(:ignore_citation_restriction) && citation_object.ignore_citation_restriction
 
-    # citation_object may not be the same in-memory instance that an
-    # enclosing Shared::Unify#unify call is destroying (e.g. loaded fresh via
-    # this belongs_to rather than the instance unify holds), so this checks
-    # by identity (id/type), not object reference - see UnifyDestroyContext.
+    # Allow the destroy if citation_object itself is already committed to
+    # being destroyed by an enclosing Shared::Unify#unify call - it's not
+    # losing its last citation, it's going away entirely, so the "must have
+    # at least one citation" guard below is moot.
     return if citation_object && UnifyDestroyContext.objects_in_destroy&.include?(
       { id: citation_object.id, type: citation_object.class.base_class.name }
     )
