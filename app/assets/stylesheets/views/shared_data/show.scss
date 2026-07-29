@@ -80,11 +80,22 @@ mark {
   font-weight: 700;
   color: var(--color-on-attention);
   background-color: var(--color-attention);
-  padding: 0 0.2em;
+  padding: 0 0.08em;
   border-radius: 0.15em;
   a {
     font-weight: 700;
   }
+}
+
+// Italic text leans right into whatever follows it, and whatever comes before
+// leans into it; give marked text a little breathing room here so neither side
+// gets cut off.
+i mark,
+em mark,
+cite mark {
+  margin-left: 0.14em;
+  padding-right: 0.14em;
+  padding-left: 0;
 }
 
 .housekeeping {
