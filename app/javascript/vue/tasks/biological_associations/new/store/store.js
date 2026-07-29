@@ -180,10 +180,12 @@ export const useStore = defineStore('NewBiologicalAssociation', {
             'Biological association was successfully saved.',
             'notice'
           )
-          this.reset()
           smartSelectorRefresh()
         })
         .catch(() => {})
+        .finally(() => {
+          this.reset()
+        })
     },
 
     removeBiologicalAssociation(item) {
