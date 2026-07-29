@@ -5,12 +5,11 @@
         <th>Object</th>
         <th>Object type</th>
         <th>Shape</th>
-        <th>Citation</th>
-        <th>Trash</th>
         <th>Radial annotator</th>
         <th>Source/Object clone</th>
         <th>Source/Geo clone</th>
         <th>Object/Geo load</th>
+        <th class="w-2" />
       </tr>
     </thead>
     <tbody>
@@ -58,24 +57,6 @@
         </td>
         <td>
           <VBtn
-            color="destroy"
-            circle
-            @click="removeItem(item)"
-          >
-            <VIcon
-              name="trash"
-              x-small
-            />
-          </VBtn>
-        </td>
-        <td>
-          <RadialAnnotator
-            type="annotations"
-            :global-id="item.global_id"
-          />
-        </td>
-        <td>
-          <VBtn
             color="primary"
             @click="() => setSourceObject(item)"
           >
@@ -98,6 +79,15 @@
             Load
           </VBtn>
         </td>
+        <td>
+          <div class="flex-row gap-small">
+            <RadialAnnotator
+              type="annotations"
+              :global-id="item.global_id"
+            />
+            <RadialNavigator :global-id="item.global_id" />
+          </div>
+        </td>
       </tr>
     </tbody>
   </table>
@@ -105,10 +95,10 @@
 
 <script setup>
 import RadialAnnotator from '@/components/radials/annotator/annotator'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import CitationCount from './citationsCount'
 import SoftValidation from '@/components/soft_validations/objectValidation.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
 import { RouteNames } from '@/routes/routes'
 import { useStore } from '../store/store'
 import { Source } from '@/routes/endpoints'
