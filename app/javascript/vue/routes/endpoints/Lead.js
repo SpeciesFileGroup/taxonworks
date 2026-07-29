@@ -14,6 +14,7 @@ const permitParams = {
     link_out: Text,
     link_out_text: String,
     is_public: Boolean,
+    is_virtual: Boolean,
     global_id: String
   }
 }

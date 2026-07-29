@@ -110,6 +110,10 @@ scope :tasks do
   end
 
   scope :leads do
+    scope :virtual_key, controller: 'tasks/leads/virtual_key' do
+      get :index, as: 'index_virtual_key_task'
+    end
+
     scope :dichotomous_key, controller: 'tasks/leads/dichotomous_key' do
       get '/', action: :index, as: 'dichotomous_key_task'
     end

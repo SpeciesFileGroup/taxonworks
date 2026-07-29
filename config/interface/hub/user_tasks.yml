@@ -1269,3 +1269,12 @@ collection_visualization_task:
     - collection objects
   status: prototype
   description: 'Visualize a collection hierarchy using treemap and other views.'
+
+index_virtual_key_task:
+  hub: true
+  name: 'New virtual key'
+  related:
+  categories:
+    - new
+  status: prototype
+  description: 'Record a citation for a dichotomous key in the literature without building the tree.'

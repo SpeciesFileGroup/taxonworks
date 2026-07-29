@@ -18,6 +18,15 @@ RSpec.describe Lead, type: :model do
     expect(l.valid?).to be_truthy
   end
 
+  specify '#is_virtual root Lead is valid without text' do
+    l = Lead.new(
+      text: 'Virtual key root',
+      is_virtual: true,
+      otu: FactoryBot.create(:valid_otu)
+    )
+    expect(l.valid?).to be_truthy
+  end
+
   specify '#is_virtual and many OTUs on lead' do
     %w{A B C D E}.each do |n|
       l = Lead.create!(

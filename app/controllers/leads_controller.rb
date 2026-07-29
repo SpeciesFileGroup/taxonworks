@@ -74,7 +74,7 @@ class LeadsController < ApplicationController
     @lead = Lead.new(lead_params)
     respond_to do |format|
       if @lead.save
-        new_couplet # we make a blank couplet so we can show the key
+        new_couplet unless @lead.is_virtual
         expand_lead
         format.json { render action: :show, status: :created, location: @lead }
       else
@@ -378,7 +378,7 @@ class LeadsController < ApplicationController
     params.require(:lead).permit(
       :parent_id,
       :otu_id, :text, :origin_label, :description, :redirect_id,
-      :link_out, :link_out_text, :is_public, :position
+      :link_out, :link_out_text, :is_public, :is_virtual, :position
     )
   end
 
