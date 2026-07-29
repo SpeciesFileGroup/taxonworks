@@ -722,9 +722,8 @@ class Combination < TaxonName
       begin
         TaxonName.transaction do
           # update_column(:parent_id, check.parent_id) ## do not use this, it breaks the taxon_name_hierarchies
-          parent_id = check.parent_id
-          self.save
-          return true
+          self.parent_id = check.parent_id
+          return true if self.save
         end
       rescue
       end

@@ -37,11 +37,9 @@ module FieldOccurrencesHelper
     ].compact.join('; ')
   end
 
-  def field_occurrence_autocomplete_tag(field_occurrence)
+  def field_occurrence_autocomplete_tag(field_occurrence, term = nil)
     return nil if field_occurrence.nil?
-    [
-      field_occurrence_tag(field_occurrence)
-    ].join(' ').html_safe
+    mark_tag(field_occurrence_tag(field_occurrence), term)
   end
 
   def field_occurrences_search_form

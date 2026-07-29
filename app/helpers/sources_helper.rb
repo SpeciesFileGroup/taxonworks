@@ -16,11 +16,7 @@ module SourcesHelper
   def sources_autocomplete_tag(source, term)
     return nil if source.nil?
 
-    if term
-      s = regex_mark_tag(source.cached, term) + ' '
-    else
-      s = source.cached + ' '
-    end
+    s = mark_tag(source.cached, term, html_safe: false) + ' '
 
     # In project is the project_if if present in this project see lib/queries/source/autocomplete
     if source.respond_to?(:in_project) && !source.in_project.nil?
