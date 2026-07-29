@@ -1,10 +1,20 @@
 <template>
-  <NavBar>
+  <NavBar navbar-class="panel content rounded-tl-none rounded-tr-none">
     <div
       v-if="collectionObject.id"
       class="flex-separate middle"
     >
       <div class="horizontal-left-content middle gap-small">
+        <AutocompletePopover
+          url="/collection_objects/autocomplete"
+          title="Search a collection object to browse"
+          placeholder="Search a collection object"
+          param="term"
+          label="label_html"
+          autofocus
+          clear-after
+          @select="(item) => emit('select', item)"
+        />
         <span v-html="collectionObject.objectTag" />
         <DwcReindexWarning />
       </div>
@@ -69,6 +79,9 @@ import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import RadialFilterAttribute from '@/components/radials/linker/RadialFilterAttribute.vue'
 import BrowseOTU from '@/components/otu/otu.vue'
 import DwcReindexWarning from './DwcReindexWarning.vue'
+import AutocompletePopover from '@/components/ui/Autocomplete/AutocompletePopover.vue'
+
+const emit = defineEmits(['select'])
 
 const store = useStore()
 const collectionObject = computed(

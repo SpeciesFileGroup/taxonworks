@@ -1,0 +1,42 @@
+.tw-popover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  /* Below the Autocomplete result list (999998), which teleports to body too. */
+  z-index: 999997;
+  box-sizing: border-box;
+  padding: var(--spacing-xs);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-medium);
+  background-color: var(--panel-bg-color);
+  box-shadow: var(--panel-shadow);
+  font-size: var(--font-size-xs);
+  color: var(--text-color);
+
+  &__reference {
+    display: inline-flex;
+  }
+}
+
+.tw-autocomplete-popover {
+  display: flex;
+  align-items: stretch;
+  /* flex gap only applies between rendered children, so unused side slots leave
+     no empty space behind. */
+  gap: var(--spacing-xs);
+
+  &__main {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+    min-width: 0;
+  }
+
+  &__aside {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+}

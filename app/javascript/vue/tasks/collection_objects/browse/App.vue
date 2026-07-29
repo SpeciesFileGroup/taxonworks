@@ -1,19 +1,6 @@
 <template>
   <div id="vue-browse-collection-object">
-    <div class="flex flex-separate middle">
-      <h1>Browse collection object</h1>
-      <VAutocomplete
-        class="autocomplete"
-        url="/collection_objects/autocomplete"
-        placeholder="Search a collection object"
-        param="term"
-        label="label_html"
-        autofocus
-        clear-after
-        @get-item="({ id }) => loadCO(id)"
-      />
-    </div>
-    <COHeader />
+    <COHeader @select="({ id }) => loadCO(id)" />
     <TableGrid
       :columns="1"
       gap="1em"
@@ -48,7 +35,6 @@ import { RouteNames } from '@/routes/routes'
 import { usePopstateListener } from '@/composables'
 import { useHotkey } from '@/composables'
 import { getPlatformKey } from '@/helpers'
-import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import COHeader from './components/COHeader.vue'
 import TableGrid from '@/components/layout/Table/TableGrid.vue'
 import PanelCE from './components/PanelCE/PanelCE.vue'

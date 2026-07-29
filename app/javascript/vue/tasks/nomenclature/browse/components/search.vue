@@ -1,8 +1,7 @@
 <template>
   <div>
-    <br />
-    <VAutocomplete
-      ref="autocomplete"
+    <AutocompletePopover
+      title="Search a taxon name to browse"
       class="vue-autocomplete"
       input-class="mousetrap"
       url="/taxon_names/autocomplete"
@@ -11,24 +10,27 @@
       param="term"
       display="label"
       label="label_html"
-      @get-item="redirect"
-    />
-    <label>
-      <input
-        v-model="validName"
-        type="checkbox"
-      />
-      Redirect to valid name
-    </label>
+      @select="redirect"
+    >
+      <template #bottom>
+        <label>
+          <input
+            v-model="validName"
+            type="checkbox"
+          />
+          Redirect to valid name
+        </label>
+      </template>
+    </AutocompletePopover>
   </div>
 </template>
 
 <script setup>
-import VAutocomplete from '@/components/ui/Autocomplete'
 import { RouteNames } from '@/routes/routes'
 import { useHotkey, useUserPreference } from '@/composables'
 import { ref, onMounted } from 'vue'
 import { getPlatformKey } from '@/helpers'
+import AutocompletePopover from '@/components/ui/Autocomplete/AutocompletePopover.vue'
 
 const autocomplete = ref(null)
 
@@ -47,7 +49,6 @@ useHotkey(shortcuts.value)
 const STORAGE_KEY_REDIRECT_VALID = 'browseNomenclature::redirectValid'
 
 const validName = useUserPreference(STORAGE_KEY_REDIRECT_VALID, true)
-
 
 onMounted(() => {
   TW.workbench.keyboard.createLegend('Alt+f', 'Search', 'Browse nomenclature')

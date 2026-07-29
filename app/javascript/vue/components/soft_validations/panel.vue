@@ -61,7 +61,6 @@
                 <VBtn
                   v-if="error.fixable"
                   color="create"
-                  variant="tonal"
                   @click="
                     runFix([
                       {
@@ -212,11 +211,8 @@ function getFixPresent(list) {
 }
 
 .soft-validation-section__title {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
   font-weight: 600;
-  color: var(--text-muted-color);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
   margin: 0;
 }
 
@@ -245,9 +241,9 @@ function getFixPresent(list) {
 }
 
 .soft-validation-divisor {
-  height: 1px;
+  height: 0px;
   background: var(--border-color);
   border: 0;
-  margin: var(--spacing-sm) 0;
+  margin: var(--spacing-md) 0;
 }
 </style>

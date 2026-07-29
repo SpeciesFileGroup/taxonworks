@@ -2,11 +2,13 @@ import { onMounted, onBeforeUnmount } from 'vue'
 
 export function useClickOutside(elementRef, callback) {
   function handleEvent(event) {
-    const el = elementRef.value
+    const elements = (Array.isArray(elementRef) ? elementRef : [elementRef])
+      .map((ref) => ref.value)
+      .filter(Boolean)
 
-    if (!el) return
+    if (!elements.length) return
 
-    if (!event.target || !el.contains(event.target)) {
+    if (!event.target || !elements.some((el) => el.contains(event.target))) {
       callback(event)
     }
   }
