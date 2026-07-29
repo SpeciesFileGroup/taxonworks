@@ -1,26 +1,27 @@
 <template>
-  <VAutocomplete
+  <AutocompletePopover
     ref="autocomplete"
     url="/sources/autocomplete"
     param="term"
     placeholder="Search a source..."
     label="label_html"
     clear-after
+    medium
     autofocus
-    @get-item="({ id }) => store.loadSource(id)"
+    @select="({ id }) => store.loadSource(id)"
   />
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { useSourceStore } from '../store'
-import VAutocomplete from '@/components/ui/Autocomplete.vue'
+import AutocompletePopover from '@/components/ui/Autocomplete/AutocompletePopover.vue'
 
 const store = useSourceStore()
 const autocomplete = ref(null)
 
 function focusSearch() {
-  autocomplete.value?.setFocus()
+  autocomplete.value?.open()
 }
 
 defineExpose({ focusSearch })

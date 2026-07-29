@@ -17,6 +17,49 @@
   }
 }
 
+.tw-menu {
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    box-sizing: border-box;
+    width: 100%;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: 0;
+    border-radius: var(--border-radius-small);
+    background-color: transparent;
+    font-size: var(--font-size-xs);
+    color: var(--text-color);
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      background-color: var(--bg-muted);
+      color: var(--text-color);
+      text-decoration: none;
+    }
+
+    &:disabled,
+    &[aria-disabled='true'] {
+      background-color: transparent;
+      color: var(--text-muted-color);
+      cursor: default;
+    }
+  }
+
+  &__divider {
+    height: 1px;
+    margin: var(--spacing-xxs) 0;
+    background-color: var(--border-color);
+  }
+}
+
 @keyframes tw-popover-in {
   from {
     opacity: 0;

@@ -1,8 +1,7 @@
 <template>
   <VBtn
-    class="button-size"
-    color="primary"
     medium
+    color="primary"
     :disabled="!store.source.id"
     @click="cloneSource"
   >

@@ -1,7 +1,7 @@
 <template>
   <VBtn
     color="primary"
-    type="button"
+    variant="tonal"
     medium
     @click="() => (isModalVisible = true)"
   >

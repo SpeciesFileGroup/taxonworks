@@ -1,40 +1,14 @@
 <template>
   <div>
-    <div class="flex-separate middle">
-      <h1>New source</h1>
-      <ul class="context-menu">
-        <li>
-          <label>
-            <input
-              type="checkbox"
-              v-model="autosave"
-            />
-            Autosave
-          </label>
-        </li>
-        <li>
-          <label>
-            <input
-              type="checkbox"
-              v-model="settings.sortable"
-            />
-            Reorder fields
-          </label>
-        </li>
-        <li>
-          <a :href="RouteNames.SourceHub">Back to source hub</a>
-        </li>
-        <li>
-          <PanelSearch ref="panelSearch" />
-        </li>
-        <li>
-          <VRecent />
-        </li>
-      </ul>
-    </div>
-    <NavBar class="relative">
+    <NavBar
+      class="relative"
+      navbar-class="panel content rounded-tl-none rounded-tr-none"
+    >
       <div class="flex-separate full_width">
         <div class="middle gap-small">
+          <div class="margin-small-right">
+            <PanelSearch ref="panelSearch" />
+          </div>
           <template v-if="store.source.id">
             <span
               class="word_break"
@@ -67,47 +41,55 @@
             color="attention"
             title="You have unsaved changes."
           />
-          <button
-            class="button normal-input button-submit button-size"
-            type="button"
+          <VBtn
+            medium
+            color="create"
             :disabled="!store.isSaveAvailable"
             @click="saveSource"
           >
             Save
-          </button>
+          </VBtn>
           <CloneSource />
           |
-          <button
+          <VBtn
             v-if="store.source.type === SOURCE_VERBATIM && store.source.id"
-            class="button normal-input button-submit button-size"
-            type="button"
+            medium
+            color="primary"
             @click="convert"
           >
             To BibTeX
-          </button>
-          <button
-            type="button"
+          </VBtn>
+          <VBtn
+            medium
+            color="primary"
             v-help.section.navBar.crossRef
-            class="button normal-input button-default button-size"
             @click="showCrossRefForm"
           >
             CrossRef
-          </button>
-          <button
-            type="button"
-            class="button normal-input button-default button-size"
+          </VBtn>
+          <VBtn
+            medium
+            color="primary"
             @click="showBibTexForm"
           >
             BibTeX
-          </button>
+          </VBtn>
 
-          <button
-            class="button normal-input button-default button-size"
-            type="button"
+          <VBtn
+            medium
+            color="primary"
             @click="reset"
           >
             New
-          </button>
+          </VBtn>
+          |
+          <VRecent />
+          <SourceSettings />
+          <VMenu title="Menu">
+            <VMenuItem :href="RouteNames.SourceHub">
+              Back to source hub
+            </VMenuItem>
+          </VMenu>
         </div>
       </div>
       <Autosave
@@ -159,7 +141,7 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted, watch } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { SOURCE_BIBTEX, SOURCE_HUMAN, SOURCE_VERBATIM } from '@/constants'
 import { useSettingStore, useSourceStore } from './store'
 import { useHotkey } from '@/composables'
@@ -178,18 +160,22 @@ import VSpinner from '@/components/ui/VSpinner'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import RadialObject from '@/components/radials/navigation/radial'
 import AddSource from '@/components/ui/Button/ButtonAddToProjectSource'
-import CloneSource from './components/cloneSource'
+import CloneSource from './components/cloneSource.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VPin from '@/components/ui/Button/ButtonPin.vue'
 import CitationTotal from './components/CitationTotal.vue'
 
+import VBtn from '@/components/ui/VBtn/index.vue'
 import VRecent from './components/recent.vue'
 import PanelSearch from './components/PanelSearch.vue'
+import SourceSettings from './components/SourceSettings.vue'
+import VMenu from '@/components/ui/VMenu/VMenu.vue'
+import VMenuItem from '@/components/ui/VMenu/VMenuItem.vue'
 import RightSection from './components/rightSection'
-import NavBar from '@/components/layout/NavBar'
+import NavBar from '@/components/layout/NavBar.vue'
 import platformKey from '@/helpers/getPlatformKey'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
-import { usePopstateListener, useUserPreference } from '@/composables'
+import { usePopstateListener } from '@/composables'
 
 const componentSection = {
   [SOURCE_VERBATIM]: Verbatim,
@@ -204,18 +190,6 @@ defineOptions({
 const store = useSourceStore()
 const settings = useSettingStore()
 const panelSearch = ref(null)
-
-const KEY_STORAGE_AUTOSAVE = 'task::NewSource::Autosave'
-
-const autosave = useUserPreference(KEY_STORAGE_AUTOSAVE, settings.autosave)
-
-watch(
-  autosave,
-  (value) => {
-    settings.autosave = value
-  },
-  { immediate: true }
-)
 
 const shortcuts = ref([
   {
@@ -315,10 +289,6 @@ async function convert() {
 </script>
 
 <style scoped>
-.button-size {
-  width: 100px;
-}
-
 .nav__buttons {
   display: flex;
   flex-wrap: wrap;

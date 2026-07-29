@@ -1,5 +1,5 @@
 <template>
-  <modal-component
+  <VModal
     @close="$emit('close', true)"
     :containerStyle="{ 'overflow-y': 'scroll', 'max-height': '80vh' }"
     class="full_width"
@@ -58,13 +58,13 @@ doi:10.1145/3274442
         class="crossref-error-details margin-large-top"
       >
         <p>{{ errorDetails.error }}</p>
-        <button
-          type="button"
-          class="button button-default normal-input"
+        <VBtn
+          color="primary"
+          medium
           @click="showErrorDetails = !showErrorDetails"
         >
           {{ showErrorDetails ? 'Hide error details' : 'Show error details' }}
-        </button>
+        </VBtn>
         <div v-if="showErrorDetails">
           <p v-if="errorDetails.doi">
             DOI:
@@ -87,31 +87,32 @@ doi:10.1145/3274442
     </template>
     <template #footer>
       <div class="flex-separate separate-top">
-        <button
-          @click="getSource"
+        <VBtn
+          color="primary"
+          medium
           :disabled="!citation.length"
-          class="button normal-input button-default"
-          type="button"
+          @click="getSource"
         >
           Find
-        </button>
-        <button
+        </VBtn>
+        <VBtn
           v-if="!found"
-          type="button"
-          class="button normal-input button-default"
+          color="primary"
+          medium
           @click="setVerbatim"
         >
           Set as verbatim
-        </button>
+        </VBtn>
       </div>
     </template>
-  </modal-component>
+  </VModal>
 </template>
 
 <script setup>
 import AjaxCall from '@/helpers/ajaxCall'
 import SpinnerComponent from '@/components/ui/VSpinner'
-import ModalComponent from '@/components/ui/Modal'
+import VModal from '@/components/ui/Modal'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import { nextTick, ref, onMounted, useTemplateRef } from 'vue'
 import { Serial } from '@/routes/endpoints'
 import { useSourceStore } from '../store'
@@ -140,11 +141,9 @@ function getSource() {
   errorDetails.value = null
   showErrorDetails.value = false
 
-  AjaxCall(
-    'get',
-    '/tasks/sources/new_source/crossref_preview.json',
-    { params: { citation: citation.value } }
-  )
+  AjaxCall('get', '/tasks/sources/new_source/crossref_preview.json', {
+    params: { citation: citation.value }
+  })
     .then(({ body }) => {
       if (body.title) {
         store.reset()
