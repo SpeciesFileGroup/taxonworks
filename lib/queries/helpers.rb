@@ -50,6 +50,21 @@ module Queries::Helpers
     a
   end
 
+  # @param scope [ActiveRecord::Relation, nil]
+  #   a relation matching referenced_klass records
+  # @return [ActiveRecord::Relation, nil]
+  #   all referenced_klass records that are *not* matched by scope
+  def negate_facet(scope)
+    return nil if scope.nil?
+
+    s = referenced_klass.with(negated_facet_scope: scope)
+      .joins("LEFT JOIN negated_facet_scope AS negated_#{table.name} ON negated_#{table.name}.id = #{table.name}.id")
+      .where("negated_#{table.name}.id IS NULL")
+      .to_sql
+
+    referenced_klass.from("(#{s}) as #{table.name}")
+  end
+
   # @param values [Array]
   # @return [Array<Boolean, nil>]
   #   Converts array elements to boolean or nil values

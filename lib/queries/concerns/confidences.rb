@@ -12,6 +12,7 @@ module Queries::Concerns::Confidences
       :confidences,
       :without_confidence_level_id,
       :confidence_level_id,
+      :exclude_confidences,
       confidence_level_id: [],
       without_confidence_level_id: []
     ]
@@ -36,6 +37,13 @@ module Queries::Concerns::Confidences
     #   nil - not applied
     attr_accessor :confidences
 
+    # @return [Boolean, nil]
+    # @params exclude_confidences ['true', 'false', nil]
+    #   when true, invert the combined confidence_level_id/without_confidence_level_id
+    #   result - i.e. match objects that do NOT satisfy that With/Without selection
+    #   (UI facet use only, does not affect the `confidences` boolean facet)
+    attr_accessor :exclude_confidences
+
     def confidence_level_id
       [@confidence_level_id].flatten.compact
     end
@@ -50,6 +58,7 @@ module Queries::Concerns::Confidences
     @confidence_level_id = params[:confidence_level_id]
     @without_confidence_level_id = params[:without_confidence_level_id]
     @confidences = boolean_param(params, :confidences)
+    @exclude_confidences = boolean_param(params, :exclude_confidences)
   end
 
   # @return [Arel::Table]
@@ -82,11 +91,21 @@ module Queries::Concerns::Confidences
     end
   end
 
+  # Combines the With (confidence_level_id_facet) and Without
+  # (without_confidence_level_id_facet) selections from the Confidences UI
+  # facet, then optionally inverts the combined result via exclude_confidences.
+  def confidence_id_facets
+    clauses = [without_confidence_level_id_facet, confidence_level_id_facet].compact
+    return nil if clauses.empty?
+
+    q = clauses.size == 1 ? clauses.first : referenced_klass_intersection(clauses)
+    exclude_confidences ? negate_facet(q) : q
+  end
+
   def self.merge_clauses
     [
       :confidences_facet,
-      :without_confidence_level_id_facet,
-      :confidence_level_id_facet,
+      :confidence_id_facets,
     ]
   end
 

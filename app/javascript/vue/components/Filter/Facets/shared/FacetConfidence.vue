@@ -68,6 +68,13 @@
         </template>
       </transition-group>
     </table>
+    <label v-if="confidences.length">
+      <input
+        type="checkbox"
+        v-model="params.exclude_confidences"
+      />
+      Exclude
+    </label>
   </FacetContainer>
 </template>
 
@@ -116,6 +123,7 @@ watch(
       confidences.value.length
     ) {
       confidences.value = []
+      params.value.exclude_confidences = undefined
     }
   }
 )

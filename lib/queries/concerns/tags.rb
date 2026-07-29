@@ -3,6 +3,7 @@
 # Test coverage is currently in spec/lib/queries/source/filter_spec.rb.
 #
 module Queries::Concerns::Tags
+  include Queries::Helpers
 
   extend ActiveSupport::Concern
 
@@ -11,6 +12,7 @@ module Queries::Concerns::Tags
       :keyword_id_and,
       :keyword_id_or,
       :tags,
+      :exclude_tags,
       keyword_id_and: [],
       keyword_id_or: []
     ]
@@ -30,6 +32,13 @@ module Queries::Concerns::Tags
     # @return [Boolean, nil]
     # @params tags ['true', 'false', nil]
     attr_accessor :tags
+
+    # @return [Boolean, nil]
+    # @params exclude_tags ['true', 'false', nil]
+    #   when true, invert keyword_id_facet - i.e. match objects that do NOT
+    #   satisfy the keyword_id_and/keyword_id_or criteria (UI facet use only,
+    #   does not affect the `tags` boolean facet)
+    attr_accessor :exclude_tags
 
     def keyword_id_and
       [@keyword_id_and].flatten.compact.uniq
@@ -52,6 +61,7 @@ module Queries::Concerns::Tags
     @keyword_id_or = params[:keyword_id_or]
 
     @tags = boolean_param(params, :tags) # (params[:tags]&.to_s&.downcase == 'true' ? true : false) if !params[:tags].nil?
+    @exclude_tags = boolean_param(params, :exclude_tags)
   end
 
   def keyword_id_and
@@ -81,13 +91,15 @@ module Queries::Concerns::Tags
     a = matching_keyword_id_or
     b = matching_keyword_id_and
 
-    if a.nil?
+    q = if a.nil?
       b
     elsif b.nil?
       a
     else
       k.from("( (#{a.to_sql}) UNION (#{b.to_sql})) as #{table.name}")
     end
+
+    exclude_tags ? negate_facet(q) : q
   end
 
   def tags_facet
