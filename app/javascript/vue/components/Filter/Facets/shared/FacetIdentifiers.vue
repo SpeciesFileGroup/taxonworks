@@ -3,53 +3,41 @@
     <h3>Identifiers</h3>
     <div class="field">
       <label>Identifier</label>
-      <br />
-      <input
-        type="text"
-        v-model="params.identifier"
-      />
+      <div class="horizontal-left-content gap-small">
+        <input
+          type="text"
+          v-model="params.identifier"
+        />
+        <VSwitch
+          v-model="matchOption"
+          :options="MATCH_OPTIONS"
+        />
+      </div>
     </div>
     <div class="field">
-      <ul class="no_bullets">
-        <li
-          v-for="item in MATCH_OPTIONS"
-          :key="item.value"
-        >
-          <label>
-            <input
-              type="radio"
-              :value="item.value"
-              :disabled="!params.identifier"
-              v-model="params.identifier_exact"
-              name="match-radio"
-            />
-            {{ item.label }}
-          </label>
-        </li>
-      </ul>
-    </div>
-    <h4>In range (Integers)</h4>
-    <div class="horizontal-left-content">
-      <div class="field separate-right">
-        <label>Start:</label>
-        <br />
-        <input
-          type="text"
-          v-number-only
-          v-model="params.identifier_start"
-        />
-      </div>
-      <div class="field">
-        <label>End:</label>
-        <br />
-        <input
-          type="text"
-          v-number-only
-          v-model="params.identifier_end"
-        />
+      <span class="font-bold">In range (Integers)</span>
+      <div class="horizontal-left-content">
+        <div class="field separate-right">
+          <label>Start:</label>
+          <br />
+          <input
+            type="text"
+            v-number-only
+            v-model="params.identifier_start"
+          />
+        </div>
+        <div class="field">
+          <label>End:</label>
+          <br />
+          <input
+            type="text"
+            v-number-only
+            v-model="params.identifier_end"
+          />
+        </div>
       </div>
     </div>
-    <h3>Namespace</h3>
+    <span class="font-bold margin-xsmall-bottom">Namespace</span>
     <smart-selector
       model="namespaces"
       klass="Source"
@@ -62,10 +50,14 @@
       class="middle flex-separate separate-top"
     >
       <span v-html="namespace.name" />
-      <span
-        class="button button-circle btn-undo button-default"
+      <VBtn
+        icon
+        color="primary"
+        variant="tonal"
         @click="unsetNamespace"
-      />
+      >
+        <IconClose class="w-4 h-4" />
+      </VBtn>
     </div>
   </FacetContainer>
 </template>
@@ -73,21 +65,20 @@
 <script setup>
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import SmartSelector from '@/components/ui/SmartSelector'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VSwitch from '@/components/ui/VSwitch.vue'
+import IconClose from '@/components/Icon/IconClose.vue'
 import { watch, computed, ref, onBeforeMount } from 'vue'
 import { Namespace } from '@/routes/endpoints'
 import { URLParamsToJSON } from '@/helpers/url/parse.js'
 import { vNumberOnly } from '@/directives'
 
-const MATCH_OPTIONS = [
-  {
-    label: 'Exact',
-    value: true
-  },
-  {
-    label: 'Partial',
-    value: undefined
-  }
-]
+const MATCH_OPTION = {
+  Partial: 'Partial',
+  Exact: 'Exact'
+}
+
+const MATCH_OPTIONS = Object.values(MATCH_OPTION)
 
 const props = defineProps({
   modelValue: {
@@ -104,6 +95,15 @@ const params = computed({
 })
 
 const namespace = ref()
+
+const matchOption = computed({
+  get: () =>
+    params.value.identifier_exact ? MATCH_OPTION.Exact : MATCH_OPTION.Partial,
+  set: (value) => {
+    params.value.identifier_exact =
+      value === MATCH_OPTION.Exact ? true : undefined
+  }
+})
 
 watch(
   () => params.value.identifier,
