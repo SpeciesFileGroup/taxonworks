@@ -9,6 +9,7 @@ const permitParams = {
     first_year_of_issue: String,
     last_year_of_issue: String,
     translated_from_serial_id: Number,
+    is_electronic_only: Boolean,
     alternate_values_attributes: {
       id: Number,
       value: String,
