@@ -11,24 +11,33 @@
             label="english_name"
             :filter-ids="source.language_id"
             @selected="setSelected"
-          />
-          <VLock
-            class="margin-small-left"
-            v-model="settings.lock.language_id"
-          />
+          >
+            <template #tabs-right>
+              <div class="w-full horizontal-right-content">
+                <VLock
+                  class="margin-small-left"
+                  v-model="settings.lock.language_id"
+                />
+              </div>
+            </template>
+          </SmartSelector>
         </div>
         <div
-          class="middle separate-top"
+          class="middle margin-medium-top flex-separate"
           v-if="selected"
         >
           <span
             class="separate-right"
             v-html="selected.english_name"
           />
-          <span
-            class="button-circle btn-undo button-default separate-left"
+          <VBtn
+            color="primary"
+            icon
+            variant="tonal"
             @click="unset"
-          />
+          >
+            <IconTrash class="w-4 h-4" />
+          </VBtn>
         </div>
       </fieldset>
     </div>
@@ -40,6 +49,8 @@ import { ref, watch } from 'vue'
 import { useSettingStore } from '../../store'
 import { Language } from '@/routes/endpoints'
 import VLock from '@/components/ui/VLock/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import IconTrash from '@/components/Icon/IconTrash.vue'
 import SmartSelector from '@/components/ui/SmartSelector'
 
 const source = defineModel({

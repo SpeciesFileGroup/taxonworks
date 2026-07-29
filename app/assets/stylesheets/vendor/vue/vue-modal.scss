@@ -19,7 +19,12 @@
 
 .modal-container {
   position: relative;
-  width: 300px;
+  /* Shrink-to-fit: the box is sized by its content, not by the wrapper, so a
+     modal only gets as wide as it needs. 300px (the former fixed width) is the
+     floor; 90vw the ceiling. Callers setting an explicit `width` still win. */
+  width: fit-content;
+  min-width: 300px;
+  max-width: 90vw;
   margin: 0px auto;
   padding: var(--spacing-lg) var(--spacing-xl);
   background-color: var(--panel-bg-color);

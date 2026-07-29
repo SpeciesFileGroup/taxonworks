@@ -1,12 +1,13 @@
 <template>
   <div>
     <VBtn
+      icon
       medium
       variant="tonal"
       color="primary"
-      @click="isModalVisible = true"
+      @click="() => (isModalVisible = true)"
     >
-      Recent
+      <IconFileClock class="w-4 h-4" />
     </VBtn>
     <VModal
       v-if="isModalVisible"
@@ -83,12 +84,13 @@
 </template>
 
 <script setup>
+import { ref, watch } from 'vue'
+import { CollectionObject } from '@/routes/endpoints'
 import VModal from '@/components/ui/Modal'
 import VSpinner from '@/components/ui/VSpinner'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import IconPencil from '@/components/Icon/IconPencil.vue'
-import { CollectionObject } from '@/routes/endpoints'
-import { ref, watch } from 'vue'
+import IconFileClock from '@/components/Icon/IconFileClock.vue'
 
 const emit = defineEmits(['selected'])
 const isModalVisible = ref(false)

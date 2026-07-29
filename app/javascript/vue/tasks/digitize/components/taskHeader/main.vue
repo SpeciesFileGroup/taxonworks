@@ -11,15 +11,18 @@
       id="comprehensive-navbar"
       class="flex-separate"
     >
-      <div class="horizontal-left-content gap-small">
-        <VAutocomplete
+      <div class="horizontal-left-content gap-medium">
+        <AutocompletePopover
+          ref="autocomplete"
           url="/collection_objects/autocomplete"
           placeholder="Search"
           label="label_html"
           param="term"
           clear-after
           min="1"
-          @get-item="(item) => loadAssessionCode(item.id)"
+          medium
+          title="Search a collection object"
+          @select="(item) => loadAssessionCode(item.id)"
         />
         <template v-if="collectionObject.id">
           <SoftValidation v-if="collectionObject.id" />
@@ -80,8 +83,6 @@
           </template>
           <IconWarning class="w-5 h-5 text-attention-color" />
         </VTooltip>
-        <SettingsCollectionObject />
-        <RecentComponent @selected="loadCollectionObject($event)" />
         <VBtn
           color="primary"
           medium
@@ -99,10 +100,13 @@
         <VBtn
           medium
           color="create"
+          variant="tonal"
           @click="saveAndNew"
         >
           Save and new
         </VBtn>
+        <RecentComponent @selected="loadCollectionObject($event)" />
+        <SettingsCollectionObject />
       </div>
       <ConfirmationModal ref="confirmationModalRef" />
     </div>
@@ -110,20 +114,20 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useStore } from 'vuex'
-import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions.js'
 import { GetterNames } from '../../store/getters/getters.js'
 import { useHotkey } from '@/composables'
 import { RouteNames } from '@/routes/routes.js'
+import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import AutocompletePopover from '@/components/ui/Autocomplete/AutocompletePopover.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import RecentComponent from './recent.vue'
 import SettingsCollectionObject from '../settings/SettingCollectionObject.vue'
 import platformKey from '@/helpers/getPlatformKey.js'
-import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import NavBar from '@/components/layout/NavBar'
 import AjaxCall from '@/helpers/ajaxCall'
 import SoftValidation from './softValidation'
@@ -138,6 +142,7 @@ const store = useStore()
 const collectingEventStore = useCollectingEventStore()
 const biologicalAssociationStore = useBiologicalAssociationStore()
 const biocurationStore = useBiocurationStore()
+const autocompleteRef = useTemplateRef('autocomplete')
 
 const confirmationModalRef = ref(null)
 const shortcuts = ref([
@@ -160,6 +165,13 @@ const shortcuts = ref([
     keys: [platformKey(), 'r'],
     handler() {
       resetStore()
+    }
+  },
+  {
+    keys: [platformKey(), 'f'],
+    preventDefault: true,
+    handler() {
+      autocompleteRef.value?.open()
     }
   }
 ])

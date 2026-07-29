@@ -250,14 +250,13 @@ export default {
       all 0.5s,
       opacity 0.2s;
     margin: 0px;
-    padding: var(--spacing-md) 0;
+    padding: var(--spacing-sm) 0;
     border: 0px;
     border-bottom: 1px solid var(--border-color);
   }
 
   .list-complete-item:last-child {
     border-bottom: 0px;
-    padding-bottom: 0px;
   }
 
   .list-complete-enter,

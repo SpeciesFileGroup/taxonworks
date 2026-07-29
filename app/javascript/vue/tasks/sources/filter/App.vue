@@ -51,7 +51,6 @@
               :project-source-id="item.project_source_id"
             />
             <PinComponent
-              class="button button-circle"
               :object-id="item.id"
               :type="SOURCE"
             />

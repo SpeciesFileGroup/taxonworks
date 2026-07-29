@@ -1,11 +1,13 @@
 <template>
   <VBtn
+    icon
     color="primary"
     variant="tonal"
     medium
+    title="Recent sources"
     @click="() => (isModalVisible = true)"
   >
-    Recent
+    <IconFileClock class="w-4 h-4" />
   </VBtn>
   <VModal
     v-if="isModalVisible"
@@ -37,6 +39,7 @@ import TableList from '@/components/table_list.vue'
 import VSpinner from '@/components/ui/VSpinner'
 import VModal from '@/components/ui/Modal'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import IconFileClock from '@/components/Icon/IconFileClock.vue'
 
 const store = useSourceStore()
 const sources = ref([])

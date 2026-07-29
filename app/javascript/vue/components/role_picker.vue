@@ -12,11 +12,10 @@
         v-else
         class="horizontal-left-content align-start"
       >
-        <div class="horizontal-left-content">
+        <div class="horizontal-left-content gap-small">
           <autocomplete
             ref="autocompleteRef"
             :autofocus="autofocus"
-            class="separate-right"
             url="/people/autocomplete"
             label="label_html"
             display="label"
@@ -38,7 +37,7 @@
           />
         </div>
         <div
-          class="flex-wrap-column"
+          class="flex-wrap-column margin-small-left"
           v-if="showCreateControls && searchPerson.length > 0"
         >
           <div class="flex-wrap-row gap-xsmall">
@@ -49,24 +48,24 @@
             />
             <VBtn
               type="button"
-              color="create"
+              color="primary"
               medium
               @click="createPerson()"
             >
               Add new
             </VBtn>
             <VBtn
-              type="button"
               color="primary"
               medium
+              variant="tonal"
               @click="switchName(newNamePerson)"
             >
               Switch
             </VBtn>
             <VBtn
-              type="button"
               color="primary"
               medium
+              variant="tonal"
               @click="expandPerson = !expandPerson"
             >
               Expand
@@ -147,6 +146,7 @@
               icon
               color="primary"
               variant="tonal"
+              title="Remove"
               @click="removePerson(index)"
             >
               <IconTrash class="w-4 h-4" />

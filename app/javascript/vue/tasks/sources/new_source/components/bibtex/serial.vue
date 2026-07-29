@@ -18,33 +18,47 @@
             pin-type="Serial"
             :filter-ids="selected ? [selected.id] : []"
             @selected="setSelected"
-          />
-          <VLock
-            class="margin-small-left"
-            v-model="settings.lock.serial_id"
-          />
-          <a
-            class="margin-small-top margin-small-left"
-            target="_blank"
-            href="/serials/new"
-            >New</a
           >
+            <template #tabs-right>
+              <div class="w-full flex-separate">
+                <WidgetSerial @create="setSelected">
+                  <template #default="{ open }">
+                    <VBtn
+                      color="primary"
+                      icon
+                      variant="tonal"
+                      title="New serial"
+                      @click="open"
+                    >
+                      <IconPlus class="w-4 h-4" />
+                    </VBtn>
+                  </template>
+                </WidgetSerial>
+                <VLock
+                  class="margin-small-left"
+                  v-model="settings.lock.serial_id"
+                />
+              </div>
+            </template>
+          </SmartSelector>
         </div>
         <div
           class="middle separate-top"
           v-if="selected"
         >
-          <div class="horizontal-left-content gap-small">
+          <div class="flex-separate middle gap-small">
             <span v-html="selected.name" />
-            <RadialObject :global-id="selected.global_id" />
-            <VBtn
-              color="primary"
-              icon
-              variant="tonal"
-              @click="unset"
-            >
-              <IconReset class="w-4 h-4" />
-            </VBtn>
+            <div class="horizontal-right-content middle gap-small">
+              <RadialObject :global-id="selected.global_id" />
+              <VBtn
+                color="primary"
+                icon
+                variant="tonal"
+                @click="unset"
+              >
+                <IconReset class="w-4 h-4" />
+              </VBtn>
+            </div>
           </div>
         </div>
       </fieldset>
@@ -59,7 +73,9 @@ import { Serial } from '@/routes/endpoints'
 import VLock from '@/components/ui/VLock/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import IconReset from '@/components/Icon/IconReset.vue'
+import IconPlus from '@/components/Icon/IconPlus.vue'
 import SmartSelector from '@/components/ui/SmartSelector'
+import WidgetSerial from '@/components/ui/Widget/WidgetSerial.vue'
 import RadialObject from '@/components/radials/navigation/radial'
 
 const source = defineModel({

@@ -150,7 +150,7 @@ function updatePreferences() {
 .vue-new-source-task-bibtex-container {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 1rem;
+  gap: var(--spacing-lg);
 }
 
 .vue-new-source-task-bibtex {
@@ -161,10 +161,6 @@ function updatePreferences() {
   textarea {
     width: 100%;
     height: 80px;
-  }
-
-  > div {
-    margin-right: 14px;
   }
 
   input[type='text'] {
