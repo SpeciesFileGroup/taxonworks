@@ -62,7 +62,7 @@ module Queries::Helpers
       .where("negated_#{table.name}.id IS NULL")
       .to_sql
 
-    referenced_klass.from("(#{s}) as #{table.name}")
+    referenced_klass.from("(#{s}) AS #{table.name}")
   end
 
   # @param values [Array]

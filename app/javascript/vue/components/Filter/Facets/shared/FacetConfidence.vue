@@ -1,5 +1,5 @@
 <template>
-  <FacetContainer>
+  <FacetContainer data-help="All objects having ALL of the 'With' confidences and NONE of the 'without confidences'; take the complement of that result if 'Exclude' is checked.">
     <h3>Confidences</h3>
 
     <SmartSelector

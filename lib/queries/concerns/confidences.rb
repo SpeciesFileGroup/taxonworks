@@ -39,9 +39,9 @@ module Queries::Concerns::Confidences
 
     # @return [Boolean, nil]
     # @params exclude_confidences ['true', 'false', nil]
-    #   when true, invert the combined confidence_level_id/without_confidence_level_id
-    #   result - i.e. match objects that do NOT satisfy that With/Without selection
-    #   (UI facet use only, does not affect the `confidences` boolean facet)
+    #   when true, invert the combined
+    #   confidence_level_id/without_confidence_level_id result - i.e. match
+    #   objects that do NOT satisfy that With/Without selection
     attr_accessor :exclude_confidences
 
     def confidence_level_id
@@ -75,11 +75,7 @@ module Queries::Concerns::Confidences
     return nil if without_confidence_level_id.empty?
     not_these = referenced_klass.left_joins(:confidences).where(confidences: {confidence_level_id: without_confidence_level_id})
 
-    s = referenced_klass.with(not_these:)
-      .joins("LEFT JOIN not_these AS not_these1 ON not_these1.id = #{table.name}.id")
-      .where('not_these1.id IS NULL').to_sql
-
-    referenced_klass.from("(#{s}) as #{table.name}")
+    negate_facet(not_these)
   end
 
   def confidences_facet

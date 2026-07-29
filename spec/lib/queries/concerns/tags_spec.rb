@@ -79,15 +79,6 @@ describe Queries::Concerns::Tags, type: :model, group: [:filter] do
       expect(query.all.map(&:id)).to contain_exactly(*(all_source_ids - [s1.id]))
     end
 
-    # This requires De Morgan's law to combine correctly:
-    #   NOT (or_match OR and_match) == (NOT or_match) AND (NOT and_match)
-    # keyword_id_facet already unions or_match and and_match into one result
-    # before negate_facet wraps it, which is the correct order. A broken
-    # implementation that instead negated the OR-list and AND-list matches
-    # independently and then *unioned* those negated pieces together (rather
-    # than intersecting, or rather than negating the pre-unioned whole) would
-    # compute (NOT or_match) OR (NOT and_match) instead - which disagrees
-    # with the correct result exactly on objects that satisfy only one side.
     context '#exclude_tags with both keyword_id_or and keyword_id_and set' do
       let!(:k1) { FactoryBot.create(:valid_keyword) }
       let!(:k2) { FactoryBot.create(:valid_keyword) }

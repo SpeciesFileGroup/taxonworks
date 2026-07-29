@@ -42,12 +42,6 @@ describe Queries::Concerns::Confidences, type: :model, group: [:filter] do
     expect(q.all).to contain_exactly(o2)
   end
 
-  # These require De Morgan's law to combine correctly:
-  #   NOT (has_l1 AND NOT has_l2) == (NOT has_l1) OR has_l2
-  # A naive implementation that negates the With and Without clauses
-  # independently (and ANDs them, as merge_clauses otherwise would) computes
-  # (NOT has_l1) AND has_l2 instead - which disagrees with the correct
-  # result exactly on objects that have both, or neither, confidence level.
   context '#exclude_confidences with both confidence_level_id and without_confidence_level_id set' do
     let!(:l1) { FactoryBot.create(:valid_confidence_level) }
     let!(:l2) { FactoryBot.create(:valid_confidence_level) }

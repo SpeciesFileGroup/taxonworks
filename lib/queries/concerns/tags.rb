@@ -36,8 +36,7 @@ module Queries::Concerns::Tags
     # @return [Boolean, nil]
     # @params exclude_tags ['true', 'false', nil]
     #   when true, invert keyword_id_facet - i.e. match objects that do NOT
-    #   satisfy the keyword_id_and/keyword_id_or criteria (UI facet use only,
-    #   does not affect the `tags` boolean facet)
+    #   satisfy the keyword_id_and/keyword_id_or criteria.
     attr_accessor :exclude_tags
 
     def keyword_id_and
@@ -83,7 +82,7 @@ module Queries::Concerns::Tags
   end
 
   # @return
-  #   all sources that match all _and ids OR any OR id
+  #   all objects that match all _and ids OR any OR id
   def keyword_id_facet
     return nil if keyword_id_or.empty? && keyword_id_and.empty?
     k = table.name.classify.safe_constantize
@@ -96,7 +95,7 @@ module Queries::Concerns::Tags
     elsif b.nil?
       a
     else
-      k.from("( (#{a.to_sql}) UNION (#{b.to_sql})) as #{table.name}")
+      k.from("( (#{a.to_sql}) UNION (#{b.to_sql})) AS #{table.name}")
     end
 
     exclude_tags ? negate_facet(q) : q

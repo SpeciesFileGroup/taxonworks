@@ -1,5 +1,5 @@
 <template>
-  <FacetContainer>
+  <FacetContainer data-help="All objects tagged with ALL 'AND' tags or ANY 'OR' tag; take the complement of that result if 'Exclude' is checked.">
     <h3>Tags</h3>
 
     <SmartSelector
