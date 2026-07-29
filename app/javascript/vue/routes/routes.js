@@ -103,7 +103,8 @@ const RouteNames = {
   SourceHub: '/tasks/sources/hub',
   TypeMaterial: '/tasks/type_material/edit_type_material',
   UnifyObjects: '/tasks/unify/objects',
-  UnifyPeople: '/tasks/unify/people'
+  UnifyPeople: '/tasks/unify/people',
+  CiteKey: '/tasks/leads/cite_key'
 }
 
 const FILTER_ROUTES = {

@@ -1270,9 +1270,9 @@ collection_visualization_task:
   status: prototype
   description: 'Visualize a collection hierarchy using treemap and other views.'
 
-index_virtual_key_task:
+cite_key_task:
   hub: true
-  name: 'New virtual key'
+  name: 'Cite a key'
   related:
   categories:
     - new

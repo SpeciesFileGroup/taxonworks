@@ -8,7 +8,7 @@ function initApp (element) {
 }
 
 document.addEventListener('turbolinks:load', () => {
-  const el = document.querySelector('#virtual_key_task')
+  const el = document.querySelector('#cite_key_task')
 
   if (el) { initApp(el) }
 })
