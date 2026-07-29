@@ -18,20 +18,22 @@
     to="body"
     :disabled="!teleport"
   >
-    <div
-      v-if="isOpen"
-      :id="panelId"
-      ref="floatingRef"
-      class="tw-popover"
-      role="dialog"
-      :data-placement="side"
-      :style="[floatingStyles, panelStyle]"
-    >
-      <slot
-        :is-open="isOpen"
-        :close="close"
-      />
-    </div>
+    <Transition name="tw-popover">
+      <div
+        v-if="isOpen"
+        :id="panelId"
+        ref="floatingRef"
+        class="tw-popover"
+        role="dialog"
+        :data-placement="side"
+        :style="[floatingStyles, panelStyle]"
+      >
+        <slot
+          :is-open="isOpen"
+          :close="close"
+        />
+      </div>
+    </Transition>
   </Teleport>
 </template>
 

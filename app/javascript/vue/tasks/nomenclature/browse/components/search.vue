@@ -8,6 +8,7 @@
       url="/taxon_names/autocomplete"
       placeholder="Select a taxon name"
       autofocus
+      medium
       param="term"
       display="label"
       label="label_html"

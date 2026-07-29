@@ -3,10 +3,10 @@
     <div class="browse-nomenclature-navbar panel content sticky-navbar rounded-tl-none rounded-tr-none">
       <div class="flex-separate middle">
 
-        <div class="middle">
+        <div class="middle gap-medium margin-medium-right">
           <div id="vue-browse-nomenclature-search"></div>
 
-          <div class="separate-left separate-right">
+          <div>
             <%= render('/taxon_names/breadcrumb_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
           </div>
         </div>

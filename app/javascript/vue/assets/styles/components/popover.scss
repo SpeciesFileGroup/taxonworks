@@ -2,7 +2,6 @@
   position: absolute;
   top: 0;
   left: 0;
-  /* Below the Autocomplete result list (999998), which teleports to body too. */
   z-index: 999997;
   box-sizing: border-box;
   padding: var(--spacing-xs);
@@ -18,11 +17,63 @@
   }
 }
 
+@keyframes tw-popover-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96)
+      translate(var(--tw-popover-shift-x, 0), var(--tw-popover-shift-y, -4px));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.tw-popover-enter-active {
+  animation: tw-popover-in 140ms ease;
+}
+
+.tw-popover-leave-active {
+  animation: tw-popover-in 100ms ease reverse;
+}
+
+.tw-popover[data-placement='bottom'] {
+  transform-origin: top center;
+}
+
+.tw-popover[data-placement='top'] {
+  transform-origin: bottom center;
+  --tw-popover-shift-y: 4px;
+}
+
+.tw-popover[data-placement='right'] {
+  transform-origin: center left;
+  --tw-popover-shift-x: -4px;
+  --tw-popover-shift-y: 0;
+}
+
+.tw-popover[data-placement='left'] {
+  transform-origin: center right;
+  --tw-popover-shift-x: 4px;
+  --tw-popover-shift-y: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tw-popover-enter-active,
+  .tw-popover-leave-active {
+    animation: none;
+    transition: opacity 100ms ease;
+  }
+
+  .tw-popover-enter-from,
+  .tw-popover-leave-to {
+    opacity: 0;
+  }
+}
+
 .tw-autocomplete-popover {
   display: flex;
   align-items: stretch;
-  /* flex gap only applies between rendered children, so unused side slots leave
-     no empty space behind. */
   gap: var(--spacing-xs);
 
   &__main {

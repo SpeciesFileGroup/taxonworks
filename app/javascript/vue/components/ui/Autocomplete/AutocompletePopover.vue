@@ -13,7 +13,7 @@
   >
     <template #trigger="{ triggerAttributes }">
       <VBtn
-        v-bind="mergeProps(triggerAttributes, buttonProps)"
+        v-bind="mergeProps(triggerAttributes, sizeAttributes, buttonProps)"
         :color="color"
         :variant="variant"
         :circle="circle"
@@ -22,7 +22,7 @@
         :disabled="disabled"
       >
         <slot name="button">
-          <IconSearch class="w-4 h-4" />
+          <IconSearch :class="iconSizeClass" />
           <template v-if="buttonLabel">{{ buttonLabel }}</template>
         </slot>
       </VBtn>
@@ -79,8 +79,10 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import IconSearch from '@/components/Icon/IconSearch.vue'
 import VPopover from '@/components/ui/VPopover/VPopover.vue'
 import { PLACEMENTS } from '@/components/ui/VPopover/constants'
+import { useSizes, sizeProps } from '@/composables'
 
 const IGNORED_OUTSIDE_SELECTORS = ['.vue-autocomplete-list']
+const SMALL_SIZES = ['xxSmall', 'xSmall', 'small']
 
 defineOptions({
   name: 'AutocompletePopover',
@@ -88,6 +90,8 @@ defineOptions({
 })
 
 const props = defineProps({
+  ...sizeProps,
+
   placement: {
     type: String,
     default: 'bottom-start',
@@ -169,6 +173,19 @@ const slots = useSlots()
 const popoverRef = ref(null)
 const autocompleteRef = ref(null)
 const isIconOnly = computed(() => !props.buttonLabel && !slots.button)
+
+const { explicitSize } = useSizes(props)
+
+// VBtn takes its size as a boolean prop (small, large, ...); forward whichever
+// one is set so the trigger can be sized without reaching for buttonProps.
+const sizeAttributes = computed(() =>
+  explicitSize.value ? { [explicitSize.value]: true } : {}
+)
+
+// The default icon would overflow the smaller trigger sizes (xSmall is 16px).
+const iconSizeClass = computed(() =>
+  SMALL_SIZES.includes(explicitSize.value) ? 'w-3 h-3' : 'w-4 h-4'
+)
 
 async function onOpen() {
   emit('open')
