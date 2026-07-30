@@ -466,6 +466,73 @@ describe 'Shared::Unify', type: :model do
     end
   end
 
+  # only:/except: are documented as scoping unify to "only operate on
+  # these relations" - a deliberate partial move, not a full merge (and
+  # remove_object is never destroyed in this mode). For a self-referential
+  # record, reassign_foreign_keys would otherwise reassign every FK it
+  # finds pointing at remove_object regardless of which relation the
+  # caller actually asked to move, silently moving more than requested.
+  # allowed_associations (see #unify/#reassign_foreign_keys) restricts the
+  # "extra" FKs it's willing to grab to whatever only:/except: actually
+  # left in scope.
+  context 'only:/except: scoping is respected for self-referential records' do
+    specify 'only: [:biological_associations] reassigns just the subject side, not the object side too' do
+      o3 = FactoryBot.create(:valid_otu)
+      rel = FactoryBot.create(:valid_biological_relationship)
+
+      ba = BiologicalAssociation.create!(biological_association_subject: o3, biological_association_object: o3, biological_relationship: rel)
+
+      result = o1.unify(o3, only: [:biological_associations])
+
+      expect(result[:result][:unified]).to be(true)
+      expect(o3.destroyed?).to be_falsey
+      expect(ba.reload.biological_association_subject).to eq(o1)
+      expect(ba.reload.biological_association_object).to eq(o3)
+    end
+
+    specify 'only: [:related_biological_associations] reassigns just the object side, not the subject side too' do
+      o3 = FactoryBot.create(:valid_otu)
+      rel = FactoryBot.create(:valid_biological_relationship)
+
+      ba = BiologicalAssociation.create!(biological_association_subject: o3, biological_association_object: o3, biological_relationship: rel)
+
+      result = o1.unify(o3, only: [:related_biological_associations])
+
+      expect(result[:result][:unified]).to be(true)
+      expect(o3.destroyed?).to be_falsey
+      expect(ba.reload.biological_association_subject).to eq(o3)
+      expect(ba.reload.biological_association_object).to eq(o1)
+    end
+
+    specify 'except: [:related_biological_associations] reassigns just the subject side, not the object side too' do
+      o3 = FactoryBot.create(:valid_otu)
+      rel = FactoryBot.create(:valid_biological_relationship)
+
+      ba = BiologicalAssociation.create!(biological_association_subject: o3, biological_association_object: o3, biological_relationship: rel)
+
+      result = o1.unify(o3, except: [:related_biological_associations])
+
+      expect(result[:result][:unified]).to be(true)
+      expect(o3.destroyed?).to be_falsey
+      expect(ba.reload.biological_association_subject).to eq(o1)
+      expect(ba.reload.biological_association_object).to eq(o3)
+    end
+
+    specify 'no only:/except: still reassigns both sides of a self-referential record together' do
+      o3 = FactoryBot.create(:valid_otu)
+      rel = FactoryBot.create(:valid_biological_relationship)
+
+      ba = BiologicalAssociation.create!(biological_association_subject: o3, biological_association_object: o3, biological_relationship: rel)
+
+      result = o1.unify(o3)
+
+      expect(result[:result][:unified]).to be(true)
+      expect(o3.destroyed?).to be_truthy
+      expect(ba.reload.biological_association_subject).to eq(o1)
+      expect(ba.reload.biological_association_object).to eq(o1)
+    end
+  end
+
   # OtuRelationship has the same dual-FK shape as BiologicalAssociation -
   # belongs_to :subject_otu and :object_otu, both class_name: 'Otu', and
   # nothing prevents subject_otu_id == object_otu_id (only presence and a

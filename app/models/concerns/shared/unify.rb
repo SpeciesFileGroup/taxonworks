@@ -140,6 +140,16 @@ module Shared::Unify
     # pass reuses the first pass's outcome instead of redoing any of that.
     resolved_unify_outcomes = {}
 
+    # The set of belongs_to association names this call is actually
+    # allowed to touch - every has_many/has_one relation's inverse_of
+    # that only:/except: left in scope. reassign_foreign_keys uses this to
+    # avoid reassigning a "free" extra FK (see its comment) that the
+    # caller specifically excluded via only:/except: - honoring a partial
+    # move means leaving an out-of-scope FK alone, even on a
+    # self-referential record.
+    relations = merge_relations(only:, except:)
+    allowed_associations = relations.map { |r| r.options[:inverse_of] }.compact
+
     self.class.transaction do
       # before_unify # potential hooks, appear not to be required
 
@@ -153,7 +163,7 @@ module Shared::Unify
       end
 
       begin
-        merge_relations(only:, except:).each do |r|
+        relations.each do |r|
           n = relation_label(r)
 
           case ::ApplicationEnumeration.relationship_type(r)
@@ -178,7 +188,7 @@ module Shared::Unify
             i.find_each do |j|
               key = [j.class.base_class.name, j.id]
               outcome = resolved_unify_outcomes[key] ||= begin
-                reassign_foreign_keys(j, remove_object, r.options[:inverse_of])
+                reassign_foreign_keys(j, remove_object, r.options[:inverse_of], allowed_associations)
                 resolve_unify_outcome(j)
               end
               apply_unify_outcome(outcome, n, s)
@@ -193,7 +203,7 @@ module Shared::Unify
 
               key = [i.class.base_class.name, i.id]
               outcome = resolved_unify_outcomes[key] ||= begin
-                reassign_foreign_keys(i, remove_object, r.options[:inverse_of])
+                reassign_foreign_keys(i, remove_object, r.options[:inverse_of], allowed_associations)
                 resolve_unify_outcome(i)
               end
               apply_unify_outcome(outcome, n, s)
@@ -349,8 +359,18 @@ module Shared::Unify
   # resolved_unify_outcomes in #unify) rather than re-attempting it - that
   # caching is only correct if this call is the one and only place the
   # record's FKs actually get touched. See #4971.
-  def reassign_foreign_keys(record, remove_object, primary_association)
+  #
+  # allowed_associations (see #unify) restricts that to what only:/except:
+  # actually put in scope for this call - primary_association is always
+  # included regardless, since it's the relation this call is already
+  # processing, but an "extra" FK this method would otherwise also
+  # reassign for free is left untouched if its own relation was excluded.
+  # Without this, a caller using only:/except: for a deliberate partial
+  # move of a self-referential record would silently get more moved than
+  # asked for.
+  def reassign_foreign_keys(record, remove_object, primary_association, allowed_associations)
     associations = foreign_keys_pointing_at(record, remove_object).map(&:name)
+    associations &= allowed_associations
     associations |= [primary_association]
 
     record.update(associations.index_with { self })
