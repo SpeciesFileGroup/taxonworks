@@ -36,7 +36,10 @@
 
   <!-- Step 1: Create key + species list -->
   <template v-if="currentStep === 1">
-    <BlockLayout expand>
+    <BlockLayout
+      expand
+      class="margin-medium-bottom"
+    >
       <template #header>
         <h3>Citation</h3>
       </template>
@@ -132,7 +135,10 @@
       </template>
     </BlockLayout>
 
-    <BlockLayout expand>
+    <BlockLayout
+      expand
+      class="margin-medium-bottom"
+    >
       <template #header>
         <h3>Key metadata</h3>
       </template>
@@ -175,6 +181,7 @@
 
     <BlockLayout
       expand
+      class="margin-medium-bottom"
       :set-expanded="!!parentOtu || species.length > 0"
     >
       <template #header>
@@ -283,7 +290,10 @@
 
   <!-- Step 2: Annotate species -->
   <template v-else>
-    <BlockLayout expand>
+    <BlockLayout
+      expand
+      class="margin-medium-bottom"
+    >
       <template #header>
         <div class="flex-separate middle full_width">
           <h3>Key metadata</h3>
@@ -320,37 +330,100 @@
       </template>
     </BlockLayout>
 
-    <BlockLayout expand>
+    <BlockLayout
+      expand
+      class="margin-medium-bottom"
+    >
       <template #header>
         <h3>Taxa in key ({{ species.length }})</h3>
       </template>
 
       <template #body>
-        <ul
+        <div
           v-if="species.length"
-          class="no-style-list panel content species-grid"
+          class="taxa-grid"
+          role="table"
+          aria-label="Taxa in this cited key"
         >
-          <li
-            v-for="otu in species"
-            :key="otu.id"
-            class="d-flex middle gap-small padding-xsmall species-row"
+          <div
+            class="taxa-grid-row taxa-grid-header"
+            role="row"
           >
-            <RadialAnnotator
-              v-if="childLeads[otu.id]"
-              :global-id="childLeads[otu.id].global_id"
+            <div role="columnheader" />
+            <div role="columnheader">Taxon</div>
+            <div role="columnheader">
+              <div class="d-flex flex-col gap-small">
+                <span>Page</span>
+                <div class="d-flex gap-small middle">
+                  <input
+                    v-model="bulkPagesValue"
+                    type="text"
+                    class="input-small-width"
+                    placeholder="Apply to all"
+                  />
+                  <VBtn
+                    v-if="bulkPagesValue"
+                    color="primary"
+                    small
+                    @click="applyBulkPages"
+                  >
+                    Apply
+                  </VBtn>
+                </div>
+              </div>
+            </div>
+            <div
+              role="columnheader"
+              class="taxa-grid-addcol"
+            >
+              <VBtn
+                color="primary"
+                circle
+                small
+                title="Add a controlled vocabulary column (coming soon)"
+                disabled
+              >
+                +
+              </VBtn>
+            </div>
+          </div>
+          <div
+            v-for="otu in sortedSpecies"
+            :key="otu.id"
+            class="taxa-grid-row"
+            role="row"
+          >
+            <div role="cell">
+              <div class="d-flex middle gap-small">
+                <RadialAnnotator
+                  v-if="childLeads[otu.id]"
+                  :global-id="childLeads[otu.id].global_id"
+                />
+                <span
+                  v-if="childLeads[otu.id]"
+                  class="button button-circle btn-delete"
+                  title="Delete permanently from key"
+                  @click="deleteChildLead(otu)"
+                />
+              </div>
+            </div>
+            <div role="cell">
+              <span v-html="otu.object_tag || otu.label_html || `OTU #${otu.id}`" />
+            </div>
+            <div role="cell">
+              <input
+                v-if="childCitations[otu.id]"
+                v-model="childCitations[otu.id].pages"
+                type="text"
+                class="input-small-width"
+              />
+            </div>
+            <div
+              role="cell"
+              class="taxa-grid-addcol"
             />
-            <span
-              v-if="childLeads[otu.id]"
-              class="button button-circle btn-delete"
-              title="Delete permanently from key"
-              @click="deleteChildLead(otu)"
-            />
-            <span
-              class="ellipsis"
-              v-html="otu.object_tag || otu.label_html || `OTU #${otu.id}`"
-            />
-          </li>
-        </ul>
+          </div>
+        </div>
         <div
           v-else
           class="feedback feedback-info padding-small text-center"
@@ -409,6 +482,9 @@ const source = ref(null)
 const pages = ref('')
 const species = ref([])
 const childLeads = ref({})
+const childCitations = ref({})
+const originalChildPages = ref({})
+const bulkPagesValue = ref('')
 const rootCitationId = ref(null)
 const originalMetadata = ref(null)
 const existingKeys = ref([])
@@ -426,6 +502,22 @@ const newSpecies = computed(() =>
   species.value.filter((o) => !childLeads.value[o.id])
 )
 
+const sortedSpecies = computed(() =>
+  [...species.value].sort((a, b) => {
+    const aName = (a.object_tag || a.label_html || '').replace(/<[^>]+>/g, '')
+    const bName = (b.object_tag || b.label_html || '').replace(/<[^>]+>/g, '')
+    return aName.localeCompare(bName)
+  })
+)
+
+const dirtyPageOtuIds = computed(() =>
+  Object.keys(childCitations.value).filter((otuId) => {
+    const cur = childCitations.value[otuId]?.pages ?? ''
+    const orig = originalChildPages.value[otuId] ?? ''
+    return cur !== orig
+  })
+)
+
 const isMetadataDirty = computed(() => {
   if (!isAddMode.value || !originalMetadata.value) return false
   return (
@@ -439,7 +531,11 @@ const isMetadataDirty = computed(() => {
 const canSave = computed(() => {
   if (loading.value) return false
   if (isAddMode.value) {
-    return newSpecies.value.length > 0 || isMetadataDirty.value
+    return (
+      newSpecies.value.length > 0 ||
+      isMetadataDirty.value ||
+      dirtyPageOtuIds.value.length > 0
+    )
   }
   return (
     !!root.value.text.trim() &&
@@ -453,7 +549,14 @@ const saveButtonText = computed(() => {
     const parts = []
     if (isMetadataDirty.value) parts.push('Save metadata changes')
     if (newSpecies.value.length) parts.push(`add ${newSpecies.value.length} taxa`)
-    return parts.length ? parts.join(' and ') : ''
+    if (dirtyPageOtuIds.value.length) {
+      parts.push(`update ${dirtyPageOtuIds.value.length} page(s)`)
+    }
+    if (parts.length) {
+      return parts[0].charAt(0).toUpperCase() + parts[0].slice(1) +
+        (parts.length > 1 ? ' and ' + parts.slice(1).join(' and ') : '')
+    }
+    return ''
   }
   if (!source.value) return 'Pick a source (citation) to enable save'
   if (!root.value.text.trim()) return 'Enter a title to enable save'
@@ -509,10 +612,11 @@ watch(source, (newSource) => {
 
 function lookupExistingKeys() {
   existingKeysLoading.value = true
-  Citation.where({
+  Citation.all({
     citation_object_type: 'Lead',
     source_id: source.value.id,
-    extend: ['citation_object']
+    extend: ['citation_object'],
+    per: 500
   })
     .then(({ body: citations }) => {
       const seen = new Set()
@@ -585,6 +689,9 @@ function reset() {
   pages.value = ''
   species.value = []
   childLeads.value = {}
+  childCitations.value = {}
+  originalChildPages.value = {}
+  bulkPagesValue.value = ''
   rootCitationId.value = null
   originalMetadata.value = null
   existingKeys.value = []
@@ -647,10 +754,16 @@ function loadKey(rootLeadId) {
       childLeads.value = childMap
 
       const allLeadIds = [loadedRoot.id, ...loadedChildren.map((c) => c.id)]
-      return Citation.where({
+      const otuIdByChildLeadId = {}
+      loadedChildren.forEach((c) => {
+        otuIdByChildLeadId[c.id] = c.otu_id
+      })
+
+      return Citation.all({
         citation_object_type: 'Lead',
         citation_object_id: allLeadIds,
-        extend: ['source']
+        extend: ['source'],
+        per: 500
       }).then(({ body: citations }) => {
         const rootCitation = citations.find(
           (c) => c.citation_object_id === root.value.id
@@ -666,6 +779,18 @@ function loadKey(rootLeadId) {
           }
           pages.value = rootCitation.pages || ''
         }
+
+        const childCitationMap = {}
+        const pageBaseline = {}
+        citations.forEach((c) => {
+          if (c.citation_object_id === root.value.id) return
+          const otuId = otuIdByChildLeadId[c.citation_object_id]
+          if (!otuId) return
+          childCitationMap[otuId] = { id: c.id, pages: c.pages || '' }
+          pageBaseline[otuId] = c.pages || ''
+        })
+        childCitations.value = childCitationMap
+        originalChildPages.value = pageBaseline
       })
     })
     .then(() => {
@@ -701,6 +826,10 @@ function saveChangesToLoadedKey() {
 
   if (newSpecies.value.length) {
     tasks.push(persistNewTaxa())
+  }
+
+  if (dirtyPageOtuIds.value.length) {
+    tasks.push(persistDirtyPages())
   }
 
   Promise.all(tasks)
@@ -762,22 +891,69 @@ function persistNewTaxa() {
           citation_object_type: 'Lead',
           citation_object_id: newLeadIds,
           source_id: source.value.id,
-          pages: pages.value.trim() || null
+          pages: null
         }
-      }).then(() => results)
+      }).then(({ body: createdCitations }) => ({ results, createdCitations }))
     })
-    .then((results) => {
-      const map = { ...childLeads.value }
+    .then(({ results, createdCitations }) => {
+      const otuByChildLeadId = {}
       results.forEach(({ otu, createdChild }) => {
-        map[otu.id] = {
+        otuByChildLeadId[createdChild.id] = otu.id
+      })
+
+      const leadMap = { ...childLeads.value }
+      results.forEach(({ otu, createdChild }) => {
+        leadMap[otu.id] = {
           id: createdChild.id,
           global_id: createdChild.global_id
         }
       })
-      childLeads.value = map
+      childLeads.value = leadMap
+
+      const citationMap = { ...childCitations.value }
+      const pageBaseline = { ...originalChildPages.value }
+      createdCitations.forEach((citation) => {
+        const otuId = otuByChildLeadId[citation.citation_object_id]
+        if (!otuId) return
+        citationMap[otuId] = { id: citation.id, pages: citation.pages || '' }
+        pageBaseline[otuId] = citation.pages || ''
+      })
+      childCitations.value = citationMap
+      originalChildPages.value = pageBaseline
+
       currentStep.value = 2
       return `${results.length} taxa added.`
     })
+}
+
+function persistDirtyPages() {
+  const dirtyIds = dirtyPageOtuIds.value.slice()
+
+  const requests = dirtyIds.map((otuId) => {
+    const cell = childCitations.value[otuId]
+    return Citation.update(cell.id, {
+      citation: { pages: cell.pages.trim() || null }
+    })
+  })
+
+  return Promise.all(requests).then(() => {
+    const baseline = { ...originalChildPages.value }
+    dirtyIds.forEach((otuId) => {
+      baseline[otuId] = childCitations.value[otuId].pages
+    })
+    originalChildPages.value = baseline
+    return `${dirtyIds.length} page(s) updated.`
+  })
+}
+
+function applyBulkPages() {
+  const value = bulkPagesValue.value
+  const map = { ...childCitations.value }
+  species.value.forEach((otu) => {
+    const cell = map[otu.id]
+    if (cell) map[otu.id] = { ...cell, pages: value }
+  })
+  childCitations.value = map
 }
 
 function deleteChildLead(otu) {
@@ -791,9 +967,15 @@ function deleteChildLead(otu) {
   Lead.destroy(child.id)
     .then(() => {
       species.value = species.value.filter((o) => o.id !== otu.id)
-      const map = { ...childLeads.value }
-      delete map[otu.id]
-      childLeads.value = map
+      const leadMap = { ...childLeads.value }
+      delete leadMap[otu.id]
+      childLeads.value = leadMap
+      const citationMap = { ...childCitations.value }
+      delete citationMap[otu.id]
+      childCitations.value = citationMap
+      const baseline = { ...originalChildPages.value }
+      delete baseline[otu.id]
+      originalChildPages.value = baseline
       TW.workbench.alert.create(`${clean} removed from key.`, 'notice')
     })
     .catch(() => {})
@@ -833,18 +1015,28 @@ function createNewKey() {
       }))
     })
     .then(({ createdRoot, results }) => {
-      const leadIds = [
-        createdRoot.id,
-        ...results.map(({ createdChild }) => createdChild.id)
-      ]
-      return Citation.createBatch({
+      const rootCitation = Citation.create({
         citation: {
           citation_object_type: 'Lead',
-          citation_object_id: leadIds,
+          citation_object_id: createdRoot.id,
           source_id: source.value.id,
           pages: pages.value.trim() || null
         }
-      }).then(() => ({ createdRoot, results }))
+      })
+      const childCitationBatch = results.length
+        ? Citation.createBatch({
+            citation: {
+              citation_object_type: 'Lead',
+              citation_object_id: results.map(({ createdChild }) => createdChild.id),
+              source_id: source.value.id,
+              pages: null
+            }
+          })
+        : Promise.resolve({ body: [] })
+      return Promise.all([rootCitation, childCitationBatch]).then(() => ({
+        createdRoot,
+        results
+      }))
     })
     .then(({ createdRoot, results }) => {
       root.value = {
@@ -950,5 +1142,48 @@ onBeforeMount(() => {
 
 .species-row-saved {
   color: var(--text-muted-color);
+}
+
+.taxa-grid {
+  display: grid;
+  grid-template-columns: max-content max-content max-content max-content;
+  max-height: 70vh;
+  overflow: auto;
+}
+
+.taxa-grid-row {
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
+}
+
+.taxa-grid-row > * {
+  padding: 0.25rem 0.75rem 0.25rem 0;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.taxa-grid-row > *:last-child {
+  padding-right: 0;
+}
+
+.taxa-grid > .taxa-grid-row:not(.taxa-grid-header):nth-child(even) {
+  background: var(--table-row-bg-odd);
+}
+
+.taxa-grid-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--bg-action);
+}
+
+.taxa-grid-header > * {
+  align-items: flex-start;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  font-weight: bold;
 }
 </style>
