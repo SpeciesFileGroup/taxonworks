@@ -50,7 +50,11 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - A "successful" unify between two Taxon Names, one of which has a synonym, can leave the synonym in an unusable state [#4971]
 - Unify of two Asserted Distributions with the "same" Citation can cause loss of annotation data from the citation that gets destroyed [#4971]
 - Unify blocked by "duplicate" is_original citations now works [#4971]
+- Unify always fails when unifying two Taxon Names that each have an original combination [#4971]
+- Add 'Exclude' option to Tags and Confidences facets in filters (for finding objects NOT satisfying the given conditions) [#4157]
+- New BA: Forms do not reset if a citation has already been created
 
+[#4157]: https://github.com/SpeciesFileGroup/taxonworks/issues/4157
 [#4937]: https://github.com/SpeciesFileGroup/taxonworks/issues/4937
 [#4944]: https://github.com/SpeciesFileGroup/taxonworks/issues/4944
 [#4964]: https://github.com/SpeciesFileGroup/taxonworks/issues/4964
