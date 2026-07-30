@@ -2105,40 +2105,186 @@ describe 'Shared::Unify', type: :model do
       "  #{uncovered.join("\n  ")}"
   end
 
-  # Linting spec — catches missing inverse_of: on relations for models that
-  # are actually exposed for unification (UNIFIABLE_MODELS).
-  #
-  # used_inferred_relations requires inverse_of: to be present so it can
-  # reassign the FK during the merge loop. A relation that passes
-  # inferred_relations but lacks inverse_of: is silently dropped from
-  # merge_relations. Even if the relation is not dependent: :destroy, the
-  # records become untethered — pointing at the destroyed object or nullified —
-  # which is also data loss from the unify perspective.
-  # Only dependent: :restrict_with_error is safe to skip, as it causes the
-  # destroy to fail gracefully rather than silently losing data.
-  specify 'no relation in inferred_relations is missing inverse_of: on unifiable models' do
-    uncovered = []
+  # Linting spec — catches relations that would break
+  # Shared::Unify#reassign_foreign_keys, for models that are actually
+  # exposed for unification (UNIFIABLE_MODELS).
+  context 'the used_inferred_relations inverse_of linter' do
+    # Checks used_inferred_relations, not inferred_relations: that's the set
+    # #unify (via #merge_relations) actually iterates. The two differ for a
+    # relation forced in via a model's unify_relations override (e.g.
+    # Serial#unify_relations) - unify_relations bypasses both
+    # inferred_relations' naming filter and its own inverse_of check (see
+    # Shared::Unify#used_inferred_relations), so a relation can be broken here
+    # and still reach #unify. Checking inferred_relations here would miss
+    # that case entirely - confirmed against Serial#translations, which had
+    # exactly this gap before being fixed alongside this spec.
+    #
+    # #reassign_foreign_keys unconditionally folds r.options[:inverse_of]
+    # (primary_association) into the update hash it sends to record.update -
+    # see the `associations |= [primary_association]` line - regardless of
+    # only:/except:. That means every relation reaching #unify needs
+    # inverse_of: to be not just present, but a real belongs_to on the far
+    # side, wired to the exact same column(s) this relation itself reads.
+    # Otherwise #unify either raises (ActiveModel::UnknownAttributeError, for
+    # a nil or bogus symbol; ActiveRecord::AssociationTypeMismatch, for a
+    # belongs_to that resolves but targets the wrong class) or - worse -
+    # silently reassigns the wrong FK to self, if inverse_of happens to name
+    # some other real attribute/association on the far side. This checks
+    # four ways that can go wrong:
+    #   - inverse_of: is missing entirely
+    #   - inverse_of: names something that isn't a real belongs_to on the far side
+    #   - inverse_of: is a real belongs_to, but reads/writes a different
+    #     column than this relation does - i.e. it's *a* valid inverse
+    #     somewhere on that class, not *this* relation's inverse
+    #   - inverse_of: is a real belongs_to on the right column, but its
+    #     class_name targets a class self can't be assigned as (checked
+    #     only for non-polymorphic belongs_to - a polymorphic one accepts
+    #     any class by design)
+    # Only dependent: :restrict_with_error is safe to skip for the "missing"
+    # case, since destroy fails gracefully rather than losing data - but a
+    # *mismatched* inverse_of still corrupts data via a wrong FK reassignment
+    # regardless of dependent:, so that case is always checked. See #4971.
+    # Checks a single reflection against the same criteria
+    # Shared::Unify#reassign_foreign_keys relies on. Returns an array of
+    # problem strings (empty if r is safe). Pulled out of the specify block
+    # below so the 'self-test' context can exercise each failure mode
+    # directly against known-broken reflections, rather than only trusting
+    # that today's real models happen to have zero problems.
+    #
+    # !! This is NOT an exhaustive list of issues that a belongs_to relation
+    # could have; it _does_ cover the most likely to occur issues. !!
+    # Also note that some of these issues, if present, would lead to a raise
+    # during unify, some of them would lead to a "successful" unify with bad
+    # data: those are the ones we especially want to avoid beforehand.
+    def unify_relation_problems(owner_name, r)
+      inverse_of = r.options[:inverse_of]
 
-    UNIFIABLE_MODELS.each do |name|
-      klass = name.safe_constantize
-      expect(klass).not_to be_nil, "UNIFIABLE_MODELS contains '#{name}' but it cannot be constantized"
-
-      instance = klass.new
-      expect(instance).to be_a(ApplicationRecord), "UNIFIABLE_MODELS contains '#{name}' but instantiation failed"
-
-      instance.inferred_relations.each do |r|
-        next if r.options[:dependent] == :restrict_with_error
-        next if r.options[:inverse_of].present?
-
-        uncovered << "#{name}##{r.name} (dependent: #{r.options[:dependent].inspect})"
+      if inverse_of.blank?
+        return [] if r.options[:dependent] == :restrict_with_error
+        return ["#{owner_name}##{r.name}: inverse_of: is missing (dependent: #{r.options[:dependent].inspect})"]
       end
+
+      target_klass = r.klass rescue nil
+      return ["#{owner_name}##{r.name}: target class for the relation could not be resolved"] if target_klass.nil?
+
+      inverse = target_klass.reflect_on_association(inverse_of)
+      return ["#{owner_name}##{r.name}: inverse_of #{inverse_of.inspect} is not a real association on #{target_klass}"] if inverse.nil?
+
+      unless inverse.belongs_to?
+        return ["#{owner_name}##{r.name}: inverse_of #{inverse_of.inspect} on #{target_klass} is a #{inverse.macro}, not belongs_to"]
+      end
+
+      # A polymorphic belongs_to's class can't be resolved without a record
+      # instance (Rails raises ArgumentError if you try) - and it doesn't
+      # need to be: a polymorphic column accepts any class by design, so
+      # there's no fixed target class to check self against.
+      unless inverse.polymorphic?
+        inverse_klass = inverse.klass rescue nil
+        return ["#{owner_name}##{r.name}: inverse_of #{inverse_of.inspect} on #{target_klass} has an unresolvable class_name"] if inverse_klass.nil?
+      end
+
+      problems = []
+
+      if inverse.foreign_key != r.foreign_key
+        problems << "#{owner_name}##{r.name}: foreign_key mismatch - reads #{r.foreign_key}, " \
+                     "but inverse_of #{inverse_of.inspect} on #{target_klass} writes #{inverse.foreign_key}"
+      end
+
+      if r.options[:as].present? && !inverse.polymorphic?
+        problems << "#{owner_name}##{r.name}: relation is polymorphic (as: #{r.options[:as]}), " \
+                     "but inverse_of #{inverse_of.inspect} on #{target_klass} is not"
+      end
+
+      if inverse_klass && !(r.active_record <= inverse_klass)
+        problems << "#{owner_name}##{r.name}: inverse_of #{inverse_of.inspect} on #{target_klass} is a belongs_to " \
+                     "to #{inverse_klass}, but #{owner_name} is not a #{inverse_klass} - assigning self here would " \
+                     "raise ActiveRecord::AssociationTypeMismatch"
+      end
+
+      problems
     end
 
-    expect(uncovered).to be_empty,
-      "Relations in inferred_relations missing inverse_of: on unifiable models.\n" \
-      "Records in these relations will be untethered or destroyed rather than moved to the survivor.\n" \
-      "Add inverse_of: to the relation so unify can move records to the survivor:\n" \
-      "  #{uncovered.join("\n  ")}"
+    specify 'every relation in used_inferred_relations has a correctly wired inverse_of: on unifiable models' do
+      problems = []
+
+      UNIFIABLE_MODELS.each do |name|
+        klass = name.safe_constantize
+        expect(klass).not_to be_nil, "UNIFIABLE_MODELS contains '#{name}' but it cannot be constantized"
+
+        instance = klass.new
+        expect(instance).to be_a(ApplicationRecord), "UNIFIABLE_MODELS contains '#{name}' but instantiation failed"
+
+        instance.used_inferred_relations.each do |r|
+          problems.concat(unify_relation_problems(name, r))
+        end
+      end
+
+      expect(problems).to be_empty,
+        "Relation(s) in used_inferred_relations are not safely reassignable by Shared::Unify#reassign_foreign_keys:\n" \
+        "  #{problems.join("\n  ")}"
+    end
+
+    # Self-test for unify_relation_problems above: proves each failure mode
+    # it's supposed to catch actually gets caught (and that correctly-wired
+    # relations aren't false-positived), using deliberately broken test-only
+    # reflections (see TestUnifyMissingInverseOf and friends near the bottom
+    # of this file) rather than relying on today's real models happening to
+    # have zero problems as the only evidence the check works. See #4971.
+    context 'self-test' do
+      specify 'flags a relation with inverse_of: missing entirely' do
+        r = TestUnifyMissingInverseOf.reflect_on_association(:broken_children)
+        problems = unify_relation_problems('TestUnifyMissingInverseOf', r)
+
+        expect(problems.size).to eq(1)
+        expect(problems.first).to match(/inverse_of: is missing/)
+      end
+
+      specify 'does not flag a relation missing inverse_of: when dependent: :restrict_with_error' do
+        r = TestUnifyMissingInverseOfRestricted.reflect_on_association(:broken_children)
+        problems = unify_relation_problems('TestUnifyMissingInverseOfRestricted', r)
+
+        expect(problems).to be_empty
+      end
+
+      specify "flags a relation whose inverse_of: doesn't name a real association on the far side" do
+        r = TestUnifyBogusInverseOf.reflect_on_association(:broken_children)
+        problems = unify_relation_problems('TestUnifyBogusInverseOf', r)
+
+        expect(problems.size).to eq(1)
+        expect(problems.first).to match(/is not a real association/)
+      end
+
+      specify "flags a relation whose inverse_of: names a real association that isn't belongs_to" do
+        r = TestUnifyNonBelongsToInverseOf.reflect_on_association(:broken_children)
+        problems = unify_relation_problems('TestUnifyNonBelongsToInverseOf', r)
+
+        expect(problems.size).to eq(1)
+        expect(problems.first).to match(/is a has_many, not belongs_to/)
+      end
+
+      specify "flags a relation whose inverse_of: is real but reads/writes a different column" do
+        r = TestUnifyMismatchedInverseOf.reflect_on_association(:broken_children)
+        problems = unify_relation_problems('TestUnifyMismatchedInverseOf', r)
+
+        expect(problems.size).to eq(1)
+        expect(problems.first).to match(/foreign_key mismatch/)
+      end
+
+      specify "flags a relation whose inverse_of: belongs_to targets an unrelated class" do
+        r = TestUnifyWrongClassInverseOf.reflect_on_association(:broken_children)
+        problems = unify_relation_problems('TestUnifyWrongClassInverseOf', r)
+
+        expect(problems.size).to eq(1)
+        expect(problems.first).to match(/AssociationTypeMismatch/)
+      end
+
+      specify 'does not flag a correctly wired relation' do
+        r = TaxonName.reflect_on_association(:related_taxon_name_relationships)
+        problems = unify_relation_problems('TaxonName', r)
+
+        expect(problems).to be_empty
+      end
+    end
   end
 
   describe 'log_unify_result reports unmerged (not merged) when a dedup attempt does not pan out' do
@@ -2184,4 +2330,56 @@ class TestUnifyIdenticalCapable < ApplicationRecord
   include FakeTable
   include Shared::Unify
   include Shared::IsData
+end
+
+# These associations are only ever inspected for their reflection metadata
+# (r.klass, r.foreign_key, r.options[:inverse_of], ...) - never used to persist
+# or query real data - so borrowing test_classes' existing housekeeping
+# columns (created_by_id, updated_by_id) as stand-in self-referential
+# foreign keys is fine here.
+
+class TestUnifyMissingInverseOf < ApplicationRecord
+  include FakeTable
+  has_many :broken_children, class_name: 'TestUnifyMissingInverseOf', foreign_key: :created_by_id
+end
+
+class TestUnifyMissingInverseOfRestricted < ApplicationRecord
+  include FakeTable
+  has_many :broken_children, class_name: 'TestUnifyMissingInverseOfRestricted', foreign_key: :created_by_id,
+    dependent: :restrict_with_error
+end
+
+class TestUnifyBogusInverseOf < ApplicationRecord
+  include FakeTable
+  has_many :broken_children, class_name: 'TestUnifyBogusInverseOf', foreign_key: :created_by_id,
+    inverse_of: :this_association_does_not_exist
+end
+
+class TestUnifyNonBelongsToInverseOf < ApplicationRecord
+  include FakeTable
+  has_many :other_has_many, class_name: 'TestUnifyNonBelongsToInverseOf', foreign_key: :updated_by_id
+  has_many :broken_children, class_name: 'TestUnifyNonBelongsToInverseOf', foreign_key: :created_by_id,
+    inverse_of: :other_has_many
+end
+
+class TestUnifyMismatchedInverseOf < ApplicationRecord
+  include FakeTable
+  belongs_to :real_parent, class_name: 'TestUnifyMismatchedInverseOf', foreign_key: :updated_by_id, optional: true
+  has_many :broken_children, class_name: 'TestUnifyMismatchedInverseOf', foreign_key: :created_by_id,
+    inverse_of: :real_parent
+end
+
+# inverse_of resolves, is a belongs_to, and reads/writes the right column -
+# but its class_name targets an unrelated class, so assigning self (a
+# TestUnifyWrongClassInverseOf) to it would raise
+# ActiveRecord::AssociationTypeMismatch at merge time.
+class TestUnifyWrongClassInverseOfChild < ApplicationRecord
+  include FakeTable
+  belongs_to :wrong_parent, class_name: 'TestUnifyMismatchedInverseOf', foreign_key: :created_by_id, optional: true
+end
+
+class TestUnifyWrongClassInverseOf < ApplicationRecord
+  include FakeTable
+  has_many :broken_children, class_name: 'TestUnifyWrongClassInverseOfChild', foreign_key: :created_by_id,
+    inverse_of: :wrong_parent
 end

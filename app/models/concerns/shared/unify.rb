@@ -368,6 +368,28 @@ module Shared::Unify
   # Without this, a caller using only:/except: for a deliberate partial
   # move of a self-referential record would silently get more moved than
   # asked for.
+  #
+  # A consequence: an "extra" FK is only ever reassigned if it's reachable
+  # from self's own merge_relations - i.e. both sides of the dual-FK pair
+  # follow the /related/-naming convention inferred_relations depends on
+  # (see Serial#unify_relations for a model that had to explicitly
+  # re-include its self-referential associations to satisfy this). If a
+  # future model's dual-FK pair is wired up asymmetrically - one side
+  # reachable, the other not - this method will silently under-reassign a
+  # self-referential record on *every* unify call for that model, not just
+  # only:/except:-scoped ones. That's the same "half-migrated" failure
+  # this method exists to prevent, just via a different root cause.
+  # Confirmed (not just theoretical): whether that then surfaces as a safe
+  # rollback or silently succeeds with a dangling reference depends
+  # entirely on whether the excluded association's table has a real
+  # dependent: restriction or DB-level foreign key - every dual-FK model
+  # in this codebase today has one or the other, so the observed failure
+  # mode is always a clean rollback (RecordNotDestroyed or
+  # InvalidForeignKey, both already rescued below), never corruption - but
+  # that's a property of this codebase's models, not something this
+  # method itself guarantees. `rake
+  # tw:development:linting:inverse_of_preventing_unify` is what catches
+  # the asymmetric wiring itself. See #4971.
   def reassign_foreign_keys(record, remove_object, primary_association, allowed_associations)
     associations = foreign_keys_pointing_at(record, remove_object).map(&:name)
     associations &= allowed_associations
