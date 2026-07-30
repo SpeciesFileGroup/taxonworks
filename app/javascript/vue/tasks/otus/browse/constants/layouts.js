@@ -14,7 +14,7 @@ export const PANEL_KEYS = Object.keys(PANEL_COMPONENTS)
 
 export const MAX_COLUMNS_PER_ROW = 2
 
-const OVERVIEW_MAIN = ['PanelType', 'NomenclatureHistory']
+const OVERVIEW_MAIN = ['PanelDepictions', 'PanelType', 'NomenclatureHistory']
 
 const OVERVIEW_ASIDE = [
   'PanelDistribution',

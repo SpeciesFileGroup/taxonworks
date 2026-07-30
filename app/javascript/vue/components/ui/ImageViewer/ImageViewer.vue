@@ -154,7 +154,11 @@
         class="cursor-pointer"
         @click="isModalVisible = true"
       >
-        <slot>
+        <slot
+          :src="thumbUrlSrc"
+          :image="imageObject"
+          :has-crop="hasSVGBox"
+        >
           <div :class="[`depiction-${thumbSize}-image`]">
             <img
               class="img-thumb"
@@ -266,7 +270,7 @@ const hasSVGBox = computed(() => props.depiction?.svg_view_box != null)
 const thumbUrlSrc = computed(() => {
   const depiction = props.depiction
 
-  return props.hasSVGBox
+  return hasSVGBox.value
     ? imageSVGViewBox(
         imageObject.value.id,
         depiction.svg_view_box,

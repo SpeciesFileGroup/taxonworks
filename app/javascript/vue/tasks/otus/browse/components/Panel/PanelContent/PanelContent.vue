@@ -8,13 +8,13 @@
       v-if="contents.length"
       class="padding.medium-top"
     >
-      <ul class="padding-small-left">
+      <ul class="padding-medium-left">
         <li
           v-for="content in contents"
           :key="content.id"
         >
           <b><span v-html="content.topic.name" /></b>
-          <p
+          <div
             class="pre"
             v-html="markdownToHtml(content.text)"
           />

@@ -25,8 +25,8 @@
           :key="rowIndex"
           class="layout-row"
         >
-          <div class="flex-separate middle separate-bottom">
-            <h4>Row {{ rowIndex + 1 }}</h4>
+          <div class="flex-separate middle margin-small-bottom">
+            <b>Row {{ rowIndex + 1 }}</b>
             <div class="horizontal-left-content gap-small">
               <VBtn
                 color="primary"
