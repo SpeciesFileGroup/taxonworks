@@ -26,7 +26,10 @@ module Match
   module Otu
     class TaxonName
 
-      MAX_NAMES = 1000
+      MAX_NAMES = 3000
+      MATCHABLE_COLUMNS = [
+        :cached, :cached_secondary_homonym, :cached_primary_homonym
+      ].freeze
 
       attr_reader :names, :project_id, :levenshtein_distance, :taxon_name_id, :resolve_synonyms, :try_without_subgenus
 
@@ -39,7 +42,7 @@ module Match
       def initialize(names:, project_id:, levenshtein_distance: 0, taxon_name_id: nil, resolve_synonyms: false, try_without_subgenus: false)
         @names = names.first(MAX_NAMES)
         @project_id = project_id
-        @levenshtein_distance = levenshtein_distance.to_i
+        @levenshtein_distance = levenshtein_distance.to_i.clamp(0, 8)
         @taxon_name_id = taxon_name_id
         @resolve_synonyms = resolve_synonyms
         @try_without_subgenus = try_without_subgenus
@@ -74,30 +77,41 @@ module Match
         return { taxon_name_id: nil, taxon_name: nil, otus: [], ambiguous: false, matched: false } if taxon_names.empty?
 
         ranked = rank_taxon_names(taxon_names)
-        best = ranked.first
+        matched = ranked.first
+        resolved = matched
 
-        taxon_name_for_otus = best
-
-        if resolve_synonyms && best.cached_valid_taxon_name_id != best.id
-          valid = ::TaxonName.where(project_id: project_id).find_by(id: best.cached_valid_taxon_name_id)
-          taxon_name_for_otus = valid if valid
+        if resolve_synonyms && matched.cached_valid_taxon_name_id != matched.id
+          valid = ::TaxonName.where(project_id: project_id).find_by(id: matched.cached_valid_taxon_name_id)
+          resolved = valid if valid
         end
 
-        otus = ::Otu.where(project_id: project_id, taxon_name_id: taxon_name_for_otus.id).to_a
+        otus = ::Otu.where(project_id: project_id, taxon_name_id: resolved.id).to_a
 
         {
-          taxon_name_id: best.id,
-          taxon_name: best,
+          taxon_name_id: resolved.id,
+          taxon_name: resolved,
           otus: otus,
-          ambiguous: ranked.length > 1,
+          ambiguous: genuinely_ambiguous?(ranked),
           matched: true
         }
+      end
+
+      # Multiple candidate rows aren't ambiguous if they all resolve to the
+      # same valid taxon (e.g. a Combination alongside its own Protonym) —
+      # ranking always picks correctly there. Only flag it when candidates
+      # point to genuinely different valid taxa (e.g. true homonyms).
+      # @param ranked [Array<TaxonName>]
+      # @return [Boolean]
+      def genuinely_ambiguous?(ranked)
+        ranked.map(&:cached_valid_taxon_name_id).uniq.length > 1
       end
 
       # @param name [String]
       # @param column [Symbol] :cached, :cached_secondary_homonym, or :cached_primary_homonym
       # @return [Array<TaxonName>]
       def find_taxon_names(name, column: :cached)
+        raise ArgumentError, "Invalid column: #{column}" unless MATCHABLE_COLUMNS.include?(column)
+
         if levenshtein_distance > 0
           find_taxon_names_fuzzy(name, column:)
         else
@@ -113,24 +127,19 @@ module Match
         scope.where(column => name).to_a
       end
 
-      MATCHABLE_COLUMNS = [:cached, :cached_secondary_homonym, :cached_primary_homonym].freeze
-
       # @param name [String]
       # @param column [Symbol]
       # @return [Array<TaxonName>]
       def find_taxon_names_fuzzy(name, column: :cached)
-        raise ArgumentError, "Invalid column: #{column}" unless MATCHABLE_COLUMNS.include?(column)
-
         scope = base_scope
         truncated_name = name[0..254]
-        distance = [levenshtein_distance, 8].min
         qualified_column = "taxon_names.#{column}"
 
         scope
           .where(
             "levenshtein(left(#{qualified_column}, 255), ?) <= ?",
             truncated_name,
-            distance
+            levenshtein_distance
           )
           .order(
             Arel.sql(

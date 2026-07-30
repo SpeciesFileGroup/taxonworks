@@ -63,6 +63,7 @@
     :param="param"
     :title="WITH_TITLES[param]?.title || param.replaceAll('_', ' ')"
     :inverted="WITH_TITLES[param]?.inverted"
+    :data-help="WITH_HELP[param]?.text"
     v-model="params"
   />
   <FacetValidify v-model="params" />
@@ -112,6 +113,12 @@ const WITH_TITLES = {
   leaves: {
     title: 'Descendants',
     inverted: true
+  }
+}
+
+const WITH_HELP = {
+  type_metadata: {
+    text: '"With" returns species with type specimens, genera with a type species, families with a type genus; "Without" returns taxa with none of those. This facet is often combined with the "Nomenclatural rank" facet.'
   }
 }
 

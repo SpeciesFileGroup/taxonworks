@@ -34,8 +34,12 @@
     v-model="params"
   />
 
+  <FacetDataAttribute
+    v-model="params"
+  />
+
   <FacetUsers
-   v-model="params"
+    v-model="params"
   />
 
   <FacetWith
@@ -57,6 +61,7 @@
 </template>
 
 <script setup>
+import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute/FacetDataAttribute.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetText from '@/components/Filter/Facets/shared/FacetText.vue'

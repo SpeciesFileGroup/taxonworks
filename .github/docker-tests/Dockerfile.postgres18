@@ -1,4 +1,4 @@
-FROM postgis/postgis:12-3.4
+FROM postgis/postgis:18-3.6
 
 ENV POSTGRES_HOST_AUTH_METHOD=trust
 

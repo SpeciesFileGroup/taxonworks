@@ -2,30 +2,24 @@
   <div class="header-cell">
     <label
       class="header-label cursor-pointer ellipsis"
-      :title="title">
-      <tippy
-        animation="scale"
-        placement="bottom"
-        size="small"
-        arrow-size="small"
-        inertia
-        arrow
-        content="Hide">
+      :title="title"
+    >
+      <VTooltip content="Hide">
         <input
           type="checkbox"
           :value="index"
-          v-model="hideColumn">
+          v-model="hideColumn"
+        />
         {{ title }}
-      </tippy>
+      </VTooltip>
     </label>
   </div>
 </template>
 <script>
-
-import { Tippy } from 'vue-tippy'
+import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
 
 export default {
-  components: { Tippy },
+  components: { VTooltip },
 
   props: {
     title: {
@@ -48,10 +42,10 @@ export default {
 
   computed: {
     hideColumn: {
-      get () {
+      get() {
         return this.modelValue
       },
-      set (value) {
+      set(value) {
         this.$emit('update:modelValue', value)
       }
     }

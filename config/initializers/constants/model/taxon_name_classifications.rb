@@ -44,6 +44,22 @@ ICVCN_TAXON_NAME_CLASSIFICATION_HASH ||= (ICVCN_TAXON_NAME_CLASSIFICATION_NAMES 
 # Array of all TaxonNameClassifications classes, as Strings
 TAXON_NAME_CLASSIFICATION_NAMES ||= (ICN_TAXON_NAME_CLASSIFICATION_NAMES + ICVCN_TAXON_NAME_CLASSIFICATION_NAMES + ICNP_TAXON_NAME_CLASSIFICATION_NAMES + ICZN_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).freeze
 
+# Maps a nomenclatural code to the TaxonNameClassification used to tag a name that is NOT the
+# accepted/valid name (e.g. a synonym ingested from an external source such as Catalogue of Life).
+#
+# There is no single classification that spans all codes, and classifications are code-locked
+# (see `nomenclature_code_matches`).  ICN/ICNP have no "validly published synonym" status — under
+# those codes a junior synonym is a validly published, legitimate name and synonymy is expressed
+# as a TaxonNameRelationship — so the nearest "invalidly published" status is used here, which is
+# semantically loose (it implies the name was not validly published).  Prefer a Synonym
+# relationship to the accepted name when that name is available.
+NOMENCLATURE_CODE_TO_SYNONYM_CLASSIFICATION ||= {
+  iczn:  'TaxonNameClassification::Iczn::Available::Invalid',
+  icn:   'TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished::AsSynonym',
+  icnp:  'TaxonNameClassification::Icnp::EffectivelyPublished::InvalidlyPublished',
+  icvcn: 'TaxonNameClassification::Icvcn::Valid::Unaccepted'
+}.freeze
+
 # Array of all Unavailable and Invalid TaxonNameClassifications classes, as Strings
 TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID ||= [
   TaxonNameClassification::Iczn::Unavailable,

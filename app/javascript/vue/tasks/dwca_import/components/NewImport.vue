@@ -103,7 +103,7 @@ const dropzone = {
       .getAttribute('content')
   },
   dictDefaultMessage: 'Drop import file here',
-  acceptedFiles: '.zip,.txt,.csv,.tsv,.xls,.xlsx,.ods'
+  acceptedFiles: '.zip,.txt,.csv,.tsv,.xlsx,.ods'
 }
 
 function success(file, response) {

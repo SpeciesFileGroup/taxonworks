@@ -29,7 +29,7 @@ describe 'New taxon name', type: :feature, group: :sources do
           expect(page).to have_text('Journal stuff and things')
           click_button 'Save'
           expect(page).to_not have_text('New record')
-          expect(page).to have_button('Remove from project')
+          expect(page).to have_selector('button[aria-label="Remove from project"]')
           expect(Source.last.serial).to eq(serial)
         end
       end

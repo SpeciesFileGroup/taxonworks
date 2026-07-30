@@ -60,32 +60,7 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     end
   end
 
-  # confidences query concern
-  specify '#confidence_level_id' do
-    l = FactoryBot.create(:valid_confidence_level)
-    c = FactoryBot.create(:valid_confidence, confidence_level: l, confidence_object: o1)
-    q.confidence_level_id = l.id
-    expect(q.all).to contain_exactly(o1)
-  end
-
-  specify '#without_confidence_level_id' do
-    l = FactoryBot.create(:valid_confidence_level)
-    c = FactoryBot.create(:valid_confidence, confidence_level: l, confidence_object: o1)
-    q.without_confidence_level_id = l.id
-    expect(q.all).to contain_exactly(o2)
-  end
-
-  specify '#with_confidence_level true' do
-    c = FactoryBot.create(:valid_confidence, confidence_object: o1)
-    q.confidences = true
-    expect(q.all).to contain_exactly(o1)
-  end
-
-  specify '#with_confidence_level false' do
-    c = FactoryBot.create(:valid_confidence, confidence_object: o1)
-    q.confidences = false
-    expect(q.all).to contain_exactly(o2)
-  end
+  # Confidences query concern specs have moved to spec/lib/queries/concerns/confidences_spec.rb
 
   context '#coordinatify' do
     # TODO: unify with OTU as a include
@@ -472,6 +447,99 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     q.biological_association_id = [b1.id]
     q.historical_determinations = true
     expect(q.all).to contain_exactly(o1)
+  end
+
+  specify '#biological_relationship_id' do
+    br1 = FactoryBot.create(:valid_biological_relationship)
+    br2 = FactoryBot.create(:valid_biological_relationship)
+
+    FactoryBot.create(
+      :valid_biological_association,
+      biological_relationship: br1,
+      biological_association_subject: o1,
+      biological_association_object: o2)
+
+    FactoryBot.create(
+      :valid_biological_association,
+      biological_relationship: br2,
+      biological_association_subject: o2)
+
+    q.biological_relationship_id = [br1.id]
+    expect(q.all).to contain_exactly(o1, o2)
+  end
+
+  specify '#biological_relationship_id array' do
+    br1 = FactoryBot.create(:valid_biological_relationship)
+    br2 = FactoryBot.create(:valid_biological_relationship)
+    br3 = FactoryBot.create(:valid_biological_relationship)
+    o3 = Otu.create!(name: 'Ghi 3')
+    s = Specimen.create!
+
+    FactoryBot.create(:valid_biological_association, biological_relationship: br1, biological_association_subject: o1, biological_association_object: s)
+    FactoryBot.create(:valid_biological_association, biological_relationship: br2, biological_association_subject: o2, biological_association_object: s)
+    FactoryBot.create(:valid_biological_association, biological_relationship: br3, biological_association_subject: o3, biological_association_object: s)
+
+    q.biological_relationship_id = [br1.id, br2.id]
+    expect(q.all).to contain_exactly(o1, o2)
+  end
+
+  specify '#biological_relationship_id via CollectionObject' do
+    br = FactoryBot.create(:valid_biological_relationship)
+    s1 = Specimen.create!
+    s1.taxon_determinations << TaxonDetermination.new(otu: o1)
+
+    FactoryBot.create(
+      :valid_biological_association,
+      biological_relationship: br,
+      biological_association_subject: s1,
+      biological_association_object: o2)
+
+    q.biological_relationship_id = [br.id]
+    expect(q.all).to contain_exactly(o1, o2)
+  end
+
+  specify '#biological_relationship_id via FieldOccurrence' do
+    br = FactoryBot.create(:valid_biological_relationship)
+    fo = FactoryBot.create(:valid_field_occurrence)
+    fo.taxon_determinations << TaxonDetermination.new(otu: o1)
+
+    FactoryBot.create(
+      :valid_biological_association,
+      biological_relationship: br,
+      biological_association_subject: o2,
+      biological_association_object: fo)
+
+    q.biological_relationship_id = [br.id]
+    expect(q.all).to contain_exactly(o1, o2)
+  end
+
+  specify '#biological_relationship_id via AnatomicalPart' do
+    br = FactoryBot.create(:valid_biological_relationship)
+    ap = FactoryBot.create(:valid_anatomical_part, taxon_determination_otu: o1)
+
+    FactoryBot.create(
+      :valid_biological_association,
+      biological_relationship: br,
+      biological_association_subject: o2,
+      biological_association_object: ap)
+
+    q.biological_relationship_id = [br.id]
+    expect(q.all).to contain_exactly(o1, o2)
+  end
+
+  specify '#exclude_taxon_name_relationship' do
+    br1 = FactoryBot.create(:valid_biological_relationship)
+    br2 = FactoryBot.create(:valid_biological_relationship)
+    o3 = Otu.create!(name: 'Ghi 3')
+    o4 = Otu.create!(name: 'Jkl 4')
+    o5 = Otu.create!(name: 'Mno 5')
+
+    FactoryBot.create(:valid_biological_association, biological_relationship: br1, biological_association_subject: o1, biological_association_object: o2)
+    FactoryBot.create(:valid_biological_association, biological_relationship: br2, biological_association_subject: o3, biological_association_object: o4)
+
+    q.biological_relationship_id = [br1.id]
+    q.exclude_taxon_name_relationship = true
+    expect(q.all).to contain_exactly(o3, o4, o5)
   end
 
   specify 'collecting_event_id' do

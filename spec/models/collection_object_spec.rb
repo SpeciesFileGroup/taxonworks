@@ -51,6 +51,42 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
     expect(TaxonDetermination.all.count).to eq(2)
   end
 
+  specify '.batch_update() rejects when the record count exceeds the cap' do
+    s1, s2 = Specimen.create!, Specimen.create!
+    o = FactoryBot.create(:valid_otu)
+
+    q = ::Queries::CollectionObject::Filter.new({collection_object_id: [ s1.id, s2.id ]})
+
+    allow_any_instance_of(QueryBatchRequest).to receive(:cap).and_return(1)
+
+    params = {
+      collection_object: {taxon_determinations_attributes: [{otu_id: o.id}]}
+    }.merge(collection_object_query: q.params)
+
+    response = CollectionObject.batch_update(params)
+
+    expect(response.cap).to eq(1)
+    expect(response.cap_reason).to eq('Update to more objects than allowed (1) requested.')
+    expect(response.errors).to eq({'Update to more objects than allowed (1) requested.' => 1})
+    expect(TaxonDetermination.all.count).to eq(0)
+  end
+
+  specify '.batch_update() sets type_materials_attributes' do
+    s1, s2 = Specimen.create!, Specimen.create!
+    protonym = FactoryBot.create(:relationship_species)
+
+    q = ::Queries::CollectionObject::Filter.new({collection_object_id: [ s1.id, s2.id ]})
+
+    params = {
+      collection_object: {type_materials_attributes: [{protonym_id: protonym.id, type_type: 'paratype'}]}
+    }.merge(collection_object_query: q.params)
+
+    CollectionObject.batch_update(params)
+
+    expect(TypeMaterial.all.count).to eq(2)
+    expect(TypeMaterial.pluck(:type_type)).to eq(['paratype', 'paratype'])
+  end
+
   context 'dwc_occurrence' do
     let(:collection_object) { CollectionObject.new() }
     specify 'saves' do
@@ -192,6 +228,19 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
 
         specify 'repository' do
           expect(collection_object.repository = FactoryBot.create(:valid_repository)).to be_truthy
+        end
+
+        specify 'repository and current_repository are independent when both are set' do
+          home = FactoryBot.create(:valid_repository)
+          loaned_to = FactoryBot.create(:valid_repository, name: 'Loaned To', acronym: 'LOAN')
+
+          collection_object.total = 1
+          collection_object.repository = home
+          collection_object.current_repository = loaned_to
+          collection_object.save!
+
+          expect(collection_object.repository_id).to eq(home.id)
+          expect(collection_object.current_repository_id).to eq(loaned_to.id)
         end
 
         specify 'collecting_event' do

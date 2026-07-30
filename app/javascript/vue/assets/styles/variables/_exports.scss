@@ -1,7 +1,0 @@
-@use './_palette' as *;
-
-:root {
-  @each $key, $value in $tw-colors {
-    --#{$key}: #{$value};
-  }
-}

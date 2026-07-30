@@ -49,6 +49,8 @@ export const useTaxonDeterminationStore = defineStore('taxonDeterminations', {
             )
           })
           .catch(() => {})
+      } else {
+        removeFromArray(this.determinations, determination, { property: 'uuid' })
       }
     },
 

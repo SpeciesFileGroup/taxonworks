@@ -4,6 +4,7 @@ module Queries
 
       include Queries::Concerns::Citations
       include Queries::Concerns::Confidences
+      include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
       include Queries::Concerns::Notes
       include Queries::Concerns::Tags
@@ -69,6 +70,7 @@ module Queries
 
         set_confidences_params(params)
         set_citations_params(params)
+        set_data_attributes_params(params)
         set_notes_params(params)
         set_tags_params(params)
         set_user_dates(params)

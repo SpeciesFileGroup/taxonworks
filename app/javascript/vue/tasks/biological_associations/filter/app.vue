@@ -6,6 +6,7 @@
       :object-type="BIOLOGICAL_ASSOCIATION"
       :selected-ids="sortedSelectedIds"
       :list="list"
+      :extend-download="extendDownload"
       :url-request="urlRequest"
       v-model:append="append"
       @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
@@ -53,7 +54,6 @@
           @click="() => (hideFrozen = !hideFrozen)"
         >
           <VIcon
-            title="Hide/show non-frozen columns"
             :name="hideFrozen ? 'contract' : 'expand'"
             x-small
           />
@@ -78,11 +78,12 @@ import VToggle from '@/components/ui/VToggle.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
 import RadialBiologicalAssociation from '@/components/radials/BiologicalAssociation/radial.vue'
+import IndexDownload from './components/indexDownload.vue'
 import { listParser } from './utils/listParser'
 import { BIOLOGICAL_ASSOCIATION } from '@/constants/index.js'
 import { BiologicalAssociation } from '@/routes/endpoints'
 import { ATTRIBUTES } from './constants/attributes.js'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 const hideFrozen = ref(false)
 
@@ -123,6 +124,17 @@ const {
   sortedSelectedIds,
   urlRequest
 } = useFilter(BiologicalAssociation, { listParser, initParameters: { extend } })
+
+const extendDownload = computed(() => [
+  {
+    label: 'Index (TSV)',
+    component: IndexDownload,
+    bind: {
+      params: parameters.value,
+      selectedIds: selectedIds.value
+    }
+  }
+])
 </script>
 
 <script>

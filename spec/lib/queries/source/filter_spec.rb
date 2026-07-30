@@ -113,19 +113,6 @@ describe Queries::Source::Filter, type: :model, group: [:sources, :filter] do
     expect(query.all.map(&:id)).to contain_exactly(*all_source_ids)
   end
 
-  specify '#with_tag 1' do
-    Tag.create!(keyword: FactoryBot.create(:valid_keyword), tag_object: s1)
-    query.tags = true
-    expect(query.all.map(&:id)).to contain_exactly(s1.id)
-  end
-
-  specify '#with_tag 1 (distinct)' do
-    Tag.create!(keyword: FactoryBot.create(:valid_keyword), tag_object: s1)
-    Tag.create!(keyword: FactoryBot.create(:valid_keyword), tag_object: s1)
-    query.tags = true
-    expect(query.all.map(&:id)).to contain_exactly(s1.id)
-  end
-
   specify '#citation_object_type 1' do
     Citation.create!(source: s1, citation_object: FactoryBot.create(:root_taxon_name))
     query.citation_object_type = ['TaxonName']
@@ -183,13 +170,27 @@ describe Queries::Source::Filter, type: :model, group: [:sources, :filter] do
     expect(query.all.map(&:id)).to contain_exactly( *(all_source_ids - [s1.id]) )
   end
 
-  specify '#documents 1' do
+  specify '#documents true, returns sources with documentation in this project' do
     FactoryBot.create(:valid_documentation, documentation_object: s1)
     query.documents = true
     expect(query.all.map(&:id)).to contain_exactly(s1.id)
   end
 
-  specify '#documents 2' do
+  specify '#documents false, returns sources without documentation in this project' do
+    query.documents = false
+    expect(query.all.map(&:id)).to contain_exactly( *all_source_ids )
+  end
+
+  specify '#documents true, excludes sources whose documentation is only in other projects' do
+    other_project = FactoryBot.create(:valid_project)
+    FactoryBot.create(:valid_documentation, documentation_object: s1, project_id: other_project.id)
+    query.documents = true
+    expect(query.all.map(&:id)).to contain_exactly()
+  end
+
+  specify '#documents false, includes sources whose documentation is only in other projects' do
+    other_project = FactoryBot.create(:valid_project)
+    FactoryBot.create(:valid_documentation, documentation_object: s1, project_id: other_project.id)
     query.documents = false
     expect(query.all.map(&:id)).to contain_exactly( *all_source_ids )
   end
@@ -341,55 +342,6 @@ describe Queries::Source::Filter, type: :model, group: [:sources, :filter] do
     end
   end
 
-  # 
-  # Specs covering lib/queries/concerns/tags.rb
-  #
-
-  context 'keyword_id' do
-    specify '#keyword_id_and' do
-      t1 = Tag.create!(tag_object: s1, keyword: FactoryBot.create(:valid_keyword))
-      t2 = Tag.create!(tag_object: s1, keyword: FactoryBot.create(:valid_keyword))
-
-      query.keyword_id_and = [t1.keyword_id, t2.keyword_id]
-      expect(query.matching_keyword_id_and.map(&:id)).to contain_exactly(s1.id)
-    end
-
-    specify '#keyword_id_or' do
-      t1 = Tag.create!(tag_object: s1, keyword: FactoryBot.create(:valid_keyword))
-      t2 = Tag.create!(tag_object: s2, keyword: FactoryBot.create(:valid_keyword))
-
-      query.keyword_id_or = [t1.keyword_id, t2.keyword_id]
-      expect(query.matching_keyword_id_or.map(&:id)).to contain_exactly(s1.id, s2.id)
-    end
-
-    specify '#keyword_id_or, #keyword_id_and 1' do
-      t1 = Tag.create!(tag_object: s1, keyword: FactoryBot.create(:valid_keyword))
-      t2 = Tag.create!(tag_object: s1, keyword: FactoryBot.create(:valid_keyword))
-
-      t3 = Tag.create!(tag_object: s2, keyword: FactoryBot.create(:valid_keyword))
-
-      # not this
-      t4 = Tag.create!(tag_object: s3, keyword: t1.keyword)
-
-      query.keyword_id_and = [t1.keyword_id, t2.keyword_id]
-      query.keyword_id_or = [t3.keyword_id]
-
-      expect(query.all.map(&:id)).to contain_exactly(s1.id, s2.id)
-    end
-
-    specify '#keyword_id_or, #keyword_id_and 2 (one AND is an OR)' do
-      t1 = Tag.create!(tag_object: s1, keyword: FactoryBot.create(:valid_keyword))
-      t2 = Tag.create!(tag_object: s2, keyword: FactoryBot.create(:valid_keyword))
-
-      # not this
-      t3 = Tag.create!(tag_object: s3, keyword: FactoryBot.create(:valid_keyword))
-
-      query.keyword_id_and = [t1.keyword_id]
-      query.keyword_id_or = [t2.keyword_id]
-
-      expect(query.all.map(&:id)).to contain_exactly(s1.id, s2.id)
-    end
-
-  end
+  # Tags query concern specs have moved to spec/lib/queries/concerns/tags_spec.rb
 
 end

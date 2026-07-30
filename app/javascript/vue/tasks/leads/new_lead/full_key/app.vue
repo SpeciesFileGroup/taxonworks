@@ -57,7 +57,6 @@
           </template>
 
           <VBtn
-            pill
             color="primary"
             @click.prevent="() => store.loadKey(parent)"
             class="key-button"

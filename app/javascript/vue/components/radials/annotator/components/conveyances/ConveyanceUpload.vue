@@ -8,6 +8,7 @@
       url="/sounds"
       use-custom-dropzone-options
       :dropzone-options="DROPZONE_CONFIG"
+      prioritize-paste
     />
   </div>
 </template>

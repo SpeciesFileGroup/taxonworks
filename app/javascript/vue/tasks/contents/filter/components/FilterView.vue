@@ -17,6 +17,7 @@
     label="text"
     param="text"
   />
+  <FacetDataAttribute v-model="params" />
   <FacetUsers v-model="params" />
   <FacetNotes v-model="params" />
   <FacetWith
@@ -38,6 +39,7 @@ import FacetTopic from '@/components/Filter/Facets/shared/FacetTopic.vue'
 import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
 import FacetParamExact from '@/components/Filter/Facets/shared/FacetParamExact.vue'
 import FacetOtu from '@/components/Filter/Facets/Otu/FacetOtu.vue'
+import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute/FacetDataAttribute.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.vue'
 

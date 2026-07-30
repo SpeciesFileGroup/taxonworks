@@ -9,7 +9,6 @@
     <VIcon
       name="focus"
       x-small
-      title="Focus this protonym"
     />
   </VBtn>
 </template>

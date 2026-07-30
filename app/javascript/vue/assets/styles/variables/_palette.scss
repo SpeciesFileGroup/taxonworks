@@ -1,3 +1,7 @@
+@use 'sass:map';
+@use './primitives';
+@use '../utils/functions' as fn;
+
 :root {
   color-scheme: light;
 
@@ -5,51 +9,59 @@
   --header-sandbox-bg-button-color: #3a3361;
   --header-bg-color: #455a64;
 
-  --btn-radial-background: white;
+  --btn-radial-background: var(--white);
   --btn-radial-color: var(--color-primary);
 
   --bg-color: #f7f8fc;
-  --bg-foreground: #ffffff;
-  --bg-muted: #f8fafc;
-  --bg-action: #e3e8e3;
-  --bg-hover: #f1f5f9;
+  --bg-foreground: var(--white);
+  --bg-muted: var(--slate-50);
+  --bg-action: var(--slate-200);
+  --bg-hover: var(--slate-100);
   --border-color: #d5d5d5;
   --button-disabled-bg-color: #ececec;
-  --button-disabled-text-color: #999;
+  --button-disabled-text-color: #595959;
   --button-default-bg-color: #dddcdc;
   --input-bg-disabled: #fafafa;
-  --input-bg-color: #ffffff;
-  --panel-bg-color: #ffffff;
+  --input-bg-color: var(--white);
+  --panel-bg-color: var(--white);
   --panel-shadow: rgba(36, 37, 38, 0.08) 4px 4px 15px 0px;
-  --panel-border-color: #e2e8f0;
-  --text-color: #000000;
-  --text-muted-color: #6b7280;
+  --panel-border-color: var(--slate-200);
+  --text-color: var(--black);
+  --text-muted-color: var(--gray-500);
+
+  --focus-ring: #64748b;
+
+  --color-neutral: var(--gray-500);
+
+  --tooltip-text-color: var(--white);
+  --tooltip-bg-color: #444;
+  --tooltip-arrow-color: var(--tooltip-bg-color);
 
   --modal-bg-color: rgba(0, 0, 0, 0.7);
   --modal-mask-bg-color: rgba(0, 0, 0, 0.7);
 
-  --table-row-bg-even: #ffffff;
+  --table-row-bg-even: var(--white);
   --table-row-bg-odd: #f8f8f8;
 
   --button-shadow: 0px 1px 2px 0px var(--border-color);
 
   --soft-validation-bg-color: #fff9f9;
 
-  --table-row-bg-hover: #f1f5f9;
+  --table-row-bg-hover: var(--slate-100);
 
   --feedback-primary-text-color: #4c81eb;
   --feedback-primary-bg-color: #b0caff;
   --feedback-primary-border-color: #6899fa;
 
-  --feedback-secondary-text-color: #5d9ece;
+  --feedback-secondary-text-color: var(--slate-700);
   --feedback-secondary-bg-color: #fcfcfc;
-  --feedback-secondary-border: #788990;
+  --feedback-secondary-border-color: #788990;
 
-  --feedback-info-text-color: #4c81eb;
-  --feedback-info-bg-color: #b0caff;
-  --feedback-info-border-color: #6899fa;
+  --feedback-info-text-color: var(--feedback-primary-text-color);
+  --feedback-info-bg-color: var(--feedback-primary-bg-color);
+  --feedback-info-border-color: var(--feedback-primary-border-color);
 
-  --feedback-warning-text-color: #c3a78a;
+  --feedback-warning-text-color: var(--amber-800);
   --feedback-warning-bg-color: #fff5ea;
   --feedback-warning-border-color: #e5d2be;
 
@@ -58,52 +70,57 @@
 
   --code-tag-color: #116611;
   --code-attribute-color: #0077aa;
-  --code-string-color: #000000;
+  --code-string-color: var(--black);
   --code-error-color: #cc0000;
   --code-selection-color: #d7e4f7;
 
-  --news-warning-color: #a30000;
-  --news-warning-bg: #ffe6e6;
+  --badge-warning-color: var(--red-500);
+  --badge-warning-bg: color-mix(in srgb, var(--red-500) 15%, transparent);
 
-  --news-notice-color: #003d99;
-  --news-notice-bg: #e6f0ff;
+  --color-soft-success-bg: color-mix(
+    in srgb,
+    var(--emerald-500) 8%,
+    transparent
+  );
 
-  --news-instruction-color: #003d99;
-  --news-instruction-bg: #e6f0ff;
+  --color-soft-warning-bg: color-mix(
+    in srgb,
+    var(--orange-500) 10%,
+    transparent
+  );
+  --color-soft-warning-border: color-mix(
+    in srgb,
+    var(--orange-500) 20%,
+    transparent
+  );
 
-  --news-blogpost-color: #3b82f6;
-  --news-blogpost-bg: rgba(59, 130, 246, 0.15);
-
-  --badge-warning-color: #ef4444;
-  --badge-warning-bg: #ef444426;
-
-  --color-soft-success-bg: rgba(16, 185, 129, 0.08);
-
-  --color-soft-warning-bg: rgba(249, 115, 22, 0.1);
-  --color-soft-warning-border: rgba(249, 115, 22, 0.2);
-
-  --badge-green-bg: rgba(16, 185, 129, 0.15);
-  --badge-green-color: #10b981;
-  --color-green-soft-shadow: rgba(16, 185, 129, 0.5);
+  --badge-green-bg: color-mix(in srgb, var(--emerald-500) 15%, transparent);
+  --badge-green-color: var(--emerald-500);
+  --color-green-soft-shadow: color-mix(
+    in srgb,
+    var(--emerald-500) 50%,
+    transparent
+  );
 
   --color-status-included: #60bf5e;
   --color-status-included-glow: rgba(96, 191, 94, 0.4);
 
-  --badge-blue-bg: rgba(59, 130, 246, 0.15);
-  --badge-blue-color: #3b82f6;
+  --badge-blue-bg: color-mix(in srgb, var(--blue-500) 15%, transparent);
+  --badge-blue-color: var(--blue-500);
 
-  --badge-yellow-bg: rgba(245, 158, 11, 0.15);
-  --badge-yellow-color: #f59e0b;
+  --badge-yellow-bg: color-mix(in srgb, var(--amber-500) 15%, transparent);
+  --badge-yellow-color: var(--amber-500);
 
-  --badge-red-bg: rgba(239, 68, 68, 0.15);
-  --badge-red-color: #ef4444;
+  --badge-red-bg: color-mix(in srgb, var(--red-500) 15%, transparent);
+  --badge-red-color: var(--red-500);
 
-  --badge-default-bg: rgba(107, 114, 128, 0.15);
-  --badge-default-color: #6b7280;
+  --badge-default-bg: color-mix(in srgb, var(--color-neutral) 15%, transparent);
+  --badge-default-color: var(--color-neutral);
 
-  --badge-purple-bg: rgba(139, 92, 246, 0.15);
-  --badge-purple-color: #8b5cf6;
-  --color-secondary-primary: #1f7e9a;
+  --badge-purple-bg: color-mix(in srgb, var(--violet-500) 15%, transparent);
+  --badge-purple-color: var(--violet-500);
+
+  --color-accent: #1f7e9a;
 
   --news-blogpost-bg: var(--badge-blue-bg);
   --news-blogpost-color: var(--badge-blue-color);
@@ -131,23 +148,30 @@
   --btn-radial-background: #eeeeee;
   --btn-radial-color: var(--color-primary);
 
-  --bg-action: #000000;
-  --bg-hover: #000000;
+  --bg-action: var(--black);
+  --bg-hover: var(--black);
   --bg-color: #242424;
   --bg-foreground: #333333;
   --bg-muted: #1b1b1b;
   --border-color: #5b5b5b;
   --button-disabled-bg-color: #555555;
   --button-disabled-text-color: #aaaaaa;
-  --button-default-bg-color: #dddcdc;
+  --button-default-bg-color: #3a3a3a;
   --input-bg-color: #2b2b2b;
   --input-bg-disabled: #242424;
   --panel-bg-color: #333333;
   --panel-shadow: rgba(0, 0, 0, 0.25) 4px 4px 15px 0px;
   --panel-border-color: #28292c;
-  --text-color: #ffffff;
+  --text-color: var(--white);
   --text-muted-color: #c6c6c6;
 
+  --focus-ring: #94a3b8;
+
+  --tooltip-text-color: var(--white);
+  --tooltip-bg-color: #1b1b1b;
+  --tooltip-arrow-color: var(--tooltip-bg-color);
+
+  --modal-bg-color: rgba(0, 0, 0, 0.7);
   --modal-mask-bg-color: rgba(0, 0, 0, 0.7);
 
   --button-shadow: none;
@@ -156,15 +180,15 @@
 
   --table-row-bg-even: #333333;
   --table-row-bg-odd: #444444;
-  --table-row-bg-hover: #000000;
+  --table-row-bg-hover: var(--black);
 
   --feedback-primary-text-color: #b6cfff;
   --feedback-primary-bg-color: #234079;
   --feedback-primary-border-color: #0e2c67;
 
-  --feedback-secondary-text-color: #5d9ece;
+  --feedback-secondary-text-color: var(--gray-400);
   --feedback-secondary-bg-color: #0f0f0f;
-  --feedback-secondary-border: #788990;
+  --feedback-secondary-border-color: #788990;
 
   --feedback-info-text-color: #4c81eb;
   --feedback-info-bg-color: #2e3646;
@@ -176,19 +200,36 @@
 
   --code-tag-color: #90ee90;
   --code-attribute-color: #87ceeb;
-  --code-string-color: #ffffff;
+  --code-string-color: var(--white);
   --code-error-color: #ff6b6b;
   --code-selection-color: #264f78;
 
   --taxon-name-valid-color: #b6cfff;
   --taxon-name-invalid-color: #cf873b;
-  --color-secondary-primary: #246d84;
+  --color-accent: #246d84;
 
   --color-status-included: #10b981;
   --color-status-included-glow: rgba(16, 185, 129, 0.5);
 
   --sk-base: #2a2d35;
   --sk-shine: #3a3e4a;
+  --color-neutral: var(--gray-400);
+
+  --color-soft-success-bg: color-mix(
+    in srgb,
+    var(--emerald-500) 16%,
+    transparent
+  );
+  --color-soft-warning-bg: color-mix(
+    in srgb,
+    var(--orange-500) 18%,
+    transparent
+  );
+  --color-soft-warning-border: color-mix(
+    in srgb,
+    var(--orange-500) 30%,
+    transparent
+  );
 }
 
 $tw-dark-colors: (
@@ -198,40 +239,41 @@ $tw-dark-colors: (
   'attention': #ffda44,
   'background': #242424,
   'black': #444444,
-  'create': #36974a,
+  'create': #2e7d32,
   'data': #006ebf,
   'destroy': #a2131d,
   'error': #a2131d,
   'panel': #ffffff,
   'primary': #006cbe,
   'secondary': #0e0a0b,
-  'update': #36974a,
+  'update': #2e7d32,
   'warning': #f97316,
   'white': #ffffff,
   'border': #f5f5f5,
-  'toggle-active': #beae00
+  'toggle-active': #beae00,
+  'muted': #c6c6c6
 );
 
 $tw-colors: (
   'focus': #e3e8e3,
   'active': #f1f5f9,
-  'link': #5d9ece,
+  'link': #3676ab,
   'attention': #ffda44,
   'background': #f7f8fc,
   'black': #444444,
-  'create': #9ccc65,
+  'create': #2e7d32,
   'data': #006ebf,
-  'destroy': #f44336,
-  'error': #f44336,
+  'destroy': #dc2626,
+  'error': #dc2626,
   'panel': #ffffff,
-  'primary': #5d9ece,
+  'primary': #3676ab,
   'secondary': #5a1321,
-  'update': #9ccc65,
+  'update': #2e7d32,
   'warning': #f97316,
   'white': #ffffff,
   'border': #f5f5f5,
   'toggle-active': #cebd5d,
-  'muted': 'var(--text-muted-color)'
+  'muted': #6b7280
 );
 
 $tw-map-colors: (
@@ -249,12 +291,14 @@ $tw-map-colors: (
 @each $key, $value in $tw-colors {
   :root {
     --color-#{$key}: #{$value};
+    --color-on-#{$key}: #{fn.on-color($value)};
   }
 }
 
 @each $key, $value in $tw-dark-colors {
   .dark {
     --color-#{$key}: #{$value};
+    --color-on-#{$key}: #{fn.on-color($value)};
   }
 }
 
@@ -264,14 +308,35 @@ $tw-map-colors: (
   }
 }
 
-@each $key, $value in $tw-colors {
+// Excludes 'muted': this loop has no dark-theme counterpart (there's no
+// equivalent pass over $tw-dark-colors), so any key here is permanently
+// locked to its light value even under .dark. --text-muted-color already
+// carries a correct value in both themes, so .text-muted-color reads from
+// that directly below instead of from the (light-only) literal in $tw-colors.
+@each $key, $value in map.remove($tw-colors, 'muted') {
   .text-#{$key}-color {
     color: #{$value};
   }
+}
+
+.text-muted-color {
+  color: var(--text-muted-color);
 }
 
 @each $key, $value in $tw-map-colors {
   .bg-#{$key} {
     background-color: #{$value};
   }
+}
+
+a:focus-visible,
+button:focus-visible,
+[role='button']:focus-visible,
+[tabindex]:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 1px var(--focus-ring);
 }

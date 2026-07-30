@@ -62,7 +62,6 @@
       >
         <VIcon
           name="radialMassAnnotator"
-          :title="title"
           x-small
         />
       </VBtn>

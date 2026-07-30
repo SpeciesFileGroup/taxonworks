@@ -1,6 +1,15 @@
 <template>
   <div>
-    <h3>Character states</h3>
+    <div class="flex-separate middle">
+      <h3>Character states</h3>
+      <label class="horizontal-left-content gap-xsmall middle cursor-pointer">
+        <input
+          type="checkbox"
+          v-model="showDepictions"
+        />
+        Show depictions
+      </label>
+    </div>
     <div class="horizontal-left-content align-start gap-small">
       <div class="flex-col middle padding-large-top">
         <ButtonUnify
@@ -97,6 +106,16 @@
                 />
                 {{ element.object_tag }}
               </label>
+              <div
+                v-if="showDepictions && depictionsByState[element.id]?.length"
+                class="horizontal-left-content flex-wrap-row gap-xsmall margin-small-top"
+              >
+                <ImageViewer
+                  v-for="depiction in depictionsByState[element.id]"
+                  :key="depiction.id"
+                  :depiction="depiction"
+                />
+              </div>
             </div>
             <div class="horizontal-left-content middle gap-xsmall">
               <VBtn
@@ -109,7 +128,10 @@
                   x-small
                 />
               </VBtn>
-              <RadialAnnotator :global-id="element.global_id" />
+              <RadialAnnotator
+                :global-id="element.global_id"
+                @change="onAnnotatorChange(element.id, $event)"
+              />
               <VBtn
                 color="destroy"
                 circle
@@ -134,8 +156,13 @@ import Draggable from 'vuedraggable'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import ButtonUnify from '@/components/ui/Button/ButtonUnify.vue'
+import ImageViewer from '@/components/ui/ImageViewer/ImageViewer.vue'
+import { useUserPreference } from '@/composables'
 import { CHARACTER_STATE } from '@/constants'
+import { CharacterState } from '@/routes/endpoints'
 import { computed, ref, watch, onMounted } from 'vue'
+
+const KEY_PREFERENCE = 'tasks::descriptors::new::character::showDepictions'
 
 const emit = defineEmits(['update:modelValue', 'save'])
 
@@ -148,6 +175,8 @@ const list = ref([])
 const show = ref(false)
 const selected = ref([])
 const characterState = ref(newCharacter())
+const depictionsByState = ref({})
+const showDepictions = useUserPreference(KEY_PREFERENCE, true)
 
 const validateFields = computed(
   () =>
@@ -164,16 +193,59 @@ watch(
       JSON.stringify(oldVal.character_states)
     ) {
       list.value = sortPosition(newVal.character_states)
+      loadDepictions()
     }
   },
   { deep: true }
 )
 
+watch(showDepictions, (show) => {
+  if (show) {
+    loadDepictions()
+  }
+})
+
 onMounted(() => {
   if (descriptor.value.hasOwnProperty('character_states')) {
     list.value = sortPosition(descriptor.value.character_states)
+    loadDepictions()
   }
 })
+
+function loadDepictions() {
+  if (!showDepictions.value) {
+    return
+  }
+
+  const states = list.value.filter((state) => state.id)
+
+  Promise.all(
+    states.map((state) =>
+      CharacterState.depictions(state.id).then(({ body }) => [state.id, body])
+    )
+  ).then((entries) => {
+    depictionsByState.value = Object.fromEntries(entries)
+  })
+}
+
+function loadDepictionsForState(stateId) {
+  if (!showDepictions.value) {
+    return
+  }
+
+  CharacterState.depictions(stateId).then(({ body }) => {
+    depictionsByState.value = {
+      ...depictionsByState.value,
+      [stateId]: body
+    }
+  })
+}
+
+function onAnnotatorChange(stateId, { slice }) {
+  if (slice === 'depictions') {
+    loadDepictionsForState(stateId)
+  }
+}
 
 function createCharacter() {
   descriptor.value.character_states_attributes = [characterState.value]

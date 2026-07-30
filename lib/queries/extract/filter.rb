@@ -5,6 +5,7 @@ module Queries
       include Queries::Concerns::Citations
       include Queries::Concerns::Containable
       include Queries::Concerns::Confidences
+      include Queries::Concerns::DataAttributes
       include Queries::Concerns::DateRanges
       include Queries::Concerns::Protocols
       include Queries::Concerns::Tags
@@ -99,6 +100,7 @@ module Queries
         set_confidences_params(params)
         set_containable_params(params)
         set_citations_params(params)
+        set_data_attributes_params(params)
         set_date_params(params)
         set_tags_params(params)
         set_protocols_params(params)

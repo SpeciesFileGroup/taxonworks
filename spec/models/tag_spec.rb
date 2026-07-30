@@ -48,6 +48,61 @@ describe Tag, type: :model, group: [:annotators, :tags] do
       specify 'a tagged object is only tagged once per keyword using nested attributes' do
         expect(otu.update(tags_attributes: [{keyword: k}, {keyword: k}])).to be_falsey
       end
+
+      specify 'a tagged object is only tagged once per keyword using nested attributes with keyword_id' do
+        expect(otu.update(tags_attributes: [{keyword_id: k.id}, {keyword_id: k.id}])).to be_falsey
+      end
+
+      specify 'detects duplicate via in-memory association when tags are loaded' do
+        tag.tag_object = otu
+        tag.keyword = k
+        tag.save!
+        otu.tags.load
+        dupe_tag = Tag.new(keyword: k, tag_object: otu)
+        dupe_tag.valid?
+        expect(dupe_tag.errors.include?(:keyword_id)).to be_truthy
+      end
+
+      specify 'does not load tags association when tag is unchanged' do
+        tag.tag_object = otu
+        tag.keyword = k
+        tag.save!
+        tag.reload
+        tag.valid?
+        expect(otu.tags.loaded?).to be_falsey
+      end
+
+      specify 'checks uniqueness when tag_object_id changes' do
+        other_otu = FactoryBot.create(:valid_otu)
+        Tag.create!(tag_object: other_otu, keyword: k)
+
+        tag.tag_object = otu
+        tag.keyword = k
+        tag.save!
+        tag.reload
+
+        tag.tag_object_id = other_otu.id
+        tag.valid?
+        expect(tag.errors.include?(:keyword_id)).to be_truthy
+      end
+
+      specify 'checks uniqueness when tag_object_type changes but id stays the same' do
+        pt = FactoryBot.create(:valid_preparation_type)
+        br = FactoryBot.create(:valid_biological_relationship)
+        expect(pt.id).to eq(br.id), "PreparationType id #{pt.id} != BiologicalRelationship id #{br.id} — pick different types"
+
+        Tag.create!(tag_object: pt, keyword: k)
+
+        tag.tag_object = br
+        tag.keyword = k
+        tag.save!
+        tag.reload
+
+        tag.tag_object_type = pt.class.name
+        # tag_object_id stays the same — pt.id == br.id
+        tag.valid?
+        expect(tag.errors.include?(:keyword_id)).to be_truthy
+      end
     end
 
     specify 'keywords scope can be limited with Keyword#can_tag' do

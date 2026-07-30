@@ -113,15 +113,20 @@ module Queries
       end
 
       # For names like Tapinoma CASC_2231
+      #
+      # Note this intentionally does not use `terms` (Queries::Query#terms) -
+      # that always returns a 2-element array of wildcarded copies of the
+      # *whole* query_string, not the query_string split into words.
       def autocomplete_taxon_name_hybrid
-        if terms.length == 2
-          base_query
+        parts = query_string.to_s.split(/\s+/)
+        return nil unless parts.length == 2
+
+        genus_term, otu_term = parts
+
+        base_query
           .joins(:taxon_name)
-          .where('taxon_names.cached % ? AND otus.name % ?', terms.first, terms.second)
+          .where('taxon_names.cached % ? AND otus.name % ?', genus_term, otu_term)
           .order('taxon_names.cached, otus.name, length(taxon_names.cached), length(otus.name)')
-        else
-          nil
-        end
       end
 
       # @return [Scope]

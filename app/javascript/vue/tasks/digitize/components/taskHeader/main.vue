@@ -75,14 +75,7 @@
             </li>
           </ul>
         </div>
-        <tippy
-          v-if="hasChanges"
-          animation="scale"
-          placement="bottom"
-          size="small"
-          inertia
-          arrow
-        >
+        <VTooltip v-if="hasChanges">
           <template #content>
             <p>You have unsaved changes.</p>
           </template>
@@ -92,7 +85,7 @@
             title="You have unsaved changes."
             small
           />
-        </tippy>
+        </VTooltip>
         <RecentComponent @selected="loadCollectionObject($event)" />
         <VBtn
           medium
@@ -108,13 +101,13 @@
         >
           Save and new
         </VBtn>
-        <div
-          class="cursor-pointer"
+        <VBtn
+          color="primary"
+          medium
           @click="resetStore"
         >
-          <span data-icon="reset" />
-          <span>Reset</span>
-        </div>
+          New
+        </VBtn>
       </div>
       <ConfirmationModal ref="confirmationModalRef" />
     </div>
@@ -124,7 +117,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { useStore } from 'vuex'
-import { Tippy } from 'vue-tippy'
+import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions.js'
 import { GetterNames } from '../../store/getters/getters.js'

@@ -11,14 +11,11 @@
           @close="closeModal()"
         >
           <template #header>
-            <span class="flex-separate middle">
-              <span v-html="title" />
-              <b
-                v-if="metadata"
-                class="separate-right"
-                v-text="metadata.type"
-              />
-            </span>
+            <RadialHeader
+              :object-type="metadata?.type"
+              :object-id="metadata?.id"
+              :title="title"
+            />
           </template>
           <template #body>
             <div class="horizontal-center-content">
@@ -53,7 +50,6 @@
       @click="openRadialMenu()"
     >
       <VIcon
-        :title="buttonTitle"
         name="radialNavigator"
         x-small
       />
@@ -70,6 +66,7 @@ import VIcon from '@/components/ui/VIcon/index.vue'
 import Icons from './images/icons.js'
 import DestroyConfirmation from './components/DestroyConfirmation'
 import AllTasks from './components/allTasks.vue'
+import RadialHeader from '../shared/RadialHeader.vue'
 import ajaxCall from '@/helpers/ajaxCall'
 import { PinboardItem } from '@/routes/endpoints'
 import { computed, ref, watch } from 'vue'

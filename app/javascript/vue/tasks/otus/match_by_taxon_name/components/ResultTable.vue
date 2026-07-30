@@ -2,7 +2,7 @@
   <table class="table-striped full_width">
     <thead>
       <tr>
-        <th>
+        <th data-help="Check rows to restrict option changes and regex application to only those rows. When none are checked, all rows are affected.">
           <input
             type="checkbox"
             :checked="allSelected"
@@ -10,13 +10,13 @@
           />
         </th>
         <th />
-        <th>scientificName</th>
-        <th>Match</th>
-        <th>TaxonName</th>
+        <th class="line-nowrap">scientificName <ButtonClipboard :text="columnClipboardText('scientificName')" title="Copy scientificName column" /></th>
+        <th class="line-nowrap" data-help="Override the string used for matching. Leave blank to match using the scientificName value as-is. A manually-entered value shows a small dot. Regex modifiers (left panel) write to this field automatically.">Match <ButtonClipboard :text="columnClipboardText('match')" title="Copy match column" /></th>
+        <th class="line-nowrap" data-help="A yellow cell indicates that there was more than one matching Taxon Name to choose from, so you may want to confirm the name selected - if the wrong name was selected you can select the correct one in the Refine column.">TaxonName <ButtonClipboard :text="columnClipboardText('taxonName')" title="Copy TaxonName column" /></th>
         <th />
-        <th>Refine</th>
-        <th>OTU</th>
-        <th>OTU id</th>
+        <th data-help="Manually search for and select a TaxonName, overriding the automatic match result. Use this to fix incorrect or ambiguous matches.">Refine</th>
+        <th class="line-nowrap">OTU <ButtonClipboard :text="columnClipboardText('otuLabel')" title="Copy OTU column" /></th>
+        <th class="line-nowrap">OTU id <ButtonClipboard :text="columnClipboardText('otuId')" title="Copy OTU id column" /></th>
         <th />
         <th>Set</th>
       </tr>
@@ -45,9 +45,6 @@
                   field: 'selected',
                   value: e.target.checked
                 })
-                if (e.target.checked) {
-                  emit('update-selection')
-                }
               }
             "
           />
@@ -76,22 +73,30 @@
         </td>
 
         <!-- match -->
-        <td>
-          <input
-            v-if="isActionable(row)"
-            type="text"
-            class="normal-input match-input"
-            :value="row.matchString"
-            placeholder="(uses scientificName)"
-            @change="
-              emit('update-row', {
-                index: row.index,
-                field: 'matchString',
-                value: $event.target.value
-              })
-            "
-          />
-          <span v-else>{{ row.matchString }}</span>
+        <td class="cell-interactive">
+          <div class="horizontal-left-content gap-xsmall">
+            <span class="match-icon-slot">
+              <span
+                v-if="row.userMatchString"
+                class="user-match-dot"
+                title="Manually entered — overrides the automatic scientificName-based match."
+              />
+            </span>
+            <input
+              v-if="!row.isEmpty"
+              type="text"
+              class="normal-input match-input"
+              :value="row.userMatchString || row.regexMatchString"
+              placeholder="(uses scientificName)"
+              @change="
+                (e) => {
+                  emit('update-row', { index: row.index, field: 'userMatchString', value: e.target.value })
+                  emit('match-row', { index: row.index })
+                }
+              "
+            />
+            <span v-else>{{ row.userMatchString || row.regexMatchString }}</span>
+          </div>
         </td>
 
         <!-- TaxonName -->
@@ -163,7 +168,15 @@
         </td>
 
         <!-- OTU id -->
-        <td>{{ row.selectedOtuId || '' }}</td>
+        <td>
+          <a
+            v-if="row.selectedOtuId"
+            :href="browseOtuUrl(row.selectedOtuId)"
+            target="_blank"
+          >
+            {{ row.selectedOtuId }}
+          </a>
+        </td>
 
         <!-- create OTU -->
         <td>
@@ -229,12 +242,15 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { RouteNames } from '@/routes/routes'
+import { OTU, TAXON_NAME } from '@/constants'
+import { makeBrowseUrl } from '@/helpers'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
+import ButtonClipboard from '@/components/ui/Button/ButtonClipboard.vue'
+import effectiveName from '../utils/effectiveName.js'
 
 const props = defineProps({
   rows: {
@@ -252,7 +268,7 @@ const emit = defineEmits([
   'update-row',
   'create-otu',
   'scroll-to-row',
-  'update-selection'
+  'match-row'
 ])
 
 const contextRow = ref(null)
@@ -277,20 +293,30 @@ function toggleSelectAll(checked) {
       })
     }
   })
-  emit('update-selection', checked)
 }
 
 function browseTaxonNameUrl(id) {
-  return `${RouteNames.BrowseNomenclature}?taxon_name_id=${id}`
+  return makeBrowseUrl({ id, type: TAXON_NAME })
 }
 
-function effectiveName(row) {
-  return row.matchString || row.scientificName
+function browseOtuUrl(id) {
+  return makeBrowseUrl({ id, type: OTU })
 }
+
+// Maps effectiveName -> the index of its first occurrence in props.rows.
+const firstIndexByEffectiveName = computed(() => {
+  const map = new Map()
+  props.rows.forEach((row) => {
+    const name = effectiveName(row)
+    if (!map.has(name)) {
+      map.set(name, row.index)
+    }
+  })
+  return map
+})
 
 function firstUniqueIndex(row) {
-  const name = effectiveName(row)
-  return props.rows.findIndex((r) => effectiveName(r) === name)
+  return firstIndexByEffectiveName.value.get(effectiveName(row))
 }
 
 function isDuplicate(row) {
@@ -311,27 +337,83 @@ function openContext(row) {
     contextRow.value = row
   }
 }
+
+function columnClipboardText(field) {
+  const values = props.rows.map((row) => {
+    switch (field) {
+      case 'scientificName':
+        return row.scientificName || ''
+      case 'match':
+        return effectiveName(row)
+      case 'taxonName':
+        return row.taxonName?.cached || ''
+      case 'otuLabel': {
+        const otu = row.otus.find((o) => o.id === row.selectedOtuId)
+        return otu?.object_label || otu?.name || ''
+      }
+      case 'otuId':
+        return row.selectedOtuId != null ? String(row.selectedOtuId) : ''
+      default:
+        return ''
+    }
+  })
+
+  return values.join('\n')
+}
 </script>
 
 <style scoped>
+thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
 .match-input {
   width: 200px;
 }
 
-.cell-ambiguous {
-  background-color: #fcf8e3;
+.match-icon-slot {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  width: var(--size-xSmall);
 }
 
-.row-disabled {
+.user-match-dot {
+  display: inline-block;
+  width: var(--size-xxSmall);
+  height: var(--size-xxSmall);
+  border-radius: 50%;
+  background-color: var(--badge-blue-color);
+}
+
+/* !important needed: .table-striped's tr:nth-of-type(even/odd) td rule has
+   higher specificity than a single class here. */
+.cell-ambiguous {
+  background-color: #fcf8e3 !important;
+}
+
+.row-disabled td {
   opacity: 0.6;
 }
 
-.row-no-match {
+.row-disabled .cell-interactive {
+  opacity: 1;
+}
+
+/* .table-striped sets a background directly on every td, and border-collapse
+   leaves tr no visible area of its own to paint into — so a tr-level
+   background-color (even with !important) is invisible; it must target td. */
+.row-no-match td {
   background-color: #fdf2f2 !important;
 }
 
-.row-empty {
+.row-empty td {
   background-color: #f5f5f5 !important;
+}
+
+.row-empty {
   opacity: 0.5;
 }
 

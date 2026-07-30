@@ -16,8 +16,8 @@ import {
   useTemplateRef,
   watch
 } from 'vue'
-
 import { isJSON } from '@/helpers/objects'
+import { useDropzonePasteManager } from '@/composables/useDropzonePasteManager'
 
 const props = defineProps({
   url: {
@@ -97,6 +97,10 @@ const props = defineProps({
   },
   dropzoneOptions: {
     type: Object
+  },
+  prioritizePaste: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -112,8 +116,25 @@ const emit = defineEmits([
   'vdropzone-queue-complete'
 ])
 
+const { registerPaster, unregisterPaster } = useDropzonePasteManager()
+
 const dropzoneRef = useTemplateRef('dropzoneRef')
 let dropzone = null
+let pasteZone = null
+
+function onPaste(e) {
+  const items = e.clipboardData?.items
+  if (!items) return
+
+  for (const item of items) {
+    if (item.kind !== 'file' || !item.type) continue
+
+    const file = item.getAsFile()
+    if (!file || !(file instanceof File)) continue
+
+    dropzone.addFile(file)
+  }
+}
 
 const defaultConfiguration = computed(() => ({
   maxFilesize: props.maxFileSizeInMB,
@@ -200,6 +221,16 @@ onMounted(() => {
       : error
     emit('vdropzone-error', file, error, xhr)
   })
+
+  pasteZone = {
+    handler: (e) => {
+      if (!dropzone) return
+      onPaste(e)
+    },
+    prioritize: props.prioritizePaste
+  }
+
+  registerPaster(pasteZone)
 })
 
 function makeRemoveButton(file) {
@@ -261,6 +292,7 @@ watch(
 )
 
 onBeforeUnmount(() => {
+  unregisterPaster(pasteZone)
   dropzone.destroy()
 })
 </script>

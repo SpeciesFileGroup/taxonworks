@@ -22,7 +22,9 @@
       v-else
       class="flex flex-col full_width middle"
     >
-      <h3>There is no news.</h3>
+      <div class="text-lg padding-medium text-muted-color">
+        There is no news.
+      </div>
     </div>
   </div>
 </template>

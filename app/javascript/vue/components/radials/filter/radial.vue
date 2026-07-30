@@ -29,7 +29,6 @@
       @click="openRadialMenu()"
     >
       <VIcon
-        :title="title"
         name="funnel"
         x-small
       />

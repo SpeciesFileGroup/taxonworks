@@ -49,7 +49,6 @@
           @click="() => (hideFrozen = !hideFrozen)"
         >
           <VIcon
-            title="Hide/show non-frozen columns"
             :name="hideFrozen ? 'contract' : 'expand'"
             x-small
           />

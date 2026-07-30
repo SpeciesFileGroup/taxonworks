@@ -2,6 +2,7 @@
   <VBtn
     circle
     color="primary"
+    title="Taxonomic tree options"
     @click="() => (isModalVisible = true)"
   >
     <VIcon

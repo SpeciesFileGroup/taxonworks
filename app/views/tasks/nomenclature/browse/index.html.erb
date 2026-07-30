@@ -31,7 +31,9 @@
               <a 
                 class="circle-button btn-edit edit-taxon-name" 
                 href="<%= new_taxon_name_task_path(taxon_name_id: @taxon_name.id) %>" 
-                title="Edit Taxon Name"></a>
+                data-tooltip-content="Edit Taxon Name"
+                data-tooltip-placement="bottom"
+              ></a>
             </li>
             <li><%= radial_navigation_tag(@taxon_name) %></li>
           </ul>
@@ -52,7 +54,7 @@
     </div>
 
         <div class="panel full_width">
-          <div id="browse-nomenclature-taxon-name" class="content subtitle filter middle">
+          <div id="browse-nomenclature-taxon-name" class="content subtitle filter middle <%= @taxon_name.is_valid? ? '' : 'invalid' %>">
             <h3 class="item center_text">
               <%= tag.span(rank_tag(@taxon_name), class: :subtle) -%>
               <%= tag.span(full_taxon_name_tag(@taxon_name), class: :name) -%>

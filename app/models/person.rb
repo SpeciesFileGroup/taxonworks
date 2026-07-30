@@ -440,6 +440,28 @@ class Person < ApplicationRecord
     collector_roles.any?
   end
 
+  # @param [Array] person_ids
+  # @param [Integer] project_id
+  # @return [Hash]
+  #   person_id => count of in-project roles (direct + via project sources)
+  def self.project_use_counts(person_ids, project_id)
+    return {} if person_ids.empty?
+
+    direct = Role.where(person_id: person_ids, project_id:)
+      .group(:person_id).count
+
+    via_source = Role
+      .where(person_id: person_ids, project_id: nil)
+      .joins("JOIN sources ON roles.role_object_id = sources.id AND roles.role_object_type = 'Source'")
+      .joins('JOIN project_sources ON sources.id = project_sources.source_id')
+      .where(project_sources: { project_id: })
+      .group(:person_id).count
+
+    (direct.keys | via_source.keys).index_with do |id|
+      (direct[id] || 0) + (via_source[id] || 0)
+    end
+  end
+
   def role_counts(project_id)
     {
       in_project: self.roles.where(project_id:).group(:type).count,

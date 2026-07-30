@@ -11,7 +11,10 @@ headers to be used in the call. Using it will override the common headers
     </autocomplete>
 */
 <template>
-  <div class="vue-autocomplete">
+  <div
+    class="vue-autocomplete"
+    :data-help="helpText"
+  >
     <input
       type="text"
       ref="autofocus"
@@ -85,6 +88,7 @@ headers to be used in the call. Using it will override the common headers
 import { sanitizeHtml } from '@/helpers'
 import AjaxCall from '@/helpers/ajaxCall'
 import AutocompleteSpinner from './Autocomplete/AutocompleteSpinner.vue'
+import { AUTOCOMPLETE_HELP } from './Autocomplete/autocompleteHelp'
 import Qs from 'qs'
 
 export default {
@@ -230,6 +234,18 @@ export default {
       dropdownStyle: {},
       isFocus: false,
       items: []
+    }
+  },
+
+  computed: {
+    // TODO: a caller passing its own `data-help` attribute will silently
+    // overwrite this computed value (Vue attrs fallthrough is last-write-wins
+    // for plain attributes, unlike class/style/events). Merge instead of
+    // overwrite if one ever needs to.
+    helpText() {
+      const resource = this.url?.match(/\/([^/]+)\/autocomplete/)?.[1]
+
+      return resource && AUTOCOMPLETE_HELP[resource]
     }
   },
 
@@ -412,6 +428,13 @@ export default {
       if (this.getRequest) {
         clearTimeout(this.getRequest)
       }
+
+      if (this.type.length < Number(this.min) || this.type.trim() === '') {
+        this.spinner = false
+        return
+      }
+
+      this.spinner = true
       this.getRequest = setTimeout(() => {
         this.update()
       }, this.time)
@@ -419,6 +442,7 @@ export default {
 
     update() {
       if (this.type.length < Number(this.min) || this.type.trim() === '') {
+        this.spinner = false
         return
       }
 
@@ -430,17 +454,20 @@ export default {
         )
         this.searchEnd = true
         this.showList = true
+        this.spinner = false
         this.$nextTick(this.updateDropdownPosition)
       } else {
-        this.spinner = true
         this.controller?.abort()
-        this.controller = new AbortController()
+        const controller = new AbortController()
+        this.controller = controller
 
         AjaxCall('get', this.ajaxUrl(), {
           headers: this.headers,
-          signal: this.controller.signal
+          signal: controller.signal
         })
           .then(({ body }) => {
+            if (this.controller !== controller) return
+
             this.json = this.getNested(body, this.nested)
             if (this.excludedIds) {
               this.json = this.json.filter(
@@ -454,7 +481,9 @@ export default {
           })
           .catch(() => {})
           .finally(() => {
-            this.spinner = false
+            if (this.controller === controller) {
+              this.spinner = false
+            }
           })
       }
     },

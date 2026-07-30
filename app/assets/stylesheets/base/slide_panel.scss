@@ -11,7 +11,7 @@ $default-padding: 2em;
 }
 
 .slide-panel {
-  z-index: 1000;
+  z-index: 2203;
   right: -400px;
   top: 0px;
   position: fixed;
@@ -76,7 +76,7 @@ $default-padding: 2em;
   display: none;
   font-weight: 300;
   position: absolute;
-  font-size: $font_small;
+  font-size: var(--font-size-xs);
   white-space: nowrap;
   padding: $standard_padding * 0.5;
   background-color: $color-help-description;
@@ -115,7 +115,6 @@ $default-padding: 2em;
 }
 
 .slide-panel-show {
-  z-index: 2103;
   right: 0px;
   transition: right 0.5s ease;
 

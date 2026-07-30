@@ -1,5 +1,5 @@
 json.array! @data_attributes do |i|
-  v = data_attribute_autocomplete_tag(i)
+  v = data_attribute_autocomplete_tag(i, params[:term])
   
   json.id i.id
 

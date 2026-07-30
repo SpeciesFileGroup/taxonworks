@@ -76,6 +76,7 @@
             url="/depictions"
             :use-custom-dropzone-options="true"
             :dropzone-options="DROPZONE_CONFIG"
+            prioritize-paste
           />
         </template>
         <template #filter>
