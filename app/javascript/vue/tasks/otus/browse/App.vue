@@ -1,5 +1,12 @@
 <template>
-  <div id="browse-otu">
+  <div
+    id="browse-otu"
+    :style="
+      anchorScrollOffset
+        ? { '--browse-otu-anchor-offset': `${anchorScrollOffset}px` }
+        : undefined
+    "
+  >
     <select-otu
       :otus="otus"
       @selected="loadOtu"
@@ -27,6 +34,7 @@
     </div>
     <template v-if="otuStore.otu && otuStore.taxonName">
       <HeaderBar
+        ref="headerBar"
         class="separate-bottom"
         :menu="menu"
         :otu="otuStore.otu"
@@ -76,7 +84,7 @@
 </template>
 
 <script setup>
-import { computed, ref, onBeforeMount } from 'vue'
+import { computed, ref, watch, onBeforeMount, onBeforeUnmount } from 'vue'
 import HeaderBar from './components/HeaderBar/HeaderBar.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import SearchOtu from './components/Navbar/NavbarSearchOtu.vue'
@@ -130,8 +138,43 @@ const menu = computed(() =>
 const navigate = ref()
 const otus = ref([])
 
+const headerBar = ref(null)
+const anchorScrollOffset = ref(0)
+
+let headerBarResizeObserver
+
+function measureAnchorScrollOffset() {
+  const headerBarElement = headerBar.value?.$el
+  const pageHeader = document.querySelector('#header-wrapper')
+  const isPageHeaderFixed =
+    pageHeader && getComputedStyle(pageHeader).position === 'fixed'
+
+  anchorScrollOffset.value =
+    (headerBarElement?.clientHeight || 0) +
+    (isPageHeaderFixed ? pageHeader.offsetHeight : 0)
+}
+
+watch(headerBar, (component) => {
+  headerBarResizeObserver?.disconnect()
+
+  if (!component) return
+
+  const pageHeader = document.querySelector('#header-wrapper')
+
+  headerBarResizeObserver = new ResizeObserver(measureAnchorScrollOffset)
+  headerBarResizeObserver.observe(component.$el)
+
+  if (pageHeader) {
+    headerBarResizeObserver.observe(pageHeader)
+  }
+})
+
 onBeforeMount(() => {
   otuStore.initFromUrl()
+})
+
+onBeforeUnmount(() => {
+  headerBarResizeObserver?.disconnect()
 })
 
 function loadOtu({ id }) {
@@ -151,7 +194,9 @@ function showForRanks(section) {
 <style lang="scss">
 #browse-otu {
   .anchor {
-    scroll-margin-top: 9rem;
+    scroll-margin-top: calc(
+      var(--browse-otu-anchor-offset, 9rem) + var(--spacing-md)
+    );
   }
   .browse-otu-row {
     display: grid;
