@@ -1,8 +1,22 @@
-import { PANEL_COMPONENTS } from './components.js'
+import {
+  DEFAULT_LAYOUT,
+  LAYOUT_CUSTOM,
+  PANEL_KEYS,
+  RENAMED_LAYOUTS
+} from './layouts.js'
+
+export const PREFERENCE_SCHEMA = 20260802
+
+export const CITATIONS_PREVIEW_SIZE = 10
 
 export const DEFAULT_PREFERENCES = {
-  preferenceSchema: 20260219,
-  sections: Object.keys(PANEL_COMPONENTS),
+  preferenceSchema: PREFERENCE_SCHEMA,
+  sections: PANEL_KEYS,
+  layout: DEFAULT_LAYOUT,
+  customRows: null,
+  timeline: {
+    alwaysShowAllCitations: false
+  },
   filterSections: {
     and: {
       current: [
@@ -87,4 +101,57 @@ export const DEFAULT_PREFERENCES = {
       }
     ]
   }
+}
+
+export function migrateTaskPreferences(stored) {
+  if (!stored) return structuredClone(DEFAULT_PREFERENCES)
+
+  if (stored.preferenceSchema >= PREFERENCE_SCHEMA) return stored
+
+  const sections = Array.isArray(stored.sections)
+    ? stored.sections.filter((key) => PANEL_KEYS.includes(key))
+    : [...PANEL_KEYS]
+
+  const customRows = customRowsFrom(stored, sections)
+
+  return {
+    ...structuredClone(DEFAULT_PREFERENCES),
+    ...(stored.filterSections ? { filterSections: stored.filterSections } : {}),
+    ...(stored.timeline ? { timeline: stored.timeline } : {}),
+    preferenceSchema: PREFERENCE_SCHEMA,
+    sections,
+    layout: layoutFrom(stored, customRows),
+    customRows
+  }
+}
+
+function layoutFrom(stored, customRows) {
+  if (stored.layout) {
+    return RENAMED_LAYOUTS[stored.layout] || stored.layout
+  }
+
+  return customRows ? LAYOUT_CUSTOM : DEFAULT_LAYOUT
+}
+
+function customRowsFrom(stored, sections) {
+  if (Array.isArray(stored.customRows)) return stored.customRows
+
+  if (Array.isArray(stored.customColumns)) {
+    return [{ columns: stored.customColumns }]
+  }
+
+  return isOrderedLikeDefault(sections) ? null : [{ columns: [sections] }]
+}
+
+function isOrderedLikeDefault(sections) {
+  let cursor = -1
+
+  return sections.every((key) => {
+    const index = PANEL_KEYS.indexOf(key)
+    const isAfter = index > cursor
+
+    cursor = index
+
+    return isAfter
+  })
 }

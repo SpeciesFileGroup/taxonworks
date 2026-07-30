@@ -6,9 +6,9 @@
   >
     <div
       v-if="contents.length"
-      class="separate-top"
+      class="padding.medium-top"
     >
-      <ul>
+      <ul class="padding-small-left">
         <li
           v-for="content in contents"
           :key="content.id"

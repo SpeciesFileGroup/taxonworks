@@ -36,22 +36,31 @@
       <div class="separate-top separate-bottom"></div>
 
       <div class="container-2xl mx-auto flex-col gap-medium">
-        <template
-          v-for="element in sections"
-          :key="element"
+        <div
+          v-for="(row, rowIndex) in rows"
+          :key="rowIndex"
+          class="browse-otu-row gap-medium"
+          :class="{ 'browse-otu-row--split': row.columns.length > 1 }"
         >
-          <component
-            v-if="showForRanks(PANEL_COMPONENTS[element])"
-            class="full_width"
-            :title="PANEL_COMPONENTS[element].title"
-            :status="PANEL_COMPONENTS[element].status"
-            v-bind="PANEL_COMPONENTS[element]?.bind"
-            :otu="otuStore.otu"
-            :otus="otuStore.selectedOtus"
-            :taxon-name="otuStore.taxonName"
-            :is="PANEL_COMPONENTS[element].component"
-          />
-        </template>
+          <div
+            v-for="(column, columnIndex) in row.columns"
+            :key="columnIndex"
+            class="browse-otu-row__column flex-col gap-medium"
+          >
+            <component
+              v-for="element in column"
+              :key="element"
+              class="full_width"
+              :title="PANEL_COMPONENTS[element].title"
+              :status="PANEL_COMPONENTS[element].status"
+              v-bind="PANEL_COMPONENTS[element]?.bind"
+              :otu="otuStore.otu"
+              :otus="otuStore.selectedOtus"
+              :taxon-name="otuStore.taxonName"
+              :is="PANEL_COMPONENTS[element].component"
+            />
+          </div>
+        </div>
       </div>
     </template>
     <div
@@ -74,7 +83,8 @@ import SearchOtu from './components/Navbar/NavbarSearchOtu.vue'
 import { RouteNames } from '@/routes/routes'
 import { useUserPreferences } from '@/composables'
 import { useOtuStore } from './store'
-import { PANEL_COMPONENTS, DEFAULT_PREFERENCES } from './constants'
+import { PANEL_COMPONENTS, migrateTaskPreferences } from './constants'
+import { resolveLayoutRows, flattenRows } from './utils/resolveLayoutRows.js'
 import ShowForThisGroup from '@/tasks/nomenclature/new_taxon_name/helpers/showForThisGroup.js'
 import { useSettingsStore } from './store'
 
@@ -84,32 +94,38 @@ defineOptions({
 
 const KEY_STORAGE = 'task::BrowseOtus'
 
-const { preferences, loadPreferences } = useUserPreferences()
+const { preferences, loadPreferences, setPreference } = useUserPreferences()
 const otuStore = useOtuStore()
 const settingStore = useSettingsStore()
 
 loadPreferences().then(() => {
-  const taskPreferences = preferences.value?.layout[KEY_STORAGE]
+  const stored = preferences.value?.layout?.[KEY_STORAGE]
+  const migrated = migrateTaskPreferences(stored)
 
-  if (
-    !taskPreferences ||
-    taskPreferences.preferenceSchema < DEFAULT_PREFERENCES.preferenceSchema
-  ) {
-    preferences.value.layout[KEY_STORAGE] = { ...DEFAULT_PREFERENCES }
+  if (migrated !== stored) {
+    setPreference(KEY_STORAGE, migrated)
   }
 })
 
-const sections = computed(
-  () => preferences.value.layout?.[KEY_STORAGE]?.sections || []
+const taskPreferences = computed(
+  () => preferences.value?.layout?.[KEY_STORAGE] || {}
 )
 
-const menu = computed(() => {
-  const sections = preferences.value?.layout?.[KEY_STORAGE]?.sections || []
+const rows = computed(() =>
+  resolveLayoutRows(taskPreferences.value)
+    .map((row) => ({
+      columns: row.columns
+        .map((column) =>
+          column.filter((key) => showForRanks(PANEL_COMPONENTS[key]))
+        )
+        .filter((column) => column.length)
+    }))
+    .filter((row) => row.columns.length)
+)
 
-  return sections
-    .filter((name) => PANEL_COMPONENTS[name])
-    .map((name) => PANEL_COMPONENTS[name].title)
-})
+const menu = computed(() =>
+  flattenRows(rows.value).map((name) => PANEL_COMPONENTS[name].title)
+)
 
 const navigate = ref()
 const otus = ref([])
@@ -136,6 +152,29 @@ function showForRanks(section) {
 #browse-otu {
   .anchor {
     scroll-margin-top: 9rem;
+  }
+  .browse-otu-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  // `min-width: 0` keeps wide panel tables from blowing the grid track out
+  .browse-otu-row__column {
+    min-width: 0;
+  }
+  @media all and (min-width: 1200px) {
+    .browse-otu-row--split {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    }
+    // The shorter column's last panel absorbs the leftover height, so a split
+    // row ends flush instead of ragged. `.panel` is already a flex column, so
+    // the body takes the space rather than leaving it below the content.
+    .browse-otu-row--split .browse-otu-row__column > :last-child {
+      flex-grow: 1;
+
+      > .body {
+        flex-grow: 1;
+      }
+    }
   }
   .autocomplete-search-bar {
     input {

@@ -32,7 +32,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import { sourceHasMatch, sourceTopics } from './utils/timelineFilters'
+import { citedSourceIds, sourceTopics } from './utils/timelineFilters'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigation from '@/components/radials/navigation/radial.vue'
 
@@ -67,23 +67,21 @@ const topicsVisible = computed(
   () => props.showTopics && !selectedIds.value.length
 )
 
+const citedIds = computed(() => citedSourceIds(props.filteredItems))
+
 const allReferences = computed(() =>
   Object.entries(props.sources).map(([id, source]) => ({
     id,
     cached: source.cached,
     source,
     topics: topicsVisible.value
-      ? sourceTopics(source, props.filteredItems).map(
-          (key) => props.topicsList[key]
-        )
+      ? sourceTopics(id, props.filteredItems).map((key) => props.topicsList[key])
       : []
   }))
 )
 
 const visibleReferences = computed(() => {
-  const matching = allReferences.value.filter((ref) =>
-    sourceHasMatch(ref.source, props.filteredItems)
-  )
+  const matching = allReferences.value.filter((ref) => citedIds.value.has(ref.id))
 
   if (!selectedIds.value.length) return matching
 

@@ -22,12 +22,18 @@
           v-if="timeline"
           :class="hideClasses"
         >
-          <TimelineCitations :citations="filteredItems" />
+          <TimelineCitations
+            v-model:expanded="isCitationsExpanded"
+            :citations="visibleCitations"
+            :total-count="filteredItems.length"
+            :preview-size="CITATIONS_PREVIEW_SIZE"
+            :is-collapsible="isCollapsible"
+          />
           <PanelTimelineReferences
             v-model="selectedReferenceIds"
             :sources="timeline.sources.list"
             :topics-list="timeline.topics.list"
-            :filtered-items="filteredItems"
+            :filtered-items="visibleCitations"
             :show-topics="showReferencesTopic"
           />
         </div>
@@ -40,6 +46,7 @@
       v-if="isModalVisible && timeline"
       v-model:topics-selected="selectedTopics"
       v-model:show-references-topic="showReferencesTopic"
+      v-model:always-show-all-citations="alwaysShowAllCitations"
       :preferences="preferences"
       :nomenclature="timeline"
       @close="() => (isModalVisible = false)"
@@ -49,13 +56,15 @@
 
 <script setup>
 import { useUserPreferences } from '@/composables'
+import { copyObject } from '@/helpers'
 import { computed, ref } from 'vue'
 import {
   TIMELINE_TABS,
   TIMELINE_TAB_BIOLOGY,
   DEFAULT_TIMELINE_TAB
 } from './constants/tabs'
-import { matchItem } from './utils/timelineFilters'
+import { CITATIONS_PREVIEW_SIZE } from '../../../constants'
+import { matchItem, itemsForSources } from './utils/timelineFilters'
 import useOtuTimeline from './composables/useOtuTimeline'
 import PanelLayout from '../PanelLayout.vue'
 import PanelTimelineTabs from './PanelTimelineTabs.vue'
@@ -95,6 +104,24 @@ const { isLoading, timeline, selectedReferenceIds, selectedTopics, tab } =
 
 const showReferencesTopic = ref(false)
 const isModalVisible = ref(false)
+const isCitationsExpanded = ref(false)
+
+const alwaysShowAllCitations = computed({
+  get: () => preferences.value?.timeline?.alwaysShowAllCitations ?? false,
+
+  set(value) {
+    if (!preferences.value) return
+
+    preferences.value.timeline = {
+      ...preferences.value.timeline,
+      alwaysShowAllCitations: value
+    }
+
+    // A deep plain copy: `setPreference` skips the reference it already holds,
+    // and reactive proxies cannot cross the preferences BroadcastChannel.
+    userPref.setPreference(KEY_STORAGE, copyObject(preferences.value))
+  }
+})
 
 const isBiologyTab = computed(() => tab.value?.kind === TIMELINE_TAB_BIOLOGY)
 
@@ -102,15 +129,7 @@ const itemsForSelectedRefs = computed(() => {
   if (!timeline.value) return []
   if (!selectedReferenceIds.value.length) return timeline.value.items
 
-  const objectIds = new Set(
-    selectedReferenceIds.value.flatMap(
-      (id) => timeline.value.sources.list[id]?.objects ?? []
-    )
-  )
-
-  return timeline.value.items.filter((item) =>
-    objectIds.has(item.data_attributes['history-object-id'])
-  )
+  return itemsForSources(selectedReferenceIds.value, timeline.value.items)
 })
 
 const filteredItems = computed(() => {
@@ -123,6 +142,25 @@ const filteredItems = computed(() => {
       selectedTopics: selectedTopics.value
     })
   )
+})
+
+// A long history is trimmed to its first and last citations, which are the ones
+// that carry the shape of the nomenclatural story.
+const isCollapsible = computed(
+  () =>
+    !alwaysShowAllCitations.value &&
+    filteredItems.value.length > CITATIONS_PREVIEW_SIZE * 2
+)
+
+const visibleCitations = computed(() => {
+  if (!isCollapsible.value || isCitationsExpanded.value) {
+    return filteredItems.value
+  }
+
+  return [
+    ...filteredItems.value.slice(0, CITATIONS_PREVIEW_SIZE),
+    ...filteredItems.value.slice(-CITATIONS_PREVIEW_SIZE)
+  ]
 })
 
 const hideClasses = computed(() => {

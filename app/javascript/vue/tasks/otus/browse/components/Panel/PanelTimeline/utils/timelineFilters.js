@@ -37,18 +37,35 @@ export function matchItem(item, { tab, filterSections, selectedTopics }) {
   )
 }
 
-export function sourceHasMatch(source, items) {
-  return items.some((item) =>
-    source.objects.includes(item.data_attributes['history-object-id'])
+/**
+ * The sources cited by the given items.
+ *
+ * Matching on `history-object-id` would be far too coarse: every citation of a
+ * taxon name is a separate item carrying that same name as its object, so one
+ * visible item would pull in every source that ever cited the name.
+ */
+export function citedSourceIds(items) {
+  return new Set(
+    items
+      .map((item) => item.data_attributes['history-source-id'])
+      .filter(Boolean)
   )
 }
 
-export function sourceTopics(source, items) {
-  const topics = items
-    .filter((item) =>
-      source.objects.includes(item.data_attributes['history-object-id'])
-    )
-    .flatMap((item) => item.topics)
+/**
+ * The items citing any of the given sources. Counterpart of `citedSourceIds`,
+ * and the single place the item to source join is expressed.
+ */
+export function itemsForSources(sourceIds, items) {
+  const ids = sourceIds instanceof Set ? sourceIds : new Set(sourceIds)
 
-  return [...new Set(topics)]
+  return items.filter((item) =>
+    ids.has(item.data_attributes['history-source-id'])
+  )
+}
+
+export function sourceTopics(sourceId, items) {
+  return [
+    ...new Set(itemsForSources([sourceId], items).flatMap((i) => i.topics))
+  ]
 }

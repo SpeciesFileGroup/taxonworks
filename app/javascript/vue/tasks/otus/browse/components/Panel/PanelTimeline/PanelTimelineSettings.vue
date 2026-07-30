@@ -82,6 +82,15 @@
                 {{ item.label }}
               </label>
             </li>
+            <li>
+              <label>
+                <input
+                  v-model="alwaysShowAllCitations"
+                  type="checkbox"
+                />
+                All citations
+              </label>
+            </li>
           </ul>
           <h4 class="capitalize separate-bottom">Topic</h4>
           <ul class="no_bullets">
@@ -153,6 +162,11 @@ const topicsSelected = defineModel('topicsSelected', {
 })
 
 const showReferencesTopic = defineModel('showReferencesTopic', {
+  type: Boolean,
+  default: false
+})
+
+const alwaysShowAllCitations = defineModel('alwaysShowAllCitations', {
   type: Boolean,
   default: false
 })
