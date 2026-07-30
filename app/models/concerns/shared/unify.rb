@@ -126,6 +126,20 @@ module Shared::Unify
     will_destroy = only.empty? && except.empty?
     destroy_key = { id: remove_object.id, type: remove_object.class.base_class.name }
 
+    # Outcome (see resolve_unify_outcome) already computed for a given
+    # record in *this* unify call, keyed by [base class name, id]. A record
+    # whose subject and object both point at remove_object (see
+    # reassign_foreign_keys) is returned by more than one of
+    # merge_relations's has_many/has_one collections - it genuinely
+    # represents activity under each of those relation labels (2 distinct
+    # FKs moving is 2 distinct things happening, not 1), so it should still
+    # be counted and reported under each. What must not happen twice is
+    # the *work*: reassign_foreign_keys already moves every such FK in one
+    # shot the first time it's seen, and the dedup fallback it can trigger
+    # has real side effects (it can destroy another record) - so a later
+    # pass reuses the first pass's outcome instead of redoing any of that.
+    resolved_unify_outcomes = {}
+
     self.class.transaction do
       # before_unify # potential hooks, appear not to be required
 
@@ -162,8 +176,12 @@ module Shared::Unify
             list_state = snapshot_list_order(r, i)
 
             i.find_each do |j|
-              j.update(r.options[:inverse_of] => self)
-              log_unify_result(j, r, s)
+              key = [j.class.base_class.name, j.id]
+              outcome = resolved_unify_outcomes[key] ||= begin
+                reassign_foreign_keys(j, remove_object, r.options[:inverse_of])
+                resolve_unify_outcome(j)
+              end
+              apply_unify_outcome(outcome, n, s)
             end
 
             restore_list_order(list_state) if list_state
@@ -173,8 +191,12 @@ module Shared::Unify
             if !i.nil?
               stub_unify_result(s, n, 1)
 
-              i.update(r.options[:inverse_of] => self)
-              log_unify_result(i, r, s)
+              key = [i.class.base_class.name, i.id]
+              outcome = resolved_unify_outcomes[key] ||= begin
+                reassign_foreign_keys(i, remove_object, r.options[:inverse_of])
+                resolve_unify_outcome(i)
+              end
+              apply_unify_outcome(outcome, n, s)
             end
           end
         end
@@ -300,6 +322,58 @@ module Shared::Unify
     s
   end
 
+  # Reassign every belongs_to FK on `record` that currently points at
+  # `remove_object` to self, not just `primary_association`, in a single
+  # update.
+  #
+  # Needed for self-referential records - e.g. a TaxonNameRelationship
+  # whose subject_taxon_name and object_taxon_name are both remove_object,
+  # as happens with OriginalCombination "epithet unchanged" bookkeeping
+  # records, or a BiologicalAssociation whose (polymorphic)
+  # biological_association_subject and biological_association_object are
+  # both remove_object. merge_relations processes each of a record's
+  # belongs_to sides in a separate pass (has_many :taxon_name_relationships
+  # vs has_many :related_taxon_name_relationships; has_many
+  # :biological_associations vs has_many :related_biological_associations),
+  # one FK at a time. Reassigning only primary_association's FK on whichever
+  # pass runs first would leave the record in a half-migrated state (e.g.
+  # subject: self, object: remove_object) - not its original shape, and not
+  # the fully-migrated shape that #identical (via deduplicate_update_target)
+  # needs to match self's own analogous record against. The other pass
+  # wouldn't catch it either, since by then this FK already points away
+  # from remove_object.
+  #
+  # This must genuinely reassign every such FK in this one call: #unify
+  # caches the outcome of the *first* call for a given record and replays
+  # it for any later pass that finds the same record again (see
+  # resolved_unify_outcomes in #unify) rather than re-attempting it - that
+  # caching is only correct if this call is the one and only place the
+  # record's FKs actually get touched. See #4971.
+  def reassign_foreign_keys(record, remove_object, primary_association)
+    associations = foreign_keys_pointing_at(record, remove_object).map(&:name)
+    associations |= [primary_association]
+
+    record.update(associations.index_with { self })
+  end
+
+  # @return Array of ActiveRecord::Reflection
+  #   record's belongs_to associations - polymorphic or not - whose current
+  #   FK value points at remove_object. Non-polymorphic associations are
+  #   matched by id and STI base class; polymorphic ones additionally by
+  #   the *_type column, compared against remove_object.class.polymorphic_name
+  #   (the same value Rails itself would write there on assignment).
+  def foreign_keys_pointing_at(record, remove_object)
+    record.class.reflect_on_all_associations(:belongs_to).select do |a|
+      next false unless record.read_attribute(a.foreign_key) == remove_object.id
+
+      if a.polymorphic?
+        record.read_attribute(a.foreign_type) == remove_object.class.polymorphic_name
+      else
+        a.klass.base_class == remove_object.class.base_class
+      end
+    end
+  end
+
   # @param object [ActiveRecord::Base] see log_unify_result
   def deduplicate_update_target(object)
     i = object.identical
@@ -332,8 +406,24 @@ module Shared::Unify
   #   we tried to flip
   # @param result [Hash] the running unify result accumulator
   def log_unify_result(object, relation, result)
-    n = relation.name.to_s.humanize
+    apply_unify_outcome(resolve_unify_outcome(object), relation.name.to_s.humanize, result)
+  end
 
+  # Attempts the fixups and dedup fallback log_unify_result is built on, for
+  # a record whose FK(s) were just (attempted to be) reassigned to self, but
+  # without touching any particular relation label's tally - see
+  # apply_unify_outcome. Split out so unify can resolve a record's outcome
+  # once and apply it under every relation label that record is relevant to
+  # (see reassign_foreign_keys and resolved_unify_outcomes in #unify),
+  # rather than redoing this - including the dedup fallback's real side
+  # effects, like destroying another record - once per label.
+  #
+  # @param object [ActiveRecord::Base] see log_unify_result
+  # @return [Hash] one of:
+  #   { status: :merged }
+  #   { status: :deduplicated }
+  #   { status: :unmerged, id:, message: }
+  def resolve_unify_outcome(object)
     # Handle an edge case, preserve Citations that
     # would only be invalid due to origin flag
     if object.class.name == 'Citation' && object.errors.key?(:is_original) && object.is_original
@@ -354,15 +444,28 @@ module Shared::Unify
       # look like a uniqueness conflict.
       dedup_result = deduplicate_update_target(object)
       if dedup_result && dedup_result[:result][:unified]
-        result[:details][n][:deduplicated] += 1
+        { status: :deduplicated }
       else
-        result[:result][:unified] = false
-        result[:details][n][:unmerged] += 1
-        result[:details][n][:errors] ||= []
-        result[:details][n][:errors].push( {id: object.id, message: object.errors.full_messages.join('; ')} )
+        { status: :unmerged, id: object.id, message: object.errors.full_messages.join('; ') }
       end
     else
-      result[:details][n][:merged] += 1
+      { status: :merged }
+    end
+  end
+
+  # Applies an outcome from resolve_unify_outcome to relation_name's tally
+  # in result[:details]. See resolve_unify_outcome.
+  def apply_unify_outcome(outcome, relation_name, result)
+    case outcome[:status]
+    when :merged
+      result[:details][relation_name][:merged] += 1
+    when :deduplicated
+      result[:details][relation_name][:deduplicated] += 1
+    when :unmerged
+      result[:result][:unified] = false
+      result[:details][relation_name][:unmerged] += 1
+      result[:details][relation_name][:errors] ||= []
+      result[:details][relation_name][:errors].push({id: outcome[:id], message: outcome[:message]})
     end
 
     result

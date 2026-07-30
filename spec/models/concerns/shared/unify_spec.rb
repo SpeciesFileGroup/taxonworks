@@ -116,6 +116,425 @@ describe 'Shared::Unify', type: :model do
     expect(ba1.reload.citations.count).to eq(2)
   end
 
+  context 'BiologicalAssociation self-referential / dual-target collision shapes' do
+    # biological_association_subject and biological_association_object are
+    # polymorphic, but nothing prevents them from being set to the same
+    # record (real data has at least one such case - an Otu recorded as
+    # "feeds on" itself). Like a self-referential TaxonNameRelationship (see
+    # the OriginalCombination specs below), a self-referential
+    # BiologicalAssociation is returned by both o3's :biological_associations
+    # (subject side) and :related_biological_associations (object side)
+    # collections, so both its FKs need reassigning together, in one update,
+    # for the same reasons documented on Shared::Unify#reassign_foreign_keys.
+    specify 'unifies Otus when destroy has a self-referential BiologicalAssociation' do
+      o3 = FactoryBot.create(:valid_otu)
+      rel = FactoryBot.create(:valid_biological_relationship)
+
+      ba = BiologicalAssociation.create!(
+        biological_association_subject: o3, biological_association_object: o3, biological_relationship: rel)
+
+      result = o1.unify(o3)
+
+      expect(result[:result][:unified]).to be(true)
+      expect(o3.destroyed?).to be_truthy
+      expect(ba.reload.biological_association_subject).to eq(o1)
+      expect(ba.reload.biological_association_object).to eq(o1)
+    end
+
+    # Same shape, but keep already has its own self-referential
+    # BiologicalAssociation of the same type - reassigning destroy's collides
+    # with it, and the automatic dedup fallback has to resolve it. Neither
+    # record ever references the *other* Otu, so - like the k->k pairings
+    # below - only destroy's own self-ref is ever independently reassigned;
+    # keep's plays the same passive "thing it collides with" role. Verified
+    # order-independent (both below land on keep's self-ref surviving), but
+    # specced both ways per the same reasoning as the other pairings.
+    specify 'unifies Otus when both keep and destroy have their own self-referential BiologicalAssociation - keep self-ref created first' do
+      o3 = FactoryBot.create(:valid_otu)
+      rel = FactoryBot.create(:valid_biological_relationship)
+
+      ba_keep = BiologicalAssociation.create!(biological_association_subject: o1, biological_association_object: o1, biological_relationship: rel)
+      ba_destroy = BiologicalAssociation.create!(biological_association_subject: o3, biological_association_object: o3, biological_relationship: rel)
+
+      FactoryBot.create(:valid_note, note_object: ba_keep, text: 'note on keep self-ref')
+      FactoryBot.create(:valid_note, note_object: ba_destroy, text: 'note on destroy self-ref')
+
+      result = o1.unify(o3)
+
+      expect(result[:result][:unified]).to be(true)
+      expect(o3.destroyed?).to be_truthy
+      expect(BiologicalAssociation.find_by(id: ba_destroy.id)).to be_nil
+      expect(BiologicalAssociation.count).to eq(1)
+
+      survivor = BiologicalAssociation.first
+      expect(survivor.biological_association_subject).to eq(o1)
+      expect(survivor.biological_association_object).to eq(o1)
+      expect(Note.where(note_object: survivor).pluck(:text)).to match_array(['note on keep self-ref', 'note on destroy self-ref'])
+    end
+
+    specify 'unifies Otus when both keep and destroy have their own self-referential BiologicalAssociation - destroy self-ref created first' do
+      o3 = FactoryBot.create(:valid_otu)
+      rel = FactoryBot.create(:valid_biological_relationship)
+
+      ba_destroy = BiologicalAssociation.create!(biological_association_subject: o3, biological_association_object: o3, biological_relationship: rel)
+      ba_keep = BiologicalAssociation.create!(biological_association_subject: o1, biological_association_object: o1, biological_relationship: rel)
+
+      FactoryBot.create(:valid_note, note_object: ba_destroy, text: 'note on destroy self-ref')
+      FactoryBot.create(:valid_note, note_object: ba_keep, text: 'note on keep self-ref')
+
+      result = o1.unify(o3)
+
+      expect(result[:result][:unified]).to be(true)
+      expect(o3.destroyed?).to be_truthy
+      expect(BiologicalAssociation.find_by(id: ba_destroy.id)).to be_nil
+      expect(BiologicalAssociation.count).to eq(1)
+
+      survivor = BiologicalAssociation.first
+      expect(survivor.biological_association_subject).to eq(o1)
+      expect(survivor.biological_association_object).to eq(o1)
+      expect(Note.where(note_object: survivor).pluck(:text)).to match_array(['note on keep self-ref', 'note on destroy self-ref'])
+    end
+
+    # A different collision shape than the one above: instead of keep having
+    # its own self-referential record, keep has an ordinary record already
+    # pointing *at* destroy (o1 --rel--> o3). Once o3 is absorbed into o1,
+    # that record and o3's self-referential one (o3 --rel--> o3) both need to
+    # become o1 --rel--> o1 - so they collide with *each other*, not because
+    # either one was itself a pre-existing duplicate. Both are genuinely
+    # identical once fully migrated, so it should not matter which one
+    # survives the dedup, as long as both records' own annotations end up on
+    # whichever one does. Specs cover both creation orders since it wasn't
+    # obvious from reading the code alone whether creation order could
+    # influence which relation merge_relations processes first (it doesn't -
+    # that's governed by has_many reflection order, not row creation order -
+    # but it's worth pinning down as a regression rather than assuming it).
+    specify 'unifies Otus when a pre-existing keep->destroy association collides with destroy''s self-referential one - self-ref created first' do
+      o3 = FactoryBot.create(:valid_otu)
+      rel = FactoryBot.create(:valid_biological_relationship)
+
+      ba_self_ref = BiologicalAssociation.create!(biological_association_subject: o3, biological_association_object: o3, biological_relationship: rel)
+      ba_existing = BiologicalAssociation.create!(biological_association_subject: o1, biological_association_object: o3, biological_relationship: rel)
+
+      note_self_ref = FactoryBot.create(:valid_note, note_object: ba_self_ref, text: 'note on self-ref')
+      note_existing = FactoryBot.create(:valid_note, note_object: ba_existing, text: 'note on pre-existing')
+
+      result = o1.unify(o3)
+
+      expect(result[:result][:unified]).to be(true)
+      expect(o3.destroyed?).to be_truthy
+      expect(BiologicalAssociation.count).to eq(1)
+
+      survivor = BiologicalAssociation.first
+      expect(survivor.biological_association_subject).to eq(o1)
+      expect(survivor.biological_association_object).to eq(o1)
+      expect(Note.where(note_object: survivor).pluck(:text)).to match_array(['note on self-ref', 'note on pre-existing'])
+    end
+
+    specify 'unifies Otus when a pre-existing keep->destroy association collides with destroy''s self-referential one - pre-existing created first' do
+      o3 = FactoryBot.create(:valid_otu)
+      rel = FactoryBot.create(:valid_biological_relationship)
+
+      ba_existing = BiologicalAssociation.create!(biological_association_subject: o1, biological_association_object: o3, biological_relationship: rel)
+      ba_self_ref = BiologicalAssociation.create!(biological_association_subject: o3, biological_association_object: o3, biological_relationship: rel)
+
+      note_existing = FactoryBot.create(:valid_note, note_object: ba_existing, text: 'note on pre-existing')
+      note_self_ref = FactoryBot.create(:valid_note, note_object: ba_self_ref, text: 'note on self-ref')
+
+      result = o1.unify(o3)
+
+      expect(result[:result][:unified]).to be(true)
+      expect(o3.destroyed?).to be_truthy
+      expect(BiologicalAssociation.count).to eq(1)
+
+      survivor = BiologicalAssociation.first
+      expect(survivor.biological_association_subject).to eq(o1)
+      expect(survivor.biological_association_object).to eq(o1)
+      expect(Note.where(note_object: survivor).pluck(:text)).to match_array(['note on self-ref', 'note on pre-existing'])
+    end
+
+    # Mirror of the pair above: here the pre-existing association points
+    # *from* destroy *to* keep (o3 --rel--> o1) rather than the other way
+    # around. That puts it in the same has_many collection as destroy's
+    # self-referential record (both have subject: o3), unlike the k-->d
+    # case where the two records were split across separate has_many
+    # collections (processed in different passes). Because both are found
+    # and reassigned within the *same* find_each loop here, creation order
+    # determines which one is reassigned first (find_each iterates in id
+    # order) - and whichever moves first "wins" the k-->k slot, so the
+    # other one is the one that collides and gets deduplicated away. Unlike
+    # the k-->d case, survivor identity here is genuinely creation-order
+    # dependent - both orders are specced to document that, not because
+    # either survivor is wrong (both preserve every annotation correctly).
+    specify 'unifies Otus when destroy->keep association collides with destroy''s self-referential one - self-ref created first' do
+      o3 = FactoryBot.create(:valid_otu)
+      rel = FactoryBot.create(:valid_biological_relationship)
+
+      ba_self_ref = BiologicalAssociation.create!(biological_association_subject: o3, biological_association_object: o3, biological_relationship: rel)
+      ba_mirror = BiologicalAssociation.create!(biological_association_subject: o3, biological_association_object: o1, biological_relationship: rel)
+
+      FactoryBot.create(:valid_note, note_object: ba_self_ref, text: 'note on self-ref')
+      FactoryBot.create(:valid_note, note_object: ba_mirror, text: 'note on mirror')
+
+      result = o1.unify(o3)
+
+      expect(result[:result][:unified]).to be(true)
+      expect(o3.destroyed?).to be_truthy
+      expect(BiologicalAssociation.count).to eq(1)
+
+      survivor = BiologicalAssociation.first
+      expect(survivor.biological_association_subject).to eq(o1)
+      expect(survivor.biological_association_object).to eq(o1)
+      expect(Note.where(note_object: survivor).pluck(:text)).to match_array(['note on self-ref', 'note on mirror'])
+    end
+
+    specify 'unifies Otus when destroy->keep association collides with destroy''s self-referential one - mirror created first' do
+      o3 = FactoryBot.create(:valid_otu)
+      rel = FactoryBot.create(:valid_biological_relationship)
+
+      ba_mirror = BiologicalAssociation.create!(biological_association_subject: o3, biological_association_object: o1, biological_relationship: rel)
+      ba_self_ref = BiologicalAssociation.create!(biological_association_subject: o3, biological_association_object: o3, biological_relationship: rel)
+
+      FactoryBot.create(:valid_note, note_object: ba_mirror, text: 'note on mirror')
+      FactoryBot.create(:valid_note, note_object: ba_self_ref, text: 'note on self-ref')
+
+      result = o1.unify(o3)
+
+      expect(result[:result][:unified]).to be(true)
+      expect(o3.destroyed?).to be_truthy
+      expect(BiologicalAssociation.count).to eq(1)
+
+      survivor = BiologicalAssociation.first
+      expect(survivor.biological_association_subject).to eq(o1)
+      expect(survivor.biological_association_object).to eq(o1)
+      expect(Note.where(note_object: survivor).pluck(:text)).to match_array(['note on self-ref', 'note on mirror'])
+    end
+
+    # Two more pairings, this time colliding with keep's own *pre-existing*
+    # association rather than one of destroy's. In both of these, unlike the
+    # d-->d cases above, the keep-side record is never itself found among
+    # destroy's related_biological_associations/biological_associations (it
+    # doesn't reference destroy at all), so it's never independently
+    # reassigned - it only ever plays the passive role of "the thing the
+    # destroy-side record collides with". That makes survivor identity
+    # order-independent here (verified: both orders below land on the
+    # keep-side record surviving) - but both orders are specced anyway
+    # since that's an artifact of the current implementation, not a
+    # documented guarantee, and the processing order could change later.
+
+    specify 'unifies Otus when destroy->keep association collides with keep''s own pre-existing self-referential one - mirror created first' do
+      o3 = FactoryBot.create(:valid_otu)
+      rel = FactoryBot.create(:valid_biological_relationship)
+
+      ba_mirror = BiologicalAssociation.create!(biological_association_subject: o3, biological_association_object: o1, biological_relationship: rel)
+      ba_keep_self_ref = BiologicalAssociation.create!(biological_association_subject: o1, biological_association_object: o1, biological_relationship: rel)
+
+      FactoryBot.create(:valid_note, note_object: ba_mirror, text: 'note on mirror')
+      FactoryBot.create(:valid_note, note_object: ba_keep_self_ref, text: 'note on keep self-ref')
+
+      result = o1.unify(o3)
+
+      expect(result[:result][:unified]).to be(true)
+      expect(o3.destroyed?).to be_truthy
+      expect(BiologicalAssociation.count).to eq(1)
+
+      survivor = BiologicalAssociation.first
+      expect(survivor.biological_association_subject).to eq(o1)
+      expect(survivor.biological_association_object).to eq(o1)
+      expect(Note.where(note_object: survivor).pluck(:text)).to match_array(['note on mirror', 'note on keep self-ref'])
+    end
+
+    specify 'unifies Otus when destroy->keep association collides with keep''s own pre-existing self-referential one - keep self-ref created first' do
+      o3 = FactoryBot.create(:valid_otu)
+      rel = FactoryBot.create(:valid_biological_relationship)
+
+      ba_keep_self_ref = BiologicalAssociation.create!(biological_association_subject: o1, biological_association_object: o1, biological_relationship: rel)
+      ba_mirror = BiologicalAssociation.create!(biological_association_subject: o3, biological_association_object: o1, biological_relationship: rel)
+
+      FactoryBot.create(:valid_note, note_object: ba_keep_self_ref, text: 'note on keep self-ref')
+      FactoryBot.create(:valid_note, note_object: ba_mirror, text: 'note on mirror')
+
+      result = o1.unify(o3)
+
+      expect(result[:result][:unified]).to be(true)
+      expect(o3.destroyed?).to be_truthy
+      expect(BiologicalAssociation.count).to eq(1)
+
+      survivor = BiologicalAssociation.first
+      expect(survivor.biological_association_subject).to eq(o1)
+      expect(survivor.biological_association_object).to eq(o1)
+      expect(Note.where(note_object: survivor).pluck(:text)).to match_array(['note on mirror', 'note on keep self-ref'])
+    end
+
+    specify 'unifies Otus when keep->destroy association collides with keep''s own pre-existing self-referential one - existing created first' do
+      o3 = FactoryBot.create(:valid_otu)
+      rel = FactoryBot.create(:valid_biological_relationship)
+
+      ba_existing = BiologicalAssociation.create!(biological_association_subject: o1, biological_association_object: o3, biological_relationship: rel)
+      ba_keep_self_ref = BiologicalAssociation.create!(biological_association_subject: o1, biological_association_object: o1, biological_relationship: rel)
+
+      FactoryBot.create(:valid_note, note_object: ba_existing, text: 'note on existing')
+      FactoryBot.create(:valid_note, note_object: ba_keep_self_ref, text: 'note on keep self-ref')
+
+      result = o1.unify(o3)
+
+      expect(result[:result][:unified]).to be(true)
+      expect(o3.destroyed?).to be_truthy
+      expect(BiologicalAssociation.count).to eq(1)
+
+      survivor = BiologicalAssociation.first
+      expect(survivor.biological_association_subject).to eq(o1)
+      expect(survivor.biological_association_object).to eq(o1)
+      expect(Note.where(note_object: survivor).pluck(:text)).to match_array(['note on existing', 'note on keep self-ref'])
+    end
+
+    specify 'unifies Otus when keep->destroy association collides with keep''s own pre-existing self-referential one - keep self-ref created first' do
+      o3 = FactoryBot.create(:valid_otu)
+      rel = FactoryBot.create(:valid_biological_relationship)
+
+      ba_keep_self_ref = BiologicalAssociation.create!(biological_association_subject: o1, biological_association_object: o1, biological_relationship: rel)
+      ba_existing = BiologicalAssociation.create!(biological_association_subject: o1, biological_association_object: o3, biological_relationship: rel)
+
+      FactoryBot.create(:valid_note, note_object: ba_keep_self_ref, text: 'note on keep self-ref')
+      FactoryBot.create(:valid_note, note_object: ba_existing, text: 'note on existing')
+
+      result = o1.unify(o3)
+
+      expect(result[:result][:unified]).to be(true)
+      expect(o3.destroyed?).to be_truthy
+      expect(BiologicalAssociation.count).to eq(1)
+
+      survivor = BiologicalAssociation.first
+      expect(survivor.biological_association_subject).to eq(o1)
+      expect(survivor.biological_association_object).to eq(o1)
+      expect(Note.where(note_object: survivor).pluck(:text)).to match_array(['note on existing', 'note on keep self-ref'])
+    end
+
+    # Last pairing: neither record is itself self-referential here - d-->k
+    # and k-->d are two ordinary, opposite-direction associations between
+    # keep and destroy. They're found via different has_many collections
+    # (d-->k only via subject-side, k-->d only via object-side), so which
+    # one is reassigned first is governed by relation-processing order, not
+    # by which one was created first - verified below, both orders land on
+    # d-->k surviving (it happens to be reassigned by whichever pass runs
+    # first, landing on k-->k cleanly; the other then collides with it and
+    # is deduplicated away). Specced in both creation orders anyway, per the
+    # same reasoning as above: this is a property of the current
+    # implementation, not a guarantee, and worth pinning down as a
+    # regression rather than assuming it holds after future changes.
+    specify 'unifies Otus when d->k and k->d associations between the same two Otus collide - d->k created first' do
+      o3 = FactoryBot.create(:valid_otu)
+      rel = FactoryBot.create(:valid_biological_relationship)
+
+      ba_dk = BiologicalAssociation.create!(biological_association_subject: o3, biological_association_object: o1, biological_relationship: rel)
+      ba_kd = BiologicalAssociation.create!(biological_association_subject: o1, biological_association_object: o3, biological_relationship: rel)
+
+      FactoryBot.create(:valid_note, note_object: ba_dk, text: 'note on dk')
+      FactoryBot.create(:valid_note, note_object: ba_kd, text: 'note on kd')
+
+      result = o1.unify(o3)
+
+      expect(result[:result][:unified]).to be(true)
+      expect(o3.destroyed?).to be_truthy
+      expect(BiologicalAssociation.count).to eq(1)
+
+      survivor = BiologicalAssociation.first
+      expect(survivor.biological_association_subject).to eq(o1)
+      expect(survivor.biological_association_object).to eq(o1)
+      expect(Note.where(note_object: survivor).pluck(:text)).to match_array(['note on dk', 'note on kd'])
+    end
+
+    specify 'unifies Otus when d->k and k->d associations between the same two Otus collide - k->d created first' do
+      o3 = FactoryBot.create(:valid_otu)
+      rel = FactoryBot.create(:valid_biological_relationship)
+
+      ba_kd = BiologicalAssociation.create!(biological_association_subject: o1, biological_association_object: o3, biological_relationship: rel)
+      ba_dk = BiologicalAssociation.create!(biological_association_subject: o3, biological_association_object: o1, biological_relationship: rel)
+
+      FactoryBot.create(:valid_note, note_object: ba_kd, text: 'note on kd')
+      FactoryBot.create(:valid_note, note_object: ba_dk, text: 'note on dk')
+
+      result = o1.unify(o3)
+
+      expect(result[:result][:unified]).to be(true)
+      expect(o3.destroyed?).to be_truthy
+      expect(BiologicalAssociation.count).to eq(1)
+
+      survivor = BiologicalAssociation.first
+      expect(survivor.biological_association_subject).to eq(o1)
+      expect(survivor.biological_association_object).to eq(o1)
+      expect(Note.where(note_object: survivor).pluck(:text)).to match_array(['note on dk', 'note on kd'])
+    end
+  end
+
+  # OtuRelationship has the same dual-FK shape as BiologicalAssociation -
+  # belongs_to :subject_otu and :object_otu, both class_name: 'Otu', and
+  # nothing prevents subject_otu_id == object_otu_id (only presence and a
+  # [:type, :object_otu_id]-scoped uniqueness on subject_otu_id - no "not
+  # identical to self" validation). Otu is directly unifiable in the UI
+  # (see app/javascript/vue/tasks/unify/objects/constants/types.js), and
+  # both :otu_relationships (subject side) and :related_otu_relationships
+  # (object side) pass Shared::Unify's inferred_relations filter, so this
+  # is reachable through an ordinary Otu unify, not just a theoretical
+  # shape. There were no unify specs for this class before these.
+  context 'OtuRelationship self-referential collision shapes' do
+    specify 'unifies Otus when destroy has a self-referential OtuRelationship' do
+      o3 = FactoryBot.create(:valid_otu)
+
+      rel = OtuRelationship::Disjoint.create!(subject_otu: o3, object_otu: o3)
+
+      result = o1.unify(o3)
+
+      expect(result[:result][:unified]).to be(true)
+      expect(o3.destroyed?).to be_truthy
+      expect(rel.reload.subject_otu).to eq(o1)
+      expect(rel.reload.object_otu).to eq(o1)
+    end
+
+    specify 'unifies Otus when both keep and destroy have their own self-referential OtuRelationship - keep self-ref created first' do
+      o3 = FactoryBot.create(:valid_otu)
+
+      rel_keep = OtuRelationship::Disjoint.create!(subject_otu: o1, object_otu: o1)
+      rel_destroy = OtuRelationship::Disjoint.create!(subject_otu: o3, object_otu: o3)
+
+      FactoryBot.create(:valid_note, note_object: rel_keep, text: 'note on keep self-ref')
+      FactoryBot.create(:valid_note, note_object: rel_destroy, text: 'note on destroy self-ref')
+
+      result = o1.unify(o3)
+
+      expect(result[:result][:unified]).to be(true)
+      expect(o3.destroyed?).to be_truthy
+      expect(OtuRelationship.find_by(id: rel_destroy.id)).to be_nil
+      expect(OtuRelationship.count).to eq(1)
+
+      survivor = OtuRelationship.first
+      expect(survivor.subject_otu).to eq(o1)
+      expect(survivor.object_otu).to eq(o1)
+      expect(Note.where(note_object: survivor).pluck(:text)).to match_array(['note on keep self-ref', 'note on destroy self-ref'])
+    end
+
+    specify 'unifies Otus when both keep and destroy have their own self-referential OtuRelationship - destroy self-ref created first' do
+      o3 = FactoryBot.create(:valid_otu)
+
+      rel_destroy = OtuRelationship::Disjoint.create!(subject_otu: o3, object_otu: o3)
+      rel_keep = OtuRelationship::Disjoint.create!(subject_otu: o1, object_otu: o1)
+
+      FactoryBot.create(:valid_note, note_object: rel_destroy, text: 'note on destroy self-ref')
+      FactoryBot.create(:valid_note, note_object: rel_keep, text: 'note on keep self-ref')
+
+      result = o1.unify(o3)
+
+      expect(result[:result][:unified]).to be(true)
+      expect(o3.destroyed?).to be_truthy
+      expect(OtuRelationship.find_by(id: rel_destroy.id)).to be_nil
+      expect(OtuRelationship.count).to eq(1)
+
+      survivor = OtuRelationship.first
+      expect(survivor.subject_otu).to eq(o1)
+      expect(survivor.object_otu).to eq(o1)
+      expect(Note.where(note_object: survivor).pluck(:text)).to match_array(['note on keep self-ref', 'note on destroy self-ref'])
+    end
+  end
+
   specify 'unifies Otus in Matrices with overlapping observations' do
     om = ObservationMatrix.create!(name: 'Lune')
     ri1 = ObservationMatrixRowItem::Single.create!(observation_object: o1, observation_matrix: om)
@@ -1053,6 +1472,109 @@ describe 'Shared::Unify', type: :model do
     result = keep.unify(destroy)
 
     expect(result[:details]['Related taxon name relationships'][:deduplicated]).to eq(1)
+  end
+
+  # A populated species-rank Protonym typically carries its own
+  # self-referential OriginalCombination::OriginalSpecies relationship
+  # (subject_taxon_name == object_taxon_name == itself), recording "the
+  # original species epithet is unchanged". validate_subject_and_object_are_
+  # not_identical explicitly permits self-reference only for
+  # OriginalCombination types.
+  #
+  # Unlike the duplicate-via-a-third-party cases above (where the
+  # conflicting record's other FK points at some uninvolved name and so
+  # only one merge_relations pass ever touches it), a self-referential
+  # record has *both* its subject and object pointing at destroy, so it's
+  # picked up by both the subject-side and object-side passes. Reassigning
+  # both of its FKs together (Shared::Unify#reassign_foreign_keys) - rather
+  # than one at a time across the two passes - is what makes this
+  # resolvable: the fully-migrated shape it lands on (or fails to, if it
+  # collides) matches what #identical needs to find keep's own analogous
+  # record. See #4971. Both creation orders specced: neither record ever
+  # references the other TaxonName directly, so keep's self-ref is never
+  # itself reassigned - it only ever plays the passive "thing destroy's
+  # collides with" role, making the survivor order-independent (verified:
+  # both orders below land on keep's self-ref surviving) - but pinned down
+  # in both orders anyway since that's a property of the current
+  # implementation, not a documented guarantee.
+  specify 'unifies two TaxonNames that each have their own self-referential OriginalSpecies relationship - keep self-ref created first' do
+    keep = FactoryBot.create(:relationship_species)
+    destroy = FactoryBot.create(:relationship_species)
+
+    r_keep = TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(subject_taxon_name: keep, object_taxon_name: keep)
+    r_destroy = TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(subject_taxon_name: destroy, object_taxon_name: destroy)
+
+    FactoryBot.create(:valid_note, note_object: r_keep, text: 'note on keep self-ref')
+    FactoryBot.create(:valid_note, note_object: r_destroy, text: 'note on destroy self-ref')
+
+    result = keep.unify(destroy)
+
+    expect(result[:result][:unified]).to be(true)
+    expect(destroy.destroyed?).to be_truthy
+    expect(TaxonNameRelationship.count).to eq(1)
+
+    survivor = TaxonNameRelationship.first
+    expect(survivor.subject_taxon_name).to eq(keep)
+    expect(survivor.object_taxon_name).to eq(keep)
+    expect(Note.where(note_object: survivor).pluck(:text)).to match_array(['note on keep self-ref', 'note on destroy self-ref'])
+  end
+
+  specify 'unifies two TaxonNames that each have their own self-referential OriginalSpecies relationship - destroy self-ref created first' do
+    keep = FactoryBot.create(:relationship_species)
+    destroy = FactoryBot.create(:relationship_species)
+
+    r_destroy = TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(subject_taxon_name: destroy, object_taxon_name: destroy)
+    r_keep = TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(subject_taxon_name: keep, object_taxon_name: keep)
+
+    FactoryBot.create(:valid_note, note_object: r_destroy, text: 'note on destroy self-ref')
+    FactoryBot.create(:valid_note, note_object: r_keep, text: 'note on keep self-ref')
+
+    result = keep.unify(destroy)
+
+    expect(result[:result][:unified]).to be(true)
+    expect(destroy.destroyed?).to be_truthy
+    expect(TaxonNameRelationship.count).to eq(1)
+
+    survivor = TaxonNameRelationship.first
+    expect(survivor.subject_taxon_name).to eq(keep)
+    expect(survivor.object_taxon_name).to eq(keep)
+    expect(Note.where(note_object: survivor).pluck(:text)).to match_array(['note on keep self-ref', 'note on destroy self-ref'])
+  end
+
+  # OriginalCombination's uniqueness validator is narrower than
+  # #identical's comparison: validates_uniqueness_of on OriginalSpecies is
+  # scoped to [:type] on object_taxon_name_id alone (see
+  # taxon_name_relationship/original_combination/original_species.rb's
+  # parent class), ignoring subject_taxon_name_id entirely - but
+  # #identical (Shared::IsData) compares the full attribute set, subject
+  # included. So a record can be rejected as "not unique" by the validator
+  # while still failing to match anything via #identical, if the existing
+  # colliding record has a *different* subject. That's the case here:
+  # destroy's self-ref OriginalSpecies (subject: destroy, object: destroy)
+  # collides on the object+type scope with keep's *pre-existing*
+  # OriginalSpecies from a different subject (third, object: keep) once
+  # reassigned - but once fully migrated it would be (subject: keep,
+  # object: keep), which does not match third's (subject: third, object:
+  # keep). These represent genuinely different, conflicting claims about
+  # keep's original species (unlike a real duplicate), so dedup correctly
+  # can't/shouldn't resolve it - the whole unify must roll back rather
+  # than silently keep one arbitrary side.
+  specify 'unify reports unmerged (not merged, not deduplicated) when a self-referential OriginalSpecies collides on the validator''s narrower scope but is not a match for #identical' do
+    keep = FactoryBot.create(:relationship_species)
+    destroy = FactoryBot.create(:relationship_species)
+    third = FactoryBot.create(:relationship_species)
+
+    TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(subject_taxon_name: third, object_taxon_name: keep)
+    TaxonNameRelationship::OriginalCombination::OriginalSpecies.create!(subject_taxon_name: destroy, object_taxon_name: destroy)
+
+    result = keep.unify(destroy)
+
+    expect(result[:result][:unified]).to be(false)
+    expect(destroy.reload.destroyed?).to be_falsey
+    expect(result[:details]['Related taxon name relationships'][:merged]).to eq(0)
+    expect(result[:details]['Related taxon name relationships'][:deduplicated]).to eq(0)
+    expect(result[:details]['Related taxon name relationships'][:unmerged]).to eq(1)
+    expect(TaxonNameRelationship.count).to eq(2)
   end
 
   specify 'unifies TaxonNames when both are subjects of the same TaxonNameRelationship type to the same object' do
