@@ -1,13 +1,29 @@
 .switch-radio {
   --switch-size: var(--size-medium);
   --switch-padding: 2px;
+  --switch-track-bg: var(--bg-action);
+  --switch-label-color: color-mix(
+    in srgb,
+    var(--text-color) 60%,
+    var(--text-muted-color)
+  );
+  --switch-label-hover-bg: color-mix(
+    in srgb,
+    var(--text-color) 8%,
+    transparent
+  );
+  --switch-label-selected-bg: color-mix(
+    in srgb,
+    var(--color-primary) 20%,
+    transparent
+  );
   display: flex;
   width: fit-content;
   max-width: 100%;
   gap: var(--switch-padding);
   padding: var(--switch-padding);
   border-radius: var(--border-radius-small);
-  background-color: var(--bg-muted);
+  background-color: var(--switch-track-bg);
 
   .switch-title {
     margin-bottom: 6px;
@@ -28,9 +44,9 @@
     align-items: center;
     justify-content: center;
     height: calc(var(--switch-size) - (var(--switch-padding) * 2));
-    font-size: 12px;
+    font-size: var(--font-size-xs);
     text-align: center;
-    color: var(--text-muted-color);
+    color: var(--switch-label-color);
     background-color: transparent;
     border: 0;
     border-radius: var(--border-radius-xsmall);
@@ -38,22 +54,31 @@
     padding: 0 var(--spacing-sm);
     transition:
       background-color 0.12s ease,
+      box-shadow 0.12s ease,
       color 0.12s ease;
   }
 
   label:hover {
     cursor: pointer;
     color: var(--text-color);
-    background-color: var(--bg-hover);
+    background-color: var(--switch-label-hover-bg);
   }
 
   input:checked + label {
-    background-color: var(--color-soft-primary-bg);
+    background-color: var(--switch-label-selected-bg);
     color: var(--color-on-soft-primary);
+    box-shadow: inset 0 0 0 1px var(--border-active);
   }
 
   input:focus-visible + label {
-    box-shadow: 0 0 0 2px
-      color-mix(in srgb, var(--color-primary) 25%, transparent);
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 1px;
+  }
+
+  @media (forced-colors: active) {
+    input:checked + label {
+      background-color: Highlight;
+      color: HighlightText;
+    }
   }
 }
