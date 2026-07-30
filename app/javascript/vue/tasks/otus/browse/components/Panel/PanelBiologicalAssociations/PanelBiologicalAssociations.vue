@@ -20,10 +20,11 @@
         </div>
       </template>
 
-      <template #detail="{ payload, pop }">
+      <template #detail="{ payload, push, pop }">
         <PanelBiologicalAssociationsDetail
           :association="payload"
           @close="pop"
+          @open-detail="push"
         />
       </template>
     </SlidingStack>

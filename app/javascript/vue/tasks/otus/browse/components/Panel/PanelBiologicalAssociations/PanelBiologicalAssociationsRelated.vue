@@ -1,97 +1,178 @@
 <template>
-  <VModal
-    v-if="isModalVisible"
-    :container-style="{ maxWidth: '800px', width: 'auto' }"
-    @close="isModalVisible = false"
-  >
-    <template #header>
-      <h3>Related biological associations</h3>
+  <div class="ba-related">
+    <div class="ba-related__header">
+      <h3 class="ba-related__title">Related</h3>
+      <VSwitch
+        v-if="pagination.total"
+        v-model="view"
+        :options="VIEWS"
+      />
+    </div>
+
+    <VSkeleton
+      v-if="!isInitialized"
+      variant="rect"
+      height="360px"
+    />
+
+    <div v-else-if="!pagination.total">No related associations found.</div>
+
+    <template v-else-if="view === TABLE_VIEW">
+      <div class="overflow-x-auto">
+        <PanelBiologicalAssociationsTable
+          :list="list"
+          @open-detail="emit('open-detail', $event)"
+        />
+      </div>
+      <div class="ba-related__pagination">
+        <VPagination
+          v-if="pagination.totalPages > 1"
+          :pagination="pagination"
+          @next-page="({ page }) => loadPage(page)"
+        />
+        <PaginationCount
+          v-model="perPage"
+          :pagination="pagination"
+        />
+      </div>
     </template>
 
-    <template #body>
-      <VSpinner v-if="isLoading" />
-      <ul>
-        <li
-          v-for="item in biologicalAssociations"
-          :key="item.id"
-          v-html="item.object_tag"
-        />
-      </ul>
-    </template>
-  </VModal>
-  <VBtn
-    color="primary"
-    @click="isModalVisible = true"
-  >
-    Related ({{ total }})
-  </VBtn>
+    <VSkeleton
+      v-else-if="isLoadingGraph"
+      variant="rect"
+      height="560px"
+    />
+
+    <PanelBiologicalAssociationsNetwork
+      v-else
+      :list="records"
+    />
+  </div>
 </template>
 
 <script setup>
-import { ref, onBeforeMount, watch } from 'vue'
+import { ref, watch, onBeforeMount } from 'vue'
 import { BiologicalAssociation } from '@/routes/endpoints'
-import {
-  OTU,
-  COLLECTION_OBJECT,
-  FIELD_OCCURRENCE,
-  ANATOMICAL_PART
-} from '@/constants/index.js'
-import VModal from '@/components/ui/Modal.vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
-import VSpinner from '@/components/ui/VSpinner.vue'
+import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams'
+import PanelBiologicalAssociationsNetwork from './PanelBiologicalAssociationsNetwork.vue'
+import PanelBiologicalAssociationsTable from './PanelBiologicalAssociationsTable.vue'
+import PaginationCount from '@/components/pagination/PaginationCount.vue'
+import VPagination from '@/components/pagination.vue'
+import VSkeleton from '@/components/ui/VSkeleton/VSkeleton.vue'
+import VSwitch from '@/components/ui/VSwitch.vue'
 import getPagination from '@/helpers/getPagination'
+import { listAdapter, EXTEND } from './utils/listAdapter.js'
 
-const PARAM = {
-  [OTU]: 'otu_id',
-  [COLLECTION_OBJECT]: 'collection_object_id',
-  [FIELD_OCCURRENCE]: 'field_occurrence_id',
-  [ANATOMICAL_PART]: 'anatomical_part_id'
-}
+const GRAPH_EXTEND = ['subject', 'object', 'biological_relationship']
+const TABLE_VIEW = 'Table'
+const GRAPH_VIEW = 'Graph'
+const VIEWS = [TABLE_VIEW, GRAPH_VIEW]
 
 const props = defineProps({
-  current: {
+  association: {
     type: Object,
     required: true
-  },
-
-  itemId: {
-    type: Number,
-    required: true
-  },
-
-  itemType: {
-    type: String,
-    required: true
   }
 })
 
-const isModalVisible = ref(false)
-const biologicalAssociations = ref([])
-const total = ref('?')
-const isLoading = ref(false)
+const emit = defineEmits(['open-detail'])
 
-onBeforeMount(async () => {
-  const payload = {
-    [PARAM[props.itemType]]: [props.itemId],
-    per: 1
+const view = ref(TABLE_VIEW)
+
+const list = ref([])
+const pagination = ref({})
+const isInitialized = ref(false)
+const perPage = ref(50)
+
+const records = ref([])
+const isLoadingGraph = ref(false)
+const isGraphLoaded = ref(false)
+
+function idParams() {
+  const { subjectType, subjectId, objectType, objectId } = props.association
+  const params = {}
+
+  for (const [type, id] of [
+    [subjectType, subjectId],
+    [objectType, objectId]
+  ]) {
+    const param = ID_PARAM_FOR[type]
+
+    params[param] = [...(params[param] || []), id]
   }
-  const response = await BiologicalAssociation.filter(payload)
 
-  total.value = getPagination(response).total - 1
-})
+  return params
+}
 
-watch(isModalVisible, async (newVal) => {
-  if (newVal && !biologicalAssociations.value.length) {
-    isLoading.value = true
-    const { body } = await BiologicalAssociation.all({
-      [PARAM[props.itemType]]: [props.itemId]
+async function loadPage(page) {
+  try {
+    const response = await BiologicalAssociation.where({
+      ...idParams(),
+      extend: EXTEND,
+      page,
+      per: Number(perPage.value)
     })
 
-    isLoading.value = false
+    list.value = await listAdapter(response.body)
+    pagination.value = getPagination(response)
+  } catch {
+  } finally {
+    isInitialized.value = true
+  }
+}
 
-    biologicalAssociations.value = body.filter(
-      (item) => item.id !== props.current.id
-    )
+/** The graph needs every association at once; loaded on demand. */
+async function loadGraph() {
+  isLoadingGraph.value = true
+
+  try {
+    const { body } = await BiologicalAssociation.all({
+      ...idParams(),
+      extend: GRAPH_EXTEND
+    })
+
+    records.value = body
+    isGraphLoaded.value = true
+  } catch {
+  } finally {
+    isLoadingGraph.value = false
+  }
+}
+
+onBeforeMount(() => loadPage(1))
+
+watch(view, (newView) => {
+  if (newView === GRAPH_VIEW && !isGraphLoaded.value) {
+    loadGraph()
   }
 })
+
+watch(perPage, () => loadPage(1))
 </script>
+
+<style scoped>
+.ba-related {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ba-related__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.ba-related__title {
+  margin: 0;
+}
+
+.ba-related__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+</style>

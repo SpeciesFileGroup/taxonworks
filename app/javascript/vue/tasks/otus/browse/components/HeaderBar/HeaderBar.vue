@@ -1,5 +1,8 @@
 <template>
-  <NavBar :class="{ 'feedback-warning': isInvalid }">
+  <NavBar
+    :class="{ 'feedback-warning': isInvalid }"
+    navbar-class="panel content rounded-tl-none rounded-tr-none"
+  >
     <div
       id="browse-otu-header"
       class="container-2xl w-full mx-auto"

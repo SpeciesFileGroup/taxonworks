@@ -16,16 +16,16 @@ function getBiologicalProperty(biologicalRelationshipTypes, type) {
     ?.biological_property?.name
 }
 
-function parseRank(rank) {
-  return Array.isArray(rank) ? rank.filter(Boolean).join(' ') : rank
-}
-
 function authorString(citation) {
   const pages = citation.pages ? `:${citation.pages}` : ''
 
   return `${citation.source.author_year}${
     citation.source.year_suffix || ''
   }${pages}`
+}
+
+function parseRank(rank) {
+  return Array.isArray(rank) ? rank.filter(Boolean).join(' ') : rank
 }
 
 async function getTags(list) {

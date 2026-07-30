@@ -1,16 +1,10 @@
 <template>
   <div class="ba-network">
-    <VSkeleton
-      variant="rect"
-      height="560px"
-      v-if="isLoading"
-    />
-
-    <template v-else-if="biologicalAssociations.length">
+    <template v-if="list.length">
       <div class="ba-network__toolbar">
         <span
           v-for="type in objectTypes"
-          :key="key"
+          :key="type"
           class="ba-network__legend"
         >
           <span
@@ -45,12 +39,10 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive, onBeforeMount } from 'vue'
+import { ref, computed, reactive } from 'vue'
 import { VNetworkGraph, defineConfigs, VEdgeLabel } from 'v-network-graph'
 import { ForceLayout } from 'v-network-graph/lib/force-layout'
-import { BiologicalAssociation } from '@/routes/endpoints'
 import { makeBrowseUrl } from '@/helpers'
-import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams'
 import {
   COLLECTION_OBJECT,
   OTU,
@@ -64,7 +56,6 @@ import {
   nodeOtuStyle,
   nodeAnatomicalPartStyle
 } from '@/tasks/biological_associations/biological_associations_graph/constants/graphStyle.js'
-import VSkeleton from '@/components/ui/VSkeleton/VSkeleton.vue'
 
 const NODE_STYLES = {
   [COLLECTION_OBJECT]: nodeCollectionObjectStyle,
@@ -74,24 +65,13 @@ const NODE_STYLES = {
 }
 
 const props = defineProps({
-  current: {
-    type: Object,
-    required: true
-  },
-
-  itemId: {
-    type: Number,
-    required: true
-  },
-
-  itemType: {
-    type: String,
-    required: true
+  /** Raw biological association records, as returned by the API. */
+  list: {
+    type: Array,
+    default: () => []
   }
 })
 
-const isLoading = ref(false)
-const biologicalAssociations = ref([])
 const selectedNodeKey = ref(null)
 const selectedEdgeKey = ref(null)
 
@@ -99,7 +79,7 @@ const layouts = reactive({ nodes: {} })
 
 const objectTypes = computed(() => [
   ...new Set(
-    biologicalAssociations.value
+    props.list
       .map((b) => [
         b.biological_association_subject_type,
         b.biological_association_object_type
@@ -107,23 +87,6 @@ const objectTypes = computed(() => [
       .flat()
   )
 ])
-
-onBeforeMount(async () => {
-  if (!biologicalAssociations.value.length) {
-    isLoading.value = true
-
-    const { body } = await BiologicalAssociation.all({
-      [ID_PARAM_FOR[props.itemType]]: [props.itemId].flat(),
-      extend: ['subject', 'object', 'biological_relationship']
-    })
-
-    biologicalAssociations.value = body /* .filter(
-      (item) => item.id !== props.current.id
-    ) */
-
-    isLoading.value = false
-  }
-})
 
 function getNodeStyleByType(objectType) {
   return NODE_STYLES[objectType]
@@ -157,7 +120,7 @@ const nodes = computed(() => {
     })
   }
 
-  for (const assoc of biologicalAssociations.value) {
+  for (const assoc of props.list) {
     ensureNode(
       assoc.biological_association_subject_type,
       assoc.biological_association_subject_id,
@@ -181,7 +144,7 @@ const nodes = computed(() => {
 const edges = computed(() => {
   const map = {}
 
-  biologicalAssociations.value.forEach((assoc) => {
+  props.list.forEach((assoc) => {
     const source = nodeKey(
       assoc.biological_association_subject_type,
       assoc.biological_association_subject_id

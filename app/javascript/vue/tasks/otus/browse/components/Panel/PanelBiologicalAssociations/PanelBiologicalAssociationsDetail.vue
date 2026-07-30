@@ -102,12 +102,12 @@
         </div>
       </div>
 
-      <h3>Related</h3>
-      <PanelBiologicalAssociationsNetwork
-        :item-id="[association.subjectId, association.objectId]"
-        :item-type="association.subjectType"
-        :current="association"
+      <PanelBiologicalAssociationsRelated
+        :key="association.id"
+        :association="association"
+        @open-detail="emit('open-detail', $event)"
       />
+
       <!-- Citations -->
       <div
         v-if="association.citations.length"
@@ -156,7 +156,7 @@
 </template>
 
 <script setup>
-import PanelBiologicalAssociationsNetwork from './PanelBiologicalAssociationsNetwork.vue'
+import PanelBiologicalAssociationsRelated from './PanelBiologicalAssociationsRelated.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
@@ -170,7 +170,7 @@ defineProps({
   }
 })
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close', 'open-detail'])
 </script>
 
 <style scoped>

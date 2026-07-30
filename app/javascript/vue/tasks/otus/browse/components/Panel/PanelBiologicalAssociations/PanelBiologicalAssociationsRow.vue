@@ -52,16 +52,23 @@
       />
     </td>
     <td class="table-cell-border-left-thick">
-      <template
-        v-for="(citation, index) in row.citations"
-        :key="citation.id"
-      >
-        <a
-          :href="`/tasks/nomenclature/by_source?source_id=${citation.source_id}`"
-          :title="`${citation.source.cached}`"
-          v-html="citation.label"
-        />
-        <span v-if="index < row.citations.length - 1">; </span>
+      <CitationsCount
+        v-if="row.citations.length > MAX_INLINE_CITATIONS"
+        :citations="row.citations"
+        :remove="false"
+      />
+      <template v-else>
+        <template
+          v-for="(citation, index) in row.citations"
+          :key="citation.id"
+        >
+          <a
+            :href="`${RouteNames.NomenclatureBySource}?source_id=${citation.source_id}`"
+            :title="`${citation.source.object_label}`"
+            v-html="citation.label"
+          />
+          <span v-if="index < row.citations.length - 1">; </span>
+        </template>
       </template>
     </td>
     <td>
@@ -75,12 +82,16 @@
 </template>
 
 <script setup>
+import CitationsCount from '@/components/citations/CitationsCount.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import { RouteNames } from '@/routes/routes'
 import { makeBrowseUrl } from '@/helpers'
+
+const MAX_INLINE_CITATIONS = 1
 
 defineProps({
   row: {
