@@ -46,11 +46,11 @@ class Serial < ApplicationRecord
 
   ALTERNATE_VALUES_FOR = [:name, :publisher, :place_published].freeze
 
-  belongs_to :translated_from_serial, foreign_key: :translated_from_serial_id, class_name: 'Serial'
+  belongs_to :translated_from_serial, foreign_key: :translated_from_serial_id, class_name: 'Serial', inverse_of: :translations
   belongs_to :language, foreign_key: :primary_language_id, inverse_of: :serials
   has_many :sources, class_name: 'Source::Bibtex', inverse_of: :serial, dependent: :restrict_with_error
 
-  has_many :translations, foreign_key: :translated_from_serial_id, class_name: 'Serial', dependent: :destroy
+  has_many :translations, foreign_key: :translated_from_serial_id, class_name: 'Serial', dependent: :destroy, inverse_of: :translated_from_serial
   has_many :succeeding_serial_chronologies, foreign_key: :succeeding_serial_id, inverse_of: :succeeding_serial, class_name: 'SerialChronology', dependent: :restrict_with_error
   has_many :preceding_serial_chronologies, foreign_key: :preceding_serial_id, inverse_of: :preceding_serial, class_name: 'SerialChronology', dependent: :restrict_with_error
 

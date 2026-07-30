@@ -708,6 +708,58 @@ describe 'Shared::Unify', type: :model do
     expect(b.destroyed?).to be_truthy
   end
 
+  # Regression for a crash fixed alongside the used_inferred_relations
+  # linting spec above (see #4971): Serial#unify_relations force-includes
+  # :translations regardless of inverse_of: (unify_relations bypasses that
+  # check - see Shared::Unify#used_inferred_relations), and the :translations
+  # has_many previously had no inverse_of: set. That left
+  # reassign_foreign_keys's primary_association nil for every translation
+  # record found, and `associations |= [primary_association]` folded that
+  # nil into the update hash, raising ActiveModel::UnknownAttributeError
+  # instead of moving the record - for any Serial#unify where the removed
+  # Serial had a translation, not just a self-referential one.
+  specify 'unifies Serials when the removed Serial has a translation pointing at it' do
+    a = FactoryBot.create(:valid_serial)
+    b = FactoryBot.create(:valid_serial)
+    translation = FactoryBot.create(:valid_serial, translated_from_serial: b)
+
+    result = a.unify(b, target_project_id: project_id)
+
+    expect(result[:result][:unified]).to be(true)
+    expect(b.destroyed?).to be_truthy
+    expect(translation.reload.translated_from_serial).to eq(a)
+  end
+
+  # Same underlying gap, but via the dual-targeted shape this branch's other
+  # commits are about (see e.g. the BiologicalAssociation/OtuRelationship/
+  # TaxonNameRelationship self-referential contexts above): nothing prevents
+  # translated_from_serial_id from pointing at the Serial's own row, so the
+  # removed Serial can appear in its own :translations collection.
+  #
+  # Unlike the TaxonNameRelationship/BiologicalAssociation dual-targeted
+  # cases, this self-loop does not survive onto the keeper. Those cases
+  # involve two independent belongs_to columns on one surviving third-party
+  # record, so redirecting both to self leaves that record self-referential.
+  # Serial's translated_from_serial/translations pair has only one
+  # belongs_to; its self-loop can only be the removed Serial's own FK
+  # pointing at its own row, and that row is destroyed right after the
+  # redirect - there's no surviving record left to carry it forward. This
+  # is consistent with #unify's general rule that a removed object's own
+  # belongs_to/attribute values are never copied onto the keeper (see
+  # module header) - confirmed true here even though the target happens to
+  # be the removed object itself.
+  specify 'unifies Serials when the removed Serial is its own translated_from_serial' do
+    a = FactoryBot.create(:valid_serial)
+    b = FactoryBot.create(:valid_serial)
+    b.update!(translated_from_serial: b)
+
+    result = a.unify(b, target_project_id: project_id)
+
+    expect(result[:result][:unified]).to be(true)
+    expect(b.destroyed?).to be_truthy
+    expect(a.reload.translated_from_serial).to be_nil
+  end
+
   specify 'deduplicates Depictions referencing the same image' do
     i = FactoryBot.create(:valid_image)
 
