@@ -3,7 +3,7 @@
 # !! The module works on relations, not attributes, which are ignored and untouched (but see position, and is_original).
 # !! For example if two objects have differing `name` fields this is ignored.
 #
-# When :only or :except are provided, then the remove_object IS NOT DESTROYED, only data are moved between objects.555h
+# When :only or :except are provided, then the remove_object IS NOT DESTROYED, only data are moved between objects.
 #
 # If they are not provided, we attempt to destroy the `remove_object`
 #  * If a related object is now a duplicate then its annotations are moved to the deduplicate object
@@ -126,27 +126,13 @@ module Shared::Unify
     will_destroy = only.empty? && except.empty?
     destroy_key = { id: remove_object.id, type: remove_object.class.base_class.name }
 
-    # Outcome (see resolve_unify_outcome) already computed for a given
-    # record in *this* unify call, keyed by [base class name, id]. A record
-    # whose subject and object both point at remove_object (see
-    # reassign_foreign_keys) is returned by more than one of
-    # merge_relations's has_many/has_one collections - it genuinely
-    # represents activity under each of those relation labels (2 distinct
-    # FKs moving is 2 distinct things happening, not 1), so it should still
-    # be counted and reported under each. What must not happen twice is
-    # the *work*: reassign_foreign_keys already moves every such FK in one
-    # shot the first time it's seen, and the dedup fallback it can trigger
-    # has real side effects (it can destroy another record) - so a later
-    # pass reuses the first pass's outcome instead of redoing any of that.
+    # Memoize reassign_foreign_keys outcomes _on a given related object_ of
+    # remove_object: *all* FKs on the object are moved when the first FK is
+    # encountered, but we still want to visit each FK separately (in the
+    # uncommon case that there's more than one) in our FK loop below to accrue
+    # counts correctly.
     resolved_unify_outcomes = {}
 
-    # The set of belongs_to association names this call is actually
-    # allowed to touch - every has_many/has_one relation's inverse_of
-    # that only:/except: left in scope. reassign_foreign_keys uses this to
-    # avoid reassigning a "free" extra FK (see its comment) that the
-    # caller specifically excluded via only:/except: - honoring a partial
-    # move means leaving an out-of-scope FK alone, even on a
-    # self-referential record.
     relations = merge_relations(only:, except:)
     allowed_associations = relations.map { |r| r.options[:inverse_of] }.compact
 
@@ -188,7 +174,9 @@ module Shared::Unify
             i.find_each do |j|
               key = [j.class.base_class.name, j.id]
               outcome = resolved_unify_outcomes[key] ||= begin
-                reassign_foreign_keys(j, remove_object, r.options[:inverse_of], allowed_associations)
+                reassign_foreign_keys(
+                  j, remove_object, r.options[:inverse_of], allowed_associations
+                )
                 resolve_unify_outcome(j)
               end
               apply_unify_outcome(outcome, n, s)
@@ -203,7 +191,9 @@ module Shared::Unify
 
               key = [i.class.base_class.name, i.id]
               outcome = resolved_unify_outcomes[key] ||= begin
-                reassign_foreign_keys(i, remove_object, r.options[:inverse_of], allowed_associations)
+                reassign_foreign_keys(
+                  i, remove_object, r.options[:inverse_of], allowed_associations
+                )
                 resolve_unify_outcome(i)
               end
               apply_unify_outcome(outcome, n, s)
@@ -333,69 +323,20 @@ module Shared::Unify
   end
 
   # Reassign every belongs_to FK on `record` that currently points at
-  # `remove_object` to self, not just `primary_association`, in a single
-  # update.
+  # `remove_object` to self, in a single update.
   #
-  # Needed for self-referential records - e.g. a TaxonNameRelationship
-  # whose subject_taxon_name and object_taxon_name are both remove_object,
-  # as happens with OriginalCombination "epithet unchanged" bookkeeping
-  # records, or a BiologicalAssociation whose (polymorphic)
-  # biological_association_subject and biological_association_object are
-  # both remove_object. merge_relations processes each of a record's
-  # belongs_to sides in a separate pass (has_many :taxon_name_relationships
-  # vs has_many :related_taxon_name_relationships; has_many
-  # :biological_associations vs has_many :related_biological_associations),
-  # one FK at a time. Reassigning only primary_association's FK on whichever
-  # pass runs first would leave the record in a half-migrated state (e.g.
-  # subject: self, object: remove_object) - not its original shape, and not
-  # the fully-migrated shape that #identical (via deduplicate_update_target)
-  # needs to match self's own analogous record against. The other pass
-  # wouldn't catch it either, since by then this FK already points away
-  # from remove_object.
-  #
-  # This must genuinely reassign every such FK in this one call: #unify
-  # caches the outcome of the *first* call for a given record and replays
-  # it for any later pass that finds the same record again (see
-  # resolved_unify_outcomes in #unify) rather than re-attempting it - that
-  # caching is only correct if this call is the one and only place the
-  # record's FKs actually get touched. See #4971.
-  #
-  # allowed_associations (see #unify) restricts that to what only:/except:
-  # actually put in scope for this call - primary_association is always
-  # included regardless, since it's the relation this call is already
-  # processing, but an "extra" FK this method would otherwise also
-  # reassign for free is left untouched if its own relation was excluded.
-  # Without this, a caller using only:/except: for a deliberate partial
-  # move of a self-referential record would silently get more moved than
-  # asked for.
-  #
-  # A consequence: an "extra" FK is only ever reassigned if it's reachable
-  # from self's own merge_relations - i.e. both sides of the dual-FK pair
-  # follow the /related/-naming convention inferred_relations depends on
-  # (see Serial#unify_relations for a model that had to explicitly
-  # re-include its self-referential associations to satisfy this). If a
-  # future model's dual-FK pair is wired up asymmetrically - one side
-  # reachable, the other not - this method will silently under-reassign a
-  # self-referential record on *every* unify call for that model, not just
-  # only:/except:-scoped ones. That's the same "half-migrated" failure
-  # this method exists to prevent, just via a different root cause.
-  # Confirmed (not just theoretical): whether that then surfaces as a safe
-  # rollback or silently succeeds with a dangling reference depends
-  # entirely on whether the excluded association's table has a real
-  # dependent: restriction or DB-level foreign key - every dual-FK model
-  # in this codebase today has one or the other, so the observed failure
-  # mode is always a clean rollback (RecordNotDestroyed or
-  # InvalidForeignKey, both already rescued below), never corruption - but
-  # that's a property of this codebase's models, not something this
-  # method itself guarantees. `rake
-  # tw:development:linting:inverse_of_preventing_unify` is what catches
-  # the asymmetric wiring itself. See #4971.
-  def reassign_foreign_keys(record, remove_object, primary_association, allowed_associations)
+  # (Needed for self-referential records - e.g. a TaxonNameRelationship
+  # whose subject_taxon_name and object_taxon_name are both remove_object.
+  # Moving such relations one at a time introduces meaningless intermediate
+  # states we would nonetheless act on as if they were final state.)
+  def reassign_foreign_keys(
+    record, remove_object, primary_association, allowed_associations
+  )
     associations = foreign_keys_pointing_at(record, remove_object).map(&:name)
     associations &= allowed_associations
     associations |= [primary_association]
 
-    record.update(associations.index_with { self })
+    record.update(associations.index_with { self }) # errors stored on record
   end
 
   # @return Array of ActiveRecord::Reflection
@@ -420,8 +361,8 @@ module Shared::Unify
   def deduplicate_update_target(object)
     i = object.identical
 
-    # There is exactly 1 match, merge is unambiguous
     if i.size == 1
+      # There is exactly 1 match, merge is unambiguous.
       j = i.first
       # object's own FK is still dirty from the failed update attempt (it
       # points at self/KEEP, not its real enclosing remove_object); reload so
@@ -429,19 +370,13 @@ module Shared::Unify
       # phantom ones based on that dirty state.
       j.unify(object.reload)
     else
-      # Merge would be ambiguous, there are multiple matches
+      # Merge would be ambiguous, there are multiple matches.
       return false
     end
   end
 
   # Attempts the fixups and dedup fallback for a record whose FK(s) were
-  # just (attempted to be) reassigned to self, but without touching any
-  # particular relation label's tally - see apply_unify_outcome. Split out
-  # so unify can resolve a record's outcome once and apply it under every
-  # relation label that record is relevant to (see reassign_foreign_keys
-  # and resolved_unify_outcomes in #unify), rather than redoing this -
-  # including the dedup fallback's real side effects, like destroying
-  # another record - once per label.
+  # just (attempted to be) reassigned to self.
   #
   # @param object [ActiveRecord::Base] a record in another table that has a
   #   FK pointing to the remove_object (DESTROY) being unified away; the
@@ -453,8 +388,8 @@ module Shared::Unify
   #   { status: :deduplicated }
   #   { status: :unmerged, id:, message: }
   def resolve_unify_outcome(object)
-    # Handle an edge case, preserve Citations that
-    # would only be invalid due to origin flag
+    # Handle an edge case, preserve Citations that would only be invalid due to
+    # origin flag.
     if object.class.name == 'Citation' && object.errors.key?(:is_original) && object.is_original
       object.is_original = false
       object.save
@@ -469,8 +404,7 @@ module Shared::Unify
       # If the attempted move failed, it may be because an identical record
       # already exists on self (a duplicate) - try to find and merge into it.
       # #identical won't match unless there's a genuine duplicate, so this is
-      # safe to attempt for *any* validation failure, not just the ones that
-      # look like a uniqueness conflict.
+      # safe to attempt for *any* validation failure.
       dedup_result = deduplicate_update_target(object)
       if dedup_result && dedup_result[:result][:unified]
         { status: :deduplicated }
