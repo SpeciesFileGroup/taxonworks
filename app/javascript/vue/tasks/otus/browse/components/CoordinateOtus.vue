@@ -1,12 +1,8 @@
 <template>
   <div>
-    <tippy
+    <VTooltip
       v-if="store.coordinateOtus.length > 1"
-      animation="scale"
       placement="bottom"
-      size="small"
-      inertia
-      arrow
     >
       <VBtn
         color="primary"
@@ -15,28 +11,26 @@
         Coordinate OTUs ({{ store.coordinateOtus.length }})
       </VBtn>
       <template #content>
-        <div class="padding-small text-xs">
-          <ul class="no_bullets">
-            <li
-              v-for="otu in store.coordinateOtus"
-              :key="otu.id"
-              class="horizontal-left-content gap-small"
+        <ul class="no_bullets">
+          <li
+            v-for="otu in store.coordinateOtus"
+            :key="otu.id"
+            class="horizontal-left-content gap-small"
+          >
+            <span
+              v-if="store.selectedOtus.some((o) => o.id === otu.id)"
+              class="font-bold"
             >
-              <span
-                v-if="store.selectedOtus.some((o) => o.id === otu.id)"
-                class="font-bold"
-              >
-                > {{ otu.object_label }}
-              </span>
-              <span
-                v-else
-                v-html="otu.object_label"
-              />
-            </li>
-          </ul>
-        </div>
+              > {{ otu.object_label }}
+            </span>
+            <span
+              v-else
+              v-html="otu.object_label"
+            />
+          </li>
+        </ul>
       </template>
-    </tippy>
+    </VTooltip>
     <VModal
       v-if="isModalVisible"
       :container-style="{ width: '700px' }"
@@ -113,7 +107,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import ButtonUnify from '@/components/ui/Button/ButtonUnify.vue'
-import { Tippy } from 'vue-tippy'
+import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
 import { useOtuStore } from '../store'
 import { OTU } from '@/constants'
 
