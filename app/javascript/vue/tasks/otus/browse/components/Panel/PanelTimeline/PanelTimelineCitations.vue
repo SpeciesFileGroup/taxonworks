@@ -2,7 +2,7 @@
   <div class="text-base font-bold">Citations ({{ totalCount }})</div>
   <div
     v-if="citations.length"
-    class="margin-medium-top margin-medium-bottom"
+    class="margin-medium-top margin-xlarge-bottom"
   >
     <ul class="taxonomic_history no_bullets">
       <template

@@ -9,7 +9,7 @@
     />
     <template v-else>
       <div class="text-base font-bold">Citations ({{ list.length }})</div>
-      <div class="margin-medium-top margin-medium-bottom">
+      <div class="margin-medium-top margin-xlarge-bottom">
         <ul class="taxonomic_history no_bullets">
           <li
             v-for="item in list"

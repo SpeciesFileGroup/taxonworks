@@ -22,7 +22,8 @@ const OVERVIEW_ASIDE = [
   'PanelCommonNames',
   'PanelContent',
   'PanelAnnotations',
-  'PanelConveyance'
+  'PanelConveyance',
+  'PanelDescription'
 ]
 
 const OVERVIEW_BELOW = PANEL_KEYS.filter(

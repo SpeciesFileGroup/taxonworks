@@ -1,14 +1,16 @@
 <template>
   <div
-    class="flex flex-row gap-small middle margin-small-top"
     v-if="shapeTypes.length"
+    class="distribution-legend"
   >
     <div
       v-for="type in shapeTypes"
       :key="type"
-      class="flex flex-row middle gap-xsmall"
+      class="distribution-legend__item"
     >
-      <div :class="['legend-square', MAP_LEGEND[type].background]" />
+      <div
+        :class="['distribution-legend__swatch', MAP_LEGEND[type].background]"
+      />
       <span>{{ MAP_LEGEND[type].label }}</span>
     </div>
   </div>
@@ -25,10 +27,24 @@ defineProps({
 })
 </script>
 
-<style scoped>
-.legend-square {
-  border-radius: 0.125rem;
+<style lang="scss" scoped>
+.distribution-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.distribution-legend__item {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.distribution-legend__swatch {
+  flex-shrink: 0;
   width: 12px;
   height: 12px;
+  border-radius: var(--border-radius-xsmall);
 }
 </style>

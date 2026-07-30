@@ -5,17 +5,18 @@
     :spinner="isLoading"
     :skeleton="{
       variant: 'rect',
-      height: '500px'
+      height: '398px'
     }"
   >
-    <SwitchComponent
-      v-if="!isAggregateMap"
-      :options="Object.values(TABS)"
-      v-model="view"
-    />
-    <div class="relative">
+    <div
+      ref="mapContainerElement"
+      class="relative distribution-map"
+      :class="{ 'distribution-map--fullscreen': isFullscreen }"
+    >
       <VMap
+        ref="mapComponent"
         width="100%"
+        :height="isFullscreen ? '100%' : '332px'"
         cluster
         :zoom="2"
         :zoom-on-click="false"
@@ -26,19 +27,36 @@
         v-if="cachedMap"
         :cached-map="cachedMap"
       />
+      <div
+        class="absolute distribution-map__fullscreen"
+        :class="{ 'distribution-map__fullscreen--shifted': !!cachedMap }"
+      >
+        <VBtn
+          circle
+          class="leaflet-map-button"
+          :title="isFullscreen ? 'Exit full screen' : 'Full screen'"
+          @click="toggleFullscreen"
+        >
+          <VIcon
+            :name="isFullscreen ? 'contract' : 'expand'"
+            x-small
+          />
+        </VBtn>
+      </div>
+      <DistributionLegend :shape-types="shapeTypes" />
     </div>
-    <DistributionLegend :shape-types="shapeTypes" />
   </PanelLayout>
 </template>
 
 <script setup>
 import PanelLayout from '../PanelLayout.vue'
 import VMap from '@/components/ui/VMap/VMap.vue'
-import SwitchComponent from '@/components/ui/VSwitch.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import CachedMap from './CachedMap.vue'
 import DistributionLegend from './DistributionLegend.vue'
 import { makeClusterIconFor } from '@/components/ui/VMap/clusters'
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { GEOREFERENCE, ASSERTED_DISTRIBUTION, OTU } from '@/constants/index.js'
 import useDistribution from './composables/useDistribution.js'
 
@@ -116,6 +134,56 @@ const shapes = computed(() => {
 
 const view = ref(TABS.Both)
 
+const mapContainerElement = ref(null)
+const mapComponent = ref(null)
+const isFullscreen = ref(false)
+
+async function toggleFullscreen() {
+  if (isFullscreen.value) {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen()
+    }
+
+    isFullscreen.value = false
+  } else {
+    try {
+      await mapContainerElement.value.requestFullscreen()
+    } catch {}
+
+    isFullscreen.value = true
+  }
+
+  await refreshMapSize()
+}
+
+async function refreshMapSize() {
+  await nextTick()
+  mapComponent.value?.getMapObject()?.invalidateSize()
+}
+
+function syncFullscreen() {
+  if (!document.fullscreenElement && isFullscreen.value) {
+    isFullscreen.value = false
+    refreshMapSize()
+  }
+}
+
+function exitFullscreenOnEscape(event) {
+  if (event.key === 'Escape' && isFullscreen.value) {
+    toggleFullscreen()
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('fullscreenchange', syncFullscreen)
+  document.addEventListener('keydown', exitFullscreenOnEscape)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('fullscreenchange', syncFullscreen)
+  document.removeEventListener('keydown', exitFullscreenOnEscape)
+})
+
 watch(
   () => props.otu,
   async (newOtu) => {
@@ -126,3 +194,33 @@ watch(
   { immediate: true }
 )
 </script>
+
+<style lang="scss" scoped>
+:deep(.body) {
+  padding: 0px !important;
+}
+
+.distribution-map__fullscreen {
+  top: 12px;
+  right: 12px;
+  z-index: 1098;
+}
+
+.distribution-map__fullscreen--shifted {
+  right: 64px;
+}
+
+.distribution-map--fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-color);
+
+  :deep(.vue-leaflet) {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+}
+</style>
