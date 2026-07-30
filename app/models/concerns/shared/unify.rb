@@ -416,7 +416,7 @@ module Shared::Unify
     end
   end
 
-  # @param object [ActiveRecord::Base] see log_unify_result
+  # @param object [ActiveRecord::Base] see resolve_unify_outcome
   def deduplicate_update_target(object)
     i = object.identical
 
@@ -434,33 +434,20 @@ module Shared::Unify
     end
   end
 
-  # During logging attempt to resolve duplicate
-  # objects issues by moving annotations from the
-  # would-be duplicate to an identical existing record.
+  # Attempts the fixups and dedup fallback for a record whose FK(s) were
+  # just (attempted to be) reassigned to self, but without touching any
+  # particular relation label's tally - see apply_unify_outcome. Split out
+  # so unify can resolve a record's outcome once and apply it under every
+  # relation label that record is relevant to (see reassign_foreign_keys
+  # and resolved_unify_outcomes in #unify), rather than redoing this -
+  # including the dedup fallback's real side effects, like destroying
+  # another record - once per label.
   #
-  # @param object [ActiveRecord::Base] a record in another table that has a FK
-  #   pointing to the remove_object (DESTROY) being unified away; the unify loop
-  #   just attempted to flip that FK to self (KEEP) and the attempted update is
-  #   reflected in object's in-memory state even if the save failed
-  # @param relation [ActiveRecord::Reflection] the has_many/has_one reflection
-  #   on self (KEEP) for the association being processed;
-  #   relation.options[:inverse_of] is the belongs_to on object's class whose FK
-  #   we tried to flip
-  # @param result [Hash] the running unify result accumulator
-  def log_unify_result(object, relation, result)
-    apply_unify_outcome(resolve_unify_outcome(object), relation.name.to_s.humanize, result)
-  end
-
-  # Attempts the fixups and dedup fallback log_unify_result is built on, for
-  # a record whose FK(s) were just (attempted to be) reassigned to self, but
-  # without touching any particular relation label's tally - see
-  # apply_unify_outcome. Split out so unify can resolve a record's outcome
-  # once and apply it under every relation label that record is relevant to
-  # (see reassign_foreign_keys and resolved_unify_outcomes in #unify),
-  # rather than redoing this - including the dedup fallback's real side
-  # effects, like destroying another record - once per label.
-  #
-  # @param object [ActiveRecord::Base] see log_unify_result
+  # @param object [ActiveRecord::Base] a record in another table that has a
+  #   FK pointing to the remove_object (DESTROY) being unified away; the
+  #   unify loop just attempted to flip that FK to self (KEEP) and the
+  #   attempted update is reflected in object's in-memory state even if the
+  #   save failed
   # @return [Hash] one of:
   #   { status: :merged }
   #   { status: :deduplicated }

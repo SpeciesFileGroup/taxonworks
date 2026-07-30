@@ -1435,7 +1435,7 @@ describe 'Shared::Unify', type: :model do
     expect(b[:details]['Asserted distributions'][:deduplicated]).to eq(1)
   end
 
-  # log_unify_result resets a duplicate Citation's `is_original` to false
+  # resolve_unify_outcome resets a duplicate Citation's `is_original` to false
   # before attempting deduplication (to clear the separate is_original
   # uniqueness conflict). Citation::IGNORE_IDENTICAL excludes is_original
   # from #identical's comparison, so that reset doesn't stop the duplicate
@@ -1531,12 +1531,12 @@ describe 'Shared::Unify', type: :model do
   # TaxonDetermination's only uniqueness validator is on :position, scoped by
   # (taxon_determination_object_id/type, project_id). Unlike Citation's
   # source/pages uniqueness, this validator can never survive
-  # log_unify_result's generic "reset position to nil and retry" fixup:
+  # resolve_unify_outcome's generic "reset position to nil and retry" fixup:
   # acts_as_list's add_new_at: :top callback (before_update :check_scope)
   # treats a nilled position as "insert at top" and always finds room by
   # shifting every other record in the scope down, so the retry always
   # succeeds. That means object.errors is always empty by the time
-  # log_unify_result would otherwise reach for deduplicate_update_target -
+  # resolve_unify_outcome would otherwise reach for deduplicate_update_target -
   # dedup is never actually exercised here, regardless of the guard fix
   # above. The "duplicate" determination is just merged in as an ordinary
   # (undeduped) second record, not destroyed and not blocked.
@@ -2287,9 +2287,8 @@ describe 'Shared::Unify', type: :model do
     end
   end
 
-  describe 'log_unify_result reports unmerged (not merged) when a dedup attempt does not pan out' do
+  describe 'resolve_unify_outcome + apply_unify_outcome report unmerged (not merged) when a dedup attempt does not pan out' do
     let(:helper) { TestUnify.new }
-    let(:relation) { OpenStruct.new(name: :test_relation) }
     let(:result) { { result: { unified: nil }, details: {} } }
 
     specify 'trusts the error already on the object rather than reloading to recheck validity' do
@@ -2302,7 +2301,8 @@ describe 'Shared::Unify', type: :model do
       obj.errors.add(:string, :taken)
 
       helper.send(:stub_unify_result, result, 'Test relation', 1)
-      helper.send(:log_unify_result, obj, relation, result)
+      outcome = helper.send(:resolve_unify_outcome, obj)
+      helper.send(:apply_unify_outcome, outcome, 'Test relation', result)
 
       # obj is the only row of its kind, so #identical (called internally
       # by deduplicate_update_target) finds no match - there's no duplicate
