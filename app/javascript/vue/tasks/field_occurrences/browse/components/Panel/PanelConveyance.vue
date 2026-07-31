@@ -15,7 +15,7 @@
 <script setup>
 import useStore from '../../store/conveyance.js'
 import PanelContainer from './PanelContainer.vue'
-import ConveyanceRow from '@/tasks/otu/browse/components/Conveyance/ConveyanceRow.vue'
+import ConveyanceRow from '@/tasks/collection_objects/browse/components/Panel/PanelConveyances.vue'
 
 const store = useStore()
 </script>
