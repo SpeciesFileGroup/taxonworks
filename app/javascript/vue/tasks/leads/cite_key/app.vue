@@ -717,8 +717,8 @@ const sortedSpecies = computed(() =>
     const aSaved = !!childLeads.value[a.id]
     const bSaved = !!childLeads.value[b.id]
     if (aSaved !== bSaved) return aSaved ? 1 : -1
-    const aName = (a.object_tag || a.label_html || '').replace(/<[^>]+>/g, '')
-    const bName = (b.object_tag || b.label_html || '').replace(/<[^>]+>/g, '')
+    const aName = stripHtml(a.object_tag || a.label_html || '')
+    const bName = stripHtml(b.object_tag || b.label_html || '')
     return aName.localeCompare(bName)
   })
 )
@@ -894,6 +894,13 @@ function lookupExistingKeys() {
 function addSpecies(otu) {
   if (species.value.some((o) => o.id === otu.id)) return
   species.value.push(otu)
+}
+
+function stripHtml(str) {
+  if (str == null) return ''
+  const el = document.createElement('div')
+  el.innerHTML = String(str)
+  return el.textContent ?? ''
 }
 
 function looksLikeMisspelling(taxonName) {
@@ -1635,9 +1642,7 @@ function deleteChildLead(otu) {
   const child = childLeads.value[otu.id]
   if (!child) return
   const name = otu.object_tag || otu.label_html || `OTU #${otu.id}`
-  const el = document.createElement('div')
-  el.innerHTML = name
-  const clean = el.textContent.trim()
+  const clean = stripHtml(name).trim()
   if (!window.confirm(`Permanently delete ${clean} from this key?`)) return
 
   loading.value = true
@@ -1782,7 +1787,7 @@ function bootstrapFromOtus({ otuIds, otuQuery }) {
         ? ` (capped at ${body.otus.length} of ${body.total}; refine the filter or split the key)`
         : ''
       const parentNote = body.parent_otu
-        ? 'parent inferred as ' + body.parent_otu.object_tag.replace(/<[^>]+>/g, '')
+        ? 'parent inferred as ' + stripHtml(body.parent_otu.object_tag)
         : 'no shared parent inferred'
       TW.workbench.alert.create(
         `Prefilled ${body.otus.length} taxa from Filter OTUs${truncationNote}; ` +
