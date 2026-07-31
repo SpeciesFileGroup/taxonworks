@@ -6,8 +6,8 @@ module ConveyancesHelper
     [ sound_tag(conveyance.sound), 'on', object_tag(conveyance.conveyance_object)  ].compact.join('&nbsp;').html_safe
   end
 
-  def conveyance_autocomplete_tag(conveyance)
-    conveyance_tag(conveyance)
+  def conveyance_autocomplete_tag(conveyance, term = nil)
+    mark_tag(conveyance_tag(conveyance), term)
   end
 
   def label_for_conveyance(conveyance)

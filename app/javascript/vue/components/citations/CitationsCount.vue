@@ -16,7 +16,7 @@
       @close="setModalView(false)"
     >
       <template #header>
-        <h3>Citations a</h3>
+        <h3>Citations</h3>
       </template>
       <template #body>
         <display-list
@@ -48,7 +48,7 @@ import { ref } from 'vue'
 import DisplayList from '@/components/displayList'
 import VModal from '@/components/ui/Modal'
 
-const props = defineProps({
+defineProps({
   citations: {
     type: Array,
     required: true
@@ -63,3 +63,26 @@ function setModalView(value) {
   showCitations.value = value
 }
 </script>
+
+<style scoped>
+.citation-count {
+  position: relative;
+}
+
+.circle-count {
+  right: -5px;
+  bottom: -6px;
+  justify-content: center;
+  position: absolute;
+  border-radius: 50%;
+  display: flex;
+  width: 12px;
+  height: 12px;
+  min-width: 12px;
+  min-height: 12px;
+  font-size: 8px;
+  box-shadow: var(--panel-shadow);
+  margin: 5px;
+  cursor: pointer;
+}
+</style>

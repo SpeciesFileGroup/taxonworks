@@ -60,32 +60,7 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     end
   end
 
-  # confidences query concern
-  specify '#confidence_level_id' do
-    l = FactoryBot.create(:valid_confidence_level)
-    c = FactoryBot.create(:valid_confidence, confidence_level: l, confidence_object: o1)
-    q.confidence_level_id = l.id
-    expect(q.all).to contain_exactly(o1)
-  end
-
-  specify '#without_confidence_level_id' do
-    l = FactoryBot.create(:valid_confidence_level)
-    c = FactoryBot.create(:valid_confidence, confidence_level: l, confidence_object: o1)
-    q.without_confidence_level_id = l.id
-    expect(q.all).to contain_exactly(o2)
-  end
-
-  specify '#with_confidence_level true' do
-    c = FactoryBot.create(:valid_confidence, confidence_object: o1)
-    q.confidences = true
-    expect(q.all).to contain_exactly(o1)
-  end
-
-  specify '#with_confidence_level false' do
-    c = FactoryBot.create(:valid_confidence, confidence_object: o1)
-    q.confidences = false
-    expect(q.all).to contain_exactly(o2)
-  end
+  # Confidences query concern specs have moved to spec/lib/queries/concerns/confidences_spec.rb
 
   context '#coordinatify' do
     # TODO: unify with OTU as a include

@@ -43,12 +43,15 @@ class TaxonNameClassification::Latinized::Gender < TaxonNameClassification::Lati
     end
 
     TaxonNameRelationship::Combination.where(subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
-      t1.update_column(:verbatim_name, t1.cached) if t1.verbatim_name.nil?
-      n = t1.get_full_name
-      t1.update_columns(
-        cached: n,
-        cached_html: t1.get_full_name_html(n)
-      )
+      next if t1.verbatim_name.present? # already pinned to an explicit citation, leave it alone
+
+      fresh_name = t1.get_full_name # verbatim_name is blank here, so this recomputes under the new gender
+      next if fresh_name == t1.cached # gender change didn't alter the spelling, nothing to preserve
+
+      # The ending changed - freeze the pre-change spelling as the historical
+      # citation.
+      # cached/cached_html are already correct for this verbatim_name.
+      t1.update_column(:verbatim_name, t1.cached)
     end
   end
 
