@@ -1118,9 +1118,6 @@ function loadKey(rootLeadId) {
         if (rootCitation) {
           rootCitationId.value = rootCitation.id
           pages.value = rootCitation.pages || ''
-          if (rootCitation.source) {
-            return hydrateSource(rootCitation.source.id)
-          }
         }
 
         const childCitationMap = {}
@@ -1134,6 +1131,10 @@ function loadKey(rootLeadId) {
         })
         childCitations.value = childCitationMap
         originalChildPages.value = pageBaseline
+
+        if (rootCitation?.source) {
+          return hydrateSource(rootCitation.source.id)
+        }
       })
     })
     .then(() => loadCellData())
