@@ -208,7 +208,7 @@ function showForRanks(section) {
   }
   @media all and (min-width: 1200px) {
     .browse-otu-row--split {
-      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 2fr) minmax(500px, 1fr);
     }
     // The shorter column's last panel absorbs the leftover height, so a split
     // row ends flush instead of ragged. `.panel` is already a flex column, so

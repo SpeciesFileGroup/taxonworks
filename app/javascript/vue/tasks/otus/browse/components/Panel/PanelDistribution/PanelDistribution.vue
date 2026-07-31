@@ -13,20 +13,22 @@
       class="relative distribution-map"
       :class="{ 'distribution-map--fullscreen': isFullscreen }"
     >
-      <VMap
-        ref="mapComponent"
-        width="100%"
-        :height="isFullscreen ? '100%' : '332px'"
-        cluster
-        :zoom="2"
-        :zoom-on-click="false"
-        :geojson="shapes"
-        :cluster-icon-create-function="makeClusterIconFor"
-      />
-      <CachedMap
-        v-if="cachedMap"
-        :cached-map="cachedMap"
-      />
+      <div :class="['relative', { 'h-full': isFullscreen }]">
+        <VMap
+          ref="mapComponent"
+          width="100%"
+          :height="isFullscreen ? '100%' : '332px'"
+          cluster
+          :zoom="2"
+          :zoom-on-click="false"
+          :geojson="shapes"
+          :cluster-icon-create-function="makeClusterIconFor"
+        />
+        <CachedMap
+          v-if="cachedMap"
+          :cached-map="cachedMap"
+        />
+      </div>
       <div
         class="absolute distribution-map__fullscreen"
         :class="{ 'distribution-map__fullscreen--shifted': !!cachedMap }"
@@ -203,11 +205,7 @@ watch(
 .distribution-map__fullscreen {
   top: 12px;
   right: 12px;
-  z-index: 1098;
-}
-
-.distribution-map__fullscreen--shifted {
-  right: 64px;
+  z-index: 1000;
 }
 
 .distribution-map--fullscreen {

@@ -128,8 +128,8 @@ const isModalVisible = ref(false)
 
 <style>
 .cached-map-icon {
-  right: 20px;
-  top: 20px;
-  z-index: 1098;
+  left: 12px;
+  bottom: 12px;
+  z-index: 1000;
 }
 </style>
