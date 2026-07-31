@@ -4,23 +4,24 @@
     :title="title"
     :spinner="isLoading"
   >
-    <div
+    <ul
       v-if="contents.length"
-      class="padding.medium-top"
+      class="content-list"
     >
-      <ul class="padding-medium-left">
-        <li
-          v-for="content in contents"
-          :key="content.id"
-        >
-          <b><span v-html="content.topic.name" /></b>
-          <div
-            class="pre"
-            v-html="markdownToHtml(content.text)"
-          />
-        </li>
-      </ul>
-    </div>
+      <li
+        v-for="content in contents"
+        :key="content.id"
+      >
+        <h4
+          class="content-topic"
+          v-html="content.topic.name"
+        />
+        <div
+          class="content-body"
+          v-html="markdownToHtml(content.text)"
+        />
+      </li>
+    </ul>
     <div v-else>No content available</div>
   </PanelLayout>
 </template>
@@ -29,8 +30,8 @@
 import { ref, watch } from 'vue'
 import { Content } from '@/routes/endpoints'
 import PanelLayout from '../PanelLayout.vue'
-import EasyMDE from 'easymde/dist/easymde.min.js'
 import DOMPurify from 'dompurify'
+import { marked } from 'marked'
 
 const props = defineProps({
   otu: {
@@ -58,8 +59,7 @@ const contents = ref([])
 const isLoading = ref(false)
 
 function markdownToHtml(text) {
-  const markdown = new EasyMDE()
-  return DOMPurify.sanitize(markdown.options.previewRender(text))
+  return DOMPurify.sanitize(marked.parse(text ?? ''))
 }
 
 async function loadContents(otuId) {
@@ -91,14 +91,53 @@ watch(
 </script>
 
 <style lang="scss" scoped>
-li {
-  border-bottom: 1px solid var(--border-color);
-  margin-bottom: 12px;
+.content-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li + li {
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--border-color);
+  }
 }
-li:last-child {
-  border-bottom: none;
+
+.content-topic {
+  margin: 0 0 var(--spacing-xxs);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
 }
-.pre {
-  white-space: pre-wrap;
+
+.content-body {
+  :deep(p),
+  :deep(ul),
+  :deep(ol),
+  :deep(blockquote),
+  :deep(pre) {
+    margin: 0 0 var(--spacing-xs);
+  }
+
+  :deep(ul),
+  :deep(ol) {
+    padding-left: var(--spacing-lg);
+  }
+
+  :deep(h1),
+  :deep(h2),
+  :deep(h3),
+  :deep(h4),
+  :deep(h5),
+  :deep(h6) {
+    margin: var(--spacing-sm) 0 var(--spacing-xxs);
+  }
+
+  :deep(> *:first-child) {
+    margin-top: 0;
+  }
+
+  :deep(> *:last-child) {
+    margin-bottom: 0;
+  }
 }
 </style>

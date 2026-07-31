@@ -4,43 +4,50 @@
     :title="title"
     :spinner="isLoading"
   >
-    <template
-      v-for="(item, key) in annotations"
-      :key="key"
-    >
-      <div v-if="hasAnnotations(item)">
-        <h4 v-html="otus.find((otu) => otu.id == key)?.object_tag" />
-        <PanelAnnotationsList
-          class="margin-medium-left"
-          v-if="item.dataAttributes.length"
-          title="Data attributes"
-          :list="item.dataAttributes"
-        />
-        <PanelAnnotationsList
-          class="margin-medium-left"
-          v-if="item.identifiers.length"
-          title="Identifiers"
-          :list="item.identifiers"
-        />
-        <PanelAnnotationsList
-          class="margin-medium-left"
-          v-if="item.notes.length"
-          title="Notes"
-          :list="item.notes"
-        />
-        <PanelAnnotationsList
-          class="margin-medium-left"
-          v-if="item.tags.length"
-          title="Tags"
-          :list="item.tags"
-        />
-      </div>
-    </template>
+    <div v-if="hasAnyAnnotation">
+      <template
+        v-for="(item, key) in annotations"
+        :key="key"
+      >
+        <div
+          v-if="hasAnnotations(item)"
+          class="annotation-otu"
+        >
+          <h4
+            class="annotation-otu-title"
+            v-html="otus.find((otu) => otu.id == key)?.object_tag"
+          />
+          <div class="annotation-groups">
+            <PanelAnnotationsList
+              v-if="item.dataAttributes.length"
+              title="Data attributes"
+              :list="item.dataAttributes"
+            />
+            <PanelAnnotationsList
+              v-if="item.identifiers.length"
+              title="Identifiers"
+              :list="item.identifiers"
+            />
+            <PanelAnnotationsList
+              v-if="item.notes.length"
+              title="Notes"
+              :list="item.notes"
+            />
+            <PanelAnnotationsList
+              v-if="item.tags.length"
+              title="Tags"
+              :list="item.tags"
+            />
+          </div>
+        </div>
+      </template>
+    </div>
+    <div v-else>No annotations available</div>
   </PanelLayout>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { Tag, Identifier, Note, DataAttribute } from '@/routes/endpoints'
 import { OTU } from '@/constants'
 import PanelLayout from '../PanelLayout.vue'
@@ -70,6 +77,10 @@ const props = defineProps({
 
 const annotations = ref({})
 const isLoading = ref(false)
+
+const hasAnyAnnotation = computed(() =>
+  Object.values(annotations.value).some(hasAnnotations)
+)
 
 async function loadAnnotationsForOtu(otuId) {
   const [identifiers, tags, notes, dataAttributes] = await Promise.all([
@@ -124,3 +135,24 @@ watch(
   { immediate: true }
 )
 </script>
+
+<style lang="scss" scoped>
+.annotation-otu + .annotation-otu {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--border-color);
+}
+
+.annotation-otu-title {
+  margin: 0 0 var(--spacing-sm);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+}
+
+.annotation-groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding-left: var(--spacing-sm);
+}
+</style>
