@@ -548,6 +548,7 @@ resources :leads do
   end
   collection do
     post :batch_create_lead_items, defaults: {format: :json}
+    get :cite_key_column_cvts, defaults: {format: :json}
   end
 end
 

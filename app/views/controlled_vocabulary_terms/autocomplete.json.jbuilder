@@ -1,5 +1,5 @@
 json.array! @controlled_vocabulary_terms do |c|
-  json.extract! c, :id
+  json.extract! c, :id, :type
   json.label c.name
   json.label_html controlled_vocabulary_term_autocomplete_tag(c)
 

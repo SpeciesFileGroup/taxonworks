@@ -57,6 +57,7 @@
 class Lead < ApplicationRecord
   include Housekeeping
   include Shared::Citations
+  include Shared::DataAttributes
   include Shared::Depictions
   include Shared::Attributions
   include Shared::Tags

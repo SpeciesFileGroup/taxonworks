@@ -37,6 +37,35 @@ class LeadsController < ApplicationController
     render '/leads/api/v1/index'
   end
 
+  # GET /leads/cite_key_column_cvts.json
+  # Returns distinct Keyword and Predicate CVTs that are already applied to
+  # any virtual child Lead in the project, so the cite_key task can
+  # auto-populate columns.
+  def cite_key_column_cvts
+    virtual_child_leads = Lead
+      .where(is_virtual: true)
+      .where.not(parent_id: nil)
+      .where(project_id: sessions_current_project_id)
+
+    predicate_ids = DataAttribute
+      .where(attribute_subject_type: 'Lead', attribute_subject_id: virtual_child_leads)
+      .distinct
+      .pluck(:controlled_vocabulary_term_id)
+
+    keyword_ids = Tag
+      .where(tag_object_type: 'Lead', tag_object_id: virtual_child_leads)
+      .distinct
+      .pluck(:keyword_id)
+
+    @cvts = ControlledVocabularyTerm
+      .where(project_id: sessions_current_project_id)
+      .where(id: (predicate_ids + keyword_ids).uniq)
+      .where(type: %w[Keyword Predicate])
+      .order(:type, :name)
+
+    render json: @cvts.map { |c| { id: c.id, type: c.type, name: c.name } }
+  end
+
   def list
     @leads = Lead.
       roots_with_data(sessions_current_project_id).page(params[:page])

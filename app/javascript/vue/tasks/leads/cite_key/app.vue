@@ -4,38 +4,50 @@
     full-screen
   />
 
-  <div class="flex-separate middle margin-medium-bottom">
-    <h1>{{ currentStep === 1 ? (isAddMode ? 'Edit cited key' : 'Cite a key') : 'Annotate cited key' }}</h1>
-    <VBtn
-      v-if="rootId"
-      color="primary"
-      @click="reset"
-    >
-      Cite a new key
-    </VBtn>
-  </div>
+  <h1>{{ currentStep === 1 ? (isAddMode ? 'Edit cited key' : 'Cite a key') : 'Annotate cited key' }}</h1>
 
-  <ol class="step-nav no-style-list d-flex gap-medium middle margin-medium-bottom">
-    <li
-      v-for="step in STEPS"
-      :key="step.n"
-      :class="['step-item d-flex middle gap-small',
-        { 'step-active': currentStep === step.n, 'step-done': currentStep > step.n }]"
-      :aria-current="currentStep === step.n ? 'step' : undefined"
-    >
-      <span
-        class="step-number d-flex middle justify-center"
-        @click="goToStep(step.n)"
-      >{{ step.n }}</span>
-      <span
-        class="step-label"
-        @click="goToStep(step.n)"
-      >{{ step.label }}</span>
-    </li>
-  </ol>
+  <NavBar navbar-class="panel content cite-key-navbar">
+    <div class="flex-separate middle">
+      <ol class="step-nav no-style-list d-flex gap-medium middle">
+        <li
+          v-for="step in STEPS"
+          :key="step.n"
+          :class="['step-item d-flex middle gap-small',
+            { 'step-active': currentStep === step.n, 'step-done': currentStep > step.n }]"
+          :aria-current="currentStep === step.n ? 'step' : undefined"
+        >
+          <span
+            class="step-number d-flex middle justify-center"
+            @click="goToStep(step.n)"
+          >{{ step.n }}</span>
+          <span
+            class="step-label"
+            @click="goToStep(step.n)"
+          >{{ step.label }}</span>
+        </li>
+      </ol>
+      <div class="d-flex middle gap-small">
+        <VBtn
+          v-if="currentStep === 1 && (!isAddMode || canSave)"
+          color="create"
+          :disabled="!canSave"
+          @click="save"
+        >
+          {{ saveButtonText }}
+        </VBtn>
+        <VBtn
+          v-if="rootId"
+          color="primary"
+          @click="reset"
+        >
+          Cite a new key
+        </VBtn>
+      </div>
+    </div>
+  </NavBar>
 
   <!-- Step 1: Create key + species list -->
-  <template v-if="currentStep === 1">
+  <template v-if="!bootLoading && currentStep === 1">
     <BlockLayout
       expand
       class="margin-medium-bottom"
@@ -107,24 +119,56 @@
           >
             Checking for existing keys…
           </div>
-          <ul
+          <div
             v-else-if="existingKeys.length"
-            class="no-style-list panel content margin-small-top"
+            class="taxa-grid margin-small-top"
+            role="table"
+            aria-label="Existing cited keys for this source"
+            :style="{ gridTemplateColumns: 'max-content max-content max-content max-content max-content 1fr' }"
           >
-            <li
+            <div
+              class="taxa-grid-row taxa-grid-header"
+              role="row"
+            >
+              <div role="columnheader">Title</div>
+              <div role="columnheader">Root taxon</div>
+              <div role="columnheader">Pages</div>
+              <div role="columnheader">Taxa</div>
+              <div role="columnheader" />
+              <div
+                role="columnheader"
+                aria-hidden="true"
+                class="taxa-grid-spacer"
+              />
+            </div>
+            <div
               v-for="key in existingKeys"
               :key="key.id"
-              class="d-flex flex-separate middle padding-xsmall separate-bottom"
+              class="taxa-grid-row"
+              role="row"
             >
-              <span>{{ key.text }}</span>
-              <VBtn
-                color="primary"
-                @click="loadKey(key.id)"
-              >
-                Open
-              </VBtn>
-            </li>
-          </ul>
+              <div role="cell">{{ key.text }}</div>
+              <div
+                role="cell"
+                v-html="key.rootTaxonTag ?? '—'"
+              />
+              <div role="cell">{{ key.pages || '—' }}</div>
+              <div role="cell">{{ key.count }}</div>
+              <div role="cell">
+                <VBtn
+                  color="primary"
+                  @click="loadKey(key.id)"
+                >
+                  Open
+                </VBtn>
+              </div>
+              <div
+                role="cell"
+                aria-hidden="true"
+                class="taxa-grid-spacer"
+              />
+            </div>
+          </div>
           <div
             v-else
             class="small_type padding-xsmall"
@@ -213,6 +257,19 @@
           >
             {{ descendantsLoading ? 'Loading...' : 'Add descendants' }}
           </VBtn>
+          <label
+            class="d-flex middle gap-small margin-medium-left"
+            :title="source?.cached_nomenclature_date
+              ? `Skip taxa published after ${source.cached_nomenclature_date}`
+              : 'Pick a source to enable pruning by publication date'"
+          >
+            <input
+              type="checkbox"
+              v-model="autoPruneAfterPublication"
+              :disabled="!source?.cached_nomenclature_date"
+            />
+            Auto-prune taxa published after the key
+          </label>
           <VBtn
             color="primary"
             :disabled="!species.length"
@@ -259,7 +316,7 @@
             />
             <span
               class="ellipsis"
-              v-html="otu.object_tag || otu.label_html || `OTU #${otu.id}`"
+              v-html="taxonDisplay(otu)"
             />
           </li>
         </ul>
@@ -273,25 +330,11 @@
       </template>
     </BlockLayout>
 
-    <div
-      v-if="!isAddMode || canSave"
-      class="text-center margin-medium-top"
-    >
-      <VBtn
-        color="create"
-        medium
-        :disabled="!canSave"
-        @click="save"
-      >
-        {{ saveButtonText }}
-      </VBtn>
-    </div>
   </template>
 
   <!-- Step 2: Annotate species -->
-  <template v-else>
+  <template v-else-if="!bootLoading">
     <BlockLayout
-      expand
       class="margin-medium-bottom"
     >
       <template #header>
@@ -331,11 +374,18 @@
     </BlockLayout>
 
     <BlockLayout
-      expand
-      class="margin-medium-bottom"
+      :class="['margin-medium-bottom', { 'taxa-fullscreen': taxaFullScreen }]"
     >
       <template #header>
-        <h3>Taxa in key ({{ species.length }})</h3>
+        <div class="flex-separate middle full_width">
+          <h3>Taxa in key ({{ species.length }})</h3>
+          <span
+            :data-icon="taxaFullScreen ? 'contract' : 'expand'"
+            :title="taxaFullScreen ? 'Exit full-screen (Esc)' : 'Full-screen data view'"
+            class="fullscreen-toggle"
+            @click="taxaFullScreen = !taxaFullScreen"
+          />
+        </div>
       </template>
 
       <template #body>
@@ -344,6 +394,7 @@
           class="taxa-grid"
           role="table"
           aria-label="Taxa in this cited key"
+          :style="{ gridTemplateColumns }"
         >
           <div
             class="taxa-grid-row taxa-grid-header"
@@ -373,19 +424,113 @@
               </div>
             </div>
             <div
+              v-for="col in columns"
+              :key="col.cvtId"
+              role="columnheader"
+              class="taxa-grid-cvcol"
+            >
+              <div class="d-flex flex-col gap-small">
+                <div class="d-flex middle gap-small">
+                  <span v-html="col.cvtName" />
+                  <span
+                    class="button button-circle btn-undo button-default"
+                    title="Remove column from view (does not delete data)"
+                    @click="removeColumn(col.cvtId)"
+                  />
+                </div>
+                <div class="d-flex middle gap-small">
+                  <input
+                    v-if="col.type === 'keyword'"
+                    type="checkbox"
+                    v-model="bulkColumnValues[col.cvtId]"
+                    title="Check all rows on Apply"
+                  />
+                  <input
+                    v-else
+                    type="text"
+                    class="predicate-cell-input"
+                    v-model="bulkColumnValues[col.cvtId]"
+                    placeholder="Apply to all"
+                  />
+                  <VBtn
+                    v-if="col.type === 'keyword' ? bulkColumnValues[col.cvtId] : bulkColumnValues[col.cvtId]"
+                    color="primary"
+                    small
+                    @click="applyBulkColumn(col)"
+                  >
+                    Apply
+                  </VBtn>
+                </div>
+              </div>
+            </div>
+            <div
               role="columnheader"
               class="taxa-grid-addcol"
             >
+              <div
+                v-if="showAddColumn"
+                class="d-flex flex-col gap-small add-column-picker"
+              >
+                <Autocomplete
+                  class="add-column-autocomplete"
+                  url="/controlled_vocabulary_terms/autocomplete"
+                  :add-params="{ type: ['Keyword', 'Predicate'] }"
+                  placeholder="Search vocabulary"
+                  param="term"
+                  min="1"
+                  clear-after
+                  label="label_html"
+                  @get-item="pickColumnCvt"
+                />
+                <div
+                  v-if="newColumnCvt"
+                  class="small_type"
+                >
+                  Selected:
+                  <span v-html="newColumnCvt.label_html || newColumnCvt.label" />
+                </div>
+                <div class="d-flex middle gap-small">
+                  <VBtn
+                    color="primary"
+                    small
+                    :disabled="!newColumnCvt"
+                    @click="addColumn"
+                  >
+                    Add
+                  </VBtn>
+                  <VBtn
+                    color="primary"
+                    small
+                    @click="cancelAddColumn"
+                  >
+                    Cancel
+                  </VBtn>
+                  <a
+                    href="/tasks/controlled_vocabularies/manage"
+                    target="_blank"
+                    rel="noopener"
+                    class="small_type margin-small-left"
+                  >
+                    New term
+                  </a>
+                </div>
+              </div>
               <VBtn
+                v-else
                 color="primary"
                 circle
                 small
-                title="Add a controlled vocabulary column (coming soon)"
-                disabled
+                title="Add a controlled vocabulary column"
+                @click="openAddColumn"
               >
                 +
               </VBtn>
             </div>
+            <div
+              role="columnheader"
+              aria-hidden="true"
+              class="taxa-grid-spacer"
+            />
           </div>
           <div
             v-for="otu in sortedSpecies"
@@ -408,7 +553,7 @@
               </div>
             </div>
             <div role="cell">
-              <span v-html="otu.object_tag || otu.label_html || `OTU #${otu.id}`" />
+              <span v-html="taxonDisplay(otu)" />
             </div>
             <div role="cell">
               <input
@@ -416,11 +561,44 @@
                 v-model="childCitations[otu.id].pages"
                 type="text"
                 class="input-small-width"
+                :data-cell="`page:${otu.id}`"
+                @blur="autoSavePage(otu.id)"
+                @keydown.enter.prevent="autoSavePage(otu.id); focusNextRowSameColumn('page', otu.id)"
+              />
+            </div>
+            <div
+              v-for="col in columns"
+              :key="col.cvtId"
+              role="cell"
+              class="taxa-grid-cvcol"
+            >
+              <input
+                v-if="col.type === 'keyword'"
+                type="checkbox"
+                :data-cell="`cv:${col.cvtId}:${otu.id}`"
+                :checked="!!cellData[col.cvtId]?.[otu.id]?.value"
+                @change="toggleKeywordCell(col.cvtId, otu.id, $event.target.checked)"
+                @keydown.enter.prevent="focusNextRowSameColumn(`cv:${col.cvtId}`, otu.id)"
+              />
+              <input
+                v-else
+                type="text"
+                class="predicate-cell-input"
+                :data-cell="`cv:${col.cvtId}:${otu.id}`"
+                :value="cellData[col.cvtId]?.[otu.id]?.value ?? ''"
+                @input="setPredicateCell(col.cvtId, otu.id, $event.target.value)"
+                @blur="commitPredicateCell(col.cvtId, otu.id)"
+                @keydown.enter.prevent="commitPredicateCell(col.cvtId, otu.id); focusNextRowSameColumn(`cv:${col.cvtId}`, otu.id)"
               />
             </div>
             <div
               role="cell"
               class="taxa-grid-addcol"
+            />
+            <div
+              role="cell"
+              aria-hidden="true"
+              class="taxa-grid-spacer"
             />
           </div>
         </div>
@@ -444,6 +622,7 @@
 <script setup>
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
+import NavBar from '@/components/layout/NavBar.vue'
 import ButtonPinned from '@/components/ui/Button/ButtonPinned.vue'
 import OtuPicker from '@/components/otu/otu_picker/otu_picker.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
@@ -454,8 +633,8 @@ import setParam from '@/helpers/setParam'
 import { URLParamsToJSON } from '@/helpers'
 import { RouteNames } from '@/routes/routes'
 import { usePopstateListener } from '@/composables'
-import { Citation, Lead, Otu, Source } from '@/routes/endpoints'
-import { computed, onBeforeMount, ref, watch } from 'vue'
+import { Citation, DataAttribute, Lead, Otu, Source, Tag } from '@/routes/endpoints'
+import { computed, onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
 
 const STEPS = [
   { n: 1, label: 'Cite key' },
@@ -476,6 +655,8 @@ const emptyRoot = () => ({
 })
 
 const currentStep = ref(1)
+const bootLoading = ref(false)
+const taxaFullScreen = ref(false)
 const root = ref(emptyRoot())
 const parentOtu = ref(null)
 const source = ref(null)
@@ -485,6 +666,12 @@ const childLeads = ref({})
 const childCitations = ref({})
 const originalChildPages = ref({})
 const bulkPagesValue = ref('')
+const bulkColumnValues = ref({})
+const columns = ref([])
+const showAddColumn = ref(false)
+const newColumnCvt = ref(null)
+const cellData = ref({})
+const originalCellData = ref({})
 const rootCitationId = ref(null)
 const originalMetadata = ref(null)
 const existingKeys = ref([])
@@ -492,6 +679,7 @@ const existingKeysLoading = ref(false)
 const loading = ref(false)
 const descendantsLoading = ref(false)
 const descendantsFilter = ref('all')
+const autoPruneAfterPublication = ref(true)
 
 const rootId = computed(() => root.value.id)
 const rootGlobalId = computed(() => root.value.global_id)
@@ -501,6 +689,15 @@ const isAddMode = computed(() => !!rootId.value)
 const newSpecies = computed(() =>
   species.value.filter((o) => !childLeads.value[o.id])
 )
+
+const gridTemplateColumns = computed(() => {
+  const cvCount = columns.value.length
+  return ['max-content', 'max-content', 'max-content',
+    ...Array(cvCount).fill('max-content'),
+    'max-content',
+    '1fr'
+  ].join(' ')
+})
 
 const sortedSpecies = computed(() =>
   [...species.value].sort((a, b) => {
@@ -518,6 +715,21 @@ const dirtyPageOtuIds = computed(() =>
   })
 )
 
+const dirtyCells = computed(() => {
+  const out = []
+  Object.entries(cellData.value).forEach(([cvtId, otus]) => {
+    Object.entries(otus).forEach(([otuId, cur]) => {
+      const orig = originalCellData.value[cvtId]?.[otuId]
+      const curVal = cur?.value ?? null
+      const origVal = orig?.value ?? null
+      if (curVal !== origVal) {
+        out.push({ cvtId: Number(cvtId), otuId: Number(otuId), cur, orig })
+      }
+    })
+  })
+  return out
+})
+
 const isMetadataDirty = computed(() => {
   if (!isAddMode.value || !originalMetadata.value) return false
   return (
@@ -534,7 +746,8 @@ const canSave = computed(() => {
     return (
       newSpecies.value.length > 0 ||
       isMetadataDirty.value ||
-      dirtyPageOtuIds.value.length > 0
+      dirtyPageOtuIds.value.length > 0 ||
+      dirtyCells.value.length > 0
     )
   }
   return (
@@ -551,6 +764,9 @@ const saveButtonText = computed(() => {
     if (newSpecies.value.length) parts.push(`add ${newSpecies.value.length} taxa`)
     if (dirtyPageOtuIds.value.length) {
       parts.push(`update ${dirtyPageOtuIds.value.length} page(s)`)
+    }
+    if (dirtyCells.value.length) {
+      parts.push(`update ${dirtyCells.value.length} cell(s)`)
     }
     if (parts.length) {
       return parts[0].charAt(0).toUpperCase() + parts[0].slice(1) +
@@ -583,15 +799,21 @@ function clearParent() {
 }
 
 function selectSource(pickedSource) {
-  source.value = pickedSource
+  hydrateSource(pickedSource.id)
 }
 
 function selectSourceById(id) {
+  hydrateSource(id)
+}
+
+function hydrateSource(id) {
   Source.find(id).then(({ body }) => {
     source.value = {
       id: body.id,
       label_html: body.object_tag,
-      object_tag: body.object_tag
+      object_tag: body.object_tag,
+      cached_nomenclature_date: body.cached_nomenclature_date,
+      year: body.year
     }
   })
 }
@@ -619,16 +841,27 @@ function lookupExistingKeys() {
     per: 500
   })
     .then(({ body: citations }) => {
-      const seen = new Set()
-      const roots = []
+      const rootsMap = new Map()
       citations.forEach((c) => {
         const obj = c.citation_object
-        if (!obj || !obj.is_virtual || obj.parent_id !== null) return
-        if (seen.has(c.citation_object_id)) return
-        seen.add(c.citation_object_id)
-        roots.push({ id: c.citation_object_id, text: obj.text })
+        if (!obj || !obj.is_virtual) return
+        if (obj.parent_id === null && !rootsMap.has(c.citation_object_id)) {
+          rootsMap.set(c.citation_object_id, {
+            id: c.citation_object_id,
+            text: obj.text,
+            pages: c.pages,
+            rootTaxonTag: obj.otu?.object_tag ?? null,
+            count: 0
+          })
+        }
       })
-      existingKeys.value = roots
+      citations.forEach((c) => {
+        const obj = c.citation_object
+        if (!obj || !obj.is_virtual || obj.parent_id === null) return
+        const root = rootsMap.get(obj.parent_id)
+        if (root) root.count++
+      })
+      existingKeys.value = [...rootsMap.values()]
     })
     .catch(() => {
       existingKeys.value = []
@@ -641,6 +874,17 @@ function lookupExistingKeys() {
 function addSpecies(otu) {
   if (species.value.some((o) => o.id === otu.id)) return
   species.value.push(otu)
+}
+
+function taxonDisplay(otu) {
+  const tn = otu.taxon_name
+  const parts = []
+  if (tn?.cached_html) parts.push(tn.cached_html)
+  else if (otu.object_tag) parts.push(otu.object_tag)
+  else if (otu.label_html) parts.push(otu.label_html)
+  else parts.push(`OTU #${otu.id}`)
+  if (tn?.cached_author_year) parts.push(tn.cached_author_year)
+  return parts.join(' ')
 }
 
 function removeSpecies(otuId) {
@@ -672,9 +916,25 @@ function loadDescendants() {
   descendantsLoading.value = true
   Otu.where(params)
     .then(({ body }) => {
+      const sourceDate = source.value?.cached_nomenclature_date
+      let prunedCount = 0
       body.forEach((otu) => {
-        if (otu.id !== parentOtu.value.id) addSpecies(otu)
+        if (otu.id === parentOtu.value.id) return
+        if (autoPruneAfterPublication.value && sourceDate) {
+          const taxonDate = otu.taxon_name?.cached_nomenclature_date
+          if (taxonDate && taxonDate > sourceDate) {
+            prunedCount++
+            return
+          }
+        }
+        addSpecies(otu)
       })
+      if (prunedCount) {
+        TW.workbench.alert.create(
+          `Skipped ${prunedCount} taxon(a) published after the key's source.`,
+          'notice'
+        )
+      }
     })
     .catch(() => {})
     .finally(() => {
@@ -692,11 +952,57 @@ function reset() {
   childCitations.value = {}
   originalChildPages.value = {}
   bulkPagesValue.value = ''
+  bulkColumnValues.value = {}
+  columns.value = []
+  cellData.value = {}
+  originalCellData.value = {}
+  cancelAddColumn()
   rootCitationId.value = null
   originalMetadata.value = null
   existingKeys.value = []
   currentStep.value = 1
   setParam(RouteNames.CiteKey, 'lead_id', null)
+}
+
+function openAddColumn() {
+  showAddColumn.value = true
+  newColumnCvt.value = null
+}
+
+function cancelAddColumn() {
+  showAddColumn.value = false
+  newColumnCvt.value = null
+}
+
+function pickColumnCvt(item) {
+  const type = item?.type
+  if (type !== 'Keyword' && type !== 'Predicate') {
+    TW.workbench.alert.create(
+      `Only Keyword and Predicate vocabulary terms can be used as columns (this is a ${type || 'unknown type'}).`,
+      'error'
+    )
+    newColumnCvt.value = null
+    return
+  }
+  newColumnCvt.value = item
+}
+
+function addColumn() {
+  if (!newColumnCvt.value) return
+  if (columns.value.some((c) => c.cvtId === newColumnCvt.value.id)) {
+    cancelAddColumn()
+    return
+  }
+  columns.value.push({
+    type: newColumnCvt.value.type === 'Keyword' ? 'keyword' : 'predicate',
+    cvtId: newColumnCvt.value.id,
+    cvtName: newColumnCvt.value.label || newColumnCvt.value.name
+  })
+  cancelAddColumn()
+}
+
+function removeColumn(cvtId) {
+  columns.value = columns.value.filter((c) => c.cvtId !== cvtId)
 }
 
 function captureMetadataBaseline() {
@@ -710,7 +1016,7 @@ function captureMetadataBaseline() {
 
 function loadKey(rootLeadId) {
   loading.value = true
-  return Lead.find(rootLeadId, { extend: ['otu'] })
+  return Lead.find(rootLeadId, { extend: ['otu', 'taxon_name'] })
     .then(({ body }) => {
       const loadedRoot = body.lead
       const loadedChildren = body.children || []
@@ -793,6 +1099,8 @@ function loadKey(rootLeadId) {
         originalChildPages.value = pageBaseline
       })
     })
+    .then(() => loadCellData())
+    .then(() => autoPopulateColumns())
     .then(() => {
       currentStep.value = 2
       setParam(RouteNames.CiteKey, 'lead_id', rootLeadId)
@@ -830,6 +1138,10 @@ function saveChangesToLoadedKey() {
 
   if (dirtyPageOtuIds.value.length) {
     tasks.push(persistDirtyPages())
+  }
+
+  if (dirtyCells.value.length) {
+    tasks.push(persistDirtyCells())
   }
 
   Promise.all(tasks)
@@ -926,6 +1238,40 @@ function persistNewTaxa() {
     })
 }
 
+const savingPages = new Map()
+
+function autoSavePage(otuId) {
+  const cell = childCitations.value[otuId]
+  if (!cell) return
+  const orig = originalChildPages.value[otuId] ?? ''
+  const cur = cell.pages ?? ''
+  if (cur === orig) return
+  if (savingPages.get(otuId)) return
+
+  savingPages.set(otuId, true)
+  Citation.update(cell.id, {
+    citation: { pages: cur.trim() || null }
+  })
+    .then(() => {
+      originalChildPages.value = {
+        ...originalChildPages.value,
+        [otuId]: cur
+      }
+    })
+    .catch(() => {
+      childCitations.value = {
+        ...childCitations.value,
+        [otuId]: { ...cell, pages: orig }
+      }
+    })
+    .finally(() => {
+      savingPages.delete(otuId)
+      const newCur = childCitations.value[otuId]?.pages ?? ''
+      const newOrig = originalChildPages.value[otuId] ?? ''
+      if (newCur !== newOrig) autoSavePage(otuId)
+    })
+}
+
 function persistDirtyPages() {
   const dirtyIds = dirtyPageOtuIds.value.slice()
 
@@ -946,6 +1292,28 @@ function persistDirtyPages() {
   })
 }
 
+function applyBulkColumn(col) {
+  const cvtId = col.cvtId
+  const target = bulkColumnValues.value[cvtId]
+  if (col.type === 'predicate' && (target ?? '') === '') return
+  if (col.type === 'keyword' && !target) return
+
+  species.value.forEach((otu) => {
+    if (!childLeads.value[otu.id]) return
+    if (col.type === 'keyword') {
+      toggleKeywordCell(cvtId, otu.id, true)
+    } else {
+      setPredicateCell(cvtId, otu.id, target)
+      autoSaveCell(cvtId, otu.id)
+    }
+  })
+
+  bulkColumnValues.value = {
+    ...bulkColumnValues.value,
+    [cvtId]: col.type === 'keyword' ? false : ''
+  }
+}
+
 function applyBulkPages() {
   const value = bulkPagesValue.value
   const map = { ...childCitations.value }
@@ -956,11 +1324,282 @@ function applyBulkPages() {
   childCitations.value = map
 }
 
+function autoPopulateColumns() {
+  return Lead.citeKeyColumnCvts()
+    .then(({ body }) => {
+      const existing = new Set(columns.value.map((c) => c.cvtId))
+      body.forEach((cvt) => {
+        if (existing.has(cvt.id)) return
+        columns.value.push({
+          type: cvt.type === 'Keyword' ? 'keyword' : 'predicate',
+          cvtId: cvt.id,
+          cvtName: cvt.name
+        })
+      })
+    })
+    .catch(() => {})
+}
+
+function loadCellData() {
+  const leadIds = Object.values(childLeads.value).map((c) => c.id)
+  if (!leadIds.length) {
+    cellData.value = {}
+    originalCellData.value = {}
+    return Promise.resolve()
+  }
+
+  const otuByLeadId = {}
+  Object.entries(childLeads.value).forEach(([otuId, { id }]) => {
+    otuByLeadId[id] = Number(otuId)
+  })
+
+  const daPromise = DataAttribute.all({
+    attribute_subject_id: leadIds,
+    attribute_subject_type: 'Lead',
+    per: 500
+  })
+  const tagPromise = Tag.all({
+    tag_object_id: leadIds,
+    tag_object_type: 'Lead',
+    per: 500
+  })
+
+  return Promise.all([daPromise, tagPromise]).then(
+    ([{ body: das }, { body: tags }]) => {
+      const cd = {}
+      das.forEach((da) => {
+        const otuId = otuByLeadId[da.attribute_subject_id]
+        if (!otuId) return
+        const cvtId = da.controlled_vocabulary_term_id
+        if (!cd[cvtId]) cd[cvtId] = {}
+        cd[cvtId][otuId] = { id: da.id, value: da.value ?? '' }
+      })
+      tags.forEach((tag) => {
+        const otuId = otuByLeadId[tag.tag_object_id]
+        if (!otuId) return
+        const cvtId = tag.keyword_id
+        if (!cd[cvtId]) cd[cvtId] = {}
+        cd[cvtId][otuId] = { id: tag.id, value: true }
+      })
+      cellData.value = cd
+      originalCellData.value = deepClone(cd)
+    }
+  ).catch(() => {})
+}
+
+function deepClone(obj) {
+  return JSON.parse(JSON.stringify(obj))
+}
+
+function setPredicateCell(cvtId, otuId, value) {
+  if (!cellData.value[cvtId]) cellData.value[cvtId] = {}
+  const cur = cellData.value[cvtId][otuId] ?? { id: null, value: '' }
+  cellData.value[cvtId] = {
+    ...cellData.value[cvtId],
+    [otuId]: { ...cur, value }
+  }
+}
+
+function toggleKeywordCell(cvtId, otuId, checked) {
+  if (!cellData.value[cvtId]) cellData.value[cvtId] = {}
+  const cur = cellData.value[cvtId][otuId] ?? { id: null, value: false }
+  cellData.value[cvtId] = {
+    ...cellData.value[cvtId],
+    [otuId]: { ...cur, value: !!checked }
+  }
+  autoSaveCell(cvtId, otuId)
+}
+
+function commitPredicateCell(cvtId, otuId) {
+  autoSaveCell(cvtId, otuId)
+}
+
+function focusNextRowSameColumn(colKey, currentOtuId) {
+  const sorted = sortedSpecies.value
+  const idx = sorted.findIndex((o) => o.id === currentOtuId)
+  if (idx < 0 || idx >= sorted.length - 1) return
+  const nextOtuId = sorted[idx + 1].id
+  const selector = `[data-cell="${colKey}:${nextOtuId}"]`
+  const next = document.querySelector(selector)
+  if (next) {
+    next.focus()
+    if (typeof next.select === 'function') next.select()
+  }
+}
+
+const savingCells = new Map()
+
+function autoSaveCell(cvtId, otuId) {
+  const cellKey = `${cvtId}:${otuId}`
+  if (savingCells.get(cellKey)) return
+
+  const col = columns.value.find((c) => c.cvtId === cvtId)
+  const childLead = childLeads.value[otuId]
+  if (!col || !childLead) return
+
+  const cur = cellData.value[cvtId]?.[otuId]
+  const orig = originalCellData.value[cvtId]?.[otuId]
+  const curVal = cur?.value ?? null
+  const origVal = orig?.value ?? null
+  if (curVal === origVal) return
+
+  savingCells.set(cellKey, true)
+  const releaseAndRecheck = () => {
+    savingCells.delete(cellKey)
+    const newCur = cellData.value[cvtId]?.[otuId]
+    const newOrig = originalCellData.value[cvtId]?.[otuId]
+    if ((newCur?.value ?? null) !== (newOrig?.value ?? null)) {
+      autoSaveCell(cvtId, otuId)
+    }
+  }
+
+  const rebaseline = (updated) => {
+    const map = { ...(originalCellData.value[cvtId] ?? {}) }
+    if (updated === null) {
+      delete map[otuId]
+    } else {
+      map[otuId] = updated
+    }
+    originalCellData.value = {
+      ...originalCellData.value,
+      [cvtId]: map
+    }
+    if (updated) {
+      cellData.value[cvtId] = {
+        ...cellData.value[cvtId],
+        [otuId]: updated
+      }
+    } else if (cellData.value[cvtId]) {
+      const cd = { ...cellData.value[cvtId] }
+      delete cd[otuId]
+      cellData.value[cvtId] = cd
+    }
+    releaseAndRecheck()
+  }
+
+  const revert = () => {
+    if (orig) {
+      cellData.value[cvtId] = {
+        ...cellData.value[cvtId],
+        [otuId]: { ...orig }
+      }
+    } else if (cellData.value[cvtId]) {
+      const cd = { ...cellData.value[cvtId] }
+      delete cd[otuId]
+      cellData.value[cvtId] = cd
+    }
+    savingCells.delete(cellKey)
+  }
+
+  if (col.type === 'predicate') {
+    const value = (cur?.value ?? '').toString()
+    if (cur?.id) {
+      if (value === '') {
+        DataAttribute.destroy(cur.id)
+          .then(() => rebaseline(null))
+          .catch(revert)
+      } else {
+        DataAttribute.update(cur.id, { data_attribute: { value } })
+          .then(({ body }) => rebaseline({ id: body.id ?? cur.id, value }))
+          .catch(revert)
+      }
+    } else if (value !== '') {
+      DataAttribute.create({
+        data_attribute: {
+          attribute_subject_type: 'Lead',
+          attribute_subject_id: childLead.id,
+          controlled_vocabulary_term_id: cvtId,
+          type: 'InternalAttribute',
+          value
+        }
+      })
+        .then(({ body }) => rebaseline({ id: body.id, value }))
+        .catch(revert)
+    } else {
+      rebaseline(null)
+    }
+    return
+  }
+
+  // Keyword
+  const wantTag = !!cur?.value
+  if (wantTag && !orig?.id) {
+    Tag.create({
+      tag: {
+        keyword_id: cvtId,
+        tag_object_type: 'Lead',
+        tag_object_id: childLead.id
+      }
+    })
+      .then(({ body }) => rebaseline({ id: body.id, value: true }))
+      .catch(revert)
+  } else if (!wantTag && orig?.id) {
+    Tag.destroy(orig.id)
+      .then(() => rebaseline(null))
+      .catch(revert)
+  }
+}
+
+function persistDirtyCells() {
+  const dirty = dirtyCells.value.slice()
+  if (!dirty.length) return Promise.resolve(null)
+
+  const requests = dirty.map(({ cvtId, otuId, cur, orig }) => {
+    const col = columns.value.find((c) => c.cvtId === cvtId)
+    const childLead = childLeads.value[otuId]
+    if (!col || !childLead) return Promise.resolve()
+
+    if (col.type === 'predicate') {
+      const value = cur?.value ?? ''
+      if (cur?.id) {
+        if (value === '') {
+          return DataAttribute.destroy(cur.id)
+        }
+        return DataAttribute.update(cur.id, {
+          data_attribute: { value }
+        })
+      }
+      if (value === '') return Promise.resolve()
+      return DataAttribute.create({
+        data_attribute: {
+          attribute_subject_type: 'Lead',
+          attribute_subject_id: childLead.id,
+          controlled_vocabulary_term_id: cvtId,
+          type: 'InternalAttribute',
+          value
+        }
+      })
+    }
+
+    // Keyword
+    const wantTag = !!cur?.value
+    if (wantTag && !orig?.id) {
+      return Tag.create({
+        tag: {
+          keyword_id: cvtId,
+          tag_object_type: 'Lead',
+          tag_object_id: childLead.id
+        }
+      })
+    }
+    if (!wantTag && orig?.id) {
+      return Tag.destroy(orig.id)
+    }
+    return Promise.resolve()
+  })
+
+  return Promise.all(requests).then(() => {
+    return loadCellData().then(() => `${dirty.length} cell(s) updated.`)
+  })
+}
+
 function deleteChildLead(otu) {
   const child = childLeads.value[otu.id]
   if (!child) return
   const name = otu.object_tag || otu.label_html || `OTU #${otu.id}`
-  const clean = name.replace(/<[^>]+>/g, '')
+  const el = document.createElement('div')
+  el.innerHTML = name
+  const clean = el.textContent.trim()
   if (!window.confirm(`Permanently delete ${clean} from this key?`)) return
 
   loading.value = true
@@ -1039,27 +1678,11 @@ function createNewKey() {
       }))
     })
     .then(({ createdRoot, results }) => {
-      root.value = {
-        id: createdRoot.id,
-        text: createdRoot.text,
-        otu_id: createdRoot.otu_id,
-        is_virtual: true,
-        global_id: createdRoot.global_id
-      }
-      const map = {}
-      results.forEach(({ otu, createdChild }) => {
-        map[otu.id] = {
-          id: createdChild.id,
-          global_id: createdChild.global_id
-        }
-      })
-      childLeads.value = map
-      currentStep.value = 2
-      setParam(RouteNames.CiteKey, 'lead_id', createdRoot.id)
       TW.workbench.alert.create(
         `Key citation created with ${results.length} taxa.`,
         'notice'
       )
+      return loadKey(createdRoot.id)
     })
     .catch(() => {})
     .finally(() => {
@@ -1079,9 +1702,23 @@ usePopstateListener(() => {
 onBeforeMount(() => {
   const { lead_id } = URLParamsToJSON(location.href)
   if (lead_id) {
-    loadKey(Number(lead_id))
+    bootLoading.value = true
+    loadKey(Number(lead_id)).finally(() => {
+      bootLoading.value = false
+    })
   }
+  document.addEventListener('keydown', handleFullScreenEscape)
 })
+
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', handleFullScreenEscape)
+})
+
+function handleFullScreenEscape(e) {
+  if (e.key === 'Escape' && taxaFullScreen.value) {
+    taxaFullScreen.value = false
+  }
+}
 </script>
 
 <style scoped>
@@ -1096,7 +1733,11 @@ onBeforeMount(() => {
 
 .step-nav {
   padding-left: 0;
-  margin: 0 0 1rem 0;
+  margin: 0;
+}
+
+.cite-key-navbar {
+  margin-bottom: 1rem;
 }
 
 .step-item {
@@ -1125,9 +1766,9 @@ onBeforeMount(() => {
 }
 
 .step-item.step-done .step-number {
-  background-color: var(--color-create, currentColor);
-  color: var(--color-on-create, white);
-  border-color: var(--color-create);
+  background-color: var(--text-muted-color);
+  color: white;
+  border-color: var(--text-muted-color);
 }
 
 .species-grid {
@@ -1146,9 +1787,30 @@ onBeforeMount(() => {
 
 .taxa-grid {
   display: grid;
-  grid-template-columns: max-content max-content max-content max-content;
+  width: 100%;
   max-height: 70vh;
   overflow: auto;
+}
+
+.fullscreen-toggle {
+  cursor: pointer;
+}
+
+.taxa-fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  margin: 0 !important;
+  border-radius: 0;
+  max-width: none;
+  overflow: auto;
+}
+
+.taxa-fullscreen .taxa-grid {
+  max-height: calc(100vh - 6rem);
 }
 
 .taxa-grid-row {
@@ -1158,15 +1820,11 @@ onBeforeMount(() => {
 }
 
 .taxa-grid-row > * {
-  padding: 0.25rem 0.75rem 0.25rem 0;
+  padding: 0.35rem 0.75rem;
   display: flex;
   align-items: center;
   min-width: 0;
   white-space: nowrap;
-}
-
-.taxa-grid-row > *:last-child {
-  padding-right: 0;
 }
 
 .taxa-grid > .taxa-grid-row:not(.taxa-grid-header):nth-child(even) {
@@ -1185,5 +1843,17 @@ onBeforeMount(() => {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
   font-weight: bold;
+}
+
+.add-column-picker {
+  min-width: 16rem;
+}
+
+.predicate-cell-input {
+  width: 18rem;
+}
+
+.add-column-picker .add-column-autocomplete {
+  width: 100%;
 }
 </style>

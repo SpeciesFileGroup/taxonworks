@@ -72,5 +72,8 @@ export const Lead = {
     AjaxCall('get', `/${controller}/${id}/eliminated_otus`),
 
   depictions: (id, params) =>
-    AjaxCall('post', `/${controller}/${id}/depictions.json`, params)
+    AjaxCall('post', `/${controller}/${id}/depictions.json`, params),
+
+  citeKeyColumnCvts: () =>
+    AjaxCall('get', `/${controller}/cite_key_column_cvts.json`)
 }

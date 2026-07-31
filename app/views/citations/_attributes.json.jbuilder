@@ -10,6 +10,12 @@ if extend_response_with('citation_object')
     json.partial! '/shared/data/all/metadata', object: citation.citation_object, extensions: false
     if citation.citation_object.is_a?(::Lead)
       json.extract! citation.citation_object, :is_virtual, :parent_id, :text
+      if citation.citation_object.otu
+        json.otu do
+          json.id citation.citation_object.otu.id
+          json.partial! '/shared/data/all/metadata', object: citation.citation_object.otu, extensions: false
+        end
+      end
     end
   end
 end
