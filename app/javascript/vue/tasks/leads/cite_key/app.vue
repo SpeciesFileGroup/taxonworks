@@ -678,7 +678,7 @@ const existingKeys = ref([])
 const existingKeysLoading = ref(false)
 const loading = ref(false)
 const descendantsLoading = ref(false)
-const descendantsFilter = ref('all')
+const descendantsFilter = ref('valid')
 const autoPruneAfterPublication = ref(true)
 
 const rootId = computed(() => root.value.id)
