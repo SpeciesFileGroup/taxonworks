@@ -37,6 +37,39 @@ class LeadsController < ApplicationController
     render '/leads/api/v1/index'
   end
 
+  # GET /leads/cite_key_bootstrap.json
+  # Accepts either an explicit `otu_ids[]` list or a nested `otu_query`
+  # (a Queries::Otu::Filter param hash). Returns the MRCA OTU (parent
+  # taxon) for the resulting OTU set and the embedded OTU details so
+  # the cite_key task can prefill Step 1.
+  def cite_key_bootstrap
+    if params[:otu_ids].present?
+      otu_ids = Array(params[:otu_ids]).flatten.compact.map(&:to_i).uniq
+      scope = ::Otu.where(project_id: sessions_current_project_id, id: otu_ids)
+    elsif params[:otu_query].present?
+      scope = ::Queries::Otu::Filter.new(params[:otu_query]).all
+        .where(project_id: sessions_current_project_id)
+    else
+      scope = ::Otu.none
+    end
+
+    cap = 2000
+    total = scope.count
+    otus = scope.includes(:taxon_name).limit(cap).to_a
+    taxon_name_ids = otus.map(&:taxon_name_id).compact.uniq
+
+    mrca_taxon = ::TaxonName.mrca(taxon_name_ids)
+    parent_otu = mrca_taxon &&
+      ::Otu.where(project_id: sessions_current_project_id, taxon_name_id: mrca_taxon.id).first
+
+    render json: {
+      parent_otu: parent_otu && otu_payload(parent_otu),
+      otus: otus.map { |o| otu_payload(o) },
+      total: total,
+      truncated: total > cap
+    }
+  end
+
   # GET /leads/cite_key_column_cvts.json
   # Returns distinct Keyword and Predicate CVTs that are already applied to
   # any virtual child Lead in the project, so the cite_key task can
@@ -398,6 +431,23 @@ class LeadsController < ApplicationController
   end
 
   private
+
+  # @return [Hash] the OTU + taxon_name shape the cite_key task expects
+  def otu_payload(otu)
+    tn = otu.taxon_name
+    {
+      id: otu.id,
+      object_tag: helpers.object_tag(otu),
+      taxon_name: tn && {
+        id: tn.id,
+        cached_html: tn.cached_html,
+        cached_author_year: tn.cached_author_year,
+        cached_nomenclature_date: tn.cached_nomenclature_date,
+        cached_is_valid: tn.cached_is_valid,
+        cached_misspelling: tn.cached_misspelling
+      }
+    }
+  end
 
   def set_lead
     @lead = Lead.find(params[:id])

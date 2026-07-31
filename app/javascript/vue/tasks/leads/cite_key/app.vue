@@ -642,6 +642,7 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import setParam from '@/helpers/setParam'
 import { URLParamsToJSON } from '@/helpers'
+import { LinkerStorage } from '@/shared/Filter/utils'
 import { RouteNames } from '@/routes/routes'
 import { usePopstateListener } from '@/composables'
 import { Citation, DataAttribute, Lead, Otu, Source, Tag } from '@/routes/endpoints'
@@ -1736,15 +1737,61 @@ usePopstateListener(() => {
 })
 
 onBeforeMount(() => {
-  const { lead_id } = URLParamsToJSON(location.href)
+  const parsed = URLParamsToJSON(location.href)
+  const { lead_id } = parsed
+  let otuIds = parsed.otu_ids
+  let otuQuery = parsed.otu_query
+  if (!otuIds?.length && !otuQuery) {
+    const saved = LinkerStorage.getParameters()
+    if (saved?.otu_ids?.length || saved?.otu_query) {
+      otuIds = saved.otu_ids
+      otuQuery = saved.otu_query
+      LinkerStorage.removeParameters()
+    }
+  }
+
   if (lead_id) {
     bootLoading.value = true
     loadKey(Number(lead_id)).finally(() => {
       bootLoading.value = false
     })
+  } else if (otuIds?.length || otuQuery) {
+    bootLoading.value = true
+    bootstrapFromOtus({ otuIds, otuQuery }).finally(() => {
+      bootLoading.value = false
+    })
   }
   document.addEventListener('keydown', handleFullScreenEscape)
 })
+
+function bootstrapFromOtus({ otuIds, otuQuery }) {
+  return Lead.citeKeyBootstrap({ otuIds, otuQuery })
+    .then(({ body }) => {
+      if (body.parent_otu) {
+        parentOtu.value = {
+          id: body.parent_otu.id,
+          object_tag: body.parent_otu.object_tag,
+          taxon_name_id: body.parent_otu.taxon_name?.id
+        }
+        root.value.otu_id = body.parent_otu.id
+      }
+      body.otus.forEach((otu) => addSpecies(otu))
+      currentStep.value = 1
+      const truncationNote = body.truncated
+        ? ` (capped at ${body.otus.length} of ${body.total}; refine the filter or split the key)`
+        : ''
+      const parentNote = body.parent_otu
+        ? 'parent inferred as ' + body.parent_otu.object_tag.replace(/<[^>]+>/g, '')
+        : 'no shared parent inferred'
+      TW.workbench.alert.create(
+        `Prefilled ${body.otus.length} taxa from Filter OTUs${truncationNote}; ` +
+          parentNote +
+          '. Pick a source and title, then Cite this key.',
+        body.truncated ? 'warning' : 'notice'
+      )
+    })
+    .catch(() => {})
+}
 
 onBeforeUnmount(() => {
   document.removeEventListener('keydown', handleFullScreenEscape)
