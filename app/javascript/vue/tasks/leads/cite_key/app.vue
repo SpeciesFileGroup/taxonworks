@@ -270,12 +270,23 @@
             />
             Auto-prune taxa published after the key
           </label>
+          <label
+            class="d-flex middle gap-small"
+            title="Skip taxa marked as misspellings (cached_misspelling or [sic] in the name)"
+          >
+            <input
+              type="checkbox"
+              v-model="pruneMisspellings"
+            />
+            Prune misspellings
+          </label>
           <VBtn
             color="primary"
-            :disabled="!species.length"
-            @click="species = []"
+            :disabled="!newSpecies.length"
+            title="Discards taxa that haven't been saved yet; already-saved taxa stay in the key"
+            @click="clearPendingSpecies"
           >
-            Clear list
+            Clear pending
           </VBtn>
         </div>
 
@@ -297,7 +308,7 @@
           class="no-style-list panel content species-grid"
         >
           <li
-            v-for="otu in species"
+            v-for="otu in sortedSpecies"
             :key="otu.id"
             :class="['d-flex middle gap-small padding-xsmall species-row',
               { 'species-row-saved': !!childLeads[otu.id] }]"
@@ -378,7 +389,7 @@
     >
       <template #header>
         <div class="flex-separate middle full_width">
-          <h3>Taxa in key ({{ species.length }})</h3>
+          <h3>Taxa in key ({{ sortedSavedSpecies.length }})</h3>
           <span
             :data-icon="taxaFullScreen ? 'contract' : 'expand'"
             :title="taxaFullScreen ? 'Exit full-screen (Esc)' : 'Full-screen data view'"
@@ -533,7 +544,7 @@
             />
           </div>
           <div
-            v-for="otu in sortedSpecies"
+            v-for="otu in sortedSavedSpecies"
             :key="otu.id"
             class="taxa-grid-row"
             role="row"
@@ -680,6 +691,7 @@ const loading = ref(false)
 const descendantsLoading = ref(false)
 const descendantsFilter = ref('valid')
 const autoPruneAfterPublication = ref(true)
+const pruneMisspellings = ref(true)
 
 const rootId = computed(() => root.value.id)
 const rootGlobalId = computed(() => root.value.global_id)
@@ -701,10 +713,17 @@ const gridTemplateColumns = computed(() => {
 
 const sortedSpecies = computed(() =>
   [...species.value].sort((a, b) => {
+    const aSaved = !!childLeads.value[a.id]
+    const bSaved = !!childLeads.value[b.id]
+    if (aSaved !== bSaved) return aSaved ? 1 : -1
     const aName = (a.object_tag || a.label_html || '').replace(/<[^>]+>/g, '')
     const bName = (b.object_tag || b.label_html || '').replace(/<[^>]+>/g, '')
     return aName.localeCompare(bName)
   })
+)
+
+const sortedSavedSpecies = computed(() =>
+  sortedSpecies.value.filter((otu) => !!childLeads.value[otu.id])
 )
 
 const dirtyPageOtuIds = computed(() =>
@@ -807,7 +826,7 @@ function selectSourceById(id) {
 }
 
 function hydrateSource(id) {
-  Source.find(id).then(({ body }) => {
+  return Source.find(id).then(({ body }) => {
     source.value = {
       id: body.id,
       label_html: body.object_tag,
@@ -876,6 +895,12 @@ function addSpecies(otu) {
   species.value.push(otu)
 }
 
+function looksLikeMisspelling(taxonName) {
+  if (!taxonName) return false
+  if (taxonName.cached_misspelling) return true
+  return /\[sic\]/i.test(taxonName.cached_html ?? '')
+}
+
 function taxonDisplay(otu) {
   const tn = otu.taxon_name
   const parts = []
@@ -884,11 +909,20 @@ function taxonDisplay(otu) {
   else if (otu.label_html) parts.push(otu.label_html)
   else parts.push(`OTU #${otu.id}`)
   if (tn?.cached_author_year) parts.push(tn.cached_author_year)
+  if (tn?.cached_is_valid === true) {
+    parts.push('<span class="green">&#10004;</span>')
+  } else if (tn?.cached_is_valid === false) {
+    parts.push('<span class="red">&#10060;</span>')
+  }
   return parts.join(' ')
 }
 
 function removeSpecies(otuId) {
   species.value = species.value.filter((o) => o.id !== otuId)
+}
+
+function clearPendingSpecies() {
+  species.value = species.value.filter((o) => !!childLeads.value[o.id])
 }
 
 function loadDescendants() {
@@ -917,23 +951,28 @@ function loadDescendants() {
   Otu.where(params)
     .then(({ body }) => {
       const sourceDate = source.value?.cached_nomenclature_date
-      let prunedCount = 0
+      let prunedByDate = 0
+      let prunedByMisspelling = 0
       body.forEach((otu) => {
         if (otu.id === parentOtu.value.id) return
         if (autoPruneAfterPublication.value && sourceDate) {
           const taxonDate = otu.taxon_name?.cached_nomenclature_date
           if (taxonDate && taxonDate > sourceDate) {
-            prunedCount++
+            prunedByDate++
             return
           }
         }
+        if (pruneMisspellings.value && looksLikeMisspelling(otu.taxon_name)) {
+          prunedByMisspelling++
+          return
+        }
         addSpecies(otu)
       })
-      if (prunedCount) {
-        TW.workbench.alert.create(
-          `Skipped ${prunedCount} taxon(a) published after the key's source.`,
-          'notice'
-        )
+      const notes = []
+      if (prunedByDate) notes.push(`${prunedByDate} published after the key`)
+      if (prunedByMisspelling) notes.push(`${prunedByMisspelling} misspelling(s)`)
+      if (notes.length) {
+        TW.workbench.alert.create(`Skipped ${notes.join(', ')}.`, 'notice')
       }
     })
     .catch(() => {})
@@ -1047,7 +1086,8 @@ function loadKey(rootLeadId) {
         const otuObj = child.otu
           ? {
               id: child.otu.id,
-              object_tag: child.otu.object_tag
+              object_tag: child.otu.object_tag,
+              taxon_name: child.otu.taxon_name
             }
           : { id: child.otu_id }
         speciesList.push(otuObj)
@@ -1076,14 +1116,10 @@ function loadKey(rootLeadId) {
         )
         if (rootCitation) {
           rootCitationId.value = rootCitation.id
-          if (rootCitation.source) {
-            source.value = {
-              id: rootCitation.source.id,
-              label_html: rootCitation.source.object_tag,
-              object_tag: rootCitation.source.object_tag
-            }
-          }
           pages.value = rootCitation.pages || ''
+          if (rootCitation.source) {
+            return hydrateSource(rootCitation.source.id)
+          }
         }
 
         const childCitationMap = {}
