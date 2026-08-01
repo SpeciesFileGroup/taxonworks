@@ -5,9 +5,9 @@ module SerialsHelper
     serial.name
   end
 
-  def serial_autocomplete_tag(serial, term = '')
+  def serial_autocomplete_tag(serial, term = nil)
     return nil if serial.nil?
-    [ serial.name.gsub(/#{Regexp.escape(term)}/, "<mark>#{term}</mark>"), 
+    [ mark_tag(serial.name, term),
       content_tag(:span, "Project uses: #{Serial.joins(sources: [:project_sources]).where('project_sources.project_id = ? and serials.id = ?', sessions_current_project_id, serial.id).count}", class: [:feedback, 'feedback-primary', 'feedback-thin']),
       content_tag(:span, "All uses: #{serial.sources.count}", class: [:feedback, 'feedback-secondary', 'feedback-thin'])
 

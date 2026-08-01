@@ -638,7 +638,7 @@ class GeographicArea < ApplicationRecord
       when 'CollectingEvent'
         h[:recent] = GeographicArea.where('"geographic_areas"."id" IN (?)', r.first(10) ).order(:name).to_a
       when 'AssertedDistribution'
-        h[:recent] = GeographicArea.where('"geographic_areas"."id" IN (?)', r.first(15) ).order(:name).to_a
+        h[:recent] = GeographicArea.where('"geographic_areas"."id" IN (?)', r.first(20) ).order(:name).to_a
       end
       h[:quick] = (GeographicArea.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id:}).to_a +
                    GeographicArea.where('"geographic_areas"."id" IN (?)', r.first(5) ).order(:name).to_a).uniq

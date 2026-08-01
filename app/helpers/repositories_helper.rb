@@ -17,14 +17,15 @@ module RepositoriesHelper
     link_to(repository_tag(repository).html_safe, repository)
   end
 
-  def repository_autocomplete_tag(repository)
-    [
+  def repository_autocomplete_tag(repository, term = nil)
+    s = [
       tag.span(repository.acronym, class: [:feedback, 'feedback-thin', 'feedback-secondary']),
       repository.name,
       repository.url.present? ? tag.span(repository.url, class: [:feedback, 'feedback-thin']) : nil,
       (repository.is_index_herbariorum ? tag.span('Herbarium', class: [:feedback, 'feedback-info', 'feedback-thin']) : nil),
       repository_usage_tag(repository)
-    ].compact.join(' ').html_safe
+    ].compact.join(' ')
+    mark_tag(s, term)
   end
 
   # use_count/in_project_use_count come from autocomplete pre-calculation, when present

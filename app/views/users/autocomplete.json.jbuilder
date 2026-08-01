@@ -1,7 +1,7 @@
 json.array! @users do |t|
   json.id t.id
   json.label t.name
-  json.label_html user_autocomplete_tag(t)
+  json.label_html user_autocomplete_tag(t, params[:term])
   json.gid t.to_global_id.to_s
 
   json.response_values do
