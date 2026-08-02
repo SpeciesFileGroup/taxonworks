@@ -802,7 +802,8 @@ scope :tasks do
   scope :otus do
     scope :assign_taxon_name, controller: 'tasks/otus/assign_taxon_name' do
       get '/', action: :index, as: 'assign_taxon_name_task'
-      get :data, as: 'assign_taxon_name_task_data', defaults: {format: :json}
+      # POST as well as GET: a page of curator-refined match strings does not fit in a URI.
+      match :data, via: [:get, :post], as: 'assign_taxon_name_task_data', defaults: {format: :json}
     end
 
     scope :duplicates, controller: 'tasks/otus/duplicates' do

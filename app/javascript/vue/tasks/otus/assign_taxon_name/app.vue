@@ -52,6 +52,7 @@
         <ResultTable
           :rows="visibleRows"
           v-model:visibility="visibility"
+          v-model:prediction="prediction"
           @update-row="updateRow"
           @update-match-string="updateMatchString"
           @toggle-all="toggleAll"
@@ -68,7 +69,7 @@
 import { computed, onBeforeMount, ref } from 'vue'
 import { Otu } from '@/routes/endpoints'
 import { getPagination } from '@/helpers'
-import { PER, VISIBILITY, defaultModifiers } from './constants'
+import { PER, PREDICTION, VISIBILITY, defaultModifiers } from './constants'
 import { useScopeQueries } from './composables/useScopeQueries'
 import applyRules from './utils/applyRules'
 import MatchOptionsPanel from './components/MatchOptionsPanel.vue'
@@ -89,6 +90,7 @@ const rows = ref([])
 const pagination = ref({})
 const isLoading = ref(false)
 const visibility = ref(VISIBILITY.All)
+const prediction = ref(PREDICTION.All)
 
 // Match options
 const scopeTaxonName = ref(null)
@@ -111,10 +113,18 @@ const loadedRows = computed(() =>
   rows.value.filter((row) => !clearedIds.value.includes(row.otuId))
 )
 
+// Filters hide rather than reorder, so the surviving rows keep the server's name order and
+// the ones of interest gather at the top.
 const visibleRows = computed(() =>
   loadedRows.value.filter((row) => {
-    if (visibility.value === VISIBILITY.Set) return row.set
-    if (visibility.value === VISIBILITY.Unset) return !row.set
+    if (visibility.value === VISIBILITY.Set && !row.set) return false
+    if (visibility.value === VISIBILITY.Unset && row.set) return false
+
+    const predicted = row.candidates.length > 0
+
+    if (prediction.value === PREDICTION.Predicted && !predicted) return false
+    if (prediction.value === PREDICTION.Unknown && predicted) return false
+
     return true
   })
 )
@@ -184,14 +194,25 @@ function buildRow(record) {
   }
 }
 
-// Match strings that differ from the OTU name the server matched on.
+// Checked rows scope the left-column facets; with nothing checked they apply to every row.
+function scopedRows() {
+  const selected = loadedRows.value.filter((r) => r.selected)
+  return selected.length ? selected : loadedRows.value
+}
+
+// Match strings that differ from the OTU name the server matched on. A string the curator
+// typed always counts, whether or not its row is in scope.
 function computeOverrides() {
   const overrides = {}
+  const scoped = new Set(scopedRows().map((r) => r.otuId))
 
   rows.value.forEach((row) => {
     const manual = uiState.value[row.otuId]?.matchString
     const value =
-      manual ?? applyRules(row.otuName, stripPreset.value, modifiers.value)
+      manual ??
+      (scoped.has(row.otuId)
+        ? applyRules(row.otuName, stripPreset.value, modifiers.value)
+        : row.otuName)
 
     if (value && value !== row.otuName) {
       overrides[row.otuId] = value
@@ -271,6 +292,8 @@ function handleReset() {
   levenshteinDistance.value = 0
   useAuthorYear.value = false
   modifiers.value = defaultModifiers()
+  visibility.value = VISIBILITY.All
+  prediction.value = PREDICTION.All
   uiState.value = {}
   clearedIds.value = []
   loadPage(1)

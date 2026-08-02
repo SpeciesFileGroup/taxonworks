@@ -20,7 +20,17 @@
         <th>Match</th>
         <th>
           <div class="horizontal-left-content middle gap-small">
-            <span>Predicted match</span>
+            <span>Predicted</span>
+            <select
+              class="normal-input"
+              :value="prediction"
+              title="Which rows to show"
+              @change="$emit('update:prediction', $event.target.value)"
+            >
+              <option :value="PREDICTION.All">All</option>
+              <option :value="PREDICTION.Predicted">Predicted</option>
+              <option :value="PREDICTION.Unknown">Unknown</option>
+            </select>
             <VBtn
               color="primary"
               title="Clear every selected prediction"
@@ -172,7 +182,7 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import { VISIBILITY } from '../constants'
+import { PREDICTION, VISIBILITY } from '../constants'
 import { OTU } from '@/constants'
 import { RouteNames } from '@/routes/routes'
 import AutoselectField from '@/components/ui/AutoselectField.vue'
@@ -190,6 +200,11 @@ const props = defineProps({
   visibility: {
     type: String,
     required: true
+  },
+
+  prediction: {
+    type: String,
+    required: true
   }
 })
 
@@ -200,6 +215,7 @@ const emit = defineEmits([
   'toggle-all',
   'update-match-string',
   'update-row',
+  'update:prediction',
   'update:visibility'
 ])
 

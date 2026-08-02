@@ -22,3 +22,10 @@ export const VISIBILITY = {
   Set: 'set',
   Unset: 'unset'
 }
+
+// Rows are "predicted" when the matcher returned at least one candidate.
+export const PREDICTION = {
+  All: 'all',
+  Predicted: 'predicted',
+  Unknown: 'unknown'
+}

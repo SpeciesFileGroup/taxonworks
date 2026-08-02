@@ -48,6 +48,38 @@ describe 'Assign taxon name to OTU task', type: :feature, group: :otu do
       end
     end
 
+    # A full page of curator-refined match strings does not fit in a request URI, which is
+    # what made "keep first word only" over a whole selected page fail with a 400.
+    context 'with a match string for every row on a page' do
+      let!(:otus) do
+        200.times.map { |i| Otu.create!(name: "Aus bus#{i}", by: @user, project: @project) }
+      end
+
+      let(:match_strings) { otus.to_h { |o| [o.id.to_s, 'Aus'] } }
+
+      # The browser client sends this via ajaxCall; page.driver.post does not.
+      def post_data
+        visit assign_taxon_name_task_path
+        token = page.find('meta[name="csrf-token"]', visible: false)[:content]
+
+        page.driver.post(
+          assign_taxon_name_task_data_path(format: :json),
+          { match_strings: },
+          { 'HTTP_X_CSRF_TOKEN' => token }
+        )
+      end
+
+      specify 'the data endpoint accepts them over POST' do
+        post_data
+        expect(page.driver.response.status).to eq(200)
+      end
+
+      specify 'and matches on them rather than the OTU names' do
+        post_data
+        expect(JSON.parse(page.driver.response.body).map { |r| r['match_string'] }.uniq).to eq(['Aus'])
+      end
+    end
+
     # The scopes arrive as request params, not as the Hashes the library spec passes.
     context 'when handed scoping queries' do
       let(:root) { FactoryBot.create(:root_taxon_name, by: @user, project: @project) }
