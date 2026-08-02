@@ -7,35 +7,9 @@
 
     <NavBar>
       <div class="flex-separate middle gap-medium full_width">
-        <div class="horizontal-left-content middle gap-medium">
-          <ButtonUnify
-            :ids="selectedIds"
-            :model="OTU"
-          />
-
-          <span
-            v-if="otuFilterUrl"
-            class="subtle"
-          >
-            Scoped to {{ pagination.total ?? 0 }} OTUs
-            <a :href="otuFilterUrl">Back to filter</a>
-          </span>
-
-          <span
-            v-else
-            class="subtle"
-          >
-            {{ pagination.total ?? 0 }} OTUs without a taxon name
-          </span>
-
-          <span
-            v-if="taxonNameFilterUrl"
-            class="subtle"
-          >
-            Matched against a taxon name filter result
-            <a :href="taxonNameFilterUrl">Back to filter</a>
-          </span>
-        </div>
+        <span class="subtle">
+          {{ pagination.total ?? 0 }} OTUs without a taxon name
+        </span>
 
         <ul
           v-if="pagination.totalPages > 1"
@@ -48,16 +22,6 @@
             />
           </li>
         </ul>
-
-        <VBtn
-          color="primary"
-          medium
-          title="Remove rows already set from this view"
-          :disabled="!setRowIds.length"
-          @click="clearSetRows"
-        >
-          Clear set rows
-        </VBtn>
       </div>
     </NavBar>
 
@@ -77,6 +41,14 @@
       </div>
 
       <div class="full_width">
+        <StatusBar
+          :rows="loadedRows"
+          :scope-total="pagination.total ?? 0"
+          :otu-filter-url="otuFilterUrl"
+          :taxon-name-filter-url="taxonNameFilterUrl"
+          @clear-set-rows="clearSetRows"
+        />
+
         <ResultTable
           :rows="visibleRows"
           v-model:visibility="visibility"
@@ -94,17 +66,15 @@
 
 <script setup>
 import { computed, onBeforeMount, ref } from 'vue'
-import { OTU } from '@/constants'
 import { Otu } from '@/routes/endpoints'
 import { getPagination } from '@/helpers'
 import { PER, VISIBILITY, defaultModifiers } from './constants'
 import { useScopeQueries } from './composables/useScopeQueries'
 import applyRules from './utils/applyRules'
-import ButtonUnify from '@/components/ui/Button/ButtonUnify.vue'
 import MatchOptionsPanel from './components/MatchOptionsPanel.vue'
 import NavBar from '@/components/layout/NavBar.vue'
 import ResultTable from './components/ResultTable.vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
+import StatusBar from './components/StatusBar.vue'
 import VPagination from '@/components/pagination.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
@@ -135,17 +105,18 @@ const clearedIds = ref([])
 
 const currentPage = computed(() => pagination.value.paginationPage || 1)
 
+// Everything still on the page. The status bar counts these, so its totals don't shift when
+// the visibility filter is changed.
+const loadedRows = computed(() =>
+  rows.value.filter((row) => !clearedIds.value.includes(row.otuId))
+)
+
 const visibleRows = computed(() =>
-  rows.value.filter((row) => {
-    if (clearedIds.value.includes(row.otuId)) return false
+  loadedRows.value.filter((row) => {
     if (visibility.value === VISIBILITY.Set) return row.set
     if (visibility.value === VISIBILITY.Unset) return !row.set
     return true
   })
-)
-
-const selectedIds = computed(() =>
-  visibleRows.value.filter((r) => r.selected).map((r) => r.otuId)
 )
 
 const setRowIds = computed(() =>

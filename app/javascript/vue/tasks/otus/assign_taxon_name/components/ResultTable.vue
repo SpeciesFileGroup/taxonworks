@@ -3,12 +3,18 @@
     <thead>
       <tr>
         <th class="w-2">
-          <input
-            type="checkbox"
-            :checked="allSelected"
-            title="Select all"
-            @change="$emit('toggle-all', $event.target.checked)"
-          />
+          <div class="horizontal-left-content middle gap-small">
+            <input
+              type="checkbox"
+              :checked="allSelected"
+              title="Select all"
+              @change="$emit('toggle-all', $event.target.checked)"
+            />
+            <ButtonUnify
+              :ids="selectedIds"
+              :model="OTU"
+            />
+          </div>
         </th>
         <th>OTU name</th>
         <th>Match</th>
@@ -24,6 +30,7 @@
             </VBtn>
           </div>
         </th>
+        <th class="w-2" />
         <th>Refine</th>
         <th class="w-3">
           <div class="horizontal-left-content middle gap-small">
@@ -108,7 +115,22 @@
         </td>
 
         <td>
+          <VBtn
+            circle
+            color="primary"
+            title="Search the OTU name in Refine"
+            @click="prefillRefine(row)"
+          >
+            <VIcon
+              x-small
+              name="zoomIn"
+            />
+          </VBtn>
+        </td>
+
+        <td>
           <AutoselectField
+            :ref="(el) => setRefineRef(row.otuId, el)"
             url="/taxon_names/autoselect"
             param="taxon_name_id"
             :id="`refine-${row.otuId}`"
@@ -149,12 +171,15 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { VISIBILITY } from '../constants'
+import { OTU } from '@/constants'
 import { RouteNames } from '@/routes/routes'
 import AutoselectField from '@/components/ui/AutoselectField.vue'
+import ButtonUnify from '@/components/ui/Button/ButtonUnify.vue'
 import TaxonNameNewModal from '@/components/ui/AutoselectField/TaxonNameNewModal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 const props = defineProps({
   rows: {
@@ -181,6 +206,28 @@ const emit = defineEmits([
 const allSelected = computed(
   () => props.rows.length > 0 && props.rows.every((r) => r.selected)
 )
+
+const selectedIds = computed(() =>
+  props.rows.filter((r) => r.selected).map((r) => r.otuId)
+)
+
+// AutoselectField instances, keyed by OTU id, so a row's search can be driven from its button.
+const refineRefs = ref({})
+
+function setRefineRef(otuId, el) {
+  if (el) {
+    refineRefs.value[otuId] = el
+  } else {
+    delete refineRefs.value[otuId]
+  }
+}
+
+// Hand the OTU's own name to Refine and start the search there, caret at the end so the
+// curator can trim the string immediately. The OTU name is used rather than the (possibly
+// stripped) match string — that search has already been run and produced the predictions.
+function prefillRefine(row) {
+  refineRefs.value[row.otuId]?.prefill(row.otuName)
+}
 
 function update(row, field, value) {
   emit('update-row', row, field, value)
