@@ -21,6 +21,9 @@ export const Otu = {
   distribution: (id) =>
     AjaxCall('get', `/otus/${id}/inventory/distribution.json`),
 
+  assignTaxonNameData: (params) =>
+    AjaxCall('get', `/tasks/otus/assign_taxon_name/data`, { params }),
+
   duplicates: (params) =>
     AjaxCall('get', `/tasks/otus/duplicates/data`, { params }),
 

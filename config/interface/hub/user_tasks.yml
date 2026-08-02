@@ -1029,6 +1029,7 @@ match_otu_by_taxon_name_task:
   hub: true
   name: 'Match OTU by taxon name'
   related:
+    - assign_taxon_name_task
   categories:
     - otu
     - nomenclature
@@ -1273,3 +1274,14 @@ collection_visualization_task:
     - collection objects
   status: prototype
   description: 'Visualize a collection hierarchy using treemap and other views.'
+
+assign_taxon_name_task:
+  hub: true
+  name: 'Assign taxon name to OTU'
+  related:
+    - match_otu_by_taxon_name_task
+  categories:
+    - otu
+    - nomenclature
+  status: prototype
+  description: 'Match OTUs that have no taxon name against TaxonWorks nomenclature, then set the taxon name. Supports exact and fuzzy matching, original combinations, and author/year differentiation.'

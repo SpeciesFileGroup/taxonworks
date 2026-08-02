@@ -800,6 +800,11 @@ scope :tasks do
   end
 
   scope :otus do
+    scope :assign_taxon_name, controller: 'tasks/otus/assign_taxon_name' do
+      get '/', action: :index, as: 'assign_taxon_name_task'
+      get :data, as: 'assign_taxon_name_task_data', defaults: {format: :json}
+    end
+
     scope :duplicates, controller: 'tasks/otus/duplicates' do
       get '/', action: 'index', as: 'duplicate_otus_task'
      get :data, as: 'duplicate_otus_task_data', defaults: {format: :json}
