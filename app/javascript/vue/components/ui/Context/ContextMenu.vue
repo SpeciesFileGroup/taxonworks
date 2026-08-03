@@ -80,7 +80,7 @@ defineExpose({
   display: flex;
   flex-direction: column;
   width: 260px;
-  background-color: var(--panel-bg-color);
+  background-color: var(--bg-overlay);
   position: fixed;
   border: 1px solid var(--border-color);
   box-shadow: var(--panel-shadow);

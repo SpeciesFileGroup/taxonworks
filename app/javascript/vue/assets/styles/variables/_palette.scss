@@ -20,6 +20,8 @@
   --bg-active: var(--color-soft-primary-bg);
   --border-active: color-mix(in srgb, var(--color-primary) 35%, transparent);
   --border-color: var(--slate-300);
+  /* Low-emphasis separators: dividers, row rules, borders inside a surface */
+  --border-weak-color: var(--slate-200);
   /* Alpha mixes of --text-color so both themes derive their disabled state */
   --button-disabled-bg-color: color-mix(
     in srgb,
@@ -42,6 +44,8 @@
     0 2px 4px 0 color-mix(in srgb, var(--slate-900) 8%, transparent),
     0 8px 20px 0 color-mix(in srgb, var(--slate-900) 14%, transparent);
   --panel-border-color: var(--slate-200);
+  /* Elevation layer 3: floating surfaces (menus, popovers, dropdowns) */
+  --bg-overlay: var(--white);
   --text-color: var(--slate-900);
   --text-muted-color: var(--slate-500);
   --muted-foreground: var(--slate-500);
@@ -184,6 +188,7 @@
   --bg-hover: #21262d;
   --bg-action: #2d333b;
   --border-color: #30363d;
+  --border-weak-color: #21262d;
   --button-default-bg-color: #2d333b;
   --input-bg-color: #0d1117;
   --input-bg-disabled: #161b22;
@@ -192,6 +197,9 @@
   --panel-shadow-hover: 0 8px 20px 0
     color-mix(in srgb, #01040a 45%, transparent);
   --panel-border-color: #21262d;
+  /* Elevation layer 3: lighter than --panel-bg-color so a menu opened over a
+     card still reads as floating above it. */
+  --bg-overlay: #252c35;
   --text-color: #e6edf3;
   --text-muted-color: #8b949e;
   --muted-foreground: #8b949e;

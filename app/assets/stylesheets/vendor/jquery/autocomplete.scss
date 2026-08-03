@@ -46,7 +46,7 @@
   box-shadow: var(--panel-shadow) !important;
   font-weight: 300;
   background: none;
-  background-color: var(--panel-bg-color) !important;
+  background-color: var(--bg-overlay) !important;
   color: var(--text-color) !important;
   border-color: var(--border-color) !important;
 }
@@ -68,7 +68,7 @@
 
 .ui-menu-item:hover {
   background: none;
-  background-color: var(--panel-bg-color);
+  background-color: var(--bg-overlay);
   border: 1px solid var(--border-color);
 }
 

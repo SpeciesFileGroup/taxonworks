@@ -38,6 +38,28 @@ Notes:
   SCSS-variable system, kept only for server-rendered views still referencing it.
   Do not add to it; migrate consumers to the CSS-custom-property layers above.
 
+# Surface elevation
+
+Background surfaces are organized in three layers. Pick the layer by *how the
+element sits in space*, not by how it looks — a menu is layer 3 even when it
+happens to be the same color as a card in light mode.
+
+1. **Page** — `--bg-color`. The canvas everything else sits on.
+2. **Content** — `--panel-bg-color` / `--bg-foreground`. Cards, panels, in-flow
+   regions (`.tw-card`, task panels). `--bg-muted` / `--bg-hover` are the
+   recessed and hover fills *within* this layer.
+3. **Overlay** — `--bg-overlay`. Anything that floats over the content and is
+   dismissible: context menus, popovers (`.tw-popover`, `.tw-menu`),
+   autocomplete/autoselect dropdowns, navigation dropdowns.
+
+In dark mode layer 3 is *lighter* than layer 2, so a menu opened over a card
+still reads as being above it. In light mode both are white and the separation
+comes from the border and shadow the component already carries.
+
+Modals are excluded: they are separated by the dimmed backdrop
+(`--modal-mask-bg-color`) and keep `--panel-bg-color`. Tooltips are their own
+component token set (`--tooltip-bg-color`).
+
 # Semantic palette
 
 - Green is only used to indicate buttons or actions that will POST or PATCH to the database
@@ -45,4 +67,5 @@ Notes:
 - Primary/blue (`--color-primary`): neutral/navigational actions and selected state — the default interactive accent that is neither create (green) nor destroy (red)
 - Warning/yellow (`--color-warning`, amber/orange): reversible-but-risky actions and non-blocking cautions (e.g. soft validation, "are you sure")
 - Muted/gray (`--text-muted-color`, `--button-disabled-*`): disabled, inactive, or secondary/de-emphasized content
+- Borders come in two weights: `--border-color` delimits a thing from what surrounds it (input, card, menu edge); `--border-weak-color` separates content *within* an already-delimited surface (dividers, row rules, list separators). If a border is competing with the content it contains, it should be the weak one
 - Focus: every interactive element gets a visible focus ring via `--focus-ring` (WCAG 2.2 §2.4.13); do not remove `outline` without providing an equivalent

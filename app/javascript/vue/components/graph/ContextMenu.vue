@@ -71,7 +71,7 @@ defineExpose({
   display: flex;
   flex-direction: column;
   width: 260px;
-  background-color: var(--panel-bg-color);
+  background-color: var(--bg-overlay);
   position: fixed;
   font-size: 12px;
   border: 1px solid var(--border-color);

@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2 class="tw-section-title">Preparation</h2>
-    <div class="horizontal-left-content align-start">
+    <div class="flex-row gap-small align-start">
       <ul
         v-for="(itemsGroup, index) in chunkList"
         :key="index"

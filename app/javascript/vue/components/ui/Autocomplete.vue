@@ -583,7 +583,7 @@ export default {
   overflow-y: auto;
   overflow-x: hidden;
   z-index: 999998;
-  background-color: var(--panel-bg-color);
+  background-color: var(--bg-overlay);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -606,7 +606,7 @@ export default {
   }
 
   .active {
-    background-color: var(--border-color);
+    background-color: var(--bg-hover);
   }
 }
 </style>

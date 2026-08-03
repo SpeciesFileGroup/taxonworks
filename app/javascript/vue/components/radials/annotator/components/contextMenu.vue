@@ -127,7 +127,7 @@ function singularize(text) {
   transform: translateX(calc(-50% + 24px));
   z-index: 999;
   position: absolute;
-  background-color: var(--panel-bg-color);
+  background-color: var(--bg-overlay);
   color: var(--text-color);
   box-shadow: 0px 2px 2px 0px rgba(0, 0, 0, 0.2);
   min-width: 200px;
