@@ -152,7 +152,7 @@
   --badge-red-color: var(--red-700);
 
   --badge-default-bg: color-mix(in srgb, var(--color-neutral) 15%, transparent);
-  --badge-default-color: var(--color-neutral);
+  --badge-default-color: var(--slate-600);
 
   --badge-purple-bg: color-mix(in srgb, var(--violet-500) 15%, transparent);
   --badge-purple-color: var(--violet-700);
@@ -233,7 +233,7 @@
   --feedback-info-bg-color: #2e3646;
   --feedback-info-border-color: #6899fa;
 
-  --feedback-warning-text-color: #cf873b;
+  --feedback-warning-text-color: #d9a441;
   --feedback-warning-bg-color: #37332f;
   --feedback-warning-border-color: #6b461e;
 
@@ -266,6 +266,7 @@
   --badge-red-color: var(--red-400);
   --badge-purple-color: var(--violet-400);
   --badge-warning-color: var(--red-400);
+  --badge-default-color: var(--color-neutral);
 
   --color-soft-success-bg: color-mix(
     in srgb,
@@ -300,11 +301,11 @@ $tw-dark-colors: (
   'black': #444444,
   'create': #2e7d32,
   'data': #006ebf,
-  'destroy': #a2131d,
-  'error': #a2131d,
+  'destroy': #c9313b,
+  'error': #c9313b,
   'panel': #ffffff,
   'primary': #006cbe,
-  'secondary': #0e0a0b,
+  'secondary': #8b5a66,
   'update': #2e7d32,
   'warning': #f97316,
   'white': #ffffff,
@@ -364,6 +365,47 @@ $tw-map-colors: (
 @each $key, $value in $tw-map-colors {
   :root {
     --color-map-#{$key}: #{$value};
+  }
+}
+
+$tw-foreground-colors:
+  'primary', 'create', 'update', 'data', 'destroy', 'error', 'warning',
+  'secondary', 'black';
+
+$tw-foreground-mix-light: 75%;
+$tw-foreground-mix-dark: 60%;
+
+$tw-foreground-light-overrides: (
+  'warning': (
+    'source': var(--orange-700),
+    'mix': 92%
+  )
+);
+
+@each $key in $tw-foreground-colors {
+  $source: var(--color-#{$key});
+  $mix: $tw-foreground-mix-light;
+
+  @if map.has-key($tw-foreground-light-overrides, $key) {
+    $override: map.get($tw-foreground-light-overrides, $key);
+    $source: map.get($override, 'source');
+    $mix: map.get($override, 'mix');
+  }
+
+  :root {
+    --color-#{$key}-on-surface: color-mix(
+      in srgb,
+      #{$source} #{$mix},
+      var(--text-color)
+    );
+  }
+
+  .dark {
+    --color-#{$key}-on-surface: color-mix(
+      in srgb,
+      var(--color-#{$key}) #{$tw-foreground-mix-dark},
+      var(--text-color)
+    );
   }
 }
 

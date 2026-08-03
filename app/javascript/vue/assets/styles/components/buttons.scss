@@ -140,6 +140,17 @@
   }
 }
 
+@each $key in $tw-foreground-colors {
+  .btn-ghost.btn-#{$key} {
+    color: var(--color-#{$key}-on-surface);
+  }
+
+  .btn-outline.btn-#{$key} {
+    border-color: var(--color-#{$key}-on-surface);
+    color: var(--color-#{$key}-on-surface);
+  }
+}
+
 .btn-tonal {
   background-color: color-mix(in srgb, var(--text-color) 10%, transparent);
   color: var(--text-color);
@@ -164,6 +175,12 @@
       );
       opacity: 1;
     }
+  }
+}
+
+@each $key in $tw-foreground-colors {
+  .btn-tonal.btn-#{$key} {
+    color: var(--color-#{$key}-on-surface);
   }
 }
 

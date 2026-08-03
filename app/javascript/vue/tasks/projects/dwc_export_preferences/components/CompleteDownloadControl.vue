@@ -321,12 +321,12 @@ function getMaxAgeDate() {
 }
 
 .status-creating {
-  color: var(--color-warning);
+  color: var(--color-warning-on-surface);
   font-weight: 600;
 }
 
 .status-not-ready {
-  color: var(--color-warning);
+  color: var(--color-warning-on-surface);
   font-weight: 600;
 }
 

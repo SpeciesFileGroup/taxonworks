@@ -1,7 +1,6 @@
 .switch-radio {
   --switch-size: var(--size-medium);
   --switch-padding: 2px;
-  --switch-track-bg: var(--bg-action);
   --switch-label-color: color-mix(
     in srgb,
     var(--text-color) 60%,
@@ -23,7 +22,7 @@
   gap: var(--switch-padding);
   padding: var(--switch-padding);
   border-radius: var(--border-radius-small);
-  background-color: var(--switch-track-bg);
+  background-color: var(--color-soft-primary-bg);
 
   .switch-title {
     margin-bottom: 6px;
@@ -67,7 +66,6 @@
   input:checked + label {
     background-color: var(--switch-label-selected-bg);
     color: var(--color-on-soft-primary);
-    box-shadow: inset 0 0 0 1px var(--border-active);
   }
 
   input:focus-visible + label {

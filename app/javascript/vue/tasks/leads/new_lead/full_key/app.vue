@@ -289,7 +289,7 @@ onMounted(() => {
 }
 
 .lead-item-mark {
-  color: var(--color-warning);
+  color: var(--color-warning-on-surface);
 }
 
 .lead-item-one {

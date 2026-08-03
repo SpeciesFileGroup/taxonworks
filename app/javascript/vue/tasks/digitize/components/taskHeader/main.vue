@@ -84,13 +84,6 @@
           <IconWarning class="w-5 h-5 text-attention-color" />
         </VTooltip>
         <VBtn
-          color="primary"
-          medium
-          @click="resetStore"
-        >
-          New
-        </VBtn>
-        <VBtn
           medium
           color="create"
           @click="saveDigitalization"
@@ -104,6 +97,15 @@
           @click="saveAndNew"
         >
           Save and new
+        </VBtn>
+        <VBtn
+          class="margin-small-left margin-small-right"
+          color="primary"
+          medium
+          variant="tonal"
+          @click="resetStore"
+        >
+          New
         </VBtn>
         <RecentComponent @selected="loadCollectionObject($event)" />
         <SettingsCollectionObject />

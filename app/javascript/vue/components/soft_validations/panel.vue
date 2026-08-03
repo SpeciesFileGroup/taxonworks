@@ -191,7 +191,7 @@ function getFixPresent(list) {
 }
 
 .soft-validation-chip {
-  color: var(--color-warning);
+  color: var(--color-warning-on-surface);
 }
 
 .soft-validation-count {
@@ -199,7 +199,7 @@ function getFixPresent(list) {
 }
 
 .soft-validation-item__icon {
-  color: var(--color-warning);
+  color: var(--color-warning-on-surface);
 }
 
 .soft-validation-section__header {

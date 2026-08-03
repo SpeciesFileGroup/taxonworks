@@ -210,7 +210,7 @@
 
   .tw-card.maintenance .card-icon-chip {
     // background-color: var(--color-soft-warning-bg);
-    color: var(--color-warning);
+    color: var(--color-warning-on-surface);
   }
 
   .info-list {
@@ -256,7 +256,7 @@
 
     &.warn {
       background-color: var(--color-soft-warning-bg);
-      color: var(--color-warning);
+      color: var(--color-warning-on-surface);
     }
 
     &.active {

@@ -19,7 +19,8 @@ if (
 }
 
 import 'easymde/dist/easymde.min.css'
-import '@fontsource/inter'
+import '@fontsource-variable/inter/opsz.css'
+import '@fontsource-variable/inter/opsz-italic.css'
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
@@ -115,7 +116,7 @@ import '../vue/tasks/gis/monograph_facilitator/main.js'
 import '../vue/tasks/graph/object_graph/main.js'
 import '../vue/tasks/images/browse/main.js'
 import '../vue/tasks/images/filter/main.js'
-import "../vue/tasks/images/images_packager/main.js";
+import '../vue/tasks/images/images_packager/main.js'
 import '../vue/tasks/images/new_filename_depicting_image/main.js'
 import '../vue/tasks/images/new_image/main.js'
 import '../vue/tasks/interactive_keys/main.js'
@@ -160,7 +161,7 @@ import '../vue/tasks/projects/dwc_export_preferences/main.js'
 import '../vue/tasks/projects/preferences/main.js'
 import '../vue/tasks/sounds/browse/main.js'
 import '../vue/tasks/sounds/filter/main.js'
-import "../vue/tasks/sources/documents_packager/main.js";
+import '../vue/tasks/sources/documents_packager/main.js'
 import '../vue/tasks/sources/filter/main.js'
 import '../vue/tasks/sources/hub/main.js'
 import '../vue/tasks/sources/new_source/main.js'
