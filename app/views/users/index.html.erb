@@ -13,6 +13,7 @@
                 <%= fancy_th_tag(name: 'Email') -%>
                 <%= fancy_th_tag(name: 'Administrator') -%>
                 <%= fancy_th_tag(name: 'Projects') -%>
+                <th class="row-actions-th"></th>
               </tr>
             </thead>
             <tbody>
@@ -29,6 +30,7 @@
                     <% end -%>
                   </td>
                   <td><%= user.projects.count %></td>
+                  <td class="row-actions"><%= row_action_edit_link(user) %></td>
                 <% end %>
               <% end %>
             </tbody>
