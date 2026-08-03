@@ -47,7 +47,6 @@
   </VModal>
   <VBtn
     color="primary"
-    medium
     v-bind="attrs"
     @click="() => (isModalVisible = true)"
   >

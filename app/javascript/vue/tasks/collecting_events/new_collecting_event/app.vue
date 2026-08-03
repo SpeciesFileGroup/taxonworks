@@ -67,6 +67,7 @@
               @select="(e) => loadCollectingEvent(e.id)"
             />
             <CloneForm
+              medium
               :disabled="!store.collectingEvent.id"
               @clone="(e) => loadCollectingEvent(e.id)"
             />

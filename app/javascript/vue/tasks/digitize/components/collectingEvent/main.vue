@@ -27,10 +27,9 @@
         <div
           class="horizontal-left-content gap-small middle margin-medium-top margin-small-bottom"
         >
-          <VIcon
-            name="attention"
-            color="attention"
-            small
+          <IconWarning
+            v-if="collectingEvent.id && collectingEventStore.totalUsed > 1"
+            class="w-5 h-5 text-attention-color"
           />
           <span v-if="collectingEvent.id">
             <template v-if="collectingEventStore.totalUsed > 1">
@@ -75,14 +74,10 @@
                 </VBtn>
               </div>
 
-              <VBtn
-                color="primary"
+              <CloneForm
                 variant="tonal"
-                @click="openBrowse"
-              >
-                Browse
-              </VBtn>
-              <CloneForm @clone="(ce) => collectingEventStore.load(ce.id)" />
+                @clone="(ce) => collectingEventStore.load(ce.id)"
+              />
             </div>
           </div>
         </div>
@@ -111,7 +106,7 @@ import { COLLECTING_EVENT, COLLECTION_OBJECT } from '@/constants/modelTypes.js'
 import FormCollectingEvent from '@/components/Form/FormCollectingEvent/FormCollectingEvent.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import VLock from '@/components/ui/VLock/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconWarning from '@/components/Icon/IconWarning.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/navigation/radial.vue'
@@ -169,12 +164,6 @@ watch(
     }
   }
 )
-
-function openBrowse() {
-  window.open(
-    `/tasks/collecting_events/browse?collecting_event_id=${collectingEvent.value.id}`
-  )
-}
 
 function openNewCollectingEvent() {
   window.open(
