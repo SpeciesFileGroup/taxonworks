@@ -4,13 +4,14 @@
       v-if="isLoading"
       full-screen
     />
-    <button
-      type="button"
-      class="button normal-input button-default button-size"
+    <VBtn
+      icon
+      color="primary"
+      variant="tonal"
       @click="() => (isModalVisible = true)"
     >
-      Recent
-    </button>
+      <IconFileClock class="w-4 h-4" />
+    </VBtn>
     <VModal
       v-if="isModalVisible"
       :container-style="{ width: '90%' }"
@@ -69,6 +70,7 @@ import VModal from '@/components/ui/Modal'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import IconPencil from '@/components/Icon/IconPencil.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
+import IconFileClock from '@/components/Icon/IconFileClock.vue'
 import { CollectingEvent } from '@/routes/endpoints'
 import { ref, onBeforeMount } from 'vue'
 

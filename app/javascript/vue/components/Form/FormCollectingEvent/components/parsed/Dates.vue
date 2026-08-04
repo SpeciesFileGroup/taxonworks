@@ -49,6 +49,7 @@
           "
         />
         <VBtn
+          v-if="!isStartDateEmpty && !isStartDateCloned"
           medium
           color="primary"
           variant="tonal"
@@ -62,11 +63,31 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import DateFields from '@/components/ui/Date/DateFields.vue'
 import DateNow from '@/components/ui/Date/DateToday.vue'
 
 const collectingEvent = defineModel()
+
+const isStartDateEmpty = computed(() => {
+  return (
+    !collectingEvent.value?.start_date_year &&
+    !collectingEvent.value?.start_date_month &&
+    !collectingEvent.value?.start_date_day
+  )
+})
+
+const isStartDateCloned = computed(() => {
+  return (
+    collectingEvent.value?.start_date_year ===
+      collectingEvent.value?.end_date_year &&
+    collectingEvent.value?.start_date_month ===
+      collectingEvent.value?.end_date_month &&
+    collectingEvent.value?.start_date_day ===
+      collectingEvent.value?.end_date_day
+  )
+})
 
 function cloneDate() {
   collectingEvent.value.end_date_day = collectingEvent.value.start_date_day
