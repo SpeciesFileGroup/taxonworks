@@ -14,7 +14,7 @@ json.open_projects do
         json.extract! organization, :id, :name, :alternate_name, :legal_name,
           :address, :email, :telephone, :geographic_area_id
 
-        json.country organization.geographic_area&.country 
+        json.country organization.country&.name
 
         json.global_id organization.to_global_id.to_s
 
