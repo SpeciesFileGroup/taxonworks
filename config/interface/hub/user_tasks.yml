@@ -1274,7 +1274,6 @@ collection_visualization_task:
     - collection objects
   status: prototype
   description: 'Visualize a collection hierarchy using treemap and other views.'
-
 assign_taxon_name_task:
   hub: true
   name: 'Assign taxon name to OTU'
@@ -1284,4 +1283,12 @@ assign_taxon_name_task:
     - otu
     - nomenclature
   status: prototype
-  description: 'Match OTUs that have no taxon name against TaxonWorks nomenclature, then set the taxon name. Supports exact and fuzzy matching, original combinations, and author/year differentiation.'
+  description: 'Assign OTUs that have no taxon name to a taxon name. Supports exact and fuzzy matching, original combinations, and author/year differentiation.'
+project_organizations_task:
+  hub: false
+  name: 'Project organizations'
+  related:
+  categories:
+    - project
+  status: prototype
+  description: 'Add and remove the organizations that are associated with your project.'

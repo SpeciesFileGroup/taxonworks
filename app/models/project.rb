@@ -84,6 +84,7 @@ class Project < ApplicationRecord
      Loan
      OtuPageLayoutSection
      OtuPageLayout
+     ProjectOrganization
      ProjectSource
      TaxonDetermination
      TypeMaterial
@@ -137,8 +138,11 @@ class Project < ApplicationRecord
 
   has_many :users, through: :project_members
 
-  has_many :project_sources, inverse_of: :projects, dependent: :restrict_with_error
+  has_many :project_sources, inverse_of: :project, dependent: :restrict_with_error
   has_many :sources, inverse_of: :projects, through: :project_sources
+
+  has_many :project_organizations, inverse_of: :project, dependent: :destroy
+  has_many :organizations, inverse_of: :projects, through: :project_organizations
 
   before_save :generate_api_access_token, if: :set_new_api_access_token
   before_save :destroy_api_access_token, if: -> { self.clear_api_access_token}

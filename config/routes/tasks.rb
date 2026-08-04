@@ -384,6 +384,10 @@ scope :tasks do
   end
 
   scope :projects do
+    scope :organizations, controller: 'tasks/projects/organizations' do
+      get :index, as: 'project_organizations_task'
+    end
+
     scope :year_in_review, controller: 'tasks/projects/year_in_review' do
       get '/', action: :index, as: 'year_in_review_task'
       get :data, as: 'year_in_review_data', defaults: {format: :json}
