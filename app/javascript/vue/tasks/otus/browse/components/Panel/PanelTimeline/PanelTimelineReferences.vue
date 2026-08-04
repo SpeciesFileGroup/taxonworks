@@ -1,33 +1,48 @@
 <template>
-  <div class="text-base font-bold">References</div>
-  <ul class="no_bullets">
-    <li
-      v-for="reference in visibleReferences"
-      :key="reference.id"
-      class="horizontal-left-content gap-small padding-small-bottom padding-small-top"
-    >
-      <RadialAnnotator :global-id="reference.id" />
-      <RadialNavigation :global-id="reference.id" />
-      <label>
-        <input
-          v-model="selectedIds"
-          :value="reference.id"
-          class="margin-small-right"
-          type="checkbox"
-        />
-        <span v-html="reference.cached" />
-      </label>
-      <template v-if="topicsVisible">
-        <span
-          v-for="topic in reference.topics"
-          :key="topic.id"
-          class="pill topic references_topics"
-          :style="{ 'background-color': topic.css_color }"
-          v-html="topic.name"
-        />
-      </template>
-    </li>
-  </ul>
+  <div class="text-base font-bold margin-small-bottom">References</div>
+  <table class="no_bullets table-striped">
+    <thead>
+      <tr>
+        <th class="w-2"></th>
+        <th class="w-2"></th>
+        <th>Source</th>
+        <th v-if="topicsVisible">Topic</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr
+        v-for="reference in visibleReferences"
+        :key="reference.id"
+      >
+        <td>
+          <input
+            v-model="selectedIds"
+            :value="reference.id"
+            class="margin-small-right"
+            type="checkbox"
+          />
+        </td>
+        <td>
+          <div class="flex-row gap-small">
+            <RadialAnnotator :global-id="reference.id" />
+            <RadialNavigation :global-id="reference.id" />
+          </div>
+        </td>
+        <td>
+          <span v-html="reference.cached" />
+        </td>
+        <td v-if="topicsVisible">
+          <span
+            v-for="topic in reference.topics"
+            :key="topic.id"
+            class="pill topic references_topics"
+            :style="{ 'background-color': topic.css_color }"
+            v-html="topic.name"
+          />
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </template>
 
 <script setup>
@@ -75,13 +90,17 @@ const allReferences = computed(() =>
     cached: source.cached,
     source,
     topics: topicsVisible.value
-      ? sourceTopics(id, props.filteredItems).map((key) => props.topicsList[key])
+      ? sourceTopics(id, props.filteredItems).map(
+          (key) => props.topicsList[key]
+        )
       : []
   }))
 )
 
 const visibleReferences = computed(() => {
-  const matching = allReferences.value.filter((ref) => citedIds.value.has(ref.id))
+  const matching = allReferences.value.filter((ref) =>
+    citedIds.value.has(ref.id)
+  )
 
   if (!selectedIds.value.length) return matching
 
@@ -90,3 +109,13 @@ const visibleReferences = computed(() => {
   return matching.filter((ref) => selected.has(ref.id))
 })
 </script>
+
+<style scoped>
+td {
+  padding: var(--spacing-xs) var(--spacing-xs);
+}
+
+td:first-child {
+  padding-right: 0;
+}
+</style>
