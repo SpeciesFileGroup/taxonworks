@@ -95,7 +95,8 @@ class OrganizationsController < ApplicationController
     params.require(:organization).permit(
       :name, :alternate_name, :description, :disambiguating_description,
       :same_as_id, :address, :email, :telephone, :duns, :global_location_number,
-      :legal_name, :area_served_id, :department_id, :parent_organization_id
+      :legal_name, :area_served_id, :department_id, :parent_organization_id,
+      :geographic_area_id
     )
   end
 end
