@@ -40,6 +40,10 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Collecting Events with Georeferences raise an error when attempting to destroy [#4937]
 - Unify fixes related to: Georeferences when Collecting Events are unified, matrix columns when descriptors are unified, and dynamix matrix rows/columns when dynamic data are unified [#4944]
 - Unify now preserves list order of associated data: e.g. if two Collection Objects are unified, the kept object has its original list of Taxon Determinations in the same order, followed by the Taxon Determinations of the destroyed Collection Object in their original order
+- Can't unify two Taxon Names when they have the same relationship type from/to a same third Taxon Name [#4971]
+- A "successful" unify between two Taxon Names, one of which has a synonym, can leave the synonym in an unusable state [#4971]
+- Unify of two Asserted Distributions with the "same" Citation can cause loss of annotation data from the citation that gets destroyed [#4971]
+- Unify blocked by "duplicate" is_original citations now works [#4971]
 - Monograph facilitator: Determination label is not visible in Safari browser
 - Checklist importer crashing on empty `originalNameUsageID` in some cases
 - Source and Repository autocompletes sometimes miss results, repository usage counts were sometimes wrong [#4990]
@@ -62,6 +66,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4994]: https://github.com/SpeciesFileGroup/taxonworks/issues/4994
 [#5017]: https://github.com/SpeciesFileGroup/taxonworks/issues/5017
 [#5023]: https://github.com/SpeciesFileGroup/taxonworks/issues/5023
+[#4971]: https://github.com/SpeciesFileGroup/taxonworks/issues/4971
 
 ## [0.63.1] - 2026-06-22
 
