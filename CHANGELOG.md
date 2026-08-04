@@ -48,6 +48,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - PDF viewer is not rendering pages [#5023]
 - Add 'Exclude' option to Tags and Confidences facets in filters (for finding objects NOT satisfying the given conditions) [#4157]
 - New BA: Forms do not reset if a citation has already been created
+- Unexpected failure from api/v1/otus?extend[]=taxon_name when a returned OTU has no taxon name
 
 [#4157]: https://github.com/SpeciesFileGroup/taxonworks/issues/4157
 [#4937]: https://github.com/SpeciesFileGroup/taxonworks/issues/4937
