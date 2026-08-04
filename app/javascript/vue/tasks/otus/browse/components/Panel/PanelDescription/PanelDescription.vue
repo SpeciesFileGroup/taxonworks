@@ -3,6 +3,7 @@
     :status="status"
     :title="title"
     :spinner="isLoading"
+    :empty="!generatedDescription"
   >
     <div v-if="generatedDescription">
       {{ generatedDescription }}

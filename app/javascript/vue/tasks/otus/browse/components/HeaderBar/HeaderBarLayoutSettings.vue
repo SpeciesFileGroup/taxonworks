@@ -15,6 +15,17 @@
         />
       </div>
 
+      <div class="field separate-bottom">
+        <label>
+          <input
+            type="checkbox"
+            :checked="!!taskPreferences?.hideEmptyPanels"
+            @change="toggleHideEmptyPanels"
+          />
+          Hide panels without data
+        </label>
+      </div>
+
       <p class="subtle separate-bottom">
         Drag panels to reorder them or to move them between rows and columns.
       </p>
@@ -233,6 +244,14 @@ function removeRow(index) {
   rows.value = next
 
   syncRows()
+}
+
+function toggleHideEmptyPanels(event) {
+  if (!taskPreferences.value) return
+
+  taskPreferences.value.hideEmptyPanels = event.target.checked
+
+  persist()
 }
 
 function toggleSection(key) {

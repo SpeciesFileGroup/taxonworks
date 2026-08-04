@@ -2,6 +2,7 @@
   <PanelLayout
     :title="title"
     :spinner="isLoading"
+    :empty="!timeline?.items?.length"
     menu
     @menu="() => (isModalVisible = true)"
   >

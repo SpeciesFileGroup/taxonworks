@@ -1,6 +1,7 @@
 <template>
   <PanelLayout
     :spinner="isLoading"
+    :empty="!taxonomy"
     :status="status"
     :title="title"
   >

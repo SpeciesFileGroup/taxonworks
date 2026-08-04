@@ -2,6 +2,7 @@
   <PanelLayout
     :status="status"
     :title="title"
+    :empty="!taxonNameType"
   >
     <div
       v-if="taxonNameType"
@@ -9,6 +10,7 @@
     >
       <p v-html="taxonNameType" />
     </div>
+    <div v-else>No type available</div>
   </PanelLayout>
 </template>
 
@@ -44,8 +46,6 @@ const props = defineProps({
 })
 
 const taxonNameType = computed(
-  () =>
-    props.taxonName?.type_taxon_name_relationship?.object_tag ||
-    'No type available'
+  () => props.taxonName?.type_taxon_name_relationship?.object_tag
 )
 </script>

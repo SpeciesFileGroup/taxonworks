@@ -3,6 +3,7 @@
     :status="status"
     :title="title"
     :spinner="isLoading"
+    :empty="!depictions.length"
   >
     <div
       v-if="depictions.length"

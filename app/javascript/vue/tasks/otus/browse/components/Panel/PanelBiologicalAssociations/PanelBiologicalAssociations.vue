@@ -3,6 +3,7 @@
     :status="status"
     :title="title"
     :spinner="isLoading"
+    :empty="!biologicalAssociations.length"
     menu
     @menu="showModal = true"
   >

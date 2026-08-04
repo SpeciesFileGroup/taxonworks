@@ -3,6 +3,7 @@
     :status="status"
     :title="title"
     :spinner="isLoading"
+    :empty="!geojson.length && !cachedMap"
     :skeleton="{
       variant: 'rect',
       height: '398px'

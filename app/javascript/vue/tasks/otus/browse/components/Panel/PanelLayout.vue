@@ -1,5 +1,6 @@
 <template>
   <BlockLayout
+    v-if="!isHidden"
     :anchor="linkName"
     :header-class="status"
   >
@@ -34,11 +35,12 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, onUnmounted, watch } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import VSkeleton from '@/components/ui/VSkeleton/VSkeleton.vue'
+import { useSettingsStore } from '../../store'
 
 const props = defineProps({
   title: {
@@ -72,12 +74,39 @@ const props = defineProps({
       variant: 'text',
       lines: 6
     }
+  },
+
+  empty: {
+    type: Boolean,
+    default: false
   }
 })
 
 const emit = defineEmits(['menu'])
 
+const settingStore = useSettingsStore()
+
 const linkName = computed(() => props.name || props.title)
+
+const isEmpty = computed(() => !props.spinner && props.empty)
+
+const isHidden = computed(() => isEmpty.value && settingStore.hideEmptyPanels)
+
+watch(
+  [isEmpty, linkName],
+  ([value, name], previous) => {
+    const previousName = previous?.[1]
+
+    if (previousName && previousName !== name) {
+      settingStore.unregisterPanel(previousName)
+    }
+
+    settingStore.setPanelIsEmpty(name, value)
+  },
+  { immediate: true }
+)
+
+onUnmounted(() => settingStore.unregisterPanel(linkName.value))
 </script>
 
 <style>

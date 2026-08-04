@@ -2,6 +2,7 @@
   <PanelLayout
     :status="status"
     :spinner="isLoading"
+    :empty="!list.length"
     :title="title"
   >
     <template #title>

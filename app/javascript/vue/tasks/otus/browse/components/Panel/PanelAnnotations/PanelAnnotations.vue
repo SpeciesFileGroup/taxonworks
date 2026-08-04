@@ -3,6 +3,7 @@
     :status="status"
     :title="title"
     :spinner="isLoading"
+    :empty="!hasAnyAnnotation"
   >
     <div v-if="hasAnyAnnotation">
       <template

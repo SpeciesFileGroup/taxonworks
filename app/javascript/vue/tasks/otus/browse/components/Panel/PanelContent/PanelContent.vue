@@ -3,6 +3,7 @@
     :status="status"
     :title="title"
     :spinner="isLoading"
+    :empty="!contents.length"
   >
     <ul
       v-if="contents.length"

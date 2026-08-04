@@ -4,6 +4,7 @@
     :name="title"
     :title="`${title} ${pagination ? '(' + pagination.total + ')' : ''}`"
     :spinner="isLoading"
+    :empty="!list.length"
   >
     <div
       v-if="list.length"

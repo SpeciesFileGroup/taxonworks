@@ -3,6 +3,7 @@
     :status="status"
     :title="title"
     :spinner="isLoading"
+    :empty="!commonNames.length"
   >
     <TableDisplay
       v-if="commonNames.length"

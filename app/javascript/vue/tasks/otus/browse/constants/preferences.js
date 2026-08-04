@@ -5,7 +5,7 @@ import {
   RENAMED_LAYOUTS
 } from './layouts.js'
 
-export const PREFERENCE_SCHEMA = 20260802
+export const PREFERENCE_SCHEMA = 20260804
 
 export const CITATIONS_PREVIEW_SIZE = 10
 
@@ -14,6 +14,7 @@ export const DEFAULT_PREFERENCES = {
   sections: PANEL_KEYS,
   layout: DEFAULT_LAYOUT,
   customRows: null,
+  hideEmptyPanels: false,
   timeline: {
     alwaysShowAllCitations: false
   },
@@ -118,6 +119,9 @@ export function migrateTaskPreferences(stored) {
     ...structuredClone(DEFAULT_PREFERENCES),
     ...(stored.filterSections ? { filterSections: stored.filterSections } : {}),
     ...(stored.timeline ? { timeline: stored.timeline } : {}),
+    ...(typeof stored.hideEmptyPanels === 'boolean'
+      ? { hideEmptyPanels: stored.hideEmptyPanels }
+      : {}),
     preferenceSchema: PREFERENCE_SCHEMA,
     sections,
     layout: layoutFrom(stored, customRows),

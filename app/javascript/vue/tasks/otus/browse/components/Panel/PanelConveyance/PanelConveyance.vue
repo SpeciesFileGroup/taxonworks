@@ -3,6 +3,7 @@
     :status="status"
     :title="title"
     :spinner="isLoading"
+    :empty="!conveyances.length"
   >
     <table
       v-if="conveyances.length"

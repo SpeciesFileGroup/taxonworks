@@ -7,10 +7,6 @@
         : undefined
     "
   >
-    <select-otu
-      :otus="otus"
-      @selected="loadOtu"
-    />
     <VSpinner
       v-if="settingStore.isLoading"
       legend="Loading..."
@@ -48,12 +44,18 @@
           v-for="(row, rowIndex) in rows"
           :key="rowIndex"
           class="browse-otu-row gap-medium"
-          :class="{ 'browse-otu-row--split': row.columns.length > 1 }"
+          :class="{
+            'browse-otu-row--split': visibleColumnCount(row) > 1,
+            'browse-otu-row--hidden': !visibleColumnCount(row)
+          }"
         >
           <div
             v-for="(column, columnIndex) in row.columns"
             :key="columnIndex"
             class="browse-otu-row__column flex-col gap-medium"
+            :class="{
+              'browse-otu-row__column--hidden': !isColumnVisible(column)
+            }"
           >
             <component
               v-for="element in column"
@@ -85,16 +87,16 @@
 
 <script setup>
 import { computed, ref, watch, onBeforeMount, onBeforeUnmount } from 'vue'
-import HeaderBar from './components/HeaderBar/HeaderBar.vue'
-import VSpinner from '@/components/ui/VSpinner.vue'
-import SearchOtu from './components/Navbar/NavbarSearchOtu.vue'
 import { RouteNames } from '@/routes/routes'
 import { useUserPreferences } from '@/composables'
 import { useOtuStore } from './store'
 import { PANEL_COMPONENTS, migrateTaskPreferences } from './constants'
 import { resolveLayoutRows, flattenRows } from './utils/resolveLayoutRows.js'
-import ShowForThisGroup from '@/tasks/nomenclature/new_taxon_name/helpers/showForThisGroup.js'
 import { useSettingsStore } from './store'
+import HeaderBar from './components/HeaderBar/HeaderBar.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
+import SearchOtu from './components/Navbar/NavbarSearchOtu.vue'
+import ShowForThisGroup from '@/tasks/nomenclature/new_taxon_name/helpers/showForThisGroup.js'
 
 defineOptions({
   name: 'BrowseOtu'
@@ -132,12 +134,30 @@ const rows = computed(() =>
 )
 
 const menu = computed(() =>
-  flattenRows(rows.value).map((name) => PANEL_COMPONENTS[name].title)
+  flattenRows(rows.value)
+    .map((name) => PANEL_COMPONENTS[name].title)
+    .filter((title) => !settingStore.isPanelHidden(title))
 )
 
-const navigate = ref()
-const otus = ref([])
+watch(
+  () => taskPreferences.value.hideEmptyPanels,
+  (value) => {
+    settingStore.hideEmptyPanels = !!value
+  },
+  { immediate: true }
+)
 
+function isColumnVisible(column) {
+  return column.some(
+    (key) => !settingStore.isPanelHidden(PANEL_COMPONENTS[key].title)
+  )
+}
+
+function visibleColumnCount(row) {
+  return row.columns.filter(isColumnVisible).length
+}
+
+const navigate = ref()
 const headerBar = ref(null)
 const anchorScrollOffset = ref(0)
 
@@ -205,6 +225,10 @@ function showForRanks(section) {
   // `min-width: 0` keeps wide panel tables from blowing the grid track out
   .browse-otu-row__column {
     min-width: 0;
+  }
+  .browse-otu-row--hidden,
+  .browse-otu-row__column--hidden {
+    display: none;
   }
   @media all and (min-width: 1200px) {
     .browse-otu-row--split {
