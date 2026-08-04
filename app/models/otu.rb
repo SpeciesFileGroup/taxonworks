@@ -391,7 +391,7 @@ class Otu < ApplicationRecord
         q.where(id: r.first(4) ).to_a
       ).uniq.sort{|a,b| a.otu_name <=> b.otu_name}
     else
-      h[:recent] = q.order(updated_at: :desc).limit(10).to_a
+      h[:recent] = q.order(updated_at: :desc).limit(10).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
 
       h[:quick] = q.pinned_by(user_id).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
     end
