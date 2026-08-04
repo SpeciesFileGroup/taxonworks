@@ -5,90 +5,77 @@
       :legend="isSaving ? 'Saving...' : 'Loading...'"
       v-if="isSaving || isLoading"
     />
-    <div class="flex-separate middle">
-      <h1>{{ store.collectingEvent.id ? 'Edit' : 'New' }} collecting event</h1>
-      <ul class="context-menu">
-        <li>
-          <label>
-            <input
-              type="checkbox"
-              v-model="sortable"
-            />
-            Reorder fields
-          </label>
-        </li>
-        <li>
-          <VAutocomplete
+    <NavBar navbar-class="panel content rounded-tl-none rounded-tr-none">
+      <div class="flex-separate full_width">
+        <div class="horizontal-left-content middle gap-medium">
+          <AutocompletePopover
+            ref="autocomplete"
             url="/collecting_events/autocomplete"
-            class="autocomplete-search-bar"
             param="term"
             label="label_html"
-            :clear-after="true"
-            placeholder="Search a collecting event"
-            @get-item="(e) => loadCollectingEvent(e.id)"
+            placeholder="Search"
+            panel-width="400px"
+            min="1"
+            medium
+            clear-after
+            title="Search a collecting event"
+            @select="(e) => loadCollectingEvent(e.id)"
           />
-        </li>
-        <li>
-          <RecentComponent @select="(e) => loadCollectingEvent(e.id)" />
-        </li>
-      </ul>
-    </div>
-    <NavBar>
-      <div class="flex-separate full_width">
-        <div class="horizontal-left-content middle gap-small">
-          <span
-            v-if="store.collectingEvent.id"
-            v-html="store.collectingEvent.object_tag"
-          />
-          <span v-else> New record </span>
-          <div
-            v-if="store.collectingEvent.id"
-            class="horizontal-left-content gap-small"
-          >
-            <VPin
-              :object-id="store.collectingEvent.id"
-              :type="COLLECTING_EVENT"
+          <div class="horizontal-left-content middle gap-small">
+            <span
+              v-if="store.collectingEvent.id"
+              v-html="store.collectingEvent.object_tag"
             />
-            <RadialAnnotator :global-id="store.collectingEvent.global_id" />
-            <RadialObject :global-id="store.collectingEvent.global_id" />
+            <span v-else> New record </span>
+            <div
+              v-if="store.collectingEvent.id"
+              class="horizontal-left-content gap-small"
+            >
+              <VPin
+                :object-id="store.collectingEvent.id"
+                :type="COLLECTING_EVENT"
+              />
+              <RadialAnnotator :global-id="store.collectingEvent.global_id" />
+              <RadialObject :global-id="store.collectingEvent.global_id" />
+            </div>
           </div>
         </div>
-        <ul class="context-menu no_bullets">
-          <li class="horizontal-right-content gap-small">
-            <VIcon
-              v-if="store.isUnsaved"
-              name="attention"
-              color="attention"
-              small
-              title="You have unsaved changes."
-            />
-            <VNavigate
-              :collecting-event="store.collectingEvent"
-              @select="(e) => loadCollectingEvent(e.id)"
-            />
-            <CloneForm
-              medium
-              :disabled="!store.collectingEvent.id"
-              @clone="(e) => loadCollectingEvent(e.id)"
-            />
-            <VBtn
-              color="create"
-              medium
-              class="button-size"
-              @click="saveCollectingEvent"
-            >
-              Save
-            </VBtn>
-            <VBtn
-              color="primary"
-              medium
-              class="button-size"
-              @click="reset"
-            >
-              New
-            </VBtn>
-          </li>
-        </ul>
+        <div class="horizontal-right-content middle gap-small">
+          <IconWarning
+            v-if="store.isUnsaved"
+            class="w-4 h-4 text-attention-color"
+            v-tooltip="'You have unsaved changes.'"
+          />
+          <VBtn
+            color="create"
+            medium
+            class="button-size"
+            @click="saveCollectingEvent"
+          >
+            Save
+          </VBtn>
+          <CloneForm
+            medium
+            variant="tonal"
+            :disabled="!store.collectingEvent.id"
+            @clone="(e) => loadCollectingEvent(e.id)"
+          />
+          <VBtn
+            color="primary"
+            medium
+            variant="tonal"
+            class="button-size"
+            @click="reset"
+          >
+            New
+          </VBtn>
+          <VNavigate
+            :collecting-event="store.collectingEvent"
+            @select="(e) => loadCollectingEvent(e.id)"
+          />
+          <RecentComponent @select="(e) => loadCollectingEvent(e.id)" />
+          <SettingsModal v-model:sortable="sortable" />
+        </div>
       </div>
       <ConfirmationModal ref="confirmationModal" />
     </NavBar>
@@ -142,7 +129,7 @@ import { RouteNames } from '@/routes/routes'
 import { useHotkey } from '@/composables'
 import { smartSelectorRefresh } from '@/helpers'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VAutocomplete from '@/components/ui/Autocomplete'
+import AutocompletePopover from '@/components/ui/Autocomplete/AutocompletePopover.vue'
 import FormCollectingEvent from '@/components/Form/FormCollectingEvent/FormCollectingEvent.vue'
 import useStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
 import RecentComponent from './components/Recent'
@@ -152,12 +139,13 @@ import RadialObject from '@/components/radials/navigation/radial'
 import platformKey from '@/helpers/getPlatformKey'
 import SetParam from '@/helpers/setParam'
 
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconWarning from '@/components/Icon/IconWarning.vue'
 import VPin from '@/components/ui/Button/ButtonPin.vue'
 import RightSection from './components/RightSection'
 import NavBar from '@/components/layout/NavBar'
 import ParseData from './components/parseData'
 import CloneForm from './components/CloneForm.vue'
+import SettingsModal from './components/SettingsModal.vue'
 
 import ModalCollectionObjects from './components/ModalCollectionObjects/ModalCollectionObjects.vue'
 import ModalFieldOccurrences from './components/ModalFieldOccurrences/ModalFieldOccurrences.vue'
@@ -176,6 +164,7 @@ defineOptions({
 })
 
 const store = useStore()
+const autocompleteRef = useTemplateRef('autocomplete')
 
 const hotkeys = ref([
   {
@@ -190,6 +179,13 @@ const hotkeys = ref([
     preventDefault: true,
     handler() {
       reset()
+    }
+  },
+  {
+    keys: [platformKey(), 'f'],
+    preventDefault: true,
+    handler() {
+      autocompleteRef.value?.open()
     }
   }
 ])
@@ -253,6 +249,11 @@ onMounted(() => {
   TW.workbench.keyboard.createLegend(
     `${platformKey()}+n`,
     'New',
+    'New collecting event'
+  )
+  TW.workbench.keyboard.createLegend(
+    `${platformKey()}+f`,
+    'Search a collecting event',
     'New collecting event'
   )
 
@@ -336,16 +337,3 @@ function openNewFieldOccurrence() {
   )
 }
 </script>
-<style lang="scss">
-#new_collecting_event_task {
-  .button-size {
-    width: 100px;
-  }
-
-  .autocomplete-search-bar {
-    input {
-      width: 500px;
-    }
-  }
-}
-</style>

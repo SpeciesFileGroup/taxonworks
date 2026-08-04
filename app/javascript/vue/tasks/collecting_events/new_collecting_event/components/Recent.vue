@@ -6,8 +6,10 @@
     />
     <VBtn
       icon
+      medium
       color="primary"
       variant="tonal"
+      title="Recent collecting events"
       @click="() => (isModalVisible = true)"
     >
       <IconFileClock class="w-4 h-4" />

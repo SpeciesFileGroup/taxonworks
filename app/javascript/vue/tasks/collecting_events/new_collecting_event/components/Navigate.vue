@@ -1,12 +1,14 @@
 <template>
   <div>
     <VBtn
+      icon
       color="primary"
       medium
+      variant="tonal"
       @click="setModalView(true)"
       :disabled="!collectingEvent.id"
     >
-      Navigate
+      <IconCompass class="w-4 h-4" />
     </VBtn>
     <VModal
       v-if="isModalVisible"
@@ -65,6 +67,7 @@
 import VModal from '@/components/ui/Modal'
 import VSpinner from '@/components/ui/VSpinner'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import IconCompass from '@/components/Icon/IconCompass.vue'
 import { CollectingEvent } from '@/routes/endpoints'
 import { ref, watch } from 'vue'
 
