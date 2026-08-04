@@ -1258,6 +1258,57 @@ describe 'Shared::Unify', type: :model do
     end
   end
 
+  # restore_list_order/snapshot_list_order (see Shared::Unify) must number
+  # each acts_as_list scope group on its own, not flatten every record a
+  # has_many touches into one combined sequence - required whenever that
+  # scope is independent of the FK unify itself reassigns, unlike the
+  # `acts_as_list positions` cases above (Identifier/Collector/Georeference,
+  # whose scope *is* the reassigned FK, so a single combined sequence is
+  # correct for them). TaxonDetermination's taxon_determination_object_id
+  # and ObservationMatrixRowItem's observation_matrix_id are both unrelated
+  # to the otu_id/observation_object_id a TaxonName or Otu unify reassigns -
+  # self and remove_object can each have their own record in a totally
+  # different, unrelated scope group.
+  context 'acts_as_list scope grouping spans multiple, unrelated scope groups' do
+    specify 'unifying two Otus leaves an unrelated TaxonDetermination scope group untouched' do
+      specimen1 = FactoryBot.create(:valid_specimen)
+      specimen2 = FactoryBot.create(:valid_specimen)
+
+      det_keep = FactoryBot.create(:valid_taxon_determination, otu: o1, taxon_determination_object: specimen1)
+      det_destroy = FactoryBot.create(:valid_taxon_determination, otu: o2, taxon_determination_object: specimen2)
+
+      o1.unify(o2)
+
+      # Each specimen has exactly one determination - the sole occupant of
+      # its own scope group - so both must remain at position 1, "current"
+      # per TaxonDetermination's `scope :current, -> { where(position: 1)
+      # }`. Flattening both into one combined sequence (the bug this guards
+      # against) would silently bump det_destroy to position 2, breaking
+      # specimen2's current determination with no error raised anywhere.
+      expect(det_keep.reload.position).to eq(1)
+      expect(det_destroy.reload.position).to eq(1)
+      expect(TaxonDetermination.current.where(id: det_destroy.id)).to exist
+    end
+
+    specify 'unifying two Otus numbers ObservationMatrixRowItem positions within each matrix separately' do
+      matrix_a = FactoryBot.create(:valid_observation_matrix)
+      matrix_b = FactoryBot.create(:valid_observation_matrix)
+
+      ri_keep = ObservationMatrixRowItem::Single.create!(observation_object: o1, observation_matrix: matrix_a)
+      ri_destroy = ObservationMatrixRowItem::Single.create!(observation_object: o2, observation_matrix: matrix_b)
+
+      o1.unify(o2)
+
+      # Neither row item collides with anything in its own matrix - each is
+      # the sole occupant there, before and after unify - so both must stay
+      # at position 1. Flattening existing+incoming into one sequence (the
+      # bug this guards against) would bump ri_destroy to position 2 even
+      # though matrix_b never had a second row item.
+      expect(ri_keep.reload.position).to eq(1)
+      expect(ri_destroy.reload.position).to eq(1)
+    end
+  end
+
   context 'Georeferences on Collecting Events' do
     let(:ce1) { FactoryBot.create(:valid_collecting_event) }
     let(:ce2) { FactoryBot.create(:valid_collecting_event) }

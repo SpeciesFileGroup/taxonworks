@@ -383,22 +383,52 @@ module Shared::Unify
   # records are re-parented, so the restore below is independent of how
   # acts_as_list repositions records during update.
   # Returns nil when the association does not use acts_as_list.
+  #
+  # Also captures each record's own acts_as_list scope column values (e.g.
+  # a TaxonDetermination's taxon_determination_object_id/_type), not just
+  # its id: existing (self's) and incoming (remove_object's) has_many
+  # members can straddle multiple *different* real acts_as_list scope
+  # groups at once - e.g. taxon determinations on different collection objects
+  # when unifying OTUs (see specs).
   def snapshot_list_order(relation, incoming)
     related_class = incoming.klass
     return nil unless related_class.respond_to?(:acts_as_list_options)
+
+    # reassigned_columns values are going to be set to self's values after a
+    # successful relation move, so *don't* scope by them when grouping
+    # acts_as_list groups (they're currently different than self! - see specs).
+    reassigned_columns = [relation.foreign_key, relation.type].compact
+    scope_columns = Array(related_class.acts_as_list_options[:scope])
+      .map { |s| resolve_acts_as_list_scope_column(related_class, s) } - reassigned_columns
+
     {
       klass: related_class,
-      existing_ids: send(relation.name).order(:position).pluck(:id),
-      incoming_ids: incoming.order(:position).pluck(:id)
+      existing: send(relation.name).order(:position).pluck(:id, *scope_columns),
+      incoming: incoming.order(:position).pluck(:id, *scope_columns)
     }
   end
 
+  # acts_as_list scope: [...] entries may be either a real column name, or
+  # a belongs_to association name that acts_as_list itself resolves to that
+  # association's foreign_key (e.g. LoanItem's `scope: [:loan, :project_id]`)
+  # - resolve the same way here so grouping in restore_list_order is keyed
+  # by the real column acts_as_list itself scopes by.
+  def resolve_acts_as_list_scope_column(klass, name)
+    return name.to_s if klass.column_names.include?(name.to_s)
+
+    r = klass.reflect_on_association(name)
+    r&.belongs_to? ? r.foreign_key : name.to_s
+  end
+
   # Re-apply the pre-merge position order captured by snapshot_list_order,
-  # appending incoming records after the surviving object's existing records.
+  # appending incoming records after the surviving object's existing
+  # records.
   def restore_list_order(state)
-    (state[:existing_ids] + state[:incoming_ids]).each_with_index do |id, idx|
-      state[:klass].where(id:).update_all(position: idx + 1)
-    end
+    (state[:existing] + state[:incoming])
+      .group_by { |row| row[1..] } # each row's own scope column values
+      .each_value do |rows|
+        rows.each_with_index { |row, idx| state[:klass].where(id: row[0]).update_all(position: idx + 1) }
+      end
   end
 
 end
