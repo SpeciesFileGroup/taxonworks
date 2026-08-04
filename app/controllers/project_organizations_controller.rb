@@ -11,7 +11,7 @@ class ProjectOrganizationsController < ApplicationController
   def index
     respond_to do |format|
       format.html {
-        @recent_objects = Organization.where(project_id: sessions_current_project_id).created_this_week.order(updated_at: :desc).limit(10)
+        @recent_objects = Organization.joins(:project_organizations).where(project_organizations: {project_id: sessions_current_project_id}).created_this_week.order(updated_at: :desc).limit(10)
         render '/shared/data/all/index'
       }
       format.json {
