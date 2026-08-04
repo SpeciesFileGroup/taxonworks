@@ -247,13 +247,16 @@ function toggleAll(checked) {
 }
 
 function clearPredictions() {
-  visibleRows.value.forEach((row) => updateRow(row, 'taxonNameId', null))
+  visibleRows.value.forEach((row) => {
+    if (!row.set) updateRow(row, 'taxonNameId', null)
+  })
 }
 
 function refine(row, item) {
   const taxonNameId = item.response_values?.taxon_name_id
 
-  if (!taxonNameId) return
+  // A set row is final here — corrections are made against the OTU itself.
+  if (!taxonNameId || row.set) return
 
   // The refined name need not be among the predictions, so it is added as a candidate to
   // keep the radio group and the Set button consistent.
@@ -269,9 +272,15 @@ function refine(row, item) {
   }
 
   updateRow(row, 'taxonNameId', taxonNameId)
+
+  // Choosing a name in Refine is the decision itself — picking an existing one, or creating
+  // one for this OTU. Nothing is left to confirm, so write it.
+  return setTaxonName(row)
 }
 
 async function setTaxonName(row) {
+  if (row.set) return
+
   updateRow(row, 'error', null)
 
   try {

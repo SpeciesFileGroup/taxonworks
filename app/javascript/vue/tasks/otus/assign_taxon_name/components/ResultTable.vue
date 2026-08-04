@@ -89,6 +89,7 @@
             type="text"
             class="normal-input full_width"
             :value="row.matchString"
+            :disabled="row.set"
             @change="$emit('update-match-string', row, $event.target.value)"
           />
         </td>
@@ -109,6 +110,7 @@
               type="radio"
               :name="`candidate-${row.otuId}`"
               :checked="row.taxonNameId === candidate.id"
+              :disabled="row.set"
               @change="update(row, 'taxonNameId', candidate.id)"
             />
             <a
@@ -128,6 +130,7 @@
           <VBtn
             circle
             color="primary"
+            :disabled="row.set"
             title="Search the OTU name in Refine"
             @click="prefillRefine(row)"
           >
@@ -145,6 +148,7 @@
             param="taxon_name_id"
             :id="`refine-${row.otuId}`"
             :new-record-component="TaxonNameNewModal"
+            :disabled="row.set"
             placeholder="Refine..."
             @select="(item) => $emit('refine', row, item)"
           />
@@ -165,6 +169,7 @@
             <span
               v-else
               class="subtle"
+              title="Written. To change it, open the OTU from its name and edit it there."
             >
               Set
             </span>
