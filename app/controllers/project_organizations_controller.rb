@@ -11,8 +11,7 @@ class ProjectOrganizationsController < ApplicationController
   def index
     respond_to do |format|
       format.html {
-        @recent_objects = ProjectOrganization.where(project_id: sessions_current_project_id)
-          .order(updated_at: :desc).limit(10)
+        @recent_objects = Organization.where(project_id: sessions_current_project_id).created_this_week.order(updated_at: :desc).limit(10)
         render '/shared/data/all/index'
       }
       format.json {
@@ -24,13 +23,13 @@ class ProjectOrganizationsController < ApplicationController
     end
   end
 
-  # GET /project_organizations/1
   # GET /project_organizations/1.json
   def show
   end
 
   def list
-    @project_organizations = ProjectOrganization.where(project_id: sessions_current_project_id).page(params[:page])
+    @organizations = Organization.joins(:project_organizations).where(project_organizations: {project_id: sessions_current_project_id}).page(params[:page])
+    render '/organizations/list'
   end
 
   # POST /project_organizations
@@ -76,11 +75,8 @@ class ProjectOrganizationsController < ApplicationController
   end
 
   def autocomplete
-    @project_organizations = ProjectOrganization
-      .where(project_id: sessions_current_project_id)
-      .joins(:organization)
-      .where('organizations.name ILIKE ?', params.require(:term) + '%')
-      .limit(20)
+    @organizations = Queries::Organization::Autocomplete.new(params.require(:term)).autocomplete
+    render 'organizations/autocomplete'
   end
 
   private
