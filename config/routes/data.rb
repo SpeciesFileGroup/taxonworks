@@ -831,7 +831,11 @@ resources :projects, only: [] do
 end
 
 resources :project_organizations, only: [:index, :show, :create, :destroy] do
-  concerns [:data_routes]
+  collection do 
+    get 'list'
+    get 'autocomplete'
+    get 'download'
+  end
 end
 
 resources :project_sources, only: [:index, :create, :destroy] do

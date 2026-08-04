@@ -31,7 +31,7 @@ describe 'ProjectOrganizations', type: :feature do
     end
 
     describe 'GET /project_organizations/:id' do
-      before { visit project_organization_path(project_organization) }
+      before { visit project_organization_path(project_organization, format: :json) }
 
       specify 'renders' do
         expect(page).to have_text(organization.name)
