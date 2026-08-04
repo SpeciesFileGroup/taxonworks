@@ -48,12 +48,22 @@
           <thead>
             <tr>
               <th>
+                <div class="horizontal-left-content gap-small">
+                  <input
+                    type="checkbox"
+                    title="Select/deselect all coordinate OTUs"
+                    :checked="isEverySelectableOtuSelected"
+                    :disabled="!selectableOtus.length"
+                    @change="toggleAllOtus"
+                  />
+                </div>
+              </th>
+              <th>
                 <ButtonUnify
                   :ids="otus.map((o) => o.id)"
                   :model="OTU"
                 />
               </th>
-              <th></th>
               <th>OTU</th>
             </tr>
           </thead>
@@ -100,7 +110,7 @@
 </template>
 
 <script setup>
-import { watch, ref } from 'vue'
+import { computed, watch, ref } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VModal from '@/components/ui/Modal.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
@@ -114,6 +124,24 @@ import { OTU } from '@/constants'
 const otus = ref([])
 const isModalVisible = ref(false)
 const store = useOtuStore()
+
+const selectableOtus = computed(() =>
+  store.coordinateOtus.filter((otu) => otu.id !== store.otu?.id)
+)
+
+const isEverySelectableOtuSelected = computed(
+  () =>
+    !!selectableOtus.value.length &&
+    selectableOtus.value.every((otu) => otus.value.some((o) => o.id === otu.id))
+)
+
+function toggleAllOtus(event) {
+  const currentOtu = otus.value.filter((otu) => otu.id === store.otu?.id)
+
+  otus.value = event.target.checked
+    ? [...currentOtu, ...selectableOtus.value]
+    : currentOtu
+}
 
 watch(isModalVisible, () => {
   otus.value = [...store.selectedOtus]
