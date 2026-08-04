@@ -46,6 +46,11 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - OTU autocomplete sometimes returns unuseful results instead of an exact match, even when an exact match exists [#4994]
 - Biological Association UUID sent to GBIF was bad data (not a UUID)
 - PDF viewer is not rendering pages [#5023]
+- Can't unify two Taxon Names when they have the same relationship type from/to a same third Taxon Name [#4971]
+- A "successful" unify between two Taxon Names, one of which has a synonym, can leave the synonym in an unusable state [#4971]
+- Unify of two Asserted Distributions with the "same" Citation can cause loss of annotation data from the citation that gets destroyed [#4971]
+- Unify blocked by "duplicate" is_original citations now works [#4971]
+- Unify always fails when unifying two Taxon Names that each have an original combination [#4971]
 - Add 'Exclude' option to Tags and Confidences facets in filters (for finding objects NOT satisfying the given conditions) [#4157]
 - New BA: Forms do not reset if a citation has already been created
 
@@ -61,6 +66,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4994]: https://github.com/SpeciesFileGroup/taxonworks/issues/4994
 [#5017]: https://github.com/SpeciesFileGroup/taxonworks/issues/5017
 [#5023]: https://github.com/SpeciesFileGroup/taxonworks/issues/5023
+[#4971]: https://github.com/SpeciesFileGroup/taxonworks/issues/4971
 
 ## [0.63.1] - 2026-06-22
 
