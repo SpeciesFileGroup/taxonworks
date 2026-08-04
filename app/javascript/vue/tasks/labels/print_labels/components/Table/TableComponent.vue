@@ -236,7 +236,7 @@ export default {
 
 <style scoped>
 /* The global `table th` rule (helpers/list/tables.scss) sets 12px, smaller
-   than TW's own $font_normal (13px) — bumping it here so the sort
+   than TW's own --font-size-sm (14px) — bumping it here so the sort
    indicator (sized relative to it) isn't fighting an already-tiny base. */
 thead th {
   font-size: 13px;

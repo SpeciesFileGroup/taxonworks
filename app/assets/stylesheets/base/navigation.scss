@@ -138,7 +138,7 @@ a,
   .hub_project_name {
     margin-left: 60px;
     padding: 5px;
-    font-size: $font_title;
+    font-size: var(--font-size-base);
     font-weight: 300;
   }
 

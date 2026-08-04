@@ -32,7 +32,7 @@
   .subheader {
     padding-top: $standard_padding * 0.5;
     font-weight: 700;
-    font-size: $font_title;
+    font-size: var(--font-size-base);
     border: none;
   }
 
@@ -53,7 +53,7 @@
   .title {
     display: flex;
     min-height: 42px;
-    font-size: $font_title;
+    font-size: var(--font-size-base);
     align-items: center;
     padding-left: $standard_padding;
     padding-right: $standard_padding;
@@ -61,11 +61,11 @@
     justify-content: space-between;
     position: relative;
     a {
-      font-size: $font_small;
+      font-size: var(--font-size-xs);
     }
     span {
       b {
-        font-size: $font_normal;
+        font-size: var(--font-size-sm);
         opacity: 0.7;
       }
     }

@@ -113,7 +113,7 @@ input:checked + .slider:before {
   justify-content: space-around;
   align-items: center;
   height: 28px;
-  font-size: $font_small;
+  font-size: var(--font-size-xs);
   width: 100%;
   box-sizing: border-box;
   opacity: 0.6;

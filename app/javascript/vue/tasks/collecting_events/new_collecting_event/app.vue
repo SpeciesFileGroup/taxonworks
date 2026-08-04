@@ -82,7 +82,9 @@
       />
       <div class="flex-col gap-medium">
         <div class="panel content">
-          <h3>Collection object</h3>
+          <div class="text-base font-semibold margin-small-bottom">
+            Collection object
+          </div>
           <div class="horizontal-left-content gap-small">
             <ModalCollectionObjects :ce-id="store.collectingEvent.id" />
             <VBtn
@@ -98,7 +100,9 @@
           </div>
         </div>
         <div class="panel content">
-          <h3>Field occurrence</h3>
+          <div class="text-base font-semibold margin-small-bottom">
+            Field occurrence
+          </div>
           <div class="horizontal-left-content gap-small">
             <ModalFieldOccurrences :ce-id="store.collectingEvent.id" />
             <VBtn

@@ -42,7 +42,7 @@ $default-padding: 2em;
     width: auto;
     height: 60px;
     display: flex;
-    font-size: $font_title;
+    font-size: var(--font-size-base);
     color: #fff;
     align-items: center;
     padding-left: $default-padding;

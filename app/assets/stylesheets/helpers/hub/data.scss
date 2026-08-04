@@ -225,7 +225,7 @@
   text-align: center;
 }
 .hub_section_label h3 {
-  font-size: $font_normal;
+  font-size: var(--font-size-sm);
   color: #888;
   text-transform: uppercase;
 }

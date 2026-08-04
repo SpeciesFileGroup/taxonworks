@@ -11,34 +11,11 @@
  equal a normal, black font on white is the most readable across screens.
 */
 
-//
-// font-size
-//
-$font_tiny: 11px;
-$font_small: 12px;
-$font_normal: 13px;
-$font_subtitle: 14px;
-$font_title: 16px;
-
-$font_light: 300;
-
 .micro_type {
 }
 
 .small_type {
-  font-size: $font_small;
-}
-
-.font-light {
-  font-weight: $font_light;
-}
-
-.font-bold {
-  font-weight: bold;
-}
-
-.font-medium {
-  font-weight: 700;
+  font-size: var(--font-size-xs);
 }
 
 /* no longer used unless Rails generated
@@ -48,7 +25,7 @@ $font_light: 300;
 */
 
 .normal_type {
-  font-size: $font_normal;
+  font-size: var(--font-size-sm);
 }
 
 .large_type {
@@ -56,11 +33,11 @@ $font_light: 300;
 }
 
 .subtitle_type {
-  font-size: $font_subtitle;
+  font-size: var(--font-size-sm);
 }
 
 .title_type {
-  font-size: $font_title;
+  font-size: var(--font-size-base);
 }
 
 .hide_text {

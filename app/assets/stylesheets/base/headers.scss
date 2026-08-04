@@ -41,7 +41,7 @@
   }
 
   #taxonworks_left {
-    line-height: $font_small;
+    line-height: var(--font-size-xs);
   }
 
   #taxonworks_left > a {
@@ -51,7 +51,7 @@
 
   #taxonworks_version {
     color: White;
-    font-size: $font_small;
+    font-size: var(--font-size-xs);
     text-decoration: none;
     padding: 0;
   }
@@ -77,7 +77,7 @@
 
   .hub_project_name {
     color: white;
-    font-size: $font_title;
+    font-size: var(--font-size-base);
   }
 
   .dropdown-content {

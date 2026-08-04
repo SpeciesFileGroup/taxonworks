@@ -68,7 +68,7 @@
           color: var(--text-color);
           padding: $standard_padding * 0.5;
           padding-left: $standard_padding;
-          font-size: $font_normal;
+          font-size: var(--font-size-sm);
         }
       }
       li:hover {

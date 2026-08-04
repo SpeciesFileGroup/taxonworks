@@ -67,7 +67,7 @@
   z-index: 9000;
   display: none;
   font-weight: 300;
-  font-size: $font_small;
+  font-size: var(--font-size-xs);
 
   &__active {
     display: block;

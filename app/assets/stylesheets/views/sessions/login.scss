@@ -46,7 +46,7 @@
   input {
     border-radius: 0px;
     width: 100%;
-    font-size: $font_normal;
+    font-size: var(--font-size-sm);
   }
 
   input[type='submit'] {

@@ -6,7 +6,7 @@
     top: -60px;
     right: 130px;
     cursor: pointer;
-    font-size: $font_small;
+    font-size: var(--font-size-xs);
     box-shadow: var(--panel-shadow);
     background-color: var(--bg-foreground);
     padding: $standard_padding;
@@ -39,7 +39,7 @@
     justify-content: space-between;
 
     .title {
-      font-size: $font_title;
+      font-size: var(--font-size-base);
     }
     .close {
       cursor: pointer;
@@ -56,7 +56,7 @@
     th {
       border: none;
       padding-left: $standard_padding;
-      font-size: $font_subtitle;
+      font-size: var(--font-size-sm);
     }
     tr {
       height: 30px;
@@ -101,7 +101,7 @@
   }
 
   .key {
-    font-size: $font_tiny;
+    font-size: var(--font-size-xs);
     font-weight: 500;
     line-height: 10px;
     text-align: center;

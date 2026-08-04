@@ -11,7 +11,7 @@ input[type='checkbox'].increment {
 
 .icon-checkbox {
   display: inline-block;
-  font-size: $font_small;
+  font-size: var(--font-size-xs);
   cursor: pointer;
   width: $normal-input-size;
   height: $normal-input-size;
@@ -85,7 +85,7 @@ fieldset {
 input,
 textarea {
   position: relative;
-  font-size: $font_small;
+  font-size: var(--font-size-xs);
   padding: 0px;
   padding-left: $standard_padding * 0.9;
   padding-right: $standard_padding * 0.9;
@@ -127,7 +127,7 @@ select {
   padding-right: $standard_padding;
   border-radius: var(--border-radius-small);
   border: 1px solid var(--border-color);
-  font-size: $font_tiny;
+  font-size: var(--font-size-xs);
   min-height: $normal-input-size;
 }
 

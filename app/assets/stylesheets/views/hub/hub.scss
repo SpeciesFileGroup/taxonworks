@@ -77,11 +77,8 @@
       }
 
       a {
-        padding: $standard_padding * 2;
-        padding-top: $standard_padding;
-        padding-bottom: $standard_padding * 0.9;
-        font-size: $font_small;
-        font-weight: 300;
+        padding: var(--spacing-lg) var(--spacing-xl);
+        font-size: var(--font-size-xs);
         text-transform: uppercase;
         border-bottom: 2px solid transparent;
         border-top: 2px solid transparent;

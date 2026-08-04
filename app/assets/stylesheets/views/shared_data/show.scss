@@ -117,10 +117,10 @@ cite mark {
     font-weight: 400;
   }
   p {
-    font-size: $font_normal;
+    font-size: var(--font-size-sm);
   }
   a {
-    font-size: $font_normal;
+    font-size: var(--font-size-sm);
   }
 }
 
