@@ -29,6 +29,7 @@
       <div class="left-column">
         <MatchOptionsPanel
           class="sticky-panel"
+          :style="{ top: `${stickyTop}px`, maxHeight: `calc(100vh - ${stickyTop}px)` }"
           v-model:scope-taxon-name="scopeTaxonName"
           v-model:strip-preset="stripPreset"
           v-model:levenshtein-distance="levenshteinDistance"
@@ -67,9 +68,10 @@
 </template>
 
 <script setup>
-import { computed, onBeforeMount, ref } from 'vue'
+import { computed, onBeforeMount, onMounted, ref, watch } from 'vue'
 import { Otu } from '@/routes/endpoints'
 import { getPagination } from '@/helpers'
+import { useScroll } from '@/composables'
 import { PER, PREDICTION, VISIBILITY, defaultModifiers } from './constants'
 import { useScopeQueries } from './composables/useScopeQueries'
 import applyRules from './utils/applyRules'
@@ -138,6 +140,25 @@ const setRowIds = computed(() =>
 )
 
 onBeforeMount(() => loadPage(1))
+
+// Sticking to the viewport top puts the panel under whatever is fixed up there: the NavBar
+// above, which fixes itself once the page scrolls, or the app header when the curator has
+// locked it. Neither is fixed at first, and the NavBar only takes its class on scroll, so the
+// clearance is re-read on every scroll rather than measured once.
+const scroll = useScroll(window)
+const stickyTop = ref(0)
+
+function updateStickyTop() {
+  const fixedElement = [
+    document.querySelector('.navbar-fixed-top'),
+    document.querySelector('#header-wrapper')
+  ].find((element) => element && getComputedStyle(element).position === 'fixed')
+
+  stickyTop.value = fixedElement?.getBoundingClientRect().bottom ?? 0
+}
+
+onMounted(updateStickyTop)
+watch(scroll.y, updateStickyTop)
 
 // How to match, without saying what to match — shared by the page request and the
 // single-row refresh so both see the same options.
@@ -365,8 +386,10 @@ function handleReset() {
   align-self: stretch;
 }
 
+/* `top` and `max-height` come from the measured clearance below the fixed bars; the panel
+   scrolls on its own once it is taller than what is left of the viewport. */
 .sticky-panel {
   position: sticky;
-  top: 0;
+  overflow-y: auto;
 }
 </style>

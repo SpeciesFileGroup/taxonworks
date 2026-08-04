@@ -1,5 +1,5 @@
 <template>
-  <table class="full_width">
+  <table class="table-striped full_width">
     <thead>
       <tr>
         <th class="w-2">
@@ -101,29 +101,35 @@
           >
             No match
           </span>
-          <label
-            v-for="candidate in row.candidates"
-            :key="candidate.id"
-            class="horizontal-left-content middle gap-small"
+          <div
+            v-else
+            class="candidate-list"
           >
-            <input
-              type="radio"
-              :name="`candidate-${row.otuId}`"
-              :checked="row.taxonNameId === candidate.id"
-              :disabled="row.set"
-              @change="update(row, 'taxonNameId', candidate.id)"
-            />
-            <a
-              :href="`${RouteNames.BrowseNomenclature}?taxon_name_id=${candidate.id}`"
-              target="_blank"
-              v-html="candidate.cached_html"
-            />
-            <span
-              v-if="candidate.cached_author_year"
-              class="subtle"
-              v-text="candidate.cached_author_year"
-            />
-          </label>
+            <label
+              v-for="candidate in row.candidates"
+              :key="candidate.id"
+              class="candidate horizontal-left-content middle gap-small"
+              :class="{ 'candidate-selected': row.taxonNameId === candidate.id }"
+            >
+              <input
+                type="radio"
+                :name="`candidate-${row.otuId}`"
+                :checked="row.taxonNameId === candidate.id"
+                :disabled="row.set"
+                @change="update(row, 'taxonNameId', candidate.id)"
+              />
+              <a
+                :href="`${RouteNames.BrowseNomenclature}?taxon_name_id=${candidate.id}`"
+                target="_blank"
+                v-html="candidate.cached_html"
+              />
+              <span
+                v-if="candidate.cached_author_year"
+                class="subtle"
+                v-text="candidate.cached_author_year"
+              />
+            </label>
+          </div>
         </td>
 
         <td>
@@ -256,14 +262,54 @@ function update(row, field, value) {
 </script>
 
 <style scoped>
+/* A row is as tall as its candidate list, so without this the OTU name, the match string and
+   the Set button float at the vertical middle, far from the candidates they belong to. */
+td {
+  vertical-align: top;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+}
+
+/* Candidates are one per line and can run to dozens, at which point neither the boundary
+   between two candidates nor the one between two OTUs reads. Each candidate gets its own
+   banded, separated line, and the list scrolls rather than pushing the next OTU off screen. */
+.candidate-list {
+  display: flex;
+  flex-direction: column;
+  max-height: 12rem;
+  overflow-y: auto;
+}
+
+.candidate {
+  padding: 0.2em 0.35em;
+  border-radius: var(--border-radius-xsmall);
+}
+
+.candidate + .candidate {
+  border-top: 1px dotted var(--border-color);
+}
+
+.candidate:hover {
+  background-color: var(--table-row-bg-hover);
+}
+
+/* Blue marks the selected state; the accent bar survives the striping underneath it. */
+.candidate-selected {
+  background-color: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  box-shadow: inset 2px 0 0 var(--color-primary);
+}
+
+/* !important needed: .table-striped's tr:nth-of-type(even/odd) td rule has higher
+   specificity than a single class here. */
+
 /* Ambiguous: candidates resolve to genuinely different valid taxa. A caution, not an error. */
 .cell-ambiguous {
-  background-color: var(--feedback-warning-bg-color);
+  background-color: var(--feedback-warning-bg-color) !important;
 }
 
 /* No candidates is de-emphasis, not danger — red is reserved for destructive actions. */
 .row-no-match td {
-  background-color: var(--feedback-secondary-bg-color);
+  background-color: var(--feedback-secondary-bg-color) !important;
 }
 
 .row-set td {
