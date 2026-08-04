@@ -80,6 +80,45 @@ describe 'Assign taxon name to OTU task', type: :feature, group: :otu do
       end
     end
 
+    # Editing one row's match string re-matches that row alone, so the rest of the page keeps
+    # its predictions.
+    context 'refreshing a single row' do
+      let(:root) { FactoryBot.create(:root_taxon_name, by: @user, project: @project) }
+
+      let!(:species) do
+        genus = Protonym.create!(
+          name: 'Aus', rank_class: Ranks.lookup(:iczn, :genus), parent: root, by: @user, project: @project
+        )
+        Protonym.create!(
+          name: 'bus', rank_class: Ranks.lookup(:iczn, :species), parent: genus, by: @user, project: @project
+        )
+      end
+
+      let!(:otu) { Otu.create!(name: 'nonsense', by: @user, project: @project) }
+      let!(:other_otu) { Otu.create!(name: 'also nonsense', by: @user, project: @project) }
+
+      let(:result) do
+        visit assign_taxon_name_task_path
+        token = page.find('meta[name="csrf-token"]', visible: false)[:content]
+
+        page.driver.post(
+          assign_taxon_name_task_data_path(format: :json),
+          { otu_query: { otu_id: [otu.id] }, match_strings: { otu.id.to_s => 'Aus bus' } },
+          { 'HTTP_X_CSRF_TOKEN' => token }
+        )
+
+        JSON.parse(page.driver.response.body)
+      end
+
+      specify 'returns only the requested OTU' do
+        expect(result.map { |r| r['otu']['id'] }).to contain_exactly(otu.id)
+      end
+
+      specify 'matches on the supplied string' do
+        expect(result.first['candidates'].map { |c| c['id'] }).to eq([species.id])
+      end
+    end
+
     # The scopes arrive as request params, not as the Hashes the library spec passes.
     context 'when handed scoping queries' do
       let(:root) { FactoryBot.create(:root_taxon_name, by: @user, project: @project) }

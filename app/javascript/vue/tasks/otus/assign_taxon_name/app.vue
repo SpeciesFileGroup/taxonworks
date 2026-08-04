@@ -137,15 +137,23 @@ const setRowIds = computed(() =>
 
 onBeforeMount(() => loadPage(1))
 
-function requestParams(page, overrides) {
+// How to match, without saying what to match — shared by the page request and the
+// single-row refresh so both see the same options.
+function matchOptions() {
   return {
-    page,
-    per: PER,
     levenshtein_distance: levenshteinDistance.value,
     use_author_year: useAuthorYear.value ? 'true' : 'false',
     taxon_name_id: scopeTaxonName.value?.id,
+    taxon_name_query: taxonNameQuery.value || undefined
+  }
+}
+
+function requestParams(page, overrides) {
+  return {
+    ...matchOptions(),
+    page,
+    per: PER,
     otu_query: otuQuery.value || undefined,
-    taxon_name_query: taxonNameQuery.value || undefined,
     match_strings: overrides || undefined
   }
 }
@@ -234,12 +242,30 @@ function updateRow(row, field, value) {
   row[field] = value
 }
 
-function updateMatchString(row, value) {
+// Editing one row's match string re-matches that row alone. Reloading the page here would
+// re-apply the left-column rules to every row and replace all their predictions, discarding
+// work elsewhere on the page.
+async function updateMatchString(row, value) {
   rememberState(row, 'matchString', value)
-  loadPage(currentPage.value, {
-    ...computeOverrides(),
-    [row.otuId]: value
+
+  const response = await Otu.assignTaxonNameData({
+    ...matchOptions(),
+    otu_query: { otu_id: [row.otuId] },
+    match_strings: { [row.otuId]: value }
   })
+
+  const record = response.body.find((r) => r.otu.id === row.otuId)
+
+  if (!record) return
+
+  row.matchString = record.match_string
+  row.candidates = record.candidates
+  row.ambiguous = record.ambiguous
+
+  // The string changed, so the previous pick no longer stands — take the new best candidate,
+  // and remember it so a later page load doesn't resurrect the old one.
+  row.taxonNameId = record.taxon_name_id
+  rememberState(row, 'taxonNameId', record.taxon_name_id)
 }
 
 function toggleAll(checked) {
