@@ -1,5 +1,5 @@
 <template>
-  <div class="field label-above">
+  <div class="label-above">
     <label>Locality</label>
     <textarea
       class="full_width"

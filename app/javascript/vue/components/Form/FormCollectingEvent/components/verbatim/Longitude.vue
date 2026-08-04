@@ -1,11 +1,15 @@
 <template>
-  <div class="field label-above">
+  <div class="label-above">
     <label>Longitude</label>
     <input
       class="full_width"
       type="text"
       v-model="longitude"
-      @change="() => { collectingEvent.isUnsaved = true }"
+      @change="
+        () => {
+          collectingEvent.isUnsaved = true
+        }
+      "
     />
   </div>
 </template>

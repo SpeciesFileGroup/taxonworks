@@ -1,10 +1,5 @@
 <template>
   <div id="new_collecting_event_task">
-    <VSpinner
-      full-screen
-      :legend="isSaving ? 'Saving...' : 'Loading...'"
-      v-if="isSaving || isLoading"
-    />
     <NavBar navbar-class="panel content rounded-tl-none rounded-tr-none">
       <div class="flex-separate full_width">
         <div class="horizontal-left-content middle gap-medium">
@@ -120,6 +115,11 @@
         <RightSection @select="(e) => loadCollectingEvent(e.id)" />
       </div>
     </div>
+    <VSpinner
+      full-screen
+      :legend="isSaving ? 'Saving...' : 'Loading...'"
+      v-if="isSaving || isLoading"
+    />
   </div>
 </template>
 

@@ -9,7 +9,7 @@
       Georeference ({{ count }})
     </VBtn>
     <VBtn
-      v-if="!isVerbatimCreated"
+      v-if="hasValidVerbatimCoordinates && !isVerbatimCreated"
       class="margin-small-left"
       color="primary"
       medium

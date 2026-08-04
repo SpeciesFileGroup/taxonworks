@@ -5,8 +5,9 @@
       color="primary"
       medium
       variant="tonal"
-      @click="setModalView(true)"
+      title="Navigate collecting events"
       :disabled="!collectingEvent.id"
+      @click="setModalView(true)"
     >
       <IconCompass class="w-4 h-4" />
     </VBtn>

@@ -1,11 +1,15 @@
 <template>
-  <div class="field label-above">
+  <div class="label-above">
     <label>Collectors</label>
     <textarea
       class="full_width"
       rows="5"
       v-model="collectingEvent.verbatim_collectors"
-      @change="() => { collectingEvent.isUnsaved = true }"
+      @change="
+        () => {
+          collectingEvent.isUnsaved = true
+        }
+      "
     />
   </div>
 </template>

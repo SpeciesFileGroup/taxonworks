@@ -1,10 +1,9 @@
 <template>
   <div>
-    <div class="horizontal-left-content align-start">
+    <div class="horizontal-left-content gap-medium align-start">
       <div
         class="flex-wrap-column full_width"
         v-for="(column, key, index) in componentsOrder"
-        :class="{ 'margin-medium-right': index < lastColumn }"
         :key="key"
       >
         <h2
@@ -14,7 +13,7 @@
           {{ TITLE_SECTION[key] }}
         </h2>
         <draggable
-          class="full_width"
+          class="full_width flex-col gap-medium"
           v-model="componentsOrder[key]"
           :item-key="(element) => element"
           :disabled="!sortable"
@@ -23,7 +22,6 @@
           <template #item="{ element }">
             <component
               v-if="!exclude.includes(element)"
-              class="margin-small-bottom"
               v-model="store.collectingEvent"
               :components-order="componentsOrder"
               :is="VueComponents[element]"

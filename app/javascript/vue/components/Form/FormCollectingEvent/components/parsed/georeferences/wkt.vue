@@ -15,7 +15,7 @@
         <h3>Create WKT shape</h3>
       </template>
       <template #body>
-        <div class="field label-above">
+        <div class="label-above">
           <label>WKT data</label>
           <textarea
             class="full_width"

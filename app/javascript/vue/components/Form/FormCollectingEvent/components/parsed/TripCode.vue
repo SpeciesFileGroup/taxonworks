@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2 class="tw-section-title">Field number</h2>
+    <h3>Field number</h3>
     <div class="flex-wrap-column middle align-start">
       <div class="full_width">
         <fieldset>

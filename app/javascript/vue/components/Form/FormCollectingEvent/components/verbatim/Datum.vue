@@ -1,12 +1,16 @@
 <template>
-  <div class="field label-above">
+  <div class="label-above">
     <label>Datum</label>
     <input
       class="full_width"
       type="text"
       rows="3"
       v-model="collectingEvent.verbatim_datum"
-      @change="() => { collectingEvent.isUnsaved = true }"
+      @change="
+        () => {
+          collectingEvent.isUnsaved = true
+        }
+      "
     />
   </div>
 </template>

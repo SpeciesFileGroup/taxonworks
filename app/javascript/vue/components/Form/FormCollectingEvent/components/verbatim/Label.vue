@@ -1,5 +1,5 @@
 <template>
-  <div class="field label-above">
+  <div class="label-above">
     <label>Label</label>
     <textarea
       class="full_width"
@@ -17,6 +17,7 @@
         color="primary"
         medium
         :disabled="!collectingEvent.verbatim_label"
+        variant="tonal"
         @click="parseData"
       >
         Parse fields

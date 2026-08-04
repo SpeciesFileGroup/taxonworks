@@ -1,5 +1,5 @@
 <template>
-  <fieldset>
+  <fieldset class="field">
     <legend>Collectors</legend>
     <SmartSelector
       ref="smartSelector"

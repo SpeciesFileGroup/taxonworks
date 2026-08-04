@@ -1,11 +1,15 @@
 <template>
-  <div class="field label-above">
+  <div class="label-above">
     <label>Latitude</label>
     <input
       class="full_width"
       type="text"
       v-model="latitude"
-      @change="() => { collectingEvent.isUnsaved = true }"
+      @change="
+        () => {
+          collectingEvent.isUnsaved = true
+        }
+      "
     />
   </div>
 </template>

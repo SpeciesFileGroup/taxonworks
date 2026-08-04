@@ -1,63 +1,61 @@
 <template>
   <div>
-    <div>
-      <label class="separate-bottom"><b>Start date</b></label>
-      <div class="horizontal-left-content separate-bottom align-end gap-small">
-        <date-fields
-          v-model:year="collectingEvent.start_date_year"
-          v-model:month="collectingEvent.start_date_month"
-          v-model:day="collectingEvent.start_date_day"
-          @change="
-            () => {
-              collectingEvent.isUnsaved = true
-            }
-          "
-        />
-        <date-now
-          v-model:year="collectingEvent.start_date_year"
-          v-model:month="collectingEvent.start_date_month"
-          v-model:day="collectingEvent.start_date_day"
-          @click="
-            () => {
-              collectingEvent.isUnsaved = true
-            }
-          "
-        />
-      </div>
+    <label class="label-above"><b>Start date</b></label>
+    <div class="horizontal-left-content align-end gap-small">
+      <date-fields
+        v-model:year="collectingEvent.start_date_year"
+        v-model:month="collectingEvent.start_date_month"
+        v-model:day="collectingEvent.start_date_day"
+        @change="
+          () => {
+            collectingEvent.isUnsaved = true
+          }
+        "
+      />
+      <date-now
+        v-model:year="collectingEvent.start_date_year"
+        v-model:month="collectingEvent.start_date_month"
+        v-model:day="collectingEvent.start_date_day"
+        @click="
+          () => {
+            collectingEvent.isUnsaved = true
+          }
+        "
+      />
     </div>
-    <div>
-      <label class="separate-bottom"><b>End date</b></label>
-      <div class="horizontal-left-content separate-bottom align-end gap-small">
-        <date-fields
-          v-model:year="collectingEvent.end_date_year"
-          v-model:month="collectingEvent.end_date_month"
-          v-model:day="collectingEvent.end_date_day"
-          @change="
-            () => {
-              collectingEvent.isUnsaved = true
-            }
-          "
-        />
-        <date-now
-          v-model:year="collectingEvent.end_date_year"
-          v-model:month="collectingEvent.end_date_month"
-          v-model:day="collectingEvent.end_date_day"
-          @click="
-            () => {
-              collectingEvent.isUnsaved = true
-            }
-          "
-        />
-        <VBtn
-          v-if="!isStartDateEmpty && !isStartDateCloned"
-          medium
-          color="primary"
-          variant="tonal"
-          @click="cloneDate"
-        >
-          Clone
-        </VBtn>
-      </div>
+  </div>
+  <div>
+    <label class="label-above"><b>End date</b></label>
+    <div class="horizontal-left-content align-end gap-small">
+      <date-fields
+        v-model:year="collectingEvent.end_date_year"
+        v-model:month="collectingEvent.end_date_month"
+        v-model:day="collectingEvent.end_date_day"
+        @change="
+          () => {
+            collectingEvent.isUnsaved = true
+          }
+        "
+      />
+      <date-now
+        v-model:year="collectingEvent.end_date_year"
+        v-model:month="collectingEvent.end_date_month"
+        v-model:day="collectingEvent.end_date_day"
+        @click="
+          () => {
+            collectingEvent.isUnsaved = true
+          }
+        "
+      />
+      <VBtn
+        v-if="!isStartDateEmpty && !isStartDateCloned"
+        medium
+        color="primary"
+        variant="tonal"
+        @click="cloneDate"
+      >
+        Clone
+      </VBtn>
     </div>
   </div>
 </template>
