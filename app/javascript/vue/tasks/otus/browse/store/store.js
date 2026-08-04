@@ -8,21 +8,25 @@ export const useOtuStore = defineStore('browse-otu', {
     taxonName: undefined,
     coordinateOtus: [],
     selectedOtus: [],
+    otus: [],
     navigate: null
   }),
 
   actions: {
     async initFromUrl() {
       const settings = useSettingsStore()
+      const params = new URLSearchParams(window.location.search)
+
+      const otuId = params.get('otu_id')
+      const taxonId = params.get('taxon_name_id')
+      const collectionObjectId = params.get('collection_object_id')
+
+      if (!otuId && !taxonId && !collectionObjectId) return
+
+      this.$reset()
       settings.isLoading = true
 
       try {
-        const params = new URLSearchParams(window.location.search)
-
-        const otuId = params.get('otu_id')
-        const taxonId = params.get('taxon_name_id')
-        const collectionObjectId = params.get('collection_object_id')
-
         if (otuId) {
           await this.handleOtu(otuId)
           return

@@ -13,6 +13,11 @@
       full-screen
       :logo-size="{ width: '100px', height: '100px' }"
     />
+    <ModalSelectOtu
+      :otus="otuStore.otus"
+      @selected="loadOtu"
+      @close="otuStore.otus = []"
+    />
     <div class="flex-separate middle">
       <div class="horizontal-left-content">
         <ul
@@ -88,7 +93,7 @@
 <script setup>
 import { computed, ref, watch, onBeforeMount, onBeforeUnmount } from 'vue'
 import { RouteNames } from '@/routes/routes'
-import { useUserPreferences } from '@/composables'
+import { useUserPreferences, usePopstateListener } from '@/composables'
 import { useOtuStore } from './store'
 import { PANEL_COMPONENTS, migrateTaskPreferences } from './constants'
 import { resolveLayoutRows, flattenRows } from './utils/resolveLayoutRows.js'
@@ -96,7 +101,9 @@ import { useSettingsStore } from './store'
 import HeaderBar from './components/HeaderBar/HeaderBar.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import SearchOtu from './components/Navbar/NavbarSearchOtu.vue'
+import ModalSelectOtu from './components/ModalSelectOtu.vue'
 import ShowForThisGroup from '@/tasks/nomenclature/new_taxon_name/helpers/showForThisGroup.js'
+import setParam from '@/helpers/setParam'
 
 defineOptions({
   name: 'BrowseOtu'
@@ -189,16 +196,45 @@ watch(headerBar, (component) => {
   }
 })
 
+function syncUrlWithOtu(otuId) {
+  const params = new URLSearchParams(window.location.search)
+  const isResolvingEntryUrl = !!(
+    params.get('taxon_name_id') || params.get('collection_object_id')
+  )
+
+  setParam(
+    RouteNames.BrowseOtu,
+    {
+      otu_id: otuId,
+      taxon_name_id: undefined,
+      collection_object_id: undefined
+    },
+    undefined,
+    false,
+    isResolvingEntryUrl
+  )
+}
+
+watch(
+  () => otuStore.otu?.id,
+  (otuId) => {
+    if (otuId) syncUrlWithOtu(otuId)
+  }
+)
+
 onBeforeMount(() => {
   otuStore.initFromUrl()
 })
+
+usePopstateListener(otuStore.initFromUrl)
 
 onBeforeUnmount(() => {
   headerBarResizeObserver?.disconnect()
 })
 
 function loadOtu({ id }) {
-  window.open(`${RouteNames.BrowseOtu}?otu_id=${id}`, '_self')
+  otuStore.$reset()
+  otuStore.handleOtu(id)
 }
 
 function showForRanks(section) {
