@@ -9,6 +9,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ### Added
 
+- Assing OTU to taxon name task [#130]
 - ProjectOrganization model, link projects to org/depiction metadata [#5027]
 - Radial annotator: Add pagination to citations slice [#4964]
 - In the TaxonName verbatim author/year task, add a Source selector as an option when citing, and add a modal for assigning page numbers to source-only citations that get added to names
@@ -55,6 +56,8 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - New BA: Forms do not reset if a citation has already been created
 - Unexpected failure from api/v1/otus?extend[]=taxon_name when a returned OTU has no taxon name
 
+
+[#130]: https://github.com/SpeciesFileGroup/taxonworks/issues/130
 [#5027]: https://github.com/SpeciesFileGroup/taxonworks/issues/5027
 [#4157]: https://github.com/SpeciesFileGroup/taxonworks/issues/4157
 [#4937]: https://github.com/SpeciesFileGroup/taxonworks/issues/4937
