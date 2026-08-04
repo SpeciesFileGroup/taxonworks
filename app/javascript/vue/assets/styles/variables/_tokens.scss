@@ -1,0 +1,14 @@
+// The single runtime emitter of design tokens.
+//
+// Every `:root` / `.dark` custom property in the application originates here
+// (transitively). It is shipped by `packs/tokens.scss`, which every layout
+// loads unconditionally — including signed-out pages and the `us_letter` print
+// layout, both of which previously rendered with the tokens undefined.
+//
+// Nothing else should `@use` an emitting variables partial. Components needing
+// the compile-time SCSS maps must `@use 'variables/_maps.scss'`, which produces
+// no CSS, otherwise the tokens ship twice on pages loading two packs.
+
+@use './palette';
+@use './sizes';
+@use './typography';

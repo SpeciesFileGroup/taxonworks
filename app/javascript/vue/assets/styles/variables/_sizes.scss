@@ -1,12 +1,6 @@
-$tw-input-sizes: (
-  'xxSmall': '12px',
-  'xSmall': '16px',
-  'small': '20px',
-  'default': '24px',
-  'medium': '28px',
-  'large': '32px',
-  'xLarge': '36px'
-);
+@forward './maps';
+
+@use './maps' as *;
 
 :root {
   --border-radius-xsmall: 0.25rem;
@@ -24,6 +18,13 @@ $tw-input-sizes: (
   --spacing-2xl: 2rem; /* 32px */
   --spacing-3xl: 3rem; /* 48px */
   --spacing-4xl: 4rem; /* 64px */
+
+  --container-sm: 60rem;
+  --container-md: 71.25rem;
+  --container-lg: 77.5rem;
+  --container-xl: 90rem;
+  --container-2xl: 100rem;
+  --container-full: 100%;
 }
 
 @each $key, $value in $tw-input-sizes {

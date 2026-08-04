@@ -1,0 +1,90 @@
+// Compile-time SCSS maps and lists. This file MUST NOT emit any CSS.
+//
+// It exists so that components needing the maps (e.g. `components/buttons.scss`
+// generating a class per color) can `@use` them without also pulling in the
+// `:root` blocks that `_palette.scss` / `_sizes.scss` / `_typography.scss`
+// output. Sass de-duplicates a file's CSS once per *compilation*, not across
+// entry points, so a component reaching for a map from an emitting file would
+// make that file's tokens ship twice on any page loading both packs.
+//
+// See `variables/_tokens.scss` for the single runtime emitter.
+
+$tw-input-sizes: (
+  'xxSmall': '12px',
+  'xSmall': '16px',
+  'small': '20px',
+  'default': '24px',
+  'medium': '28px',
+  'large': '32px',
+  'xLarge': '36px'
+);
+
+$tw-dark-colors: (
+  'focus': #000000,
+  'active': #000000,
+  'link': #479ef5,
+  'attention': #ffda44,
+  'background': #242424,
+  'black': #444444,
+  'create': #2e7d32,
+  'data': #006ebf,
+  'destroy': #c9313b,
+  'error': #c9313b,
+  'panel': #ffffff,
+  'primary': #006cbe,
+  'secondary': #8b5a66,
+  'update': #2e7d32,
+  'warning': #f97316,
+  'white': #ffffff,
+  'border': #f5f5f5,
+  'toggle-active': #beae00,
+  'muted': #c6c6c6
+);
+
+$tw-colors: (
+  'focus': #e3e8e3,
+  'active': #f1f5f9,
+  'link': #3676ab,
+  'attention': #ffda44,
+  'background': #f7f8fc,
+  'black': #444444,
+  'create': #2e7d32,
+  'data': #006ebf,
+  'destroy': #dc2626,
+  'error': #dc2626,
+  'panel': #ffffff,
+  'primary': #3676ab,
+  'secondary': #5a1321,
+  'update': #2e7d32,
+  'warning': #f97316,
+  'white': #ffffff,
+  'border': #f5f5f5,
+  'toggle-active': #cebd5d,
+  'muted': #6b7280
+);
+
+$tw-map-colors: (
+  'aggregate': #037316,
+  'collection-object': #ef4444,
+  'field-occurrence': #40b0a6,
+  'type-material': #3388ff,
+  'asserted-distribution': #f97316,
+  'asserted-distribution-absent': #6a51a3,
+  'georeference': #d41159,
+  'verbatim': #8908b4,
+  'verbatim-preview': #636363
+);
+
+$tw-foreground-colors:
+  'primary', 'create', 'update', 'data', 'destroy', 'error', 'warning',
+  'secondary', 'black';
+
+$tw-foreground-mix-light: 75%;
+$tw-foreground-mix-dark: 60%;
+
+$tw-foreground-light-overrides: (
+  'warning': (
+    'source': var(--orange-700),
+    'mix': 92%
+  )
+);

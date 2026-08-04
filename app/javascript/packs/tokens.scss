@@ -1,0 +1,4 @@
+// Design tokens, loaded by every layout (see app/views/layouts/). Kept as its
+// own entry point so signed-out pages and the `us_letter` print layout get the
+// custom properties without pulling in the whole application stylesheet.
+@use '../vue/assets/styles/variables/_tokens.scss';

@@ -8,6 +8,10 @@ body {
   margin: 0;
 }
 
+body.us_letter_page {
+  background-color: unset;
+}
+
 button,
 input,
 select,

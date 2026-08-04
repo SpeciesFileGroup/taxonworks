@@ -318,9 +318,6 @@ defineExpose({
 </script>
 
 <style scoped lang="scss">
-@use 'sass:map';
-@use '../../../../assets/styles/variables/_palette.scss' as *;
-
 .building-name {
   font-weight: normal;
   font-size: 0.85em;
