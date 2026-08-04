@@ -2,14 +2,33 @@
   <div class="match-options-panel panel content">
     <div class="flex-row flex-separate middle margin-medium-bottom">
       <h3>Match options</h3>
-      <VBtn
-        color="primary"
-        title="Reset all options and re-run matching"
-        @click="handleReset"
-      >
-        Reset
-      </VBtn>
+      <div class="horizontal-left-content middle gap-small">
+        <VBtn
+          color="primary"
+          :disabled="!scopedCount"
+          title="Re-match the checked rows with these options"
+          @click="$emit('update-options')"
+        >
+          Apply
+        </VBtn>
+        <VBtn
+          color="primary"
+          title="Reset all options and re-run matching"
+          @click="handleReset"
+        >
+          Reset
+        </VBtn>
+      </div>
     </div>
+
+    <p class="horizontal-left-content middle gap-small margin-medium-bottom">
+      <VIcon
+        small
+        name="attention"
+        color="attention"
+      />
+      <span class="subtle">Applies only to checked rows</span>
+    </p>
 
     <div class="flex-col gap-medium">
       <!-- Scope to TaxonName -->
@@ -189,6 +208,11 @@ defineProps({
   taxonNameFilterUrl: {
     type: String,
     default: null
+  },
+
+  scopedCount: {
+    type: Number,
+    default: 0
   }
 })
 

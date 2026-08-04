@@ -35,8 +35,9 @@
           v-model:use-author-year="useAuthorYear"
           v-model:modifiers="modifiers"
           :taxon-name-filter-url="taxonNameFilterUrl"
+          :scoped-count="scopedRows.length"
           @reset="handleReset"
-          @update-options="() => loadPage(currentPage)"
+          @update-options="handleOptionsChange"
         />
       </div>
 
@@ -105,8 +106,6 @@ const uiState = ref({})
 // Rows the curator has removed from the view with "Clear set rows".
 const clearedIds = ref([])
 
-const currentPage = computed(() => pagination.value.paginationPage || 1)
-
 // Everything still on the page. The status bar counts these, so its totals don't shift when
 // the visibility filter is changed.
 const loadedRows = computed(() =>
@@ -128,6 +127,9 @@ const visibleRows = computed(() =>
     return true
   })
 )
+
+// Checked rows are the sole target of the left-column match options.
+const scopedRows = computed(() => loadedRows.value.filter((r) => r.selected))
 
 const setRowIds = computed(() =>
   rows.value
@@ -203,16 +205,11 @@ function buildRow(record) {
 }
 
 // Checked rows scope the left-column facets; with nothing checked they apply to every row.
-function scopedRows() {
-  const selected = loadedRows.value.filter((r) => r.selected)
-  return selected.length ? selected : loadedRows.value
-}
-
 // Match strings that differ from the OTU name the server matched on. A string the curator
-// typed always counts, whether or not its row is in scope.
+// typed always counts; the left-column rules reach checked rows only.
 function computeOverrides() {
   const overrides = {}
-  const scoped = new Set(scopedRows().map((r) => r.otuId))
+  const scoped = new Set(scopedRows.value.map((r) => r.otuId))
 
   rows.value.forEach((row) => {
     const manual = uiState.value[row.otuId]?.matchString
@@ -230,6 +227,52 @@ function computeOverrides() {
   return overrides
 }
 
+// Re-match the given rows and patch them in place, leaving every other row's prediction
+// alone. Set rows are finished, so they are never re-matched.
+async function refreshRows(target, overrides = {}) {
+  const rowsToMatch = target.filter((row) => !row.set)
+
+  if (!rowsToMatch.length) return
+
+  const matchStrings = {}
+
+  rowsToMatch.forEach((row) => {
+    const value =
+      overrides[row.otuId] ??
+      uiState.value[row.otuId]?.matchString ??
+      applyRules(row.otuName, stripPreset.value, modifiers.value)
+
+    if (value) matchStrings[row.otuId] = value
+  })
+
+  const response = await Otu.assignTaxonNameData({
+    ...matchOptions(),
+    otu_query: { otu_id: rowsToMatch.map((r) => r.otuId) },
+    per: rowsToMatch.length,
+    match_strings: matchStrings
+  })
+
+  response.body.forEach((record) => {
+    const row = rows.value.find((r) => r.otuId === record.otu.id)
+
+    if (!row) return
+
+    row.matchString = record.match_string
+    row.candidates = record.candidates
+    row.ambiguous = record.ambiguous
+
+    // The string these were matched on changed, so an earlier pick no longer stands.
+    row.taxonNameId = record.taxon_name_id
+    rememberState(row, 'taxonNameId', record.taxon_name_id)
+  })
+}
+
+// Match options act on the checked rows and nothing else, so with none checked there is
+// nothing to re-match — moving the slider must not disturb the page.
+function handleOptionsChange() {
+  return refreshRows(scopedRows.value)
+}
+
 function rememberState(row, field, value) {
   uiState.value[row.otuId] = {
     ...(uiState.value[row.otuId] || {}),
@@ -245,27 +288,9 @@ function updateRow(row, field, value) {
 // Editing one row's match string re-matches that row alone. Reloading the page here would
 // re-apply the left-column rules to every row and replace all their predictions, discarding
 // work elsewhere on the page.
-async function updateMatchString(row, value) {
+function updateMatchString(row, value) {
   rememberState(row, 'matchString', value)
-
-  const response = await Otu.assignTaxonNameData({
-    ...matchOptions(),
-    otu_query: { otu_id: [row.otuId] },
-    match_strings: { [row.otuId]: value }
-  })
-
-  const record = response.body.find((r) => r.otu.id === row.otuId)
-
-  if (!record) return
-
-  row.matchString = record.match_string
-  row.candidates = record.candidates
-  row.ambiguous = record.ambiguous
-
-  // The string changed, so the previous pick no longer stands — take the new best candidate,
-  // and remember it so a later page load doesn't resurrect the old one.
-  row.taxonNameId = record.taxon_name_id
-  rememberState(row, 'taxonNameId', record.taxon_name_id)
+  return refreshRows([row], { [row.otuId]: value })
 }
 
 function toggleAll(checked) {
