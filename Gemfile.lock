@@ -556,7 +556,7 @@ GEM
     rb-fsevent (0.11.2)
     rb-inotify (0.11.1)
       ffi (~> 1.0)
-    rbs (4.1.1)
+    rbs (4.1.2)
       logger
       prism (>= 1.6.0)
       tsort
@@ -641,7 +641,7 @@ GEM
       rspec-support (>= 3.13.0, < 5.0.0)
     rspec-support (3.13.7)
     rtesseract (3.1.4)
-    rubocop (1.88.2)
+    rubocop (1.89.0)
       json (~> 2.3)
       language_server-protocol (~> 3.17.0.2)
       lint_roller (~> 1.1.0)
@@ -815,7 +815,7 @@ GEM
     xpath (3.2.0)
       nokogiri (~> 1.8)
     zaru (1.1)
-    zeitwerk (2.8.2)
+    zeitwerk (2.8.3)
     zip_tricks (5.6.0)
 
 PLATFORMS
