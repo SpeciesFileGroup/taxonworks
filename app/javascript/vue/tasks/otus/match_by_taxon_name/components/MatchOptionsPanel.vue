@@ -4,16 +4,17 @@
       <h3>Match options</h3>
       <VBtn
         color="primary"
-        @click="emit('clear-all')"
+        title="Reset all options and match strings to defaults and re-run matching"
+        @click="handleClearAll"
       >
-        Clear all matches
+        Restart
       </VBtn>
     </div>
 
     <!-- Scope to TaxonName -->
     <div class="flex-col gap-medium">
       <div class="field margin-medium-bottom">
-        <label>Scope to TaxonName</label>
+        <label>Restrict matches to children of</label>
 
         <Autocomplete
           url="/taxon_names/autocomplete"
@@ -46,7 +47,7 @@
 
       <!-- Try without subgenus -->
       <div class="field margin-medium-bottom">
-        <label class="middle">
+        <label class="middle" data-help="When a name fails to match, also tries matching against stored names stripped of their subgenus (e.g. input 'Aus cus' will match a stored name 'Aus (Bus) cus').">
           <input
             type="checkbox"
             :checked="tryWithoutSubgenus"
@@ -97,7 +98,7 @@
 
       <!-- Modifiers -->
       <div class="field">
-        <label>Modifiers</label>
+        <label data-help="Regex find-and-replace rules applied to the match string before searching. Each active row is applied in sequence.">Modifiers</label>
         <div class="modifier-header">
           <span />
           <span class="subtle">Replace this</span>
@@ -210,6 +211,11 @@ function debouncedUpdate() {
   debounceTimer = setTimeout(() => {
     emit('update-options')
   }, 500)
+}
+
+function handleClearAll() {
+  clearTimeout(debounceTimer)
+  emit('clear-all')
 }
 
 function handleScopeSelect(item) {

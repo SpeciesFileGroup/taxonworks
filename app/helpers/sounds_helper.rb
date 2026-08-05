@@ -16,6 +16,11 @@ module SoundsHelper
     render('/sounds/quick_search_form')
   end
 
+  def sound_autocomplete_tag(sound, term = nil)
+    return nil if sound.nil?
+    mark_tag(sound_tag(sound), term)
+  end
+
   def sound_link(sound)
     return nil if sound.nil?
     link_to(sound_tag(sound), sound.metamorphosize).html_safe

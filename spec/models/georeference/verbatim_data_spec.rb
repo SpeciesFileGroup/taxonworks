@@ -59,6 +59,48 @@ describe Georeference::VerbatimData, type: :model, group: [:geo, :georeferences]
     expect(georeference.geographic_item.geo_object.to_s).to eq('POINT (-88.249519 40.092067 809.0)')
   end
 
+  context 'destroying a georeference whose geographic_item is orphaned' do
+    let(:georef) {
+      Georeference::VerbatimData.create!(collecting_event: c)
+    }
+
+    specify 'destroying the georeference directly does not raise' do
+      expect { georef.destroy! }.not_to raise_error
+    end
+
+    specify 'destroying the collecting_event (cascade) does not raise' do
+      georef
+      expect { c.destroy! }.not_to raise_error
+    end
+
+    specify 'collecting_event cached geographic names are updated after destroy' do
+      georef
+      expect(c.geographic_name_classification_method).to be(:preferred_georeference)
+      c.destroy!
+      expect(c.geographic_name_classification_method).to_not be(:preferred_georeference)
+    end
+  end
+
+  context 'when a second georeference remains after the preferred is destroyed' do
+    let(:georef2) { FactoryBot.create(:valid_georeference, collecting_event: c) }
+    let(:georef1) { Georeference::VerbatimData.create!(collecting_event: c) }
+
+    before do
+      georef2  # position 1 initially
+      georef1  # acts_as_list adds at top: becomes position 1, georef2 shifts to 2
+    end
+
+    specify 'geographic_name_classification_method returns :preferred_georeference' do
+      georef1.destroy!
+      expect(c.reload.send(:geographic_name_classification_method)).to eq(:preferred_georeference)
+    end
+
+    specify 'the remaining georeference becomes preferred' do
+      georef1.destroy!
+      expect(c.reload.preferred_georeference.id).to eq(georef2.id)
+    end
+  end
+
   specify 'two georeferences might use the same geographic_item' do
     georeference1 = Georeference::VerbatimData.new(collecting_event: FactoryBot
       .build(:valid_collecting_event,

@@ -39,15 +39,16 @@ module IdentifiersHelper
   end
 
   # @return [String, nil]
-  def identifier_autocomplete_tag(identifier)
+  def identifier_autocomplete_tag(identifier, term = nil)
     return nil if identifier.nil?
-    content_tag(:span, class: :annotation__identifier) do
+    s = content_tag(:span, class: :annotation__identifier) do
       [
         object_tag(identifier.annotated_object.metamorphosize),
         content_tag(:span, identifier.identifier_object_type, class: [:feedback, 'feedback-thin', 'feedback-primary']),
         content_tag(:span, identifier.type, class: [:feedback, 'feedback-thin', 'feedback-secondary']),
       ].join('&nbsp;').html_safe
     end
+    mark_tag(s, term)
   end
 
   # @return [String, nil]

@@ -9,6 +9,74 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 \-
 
+## [0.64.0] - 2026-08-04
+
+### Added
+
+- Assing OTU to taxon name task [#130]
+- ProjectOrganization model, link projects to org/depiction metadata [#5027]
+- Radial annotator: Add pagination to citations slice [#4964]
+- In the TaxonName verbatim author/year task, add a Source selector as an option when citing, and add a modal for assigning page numbers to source-only citations that get added to names
+- Add object ID to Radial annotator/object/navigator header [#4978]
+- TypeMaterials slice to radial collection objects in Filter Collection Objects [#4974]
+- Taxon Name search now matches on full name + author_year strings, e.g. "Isocapnia crinita (Needham & Claassen, 1925)" [#4976]
+- Index option in the downloads dropdown in Filter Biological Associations - includes more data than the standard filter results download [#5017]
+- Biological Associations Index tsv download link from Project data overview and download [#5017]
+- Add help text on Geographic Area autocompletes explaining that searching for `washington un`, e.g., returns Washington state, United States (so does `WA` by the way!)
+- Add sort-column icons to the header row of the labels table in Print Labels
+
+### Changed
+
+- Upgraded postresql client to version 18
+- Names limit in the Match OTUs to Taxon Names task is now 3k, up from 1k
+- Move the list of unifiable types to Ruby (no user-facing changes)
+- `View observation matrix` task is now `Browse observation matrix`
+- The Print Labels table wraps the text in its columns more, to fit the whole table on smaller screens
+- Updated Ruby gems
+
+### Fixed
+
+- Filters: Sort buttons do not reset their state when the table content changes
+- Notification sound triggers multiple times when there is more than one notification. [#4964]
+- Error when changing the type of a label from qrcode/barcode to text
+- DwC occurrences importer not checking existing nomenclature date data correctly when matching on author/year
+- Regexes are applied when the user clicks the 'Match' button in the Match OTUs to Taxon Names task
+- "Is absent" checkbox does not display the value saved in session storage when citation form is loaded
+- Include citations on the OTU itself in addition to associated objects, for the endpoint /api/v1/otus/:id/inventory/citations [#4983]
+- Collecting Events with Georeferences raise an error when attempting to destroy [#4937]
+- Unify fixes related to: Georeferences when Collecting Events are unified, matrix columns when descriptors are unified, and dynamix matrix rows/columns when dynamic data are unified [#4944]
+- Unify now preserves list order of associated data: e.g. if two Collection Objects are unified, the kept object has its original list of Taxon Determinations in the same order, followed by the Taxon Determinations of the destroyed Collection Object in their original order
+- Can't unify two Taxon Names when they have the same relationship type from/to a same third Taxon Name [#4971]
+- A "successful" unify between two Taxon Names, one of which has a synonym, can leave the synonym in an unusable state [#4971]
+- Unify of two Asserted Distributions with the "same" Citation can cause loss of annotation data from the citation that gets destroyed [#4971]
+- Unify blocked by "duplicate" is_original citations now works [#4971]
+- Monograph facilitator: Determination label is not visible in Safari browser
+- Checklist importer crashing on empty `originalNameUsageID` in some cases
+- Source and Repository autocompletes sometimes miss results, repository usage counts were sometimes wrong [#4990]
+- OTU autocomplete sometimes returns unuseful results instead of an exact match, even when an exact match exists [#4994]
+- Biological Association UUID sent to GBIF was bad data (not a UUID)
+- PDF viewer is not rendering pages [#5023]
+- Add 'Exclude' option to Tags and Confidences facets in filters (for finding objects NOT satisfying the given conditions) [#4157]
+- New BA: Forms do not reset if a citation has already been created
+- Unexpected failure from api/v1/otus?extend[]=taxon_name when a returned OTU has no taxon name
+
+
+[#130]: https://github.com/SpeciesFileGroup/taxonworks/issues/130
+[#5027]: https://github.com/SpeciesFileGroup/taxonworks/issues/5027
+[#4157]: https://github.com/SpeciesFileGroup/taxonworks/issues/4157
+[#4937]: https://github.com/SpeciesFileGroup/taxonworks/issues/4937
+[#4944]: https://github.com/SpeciesFileGroup/taxonworks/issues/4944
+[#4964]: https://github.com/SpeciesFileGroup/taxonworks/issues/4964
+[#4974]: https://github.com/SpeciesFileGroup/taxonworks/issues/4974
+[#4976]: https://github.com/SpeciesFileGroup/taxonworks/issues/4976
+[#4978]: https://github.com/SpeciesFileGroup/taxonworks/issues/4978
+[#4983]: https://github.com/SpeciesFileGroup/taxonworks/issues/4983
+[#4990]: https://github.com/SpeciesFileGroup/taxonworks/issues/4990
+[#4994]: https://github.com/SpeciesFileGroup/taxonworks/issues/4994
+[#5017]: https://github.com/SpeciesFileGroup/taxonworks/issues/5017
+[#5023]: https://github.com/SpeciesFileGroup/taxonworks/issues/5023
+[#4971]: https://github.com/SpeciesFileGroup/taxonworks/issues/4971
+
 ## [0.63.1] - 2026-06-22
 
 ### Added
@@ -6362,7 +6430,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.63.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.64.0...development
+[0.64.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.63.1...v0.64.0
 [0.63.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.63.0...v0.63.1
 [0.63.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.62.0...v0.63.0
 [0.62.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.61.0...v0.62.0

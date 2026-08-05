@@ -303,11 +303,13 @@ module Queries
 
           # Order results by number of times used *in this project*
           if project_id.present? && scope && query_string.length > 3
-            a = a.left_outer_joins(:citations)
-              .left_outer_joins(:project_sources)
-              .select("sources.*, COUNT(citations.id) AS use_count, CASE WHEN project_sources.project_id IN (#{pr_id}) THEN project_sources.project_id ELSE NULL END AS in_project")
-              .where('citations.project_id IN (?) OR citations.project_id NOT IN (?) OR citations.project_id IS NULL', pr_id, pr_id)
-              .group('sources.id, citations.project_id, project_sources.project_id')
+            a = a.select(
+                "sources.*, " \
+                "(SELECT COUNT(*) FROM citations WHERE citations.source_id = sources.id) AS use_count, " \
+                "CASE WHEN EXISTS (" \
+                  "SELECT 1 FROM project_sources WHERE project_sources.source_id = sources.id AND project_sources.project_id IN (#{pr_id})" \
+                ") THEN 1 ELSE NULL END AS in_project"
+              )
               .order('in_project, use_count DESC')
           end
           a ||= q

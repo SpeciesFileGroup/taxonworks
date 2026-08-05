@@ -384,6 +384,10 @@ scope :tasks do
   end
 
   scope :projects do
+    scope :organizations, controller: 'tasks/projects/organizations' do
+      get :index, as: 'project_organizations_task'
+    end
+
     scope :year_in_review, controller: 'tasks/projects/year_in_review' do
       get '/', action: :index, as: 'year_in_review_task'
       get :data, as: 'year_in_review_data', defaults: {format: :json}
@@ -624,6 +628,7 @@ scope :tasks do
 
     scope :filter, controller: 'tasks/biological_associations/filter' do
       get '/', action: :index, as: 'filter_biological_associations_task'
+      post 'download_index', action: 'download_index', as: 'download_biological_associations_index_filter_result'
     end
 
     scope :dot, controller: 'tasks/biological_associations/dot' do
@@ -799,6 +804,12 @@ scope :tasks do
   end
 
   scope :otus do
+    scope :assign_taxon_name, controller: 'tasks/otus/assign_taxon_name' do
+      get '/', action: :index, as: 'assign_taxon_name_task'
+      # POST as well as GET: a page of curator-refined match strings does not fit in a URI.
+      match :data, via: [:get, :post], as: 'assign_taxon_name_task_data', defaults: {format: :json}
+    end
+
     scope :duplicates, controller: 'tasks/otus/duplicates' do
       get '/', action: 'index', as: 'duplicate_otus_task'
      get :data, as: 'duplicate_otus_task_data', defaults: {format: :json}

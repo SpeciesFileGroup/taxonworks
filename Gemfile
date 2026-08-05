@@ -92,7 +92,11 @@ gem 'rails-jquery-autocomplete', '~> 1.0.3'
 
 gem 'turbolinks', '~> 5.2.0'
 gem 'jquery-turbolinks', '~> 2.1'
-gem 'shakapacker', '10.1.0'
+gem 'shakapacker', '10.3.1'
+# rack-proxy >= 1.0 added an SSRF guard requiring allow_dynamic_backend: true,
+# which shakapacker 10.3.0's DevServerProxy doesn't pass, so every /packs/*
+# request 502s in development. Pin until shakapacker opts in upstream.
+gem 'rack-proxy', '< 1.0'
 
 # BibTeX handling
 gem 'csl', '~> 2.0'

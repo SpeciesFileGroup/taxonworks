@@ -657,6 +657,38 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     expect(query.all.map(&:id)).to contain_exactly()
   end
 
+  specify '#verbatim_author matches exact stored value without parens' do
+    query.verbatim_author = 'Fitch & Say'
+    expect(query.all.map(&:id)).to contain_exactly(species.id)
+  end
+
+  specify '#verbatim_author does not match when parens differ' do
+    query.verbatim_author = '(Fitch & Say)'
+    expect(query.all.map(&:id)).to contain_exactly()
+  end
+
+  context '#verbatim_author with parens' do
+    let!(:parenthesized) {
+      Protonym.create!(
+        name: 'obscura',
+        rank_class: Ranks.lookup(:iczn, 'species'),
+        parent: genus,
+        verbatim_author: '(Fitch & Say)',
+        year_of_publication: 1800,
+      )
+    }
+
+    specify 'matches exact value with parens' do
+      query.verbatim_author = '(Fitch & Say)'
+      expect(query.all.map(&:id)).to contain_exactly(parenthesized.id)
+    end
+
+    specify 'does not match bare author when stored value has parens' do
+      query.verbatim_author = 'Fitch & Say'
+      expect(query.all.map(&:id)).to contain_exactly(species.id)
+    end
+  end
+
   specify '#year' do
     query.year = 1800
     expect(query.all).to contain_exactly(species)

@@ -16,9 +16,9 @@ module CollectingEventsHelper
     collecting_event.cached
   end
 
-  def collecting_event_autocomplete_tag(collecting_event, join_string = '<br>')
+  def collecting_event_autocomplete_tag(collecting_event, join_string = '<br>', term: nil)
     return nil if collecting_event.nil?
-    [ collecting_event_identifiers_tag(collecting_event),
+    s = [ collecting_event_identifiers_tag(collecting_event),
       collecting_event_geographic_names_tag(collecting_event),
       collecting_event_verbatim_locality_tag(collecting_event),
       collecting_event_dates_tag(collecting_event),
@@ -27,7 +27,8 @@ module CollectingEventsHelper
       # collecting_event_coordinates_tag(collecting_event), # this is very slow
       collecting_event_method_habitat_tag(collecting_event),
       collecting_event_uses_tag(collecting_event)
-    ].compact.join(join_string).html_safe
+    ].compact.join(join_string)
+    mark_tag(s, term)
   end
 
   def collecting_event_uses_tag(collecting_event)

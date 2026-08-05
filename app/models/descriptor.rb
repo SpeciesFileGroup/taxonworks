@@ -34,7 +34,7 @@ class Descriptor < ApplicationRecord
 
   # See also /app/models/concerns/shared/observations.rb for additional has_many definitions
   has_many :observations, inverse_of: :descriptor, dependent: :restrict_with_error
-  has_many :observation_matrix_column_items, dependent: :destroy, class_name: 'ObservationMatrixColumnItem::Single::Descriptor'
+  has_many :observation_matrix_column_items, dependent: :destroy, class_name: 'ObservationMatrixColumnItem::Single::Descriptor', inverse_of: :descriptor
   has_many :observation_matrix_columns, inverse_of: :descriptor
 
   has_many :observation_matrices, through: :observation_matrix_columns
@@ -42,6 +42,15 @@ class Descriptor < ApplicationRecord
   soft_validate(:sv_short_name_is_short)
 
   scope :not_weight_zero, -> {where('NOT "descriptors"."weight" = 0 OR "descriptors"."weight" IS NULL') }
+
+  # observation_matrix_column_items carries class_name: so inferred_relations drops it.
+  # Force it back so column items are moved to the surviving descriptor during unify
+  # rather than being destroyed with the removed one.
+  def unify_relations
+    ApplicationEnumeration.klass_reflections(self.class, :has_many).select { |r|
+      r.name == :observation_matrix_column_items
+    }
+  end
 
   def self.human_name
     self.name.demodulize.humanize

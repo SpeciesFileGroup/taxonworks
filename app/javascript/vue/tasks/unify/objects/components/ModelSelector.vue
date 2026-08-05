@@ -9,7 +9,7 @@
         None
       </option>
       <option
-        v-for="model in models"
+        v-for="model in types"
         :key="model"
         :value="model"
       >
@@ -20,9 +20,13 @@
 </template>
 
 <script setup>
-import { TYPE_LINKS } from '../constants/types.js'
+defineProps({
+  types: {
+    type: Array,
+    required: true
+  }
+})
 
-const models = Object.keys(TYPE_LINKS)
 const modelSelected = defineModel({
   type: String,
   default: null
