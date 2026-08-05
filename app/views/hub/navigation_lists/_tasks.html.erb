@@ -4,8 +4,11 @@
     <% UserTasks.hub_tasks.each do |task| -%>
       <%= task_card(task) -%>
     <% end %>
-    <div class="subtle center_text no-tasks full_width horizontal-center-content">
-      <h1>No tasks found</h1>
+    <div class="no-tasks full_width" role="status">
+      <div class="hub-empty-state">
+        <%= icon('file-search', size: 28, class: 'hub-empty-state-icon') %>
+        <p class="hub-empty-state-message">No tasks found</p>
+      </div>
     </div>
     <div class="reset-all-filters">
       <div class="restart-background"></div>

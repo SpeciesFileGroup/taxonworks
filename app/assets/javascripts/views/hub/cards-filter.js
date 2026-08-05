@@ -8,6 +8,7 @@ var CarrouselData = function (sec, rows) {
   this.maxColumn = 1
   this.nro = 1
   this.filters = {}
+  this.filterWords = ''
   this.isEmpty
   this.maxRow = rows
   this.sectionTag = sec
@@ -41,6 +42,7 @@ CarrouselData.prototype.addFilter = function (nameFilter) {
 
 CarrouselData.prototype.resetFilters = function () {
   this.filters = {}
+  this.filterWords = ''
   this.filterChildren()
 }
 
@@ -106,59 +108,16 @@ CarrouselData.prototype.setFilterStatus = function (filterTag, value) {
 }
 
 CarrouselData.prototype.filterKeys = function (handleKey) {
-  const sectionSelector =
-    '.data_section[data-section="' +
-    this.sectionTag +
-    '"] > .cards-section > .card-container'
-
-  const containers = document.querySelectorAll(sectionSelector)
-
-  for (let i = 0; i < containers.length; i++) {
-    const child = containers[i]
-
-    const filterEl = child.querySelector('.filter_data')
-
-    if (this.checkChildFilter(filterEl)) {
-      const text = child.textContent.toLowerCase()
-      const keyword = handleKey.toLowerCase()
-
-      if (text.includes(keyword) || handleKey === '') {
-        child.classList.remove('hide')
-      } else {
-        child.classList.add('hide')
-      }
-    }
-  }
-
-  this.checkEmpty()
+  this.filterWords = handleKey
+  this.filterChildren()
 }
 
-CarrouselData.prototype.checkEmpty = function () {
-  let count = 0
+CarrouselData.prototype.hasWords = function (container) {
+  const search = this.filterWords.trim().toLowerCase()
 
-  const containers = document.querySelectorAll(
-    '.data_section[data-section="' +
-      this.sectionTag +
-      '"] > .cards-section > .card-container'
-  )
+  if (!search.length) return true
 
-  for (let i = 0; i < this.children; i++) {
-    const child = containers[i]
-    if (!child) continue
-
-    const style = window.getComputedStyle(child)
-    const isVisible =
-      style.display !== 'none' &&
-      style.visibility !== 'hidden' &&
-      parseFloat(style.opacity) > 0
-
-    if (!isVisible) {
-      count++
-    }
-  }
-
-  this.isEmpty = count === this.children
-  this.showEmptyLabel()
+  return container.textContent.toLowerCase().includes(search)
 }
 
 CarrouselData.prototype.filterChildren = function () {
@@ -180,7 +139,7 @@ CarrouselData.prototype.filterChildren = function () {
 
     const filterEl = child.querySelector('.filter_data')
 
-    if (this.checkChildFilter(filterEl)) {
+    if (this.checkChildFilter(filterEl) && this.hasWords(child)) {
       child.classList.remove('hide')
       find++
     } else {

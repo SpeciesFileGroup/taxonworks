@@ -70,9 +70,9 @@
       border-radius: var(--border-radius-medium);
       background-color: var(--input-bg-color);
       background-image: image-url('search.svg');
-      background-size: 16px;
+      background-size: 20px;
       background-repeat: no-repeat;
-      background-position: left var(--spacing-sm) center;
+      background-position: left var(--spacing-xs) center;
       font-size: var(--font-size-sm);
     }
 
@@ -84,9 +84,9 @@
         margin-top: 0;
       }
       font-size: var(--font-size-xs);
-      font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.05em;
+      font-weight: 400;
       color: var(--text-muted-color);
     }
 
@@ -94,12 +94,8 @@
       margin: 0;
       display: flex;
       flex-direction: column;
-      gap: var(--spacing-xxs);
     }
 
-    /* Two grammars, split by what the control is rather than by accident: scope
-       and status are short groups of toggles and share the chip shape below; the
-       long, countable category list keeps the icon-and-count row shape. */
     .filter-scope {
       margin: 0;
       display: grid;
@@ -164,16 +160,11 @@
     .scope-chip {
       display: inline-flex;
       align-items: center;
-      justify-content: center;
       gap: var(--spacing-xs);
       padding: var(--spacing-xs) var(--spacing-sm);
       border: 1px solid var(--border-color);
-      border-radius: var(--border-radius-small);
+      border-radius: var(--border-radius-medium);
       background-color: transparent;
-      /* Unselected reads at full strength: the selected state already carries a
-         fill, a tinted border and primary text, so dimming the rest only made
-         the panel hard to read (and washed out the status dots, whose colour is
-         the actual data). Hover moves the background, not the opacity. */
       color: var(--text-color);
       line-height: 1;
       cursor: pointer;
@@ -196,11 +187,14 @@
       color: var(--color-primary);
     }
 
-    /* Three across a 260px panel: the status chips' 12px side padding would push
-       "Filters" past its column, so scope trims to 8px. */
     .scope-chip {
       min-width: 0;
+      justify-content: center;
       padding: var(--spacing-xs);
+    }
+
+    .status-chip {
+      justify-content: flex-start;
     }
 
     .status-chip .status {
@@ -209,6 +203,7 @@
       height: 8px;
       border-radius: 50%;
       pointer-events: none;
+      opacity: 0.7;
     }
 
     .activated {

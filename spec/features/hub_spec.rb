@@ -33,10 +33,6 @@ describe 'Hub', type: :feature do
         end
       end
 
-      # The scope categories are only ever applied to task cards; nothing in
-      # config/interface/hub/data.yml declares them. Rendering the group over a
-      # list of data cards gives the user three controls whose only possible
-      # effect is to empty the grid.
       specify 'the panel carries a card header' do
         expect(page).to have_css('#filter .filter-card > .tw-card-header .tw-card-title',
                                  text: 'Filters', visible: :all)
@@ -52,6 +48,10 @@ describe 'Hub', type: :feature do
         expect(page).to have_no_css('#filter .search-row .reset', visible: :all)
       end
 
+      # The scope categories are only ever applied to task cards; nothing in
+      # config/interface/hub/data.yml declares them. Rendering the group over a
+      # list of data cards gives the user three controls whose only possible
+      # effect is to empty the grid.
       specify 'the scope group renders over a list of task cards' do
         expect(page).to have_css('#filter .filter-scope', visible: :all)
       end
@@ -88,6 +88,30 @@ describe 'Hub', type: :feature do
             visible: :all
           )
         end
+      end
+    end
+
+    context 'empty states' do
+      # Both are rendered hidden and revealed by JS: `.no-tasks` by `.show`
+      # (display: flex), the data sections by `.d-block` (display: block). The
+      # markup has to keep those hooks on the outer element.
+      specify 'the task carrousel has one, keyed by .no-tasks' do
+        expect(page).to have_css('#task_carrousel .no-tasks .hub-empty-state-message',
+                                 text: 'No tasks found', visible: :all)
+      end
+
+      specify 'each data section has one, keyed by data-attribute=empty' do
+        visit hub_path(list: 'data')
+
+        expect(page).to have_css(
+          "#data_cards [data-section] [data-attribute='empty'] .hub-empty-state-message",
+          text: 'None', visible: :all
+        )
+      end
+
+      specify 'they use a paragraph, not a heading' do
+        expect(page).to have_no_css('#task_carrousel .no-tasks h1', visible: :all)
+        expect(page).to have_css('p.hub-empty-state-message', visible: :all)
       end
     end
 

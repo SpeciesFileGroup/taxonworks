@@ -18,8 +18,11 @@
           <%= s -%>
         </h3>
       </div>
-      <div data-attribute="empty" class="subtle center_text">
-        <h1>None</h1>
+      <div data-attribute="empty" role="status">
+        <div class="hub-empty-state">
+          <%= icon('file-search', size: 28, class: 'hub-empty-state-icon') %>
+          <p class="hub-empty-state-message">None</p>
+        </div>
         <div class="reset-all-filters">
           <div class="restart-background"></div>
           <h1>Reset</h1>

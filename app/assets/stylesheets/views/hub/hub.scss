@@ -7,6 +7,39 @@
     text-decoration: none;
   }
 
+  h1 {
+    font-weight: 300;
+  }
+
+  h2 {
+    font-weight: 300;
+  }
+
+  h3 {
+    font-weight: 300;
+  }
+
+  .hub-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-sm);
+    width: fit-content;
+    margin-inline: auto;
+    padding: var(--spacing-2xl) var(--spacing-md);
+    color: var(--text-muted-color);
+  }
+
+  .hub-empty-state-icon {
+    opacity: 0.5;
+  }
+
+  .hub-empty-state-message {
+    margin: 0;
+    font-size: var(--font-size-base);
+    font-weight: 500;
+  }
+
   .reset-all-filters {
     display: none;
     opacity: 0.5;
