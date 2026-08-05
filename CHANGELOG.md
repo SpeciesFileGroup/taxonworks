@@ -7,7 +7,9 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ## [unreleased]
 
-\-
+### Added
+
+- raw id search for Biological Association autocompletes
 
 ## [0.64.0] - 2026-08-04
 
