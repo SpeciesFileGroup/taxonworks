@@ -146,10 +146,6 @@ function setLockAll() {
     flex-grow: 2;
   }
 
-  .otu_tag_taxon_name {
-    white-space: pre-wrap !important;
-  }
-
   textarea {
     resize: vertical;
   }

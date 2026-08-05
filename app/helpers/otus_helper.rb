@@ -64,11 +64,21 @@ module OtusHelper
     ].compact.join(': ')
   end
 
+  # @return [Array<Symbol>]
+  #   the classes for the scientific name element, encoding nomenclatural
+  #   status. Mirrors TaxonNamesHelper#taxon_name_type_short_tag so that the
+  #   element and the status mark rendered beside it never disagree.
+  def otu_tag_taxon_name_css_classes(taxon_name)
+    css_classes = [:otu_tag_taxon_name]
+    return css_classes if taxon_name.nil? || taxon_name.is_valid?
+    css_classes.push(taxon_name.is_combination? ? :otu_tag_taxon_name_combination : :otu_tag_taxon_name_invalid)
+  end
+
   def otu_tag_elements(otu)
     return nil if otu.nil?
     [
-      ( otu.taxon_name ? tag.span(full_taxon_name_tag(otu.taxon_name).html_safe, class: :otu_tag_taxon_name, title: otu.taxon_name.id) : nil),
-      ( otu.name ? content_tag(:span, otu.name, class: :otu_tag_otu_name, title: otu.id) : nil )
+      ( otu.taxon_name ? tag.span(full_taxon_name_tag(otu.taxon_name).html_safe, class: otu_tag_taxon_name_css_classes(otu.taxon_name), title: "Taxon name ID: #{otu.taxon_name.id}", data: {taxon_name_id: otu.taxon_name.id}) : nil),
+      ( otu.name ? content_tag(:span, otu.name, class: :otu_tag_otu_name, title: "OTU ID: #{otu.id}", data: {otu_id: otu.id}) : nil )
     ].compact
   end
 
@@ -77,7 +87,7 @@ module OtusHelper
     if target.kind_of?(Otu)
       t = otu_tag(target)
     else # TaxonName
-      a = [ tag.span( full_taxon_name_tag(target).html_safe, class: :otu_tag_taxon_name, title: target.id) ]
+      a = [ tag.span( full_taxon_name_tag(target).html_safe, class: otu_tag_taxon_name_css_classes(target), title: "Taxon name ID: #{target.id}", data: {taxon_name_id: target.id}) ]
       a.push taxon_name_type_short_tag(target)
       t = tag.span( a.compact.join(' ').html_safe, class: :otu_tag )
     end

@@ -4,7 +4,14 @@ describe OtusHelper, type: :helper do
   let(:otu) { FactoryBot.create(:valid_otu, name: 'voluptas') }
 
   specify '#otu_tag' do
-    expect(helper.otu_tag(otu)).to eq(%(<span class="otu_tag"><span class="otu_tag_otu_name" title="#{otu.id}">voluptas</span></span>))
+    expect(helper.otu_tag(otu)).to eq(%(<span class="otu_tag"><span class="otu_tag_otu_name" title="OTU ID: #{otu.id}" data-otu-id="#{otu.id}">voluptas</span></span>))
+  end
+
+  specify '#otu_tag says which record each id belongs to' do
+    taxon_name = FactoryBot.create(:relationship_species)
+    named_otu = Otu.create!(taxon_name:, name: 'voluptas')
+
+    expect(helper.otu_tag(named_otu)).to include(%(title="Taxon name ID: #{taxon_name.id}"), %(title="OTU ID: #{named_otu.id}"))
   end
 
   specify '#otu_tag includes the authorship string of a linked taxon name' do
@@ -21,6 +28,32 @@ describe OtusHelper, type: :helper do
     named_otu = Otu.create!(taxon_name:)
 
     expect(helper.otu_autoselect_tag(named_otu)).to eq('Aus bus (Linnaeus, 1758)')
+  end
+
+  describe '#otu_tag_taxon_name_css_classes' do
+    specify 'a valid name gets the neutral element only' do
+      taxon_name = FactoryBot.create(:relationship_species)
+      expect(helper.otu_tag_taxon_name_css_classes(taxon_name)).to eq([:otu_tag_taxon_name])
+    end
+
+    specify 'a synonym is marked invalid' do
+      junior_taxon_name = FactoryBot.create(:relationship_species)
+      senior_taxon_name = FactoryBot.create(:relationship_species)
+      TaxonNameRelationship.create!(subject_taxon_name: junior_taxon_name,
+        object_taxon_name: senior_taxon_name,
+        type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
+
+      expect(helper.otu_tag_taxon_name_css_classes(junior_taxon_name.reload)).to include(:otu_tag_taxon_name_invalid)
+    end
+
+    specify 'a combination is marked as such, not as invalid' do
+      combination = FactoryBot.create(:valid_combination)
+      expect(helper.otu_tag_taxon_name_css_classes(combination)).to eq([:otu_tag_taxon_name, :otu_tag_taxon_name_combination])
+    end
+
+    specify 'no taxon name gets the neutral element only' do
+      expect(helper.otu_tag_taxon_name_css_classes(nil)).to eq([:otu_tag_taxon_name])
+    end
   end
 
   specify '#otu_link' do

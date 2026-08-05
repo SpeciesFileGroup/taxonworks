@@ -228,10 +228,6 @@ export default {
     text-align: left;
   }
 
-  .otu_tag_taxon_name {
-    white-space: normal;
-  }
-
   .ellipsis {
     white-space: nowrap;
     overflow: hidden;

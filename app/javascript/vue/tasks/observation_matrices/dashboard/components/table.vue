@@ -305,11 +305,13 @@ export default {
           <span class="otu_tag">
             <span
               class="otu_tag_otu_name"
-              title="${row.otu_id}">${row.otu_name || ''}
-            </span> 
+              data-otu-id="${row.otu_id}"
+              title="OTU ID: ${row.otu_id}">${row.otu_name || ''}
+            </span>
             <span
-              class="otu_tag_taxon_name" 
-              title="${row.taxon_name_id}"
+              class="otu_tag_taxon_name ${row.cached_is_valid ? '' : 'otu_tag_taxon_name_invalid'}"
+              data-taxon-name-id="${row.taxon_name_id}"
+              title="Taxon name ID: ${row.taxon_name_id}"
             >
               <i>${row.cached}</i> ${row.cached_author_year || ''}
             </span> ${this.getValidMark(row.cached_is_valid)}

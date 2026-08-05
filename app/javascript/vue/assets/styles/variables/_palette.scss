@@ -167,6 +167,21 @@
     transparent
   );
   --otu-tag-color: var(--text-color);
+  --otu-tag-invalid-bg: color-mix(
+    in srgb,
+    var(--taxon-name-invalid-color) 12%,
+    transparent
+  );
+  --otu-tag-invalid-border-color: color-mix(
+    in srgb,
+    var(--taxon-name-invalid-color) 32%,
+    transparent
+  );
+  --otu-tag-invalid-color: color-mix(
+    in srgb,
+    var(--taxon-name-invalid-color) 78%,
+    black
+  );
 
   --color-accent: #1f7e9a;
 
@@ -285,6 +300,18 @@
     var(--color-neutral) 26%,
     transparent
   );
+  --otu-tag-invalid-bg: color-mix(
+    in srgb,
+    var(--taxon-name-invalid-color) 16%,
+    transparent
+  );
+  --otu-tag-invalid-border-color: color-mix(
+    in srgb,
+    var(--taxon-name-invalid-color) 38%,
+    transparent
+  );
+
+  --otu-tag-invalid-color: var(--taxon-name-invalid-color);
 
   --color-soft-success-bg: color-mix(
     in srgb,

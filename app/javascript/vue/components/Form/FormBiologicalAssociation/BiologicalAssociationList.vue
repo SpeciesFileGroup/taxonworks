@@ -96,8 +96,3 @@ function getRelationshipString(item) {
   return item.relationship.name || item.relationship.object_label
 }
 </script>
-<style lang="scss" scoped>
-:deep(.otu_tag_taxon_name) {
-  white-space: normal !important;
-}
-</style>
