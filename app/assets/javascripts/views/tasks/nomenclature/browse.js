@@ -20,10 +20,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
         ? `/tasks/nomenclature/new_combination?taxon_name_id=${taxonId}`
         : `/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxonId}`
 
-    if (
-      !document.querySelector('#browse-collection-object') &&
-      /^\d+$/.test(taxonId)
-    ) {
+    if (/^\d+$/.test(taxonId)) {
       TW.workbench.keyboard.createShortcut(
         platformKey + '+t',
         'Edit taxon name',

@@ -1,15 +1,5 @@
+// Shared band layout comes from `.browse-record-title` in `views/tasks/browse.scss`.
 #browse-nomenclature-taxon-name {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  border-top-left-radius: var(--border-radius-medium);
-  border-top-right-radius: var(--border-radius-medium);
-
-  h3 {
-    flex: 1;
-  }
-
   #browseFilter {
     position: absolute;
     right: var(--spacing-md);
@@ -49,11 +39,6 @@
 }
 
 .browse-view {
-  .switch-radio label {
-    width: 100%;
-    min-width: auto;
-  }
-
   #vue-browse-validation-panel {
     .soft-validation-box {
       height: 100%;
@@ -65,41 +50,21 @@
     z-index: 1098;
   }
 
-  .nav-column {
-    width: 400px;
-    min-width: 400px;
-    bottom: 0px;
-    max-height: calc(100vh - 190px);
+  .nav-column .tw-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+
+    #show_taxon_name_hierarchy {
+      flex: 1;
+      min-height: 0;
+    }
   }
 
   .citations {
     word-break: break-word;
   }
 
-  #third-column {
-    max-width: 400px;
-  }
-  .name {
-    font-size: 18px;
-    color: var(--text-color);
-  }
-
-  .ui-autocomplete {
-    width: 500px;
-    white-space: normal;
-  }
-  .ui-autocomplete-input {
-    box-sizing: border-box !important;
-    min-width: 300px !important;
-    max-width: 300px !important;
-  }
-
-  @media screen and (min-width: 980px) {
-    .ui-autocomplete {
-      width: auto;
-      white-space: nowrap;
-    }
-  }
   .soft_validation_anchor {
     cursor: pointer;
     margin-left: 5px;

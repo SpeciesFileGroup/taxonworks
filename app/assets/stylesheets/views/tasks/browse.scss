@@ -1,0 +1,58 @@
+// Layout shared by every Browse task (`.browse-view`): Browse taxon names and
+// Browse collecting events. Anything specific to one of them belongs in that
+// task's own stylesheet.
+.browse-view {
+  .nav-column {
+    width: 400px;
+    min-width: 400px;
+    bottom: 0px;
+    max-height: calc(100vh - 190px);
+  }
+
+  #third-column {
+    max-width: 400px;
+  }
+
+  .name {
+    font-size: 18px;
+    color: var(--text-color);
+  }
+
+  // The band naming the record being browsed, at the top of the main column.
+  .browse-record-title {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    border-top-left-radius: var(--border-radius-medium);
+    border-top-right-radius: var(--border-radius-medium);
+
+    h3 {
+      flex: 1;
+    }
+  }
+
+  // Radials open over both browse tasks.
+  .switch-radio label {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .ui-autocomplete {
+    width: 500px;
+    white-space: normal;
+  }
+
+  .ui-autocomplete-input {
+    box-sizing: border-box !important;
+    min-width: 300px !important;
+    max-width: 300px !important;
+  }
+
+  @media screen and (min-width: 980px) {
+    .ui-autocomplete {
+      width: auto;
+      white-space: nowrap;
+    }
+  }
+}

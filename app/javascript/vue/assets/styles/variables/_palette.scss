@@ -222,7 +222,8 @@
   --panel-shadow: 0 4px 12px 0 color-mix(in srgb, #01040a 30%, transparent);
   --panel-shadow-hover: 0 8px 20px 0
     color-mix(in srgb, #01040a 45%, transparent);
-  --panel-border-color: #21262d;
+
+  --panel-border-color: #2a3038;
   /* Elevation layer 3: lighter than --panel-bg-color so a menu opened over a
      card still reads as floating above it. */
   --bg-overlay: #252c35;

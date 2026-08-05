@@ -1,0 +1,39 @@
+// Shared browse layout lives in `views/tasks/browse.scss`; this file only holds
+// what differs from Browse taxon names.
+#browse-collecting-event {
+  // The left column carries the Navigate card alone, so it does not need the
+  // 400px the taxon name hierarchy does.
+  .nav-column {
+    width: 280px;
+    min-width: 280px;
+  }
+
+  // Without this the Darwin Core table, which is far wider than the viewport,
+  // sets the column's width and pushes the page sideways.
+  .main-column {
+    min-width: 0;
+  }
+
+  #browse-collecting-event-navbar {
+    z-index: 1098;
+  }
+
+  // The table scrolls inside its own card rather than the page body.
+  #dwc-panel .tw-card-body {
+    overflow-x: auto;
+  }
+
+  #otus-panel ul {
+    margin: 0;
+  }
+
+  // `.panel h3` in base/panels.scss is more specific than `.tw-section-title`
+  // and flattens the space between sections; restore it here.
+  .tw-section-title {
+    margin-top: var(--spacing-lg);
+
+    &:first-child {
+      margin-top: 0;
+    }
+  }
+}
