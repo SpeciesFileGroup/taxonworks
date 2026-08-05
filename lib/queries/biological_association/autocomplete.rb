@@ -22,18 +22,20 @@ module Queries
         e = Queries::AnatomicalPart::Autocomplete
           .new(query_string, project_id: project_id).updated_queries
 
-        return [] if a.nil? && b.nil? && c.nil? && d.nil? && e.nil?
+        updated_queries = [autocomplete_exact_id].compact
 
-        updated_queries = []
-        j = base_query
-          .joins("JOIN otus ON biological_associations.biological_association_subject_id = otus.id AND biological_associations.biological_association_subject_type = 'Otu'")
-          .where(otus: { id: a.limit(50).pluck(:id) })
-        updated_queries << j
+        a_ids = a.limit(50).pluck(:id)
+        unless a_ids.empty?
+          j = base_query
+            .joins("JOIN otus ON biological_associations.biological_association_subject_id = otus.id AND biological_associations.biological_association_subject_type = 'Otu'")
+            .where(otus: { id: a_ids })
+          updated_queries << j
 
-        j = base_query
-          .joins("JOIN otus ON biological_associations.biological_association_object_id = otus.id AND biological_associations.biological_association_object_type = 'Otu'")
-          .where(otus: { id: a.limit(50).pluck(:id) })
-        updated_queries << j
+          j = base_query
+            .joins("JOIN otus ON biological_associations.biological_association_object_id = otus.id AND biological_associations.biological_association_object_type = 'Otu'")
+            .where(otus: { id: a_ids })
+          updated_queries << j
+        end
 
         b.each do |q|
           j = ::BiologicalAssociation
@@ -63,10 +65,13 @@ module Queries
           updated_queries << j
         end
 
-        j = ::BiologicalAssociation
-          .joins(:biological_relationship)
-          .where(biological_relationship: { id: d.limit(50).pluck(:id) })
-        updated_queries << j
+        d_ids = d.limit(50).pluck(:id)
+        unless d_ids.empty?
+          j = ::BiologicalAssociation
+            .joins(:biological_relationship)
+            .where(biological_relationship: { id: d_ids })
+          updated_queries << j
+        end
 
         e.each do |q|
           j = ::BiologicalAssociation
