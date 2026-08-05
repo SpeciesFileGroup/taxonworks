@@ -23,6 +23,13 @@
       background-color: var(--bg-foreground);
       overflow: hidden;
       min-width: 0;
+      border-radius: var(--border-radius-large);
+    }
+
+    /* .tw-card-header pads to 20px; this panel is only 260px wide and runs its
+       body at 16px, so match it or the title sits off the controls' left edge. */
+    .tw-card-header {
+      padding: var(--spacing-md);
     }
 
     .filter-body {
@@ -31,23 +38,26 @@
       padding: var(--spacing-md);
     }
 
+    /* Kept as a flex row so the input still fills the panel on its own. */
     .search-row {
       display: flex;
       align-items: center;
       gap: var(--spacing-xs);
       padding: 0;
+    }
 
-      .reset {
-        display: inline-flex;
-        flex-shrink: 0;
-        align-items: center;
-        justify-content: center;
-        width: var(--size-large);
-        height: var(--size-large);
-        padding: 0;
-        border-radius: var(--border-radius-medium);
-        color: var(--text-muted-color);
-      }
+    /* Reset clears every filter, not just the search box, so it lives in the
+       header actions rather than inside the search row. */
+    .reset {
+      display: inline-flex;
+      flex-shrink: 0;
+      align-items: center;
+      justify-content: center;
+      width: var(--size-large);
+      height: var(--size-large);
+      padding: 0;
+      border-radius: var(--border-radius-medium);
+      color: var(--text-muted-color);
     }
 
     #search-filter {
@@ -87,33 +97,14 @@
       gap: var(--spacing-xxs);
     }
 
-    .navigation-controls-type {
-      gap: var(--spacing-xxs);
-      margin-bottom: var(--spacing-xs);
-      padding: var(--spacing-xxs);
-      border-radius: var(--border-radius-medium);
-      background-color: var(--bg-color);
-
-      .navigation-item {
-        flex: 1 1 0;
-        min-width: 0;
-        justify-content: center;
-        border-radius: var(--border-radius-small);
-        padding: var(--spacing-xxs);
-        color: var(--text-muted-color);
-      }
-
-      .navigation-item:hover {
-        background-color: transparent;
-        color: var(--text-color);
-      }
-
-      .navigation-item.activated {
-        background-color: var(--color-soft-primary-bg) !important;
-        border-radius: var(--border-radius-small);
-        color: var(--color-primary);
-        font-weight: 500;
-      }
+    /* Two grammars, split by what the control is rather than by accident: scope
+       and status are short groups of toggles and share the chip shape below; the
+       long, countable category list keeps the icon-and-count row shape. */
+    .filter-scope {
+      margin: 0;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--spacing-xs);
     }
 
     .navigation-item {
@@ -169,7 +160,8 @@
       gap: var(--spacing-xs);
     }
 
-    .status-chip {
+    .status-chip,
+    .scope-chip {
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -178,27 +170,37 @@
       border: 1px solid var(--border-color);
       border-radius: var(--border-radius-small);
       background-color: transparent;
-      color: var(--text-muted-color);
+      /* Unselected reads at full strength: the selected state already carries a
+         fill, a tinted border and primary text, so dimming the rest only made
+         the panel hard to read (and washed out the status dots, whose colour is
+         the actual data). Hover moves the background, not the opacity. */
+      color: var(--text-color);
       line-height: 1;
       cursor: pointer;
-      opacity: 0.6;
       font-size: var(--font-size-sm);
       transition:
-        opacity 0.15s ease,
         background-color 0.15s ease,
         border-color 0.15s ease,
         color 0.15s ease;
     }
 
-    .status-chip:hover {
-      opacity: 1;
+    .status-chip:hover,
+    .scope-chip:hover {
+      background-color: var(--bg-hover);
     }
 
-    .status-chip.selected {
-      opacity: 1;
+    .status-chip.selected,
+    .scope-chip.activated {
       background-color: var(--color-soft-primary-bg);
       border-color: color-mix(in srgb, var(--color-primary) 35%, transparent);
       color: var(--color-primary);
+    }
+
+    /* Three across a 260px panel: the status chips' 12px side padding would push
+       "Filters" past its column, so scope trims to 8px. */
+    .scope-chip {
+      min-width: 0;
+      padding: var(--spacing-xs);
     }
 
     .status-chip .status {

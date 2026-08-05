@@ -1,21 +1,39 @@
+<%# The scope group (Filters/Browse/New) only means something over task cards:
+    those categories are assigned in UserTasks, and nothing in
+    config/interface/hub/data.yml declares them. Callers rendering data cards
+    pass `show_scope_filter: false` so the group is not offered where its only
+    possible effect is to empty the grid. -%>
+<% show_scope_filter = local_assigns.fetch(:show_scope_filter, true) -%>
 <div id="filter">
   <div class="flexbox">
     <div class="item item2">
       <div class="panel tw-card filter-card">
-        <div class="filter-body">
-          <div class="search-row">
-            <input type="text" placeholder="Search by title..." class="item mousetrap" id="search-filter" autocomplete="off" autofocus="true" data-help="Filter cards that contain the provided text in the title.">
+        <div class="tw-card-header">
+          <span class="card-icon-chip">
+            <%= icon('sliders') %>
+          </span>
+          <h2 class="tw-card-title">Filters</h2>
+          <div class="tw-card-header-actions">
             <button type="button" class="button btn-outline reset" data-filter-category="reset" data-tooltip-content="Clear all filters" data-tooltip-placement="bottom" aria-label="Clear all filters">
               <%= icon('rotate-ccw') %>
             </button>
           </div>
+        </div>
+        <div class="filter-body">
+          <div class="search-row">
+            <input type="text" placeholder="Search by title..." class="item mousetrap" id="search-filter" autocomplete="off" autofocus="true" data-help="Filter cards that contain the provided text in the title.">
+          </div>
+
+          <% if show_scope_filter -%>
+            <span class="filter-title" data-help="Show only cards that do one kind of thing. Only one can be active at a time.">Show</span>
+            <div class="navigation-controls navigation-controls-type filter-scope">
+              <div data-filter-category="filters" data-favorite="true" class="navigation-item scope-chip">Filters</div>
+              <div data-filter-category="browse" data-favorite="true" class="navigation-item scope-chip">Browse</div>
+              <div data-filter-category="new" data-favorite="true" class="navigation-item scope-chip">New</div>
+            </div>
+          <% end -%>
 
           <span class="filter-title" data-help="Filter cards by category.">Categories</span>
-          <div class="navigation-controls navigation-controls-type">
-            <div data-filter-category="filters" data-favorite="true" class="navigation-item">Filters</div>
-            <div data-filter-category="browse" data-favorite="true" class="navigation-item">Browse</div>
-            <div data-filter-category="new" data-favorite="true" class="navigation-item">New</div>
-          </div>
           <div class="navigation-controls flex-wrap-row">
             <% UserTasks::CATEGORIES.each do |c| -%>
               <%= content_tag(:div, 'data-filter-category' => c, 'data-favorite' => true, 'class' => 'navigation-item') do -%>

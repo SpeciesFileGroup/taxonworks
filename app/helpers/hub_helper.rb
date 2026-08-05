@@ -23,6 +23,14 @@ module HubHelper
     }
   end
 
+  # @return [Array]
+  #   the task prefixes the current user has favorited in this project
+  def hub_favorite_tasks
+    return [] unless has_hub_favorites?
+
+    sessions_current_user.hub_favorites[sessions_current_project_id.to_s]['tasks'] || []
+  end
+
   def hub_json
     return  {
       tasks: UserTasks.hub_tasks.inject([]){|ary, t| ary.push(t.to_h.merge(path: send(t.path))) ; ary},
