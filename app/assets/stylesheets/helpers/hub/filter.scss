@@ -89,7 +89,7 @@
 
     .navigation-controls-type {
       gap: var(--spacing-xxs);
-      margin-bottom: var(--spacing-sm);
+      margin-bottom: var(--spacing-xs);
       padding: var(--spacing-xxs);
       border-radius: var(--border-radius-medium);
       background-color: var(--bg-color);
@@ -99,7 +99,7 @@
         min-width: 0;
         justify-content: center;
         border-radius: var(--border-radius-small);
-        padding: var(--spacing-xs);
+        padding: var(--spacing-xxs);
         color: var(--text-muted-color);
       }
 
@@ -121,7 +121,7 @@
       box-sizing: border-box;
       width: 100%;
       justify-content: flex-start;
-      border-radius: var(--border-radius-small);
+      border-radius: var(--border-radius-medium);
     }
 
     .flex-wrap-row .navigation-item {
@@ -216,10 +216,7 @@
     }
 
     [data-filter-category] {
-      gap: 0.5rem;
-      img {
-        opacity: 0.8;
-      }
+      gap: var(--spacing-sm);
     }
 
     .flexbox {

@@ -27,18 +27,17 @@
           />
         </template>
       </SmartSelector>
-      <hr class="divisor margin-medium-top margin-medium-bottom" />
-      <div
-        class="flex-wrap-row"
-        v-if="storeDepiction.depictions.length"
-      >
-        <DepictionImage
-          v-for="item in storeDepiction.depictions"
-          :key="item.id"
-          :depiction="item"
-          @delete="removeDepiction"
-        />
-      </div>
+      <template v-if="storeDepiction.depictions.length">
+        <hr class="divisor margin-medium-top margin-medium-bottom" />
+        <div class="flex-wrap-row">
+          <DepictionImage
+            v-for="item in storeDepiction.depictions"
+            :key="item.id"
+            :depiction="item"
+            @delete="removeDepiction"
+          />
+        </div>
+      </template>
     </fieldset>
     <table
       v-if="store.exifGeoreferences.length"

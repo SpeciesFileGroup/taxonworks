@@ -160,6 +160,14 @@
   --badge-purple-bg: color-mix(in srgb, var(--violet-500) 15%, transparent);
   --badge-purple-color: var(--violet-700);
 
+  --otu-tag-bg: color-mix(in srgb, var(--color-neutral) 12%, transparent);
+  --otu-tag-border-color: color-mix(
+    in srgb,
+    var(--color-neutral) 22%,
+    transparent
+  );
+  --otu-tag-color: var(--text-color);
+
   --color-accent: #1f7e9a;
 
   --news-blogpost-bg: var(--badge-blue-bg);
@@ -270,6 +278,13 @@
   --badge-purple-color: var(--violet-400);
   --badge-warning-color: var(--red-400);
   --badge-default-color: var(--color-neutral);
+
+  --otu-tag-bg: color-mix(in srgb, var(--color-neutral) 16%, transparent);
+  --otu-tag-border-color: color-mix(
+    in srgb,
+    var(--color-neutral) 26%,
+    transparent
+  );
 
   --color-soft-success-bg: color-mix(
     in srgb,
