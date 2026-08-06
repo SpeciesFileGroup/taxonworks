@@ -2,7 +2,7 @@
   <div>
     <div class="panel separate-bottom">
       <div class="content header">
-        <h3
+        <div
           v-if="store.taxonName?.id"
           class="flex-separate middle"
         >
@@ -12,10 +12,8 @@
           >
             <span v-html="taxonNameAndAuthor" />
           </a>
-          <div>
-            <div
-              class="horizontal-right-content margin-small-bottom gap-xsmall"
-            >
+          <div class="flex-col gap-small">
+            <div class="flex-row gap-small">
               <VIcon
                 v-if="store.hasUnsavedChanges"
                 name="attention"
@@ -30,7 +28,7 @@
               <RadialAnnotator :global-id="store.taxonName.global_id" />
               <RadialObject :global-id="store.taxonName.global_id" />
             </div>
-            <div class="horizontal-right-content gap-xsmall">
+            <div class="flex-row gap-small">
               <VBtn
                 icon
                 variant="tonal"
@@ -54,7 +52,7 @@
               </VBtn>
             </div>
           </div>
-        </h3>
+        </div>
         <span
           v-if="store.typeMaterial.id"
           v-html="store.typeMaterial.label"

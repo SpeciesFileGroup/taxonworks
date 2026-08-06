@@ -1,27 +1,62 @@
 <template>
-  <div :class="['v-badge', colorClass]">
+  <div :class="['v-badge', colorClass, radiusClass]">
     <slot />
   </div>
 </template>
 <script setup>
 import { computed } from 'vue'
 
+defineOptions({ name: 'VBadge' })
+
 const props = defineProps({
   color: {
     type: String,
     default: 'default'
+  },
+
+  radius: {
+    type: String,
+    default: 'xsmall',
+    validator: (value) =>
+      ['none', 'xsmall', 'small', 'medium', 'large', 'full'].includes(value)
   }
 })
 
 const colorClass = computed(() => `v-badge--${props.color}`)
+
+const radiusClass = computed(() => `v-badge--radius-${props.radius}`)
 </script>
 
 <style>
 .v-badge {
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
+  padding: var(--spacing-xxs) var(--spacing-xs);
+  border-radius: var(--border-radius-xsmall);
+  font-size: var(--font-size-xs);
   width: min-content;
+}
+
+.v-badge--radius-none {
+  border-radius: 0;
+}
+
+.v-badge--radius-xsmall {
+  border-radius: var(--border-radius-xsmall);
+}
+
+.v-badge--radius-small {
+  border-radius: var(--border-radius-small);
+}
+
+.v-badge--radius-medium {
+  border-radius: var(--border-radius-medium);
+}
+
+.v-badge--radius-large {
+  border-radius: var(--border-radius-large);
+}
+
+.v-badge--radius-full {
+  border-radius: 9999px;
 }
 
 .v-badge--default {

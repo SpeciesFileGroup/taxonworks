@@ -380,7 +380,7 @@ module TaxonNamesHelper
     if link_object.nil?
       content_tag(:div, content_tag(:span, text), class:  'navigation-item disable')
     else
-      link_to(text, taxon_name_link_path(link_object, path), title: taxon_name_tag(link_object), class: 'navigation-item', data: { button: 'next' })
+      link_to(text, taxon_name_link_path(link_object, path), class: 'navigation-item', data: { button: 'next', 'tooltip-content': taxon_name_tag(link_object), 'tooltip-html': 'true' })
     end
   end
 
@@ -391,20 +391,22 @@ module TaxonNamesHelper
     if link_object.nil?
       content_tag(:div, content_tag(:span, text), class: 'navigation-item disable')
     else
-      link_to(text, taxon_name_link_path(link_object, path), class: 'navigation-item', data: { button: 'back' })
+      link_to(text, taxon_name_link_path(link_object, path), class: 'navigation-item', data: { button: 'back', 'tooltip-content': taxon_name_tag(link_object), 'tooltip-html': 'true' })
     end
   end
 
   def taxon_name_otus_links(taxon_name)
     if taxon_name.otus.load.any?
-      ('The following Otus are linked to this name: ' +
-       content_tag(:ul, class: 'no_bullets') do
-         taxon_name.otus.each do |o|
-           concat(content_tag(:li, otu_link(o) ))
-         end
-       end.html_safe).html_safe
+      content_tag(:div, class: 'margin-medium-top') do
+        ('The following OTUs are linked to this name: ' +
+         content_tag(:ul, class: 'no_bullets') do
+           taxon_name.otus.each do |o|
+             concat(content_tag(:li, otu_link(o) ))
+           end
+         end.html_safe).html_safe
+      end
     else
-      content_tag(:em, 'There are no Otus linked to this name.')
+      content_tag(:em, 'There are no OTUs linked to this name.')
     end
   end
 

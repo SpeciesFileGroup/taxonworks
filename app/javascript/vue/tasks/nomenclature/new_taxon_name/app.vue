@@ -3,73 +3,53 @@
     id="app-new-taxon-name"
     class="container-xl"
   >
-    <div class="flex-separate middle">
-      <h1>{{ taxon.id ? 'Edit' : 'New' }} taxon name</h1>
-      <div class="horizontal-right-content middle">
-        <autocomplete
-          v-if="!taxon.id"
-          class="autocomplete-search-bar"
-          url="/taxon_names/autocomplete"
-          param="term"
-          :add-params="{ 'type[]': 'Protonym' }"
-          label="label_html"
-          placeholder="Search a taxon name..."
-          clear-after
-          @get-item="loadTaxon"
+    <NavHeader @section-clicked="focusSectionComponent" />
+    <div class="flexbox horizontal-center-content align-start">
+      <div class="item full_width">
+        <VSpinner
+          full-screen
+          :legend="isLoading ? 'Loading...' : 'Saving changes...'"
+          :logo-size="{ width: '100px', height: '100px' }"
+          v-if="isLoading"
         />
-      </div>
-    </div>
-    <div>
-      <NavHeader @section-clicked="focusSectionComponent" />
-      <div class="flexbox horizontal-center-content align-start">
-        <div class="item full_width">
-          <VSpinner
-            full-screen
-            :legend="isLoading ? 'Loading...' : 'Saving changes...'"
-            :logo-size="{ width: '100px', height: '100px' }"
-            v-if="isLoading"
+        <template
+          v-for="(
+            { component, title, isAvailableFor }, index
+          ) in SectionComponents"
+          :key="title"
+        >
+          <component
+            v-if="isAvailableFor(taxon)"
+            :ref="
+              (el) => {
+                if (el) sectionRefs[index] = el
+                else delete sectionRefs[index]
+              }
+            "
+            class="margin-medium-bottom"
+            :is="component"
           />
-          <template
-            v-for="(
-              { component, title, isAvailableFor }, index
-            ) in SectionComponents"
-            :key="title"
-          >
-            <component
-              v-if="isAvailableFor(taxon)"
-              :ref="
-                (el) => {
-                  if (el) sectionRefs[index] = el
-                  else delete sectionRefs[index]
-                }
-              "
-              class="margin-medium-bottom"
-              :is="component"
-            />
-          </template>
-        </div>
-        <ColumnRight
-          v-if="taxon.id"
-          class="cright item margin-medium-left"
-          @select-taxon="loadTaxon"
-        />
+        </template>
       </div>
+      <ColumnRight
+        v-if="taxon.id"
+        class="cright item margin-medium-left"
+        @select-taxon="loadTaxon"
+      />
     </div>
   </div>
 </template>
 
 <script setup>
-import Autocomplete from '@/components/ui/Autocomplete'
 import NavHeader from './components/navHeader.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import platformKey from '@/helpers/getPlatformKey'
 import ColumnRight from './components/ColumnRight.vue'
-import { useHotkey, useUserPreference } from '@/composables'
 import { SectionComponents } from './const/components.js'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 import { ActionNames } from './store/actions/actions'
-import { computed, ref, onMounted, watch } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useStore } from 'vuex'
 
 defineOptions({
@@ -78,19 +58,7 @@ defineOptions({
 
 const store = useStore()
 const sectionRefs = {}
-
 const isLoading = ref()
-const shortcuts = ref([
-  {
-    keys: [platformKey(), 'f'],
-    preventDefault: true,
-    handler() {
-      focusSearch()
-    }
-  }
-])
-
-useHotkey(shortcuts.value)
 
 const taxon = computed(() => store.getters[GetterNames.GetTaxon])
 

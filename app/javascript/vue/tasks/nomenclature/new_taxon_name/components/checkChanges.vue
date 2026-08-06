@@ -2,15 +2,11 @@
   <transition name="fade">
     <div
       id="check-unsaved"
-      class="panel content soft-validation-box margin-medium-bottom"
+      class="panel content soft-validation-box"
       v-if="unsavedChanges"
     >
       <div class="horizontal-left-content gap-small middle">
-        <VIcon
-          name="attention"
-          color="attention"
-          small
-        />
+        <IconWarning class="w-4 h-4 text-attention-color" />
         <span v-if="isSaving">Saving... please wait.</span>
         <span v-else>You have unsaved changes.</span>
       </div>
@@ -22,7 +18,7 @@
 import { useStore } from 'vuex'
 import { computed } from 'vue'
 import { GetterNames } from '../store/getters/getters'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconWarning from '@/components/Icon/IconWarning.vue'
 
 const store = useStore()
 

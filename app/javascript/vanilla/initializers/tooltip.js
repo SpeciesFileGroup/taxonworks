@@ -1,4 +1,4 @@
-import { createTooltip } from '../utils/tooltip/createTooltip'
+import { createTooltip } from '../utils/tooltip/createTooltip.js'
 
 const SELECTOR = '[data-tooltip-content]'
 const instances = new WeakMap()
@@ -6,7 +6,8 @@ const instances = new WeakMap()
 function readOptions(el) {
   return {
     content: el.getAttribute('data-tooltip-content') || '',
-    placement: el.getAttribute('data-tooltip-placement') || 'bottom'
+    placement: el.getAttribute('data-tooltip-placement') || 'bottom',
+    html: el.getAttribute('data-tooltip-html') === 'true'
   }
 }
 

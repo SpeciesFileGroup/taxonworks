@@ -90,6 +90,7 @@ function toggleFocus() {
 .empty-focus-container {
   width: 24px;
   height: 24px;
+  margin-right: var(--spacing-xxs);
 }
 
 .button-focus--active {

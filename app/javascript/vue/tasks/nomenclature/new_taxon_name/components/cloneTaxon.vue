@@ -4,6 +4,7 @@
       color="primary"
       :disabled="!taxon.id || isSaving"
       medium
+      variant="tonal"
       @click="() => (isModalVisible = true)"
     >
       Clone

@@ -1,23 +1,41 @@
 <template>
-  <NavBar navbar-class="panel content relative">
+  <NavBar navbar-class="panel content relative rounded-tl-none rounded-tr-none">
     <div class="flex-separate gap-small">
-      <ul class="no_bullets context-menu">
-        <template
-          v-for="({ title, isAvailableFor }, index) in SectionComponents"
-          :key="title"
-        >
-          <li v-if="isAvailableFor(taxon)">
-            <a
-              data-turbolinks="false"
-              :class="{ active: activePosition == index }"
-              @click.prevent="onNavClick(index)"
-              >{{ getTitle(title) }}
-            </a>
-          </li>
-        </template>
-      </ul>
+      <div class="horizontal-left-content middle gap-medium">
+        <AutocompletePopover
+          url="/taxon_names/autocomplete"
+          ref="autocomplete"
+          panel-width="350px"
+          title="Search a taxon name"
+          placeholder="Search a taxon name..."
+          param="term"
+          display="label"
+          label="label_html"
+          :add-params="{ 'type[]': 'Protonym' }"
+          medium
+          variant="tonal"
+          clear-after
+          @select="loadTaxon"
+        />
+        <ul class="no_bullets context-menu text-xs">
+          <template
+            v-for="({ title, isAvailableFor }, index) in SectionComponents"
+            :key="title"
+          >
+            <li v-if="isAvailableFor(taxon)">
+              <a
+                data-turbolinks="false"
+                :class="{ active: activePosition == index }"
+                @click.prevent="onNavClick(index)"
+                >{{ getTitle(title) }}
+              </a>
+            </li>
+          </template>
+        </ul>
+      </div>
       <div class="horizontal-center-content gap-small">
-        <TaskSettings />
+        <SaveTaxonName />
+        <CloneTaxonName v-help.section.navbar.clone />
         <VBtn
           medium
           icon
@@ -43,8 +61,7 @@
           <IconAddSiblingNode class="w-4 h-4" />
         </VBtn>
         <CreateNewButton />
-        <CloneTaxonName v-help.section.navbar.clone />
-        <SaveTaxonName />
+        <TaskSettings />
       </div>
     </div>
     <Autosave
@@ -55,20 +72,23 @@
   </NavBar>
 </template>
 <script setup>
+import { SectionComponents } from '../const/components'
+import { GetterNames } from '../store/getters/getters'
+import { RouteNames } from '@/routes/routes'
+import { computed, ref, useTemplateRef } from 'vue'
+import { useStore } from 'vuex'
+import { useHotkey } from '@/composables'
 import SaveTaxonName from './saveTaxonName.vue'
 import CreateNewButton from './createNewButton.vue'
-import CloneTaxonName from './cloneTaxon'
+import CloneTaxonName from './cloneTaxon.vue'
 import NavBar from '@/components/layout/NavBar'
 import Autosave from './autosave'
 import TaskSettings from './TaskSettings.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import { SectionComponents } from '../const/components'
-import { GetterNames } from '../store/getters/getters'
-import { RouteNames } from '@/routes/routes'
-import { computed, ref } from 'vue'
-import { useStore } from 'vuex'
+import AutocompletePopover from '@/components/ui/Autocomplete/AutocompletePopover.vue'
 import IconAddSiblingNode from '@/components/Icon/IconAddSiblingNode.vue'
 import IconAddChildrenNode from '@/components/Icon/IconAddChildrenNode.vue'
+import platformKey from '@/helpers/getPlatformKey'
 
 const emit = defineEmits(['section-clicked'])
 const store = useStore()
@@ -84,8 +104,21 @@ const parent = computed(() => store.getters[GetterNames.GetParent])
 
 const isAutosaveActive = computed(() => store.getters[GetterNames.GetAutosave])
 const parentId = computed(() => parent.value?.id)
-
 const activePosition = ref(0)
+const autocompleteRef = useTemplateRef('autocomplete')
+
+const shortcuts = ref([
+  {
+    keys: [platformKey(), 'f'],
+    preventDefault: true,
+    handler() {
+      console.log('Entra')
+      autocompleteRef.value?.toggle()
+    }
+  }
+])
+
+useHotkey(shortcuts.value)
 
 function onNavClick(index) {
   activePosition.value = index
@@ -93,19 +126,25 @@ function onNavClick(index) {
 }
 
 function createNew(id) {
-  const url = `${RouteNames.NewTaxonName}?parent_id=${id}`
+  navigateTo(
+    `${RouteNames.NewTaxonName}?parent_id=${id}`,
+    'You have unsaved changes. Are you sure you want to create a new taxon name? All unsaved changes will be lost.'
+  )
+}
 
-  if (unsavedChanges.value) {
-    if (
-      window.confirm(
-        'You have unsaved changes. Are you sure you want to create a new taxon name? All unsaved changes will be lost.'
-      )
-    ) {
-      window.open(url, '_self')
-    }
-  } else {
-    window.open(url, '_self')
+function loadTaxon(taxonName) {
+  navigateTo(
+    `${RouteNames.NewTaxonName}?taxon_name_id=${taxonName.id}`,
+    'You have unsaved changes. Are you sure you want to load another taxon name? All unsaved changes will be lost.'
+  )
+}
+
+function navigateTo(url, confirmationMessage) {
+  if (unsavedChanges.value && !window.confirm(confirmationMessage)) {
+    return
   }
+
+  window.open(url, '_self')
 }
 
 function getTitle(title) {
