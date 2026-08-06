@@ -41,11 +41,29 @@ Object.assign(TW.views.hub.filter, {
       .map((el) => el.getAttribute('data-filter-category'))
       .filter((category) => category && category !== 'reset')
 
-    const items = [
+    const categoryItems = [
       ...filter.querySelectorAll(
         '.flex-wrap-row .navigation-item[data-filter-category]'
       )
     ]
+    const scopeItems = [
+      ...filter.querySelectorAll(
+        '.filter-scope .navigation-item[data-filter-category]'
+      )
+    ]
+    const scopes = scopeItems.map((item) =>
+      item.getAttribute('data-filter-category')
+    )
+
+    this.writeCounts(categoryItems, activeFilters, search)
+    this.writeCounts(
+      scopeItems,
+      activeFilters.filter((category) => !scopes.includes(category)),
+      search
+    )
+  },
+
+  writeCounts(items, activeFilters, search) {
     const categories = items.map((item) =>
       item.getAttribute('data-filter-category')
     )
@@ -176,7 +194,9 @@ Object.assign(TW.views.hub.filter, {
       filters: lucide(
         '<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>'
       ),
-      browse: lucide('<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>'),
+      browse: lucide(
+        '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>'
+      ),
       new: lucide('<path d="M5 12h14"/><path d="M12 5v14"/>')
     }
 

@@ -27,9 +27,11 @@
           <% if show_scope_filter -%>
             <span class="filter-title" data-help="Show only cards that do one kind of thing. Only one can be active at a time.">Show</span>
             <div class="navigation-controls navigation-controls-type filter-scope">
-              <div data-filter-category="filters" data-favorite="true" class="navigation-item scope-chip">Filters</div>
-              <div data-filter-category="browse" data-favorite="true" class="navigation-item scope-chip">Browse</div>
-              <div data-filter-category="new" data-favorite="true" class="navigation-item scope-chip">New</div>
+              <% %w{filters browse new}.each do |scope| -%>
+                <%= content_tag(:div, 'data-filter-category' => scope, 'data-favorite' => true, 'class' => 'navigation-item') do -%>
+                  <%= hub_category_icon(scope) %><%= scope.humanize %><span class="category-count"></span>
+                <% end -%>
+              <% end %>
             </div>
           <% end -%>
 

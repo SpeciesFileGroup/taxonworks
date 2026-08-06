@@ -90,17 +90,11 @@
       color: var(--text-muted-color);
     }
 
-    .navigation-controls.flex-wrap-row {
+    .navigation-controls.flex-wrap-row,
+    .filter-scope {
       margin: 0;
       display: flex;
       flex-direction: column;
-    }
-
-    .filter-scope {
-      margin: 0;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: var(--spacing-xs);
     }
 
     .navigation-item {
@@ -111,7 +105,8 @@
       border-radius: var(--border-radius-medium);
     }
 
-    .flex-wrap-row .navigation-item {
+    .flex-wrap-row .navigation-item,
+    .filter-scope .navigation-item {
       padding: var(--spacing-xxs);
     }
 
@@ -156,10 +151,10 @@
       gap: var(--spacing-xs);
     }
 
-    .status-chip,
-    .scope-chip {
+    .status-chip {
       display: inline-flex;
       align-items: center;
+      justify-content: flex-start;
       gap: var(--spacing-xs);
       padding: var(--spacing-xs) var(--spacing-sm);
       border: 1px solid var(--border-color);
@@ -175,26 +170,14 @@
         color 0.15s ease;
     }
 
-    .status-chip:hover,
-    .scope-chip:hover {
+    .status-chip:hover {
       background-color: var(--bg-hover);
     }
 
-    .status-chip.selected,
-    .scope-chip.activated {
+    .status-chip.selected {
       background-color: var(--color-soft-primary-bg);
       border-color: color-mix(in srgb, var(--color-primary) 35%, transparent);
       color: var(--color-primary);
-    }
-
-    .scope-chip {
-      min-width: 0;
-      justify-content: center;
-      padding: var(--spacing-xs);
-    }
-
-    .status-chip {
-      justify-content: flex-start;
     }
 
     .status-chip .status {

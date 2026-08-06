@@ -33,6 +33,27 @@ describe 'Hub', type: :feature do
         end
       end
 
+      # Scope shares the category row shape: icon, label, count. The count spans
+      # are filled client-side, and `filter.js` reads scope out of `.filter-scope`
+      # separately from the categories in `.flex-wrap-row` because the two are
+      # tallied against different filter sets.
+      specify 'each scope control has an icon and a count span' do
+        %w{filters browse new}.each do |scope|
+          selector =
+            "#filter .filter-scope .navigation-item[data-filter-category='#{scope}']"
+
+          expect(page).to have_css("#{selector} svg.category-icon", visible: :all)
+          expect(page).to have_css("#{selector} .category-count", visible: :all)
+        end
+      end
+
+      specify 'scope rows are not swept into the category count selector' do
+        expect(page).to have_no_css(
+          '#filter .flex-wrap-row .navigation-item[data-filter-category="browse"]',
+          visible: :all
+        )
+      end
+
       specify 'the panel carries a card header' do
         expect(page).to have_css('#filter .filter-card > .tw-card-header .tw-card-title',
                                  text: 'Filters', visible: :all)
