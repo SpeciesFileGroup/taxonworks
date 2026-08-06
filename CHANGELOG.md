@@ -10,6 +10,13 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ### Added
 
 - raw id search for Biological Association autocompletes
+- `New Collection Object`: Added a CO Total field to the CO form. Added a `identifier end` field that automatically increments based on the Identifier and the total number of specimens/lots being created. [#4873]
+
+### Changed
+
+- `Simple new specimen` task is now `New collection object`
+
+[#4873]: https://github.com/SpeciesFileGroup/taxonworks/issues/4873
 
 ## [0.64.0] - 2026-08-04
 
@@ -61,7 +68,6 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Add 'Exclude' option to Tags and Confidences facets in filters (for finding objects NOT satisfying the given conditions) [#4157]
 - New BA: Forms do not reset if a citation has already been created
 - Unexpected failure from api/v1/otus?extend[]=taxon_name when a returned OTU has no taxon name
-
 
 [#130]: https://github.com/SpeciesFileGroup/taxonworks/issues/130
 [#5027]: https://github.com/SpeciesFileGroup/taxonworks/issues/5027
