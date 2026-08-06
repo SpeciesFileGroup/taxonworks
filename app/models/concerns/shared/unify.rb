@@ -117,93 +117,108 @@ module Shared::Unify
       details: {},
     }
 
-    o = remove_object
-    pre_validate(o, s)
+    pre_validate(remove_object, s)
     return s if s[:result][:unified] == false
     pid = s[:result][:target_project_id]
+
+    # Whether this call intends to fully destroy remove_object (as opposed
+    # to only:/except: moving some data between the two objects).
+    will_destroy = only.empty? && except.empty?
+    destroy_key = { id: remove_object.id, type: remove_object.class.base_class.name }
 
     self.class.transaction do
       # before_unify # potential hooks, appear not to be required
 
-      merge_relations(only:, except:).each do |r|
-        n = relation_label(r)
-
-        case ::ApplicationEnumeration.relationship_type(r)
-
-        when :has_many
-          i = o.send(r.name)
-
-          unless ::ApplicationEnumeration.relation_targets_community?(r)
-            i = i.where(project_id: pid)
-          end
-
-          next unless i.any?
-
-          t = i.size
-          stub_unify_result(s, n, t)
-
-          s[:result][:total_related] += t
-          next if s[:result][:total_related] > cutoff
-
-          list_state = snapshot_list_order(r, i)
-
-          i.find_each do |j|
-            j.update(r.options[:inverse_of] => self)
-            log_unify_result(j, r, s)
-          end
-
-          restore_list_order(list_state) if list_state
-
-        when :has_one, :belongs_to
-          i = o.send(r.name)
-          if !i.nil?
-            stub_unify_result(s, n, 1)
-
-            i.update(r.options[:inverse_of] => self)
-            log_unify_result(i, r, s)
-          end
-        end
+      # Record remove_object as committed-to-destruction *before* any related
+      # records are touched below, so those related records can see, for the
+      # whole duration of this call (including any nested unify a dedup
+      # triggers), that it's already slated for destruction.
+      if will_destroy
+        UnifyDestroyContext.objects_in_destroy ||= Set.new
+        UnifyDestroyContext.objects_in_destroy << destroy_key
       end
 
-      if cutoff_hit = s[:result][:total_related] > cutoff
-        s[:result][:unified] = false
-        s[:result][:message] = "Related cutoff threshold (> #{cutoff}) hit, unify is not yet allowed on these objects."
-      elsif s[:result][:unified] != false
+      begin
+        merge_relations(only:, except:).each do |r|
+          n = relation_label(r)
 
-        begin
-          o.reload # reset all in-memory has_many caches that would prevent destroy
+          case ::ApplicationEnumeration.relationship_type(r)
 
-          unless only.any? || except.any?
-            o.destroy!
+          when :has_many
+            i = remove_object.send(r.name)
+
+            unless ::ApplicationEnumeration.relation_targets_community?(r)
+              i = i.where(project_id: pid)
+            end
+
+            next unless i.any?
+
+            t = i.size
+            stub_unify_result(s, n, t)
+
+            s[:result][:total_related] += t
+            next if s[:result][:total_related] > cutoff
+
+            list_state = snapshot_list_order(r, i)
+
+            i.find_each do |j|
+              j.update(r.options[:inverse_of] => self)
+              log_unify_result(j, r, s)
+            end
+
+            restore_list_order(list_state) if list_state
+
+          when :has_one, :belongs_to
+            i = remove_object.send(r.name)
+            if !i.nil?
+              stub_unify_result(s, n, 1)
+
+              i.update(r.options[:inverse_of] => self)
+              log_unify_result(i, r, s)
+            end
           end
-
-        rescue ActiveRecord::InvalidForeignKey => e
-          # InvalidForeignKey comes from the DB adapter, so e has no `.record`.
-          s[:result][:unified] = false
-          s[:details].merge!(
-            Object: {
-              errors: [
-                {
-                  id: o.id,
-                  exception: e.class.name,
-                  message: e.message
-                }
-              ]
-            }
-          )
-          raise ActiveRecord::Rollback
-        rescue ActiveRecord::RecordNotDestroyed => e
-          s[:result][:unified] = false
-          s[:details].merge!(
-            Object: {
-              errors: [
-                { id: e.record.id, message: e.record.errors.full_messages.join('; ') }
-              ]
-            }
-          )
-
-          raise ActiveRecord::Rollback
         end
+
+        if cutoff_hit = s[:result][:total_related] > cutoff
+          s[:result][:unified] = false
+          s[:result][:message] = "Related cutoff threshold (> #{cutoff}) hit, unify is not yet allowed on these objects."
+        elsif s[:result][:unified] != false
+
+          begin
+            remove_object.reload # reset all in-memory has_many caches that would prevent destroy
+
+            remove_object.destroy! if will_destroy
+
+          rescue ActiveRecord::InvalidForeignKey => e
+            # InvalidForeignKey comes from the DB adapter, so e has no `.record`.
+            s[:result][:unified] = false
+            s[:details].merge!(
+              Object: {
+                errors: [
+                  {
+                    id: remove_object.id,
+                    exception: e.class.name,
+                    message: e.message
+                  }
+                ]
+              }
+            )
+            raise ActiveRecord::Rollback
+          rescue ActiveRecord::RecordNotDestroyed => e
+            s[:result][:unified] = false
+            s[:details].merge!(
+              Object: {
+                errors: [
+                  { id: e.record.id, message: e.record.errors.full_messages.join('; ') }
+                ]
+              }
+            )
+
+            raise ActiveRecord::Rollback
+          end
+        end
+      ensure
+        UnifyDestroyContext.objects_in_destroy&.delete(destroy_key) if will_destroy
       end
 
       # after_unify # potential hooks, appear not to be required
@@ -271,7 +286,7 @@ module Shared::Unify
 
     if !is_community?
       if project_id != remove_object.project_id
-        s.merge!(
+        s[:result].merge!(
           unified: false,
           message: 'Danger, objects come from different projects.')
       end
@@ -285,12 +300,17 @@ module Shared::Unify
     s
   end
 
+  # @param object [ActiveRecord::Base] see log_unify_result
   def deduplicate_update_target(object)
     i = object.identical
 
     # There is exactly 1 match, merge is unambiguous
     if i.size == 1
       j = i.first
+      # object's own FK is still dirty from the failed update attempt (it
+      # points at self/KEEP, not its real enclosing remove_object); reload so
+      # the nested unify below moves object's actual remaining relations, not
+      # phantom ones based on that dirty state.
       j.unify(object.reload)
     else
       # Merge would be ambiguous, there are multiple matches
@@ -302,7 +322,15 @@ module Shared::Unify
   # objects issues by moving annotations from the
   # would-be duplicate to an identical existing record.
   #
-  # @return result Hash
+  # @param object [ActiveRecord::Base] a record in another table that has a FK
+  #   pointing to the remove_object (DESTROY) being unified away; the unify loop
+  #   just attempted to flip that FK to self (KEEP) and the attempted update is
+  #   reflected in object's in-memory state even if the save failed
+  # @param relation [ActiveRecord::Reflection] the has_many/has_one reflection
+  #   on self (KEEP) for the association being processed;
+  #   relation.options[:inverse_of] is the belongs_to on object's class whose FK
+  #   we tried to flip
+  # @param result [Hash] the running unify result accumulator
   def log_unify_result(object, relation, result)
     n = relation.name.to_s.humanize
 
@@ -318,41 +346,27 @@ module Shared::Unify
       object.save
     end
 
-    # One degree of seperation issue
-    #
-    # Here we check to see that the error is related
-    # to the object being unified, if not,
-    # we don't know how to handle this with confidence.
-    if object.errors.details.keys.include?(relation.options[:inverse_of])
-
-      # object can't be updated, move its annotations to self.
+    if object.errors.any?
+      # If the attempted move failed, it may be because an identical record
+      # already exists on self (a duplicate) - try to find and merge into it.
+      # #identical won't match unless there's a genuine duplicate, so this is
+      # safe to attempt for *any* validation failure, not just the ones that
+      # look like a uniqueness conflict.
       dedup_result = deduplicate_update_target(object)
-      unless dedup_result && dedup_result[:result][:unified]
-        result[:result][:unified] = false
-        result[:details][n][:unmerged] += 1
-        result[:details][n][:errors] ||= []
-        result[:details][n][:errors].push( {id: object.id, message: object.errors.full_messages.join('; ')} )
-      else # We unified and destroyed the duplicate
+      if dedup_result && dedup_result[:result][:unified]
         result[:details][n][:deduplicated] += 1
-      end
-
-      # THere are no errors we can fix, ensure we have a fresh copy
-      # of the object and check for validity.
-    else
-      object.reload
-      if object.invalid?
+      else
         result[:result][:unified] = false
         result[:details][n][:unmerged] += 1
         result[:details][n][:errors] ||= []
         result[:details][n][:errors].push( {id: object.id, message: object.errors.full_messages.join('; ')} )
-      else
-        result[:details][n][:merged] += 1
       end
+    else
+      result[:details][n][:merged] += 1
     end
 
     result
   end
-
 
   def stub_unify_result(result, relation_name, attempted)
     result[:details].merge!(
@@ -369,22 +383,52 @@ module Shared::Unify
   # records are re-parented, so the restore below is independent of how
   # acts_as_list repositions records during update.
   # Returns nil when the association does not use acts_as_list.
+  #
+  # Also captures each record's own acts_as_list scope column values (e.g.
+  # a TaxonDetermination's taxon_determination_object_id/_type), not just
+  # its id: existing (self's) and incoming (remove_object's) has_many
+  # members can straddle multiple *different* real acts_as_list scope
+  # groups at once - e.g. taxon determinations on different collection objects
+  # when unifying OTUs (see specs).
   def snapshot_list_order(relation, incoming)
     related_class = incoming.klass
     return nil unless related_class.respond_to?(:acts_as_list_options)
+
+    # reassigned_columns values are going to be set to self's values after a
+    # successful relation move, so *don't* scope by them when grouping
+    # acts_as_list groups (they're currently different than self! - see specs).
+    reassigned_columns = [relation.foreign_key, relation.type].compact
+    scope_columns = Array(related_class.acts_as_list_options[:scope])
+      .map { |s| resolve_acts_as_list_scope_column(related_class, s) } - reassigned_columns
+
     {
       klass: related_class,
-      existing_ids: send(relation.name).order(:position).pluck(:id),
-      incoming_ids: incoming.order(:position).pluck(:id)
+      existing: send(relation.name).order(:position).pluck(:id, *scope_columns),
+      incoming: incoming.order(:position).pluck(:id, *scope_columns)
     }
   end
 
+  # acts_as_list scope: [...] entries may be either a real column name, or
+  # a belongs_to association name that acts_as_list itself resolves to that
+  # association's foreign_key (e.g. LoanItem's `scope: [:loan, :project_id]`)
+  # - resolve the same way here so grouping in restore_list_order is keyed
+  # by the real column acts_as_list itself scopes by.
+  def resolve_acts_as_list_scope_column(klass, name)
+    return name.to_s if klass.column_names.include?(name.to_s)
+
+    r = klass.reflect_on_association(name)
+    r&.belongs_to? ? r.foreign_key : name.to_s
+  end
+
   # Re-apply the pre-merge position order captured by snapshot_list_order,
-  # appending incoming records after the surviving object's existing records.
+  # appending incoming records after the surviving object's existing
+  # records.
   def restore_list_order(state)
-    (state[:existing_ids] + state[:incoming_ids]).each_with_index do |id, idx|
-      state[:klass].where(id:).update_all(position: idx + 1)
-    end
+    (state[:existing] + state[:incoming])
+      .group_by { |row| row[1..] } # each row's own scope column values
+      .each_value do |rows|
+        rows.each_with_index { |row, idx| state[:klass].where(id: row[0]).update_all(position: idx + 1) }
+      end
   end
 
 end

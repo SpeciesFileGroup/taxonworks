@@ -47,6 +47,143 @@ describe Match::Otu::TaxonName, type: :model do
     end
   end
 
+  context 'candidates' do
+    let!(:homonym) do
+      Protonym.create!(name: 'eus', rank_class: Ranks.lookup(:iczn, :species), parent: genus).tap do |tn|
+        tn.update_columns(cached: valid_species.cached)
+      end
+    end
+
+    specify 'are not included by default' do
+      expect(match(names: [valid_species.cached]).first).not_to have_key(:candidates)
+    end
+
+    specify 'are returned, ranked, when requested' do
+      result = match(names: [valid_species.cached], candidates: 5).first
+      expect(result[:candidates].map(&:id)).to contain_exactly(valid_species.id, homonym.id)
+    end
+
+    specify 'are capped at the requested count' do
+      result = match(names: [valid_species.cached], candidates: 1).first
+      expect(result[:candidates].size).to eq(1)
+    end
+
+    specify 'are empty when nothing matches' do
+      expect(match(names: ['Nus nus'], candidates: 5).first[:candidates]).to eq([])
+    end
+  end
+
+  context 'match_original_combination' do
+    let!(:recombined) do
+      Protonym.create!(name: 'fus', rank_class: Ranks.lookup(:iczn, :species), parent: genus).tap do |tn|
+        tn.update_columns(cached_original_combination: 'Xus fus')
+      end
+    end
+
+    specify 'the original combination is not matched by default' do
+      expect(match(names: ['Xus fus']).first[:matched]).to eq(false)
+    end
+
+    specify 'the original combination is matched when enabled' do
+      result = match(names: ['Xus fus'], match_original_combination: true).first
+      expect(result[:taxon_name_id]).to eq(recombined.id)
+    end
+  end
+
+  context 'use_author_year' do
+    let!(:authored) do
+      Protonym.create!(name: 'gus', rank_class: Ranks.lookup(:iczn, :species), parent: genus).tap do |tn|
+        tn.update_columns(cached: 'Aus gus', cached_author_year: 'Smith, 1920')
+      end
+    end
+
+    specify 'author/year is not consulted when a single candidate matches' do
+      result = match(names: ['Aus gus Jones, 1899'], use_author_year: true).first
+      expect(result[:taxon_name_id]).to eq(authored.id)
+    end
+
+    context 'when more than one candidate matches' do
+      let!(:other_authored) do
+        Protonym.create!(name: 'hus', rank_class: Ranks.lookup(:iczn, :species), parent: genus).tap do |tn|
+          tn.update_columns(cached: 'Aus gus', cached_author_year: 'Jones, 1899')
+        end
+      end
+
+      specify 'author/year differentiates the match' do
+        result = match(names: ['Aus gus Jones, 1899'], use_author_year: true).first
+        expect(result[:taxon_name_id]).to eq(other_authored.id)
+      end
+
+      specify 'all candidates are retained when none match the author/year' do
+        result = match(names: ['Aus gus Brown, 1800'], use_author_year: true, candidates: 5).first
+        expect(result[:candidates].map(&:id)).to contain_exactly(authored.id, other_authored.id)
+      end
+    end
+  end
+
+  context 'fuzzy matching' do
+    specify 'matches within the levenshtein distance' do
+      result = match(names: ['Aus bux'], levenshtein_distance: 2).first
+      expect(result[:taxon_name_id]).to eq(valid_species.id)
+    end
+
+    specify 'does not match beyond the levenshtein distance' do
+      expect(match(names: ['Aus bux'], levenshtein_distance: 0).first[:matched]).to eq(false)
+    end
+
+    specify 'matches with the trigram prefilter enabled' do
+      result = match(names: ['Aus bux'], levenshtein_distance: 2, trigram_prefilter: true).first
+      expect(result[:taxon_name_id]).to eq(valid_species.id)
+    end
+
+    context 'across cached and cached_original_combination' do
+      let!(:recombined) do
+        Protonym.create!(name: 'jus', rank_class: Ranks.lookup(:iczn, :species), parent: genus).tap do |tn|
+          tn.update_columns(cached_original_combination: 'Yus jus')
+        end
+      end
+
+      specify 'matches the nearest of the two columns' do
+        result = match(
+          names: ['Yus jux'],
+          levenshtein_distance: 2,
+          match_original_combination: true,
+          trigram_prefilter: true
+        ).first
+
+        expect(result[:taxon_name_id]).to eq(recombined.id)
+      end
+    end
+  end
+
+  context 'taxon_name_query' do
+    let(:other_genus) { Protonym.create!(name: 'Xus', rank_class: Ranks.lookup(:iczn, :genus), parent: root) }
+
+    let!(:out_of_scope) do
+      Protonym.create!(name: 'ius', rank_class: Ranks.lookup(:iczn, :species), parent: other_genus).tap do |tn|
+        tn.update_columns(cached: 'Zus zus')
+      end
+    end
+
+    specify 'restricts matches to the query result' do
+      result = match(
+        names: ['Zus zus'],
+        taxon_name_query: { taxon_name_id: [genus.id], descendants: true }
+      ).first
+
+      expect(result[:matched]).to eq(false)
+    end
+
+    specify 'matches within the query result' do
+      result = match(
+        names: ['Zus zus'],
+        taxon_name_query: { taxon_name_id: [other_genus.id], descendants: true }
+      ).first
+
+      expect(result[:taxon_name_id]).to eq(out_of_scope.id)
+    end
+  end
+
   context 'ambiguous' do
     context 'when multiple candidates share a cached name but resolve to the same valid taxon (e.g. a Combination alongside its own Protonym)' do
       let!(:combination_like) do

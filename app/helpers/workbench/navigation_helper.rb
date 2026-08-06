@@ -5,7 +5,7 @@ module Workbench::NavigationHelper
 
   NO_NEW_FORMS = %w{Confidence Attribution ObservationMatrixRowItem ObservationMatrixColumnItem ObservationMatrixRow ObservationMatrixColumn Note Tag
   Citation Identifier DataAttribute AlternateValue TaxonNameClassification
-  GeographicArea ContainerItem ProtocolRelationship Download}.freeze
+  GeographicArea ContainerItem ProtocolRelationship Download ProjectOrganization}.freeze
 
   NOT_DATA_PATHS = %w{/project /administration /user}.freeze
 
@@ -64,6 +64,7 @@ module Workbench::NavigationHelper
   end
 
   # @return [Boolean]
+  # TODO:  Should be IsData controller check, we don't want to maintain NOT_DATA_PATHS
   def on_workbench?
     !(request.path =~ /#{NOT_DATA_PATHS.join('|')}/)
   end
@@ -154,7 +155,6 @@ module Workbench::NavigationHelper
       ], ''), class: :disabled)
     end
   end
-
   def download_for_model_link(model)
     content = safe_join([
       model_action_icon('download'),

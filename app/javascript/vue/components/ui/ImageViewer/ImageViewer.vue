@@ -151,7 +151,11 @@
         class="cursor-pointer"
         @click="isModalVisible = true"
       >
-        <slot>
+        <slot
+          :image="imageObject"
+          :url="thumbUrlSrc"
+          :depiction="depiction"
+        >
           <div :class="[`depiction-${thumbSize}-image`]">
             <img
               class="img-thumb"

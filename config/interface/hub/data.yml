@@ -76,13 +76,6 @@ Core: # a Section
     related_models:
       - Serial
       - People
-  ProjectSource:
-    status: :stable
-    related_models:
-      - Source
-      - Person
-    categories:
-      - source
   BiologicalAssociation:
     status: :prototype
     related_models:
@@ -336,6 +329,17 @@ Supporting:
     shared: true
     categories:
       - collection_object
+  ProjectSource:
+    status: :stable
+    related_models:
+      - Source
+      - Person
+    categories:
+      - source
+  ProjectOrganization:
+    status: :prototype
+    related_models:
+      - Organization
   Protocol:
     status: :prototype
     related_models:
