@@ -14,20 +14,17 @@
   </ul>
 
   <template v-else>
-    <v-icon
+    <VIcon
       v-if="isLoading"
       small
       name="question"
       color="gray"
       title="Loading validation."
     />
-    <v-icon
+    <IconCircleCheckBig
       v-else-if="!validations.length"
-      small
-      name="check"
-      color="green"
-      title="Validation passed."
-      class="cursor-pointer"
+      class="w-4 h-4 text-create-color"
+      v-tooltip="'Validation passed.'"
     />
     <VBtn
       v-else-if="validations.length"
@@ -41,7 +38,7 @@
         @click="setModalView(true)"
       />
     </VBtn>
-    <modal-component
+    <ModalComponent
       v-if="showModal"
       @close="setModalView(false)"
     >
@@ -64,94 +61,82 @@
           </li>
         </ul>
       </template>
-    </modal-component>
+    </ModalComponent>
   </template>
 </template>
 
-<script>
+<script setup>
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
+import IconCircleCheckBig from '@/components/Icon/IconCircleCheckBig.vue'
 import ModalComponent from '@/components/ui/Modal.vue'
 import { SoftValidation } from '@/routes/endpoints'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import IconWarning from '@/components/Icon/IconWarning.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import { vTooltip } from '@/directives/tooltip.js'
 
-export default {
-  components: {
-    ModalComponent,
-    VIcon,
-    VBtn,
-    IconWarning
+const props = defineProps({
+  globalId: {
+    type: String,
+    required: true
   },
 
-  props: {
-    globalId: {
-      type: String,
-      required: true
-    },
-
-    validateObject: {
-      type: Object,
-      default: undefined
-    },
-
-    inPlace: {
-      type: Boolean,
-      default: false
-    }
+  validateObject: {
+    type: Object,
+    default: undefined
   },
 
-  data() {
-    return {
-      validations: [],
-      showModal: false,
-      isLoading: false,
-      cancelRequest: undefined
-    }
-  },
-
-  watch: {
-    validateObject: {
-      handler(newVal) {
-        if (newVal) {
-          this.getSoftValidation()
-        }
-      },
-      deep: true
-    }
-  },
-
-  mounted() {
-    this.getSoftValidation()
-  },
-
-  methods: {
-    getSoftValidation() {
-      this.isLoading = true
-      SoftValidation.find(this.globalId, {
-        cancelRequest: (c) => {
-          this.cancelRequest = c
-        }
-      })
-        .then((response) => {
-          this.validations = response.body.soft_validations.map(
-            (validation) => validation.message
-          )
-        })
-        .catch((_) => {})
-        .finally(() => {
-          this.isLoading = false
-        })
-    },
-
-    setModalView(value) {
-      this.showModal = value
-    }
-  },
-
-  beforeUnmount() {
-    if (this.cancelRequest) {
-      this.cancelRequest()
-    }
+  inPlace: {
+    type: Boolean,
+    default: false
   }
+})
+
+const validations = ref([])
+const showModal = ref(false)
+const isLoading = ref(false)
+
+let cancelRequest
+
+watch(
+  () => props.validateObject,
+  (newVal) => {
+    if (newVal) {
+      getSoftValidation()
+    }
+  },
+  { deep: true }
+)
+
+onMounted(() => {
+  getSoftValidation()
+})
+
+onBeforeUnmount(() => {
+  if (cancelRequest) {
+    cancelRequest()
+  }
+})
+
+function getSoftValidation() {
+  isLoading.value = true
+  SoftValidation.find(props.globalId, {
+    cancelRequest: (c) => {
+      cancelRequest = c
+    }
+  })
+    .then((response) => {
+      validations.value = response.body.soft_validations.map(
+        (validation) => validation.message
+      )
+    })
+    .catch((_) => {})
+    .finally(() => {
+      isLoading.value = false
+    })
+}
+
+function setModalView(value) {
+  showModal.value = value
 }
 </script>
